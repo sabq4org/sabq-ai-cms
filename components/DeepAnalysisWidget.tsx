@@ -374,7 +374,9 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            router.push(`/categories/${categoryName}`);
+                            // استخدام slug الفئة بدلاً من الاسم
+                            const categorySlug = article.category?.slug || 'general';
+                            router.push(`/categories/${categorySlug}`);
                           }}
                           style={{ cursor: 'pointer' }}
                         >

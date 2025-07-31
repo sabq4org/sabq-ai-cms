@@ -726,7 +726,7 @@ function NewspaperHomePage({
                       {/* زر عرض جميع المقالات */}
                       <div className="text-center mt-8">
                         <Link 
-                          href={`/categories/${categories.find(c => c.id === selectedCategory)?.slug || categories.find(c => c.id === selectedCategory)?.name_ar?.toLowerCase().replace(/\s+/g, '-')}`}
+                          href={`/categories/${categories.find(c => c.id === selectedCategory)?.slug || 'general'}`}
                           className={`group inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold text-base transition-all duration-300 transform hover:scale-105 shadow-lg dark:shadow-gray-900/50 hover:shadow-xl dark:shadow-gray-900/50 ${darkMode ? 'bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white' : 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white'}`}>
                           <span>عرض جميع مقالات {categories.find(c => c.id === selectedCategory)?.name_ar}</span>
                           <ArrowLeft className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
