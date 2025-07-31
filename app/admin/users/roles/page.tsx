@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
+import RoleFormModal from '@/components/admin/RoleFormModal';
 import toast from 'react-hot-toast';
 import {
   Plus,
@@ -45,6 +46,7 @@ interface Role {
   usersCount: number;
   permissions: string[];
   isActive: boolean;
+  isSystem: boolean;
   color: string;
   createdAt: string;
   level: number;
@@ -65,6 +67,8 @@ export default function UserRolesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingRole, setEditingRole] = useState<Role | null>(null);
   const [stats, setStats] = useState({
     totalRoles: 0,
     activeRoles: 0,
@@ -132,6 +136,79 @@ export default function UserRolesPage() {
     return acc;
   }, {} as Record<string, Permission[]>);
 
+  // فتح نموذج إضافة دور جديد
+  const handleAddRole = () => {
+    setEditingRole(null);
+    setIsModalOpen(true);
+  };
+
+  // فتح نموذج تعديل دور
+  const handleEditRole = (role: Role) => {
+    setEditingRole(role);
+    setIsModalOpen(true);
+  };
+
+  // حذف دور
+  const handleDeleteRole = async (roleId: string) => {
+    if (!confirm('هل أنت متأكد من حذف هذا الدور؟')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/roles/${roleId}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success('تم حذف الدور بنجاح');
+        fetchRolesData();
+      } else {
+        toast.error(data.error || 'فشل في حذف الدور');
+      }
+    } catch (error) {
+      console.error('خطأ في حذف الدور:', error);
+      toast.error('حدث خطأ في حذف الدور');
+    }
+  };
+
+  // تبديل حالة الدور (تفعيل/تعطيل)
+  const handleToggleRole = async (roleId: string, isActive: boolean) => {
+    try {
+      const response = await fetch(`/api/roles/${roleId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ isActive: !isActive }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success(isActive ? 'تم تعطيل الدور' : 'تم تفعيل الدور');
+        fetchRolesData();
+      } else {
+        toast.error(data.error || 'فشل في تحديث حالة الدور');
+      }
+    } catch (error) {
+      console.error('خطأ في تحديث حالة الدور:', error);
+      toast.error('حدث خطأ في تحديث حالة الدور');
+    }
+  };
+
+  // إغلاق النموذج
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingRole(null);
+  };
+
+  // نجاح العملية
+  const handleSuccess = () => {
+    fetchRolesData();
+  };
+
   return (
     <DashboardLayout 
       pageTitle="إدارة الأدوار والصلاحيات"
@@ -148,7 +225,10 @@ export default function UserRolesPage() {
             {/* شريط الأدوات العلوي */}
             <div className="flex flex-col sm:flex-row gap-4 justify-between">
               <div className="flex gap-2">
-                <Button className="bg-blue-600 hover:bg-blue-700">
+                <Button 
+                  className="bg-blue-600 hover:bg-blue-700"
+                  onClick={handleAddRole}
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   دور جديد
                 </Button>
@@ -237,7 +317,7 @@ export default function UserRolesPage() {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
-                                <DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleEditRole(role)}>
                                   <Edit className="h-4 w-4 mr-2" />
                                   تحرير
                                 </DropdownMenuItem>
@@ -245,12 +325,24 @@ export default function UserRolesPage() {
                                   <Users className="h-4 w-4 mr-2" />
                                   عرض المستخدمين
                                 </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                  <Key className="h-4 w-4 mr-2" />
-                                  إدارة الصلاحيات
+                                <DropdownMenuItem onClick={() => handleToggleRole(role.id, role.isActive)}>
+                                  {role.isActive ? (
+                                    <>
+                                      <EyeOff className="h-4 w-4 mr-2" />
+                                      تعطيل
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Eye className="h-4 w-4 mr-2" />
+                                      تفعيل
+                                    </>
+                                  )}
                                 </DropdownMenuItem>
-                                {!['super_admin', 'admin'].includes(role.name) && (
-                                  <DropdownMenuItem className="text-red-600">
+                                {!role.isSystem && (
+                                  <DropdownMenuItem 
+                                    className="text-red-600"
+                                    onClick={() => handleDeleteRole(role.id)}
+                                  >
                                     <Trash2 className="h-4 w-4 mr-2" />
                                     حذف
                                   </DropdownMenuItem>
@@ -282,7 +374,11 @@ export default function UserRolesPage() {
                             <Users className="h-4 w-4" />
                             <span>{role.usersCount} مستخدم</span>
                           </div>
-                          <Button size="sm" variant="outline">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleEditRole(role)}
+                          >
                             <Edit className="h-4 w-4 mr-1" />
                             تحرير
                           </Button>
@@ -308,7 +404,10 @@ export default function UserRolesPage() {
                       قم بإنشاء دور جديد وتحديد صلاحياته
                     </p>
                   </div>
-                  <Button className="bg-blue-600 hover:bg-blue-700">
+                  <Button 
+                    className="bg-blue-600 hover:bg-blue-700"
+                    onClick={handleAddRole}
+                  >
                     <Plus className="h-4 w-4 mr-2" />
                     إنشاء دور
                   </Button>
@@ -386,6 +485,15 @@ export default function UserRolesPage() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* نموذج إضافة/تعديل الدور */}
+      <RoleFormModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSuccess={handleSuccess}
+        role={editingRole}
+        permissions={permissions}
+      />
     </DashboardLayout>
   );
 }

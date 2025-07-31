@@ -4,72 +4,64 @@ import prisma from '@/lib/prisma';
 // GET: جلب جميع الأدوار والصلاحيات
 export async function GET(request: NextRequest) {
   try {
-    // جلب جميع الأدوار الفريدة من المستخدمين
-    const uniqueRoles = await prisma.users.groupBy({
-      by: ['role'],
-      _count: {
-        role: true
-      }
-    });
+    // التحقق من وجود جدول roles
+    const tablesExist = await checkTablesExist();
+    
+    if (!tablesExist) {
+      // إذا لم توجد الجداول، استخدم النظام القديم
+      return await getOldSystemRoles();
+    }
 
-    // جلب عدد المستخدمين الإجماليين
+    // جلب جميع الأدوار من جدول roles
+    const roles = await prisma.$queryRaw`
+      SELECT 
+        r.*,
+        COUNT(DISTINCT u.id) as users_count
+      FROM roles r
+      LEFT JOIN users u ON u.role = r.name
+      GROUP BY r.id
+      ORDER BY r.created_at ASC
+    `;
+
+    // جلب جميع الصلاحيات
+    const permissions = await prisma.$queryRaw`
+      SELECT * FROM permissions ORDER BY category, name
+    `;
+
+    // جلب الإحصائيات
     const totalUsers = await prisma.users.count();
+    const adminUsers = await prisma.users.count({ where: { is_admin: true } });
 
-    // جلب عدد المستخدمين المدراء
-    const adminCount = await prisma.users.count({
-      where: { is_admin: true }
-    });
-
-    // جلب أقدم مستخدم لكل دور لمعرفة تاريخ إنشاء الدور
-    const roleCreationDates = await prisma.users.groupBy({
-      by: ['role'],
-      _min: {
-        created_at: true
-      }
-    });
-
-    // تحويل الأدوار إلى التنسيق المطلوب
-    const rolesData = uniqueRoles.map((roleGroup, index) => {
-      const role = roleGroup.role;
-      const count = roleGroup._count.role;
-
-      // تحديد خصائص الدور بناءً على اسمه
-      const roleDetails = getRoleDetails(role);
-      
-      // الحصول على تاريخ إنشاء الدور من أقدم مستخدم
-      const creationDate = roleCreationDates.find(r => r.role === role)?._min.created_at || new Date();
+    // تحويل البيانات للتنسيق المطلوب
+    const formattedRoles = roles.map((role: any) => {
+      // تحديد اللون والمستوى بناءً على اسم الدور
+      const roleDetails = getRoleDetails(role.name);
       
       return {
-        id: `role-${index + 1}`,
-        name: role,
-        displayName: roleDetails.displayName,
-        description: roleDetails.description,
-        usersCount: count,
-        permissions: roleDetails.permissions,
-        isActive: true,
+        id: role.id,
+        name: role.name,
+        displayName: role.display_name || roleDetails.displayName,
+        description: role.description || roleDetails.description,
+        usersCount: parseInt(role.users_count),
+        permissions: role.permissions || roleDetails.permissions,
+        isActive: true, // افتراض أن جميع الأدوار نشطة
         color: roleDetails.color,
-        createdAt: creationDate.toISOString(),
-        level: roleDetails.level
+        createdAt: role.created_at,
+        level: roleDetails.level,
+        isSystem: role.is_system || roleDetails.level <= 1
       };
     });
 
-    // ترتيب الأدوار حسب المستوى
-    rolesData.sort((a, b) => a.level - b.level);
-
-    // إحصائيات إضافية
-    const stats = {
-      totalRoles: rolesData.length,
-      activeRoles: rolesData.filter(r => r.isActive).length,
-      totalUsers: totalUsers,
-      adminUsers: adminCount
-    };
-
     return NextResponse.json({
       success: true,
-      roles: rolesData,
-      stats,
-      // الصلاحيات المتاحة في النظام
-      permissions: getSystemPermissions()
+      roles: formattedRoles,
+      permissions: permissions,
+      stats: {
+        totalRoles: formattedRoles.length,
+        activeRoles: formattedRoles.filter((r: any) => r.isActive).length,
+        totalUsers: totalUsers,
+        adminUsers: adminUsers
+      }
     });
 
   } catch (error: any) {
@@ -83,6 +75,138 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+// POST: إضافة دور جديد
+export async function POST(request: NextRequest) {
+  try {
+    const data = await request.json();
+    const { name, displayName, description, permissions } = data;
+
+    // التحقق من البيانات المطلوبة
+    if (!name || !displayName) {
+      return NextResponse.json(
+        { success: false, error: 'الاسم والاسم المعروض مطلوبان' },
+        { status: 400 }
+      );
+    }
+
+    // إنشاء slug من الاسم
+    const slug = name.toLowerCase().replace(/\s+/g, '-');
+
+    // إنشاء الدور
+    const newRole = await prisma.$queryRaw`
+      INSERT INTO roles (id, name, slug, display_name, description, permissions, is_system)
+      VALUES (
+        concat('role_', extract(epoch from now())::bigint::text, '_', substr(md5(random()::text), 1, 8)),
+        ${name}, 
+        ${slug},
+        ${displayName}, 
+        ${description || ''}, 
+        ${permissions ? JSON.stringify(permissions) : '[]'}::jsonb,
+        false
+      )
+      RETURNING *
+    `;
+
+    return NextResponse.json({
+      success: true,
+      role: newRole[0],
+      message: 'تم إنشاء الدور بنجاح'
+    });
+
+  } catch (error: any) {
+    console.error('خطأ في إنشاء الدور:', error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'فشل في إنشاء الدور',
+        details: error?.message || 'خطأ غير معروف'
+      },
+      { status: 500 }
+    );
+  }
+}
+
+// دالة للتحقق من وجود الجداول
+async function checkTablesExist() {
+  try {
+    await prisma.$queryRaw`SELECT 1 FROM roles LIMIT 1`;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// دالة للحصول على الأدوار من النظام القديم
+async function getOldSystemRoles() {
+  // جلب جميع الأدوار الفريدة من المستخدمين
+  const uniqueRoles = await prisma.users.groupBy({
+    by: ['role'],
+    _count: {
+      role: true
+    }
+  });
+
+  // جلب عدد المستخدمين الإجماليين
+  const totalUsers = await prisma.users.count();
+
+  // جلب عدد المستخدمين المدراء
+  const adminCount = await prisma.users.count({
+    where: { is_admin: true }
+  });
+
+  // جلب أقدم مستخدم لكل دور لمعرفة تاريخ إنشاء الدور
+  const roleCreationDates = await prisma.users.groupBy({
+    by: ['role'],
+    _min: {
+      created_at: true
+    }
+  });
+
+  // تحويل الأدوار إلى التنسيق المطلوب
+  const rolesData = uniqueRoles.map((roleGroup, index) => {
+    const role = roleGroup.role;
+    const count = roleGroup._count.role;
+
+    // تحديد خصائص الدور بناءً على اسمه
+    const roleDetails = getRoleDetails(role);
+    
+    // الحصول على تاريخ إنشاء الدور من أقدم مستخدم
+    const creationDate = roleCreationDates.find(r => r.role === role)?._min.created_at || new Date();
+    
+    return {
+      id: `role-${index + 1}`,
+      name: role,
+      displayName: roleDetails.displayName,
+      description: roleDetails.description,
+      usersCount: count,
+      permissions: roleDetails.permissions,
+      isActive: true,
+      color: roleDetails.color,
+      createdAt: creationDate.toISOString(),
+      level: roleDetails.level
+    };
+  });
+
+  // ترتيب الأدوار حسب المستوى
+  rolesData.sort((a, b) => a.level - b.level);
+
+  // إحصائيات إضافية
+  const stats = {
+    totalRoles: rolesData.length,
+    activeRoles: rolesData.filter(r => r.isActive).length,
+    totalUsers: totalUsers,
+    adminUsers: adminCount
+  };
+
+  return NextResponse.json({
+    success: true,
+    roles: rolesData,
+    stats,
+    // الصلاحيات المتاحة في النظام
+    permissions: getSystemPermissions()
+  });
 }
 
 // دالة لتحديد تفاصيل كل دور
@@ -103,10 +227,17 @@ function getRoleDetails(role: string) {
       level: 1
     },
     'editor': {
-      displayName: 'محرر',
+      displayName: 'محرر أول',
       description: 'تحرير ونشر المقالات والمحتوى',
       permissions: ['articles.*', 'media.*', 'categories.view'],
       color: 'blue',
+      level: 2
+    },
+    'content-manager': {
+      displayName: 'مدير محتوى',
+      description: 'إدارة المحتوى والنشر',
+      permissions: ['articles.*', 'media.*', 'categories.*'],
+      color: 'purple',
       level: 2
     },
     'correspondent': {
@@ -116,12 +247,33 @@ function getRoleDetails(role: string) {
       color: 'purple',
       level: 3
     },
+    'moderator': {
+      displayName: 'مشرف',
+      description: 'مراقبة وإدارة التعليقات والمحتوى',
+      permissions: ['comments.*', 'articles.view'],
+      color: 'yellow',
+      level: 3
+    },
     'author': {
       displayName: 'كاتب',
       description: 'كتابة المقالات والمحتوى',
       permissions: ['articles.create', 'articles.edit', 'media.upload'],
       color: 'green',
       level: 4
+    },
+    'كاتب': {
+      displayName: 'كاتب',
+      description: 'كتابة المقالات والمحتوى',
+      permissions: ['articles.create', 'articles.edit', 'media.upload'],
+      color: 'green',
+      level: 4
+    },
+    'member': {
+      displayName: 'عضو',
+      description: 'عضو في المنتدى والتفاعل',
+      permissions: ['articles.view', 'comments.create', 'forum.*'],
+      color: 'blue',
+      level: 5
     },
     'subscriber': {
       displayName: 'مشترك',
