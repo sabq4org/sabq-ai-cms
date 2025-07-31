@@ -191,15 +191,29 @@ export async function POST(request: NextRequest) {
         || `article-${Date.now()}`; // fallback إذا كان العنوان فارغ
     };
     
+    // تنقية البيانات للتأكد من مطابقتها لنموذج articles
+    const articleData = {
+      id: data.id || generateId(),
+      title: data.title,
+      slug: data.slug || generateSlug(data.title),
+      content: data.content,
+      excerpt: data.excerpt || null,
+      author_id: data.author_id || '00000000-0000-0000-0000-000000000001', // مستخدم افتراضي
+      category_id: data.category_id,
+      status: data.status || 'draft',
+      featured: data.featured || false,
+      breaking: data.breaking || false,
+      featured_image: data.featured_image || null,
+      created_at: new Date(),
+      updated_at: new Date(),
+      published_at: data.status === 'published' ? new Date() : null,
+      metadata: data.metadata || {}
+    };
+    
+    console.log('📝 بيانات المقال المنقاة:', articleData);
+    
     const article = await prisma.articles.create({
-      data: {
-        ...data,
-        id: data.id || generateId(),
-        slug: data.slug || generateSlug(data.title),
-        created_at: new Date(),
-        updated_at: new Date(),
-        published_at: data.status === 'published' ? new Date() : null
-      }
+      data: articleData
     })
     
     return NextResponse.json({
