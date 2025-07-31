@@ -432,6 +432,16 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
               }
               
               if (article) {
+                // تحليل metadata إذا كانت string
+                if (article.metadata && typeof article.metadata === 'string') {
+                  try {
+                    article.metadata = JSON.parse(article.metadata);
+                  } catch (e) {
+                    console.error('❌ خطأ في تحليل metadata:', e);
+                    article.metadata = {};
+                  }
+                }
+                
                 console.log('📋 الكلمات المفتاحية المستلمة:', {
                   'article.keywords': article.keywords,
                   'article.metadata': article.metadata,
@@ -442,18 +452,18 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                 // تحديث بيانات النموذج
                 setFormData({
                   title: article.title || '',
-                  subtitle: article.subtitle || '',
+                  subtitle: article.metadata?.subtitle || '',
                   excerpt: article.excerpt || '',
                   content: article.content || '',
                   authorId: article.author_id || defaultReporterId || '',
                   categoryId: article.category_id || defaultCategoryId || '',
-                  type: article.type || 'local',
-                  isBreaking: article.metadata?.is_breaking || article.is_breaking || false,
-                  isFeatured: article.metadata?.is_featured || article.is_featured || false,
+                  type: article.metadata?.type || 'local',
+                  isBreaking: article.metadata?.is_breaking || article.breaking || false,
+                  isFeatured: article.metadata?.is_featured || article.featured || false,
                   featuredImage: article.featured_image || '',
-                  featuredImageCaption: article.image_caption || '',
-                  gallery: article.metadata?.gallery || article.gallery || [],
-                  externalLink: article.external_link || '',
+                  featuredImageCaption: article.metadata?.image_caption || '',
+                  gallery: article.metadata?.gallery || [],
+                  externalLink: article.metadata?.external_link || '',
                   publishType: 'now',
                   scheduledDate: '',
                   keywords: (() => {
@@ -594,7 +604,7 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
         // حقول SEO مباشرة
         seo_title: formData.seoTitle || null,
         seo_description: formData.seoDescription || null,
-        seo_keywords: formData.keywords.join(', ') || null,
+        seo_keywords: formData.keywords.length > 0 ? formData.keywords.join(', ') : null,
         // metadata كـ JSON للحقول الإضافية
         metadata: {
           subtitle: formData.subtitle || null,
