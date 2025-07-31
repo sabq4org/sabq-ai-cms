@@ -183,6 +183,13 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
     
+    if (!data.author_id) {
+      return NextResponse.json({
+        success: false,
+        error: 'يجب تحديد كاتب المقال'
+      }, { status: 400 })
+    }
+    
     // توليد slug من العنوان
     const generateSlug = (title: string): string => {
       return title
@@ -206,12 +213,15 @@ export async function POST(request: NextRequest) {
       slug: data.slug || generateSlug(data.title),
       content: data.content,
       excerpt: data.excerpt || data.summary || null,
-      author_id: data.author_id || '00000000-0000-0000-0000-000000000001', // مستخدم افتراضي
+      author_id: data.author_id, // يجب أن يكون موجوداً من الواجهة
       category_id: data.category_id,
       status: data.status || 'draft',
       featured: isFeatured,
       breaking: isBreaking,
       featured_image: data.featured_image || null,
+      seo_title: data.seo_title || null,
+      seo_description: data.seo_description || null,
+      seo_keywords: data.seo_keywords || null,
       created_at: new Date(),
       updated_at: new Date(),
       published_at: data.status === 'published' ? new Date() : null,
@@ -264,10 +274,36 @@ export async function POST(request: NextRequest) {
     }
     
     if (error.code === 'P2003') {
+      const field = error.meta?.field_name || 'unknown';
+      let message = 'خطأ في البيانات المرجعية';
+      let details = 'التصنيف أو المؤلف غير موجود';
+      
+      console.error('🔍 تفاصيل خطأ P2003:', {
+        field,
+        meta: error.meta,
+        receivedData: {
+          author_id: data.author_id,
+          category_id: data.category_id
+        }
+      });
+      
+      if (field.includes('author')) {
+        message = 'المستخدم المحدد غير موجود';
+        details = `معرف المستخدم: ${data.author_id}`;
+      } else if (field.includes('category')) {
+        message = 'التصنيف المحدد غير موجود';
+        details = `معرف التصنيف: ${data.category_id}`;
+      }
+      
       return NextResponse.json({
         success: false,
-        error: 'خطأ في البيانات المرجعية',
-        details: 'التصنيف أو المؤلف غير موجود'
+        error: message,
+        details,
+        debug: {
+          field,
+          author_id: data.author_id,
+          category_id: data.category_id
+        }
       }, { status: 400 })
     }
     
