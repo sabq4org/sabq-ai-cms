@@ -204,7 +204,27 @@ export async function PATCH(
   const { id } = await context.params
   
   try {
-    const data = await request.json()
+    // فحص Debug Mode
+    const debugMode = request.headers.get('X-Debug-Mode') === 'true';
+    
+    let data;
+    try {
+      data = await request.json()
+    } catch (jsonError) {
+      console.error('❌ خطأ في قراءة JSON:', jsonError);
+      return NextResponse.json({
+        success: false,
+        error: 'البيانات المرسلة غير صالحة',
+        details: 'Invalid JSON in request body'
+      }, { status: 400 })
+    }
+    
+    if (debugMode) {
+      console.group(`🔍 DEBUG: تحديث المقال ${id}`);
+      console.log('⏰ الوقت:', new Date().toISOString());
+      console.log('📥 البيانات الخام:', JSON.stringify(data, null, 2));
+    }
+    
     console.log('📥 البيانات المستلمة للتحديث:', data)
     console.log('📦 metadata المستلمة:', data.metadata)
     
@@ -343,6 +363,11 @@ export async function PATCH(
         }
       }
       
+      if (debugMode) {
+        console.log('✅ تحديث ناجح:', updatedArticle.id);
+        console.groupEnd();
+      }
+      
       return NextResponse.json({
         success: true,
         article: updatedArticle
@@ -374,11 +399,28 @@ export async function PATCH(
     
   } catch (error: any) {
     console.error('❌ خطأ في تحديث المقال:', error)
+    console.error('📋 تفاصيل الخطأ:', {
+      message: error.message,
+      stack: error.stack,
+      code: error.code,
+      articleId: id
+    })
+    
+    // في حالة Debug Mode، أرسل تفاصيل أكثر
+    const isDebug = request.headers.get('X-Debug-Mode') === 'true';
     
     return NextResponse.json({
       success: false,
       error: 'فشل تحديث المقال',
-      details: error.message || 'خطأ غير معروف'
+      details: error.message || 'خطأ غير معروف',
+      ...(isDebug ? {
+        debug: {
+          errorType: error.constructor.name,
+          errorCode: error.code,
+          articleId: id,
+          timestamp: new Date().toISOString()
+        }
+      } : {})
     }, { status: 500 })
   }
 }
