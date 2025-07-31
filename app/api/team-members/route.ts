@@ -3,6 +3,9 @@ import prisma from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
+    // التأكد من الاتصال بقاعدة البيانات
+    await prisma.$connect();
+    
     console.log('📊 جلب أعضاء الفريق...');
     
     // جلب أعضاء الفريق من الجدول المخصص
@@ -48,6 +51,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // التأكد من الاتصال بقاعدة البيانات
+    await prisma.$connect();
+    
     const data = await request.json();
     console.log('➕ إضافة عضو جديد:', data.name);
     
@@ -85,26 +91,24 @@ export async function POST(request: NextRequest) {
     const newOrder = (maxOrder[0]?.max_order || 0) + 1;
     
     // إضافة العضو الجديد
-    const newMember = await prisma.$executeRawUnsafe(`
+    const newMember = await prisma.$queryRaw`
       INSERT INTO team_members (
         name, email, role, department, position, bio, 
         avatar, phone, social_links, is_active, display_order
       ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
+        ${data.name}, 
+        ${data.email}, 
+        ${data.role}, 
+        ${data.department || null}, 
+        ${data.position || null}, 
+        ${data.bio || null}, 
+        ${data.avatar || null}, 
+        ${data.phone || null}, 
+        ${JSON.stringify(data.social_links || {})}, 
+        ${data.is_active !== false}, 
+        ${newOrder}
       ) RETURNING *
-    `,
-      data.name,
-      data.email,
-      data.role,
-      data.department || null,
-      data.position || null,
-      data.bio || null,
-      data.avatar || null,
-      data.phone || null,
-      JSON.stringify(data.social_links || {}),
-      data.is_active !== false,
-      newOrder
-    );
+    `;
     
     console.log('✅ تم إضافة العضو بنجاح');
     
@@ -116,11 +120,41 @@ export async function POST(request: NextRequest) {
     
   } catch (error: any) {
     console.error('❌ خطأ في إضافة العضو:', error);
+    console.error('Stack trace:', error.stack);
+    console.error('Error code:', error.code);
+    
+    // معالجة أخطاء محددة
+    if (error.code === 'P2010') {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'خطأ في تنفيذ الاستعلام',
+          details: 'تحقق من صحة البيانات المدخلة'
+        },
+        { status: 400 }
+      );
+    }
+    
+    if (error.message?.includes('unique constraint')) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'البريد الإلكتروني مستخدم بالفعل',
+          details: 'يرجى استخدام بريد إلكتروني آخر'
+        },
+        { status: 400 }
+      );
+    }
+    
     return NextResponse.json(
       { 
         success: false, 
         error: 'فشل في إضافة العضو',
-        details: error?.message || 'خطأ غير معروف'
+        details: error?.message || 'خطأ غير معروف',
+        debug: {
+          code: error.code,
+          message: error.message
+        }
       },
       { status: 500 }
     );
