@@ -380,7 +380,7 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
         if (reportersResponse.ok) {
           const reportersData = await reportersResponse.json();
           console.log('📦 بيانات المراسلين المستلمة:', reportersData);
-          loadedReporters = reportersData.data || reportersData || [];
+          loadedReporters = reportersData.members || reportersData.data || reportersData || [];
           setReporters(loadedReporters);
           console.log(`👥 تم جلب ${loadedReporters.length} مراسل`, loadedReporters);
           
@@ -1360,7 +1360,7 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                           عناوين مقترحة تلقائياً:
                         </span>
                       </div>
-                      {aiAutoSuggestions.titleSuggestions.map((suggestion, index) => (
+                      {aiAutoSuggestions.titleSuggestions && Array.isArray(aiAutoSuggestions.titleSuggestions) && aiAutoSuggestions.titleSuggestions.map((suggestion, index) => (
                         <div 
                           key={index}
                           className={cn(
@@ -1623,10 +1623,10 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                     {loading && (
                       <option disabled>جاري التحميل...</option>
                     )}
-                    {!loading && reporters.length === 0 && (
+                    {!loading && (!reporters || reporters.length === 0) && (
                       <option disabled>لا يوجد مراسلين متاحين</option>
                     )}
-                    {reporters.map((reporter) => (
+                    {reporters && Array.isArray(reporters) && reporters.map((reporter) => (
                       <option key={reporter.id} value={reporter.id}>
                         {reporter.name || reporter.email}
                       </option>
@@ -1652,10 +1652,10 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                     {loading && (
                       <option disabled>جاري التحميل...</option>
                     )}
-                    {!loading && categories.length === 0 && (
+                    {!loading && (!categories || categories.length === 0) && (
                       <option disabled>لا يوجد تصنيفات متاحة</option>
                     )}
-                    {categories.map((category) => (
+                    {categories && Array.isArray(categories) && categories.map((category) => (
                       <option key={category.id} value={category.id} style={{ color: category.color || undefined }}>
                         {category.name_ar || category.name}
                       </option>
@@ -1823,7 +1823,7 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                       </Button>
                     </div>
                     <div className="flex flex-wrap gap-1">
-                      {aiAutoSuggestions.keywordSuggestions.map((keyword, index) => (
+                      {aiAutoSuggestions.keywordSuggestions && Array.isArray(aiAutoSuggestions.keywordSuggestions) && aiAutoSuggestions.keywordSuggestions.map((keyword, index) => (
                         <button
                           key={index}
                           className={cn(
@@ -1885,7 +1885,7 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                   </div>
                   
                   <div className="flex flex-wrap gap-2">
-                    {formData.keywords.map((keyword, index) => (
+                    {formData.keywords && Array.isArray(formData.keywords) && formData.keywords.map((keyword, index) => (
                       <Badge
                         key={index}
                         variant="secondary"
