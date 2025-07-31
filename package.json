@@ -24,6 +24,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "test:auth": "node scripts/test-auth-system-comprehensive.js",
+    "test:email": "node scripts/test-email-setup.js",
     "bundle-analyze": "ANALYZE=true npm run build && open ./bundle-report.html"
   },
   "dependencies": {
