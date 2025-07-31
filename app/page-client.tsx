@@ -47,7 +47,7 @@ const SmartAudioBlock = dynamic(() => import('@/components/home/SmartAudioBlock'
   loading: () => <Skeleton className="w-full h-40 rounded-lg" />
 });
 
-const FeaturedNewsBlock = dynamic(() => import('@/components/FeaturedNewsBlock'), {
+const FeaturedCarousel = dynamic(() => import('@/components/FeaturedCarousel'), {
   ssr: true,
   loading: () => <Skeleton className="w-full h-80 rounded-lg" />
 });
@@ -179,6 +179,8 @@ function NewspaperHomePage({
   const [articles, setArticles] = useState<any[]>(initialArticles);
   const [personalizedArticles, setPersonalizedArticles] = useState<any[]>([]);
   const [smartRecommendations, setSmartRecommendations] = useState<RecommendedArticle[]>([]);
+  const [featuredArticles, setFeaturedArticles] = useState<any[]>([]);
+  const [featuredLoading, setFeaturedLoading] = useState<boolean>(true);
   
   console.log('🔧 NewspaperHomePage: تحضير useEffects...');
   
@@ -345,6 +347,34 @@ function NewspaperHomePage({
   
   // =============================
   // جلب التوصيات الذكية
+  // جلب الأخبار المميزة
+  useEffect(() => {
+    const fetchFeaturedArticles = async () => {
+      try {
+        setFeaturedLoading(true);
+        const response = await fetch('/api/featured-news-carousel', {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.articles) {
+            setFeaturedArticles(data.articles);
+          }
+        }
+      } catch (error) {
+        console.error('خطأ في جلب الأخبار المميزة:', error);
+      } finally {
+        setFeaturedLoading(false);
+      }
+    };
+    
+    fetchFeaturedArticles();
+  }, []);
+
   useEffect(() => {
     const fetchSmartRecommendations = async () => {
       try {
@@ -507,8 +537,10 @@ function NewspaperHomePage({
         <SmartAudioBlock />
       </div>
       
-      {/* بلوك الخبر المميز - جديد */}
-      <FeaturedNewsBlock />
+      {/* بلوك الأخبار المميزة - كاروسيل */}
+      {!featuredLoading && featuredArticles.length > 0 && (
+        <FeaturedCarousel articles={featuredArticles} />
+      )}
       
       {/* بلوك الجرعات الذكي - ثاني بلوك */}
       <SmartDigestBlock />
