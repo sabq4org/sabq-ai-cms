@@ -1211,7 +1211,7 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
   
   if (loading) {
     return (
-      <DashboardLayout>
+      <DashboardLayout pageName="news-editor">
         <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-700">
           <div className="text-center space-y-4">
             <Loader2 className="w-10 h-10 animate-spin mx-auto text-blue-600" />
@@ -1223,7 +1223,7 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
   }
   
   return (
-    <DashboardLayout>
+    <DashboardLayout pageName="news-editor">
       <div className={cn(
         "min-h-screen transition-all duration-300",
         darkMode 

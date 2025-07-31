@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { EditorErrorBoundary } from '@/components/ErrorBoundary';
+import EditorErrorBoundary from '@/components/ErrorBoundary/EditorErrorBoundary';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
