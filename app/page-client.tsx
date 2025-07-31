@@ -47,7 +47,7 @@ const SmartAudioBlock = dynamic(() => import('@/components/home/SmartAudioBlock'
   loading: () => <Skeleton className="w-full h-40 rounded-lg" />
 });
 
-const FeaturedCarousel = dynamic(() => import('@/components/FeaturedCarousel'), {
+const FeaturedCarousel = dynamic(() => import('@/components/FeaturedCarouselPro'), {
   ssr: true,
   loading: () => <Skeleton className="w-full h-80 rounded-lg" />
 });
