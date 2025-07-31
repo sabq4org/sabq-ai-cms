@@ -188,14 +188,6 @@ export async function GET(
   }
 }
 
-// تحديث المقال - دعم PUT
-export async function PUT(
-  request: Request,
-  context: { params: Promise<{ id: string }> }
-) {
-  return PATCH(request, context);
-}
-
 // تحديث المقال
 export async function PATCH(
   request: Request,
