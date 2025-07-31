@@ -159,13 +159,12 @@ const FeaturedCarousel: React.FC<FeaturedCarouselProps> = ({ articles }) => {
           {/* الشرائح */}
           <div 
             className="flex transition-transform duration-700 ease-in-out"
-            style={{ transform: `translateX(${currentIndex * 100}%)` }}
+            style={{ transform: `translateX(-${currentIndex * 100}%)` }}
           >
             {articles.map((article, index) => (
               <div
                 key={article.id}
                 className="w-full flex-shrink-0"
-                style={{ transform: `translateX(-${index * 100}%)` }}
               >
                 <Link 
                   href={getArticleLink(article)}
