@@ -41,7 +41,21 @@ export default function ArticleClientComponent({
 }: ArticleClientComponentProps) {
   const router = useRouter();
   const { darkMode } = useDarkModeContext();
-  const [article, setArticle] = useState<ArticleData | null>(initialArticle || null);
+  
+  // معالجة metadata إذا كانت string
+  const processArticle = (articleData: any) => {
+    if (articleData && articleData.metadata && typeof articleData.metadata === 'string') {
+      try {
+        articleData.metadata = JSON.parse(articleData.metadata);
+      } catch (e) {
+        console.error('خطأ في تحليل metadata:', e);
+        articleData.metadata = {};
+      }
+    }
+    return articleData;
+  };
+  
+  const [article, setArticle] = useState<ArticleData | null>(processArticle(initialArticle) || null);
   const [loading, setLoading] = useState(!initialArticle);
   const [isReading, setIsReading] = useState(false);
   
@@ -66,7 +80,7 @@ export default function ArticleClientComponent({
           const response = await fetch(`/api/articles/${articleId}`);
           if (response.ok) {
             const data = await response.json();
-            setArticle(data);
+            setArticle(processArticle(data));
           } else {
             console.error('Failed to fetch article:', response.status);
           }
@@ -238,9 +252,9 @@ export default function ArticleClientComponent({
             </h1>
             
             {/* العنوان الفرعي */}
-            {article.subtitle && (
+            {(article.subtitle || article.metadata?.subtitle) && (
               <h2 className="text-lg sm:text-xl lg:text-2xl text-gray-600 dark:text-gray-400 mb-6 text-right">
-                {article.subtitle}
+                {article.subtitle || article.metadata?.subtitle}
               </h2>
             )}
 
