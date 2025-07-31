@@ -191,17 +191,15 @@ export async function POST(request: NextRequest) {
         || `article-${Date.now()}`; // fallback إذا كان العنوان فارغ
     };
     
-    const article = await dbConnectionManager.executeWithConnection(async () => {
-      return await prisma.articles.create({
-        data: {
-          ...data,
-          id: data.id || generateId(),
-          slug: data.slug || generateSlug(data.title),
-          created_at: new Date(),
-          updated_at: new Date(),
-          published_at: data.status === 'published' ? new Date() : null
-        }
-      })
+    const article = await prisma.articles.create({
+      data: {
+        ...data,
+        id: data.id || generateId(),
+        slug: data.slug || generateSlug(data.title),
+        created_at: new Date(),
+        updated_at: new Date(),
+        published_at: data.status === 'published' ? new Date() : null
+      }
     })
     
     return NextResponse.json({
