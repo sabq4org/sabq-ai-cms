@@ -145,14 +145,14 @@ export default function Header() {
               <Link
                 key={item.url}
                 href={item.url}
-                className={`flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
+                className={`flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                   item.highlight
                     ? darkMode
-                      ? 'text-red-400 hover:text-red-300'
-                      : 'text-red-600 hover:text-red-700'
+                      ? 'text-red-400 hover:text-red-300 hover:bg-blue-800/40'
+                      : 'text-red-600 hover:text-red-700 hover:bg-blue-600/20'
                     : darkMode
-                    ? 'text-gray-300 hover:text-white'
-                    : 'text-gray-700 hover:text-gray-900'
+                    ? 'text-gray-300 hover:text-white hover:bg-blue-800/40'
+                    : 'text-gray-700 hover:text-gray-900 hover:bg-blue-600/20'
                 }`}
               >
                 <item.icon className="w-4 h-4" />
@@ -176,10 +176,10 @@ export default function Header() {
             }>
               <button
                 onClick={toggleDarkMode}
-                className={`p-2 rounded-lg transition-all duration-200 cursor-pointer  ${
+                className={`p-2 rounded-lg transition-all duration-300 cursor-pointer ${
                   darkMode 
-                                        ? 'text-yellow-400 hover:text-yellow-300'
-                    : 'text-gray-600 hover:text-gray-800'
+                    ? 'text-yellow-400 hover:text-yellow-300 hover:bg-blue-800/40'
+                    : 'text-gray-600 hover:text-gray-800 hover:bg-blue-600/20'
                 }`}
               >
                 {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -191,10 +191,10 @@ export default function Header() {
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={handleDropdownToggle}
-                  className={`flex items-center space-x-2 rtl:space-x-reverse p-2 rounded-lg transition-all duration-200  ${
+                  className={`flex items-center space-x-2 rtl:space-x-reverse p-2 rounded-lg transition-all duration-300 ${
                     darkMode 
-                                          ? 'text-gray-300 hover:text-white'
-                    : 'text-gray-700 hover:text-gray-900'
+                      ? 'text-gray-300 hover:text-white hover:bg-blue-800/40'
+                      : 'text-gray-700 hover:text-gray-900 hover:bg-blue-600/20'
                   }`}
                 >
                   {user.avatar ? (
@@ -223,10 +223,10 @@ export default function Header() {
             ) : (
               <Link
                 href="/login"
-                className={`flex items-center space-x-2 rtl:space-x-reverse px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200  ${
+                className={`flex items-center space-x-2 rtl:space-x-reverse px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                   darkMode 
-                                        ? 'text-gray-300 hover:text-white'
-                    : 'text-gray-700 hover:text-gray-900'
+                    ? 'text-gray-300 hover:text-white hover:bg-blue-800/40'
+                    : 'text-gray-700 hover:text-gray-900 hover:bg-blue-600/20'
                 }`}
               >
                 <LogIn className="w-4 h-4" />
@@ -237,10 +237,10 @@ export default function Header() {
             {/* المينيو المحمول */}
             <button
               onClick={toggleMobileMenu}
-              className={`md:hidden p-2 rounded-lg transition-all duration-200  ${
+              className={`md:hidden p-2 rounded-lg transition-all duration-300 ${
                 darkMode 
-                                      ? 'text-gray-400 hover:text-gray-200'
-                    : 'text-gray-600 hover:text-gray-800'
+                  ? 'text-gray-400 hover:text-gray-200 hover:bg-blue-800/40'
+                  : 'text-gray-600 hover:text-gray-800 hover:bg-blue-600/20'
               }`}
             >
               <Menu className="w-5 h-5" />
@@ -268,14 +268,14 @@ export default function Header() {
                   key={item.url}
                   href={item.url}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center space-x-2 rtl:space-x-reverse px-6 py-4 text-base font-medium transition-colors duration-200 ${
+                  className={`flex items-center space-x-2 rtl:space-x-reverse px-6 py-4 text-base font-medium transition-all duration-300 ${
                     item.highlight
                       ? darkMode
-                        ? 'text-red-400 hover:text-red-300'
-                        : 'text-red-600 hover:text-red-700'
+                        ? 'text-red-400 hover:text-red-300 hover:bg-blue-800/40'
+                        : 'text-red-600 hover:text-red-700 hover:bg-blue-600/20'
                       : darkMode
-                      ? 'text-gray-300 hover:text-white'
-                      : 'text-gray-700 hover:text-gray-900'
+                      ? 'text-gray-300 hover:text-white hover:bg-blue-800/40'
+                      : 'text-gray-700 hover:text-gray-900 hover:bg-blue-600/20'
                   }`}
                 >
                   <item.icon className="w-4 h-4" />
@@ -292,10 +292,10 @@ export default function Header() {
               <Link
                 href="/profile"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center space-x-2 rtl:space-x-reverse px-6 py-4 text-base font-medium transition-colors duration-200 ${
+                className={`flex items-center space-x-2 rtl:space-x-reverse px-6 py-4 text-base font-medium transition-all duration-300 ${
                   darkMode 
-                                        ? 'text-gray-300 hover:text-white'
-                    : 'text-gray-700 hover:text-gray-900'
+                    ? 'text-gray-300 hover:text-white hover:bg-blue-800/40'
+                    : 'text-gray-700 hover:text-gray-900 hover:bg-blue-600/20'
                 }`}
               >
                 <User className="w-4 h-4" />
@@ -305,10 +305,10 @@ export default function Header() {
               <Link
                 href="/my-journey"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center space-x-2 rtl:space-x-reverse px-6 py-4 text-base font-medium transition-colors duration-200 ${
+                className={`flex items-center space-x-2 rtl:space-x-reverse px-6 py-4 text-base font-medium transition-all duration-300 ${
                   darkMode 
-                                        ? 'text-gray-300 hover:text-white'
-                    : 'text-gray-700 hover:text-gray-900'
+                    ? 'text-gray-300 hover:text-white hover:bg-blue-800/40'
+                    : 'text-gray-700 hover:text-gray-900 hover:bg-blue-600/20'
                 }`}
               >
                 <Target className="w-4 h-4" />
@@ -318,10 +318,10 @@ export default function Header() {
               <Link
                 href="/settings"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center space-x-2 rtl:space-x-reverse px-4 py-3 text-sm font-medium transition-colors duration-200 ${
+                className={`flex items-center space-x-2 rtl:space-x-reverse px-4 py-3 text-sm font-medium transition-all duration-300 ${
                   darkMode 
-                                        ? 'text-gray-300 hover:text-white'
-                    : 'text-gray-700 hover:text-gray-900'
+                    ? 'text-gray-300 hover:text-white hover:bg-blue-800/40'
+                    : 'text-gray-700 hover:text-gray-900 hover:bg-blue-600/20'
                 }`}
               >
                 <Settings className="w-4 h-4" />
