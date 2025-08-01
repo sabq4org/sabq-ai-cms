@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
+import { PrismaClient } from '@prisma/client';
 
 
 
@@ -12,7 +11,17 @@ import path from 'path';
 
 
 
-const DATA_FILE = path.join(process.cwd(), 'data', 'keywords.json');
+const prisma = new PrismaClient();
+
+// دالة مساعدة لتوليد slug
+function generateSlug(name: string): string {
+  return name.toLowerCase().replace(/[^\u0600-\u06FF\w\s-]/g, '').replace(/[\s-]+/g, '-');
+}
+
+// دالة مساعدة لتوليد ID
+function generateId(): string {
+  return `keyword_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+}
 
 interface Keyword {
   id: string;
@@ -20,112 +29,335 @@ interface Keyword {
   usageCount: number;
 }
 
-async function loadKeywords(): Promise<Keyword[]> {
+// جلب الكلمات المفتاحية من قاعدة البيانات
+async function loadKeywords(search?: string): Promise<Keyword[]> {
   try {
-    const content = await fs.readFile(DATA_FILE, 'utf8');
-    const parsed = JSON.parse(content);
-    return parsed.keywords || [];
-  } catch (err) {
+    console.log('🔍 جلب الكلمات المفتاحية من قاعدة البيانات...');
+    
+    const keywords = await prisma.keywords.findMany({
+      where: search ? {
+        name: {
+          contains: search,
+          mode: 'insensitive'
+        }
+      } : undefined,
+      orderBy: [
+        { count: 'desc' },
+        { name: 'asc' }
+      ]
+    });
+
+    console.log(`✅ تم جلب ${keywords.length} كلمة مفتاحية`);
+
+    // تحويل البيانات لتنسيق API القديم
+    return keywords.map(keyword => ({
+      id: keyword.id,
+      name: keyword.name,
+      usageCount: keyword.count
+    }));
+
+  } catch (error) {
+    console.error('❌ خطأ في جلب الكلمات المفتاحية:', error);
     return [];
+  } finally {
+    await prisma.$disconnect();
   }
 }
 
-async function saveKeywords(keywords: Keyword[]) {
-  const data = { keywords };
-  await fs.writeFile(DATA_FILE, JSON.stringify(data, null, 2));
+// إنشاء كلمة مفتاحية جديدة
+async function createKeyword(name: string, usageCount: number = 0): Promise<Keyword> {
+  try {
+    console.log('📝 إنشاء كلمة مفتاحية جديدة:', name);
+    
+    const slug = generateSlug(name);
+    
+    const newKeyword = await prisma.keywords.create({
+      data: {
+        id: generateId(),
+        name: name,
+        slug: slug,
+        count: usageCount
+      }
+    });
+    
+    console.log('✅ تم إنشاء الكلمة المفتاحية:', newKeyword.id);
+    
+    return {
+      id: newKeyword.id,
+      name: newKeyword.name,
+      usageCount: newKeyword.count
+    };
+    
+  } catch (error) {
+    console.error('❌ خطأ في إنشاء الكلمة المفتاحية:', error);
+    throw error;
+  } finally {
+    await prisma.$disconnect();
+  }
 }
 
-// GET: ?search=name
+// تحديث كلمة مفتاحية
+async function updateKeyword(id: string, updates: Partial<Keyword>): Promise<Keyword> {
+  try {
+    console.log('🔄 تحديث كلمة مفتاحية:', id);
+    
+    const updatedKeyword = await prisma.keywords.update({
+      where: { id },
+      data: {
+        name: updates.name,
+        slug: updates.name ? generateSlug(updates.name) : undefined,
+        count: updates.usageCount
+      }
+    });
+    
+    console.log('✅ تم تحديث الكلمة المفتاحية:', updatedKeyword.id);
+    
+    return {
+      id: updatedKeyword.id,
+      name: updatedKeyword.name,
+      usageCount: updatedKeyword.count
+    };
+    
+  } catch (error) {
+    console.error('❌ خطأ في تحديث الكلمة المفتاحية:', error);
+    throw error;
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+// حذف كلمة مفتاحية
+async function deleteKeyword(id: string): Promise<void> {
+  try {
+    console.log('🗑️ حذف كلمة مفتاحية:', id);
+    
+    await prisma.keywords.delete({
+      where: { id }
+    });
+    
+    console.log('✅ تم حذف الكلمة المفتاحية:', id);
+    
+  } catch (error) {
+    console.error('❌ خطأ في حذف الكلمة المفتاحية:', error);
+    throw error;
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+// GET: جلب الكلمات المفتاحية مع البحث الاختياري
 export async function GET(request: NextRequest) {
   try {
+    console.log('🚀 GET /api/keywords - بداية معالجة الطلب');
+    
     // التأكد من وجود URL صحيح
     if (!request.url) {
-      return NextResponse.json(
-        { error: 'Invalid request URL' },
-        { status: 400 }
-      );
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid request URL'
+      }, { status: 400 });
     }
     
     const { searchParams } = new URL(request.url);
-    const q = searchParams.get('search') || '';
-    const keywords = await loadKeywords();
-    const filtered = q ? keywords.filter(k => k.name.includes(q)) : keywords;
-    return NextResponse.json({ success: true, data: filtered });
-  } catch (e) {
-    return NextResponse.json({ success: false, error: 'Failed to load keywords' }, { status: 500 });
+    const search = searchParams.get('search') || undefined;
+    
+    console.log('🔍 معاملات البحث:', { search });
+    
+    const keywords = await loadKeywords(search);
+    
+    console.log(`✅ تم جلب ${keywords.length} كلمة مفتاحية`);
+    return NextResponse.json({ 
+      success: true, 
+      data: keywords,
+      count: keywords.length
+    });
+    
+  } catch (error: any) {
+    console.error('❌ خطأ في جلب الكلمات المفتاحية:', error);
+    return NextResponse.json({ 
+      success: false, 
+      error: 'فشل في جلب الكلمات المفتاحية',
+      details: error.message
+    }, { status: 500 });
   }
 }
 
-// POST: add keyword { name }
+// POST: إضافة كلمة مفتاحية جديدة
 export async function POST(request: NextRequest) {
   try {
+    console.log('🚀 POST /api/keywords - بداية معالجة الطلب');
+    
     const body = await request.json();
-    if (!body.name) {
-      return NextResponse.json({ success: false, error: 'الاسم مطلوب' }, { status: 400 });
+    console.log('📦 البيانات المستلمة:', body);
+    
+    if (!body.name || !body.name.trim()) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'اسم الكلمة المفتاحية مطلوب' 
+      }, { status: 400 });
     }
-    const keywords = await loadKeywords();
-    const exists = keywords.find(k => k.name === body.name);
+    
+    // التحقق من عدم وجود الكلمة مسبقاً
+    const existingKeywords = await loadKeywords();
+    const exists = existingKeywords.find(k => k.name.toLowerCase() === body.name.toLowerCase());
+    
     if (exists) {
-      return NextResponse.json({ success: false, error: 'الكلمة موجودة مسبقاً' }, { status: 400 });
+      return NextResponse.json({ 
+        success: false, 
+        error: 'الكلمة المفتاحية موجودة مسبقاً' 
+      }, { status: 400 });
     }
-    const newKeyword: Keyword = {
-      id: `kw-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,
-      name: body.name,
-      usageCount: body.usageCount ?? 0
-    };
-    keywords.push(newKeyword);
-    await saveKeywords(keywords);
-    return NextResponse.json({ success: true, data: newKeyword });
-  } catch (e) {
-    return NextResponse.json({ success: false, error: 'فشل الإضافة' }, { status: 500 });
+    
+    const newKeyword = await createKeyword(body.name.trim(), body.usageCount ?? 0);
+    
+    console.log('✅ تم إنشاء الكلمة المفتاحية بنجاح:', newKeyword.id);
+    return NextResponse.json({ 
+      success: true, 
+      data: newKeyword,
+      message: 'تم إضافة الكلمة المفتاحية بنجاح'
+    }, { status: 201 });
+    
+  } catch (error: any) {
+    console.error('❌ خطأ في إضافة الكلمة المفتاحية:', error);
+    
+    if (error.code === 'P2002') {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'الكلمة المفتاحية موجودة مسبقاً' 
+      }, { status: 400 });
+    }
+    
+    return NextResponse.json({ 
+      success: false, 
+      error: 'فشل في إضافة الكلمة المفتاحية',
+      details: error.message
+    }, { status: 500 });
   }
 }
 
-// PUT: /api/keywords?id=kw-id  body { name, usageCount }
+// PUT: تحديث كلمة مفتاحية
 export async function PUT(request: NextRequest) {
   try {
+    console.log('🚀 PUT /api/keywords - بداية معالجة الطلب');
+    
     // التأكد من وجود URL صحيح
     if (!request.url) {
-      return NextResponse.json(
-        { error: 'Invalid request URL' },
-        { status: 400 }
-      );
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid request URL'
+      }, { status: 400 });
     }
     
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     const body = await request.json();
-    if (!id) return NextResponse.json({ success: false, error: 'معرف مفقود' }, { status: 400 });
-    const keywords = await loadKeywords();
-    const idx = keywords.findIndex(k => k.id === id);
-    if (idx === -1) return NextResponse.json({ success: false, error: 'غير موجود' }, { status: 404 });
-    if (body.name) keywords[idx].name = body.name;
-    if (typeof body.usageCount === 'number') keywords[idx].usageCount = body.usageCount;
-    await saveKeywords(keywords);
-    return NextResponse.json({ success: true, data: keywords[idx] });
-  } catch (e) {
-    return NextResponse.json({ success: false, error: 'فشل التحديث' }, { status: 500 });
+    
+    console.log('📦 معاملات التحديث:', { id, body });
+    
+    if (!id) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'معرف الكلمة المفتاحية مطلوب' 
+      }, { status: 400 });
+    }
+    
+    // بناء البيانات للتحديث
+    const updates: Partial<Keyword> = {};
+    if (body.name && body.name.trim()) {
+      updates.name = body.name.trim();
+    }
+    if (typeof body.usageCount === 'number') {
+      updates.usageCount = body.usageCount;
+    }
+    
+    if (Object.keys(updates).length === 0) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'لا يوجد بيانات للتحديث' 
+      }, { status: 400 });
+    }
+    
+    const updatedKeyword = await updateKeyword(id, updates);
+    
+    console.log('✅ تم تحديث الكلمة المفتاحية بنجاح:', updatedKeyword.id);
+    return NextResponse.json({ 
+      success: true, 
+      data: updatedKeyword,
+      message: 'تم تحديث الكلمة المفتاحية بنجاح'
+    });
+    
+  } catch (error: any) {
+    console.error('❌ خطأ في تحديث الكلمة المفتاحية:', error);
+    
+    if (error.code === 'P2025') {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'الكلمة المفتاحية غير موجودة' 
+      }, { status: 404 });
+    }
+    
+    if (error.code === 'P2002') {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'اسم الكلمة المفتاحية موجود مسبقاً' 
+      }, { status: 400 });
+    }
+    
+    return NextResponse.json({ 
+      success: false, 
+      error: 'فشل في تحديث الكلمة المفتاحية',
+      details: error.message
+    }, { status: 500 });
   }
 }
 
-// DELETE: /api/keywords?id=kw-id
+// DELETE: حذف كلمة مفتاحية
 export async function DELETE(request: NextRequest) {
   try {
+    console.log('🚀 DELETE /api/keywords - بداية معالجة الطلب');
+    
     // التأكد من وجود URL صحيح
     if (!request.url) {
-      return NextResponse.json(
-        { error: 'Invalid request URL' },
-        { status: 400 }
-      );
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid request URL'
+      }, { status: 400 });
     }
     
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
-    const keywords = await loadKeywords();
-    const filtered = keywords.filter(k => k.id !== id);
-    await saveKeywords(filtered);
-    return NextResponse.json({ success: true });
-  } catch (e) {
-    return NextResponse.json({ success: false, error: 'فشل الحذف' }, { status: 500 });
+    
+    console.log('🗑️ معرف الكلمة المفتاحية للحذف:', id);
+    
+    if (!id) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'معرف الكلمة المفتاحية مطلوب' 
+      }, { status: 400 });
+    }
+    
+    await deleteKeyword(id);
+    
+    console.log('✅ تم حذف الكلمة المفتاحية بنجاح:', id);
+    return NextResponse.json({ 
+      success: true,
+      message: 'تم حذف الكلمة المفتاحية بنجاح'
+    });
+    
+  } catch (error: any) {
+    console.error('❌ خطأ في حذف الكلمة المفتاحية:', error);
+    
+    if (error.code === 'P2025') {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'الكلمة المفتاحية غير موجودة' 
+      }, { status: 404 });
+    }
+    
+    return NextResponse.json({ 
+      success: false, 
+      error: 'فشل في حذف الكلمة المفتاحية',
+      details: error.message
+    }, { status: 500 });
   }
 } 

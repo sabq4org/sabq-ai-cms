@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs/promises';
-import path from 'path';
+import { PrismaClient } from '@prisma/client';
 
 
 
@@ -12,7 +11,7 @@ import path from 'path';
 
 
 
-const BLOCKS_FILE = path.join(process.cwd(), 'data', 'smart_blocks.json');
+const prisma = new PrismaClient();
 
 interface SmartBlock {
   id: string;
@@ -40,25 +39,57 @@ interface SmartBlock {
   updatedAt: string;
 }
 
-// إنشاء مجلد البيانات إذا لم يكن موجوداً
-async function ensureDataDirectory() {
-  const dataDir = path.join(process.cwd(), 'data');
-  try {
-    await fs.access(dataDir);
-  } catch {
-    await fs.mkdir(dataDir, { recursive: true });
-  }
+
+
+// دالة مساعدة لتوليد ID
+function generateId() {
+  return `block_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 }
 
-// قراءة البلوكات من الملف
+// قراءة البلوكات من قاعدة البيانات
 async function readBlocks(): Promise<SmartBlock[]> {
   try {
-    await ensureDataDirectory();
-    const data = await fs.readFile(BLOCKS_FILE, 'utf-8');
-    const parsed = JSON.parse(data);
-    if (Array.isArray(parsed) && parsed.length === 0) {
-      // إذا كان الملف موجوداً لكنه فارغ، أضف البلوكات الافتراضية
-      const defaultBlocks: SmartBlock[] = [
+    console.log('🔍 جلب البلوكات الذكية من قاعدة البيانات...');
+    
+    const blocks = await prisma.smart_blocks.findMany({
+      orderBy: [
+        { is_active: 'desc' },
+        { created_at: 'desc' }
+      ]
+    });
+
+    console.log(`✅ تم جلب ${blocks.length} بلوك ذكي`);
+
+    // تحويل البيانات من قاعدة البيانات إلى تنسيق API القديم
+    return blocks.map(block => {
+      const config = block.config as any;
+      return {
+        id: block.id,
+        name: block.name,
+        position: config.position || 'afterHighlights',
+        type: block.type as any,
+        status: block.is_active ? 'active' : 'inactive',
+        displayType: config.displayType || 'grid',
+        keywords: config.keywords || [],
+        category: config.category,
+        articlesCount: config.articlesCount || 6,
+        theme: config.theme || {
+          primaryColor: '#00BFA6',
+          backgroundColor: '#f8fafc',
+          textColor: '#1a1a1a'
+        },
+        order: config.order || 1,
+        schedule: config.schedule,
+        createdAt: block.created_at.toISOString(),
+        updatedAt: block.updated_at.toISOString()
+      };
+    });
+
+  } catch (error) {
+    console.error('❌ خطأ في جلب البلوكات:', error);
+    
+    // في حالة فشل قاعدة البيانات، إرجع بلوكات افتراضية
+    const defaultBlocks: SmartBlock[] = [
         {
           id: '1',
           name: 'أخبار اليوم الوطني',
@@ -97,20 +128,100 @@ async function readBlocks(): Promise<SmartBlock[]> {
           updatedAt: new Date().toISOString()
         }
       ];
-      await fs.writeFile(BLOCKS_FILE, JSON.stringify(defaultBlocks, null, 2));
       return defaultBlocks;
     }
-    return parsed;
-  } catch (error) {
-    console.error('خطأ في جلب البلوكات:', error);
-    return [];
+  } finally {
+    await prisma.$disconnect();
   }
 }
 
-// كتابة البلوكات إلى الملف
-async function writeBlocks(blocks: SmartBlock[]) {
-  await ensureDataDirectory();
-  await fs.writeFile(BLOCKS_FILE, JSON.stringify(blocks, null, 2));
+// إنشاء بلوك جديد في قاعدة البيانات
+async function createBlock(blockData: SmartBlock) {
+  try {
+    console.log('📝 إنشاء بلوك جديد:', blockData.name);
+    
+    const newBlock = await prisma.smart_blocks.create({
+      data: {
+        id: blockData.id || generateId(),
+        name: blockData.name,
+        type: blockData.type,
+        config: {
+          position: blockData.position,
+          displayType: blockData.displayType,
+          keywords: blockData.keywords,
+          category: blockData.category,
+          articlesCount: blockData.articlesCount,
+          theme: blockData.theme,
+          order: blockData.order,
+          schedule: blockData.schedule
+        },
+        is_active: blockData.status === 'active',
+        created_at: new Date(),
+        updated_at: new Date()
+      }
+    });
+    
+    console.log('✅ تم إنشاء البلوك:', newBlock.id);
+    return newBlock;
+  } catch (error) {
+    console.error('❌ خطأ في إنشاء البلوك:', error);
+    throw error;
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+// تحديث بلوك في قاعدة البيانات
+async function updateBlock(id: string, blockData: Partial<SmartBlock>) {
+  try {
+    console.log('🔄 تحديث البلوك:', id);
+    
+    const updatedBlock = await prisma.smart_blocks.update({
+      where: { id },
+      data: {
+        name: blockData.name,
+        type: blockData.type,
+        config: {
+          position: blockData.position,
+          displayType: blockData.displayType,
+          keywords: blockData.keywords,
+          category: blockData.category,
+          articlesCount: blockData.articlesCount,
+          theme: blockData.theme,
+          order: blockData.order,
+          schedule: blockData.schedule
+        },
+        is_active: blockData.status === 'active',
+        updated_at: new Date()
+      }
+    });
+    
+    console.log('✅ تم تحديث البلوك:', updatedBlock.id);
+    return updatedBlock;
+  } catch (error) {
+    console.error('❌ خطأ في تحديث البلوك:', error);
+    throw error;
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+// حذف بلوك من قاعدة البيانات
+async function deleteBlock(id: string) {
+  try {
+    console.log('🗑️ حذف البلوك:', id);
+    
+    await prisma.smart_blocks.delete({
+      where: { id }
+    });
+    
+    console.log('✅ تم حذف البلوك:', id);
+  } catch (error) {
+    console.error('❌ خطأ في حذف البلوك:', error);
+    throw error;
+  } finally {
+    await prisma.$disconnect();
+  }
 }
 
 // GET - جلب جميع البلوكات
@@ -170,59 +281,144 @@ export async function GET(request: NextRequest) {
 // POST - إنشاء بلوك جديد
 export async function POST(request: NextRequest) {
   try {
+    console.log('🚀 POST /api/smart-blocks - بداية معالجة الطلب');
+    
     const blockData = await request.json();
-    const blocks = await readBlocks();
+    console.log('📦 البيانات المستلمة:', blockData);
     
-    // إنشاء ID جديد
-    const newId = Date.now().toString();
+    // التحقق من صحة البيانات الأساسية
+    if (!blockData.name || !blockData.type) {
+      return NextResponse.json({
+        success: false,
+        error: 'اسم البلوك والنوع مطلوبان'
+      }, { status: 400 });
+    }
     
+    // إنشاء البلوك الجديد
     const newBlock: SmartBlock = {
       ...blockData,
-      id: newId,
+      id: blockData.id || generateId(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      order: blockData.order || blocks.length + 1
+      order: blockData.order || 1,
+      status: blockData.status || 'active'
     };
     
-    blocks.push(newBlock);
-    await writeBlocks(blocks);
+    const createdBlock = await createBlock(newBlock);
     
-    return NextResponse.json(newBlock, { status: 201 });
-  } catch (error) {
-    console.error('خطأ في إنشاء البلوك:', error);
-    return NextResponse.json(
-      { error: 'فشل في إنشاء البلوك' },
-      { status: 500 }
-    );
+    // تحويل الاستجابة لتنسيق API المتوقع
+    const responseBlock = {
+      ...newBlock,
+      id: createdBlock.id
+    };
+    
+    console.log('✅ تم إنشاء البلوك بنجاح:', responseBlock.id);
+    return NextResponse.json(responseBlock, { status: 201 });
+    
+  } catch (error: any) {
+    console.error('❌ خطأ في إنشاء البلوك:', error);
+    return NextResponse.json({
+      success: false,
+      error: 'فشل في إنشاء البلوك',
+      details: error.message
+    }, { status: 500 });
   }
 }
 
-// PUT - تحديث جميع البلوكات (للترتيب)
+// PUT - تحديث بلوك أو ترتيب البلوكات
 export async function PUT(request: NextRequest) {
   try {
-    const { blocks } = await request.json();
+    console.log('🚀 PUT /api/smart-blocks - بداية معالجة الطلب');
     
-    if (!Array.isArray(blocks)) {
-      return NextResponse.json(
-        { error: 'البيانات غير صحيحة' },
-        { status: 400 }
-      );
+    const data = await request.json();
+    
+    // إذا كان الطلب يحتوي على id، فهو تحديث بلوك واحد
+    if (data.id) {
+      console.log('🔄 تحديث بلوك واحد:', data.id);
+      
+      const updatedBlock = await updateBlock(data.id, data);
+      
+      // تحويل الاستجابة لتنسيق API
+      const responseBlock = {
+        id: updatedBlock.id,
+        name: updatedBlock.name,
+        type: updatedBlock.type,
+        ...(updatedBlock.config as any),
+        status: updatedBlock.is_active ? 'active' : 'inactive',
+        createdAt: updatedBlock.created_at.toISOString(),
+        updatedAt: updatedBlock.updated_at.toISOString()
+      };
+      
+      return NextResponse.json(responseBlock);
     }
     
-    // تحديث تاريخ التعديل
-    const updatedBlocks = blocks.map(block => ({
-      ...block,
-      updatedAt: new Date().toISOString()
-    }));
+    // إذا كان الطلب يحتوي على مصفوفة blocks، فهو تحديث ترتيب
+    if (data.blocks && Array.isArray(data.blocks)) {
+      console.log('🔄 تحديث ترتيب البلوكات');
+      
+      // تحديث ترتيب كل بلوك
+      const updatePromises = data.blocks.map((block: any, index: number) => 
+        updateBlock(block.id, { ...block, order: index + 1 })
+      );
+      
+      await Promise.all(updatePromises);
+      
+      return NextResponse.json({ message: 'تم تحديث ترتيب البلوكات بنجاح' });
+    }
     
-    await writeBlocks(updatedBlocks);
-    
-    return NextResponse.json({ message: 'تم تحديث البلوكات بنجاح' });
-  } catch (error) {
-    console.error('خطأ في تحديث البلوكات:', error);
     return NextResponse.json(
-      { error: 'فشل في تحديث البلوكات' },
-      { status: 500 }
+      { error: 'البيانات غير صحيحة' },
+      { status: 400 }
     );
+    
+  } catch (error: any) {
+    console.error('❌ خطأ في تحديث البلوكات:', error);
+    return NextResponse.json({
+      success: false,
+      error: 'فشل في تحديث البلوكات',
+      details: error.message
+    }, { status: 500 });
+  }
+}
+
+// DELETE - حذف بلوك
+export async function DELETE(request: NextRequest) {
+  try {
+    console.log('🚀 DELETE /api/smart-blocks - بداية معالجة الطلب');
+    
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    
+    if (!id) {
+      return NextResponse.json({
+        success: false,
+        error: 'معرف البلوك مطلوب'
+      }, { status: 400 });
+    }
+    
+    console.log('🗑️ حذف البلوك:', id);
+    await deleteBlock(id);
+    
+    console.log('✅ تم حذف البلوك بنجاح:', id);
+    return NextResponse.json({ 
+      success: true, 
+      message: 'تم حذف البلوك بنجاح' 
+    });
+    
+  } catch (error: any) {
+    console.error('❌ خطأ في حذف البلوك:', error);
+    
+    if (error.code === 'P2025') {
+      return NextResponse.json({
+        success: false,
+        error: 'البلوك غير موجود'
+      }, { status: 404 });
+    }
+    
+    return NextResponse.json({
+      success: false,
+      error: 'فشل في حذف البلوك',
+      details: error.message
+    }, { status: 500 });
   }
 } 
