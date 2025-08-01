@@ -280,13 +280,33 @@ export default function TeamManagementPage() {
           email: formData.email?.length || 0, 
           role: formData.role?.length || 0 
         },
-        fullFormData: formData
+        fullFormData: formData,
+        window_location: window.location.origin,
+        full_url: window.location.origin + url
       });
+      
+      // التحقق من الاتصال أولاً
+      console.log('🔗 اختبار الاتصال بالـ API...');
+      try {
+        const testResponse = await fetch('/api/team-members', {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        console.log('✅ اختبار الاتصال نجح:', testResponse.status);
+      } catch (testError: any) {
+        console.error('❌ فشل اختبار الاتصال:', testError);
+        throw new Error(`فشل في الاتصال بالخادم: ${testError.message}`);
+      }
       
       const response = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(formData),
+        // إضافة timeout أطول
+        signal: AbortSignal.timeout(10000) // 10 ثوانٍ
       });
       
       console.log('📄 استجابة الخادم:', {
@@ -345,9 +365,21 @@ export default function TeamManagementPage() {
       console.error('📊 تفاصيل الخطأ:', {
         message: error.message,
         stack: error.stack,
-        name: error.name
+        name: error.name,
+        type: error.constructor.name
       });
-      toast.error(error.message || 'فشل في حفظ البيانات');
+      
+      let errorMessage = 'فشل في حفظ البيانات';
+      
+      if (error.name === 'TypeError' && error.message.includes('Load failed')) {
+        errorMessage = 'فشل في الاتصال بالخادم - تحقق من اتصال الشبكة';
+      } else if (error.name === 'AbortError') {
+        errorMessage = 'انتهت مهلة الاتصال - حاول مرة أخرى';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      toast.error(errorMessage);
     }
   };
 
