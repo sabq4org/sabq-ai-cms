@@ -78,11 +78,29 @@ export default function FeaturedImageUpload({ value, onChange, darkMode = false 
 
       console.log('🌐 إرسال طلب الرفع...');
       
-      // رفع الصورة إلى Cloudinary
-      const response = await fetch('/api/upload/cloudinary', {
+      // رفع الصورة باستخدام API البسيط أولاً
+      let response = await fetch('/api/upload-simple', {
         method: 'POST',
         body: formData
       });
+      
+      // إذا فشل الرفع البسيط، جرب الرفع العادي
+      if (!response.ok) {
+        console.log('⚠️ فشل API البسيط، محاولة استخدام API العادي...');
+        response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+      }
+      
+      // إذا فشل كليهما، جرب Cloudinary كبديل أخير
+      if (!response.ok) {
+        console.log('⚠️ فشل الرفع المحلي، محاولة استخدام Cloudinary...');
+        response = await fetch('/api/upload/cloudinary', {
+          method: 'POST',
+          body: formData
+        });
+      }
 
       console.log('📡 استجابة الخادم:', {
         status: response.status,
