@@ -157,6 +157,7 @@ model articles {
   ai_quotes         String[]            // اقتباسات ذكية
   tags              String[]            // كلمات مفتاحية
   article_type      String              @default("opinion") // نوع المقال
+  is_opinion_leader Boolean             @default(false) // قائد الرأي اليوم
   
   // Existing relationships
   categories        categories?         @relation(fields: [category_id], references: [id])

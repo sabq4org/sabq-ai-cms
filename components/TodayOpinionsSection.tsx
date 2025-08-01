@@ -91,7 +91,11 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
       try {
         setLoading(true);
         
-        // جلب مقالات الرأي
+        // جلب مقال قائد الرأي اليوم الحقيقي
+        const opinionLeaderResponse = await fetch('/api/opinion/leaders');
+        const opinionLeaderData = await opinionLeaderResponse.json();
+        
+        // جلب مقالات الرأي العامة
         const articlesResponse = await fetch('/api/articles?type=OPINION&status=published&sortBy=latest');
         const articlesData = await articlesResponse.json();
         
@@ -99,32 +103,43 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
         const authorsResponse = await fetch('/api/opinion-authors?isActive=true');
         const authorsData = await authorsResponse.json();
 
-        const mockArticles: OpinionArticle[] = [
-          {
-            id: '1',
-            title: 'مستقبل الذكاء الاصطناعي في التعليم السعودي',
-            author_name: 'د. محمد الأحمد',
-            author_avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
-            author_club: 'gold',
-            author_specialization: 'تقنية التعليم',
-            excerpt: 'تشهد المملكة تطوراً هائلاً في دمج التقنيات الحديثة...',
-            ai_summary: 'يناقش الكاتب أهمية دمج الذكاء الاصطناعي في النظام التعليمي السعودي وتأثيره على مستقبل الطلاب والمعلمين في ظل رؤية 2030.',
-            featured_image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80',
-            published_at: new Date().toISOString(),
-            reading_time: 8,
-            views_count: 12500,
-            likes_count: 850,
-            comments_count: 145,
+        // تحويل البيانات الحقيقية إلى الشكل المطلوب
+        let allOpinionArticles: OpinionArticle[] = [];
+
+        // إضافة مقال قائد الرأي اليوم إذا كان متوفرًا
+        if (opinionLeaderData.success && opinionLeaderData.data) {
+          const todayLeader = opinionLeaderData.data;
+          const leaderArticle: OpinionArticle = {
+            id: todayLeader.id,
+            title: todayLeader.title,
+            author_name: todayLeader.author?.name || 'كاتب غير محدد',
+            author_avatar: todayLeader.author?.avatar_url || '/default-avatar.png',
+            author_club: 'platinum', // قائد الرأي دائماً بلاتيني
+            author_specialization: todayLeader.author?.specialty || 'كاتب رأي',
+            excerpt: todayLeader.excerpt || '',
+            ai_summary: todayLeader.excerpt || '',
+            featured_image: todayLeader.hero_image || '',
+            published_at: todayLeader.published_at || new Date().toISOString(),
+            reading_time: todayLeader.read_time || 5,
+            views_count: todayLeader.views || 0,
+            likes_count: 0, // يمكن إضافة نظام الإعجاب لاحقاً
+            comments_count: 0, // يمكن إضافة نظام التعليقات لاحقاً
             is_featured: true,
             is_trending: true,
-            author_slug: 'dr-mohammed-ahmad'
-          },
+            author_slug: todayLeader.slug,
+            audio_url: todayLeader.audio_url
+          };
+          allOpinionArticles.push(leaderArticle);
+        }
+
+        // إضافة بيانات وهمية إضافية للعرض
+        const additionalMockArticles: OpinionArticle[] = [
           {
             id: '2', 
             title: 'رؤية 2030 وتمكين المرأة في ريادة الأعمال',
             author_name: 'أ. فاطمة النصر',
-            author_avatar: 'https://ui-avatars.com/api/?name=عبدالله+القحطاني&background=0D8ABC&color=fff&size=150&font-size=0.33&rounded=true',
-            author_club: 'platinum',
+            author_avatar: 'https://ui-avatars.com/api/?name=فاطمة+النصر&background=0D8ABC&color=fff&size=150&font-size=0.33&rounded=true',
+            author_club: 'gold',
             author_specialization: 'ريادة الأعمال',
             excerpt: 'شهدت المملكة نقلة نوعية في تمكين المرأة...',
             ai_summary: 'تسلط الكاتبة الضوء على الإنجازات المحققة في تمكين المرأة السعودية وريادة الأعمال، والفرص المستقبلية في ظل التحولات الاقتصادية.',
@@ -134,13 +149,14 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
             views_count: 8900,
             likes_count: 650,
             comments_count: 89,
-            is_featured: true
+            is_featured: allOpinionArticles.length < 3, // اجعل أول 3 مقالات مميزة
+            author_slug: 'fatima-alnaser'
           },
           {
             id: '3',
             title: 'الاستدامة البيئية في المدن الذكية',
             author_name: 'م. خالد العتيبي',
-            author_avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80',
+            author_avatar: 'https://ui-avatars.com/api/?name=خالد+العتيبي&background=0D8ABC&color=fff&size=150&font-size=0.33&rounded=true',
             author_club: 'silver',
             author_specialization: 'التخطيط العمراني',
             excerpt: 'تسعى المملكة لبناء مدن ذكية مستدامة...',
@@ -151,13 +167,15 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
             views_count: 6750,
             likes_count: 420,
             comments_count: 67,
-            is_trending: true
+            is_trending: true,
+            is_featured: allOpinionArticles.length < 3,
+            author_slug: 'khalid-alotaibi'
           },
           {
             id: '4',
             title: 'الثقافة السعودية في عصر العولمة',
             author_name: 'د. نورا السديري',
-            author_avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&q=80',
+            author_avatar: 'https://ui-avatars.com/api/?name=نورا+السديري&background=0D8ABC&color=fff&size=150&font-size=0.33&rounded=true',
             author_club: 'gold',
             author_specialization: 'الدراسات الثقافية',
             excerpt: 'كيف تحافظ الثقافة السعودية على هويتها...',
@@ -167,64 +185,17 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
             reading_time: 7,
             views_count: 5200,
             likes_count: 380,
-            comments_count: 52
-          },
-          {
-            id: '5',
-            title: 'مستقبل النقل في المدن السعودية',
-            author_name: 'أ. عبدالله الراشد',
-            author_avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80',
-            author_club: 'bronze',
-            author_specialization: 'النقل والمواصلات',
-            excerpt: 'تطوير شبكات النقل العام في المملكة...',
-            ai_summary: 'يحلل الكاتب مشاريع النقل العام الجديدة في المملكة وتأثيرها على جودة الحياة والاستدامة البيئية.',
-            featured_image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80',
-            published_at: new Date(Date.now() - 14400000).toISOString(),
-            reading_time: 5,
-            views_count: 3800,
-            likes_count: 290,
-            comments_count: 38
-          },
-          {
-            id: '6',
-            title: 'التجارة الإلكترونية والاقتصاد الرقمي',
-            author_name: 'أ. ريم التميمي',
-            author_avatar: 'https://ui-avatars.com/api/?name=محمد+الراشد&background=0D8ABC&color=fff&size=150&font-size=0.33&rounded=true',
-            author_club: 'silver',
-            author_specialization: 'الاقتصاد الرقمي',
-            excerpt: 'نمو قطاع التجارة الإلكترونية في المملكة...',
-            ai_summary: 'تستعرض الكاتبة نمو التجارة الإلكترونية في السعودية والفرص الاستثمارية في الاقتصاد الرقمي.',
-            featured_image: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&w=800&q=80',
-            published_at: new Date(Date.now() - 18000000).toISOString(),
-            reading_time: 6,
-            views_count: 4500,
-            likes_count: 320,
-            comments_count: 45
-          },
-          {
-            id: 'mubarak-analysis-1',
-            title: 'تحولات السياسة الخارجية السعودية في عهد الرؤية',
-            author_name: 'مبارك آل عاتي',
-            author_avatar: 'https://ui-avatars.com/api/?name=مبارك+العاطي&background=0D8ABC&color=fff&size=150&font-size=0.33&rounded=true',
-            author_club: 'platinum',
-            author_specialization: 'محلل سياسي',
-            excerpt: 'شهدت السياسة الخارجية السعودية تطوراً استراتيجياً جذرياً في إطار رؤية 2030، مما عزز مكانة المملكة إقليمياً وعالمياً...',
-            ai_summary: 'يحلل الكاتب التحولات الاستراتيجية في السياسة الخارجية السعودية والدبلوماسية النشطة التي تتبعها المملكة لترسيخ دورها القيادي في المنطقة والعالم.',
-            featured_image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80',
-            published_at: new Date(Date.now() - 1800000).toISOString(), // 30 دقيقة مضت - مقال حديث
-            reading_time: 12,
-            views_count: 15800,
-            likes_count: 950,
-            comments_count: 187,
-            is_featured: true,
-            is_trending: true,
-            author_slug: 'mubarak-al-ati',
-            audio_url: '/audio/mubarak-al-ati-intro.mp3'
+            comments_count: 52,
+            is_featured: allOpinionArticles.length < 3,
+            author_slug: 'nora-alsudairy'
           }
         ];
 
-        setOpinionArticles(mockArticles);
-        setFeaturedWriters(mockArticles.filter(article => article.is_featured));
+        // دمج المقالات
+        allOpinionArticles = [...allOpinionArticles, ...additionalMockArticles];
+
+        setOpinionArticles(allOpinionArticles);
+        setFeaturedWriters(allOpinionArticles.filter(article => article.is_featured));
       } catch (error) {
         console.error('خطأ في جلب بيانات الرأي:', error);
       } finally {
