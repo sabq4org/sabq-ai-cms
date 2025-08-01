@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Star, MessageSquare, Eye, Flame } from 'lucide-react';
+import { getArticleLink } from '@/lib/utils';
 
 interface MobileOpinionCardProps {
   article: {
@@ -34,7 +35,7 @@ const writerClubColors = {
 
 export default function MobileOpinionCard({ article, darkMode }: MobileOpinionCardProps) {
   return (
-    <Link href={`/opinion/${article.id}`} className="block">
+    <Link href={getArticleLink(article)} className="block">
       <article className={`relative overflow-hidden rounded-2xl transition-all ${
         darkMode 
           ? 'bg-gradient-to-br from-orange-900/10 to-red-900/10 border border-orange-800/20' 

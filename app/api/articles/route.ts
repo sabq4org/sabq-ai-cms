@@ -220,25 +220,55 @@ export async function POST(request: NextRequest) {
     data = await request.json()
     console.log('📦 البيانات المستلمة:', JSON.stringify(data, null, 2))
     
-    // التحقق من البيانات المطلوبة
-    if (!data.title || !data.content) {
-      return NextResponse.json({
-        success: false,
-        error: 'العنوان والمحتوى مطلوبان'
-      }, { status: 400 })
+    // توحيد أسماء الحقول المختلفة
+    const authorId = data.author_id || data.authorId || data.article_author_id || null;
+    const categoryId = data.category_id || data.categoryId || null;
+    
+    console.log('🔄 توحيد الحقول:', {
+      original_author: data.author_id,
+      original_authorId: data.authorId, 
+      original_article_author_id: data.article_author_id,
+      unified_author: authorId,
+      original_category: data.category_id,
+      original_categoryId: data.categoryId,
+      unified_category: categoryId
+    });
+
+    // التحقق من البيانات المطلوبة مع تحسين الرسائل
+    const errors = [];
+    
+    if (!data.title?.trim()) {
+      errors.push('العنوان مطلوب ولا يمكن أن يكون فارغاً');
     }
     
-    if (!data.category_id) {
-      return NextResponse.json({
-        success: false,
-        error: 'يجب اختيار تصنيف للمقال'
-      }, { status: 400 })
+    if (!data.content?.trim()) {
+      errors.push('محتوى المقال مطلوب ولا يمكن أن يكون فارغاً');
     }
     
-    if (!data.author_id) {
+    if (!categoryId) {
+      errors.push('يجب اختيار تصنيف للمقال');
+    }
+    
+    if (!authorId) {
+      errors.push('يجب تحديد كاتب المقال');
+    }
+    
+    // التحقق من طول العنوان
+    if (data.title && data.title.length > 200) {
+      errors.push('عنوان المقال طويل جداً (أقصى حد 200 حرف)');
+    }
+    
+    // التحقق من طول المحتوى
+    if (data.content && data.content.length < 10) {
+      errors.push('محتوى المقال قصير جداً (أدنى حد 10 أحرف)');
+    }
+    
+    if (errors.length > 0) {
       return NextResponse.json({
         success: false,
-        error: 'يجب تحديد كاتب المقال'
+        error: 'بيانات المقال غير صحيحة',
+        details: errors.join(', '),
+        validation_errors: errors
       }, { status: 400 })
     }
     
@@ -265,8 +295,8 @@ export async function POST(request: NextRequest) {
       slug: data.slug || generateSlug(data.title),
       content: data.content,
       excerpt: data.excerpt || data.summary || null,
-      author_id: data.author_id, // يجب أن يكون موجوداً من الواجهة
-      category_id: data.category_id,
+      author_id: authorId, // استخدام المتغير الموحد
+      category_id: categoryId, // استخدام المتغير الموحد
       status: data.status || 'draft',
       featured: isFeatured,
       breaking: isBreaking,
@@ -282,9 +312,48 @@ export async function POST(request: NextRequest) {
     
     console.log('📝 بيانات المقال المنقاة:', articleData);
     
+    // التحقق من وجود التصنيف والمؤلف في قاعدة البيانات قبل الإنشاء
+    console.log('🔍 التحقق من صحة المؤلف والتصنيف...');
+    
+    const [author, category] = await Promise.all([
+      prisma.users.findUnique({ where: { id: authorId } }),
+      prisma.categories.findUnique({ where: { id: categoryId } })
+    ]);
+    
+    if (!author) {
+      console.error('❌ المؤلف غير موجود:', authorId);
+      return NextResponse.json({
+        success: false,
+        error: 'المؤلف المحدد غير موجود في النظام',
+        details: `معرف المؤلف: ${authorId}`
+      }, { status: 400 });
+    }
+    
+    if (!category) {
+      console.error('❌ التصنيف غير موجود:', categoryId);
+      return NextResponse.json({
+        success: false,
+        error: 'التصنيف المحدد غير موجود في النظام',
+        details: `معرف التصنيف: ${categoryId}`
+      }, { status: 400 });
+    }
+    
+    console.log('✅ المؤلف والتصنيف صحيحان:', {
+      author: author.name || author.email,
+      category: category.name
+    });
+    
     // إنشاء المقال أولاً
     const article = await prisma.articles.create({
-      data: articleData
+      data: articleData,
+      include: {
+        author: {
+          select: { id: true, name: true, email: true }
+        },
+        categories: {
+          select: { id: true, name: true, slug: true }
+        }
+      }
     })
     
     // تعامل مبسط مع المقالات المميزة - تجنب FeaturedArticleManager مؤقتاً
@@ -295,7 +364,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       article,
-      message: data.status === 'published' ? 'تم نشر المقال بنجاح' : 'تم حفظ المسودة بنجاح'
+      message: data.status === 'published' ? 'تم نشر المقال بنجاح' : 'تم حفظ المسودة بنجاح',
+      summary: {
+        id: article.id,
+        title: article.title,
+        author: article.author?.name || article.author?.email,
+        category: article.categories?.name,
+        status: article.status,
+        created_at: article.created_at
+      }
     }, { status: 201 })
     
   } catch (error: any) {
@@ -320,17 +397,17 @@ export async function POST(request: NextRequest) {
         field,
         meta: error.meta,
         receivedData: {
-          author_id: data.author_id,
-          category_id: data.category_id
+          author_id: authorId,
+          category_id: categoryId
         }
       });
       
       if (field.includes('author')) {
         message = 'المستخدم المحدد غير موجود';
-        details = `معرف المستخدم: ${data.author_id}`;
+        details = `معرف المستخدم: ${authorId}`;
       } else if (field.includes('category')) {
         message = 'التصنيف المحدد غير موجود';
-        details = `معرف التصنيف: ${data.category_id}`;
+        details = `معرف التصنيف: ${categoryId}`;
       }
       
       return NextResponse.json({
@@ -339,8 +416,8 @@ export async function POST(request: NextRequest) {
         details,
         debug: {
           field,
-          author_id: data.author_id,
-          category_id: data.category_id
+          author_id: authorId,
+          category_id: categoryId
         }
       }, { status: 400 })
     }

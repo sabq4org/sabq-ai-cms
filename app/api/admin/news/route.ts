@@ -16,18 +16,11 @@ export async function GET(request: NextRequest) {
     const order = searchParams.get('order') || 'desc';
     const skip = (page - 1) * limit;
 
-    // بناء شروط البحث - فقط الأخبار
+    // بناء شروط البحث - فقط الأخبار (استبعاد مقالات الرأي)
     const where: any = {
-      // تصفية الأخبار فقط (كل ما ليس مقال رأي)
-      OR: [
-        { article_type: 'news' },
-        { article_type: { equals: null } }, // الأخبار القديمة قد لا تحتوي على نوع
-        { 
-          article_type: { 
-            notIn: ['opinion', 'analysis', 'interview'] 
-          } 
-        }
-      ]
+      article_type: {
+        notIn: ['opinion', 'analysis', 'interview']
+      }
     };
     
     if (status !== 'all') {
@@ -40,7 +33,7 @@ export async function GET(request: NextRequest) {
     
     if (search) {
       where.AND = [
-        where.OR, // الحفاظ على تصفية نوع المحتوى
+        { article_type: { notIn: ['opinion', 'analysis', 'interview'] } }, // الحفاظ على تصفية نوع المحتوى
         {
           OR: [
             { title: { contains: search, mode: 'insensitive' } },
@@ -48,8 +41,8 @@ export async function GET(request: NextRequest) {
           ]
         }
       ];
-      // إزالة OR الأصلية لتجنب التعارض
-      delete where.OR;
+      // إزالة article_type الأصلية لتجنب التعارض
+      delete where.article_type;
     }
 
     // ترتيب النتائج

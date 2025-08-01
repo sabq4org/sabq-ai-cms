@@ -22,6 +22,7 @@ import {
   Headphones
 } from 'lucide-react';
 import { generatePlaceholderImage, getValidImageUrl } from '@/lib/cloudinary';
+import { getArticleLink } from '@/lib/utils';
 import MobileOpinionCard from './mobile/MobileOpinionCard';
 
 // أيقونات أندية الكتاب
@@ -107,26 +108,26 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
         let allOpinionArticles: OpinionArticle[] = [];
 
         // إضافة مقال قائد الرأي اليوم إذا كان متوفرًا
-        if (opinionLeaderData.success && opinionLeaderData.article) {
-          const leader = opinionLeaderData.article;
+        if (opinionLeaderData.success && opinionLeaderData.data) {
+          const leader = opinionLeaderData.data;
           const leaderArticle: OpinionArticle = {
             id: leader.id,
             title: leader.title,
-            author_name: leader.author_name || leader.article_author?.full_name || 'كاتب غير محدد',
-            author_avatar: leader.author_avatar || leader.article_author?.avatar_url || 'https://ui-avatars.com/api/?name=K&background=0D8ABC&color=fff',
+            author_name: leader.author?.name || 'كاتب غير محدد',
+            author_avatar: leader.author?.avatar_url || 'https://ui-avatars.com/api/?name=K&background=0D8ABC&color=fff',
             author_club: 'platinum', // قائد الرأي دائماً بلاتيني
-            author_specialization: leader.author_specialty || leader.article_author?.specializations?.[0] || 'كاتب رأي',
+            author_specialization: leader.author?.specialty || 'كاتب رأي',
             excerpt: leader.excerpt || '',
-            ai_summary: leader.ai_summary || leader.summary || leader.excerpt || '',
-            featured_image: leader.featured_image || 'https://images.unsplash.com/photo-1542281286-9e0a16bb7366?auto=format&fit=crop&w=800&q=80',
+            ai_summary: leader.excerpt || '',
+            featured_image: leader.hero_image || 'https://images.unsplash.com/photo-1542281286-9e0a16bb7366?auto=format&fit=crop&w=800&q=80',
             published_at: leader.published_at || new Date().toISOString(),
-            reading_time: leader.reading_time || 5,
+            reading_time: leader.read_time || 5,
             views_count: leader.views || 0,
-            likes_count: leader.likes || 0,
+            likes_count: 0,
             comments_count: 0,
             is_featured: true,
             is_trending: true,
-            author_slug: leader.author_slug || leader.article_author?.slug || 'opinion-leader'
+            author_slug: leader.slug || 'opinion-leader'
           };
           allOpinionArticles.push(leaderArticle);
         }
@@ -138,20 +139,20 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
             .map((article: any) => ({
               id: article.id,
               title: article.title,
-              author_name: article.author_name || 'كاتب مجهول',
-              author_avatar: article.author_avatar || 'https://ui-avatars.com/api/?name=K&background=0D8ABC&color=fff',
+              author_name: article.article_author?.full_name || article.author?.name || 'كاتب مجهول',
+              author_avatar: article.article_author?.avatar_url || article.author?.avatar || 'https://ui-avatars.com/api/?name=K&background=0D8ABC&color=fff',
               author_club: 'silver',
-              author_specialization: article.author_specialty || 'كاتب رأي',
+              author_specialization: article.article_author?.title || article.article_author?.specializations?.[0] || 'كاتب رأي',
               excerpt: article.excerpt || 'مقال رأي يستحق القراءة',
               ai_summary: article.ai_summary || article.summary || article.excerpt || 'مقال رأي متميز',
-              featured_image: article.featured_image || article.image || 'https://images.unsplash.com/photo-1542281286-9e0a16bb7366?auto=format&fit=crop&w=800&q=80',
+              featured_image: article.featured_image || 'https://images.unsplash.com/photo-1542281286-9e0a16bb7366?auto=format&fit=crop&w=800&q=80',
               published_at: article.published_at || new Date().toISOString(),
               reading_time: article.reading_time || 5,
               views_count: article.views || 0,
               likes_count: article.likes || 0,
               comments_count: article.comments_count || 0,
               is_featured: allOpinionArticles.length < 3,
-              author_slug: article.author_slug || 'unknown'
+              author_slug: article.article_author?.slug || article.author?.id || 'unknown'
             }));
           
           allOpinionArticles = [...allOpinionArticles, ...realArticles];
@@ -443,7 +444,7 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
               <div className="p-4">
                 {/* 1. صورة الكاتب (avatar دائرية صغيرة) */}
                 <div className="flex items-start gap-3 mb-3">
-                  <Link href={`/author/${article.author_slug || 'dr-mohammed-ahmad'}`} className="flex-shrink-0">
+                  <Link href={`/author/${article.author_slug || article.id || 'unknown-author'}`} className="flex-shrink-0">
                     <div className="relative">
                       <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 ring-2 ring-white dark:ring-gray-800 shadow-lg">
                         <Image 
@@ -464,7 +465,7 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
                   
                   <div className="flex-1 min-w-0">
                     {/* 2. اسم الكاتب (سطر واحد فقط) */}
-                    <Link href={`/author/${article.author_slug || 'dr-mohammed-ahmad'}`}>
+                    <Link href={`/author/${article.author_slug || article.id || 'unknown-author'}`}>
                       <h4 className={`font-bold text-sm truncate hover:text-blue-600 transition-colors ${
                         darkMode ? 'text-white' : 'text-gray-800'
                       }`}>
@@ -479,7 +480,7 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
                 </div>
 
                 {/* 4. عنوان المقال (2 سطر max) */}
-                <Link href={`/opinion/${article.id}`}>
+                <Link href={getArticleLink(article)}>
                   <h3 className={`font-bold text-sm mb-2 line-clamp-2 leading-snug group-hover:text-blue-600 transition-colors ${
                     darkMode ? 'text-white' : 'text-gray-900'
                   }`}>
@@ -498,7 +499,7 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
                 <div className="space-y-3">
                   {/* زر التفاصيل - كرابط نصي أنيق */}
                   <Link 
-                    href={`/opinion/${article.id}`}
+                    href={getArticleLink(article)}
                     className={`inline-flex items-center gap-1 text-xs font-medium transition-colors ${
                       darkMode 
                         ? 'text-blue-400 hover:text-blue-300' 

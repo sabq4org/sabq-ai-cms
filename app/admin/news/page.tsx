@@ -123,8 +123,20 @@ export default function AdminNewsPage() {
         params.append('category_id', selectedCategory);
       }
 
+      console.log(`📡 استدعاء API: /api/admin/news?${params}`);
       const response = await fetch(`/api/admin/news?${params}`);
+      console.log(`📊 حالة الاستجابة: ${response.status}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
       const data = await response.json();
+      console.log(`📦 بيانات مُستلمة:`, { 
+        success: data.success, 
+        total: data.total, 
+        articlesCount: data.articles?.length || 0 
+      });
       
       if (data.articles) {
         // تنظيف الأخبار من التجريبية والمجدولة فقط
@@ -147,6 +159,12 @@ export default function AdminNewsPage() {
         });
         
         setArticles(sortedArticles);
+        console.log(`🧹 بعد الفلترة:`, {
+          originalCount: data.articles.length,
+          filteredCount: cleanArticles.length,
+          finalCount: sortedArticles.length,
+          status: filterStatus
+        });
         console.log(`✅ تم جلب ${sortedArticles.length} خبر بحالة: ${filterStatus}`);
       }
     } catch (error) {
@@ -236,13 +254,17 @@ export default function AdminNewsPage() {
   };
 
   // تحميل البيانات الأساسية مرة واحدة عند تحميل الصفحة
+  // تحميل البيانات الأولية عند تحميل الصفحة
   useEffect(() => {
+    console.log('🎯 بدء تحميل البيانات الأولية...');
     fetchCategories();
-    calculateStatsFromAll(); // تحميل الإحصائيات مرة واحدة فقط
+    fetchArticles();
+    calculateStatsFromAll();
   }, []);
 
   // تحميل المقالات عند تغيير الفلتر أو التصنيف
   useEffect(() => {
+    console.log(`🔄 تغيير الفلتر إلى: ${filterStatus}, التصنيف: ${selectedCategory}`);
     fetchArticles();
   }, [filterStatus, selectedCategory]);
 
@@ -381,6 +403,16 @@ export default function AdminNewsPage() {
   const filteredArticles = articles.filter(article => {
     if (!searchTerm.trim()) return true;
     return article.title.toLowerCase().includes(searchTerm.toLowerCase());
+  });
+  
+  // logging للتشخيص
+  console.log(`🔍 حالة البيانات الحالية:`, {
+    articles: articles.length,
+    filteredArticles: filteredArticles.length,
+    loading,
+    searchTerm,
+    filterStatus,
+    selectedCategory
   });
 
   // الحصول على التصنيف الحقيقي
