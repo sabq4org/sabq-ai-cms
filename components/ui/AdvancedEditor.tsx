@@ -27,6 +27,7 @@ const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
 }) => {
   const [editor, setEditor] = useState<any>(null);
   const [isClient, setIsClient] = useState(false);
+  const editorRef = React.useRef<HTMLDivElement>(null);
   
   // تأكد من أن المكون يعمل فقط في العميل
   useEffect(() => {
@@ -38,6 +39,8 @@ const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
     if (!isClient) return;
     
     let isMounted = true;
+    let retryCount = 0;
+    const maxRetries = 5;
     
     const initializeEditor = async () => {
       try {
@@ -51,7 +54,29 @@ const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
         
         if (!isMounted) return;
         
+        // التحقق من وجود عنصر DOM
+        if (!editorRef.current) {
+          console.error(`❌ عنصر المحرر غير جاهز بعد (محاولة ${retryCount + 1}/${maxRetries})`);
+          
+          if (retryCount < maxRetries) {
+            retryCount++;
+            // إعادة المحاولة بعد فترة قصيرة
+            setTimeout(() => {
+              if (isMounted) {
+                initializeEditor();
+              }
+            }, 100 * retryCount); // زيادة التأخير مع كل محاولة
+            return;
+          } else {
+            console.error('❌ فشل في العثور على عنصر المحرر بعد عدة محاولات');
+            return;
+          }
+        }
+        
+        console.log('✅ عنصر المحرر جاهز، بدء التهيئة...');
+        
         const editorInstance = new Editor({
+          element: editorRef.current, // ✅ ربط المحرر بعنصر DOM
           extensions: [
             StarterKit.configure({
               // تخصيص العناوين لدعم RTL
@@ -94,6 +119,13 @@ const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
           onUpdate: ({ editor }) => {
             const html = editor.getHTML();
             onChange(html);
+          },
+          onCreate: ({ editor }) => {
+            console.log('✅ تم إنشاء المحرر بنجاح');
+            editor.commands.focus();
+          },
+          onDestroy: () => {
+            console.log('🔄 تم تدمير المحرر');
           }
         });
         
@@ -164,23 +196,32 @@ const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
           darkMode ? 'border-gray-600 bg-gray-700' : 'border-gray-300 bg-gray-50'
         )}>
           <p className={cn('text-sm', darkMode ? 'text-gray-400' : 'text-gray-600')}>
-            جاري تحميل المحرر المتقدم...
+            {!isClient ? '⏳ جاري تحميل المحرر...' : '🔧 جاري تهيئة المحرر المتقدم...'}
+          </p>
+          <p className={cn('text-xs mt-1', darkMode ? 'text-gray-500' : 'text-gray-500')}>
+            💡 يمكنك البدء بالكتابة في المحرر البسيط أدناه
           </p>
         </div>
         <textarea
           value={content}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => {
+            console.log('📝 [FALLBACK EDITOR] كتابة في المحرر البديل:', e.target.value.length, 'حرف');
+            onChange(e.target.value);
+          }}
           placeholder={placeholder}
           rows={15}
           dir="rtl"
           className={cn(
-            'w-full p-4 rounded-lg border resize-none',
+            'w-full p-4 rounded-lg border resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
             darkMode 
               ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
               : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
           )}
           style={{ minHeight: minHeight }}
         />
+        <div className={cn('text-xs text-center', darkMode ? 'text-gray-500' : 'text-gray-500')}>
+          📊 الكلمات: {content.split(/\s+/).filter(w => w.length > 0).length} | الأحرف: {content.length}
+        </div>
       </div>
     );
   }
@@ -383,9 +424,9 @@ const AdvancedEditor: React.FC<AdvancedEditorProps> = ({
         style={{ minHeight: minHeight }}
       >
         <div 
-          id="editor-container"
+          ref={editorRef}
           className={cn(
-            'w-full',
+            'w-full focus:outline-none',
             darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
           )}
         />
