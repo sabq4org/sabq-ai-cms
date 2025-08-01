@@ -315,6 +315,15 @@ export async function GET(request: NextRequest) {
               email: true,
               avatar: true
             }
+          },
+          article_author: {
+            select: {
+              id: true,
+              full_name: true,
+              slug: true,
+              title: true,
+              avatar_url: true
+            }
           }
         }
       }),
