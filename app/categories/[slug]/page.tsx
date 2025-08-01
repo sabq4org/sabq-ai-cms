@@ -82,11 +82,39 @@ const categoryColors: { [key: string]: string } = {
 interface PageProps {
   params: Promise<{ slug: string }>
 }
+interface CategoryStats {
+  articles: {
+    total: number;
+    published: number;
+    draft: number;
+    weekly: number;
+    monthly: number;
+  };
+  engagement: {
+    totalViews: number;
+    totalLikes: number;
+    totalShares: number;
+    averageViews: number;
+  };
+  highlights: {
+    mostViewed: any;
+    latest: any;
+    topArticles: any[];
+  };
+  performance: {
+    engagementRate: string;
+    viewsPerArticle: number;
+    weeklyGrowth: number;
+    monthlyGrowth: number;
+  };
+}
+
 export default function CategoryDetailPage({ params }: PageProps) {
   const router = useRouter();
   const [category, setCategory] = useState<Category | null>(null);
   const [articles, setArticles] = useState<Article[]>([]);
   const [filteredArticles, setFilteredArticles] = useState<Article[]>([]);
+  const [categoryStats, setCategoryStats] = useState<CategoryStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'newest' | 'views' | 'likes'>('newest');
@@ -104,25 +132,74 @@ export default function CategoryDetailPage({ params }: PageProps) {
     loadCategory();
   }, []);
   useEffect(() => {
-    // فلترة المقالات حسب البحث
-    const filtered = articles.filter(article =>
-      article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (article.excerpt && article.excerpt.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
-    // ترتيب المقالات
-    const sorted = [...filtered].sort((a, b) => {
+    // إذا تغير الترتيب، أعد جلب المقالات مع الترتيب الجديد
+    if (category && (sortBy !== 'newest' || searchTerm)) {
+      fetchFilteredArticles();
+    } else {
+      // فلترة محلية للبحث فقط
+      const filtered = articles.filter(article =>
+        article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (article.excerpt && article.excerpt.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+      setFilteredArticles(filtered);
+    }
+  }, [articles, sortBy, searchTerm]);
+
+  const fetchFilteredArticles = async () => {
+    if (!category) return;
+    
+    try {
+      let sortParam = 'published_at';
+      let orderParam = 'desc';
+      
       switch (sortBy) {
         case 'views':
-          return (b.views_count || 0) - (a.views_count || 0);
+          sortParam = 'views';
+          orderParam = 'desc';
+          break;
         case 'likes':
-          return (b.likes_count || 0) - (a.likes_count || 0);
+          sortParam = 'likes';
+          orderParam = 'desc';
+          break;
         case 'newest':
         default:
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+          sortParam = 'published_at';
+          orderParam = 'desc';
+          break;
       }
-    });
-    setFilteredArticles(sorted);
-  }, [articles, sortBy, searchTerm]);
+      
+      const params = new URLSearchParams({
+        category_id: category.id,
+        status: 'published',
+        article_type: 'news',
+        sort: sortParam,
+        order: orderParam,
+        limit: '50'
+      });
+      
+      if (searchTerm) {
+        params.append('search', searchTerm);
+      }
+      
+      const response = await fetch(`/api/articles?${params}`);
+      const data = await response.json();
+      
+      if (data.success && data.data) {
+        const processedArticles = data.data.map((article: any) => ({
+          ...article,
+          views_count: article.views || article.views_count || 0,
+          likes_count: article.likes || article.likes_count || 0,
+          shares_count: article.shares || article.shares_count || 0,
+          category_name: category.name,
+          author_name: article.author?.name || article.author_name || 'كاتب مجهول'
+        }));
+        
+        setFilteredArticles(processedArticles);
+      }
+    } catch (error) {
+      console.error('خطأ في جلب المقالات المفلترة:', error);
+    }
+  };
   const fetchCategoryData = async (slug: string) => {
     try {
       setLoading(true);
@@ -181,10 +258,24 @@ export default function CategoryDetailPage({ params }: PageProps) {
       setCategory(foundCategory);
       console.log('✅ تم جلب التصنيف:', foundCategory.name);
       
+      // جلب الإحصائيات الحقيقية للتصنيف
+      try {
+        const statsResponse = await fetch(`/api/categories/${foundCategory.id}/stats`);
+        if (statsResponse.ok) {
+          const statsData = await statsResponse.json();
+          if (statsData.success) {
+            setCategoryStats(statsData.data);
+            console.log('📊 تم جلب إحصائيات التصنيف:', statsData.data);
+          }
+        }
+      } catch (statsError) {
+        console.warn('⚠️ فشل في جلب إحصائيات التصنيف:', statsError);
+      }
+      
       // جلب المقالات الخاصة بالتصنيف مع معالجة أخطاء
       let articlesResponse;
       try {
-        articlesResponse = await fetch(`/api/articles?category=${foundCategory.id}&status=published`, {
+        articlesResponse = await fetch(`/api/articles?category_id=${foundCategory.id}&status=published&article_type=news`, {
           headers: {
             'Content-Type': 'application/json',
           },
@@ -472,27 +563,42 @@ export default function CategoryDetailPage({ params }: PageProps) {
                 )}
               </div>
             </div>
-            {/* Enhanced Stats - Desktop Only */}
+            {/* Enhanced Stats - Desktop Only - استخدام الإحصائيات الحقيقية */}
             <div className="hidden md:flex items-center gap-8 text-white/90">
               <div className="flex items-center gap-3 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full border border-white/30">
                 <BookOpen className="w-6 h-6" />
-                <span className="font-bold text-xl">{articles.length}</span>
-                <span className="text-lg">مقال</span>
+                <span className="font-bold text-xl">
+                  {categoryStats?.articles.published || articles.length}
+                </span>
+                <span className="text-lg">خبر منشور</span>
               </div>
               <div className="flex items-center gap-3 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full border border-white/30">
                 <Eye className="w-6 h-6" />
                 <span className="font-bold text-xl">
-                  {articles.reduce((acc, article) => acc + (article.views_count || 0), 0).toLocaleString()}
+                  {(categoryStats?.engagement.totalViews || 
+                    articles.reduce((acc, article) => acc + (article.views_count || 0), 0)
+                  ).toLocaleString()}
                 </span>
                 <span className="text-lg">مشاهدة</span>
               </div>
               <div className="flex items-center gap-3 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full border border-white/30">
                 <Heart className="w-6 h-6" />
                 <span className="font-bold text-xl">
-                  {articles.reduce((acc, article) => acc + (article.likes_count || 0), 0).toLocaleString()}
+                  {(categoryStats?.engagement.totalLikes || 
+                    articles.reduce((acc, article) => acc + (article.likes_count || 0), 0)
+                  ).toLocaleString()}
                 </span>
                 <span className="text-lg">إعجاب</span>
               </div>
+              {categoryStats?.engagement.totalShares && categoryStats.engagement.totalShares > 0 && (
+                <div className="flex items-center gap-3 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full border border-white/30">
+                  <TrendingUp className="w-6 h-6" />
+                  <span className="font-bold text-xl">
+                    {categoryStats.engagement.totalShares.toLocaleString()}
+                  </span>
+                  <span className="text-lg">مشاركة</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
