@@ -95,8 +95,8 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
         const opinionLeaderResponse = await fetch('/api/opinion/leaders');
         const opinionLeaderData = await opinionLeaderResponse.json();
         
-        // جلب مقالات الرأي العامة
-        const articlesResponse = await fetch('/api/articles?type=OPINION&status=published&sortBy=latest');
+        // جلب مقالات الرأي الحقيقية
+        const articlesResponse = await fetch('/api/opinion-articles?limit=3&status=published');
         const articlesData = await articlesResponse.json();
         
         // جلب كتاب الرأي المميزين
@@ -107,92 +107,55 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
         let allOpinionArticles: OpinionArticle[] = [];
 
         // إضافة مقال قائد الرأي اليوم إذا كان متوفرًا
-        if (opinionLeaderData.success && opinionLeaderData.data) {
-          const todayLeader = opinionLeaderData.data;
+        if (opinionLeaderData.success && opinionLeaderData.article) {
+          const leader = opinionLeaderData.article;
           const leaderArticle: OpinionArticle = {
-            id: todayLeader.id,
-            title: todayLeader.title,
-            author_name: todayLeader.author?.name || 'كاتب غير محدد',
-            author_avatar: todayLeader.author?.avatar_url || '/default-avatar.png',
+            id: leader.id,
+            title: leader.title,
+            author_name: leader.author_name || leader.article_author?.full_name || 'كاتب غير محدد',
+            author_avatar: leader.author_avatar || leader.article_author?.avatar_url || 'https://ui-avatars.com/api/?name=K&background=0D8ABC&color=fff',
             author_club: 'platinum', // قائد الرأي دائماً بلاتيني
-            author_specialization: todayLeader.author?.specialty || 'كاتب رأي',
-            excerpt: todayLeader.excerpt || '',
-            ai_summary: todayLeader.excerpt || '',
-            featured_image: todayLeader.hero_image || '',
-            published_at: todayLeader.published_at || new Date().toISOString(),
-            reading_time: todayLeader.read_time || 5,
-            views_count: todayLeader.views || 0,
-            likes_count: 0, // يمكن إضافة نظام الإعجاب لاحقاً
-            comments_count: 0, // يمكن إضافة نظام التعليقات لاحقاً
+            author_specialization: leader.author_specialty || leader.article_author?.specializations?.[0] || 'كاتب رأي',
+            excerpt: leader.excerpt || '',
+            ai_summary: leader.ai_summary || leader.summary || leader.excerpt || '',
+            featured_image: leader.featured_image || 'https://images.unsplash.com/photo-1542281286-9e0a16bb7366?auto=format&fit=crop&w=800&q=80',
+            published_at: leader.published_at || new Date().toISOString(),
+            reading_time: leader.reading_time || 5,
+            views_count: leader.views || 0,
+            likes_count: leader.likes || 0,
+            comments_count: 0,
             is_featured: true,
             is_trending: true,
-            author_slug: todayLeader.slug,
-            audio_url: todayLeader.audio_url
+            author_slug: leader.author_slug || leader.article_author?.slug || 'opinion-leader'
           };
           allOpinionArticles.push(leaderArticle);
         }
 
-        // إضافة بيانات وهمية إضافية للعرض
-        const additionalMockArticles: OpinionArticle[] = [
-          {
-            id: '2', 
-            title: 'رؤية 2030 وتمكين المرأة في ريادة الأعمال',
-            author_name: 'أ. فاطمة النصر',
-            author_avatar: 'https://ui-avatars.com/api/?name=فاطمة+النصر&background=0D8ABC&color=fff&size=150&font-size=0.33&rounded=true',
-            author_club: 'gold',
-            author_specialization: 'ريادة الأعمال',
-            excerpt: 'شهدت المملكة نقلة نوعية في تمكين المرأة...',
-            ai_summary: 'تسلط الكاتبة الضوء على الإنجازات المحققة في تمكين المرأة السعودية وريادة الأعمال، والفرص المستقبلية في ظل التحولات الاقتصادية.',
-            featured_image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&q=80',
-            published_at: new Date(Date.now() - 3600000).toISOString(),
-            reading_time: 6,
-            views_count: 8900,
-            likes_count: 650,
-            comments_count: 89,
-            is_featured: allOpinionArticles.length < 3, // اجعل أول 3 مقالات مميزة
-            author_slug: 'fatima-alnaser'
-          },
-          {
-            id: '3',
-            title: 'الاستدامة البيئية في المدن الذكية',
-            author_name: 'م. خالد العتيبي',
-            author_avatar: 'https://ui-avatars.com/api/?name=خالد+العتيبي&background=0D8ABC&color=fff&size=150&font-size=0.33&rounded=true',
-            author_club: 'silver',
-            author_specialization: 'التخطيط العمراني',
-            excerpt: 'تسعى المملكة لبناء مدن ذكية مستدامة...',
-            ai_summary: 'يستعرض الكاتب مشاريع المدن الذكية في المملكة والتقنيات المستخدمة لتحقيق الاستدامة البيئية والحفاظ على الموارد الطبيعية.',
-            featured_image: 'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1f?auto=format&fit=crop&w=800&q=80',
-            published_at: new Date(Date.now() - 7200000).toISOString(),
-            reading_time: 10,
-            views_count: 6750,
-            likes_count: 420,
-            comments_count: 67,
-            is_trending: true,
-            is_featured: allOpinionArticles.length < 3,
-            author_slug: 'khalid-alotaibi'
-          },
-          {
-            id: '4',
-            title: 'الثقافة السعودية في عصر العولمة',
-            author_name: 'د. نورا السديري',
-            author_avatar: 'https://ui-avatars.com/api/?name=نورا+السديري&background=0D8ABC&color=fff&size=150&font-size=0.33&rounded=true',
-            author_club: 'gold',
-            author_specialization: 'الدراسات الثقافية',
-            excerpt: 'كيف تحافظ الثقافة السعودية على هويتها...',
-            ai_summary: 'تناقش الكاتبة التوازن بين الحفاظ على الهوية الثقافية السعودية وتبني التطورات العالمية، وأهمية الثقافة في بناء المجتمعات الحديثة.',
-            featured_image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80',
-            published_at: new Date(Date.now() - 10800000).toISOString(),
-            reading_time: 7,
-            views_count: 5200,
-            likes_count: 380,
-            comments_count: 52,
-            is_featured: allOpinionArticles.length < 3,
-            author_slug: 'nora-alsudairy'
-          }
-        ];
-
-        // دمج المقالات
-        allOpinionArticles = [...allOpinionArticles, ...additionalMockArticles];
+        // إضافة المقالات الحقيقية المتبقية من API
+        if (articlesData.success && articlesData.articles) {
+          const realArticles = articlesData.articles
+            .filter((article: any) => !allOpinionArticles.find(existing => existing.id === article.id)) // تجنب التكرار
+            .map((article: any) => ({
+              id: article.id,
+              title: article.title,
+              author_name: article.author_name || 'كاتب مجهول',
+              author_avatar: article.author_avatar || 'https://ui-avatars.com/api/?name=K&background=0D8ABC&color=fff',
+              author_club: 'silver',
+              author_specialization: article.author_specialty || 'كاتب رأي',
+              excerpt: article.excerpt || 'مقال رأي يستحق القراءة',
+              ai_summary: article.ai_summary || article.summary || article.excerpt || 'مقال رأي متميز',
+              featured_image: article.featured_image || article.image || 'https://images.unsplash.com/photo-1542281286-9e0a16bb7366?auto=format&fit=crop&w=800&q=80',
+              published_at: article.published_at || new Date().toISOString(),
+              reading_time: article.reading_time || 5,
+              views_count: article.views || 0,
+              likes_count: article.likes || 0,
+              comments_count: article.comments_count || 0,
+              is_featured: allOpinionArticles.length < 3,
+              author_slug: article.author_slug || 'unknown'
+            }));
+          
+          allOpinionArticles = [...allOpinionArticles, ...realArticles];
+        }
 
         setOpinionArticles(allOpinionArticles);
         setFeaturedWriters(allOpinionArticles.filter(article => article.is_featured));
