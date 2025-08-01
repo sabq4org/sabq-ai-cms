@@ -252,9 +252,17 @@ export default function TeamManagementPage() {
 
   const handleSaveMember = async () => {
     try {
-      // التحقق من البيانات المطلوبة
+      // التحقق من البيانات المطلوبة مع تشخيص أفضل
+      console.log('🔍 التحقق من البيانات:', formData);
+      
       if (!formData.name || !formData.email || !formData.role) {
-        toast.error('الرجاء ملء جميع الحقول المطلوبة');
+        const missingFields = [];
+        if (!formData.name) missingFields.push('الاسم');
+        if (!formData.email) missingFields.push('البريد الإلكتروني');
+        if (!formData.role) missingFields.push('الدور');
+        
+        console.log('❌ حقول ناقصة:', missingFields);
+        toast.error(`الرجاء ملء الحقول المطلوبة: ${missingFields.join(', ')}`);
         return;
       }
       
@@ -264,7 +272,11 @@ export default function TeamManagementPage() {
       
       const method = selectedMember ? 'PUT' : 'POST';
       
-      console.log('📤 إرسال البيانات:', { url, method, formData });
+      console.log('📤 إرسال البيانات:', { 
+        url, 
+        method, 
+        formData: { ...formData, name: formData.name?.length, email: formData.email?.length, role: formData.role?.length }
+      });
       
       const response = await fetch(url, {
         method,
@@ -272,19 +284,49 @@ export default function TeamManagementPage() {
         body: JSON.stringify(formData)
       });
       
+      console.log('📄 استجابة الخادم:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok
+      });
+      
       const data = await response.json();
+      console.log('📋 بيانات الاستجابة:', data);
       
       if (!response.ok) {
-        throw new Error(data.error || 'فشل في حفظ البيانات');
+        throw new Error(data.error || data.message || `خطأ HTTP ${response.status}: ${response.statusText}`);
       }
       
       toast.success(selectedMember ? 'تم تحديث العضو بنجاح' : 'تم إضافة العضو بنجاح');
       setIsAddModalOpen(false);
       setIsEditModalOpen(false);
       setSelectedMember(null);
+      // إعادة تعيين النموذج
+      setFormData({
+        name: '',
+        email: '',
+        role: '',
+        department: '',
+        position: '',
+        bio: '',
+        avatar: '',
+        phone: '',
+        social_links: {
+          twitter: '',
+          linkedin: '',
+          facebook: '',
+          instagram: ''
+        },
+        is_active: true
+      });
       fetchTeamMembers();
     } catch (error: any) {
       console.error('❌ خطأ في حفظ العضو:', error);
+      console.error('📊 تفاصيل الخطأ:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
       toast.error(error.message || 'فشل في حفظ البيانات');
     }
   };

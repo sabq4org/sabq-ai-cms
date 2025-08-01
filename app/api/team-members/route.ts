@@ -72,29 +72,61 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
-    console.log('➕ إضافة عضو جديد:', data.name);
+    console.log('➕ إضافة عضو جديد:', data);
     
-    // التحقق من البيانات المطلوبة
+    // التحقق من البيانات المطلوبة - تحسين التحقق
     if (!data.name || !data.email || !data.role) {
+      console.log('❌ بيانات ناقصة:', { name: !!data.name, email: !!data.email, role: !!data.role });
       return NextResponse.json(
         { 
           success: false, 
-          error: 'الاسم والبريد الإلكتروني والدور مطلوبة' 
+          error: 'الاسم والبريد الإلكتروني والدور مطلوبة',
+          received: { name: !!data.name, email: !!data.email, role: !!data.role }
         },
         { status: 400 }
       );
     }
     
-    // قراءة البيانات الحالية
-    const teamMembers = await readData();
-    
-    // التحقق من عدم وجود عضو بنفس البريد
-    const existingMember = teamMembers.find((m: any) => m.email === data.email);
-    if (existingMember) {
+    // التحقق من صحة البريد الإلكتروني
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(data.email)) {
       return NextResponse.json(
         { 
           success: false, 
-          error: 'يوجد عضو بنفس البريد الإلكتروني' 
+          error: 'صيغة البريد الإلكتروني غير صحيحة' 
+        },
+        { status: 400 }
+      );
+    }
+    
+    // قراءة البيانات الحالية مع معالجة أفضل للأخطاء
+    let teamMembers;
+    try {
+      teamMembers = await readData();
+      console.log('📊 تم جلب البيانات بنجاح، عدد الأعضاء:', teamMembers.length);
+    } catch (readError) {
+      console.error('❌ خطأ في قراءة البيانات:', readError);
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'خطأ في قراءة بيانات الفريق',
+          details: readError instanceof Error ? readError.message : 'خطأ غير معروف'
+        },
+        { status: 500 }
+      );
+    }
+    
+    // التحقق من عدم وجود عضو بنفس البريد
+    const existingMember = teamMembers.find((m: any) => 
+      m.email && m.email.toLowerCase() === data.email.toLowerCase()
+    );
+    if (existingMember) {
+      console.log('⚠️ عضو موجود بالفعل:', existingMember.name);
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'يوجد عضو بنفس البريد الإلكتروني',
+          existingMember: { name: existingMember.name, email: existingMember.email }
         },
         { status: 400 }
       );
@@ -126,10 +158,23 @@ export async function POST(request: NextRequest) {
     // إضافة العضو للقائمة
     teamMembers.push(newMember);
     
-    // حفظ البيانات
-    await writeData(teamMembers);
+    // حفظ البيانات مع معالجة أفضل للأخطاء
+    try {
+      await writeData(teamMembers);
+      console.log('✅ تم حفظ البيانات بنجاح');
+    } catch (writeError) {
+      console.error('❌ خطأ في حفظ البيانات:', writeError);
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'فشل في حفظ بيانات العضو',
+          details: writeError instanceof Error ? writeError.message : 'خطأ في الكتابة'
+        },
+        { status: 500 }
+      );
+    }
     
-    console.log('✅ تم إضافة العضو بنجاح');
+    console.log('✅ تم إضافة العضو بنجاح:', newMember.name);
     
     return NextResponse.json({
       success: true,
