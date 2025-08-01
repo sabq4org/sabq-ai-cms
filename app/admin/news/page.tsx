@@ -91,7 +91,7 @@ export default function AdminNewsPage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterStatus, setFilterStatus] = useState('published');
   const [categories, setCategories] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
 
@@ -101,6 +101,7 @@ export default function AdminNewsPage() {
     published: 0,
     draft: 0,
     archived: 0,
+    deleted: 0,
     breaking: 0,
   });
 
@@ -108,9 +109,11 @@ export default function AdminNewsPage() {
   const fetchArticles = async () => {
     setLoading(true);
     try {
+      console.log(`🔍 جلب المقالات مع الفلتر: ${filterStatus}`);
+      
       const params = new URLSearchParams({
-        status: filterStatus === 'all' ? 'all' : filterStatus,
-        limit: '50', // تقليل عدد المقالات
+        status: filterStatus, // استخدام الفلتر مباشرة بدلاً من تحويله لـ "all"
+        limit: '50',
         sort: 'published_at',
         order: 'desc'
       });
@@ -123,8 +126,8 @@ export default function AdminNewsPage() {
       const data = await response.json();
       
       if (data.articles) {
-        // فلترة المقالات التجريبية والمجدولة والمؤرشفة (إلا إذا تم اختيار عرض المؤرشفة)
-        const realArticles = data.articles.filter((article: any) => {
+        // تنظيف المقالات من التجريبية والمجدولة فقط
+        const cleanArticles = data.articles.filter((article: any) => {
           const title = article.title.toLowerCase();
           const isTestArticle = title.includes('test') || 
                                 title.includes('تجربة') || 
@@ -132,40 +135,21 @@ export default function AdminNewsPage() {
                                 title.includes('example');
           
           // إخفاء المقالات التجريبية والمجدولة دائماً
-          if (isTestArticle || article.status === 'scheduled') {
-            return false;
-          }
-          
-          // إذا كان الفلتر "all" أو أي فلتر آخر غير "archived"، لا نعرض المؤرشفة
-          if (filterStatus !== 'archived' && article.status === 'archived') {
-            return false;
-          }
-          
-          // إذا كان الفلتر "archived"، نعرض المؤرشفة فقط
-          if (filterStatus === 'archived') {
-            return article.status === 'archived';
-          }
-          
-          return true;
+          return !isTestArticle && article.status !== 'scheduled';
         });
         
         // ترتيب المقالات حسب التاريخ (الأحدث أولاً)
-        const sortedArticles = realArticles.sort((a: any, b: any) => {
+        const sortedArticles = cleanArticles.sort((a: any, b: any) => {
           const dateA = new Date(a.published_at || a.created_at).getTime();
           const dateB = new Date(b.published_at || b.created_at).getTime();
-          return dateB - dateA; // الأحدث أولاً
+          return dateB - dateA;
         });
         
         setArticles(sortedArticles);
-        // حساب الإحصائيات من جميع المقالات (بما في ذلك المؤرشفة) مع استبعاد التجريبية فقط
-        calculateStats(data.articles.filter((article: any) => {
-          const title = article.title.toLowerCase();
-          const isTestArticle = title.includes('test') || 
-                                title.includes('تجربة') || 
-                                title.includes('demo') ||
-                                title.includes('example');
-          return !isTestArticle && article.status !== 'scheduled';
-        }));
+        console.log(`✅ تم جلب ${sortedArticles.length} مقال بحالة: ${filterStatus}`);
+        
+        // حساب الإحصائيات من جميع المقالات الحقيقية (لعرض الأرقام الصحيحة في الفلاتر)
+        await calculateStatsFromAll();
       }
     } catch (error) {
       console.error('خطأ في جلب المقالات:', error);
@@ -188,13 +172,49 @@ export default function AdminNewsPage() {
     }
   };
 
-  // حساب الإحصائيات
+  // حساب الإحصائيات من جميع المقالات
+  const calculateStatsFromAll = async () => {
+    try {
+      // جلب جميع المقالات للإحصائيات
+      const response = await fetch('/api/articles?status=all&limit=1000');
+      const data = await response.json();
+      
+      if (data.articles) {
+        // تنظيف المقالات من التجريبية والمجدولة
+        const cleanArticles = data.articles.filter((article: any) => {
+          const title = article.title.toLowerCase();
+          const isTestArticle = title.includes('test') || 
+                                title.includes('تجربة') || 
+                                title.includes('demo') ||
+                                title.includes('example');
+          return !isTestArticle && article.status !== 'scheduled';
+        });
+        
+        const stats = {
+          total: cleanArticles.length,
+          published: cleanArticles.filter((a: any) => a.status === 'published').length,
+          draft: cleanArticles.filter((a: any) => a.status === 'draft').length,
+          archived: cleanArticles.filter((a: any) => a.status === 'archived').length,
+          deleted: cleanArticles.filter((a: any) => a.status === 'deleted').length,
+          breaking: cleanArticles.filter((a: any) => a.breaking).length,
+        };
+        
+        setStats(stats);
+        console.log('📊 الإحصائيات المحدثة:', stats);
+      }
+    } catch (error) {
+      console.error('خطأ في حساب الإحصائيات:', error);
+    }
+  };
+
+  // حساب الإحصائيات (للاستخدام المحلي)
   const calculateStats = (articles: Article[]) => {
     const stats = {
       total: articles.length,
       published: articles.filter(a => a.status === 'published').length,
       draft: articles.filter(a => a.status === 'draft').length,
       archived: articles.filter(a => a.status === 'archived').length,
+      deleted: articles.filter(a => a.status === 'deleted').length,
       breaking: articles.filter(a => a.breaking).length,
     };
     setStats(stats);
@@ -297,10 +317,45 @@ export default function AdminNewsPage() {
     }
   };
 
-  // فلترة المقالات
+  // البحث في جميع المقالات
+  const performGlobalSearch = async (searchTerm: string) => {
+    if (!searchTerm.trim()) {
+      fetchArticles(); // إذا لم يكن هناك بحث، ارجع للفلتر الحالي
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      // البحث في جميع الحالات
+      const response = await fetch(`/api/articles?status=all&search=${encodeURIComponent(searchTerm)}&limit=100`);
+      const data = await response.json();
+      
+      if (data.articles) {
+        // تنظيف النتائج من المقالات التجريبية فقط
+        const searchResults = data.articles.filter((article: any) => {
+          const title = article.title.toLowerCase();
+          const isTestArticle = title.includes('test') || 
+                                title.includes('تجربة') || 
+                                title.includes('demo') ||
+                                title.includes('example');
+          return !isTestArticle && article.status !== 'scheduled';
+        });
+        
+        setArticles(searchResults);
+        console.log(`🔍 نتائج البحث: ${searchResults.length} مقال`);
+      }
+    } catch (error) {
+      console.error('خطأ في البحث:', error);
+      toast.error('حدث خطأ في البحث');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // فلترة المقالات محلياً
   const filteredArticles = articles.filter(article => {
-    const matchesSearch = article.title.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesSearch;
+    if (!searchTerm.trim()) return true;
+    return article.title.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   // الحصول على التصنيف الحقيقي
@@ -334,26 +389,15 @@ export default function AdminNewsPage() {
             </Link>
           </div>
 
-          {/* بطاقات الإحصائيات */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <Card className={`cursor-pointer hover:shadow-lg dark:hover:shadow-gray-900/50 transition-shadow border-gray-200 dark:border-gray-700 ${filterStatus === 'all' ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800' : 'bg-white dark:bg-gray-800'}`} onClick={() => setFilterStatus('all')}>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">نشط</p>
-                    <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{formatNumber(stats.published + stats.draft)}</p>
-                  </div>
-                  <FileText className="w-8 h-8 text-blue-500 dark:text-blue-400" />
-                </div>
-              </CardContent>
-            </Card>
-
+          {/* بطاقات الفلاتر - عرض حسب الحالة */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Card className={`cursor-pointer hover:shadow-lg dark:hover:shadow-gray-900/50 transition-shadow border-gray-200 dark:border-gray-700 ${filterStatus === 'published' ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' : 'bg-white dark:bg-gray-800'}`} onClick={() => setFilterStatus('published')}>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">منشور</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">✅ منشورة</p>
                     <p className="text-2xl font-bold text-green-600 dark:text-green-400">{formatNumber(stats.published)}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">الافتراضي</p>
                   </div>
                   <CheckCircle className="w-8 h-8 text-green-500 dark:text-green-400" />
                 </div>
@@ -364,7 +408,7 @@ export default function AdminNewsPage() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">مسودة</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">✏️ مسودة</p>
                     <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{formatNumber(stats.draft)}</p>
                   </div>
                   <PauseCircle className="w-8 h-8 text-yellow-500 dark:text-yellow-400" />
@@ -376,7 +420,7 @@ export default function AdminNewsPage() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">مؤرشف</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">🗂️ مؤرشفة</p>
                     <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{formatNumber(stats.archived)}</p>
                   </div>
                   <XCircle className="w-8 h-8 text-orange-500 dark:text-orange-400" />
@@ -384,14 +428,14 @@ export default function AdminNewsPage() {
               </CardContent>
             </Card>
 
-            <Card className="cursor-pointer hover:shadow-lg dark:hover:shadow-gray-900/50 transition-shadow bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+            <Card className={`cursor-pointer hover:shadow-lg dark:hover:shadow-gray-900/50 transition-shadow border-gray-200 dark:border-gray-700 ${filterStatus === 'deleted' ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800' : 'bg-white dark:bg-gray-800'}`} onClick={() => setFilterStatus('deleted')}>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">عاجل</p>
-                    <p className="text-2xl font-bold text-red-600 dark:text-red-400">{formatNumber(stats.breaking)}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">❌ محذوفة</p>
+                    <p className="text-2xl font-bold text-red-600 dark:text-red-400">{formatNumber(stats.deleted || 0)}</p>
                   </div>
-                  <Zap className="w-8 h-8 text-red-500 dark:text-red-400" />
+                  <Trash2 className="w-8 h-8 text-red-500 dark:text-red-400" />
                 </div>
               </CardContent>
             </Card>
@@ -402,9 +446,23 @@ export default function AdminNewsPage() {
             <div className="flex-1 relative">
               <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
               <Input
-                placeholder="البحث في المقالات..."
+                placeholder="البحث في جميع المقالات (منشورة، مسودة، مؤرشفة، محذوفة)..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setSearchTerm(value);
+                  
+                  // تطبيق debounce للبحث الشامل
+                  if (value.trim()) {
+                    setTimeout(() => {
+                      if (searchTerm === value) { // تأكد أن القيمة لم تتغير
+                        performGlobalSearch(value);
+                      }
+                    }, 500);
+                  } else {
+                    fetchArticles(); // ارجع للفلتر الحالي عند حذف البحث
+                  }
+                }}
                 className="pr-10 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
               />
             </div>
@@ -423,32 +481,45 @@ export default function AdminNewsPage() {
 
           {/* جدول المقالات */}
           <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-            {filterStatus && (
-              <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">عرض:</span>
-                  <Badge variant={
-                    filterStatus === 'all' ? 'default' :
-                    filterStatus === 'published' ? 'default' :
-                    filterStatus === 'draft' ? 'secondary' :
-                    filterStatus === 'archived' ? 'outline' : 'default'
-                  } className={
-                    filterStatus === 'all' ? 'bg-blue-100 text-blue-800 border-blue-200' :
-                    filterStatus === 'published' ? 'bg-green-100 text-green-800 border-green-200' :
-                    filterStatus === 'draft' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' :
-                    filterStatus === 'archived' ? 'bg-orange-100 text-orange-800 border-orange-200' : ''
-                  }>
-                    {filterStatus === 'all' ? 'المقالات النشطة' :
-                     filterStatus === 'published' ? 'المقالات المنشورة' :
-                     filterStatus === 'draft' ? 'المسودات' :
-                     filterStatus === 'archived' ? 'المقالات المؤرشفة' : filterStatus}
+                  {searchTerm.trim() ? (
+                    <>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">نتائج البحث عن:</span>
+                      <Badge variant="outline" className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-blue-300">
+                        "{searchTerm}"
+                      </Badge>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">في جميع الحالات</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">عرض:</span>
+                      <Badge variant="outline" className={
+                        filterStatus === 'published' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-300' :
+                        filterStatus === 'draft' ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300 border-yellow-300' :
+                        filterStatus === 'archived' ? 'bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 border-orange-300' :
+                        filterStatus === 'deleted' ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-red-300' :
+                        'bg-gray-50 dark:bg-gray-900/20 text-gray-700 dark:text-gray-300 border-gray-300'
+                      }>
+                        {filterStatus === 'published' ? '✅ المقالات المنشورة' :
+                         filterStatus === 'draft' ? '✏️ المقالات المسودة' :
+                         filterStatus === 'archived' ? '🗂️ المقالات المؤرشفة' :
+                         filterStatus === 'deleted' ? '❌ المقالات المحذوفة' :
+                         `📝 ${filterStatus}`}
                   </Badge>
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
-                    ({filteredArticles.length} مقال)
-                  </span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        ({filteredArticles.length} مقال)
+                      </span>
+                    </>
+                  )}
+                </div>
+                {/* إضافة عداد المقالات في الجانب الأيمن */}
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  إجمالي: {stats.total} مقال
                 </div>
               </div>
-            )}
+            </div>
             <CardContent className="p-0">
               {loading ? (
                 <div className="p-8 text-center">
@@ -521,20 +592,20 @@ export default function AdminNewsPage() {
 
                             <TableCell className="text-center">
                               <Badge
-                                variant={
-                                  article.status === 'published' ? 'default' :
-                                  article.status === 'draft' ? 'secondary' :
-                                  'outline'
-                                }
+                                variant="outline"
                                 className={
-                                  article.status === 'published' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-200 dark:border-green-700' :
-                                  article.status === 'draft' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 border-yellow-200 dark:border-yellow-700' :
-                                  'bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-700'
+                                  article.status === 'published' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700' :
+                                  article.status === 'draft' ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300 border-yellow-300 dark:border-yellow-700' :
+                                  article.status === 'archived' ? 'bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 border-orange-300 dark:border-orange-700' :
+                                  article.status === 'deleted' ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-red-300 dark:border-red-700' :
+                                  'bg-gray-50 dark:bg-gray-900/20 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-700'
                                 }
                               >
-                                {article.status === 'published' ? 'منشور' :
-                                 article.status === 'draft' ? 'مسودة' :
-                                 'مؤرشف'}
+                                {article.status === 'published' && '✅ منشورة'}
+                                {article.status === 'draft' && '✏️ مسودة'}
+                                {article.status === 'archived' && '🗂️ مؤرشفة'}
+                                {article.status === 'deleted' && '❌ محذوفة'}
+                                {!['published', 'draft', 'archived', 'deleted'].includes(article.status) && `📝 ${article.status}`}
                               </Badge>
                             </TableCell>
 
