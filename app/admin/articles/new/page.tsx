@@ -31,6 +31,7 @@ interface ArticleForm {
   content: string;
   excerpt: string;
   article_author_id: string;
+  category_id: string;
   article_type: 'opinion' | 'analysis' | 'interview' | 'news';
   featured_image: string;
   tags: string[];
@@ -43,6 +44,7 @@ const NewArticlePage = () => {
   
   // State
   const [authors, setAuthors] = useState<ArticleAuthor[]>([]);
+  const [categories, setCategories] = useState<Array<{id: string, name: string}>>([]);
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [form, setForm] = useState<ArticleForm>({
@@ -50,6 +52,7 @@ const NewArticlePage = () => {
     content: '',
     excerpt: '',
     article_author_id: '',
+    category_id: '',
     article_type: 'opinion',
     featured_image: '',
     tags: [],
@@ -68,9 +71,10 @@ const NewArticlePage = () => {
   
   const [generateStatus, setGenerateStatus] = useState<'idle' | 'generating' | 'success' | 'error'>('idle');
 
-  // Fetch authors
+  // Fetch authors and categories
   useEffect(() => {
     fetchAuthors();
+    fetchCategories();
   }, []);
 
   const fetchAuthors = async () => {
@@ -87,6 +91,23 @@ const NewArticlePage = () => {
     } catch (error) {
       console.error('خطأ في جلب الكتّاب:', error);
       toast.error('خطأ في تحميل قائمة الكتّاب');
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/categories');
+      const data = await response.json();
+      
+      if (data.success) {
+        setCategories(data.categories || []);
+        if (data.categories?.length > 0) {
+          setForm(prev => ({ ...prev, category_id: data.categories[0].id }));
+        }
+      }
+    } catch (error) {
+      console.error('خطأ في جلب التصنيفات:', error);
+      toast.error('خطأ في تحميل قائمة التصنيفات');
     }
   };
 
@@ -197,8 +218,8 @@ const NewArticlePage = () => {
 
   // Save article
   const saveArticle = async (status: 'draft' | 'published') => {
-    if (!form.title || !form.content || !form.article_author_id) {
-      toast.error('يجب ملء جميع الحقول المطلوبة');
+    if (!form.title || !form.content || !form.article_author_id || !form.category_id) {
+      toast.error('يجب ملء جميع الحقول المطلوبة (العنوان، المحتوى، الكاتب، التصنيف)');
       return;
     }
 
@@ -419,7 +440,35 @@ const NewArticlePage = () => {
               </select>
             </div>
 
-            {/* 2. نوع المقال */}
+            {/* 2. التصنيف */}
+            <div className={cn(
+              'p-6 rounded-xl border',
+              darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+            )}>
+              <label className={cn('block text-sm font-medium mb-2', darkMode ? 'text-gray-300' : 'text-gray-700')}>
+                <Tag className="w-4 h-4 inline ml-2" />
+                التصنيف *
+              </label>
+              <select
+                value={form.category_id}
+                onChange={(e) => setForm(prev => ({ ...prev, category_id: e.target.value }))}
+                className={cn(
+                  'w-full p-3 rounded-lg border',
+                  darkMode 
+                    ? 'bg-gray-700 border-gray-600 text-white' 
+                    : 'bg-white border-gray-300 text-gray-900'
+                )}
+              >
+                <option value="">اختر التصنيف</option>
+                {categories.map(category => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* 3. نوع المقال */}
             <div className={cn(
               'p-6 rounded-xl border',
               darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
