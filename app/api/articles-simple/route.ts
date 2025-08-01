@@ -3,6 +3,10 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+// معرفات افتراضية للاختبار
+const DEFAULT_ADMIN_ID = "user-1750236579398-3h4rt6gu7"; // علي عبده
+const DEFAULT_CATEGORY_ID = "cat-001"; // محليات
+
 // دالة مساعدة لتوليد ID
 function generateId() {
   return `article_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -36,19 +40,9 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
     
-    if (!data.category_id) {
-      return NextResponse.json({
-        success: false,
-        error: 'يجب اختيار تصنيف للمقال'
-      }, { status: 400 });
-    }
-    
-    if (!data.author_id) {
-      return NextResponse.json({
-        success: false,
-        error: 'يجب تحديد كاتب المقال'
-      }, { status: 400 });
-    }
+    // استخدام القيم الافتراضية إذا لم تُرسل
+    const author_id = data.author_id || DEFAULT_ADMIN_ID;
+    const category_id = data.category_id || DEFAULT_CATEGORY_ID;
     
     // تنقية البيانات للتأكد من مطابقتها لنموذج articles
     const articleData = {
@@ -57,8 +51,8 @@ export async function POST(request: NextRequest) {
       slug: data.slug || generateSlug(data.title),
       content: data.content,
       excerpt: data.excerpt || data.summary || null,
-      author_id: data.author_id,
-      category_id: data.category_id,
+      author_id: author_id,
+      category_id: category_id,
       status: data.status || 'draft',
       featured: data.featured || false,
       breaking: data.breaking || false,
@@ -117,8 +111,7 @@ export async function POST(request: NextRequest) {
         details,
         debug: {
           field,
-          author_id: data.author_id,
-          category_id: data.category_id
+          received_data: { error: 'البيانات غير متاحة في معالج الخطأ' }
         }
       }, { status: 400 });
     }

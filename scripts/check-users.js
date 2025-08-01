@@ -1,46 +1,46 @@
-const { PrismaClient } = require('../lib/generated/prisma');
+const { PrismaClient } = require('@prisma/client');
+
 const prisma = new PrismaClient();
 
 async function checkUsers() {
   try {
-    console.log('🔍 البحث عن المستخدمين...\n');
+    console.log('🔍 فحص المستخدمين في قاعدة البيانات...');
     
-    const users = await prisma.user.findMany({
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        role: true,
-        isAdmin: true,
-        isVerified: true
-      }
+    // فحص جدول users
+    const users = await prisma.$queryRaw`
+      SELECT id, name, email, role FROM users LIMIT 5;
+    `;
+    
+    console.log('👥 المستخدمين الموجودين:');
+    users.forEach(user => {
+      console.log(`  - ID: ${user.id}, Name: ${user.name}, Email: ${user.email}, Role: ${user.role}`);
     });
     
-    console.log(`📊 إجمالي المستخدمين: ${users.length}`);
-    console.log('------------------------\n');
+    // فحص إذا كان admin موجود
+    const adminUser = await prisma.$queryRaw`
+      SELECT * FROM users WHERE id = 'admin' OR email LIKE '%admin%' LIMIT 1;
+    `;
     
-    if (users.length > 0) {
-      users.forEach((user, index) => {
-        console.log(`${index + 1}. ${user.name || 'بدون اسم'}`);
-        console.log(`   - البريد: ${user.email}`);
-        console.log(`   - الدور: ${user.role}`);
-        console.log(`   - مدير: ${user.isAdmin ? 'نعم' : 'لا'}`);
-        console.log(`   - مُفعّل: ${user.isVerified ? 'نعم' : 'لا'}`);
-        console.log('');
-      });
+    console.log('\n🔑 المستخدم admin:');
+    if (adminUser.length > 0) {
+      console.log('✅ موجود:', adminUser[0]);
     } else {
-      console.log('⚠️  لا يوجد مستخدمين في قاعدة البيانات');
-      console.log('\n💡 يمكنك إضافة مستخدمين عبر:');
-      console.log('   1. التسجيل من الموقع');
-      console.log('   2. استخدام Prisma Studio');
-      console.log('   3. تشغيل سكريبت إضافة مستخدمين');
+      console.log('❌ غير موجود - يحتاج إنشاء');
+    }
+    
+    // اقتراح معرف مستخدم صالح
+    if (users.length > 0) {
+      console.log('\n💡 معرفات المستخدمين الصالحة:');
+      users.forEach(user => {
+        console.log(`  - "${user.id}"`);
+      });
     }
     
   } catch (error) {
-    console.error('❌ خطأ:', error);
+    console.error('❌ خطأ في فحص المستخدمين:', error);
   } finally {
     await prisma.$disconnect();
   }
 }
 
-checkUsers(); 
+checkUsers();
