@@ -148,12 +148,22 @@ export default function TeamManagementPage() {
   });
 
   // جلب بيانات الفريق
-  const fetchTeamMembers = async () => {
+  const fetchTeamMembers = async (forceRefresh = false) => {
     try {
-      const response = await fetch('/api/team-members');
+      // إضافة cache busting لضمان جلب البيانات الجديدة
+      const cacheBuster = forceRefresh ? `?t=${Date.now()}` : '';
+      const response = await fetch(`/api/team-members${cacheBuster}`, {
+        cache: 'no-cache',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      });
       if (!response.ok) throw new Error('فشل في جلب البيانات');
       
       const data = await response.json();
+      console.log('📋 تم جلب بيانات الفريق:', data.members?.length || 0, 'عضو');
       setTeamMembers(data.members || []);
     } catch (error) {
       console.error('خطأ في جلب أعضاء الفريق:', error);
@@ -338,6 +348,10 @@ export default function TeamManagementPage() {
       }
       
       toast.success(selectedMember ? 'تم تحديث العضو بنجاح' : 'تم إضافة العضو بنجاح');
+      
+      // إعادة جلب البيانات على الفور مع force refresh
+      await fetchTeamMembers(true);
+      
       setIsAddModalOpen(false);
       setIsEditModalOpen(false);
       setSelectedMember(null);
@@ -359,7 +373,11 @@ export default function TeamManagementPage() {
         },
         is_active: true
       });
-      fetchTeamMembers();
+      
+      // تأكيد إضافي بعد ثانية واحدة
+      setTimeout(() => {
+        fetchTeamMembers(true);
+      }, 1000);
     } catch (error: any) {
       console.error('❌ خطأ في حفظ العضو:', error);
       console.error('📊 تفاصيل الخطأ:', {
@@ -416,7 +434,7 @@ export default function TeamManagementPage() {
 
   const handleRefresh = () => {
     setRefreshing(true);
-    fetchTeamMembers();
+    fetchTeamMembers(true); // force refresh
   };
 
   const getRoleColor = (role: string) => {
