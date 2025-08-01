@@ -149,3 +149,40 @@ export function formatSmartDate(dateString: string): string {
   
   return formatDateShort(dateString);
 }
+
+/**
+ * تنسيق التاريخ بالشكل الكامل (للتوافق مع الملفات الموجودة)
+ */
+export function formatFullDate(dateString: string): string {
+  return formatDateArabic(dateString);
+}
+
+/**
+ * تنسيق التاريخ النسبي (للتوافق مع الملفات الموجودة)
+ */
+export function formatRelativeDate(dateString: string): string {
+  return formatSmartDate(dateString);
+}
+
+/**
+ * تنسيق التاريخ الميلادي (للتوافق مع الملفات الموجودة)
+ */
+export function formatDateGregorian(dateString: string): string {
+  try {
+    const date = new Date(dateString);
+    
+    if (isNaN(date.getTime())) {
+      return 'تاريخ غير صحيح';
+    }
+
+    // تنسيق بالأرقام الإنجليزية
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+
+    return `${day}/${month}/${year}`;
+  } catch (error) {
+    console.error('خطأ في تنسيق التاريخ الميلادي:', error);
+    return 'تاريخ غير صحيح';
+  }
+}
