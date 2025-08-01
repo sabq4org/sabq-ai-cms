@@ -22,14 +22,54 @@ export async function POST(request: NextRequest) {
     }
     
     // استخدام القيم من النموذج أو القيم الافتراضية
-    const author_id = data.article_author_id || data.author_id;
+    const article_author_id = data.article_author_id || data.author_id;
     const category_id = data.category_id || data.category;
     
-    if (!author_id) {
+    if (!article_author_id) {
       return NextResponse.json({
         success: false,
         error: 'يجب تحديد كاتب المقال'
       }, { status: 400 });
+    }
+    
+    // البحث عن مستخدم افتراضي أو إنشاؤه
+    let default_author_id = 'system-user-default';
+    
+    // التحقق من وجود المستخدم الافتراضي
+    const systemUser = await prisma.users.findFirst({
+      where: {
+        OR: [
+          { id: 'system-user-default' },
+          { email: 'system@sabq.ai' },
+          { role: 'admin' }
+        ]
+      }
+    });
+    
+    if (systemUser) {
+      default_author_id = systemUser.id;
+    } else {
+      // إنشاء مستخدم افتراضي إذا لم يكن موجوداً
+      try {
+        const newSystemUser = await prisma.users.create({
+          data: {
+            id: 'system-user-default',
+            email: 'system@sabq.ai',
+            name: 'نظام المقالات',
+            role: 'admin',
+            created_at: new Date(),
+            updated_at: new Date()
+          }
+        });
+        default_author_id = newSystemUser.id;
+        console.log('✅ تم إنشاء مستخدم النظام الافتراضي');
+      } catch (userCreateError) {
+        console.error('⚠️ فشل في إنشاء مستخدم النظام، استخدام أول مستخدم موجود');
+        const firstUser = await prisma.users.findFirst();
+        if (firstUser) {
+          default_author_id = firstUser.id;
+        }
+      }
     }
     
     if (!category_id) {
@@ -67,7 +107,8 @@ export async function POST(request: NextRequest) {
       slug: data.slug || generateSlug(data.title),
       content: data.content,
       excerpt: data.excerpt || data.summary || null,
-      author_id: author_id,
+      author_id: default_author_id,
+      article_author_id: article_author_id,
       category_id: category_id,
       status: data.status || 'draft',
       featured: isFeatured,
@@ -155,8 +196,9 @@ export async function POST(request: NextRequest) {
         field,
         meta: error.meta,
         receivedData: {
-          author_id: data.article_author_id || data.author_id,
-          category_id: data.category_id || data.category
+          article_author_id: data.article_author_id || data.author_id,
+          category_id: data.category_id || data.category,
+          author_id: default_author_id
         }
       });
       
@@ -174,8 +216,9 @@ export async function POST(request: NextRequest) {
         details,
         debug: {
           field,
-          author_id: data.article_author_id || data.author_id,
-          category_id: data.category_id || data.category
+          article_author_id: data.article_author_id || data.author_id,
+          category_id: data.category_id || data.category,
+          author_id: default_author_id
         }
       }, { status: 400 });
     }
