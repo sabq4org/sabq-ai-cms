@@ -84,18 +84,58 @@ export default function UserRolesPage() {
   const fetchRolesData = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/roles');
+      console.log('🔍 جلب الأدوار من قاعدة البيانات...');
+      
+      const response = await fetch('/api/admin/roles');
       const data = await response.json();
       
-      if (data.success) {
-        setRoles(data.roles);
-        setPermissions(data.permissions);
-        setStats(data.stats);
+      if (data.success && data.data) {
+        console.log(`✅ تم جلب ${data.count} دور`);
+        
+        // تحويل البيانات للصيغة المطلوبة للواجهة
+        const formattedRoles = data.data.map((role: any) => ({
+          id: role.id,
+          name: role.name,
+          displayName: role.display_name || role.name,
+          description: role.description || 'بدون وصف',
+          usersCount: 0, // سيتم حسابه لاحقاً
+          permissions: Array.isArray(role.permissions) ? role.permissions : [],
+          isActive: true,
+          isSystem: role.is_system || false,
+          color: role.is_system ? 'blue' : 'green',
+          createdAt: role.created_at || new Date().toISOString(),
+          level: role.name === 'admin' ? 1 : 
+                 role.name === 'editor' ? 2 : 
+                 role.name === 'correspondent' ? 3 : 
+                 role.name === 'content-manager' ? 2 : 4
+        }));
+        
+        setRoles(formattedRoles);
+        
+        // إحصائيات مبسطة
+        setStats({
+          totalRoles: formattedRoles.length,
+          activeRoles: formattedRoles.filter((r: any) => r.isActive).length,
+          totalUsers: 0, // سيتم حسابه لاحقاً
+          adminUsers: 0  // سيتم حسابه لاحقاً
+        });
+        
+        // صلاحيات افتراضية (يمكن تحسينها لاحقاً)
+        setPermissions([
+          { id: '1', name: 'users.view', displayName: 'عرض المستخدمين', description: 'عرض قائمة المستخدمين', category: 'المستخدمون', isSystem: true },
+          { id: '2', name: 'users.create', displayName: 'إنشاء مستخدمين', description: 'إضافة مستخدمين جدد', category: 'المستخدمون', isSystem: true },
+          { id: '3', name: 'articles.view', displayName: 'عرض المقالات', description: 'عرض قائمة المقالات', category: 'المحتوى', isSystem: true },
+          { id: '4', name: 'articles.create', displayName: 'إنشاء مقالات', description: 'إضافة مقالات جديدة', category: 'المحتوى', isSystem: true },
+          { id: '5', name: 'articles.edit', displayName: 'تعديل المقالات', description: 'تعديل المقالات الموجودة', category: 'المحتوى', isSystem: true },
+          { id: '6', name: 'articles.delete', displayName: 'حذف المقالات', description: 'حذف المقالات', category: 'المحتوى', isSystem: true }
+        ]);
+        
       } else {
-        toast.error('فشل في جلب الأدوار والصلاحيات');
+        console.error('❌ فشل في جلب الأدوار:', data.error);
+        toast.error(data.error || 'فشل في جلب الأدوار والصلاحيات');
       }
     } catch (error) {
-      console.error('خطأ في جلب البيانات:', error);
+      console.error('❌ خطأ في جلب البيانات:', error);
       toast.error('حدث خطأ في جلب البيانات');
     } finally {
       setLoading(false);
