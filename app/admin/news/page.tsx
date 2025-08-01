@@ -151,10 +151,19 @@ export default function AdminNewsPage() {
           return !isTestArticle && article.status !== 'scheduled';
         });
         
-        // ترتيب الأخبار حسب التاريخ (الأحدث أولاً)
+        // ترتيب الأخبار حسب التاريخ (الأحدث أولاً) مع حماية من undefined
         const sortedArticles = cleanArticles.sort((a: any, b: any) => {
-          const dateA = new Date(a.published_at || a.created_at).getTime();
-          const dateB = new Date(b.published_at || b.created_at).getTime();
+          if (!a || !b) return 0;
+          
+          const dateA = new Date(a.published_at || a.created_at || 0).getTime();
+          const dateB = new Date(b.published_at || b.created_at || 0).getTime();
+          
+          // التحقق من صحة التواريخ
+          if (isNaN(dateA) || isNaN(dateB)) {
+            console.warn('⚠️ تاريخ غير صالح في المقال:', { a: a.id, b: b.id });
+            return 0;
+          }
+          
           return dateB - dateA;
         });
         
@@ -399,8 +408,14 @@ export default function AdminNewsPage() {
     }
   };
 
-  // فلترة المقالات محلياً
+  // فلترة المقالات محلياً مع حماية من undefined
   const filteredArticles = articles.filter(article => {
+    // التحقق من وجود المقال وخصائصه الأساسية
+    if (!article || !article.id || !article.title) {
+      console.warn('⚠️ مقال مُعطل تم تخطيه:', article);
+      return false;
+    }
+    
     if (!searchTerm.trim()) return true;
     return article.title.toLowerCase().includes(searchTerm.toLowerCase());
   });
@@ -604,6 +619,12 @@ export default function AdminNewsPage() {
                     </TableHeader>
                     <TableBody>
                       {filteredArticles.map((article, index) => {
+                        // حماية إضافية للتأكد من سلامة البيانات
+                        if (!article || !article.id) {
+                          console.warn('⚠️ مقال فارغ في الجدول، تم تخطيه');
+                          return null;
+                        }
+                        
                         const dateTime = formatDateTime(article.published_at || article.created_at);
                         return (
                           <TableRow key={article.id} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900/50">
@@ -621,7 +642,7 @@ export default function AdminNewsPage() {
                                   />
                                 )}
                                 <div className="flex-1">
-                                  <p className="font-semibold text-gray-900 dark:text-white line-clamp-2">{article.title}</p>
+                                  <p className="font-semibold text-gray-900 dark:text-white line-clamp-2">{article.title || 'عنوان غير محدد'}</p>
                                   <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                                     <Users className="w-3 h-3 inline-block ml-1" />
                                     {article.author?.name || article.author_name || 'غير محدد'}
