@@ -217,4 +217,42 @@ export function getArticleLink(article: any): string {
   return `/article/${identifier}`;
 }
 
+/**
+ * إنشاء رابط المقال الذكي (Smart Article Link)
+ * يوجه المقالات للتصميم الجديد مع ميزات AI
+ */
+export function getSmartArticleLink(article: any): string {
+  // 🛡️ Guard Clause: التحقق من وجود المقال
+  if (!article) {
+    console.warn('getSmartArticleLink: Article is missing. Returning fallback link.', { article });
+    return '/';
+  }
+
+  // استخدام ID فقط
+  const identifier = getArticleIdentifier(article);
+  
+  if (!identifier) {
+    console.warn('getSmartArticleLink: Could not generate identifier. Returning fallback link.', { article });
+    return '/';
+  }
+
+  // التحقق من نوع المقال
+  const isOpinionArticle = (
+    article.category?.slug === 'opinion' ||
+    article.category?.name === 'رأي' ||
+    article.category_name === 'رأي' ||
+    article.type === 'OPINION' ||
+    article.article_type === 'opinion' ||
+    article.is_opinion === true
+  );
+
+  // إرجاع المسار الذكي المناسب
+  if (isOpinionArticle) {
+    return `/opinion/${identifier}`;
+  }
+  
+  // جميع المقالات الأخرى تذهب للتصميم الذكي الجديد
+  return `/article/${identifier}/smart-page`;
+}
+
 // Force rebuild - 2025-01-04 

@@ -5,6 +5,7 @@ import { formatDateShort } from '@/lib/date-utils';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { getSmartArticleLink } from '@/lib/utils';
 
 import { 
   Clock, Eye, Share2, MessageSquare, 
@@ -213,7 +214,7 @@ export default function PersonalizedFeed({ userId, limit = 10 }: PersonalizedFee
               {/* الصورة البارزة */}
               {article.featured_image && (
                 <Link 
-                  href={`/article/${article.id}`}
+                  href={getSmartArticleLink(article)}
                   onClick={() => recordInteraction(article.id, 'view')}
                   className="relative w-32 h-32 md:w-40 md:h-40 flex-shrink-0"
                 >
@@ -237,7 +238,7 @@ export default function PersonalizedFeed({ userId, limit = 10 }: PersonalizedFee
               <div className="flex-1 min-w-0">
                 {/* العنوان والوصف */}
                 <Link 
-                  href={`/article/${article.id}`}
+                  href={getSmartArticleLink(article)}
                   onClick={() => recordInteraction(article.id, 'view')}
                   className="block"
                 >

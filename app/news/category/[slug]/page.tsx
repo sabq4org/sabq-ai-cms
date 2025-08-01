@@ -4,6 +4,7 @@ import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { getSmartArticleLink } from '@/lib/utils';
 import { 
   ArrowRight, Calendar, Clock, Eye, Heart, MessageCircle, TrendingUp, Filter, Grid, List,
   ChevronDown, Search, Loader2, Tag,
@@ -368,7 +369,7 @@ export default function CategoryPage({ params }: PageProps) {
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {articles.filter(a => a.is_featured).slice(0, 2).map((article) => (
-                    <Link key={article.id} href={`/article/${article.id}`}>
+                    <Link key={article.id} href={getSmartArticleLink(article)}>
                       <div className="group bg-white rounded-2xl shadow-sm hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-100 hover:border-transparent transform hover:-translate-y-1">
                         <div className="relative h-64 overflow-hidden">
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10" />
@@ -420,7 +421,7 @@ export default function CategoryPage({ params }: PageProps) {
               : 'space-y-4'
             }>
               {articles.map((article) => (
-                <Link key={article.id} href={`/article/${article.id}`}>
+                <Link key={article.id} href={getSmartArticleLink(article)}>
                   <article className={`group bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden ${
                     viewMode === 'list' ? 'flex gap-6' : ''
                   }`}>

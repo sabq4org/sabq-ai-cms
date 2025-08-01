@@ -8,6 +8,7 @@ import { generatePlaceholderImage } from '@/lib/cloudinary';
 import { Filter, TrendingUp, Clock, Eye, 
   Heart, Sparkles, Brain, ChevronDown, Target, RefreshCw
 } from 'lucide-react';
+import { getSmartArticleLink } from '@/lib/utils';
 interface Article {
   id: string;
   title: string;
@@ -299,7 +300,7 @@ export default function ForYouPage() {
         ) : articles.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {articles.map((article) => (
-              <Link key={article.id} href={`/article/${article.id}`} className="block h-full">
+              <Link key={article.id} href={getSmartArticleLink(article)} className="block h-full">
                 <article className={`h-full min-h-[320px] flex flex-col group rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.01] ${
                   darkMode ? 'bg-gray-800' : 'bg-white'
                 } shadow-sm`}>

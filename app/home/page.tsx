@@ -4,6 +4,7 @@ import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { AlHilalWorldCupBlock } from '@/components/smart-blocks/AlHilalWorldCupBlock';
+import { getSmartArticleLink } from '@/lib/utils';
 import { 
   Clock, 
   Heart, 
@@ -180,7 +181,7 @@ export default function HomePage() {
                 </button>
               </div>
               <Link 
-                href={`/article/${article.id}`}
+                href={getSmartArticleLink(article)}
                 onClick={handleClick}
                 className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
               >
@@ -260,7 +261,7 @@ export default function HomePage() {
               </span>
             </div>
             <Link 
-              href={`/article/${article.id}`}
+              href={getSmartArticleLink(article)}
               onClick={handleClick}
               className={`text-sm font-medium text-blue-500 hover:text-blue-600 transition-colors`}
             >

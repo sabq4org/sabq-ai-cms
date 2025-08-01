@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import PageWrapper from '@/components/PageWrapper';
 import Header from '../components/Header';
 import Footer from '@/components/Footer';
+import { getSmartArticleLink } from '@/lib/utils';
 
 interface Article {
   id: string;
@@ -69,7 +70,7 @@ export default function PageClient({
                   <div key={article.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
                     <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                       <Link 
-                        href={`/article/${article.id}`}
+                        href={getSmartArticleLink(article)}
                         className="hover:text-blue-600 dark:hover:text-blue-400"
                       >
                         {article.title}

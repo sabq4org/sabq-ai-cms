@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { getValidImageUrl, generatePlaceholderImage } from '@/lib/cloudinary';
+import { getSmartArticleLink } from '@/lib/utils';
 
 import { 
   User, 
@@ -542,7 +543,7 @@ export default function PersonalizedContent() {
                 {categoryArticles.slice(0, 16).map((article) => (
                   <div key={article.id} className="relative group">
                     <Link 
-                      href={`/article/${article.id}`}
+                      href={getSmartArticleLink(article)}
                       className="block"
                     >
                       <div className={`p-4 rounded-lg border transition-all duration-200 ${

@@ -797,7 +797,7 @@ export default function DashboardPage() {
             
             <div className="space-y-4">
               {topArticles.length > 0 ? topArticles.map((article) => (
-                <Link key={article.id} href={`/article/${article.id}`} className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer`}>
+                <Link key={article.id} href={getSmartArticleLink(article)} className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer`}>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
                     article.rank === 1 ? 'bg-yellow-500 text-white' :
                     article.rank === 2 ? 'bg-gray-400 text-white' :
