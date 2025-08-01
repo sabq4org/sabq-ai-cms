@@ -433,8 +433,13 @@ export default function TeamManagementPage() {
       
       toast.success(selectedMember ? 'تم تحديث العضو بنجاح' : 'تم إضافة العضو بنجاح');
       
+      console.log('🔄 [DEBUG] بدء تحديث قائمة الأعضاء...');
+      console.log('🔄 [DEBUG] عدد الأعضاء قبل التحديث:', teamMembers.length);
+      
       // إعادة جلب البيانات على الفور مع force refresh
       await fetchTeamMembers(true);
+      
+      console.log('🔄 [DEBUG] عدد الأعضاء بعد التحديث:', teamMembers.length);
       
       setIsAddModalOpen(false);
       setIsEditModalOpen(false);
@@ -1013,14 +1018,30 @@ export default function TeamManagementPage() {
 
               <div className="space-y-2">
                 <Label>الصورة الشخصية</Label>
-                <ImageUpload
-                  currentImage={formData.avatar}
-                  onImageUploaded={(url) => handleInputChange('avatar', url)}
-                  type="avatar"
-                  accept="image/*"
-                  maxSize={5}
-                  label="رفع صورة شخصية"
-                />
+                
+                {/* 🚧 إصلاح مؤقت: Input بسيط لرابط الصورة */}
+                <div className="space-y-2">
+                  <Input
+                    placeholder="رابط الصورة الشخصية (اختياري)"
+                    value={formData.avatar}
+                    onChange={(e) => handleInputChange('avatar', e.target.value)}
+                  />
+                  <div className="text-xs text-gray-500">
+                    💡 أدخل رابط الصورة مؤقتاً. رفع الصور سيتم إصلاحه قريباً.
+                  </div>
+                  {formData.avatar && (
+                    <div className="mt-2">
+                      <img 
+                        src={formData.avatar} 
+                        alt="معاينة الصورة" 
+                        className="w-16 h-16 rounded-full object-cover border"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="space-y-4">
