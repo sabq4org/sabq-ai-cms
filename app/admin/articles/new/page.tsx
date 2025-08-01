@@ -16,6 +16,7 @@ import toast from 'react-hot-toast';
 
 import FileUpload from '@/components/ui/FileUpload';
 import AdvancedEditor from '@/components/ui/AdvancedEditor';
+import FeaturedImageUpload from '@/components/FeaturedImageUpload';
 
 // Types
 interface ArticleAuthor {
@@ -648,11 +649,9 @@ const NewArticlePage = () => {
                 الصورة المميزة
               </h3>
               
-              <FileUpload
-                accept="image/*"
-                maxSize="5MB"
-                onUpload={(url) => setForm(prev => ({ ...prev, featured_image: url }))}
-                currentImage={form.featured_image}
+              <FeaturedImageUpload
+                value={form.featured_image}
+                onChange={(url) => setForm(prev => ({ ...prev, featured_image: url }))}
                 darkMode={darkMode}
               />
               
