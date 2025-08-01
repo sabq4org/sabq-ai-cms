@@ -117,10 +117,19 @@ interface TeamMemberForm {
   is_active: boolean;
 }
 
+interface Role {
+  id: string;
+  name: string;
+  display_name: string;
+  description?: string;
+}
+
 export default function TeamManagementPage() {
   const { darkMode } = useDarkModeContext();
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
+  const [rolesLoading, setRolesLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [departmentFilter, setDepartmentFilter] = useState<string>('all');
@@ -146,6 +155,65 @@ export default function TeamManagementPage() {
     },
     is_active: true
   });
+
+  // جلب الأدوار من قاعدة البيانات
+  const fetchRoles = async () => {
+    try {
+      setRolesLoading(true);
+      console.log('🔍 جلب الأدوار من قاعدة البيانات...');
+      
+      const response = await fetch('/api/admin/roles', {
+        cache: 'no-cache',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      console.log('📊 استجابة API الأدوار:', data);
+      
+      if (data.success && data.data) {
+        // تحويل البيانات للتنسيق المطلوب
+        const rolesData = data.data.map((role: any) => ({
+          id: role.id,
+          name: role.name,
+          display_name: role.display_name || role.name,
+          description: role.description
+        }));
+        
+        setRoles(rolesData);
+        console.log('✅ تم جلب الأدوار:', rolesData.length, 'دور');
+      } else {
+        console.warn('⚠️ لا توجد أدوار في الاستجابة');
+        // استخدام الأدوار الافتراضية كـ fallback
+        setRoles([
+          { id: '1', name: 'admin', display_name: 'مدير' },
+          { id: '2', name: 'editor', display_name: 'محرر' },
+          { id: '3', name: 'reporter', display_name: 'مراسل' },
+          { id: '4', name: 'writer', display_name: 'كاتب' }
+        ]);
+      }
+    } catch (error) {
+      console.error('❌ خطأ في جلب الأدوار:', error);
+      toast.error('فشل في جلب الأدوار، سيتم استخدام القائمة الافتراضية');
+      
+      // استخدام الأدوار الافتراضية عند الفشل
+      setRoles([
+        { id: '1', name: 'admin', display_name: 'مدير' },
+        { id: '2', name: 'editor', display_name: 'محرر' },
+        { id: '3', name: 'reporter', display_name: 'مراسل' },
+        { id: '4', name: 'writer', display_name: 'كاتب' },
+        { id: '5', name: 'chief_editor', display_name: 'رئيس التحرير' },
+        { id: '6', name: 'moderator', display_name: 'مشرف' }
+      ]);
+    } finally {
+      setRolesLoading(false);
+    }
+  };
 
   // جلب بيانات الفريق
   const fetchTeamMembers = async (forceRefresh = false) => {
@@ -175,7 +243,15 @@ export default function TeamManagementPage() {
   };
 
   useEffect(() => {
-    fetchTeamMembers();
+    // جلب البيانات بشكل متوازي
+    Promise.all([
+      fetchTeamMembers(),
+      fetchRoles()
+    ]).then(() => {
+      console.log('✅ تم جلب جميع البيانات');
+    }).catch((error) => {
+      console.error('❌ خطأ في جلب البيانات:', error);
+    });
   }, []);
 
   // فلترة أعضاء الفريق
@@ -221,7 +297,7 @@ export default function TeamManagementPage() {
     setFormData({
       name: '',
       email: '',
-      role: 'reporter', // قيمة افتراضية
+      role: '', // ✅ إزالة القيمة الافتراضية - سيبدأ فارغاً
       department: '',
       position: '',
       bio: '',
@@ -472,16 +548,11 @@ export default function TeamManagementPage() {
     }
   };
 
-  // قائمة الأدوار المتاحة
-  const availableRoles = [
-    { value: 'system_admin', label: 'مدير النظام' },
-    { value: 'chief_editor', label: 'رئيس التحرير' },
-    { value: 'editor', label: 'محرر' },
-    { value: 'reporter', label: 'مراسل' },
-    { value: 'admin', label: 'مدير' },
-    { value: 'moderator', label: 'مشرف' },
-    { value: 'writer', label: 'كاتب' }
-  ];
+  // تحويل الأدوار المجلبة من قاعدة البيانات للتنسيق المطلوب
+  const availableRoles = roles.map(role => ({
+    value: role.name,
+    label: role.display_name
+  }));
 
   // قائمة الأقسام
   const departments = [...new Set(teamMembers.map(m => m.department).filter(Boolean))];
@@ -840,21 +911,39 @@ export default function TeamManagementPage() {
                       console.log('🔄 تغيير الدور:', value);
                       handleInputChange('role', value);
                     }}
+                    disabled={rolesLoading}
                   >
                     <SelectTrigger id="role">
-                      <SelectValue placeholder="اختر الدور" />
+                      <SelectValue placeholder={rolesLoading ? "جاري تحميل الأدوار..." : "اختر الدور الوظيفي"} />
                     </SelectTrigger>
                     <SelectContent>
-                      {availableRoles.map(role => (
-                        <SelectItem key={role.value} value={role.value}>
-                          {role.label}
+                      {rolesLoading ? (
+                        <SelectItem value="" disabled>
+                          جاري تحميل الأدوار...
                         </SelectItem>
-                      ))}
+                      ) : availableRoles.length > 0 ? (
+                        availableRoles.map(role => (
+                          <SelectItem key={role.value} value={role.value}>
+                            {role.label}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="" disabled>
+                          لا توجد أدوار متاحة
+                        </SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
-                  {/* تشخيص */}
+                  {/* تشخيص محسن */}
                   <div className="text-xs text-gray-500">
-                    الدور المختار: {formData.role || 'لا يوجد'}
+                    {rolesLoading ? (
+                      'جاري تحميل الأدوار...'
+                    ) : (
+                      <>
+                        الدور المختار: {formData.role || 'لم يتم الاختيار'} 
+                        {availableRoles.length > 0 && ` (${availableRoles.length} دور متاح)`}
+                      </>
+                    )}
                   </div>
                 </div>
                 <div className="space-y-2">
