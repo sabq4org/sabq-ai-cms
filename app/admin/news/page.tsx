@@ -131,12 +131,22 @@ export default function AdminNewsPage() {
                                 title.includes('demo') ||
                                 title.includes('example');
           
-          // إذا كان الفلتر "all" لا نعرض المؤرشفة
-          if (filterStatus === 'all' && article.status === 'archived') {
+          // إخفاء المقالات التجريبية والمجدولة دائماً
+          if (isTestArticle || article.status === 'scheduled') {
             return false;
           }
           
-          return !isTestArticle && article.status !== 'scheduled';
+          // إذا كان الفلتر "all" أو أي فلتر آخر غير "archived"، لا نعرض المؤرشفة
+          if (filterStatus !== 'archived' && article.status === 'archived') {
+            return false;
+          }
+          
+          // إذا كان الفلتر "archived"، نعرض المؤرشفة فقط
+          if (filterStatus === 'archived') {
+            return article.status === 'archived';
+          }
+          
+          return true;
         });
         
         // ترتيب المقالات حسب التاريخ (الأحدث أولاً)
@@ -147,13 +157,14 @@ export default function AdminNewsPage() {
         });
         
         setArticles(sortedArticles);
+        // حساب الإحصائيات من جميع المقالات (بما في ذلك المؤرشفة) مع استبعاد التجريبية فقط
         calculateStats(data.articles.filter((article: any) => {
           const title = article.title.toLowerCase();
-          return !title.includes('test') && 
-                 !title.includes('تجربة') && 
-                 !title.includes('demo') &&
-                 !title.includes('example') &&
-                 article.status !== 'scheduled';
+          const isTestArticle = title.includes('test') || 
+                                title.includes('تجربة') || 
+                                title.includes('demo') ||
+                                title.includes('example');
+          return !isTestArticle && article.status !== 'scheduled';
         }));
       }
     } catch (error) {
@@ -325,19 +336,19 @@ export default function AdminNewsPage() {
 
           {/* بطاقات الإحصائيات */}
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <Card className="cursor-pointer hover:shadow-lg dark:hover:shadow-gray-900/50 transition-shadow bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700" onClick={() => setFilterStatus('all')}>
+            <Card className={`cursor-pointer hover:shadow-lg dark:hover:shadow-gray-900/50 transition-shadow border-gray-200 dark:border-gray-700 ${filterStatus === 'all' ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800' : 'bg-white dark:bg-gray-800'}`} onClick={() => setFilterStatus('all')}>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600 dark:text-gray-400">نشط</p>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatNumber(stats.published + stats.draft)}</p>
+                    <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{formatNumber(stats.published + stats.draft)}</p>
                   </div>
                   <FileText className="w-8 h-8 text-blue-500 dark:text-blue-400" />
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="cursor-pointer hover:shadow-lg dark:hover:shadow-gray-900/50 transition-shadow bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700" onClick={() => setFilterStatus('published')}>
+            <Card className={`cursor-pointer hover:shadow-lg dark:hover:shadow-gray-900/50 transition-shadow border-gray-200 dark:border-gray-700 ${filterStatus === 'published' ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' : 'bg-white dark:bg-gray-800'}`} onClick={() => setFilterStatus('published')}>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
@@ -349,7 +360,7 @@ export default function AdminNewsPage() {
               </CardContent>
             </Card>
 
-            <Card className="cursor-pointer hover:shadow-lg dark:hover:shadow-gray-900/50 transition-shadow bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700" onClick={() => setFilterStatus('draft')}>
+            <Card className={`cursor-pointer hover:shadow-lg dark:hover:shadow-gray-900/50 transition-shadow border-gray-200 dark:border-gray-700 ${filterStatus === 'draft' ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800' : 'bg-white dark:bg-gray-800'}`} onClick={() => setFilterStatus('draft')}>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
@@ -361,14 +372,14 @@ export default function AdminNewsPage() {
               </CardContent>
             </Card>
 
-            <Card className="cursor-pointer hover:shadow-lg dark:hover:shadow-gray-900/50 transition-shadow bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700" onClick={() => setFilterStatus('archived')}>
+            <Card className={`cursor-pointer hover:shadow-lg dark:hover:shadow-gray-900/50 transition-shadow border-gray-200 dark:border-gray-700 ${filterStatus === 'archived' ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800' : 'bg-white dark:bg-gray-800'}`} onClick={() => setFilterStatus('archived')}>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600 dark:text-gray-400">مؤرشف</p>
-                    <p className="text-2xl font-bold text-gray-600 dark:text-gray-400">{formatNumber(stats.archived)}</p>
+                    <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{formatNumber(stats.archived)}</p>
                   </div>
-                  <XCircle className="w-8 h-8 text-gray-500 dark:text-gray-400" />
+                  <XCircle className="w-8 h-8 text-orange-500 dark:text-orange-400" />
                 </div>
               </CardContent>
             </Card>
@@ -412,6 +423,32 @@ export default function AdminNewsPage() {
 
           {/* جدول المقالات */}
           <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+            {filterStatus && (
+              <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">عرض:</span>
+                  <Badge variant={
+                    filterStatus === 'all' ? 'default' :
+                    filterStatus === 'published' ? 'default' :
+                    filterStatus === 'draft' ? 'secondary' :
+                    filterStatus === 'archived' ? 'outline' : 'default'
+                  } className={
+                    filterStatus === 'all' ? 'bg-blue-100 text-blue-800 border-blue-200' :
+                    filterStatus === 'published' ? 'bg-green-100 text-green-800 border-green-200' :
+                    filterStatus === 'draft' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' :
+                    filterStatus === 'archived' ? 'bg-orange-100 text-orange-800 border-orange-200' : ''
+                  }>
+                    {filterStatus === 'all' ? 'المقالات النشطة' :
+                     filterStatus === 'published' ? 'المقالات المنشورة' :
+                     filterStatus === 'draft' ? 'المسودات' :
+                     filterStatus === 'archived' ? 'المقالات المؤرشفة' : filterStatus}
+                  </Badge>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                    ({filteredArticles.length} مقال)
+                  </span>
+                </div>
+              </div>
+            )}
             <CardContent className="p-0">
               {loading ? (
                 <div className="p-8 text-center">
