@@ -100,42 +100,58 @@ export async function POST(request: NextRequest) {
     const isFeatured = data.featured || data.is_featured || data.isFeatured || false;
     const isBreaking = data.breaking || data.is_breaking || data.isBreaking || false;
     
-    // تنقية البيانات للتأكد من مطابقتها لنموذج articles
-    const articleData = {
-      id: data.id || generateId(),
-      title: data.title,
-      slug: data.slug || generateSlug(data.title),
-      content: data.content,
-      excerpt: data.excerpt || data.summary || null,
-      author_id: default_author_id,
-      article_author_id: article_author_id,
-      category_id: category_id,
-      status: data.status || 'draft',
-      featured: isFeatured,
-      breaking: isBreaking,
-      featured_image: data.featured_image || null,
-      seo_title: data.seo_title || data.title,
-      seo_description: data.seo_description || data.excerpt || data.summary,
-      seo_keywords: data.seo_keywords || null,
-      tags: data.tags || [],
-      views_count: 0,
-      likes_count: 0,
-      shares_count: 0,
-      reading_time: data.reading_time || Math.ceil(data.content.replace(/<[^>]*>/g, '').split(' ').filter(w => w.length > 0).length / 225),
-      ai_score: data.ai_score || 0,
-      ai_quotes: data.ai_quotes || [],
-      article_type: data.article_type || 'article',
-      created_at: new Date(),
-      updated_at: new Date(),
-      published_at: data.status === 'published' ? new Date() : null,
-      metadata: data.metadata || {}
-    };
+    // تحضير البيانات
+    const articleId = data.id || generateId();
+    const articleSlug = data.slug || generateSlug(data.title);
+    const readingTime = data.reading_time || Math.ceil(data.content.replace(/<[^>]*>/g, '').split(' ').filter(w => w.length > 0).length / 225);
     
-    console.log('📝 بيانات المقال المنقاة:', articleData);
+    console.log('📝 بيانات المقال المنقاة:', {
+      id: articleId,
+      title: data.title,
+      slug: articleSlug,
+      article_author_id,
+      category_id,
+      default_author_id
+    });
     
     // إنشاء المقال
     const article = await prisma.articles.create({
-      data: articleData,
+      data: {
+        id: articleId,
+        title: data.title,
+        slug: articleSlug,
+        content: data.content,
+        excerpt: data.excerpt || data.summary || null,
+        status: data.status || 'draft',
+        featured: isFeatured,
+        breaking: isBreaking,
+        featured_image: data.featured_image || null,
+        seo_title: data.seo_title || data.title,
+        seo_description: data.seo_description || data.excerpt || data.summary,
+        seo_keywords: data.seo_keywords || null,
+        tags: data.tags || [],
+        views: 0,
+        likes: 0,
+        shares: 0,
+        reading_time: readingTime,
+        ai_quotes: data.ai_quotes || [],
+        article_type: data.article_type || 'article',
+        summary: data.summary || data.excerpt || null,
+        created_at: new Date(),
+        updated_at: new Date(),
+        published_at: data.status === 'published' ? new Date() : null,
+        metadata: data.metadata || {},
+        // Connect relationships
+        author: {
+          connect: { id: default_author_id }
+        },
+        categories: category_id ? {
+          connect: { id: category_id }
+        } : undefined,
+        article_author: article_author_id ? {
+          connect: { id: article_author_id }
+        } : undefined
+      },
       include: {
         categories: {
           select: {
@@ -150,6 +166,14 @@ export async function POST(request: NextRequest) {
             name: true,
             email: true,
             avatar: true
+          }
+        },
+        article_author: {
+          select: {
+            id: true,
+            full_name: true,
+            slug: true,
+            title: true
           }
         }
       }
