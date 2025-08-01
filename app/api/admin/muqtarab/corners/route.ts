@@ -30,32 +30,24 @@ export async function GET(request: NextRequest) {
       where.is_active = status === 'active';
     }
     
-    // جلب الزوايا مع العد
-    const [corners, totalCount] = await Promise.all([
-      prisma.$queryRaw`
-        SELECT 
-          mc.*,
-          c.name as category_name,
-          u.name as creator_name,
-          (SELECT COUNT(*) FROM muqtarab_articles ma WHERE ma.corner_id = mc.id) as articles_count,
-          (SELECT COUNT(*) FROM muqtarab_followers mf WHERE mf.corner_id = mc.id) as followers_count
-        FROM muqtarab_corners mc
-        LEFT JOIN categories c ON mc.category_id = c.id
-        LEFT JOIN users u ON mc.created_by = u.id
-        WHERE 
-          (${search ? `(mc.name ILIKE '%${search}%' OR mc.author_name ILIKE '%${search}%' OR mc.description ILIKE '%${search}%')` : 'TRUE'})
-          AND (${status && status !== 'all' ? `mc.is_active = ${status === 'active'}` : 'TRUE'})
-        ORDER BY mc.created_at DESC
-        LIMIT ${limit} OFFSET ${skip};
-      `,
-      prisma.$queryRaw`
-        SELECT COUNT(*) as count
-        FROM muqtarab_corners mc
-        WHERE 
-          (${search ? `(mc.name ILIKE '%${search}%' OR mc.author_name ILIKE '%${search}%' OR mc.description ILIKE '%${search}%')` : 'TRUE'})
-          AND (${status && status !== 'all' ? `mc.is_active = ${status === 'active'}` : 'TRUE'});
-      `
-    ]);
+    // جلب الزوايا مع العد - استعلام مبسط
+    const corners = await prisma.$queryRaw`
+      SELECT 
+        mc.*,
+        COALESCE(c.name, '') as category_name,
+        COALESCE(u.name, '') as creator_name,
+        0 as articles_count,
+        0 as followers_count
+      FROM muqtarab_corners mc
+      LEFT JOIN categories c ON mc.category_id = c.id
+      LEFT JOIN users u ON mc.created_by = u.id
+      ORDER BY mc.created_at DESC
+      LIMIT ${limit} OFFSET ${skip};
+    `;
+    
+    const totalCount = await prisma.$queryRaw`
+      SELECT COUNT(*) as count FROM muqtarab_corners;
+    `;
     
     return NextResponse.json({
       success: true,
