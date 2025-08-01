@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Star, Check, X, Crown, Calendar, Eye, Clock, User, Bookmark, AlertCircle, Search, Filter } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import DashboardLayout from '@/components/admin/DashboardLayout';
+import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
 
 interface ArticleAuthor {
   id: string;
