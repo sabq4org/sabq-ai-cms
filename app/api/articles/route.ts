@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import dbConnectionManager from '@/lib/db-connection-manager';
-import { FeaturedArticleManager } from '@/lib/services/featured-article-manager';
 
 const prisma = new PrismaClient();
 
@@ -235,23 +233,9 @@ export async function POST(request: NextRequest) {
       data: articleData
     })
     
-    // إذا كان المقال مميزاً، نستخدم المدير المركزي لضمان الـ atomicity
+    // تعامل مبسط مع المقالات المميزة - تجنب FeaturedArticleManager مؤقتاً
     if (articleData.featured === true) {
-      const featuredResult = await FeaturedArticleManager.setFeaturedArticle(article.id, {
-        categoryId: article.category_id || undefined,
-        skipValidation: true // نتخطى التحقق لأننا أنشأنا المقال للتو
-      });
-      
-      if (featuredResult.success) {
-        console.log('✅', featuredResult.message);
-      } else {
-        console.error('❌ خطأ في تعيين المقال كمميز:', featuredResult.message);
-        // نحاول إلغاء تمييز المقال في حالة الفشل
-        await prisma.articles.update({
-          where: { id: article.id },
-          data: { featured: false }
-        });
-      }
+      console.log('ℹ️ المقال مميز - تم تعيينه كمميز مباشرة');
     }
     
     return NextResponse.json({
@@ -313,6 +297,8 @@ export async function POST(request: NextRequest) {
       details: error.message || 'خطأ غير معروف',
       code: error.code
     }, { status: 500 })
+  } finally {
+    await prisma.$disconnect();
   }
 }
 
