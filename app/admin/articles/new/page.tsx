@@ -12,7 +12,7 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import toast from 'react-hot-toast';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+
 import FileUpload from '@/components/ui/FileUpload';
 import AdvancedEditor from '@/components/ui/AdvancedEditor';
 
@@ -276,8 +276,7 @@ const NewArticlePage = () => {
   };
 
   return (
-    <DashboardLayout>
-      <div className={cn('min-h-screen p-6', darkMode ? 'bg-gray-900' : 'bg-gray-50')}>
+    <div className={cn('min-h-screen p-6', darkMode ? 'bg-gray-900' : 'bg-gray-50')}>
         
         {/* Header */}
         <div className="mb-8">
@@ -811,7 +810,7 @@ const NewArticlePage = () => {
         </div>
 
       </div>
-    </DashboardLayout>
+    </div>
   );
 };
 

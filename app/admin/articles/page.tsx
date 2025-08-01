@@ -6,13 +6,13 @@ import {
   Clock, User, Tag, Star, BookOpen, Calendar,
   FileText, TrendingUp, Heart, Share2, MessageSquare,
   ChevronDown, ChevronRight, RefreshCw, Download,
-  Zap, Brain, Award, Target
+  Zap, Brain, Award, Target, Sparkles
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import toast from 'react-hot-toast';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+
 
 // Types
 interface ArticleAuthor {
@@ -84,87 +84,91 @@ const ArticlesAdminPage = () => {
 
   // Simple component - just structure for now
   return (
-    <DashboardLayout>
-      <div className={cn('min-h-screen p-6', darkMode ? 'bg-gray-900' : 'bg-gray-50')}>
-        
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div>
-              <h1 className={cn('text-3xl font-bold mb-2', darkMode ? 'text-white' : 'text-gray-900')}>
-                إدارة المقالات
-              </h1>
-              <p className={cn('text-sm', darkMode ? 'text-gray-400' : 'text-gray-600')}>
-                نظام إدارة مقالات قادة الرأي مع الذكاء الاصطناعي
-              </p>
-            </div>
+    <div className={cn('min-h-screen p-6', darkMode ? 'bg-gray-900' : 'bg-gray-50')}>
+      
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div>
+            <h1 className={cn('text-3xl font-bold mb-2', darkMode ? 'text-white' : 'text-gray-900')}>
+              إدارة المقالات
+            </h1>
+            <p className={cn('text-sm', darkMode ? 'text-gray-400' : 'text-gray-600')}>
+              نظام إدارة مقالات قادة الرأي مع الذكاء الاصطناعي
+            </p>
+          </div>
+          
+          <div className="flex gap-3">
+            <button
+              className={cn(
+                'flex items-center gap-2 px-4 py-2 rounded-lg transition-colors',
+                darkMode 
+                  ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' 
+                  : 'bg-white text-gray-700 hover:bg-gray-50 border'
+              )}
+            >
+              <RefreshCw className="w-4 h-4" />
+              تحديث
+            </button>
             
-            <div className="flex gap-3">
-              <button
-                className={cn(
-                  'flex items-center gap-2 px-4 py-2 rounded-lg transition-colors',
-                  darkMode 
-                    ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' 
-                    : 'bg-white text-gray-700 hover:bg-gray-50 border'
-                )}
-              >
-                <RefreshCw className="w-4 h-4" />
-                تحديث
-              </button>
-              
-              <Link
-                href="/admin/articles/new"
-                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
-              >
-                <Plus className="w-4 h-4" />
-                مقال جديد
-              </Link>
-            </div>
+            <Link
+              href="/admin/articles/new"
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              مقال جديد
+            </Link>
           </div>
         </div>
+      </div>
 
-        {/* Placeholder content */}
+        {/* قائمة المقالات */}
         <div className={cn(
-          'p-8 rounded-xl border text-center',
+          'rounded-xl border',
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
         )}>
-          <Brain className={cn('w-16 h-16 mx-auto mb-4', darkMode ? 'text-blue-400' : 'text-blue-600')} />
-          <h2 className={cn('text-xl font-bold mb-2', darkMode ? 'text-white' : 'text-gray-900')}>
-            نظام إدارة المقالات الذكي
-          </h2>
-          <p className={cn('text-sm mb-6', darkMode ? 'text-gray-400' : 'text-gray-600')}>
-            قريباً... نظام شامل لإدارة مقالات قادة الرأي مع الذكاء الاصطناعي
-          </p>
+          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <h3 className={cn('text-lg font-semibold mb-2', darkMode ? 'text-white' : 'text-gray-900')}>
+              إدارة المقالات
+            </h3>
+            <p className={cn('text-sm', darkMode ? 'text-gray-400' : 'text-gray-600')}>
+              قم بإنشاء وتحرير وإدارة جميع المقالات من هنا
+            </p>
+          </div>
           
-          {/* Quick stats */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
-            {[
-              { label: 'المقالات', value: '0', icon: FileText },
-              { label: 'الكتّاب', value: '0', icon: User },
-              { label: 'المشاهدات', value: '0', icon: Eye },
-              { label: 'التقييم', value: '0%', icon: Star }
-            ].map((stat, index) => (
-              <div
-                key={index}
-                className={cn(
-                  'p-4 rounded-lg border',
-                  darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'
-                )}
-              >
-                <stat.icon className={cn('w-6 h-6 mx-auto mb-2', darkMode ? 'text-blue-400' : 'text-blue-600')} />
-                <p className={cn('text-lg font-bold', darkMode ? 'text-white' : 'text-gray-900')}>
-                  {stat.value}
-                </p>
-                <p className={cn('text-xs', darkMode ? 'text-gray-400' : 'text-gray-600')}>
-                  {stat.label}
-                </p>
+          <div className="p-6">
+            <div className="text-center py-12">
+              <FileText className={cn('w-16 h-16 mx-auto mb-4', darkMode ? 'text-gray-600' : 'text-gray-400')} />
+              <h4 className={cn('text-xl font-semibold mb-2', darkMode ? 'text-white' : 'text-gray-900')}>
+                ابدأ بإنشاء أول مقال
+              </h4>
+              <p className={cn('text-sm mb-6', darkMode ? 'text-gray-400' : 'text-gray-600')}>
+                استخدم الواجهة الموحدة الجديدة لإنشاء وتحرير المقالات بكفاءة
+              </p>
+              
+              <div className="flex justify-center gap-3">
+                <Link
+                  href="/admin/articles/unified/new"
+                  className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-6 py-3 rounded-lg transition-colors"
+                >
+                  <Sparkles className="w-5 h-5" />
+                  الواجهة الموحدة
+                </Link>
+                
+                <Link
+                  href="/admin/articles/new"
+                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition-colors"
+                >
+                  <Plus className="w-5 h-5" />
+                  إنشاء عادي
+                </Link>
               </div>
-            ))}
+            </div>
           </div>
         </div>
 
       </div>
-    </DashboardLayout>
+    </div>
   );
 };
 

@@ -169,7 +169,7 @@ const quickActions: QuickAction[] = [
     title: 'إنشاء مقال جديد',
     description: 'ابدأ في كتابة مقال جديد',
     icon: Plus,
-    href: '/admin/modern/articles/new',
+    href: '/admin/articles/new',
     color: 'blue'
   },
   {

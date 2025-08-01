@@ -166,11 +166,11 @@ export default function ArticlesListPage() {
           <div className="flex items-center gap-3">
             {/* زر واجهة موحدة جديد */}
             <Button
-              onClick={() => router.push('/dashboard/article/unified/new')}
+              onClick={() => router.push('/admin/articles/unified/new')}
               className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white gap-2"
             >
               <Sparkles className="w-4 h-4" />
-              واجهة موحدة
+              واجهة موحدة (استخدم الإدارة)
             </Button>
             
             {/* زر إنشاء عادي */}
@@ -210,7 +210,7 @@ export default function ArticlesListPage() {
               </p>
             </div>
             <Link
-              href="/dashboard/article/unified/new"
+              href="/admin/articles/unified/new"
               className={cn(
                 "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
                 "bg-purple-600 hover:bg-purple-700 text-white"
@@ -336,7 +336,7 @@ export default function ArticlesListPage() {
               <FileText className="w-12 h-12 mx-auto text-gray-400 mb-4" />
               <p className="text-gray-500 mb-4">لا توجد مقالات</p>
               <Button
-                onClick={() => router.push('/dashboard/article/unified/new')}
+                onClick={() => router.push('/admin/articles/unified/new')}
                 className="gap-2"
               >
                 <Plus className="w-4 h-4" />
