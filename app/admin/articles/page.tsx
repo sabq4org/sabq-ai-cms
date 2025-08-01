@@ -345,7 +345,7 @@ const ArticlesAdminPage = () => {
             <h3 className={cn('text-xl font-bold mb-2', darkMode ? 'text-white' : 'text-gray-900')}>
               لا توجد مقالات
             </h3>
-            <p className={cn('text-sm mb-6', darkMode ? 'text-gray-400' : 'text-gray-600')}>
+          <p className={cn('text-sm mb-6', darkMode ? 'text-gray-400' : 'text-gray-600')}>
               ابدأ بكتابة أول مقال لك
             </p>
             <Link
@@ -421,7 +421,7 @@ const ArticlesAdminPage = () => {
 
                   <div className="flex items-center gap-2">
                     <Link
-                      href={`/admin/articles/unified/${article.id}`}
+                      href={`/admin/articles/edit/${article.id}`}
                       className={cn(
                         'p-2 rounded-lg transition-colors',
                         darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'

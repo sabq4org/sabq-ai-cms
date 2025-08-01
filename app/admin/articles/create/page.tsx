@@ -182,7 +182,7 @@ export default function CreateArticlePage() {
       
       // إعادة توجيه لصفحة التعديل
         setTimeout(() => {
-        router.push(`/admin/articles/unified/${article.id}`);
+        router.push(`/admin/articles/edit/${article.id}`);
       }, 1000);
     } catch (error) {
       console.error('Error saving article:', error);

@@ -11,7 +11,7 @@ export default function ArticleRedirectPage() {
   useEffect(() => {
     if (articleId) {
       // إعادة توجيه فورية للمسار الصحيح
-      router.replace(`/admin/articles/unified/${articleId}`);
+      router.replace(`/admin/articles/edit/${articleId}`);
     }
   }, [articleId, router]);
 
