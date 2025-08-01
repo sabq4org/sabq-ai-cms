@@ -124,11 +124,11 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
             : 'bg-white hover:bg-white'
         } backdrop-blur-sm rounded-3xl`}>
           
-          {/* Grid Layout: 50% للصورة، 50% للنص */}
+          {/* Grid Layout: Mobile = full width image, Desktop = 50% للصورة، 50% للنص */}
           <div className="grid grid-cols-1 lg:grid-cols-12 h-[280px] lg:h-[320px]">
             
-            {/* قسم الصورة - 6 أعمدة (50%) */}
-            <div className="lg:col-span-6 relative overflow-hidden lg:rounded-r-2xl rounded-t-2xl lg:rounded-t-none h-[280px] lg:h-[320px]">
+            {/* قسم الصورة - عرض كامل للجوال، 6 أعمدة للديسكتوب */}
+            <div className="col-span-1 lg:col-span-6 relative overflow-hidden rounded-xl lg:rounded-r-2xl lg:rounded-l-none h-[280px] lg:h-[320px]">
               {/* الصورة */}
               <div className="relative w-full h-full">
                 <CloudImage
@@ -140,25 +140,27 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                   priority={true}
                 />
                 
-                {/* تدرج لوني ناعم فوق الصورة */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent lg:bg-gradient-to-l lg:from-black/30 lg:via-transparent lg:to-transparent"></div>
+                {/* تدرج لوني للجوال (من الأسفل) والديسكتوب (من اليسار) */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent lg:bg-gradient-to-l lg:from-black/30 lg:via-transparent lg:to-transparent z-10"></div>
                 
-                {/* شارة الخبر المميز - مكثفة */}
-                <div className="absolute top-3 right-3">
-                  <div className={`flex items-center gap-1 px-2 py-1 rounded-full ${
-                    darkMode 
-                      ? 'bg-gradient-to-r from-amber-600 to-amber-700 text-white'
-                      : 'bg-gradient-to-r from-amber-500 to-amber-600 text-white'
-                  } shadow-lg backdrop-blur-sm border border-amber-400/30`}>
-                    <Sparkles className="w-3 h-3" />
-                    <span className="font-bold text-xs">مميز</span>
+                {/* شارة الخبر المميز - الزاوية العلوية اليمنى */}
+                <div className="absolute top-3 right-3 z-30">
+                  <div className="bg-yellow-500 text-white px-2 py-1 text-xs rounded flex items-center gap-1">
+                    مميز ✨
                   </div>
+                </div>
+
+                {/* العنوان داخل الصورة - للجوال فقط */}
+                <div className="lg:hidden absolute bottom-4 left-4 right-4 z-20">
+                  <h2 className="text-white text-lg font-semibold leading-snug">
+                    {currentArticle.title}
+                  </h2>
                 </div>
               </div>
             </div>
 
-            {/* قسم النص - 6 أعمدة (50%) */}
-            <div className="lg:col-span-6 p-4 lg:p-6 flex flex-col justify-between h-[280px] lg:h-[320px] overflow-hidden">
+            {/* قسم النص - 6 أعمدة (50%) - مخفي في الجوال */}
+            <div className="hidden lg:flex lg:col-span-6 p-4 lg:p-6 flex-col justify-between h-[280px] lg:h-[320px] overflow-hidden">
               {/* العنوان الرئيسي */}
               <h2 className={`text-xl lg:text-2xl xl:text-3xl font-bold mb-4 leading-tight line-clamp-3 transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400 ${
                 darkMode ? 'text-white' : 'text-gray-900'
