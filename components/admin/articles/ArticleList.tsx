@@ -683,7 +683,7 @@ export const ArticleList: React.FC<ArticleListProps> = ({
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => router.push(`/admin/articles/${article.id}`)}
+                                  onClick={() => router.push(`/admin/articles/unified/${article.id}`)}
                                   className={`hover:bg-blue-100 dark:hover:bg-blue-900/20`}
                                 >
                                   <Eye className="h-4 w-4 text-blue-600" />
@@ -699,7 +699,7 @@ export const ArticleList: React.FC<ArticleListProps> = ({
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => router.push(`/admin/articles/${article.id}/edit`)}
+                                  onClick={() => router.push(`/admin/articles/unified/${article.id}`)}
                                   className={`hover:bg-purple-100 dark:hover:bg-purple-900/20`}
                                 >
                                   <Edit className="h-4 w-4 text-purple-600" />

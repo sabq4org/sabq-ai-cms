@@ -421,7 +421,7 @@ const ArticlesAdminPage = () => {
 
                   <div className="flex items-center gap-2">
                     <Link
-                      href={`/admin/articles/${article.id}`}
+                      href={`/admin/articles/unified/${article.id}`}
                       className={cn(
                         'p-2 rounded-lg transition-colors',
                         darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'

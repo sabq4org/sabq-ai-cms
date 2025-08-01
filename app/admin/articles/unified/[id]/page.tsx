@@ -155,7 +155,7 @@ export default function UnifiedArticleEditPage() {
           }
         } else {
           toast.error('فشل في تحميل المقال');
-          router.push('/dashboard/article');
+          router.push('/admin/articles');
         }
       } catch (error) {
         console.error('Error loading data:', error);
@@ -260,7 +260,7 @@ export default function UnifiedArticleEditPage() {
       if (response.ok) {
         toast.success(status === 'published' ? 'تم نشر المقال بنجاح' : 'تم حفظ المسودة');
         setTimeout(() => {
-          router.push('/dashboard/article');
+          router.push('/admin/articles');
         }, 1500);
       } else {
         const data = await response.json();
@@ -345,7 +345,7 @@ export default function UnifiedArticleEditPage() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => router.push('/dashboard/article')}
+            onClick={() => router.push('/admin/articles')}
             className="gap-2"
           >
             <Home className="w-4 h-4" />
