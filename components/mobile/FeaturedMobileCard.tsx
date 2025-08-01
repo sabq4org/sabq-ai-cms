@@ -143,20 +143,20 @@ export default function FeaturedMobileCard({ article, className = '' }: Featured
               </div>
             )}
 
-            {/* العنوان المحسن */}
-            <h2 className="text-xl md:text-2xl font-bold text-white line-clamp-2 leading-tight mb-4 drop-shadow-2xl"
+            {/* العنوان المحسن - محسّن للهواتف */}
+            <h2 className="text-base md:text-lg font-bold text-white line-clamp-2 leading-tight mb-4 drop-shadow-2xl"
                 style={{
                   textShadow: '0 2px 8px rgba(0,0,0,0.8), 0 0 16px rgba(0,0,0,0.6)'
                 }}>
               {article.title}
             </h2>
 
-            {/* معلومات المراسل والتاريخ مع تصميم جميل */}
-            <div className="flex items-center justify-between text-white/95 text-sm backdrop-blur-sm bg-black/20 rounded-lg p-3 border border-white/20">
+            {/* معلومات المراسل والتاريخ مع تصميم جميل - محسّن للهواتف */}
+            <div className="flex items-center justify-between text-white/80 text-xs backdrop-blur-sm bg-black/20 rounded-lg p-3 border border-white/20">
               <div className="flex items-center gap-4">
                 {/* المراسل */}
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
+                  <div className="w-5 h-5 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
                     <User className="w-3 h-3 text-white" />
                   </div>
                   <span className="font-medium">{authorName}</span>
@@ -164,7 +164,7 @@ export default function FeaturedMobileCard({ article, className = '' }: Featured
                 
                 {/* التاريخ */}
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center">
+                  <div className="w-5 h-5 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center">
                     <Clock className="w-3 h-3 text-white" />
                   </div>
                   <span>{formatDateTime(displayDate)}</span>
