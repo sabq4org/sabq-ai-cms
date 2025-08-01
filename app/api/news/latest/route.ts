@@ -33,11 +33,17 @@ export async function GET(request: NextRequest) {
         where: {
           status: 'published',
           NOT: { status: 'deleted' },
-          // إضافة الأخبار ومقالات الرأي للعرض العام
+          // عرض الأخبار فقط (بدون مقالات الرأي)
           OR: [
             { article_type: 'news' },
-            { article_type: 'opinion' },
-            { article_type: null }
+            { article_type: null }, // الأخبار القديمة غير المصنفة
+            { 
+              AND: [
+                { article_type: { not: 'opinion' } },
+                { article_type: { not: 'analysis' } },
+                { article_type: { not: 'interview' } }
+              ]
+            }
           ]
         },
         orderBy: {
@@ -67,7 +73,6 @@ export async function GET(request: NextRequest) {
           NOT: { status: 'deleted' },
           OR: [
             { article_type: 'news' },
-            { article_type: 'opinion' },
             { article_type: null }
           ]
         }

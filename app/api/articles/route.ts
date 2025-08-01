@@ -64,13 +64,19 @@ export async function GET(request: NextRequest) {
       }
       console.log(`🎯 تطبيق فلتر article_type: ${article_type}`);
     } else {
-      // إذا لم يتم تحديد نوع، اعرض الأخبار + مقالات الرأي للعرض العام
+      // إذا لم يتم تحديد نوع، اعرض الأخبار فقط (بدون مقالات الرأي)
       where.OR = [
         { article_type: 'news' },
-        { article_type: 'opinion' },
-        { article_type: null }
+        { article_type: null }, // الأخبار القديمة غير المصنفة
+        { 
+          AND: [
+            { article_type: { not: 'opinion' } },
+            { article_type: { not: 'analysis' } },
+            { article_type: { not: 'interview' } }
+          ]
+        }
       ];
-      console.log(`🎯 عرض عام: الأخبار + مقالات الرأي`);
+      console.log(`🎯 عرض عام: الأخبار فقط (بدون مقالات الرأي)`);
     }
     
     if (search) {
@@ -145,7 +151,6 @@ export async function GET(request: NextRequest) {
             category_id: (category_id && category_id !== 'all') ? category_id : undefined,
             OR: !article_type ? [
               { article_type: 'news' },
-              { article_type: 'opinion' },
               { article_type: null }
             ] : undefined,
             article_type: article_type ? (article_type === 'news' ? 'news' : article_type) : undefined
