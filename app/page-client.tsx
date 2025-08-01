@@ -32,11 +32,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import SafeHydration from '@/components/SafeHydration';
 
 // Dynamic imports for components that appear below the fold
-const SmartContextWidget = dynamic(() => import('@/components/home/SmartContextWidget'), {
-  ssr: true,
-  loading: () => <Skeleton className="w-full h-64 rounded-lg" />
-});
-
 const TodayOpinionsSection = dynamic(() => import('@/components/TodayOpinionsSection'), {
   ssr: true,
   loading: () => <Skeleton className="w-full h-96 rounded-lg" />
@@ -1046,10 +1041,7 @@ function NewspaperHomePage({
       <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
         {/* Smart Blocks - After Cards - مخفي للنسخة المطورة */}
         {/* <SmartSlot position="afterCards" /> */}
-        {/* السياق الذكي */}
-        <section className="mb-16">
-          <SmartContextWidget />
-        </section>
+
         {/* قسم رأي اليوم */}
         <TodayOpinionsSection darkMode={darkMode} />
       </main>
