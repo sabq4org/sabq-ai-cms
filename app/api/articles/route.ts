@@ -65,15 +65,15 @@ export async function GET(request: NextRequest) {
       console.log(`🎯 تطبيق فلتر article_type: ${article_type}`);
     } else {
       // إذا لم يتم تحديد نوع، اعرض الأخبار فقط (بدون مقالات الرأي)
-      where.OR = [
-        { article_type: 'news' },
-        { article_type: null } // الأخبار القديمة غير المصنفة
-      ];
+      // استخدام NOT IN بدلاً من OR لتجنب مشاكل Prisma
+      where.article_type = {
+        notIn: ['opinion', 'analysis', 'interview']
+      };
       console.log(`🎯 عرض عام: الأخبار فقط (بدون مقالات الرأي)`);
     }
     
     if (search) {
-      const typeFilter = where.OR || (where.article_type ? { article_type: where.article_type } : {});
+      const typeFilter = where.OR ? { OR: where.OR } : (where.article_type ? { article_type: where.article_type } : {});
       
       where.AND = [
         typeFilter,
@@ -111,63 +111,58 @@ export async function GET(request: NextRequest) {
       orderBy[sort] = order;
     }
 
-    // جلب المقالات مع العد بشكل متوازي
-    const [articles, totalCount] = await Promise.all([
-      prisma.articles.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy,
-        include: {
-          categories: {
-            select: {
-              id: true,
-              name: true,
-              slug: true
-            }
-          },
-          author: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              avatar: true
-            }
+    // جلب المقالات أولاً
+    const articles = await prisma.articles.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy,
+      include: {
+        categories: {
+          select: {
+            id: true,
+            name: true,
+            slug: true
+          }
+        },
+        author: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true
           }
         }
-      }),
-      
-      prisma.articles.count({ 
-        where: (() => {
-          const countWhere: any = {};
-          
-          if (status !== 'all') {
-            countWhere.status = status;
+      }
+    });
+
+    // حساب العدد بنفس شروط where ولكن بشكل منفصل
+    let totalCount = 0;
+    try {
+      if (article_type) {
+        totalCount = await prisma.articles.count({
+          where: {
+            status: status !== 'all' ? status : undefined,
+            category_id: (category_id && category_id !== 'all') ? category_id : undefined,
+            article_type: article_type === 'news' ? 'news' : article_type
           }
-          
-          if (category_id && category_id !== 'all') {
-            countWhere.category_id = category_id;
-          }
-          
-          // نفس منطق where الرئيسي
-          if (article_type) {
-            if (article_type === 'news') {
-              countWhere.article_type = 'news';
-            } else {
-              countWhere.article_type = article_type;
+        });
+      } else {
+        // عد الأخبار فقط (استبعاد مقالات الرأي)
+        totalCount = await prisma.articles.count({
+          where: {
+            status: status !== 'all' ? status : undefined,
+            category_id: (category_id && category_id !== 'all') ? category_id : undefined,
+            article_type: {
+              notIn: ['opinion', 'analysis', 'interview']
             }
-          } else {
-            // إذا لم يتم تحديد نوع، اعرض الأخبار فقط (بدون مقالات الرأي)
-            countWhere.OR = [
-              { article_type: 'news' },
-              { article_type: null }
-            ];
           }
-          
-          return countWhere;
-        })()
-      })
-    ]);
+        });
+      }
+    } catch (countError) {
+      console.error('⚠️ خطأ في حساب العدد:', countError);
+      totalCount = articles.length;
+    }
 
     // إضافة معلومات إضافية
     const enrichedArticles = articles.map(article => ({
