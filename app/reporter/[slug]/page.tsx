@@ -19,6 +19,7 @@ import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 import { cn, getArticleLink } from '@/lib/utils';
+import FooterOfficial from '@/components/Footer';
 
 interface Reporter {
   id: string;
@@ -780,6 +781,106 @@ const ReporterProfilePage: React.FC = () => {
     </div>
   );
   
+  // مكون الكلمات المفتاحية الذكية
+  const SmartTagsSection = ({ slug, darkMode }: { slug: string; darkMode: boolean }) => {
+    const [smartTags, setSmartTags] = useState<{ term: string; count: number }[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+      const fetchSmartTags = async () => {
+        try {
+          const response = await fetch(`/api/reporters/${slug}/smart-tags`);
+          const data = await response.json();
+          
+          if (data.success) {
+            setSmartTags(data.tags || []);
+          } else {
+            console.log('لا توجد كلمات مفتاحية');
+          }
+        } catch (error) {
+          console.error('خطأ في جلب الكلمات المفتاحية:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      if (slug) {
+        fetchSmartTags();
+      }
+    }, [slug]);
+
+    if (loading) {
+      return (
+        <section className="mb-10">
+          <div className={`rounded-2xl shadow-sm border p-6 ${
+            darkMode ? 'bg-slate-800 border-slate-600/50' : 'bg-gray-100 border-gray-200'
+          }`}>
+            <div className="flex items-center gap-2 mb-3">
+              <Brain className={`w-5 h-5 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+              <h2 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                كلمات مفتاحية ذكية
+              </h2>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {[1,2,3,4,5].map((_, index) => (
+                <div
+                  key={index}
+                  className={`px-3 py-1 rounded-full text-sm font-medium animate-pulse ${
+                    darkMode 
+                      ? 'bg-slate-700 text-slate-300' 
+                      : 'bg-gray-300 text-gray-300'
+                  }`}
+                >
+                  تحميل...
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    if (smartTags.length === 0) {
+      return null; // إخفاء القسم إذا لم توجد كلمات مفتاحية
+    }
+
+    return (
+      <section className="mb-10">
+        <div className={`rounded-2xl shadow-sm border p-6 ${
+          darkMode ? 'bg-slate-800 border-slate-600/50' : 'bg-gray-100 border-gray-200'
+        }`}>
+          <div className="flex items-center gap-2 mb-3">
+            <Brain className={`w-5 h-5 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+            <h2 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              كلمات مفتاحية ذكية
+            </h2>
+            <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              من مقالات المراسل
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {smartTags.map((tag, index) => (
+              <span
+                key={index}
+                className={`px-3 py-1 rounded-full text-sm font-medium transition-all hover:scale-105 ${
+                  darkMode 
+                    ? 'bg-slate-700 text-slate-300 border border-slate-600 hover:bg-slate-600'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                }`}
+                title={`استُخدمت ${tag.count} مرة`}
+              >
+                {tag.term}
+                <span className={`ml-1 text-xs ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>
+                  {tag.count}
+                </span>
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  };
+
   // مكون AI Activity Timeline
   const AIActivityTimelineComponent = () => (
     <div className={cn(
@@ -954,8 +1055,10 @@ const ReporterProfilePage: React.FC = () => {
     <div className={`min-h-screen transition-all duration-300 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* المحتوى الرئيسي مع مسافة علوية كافية */}
       <main className="pt-20 pb-16">
-        {/* Hero Card - بارز */}
-        <section className="px-6 md:px-10 lg:px-20 py-10 bg-transparent">
+        {/* Container محسن للعرض */}
+        <div className="mx-auto px-4 md:px-6 max-w-7xl">
+          {/* Hero Card - بارز */}
+          <section className="py-10 bg-transparent">
           <div className={`rounded-2xl shadow-lg border p-8 ${
           darkMode 
             ? 'bg-gradient-to-r from-slate-800 to-slate-700 border-slate-600/50' 
@@ -967,7 +1070,7 @@ const ReporterProfilePage: React.FC = () => {
             <div className="relative">
               <div className="w-24 h-24 lg:w-32 lg:h-32 rounded-full overflow-hidden ring-4 ring-blue-200 dark:ring-slate-600 shadow-lg">
                 <CloudImage
-                  src={reporter.avatar_url}
+                  src={reporter.avatar_url || '/default-avatar.png'}
                   alt={reporter.full_name}
                   width={128}
                   height={128}
@@ -1007,18 +1110,18 @@ const ReporterProfilePage: React.FC = () => {
 
             {/* معلومات أساسية */}
             <div className="flex-1 text-center lg:text-right">
-              <h1 className={`text-2xl lg:text-3xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              <h1 className={`text-2xl md:text-3xl font-medium tracking-tight leading-snug mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                 {reporter.full_name}
               </h1>
               {reporter.title && (
-                <p className={`text-base lg:text-lg font-medium mb-3 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>
+                <p className={`text-base md:text-lg font-medium tracking-tight mb-3 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>
                   {reporter.title}
                 </p>
               )}
               
               {/* إحصائيات سريعة */}
               {stats && (
-                <div className="flex flex-wrap justify-center lg:justify-start gap-4 text-sm">
+                <div className="flex flex-wrap justify-center lg:justify-start gap-4 text-sm mb-4">
                   <div className="flex items-center gap-2">
                     <FileText className={`w-4 h-4 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
                     <span className={`font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
@@ -1039,10 +1142,59 @@ const ReporterProfilePage: React.FC = () => {
                   </div>
                 </div>
               )}
+
+              {/* أزرار التفاعل - محسنة للجوال */}
+              <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-3">
+                {/* زر تواصل مع المراسل */}
+                {reporter.email_public && (
+                  <a
+                    href={`mailto:${reporter.email_public}`}
+                    className={`inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full font-medium transition-all hover:scale-105 ${
+                      darkMode 
+                        ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                        : 'bg-blue-600 hover:bg-blue-700 text-white'
+                    }`}
+                  >
+                    <Mail className="w-4 h-4" />
+                    <span className="text-sm">تواصل مع المراسل</span>
+                  </a>
+                )}
+
+                {/* زر مشاركة البروفايل */}
+                <button
+                  onClick={async () => {
+                    const shareData = {
+                      title: `${reporter.full_name} - مراسل في صحيفة سبق`,
+                      text: `تعرف على ${reporter.full_name} ${reporter.title ? '- ' + reporter.title : ''}`,
+                      url: window.location.href
+                    };
+
+                    if (navigator.share) {
+                      try {
+                        await navigator.share(shareData);
+                      } catch (error) {
+                        console.log('تم إلغاء المشاركة');
+                      }
+                    } else {
+                      // fallback للمتصفحات التي لا تدعم Web Share API
+                      await navigator.clipboard.writeText(window.location.href);
+                      toast.success('تم نسخ الرابط');
+                    }
+                  }}
+                  className={`inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full font-medium transition-all hover:scale-105 border ${
+                    darkMode 
+                      ? 'border-slate-600 text-slate-300 hover:bg-slate-700' 
+                      : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  <Share2 className="w-4 h-4" />
+                  <span className="text-sm">مشاركة البروفايل</span>
+                </button>
+              </div>
             </div>
             
-            {/* AI Performance Gauge - جديد */}
-            <div className="hidden lg:block">
+            {/* AI Performance Gauge - مخفي في الجوال */}
+            <div className="hidden xl:block">
               <div className="relative w-32 h-32">
                 <svg className="transform -rotate-90 w-32 h-32">
                   <circle 
@@ -1226,33 +1378,8 @@ const ReporterProfilePage: React.FC = () => {
           </div>
         </section>
 
-        {/* كلمات مفتاحية للذكاء الاصطناعي */}
-        <section className="px-6 md:px-10 lg:px-20 mb-10">
-          <div className={`rounded-2xl shadow-sm border p-6 ${
-          darkMode ? 'bg-slate-800 border-slate-600/50' : 'bg-gray-100 border-gray-200'
-        }`}>
-          <div className="flex items-center gap-2 mb-3">
-            <Brain className={`w-5 h-5 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
-            <h2 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-              كلمات مفتاحية ذكية
-            </h2>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {['صحافة استقصائية', 'تحليل عميق', 'مصادر موثقة', 'تغطية حصرية', 'تقارير ميدانية'].map((tag, index) => (
-              <span
-                key={index}
-                className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  darkMode 
-                    ? 'bg-slate-700 text-slate-300 border border-slate-600'
-                    : 'bg-white text-gray-700 border border-gray-300'
-                }`}
-              >
-                {tag}
-              </span>
-              ))}
-            </div>
-          </div>
-        </section>
+        {/* كلمات مفتاحية ذكية - من المقالات الحقيقية */}
+        <SmartTagsSection slug={slug} darkMode={darkMode} />
 
         {/* تبويب المحتوى المنشور */}
         <section className="px-6 md:px-10 lg:px-20 mb-12">
@@ -1301,7 +1428,7 @@ const ReporterProfilePage: React.FC = () => {
                       {/* صورة مصغرة */}
                       <div className="w-20 h-16 rounded-lg overflow-hidden flex-shrink-0">
                         <CloudImage
-                          src={article.image_url}
+                          src={article.featured_image || article.image_url}
                           alt={article.title}
                           width={80}
                           height={64}
@@ -1472,82 +1599,10 @@ const ReporterProfilePage: React.FC = () => {
           </div>
         </section>
 
-        {/* Footer */}
-        <footer className={`border-t mt-20 py-12 ${darkMode ? 'bg-slate-900 border-slate-700' : 'bg-white border-gray-200'}`}>
-          <div className="px-6 md:px-10 lg:px-20">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-              {/* عن سبق الذكية */}
-              <div>
-                <h3 className={`text-lg font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                  صحيفة سبق الذكية
-                </h3>
-                <p className={`text-sm leading-relaxed ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  منصة إخبارية رائدة تستخدم الذكاء الاصطناعي لتقديم محتوى إخباري موثوق ومتطور.
-                </p>
-              </div>
-
-              {/* روابط سريعة */}
-              <div>
-                <h3 className={`text-lg font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                  روابط سريعة
-                </h3>
-                <ul className="space-y-2">
-                  <li>
-                    <a href="/" className={`text-sm hover:underline ${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-800'}`}>
-                      الصفحة الرئيسية
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/about" className={`text-sm hover:underline ${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-800'}`}>
-                      من نحن
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/contact" className={`text-sm hover:underline ${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-800'}`}>
-                      تواصل معنا
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/privacy" className={`text-sm hover:underline ${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-800'}`}>
-                      سياسة الخصوصية
-                    </a>
-                  </li>
-                </ul>
-              </div>
-
-              {/* تابعنا */}
-              <div>
-                <h3 className={`text-lg font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                  تابعنا على
-                </h3>
-                <div className="flex gap-3">
-                  <a href="#" className={`p-2 rounded-full hover:bg-opacity-20 transition-colors ${
-                    darkMode ? 'bg-slate-800 hover:bg-slate-700' : 'bg-gray-100 hover:bg-gray-200'
-                  }`}>
-                    <Twitter className="w-5 h-5 text-blue-500" />
-                  </a>
-                  <a href="#" className={`p-2 rounded-full hover:bg-opacity-20 transition-colors ${
-                    darkMode ? 'bg-slate-800 hover:bg-slate-700' : 'bg-gray-100 hover:bg-gray-200'
-                  }`}>
-                    <Linkedin className="w-5 h-5 text-blue-700" />
-                  </a>
-                  <a href="#" className={`p-2 rounded-full hover:bg-opacity-20 transition-colors ${
-                    darkMode ? 'bg-slate-800 hover:bg-slate-700' : 'bg-gray-100 hover:bg-gray-200'
-                  }`}>
-                    <Mail className="w-5 h-5 text-red-500" />
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            {/* فاصل */}
-            <div className={`border-t pt-6 ${darkMode ? 'border-slate-700' : 'border-gray-200'}`}>
-              <p className={`text-center text-sm ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-                جميع الحقوق محفوظة © {new Date().getFullYear()} صحيفة سبق الذكية
-              </p>
-            </div>
-          </div>
-        </footer>
+        </div>
+      
+      {/* Footer الرسمي */}
+      <FooterOfficial />
       </main>
     </div>
   );
