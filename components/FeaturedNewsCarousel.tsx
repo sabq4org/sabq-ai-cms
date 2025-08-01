@@ -225,16 +225,17 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
       </Link>
 
       {/* أشرطة التنقل */}
-      <div className="mt-4 flex justify-center items-center gap-3">
+      <div className="mt-6 flex justify-center items-center gap-2">
         {articles.map((article, index) => (
           <button
             key={article.id}
             onClick={() => setCurrentIndex(index)}
-            className={`h-2 rounded-full transition-all duration-300 ${
+            className={`h-1 rounded-full transition-all duration-500 ease-in-out transform hover:scale-110 ${
               index === currentIndex
-                ? 'w-10 bg-blue-500 dark:bg-blue-400'
-                : 'w-8 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'
+                ? 'w-12 bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-400 dark:to-blue-500 shadow-lg shadow-blue-500/30'
+                : 'w-8 bg-gray-400 dark:bg-gray-500 hover:bg-gray-500 dark:hover:bg-gray-400'
             }`}
+            aria-label={`الانتقال إلى الخبر ${index + 1}: ${article.title}`}
             title={article.title}
           />
         ))}
