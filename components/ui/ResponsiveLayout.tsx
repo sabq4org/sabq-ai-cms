@@ -90,7 +90,7 @@ export default function ResponsiveLayout({ children, user, onLogin, onLogout }: 
   // قائمة التنقل
   const navigationItems = [
     { href: '/', label: 'الرئيسية', icon: Home },
-    { href: '/articles', label: 'المقالات', icon: FileText },
+    { href: '/opinion-articles', label: 'المقالات', icon: FileText },
     { href: '/news', label: 'الأخبار', icon: MessageSquare },
     { href: '/trending', label: 'الأكثر قراءة', icon: TrendingUp },
     { href: '/stats', label: 'الإحصائيات', icon: BarChart3 },

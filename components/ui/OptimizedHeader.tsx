@@ -45,7 +45,7 @@ export default function OptimizedHeader() {
   const navItems = [
     { href: '/', label: 'الرئيسية', icon: Home },
     { href: '/news', label: 'الأخبار', icon: FileText },
-    { href: '/articles', label: 'المقالات', icon: BookOpen },
+    { href: '/opinion-articles', label: 'المقالات', icon: BookOpen },
     { href: '/trending', label: 'الأكثر قراءة', icon: TrendingUp },
     { href: '/stats', label: 'الإحصائيات', icon: BarChart },
     { href: '/community', label: 'المجتمع', icon: Users },
