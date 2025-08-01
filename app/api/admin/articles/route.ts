@@ -271,8 +271,13 @@ export async function GET(request: NextRequest) {
     const order = searchParams.get('order') || 'desc';
     const skip = (page - 1) * limit;
 
-    // بناء شروط البحث
-    const where: any = {};
+    // بناء شروط البحث - فقط مقالات الرأي
+    const where: any = {
+      // تصفية مقالات الرأي فقط
+      article_type: {
+        in: ['opinion', 'analysis', 'interview']
+      }
+    };
     
     if (status !== 'all') {
       where.status = status;

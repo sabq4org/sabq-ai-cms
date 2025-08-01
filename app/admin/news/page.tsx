@@ -123,7 +123,7 @@ export default function AdminNewsPage() {
         params.append('category_id', selectedCategory);
       }
 
-      const response = await fetch(`/api/articles?${params}`);
+      const response = await fetch(`/api/admin/news?${params}`);
       const data = await response.json();
       
       if (data.articles) {
@@ -176,7 +176,7 @@ export default function AdminNewsPage() {
       console.log('📊 جلب إحصائيات الأخبار فقط...');
       
       // استدعاء API مع فلتر الأخبار فقط
-      const response = await fetch('/api/articles/stats?article_type=news');
+              const response = await fetch('/api/admin/news?status=all&limit=1');
       
       if (response.ok) {
         const data = await response.json();
@@ -191,7 +191,7 @@ export default function AdminNewsPage() {
       // إذا فشل API المخصص، استخدم الطريقة القديمة كـ fallback
       console.log('📊 استخدام Fallback للإحصائيات...');
       
-      const fallbackResponse = await fetch('/api/articles?status=all&limit=1000');
+              const fallbackResponse = await fetch('/api/admin/news?status=all&limit=1000');
       const fallbackData = await fallbackResponse.json();
       
       if (fallbackData.articles) {
@@ -352,7 +352,7 @@ export default function AdminNewsPage() {
     try {
       setLoading(true);
       // البحث في جميع الحالات
-      const response = await fetch(`/api/articles?status=all&search=${encodeURIComponent(searchTerm)}&limit=100`);
+              const response = await fetch(`/api/admin/news?status=all&search=${encodeURIComponent(searchTerm)}&limit=100`);
       const data = await response.json();
       
       if (data.articles) {
