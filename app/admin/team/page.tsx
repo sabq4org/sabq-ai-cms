@@ -453,6 +453,8 @@ export default function TeamManagementPage() {
 
   const getRoleText = (role: string) => {
     switch (role) {
+      case 'system_admin':
+        return 'مدير النظام';
       case 'chief_editor':
         return 'رئيس التحرير';
       case 'admin':
@@ -461,6 +463,10 @@ export default function TeamManagementPage() {
         return 'محرر';
       case 'reporter':
         return 'مراسل';
+      case 'moderator':
+        return 'مشرف';
+      case 'writer':
+        return 'كاتب';
       default:
         return role;
     }
@@ -468,6 +474,7 @@ export default function TeamManagementPage() {
 
   // قائمة الأدوار المتاحة
   const availableRoles = [
+    { value: 'system_admin', label: 'مدير النظام' },
     { value: 'chief_editor', label: 'رئيس التحرير' },
     { value: 'editor', label: 'محرر' },
     { value: 'reporter', label: 'مراسل' },
@@ -827,8 +834,14 @@ export default function TeamManagementPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="role">الدور الوظيفي *</Label>
-                  <Select value={formData.role} onValueChange={(value) => handleInputChange('role', value)}>
-                    <SelectTrigger>
+                  <Select 
+                    value={formData.role} 
+                    onValueChange={(value) => {
+                      console.log('🔄 تغيير الدور:', value);
+                      handleInputChange('role', value);
+                    }}
+                  >
+                    <SelectTrigger id="role">
                       <SelectValue placeholder="اختر الدور" />
                     </SelectTrigger>
                     <SelectContent>
@@ -839,6 +852,10 @@ export default function TeamManagementPage() {
                       ))}
                     </SelectContent>
                   </Select>
+                  {/* تشخيص */}
+                  <div className="text-xs text-gray-500">
+                    الدور المختار: {formData.role || 'لا يوجد'}
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="position">المنصب</Label>
