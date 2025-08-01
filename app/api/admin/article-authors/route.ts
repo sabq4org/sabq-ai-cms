@@ -5,55 +5,115 @@ const prisma = new PrismaClient();
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('📝 جلب قائمة كتّاب المقالات...');
+    console.log('📝 جلب قائمة كتّاب المقالات من team_members...');
     
     const { searchParams } = new URL(request.url);
     const activeOnly = searchParams.get('active_only') === 'true';
     const limit = searchParams.get('limit');
     
-    const whereClause: any = {};
-    if (activeOnly) {
-      whereClause.is_active = true;
-    }
+    // جلب الكتّاب من article_authors أولاً، ثم team_members كبديل
+    let authors = [];
     
-    const queryOptions: any = {
-      where: whereClause,
-      select: {
-        id: true,
-        full_name: true,
-        slug: true,
-        title: true,
-        bio: true,
-        email: true,
-        avatar_url: true,
-        social_links: true,
-        is_active: true,
-        specializations: true,
-        total_articles: true,
-        total_views: true,
-        total_likes: true,
-        total_shares: true,
-        ai_score: true,
-        last_article_at: true,
-        created_at: true
-      },
-      orderBy: {
-        full_name: 'asc'
+    try {
+      // محاولة جلب من article_authors أولاً
+      const articleAuthors = await prisma.article_authors.findMany({
+        where: activeOnly ? { is_active: true } : {},
+        select: {
+          id: true,
+          full_name: true,
+          slug: true,
+          title: true,
+          bio: true,
+          email: true,
+          avatar_url: true,
+          social_links: true,
+          is_active: true,
+          specializations: true,
+          total_articles: true,
+          total_views: true,
+          total_likes: true,
+          total_shares: true,
+          ai_score: true,
+          last_article_at: true,
+          created_at: true
+        },
+        orderBy: { full_name: 'asc' },
+        take: limit ? parseInt(limit) : undefined
+      });
+      
+      if (articleAuthors.length > 0) {
+        authors = articleAuthors;
+        console.log(`✅ تم جلب ${authors.length} مؤلف من article_authors`);
+      } else {
+        console.log('⚠️ لا يوجد مؤلفين في article_authors، سيتم الجلب من team_members');
+        throw new Error('No article_authors found');
       }
-    };
-    
-    if (limit) {
-      queryOptions.take = parseInt(limit);
+    } catch (error) {
+      console.log('📝 التبديل إلى جلب الكتّاب من team_members...');
+      
+      // الجلب من team_members كبديل
+      const whereClause: any = {
+        role: 'writer' // فقط الأعضاء بدور "كاتب"
+      };
+      
+      const queryOptions: any = {
+        where: whereClause,
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          bio: true,
+          avatar: true,
+          department: true,
+          phone: true,
+          social_links: true,
+          created_at: true,
+          updated_at: true
+        },
+        orderBy: { name: 'asc' }
+      };
+      
+      if (limit) {
+        queryOptions.take = parseInt(limit);
+      }
+      
+      const teamWriters = await prisma.team_members.findMany(queryOptions);
+      
+      // تحويل البيانات لتتوافق مع واجهة ArticleAuthor
+      authors = teamWriters.map(writer => ({
+        id: writer.id,
+        full_name: writer.name,
+        slug: writer.name?.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\u0600-\u06FF-]/g, '') || writer.id,
+        title: writer.department || null,
+        bio: writer.bio,
+        email: writer.email,
+        avatar_url: writer.avatar,
+        social_links: writer.social_links || {},
+        is_active: true,
+        specializations: [],
+        total_articles: 0,
+        total_views: 0,
+        total_likes: 0,
+        total_shares: 0,
+        ai_score: 0.0,
+        last_article_at: null,
+        created_at: writer.created_at
+      }));
+      
+      console.log(`✅ تم جلب ${authors.length} كاتب من team_members`);
     }
     
-    const authors = await prisma.article_authors.findMany(queryOptions);
-    
-    console.log(`✅ تم جلب ${authors.length} كاتب من قاعدة البيانات`);
+    console.log(`📋 إجمالي المؤلفين: ${authors.length}`);
+    if (authors.length > 0) {
+      console.log(`📋 أسماء المؤلفين: ${authors.map(a => a.full_name).join(', ')}`);
+    }
     
     return NextResponse.json({
       success: true,
       authors: authors,
-      total: authors.length
+      total: authors.length,
+      source: authors.length > 0 && authors[0].specializations !== undefined ? 'article_authors' : 'team_members'
     });
     
   } catch (error: any) {
