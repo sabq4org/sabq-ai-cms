@@ -129,7 +129,6 @@ async function readBlocks(): Promise<SmartBlock[]> {
         }
       ];
       return defaultBlocks;
-    }
   } finally {
     await prisma.$disconnect();
   }
