@@ -3,12 +3,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Clock, Eye, User, Star, Sparkles } from 'lucide-react';
-import { formatDateShort } from '@/lib/date-utils';
 import { getValidImageUrl, generatePlaceholderImage } from '@/lib/cloudinary';
 import { getArticleLink } from '@/lib/utils';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import ReporterLink, { useReporter } from '@/components/ReporterLink';
 
 interface Article {
   id: string;
@@ -24,8 +20,8 @@ interface Article {
   created_at: string;
   published_at?: string;
   reading_time?: number;
-  is_breaking?: boolean;
-  is_featured?: boolean;
+  breaking?: boolean;
+  featured?: boolean;
   slug: string;
   category?: {
     name: string;
@@ -44,45 +40,14 @@ interface FeaturedMobileCardProps {
 }
 
 export default function FeaturedMobileCard({ article, className = '' }: FeaturedMobileCardProps) {
-  const { darkMode } = useDarkModeContext();
   const [imageLoaded, setImageLoaded] = useState(false);
-  
-  // جلب بيانات المراسل إذا كان author_id موجود
-  const { reporter } = useReporter(article.author_id);
-
   const imageUrl = getValidImageUrl(article.featured_image);
-  const displayDate = article.published_at || article.created_at;
-  const authorName = article.author?.name || article.author_name || 'كاتب مجهول';
-  const categoryName = article.category?.name || article.category_name || '';
-  const categoryColor = article.category?.color || '#3b82f6';
-
-  // تنسيق التاريخ والوقت
-  const formatDateTime = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
-    if (diffHours < 1) {
-      return 'منذ قليل';
-    } else if (diffHours < 24) {
-      return `منذ ${diffHours} ساعة`;
-    } else {
-      const options: Intl.DateTimeFormatOptions = {
-        day: 'numeric',
-        month: 'long',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-      };
-      return date.toLocaleDateString('ar-SA', options);
-    }
-  };
 
   return (
-    <div className={`relative w-full overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] ${className}`}>
+    <div className={`relative w-full overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] ${className}`}>
       <Link href={getArticleLink(article)} className="block relative">
         {/* الصورة الأساسية محسنة للموبايل */}
-        <div className="relative w-full h-64 overflow-hidden">
+        <div className="relative w-full h-[280px] overflow-hidden">
           <Image
             src={imageUrl}
             alt={article.title}
@@ -104,52 +69,25 @@ export default function FeaturedMobileCard({ article, className = '' }: Featured
             </div>
           )}
 
-          {/* التدرج المبسط - تدرج أسود شفاف يتلاشى للأعلى */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+          {/* Overlay Gradient - طبقة ضبابية سوداء لتمييز العنوان */}
+          <div className="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-black/70 to-transparent z-10" />
 
-          {/* شارة "مميز" في الزاوية العلوية اليمنى */}
-          {article.is_featured && (
-            <div className="absolute top-4 right-4 z-20">
-              <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black text-xs font-bold px-3 py-1.5 rounded-full shadow-xl flex items-center gap-1 backdrop-blur-sm">
-                <Sparkles className="w-3.5 h-3.5" />
-                مميز
-              </div>
-            </div>
-          )}
+          {/* وسم "مميز" في الزاوية العلوية اليمنى */}
+          <div className="absolute top-3 right-3 z-30 bg-yellow-500 text-white px-2 py-1 text-xs rounded flex items-center gap-1">
+            مميز ✨
+          </div>
 
           {/* شارة عاجل إذا كانت موجودة */}
-          {article.is_breaking && (
-            <div className="absolute top-4 left-4 z-20">
-              <div className="bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-xl flex items-center gap-1 backdrop-blur-sm animate-pulse">
-                <span className="w-2 h-2 bg-white rounded-full animate-ping" />
-                عاجل
-              </div>
+          {article.breaking && (
+            <div className="absolute top-3 left-3 z-30 bg-red-500 text-white px-2 py-1 text-xs rounded flex items-center gap-1 animate-pulse">
+              <span className="w-1.5 h-1.5 bg-white rounded-full animate-ping" />
+              عاجل
             </div>
           )}
 
-          {/* المحتوى النصي المبسط - نص أبيض واضح فوق التدرج */}
-          <div className="absolute bottom-0 left-0 right-0 p-4 w-full z-10">
-            {/* العنوان بخط عريض أبيض */}
-            <h3 className="text-base sm:text-lg font-bold text-white line-clamp-2 leading-tight mb-2">
-              {article.title}
-            </h3>
-
-            {/* تاريخ النشر بلون رمادي فاتح */}
-            <p className="text-xs sm:text-sm text-gray-300 mb-1">
-              {formatDateTime(displayDate)}
-            </p>
-
-            {/* اسم المراسل بخط صغير مع رابط للبروفايل */}
-            <div className="text-xs">
-              <ReporterLink
-                reporter={reporter}
-                authorName={authorName}
-                className="text-gray-400 hover:text-white"
-                showIcon={false}
-                showVerification={true}
-                size="sm"
-              />
-            </div>
+          {/* العنوان فوق الطبقة الضبابية */}
+          <div className="absolute bottom-4 left-4 right-4 z-20 text-white text-lg font-semibold leading-snug">
+            {article.title}
           </div>
         </div>
       </Link>
