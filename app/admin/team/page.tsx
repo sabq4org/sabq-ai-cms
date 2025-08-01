@@ -921,47 +921,51 @@ export default function TeamManagementPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="role">الدور الوظيفي *</Label>
-                  <Select 
-                    value={formData.role} 
-                    onValueChange={(value) => {
-                      console.log('🔄 [DEBUG] تغيير الدور:', value);
+                  
+                  {/* 🔧 Select مُبسط للاختبار */}
+                  <select
+                    id="role"
+                    value={formData.role}
+                    onChange={(e) => {
+                      console.log('🔄 [DEBUG] تغيير الدور (HTML Select):', e.target.value);
                       console.log('🔄 [DEBUG] قبل التغيير formData.role:', formData.role);
-                      handleInputChange('role', value);
-                      console.log('🔄 [DEBUG] بعد التغيير formData.role:', value);
+                      handleInputChange('role', e.target.value);
+                      console.log('🔄 [DEBUG] بعد التغيير formData.role:', e.target.value);
                     }}
                     disabled={rolesLoading}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                   >
-                    <SelectTrigger id="role">
-                      <SelectValue placeholder={rolesLoading ? "جاري تحميل الأدوار..." : "اختر الدور الوظيفي"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {rolesLoading ? (
-                        <SelectItem value="" disabled>
-                          جاري تحميل الأدوار...
-                        </SelectItem>
-                      ) : availableRoles.length > 0 ? (
-                        availableRoles.map(role => (
-                          <SelectItem key={role.value} value={role.value}>
-                            {role.label}
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <SelectItem value="" disabled>
-                          لا توجد أدوار متاحة
-                        </SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
+                    <option value="">
+                      {rolesLoading ? "جاري تحميل الأدوار..." : "اختر الدور الوظيفي"}
+                    </option>
+                    {!rolesLoading && availableRoles.length > 0 ? (
+                      availableRoles.map(role => (
+                        <option key={role.value} value={role.value}>
+                          {role.label}
+                        </option>
+                      ))
+                    ) : !rolesLoading ? (
+                      <option value="" disabled>
+                        لا توجد أدوار متاحة
+                      </option>
+                    ) : null}
+                  </select>
+                  
                   {/* تشخيص محسن */}
                   <div className="text-xs text-gray-500">
                     {rolesLoading ? (
-                      'جاري تحميل الأدوار...'
+                      '⏳ جاري تحميل الأدوار...'
                     ) : (
                       <>
-                        الدور المختار: {formData.role || 'لم يتم الاختيار'} 
+                        الدور المختار: <strong>{formData.role || 'لم يتم الاختيار'}</strong>
                         {availableRoles.length > 0 && ` (${availableRoles.length} دور متاح)`}
                       </>
                     )}
+                  </div>
+                  
+                  {/* تشخيص إضافي */}
+                  <div className="text-xs text-blue-600">
+                    🔍 Debug: rolesLoading={rolesLoading.toString()}, roles.length={roles.length}, availableRoles.length={availableRoles.length}
                   </div>
                 </div>
                 <div className="space-y-2">
