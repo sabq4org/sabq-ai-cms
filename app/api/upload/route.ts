@@ -46,12 +46,14 @@ export async function POST(request: NextRequest) {
     // تحديد مجلد الحفظ حسب النوع
     const folderMap: { [key: string]: string } = {
       'article-image': 'articles',
-      'author-avatar': 'authors',
+      'author-avatar': 'authors', 
+      'avatar': 'avatar',          // ✅ إضافة مجلد avatar
       'featured-image': 'featured',
       'general': 'uploads'
     };
     
     const folder = folderMap[type] || 'uploads';
+    console.log(`📁 نوع الرفع: ${type}, مجلد الحفظ: ${folder}`);
     
     try {
       // تحويل الملف إلى buffer
@@ -62,10 +64,16 @@ export async function POST(request: NextRequest) {
       const uploadsDir = join(process.cwd(), 'public', 'uploads', folder);
       const filePath = join(uploadsDir, fileName);
       
+      console.log(`📂 مسار الحفظ: ${uploadsDir}`);
+      console.log(`📄 مسار الملف: ${filePath}`);
+      
       // إنشاء المجلد إذا لم يكن موجوداً
       const fs = require('fs');
       if (!fs.existsSync(uploadsDir)) {
+        console.log(`📁 إنشاء مجلد: ${uploadsDir}`);
         fs.mkdirSync(uploadsDir, { recursive: true });
+      } else {
+        console.log(`✅ المجلد موجود: ${uploadsDir}`);
       }
       
       // حفظ الملف

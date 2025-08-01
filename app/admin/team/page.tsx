@@ -1019,29 +1019,33 @@ export default function TeamManagementPage() {
               <div className="space-y-2">
                 <Label>الصورة الشخصية</Label>
                 
-                {/* 🚧 إصلاح مؤقت: Input بسيط لرابط الصورة */}
-                <div className="space-y-2">
-                  <Input
-                    placeholder="رابط الصورة الشخصية (اختياري)"
-                    value={formData.avatar}
-                    onChange={(e) => handleInputChange('avatar', e.target.value)}
-                  />
-                  <div className="text-xs text-gray-500">
-                    💡 أدخل رابط الصورة مؤقتاً. رفع الصور سيتم إصلاحه قريباً.
+                {/* ✅ مكون رفع الصور المُحدث */}
+                <ImageUpload
+                  currentImage={formData.avatar}
+                  onImageUploaded={(url) => {
+                    console.log('🖼️ [DEBUG] تم رفع الصورة:', url);
+                    handleInputChange('avatar', url);
+                  }}
+                  type="avatar"
+                  accept="image/*"
+                  maxSize={5}
+                  label="رفع صورة شخصية"
+                />
+                
+                {/* معاينة الصورة */}
+                {formData.avatar && (
+                  <div className="mt-2">
+                    <img 
+                      src={formData.avatar} 
+                      alt="معاينة الصورة" 
+                      className="w-16 h-16 rounded-full object-cover border"
+                      onError={(e) => {
+                        console.log('❌ فشل في تحميل الصورة:', formData.avatar);
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
                   </div>
-                  {formData.avatar && (
-                    <div className="mt-2">
-                      <img 
-                        src={formData.avatar} 
-                        alt="معاينة الصورة" 
-                        className="w-16 h-16 rounded-full object-cover border"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
-                    </div>
-                  )}
-                </div>
+                )}
               </div>
 
               <div className="space-y-4">

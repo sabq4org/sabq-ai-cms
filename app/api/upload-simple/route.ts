@@ -1,134 +1,81 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { v2 as cloudinary } from 'cloudinary';
-
-// تكوين Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🚀 بدء رفع الصورة بطريقة مبسطة...');
+    console.log('📸 [SIMPLE UPLOAD] بدء رفع صورة...');
     
-    const data = await request.formData();
-    const file: File | null = data.get('file') as unknown as File;
-    const type = data.get('type') as string || 'general';
-
+    const formData = await request.formData();
+    const file = formData.get('file') as File;
+    const type = formData.get('type') as string || 'avatar';
+    
     if (!file) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'لم يتم رفع أي ملف' 
-      });
+      return NextResponse.json(
+        { success: false, error: 'لم يتم العثور على ملف' },
+        { status: 400 }
+      );
     }
-
-    // التحقق من صحة الملف
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/jpg'];
+    
+    console.log(`📊 معلومات الملف: ${file.name}, الحجم: ${Math.round(file.size / 1024)}KB`);
+    
+    // التحقق من نوع الملف
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/jpg'];
     if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'نوع الملف غير مسموح' 
-      });
+      return NextResponse.json(
+        { success: false, error: 'نوع الملف غير مدعوم. يجب أن يكون صورة' },
+        { status: 400 }
+      );
     }
-
-    // التحقق من إعدادات Cloudinary
-    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-      console.error('❌ إعدادات Cloudinary غير مكتملة');
-      return NextResponse.json({ 
-        success: false, 
-        error: 'إعدادات الخدمة غير مكتملة' 
-      });
+    
+    // التحقق من حجم الملف (5MB max)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      return NextResponse.json(
+        { success: false, error: 'حجم الملف كبير جداً. الحد الأقصى 5MB' },
+        { status: 400 }
+      );
     }
-
-    // تحويل الملف إلى Buffer
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    // تحديد المجلد
-    let folder = 'sabq-cms/general';
-    switch (type) {
-      case 'avatar':
-        folder = 'sabq-cms/avatars';
-        break;
-      case 'featured':
-        folder = 'sabq-cms/featured';
-        break;
-      case 'gallery':
-        folder = 'sabq-cms/gallery';
-        break;
-      case 'team':
-        folder = 'sabq-cms/team';
-        break;
-      case 'analysis':
-        folder = 'sabq-cms/analysis';
-        break;
-      default:
-        folder = 'sabq-cms/general';
-    }
-
-    console.log('📤 رفع إلى Cloudinary...');
-    console.log('📁 المجلد:', folder);
-    console.log('📁 Cloud Name:', process.env.CLOUDINARY_CLOUD_NAME);
-
-    // رفع الصورة إلى Cloudinary
-    const result = await new Promise((resolve, reject) => {
-      cloudinary.uploader.upload_stream(
-        {
-          folder: folder,
-          resource_type: 'image',
-          public_id: `${Date.now()}_${file.name.replace(/\.[^/.]+$/, "")}`,
-          overwrite: true,
-          invalidate: true,
-          transformation: [
-            { quality: 'auto:good' },
-            { fetch_format: 'auto' }
-          ]
-        },
-        (error, result) => {
-          if (error) {
-            console.error('❌ خطأ Cloudinary:', error);
-            reject(error);
-          } else {
-            console.log('✅ نجح رفع Cloudinary:', result?.secure_url);
-            resolve(result);
-          }
-        }
-      ).end(buffer);
-    });
-
-    const uploadResult = result as any;
-
+    
+    // تحويل الصورة إلى base64 كحل مؤقت
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+    const base64 = buffer.toString('base64');
+    const mimeType = file.type;
+    
+    // إنشاء URL data للصورة
+    const dataUrl = `data:${mimeType};base64,${base64}`;
+    
+    console.log('✅ [SIMPLE UPLOAD] تم تحويل الصورة إلى base64 بنجاح');
+    
+    // في التطبيق الحقيقي، ستحفظ الصورة في خدمة سحابية أو مجلد
+    // لكن الآن نُرجع data URL للاختبار
+    
     return NextResponse.json({
       success: true,
-      url: uploadResult.secure_url,
-      public_id: uploadResult.public_id,
-      width: uploadResult.width,
-      height: uploadResult.height,
-      format: uploadResult.format,
-      bytes: uploadResult.bytes,
-      message: 'تم رفع الصورة بنجاح',
-      cloudinary_storage: true
+      url: dataUrl,
+      fileName: file.name,
+      size: file.size,
+      type: file.type,
+      message: 'تم رفع الصورة بنجاح (مؤقتاً كـ base64)'
     });
-
-  } catch (error) {
-    console.error('❌ خطأ في رفع الصورة:', error);
     
-    return NextResponse.json({
-      success: false,
-      error: 'فشل في رفع الصورة',
-      details: error instanceof Error ? error.message : 'خطأ غير معروف'
-    }, { status: 500 });
+  } catch (error: any) {
+    console.error('❌ [SIMPLE UPLOAD] خطأ في رفع الصورة:', error);
+    
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'حدث خطأ أثناء رفع الصورة',
+        details: error?.message || 'خطأ غير معروف'
+      },
+      { status: 500 }
+    );
   }
 }
 
-export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    },
+export async function GET() {
+  return NextResponse.json({
+    success: true,
+    message: 'خدمة رفع الصور البسيطة تعمل',
+    note: 'هذه خدمة مؤقتة تحول الصور إلى base64'
   });
 }
