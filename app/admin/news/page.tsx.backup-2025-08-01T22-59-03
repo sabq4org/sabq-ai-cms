@@ -109,11 +109,6 @@ export default function AdminNewsPage() {
   // جلب الأخبار
   const fetchArticles = async () => {
     setLoading(true);
-    console.log('🚀 بدء جلب الأخبار...', {
-      filterStatus,
-      selectedCategory,
-      timestamp: new Date().toISOString()
-    });
     try {
       console.log(`🔍 جلب الأخبار مع الفلتر: ${filterStatus}`);
       
@@ -146,12 +141,6 @@ export default function AdminNewsPage() {
       
       
       if (data.articles) {
-        console.log('📦 معالجة البيانات...', {
-          total: data.total,
-          articlesReceived: data.articles.length,
-          firstArticleTitle: data.articles[0]?.title?.substring(0, 50)
-        });
-        
         // تنظيف البيانات وإضافة معالجة آمنة
         const cleanArticles = data.articles.map((article: any) => ({
           ...article,
@@ -164,6 +153,7 @@ export default function AdminNewsPage() {
                                 title.includes('demo') ||
                                 title.includes('example');
           
+          // إخفاء الأخبار التجريبية والمجدولة دائماً
           return !isTestArticle && article.status !== 'scheduled';
         });
         
@@ -183,13 +173,6 @@ export default function AdminNewsPage() {
           return dateB - dateA;
         });
         
-        console.log('✅ تم معالجة البيانات بنجاح:', {
-          originalCount: data.articles.length,
-          filteredCount: cleanArticles.length,
-          finalCount: sortedArticles.length,
-          status: filterStatus
-        });
-        
         setArticles(sortedArticles);
         console.log(`🧹 بعد الفلترة:`, {
           originalCount: data.articles.length,
@@ -200,22 +183,8 @@ export default function AdminNewsPage() {
         console.log(`✅ تم جلب ${sortedArticles.length} خبر بحالة: ${filterStatus}`);
       }
     } catch (error) {
-      console.error('❌ خطأ مفصل في جلب الأخبار:', {
-        error: error.message,
-        filterStatus,
-        selectedCategory,
-        timestamp: new Date().toISOString()
-      });
-      
-      // معلومات إضافية للتشخيص
-      if (error instanceof TypeError) {
-        console.error('🔍 خطأ في النوع - قد تكون مشكلة في API response');
-      } else if (error instanceof SyntaxError) {
-        console.error('🔍 خطأ في parsing JSON - قد تكون مشكلة في API format');
-      }
-      
-      toast.error(`حدث خطأ في جلب الأخبار: ${error.message || 'خطأ غير معروف'}`);
-      setArticles([]); // تأكد من إفراغ المقالات عند الخطأ
+      console.error('خطأ في جلب الأخبار:', error);
+      toast.error('حدث خطأ في جلب الأخبار');
     } finally {
       setLoading(false);
     }
@@ -302,11 +271,7 @@ export default function AdminNewsPage() {
   // تحميل البيانات الأساسية مرة واحدة عند تحميل الصفحة
   // تحميل البيانات الأولية عند تحميل الصفحة
   useEffect(() => {
-    console.log('🎯 بدء تحميل البيانات الأولية...', {
-      timestamp: new Date().toISOString(),
-      location: window.location.href,
-      userAgent: navigator.userAgent.substring(0, 50)
-    });
+    console.log('🎯 بدء تحميل البيانات الأولية...');
     fetchCategories();
     fetchArticles();
     calculateStatsFromAll();
