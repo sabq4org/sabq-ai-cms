@@ -45,11 +45,21 @@ export async function GET(
             author: {
               select: {
                 id: true,
-              name: true,
-              email: true,
-              avatar: true
+                name: true,
+                email: true,
+                avatar: true
+              }
+            },
+            article_author: {
+              select: {
+                id: true,
+                full_name: true,
+                slug: true,
+                title: true,
+                avatar_url: true,
+                specializations: true
+              }
             }
-          }
         }
       })
     })
@@ -81,6 +91,16 @@ export async function GET(
                   name: true,
                   email: true,
                   avatar: true
+                }
+              },
+              article_author: {
+                select: {
+                  id: true,
+                  full_name: true,
+                  slug: true,
+                  title: true,
+                  avatar_url: true,
+                  specializations: true
                 }
               }
             }
@@ -160,12 +180,21 @@ export async function GET(
       }
     }
     
-    // إرجاع البيانات مباشرة للتوافق مع صفحة عرض المقال
-    return NextResponse.json({
+    // تنسيق بيانات الكاتب مع إعطاء أولوية لكاتب المقال الحقيقي
+    const formattedArticle = {
       ...article,
       category: categoryInfo,
+      // إعطاء أولوية لكاتب المقال الحقيقي من article_authors
+      author_name: article.article_author?.full_name || article.author?.name || null,
+      author_title: article.article_author?.title || null,
+      author_specialty: article.article_author?.specializations?.[0] || null,
+      author_avatar: article.article_author?.avatar_url || article.author?.avatar || null,
+      author_slug: article.article_author?.slug || null,
       success: true
-    })
+    };
+    
+    // إرجاع البيانات مع معلومات الكاتب المحسنة
+    return NextResponse.json(formattedArticle)
     
   } catch (error: any) {
     console.error('❌ خطأ في جلب المقال:', error)

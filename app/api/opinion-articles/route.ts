@@ -132,8 +132,10 @@ export async function GET(request: NextRequest) {
       ...article,
       image: article.featured_image,
       category: article.categories,
-      author_name: article.author?.name || article.article_author?.full_name || null,
+      // إعطاء أولوية لكاتب المقال الحقيقي من article_authors
+      author_name: article.article_author?.full_name || article.author?.name || null,
       author_specialty: article.article_author?.specializations?.[0] || article.article_author?.title || null,
+      author_avatar: article.article_author?.avatar_url || article.author?.avatar || null,
       comments_count: 0 // يمكن إضافة عد التعليقات لاحقاً
     }));
 
