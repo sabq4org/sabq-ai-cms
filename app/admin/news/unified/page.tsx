@@ -344,7 +344,7 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
         // تحميل التصنيفات والمراسلين بشكل متوازي
         const [categoriesResponse, reportersResponse] = await Promise.all([
           fetch('/api/categories'),
-          fetch('/api/reporters?limit=100&sort=full_name&order=asc')
+          fetch('/api/team-members?role=reporter&limit=100')
         ]);
         
         console.log('📡 استجابات API:', {
@@ -380,16 +380,16 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
         if (reportersResponse.ok) {
           const reportersData = await reportersResponse.json();
           console.log('📦 بيانات المراسلين المستلمة:', reportersData);
-          // API المراسلين يرجع البيانات في reporters
-          loadedReporters = reportersData.reporters || [];
+          // API team-members يرجع البيانات في members أو data
+          loadedReporters = reportersData.members || reportersData.data || [];
           
-          // تحويل بيانات المراسلين لتتوافق مع النموذج المطلوب
+          // تحويل بيانات team_members لتتوافق مع النموذج المطلوب
           const convertedReporters = loadedReporters.map((reporter: any) => ({
-            id: reporter.user_id,  // استخدام user_id كمعرف للمؤلف
-            name: reporter.full_name,
-            email: reporter.user?.email || '',
+            id: reporter.id,  // استخدام id من team_members
+            name: reporter.name,
+            email: reporter.email || '',
             role: 'reporter',
-            avatar: reporter.avatar_url
+            avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(reporter.name)}&background=3b82f6&color=fff&size=100`
           }));
           
           setReporters(convertedReporters);

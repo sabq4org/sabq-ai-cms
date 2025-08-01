@@ -12,12 +12,33 @@ export async function GET(request: NextRequest) {
   try {
     console.log('📊 جلب أعضاء الفريق من قاعدة البيانات...');
     
-    const teamMembers = await prisma.team_members.findMany({
+    // استخراج المعاملات من URL
+    const { searchParams } = new URL(request.url);
+    const role = searchParams.get('role');
+    const limit = searchParams.get('limit');
+    
+    // بناء شروط البحث
+    const whereClause: any = {};
+    if (role) {
+      whereClause.role = role;
+      console.log(`🎯 فلترة حسب الدور: ${role}`);
+    }
+    
+    // بناء معاملات الاستعلام
+    const queryOptions: any = {
+      where: whereClause,
       orderBy: [
         { display_order: 'asc' },
         { created_at: 'desc' }
       ]
-    });
+    };
+    
+    if (limit) {
+      queryOptions.take = parseInt(limit);
+      console.log(`📏 الحد الأقصى: ${limit}`);
+    }
+    
+    const teamMembers = await prisma.team_members.findMany(queryOptions);
     
     console.log(`✅ تم جلب ${teamMembers.length} عضو من قاعدة البيانات`);
     
