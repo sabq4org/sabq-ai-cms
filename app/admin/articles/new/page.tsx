@@ -5,7 +5,7 @@ import {
   Save, Eye, Sparkles, Clock, Tag, User, Image, 
   FileText, Wand2, Brain, ArrowLeft, Upload,
   MessageSquare, TrendingUp, BookOpen, Quote,
-  RefreshCw, Check, X, Zap
+  RefreshCw, Check, X, Zap, AlertCircle
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -13,6 +13,8 @@ import { cn } from '@/lib/utils';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import toast from 'react-hot-toast';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import FileUpload from '@/components/ui/FileUpload';
+import AdvancedEditor from '@/components/ui/AdvancedEditor';
 
 // Types
 interface ArticleAuthor {
@@ -54,12 +56,16 @@ const NewArticlePage = () => {
   });
   
   const [aiContent, setAiContent] = useState({
+    title: '',
     summary: '',
     quotes: [] as string[],
-    readingTime: 0,
-    tags: [] as string[],
-    aiScore: 0
+    keywords: [] as string[],
+    reading_time: 0,
+    ai_score: 0,
+    processing_time: 0
   });
+  
+  const [generateStatus, setGenerateStatus] = useState<'idle' | 'generating' | 'success' | 'error'>('idle');
 
   // Fetch authors
   useEffect(() => {
@@ -83,43 +89,105 @@ const NewArticlePage = () => {
     }
   };
 
-  // Generate AI content
-  const generateAIContent = async () => {
-    if (!form.title || !form.content) {
-      toast.error('يجب إدخال العنوان والمحتوى أولاً');
-      return;
+  // Auto-generate AI content when content changes
+  useEffect(() => {
+    if (form.content.length > 100) {
+      const timer = setTimeout(() => {
+        autoGenerateAIContent();
+      }, 2000); // انتظار ثانيتين بعد التوقف عن الكتابة
+      
+      return () => clearTimeout(timer);
     }
+  }, [form.content]);
 
+  // Auto generate AI content
+  const autoGenerateAIContent = async () => {
+    if (!form.content || form.content.length < 100) return;
+    
     setGenerating(true);
+    setGenerateStatus('generating');
     
     try {
-      const response = await fetch('/api/admin/articles/generate-ai-content', {
+      const response = await fetch('/api/ai/smart-editor', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          title: form.title,
-          content: form.content
+          action: ['generate_title', 'create_summary', 'generate_keywords', 'generate_quotes'],
+          content: form.content,
+          title: form.title
         })
       });
 
       const data = await response.json();
       
       if (data.success) {
-        setAiContent(data.content);
+        setAiContent(data);
+        setGenerateStatus('success');
+        
+        // تحديث النموذج تلقائياً
+        setForm(prev => ({
+          ...prev,
+          title: prev.title || data.title || prev.title,
+          excerpt: prev.excerpt || data.summary || prev.excerpt,
+          tags: [...new Set([...prev.tags, ...(data.keywords || [])])]
+        }));
+        
+        toast.success('تم توليد المحتوى الذكي تلقائياً');
+      } else {
+        setGenerateStatus('error');
+        console.error('خطأ في API:', data.error);
+      }
+    } catch (error) {
+      console.error('خطأ في توليد المحتوى:', error);
+      setGenerateStatus('error');
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  // Manual AI content generation
+  const generateAIContent = async () => {
+    if (!form.content) {
+      toast.error('يجب إدخال المحتوى أولاً');
+      return;
+    }
+
+    setGenerating(true);
+    setGenerateStatus('generating');
+    
+    try {
+      const response = await fetch('/api/ai/smart-editor', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: ['generate_title', 'create_summary', 'generate_keywords', 'generate_quotes'],
+          content: form.content,
+          title: form.title
+        })
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setAiContent(data);
+        setGenerateStatus('success');
         
         // Update form with AI suggestions
         setForm(prev => ({
           ...prev,
-          excerpt: prev.excerpt || data.content.summary,
-          tags: [...new Set([...prev.tags, ...data.content.tags])]
+          title: data.title || prev.title,
+          excerpt: data.summary || prev.excerpt,
+          tags: [...new Set([...prev.tags, ...(data.keywords || [])])]
         }));
         
-        toast.success('تم توليد المحتوى الذكي بنجاح');
+        toast.success(`تم التوليد في ${data.processing_time}ms`);
       } else {
-        toast.error('خطأ في توليد المحتوى الذكي');
+        setGenerateStatus('error');
+        toast.error(data.error || 'خطأ في توليد المحتوى الذكي');
       }
     } catch (error) {
       console.error('خطأ في توليد المحتوى:', error);
+      setGenerateStatus('error');
       toast.error('خطأ في الاتصال بالخادم');
     } finally {
       setGenerating(false);
@@ -127,7 +195,7 @@ const NewArticlePage = () => {
   };
 
   // Save article
-  const saveArticle = async () => {
+  const saveArticle = async (status: 'draft' | 'published') => {
     if (!form.title || !form.content || !form.article_author_id) {
       toast.error('يجب ملء جميع الحقول المطلوبة');
       return;
@@ -141,16 +209,17 @@ const NewArticlePage = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...form,
-          summary: aiContent.summary,
+          status: status,
+          summary: aiContent.summary || form.excerpt,
           ai_quotes: aiContent.quotes,
-          reading_time: aiContent.readingTime || Math.ceil(form.content.split(' ').length / 225)
+          reading_time: aiContent.reading_time || Math.ceil(form.content.replace(/<[^>]*>/g, '').split(' ').filter(w => w.length > 0).length / 225)
         })
       });
 
       const data = await response.json();
       
       if (data.success) {
-        toast.success(form.status === 'published' ? 'تم نشر المقال بنجاح' : 'تم حفظ المقال كمسودة');
+        toast.success(status === 'published' ? 'تم نشر المقال بنجاح' : 'تم حفظ المقال كمسودة');
         router.push('/admin/articles');
       } else {
         toast.error('خطأ في حفظ المقال');
@@ -237,26 +306,58 @@ const NewArticlePage = () => {
             </div>
             
             <div className="flex gap-3">
+              {/* حالة التوليد الذكي */}
+              <div className="flex items-center gap-2">
+                {generateStatus === 'generating' && (
+                  <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400">
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span className="text-sm">جاري التوليد...</span>
+                  </div>
+                )}
+                {generateStatus === 'success' && (
+                  <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+                    <Check className="w-4 h-4" />
+                    <span className="text-sm">تم التوليد</span>
+                  </div>
+                )}
+                {generateStatus === 'error' && (
+                  <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
+                    <X className="w-4 h-4" />
+                    <span className="text-sm">فشل التوليد</span>
+                  </div>
+                )}
+              </div>
+              
               <button
                 onClick={generateAIContent}
-                disabled={generating || !form.title || !form.content}
+                disabled={generating || !form.content}
                 className={cn(
                   'flex items-center gap-2 px-4 py-2 rounded-lg transition-colors disabled:opacity-50',
-                  darkMode 
-                    ? 'bg-purple-600 hover:bg-purple-700 text-white disabled:bg-gray-700' 
-                    : 'bg-purple-600 hover:bg-purple-700 text-white disabled:bg-gray-300'
+                  generateStatus === 'success' 
+                    ? 'bg-green-600 hover:bg-green-700 text-white'
+                    : generateStatus === 'error'
+                    ? 'bg-red-600 hover:bg-red-700 text-white'
+                    : darkMode 
+                      ? 'bg-purple-600 hover:bg-purple-700 text-white disabled:bg-gray-700' 
+                      : 'bg-purple-600 hover:bg-purple-700 text-white disabled:bg-gray-300'
                 )}
               >
                 {generating ? (
                   <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : generateStatus === 'success' ? (
+                  <Check className="w-4 h-4" />
+                ) : generateStatus === 'error' ? (
+                  <RefreshCw className="w-4 h-4" />
                 ) : (
                   <Sparkles className="w-4 h-4" />
                 )}
-                توليد ذكي
+                {generateStatus === 'success' ? 'تم التوليد' : 
+                 generateStatus === 'error' ? 'إعادة المحاولة' : 
+                 'توليد ذكي'}
               </button>
               
               <button
-                onClick={() => setForm(prev => ({ ...prev, status: 'draft' }))}
+                onClick={() => saveArticle('draft')}
                 disabled={loading}
                 className={cn(
                   'flex items-center gap-2 px-4 py-2 rounded-lg transition-colors disabled:opacity-50',
@@ -270,10 +371,7 @@ const NewArticlePage = () => {
               </button>
               
               <button
-                onClick={() => {
-                  setForm(prev => ({ ...prev, status: 'published' }));
-                  saveArticle();
-                }}
+                onClick={() => saveArticle('published')}
                 disabled={loading}
                 className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
               >
@@ -293,7 +391,70 @@ const NewArticlePage = () => {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             
-            {/* Title */}
+            {/* 1. الكاتب */}
+            <div className={cn(
+              'p-6 rounded-xl border',
+              darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+            )}>
+              <label className={cn('block text-sm font-medium mb-2', darkMode ? 'text-gray-300' : 'text-gray-700')}>
+                <User className="w-4 h-4 inline ml-2" />
+                الكاتب *
+              </label>
+              <select
+                value={form.article_author_id}
+                onChange={(e) => setForm(prev => ({ ...prev, article_author_id: e.target.value }))}
+                className={cn(
+                  'w-full p-3 rounded-lg border',
+                  darkMode 
+                    ? 'bg-gray-700 border-gray-600 text-white' 
+                    : 'bg-white border-gray-300 text-gray-900'
+                )}
+              >
+                <option value="">اختر الكاتب</option>
+                {authors.map(author => (
+                  <option key={author.id} value={author.id}>
+                    {author.full_name} {author.title && `- ${author.title}`}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* 2. نوع المقال */}
+            <div className={cn(
+              'p-6 rounded-xl border',
+              darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+            )}>
+              <label className={cn('block text-sm font-medium mb-4', darkMode ? 'text-gray-300' : 'text-gray-700')}>
+                <FileText className="w-4 h-4 inline ml-2" />
+                نوع المقال
+              </label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {(['opinion', 'analysis', 'interview', 'news'] as const).map(type => {
+                  const Icon = getTypeIcon(type);
+                  return (
+                    <button
+                      key={type}
+                      onClick={() => setForm(prev => ({ ...prev, article_type: type }))}
+                      className={cn(
+                        'p-4 rounded-lg border transition-colors text-sm flex flex-col items-center gap-2',
+                        form.article_type === type
+                          ? darkMode 
+                            ? 'bg-blue-600 border-blue-500 text-white' 
+                            : 'bg-blue-100 border-blue-300 text-blue-800'
+                          : darkMode 
+                            ? 'bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600' 
+                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                      )}
+                    >
+                      <Icon className="w-6 h-6" />
+                      {getTypeLabel(type)}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 3. العنوان */}
             <div className={cn(
               'p-6 rounded-xl border',
               darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
@@ -305,7 +466,7 @@ const NewArticlePage = () => {
                 type="text"
                 value={form.title}
                 onChange={(e) => setForm(prev => ({ ...prev, title: e.target.value }))}
-                placeholder="أدخل عنوان المقال..."
+                placeholder={aiContent.title || "أدخل عنوان المقال..."}
                 className={cn(
                   'w-full p-3 rounded-lg border text-lg font-medium',
                   darkMode 
@@ -313,46 +474,34 @@ const NewArticlePage = () => {
                     : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
                 )}
               />
+              {aiContent.title && !form.title && (
+                <button
+                  onClick={() => setForm(prev => ({ ...prev, title: aiContent.title }))}
+                  className="mt-2 text-sm text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                >
+                  <Sparkles className="w-3 h-3" />
+                  استخدام العنوان المقترح: "{aiContent.title.substring(0, 50)}..."
+                </button>
+              )}
             </div>
 
-            {/* Content */}
-            <div className={cn(
-              'p-6 rounded-xl border',
-              darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-            )}>
-              <label className={cn('block text-sm font-medium mb-2', darkMode ? 'text-gray-300' : 'text-gray-700')}>
-                محتوى المقال *
-              </label>
-              <textarea
-                value={form.content}
-                onChange={(e) => setForm(prev => ({ ...prev, content: e.target.value }))}
-                placeholder="اكتب محتوى المقال هنا..."
-                rows={20}
-                className={cn(
-                  'w-full p-4 rounded-lg border resize-none',
-                  darkMode 
-                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
-                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                )}
-              />
-              <div className="flex justify-between mt-2 text-xs text-gray-500">
-                <span>الكلمات: {form.content.split(' ').filter(w => w.length > 0).length}</span>
-                <span>وقت القراءة المتوقع: {Math.ceil(form.content.split(' ').length / 225)} دقيقة</span>
-              </div>
-            </div>
-
-            {/* Excerpt */}
+            {/* 4. الملخص */}
             <div className={cn(
               'p-6 rounded-xl border',
               darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
             )}>
               <label className={cn('block text-sm font-medium mb-2', darkMode ? 'text-gray-300' : 'text-gray-700')}>
                 الملخص
+                {aiContent.summary && (
+                  <span className="text-xs text-purple-600 dark:text-purple-400 ml-2">
+                    (تم توليده تلقائياً)
+                  </span>
+                )}
               </label>
               <textarea
                 value={form.excerpt}
                 onChange={(e) => setForm(prev => ({ ...prev, excerpt: e.target.value }))}
-                placeholder="ملخص المقال (سيتم توليده تلقائياً)"
+                placeholder={aiContent.summary || "ملخص المقال (سيتم توليده تلقائياً)"}
                 rows={3}
                 className={cn(
                   'w-full p-3 rounded-lg border',
@@ -361,6 +510,42 @@ const NewArticlePage = () => {
                     : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
                 )}
               />
+              {aiContent.summary && !form.excerpt && (
+                <button
+                  onClick={() => setForm(prev => ({ ...prev, excerpt: aiContent.summary }))}
+                  className="mt-2 text-sm text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                >
+                  <Sparkles className="w-3 h-3" />
+                  استخدام الملخص المولّد
+                </button>
+              )}
+            </div>
+
+            {/* 5. المحتوى */}
+            <div className={cn(
+              'p-6 rounded-xl border',
+              darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+            )}>
+              <label className={cn('block text-sm font-medium mb-2', darkMode ? 'text-gray-300' : 'text-gray-700')}>
+                محتوى المقال *
+              </label>
+              <AdvancedEditor
+                content={form.content}
+                onChange={(content) => setForm(prev => ({ ...prev, content }))}
+                placeholder="ابدأ كتابة المقال هنا... سيتم توليد المحتوى الذكي تلقائياً بعد كتابة 100 حرف"
+                darkMode={darkMode}
+                minHeight="500px"
+              />
+              <div className="flex justify-between mt-2 text-xs text-gray-500">
+                <span>الكلمات: {form.content.replace(/<[^>]*>/g, '').split(' ').filter(w => w.length > 0).length}</span>
+                <span>وقت القراءة المتوقع: {Math.ceil(form.content.replace(/<[^>]*>/g, '').split(' ').length / 225)} دقيقة</span>
+                {generating && (
+                  <span className="text-purple-600 dark:text-purple-400 flex items-center gap-1">
+                    <RefreshCw className="w-3 h-3 animate-spin" />
+                    جاري المعالجة الذكية...
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* AI Generated Quotes */}
@@ -404,109 +589,95 @@ const NewArticlePage = () => {
           {/* Sidebar */}
           <div className="space-y-6">
             
-            {/* Article Details */}
+            {/* 6. الصورة المميزة */}
             <div className={cn(
               'p-6 rounded-xl border',
               darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
             )}>
-              <h3 className={cn('font-medium mb-4', darkMode ? 'text-white' : 'text-gray-900')}>
-                تفاصيل المقال
+              <h3 className={cn('font-medium mb-4 flex items-center gap-2', darkMode ? 'text-white' : 'text-gray-900')}>
+                <Image className="w-5 h-5" />
+                الصورة المميزة
               </h3>
               
-              {/* Author */}
-              <div className="mb-4">
-                <label className={cn('block text-sm font-medium mb-2', darkMode ? 'text-gray-300' : 'text-gray-700')}>
-                  الكاتب *
-                </label>
-                <select
-                  value={form.article_author_id}
-                  onChange={(e) => setForm(prev => ({ ...prev, article_author_id: e.target.value }))}
-                  className={cn(
-                    'w-full p-3 rounded-lg border',
-                    darkMode 
-                      ? 'bg-gray-700 border-gray-600 text-white' 
-                      : 'bg-white border-gray-300 text-gray-900'
-                  )}
-                >
-                  <option value="">اختر الكاتب</option>
-                  {authors.map(author => (
-                    <option key={author.id} value={author.id}>
-                      {author.full_name} {author.title && `- ${author.title}`}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Article Type */}
-              <div className="mb-4">
-                <label className={cn('block text-sm font-medium mb-2', darkMode ? 'text-gray-300' : 'text-gray-700')}>
-                  نوع المقال
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {(['opinion', 'analysis', 'interview', 'news'] as const).map(type => {
-                    const Icon = getTypeIcon(type);
-                    return (
-                      <button
-                        key={type}
-                        onClick={() => setForm(prev => ({ ...prev, article_type: type }))}
-                        className={cn(
-                          'p-3 rounded-lg border transition-colors text-sm',
-                          form.article_type === type
-                            ? darkMode 
-                              ? 'bg-blue-600 border-blue-500 text-white' 
-                              : 'bg-blue-100 border-blue-300 text-blue-800'
-                            : darkMode 
-                              ? 'bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600' 
-                              : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
-                        )}
-                      >
-                        <Icon className="w-4 h-4 mx-auto mb-1" />
-                        {getTypeLabel(type)}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Featured Image */}
-              <div className="mb-4">
-                <label className={cn('block text-sm font-medium mb-2', darkMode ? 'text-gray-300' : 'text-gray-700')}>
-                  الصورة المميزة
+              <FileUpload
+                accept="image/*"
+                maxSize="5MB"
+                onUpload={(url) => setForm(prev => ({ ...prev, featured_image: url }))}
+                currentImage={form.featured_image}
+                darkMode={darkMode}
+              />
+              
+              {/* رابط يدوي كبديل */}
+              <div className="mt-4">
+                <label className={cn('block text-xs font-medium mb-2', darkMode ? 'text-gray-400' : 'text-gray-600')}>
+                  أو أدخل رابط الصورة يدوياً
                 </label>
                 <input
                   type="url"
                   value={form.featured_image}
                   onChange={(e) => setForm(prev => ({ ...prev, featured_image: e.target.value }))}
-                  placeholder="رابط الصورة"
+                  placeholder="https://example.com/image.jpg"
                   className={cn(
-                    'w-full p-3 rounded-lg border',
+                    'w-full p-2 rounded-lg border text-sm',
                     darkMode 
                       ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
                       : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
                   )}
                 />
-                {form.featured_image && (
-                  <img
-                    src={form.featured_image}
-                    alt="Preview"
-                    className="mt-2 w-full h-32 object-cover rounded-lg"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
-                )}
               </div>
             </div>
 
-            {/* Tags */}
+            {/* 7. الكلمات المفتاحية */}
             <div className={cn(
               'p-6 rounded-xl border',
               darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
             )}>
-              <h3 className={cn('font-medium mb-4', darkMode ? 'text-white' : 'text-gray-900')}>
+              <h3 className={cn('font-medium mb-4 flex items-center gap-2', darkMode ? 'text-white' : 'text-gray-900')}>
+                <Tag className="w-5 h-5" />
                 الكلمات المفتاحية
+                {aiContent.keywords && aiContent.keywords.length > 0 && (
+                  <span className="text-xs text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-900/20 px-2 py-1 rounded-full">
+                    AI: {aiContent.keywords.length}
+                  </span>
+                )}
               </h3>
               
+              {/* الكلمات المقترحة من الذكاء الاصطناعي */}
+              {aiContent.keywords && aiContent.keywords.length > 0 && (
+                <div className="mb-4">
+                  <label className={cn('block text-xs font-medium mb-2', darkMode ? 'text-gray-400' : 'text-gray-600')}>
+                    <Sparkles className="w-3 h-3 inline ml-1" />
+                    كلمات مقترحة (اضغط لإضافة)
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {aiContent.keywords
+                      .filter(keyword => !form.tags.includes(keyword))
+                      .map((keyword, index) => (
+                        <button
+                          key={index}
+                          onClick={() => {
+                            if (!form.tags.includes(keyword)) {
+                              setForm(prev => ({
+                                ...prev,
+                                tags: [...prev.tags, keyword]
+                              }));
+                            }
+                          }}
+                          className={cn(
+                            'px-3 py-1 rounded-full text-sm border transition-colors hover:scale-105',
+                            darkMode 
+                              ? 'bg-purple-900/20 text-purple-400 border-purple-700 hover:bg-purple-800/30' 
+                              : 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100'
+                          )}
+                        >
+                          + {keyword}
+                        </button>
+                      ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* إدخال يدوي */}
               <input
                 type="text"
                 placeholder="أضف كلمة مفتاحية واضغط Enter"
@@ -519,17 +690,25 @@ const NewArticlePage = () => {
                 )}
               />
               
+              {/* الكلمات المضافة */}
               <div className="flex flex-wrap gap-2">
                 {form.tags.map((tag, index) => (
                   <span
                     key={index}
                     className={cn(
                       'px-3 py-1 rounded-full text-sm flex items-center gap-2',
-                      darkMode 
-                        ? 'bg-blue-900/20 text-blue-400 border border-blue-800' 
-                        : 'bg-blue-100 text-blue-800 border border-blue-200'
+                      aiContent.keywords?.includes(tag)
+                        ? darkMode 
+                          ? 'bg-purple-900/20 text-purple-400 border border-purple-800' 
+                          : 'bg-purple-100 text-purple-800 border border-purple-200'
+                        : darkMode 
+                          ? 'bg-blue-900/20 text-blue-400 border border-blue-800' 
+                          : 'bg-blue-100 text-blue-800 border border-blue-200'
                     )}
                   >
+                    {aiContent.keywords?.includes(tag) && (
+                      <Sparkles className="w-3 h-3" />
+                    )}
                     {tag}
                     <button
                       onClick={() => removeTag(tag)}
@@ -540,10 +719,20 @@ const NewArticlePage = () => {
                   </span>
                 ))}
               </div>
+              
+              {form.tags.length === 0 && aiContent.keywords && aiContent.keywords.length > 0 && (
+                <button
+                  onClick={() => setForm(prev => ({ ...prev, tags: [...aiContent.keywords] }))}
+                  className="mt-3 text-sm text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                >
+                  <Sparkles className="w-3 h-3" />
+                  إضافة جميع الكلمات المقترحة ({aiContent.keywords.length})
+                </button>
+              )}
             </div>
 
-            {/* AI Score Preview */}
-            {aiContent.aiScore > 0 && (
+            {/* 8. اقتباسات ذكية وتقييم الذكاء الاصطناعي */}
+            {(aiContent.quotes.length > 0 || aiContent.ai_score > 0) && (
               <div className={cn(
                 'p-6 rounded-xl border',
                 darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
@@ -551,21 +740,70 @@ const NewArticlePage = () => {
                 <div className="flex items-center gap-2 mb-4">
                   <Brain className={cn('w-5 h-5', darkMode ? 'text-purple-400' : 'text-purple-600')} />
                   <h3 className={cn('font-medium', darkMode ? 'text-white' : 'text-gray-900')}>
-                    تقييم الذكاء الاصطناعي
+                    التحليل الذكي
                   </h3>
                 </div>
                 
-                <div className="text-center">
-                  <div className={cn('text-3xl font-bold mb-2', 
-                    aiContent.aiScore >= 80 ? 'text-green-500' :
-                    aiContent.aiScore >= 60 ? 'text-yellow-500' : 'text-red-500'
-                  )}>
-                    {aiContent.aiScore}%
+                {/* AI Score */}
+                {aiContent.ai_score > 0 && (
+                  <div className="text-center mb-6">
+                    <div className={cn('text-3xl font-bold mb-2', 
+                      aiContent.ai_score >= 80 ? 'text-green-500' :
+                      aiContent.ai_score >= 60 ? 'text-yellow-500' : 'text-red-500'
+                    )}>
+                      {aiContent.ai_score}%
+                    </div>
+                    <p className={cn('text-sm', darkMode ? 'text-gray-400' : 'text-gray-600')}>
+                      جودة المحتوى والأسلوب
+                    </p>
+                    {aiContent.processing_time > 0 && (
+                      <p className={cn('text-xs mt-1', darkMode ? 'text-gray-500' : 'text-gray-500')}>
+                        تم التحليل في {aiContent.processing_time}ms
+                      </p>
+                    )}
                   </div>
-                  <p className={cn('text-sm', darkMode ? 'text-gray-400' : 'text-gray-600')}>
-                    جودة المحتوى والأسلوب
-                  </p>
-                </div>
+                )}
+                
+                {/* AI Quotes */}
+                {aiContent.quotes.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Quote className={cn('w-4 h-4', darkMode ? 'text-purple-400' : 'text-purple-600')} />
+                      <h4 className={cn('font-medium text-sm', darkMode ? 'text-white' : 'text-gray-900')}>
+                        اقتباسات مختارة
+                      </h4>
+                      <span className={cn('text-xs px-2 py-1 rounded-full', 
+                        darkMode ? 'bg-purple-900/20 text-purple-400' : 'bg-purple-100 text-purple-600'
+                      )}>
+                        {aiContent.quotes.length}
+                      </span>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      {aiContent.quotes.map((quote, index) => (
+                        <div
+                          key={index}
+                          className={cn(
+                            'p-3 rounded-lg border-r-4 border-purple-500',
+                            darkMode ? 'bg-gray-700/50' : 'bg-purple-50'
+                          )}
+                        >
+                          <p className={cn('text-sm italic', darkMode ? 'text-gray-300' : 'text-gray-700')}>
+                            "{quote}"
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Reading Time */}
+                {aiContent.reading_time > 0 && (
+                  <div className={cn('flex items-center gap-2 mt-4 text-sm', darkMode ? 'text-gray-400' : 'text-gray-600')}>
+                    <Clock className="w-4 h-4" />
+                    <span>وقت القراءة المقدر: {aiContent.reading_time} دقيقة</span>
+                  </div>
+                )}
               </div>
             )}
 
