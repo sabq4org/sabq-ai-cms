@@ -3,33 +3,25 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import SmartArticleHero from '@/components/article/SmartArticleHero';
-import SmartContentRenderer from '@/components/article/SmartContentRenderer';
-import SmartSummary from '@/components/article/SmartSummary';
-import SmartRecommendations from '@/components/article/SmartRecommendations';
+import dynamic from 'next/dynamic';
 import { Loader2, AlertCircle, BookOpen } from 'lucide-react';
 
 /**
- * 🗞️ صفحة تفاصيل المقال الذكية - التصميم الجديد
+ * 🗞️ صفحة تفاصيل المقال - توجيه ذكي حسب نوع المحتوى
  * 
- * ✨ الميزات الذكية:
- * - تصميم Hero بانورامي مع معلومات المقال
- * - مؤشرات الذكاء الاصطناعي (نبرة، مستوى التحليل، التوصية)
- * - اقتباسات ذكية مستخرجة من AI
- * - ملخص ذكي تفاعلي
- * - توصيات ذكية للمقالات ذات الصلة
- * - دعم الوضع الليلي
- * - تصميم متجاوب للموبايل والديسكتوب
- * 
- * 🤖 ميزات AI:
- * - تحليل نبرة المقال
- * - تقييم مستوى العمق
- * - استخراج اقتباسات مهمة
- * - ملخص ذكي مع نقاط رئيسية
- * - توصيات مخصصة
+ * 📰 للأخبار: التصميم الإخباري الكلاسيكي
+ * 🧠 لمقالات الرأي: التصميم الذكي مع ميزات AI
+ * 📊 للتحليلات: التصميم الذكي مع ميزات متقدمة
  */
 
-interface SmartArticleData {
+// Dynamic imports للمكونات المختلفة
+const SmartArticleHero = dynamic(() => import('@/components/article/SmartArticleHero'), { ssr: false });
+const SmartContentRenderer = dynamic(() => import('@/components/article/SmartContentRenderer'), { ssr: false });
+const SmartSummary = dynamic(() => import('@/components/article/SmartSummary'), { ssr: false });
+const SmartRecommendations = dynamic(() => import('@/components/article/SmartRecommendations'), { ssr: false });
+const ArticleClientComponent = dynamic(() => import('./ArticleClientComponent'), { ssr: false });
+
+interface ArticleData {
   id: string;
   title: string;
   content: string;
@@ -37,16 +29,19 @@ interface SmartArticleData {
   featured_image?: string;
   published_at: string;
   reading_time?: number;
-  views_count: number;
+  views_count?: number;
+  views?: number;
   likes_count?: number;
+  likes?: number;
   comments_count?: number;
   category_name?: string;
-  category_color?: string;
+  category?: { name: string; slug: string; color?: string };
+  categories?: { name: string; slug: string; color?: string };
   author_name?: string;
-  author_avatar?: string;
-  author_slug?: string;
+  author?: { name: string; avatar?: string; slug?: string; id?: string };
+  article_type?: string;
   
-  // AI Analysis
+  // Smart data للمقالات الذكية
   ai_analysis?: {
     tone: 'analytical' | 'emotional' | 'satirical' | 'educational' | 'investigative';
     depth_score: number;
@@ -56,7 +51,6 @@ interface SmartArticleData {
     key_themes: string[];
   };
   
-  // Smart Quotes
   smart_quotes?: Array<{
     id: string;
     text: string;
@@ -67,7 +61,6 @@ interface SmartArticleData {
     position_in_article: number;
   }>;
   
-  // AI Summary
   ai_summary?: {
     id: string;
     brief_summary: string;
@@ -82,7 +75,6 @@ interface SmartArticleData {
     related_concepts: string[];
   };
   
-  // Smart Recommendations
   recommendations?: Array<{
     id: string;
     title: string;
@@ -95,14 +87,33 @@ interface SmartArticleData {
   }>;
 }
 
-export default function SmartArticlePage() {
+export default function ArticlePage() {
   const params = useParams();
   const { darkMode } = useDarkModeContext();
-  const [article, setArticle] = useState<SmartArticleData | null>(null);
+  const [article, setArticle] = useState<ArticleData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [renderMode, setRenderMode] = useState<'news' | 'smart'>('news'); // Default للأخبار
   
   const articleId = params?.id as string;
+
+  // تحديد نوع العرض حسب نوع المقال
+  const determineRenderMode = (article: ArticleData): 'news' | 'smart' => {
+    const articleType = article.article_type?.toLowerCase();
+    
+    // الأخبار العادية تستخدم التصميم الإخباري
+    if (articleType === 'news' || articleType === 'breaking' || !articleType) {
+      return 'news';
+    }
+    
+    // مقالات الرأي والتحليل تستخدم التصميم الذكي
+    if (articleType === 'opinion' || articleType === 'analysis' || articleType === 'editorial' || articleType === 'interview') {
+      return 'smart';
+    }
+    
+    // Default للأخبار
+    return 'news';
+  };
 
   // Fetch article data
   useEffect(() => {
@@ -112,107 +123,102 @@ export default function SmartArticlePage() {
       try {
         setLoading(true);
         
-        // Try to fetch from smart article API first
-        let response = await fetch(`/api/articles/${articleId}/smart`);
+        // جلب البيانات الأساسية أولاً
+        const response = await fetch(`/api/articles/${articleId}`);
         
         if (!response.ok) {
-          // Fallback to regular article API and generate mock smart data
-          response = await fetch(`/api/articles/${articleId}`);
-          
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: فشل في جلب المقال`);
+          throw new Error(`HTTP ${response.status}: فشل في جلب المقال`);
+        }
+        
+        const basicArticle = await response.json();
+        
+        // تحديد نوع العرض
+        const mode = determineRenderMode(basicArticle);
+        setRenderMode(mode);
+        
+        if (mode === 'smart') {
+          // للمقالات الذكية: جرب API الذكي أولاً
+          try {
+            const smartResponse = await fetch(`/api/articles/${articleId}/smart`);
+            if (smartResponse.ok) {
+              const smartData = await smartResponse.json();
+              setArticle(smartData);
+              return;
+            }
+          } catch (smartError) {
+            console.log('Smart API غير متوفر، سيتم استخدام بيانات وهمية');
           }
           
-          const basicArticle = await response.json();
-          
-          // Generate mock smart data
-          const smartArticle: SmartArticleData = {
+          // إنشاء بيانات ذكية وهمية لمقالات الرأي
+          const smartArticle: ArticleData = {
             ...basicArticle,
             views_count: basicArticle.views || 0,
             likes_count: basicArticle.likes || 0,
             comments_count: basicArticle.comments_count || 0,
-            category_name: basicArticle.category?.name || basicArticle.categories?.name || 'عام',
-            category_color: '#3B82F6',
-            author_name: basicArticle.author?.name || 'كاتب غير محدد',
-            author_avatar: basicArticle.author?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(basicArticle.author?.name || 'كاتب')}&background=0D8ABC&color=fff`,
-            author_slug: basicArticle.author?.slug || 'unknown',
+            category_name: basicArticle.category?.name || basicArticle.categories?.name || 'رأي',
+            author_name: basicArticle.author?.name || 'كاتب رأي',
             
-            // Mock AI Analysis
+            // Mock AI Analysis لمقالات الرأي
             ai_analysis: {
               tone: 'analytical',
-              depth_score: Math.floor(Math.random() * 30) + 70, // 70-99%
+              depth_score: Math.floor(Math.random() * 30) + 70,
               recommendation: 'recommended',
               complexity_level: 'intermediate',
-              reading_goal: 'daily_read',
-              key_themes: ['أخبار', 'تحليل', 'معلومات مهمة']
+              reading_goal: 'deep_analysis',
+              key_themes: ['رأي', 'تحليل', 'وجهة نظر']
             },
             
             // Mock Smart Quotes
             smart_quotes: [
               {
                 id: 'quote-1',
-                text: 'هذا اقتباس ذكي مستخرج من المقال يلخص الفكرة الرئيسية',
-                context: 'من الفقرة الثانية',
+                text: 'رؤية عميقة من الكاتب تستحق التأمل والمناقشة',
+                context: 'من صلب المقال',
                 importance_score: 85,
                 emotional_impact: 'high',
                 quote_type: 'key_insight',
                 position_in_article: 2
-              },
-              {
-                id: 'quote-2', 
-                text: 'نقطة مهمة أخرى تستحق التأمل والمناقشة',
-                context: 'من الخاتمة',
-                importance_score: 78,
-                emotional_impact: 'medium',
-                quote_type: 'conclusion',
-                position_in_article: 5
               }
             ],
             
             // Mock AI Summary
             ai_summary: {
               id: 'summary-1',
-              brief_summary: 'ملخص ذكي للمقال يغطي النقاط الرئيسية بشكل مختصر ومفيد',
+              brief_summary: 'ملخص ذكي لوجهة النظر والحجج المطروحة في المقال',
               key_points: [
-                'النقطة الأولى المهمة في المقال',
-                'النقطة الثانية التي تستحق الانتباه',
-                'الخلاصة والتوصيات النهائية'
+                'النقطة الرئيسية في الرأي',
+                'الحجة المركزية للكاتب',
+                'الخلاصة والتوصيات'
               ],
               main_insights: [
-                'رؤية عميقة مستخرجة من تحليل المحتوى',
-                'فهم متقدم للموضوع وتأثيراته'
+                'فهم عميق لموضوع المقال',
+                'تحليل متقدم لوجهة النظر'
               ],
-              action_items: [
-                'خطوة عملية يمكن للقارئ اتباعها',
-                'توصية للمتابعة والتطبيق'
-              ],
-              conclusion: 'خاتمة ذكية تلخص الأفكار الرئيسية',
+              conclusion: 'خاتمة تلخص الرأي والموقف',
               reading_time_saved: 3,
-              comprehension_score: 92,
+              comprehension_score: 90,
               relevance_topics: ['موضوع ذو صلة 1', 'موضوع ذو صلة 2'],
-              next_steps: ['خطوة تالية مقترحة'],
               related_concepts: ['مفهوم مرتبط 1', 'مفهوم مرتبط 2']
             },
             
-            // Mock Recommendations  
             recommendations: [
               {
                 id: 'rec-1',
-                title: 'مقال ذو صلة يكمل الموضوع',
-                excerpt: 'وصف مختصر للمقال المقترح',
-                similarity_score: 0.85,
-                recommendation_reason: 'مواضيع متشابهة',
-                article_type: 'news',
-                estimated_reading_time: 4,
-                category_name: 'نفس التصنيف'
+                title: 'مقال رأي آخر ذو صلة',
+                excerpt: 'وجهة نظر مكملة أو مختلفة',
+                similarity_score: 0.80,
+                recommendation_reason: 'موضوع مشابه أو وجهة نظر أخرى',
+                article_type: 'opinion',
+                estimated_reading_time: 5,
+                category_name: 'رأي'
               }
             ]
           };
           
           setArticle(smartArticle);
         } else {
-          const smartData = await response.json();
-          setArticle(smartData);
+          // للأخبار: استخدم البيانات الأساسية مع التصميم الإخباري
+          setArticle(basicArticle);
         }
         
       } catch (error: any) {
@@ -233,10 +239,10 @@ export default function SmartArticlePage() {
         <div className="text-center">
           <Loader2 className={`w-8 h-8 animate-spin mx-auto mb-4 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
           <p className={`text-lg ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-            جاري تحميل المقال الذكي...
+            جاري تحميل المقال...
           </p>
           <p className={`text-sm mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-            يتم إعداد التحليل الذكي والميزات التفاعلية
+            {renderMode === 'smart' ? 'يتم إعداد التحليل الذكي والميزات التفاعلية' : 'تحضير المحتوى الإخباري'}
           </p>
         </div>
       </div>
@@ -271,67 +277,74 @@ export default function SmartArticlePage() {
     );
   }
 
-  return (
-    <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
-      {/* Hero Section */}
-      <SmartArticleHero article={article} />
-      
-      {/* Main Content */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Article Content with Smart Quotes */}
-        <SmartContentRenderer
-          content={article.content}
-          smartQuotes={article.smart_quotes}
-          articleTitle={article.title}
-          authorName={article.author_name}
-          className="mb-12"
-        />
+  // عرض التصميم حسب النوع
+  if (renderMode === 'smart') {
+    // التصميم الذكي لمقالات الرأي والتحليل
+    return (
+      <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+        {/* Hero Section */}
+        <SmartArticleHero article={article} />
         
-        {/* Smart Summary */}
-        {article.ai_summary && (
-          <SmartSummary
-            summary={article.ai_summary}
+        {/* Main Content */}
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Article Content with Smart Quotes */}
+          <SmartContentRenderer
+            content={article.content}
+            smartQuotes={article.smart_quotes}
             articleTitle={article.title}
-            originalReadingTime={article.reading_time || 5}
+            authorName={article.author_name}
+            className="mb-12"
           />
-        )}
+          
+          {/* Smart Summary */}
+          {article.ai_summary && (
+            <SmartSummary
+              summary={article.ai_summary}
+              articleTitle={article.title}
+              originalReadingTime={article.reading_time || 5}
+            />
+          )}
+          
+          {/* Smart Recommendations */}
+          {article.recommendations && (
+            <SmartRecommendations
+              currentArticleId={article.id}
+              recommendations={article.recommendations}
+            />
+          )}
+        </div>
         
-        {/* Smart Recommendations */}
-        {article.recommendations && (
-          <SmartRecommendations
-            currentArticleId={article.id}
-            recommendations={article.recommendations}
-          />
-        )}
+        {/* Schema.org structured data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Article",
+              "headline": article.title,
+              "description": article.excerpt,
+              "image": article.featured_image,
+              "author": {
+                "@type": "Person",
+                "name": article.author_name
+              },
+              "publisher": {
+                "@type": "Organization",
+                "name": "صحيفة سبق",
+                "logo": {
+                  "@type": "ImageObject",
+                  "url": "/logo.png"
+                }
+              },
+              "datePublished": article.published_at,
+              "dateModified": article.published_at
+            })
+          }}
+        />
       </div>
-      
-      {/* Schema.org structured data */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Article",
-            "headline": article.title,
-            "description": article.excerpt,
-            "image": article.featured_image,
-            "author": {
-              "@type": "Person",
-              "name": article.author_name
-            },
-            "publisher": {
-              "@type": "Organization",
-              "name": "صحيفة سبق",
-              "logo": {
-                "@type": "ImageObject",
-                "url": "/logo.png"
-              }
-            },
-            "datePublished": article.published_at,
-            "dateModified": article.published_at
-          })
-        }}
-      />
-    </div>
-  );
+    );
+  } else {
+    // التصميم الإخباري الكلاسيكي للأخبار
+    return <ArticleClientComponent initialArticle={article} articleId={articleId} />;
+  }
 }
