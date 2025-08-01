@@ -6,7 +6,7 @@ import {
   Clock, User, Tag, Star, BookOpen, Calendar,
   FileText, TrendingUp, Heart, Share2, MessageSquare,
   ChevronDown, ChevronRight, RefreshCw, Download,
-  Zap, Brain, Award, Target
+  Zap, Brain, Award, Target, Crown
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -46,6 +46,7 @@ interface Article {
   tags: string[];
   ai_quotes: string[];
   ai_score?: number;
+  is_opinion_leader?: boolean;
 }
 
 interface ArticleStats {
@@ -81,11 +82,14 @@ const ArticlesAdminPage = () => {
   const [filterType, setFilterType] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'created_at' | 'published_at' | 'views' | 'ai_score'>('created_at');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [currentOpinionLeader, setCurrentOpinionLeader] = useState<string | null>(null);
+  const [settingOpinionLeader, setSettingOpinionLeader] = useState<string | null>(null);
 
   // Load data
   useEffect(() => {
     loadArticles();
     loadAuthors();
+    loadCurrentOpinionLeader();
   }, []);
 
   const loadArticles = async () => {
@@ -131,6 +135,57 @@ const ArticlesAdminPage = () => {
       }
     } catch (error) {
       console.error('Error loading authors:', error);
+    }
+  };
+
+  const loadCurrentOpinionLeader = async () => {
+    try {
+      const response = await fetch('/api/opinion/leaders');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data) {
+          setCurrentOpinionLeader(data.data.id);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading current opinion leader:', error);
+    }
+  };
+
+  const setAsOpinionLeader = async (articleId: string) => {
+    try {
+      setSettingOpinionLeader(articleId);
+      
+      const response = await fetch('/api/opinion/leaders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ articleId }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setCurrentOpinionLeader(articleId);
+          toast.success('تم تعيين المقال كقائد رأي اليوم بنجاح!');
+          
+          // Update the articles list to reflect the change
+          setArticles(prev => prev.map(article => ({
+            ...article,
+            is_opinion_leader: article.id === articleId
+          })));
+        } else {
+          toast.error(data.error || 'فشل في تعيين قائد الرأي');
+        }
+      } else {
+        toast.error('فشل في تعيين قائد الرأي');
+      }
+    } catch (error) {
+      console.error('Error setting opinion leader:', error);
+      toast.error('حدث خطأ في تعيين قائد الرأي');
+    } finally {
+      setSettingOpinionLeader(null);
     }
   };
 
@@ -214,12 +269,19 @@ const ArticlesAdminPage = () => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
           {[
             { label: 'إجمالي المقالات', value: stats.total.toString(), icon: FileText, color: 'blue' },
             { label: 'المنشورة', value: stats.published.toString(), icon: Eye, color: 'green' },
             { label: 'المسودات', value: stats.draft.toString(), icon: Clock, color: 'yellow' },
-            { label: 'المشاهدات', value: stats.totalViews.toLocaleString(), icon: TrendingUp, color: 'purple' }
+            { label: 'المشاهدات', value: stats.totalViews.toLocaleString(), icon: TrendingUp, color: 'purple' },
+            { 
+              label: 'قائد رأي اليوم', 
+              value: currentOpinionLeader ? '✓' : '✗', 
+              icon: Crown, 
+              color: 'gold',
+              special: true
+            }
           ].map((stat, index) => (
             <div
               key={index}
@@ -241,6 +303,7 @@ const ArticlesAdminPage = () => {
                   stat.color === 'blue' ? 'text-blue-500' :
                   stat.color === 'green' ? 'text-green-500' :
                   stat.color === 'yellow' ? 'text-yellow-500' :
+                  stat.color === 'gold' ? (currentOpinionLeader ? 'text-yellow-500' : 'text-gray-400') :
                   'text-purple-500'
                 )} />
               </div>
@@ -372,6 +435,15 @@ const ArticlesAdminPage = () => {
                       <h3 className={cn('text-lg font-bold', darkMode ? 'text-white' : 'text-gray-900')}>
                         {article.title}
                       </h3>
+                      
+                      {/* شارة قائد الرأي اليوم */}
+                      {currentOpinionLeader === article.id && (
+                        <span className="flex items-center gap-1 px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                          <Crown className="w-3 h-3" />
+                          قائد رأي اليوم
+                        </span>
+                      )}
+                      
                       <span className={cn(
                         'px-2 py-1 text-xs rounded-full',
                         article.status === 'published' ? 'bg-green-100 text-green-800' :
@@ -420,6 +492,32 @@ const ArticlesAdminPage = () => {
                   </div>
 
                   <div className="flex items-center gap-2">
+                    {/* زر قائد الرأي اليوم */}
+                    {article.status === 'published' && article.article_type === 'opinion' && (
+                      <button
+                        onClick={() => setAsOpinionLeader(article.id)}
+                        disabled={settingOpinionLeader === article.id}
+                        className={cn(
+                          'p-2 rounded-lg transition-colors relative',
+                          currentOpinionLeader === article.id
+                            ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                            : darkMode 
+                            ? 'hover:bg-gray-700 text-gray-400 hover:text-yellow-500' 
+                            : 'hover:bg-gray-100 text-gray-600 hover:text-yellow-600',
+                          settingOpinionLeader === article.id && 'opacity-50 cursor-not-allowed'
+                        )}
+                        title={currentOpinionLeader === article.id ? 'قائد رأي اليوم الحالي' : 'تعيين كقائد رأي اليوم'}
+                      >
+                        <Crown className={cn(
+                          'w-4 h-4',
+                          currentOpinionLeader === article.id && 'text-yellow-600'
+                        )} />
+                        {currentOpinionLeader === article.id && (
+                          <span className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        )}
+                      </button>
+                    )}
+                    
                     <Link
                       href={`/admin/articles/edit/${article.id}`}
                       className={cn(
@@ -429,6 +527,7 @@ const ArticlesAdminPage = () => {
                     >
                       <Edit className="w-4 h-4" />
                     </Link>
+                    
                     <button
                       className={cn(
                         'p-2 rounded-lg transition-colors',
