@@ -160,7 +160,8 @@ export default function TeamManagementPage() {
   const fetchRoles = async () => {
     try {
       setRolesLoading(true);
-      console.log('🔍 جلب الأدوار من قاعدة البيانات...');
+      console.log('🔍 [DEBUG] جلب الأدوار من قاعدة البيانات...');
+      console.log('🔍 [DEBUG] URL:', '/api/admin/roles');
       
       const response = await fetch('/api/admin/roles', {
         cache: 'no-cache',
@@ -169,12 +170,17 @@ export default function TeamManagementPage() {
         }
       });
       
+      console.log('📡 [DEBUG] Response status:', response.status);
+      console.log('📡 [DEBUG] Response ok:', response.ok);
+      
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
       
       const data = await response.json();
-      console.log('📊 استجابة API الأدوار:', data);
+      console.log('📊 [DEBUG] استجابة API الأدوار:', data);
+      console.log('📊 [DEBUG] data.success:', data.success);
+      console.log('📊 [DEBUG] data.data length:', data.data?.length);
       
       if (data.success && data.data) {
         // تحويل البيانات للتنسيق المطلوب
@@ -185,8 +191,10 @@ export default function TeamManagementPage() {
           description: role.description
         }));
         
+        console.log('🔄 [DEBUG] rolesData before setRoles:', rolesData);
         setRoles(rolesData);
-        console.log('✅ تم جلب الأدوار:', rolesData.length, 'دور');
+        console.log('✅ [DEBUG] تم جلب الأدوار:', rolesData.length, 'دور');
+        console.log('✅ [DEBUG] عينة من الأدوار:', rolesData.slice(0, 3));
       } else {
         console.warn('⚠️ لا توجد أدوار في الاستجابة');
         // استخدام الأدوار الافتراضية كـ fallback
@@ -553,6 +561,14 @@ export default function TeamManagementPage() {
     value: role.name,
     label: role.display_name
   }));
+  
+  // تشخيص لمعرفة القيم الحالية
+  console.log('🎯 [DEBUG] Current state:');
+  console.log('  - rolesLoading:', rolesLoading);
+  console.log('  - roles.length:', roles.length);
+  console.log('  - availableRoles.length:', availableRoles.length);
+  console.log('  - formData.role:', formData.role);
+  console.log('  - availableRoles:', availableRoles.slice(0, 3));
 
   // قائمة الأقسام
   const departments = [...new Set(teamMembers.map(m => m.department).filter(Boolean))];
@@ -908,8 +924,10 @@ export default function TeamManagementPage() {
                   <Select 
                     value={formData.role} 
                     onValueChange={(value) => {
-                      console.log('🔄 تغيير الدور:', value);
+                      console.log('🔄 [DEBUG] تغيير الدور:', value);
+                      console.log('🔄 [DEBUG] قبل التغيير formData.role:', formData.role);
                       handleInputChange('role', value);
+                      console.log('🔄 [DEBUG] بعد التغيير formData.role:', value);
                     }}
                     disabled={rolesLoading}
                   >
