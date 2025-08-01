@@ -55,6 +55,11 @@ export async function GET(request: NextRequest) {
             { id: { not: articleId } },
             { status: 'published' },
             {
+              article_type: {
+                notIn: ['opinion', 'analysis', 'interview']
+              }
+            },
+            {
               OR: [
                 { category_id: categoryId },
                 {
@@ -86,6 +91,11 @@ export async function GET(request: NextRequest) {
               { id: { not: articleId } },
               { status: 'published' },
               {
+                article_type: {
+                  notIn: ['opinion', 'analysis', 'interview']
+                }
+              },
+              {
                 published_at: {
                   gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // آخر أسبوع
                 }
@@ -115,6 +125,11 @@ export async function GET(request: NextRequest) {
             AND: [
               { id: { not: articleId } },
               { status: 'published' },
+              {
+                article_type: {
+                  notIn: ['opinion', 'analysis', 'interview']
+                }
+              },
               { category_id: categoryId }
             ]
           },

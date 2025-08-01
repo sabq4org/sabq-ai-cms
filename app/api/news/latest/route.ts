@@ -27,24 +27,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(cachedData)
     }
     
-    // جلب الأخبار + مقالات الرأي من قاعدة البيانات
+    // جلب الأخبار فقط من قاعدة البيانات (بدون مقالات الرأي)
     const [articles, total] = await Promise.all([
       prisma.articles.findMany({
         where: {
           status: 'published',
           NOT: { status: 'deleted' },
           // عرض الأخبار فقط (بدون مقالات الرأي)
-          OR: [
-            { article_type: 'news' },
-            { article_type: null }, // الأخبار القديمة غير المصنفة
-            { 
-              AND: [
-                { article_type: { not: 'opinion' } },
-                { article_type: { not: 'analysis' } },
-                { article_type: { not: 'interview' } }
-              ]
-            }
-          ]
+          article_type: {
+            notIn: ['opinion', 'analysis', 'interview']
+          }
         },
         orderBy: {
           published_at: 'desc'
@@ -71,10 +63,9 @@ export async function GET(request: NextRequest) {
         where: {
           status: 'published',
           NOT: { status: 'deleted' },
-          OR: [
-            { article_type: 'news' },
-            { article_type: null }
-          ]
+          article_type: {
+            notIn: ['opinion', 'analysis', 'interview']
+          }
         }
       })
     ])

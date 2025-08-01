@@ -6,11 +6,14 @@ export const revalidate = 0;
 
 export async function GET(request: NextRequest) {
   try {
-    // جلب آخر 3 مقالات مميزة منشورة
+    // جلب آخر 3 مقالات مميزة منشورة (أخبار فقط، بدون مقالات الرأي)
     const featuredArticles = await prisma.articles.findMany({
       where: {
         featured: true,
-        status: 'published'
+        status: 'published',
+        article_type: {
+          notIn: ['opinion', 'analysis', 'interview']
+        }
       },
       orderBy: {
         published_at: 'desc'
