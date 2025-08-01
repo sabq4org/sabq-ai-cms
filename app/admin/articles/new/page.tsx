@@ -7,6 +7,7 @@ import {
   MessageSquare, TrendingUp, BookOpen, Quote,
   RefreshCw, Check, X, Zap, AlertCircle
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -731,17 +732,38 @@ const NewArticlePage = () => {
             </div>
 
             {/* 8. اقتباسات ذكية وتقييم الذكاء الاصطناعي */}
-            {(aiContent.quotes.length > 0 || aiContent.ai_score > 0) && (
-              <div className={cn(
-                'p-6 rounded-xl border',
-                darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-              )}>
-                <div className="flex items-center gap-2 mb-4">
+            <div className={cn(
+              'p-6 rounded-xl border',
+              darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+            )}>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
                   <Brain className={cn('w-5 h-5', darkMode ? 'text-purple-400' : 'text-purple-600')} />
                   <h3 className={cn('font-medium', darkMode ? 'text-white' : 'text-gray-900')}>
-                    التحليل الذكي
+                    الاقتباسات الذكية والتحليل
                   </h3>
                 </div>
+                
+                {/* زر توليد المحتوى */}
+                <Button
+                  onClick={generateAIContent}
+                  disabled={generating || !form.content}
+                  size="sm"
+                  className="bg-purple-600 hover:bg-purple-700 text-white gap-2"
+                >
+                  {generating ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      جاري التوليد...
+                    </>
+                  ) : (
+                    <>
+                      <Wand2 className="w-4 h-4" />
+                      توليد ذكي
+                    </>
+                  )}
+                </Button>
+              </div>
                 
                 {/* AI Score */}
                 {aiContent.ai_score > 0 && (
@@ -763,48 +785,62 @@ const NewArticlePage = () => {
                   </div>
                 )}
                 
-                {/* AI Quotes */}
-                {aiContent.quotes.length > 0 && (
-                  <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <Quote className={cn('w-4 h-4', darkMode ? 'text-purple-400' : 'text-purple-600')} />
-                      <h4 className={cn('font-medium text-sm', darkMode ? 'text-white' : 'text-gray-900')}>
-                        اقتباسات مختارة
-                      </h4>
-                      <span className={cn('text-xs px-2 py-1 rounded-full', 
-                        darkMode ? 'bg-purple-900/20 text-purple-400' : 'bg-purple-100 text-purple-600'
-                      )}>
-                        {aiContent.quotes.length}
-                      </span>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      {aiContent.quotes.map((quote, index) => (
-                        <div
-                          key={index}
-                          className={cn(
-                            'p-3 rounded-lg border-r-4 border-purple-500',
-                            darkMode ? 'bg-gray-700/50' : 'bg-purple-50'
-                          )}
-                        >
-                          <p className={cn('text-sm italic', darkMode ? 'text-gray-300' : 'text-gray-700')}>
-                            "{quote}"
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+              {/* AI Quotes */}
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <Quote className={cn('w-4 h-4', darkMode ? 'text-purple-400' : 'text-purple-600')} />
+                  <h4 className={cn('font-medium text-sm', darkMode ? 'text-white' : 'text-gray-900')}>
+                    الاقتباسات الذكية
+                  </h4>
+                  {aiContent.quotes.length > 0 && (
+                    <span className={cn('text-xs px-2 py-1 rounded-full', 
+                      darkMode ? 'bg-purple-900/20 text-purple-400' : 'bg-purple-100 text-purple-600'
+                    )}>
+                      {aiContent.quotes.length}
+                    </span>
+                  )}
+                </div>
                 
-                {/* Reading Time */}
-                {aiContent.reading_time > 0 && (
-                  <div className={cn('flex items-center gap-2 mt-4 text-sm', darkMode ? 'text-gray-400' : 'text-gray-600')}>
-                    <Clock className="w-4 h-4" />
-                    <span>وقت القراءة المقدر: {aiContent.reading_time} دقيقة</span>
+                {aiContent.quotes.length > 0 ? (
+                  <div className="space-y-3">
+                    {aiContent.quotes.map((quote, index) => (
+                      <div
+                        key={index}
+                        className={cn(
+                          'p-3 rounded-lg border-r-4 border-purple-500',
+                          darkMode ? 'bg-gray-700/50' : 'bg-purple-50'
+                        )}
+                      >
+                        <p className={cn('text-sm italic', darkMode ? 'text-gray-300' : 'text-gray-700')}>
+                          "{quote}"
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className={cn(
+                    'p-4 rounded-lg border-2 border-dashed text-center',
+                    darkMode ? 'border-gray-600 bg-gray-700/50' : 'border-gray-300 bg-gray-50'
+                  )}>
+                    <Quote className={cn('w-8 h-8 mx-auto mb-2', darkMode ? 'text-gray-500' : 'text-gray-400')} />
+                    <p className={cn('text-sm mb-2', darkMode ? 'text-gray-400' : 'text-gray-600')}>
+                      لم يتم توليد اقتباسات ذكية بعد
+                    </p>
+                    <p className={cn('text-xs', darkMode ? 'text-gray-500' : 'text-gray-500')}>
+                      اكتب المحتوى أولاً ثم اضغط "توليد ذكي" لاستخراج أفضل الاقتباسات
+                    </p>
                   </div>
                 )}
               </div>
-            )}
+                
+                {/* Reading Time */}
+              {aiContent.reading_time > 0 && (
+                <div className={cn('flex items-center gap-2 mt-4 text-sm', darkMode ? 'text-gray-400' : 'text-gray-600')}>
+                  <Clock className="w-4 h-4" />
+                  <span>وقت القراءة المقدر: {aiContent.reading_time} دقيقة</span>
+                </div>
+              )}
+            </div>
 
           </div>
         </div>
