@@ -79,13 +79,36 @@ export async function GET(
       orderBy.published_at = 'desc';
     }
     
-    // إرجاع قائمة فارغة مؤقتاً - صفحة البروفايل لا تحتاج المقالات للعمل
-    console.log(`✅ API مقالات المراسل ${reporter.full_name} يعمل`);
+    // جلب المقالات الحقيقية للمراسل
+    const articles = await prisma.articles.findMany({
+      where: {
+        author_id: reporter.user_id,
+        status: 'published'
+      },
+      orderBy: orderBy,
+      take: limit,
+      select: {
+        id: true,
+        title: true,
+        excerpt: true,
+        featured_image: true,
+        slug: true,
+        views: true,
+        likes: true,
+        shares: true,
+        reading_time: true,
+        published_at: true,
+        created_at: true,
+        category_id: true
+      }
+    });
+    
+    console.log(`✅ تم جلب ${articles.length} مقال للمراسل ${reporter.full_name}`);
     
     return NextResponse.json({
       success: true,
-      articles: [],
-      total: 0,
+      articles: articles,
+      total: articles.length,
       reporter: {
         id: reporter.id,
         name: reporter.full_name
