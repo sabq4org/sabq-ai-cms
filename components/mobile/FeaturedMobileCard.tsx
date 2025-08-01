@@ -8,6 +8,7 @@ import { formatDateShort } from '@/lib/date-utils';
 import { getValidImageUrl, generatePlaceholderImage } from '@/lib/cloudinary';
 import { getArticleLink } from '@/lib/utils';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import ReporterLink, { useReporter } from '@/components/ReporterLink';
 
 interface Article {
   id: string;
@@ -18,6 +19,7 @@ interface Article {
   category_id: number;
   category_name?: string;
   author_name?: string;
+  author_id?: string;
   views_count: number;
   created_at: string;
   published_at?: string;
@@ -44,6 +46,9 @@ interface FeaturedMobileCardProps {
 export default function FeaturedMobileCard({ article, className = '' }: FeaturedMobileCardProps) {
   const { darkMode } = useDarkModeContext();
   const [imageLoaded, setImageLoaded] = useState(false);
+  
+  // جلب بيانات المراسل إذا كان author_id موجود
+  const { reporter } = useReporter(article.author_id);
 
   const imageUrl = getValidImageUrl(article.featured_image);
   const displayDate = article.published_at || article.created_at;
@@ -134,12 +139,17 @@ export default function FeaturedMobileCard({ article, className = '' }: Featured
               {formatDateTime(displayDate)}
             </p>
 
-            {/* اسم المراسل بخط صغير */}
-            {authorName && authorName !== 'كاتب مجهول' && (
-              <p className="text-xs text-gray-400">
-                {authorName}
-              </p>
-            )}
+            {/* اسم المراسل بخط صغير مع رابط للبروفايل */}
+            <div className="text-xs">
+              <ReporterLink
+                reporter={reporter}
+                authorName={authorName}
+                className="text-gray-400 hover:text-white"
+                showIcon={false}
+                showVerification={true}
+                size="sm"
+              />
+            </div>
           </div>
         </div>
       </Link>
