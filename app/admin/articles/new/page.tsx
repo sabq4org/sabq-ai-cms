@@ -649,10 +649,8 @@ const NewArticlePage = () => {
               </h3>
               
                               <FeaturedImageUpload
-                accept="image/*"
-                maxSize="5MB"
-                onUpload={(url) => setForm(prev => ({ ...prev, featured_image: url }))}
-                currentImage={form.featured_image}
+                value={form.featured_image}
+                onChange={(url) => setForm(prev => ({ ...prev, featured_image: url }))}
                 darkMode={darkMode}
               />
               

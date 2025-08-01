@@ -49,6 +49,7 @@ export async function POST(request: NextRequest) {
       'author-avatar': 'authors', 
       'avatar': 'avatar',          // ✅ إضافة مجلد avatar
       'featured-image': 'featured',
+      'featured': 'featured',      // ✅ إضافة دعم featured
       'general': 'uploads'
     };
     
