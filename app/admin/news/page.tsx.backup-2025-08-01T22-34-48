@@ -73,7 +73,6 @@ interface Article {
   id: string;
   title: string;
   status: 'published' | 'draft' | 'archived';
-  published_at?: string;
   author?: { name: string };
   author_name?: string;
   category?: { name: string; id: string };
@@ -139,15 +138,10 @@ export default function AdminNewsPage() {
         articlesCount: data.articles?.length || 0 
       });
       
-      
       if (data.articles) {
-        // تنظيف البيانات وإضافة معالجة آمنة
-        const cleanArticles = data.articles.map((article: any) => ({
-          ...article,
-          published_at: article.published_at || article.created_at,
-          status: article.status || 'draft'
-        })).filter((article: any) => {
-          const title = article.title?.toLowerCase() || '';
+        // تنظيف الأخبار من التجريبية والمجدولة فقط
+        const cleanArticles = data.articles.filter((article: any) => {
+          const title = article.title.toLowerCase();
           const isTestArticle = title.includes('test') || 
                                 title.includes('تجربة') || 
                                 title.includes('demo') ||
