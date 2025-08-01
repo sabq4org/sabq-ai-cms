@@ -231,7 +231,7 @@ export default function NewsPage() {
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 ثواني
 
       try {
-        const response = await fetch(`/api/articles?${params}`, {
+        const response = await fetch(`/api/articles?${params}&article_type=news`, {
           signal: controller.signal
         });
         clearTimeout(timeoutId);

@@ -67,14 +67,7 @@ export async function GET(request: NextRequest) {
       // إذا لم يتم تحديد نوع، اعرض الأخبار فقط (بدون مقالات الرأي)
       where.OR = [
         { article_type: 'news' },
-        { article_type: null }, // الأخبار القديمة غير المصنفة
-        { 
-          AND: [
-            { article_type: { not: 'opinion' } },
-            { article_type: { not: 'analysis' } },
-            { article_type: { not: 'interview' } }
-          ]
-        }
+        { article_type: null } // الأخبار القديمة غير المصنفة
       ];
       console.log(`🎯 عرض عام: الأخبار فقط (بدون مقالات الرأي)`);
     }
@@ -145,17 +138,34 @@ export async function GET(request: NextRequest) {
       }),
       
       prisma.articles.count({ 
-        where: Object.fromEntries(
-          Object.entries({
-            status: status !== 'all' ? status : undefined,
-            category_id: (category_id && category_id !== 'all') ? category_id : undefined,
-            OR: !article_type ? [
+        where: (() => {
+          const countWhere: any = {};
+          
+          if (status !== 'all') {
+            countWhere.status = status;
+          }
+          
+          if (category_id && category_id !== 'all') {
+            countWhere.category_id = category_id;
+          }
+          
+          // نفس منطق where الرئيسي
+          if (article_type) {
+            if (article_type === 'news') {
+              countWhere.article_type = 'news';
+            } else {
+              countWhere.article_type = article_type;
+            }
+          } else {
+            // إذا لم يتم تحديد نوع، اعرض الأخبار فقط (بدون مقالات الرأي)
+            countWhere.OR = [
               { article_type: 'news' },
               { article_type: null }
-            ] : undefined,
-            article_type: article_type ? (article_type === 'news' ? 'news' : article_type) : undefined
-          }).filter(([_, value]) => value !== undefined)
-        )
+            ];
+          }
+          
+          return countWhere;
+        })()
       })
     ]);
 
