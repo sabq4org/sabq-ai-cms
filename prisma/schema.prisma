@@ -151,16 +151,31 @@ model articles {
   saves             Int                 @default(0)
   shares            Int                 @default(0)
   
+  // New fields for enhanced article system
+  article_author_id String?
+  summary           String?             // ملخص تلقائي
+  ai_quotes         String[]            // اقتباسات ذكية
+  tags              String[]            // كلمات مفتاحية
+  article_type      String              @default("opinion") // نوع المقال
+  
   // Existing relationships
   categories        categories?         @relation(fields: [category_id], references: [id])
   interactions      interactions[]
   
-  // Author relationship
+  // Author relationship (existing)
   author            users?              @relation("ArticleAuthor", fields: [author_id], references: [id])
   
-  // New AI system relationships
+  // New article author relationship
+  article_author    article_authors?    @relation(fields: [article_author_id], references: [id])
+  
+  // AI system relationships
   ml_predictions    MLPredictions[]
   sentiment_analyses SentimentAnalysis[]
+  article_quotes    article_quotes[]
+  
+  @@index([article_author_id])
+  @@index([article_type])
+  @@index([tags])
 }
 
 model audio_episodes {
@@ -1870,4 +1885,70 @@ model MuqtarabComment {
   @@index([user_id])
   @@index([is_approved])
   @@index([created_at])
+}
+
+// ========== نظام الكتّاب وقادة الرأي ==========
+
+model article_authors {
+  id               String             @id
+  full_name        String             @db.VarChar(255)
+  slug             String             @unique @db.VarChar(255)
+  title            String?            @db.VarChar(200) // خبير، دكتور، محلل
+  bio              String?
+  email            String?            @db.VarChar(255)
+  avatar_url       String?
+  social_links     Json?              @default("{}")
+  is_active        Boolean            @default(true)
+  role             String             @default("writer") @db.VarChar(50)
+  specializations  String[]           // المجالات التي يكتب فيها
+  total_articles   Int                @default(0)
+  total_views      Int                @default(0)
+  total_likes      Int                @default(0)
+  total_shares     Int                @default(0)
+  ai_score         Float              @default(0.0) // نقاط الذكاء الاصطناعي
+  last_article_at  DateTime?
+  created_at       DateTime           @default(now())
+  updated_at       DateTime           @updatedAt
+  
+  // Relationships
+  articles         articles[]
+  author_analytics author_analytics[]
+  
+  @@index([slug])
+  @@index([is_active])
+}
+
+model article_quotes {
+  id             String   @id
+  article_id     String
+  quote_text     String
+  quote_order    Int      @default(0)
+  ai_confidence  Float    @default(0.0)
+  is_featured    Boolean  @default(false)
+  created_at     DateTime @default(now())
+  
+  // Relationships
+  article        articles @relation(fields: [article_id], references: [id], onDelete: Cascade)
+  
+  @@index([article_id])
+}
+
+model author_analytics {
+  id               String          @id
+  author_id        String
+  date             DateTime        @db.Date
+  articles_published Int           @default(0)
+  total_views      Int             @default(0)
+  total_likes      Int             @default(0)
+  total_shares     Int             @default(0)
+  engagement_rate  Float           @default(0.0)
+  reading_time_avg Float           @default(0.0)
+  created_at       DateTime        @default(now())
+  updated_at       DateTime        @updatedAt
+  
+  // Relationships
+  author           article_authors @relation(fields: [author_id], references: [id], onDelete: Cascade)
+  
+  @@unique([author_id, date])
+  @@index([author_id, date])
 }
