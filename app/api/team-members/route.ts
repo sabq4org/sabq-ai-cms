@@ -71,8 +71,17 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('🔄 بدء معالجة طلب POST...');
+    console.log('📨 Headers:', Object.fromEntries(request.headers.entries()));
+    
     const data = await request.json();
-    console.log('➕ إضافة عضو جديد:', data);
+    console.log('➕ إضافة عضو جديد - البيانات المستلمة:', {
+      hasName: !!data.name,
+      hasEmail: !!data.email, 
+      hasRole: !!data.role,
+      allKeys: Object.keys(data),
+      fullData: data
+    });
     
     // التحقق من البيانات المطلوبة - تحسين التحقق
     if (!data.name || !data.email || !data.role) {

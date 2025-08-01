@@ -275,7 +275,12 @@ export default function TeamManagementPage() {
       console.log('📤 إرسال البيانات:', { 
         url, 
         method, 
-        formData: { ...formData, name: formData.name?.length, email: formData.email?.length, role: formData.role?.length }
+        formDataSummary: { 
+          name: formData.name?.length || 0, 
+          email: formData.email?.length || 0, 
+          role: formData.role?.length || 0 
+        },
+        fullFormData: formData
       });
       
       const response = await fetch(url, {
@@ -290,11 +295,26 @@ export default function TeamManagementPage() {
         ok: response.ok
       });
       
-      const data = await response.json();
-      console.log('📋 بيانات الاستجابة:', data);
+      let data;
+      try {
+        data = await response.json();
+        console.log('📋 بيانات الاستجابة:', data);
+      } catch (parseError) {
+        console.error('❌ خطأ في تحليل الاستجابة:', parseError);
+        const rawText = await response.text();
+        console.log('📄 استجابة نصية خام:', rawText);
+        throw new Error(`خطأ في تحليل الاستجابة: ${response.status}`);
+      }
       
       if (!response.ok) {
-        throw new Error(data.error || data.message || `خطأ HTTP ${response.status}: ${response.statusText}`);
+        const errorMessage = data.error || data.message || `خطأ HTTP ${response.status}: ${response.statusText}`;
+        console.error('❌ خطأ من الخادم:', {
+          status: response.status,
+          error: data.error,
+          details: data.details,
+          debug: data.debug
+        });
+        throw new Error(errorMessage);
       }
       
       toast.success(selectedMember ? 'تم تحديث العضو بنجاح' : 'تم إضافة العضو بنجاح');
