@@ -170,20 +170,20 @@ export default function AdminNewsPage() {
     }
   };
 
-  // حساب الإحصائيات الثابتة من جميع المقالات
+  // حساب الإحصائيات الثابتة من الأخبار فقط
   const calculateStatsFromAll = async () => {
     try {
-      console.log('📊 جلب الإحصائيات الثابتة...');
+      console.log('📊 جلب إحصائيات الأخبار فقط...');
       
-      // استدعاء API محسن للحصول على الإحصائيات مباشرة
-      const response = await fetch('/api/articles/stats');
+      // استدعاء API مع فلتر الأخبار فقط
+      const response = await fetch('/api/articles/stats?article_type=news');
       
       if (response.ok) {
         const data = await response.json();
         
         if (data.success) {
           setStats(data.stats);
-          console.log('📊 الإحصائيات الثابتة محدثة:', data.stats);
+          console.log('📊 إحصائيات الأخبار محدثة:', data.stats);
           return;
         }
       }

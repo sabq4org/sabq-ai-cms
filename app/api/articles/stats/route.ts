@@ -5,10 +5,13 @@ const prisma = new PrismaClient();
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('📊 جلب الإحصائيات الثابتة للمقالات...');
+    const { searchParams } = new URL(request.url);
+    const article_type = searchParams.get('article_type'); // فلتر نوع المقال
+    
+    console.log(`📊 جلب الإحصائيات للمقالات... (النوع: ${article_type || 'الكل'})`);
     
     // شروط استبعاد المقالات التجريبية والمجدولة
-    const baseWhere = {
+    const baseWhere: any = {
       status: {
         not: 'scheduled'
       },
@@ -43,6 +46,17 @@ export async function GET(request: NextRequest) {
         }
       ]
     };
+    
+    // إضافة فلتر نوع المقال إذا تم تحديده
+    if (article_type) {
+      if (article_type === 'news') {
+        baseWhere.article_type = 'news';
+        console.log('🔎 فلترة الأخبار فقط (article_type=news)');
+      } else {
+        baseWhere.article_type = article_type;
+        console.log(`🔎 فلترة نوع: ${article_type}`);
+      }
+    }
 
     // حساب العدد لكل حالة باستخدام Promise.all للأداء
     const [
