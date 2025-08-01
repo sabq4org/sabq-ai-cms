@@ -23,7 +23,8 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json({
       success: true,
-      members: teamMembers,
+      members: teamMembers,     // للتوافق مع /admin/team
+      data: teamMembers,        // للتوافق مع /dashboard/team
       total: teamMembers.length
     });
     

@@ -344,7 +344,7 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
         // تحميل التصنيفات والمراسلين بشكل متوازي
         const [categoriesResponse, reportersResponse] = await Promise.all([
           fetch('/api/categories'),
-          fetch('/api/team-members')
+          fetch('/api/reporters?limit=100&sort=full_name&order=asc')
         ]);
         
         console.log('📡 استجابات API:', {
@@ -380,13 +380,24 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
         if (reportersResponse.ok) {
           const reportersData = await reportersResponse.json();
           console.log('📦 بيانات المراسلين المستلمة:', reportersData);
-          loadedReporters = reportersData.members || reportersData.data || reportersData || [];
-          setReporters(loadedReporters);
-          console.log(`👥 تم جلب ${loadedReporters.length} مراسل`, loadedReporters);
+          // API المراسلين يرجع البيانات في reporters
+          loadedReporters = reportersData.reporters || [];
           
-          if (loadedReporters.length > 0) {
-            defaultReporterId = loadedReporters[0].id;
-            console.log(`👤 مراسل افتراضي: ${loadedReporters[0].name} (${defaultReporterId})`);
+          // تحويل بيانات المراسلين لتتوافق مع النموذج المطلوب
+          const convertedReporters = loadedReporters.map((reporter: any) => ({
+            id: reporter.user_id,  // استخدام user_id كمعرف للمؤلف
+            name: reporter.full_name,
+            email: reporter.user?.email || '',
+            role: 'reporter',
+            avatar: reporter.avatar_url
+          }));
+          
+          setReporters(convertedReporters);
+          console.log(`👥 تم جلب ${convertedReporters.length} مراسل`, convertedReporters);
+          
+          if (convertedReporters.length > 0) {
+            defaultReporterId = convertedReporters[0].id;
+            console.log(`👤 مراسل افتراضي: ${convertedReporters[0].name} (${defaultReporterId})`);
           }
         } else {
           console.log('❌ فشل في تحميل المراسلين:', reportersResponse.status);
@@ -1629,7 +1640,7 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                     )}
                     {reporters && Array.isArray(reporters) && reporters.map((reporter) => (
                       <option key={reporter.id} value={reporter.id}>
-                        {reporter.name || reporter.email}
+                        {reporter.name} {reporter.role === 'reporter' ? '(مراسل)' : ''}
                       </option>
                     ))}
                   </select>
