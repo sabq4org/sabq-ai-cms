@@ -181,15 +181,24 @@ export async function GET(
     }
     
     // تنسيق بيانات الكاتب مع إعطاء أولوية لكاتب المقال الحقيقي
+    const authorName = article.article_author?.full_name || article.author?.name || null;
+    const authorAvatar = article.article_author?.avatar_url || article.author?.avatar || null;
+    
     const formattedArticle = {
       ...article,
       category: categoryInfo,
       // إعطاء أولوية لكاتب المقال الحقيقي من article_authors
-      author_name: article.article_author?.full_name || article.author?.name || null,
+      author_name: authorName,
       author_title: article.article_author?.title || null,
       author_specialty: article.article_author?.specializations?.[0] || null,
-      author_avatar: article.article_author?.avatar_url || article.author?.avatar || null,
+      author_avatar: authorAvatar,
       author_slug: article.article_author?.slug || null,
+      // دعم النظام القديم أيضاً
+      author: {
+        ...article.author,
+        name: authorName,
+        avatar: authorAvatar
+      },
       success: true
     };
     
