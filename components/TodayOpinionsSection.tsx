@@ -472,7 +472,7 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
         {isMobile ? (
           // عرض الموبايل - قائمة عمودية
           <div className="space-y-3">
-            {opinionArticles.slice(0, 6).map((article) => (
+            {opinionArticles.slice(0, 5).map((article) => (
               <MobileOpinionCard 
                 key={article.id} 
                 article={article} 
@@ -482,7 +482,7 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
           </div>
         ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
-          {opinionArticles.map((article) => (
+          {opinionArticles.slice(0, 5).map((article) => (
             <div 
               key={article.id}
               className={`group relative rounded-2xl overflow-hidden shadow-lg dark:shadow-gray-900/50 transition-all duration-300 transform hover:scale-105 hover:shadow-xl ${
