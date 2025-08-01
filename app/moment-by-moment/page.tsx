@@ -400,7 +400,7 @@ export default function MomentByMomentPage() {
                   {/* Timeline Line */}
                   <div className="absolute right-6 top-0 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-700 hidden md:block" />
                   
-                  <div className="space-y-8">
+                  <div className="space-y-6">
                     {filteredItems.map((item, index) => {
                       const isBreaking = item.is_breaking || item.breaking || false;
                       const colors = getItemColorClasses(item.color, isBreaking);
@@ -417,78 +417,69 @@ export default function MomentByMomentPage() {
                           </div>
                           
                           {/* Content Card */}
-                          <div className={`timeline-card flex-1 ${colors.bg} rounded-xl p-6 border-r-4 ${colors.border} ${isBreaking ? 'shadow-lg shadow-red-200 dark:shadow-red-900/50' : ''}`}>
-                            <div className="flex items-start justify-between mb-3">
-                              <div className="flex items-center gap-3">
-                                <span className="text-2xl">{item.tag}</span>
-                                <span className={`font-semibold ${colors.text}`}>
-                                  {isBreaking ? '🔴 عاجل' : item.label}
-                                </span>
-                                {isBreaking && (
-                                  <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full animate-pulse">
-                                    BREAKING
-                                  </span>
-                                )}
-                              </div>
-                              <span className="text-sm text-gray-500 dark:text-gray-400">
+                          <div className="flex-1 bg-white shadow-sm hover:shadow-md transition-all rounded-xl p-6 border border-gray-200 dark:border-gray-700 dark:bg-gray-800">
+                            {/* Header: التصنيف والوقت */}
+                            <div className="flex items-center justify-between mb-3">
+                              {/* التصنيف الموحد */}
+                              <span className="text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+                                {isBreaking ? 'عاجل' : (item.category?.name || item.label)}
+                              </span>
+                              
+                              {/* الوقت في اليمين */}
+                              <span className="text-xs text-gray-400 dark:text-gray-500">
                                 {timeAgo}
                               </span>
                             </div>
                             
-                            {/* عنوان قابل للنقر */}
+                            {/* العنوان */}
                             {(item.type === 'news' || item.type === 'article') && item.slug ? (
                               <Link href={getArticleLink(item)}>
-                                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 hover:text-red-600 dark:hover:text-red-400 cursor-pointer transition-colors">
+                                <h3 className="text-md md:text-lg font-semibold text-gray-900 dark:text-white mb-3 hover:text-red-600 dark:hover:text-red-400 cursor-pointer transition-colors line-clamp-2">
                                   {item.title}
                                 </h3>
                               </Link>
                             ) : item.type === 'category' && item.slug ? (
                               <Link href={`/categories/${item.slug}`}>
-                                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 hover:text-red-600 dark:hover:text-red-400 cursor-pointer transition-colors">
+                                <h3 className="text-md md:text-lg font-semibold text-gray-900 dark:text-white mb-3 hover:text-red-600 dark:hover:text-red-400 cursor-pointer transition-colors line-clamp-2">
                                   {item.title}
                                 </h3>
                               </Link>
                             ) : (
-                              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                              <h3 className="text-md md:text-lg font-semibold text-gray-900 dark:text-white mb-3 line-clamp-2">
                                 {item.title}
                               </h3>
                             )}
                             
+                            {/* الملخص */}
                             {item.excerpt && (
-                              <p className="text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">
+                              <p className="text-gray-600 dark:text-gray-300 text-sm md:text-base mb-4 line-clamp-3">
                                 {item.excerpt}
                               </p>
                             )}
                             
+                            {/* زر اقرأ المزيد */}
                             <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-4 text-sm">
-                                {item.category && (
-                                  <span className="text-gray-500 dark:text-gray-400">
-                                    {item.category.name}
-                                  </span>
-                                )}
+                              <div className="flex-1">
                                 {item.author && (
-                                  <span className="text-gray-500 dark:text-gray-400">
+                                  <span className="text-xs text-gray-500 dark:text-gray-400">
                                     {item.author.name}
                                   </span>
                                 )}
                               </div>
                               
                               {(item.type === 'news' || item.type === 'article') && item.slug && (
-                                <Link 
-                                  href={getArticleLink(item)}
-                                  className={`text-sm font-medium ${colors.text} hover:underline`}
-                                >
-                                  اقرأ المزيد ←
+                                <Link href={getArticleLink(item)}>
+                                  <button className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm font-medium px-3 py-1 rounded-lg transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/20 ml-auto">
+                                    اقرأ المزيد →
+                                  </button>
                                 </Link>
                               )}
                               
                               {item.type === 'category' && item.slug && (
-                                <Link 
-                                  href={`/categories/${item.slug}`}
-                                  className={`text-sm font-medium ${colors.text} hover:underline`}
-                                >
-                                  استكشف التصنيف ←
+                                <Link href={`/categories/${item.slug}`}>
+                                  <button className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm font-medium px-3 py-1 rounded-lg transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/20 ml-auto">
+                                    استكشف التصنيف →
+                                  </button>
                                 </Link>
                               )}
                             </div>
@@ -503,110 +494,75 @@ export default function MomentByMomentPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredItems.map(item => {
                     const isBreaking = item.is_breaking || item.breaking || false;
-                    const colors = getItemColorClasses(item.color, isBreaking);
                     const timeAgo = formatDistanceToNow(new Date(item.timestamp), {
                       locale: ar,
                       addSuffix: true
                     });
                     
                     return (
-                      <div key={item.id}>
+                      <div key={item.id} className="bg-white shadow-sm hover:shadow-md transition-all rounded-xl p-4 md:p-6 border border-gray-200 dark:border-gray-700 dark:bg-gray-800">
+                        {/* Header: التصنيف والوقت */}
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+                            {isBreaking ? 'عاجل' : (item.category?.name || item.label)}
+                          </span>
+                          <span className="text-xs text-gray-400 dark:text-gray-500">
+                            {timeAgo}
+                          </span>
+                        </div>
+                        
+                        {/* العنوان */}
                         {(item.type === 'news' || item.type === 'article') && item.slug ? (
                           <Link href={getArticleLink(item)}>
-                            <div className={`${colors.bg} rounded-xl p-6 border-t-4 ${colors.border} hover:shadow-lg transition-all duration-200 hover:scale-[1.02] cursor-pointer ${isBreaking ? 'shadow-red-200 dark:shadow-red-900/50' : ''}`}>
-                              <div className="flex items-center justify-between mb-3">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-xl">{item.tag}</span>
-                                  <span className={`text-sm font-semibold ${colors.text}`}>
-                                    {isBreaking ? '🔴 عاجل' : item.label}
-                                  </span>
-                                </div>
-                                {getItemIcon(item.type)}
-                              </div>
-                              
-                              <h3 className="font-bold text-gray-900 dark:text-white mb-2 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
-                                {item.title}
-                              </h3>
-                              
-                              {item.excerpt && (
-                                <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-3">
-                                  {item.excerpt}
-                                </p>
-                              )}
-                              
-                              <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                                <span>{timeAgo}</span>
-                                <div className="flex items-center gap-2">
-                                  {item.category && <span>{item.category.name}</span>}
-                                  <span className={`text-xs font-medium ${colors.text}`}>
-                                    ←
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
+                            <h3 className="text-md md:text-lg font-semibold text-gray-900 dark:text-white mb-3 hover:text-red-600 dark:hover:text-red-400 cursor-pointer transition-colors line-clamp-2">
+                              {item.title}
+                            </h3>
                           </Link>
                         ) : item.type === 'category' && item.slug ? (
                           <Link href={`/categories/${item.slug}`}>
-                            <div className={`${colors.bg} rounded-xl p-6 border-t-4 ${colors.border} hover:shadow-lg transition-all duration-200 hover:scale-[1.02] cursor-pointer`}>
-                              <div className="flex items-center justify-between mb-3">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-xl">{item.tag}</span>
-                                  <span className={`text-sm font-semibold ${colors.text}`}>
-                                    {item.label}
-                                  </span>
-                                </div>
-                                {getItemIcon(item.type)}
-                              </div>
-                              
-                              <h3 className="font-bold text-gray-900 dark:text-white mb-2 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
-                                {item.title}
-                              </h3>
-                              
-                              {item.excerpt && (
-                                <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-3">
-                                  {item.excerpt}
-                                </p>
-                              )}
-                              
-                              <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                                <span>{timeAgo}</span>
-                                <div className="flex items-center gap-2">
-                                  {item.category && <span>{item.category.name}</span>}
-                                  <span className={`text-xs font-medium ${colors.text}`}>
-                                    ←
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          </Link>
-                        ) : (
-                          <div className={`${colors.bg} rounded-xl p-6 border-t-4 ${colors.border} hover:shadow-lg transition-shadow`}>
-                            <div className="flex items-center justify-between mb-3">
-                              <div className="flex items-center gap-2">
-                                <span className="text-xl">{item.tag}</span>
-                                <span className={`text-sm font-semibold ${colors.text}`}>
-                                  {item.label}
-                                </span>
-                              </div>
-                              {getItemIcon(item.type)}
-                            </div>
-                            
-                            <h3 className="font-bold text-gray-900 dark:text-white mb-2">
+                            <h3 className="text-md md:text-lg font-semibold text-gray-900 dark:text-white mb-3 hover:text-red-600 dark:hover:text-red-400 cursor-pointer transition-colors line-clamp-2">
                               {item.title}
                             </h3>
-                            
-                            {item.excerpt && (
-                              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-3">
-                                {item.excerpt}
-                              </p>
-                            )}
-                            
-                            <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                              <span>{timeAgo}</span>
-                              {item.category && <span>{item.category.name}</span>}
-                            </div>
-                          </div>
+                          </Link>
+                        ) : (
+                          <h3 className="text-md md:text-lg font-semibold text-gray-900 dark:text-white mb-3 line-clamp-2">
+                            {item.title}
+                          </h3>
                         )}
+                        
+                        {/* الملخص */}
+                        {item.excerpt && (
+                          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-3">
+                            {item.excerpt}
+                          </p>
+                        )}
+                        
+                        {/* زر اقرأ المزيد */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            {item.author && (
+                              <span className="text-xs text-gray-500 dark:text-gray-400">
+                                {item.author.name}
+                              </span>
+                            )}
+                          </div>
+                          
+                          {(item.type === 'news' || item.type === 'article') && item.slug && (
+                            <Link href={getArticleLink(item)}>
+                              <button className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm font-medium px-3 py-1 rounded-lg transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/20 ml-auto">
+                                اقرأ المزيد →
+                              </button>
+                            </Link>
+                          )}
+                          
+                          {item.type === 'category' && item.slug && (
+                            <Link href={`/categories/${item.slug}`}>
+                              <button className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm font-medium px-3 py-1 rounded-lg transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/20 ml-auto">
+                                استكشف التصنيف →
+                              </button>
+                            </Link>
+                          )}
+                        </div>
                       </div>
                     );
                   })}
