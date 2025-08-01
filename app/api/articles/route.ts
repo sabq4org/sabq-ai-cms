@@ -162,8 +162,10 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   console.log('🚀 POST /api/articles - بداية معالجة الطلب');
   
+  let data: any = {}; // تعريف data خارج try block
+  
   try {
-    const data = await request.json()
+    data = await request.json()
     console.log('📦 البيانات المستلمة:', JSON.stringify(data, null, 2))
     
     // التحقق من البيانات المطلوبة
