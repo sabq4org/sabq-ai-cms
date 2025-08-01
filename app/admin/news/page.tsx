@@ -147,9 +147,6 @@ export default function AdminNewsPage() {
         
         setArticles(sortedArticles);
         console.log(`✅ تم جلب ${sortedArticles.length} مقال بحالة: ${filterStatus}`);
-        
-        // حساب الإحصائيات من جميع المقالات الحقيقية (لعرض الأرقام الصحيحة في الفلاتر)
-        await calculateStatsFromAll();
       }
     } catch (error) {
       console.error('خطأ في جلب المقالات:', error);
@@ -172,16 +169,33 @@ export default function AdminNewsPage() {
     }
   };
 
-  // حساب الإحصائيات من جميع المقالات
+  // حساب الإحصائيات الثابتة من جميع المقالات
   const calculateStatsFromAll = async () => {
     try {
-      // جلب جميع المقالات للإحصائيات
-      const response = await fetch('/api/articles?status=all&limit=1000');
-      const data = await response.json();
+      console.log('📊 جلب الإحصائيات الثابتة...');
       
-      if (data.articles) {
+      // استدعاء API محسن للحصول على الإحصائيات مباشرة
+      const response = await fetch('/api/articles/stats');
+      
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (data.success) {
+          setStats(data.stats);
+          console.log('📊 الإحصائيات الثابتة محدثة:', data.stats);
+          return;
+        }
+      }
+      
+      // إذا فشل API المخصص، استخدم الطريقة القديمة كـ fallback
+      console.log('📊 استخدام Fallback للإحصائيات...');
+      
+      const fallbackResponse = await fetch('/api/articles?status=all&limit=1000');
+      const fallbackData = await fallbackResponse.json();
+      
+      if (fallbackData.articles) {
         // تنظيف المقالات من التجريبية والمجدولة
-        const cleanArticles = data.articles.filter((article: any) => {
+        const cleanArticles = fallbackData.articles.filter((article: any) => {
           const title = article.title.toLowerCase();
           const isTestArticle = title.includes('test') || 
                                 title.includes('تجربة') || 
@@ -200,10 +214,10 @@ export default function AdminNewsPage() {
         };
         
         setStats(stats);
-        console.log('📊 الإحصائيات المحدثة:', stats);
+        console.log('📊 الإحصائيات المحدثة (fallback):', stats);
       }
     } catch (error) {
-      console.error('خطأ في حساب الإحصائيات:', error);
+      console.error('❌ خطأ في حساب الإحصائيات:', error);
     }
   };
 
@@ -220,8 +234,14 @@ export default function AdminNewsPage() {
     setStats(stats);
   };
 
+  // تحميل البيانات الأساسية مرة واحدة عند تحميل الصفحة
   useEffect(() => {
     fetchCategories();
+    calculateStatsFromAll(); // تحميل الإحصائيات مرة واحدة فقط
+  }, []);
+
+  // تحميل المقالات عند تغيير الفلتر أو التصنيف
+  useEffect(() => {
     fetchArticles();
   }, [filterStatus, selectedCategory]);
 
@@ -240,6 +260,7 @@ export default function AdminNewsPage() {
       if (response.ok) {
         toast.success(!currentStatus ? '✅ تم تفعيل الخبر العاجل' : '⏸️ تم إلغاء الخبر العاجل');
         fetchArticles();
+        calculateStatsFromAll(); // تحديث الإحصائيات بعد تغيير حالة العاجل
       } else {
         toast.error('حدث خطأ في تحديث حالة الخبر');
       }
@@ -261,6 +282,7 @@ export default function AdminNewsPage() {
       if (response.ok) {
         toast.success('✅ تم حذف المقال بنجاح');
         fetchArticles();
+        calculateStatsFromAll(); // تحديث الإحصائيات بعد تغيير الحالة
       } else {
         toast.error('فشل حذف المقال - تحقق من الصلاحيات');
       }
@@ -285,6 +307,7 @@ export default function AdminNewsPage() {
       if (response.ok) {
         toast.success('✅ تم نشر المقال بنجاح');
         fetchArticles();
+        calculateStatsFromAll(); // تحديث الإحصائيات بعد تغيير الحالة
       } else {
         const errorData = await response.json().catch(() => ({}));
         toast.error(errorData.error || 'فشل نشر المقال');
@@ -307,6 +330,7 @@ export default function AdminNewsPage() {
       if (response.ok) {
         toast.success('📦 تم أرشفة المقال بنجاح');
         fetchArticles();
+        calculateStatsFromAll(); // تحديث الإحصائيات بعد تغيير الحالة
       } else {
         const errorData = await response.json().catch(() => ({}));
         toast.error(errorData.error || 'فشل أرشفة المقال');
