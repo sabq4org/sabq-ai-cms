@@ -38,9 +38,10 @@ export async function GET(request: NextRequest) {
     const order = searchParams.get('order') || 'desc';
     const skip = (page - 1) * limit;
     const types = searchParams.get('types'); // دعم معامل types الجديد
+    const article_type = searchParams.get('article_type'); // فلتر نوع المقال الجديد
     const exclude = searchParams.get('exclude'); // استبعاد مقال معين
 
-    console.log(`🔍 فلترة المقالات حسب category: ${category_id}`);
+    console.log(`🔍 فلترة المقالات حسب category: ${category_id}, نوع المقال: ${article_type}`);
 
     // بناء شروط البحث
     const where: any = {};
@@ -60,16 +61,25 @@ export async function GET(request: NextRequest) {
       ];
     }
     
-    // دعم معامل types - تم التعليق لأن حقل type غير موجود في قاعدة البيانات
-    // يمكن استخدام metadata->type إذا كان مطلوباً
-    /*
+    // دعم فلتر article_type للفصل بين الأخبار والمقالات
+    if (article_type) {
+      if (article_type === 'news') {
+        // للأخبار: نبحث عن article_type = 'news' فقط (إزالة null للآن)
+        where.article_type = 'news';
+      } else {
+        where.article_type = article_type;
+      }
+      console.log(`🎯 تطبيق فلتر article_type: ${article_type}`);
+    }
+    
+    // دعم معامل types القديم للتوافق العكسي
     if (types) {
       const typeArray = types.split(',').filter(Boolean);
       if (typeArray.length > 0) {
-        where.type = { in: typeArray };
+        where.article_type = { in: typeArray };
+        console.log(`🎯 تطبيق فلتر types: ${typeArray.join(', ')}`);
       }
     }
-    */
     
     // التحقق من معامل sortBy=latest
     const sortBy = searchParams.get('sortBy');

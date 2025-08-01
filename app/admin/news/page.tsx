@@ -105,17 +105,18 @@ export default function AdminNewsPage() {
     breaking: 0,
   });
 
-  // جلب المقالات
+  // جلب الأخبار
   const fetchArticles = async () => {
     setLoading(true);
     try {
-      console.log(`🔍 جلب المقالات مع الفلتر: ${filterStatus}`);
+      console.log(`🔍 جلب الأخبار مع الفلتر: ${filterStatus}`);
       
       const params = new URLSearchParams({
         status: filterStatus, // استخدام الفلتر مباشرة بدلاً من تحويله لـ "all"
         limit: '50',
         sort: 'published_at',
-        order: 'desc'
+        order: 'desc',
+        article_type: 'news' // 🔥 فلتر الأخبار فقط - استبعاد المقالات
       });
 
       if (selectedCategory !== 'all') {
@@ -126,7 +127,7 @@ export default function AdminNewsPage() {
       const data = await response.json();
       
       if (data.articles) {
-        // تنظيف المقالات من التجريبية والمجدولة فقط
+        // تنظيف الأخبار من التجريبية والمجدولة فقط
         const cleanArticles = data.articles.filter((article: any) => {
           const title = article.title.toLowerCase();
           const isTestArticle = title.includes('test') || 
@@ -134,11 +135,11 @@ export default function AdminNewsPage() {
                                 title.includes('demo') ||
                                 title.includes('example');
           
-          // إخفاء المقالات التجريبية والمجدولة دائماً
+          // إخفاء الأخبار التجريبية والمجدولة دائماً
           return !isTestArticle && article.status !== 'scheduled';
         });
         
-        // ترتيب المقالات حسب التاريخ (الأحدث أولاً)
+        // ترتيب الأخبار حسب التاريخ (الأحدث أولاً)
         const sortedArticles = cleanArticles.sort((a: any, b: any) => {
           const dateA = new Date(a.published_at || a.created_at).getTime();
           const dateB = new Date(b.published_at || b.created_at).getTime();
@@ -146,11 +147,11 @@ export default function AdminNewsPage() {
         });
         
         setArticles(sortedArticles);
-        console.log(`✅ تم جلب ${sortedArticles.length} مقال بحالة: ${filterStatus}`);
+        console.log(`✅ تم جلب ${sortedArticles.length} خبر بحالة: ${filterStatus}`);
       }
     } catch (error) {
-      console.error('خطأ في جلب المقالات:', error);
-      toast.error('حدث خطأ في جلب المقالات');
+      console.error('خطأ في جلب الأخبار:', error);
+      toast.error('حدث خطأ في جلب الأخبار');
     } finally {
       setLoading(false);
     }
@@ -280,15 +281,15 @@ export default function AdminNewsPage() {
       });
 
       if (response.ok) {
-        toast.success('✅ تم حذف المقال بنجاح');
+        toast.success('✅ تم حذف الخبر بنجاح');
         fetchArticles();
         calculateStatsFromAll(); // تحديث الإحصائيات بعد تغيير الحالة
       } else {
-        toast.error('فشل حذف المقال - تحقق من الصلاحيات');
+        toast.error('فشل حذف الخبر - تحقق من الصلاحيات');
       }
     } catch (error) {
-      console.error('خطأ في حذف المقال:', error);
-      toast.error('حدث خطأ في حذف المقال');
+      console.error('خطأ في حذف الخبر:', error);
+      toast.error('حدث خطأ في حذف الخبر');
     }
   };
 
@@ -305,16 +306,16 @@ export default function AdminNewsPage() {
       });
 
       if (response.ok) {
-        toast.success('✅ تم نشر المقال بنجاح');
+        toast.success('✅ تم نشر الخبر بنجاح');
         fetchArticles();
         calculateStatsFromAll(); // تحديث الإحصائيات بعد تغيير الحالة
       } else {
         const errorData = await response.json().catch(() => ({}));
-        toast.error(errorData.error || 'فشل نشر المقال');
+        toast.error(errorData.error || 'فشل نشر الخبر');
       }
     } catch (error) {
-      console.error('خطأ في نشر المقال:', error);
-      toast.error('حدث خطأ في نشر المقال');
+      console.error('خطأ في نشر الخبر:', error);
+      toast.error('حدث خطأ في نشر الخبر');
     }
   };
 
@@ -328,16 +329,16 @@ export default function AdminNewsPage() {
       });
 
       if (response.ok) {
-        toast.success('📦 تم أرشفة المقال بنجاح');
+        toast.success('📦 تم أرشفة الخبر بنجاح');
         fetchArticles();
         calculateStatsFromAll(); // تحديث الإحصائيات بعد تغيير الحالة
       } else {
         const errorData = await response.json().catch(() => ({}));
-        toast.error(errorData.error || 'فشل أرشفة المقال');
+        toast.error(errorData.error || 'فشل أرشفة الخبر');
       }
     } catch (error) {
-      console.error('خطأ في أرشفة المقال:', error);
-      toast.error('حدث خطأ في أرشفة المقال');
+      console.error('خطأ في أرشفة الخبر:', error);
+      toast.error('حدث خطأ في أرشفة الخبر');
     }
   };
 
@@ -408,7 +409,7 @@ export default function AdminNewsPage() {
             <Link href="/admin/news/unified">
               <Button className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600" size="lg">
                 <Plus className="w-5 h-5 ml-2" />
-                مقال جديد
+                خبر جديد
               </Button>
             </Link>
           </div>
@@ -470,7 +471,7 @@ export default function AdminNewsPage() {
             <div className="flex-1 relative">
               <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
               <Input
-                placeholder="البحث في جميع المقالات (منشورة، مسودة، مؤرشفة، محذوفة)..."
+                placeholder="البحث في جميع الأخبار (منشورة، مسودة، مؤرشفة، محذوفة)..."
                 value={searchTerm}
                 onChange={(e) => {
                   const value = e.target.value;
@@ -526,21 +527,21 @@ export default function AdminNewsPage() {
                         filterStatus === 'deleted' ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-red-300' :
                         'bg-gray-50 dark:bg-gray-900/20 text-gray-700 dark:text-gray-300 border-gray-300'
                       }>
-                        {filterStatus === 'published' ? '✅ المقالات المنشورة' :
-                         filterStatus === 'draft' ? '✏️ المقالات المسودة' :
-                         filterStatus === 'archived' ? '🗂️ المقالات المؤرشفة' :
-                         filterStatus === 'deleted' ? '❌ المقالات المحذوفة' :
+                        {filterStatus === 'published' ? '✅ الأخبار المنشورة' :
+                         filterStatus === 'draft' ? '✏️ الأخبار المسودة' :
+                         filterStatus === 'archived' ? '🗂️ الأخبار المؤرشفة' :
+                         filterStatus === 'deleted' ? '❌ الأخبار المحذوفة' :
                          `📝 ${filterStatus}`}
                   </Badge>
                       <span className="text-sm text-gray-500 dark:text-gray-400">
-                        ({filteredArticles.length} مقال)
+                        ({filteredArticles.length} خبر)
                       </span>
                     </>
                   )}
                 </div>
                 {/* إضافة عداد المقالات في الجانب الأيمن */}
                 <div className="text-sm text-gray-500 dark:text-gray-400">
-                  إجمالي: {stats.total} مقال
+                  إجمالي: {stats.total} خبر
                 </div>
               </div>
             </div>
@@ -552,7 +553,7 @@ export default function AdminNewsPage() {
                 </div>
               ) : filteredArticles.length === 0 ? (
                 <div className="p-8 text-center">
-                  <p className="text-gray-600 dark:text-gray-400">لا توجد مقالات</p>
+                  <p className="text-gray-600 dark:text-gray-400">لا توجد أخبار</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
@@ -666,25 +667,25 @@ export default function AdminNewsPage() {
                                 <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
                                   <DropdownMenuItem onClick={() => router.push(`/article/${article.id}`)} className="py-3 hover:bg-gray-50 dark:hover:bg-gray-700">
                                     <Eye className="w-4 h-4 ml-3 text-blue-600 dark:text-blue-400" />
-                                    <span className="font-medium">عرض المقال</span>
+                                    <span className="font-medium">عرض الخبر</span>
                                   </DropdownMenuItem>
                                   
                                   <DropdownMenuItem onClick={() => router.push(`/admin/news/unified?id=${article.id}`)} className="py-3 hover:bg-gray-50 dark:hover:bg-gray-700">
                                     <Edit className="w-4 h-4 ml-3 text-yellow-600 dark:text-yellow-400" />
-                                    <span className="font-medium">تعديل المقال</span>
+                                    <span className="font-medium">تعديل الخبر</span>
                                   </DropdownMenuItem>
 
                                   {article.status === 'draft' && (
                                     <DropdownMenuItem onClick={() => publishArticle(article.id)} className="py-3 hover:bg-gray-50 dark:hover:bg-gray-700">
                                       <PlayCircle className="w-4 h-4 ml-3 text-green-600 dark:text-green-400" />
-                                      <span className="font-medium text-green-600 dark:text-green-400">نشر المقال</span>
+                                      <span className="font-medium text-green-600 dark:text-green-400">نشر الخبر</span>
                                     </DropdownMenuItem>
                                   )}
 
                                   {article.status === 'published' && (
                                     <DropdownMenuItem onClick={() => archiveArticle(article.id)} className="py-3 hover:bg-gray-50 dark:hover:bg-gray-700">
                                       <PauseCircle className="w-4 h-4 ml-3 text-orange-600 dark:text-orange-400" />
-                                      <span className="font-medium text-orange-600 dark:text-orange-400">أرشفة المقال</span>
+                                      <span className="font-medium text-orange-600 dark:text-orange-400">أرشفة الخبر</span>
                                     </DropdownMenuItem>
                                   )}
 
@@ -695,7 +696,7 @@ export default function AdminNewsPage() {
                                     className="py-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
                                   >
                                     <Trash2 className="w-4 h-4 ml-3" />
-                                    <span className="font-medium">حذف المقال</span>
+                                    <span className="font-medium">حذف الخبر</span>
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>
                               </DropdownMenu>
