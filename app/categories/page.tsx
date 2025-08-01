@@ -293,14 +293,19 @@ export default function CategoriesPage() {
       console.log('📊 بيانات مستلمة:', data);
 
       if (data.success && Array.isArray(data.categories)) {
-        // إضافة name_ar للبيانات
+        // إضافة name_ar للبيانات مع تشخيص مفصل
+        console.log('📋 البيانات الخام من API:', data.categories);
+        
         const processedCategories = data.categories.map((cat: any) => ({
           ...cat,
           name_ar: cat.name // استخدام name كـ name_ar
         }));
         
+        console.log('🔧 البيانات بعد المعالجة:', processedCategories);
+        
         setCategories(processedCategories);
         console.log('✅ تم تحميل', processedCategories.length, 'تصنيف');
+        console.log('🎯 تم حفظ categories في state:', processedCategories);
       } else {
         throw new Error(data.error || 'تنسيق البيانات غير صحيح');
       }
@@ -315,13 +320,21 @@ export default function CategoriesPage() {
   };
 
   const filteredCategories = React.useMemo(() => {
-    // التحقق من وجود البيانات أولاً
+    // التحقق من وجود البيانات أولاً مع تشخيص مفصل
+    console.log('🔍 فحص categories:', { 
+      categories, 
+      isArray: Array.isArray(categories), 
+      length: categories?.length,
+      type: typeof categories,
+      firstItem: categories?.[0]
+    });
+    
     if (!categories || !Array.isArray(categories) || categories.length === 0) {
-      console.log('لا توجد تصنيفات للفلترة:', { categories, isArray: Array.isArray(categories), length: categories?.length });
+      console.log('❌ لا توجد تصنيفات للفلترة:', { categories, isArray: Array.isArray(categories), length: categories?.length });
       return [];
     }
     
-    console.log('بدء فلترة التصنيفات:', { totalCategories: categories.length, searchTerm });
+    console.log('✅ بدء فلترة التصنيفات:', { totalCategories: categories.length, searchTerm });
     
     const filtered = categories
       .filter(category => {
@@ -517,6 +530,16 @@ export default function CategoriesPage() {
   };
 
   const totalArticles = categories.reduce((acc, cat) => acc + (cat.articles_count || 0), 0);
+
+  // تشخيص حالة الـ state في كل render
+  console.log('🖥️ RENDER - حالة State:', {
+    loading,
+    error,
+    categoriesLength: categories?.length,
+    filteredCategoriesLength: filteredCategories?.length,
+    categories: categories?.slice(0, 2), // أول تصنيفين فقط
+    filteredCategories: filteredCategories?.slice(0, 2)
+  });
 
   return (
     <>
