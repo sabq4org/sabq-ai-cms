@@ -110,7 +110,7 @@ const sidebarItems: SidebarItem[] = [
     children: [
       { id: 'news-advanced', title: 'إدارة الأخبار المتقدمة', icon: Newspaper, href: '/dashboard/news' },
       { id: 'articles', title: 'إدارة المقالات', icon: FileText, href: '/admin/articles' },
-      { id: 'reporters', title: 'إدارة المراسلين', icon: Users, href: '/admin/reporters', badge: 'جديد', badgeVariant: 'secondary' as const },
+
       { id: 'news-unified', title: 'الأخبار الموحد', icon: Newspaper, href: '/dashboard/news/unified' },
       { id: 'news-mobile', title: 'أخبار الموبايل', icon: Newspaper, href: '/dashboard/news/mobile' },
       { id: 'was-news', title: 'أخبار واس', icon: Globe, href: '/admin/was-news' },
