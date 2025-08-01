@@ -88,33 +88,45 @@ export async function GET(request: NextRequest) {
       skip: offset
     });
 
-    // تحويل بيانات team_members إلى تنسيق reporters
-    const reporters = teamMembers.map(member => ({
-      id: member.id,
-      user_id: member.id, // استخدام نفس الـ ID
-      full_name: member.name,
-      title: member.role,
-      bio: member.bio || '',
-      avatar_url: member.avatar,
-      email: member.email,
-      phone: member.phone,
-      specializations: [], // مؤقتاً فارغ
-      coverage_areas: [], // مؤقتاً فارغ
-      languages: ['ar'], // افتراضي
-      popular_topics: [], // مؤقتاً فارغ
-      is_verified: true, // كل المراسلين في الفريق معتمدين
-      is_active: member.is_active,
-      total_articles: 0, // سيتم حسابه لاحقاً إذا احتجنا
-      avg_rating: 5.0, // افتراضي
-      created_at: member.created_at,
-      updated_at: member.updated_at,
-      user: {
-        email: member.email,
-        name: member.name,
-        role: member.role,
-        created_at: member.created_at
-      }
-    }));
+    // جلب users المقابلين لكل team_member
+    const reportersWithUsers = await Promise.all(
+      teamMembers.map(async (member) => {
+        // البحث عن user بنفس email
+        const correspondingUser = await prisma.users.findFirst({
+          where: { email: member.email },
+          select: { id: true, name: true, email: true, role: true, created_at: true }
+        });
+        
+        return {
+          id: member.id,
+          user_id: correspondingUser?.id || member.id, // استخدام user_id الحقيقي أو fallback لـ team_id
+          full_name: member.name,
+          title: member.role,
+          bio: member.bio || '',
+          avatar_url: member.avatar,
+          email: member.email,
+          phone: member.phone,
+          specializations: [], // مؤقتاً فارغ
+          coverage_areas: [], // مؤقتاً فارغ
+          languages: ['ar'], // افتراضي
+          popular_topics: [], // مؤقتاً فارغ
+          is_verified: true, // كل المراسلين في الفريق معتمدين
+          is_active: member.is_active,
+          total_articles: 0, // سيتم حسابه لاحقاً إذا احتجنا
+          avg_rating: 5.0, // افتراضي
+          created_at: member.created_at,
+          updated_at: member.updated_at,
+          user: correspondingUser || {
+            email: member.email,
+            name: member.name,
+            role: member.role,
+            created_at: member.created_at
+          }
+        };
+      })
+    );
+    
+    const reporters = reportersWithUsers;
 
     // عد إجمالي المراسلين
     const totalReporters = await prisma.team_members.count({
