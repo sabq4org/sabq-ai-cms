@@ -27,12 +27,18 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(cachedData)
     }
     
-    // جلب الأخبار من قاعدة البيانات
+    // جلب الأخبار + مقالات الرأي من قاعدة البيانات
     const [articles, total] = await Promise.all([
       prisma.articles.findMany({
         where: {
           status: 'published',
-          NOT: { status: 'deleted' }
+          NOT: { status: 'deleted' },
+          // إضافة الأخبار ومقالات الرأي للعرض العام
+          OR: [
+            { article_type: 'news' },
+            { article_type: 'opinion' },
+            { article_type: null }
+          ]
         },
         orderBy: {
           published_at: 'desc'
@@ -58,7 +64,12 @@ export async function GET(request: NextRequest) {
       prisma.articles.count({
         where: {
           status: 'published',
-          NOT: { status: 'deleted' }
+          NOT: { status: 'deleted' },
+          OR: [
+            { article_type: 'news' },
+            { article_type: 'opinion' },
+            { article_type: null }
+          ]
         }
       })
     ])

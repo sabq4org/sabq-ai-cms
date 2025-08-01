@@ -54,13 +54,6 @@ export async function GET(request: NextRequest) {
       where.category_id = category_id;
     }
     
-    if (search) {
-      where.OR = [
-        { title: { contains: search, mode: 'insensitive' } },
-        { content: { contains: search, mode: 'insensitive' } }
-      ];
-    }
-    
     // دعم فلتر article_type للفصل بين الأخبار والمقالات
     if (article_type) {
       if (article_type === 'news') {
@@ -70,6 +63,32 @@ export async function GET(request: NextRequest) {
         where.article_type = article_type;
       }
       console.log(`🎯 تطبيق فلتر article_type: ${article_type}`);
+    } else {
+      // إذا لم يتم تحديد نوع، اعرض الأخبار + مقالات الرأي للعرض العام
+      where.OR = [
+        { article_type: 'news' },
+        { article_type: 'opinion' },
+        { article_type: null }
+      ];
+      console.log(`🎯 عرض عام: الأخبار + مقالات الرأي`);
+    }
+    
+    if (search) {
+      const typeFilter = where.OR || (where.article_type ? { article_type: where.article_type } : {});
+      
+      where.AND = [
+        typeFilter,
+        {
+          OR: [
+            { title: { contains: search, mode: 'insensitive' } },
+            { content: { contains: search, mode: 'insensitive' } }
+          ]
+        }
+      ];
+      
+      // إزالة filters الأخرى لتجنب التعارض
+      delete where.article_type;
+      delete where.OR;
     }
     
     // دعم معامل types القديم للتوافق العكسي
@@ -119,7 +138,20 @@ export async function GET(request: NextRequest) {
         }
       }),
       
-      prisma.articles.count({ where })
+      prisma.articles.count({ 
+        where: Object.fromEntries(
+          Object.entries({
+            status: status !== 'all' ? status : undefined,
+            category_id: (category_id && category_id !== 'all') ? category_id : undefined,
+            OR: !article_type ? [
+              { article_type: 'news' },
+              { article_type: 'opinion' },
+              { article_type: null }
+            ] : undefined,
+            article_type: article_type ? (article_type === 'news' ? 'news' : article_type) : undefined
+          }).filter(([_, value]) => value !== undefined)
+        )
+      })
     ]);
 
     // إضافة معلومات إضافية
