@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { TabsEnhanced, TabItem } from '@/components/ui/tabs-enhanced';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -382,18 +383,20 @@ export default function SettingsPage() {
       }
     }));
   };
+  
   return (
-  <div className={`p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-900' : ''}`}>
+    <DashboardLayout
+      pageTitle="إعدادات الصحيفة"
+      pageDescription="إدارة الإعدادات العامة لصحيفة سبق الإلكترونية"
+    >
       {showSuccessMessage && (
         <div className="fixed top-4 right-4 bg-green-500 text-white p-4 rounded-xl shadow-xl z-50 flex items-center gap-2 animate-pulse">
           <CheckCircle className="w-5 h-5" />
           تم حفظ الإعدادات بنجاح!
         </div>
       )}
-      <div className="mb-8">
-        <h1 className={`text-3xl font-bold mb-2 transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-800'}`}>إعدادات الصحيفة</h1>
-        <p className={`transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>إدارة الإعدادات العامة لصحيفة سبق الإلكترونية</p>
-      </div>
+      
+      <div className="space-y-6">
       {/* Navigation Tabs */}
       <TabsEnhanced
         tabs={tabs}
@@ -1350,6 +1353,7 @@ export default function SettingsPage() {
           {isLoading ? 'جاري الحفظ...' : 'حفظ التغييرات'}
         </button>
       </div>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 }

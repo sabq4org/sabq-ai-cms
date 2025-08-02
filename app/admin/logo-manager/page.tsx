@@ -230,16 +230,20 @@ export default function LogoManagerPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-6 space-y-6 max-w-4xl mx-auto">
+      <div className="space-y-6">
         {/* العنوان */}
-        <div className="text-center">
-          <h1 className="text-3xl font-bold flex items-center justify-center gap-3 mb-2">
-            <Palette className="w-8 h-8 text-blue-600" />
-            إدارة لوجو الموقع
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            رفع وإدارة لوجو صحيفة سبق الإلكترونية
-          </p>
+        <div className="flex items-center gap-4">
+          <div className="p-3 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-600 shadow-lg">
+            <Palette className="w-8 h-8 text-white" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+              إدارة لوجو الموقع
+            </h1>
+            <p className="text-slate-600 dark:text-slate-400 mt-1">
+              رفع وإدارة لوجو صحيفة سبق الإلكترونية
+            </p>
+          </div>
         </div>
 
         {/* اللوجو الحالي */}

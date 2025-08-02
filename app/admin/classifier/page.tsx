@@ -40,6 +40,7 @@ import { classifyArabicContent, type ClassificationResult } from '@/lib/ai/Arabi
 import ClassificationStats from '@/components/ai/ClassificationStats';
 import { DataUtils, AnalyticsUtils } from '@/lib/ai/classifier-utils';
 import { CLASSIFIER_CONFIG, validateConfig } from '@/lib/ai/classifier-config';
+import { SabqCard, SabqButton, SabqStatCard } from '@/components/design-system';
 
 interface DashboardData {
   totalClassifications: number;
@@ -180,35 +181,27 @@ export default function ClassifierDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <Settings className="w-8 h-8 text-blue-600" />
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">لوحة إدارة التصنيف الذكي</h1>
-              <p className="text-gray-600">مراقبة وإدارة نظام التصنيف التلقائي</p>
-            </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="p-3 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg">
+            <Settings className="w-8 h-8 text-white" />
           </div>
-          
-          <div className="flex items-center gap-3">
-            {getHealthBadge(dashboardData.systemHealth)}
-            <Button onClick={runSystemDiagnostics} disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                  جاري الفحص...
-                </>
-              ) : (
-                <>
-                  <Zap className="w-4 h-4 mr-2" />
-                  فحص النظام
-                </>
-              )}
-            </Button>
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">لوحة إدارة التصنيف الذكي</h1>
+            <p className="text-slate-600 dark:text-slate-400 mt-1">مراقبة وإدارة نظام التصنيف التلقائي</p>
           </div>
         </div>
+        
+        <div className="flex items-center gap-3">
+          {getHealthBadge(dashboardData.systemHealth)}
+          <SabqButton onClick={runSystemDiagnostics} disabled={isLoading} loading={isLoading}>
+            <Zap className="w-4 h-4 mr-2" />
+            فحص النظام
+          </SabqButton>
+        </div>
+      </div>
 
         {/* تحقق من صحة الإعدادات */}
         {!configValidation.valid && (
@@ -225,60 +218,39 @@ export default function ClassifierDashboard() {
           </Alert>
         )}
 
-        {/* الإحصائيات السريعة */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center">
-                <BarChart3 className="w-8 h-8 text-blue-600" />
-                <div className="ml-4">
-                  <div className="text-2xl font-bold">{dashboardData.totalClassifications}</div>
-                  <div className="text-sm text-gray-600">إجمالي التصنيفات</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center">
-                <TrendingUp className="w-8 h-8 text-green-600" />
-                <div className="ml-4">
-                  <div className="text-2xl font-bold">{dashboardData.todayClassifications}</div>
-                  <div className="text-sm text-gray-600">تصنيفات اليوم</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center">
-                <Users className="w-8 h-8 text-purple-600" />
-                <div className="ml-4">
-                  <div className="text-2xl font-bold">{dashboardData.averageAccuracy.toFixed(1)}%</div>
-                  <div className="text-sm text-gray-600">معدل الدقة</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center">
-                <FileText className="w-8 h-8 text-orange-600" />
-                <div className="ml-4">
-                  <div className="text-2xl font-bold">
-                    {dashboardData.lastClassificationTime ? 
-                      new Date(dashboardData.lastClassificationTime).toLocaleDateString('ar-SA') : 'لا يوجد'
-                    }
-                  </div>
-                  <div className="text-sm text-gray-600">آخر تصنيف</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+      {/* الإحصائيات السريعة */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <SabqStatCard
+          title="إجمالي التصنيفات"
+          value={dashboardData.totalClassifications}
+          icon={BarChart3}
+          color="blue"
+        />
+        
+        <SabqStatCard
+          title="تصنيفات اليوم"
+          value={dashboardData.todayClassifications}
+          icon={TrendingUp}
+          color="green"
+          trend="up"
+        />
+        
+        <SabqStatCard
+          title="معدل الدقة"
+          value={`${dashboardData.averageAccuracy.toFixed(1)}%`}
+          icon={Users}
+          color="purple"
+        />
+        
+        <SabqStatCard
+          title="آخر تصنيف"
+          value={dashboardData.lastClassificationTime ? 
+            new Date(dashboardData.lastClassificationTime).toLocaleDateString('ar-SA') : 'لا يوجد'
+          }
+          icon={FileText}
+          color="orange"
+        />
+      </div>
 
         {/* التبويبات الرئيسية */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -290,16 +262,14 @@ export default function ClassifierDashboard() {
             <TabsTrigger value="test">الاختبارات</TabsTrigger>
           </TabsList>
 
-          {/* نظرة عامة */}
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Info className="w-5 h-5" />
-                    حالة النظام
-                  </CardTitle>
-                </CardHeader>
+        {/* نظرة عامة */}
+        <TabsContent value="overview" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <SabqCard 
+              title="حالة النظام"
+              icon={Info}
+              variant="default"
+            >
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span>الحالة العامة:</span>
