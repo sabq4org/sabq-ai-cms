@@ -346,7 +346,7 @@ function AdminNewsPageContent() {
       if (response.ok) {
         const data = await response.json();
         
-        if (data.success) {
+        if (data.success && data.stats) {
           setStats(data.stats);
           console.log('📊 إحصائيات الأخبار محدثة:', data.stats);
           return;
@@ -390,6 +390,15 @@ function AdminNewsPageContent() {
       }
     } catch (error) {
       console.error('❌ خطأ في حساب الإحصائيات:', error);
+      // تأكد من وجود إحصائيات افتراضية حتى في حالة الخطأ
+      setStats(prevStats => prevStats || {
+        total: 0,
+        published: 0,
+        draft: 0,
+        archived: 0,
+        deleted: 0,
+        breaking: 0,
+      });
     }
   };
 
@@ -626,7 +635,7 @@ function AdminNewsPageContent() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600 dark:text-gray-400">✅ منشورة</p>
-                    <p className="text-2xl font-bold text-green-600 dark:text-green-400">{formatNumber(stats.published)}</p>
+                    <p className="text-2xl font-bold text-green-600 dark:text-green-400">{formatNumber(stats?.published || 0)}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">الافتراضي</p>
                   </div>
                   <CheckCircle className="w-8 h-8 text-green-500 dark:text-green-400" />
@@ -639,7 +648,7 @@ function AdminNewsPageContent() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600 dark:text-gray-400">✏️ مسودة</p>
-                    <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{formatNumber(stats.draft)}</p>
+                    <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{formatNumber(stats?.draft || 0)}</p>
                   </div>
                   <PauseCircle className="w-8 h-8 text-yellow-500 dark:text-yellow-400" />
                 </div>
@@ -651,7 +660,7 @@ function AdminNewsPageContent() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600 dark:text-gray-400">🗂️ مؤرشفة</p>
-                    <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{formatNumber(stats.archived)}</p>
+                    <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{formatNumber(stats?.archived || 0)}</p>
                   </div>
                   <XCircle className="w-8 h-8 text-orange-500 dark:text-orange-400" />
                 </div>
@@ -663,7 +672,7 @@ function AdminNewsPageContent() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600 dark:text-gray-400">❌ محذوفة</p>
-                    <p className="text-2xl font-bold text-red-600 dark:text-red-400">{formatNumber(stats.deleted || 0)}</p>
+                    <p className="text-2xl font-bold text-red-600 dark:text-red-400">{formatNumber(stats?.deleted || 0)}</p>
                   </div>
                   <Trash2 className="w-8 h-8 text-red-500 dark:text-red-400" />
                 </div>
