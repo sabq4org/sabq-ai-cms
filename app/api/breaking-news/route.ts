@@ -7,9 +7,9 @@ export const revalidate = 0;
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('🔴 جلب الأخبار العاجلة...');
+    console.log('🔴 جلب الخبر العاجل (خبر واحد فقط)...');
     
-    // جلب آخر خبر عاجل منشور
+    // جلب آخر خبر عاجل منشور (خبر واحد فقط)
     const breakingNews = await prisma.articles.findFirst({
       where: {
         breaking: true, // الشرط الأساسي: خبر عاجل

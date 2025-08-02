@@ -164,14 +164,6 @@ const BreakingNewsBar: React.FC<BreakingNewsBarProps> = ({
                     {breakingNews.title}
                   </h3>
                   
-                  {breakingNews.excerpt && (
-                    <p className={`text-sm line-clamp-2 mb-2 ${
-                      darkMode ? 'text-red-200' : 'text-red-700'
-                    }`}>
-                      {breakingNews.excerpt}
-                    </p>
-                  )}
-                  
                   {/* معلومات إضافية */}
                   <div className="flex items-center gap-3 text-xs">
                     <div className="flex items-center gap-1">
@@ -196,7 +188,7 @@ const BreakingNewsBar: React.FC<BreakingNewsBarProps> = ({
 
       {/* الخبر العاجل - نسخة الديسكتوب */}
       <div className="hidden lg:block">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 mt-8">
           <div className={`relative overflow-hidden rounded-2xl shadow-xl ${
             darkMode 
               ? 'bg-gradient-to-r from-red-950 via-red-900 to-red-950 border border-red-800' 
@@ -252,14 +244,6 @@ const BreakingNewsBar: React.FC<BreakingNewsBarProps> = ({
                     }`}>
                       {breakingNews.title}
                     </h2>
-                    
-                    {breakingNews.excerpt && (
-                      <p className={`text-lg line-clamp-2 mb-4 ${
-                        darkMode ? 'text-red-200' : 'text-red-700'
-                      }`}>
-                        {breakingNews.excerpt}
-                      </p>
-                    )}
                     
                     {/* معلومات تفصيلية */}
                     <div className="flex items-center gap-6 text-sm">
