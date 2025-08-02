@@ -855,7 +855,6 @@ const NewArticlePage = () => {
 
           </div>
         </div>
-
       </div>
     </div>
   );

@@ -530,5 +530,6 @@ export default function UserRolesPage() {
         role={editingRole}
         permissions={permissions}
       />
+    </div>
   );
-}
+};

@@ -716,5 +716,6 @@ export default function CategoriesPage() {
         onClose={handleCloseEditModal}
         onSuccess={handleEditSuccess}
       />
+    </div>
   );
-}
+};
