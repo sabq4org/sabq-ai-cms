@@ -85,7 +85,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
       formData.append('type', 'article-image');
       
       // رفع الملف إلى الخادم
-      const response = await fetch('/api/upload', {
+      const response = await fetch('/api/upload-image', {
         method: 'POST',
         body: formData,
       });

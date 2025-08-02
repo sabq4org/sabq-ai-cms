@@ -67,8 +67,8 @@ export function ImageUploadComponent({
         });
       }, 200);
 
-      // رفع الصورة (استخدام API البسيط مؤقتاً)
-      const response = await fetch('/api/upload-simple', {
+      // رفع الصورة باستخدام API المحسن
+      const response = await fetch('/api/upload-image', {
         method: 'POST',
         body: formData,
       });

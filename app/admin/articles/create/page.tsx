@@ -104,7 +104,7 @@ export default function CreateArticlePage() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch('/api/upload', {
+      const response = await fetch('/api/upload-image', {
         method: 'POST',
         body: formData,
       });

@@ -157,7 +157,7 @@ export default function UnifiedArticleNewPage() {
     try {
       toast.loading('جاري رفع الصورة...', { id: 'upload' });
       
-      const response = await fetch('/api/upload', {
+      const response = await fetch('/api/upload-image', {
         method: 'POST',
         body: formDataUpload
       });
