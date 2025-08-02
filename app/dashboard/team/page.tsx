@@ -333,12 +333,30 @@ export default function TeamPage() {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('type', 'avatar'); // إضافة نوع الرفع
-      console.log('إرسال الطلب إلى /api/upload-image');
-      // رفع الصورة إلى الخادم
-      const response = await fetch('/api/upload-image', {
-        method: 'POST',
-        body: formData
-      });
+      console.log('إرسال الطلب إلى /api/upload-image مع fallback آمن');
+      // رفع الصورة إلى الخادم مع fallback
+      let response;
+      try {
+        response = await fetch('/api/upload-image', {
+          method: 'POST',
+          body: formData
+        });
+        
+        // إذا كان هناك خطأ 500، جرب الـ API الآمن
+        if (!response.ok && response.status === 500) {
+          console.log('🔄 [Team Upload] الانتقال للـ API الآمن بسبب خطأ 500');
+          response = await fetch('/api/upload-image-safe', {
+            method: 'POST',
+            body: formData
+          });
+        }
+      } catch (primaryError) {
+        console.log('🔄 [Team Upload] الانتقال للـ API الآمن بسبب خطأ في الاتصال');
+        response = await fetch('/api/upload-image-safe', {
+          method: 'POST',
+          body: formData
+        });
+      }
       const result = await response.json();
       console.log('نتيجة الرفع:', result);
       if (!response.ok || !result.success) {

@@ -67,24 +67,57 @@ export function ImageUploadComponent({
         });
       }, 200);
 
-      // رفع الصورة باستخدام API المحسن
-      const response = await fetch('/api/upload-image', {
-        method: 'POST',
-        body: formData,
-      });
+      // رفع الصورة باستخدام API مع fallback آمن
+      let response;
+      try {
+        response = await fetch('/api/upload-image', {
+          method: 'POST',
+          body: formData,
+        });
+      } catch (primaryError) {
+        console.log('🔄 [ImageUpload] الانتقال للـ API الآمن بسبب خطأ في الأساسي');
+        response = await fetch('/api/upload-image-safe', {
+          method: 'POST',
+          body: formData,
+        });
+      }
 
       clearInterval(progressInterval);
       setUploadProgress(100);
 
+      // إذا فشل الـ API الأساسي، جرب الآمن
       if (!response.ok) {
         const errorData = await response.json();
+        console.log('❌ [ImageUpload] فشل API الأساسي:', errorData);
+        
+        // جرب الـ API الآمن كـ fallback
+        console.log('🔄 [ImageUpload] محاولة استخدام API الآمن...');
+        try {
+          const safeResponse = await fetch('/api/upload-image-safe', {
+            method: 'POST',
+            body: formData,
+          });
+          
+          if (safeResponse.ok) {
+            const safeData = await safeResponse.json();
+            if (safeData.success && safeData.url) {
+              console.log('✅ [ImageUpload] نجح الـ API الآمن:', safeData.url);
+              toast.success('تم رفع الصورة بنجاح (نمط آمن)');
+              onImageUploaded(safeData.url);
+              return;
+            }
+          }
+        } catch (safeError) {
+          console.error('❌ [ImageUpload] فشل حتى الـ API الآمن:', safeError);
+        }
+        
         throw new Error(errorData.error || 'فشل في رفع الصورة');
       }
 
       const data = await response.json();
       
       if (data.success && data.url) {
-        console.log('✅ تم رفع الصورة بنجاح:', data.url);
+        console.log('✅ [ImageUpload] تم رفع الصورة بنجاح:', data.url);
         toast.success('تم رفع الصورة بنجاح');
         onImageUploaded(data.url);
       } else {
