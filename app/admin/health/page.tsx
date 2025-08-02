@@ -117,15 +117,16 @@ export default function HealthDashboard() {
     return (
       <DashboardLayout pageTitle="صحة النظام" pageDescription="مراقبة حالة الخدمات والأنظمة">
         <div className="space-y-6">
-        <Alert className="border-red-200 bg-red-50">
-          <AlertDescription className="text-red-800">
-            خطأ في تحميل بيانات النظام: {error}
-          </AlertDescription>
-        </Alert>
-        <Button onClick={fetchHealthData} className="mt-4">
-          إعادة المحاولة
-        </Button>
-      </div>
+          <Alert className="border-red-200 bg-red-50">
+            <AlertDescription className="text-red-800">
+              خطأ في تحميل بيانات النظام: {error}
+            </AlertDescription>
+          </Alert>
+          <Button onClick={fetchHealthData} className="mt-4">
+            إعادة المحاولة
+          </Button>
+        </div>
+      </DashboardLayout>
     );
   }
 
