@@ -90,15 +90,39 @@ const FileUpload: React.FC<FileUploadProps> = ({
         body: formData,
       });
       
+      // إذا فشل الـ API الأساسي، جرب الآمن
       if (!response.ok) {
-        throw new Error('فشل في رفع الملف');
+        const errorData = await response.json();
+        console.log('❌ [FileUpload] فشل API الأساسي:', errorData);
+        
+        // جرب الـ API الآمن كـ fallback
+        console.log('🔄 [FileUpload] محاولة استخدام API الآمن...');
+        try {
+          const safeResponse = await fetch('/api/upload-image-safe', {
+            method: 'POST',
+            body: formData,
+          });
+          
+          if (safeResponse.ok) {
+            const safeData = await safeResponse.json();
+            if (safeData.success && safeData.url) {
+              console.log('✅ [FileUpload] نجح الـ API الآمن:', safeData.url);
+              onUpload(safeData.url);
+              return;
+            }
+          }
+        } catch (safeError) {
+          console.error('❌ [FileUpload] فشل حتى الـ API الآمن:', safeError);
+        }
+        
+        throw new Error(errorData.error || 'فشل في رفع الملف');
       }
       
       const data = await response.json();
       
       if (data.success && data.url) {
         onUpload(data.url);
-        console.log('✅ تم رفع الصورة بنجاح:', data.url);
+        console.log('✅ [FileUpload] تم رفع الصورة بنجاح:', data.url);
       } else {
         throw new Error(data.error || 'فشل في رفع الملف');
       }

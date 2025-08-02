@@ -15,7 +15,7 @@ import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import toast from 'react-hot-toast';
 
 import FileUpload from '@/components/ui/FileUpload';
-import AdvancedEditor from '@/components/ui/AdvancedEditor';
+import SafeArticleEditor from '@/components/Editor/SafeArticleEditor';
 
 // Types
 interface ArticleAuthor {
@@ -585,12 +585,11 @@ const NewArticlePage = () => {
               )}>
                 محتوى المقال *
               </label>
-              <AdvancedEditor
-                content={form.content}
+              <SafeArticleEditor
+                initialContent={form.content}
                 onChange={(content) => setForm(prev => ({ ...prev, content }))}
                 placeholder="ابدأ كتابة المقال هنا... سيتم توليد المحتوى الذكي تلقائياً بعد كتابة 100 حرف"
-                darkMode={darkMode}
-                minHeight="500px"
+                minHeight={500}
               />
               <div className="flex justify-between mt-2 text-xs text-gray-500">
                 <span>الكلمات: {form.content.replace(/<[^>]*>/g, '').split(' ').filter(w => w.length > 0).length}</span>
