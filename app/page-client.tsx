@@ -751,8 +751,8 @@ function NewspaperHomePage({
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
         {/* Enhanced News Section */}
-        <section className="mb-10 sm:mb-20">
-          <div className="text-center mb-12">
+        <section className={`${isMobileView ? 'mb-8 sm:mb-12' : 'mb-10 sm:mb-20'}`}>
+          <div className={`text-center smart-section-header ${isMobileView ? 'mb-8 pt-4 pb-2' : 'mb-12'}`}>
             {isCheckingAuth ? (
               // عرض حالة تحميل أثناء التحقق من تسجيل الدخول
               <div className="animate-pulse">
@@ -771,37 +771,76 @@ function NewspaperHomePage({
                   isLoggedIn ? (
                     // للمستخدم المسجل
                     <>
-                      <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 mb-6">
-                        <Brain className="w-5 h-5 text-blue-600" />
-                        <span className={`font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                          نسخة مطورة بالذكاء الاصطناعي
-                        </span>
-                        <Sparkles className="w-5 h-5 text-purple-600" />
+                      {/* للهواتف الصغيرة جداً: دمج النص التعريفي مع العنوان */}
+                      <div className="block sm:hidden">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 mb-3 smart-ai-label">
+                          <Brain className="w-3.5 h-3.5 text-blue-600" />
+                          <span className={`font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} text-xs`}>
+                            ذكي ومخصص
+                          </span>
+                          <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+                        </div>
+                        <h2 className={`font-bold mb-2 smart-section-title ${darkMode ? 'text-white' : 'text-gray-800'} text-xl leading-tight`}>
+                          🎯 محتوى مختار خصيصاً لك
+                        </h2>
+                        <p className={`smart-section-subtext ${darkMode ? 'text-gray-300' : 'text-gray-600'} text-xs mb-4`}>
+                          مقالات مخصصة بالذكاء الاصطناعي
+                        </p>
                       </div>
-                      <h2 className={`text-4xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                        🎯 محتوى ذكي مخصص لاهتماماتك
-                      </h2>
-                      <p className={`text-xl max-w-2xl mx-auto ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                        {isMobileView 
-                          ? 'مقالات مختارة خصيصاً لك'
-                          : 'نقدم لك أفضل المقالات المختارة خصيصاً بناءً على اهتماماتك المحددة'
-                        }
-                      </p>
+                      
+                      {/* للشاشات المتوسطة والكبيرة: التصميم الكامل */}
+                      <div className="hidden sm:block">
+                        <div className={`inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 mb-6 ${
+                          isMobileView ? 'px-4 py-2 smart-ai-label' : 'px-6 py-3'
+                        }`}>
+                          <Brain className={`${isMobileView ? 'w-4 h-4' : 'w-5 h-5'} text-blue-600`} />
+                          <span className={`font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'} ${
+                            isMobileView ? 'text-sm' : 'text-base'
+                          }`}>
+                            نسخة مطورة بالذكاء الاصطناعي
+                          </span>
+                          <Sparkles className={`${isMobileView ? 'w-4 h-4' : 'w-5 h-5'} text-purple-600`} />
+                        </div>
+                        <h2 className={`font-bold mb-4 smart-section-title ${darkMode ? 'text-white' : 'text-gray-800'} ${
+                          isMobileView ? 'text-2xl sm:text-3xl leading-tight' : 'text-4xl'
+                        }`}>
+                          🎯 محتوى ذكي مخصص لاهتماماتك
+                        </h2>
+                        <p className={`max-w-2xl mx-auto smart-section-subtext ${darkMode ? 'text-gray-300' : 'text-gray-600'} ${
+                          isMobileView ? 'text-sm sm:text-base mb-6' : 'text-xl mb-8'
+                        }`}>
+                          {isMobileView 
+                            ? 'مقالات مختارة خصيصاً لك'
+                            : 'نقدم لك أفضل المقالات المختارة خصيصاً بناءً على اهتماماتك المحددة'
+                          }
+                        </p>
+                      </div>
                     </>
                   ) : (
                     // للزائر غير المسجل
                     <>
-                      <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 mb-6 dark:bg-gray-800/40 dark:border-gray-700">
-                        <Newspaper className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-                        <span className={`font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      <div className={`inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 mb-6 dark:bg-gray-800/40 dark:border-gray-700 ${
+                        isMobileView ? 'px-4 py-2' : 'px-6 py-3'
+                      }`}>
+                        <Newspaper className={`${isMobileView ? 'w-4 h-4' : 'w-5 h-5'} text-gray-600 dark:text-gray-300`} />
+                        <span className={`font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'} ${
+                          isMobileView ? 'text-xs sm:text-sm' : 'text-base'
+                        }`}>
                           أحدث المقالات
                         </span>
                       </div>
-                      <h2 className={`text-4xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                      <h2 className={`font-bold mb-4 smart-section-title ${darkMode ? 'text-white' : 'text-gray-800'} ${
+                        isMobileView ? 'text-2xl sm:text-3xl leading-tight' : 'text-4xl'
+                      }`}>
                         📰 آخر الأخبار
                       </h2>
-                      <p className={`text-xl max-w-2xl mx-auto ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                        تابع أحدث المقالات المنشورة من جميع التصنيفات
+                      <p className={`max-w-2xl mx-auto smart-section-subtext ${darkMode ? 'text-gray-300' : 'text-gray-600'} ${
+                        isMobileView ? 'text-sm sm:text-base mb-6' : 'text-xl mb-8'
+                      }`}>
+                        {isMobileView
+                          ? 'أحدث المقالات المنشورة'
+                          : 'تابع أحدث المقالات المنشورة من جميع التصنيفات'
+                        }
                       </p>
                     </>
                   )
