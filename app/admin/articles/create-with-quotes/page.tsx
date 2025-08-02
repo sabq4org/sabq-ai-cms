@@ -15,7 +15,6 @@ import { cn } from '@/lib/utils';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import toast from 'react-hot-toast';
 
-import FileUpload from '@/components/ui/FileUpload';
 import SafeArticleEditor from '@/components/Editor/SafeArticleEditor';
 
 // Types
@@ -75,6 +74,9 @@ const NewArticlePage = () => {
   const [showTitleSuggestions, setShowTitleSuggestions] = useState(false);
   const [showKeywordSuggestions, setShowKeywordSuggestions] = useState(false);
   const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
+  
+  // حالة رفع الصورة
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   // Fetch authors
   useEffect(() => {
@@ -250,6 +252,68 @@ const NewArticlePage = () => {
     }));
     setShowKeywordSuggestions(false);
     toast.success(`تم إضافة ${selectedKeywords.length} كلمة مفتاحية`);
+  };
+
+  // رفع الصورة (نفس نهج العضوية)
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    console.log('📸 [Article Image] بدء رفع الصورة:', file.name, file.size, file.type);
+
+    try {
+      setUploadingImage(true);
+      toast.loading('جاري رفع الصورة...');
+
+      // إنشاء FormData
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', 'article-featured');
+
+      console.log('📤 [Article Image] إرسال الطلب إلى /api/upload-image مع fallback آمن');
+
+      // رفع الصورة مع fallback (نفس نهج العضوية)
+      let response;
+      try {
+        response = await fetch('/api/upload-image', {
+          method: 'POST',
+          body: formData
+        });
+        
+        // إذا كان هناك خطأ 500، جرب الـ API الآمن
+        if (!response.ok && response.status === 500) {
+          console.log('🔄 [Article Image] الانتقال للـ API الآمن بسبب خطأ 500');
+          response = await fetch('/api/upload-image-safe', {
+            method: 'POST',
+            body: formData
+          });
+        }
+      } catch (primaryError) {
+        console.log('🔄 [Article Image] الانتقال للـ API الآمن بسبب خطأ في الاتصال');
+        response = await fetch('/api/upload-image-safe', {
+          method: 'POST',
+          body: formData
+        });
+      }
+
+      const result = await response.json();
+
+      if (result.success && result.url) {
+        console.log('✅ [Article Image] تم رفع الصورة بنجاح:', result.url);
+        setForm(prev => ({ ...prev, featured_image: result.url }));
+        toast.dismiss();
+        toast.success('تم رفع الصورة بنجاح');
+      } else {
+        throw new Error(result.error || 'فشل في رفع الصورة');
+      }
+
+    } catch (error: any) {
+      console.error('❌ [Article Image] خطأ في رفع الصورة:', error);
+      toast.dismiss();
+      toast.error(`خطأ في رفع الصورة: ${error.message}`);
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   // Manual AI content generation (تحديث للاقتباسات فقط)
@@ -692,36 +756,51 @@ const NewArticlePage = () => {
                   </button>
                 </div>
               ) : (
-                <FileUpload
-                  onFileSelect={(url) => setForm(prev => ({ ...prev, featured_image: url }))}
-                  acceptedTypes="image/*"
-                  maxSizeMB={5}
-                  className={cn(
-                    "border-2 border-dashed rounded-lg p-6 text-center transition-colors duration-300",
-                    darkMode 
-                      ? "border-gray-600 hover:border-gray-500" 
-                      : "border-gray-300 hover:border-gray-400"
-                  )}
-                >
-                  <div className="flex flex-col items-center gap-2">
-                    <Upload className={cn(
-                      "w-8 h-8",
-                      darkMode ? "text-gray-400" : "text-gray-500"
-                    )} />
-                    <p className={cn(
-                      "text-sm",
-                      darkMode ? "text-gray-400" : "text-gray-600"
-                    )}>
-                      اضغط أو اسحب لرفع الصورة البارزة
-                    </p>
-                    <p className={cn(
-                      "text-xs",
-                      darkMode ? "text-gray-500" : "text-gray-400"
-                    )}>
-                      PNG, JPG, WebP (الحد الأقصى 5MB)
-                    </p>
-                  </div>
-                </FileUpload>
+                <div className={cn(
+                  "border-2 border-dashed rounded-lg p-6 text-center transition-colors duration-300 cursor-pointer hover:border-purple-500",
+                  darkMode 
+                    ? "border-gray-600 hover:border-gray-500" 
+                    : "border-gray-300 hover:border-gray-400"
+                )}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={uploadingImage}
+                    className="hidden"
+                    id="featured-image-upload"
+                  />
+                  <label 
+                    htmlFor="featured-image-upload"
+                    className="cursor-pointer block"
+                  >
+                    <div className="flex flex-col items-center gap-2">
+                      {uploadingImage ? (
+                        <RefreshCw className={cn(
+                          "w-8 h-8 animate-spin",
+                          darkMode ? "text-purple-400" : "text-purple-500"
+                        )} />
+                      ) : (
+                        <Upload className={cn(
+                          "w-8 h-8",
+                          darkMode ? "text-gray-400" : "text-gray-500"
+                        )} />
+                      )}
+                      <p className={cn(
+                        "text-sm",
+                        darkMode ? "text-gray-400" : "text-gray-600"
+                      )}>
+                        {uploadingImage ? 'جاري رفع الصورة...' : 'اضغط أو اسحب لرفع الصورة البارزة'}
+                      </p>
+                      <p className={cn(
+                        "text-xs",
+                        darkMode ? "text-gray-500" : "text-gray-400"
+                      )}>
+                        PNG, JPG, WebP (الحد الأقصى 5MB)
+                      </p>
+                    </div>
+                  </label>
+                </div>
               )}
             </div>
 

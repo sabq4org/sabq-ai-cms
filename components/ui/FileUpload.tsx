@@ -107,7 +107,11 @@ const FileUpload: React.FC<FileUploadProps> = ({
             const safeData = await safeResponse.json();
             if (safeData.success && safeData.url) {
               console.log('✅ [FileUpload] نجح الـ API الآمن:', safeData.url);
-              onUpload(safeData.url);
+              if (typeof onUpload === 'function') {
+                onUpload(safeData.url);
+              } else {
+                console.error('❌ [FileUpload] onUpload is not a function:', typeof onUpload);
+              }
               return;
             }
           }
@@ -121,8 +125,12 @@ const FileUpload: React.FC<FileUploadProps> = ({
       const data = await response.json();
       
       if (data.success && data.url) {
-        onUpload(data.url);
         console.log('✅ [FileUpload] تم رفع الصورة بنجاح:', data.url);
+        if (typeof onUpload === 'function') {
+          onUpload(data.url);
+        } else {
+          console.error('❌ [FileUpload] onUpload is not a function:', typeof onUpload);
+        }
       } else {
         throw new Error(data.error || 'فشل في رفع الملف');
       }
