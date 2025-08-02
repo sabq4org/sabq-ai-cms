@@ -207,6 +207,9 @@ export async function GET(request: NextRequest) {
 // إنشاء مقال جديد
 export async function POST(request: NextRequest) {
   console.log('🚀 POST /api/articles - بداية معالجة الطلب');
+  console.log('📡 Request headers:', Object.fromEntries(request.headers.entries()));
+  console.log('📡 Request method:', request.method);
+  console.log('📡 Request url:', request.url);
   
   let data: any = {}; // تعريف data خارج try block
   
@@ -311,13 +314,17 @@ export async function POST(request: NextRequest) {
       created_at: new Date(),
       updated_at: new Date(),
       published_at: data.status === 'published' ? new Date() : null,
-      metadata: data.metadata || {}
+      metadata: data.metadata || {},
+      // 🔧 إصلاح مهم: تعيين article_type صحيح
+      article_type: data.article_type || 'news' // الافتراضي "news" بدلاً من "opinion"
     };
     
     console.log('📝 بيانات المقال المنقاة:', articleData);
     
     // التحقق من وجود التصنيف والمؤلف في قاعدة البيانات قبل الإنشاء
     console.log('🔍 التحقق من صحة المؤلف والتصنيف...');
+    console.log('🔍 authorId من البيانات:', authorId);
+    console.log('🔍 categoryId من البيانات:', categoryId);
     
     // البحث عن المؤلف في جداول متعددة مع تحديد النظام المناسب
     let author = null;
@@ -426,7 +433,9 @@ export async function POST(request: NextRequest) {
       title: articleData.title,
       author_id: articleData.author_id,
       article_author_id: articleData.article_author_id,
-      category_id: articleData.category_id
+      category_id: articleData.category_id,
+      article_type: articleData.article_type, // 🔧 تسجيل article_type
+      status: articleData.status
     });
     
     // إنشاء المقال أولاً
