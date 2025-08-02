@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { ErrorBoundary } from 'react-error-boundary';
 import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -87,7 +88,39 @@ interface Article {
   reactions?: { like?: number; share?: number };
 }
 
-export default function AdminNewsPage() {
+// مكون معالجة الأخطاء
+function ErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
+      <div className="max-w-md w-full text-center">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
+          <h2 className="text-lg font-semibold text-red-800 dark:text-red-200 mb-4">
+            حدث خطأ في صفحة إدارة الأخبار
+          </h2>
+          <p className="text-sm text-red-600 dark:text-red-300 mb-4">
+            {error.message || 'خطأ غير متوقع'}
+          </p>
+          <div className="space-y-2">
+            <button
+              onClick={resetErrorBoundary}
+              className="w-full bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
+            >
+              المحاولة مرة أخرى
+            </button>
+            <button
+              onClick={() => window.location.reload()}
+              className="w-full bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition-colors"
+            >
+              إعادة تحميل الصفحة
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AdminNewsPageContent() {
   const router = useRouter();
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
@@ -206,6 +239,9 @@ export default function AdminNewsPage() {
           status: filterStatus
         });
         console.log(`✅ تم جلب ${sortedArticles.length} خبر بحالة: ${filterStatus}`);
+        
+        // حساب الإحصائيات من المقالات المُحملة
+        calculateStats(sortedArticles);
       }
     } catch (error) {
       console.error('❌ خطأ مفصل في جلب الأخبار:', {
@@ -267,8 +303,14 @@ export default function AdminNewsPage() {
       const fallbackData = await fallbackResponse.json();
       
       if (fallbackData.articles) {
-        // تنظيف المقالات من التجريبية والمجدولة
+        // تنظيف المقالات من التجريبية والمجدولة (مع حماية من null/undefined)
         const cleanArticles = fallbackData.articles.filter((article: any) => {
+          // التحقق من وجود المقال والعنوان
+          if (!article || !article.title || typeof article.title !== 'string') {
+            console.warn('⚠️ مقال بدون عنوان صالح:', article?.id || 'unknown');
+            return false;
+          }
+          
           const title = article.title.toLowerCase();
           const isTestArticle = title.includes('test') || 
                                 title.includes('تجربة') || 
@@ -279,11 +321,11 @@ export default function AdminNewsPage() {
         
         const stats = {
           total: cleanArticles.length,
-          published: cleanArticles.filter((a: any) => a.status === 'published').length,
-          draft: cleanArticles.filter((a: any) => a.status === 'draft').length,
-          archived: cleanArticles.filter((a: any) => a.status === 'archived').length,
-          deleted: cleanArticles.filter((a: any) => a.status === 'deleted').length,
-          breaking: cleanArticles.filter((a: any) => a.breaking).length,
+          published: cleanArticles.filter((a: any) => a && a.status === 'published').length,
+          draft: cleanArticles.filter((a: any) => a && a.status === 'draft').length,
+          archived: cleanArticles.filter((a: any) => a && a.status === 'archived').length,
+          deleted: cleanArticles.filter((a: any) => a && a.status === 'deleted').length,
+          breaking: cleanArticles.filter((a: any) => a && a.breaking).length,
         };
         
         setStats(stats);
@@ -294,17 +336,27 @@ export default function AdminNewsPage() {
     }
   };
 
-  // حساب الإحصائيات (للاستخدام المحلي)
+  // حساب الإحصائيات (للاستخدام المحلي) - مع حماية من null/undefined
   const calculateStats = (articles: Article[]) => {
+    // التحقق من صحة المصفوفة
+    if (!Array.isArray(articles)) {
+      console.warn('⚠️ calculateStats: articles ليست مصفوفة صالحة:', articles);
+      return;
+    }
+
+    // تصفية المقالات الصالحة فقط
+    const validArticles = articles.filter(a => a && typeof a === 'object' && a.status);
+    
     const stats = {
-      total: articles.length,
-      published: articles.filter(a => a.status === 'published').length,
-      draft: articles.filter(a => a.status === 'draft').length,
-      archived: articles.filter(a => a.status === 'archived').length,
-      deleted: articles.filter(a => a.status === 'deleted').length,
-      breaking: articles.filter(a => a.breaking).length,
+      total: validArticles.length,
+      published: validArticles.filter(a => a.status === 'published').length,
+      draft: validArticles.filter(a => a.status === 'draft').length,
+      archived: validArticles.filter(a => a.status === 'archived').length,
+      deleted: validArticles.filter(a => a.status === 'deleted').length,
+      breaking: validArticles.filter(a => a.breaking).length,
     };
     setStats(stats);
+    console.log('📊 إحصائيات محدثة:', stats);
   };
 
   // تحميل البيانات الأساسية مرة واحدة عند تحميل الصفحة
@@ -815,5 +867,29 @@ export default function AdminNewsPage() {
         </div>
       </TooltipProvider>
     </DashboardLayout>
+  );
+}
+
+// تصدير المكون مع ErrorBoundary للحماية من الأخطاء
+export default function AdminNewsPage() {
+  return (
+    <ErrorBoundary
+      FallbackComponent={ErrorFallback}
+      onError={(error, errorInfo) => {
+        console.error('❌ خطأ في صفحة إدارة الأخبار:', error);
+        console.error('🔍 تفاصيل الخطأ:', errorInfo);
+        
+        // إرسال تقرير الخطأ (اختياري)
+        if (typeof window !== 'undefined') {
+          window.sabqDebug?.addLog?.('admin-news-error', {
+            error: error.message,
+            stack: error.stack,
+            timestamp: new Date().toISOString()
+          });
+        }
+      }}
+    >
+      <AdminNewsPageContent />
+    </ErrorBoundary>
   );
 }
