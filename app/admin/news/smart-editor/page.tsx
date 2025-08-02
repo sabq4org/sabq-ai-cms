@@ -38,23 +38,21 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 
-// تحميل ديناميكي للمحرر التعاوني
-const CollaborativeEditor = dynamic(
-  () => import('@/components/Editor/CollaborativeEditor'),
+// تحميل ديناميكي للمحرر الذكي المتقدم
+const SmartAdvancedEditor = dynamic(
+  () => import('@/components/Editor/SmartAdvancedEditor'),
   {
     ssr: false,
     loading: () => (
-      <div className="flex items-center justify-center h-96 bg-gray-50 rounded-lg">
+      <div className="animate-pulse bg-gray-100 rounded-lg p-8 min-h-[400px] flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-2" />
-          <p className="text-gray-600">جاري تحميل المحرر الذكي...</p>
+          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">جاري تحضير المحرر الذكي المتقدم...</p>
         </div>
       </div>
     )
   }
-);
-
-// تحميل ديناميكي لنظام التعليقات
+);// تحميل ديناميكي لنظام التعليقات
 const CommentsSystem = dynamic(
   () => import('@/components/Editor/CommentsSystem'),
   {
@@ -67,12 +65,20 @@ const CommentsSystem = dynamic(
   }
 );
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-);
-
-interface Article {
+// إعداد Supabase client مع حماية من الأخطاء
+let supabase: any = null;
+try {
+  if (typeof window !== 'undefined' &&
+      process.env.NEXT_PUBLIC_SUPABASE_URL &&
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    );
+  }
+} catch (error) {
+  console.warn('⚠️ Supabase client initialization failed:', error);
+}interface Article {
   id: string;
   title: string;
   content: any;
@@ -470,12 +476,19 @@ const SmartNewsEditor: React.FC = () => {
               </TabsList>
 
               <TabsContent value="editor" className="mt-6">
-                <CollaborativeEditor
+                <SmartAdvancedEditor
                   documentId={articleId || 'new-document'}
-                  currentUser={currentUser}
+                  currentUser={{
+                    ...currentUser,
+                    role: 'editor',
+                    color: '#3b82f6'
+                  }}
                   initialContent={article.content}
                   onSave={handleContentChange}
                   className="min-h-[600px]"
+                  enableAI={true}
+                  enableCollaboration={true}
+                  enableAnalytics={true}
                 />
               </TabsContent>
 

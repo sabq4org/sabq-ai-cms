@@ -5,12 +5,28 @@
 
 'use client';
 
-import { CollaborativeEditor, CommentsSystem, getUserColor, type User } from '@/components/Editor';
+import { CommentsSystem, getUserColor } from '@/components/Editor';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Eye, FileText, MessageCircle, Save, Settings, Users } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import React, { useState } from 'react';
+
+const SmartAdvancedEditor = dynamic(
+  () => import('@/components/Editor/SmartAdvancedEditor'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="animate-pulse bg-gray-100 rounded-lg p-8 min-h-[400px] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">جاري تحضير المحرر الذكي المتقدم...</p>
+        </div>
+      </div>
+    )
+  }
+);
 
 const SmartEditorDemo: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'editor' | 'comments'>('editor');
@@ -18,7 +34,7 @@ const SmartEditorDemo: React.FC = () => {
   const [saving, setSaving] = useState(false);
 
   // مستخدم تجريبي
-  const demoUser: User = {
+  const demoUser = {
     id: 'demo-user-1',
     name: 'محرر تجريبي',
     email: 'demo@sabq.org',
@@ -124,9 +140,12 @@ const SmartEditorDemo: React.FC = () => {
             {activeTab === 'editor' && (
               <Card>
                 <CardContent className="p-0">
-                  <CollaborativeEditor
+                  <SmartAdvancedEditor
                     documentId="demo-document-123"
-                    currentUser={demoUser}
+                    currentUser={{
+                      ...demoUser,
+                      role: 'editor'
+                    }}
                     initialContent={{
                       type: 'doc',
                       content: [
@@ -144,7 +163,7 @@ const SmartEditorDemo: React.FC = () => {
                           content: [
                             {
                               type: 'text',
-                              text: 'هذا مثال على المحرر التعاوني المتقدم. يمكنك:'
+                              text: 'هذا مثال على المحرر المتقدم. يمكنك:'
                             }
                           ]
                         },
@@ -173,7 +192,7 @@ const SmartEditorDemo: React.FC = () => {
                                   content: [
                                     {
                                       type: 'text',
-                                      text: 'التعاون مع الفريق في الوقت الفعلي'
+                                      text: 'استخدام العناوين والقوائم'
                                     }
                                   ]
                                 }
@@ -187,7 +206,7 @@ const SmartEditorDemo: React.FC = () => {
                                   content: [
                                     {
                                       type: 'text',
-                                      text: 'إضافة التعليقات والملاحظات'
+                                      text: 'الحفظ التلقائي كل دقيقتين'
                                     }
                                   ]
                                 }
@@ -197,7 +216,10 @@ const SmartEditorDemo: React.FC = () => {
                         }
                       ]
                     }}
-                    onSave={(content) => console.log('💾 تم حفظ المحتوى:', content)}
+                    onSave={(content: any) => console.log('💾 تم حفظ المحتوى:', content)}
+                    enableAI={true}
+                    enableAnalytics={true}
+                    enableCollaboration={true}
                     className="min-h-[500px]"
                   />
                 </CardContent>
