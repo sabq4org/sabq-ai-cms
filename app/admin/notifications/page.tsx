@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
+// تم إزالة DashboardLayout - تستخدم الصفحة layout.tsx الأساسي
 import {
   Bell,
   Plus,
@@ -106,11 +106,7 @@ export default function NotificationsPage() {
   };
 
   return (
-    <DashboardLayout 
-      pageTitle="إدارة التنبيهات"
-      pageDescription="إرسال وإدارة التنبيهات والإشعارات"
-    >
-      <div className="space-y-6">
+    <div className="space-y-6">
         {/* شريط الأدوات العلوي */}
         <div className="flex flex-col sm:flex-row gap-4 justify-between">
           <div className="flex gap-2">
@@ -229,6 +225,5 @@ export default function NotificationsPage() {
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
   );
 }

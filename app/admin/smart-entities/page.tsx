@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
+// تم إزالة DashboardLayout - تستخدم الصفحة layout.tsx الأساسي
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -447,8 +447,7 @@ export default function SmartEntitiesManagement() {
   }
 
   return (
-    <DashboardLayout>
-      <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6">
       {/* العنوان */}
       <div className="flex items-center justify-between">
         <div>
@@ -561,6 +560,5 @@ export default function SmartEntitiesManagement() {
       {/* نافذة إضافة كيان */}
       {renderAddEntityDialog()}
       </div>
-    </DashboardLayout>
   );
 }

@@ -4,8 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Star, Check, X, Crown, Calendar, Eye, Clock, User, Bookmark, AlertCircle, Search, Filter } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
-
+// تم إزالة DashboardLayout - تستخدم الصفحة layout.tsx الأساسي
 interface ArticleAuthor {
   id: string;
   full_name: string;
@@ -125,8 +124,7 @@ export default function OpinionLeadersPage() {
 
   if (loading) {
     return (
-      <DashboardLayout>
-        <div className="space-y-6">
+      <div className="space-y-6">
           <div className="animate-pulse">
             <div className={`h-8 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'} rounded-lg mb-6 w-64`}></div>
             <div className="grid gap-4">
@@ -136,7 +134,6 @@ export default function OpinionLeadersPage() {
             </div>
           </div>
         </div>
-      </DashboardLayout>
     );
   }
 

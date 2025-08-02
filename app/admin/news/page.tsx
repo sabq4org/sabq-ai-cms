@@ -4,7 +4,7 @@ import React, { useState, useEffect, Component, ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
+// تم إزالة DashboardLayout - تستخدم الصفحة layout.tsx الأساسي
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -608,8 +608,7 @@ function AdminNewsPageContent() {
   };
 
   return (
-    <DashboardLayout>
-      <TooltipProvider>
+    <TooltipProvider>
         <div className="space-y-6 p-6">
           {/* العنوان والإجراءات */}
           <div className="flex items-center justify-between">
@@ -932,7 +931,6 @@ function AdminNewsPageContent() {
           </Card>
         </div>
       </TooltipProvider>
-    </DashboardLayout>
   );
 }
 

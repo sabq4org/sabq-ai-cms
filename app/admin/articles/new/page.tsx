@@ -12,7 +12,7 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import toast from 'react-hot-toast';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+// تم إزالة DashboardLayout لأن الصفحة تستخدم layout.tsx في /admin
 import FeaturedImageUpload from '@/components/FeaturedImageUpload';
 import AdvancedEditor from '@/components/ui/AdvancedEditor';
 
@@ -297,11 +297,10 @@ const NewArticlePage = () => {
   };
 
   return (
-    <DashboardLayout>
-      <div className={cn('min-h-screen p-6', darkMode ? 'bg-gray-900' : 'bg-gray-50')}>
-        
-        {/* Header */}
-        <div className="mb-8">
+    <div className={cn('min-h-screen p-6', darkMode ? 'bg-gray-900' : 'bg-gray-50')}>
+      
+      {/* Header */}
+      <div className="mb-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link
@@ -858,7 +857,7 @@ const NewArticlePage = () => {
         </div>
 
       </div>
-    </DashboardLayout>
+    </div>
   );
 };
 

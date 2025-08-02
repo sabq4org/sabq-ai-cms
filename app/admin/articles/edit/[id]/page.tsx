@@ -12,7 +12,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import toast from 'react-hot-toast';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+// تم إزالة DashboardLayout لأن الصفحة تستخدم layout.tsx في /admin
 import FeaturedImageUpload from '@/components/FeaturedImageUpload';
 import AdvancedEditor from '@/components/ui/AdvancedEditor';
 

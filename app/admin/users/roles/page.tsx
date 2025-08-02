@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
+// تم إزالة DashboardLayout - تستخدم الصفحة layout.tsx الأساسي
 import RoleFormModal from '@/components/admin/RoleFormModal';
 import toast from 'react-hot-toast';
 import {
@@ -250,11 +250,7 @@ export default function UserRolesPage() {
   };
 
   return (
-    <DashboardLayout 
-      pageTitle="إدارة الأدوار والصلاحيات"
-      pageDescription="تحكم في أدوار المستخدمين وصلاحياتهم"
-    >
-      <div className="space-y-6">
+    <div className="space-y-6">
         <Tabs defaultValue="roles" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="roles">الأدوار</TabsTrigger>
@@ -534,6 +530,5 @@ export default function UserRolesPage() {
         role={editingRole}
         permissions={permissions}
       />
-    </DashboardLayout>
   );
 }

@@ -22,8 +22,7 @@ import {
   Star, CheckSquare, Wand2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
-
+// تم إزالة DashboardLayout - تستخدم الصفحة layout.tsx الأساسي
 // تحميل المحرر بشكل ديناميكي
 const Editor = dynamic(() => import('@/components/Editor/Editor'), { ssr: false });
 
@@ -1239,17 +1238,12 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
   
   if (loading) {
     return (
-      <DashboardLayout 
-        pageTitle={isEditMode ? "تعديل المقال" : "إنشاء مقال جديد"}
-        pageDescription={isEditMode ? "تعديل وتحديث المقال الموجود" : "إنشاء مقال جديد بأدوات متقدمة"}
-      >
-        <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-700">
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-700">
           <div className="text-center space-y-4">
             <Loader2 className="w-10 h-10 animate-spin mx-auto text-blue-600" />
             <p className="text-slate-600 dark:text-slate-400">جاري تحميل البيانات...</p>
           </div>
         </div>
-      </DashboardLayout>
     );
   }
   

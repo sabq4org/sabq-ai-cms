@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
+// تم إزالة DashboardLayout - تستخدم الصفحة layout.tsx الأساسي
 import {
   Tag,
   Plus,
@@ -114,11 +114,7 @@ export default function TagsPage() {
   const sortedTags = [...filteredTags].sort((a, b) => b.articlesCount - a.articlesCount);
 
   return (
-    <DashboardLayout 
-      pageTitle="إدارة العلامات"
-      pageDescription="تنظيم وإدارة علامات المحتوى"
-    >
-      <div className="space-y-6">
+    <div className="space-y-6">
         {/* شريط الأدوات العلوي */}
         <div className="flex flex-col sm:flex-row gap-4 justify-between">
           <div className="flex gap-2">
@@ -273,6 +269,5 @@ export default function TagsPage() {
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
   );
 }

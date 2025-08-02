@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
+// تم إزالة DashboardLayout - تستخدم الصفحة layout.tsx الأساسي
 import { 
   Upload, 
   Image as ImageIcon, 
@@ -219,14 +219,12 @@ export default function LogoManagerPage() {
 
   if (loading) {
     return (
-      <DashboardLayout>
-        <div className="p-6 flex items-center justify-center h-64">
+      <div className="p-6 flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
             <p className="text-gray-600">جاري تحميل إعدادات اللوجو...</p>
           </div>
         </div>
-      </DashboardLayout>
     );
   }
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
+// تم إزالة DashboardLayout - تستخدم الصفحة layout.tsx الأساسي
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -176,8 +176,7 @@ export default function ArticlesManagementPage() {
   };
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir="rtl">
         {/* رأس الصفحة */}
         <div className="flex items-center justify-between">
           <div>
@@ -428,6 +427,5 @@ export default function ArticlesManagementPage() {
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
   );
 }

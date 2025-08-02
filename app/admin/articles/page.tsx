@@ -12,7 +12,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import toast from 'react-hot-toast';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+// تم إزالة DashboardLayout لأن الصفحة تستخدم layout.tsx في /admin
 
 // Types
 interface ArticleAuthor {
@@ -228,11 +228,10 @@ const ArticlesAdminPage = () => {
   }, [articles, searchTerm, filterStatus, filterAuthor, filterType, sortBy, sortOrder]);
 
   return (
-    <DashboardLayout>
-      <div className={cn('min-h-screen p-6', darkMode ? 'bg-gray-900' : 'bg-gray-50')}>
-        
-        {/* Header */}
-        <div className="mb-8">
+    <div className={cn('min-h-screen p-6', darkMode ? 'bg-gray-900' : 'bg-gray-50')}>
+      
+      {/* Header */}
+      <div className="mb-8">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
               <h1 className={cn('text-3xl font-bold mb-2', darkMode ? 'text-white' : 'text-gray-900')}>
@@ -543,8 +542,7 @@ const ArticlesAdminPage = () => {
           </div>
         )}
 
-      </div>
-    </DashboardLayout>
+    </div>
   );
 };
 

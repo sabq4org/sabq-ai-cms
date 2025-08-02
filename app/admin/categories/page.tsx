@@ -6,7 +6,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
+// تم إزالة DashboardLayout - تستخدم الصفحة layout.tsx الأساسي
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -279,11 +279,7 @@ export default function CategoriesPage() {
   );
 
   return (
-    <DashboardLayout 
-      pageTitle="إدارة التصنيفات"
-      pageDescription="إدارة شاملة لتصنيفات المحتوى والمقالات"
-    >
-      <div className={`transition-colors duration-300 ${
+    <div className={`transition-colors duration-300 ${
         darkMode ? 'bg-gray-900' : ''
       }`}>
         {/* عنوان وتعريف الصفحة المحسن */}
@@ -720,6 +716,5 @@ export default function CategoriesPage() {
         onClose={handleCloseEditModal}
         onSuccess={handleEditSuccess}
       />
-    </DashboardLayout>
   );
 }

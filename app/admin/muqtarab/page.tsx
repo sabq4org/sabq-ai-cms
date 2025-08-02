@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
+// تم إزالة DashboardLayout - تستخدم الصفحة layout.tsx الأساسي
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
@@ -102,14 +102,12 @@ export default function MuqtarabAdminPage() {
 
   if (loading) {
     return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <Sparkles className="w-12 h-12 animate-spin mx-auto mb-4 text-blue-600" />
             <p className="text-gray-600">جاري تحميل وحدة مُقترَب...</p>
           </div>
         </div>
-      </DashboardLayout>
     );
   }
 

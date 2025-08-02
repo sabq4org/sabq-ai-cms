@@ -33,8 +33,7 @@ import {
   Calendar
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
-
+// تم إزالة DashboardLayout - تستخدم الصفحة layout.tsx الأساسي
 // Dynamic imports for heavy components
 const ArticleEditor = dynamic(() => import('@/components/Editor/ArticleEditor'), {
   ssr: false,
@@ -228,8 +227,7 @@ export default function CreateArticlePage() {
   };
 
   return (
-    <DashboardLayout>
-      <div className="container mx-auto p-6 max-w-7xl">
+    <div className="container mx-auto p-6 max-w-7xl">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
@@ -589,6 +587,5 @@ export default function CreateArticlePage() {
           </TabsContent>
         </Tabs>
           </div>
-    </DashboardLayout>
   );
 }

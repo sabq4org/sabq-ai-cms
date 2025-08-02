@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
+// تم إزالة DashboardLayout - تستخدم الصفحة layout.tsx الأساسي
 import {
   FileText,
   Save,
@@ -142,11 +142,7 @@ export default function NewArticlePage() {
   };
 
   return (
-    <DashboardLayout 
-      pageTitle="إنشاء مقال جديد"
-      pageDescription="إنشاء وتحرير المقالات الإخبارية"
-    >
-      <div className="space-y-6">
+    <div className="space-y-6">
         {/* شريط الأدوات العلوي */}
         <div className="flex flex-col sm:flex-row gap-4 justify-between">
           <div className="flex items-center gap-3">
@@ -430,6 +426,5 @@ export default function NewArticlePage() {
           </div>
         </div>
       </div>
-    </DashboardLayout>
   );
 }

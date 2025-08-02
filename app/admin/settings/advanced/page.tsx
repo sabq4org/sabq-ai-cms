@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
+// تم إزالة DashboardLayout - تستخدم الصفحة layout.tsx الأساسي
 import {
   Settings,
   Database,
@@ -56,11 +56,7 @@ export default function AdvancedSettingsPage() {
   });
 
   return (
-    <DashboardLayout 
-      pageTitle="الإعدادات المتقدمة"
-      pageDescription="تكوين متقدم للنظام والأمان"
-    >
-      <div className="space-y-6">
+    <div className="space-y-6">
         {/* تحذير */}
         <Card className="border-orange-200 bg-orange-50 dark:bg-orange-900/20">
           <CardContent className="p-4">
@@ -359,6 +355,5 @@ export default function AdvancedSettingsPage() {
           </Button>
         </div>
       </div>
-    </DashboardLayout>
   );
 }
