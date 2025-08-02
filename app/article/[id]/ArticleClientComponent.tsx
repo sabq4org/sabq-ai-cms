@@ -5,6 +5,7 @@ import Image from 'next/image';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import '@/styles/mobile-article-layout.css';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { formatFullDate, formatRelativeDate } from '@/lib/date-utils';
 import { getImageUrl, getOptimizedImageUrl } from '@/lib/utils';
@@ -306,10 +307,10 @@ export default function ArticleClientComponent({
               </div>
 
               {/* Mobile Header محسن */}
-              <div className="sm:hidden px-2 py-4">
+              <div className="sm:hidden px-2 py-4 mobile-article-header">
                 {/* العنوان الرئيسي - عرض أكبر مع هوامش أقل */}
                 <div className="px-1 mb-3">
-                  <h1 className="text-2xl xs:text-[26px] font-bold leading-tight text-gray-900 dark:text-white">
+                  <h1 className="text-2xl xs:text-[26px] font-bold leading-tight text-gray-900 dark:text-white mobile-article-title">
                     {article.title}
                   </h1>
                 </div>
@@ -317,21 +318,21 @@ export default function ArticleClientComponent({
                 {/* العنوان الفرعي - تصميم محسن */}
                 {article.excerpt && (
                   <div className="px-1 mb-4">
-                    <h2 className="text-sm leading-relaxed text-gray-900 dark:text-gray-100 font-normal">
+                    <h2 className="text-sm leading-relaxed text-gray-900 dark:text-gray-100 font-normal mobile-article-subtitle">
                       {article.excerpt}
                     </h2>
                   </div>
                 )}
 
                 {/* حاوي للتصنيف ومعلومات النشر - تخطيط محسن */}
-                <div className="flex items-start justify-between px-1 gap-3">
+                <div className="flex items-start justify-between px-1 gap-3 mobile-article-meta">
                   
                   {/* التصنيف في اليمين (RTL friendly) */}
                   <div className="flex-shrink-0 order-2">
                     {article.category && (
                       <Link
                         href={`/categories/${article.category.slug}`}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/50 hover:shadow-sm transition-all"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/50 hover:shadow-sm transition-all mobile-article-category"
                       >
                         {article.category.icon && <span className="text-sm">{article.category.icon}</span>}
                         <span>{article.category.name}</span>
@@ -340,11 +341,11 @@ export default function ArticleClientComponent({
                   </div>
 
                   {/* معلومات النشر في اليسار - محاذاة مع الصورة */}
-                  <div className="flex flex-col items-start gap-1 text-xs text-gray-500 dark:text-gray-400 order-1 flex-1 max-w-[140px]">
+                  <div className="flex flex-col items-start gap-1 text-xs text-gray-500 dark:text-gray-400 order-1 flex-1 max-w-[140px] mobile-article-metadata">
                     {/* الكاتب */}
                     {article.author && (
                       <div className="flex items-center gap-1.5">
-                        <User className="w-3 h-3 flex-shrink-0" />
+                        <User className="w-3 h-3 flex-shrink-0 mobile-article-icon" />
                         <span className="truncate max-w-[100px]">{article.author.name}</span>
                       </div>
                     )}
@@ -352,11 +353,11 @@ export default function ArticleClientComponent({
                     {/* التاريخ ووقت القراءة */}
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3 flex-shrink-0" />
+                        <Calendar className="w-3 h-3 flex-shrink-0 mobile-article-icon" />
                         <span>{formatRelativeDate(article.published_at || article.created_at || '')}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Clock className="w-3 h-3 flex-shrink-0" />
+                        <Clock className="w-3 h-3 flex-shrink-0 mobile-article-icon" />
                         <span>{article.reading_time || calculateReadingTime(article.content || '')} د</span>
                       </div>
                     </div>
@@ -364,7 +365,7 @@ export default function ArticleClientComponent({
                     {/* المشاهدات */}
                     {article.views !== undefined && (
                       <div className="flex items-center gap-1">
-                        <Eye className="w-3 h-3 flex-shrink-0" />
+                        <Eye className="w-3 h-3 flex-shrink-0 mobile-article-icon" />
                         <span>{article.views}</span>
                       </div>
                     )}
