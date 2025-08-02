@@ -4,7 +4,8 @@ import React from 'react';
 import { formatDateShort } from '@/lib/date-utils';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Clock, Eye, Share2, Bookmark, MessageSquare, Star, User } from 'lucide-react';
+import { Clock, Share2, Bookmark, MessageSquare, Star, User } from 'lucide-react';
+import ArticleViews from '@/components/ui/ArticleViews';
 import { getArticleLink } from '@/lib/utils';
 
 interface MobileCardProps {
@@ -194,9 +195,8 @@ export default function MobileCard({
                   {/* إحصائيات جميلة */}
                   <div className="flex items-center gap-3">
                     {article.views && (
-                      <div className="flex items-center gap-1 bg-white/20 rounded-full px-2 py-1">
-                        <Eye className="w-3 h-3" />
-                        <span className="text-xs font-medium">{article.views}</span>
+                      <div className="bg-white/20 rounded-full px-2 py-1">
+                        <ArticleViews count={article.views} className="text-xs font-medium text-white" />
                       </div>
                     )}
                     {article.reading_time && (
@@ -311,10 +311,7 @@ export default function MobileCard({
             
             <div className="flex items-center gap-2">
               {article.views && (
-                <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                  <Eye className="w-3 h-3" />
-                  {article.views}
-                </span>
+                <ArticleViews count={article.views} className="text-xs text-gray-500 dark:text-gray-400" />
               )}
             </div>
           </div>

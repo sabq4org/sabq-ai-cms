@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Clock, Eye, MessageCircle, Share2, Heart } from 'lucide-react';
+import { Clock, MessageCircle, Share2, Heart } from 'lucide-react';
+import ArticleViews from '@/components/ui/ArticleViews';
 import CloudImage from '@/components/ui/CloudImage';
 
 interface EnhancedMobileCardProps {
@@ -125,10 +126,7 @@ export default function EnhancedMobileCard({
           {/* الإحصائيات */}
           <div className="meta-stats">
             {views && (
-              <span className="stat-item">
-                <Eye className="stat-icon" />
-                {formatNumber(views)}
-              </span>
+              <ArticleViews count={views} className="stat-item" />
             )}
             {likes && (
               <span className="stat-item">

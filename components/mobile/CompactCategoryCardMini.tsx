@@ -4,12 +4,12 @@ import React, { useState, useCallback } from 'react';
 import Link from 'next/link';
 import { 
   Calendar, 
-  Eye, 
   Zap, 
   Newspaper, 
   Clock,
   Sparkles 
 } from 'lucide-react';
+import ArticleViews from '@/components/ui/ArticleViews';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
 
@@ -164,13 +164,7 @@ export default function CompactCategoryCardMini({
               {article.views_count && article.views_count > 0 && (
                 <>
                   <span className="text-gray-300 dark:text-gray-600">•</span>
-                  <span className="flex items-center gap-0.5">
-                    <Eye className="w-2.5 h-2.5" />
-                    {article.views_count > 1000 ? 
-                      `${(article.views_count/1000).toFixed(1)}k` : 
-                      article.views_count
-                    }
-                  </span>
+                  <ArticleViews count={article.views_count} className="text-xs" />
                 </>
               )}
             </div>

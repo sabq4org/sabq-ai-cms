@@ -3,7 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Calendar, Eye, User, Clock, Zap, Star } from 'lucide-react';
+import { Calendar, User, Clock, Zap, Star } from 'lucide-react';
+import ArticleViews from '@/components/ui/ArticleViews';
 import { formatRelativeDate } from '@/lib/date-utils';
 import { getArticleLink } from '@/lib/utils';
 
@@ -148,12 +149,7 @@ export default function MobileNewsCard({ article, darkMode = false }: MobileNews
               </div>
 
               {/* المشاهدات */}
-              <div className={`flex items-center gap-1 ${
-                darkMode ? 'text-gray-500' : 'text-gray-500'
-              }`}>
-                <Eye className="w-3 h-3" />
-                <span>{views}</span>
-              </div>
+              <ArticleViews count={views} className="text-gray-500 text-xs" />
 
               {/* وقت القراءة */}
               <div className={`flex items-center gap-1 ${

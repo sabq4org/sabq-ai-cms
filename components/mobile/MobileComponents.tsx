@@ -18,7 +18,6 @@ import {
   Heart,
   Share2,
   Bookmark,
-  Eye,
   MessageCircle,
   Clock,
   User,
@@ -29,6 +28,7 @@ import {
   ChevronDown,
   Check
 } from 'lucide-react';
+import ArticleViews from '@/components/ui/ArticleViews';
 
 // زر محسن للهاتف مع منطقة لمس كبيرة
 interface MobileButtonProps {
@@ -180,10 +180,7 @@ export function MobileArticleCard({
         {/* إحصائيات وأزرار التفاعل */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-            <div className="flex items-center gap-1">
-              <Eye className="w-3 h-3" />
-              <span>{article.views}</span>
-            </div>
+            <ArticleViews count={article.views} className="text-xs" />
             <div className="flex items-center gap-1">
               <MessageCircle className="w-3 h-3" />
               <span>{article.comments}</span>
