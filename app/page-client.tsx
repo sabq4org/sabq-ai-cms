@@ -48,10 +48,7 @@ const MuqtarabBlock = dynamic(() => import('@/components/home/MuqtarabBlock'), {
   loading: () => <Skeleton className="w-full h-96 rounded-lg" />
 });
 
-const SmartDoseBlock = dynamic(() => import('@/components/smart-doses/SmartDoseBlock'), {
-  ssr: true,
-  loading: () => <Skeleton className="w-full h-64 rounded-lg" />
-});
+// تم حذف SmartDoseBlock
 
 const FeaturedNewsCarousel = dynamic(() => import('@/components/FeaturedNewsCarousel'), {
   ssr: true,
@@ -546,21 +543,7 @@ function NewspaperHomePage({
         </div>
       )}
       
-      {/* 3. الجرعات الذكية (Smart Doses) 💊 */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <Suspense fallback={
-          <div className="flex items-center justify-center py-8">
-            <div className="text-center space-y-4">
-              <div className="w-12 h-12 mx-auto rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center animate-pulse">
-                <Brain className="w-6 h-6 text-white" />
-              </div>
-              <p className="text-gray-600 dark:text-gray-400">جاري تحضير الجرعة الذكية...</p>
-            </div>
-          </div>
-        }>
-          <SmartDoseBlock userId={undefined} />
-        </Suspense>
-      </div>
+      {/* تم حذف الجرعات الذكية */}
       
       {/* 4. النشرة الصوتية (Audio Briefing) 🎧 */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">

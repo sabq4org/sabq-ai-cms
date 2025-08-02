@@ -115,7 +115,7 @@ const sidebarItems: SidebarItem[] = [
       { id: 'news-mobile', title: 'أخبار الموبايل', icon: Newspaper, href: '/dashboard/news/mobile' },
       { id: 'was-news', title: 'أخبار واس', icon: Globe, href: '/admin/was-news' },
       { id: 'opinions', title: 'مقالات الرأي', icon: MessageSquare, href: '/admin/opinions' },
-      { id: 'daily-doses', title: 'الجرعات اليومية', icon: Star, href: '/admin/daily-doses' },
+              // تم حذف الجرعات اليومية
     ]
   },
   {

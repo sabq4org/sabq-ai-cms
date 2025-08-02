@@ -6,7 +6,7 @@ import { toast } from 'react-hot-toast';
 import Image from 'next/image';
 
 interface CloudinaryImageUploadProps {
-  type?: 'articles' | 'categories' | 'avatars' | 'featured' | 'gallery' | 'team' | 'analysis' | 'daily-doses' | 'opinions' | 'audio' | 'general';
+  type?: 'articles' | 'categories' | 'avatars' | 'featured' | 'gallery' | 'team' | 'analysis' | 'opinions' | 'audio' | 'general';
   onUploadComplete?: (url: string, data: any) => void;
   onUploadError?: (error: string) => void;
   maxSize?: number; // بالـ MB
