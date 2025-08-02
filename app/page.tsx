@@ -36,7 +36,7 @@ async function getArticles(limit = 16) {
     
     try {
       const res = await fetch(
-        `${baseUrl}/api/articles?status=published&limit=${limit}&sortBy=published_at&order=desc`,
+        `${baseUrl}/api/articles?status=published&limit=${limit}&sortBy=published_at&order=desc&article_type=news`,
         {
           next: { revalidate: 60 },
           headers: {

@@ -44,7 +44,7 @@ export default function EnhancedMobileHeader({
   useEffect(() => {
     const checkNewEvents = async () => {
       try {
-        const response = await fetch('/api/articles?status=published&limit=10');
+        const response = await fetch('/api/articles?status=published&limit=10&article_type=news');
         const data = await response.json();
         
         if (data.articles) {

@@ -132,7 +132,7 @@ export default function ArticlesPage() {
       setLoading(true);
       // جلب المقالات والتصنيفات والكتاب بالتوازي
       const [articlesRes, categoriesRes, authorsRes, trendsRes] = await Promise.all([
-        fetch('/api/articles?status=published&limit=20'),
+        fetch('/api/articles?status=published&limit=20&article_type=news'),
         fetch('/api/categories'),
         fetch('/api/opinion-authors?isActive=true'),
         fetch('/api/analytics/trending-topics').catch(() => null)

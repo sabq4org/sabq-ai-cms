@@ -27,11 +27,14 @@ export async function GET(request: NextRequest) {
   try {
     // جلب الأخبار العاجلة والمقالات الحديثة بالتوازي
     const [breakingNews, recentArticles, categories] = await Promise.all([
-      // الأخبار العاجلة
+      // الأخبار العاجلة (أخبار فقط، بدون مقالات الرأي)
       prisma.articles.findMany({
         where: {
           breaking: true,
-          status: 'published'
+          status: 'published',
+          article_type: {
+            notIn: ['opinion', 'analysis', 'interview']
+          }
         },
         select: {
           id: true,
@@ -55,11 +58,14 @@ export async function GET(request: NextRequest) {
         take: 5
       }),
       
-      // المقالات الحديثة
+      // المقالات الحديثة (أخبار فقط، بدون مقالات الرأي)
       prisma.articles.findMany({
         where: {
           status: 'published',
-          breaking: false
+          breaking: false,
+          article_type: {
+            notIn: ['opinion', 'analysis', 'interview']
+          }
         },
         select: {
           id: true,

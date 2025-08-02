@@ -57,16 +57,22 @@ export async function GET(request: NextRequest) {
     // دعم فلتر article_type للفصل بين الأخبار والمقالات
     if (article_type) {
       if (article_type === 'news') {
-        // للأخبار: نبحث عن article_type = 'news' فقط (إزالة null للآن)
+        // للأخبار: نبحث عن article_type = 'news' فقط
         where.article_type = 'news';
+      } else if (article_type === 'opinion') {
+        // لمقالات الرأي: نبحث عن مقالات الرأي فقط
+        where.article_type = { in: ['opinion', 'analysis', 'interview'] };
       } else {
         where.article_type = article_type;
       }
       console.log(`🎯 تطبيق فلتر article_type: ${article_type}`);
     } else {
-      // عرض جميع المحتوى المنشور (أخبار + مقالات) 
-      // لا نطبق فلتر article_type - نعرض كل شيء منشور
-      console.log(`🎯 عرض عام: جميع المحتوى المنشور (أخبار + مقالات)`);
+      // 🔥 تغيير مهم: عرض الأخبار فقط بشكل افتراضي (استبعاد مقالات الرأي)
+      // مقالات الرأي لها مساحات مخصصة في "قادة الرأي اليوم"
+      where.article_type = {
+        notIn: ['opinion', 'analysis', 'interview']
+      };
+      console.log(`🎯 عرض افتراضي: الأخبار فقط (استبعاد مقالات الرأي)`);
     }
     
     if (search) {
@@ -133,29 +139,20 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    // حساب العدد بنفس شروط where ولكن بشكل منفصل
+    // حساب العدد بنفس شروط where بالضبط
     let totalCount = 0;
     try {
-      if (article_type) {
-        totalCount = await prisma.articles.count({
-          where: {
-            status: status !== 'all' ? status : undefined,
-            category_id: (category_id && category_id !== 'all') ? category_id : undefined,
-            article_type: article_type === 'news' ? 'news' : article_type
-          }
-        });
-      } else {
-        // عد الأخبار فقط (استبعاد مقالات الرأي)
-        totalCount = await prisma.articles.count({
-          where: {
-            status: status !== 'all' ? status : undefined,
-            category_id: (category_id && category_id !== 'all') ? category_id : undefined,
-            article_type: {
-              notIn: ['opinion', 'analysis', 'interview']
-            }
-          }
-        });
+      // إنشاء نسخة من where للعد (بدون skip/take)
+      const countWhere = { ...where };
+      // إزالة أي خصائص غير متعلقة بالفلترة
+      delete countWhere.AND;
+      
+      if (search && where.AND) {
+        // إعادة بناء شروط البحث للعد
+        countWhere.AND = where.AND;
       }
+      
+      totalCount = await prisma.articles.count({ where: countWhere });
     } catch (countError) {
       console.error('⚠️ خطأ في حساب العدد:', countError);
       totalCount = articles.length;

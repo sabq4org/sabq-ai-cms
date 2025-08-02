@@ -321,7 +321,7 @@ function NewspaperHomePage({
     const fetchArticles = async () => {
       try {
         setArticlesLoading(true);
-        const res = await fetch('/api/articles?status=published&limit=20&sortBy=published_at&order=desc');
+        const res = await fetch('/api/articles?status=published&limit=20&sortBy=published_at&order=desc&article_type=news');
         const json = await res.json();
         // 💡 FIX: The API returns { success: true, articles: [...] }
         const list = Array.isArray(json) ? json : (json.articles || json.data || []);
@@ -475,7 +475,7 @@ function NewspaperHomePage({
     setCategoryArticlesLoading(true);
     try {
       console.log(`🔍 جلب مقالات التصنيف ID: ${categoryId}`);
-      const res = await fetch(`/api/articles?status=published&category_id=${categoryId}&limit=20&sortBy=published_at&order=desc`);
+              const res = await fetch(`/api/articles?status=published&category_id=${categoryId}&limit=20&sortBy=published_at&order=desc&article_type=news`);
       const json = await res.json();
       
       console.log(`📊 استجابة API للتصنيف ${categoryId}:`, json);
