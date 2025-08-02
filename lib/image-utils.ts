@@ -116,7 +116,7 @@ export function getImageUrl(
       // في بيئة الإنتاج، استخدم رابط مباشر
       if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
         // إذا كان لدينا NEXT_PUBLIC_SITE_URL، استخدمه
-        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://sabq.me';
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://sabq.io';
         return `${siteUrl}${imageUrl}`;
       }
     }

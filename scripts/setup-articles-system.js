@@ -35,7 +35,7 @@ async function setupArticlesSystem() {
         slug: 'ahmed-alsaeed-expert',
         title: 'خبير اقتصادي',
         bio: 'خبير في الاقتصاد والتنمية المستدامة، حاصل على درجة الدكتوراه في الاقتصاد من جامعة هارفارد. له خبرة أكثر من 15 عاماً في التحليل الاقتصادي والاستشارات المالية.',
-        email: 'ahmed.saeed@sabq.me',
+        email: 'ahmed.saeed@sabq.io',
         avatar_url: '/images/writers/ahmed-saeed.jpg',
         social_links: {
           twitter: 'https://twitter.com/ahmed_saeed_eco',
@@ -51,7 +51,7 @@ async function setupArticlesSystem() {
         slug: 'fatima-alzahrani-tech',
         title: 'محللة تقنية',
         bio: 'محللة تقنية متخصصة في الذكاء الاصطناعي وتقنيات المستقبل. تعمل في مجال التقنية منذ أكثر من 10 سنوات وتكتب عن التطورات التقنية وتأثيرها على المجتمع.',
-        email: 'fatima.zahrani@sabq.me',
+        email: 'fatima.zahrani@sabq.io',
         avatar_url: '/images/writers/fatima-zahrani.jpg',
         social_links: {
           twitter: 'https://twitter.com/fatima_tech',
@@ -66,7 +66,7 @@ async function setupArticlesSystem() {
         slug: 'mohammed-alotaibi-politics',
         title: 'محلل سياسي',
         bio: 'محلل سياسي ومتخصص في الشؤون الإقليمية والدولية. حاصل على ماجستير في العلوم السياسية ويكتب في الصحف والمجلات المتخصصة منذ أكثر من 12 عاماً.',
-        email: 'mohammed.otaibi@sabq.me',
+        email: 'mohammed.otaibi@sabq.io',
         avatar_url: '/images/writers/mohammed-otaibi.jpg',
         social_links: {
           twitter: 'https://twitter.com/mohammed_politics',

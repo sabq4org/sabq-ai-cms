@@ -50,8 +50,8 @@ const corsConfiguration = {
       AllowedHeaders: ['*'],
       AllowedMethods: ['GET', 'HEAD'],
       AllowedOrigins: [
-        'https://sabq.me',
-        'https://www.sabq.me',
+        'https://sabq.io',
+        'https://www.sabq.io',
         'http://localhost:3000',
         'http://localhost:3002',
         'http://localhost:3001'

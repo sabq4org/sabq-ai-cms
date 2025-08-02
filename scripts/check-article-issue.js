@@ -8,7 +8,7 @@
 const https = require('https');
 
 const ARTICLE_ID = '46594dc4-f022-40c9-bfc8-2e92005c29e1';
-const PRODUCTION_URL = 'https://sabq.me';
+const PRODUCTION_URL = 'https://sabq.io';
 
 async function checkArticle() {
   console.log('\n🔍 فحص المقال:', ARTICLE_ID);

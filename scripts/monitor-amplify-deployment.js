@@ -7,7 +7,7 @@
 
 // Using built-in fetch in Node.js 18+
 
-const PRODUCTION_URL = 'https://sabq.me';
+const PRODUCTION_URL = 'https://sabq.io';
 const CHECK_INTERVAL = 30000; // 30 seconds
 const MAX_CHECKS = 20; // 10 minutes total
 

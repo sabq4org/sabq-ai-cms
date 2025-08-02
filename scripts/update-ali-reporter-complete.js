@@ -111,7 +111,7 @@ async function updateAliReporter() {
     
     // 4. اختبار URL الصفحة
     console.log('\n🔗 رابط صفحة المراسل:');
-    console.log(`   https://sabq.me/reporter/${updatedReporter.slug}`);
+    console.log(`   https://sabq.io/reporter/${updatedReporter.slug}`);
     
     // 5. إنشاء تقرير للتحسينات المطلوبة
     console.log('\n📋 تم تطبيق التحسينات التالية:');

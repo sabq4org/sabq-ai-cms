@@ -161,7 +161,7 @@ async function addArticlesForAli() {
     console.log(`   📊 معدل التفاعل: ${newStats.total_views > 0 ? ((newStats.total_likes + newStats.total_shares) / newStats.total_views * 100).toFixed(2) : 0}%`);
     
     console.log('\n🔗 يمكنك الآن زيارة الصفحة:');
-    console.log('   https://sabq.me/reporter/ali-alhazmi-389657');
+    console.log('   https://sabq.io/reporter/ali-alhazmi-389657');
     
   } catch (error) {
     console.error('❌ خطأ في إضافة المقالات:', error);

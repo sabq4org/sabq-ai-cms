@@ -75,10 +75,10 @@ CLOUDINARY_API_SECRET=vuiA8rLNm7d1U-UAOTED6FyC4hY
 
 # المصادقة
 NEXTAUTH_SECRET=sabq-ai-cms-secret-key-2025
-NEXTAUTH_URL=https://sabq.me
+NEXTAUTH_URL=https://sabq.io
 
 # الموقع
-NEXT_PUBLIC_SITE_URL=https://sabq.me
+NEXT_PUBLIC_SITE_URL=https://sabq.io
 NODE_ENV=production
 ```
 

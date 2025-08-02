@@ -7,7 +7,7 @@
 
 // Using built-in fetch in Node.js 18+
 
-const PRODUCTION_URL = 'https://sabq.me';
+const PRODUCTION_URL = 'https://sabq.io';
 const ENDPOINTS = [
   { name: 'الصفحة الرئيسية', url: '/', method: 'GET' },
   { name: 'صفحة التصنيفات', url: '/categories', method: 'GET' },

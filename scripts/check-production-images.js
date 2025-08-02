@@ -22,7 +22,7 @@ async function checkImages() {
   try {
     // 1. فحص API المقالات
     console.log('📰 فحص صور المقالات...');
-    const articlesRes = await fetchUrl('https://sabq.me/api/articles?limit=5');
+    const articlesRes = await fetchUrl('https://sabq.io/api/articles?limit=5');
     const articles = JSON.parse(articlesRes.data);
     
     if (articles.success && articles.articles) {
@@ -48,7 +48,7 @@ async function checkImages() {
     
     // 2. فحص صور التصنيفات
     console.log('\n\n📁 فحص صور التصنيفات...');
-    const categoriesRes = await fetchUrl('https://sabq.me/api/categories');
+    const categoriesRes = await fetchUrl('https://sabq.io/api/categories');
     const categories = JSON.parse(categoriesRes.data);
     
     if (categories.success && categories.categories) {

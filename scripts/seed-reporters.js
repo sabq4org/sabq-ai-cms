@@ -16,7 +16,7 @@ const SAMPLE_REPORTERS = [
     languages: ['ar', 'en'],
     twitter_url: 'https://twitter.com/ahmed_hassan',
     linkedin_url: 'https://linkedin.com/in/ahmed-hassan',
-    email_public: 'ahmed.hassan@sabq.me',
+    email_public: 'ahmed.hassan@sabq.io',
     show_stats: true,
     show_contact: true,
     total_articles: 145,
@@ -37,7 +37,7 @@ const SAMPLE_REPORTERS = [
     coverage_areas: ['المملكة', 'الخليج العربي', 'الأسواق العالمية'],
     languages: ['ar', 'en'],
     website_url: 'https://fatima-alzahrani.com',
-    email_public: 'fatima.alzahrani@sabq.me',
+    email_public: 'fatima.alzahrani@sabq.io',
     show_stats: true,
     show_contact: false,
     total_articles: 89,
@@ -128,31 +128,31 @@ async function seedReporters() {
       // إنشاء مستخدمين تجريبيين بـ IDs صحيحة
       const sampleUsers = [
         {
-          email: 'ahmed.hassan@sabq.me',
+          email: 'ahmed.hassan@sabq.io',
           name: 'أحمد محمد حسن',
           role: 'reporter',
           is_verified: true
         },
         {
-          email: 'fatima.alzahrani@sabq.me',
+          email: 'fatima.alzahrani@sabq.io',
           name: 'فاطمة أحمد الزهراني',
           role: 'editor',
           is_verified: true
         },
         {
-          email: 'abdulrahman.alqahtani@sabq.me',
+          email: 'abdulrahman.alqahtani@sabq.io',
           name: 'عبدالرحمن سالم القحطاني',
           role: 'reporter',
           is_verified: true
         },
         {
-          email: 'sara.alnimer@sabq.me',
+          email: 'sara.alnimer@sabq.io',
           name: 'سارة عبدالله النمر',
           role: 'editor',
           is_verified: true
         },
         {
-          email: 'mohammed.alshehri@sabq.me',
+          email: 'mohammed.alshehri@sabq.io',
           name: 'محمد عبدالعزيز الشهري',
           role: 'senior_editor',
           is_verified: true

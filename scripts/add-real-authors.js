@@ -8,7 +8,7 @@ const realAuthors = [
     slug: 'mohammed-otaibi',
     title: 'مراسل أول',
     bio: 'مراسل أول متخصص في الأخبار السياسية والاقتصادية مع خبرة تزيد عن 10 سنوات في الصحافة السعودية',
-    email: 'mohammed.otaibi@sabq.me',
+    email: 'mohammed.otaibi@sabq.io',
     avatar_url: '/uploads/authors/mohammed-otaibi.jpg',
     social_links: {
       twitter: '@m_otaibi',
@@ -23,7 +23,7 @@ const realAuthors = [
     slug: 'fatima-alzahrani',
     title: 'محررة الأخبار الثقافية',
     bio: 'محررة متخصصة في الأخبار الثقافية والفنية والتراث السعودي',
-    email: 'fatima.alzahrani@sabq.me',
+    email: 'fatima.alzahrani@sabq.io',
     avatar_url: '/uploads/authors/fatima-alzahrani.jpg',
     social_links: {
       twitter: '@f_alzahrani',
@@ -38,7 +38,7 @@ const realAuthors = [
     slug: 'ahmed-alsaeed',
     title: 'مراسل رياضي',
     bio: 'مراسل متخصص في الأخبار الرياضية والبطولات المحلية والدولية',
-    email: 'ahmed.alsaeed@sabq.me',
+    email: 'ahmed.alsaeed@sabq.io',
     avatar_url: '/uploads/authors/ahmed-alsaeed.jpg',
     social_links: {
       twitter: '@a_alsaeed_sport',
@@ -53,7 +53,7 @@ const realAuthors = [
     slug: 'nora-almutairi',
     title: 'محررة الأخبار التقنية',
     bio: 'محررة متخصصة في أخبار التقنية والذكاء الاصطناعي والتطورات الرقمية',
-    email: 'nora.almutairi@sabq.me',
+    email: 'nora.almutairi@sabq.io',
     avatar_url: '/uploads/authors/nora-almutairi.jpg',
     social_links: {
       twitter: '@nora_tech',
@@ -68,7 +68,7 @@ const realAuthors = [
     slug: 'khalid-alghamdi',
     title: 'مراسل الأخبار العامة',
     bio: 'مراسل شامل يغطي مختلف أنواع الأخبار المحلية والعامة',
-    email: 'khalid.alghamdi@sabq.me',
+    email: 'khalid.alghamdi@sabq.io',
     avatar_url: '/uploads/authors/khalid-alghamdi.jpg',
     social_links: {
       twitter: '@k_alghamdi',

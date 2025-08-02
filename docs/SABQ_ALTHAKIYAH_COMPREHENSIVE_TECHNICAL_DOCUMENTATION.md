@@ -221,12 +221,12 @@ environments:
     ai_features: "Enabled with API keys"
     
   staging:
-    url: "https://staging.sabq.me"
+    url: "https://staging.sabq.io"
     database: "Staging PostgreSQL"
     ai_features: "Full testing environment"
     
   production:
-    url: "https://sabq.me"
+    url: "https://sabq.io"
     database: "Production PostgreSQL (Supabase)"
     ai_features: "Production OpenAI integration"
     cdn: "Vercel Edge Network"
@@ -1630,8 +1630,8 @@ scalability_concerns:
 - **المؤسسة:** مؤسسة سبق للإعلام
 
 ### 🔗 الروابط المهمة
-- **الموقع المباشر:** https://sabq.me
-- **لوحة التحكم:** https://sabq.me/admin/dashboard
+- **الموقع المباشر:** https://sabq.io
+- **لوحة التحكم:** https://sabq.io/admin/dashboard
 - **المستودع:** [GitHub Repository]
 - **التوثيق:** [Documentation Portal]
 

@@ -32,10 +32,10 @@ CLOUDINARY_API_SECRET=vuiA8rLNm7d1U-UAOTED6FyC4hY
 
 # المصادقة
 NEXTAUTH_SECRET=sabq-ai-cms-secret-key-2025
-NEXTAUTH_URL=https://sabq.me
+NEXTAUTH_URL=https://sabq.io
 
 # البيئة
-NEXT_PUBLIC_SITE_URL=https://sabq.me
+NEXT_PUBLIC_SITE_URL=https://sabq.io
 NODE_ENV=production
 ```
 
@@ -75,13 +75,13 @@ npm run build
 
 ```bash
 # تحقق من الموقع المباشر
-curl -I https://sabq.me
+curl -I https://sabq.io
 
 # تحقق من API
-curl https://sabq.me/api/categories
+curl https://sabq.io/api/categories
 
 # تحقق من الصور
-curl -I https://sabq.me/api/health
+curl -I https://sabq.io/api/health
 ```
 
 ## ⚠️ مشاكل محتملة
