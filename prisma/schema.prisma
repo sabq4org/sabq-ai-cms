@@ -301,22 +301,43 @@ model comments {
 }
 
 model daily_doses {
-  id          String             @id
-  period      daily_doses_period
-  title       String             @db.VarChar(500)
-  subtitle    String             @db.VarChar(500)
-  date        DateTime           @db.Date
-  status      daily_doses_status @default(draft)
-  publishedAt DateTime?
-  views       Int                @default(0)
-  metadata    Json?
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime
+  id               String             @id
+  period           daily_doses_period
+  title            String             @db.VarChar(500)  // العنوان الرئيسي
+  subtitle         String             @db.VarChar(500)  // العنوان الفرعي
+  date             DateTime           @db.Date
+  status           daily_doses_status @default(draft)
+  publishedAt      DateTime?
+  views            Int                @default(0)
+  metadata         Json?
+  
+  // إضافات الجرعات الذكية
+  topics           String[]           @default([])      // مواضيع الجرعة
+  source_articles  String[]           @default([])      // معرفات المقالات المستخدمة
+  generated_by_ai  Boolean            @default(false)   // مولدة بالذكاء الاصطناعي
+  ai_prompt_used   String?                              // البرومبت المستخدم
+  user_id          String?                              // للجرعات المخصصة
+  is_global        Boolean            @default(true)    // جرعة عامة
+  interaction_count Int               @default(0)       // عدد التفاعلات
+  share_count      Int                @default(0)       // عدد المشاركات
+  created_by       String?                              // المحرر
+  editor_notes     String?                              // ملاحظات المحرر
+  
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime
+
+  // العلاقات
+  feedback         smart_dose_feedback[]
+  user             users?             @relation("UserDoses", fields: [user_id], references: [id], onDelete: Cascade)
+  creator          users?             @relation("DoseCreator", fields: [created_by], references: [id])
 
   @@unique([date, period])
+  @@unique([date, period, user_id]) // جرعة واحدة لكل فترة يومياً لكل مستخدم
   @@index([date])
   @@index([period])
   @@index([status])
+  @@index([user_id, period])
+  @@index([is_global, period])
 }
 
 model deep_analyses {
@@ -844,6 +865,12 @@ model users {
   muqtarab_analytics   MuqtarabAnalytics[]
   muqtarab_followers   MuqtarabFollower[]
   muqtarab_comments    MuqtarabComment[]
+  
+  // Smart Doses relationships
+  user_doses           daily_doses[]          @relation("UserDoses")
+  created_doses        daily_doses[]          @relation("DoseCreator")
+  dose_feedback        smart_dose_feedback[]  @relation("DoseFeedbackUser")
+  dose_templates       smart_dose_templates[] @relation("DoseTemplateCreator")
 
   @@index([email], map: "idx_users_email")
   @@index([role], map: "idx_users_role")
@@ -1952,4 +1979,75 @@ model author_analytics {
   
   @@unique([author_id, date])
   @@index([author_id, date])
+}
+
+// ============================================================
+// 🧠 وحدة الجرعات الذكية (Smart Daily Doses) - جداول إضافية
+// ============================================================
+
+enum DoseReaction {
+  like      // 👍
+  dislike   // 👎
+  neutral   // بدون تفاعل
+  shared    // مشاركة
+  saved     // حفظ
+}
+
+// جدول تفاعل المستخدمين مع الجرعات
+model smart_dose_feedback {
+  id            String        @id @default(cuid())
+  
+  // المستخدم والجرعة
+  user_id       String
+  user          users         @relation("DoseFeedbackUser", fields: [user_id], references: [id], onDelete: Cascade)
+  dose_id       String
+  dose          daily_doses   @relation(fields: [dose_id], references: [id], onDelete: Cascade)
+  
+  // نوع التفاعل
+  reaction      DoseReaction  @default(neutral)
+  shared        Boolean       @default(false)
+  saved         Boolean       @default(false)
+  
+  // الوقت والسلوك
+  time_spent    Int?          // بالثواني
+  read_percentage Float?      // نسبة القراءة (0-1)
+  
+  // البيانات الإضافية
+  comment       String?       // تعليق اختياري
+  platform      String?       // منصة المشاركة
+  
+  created_at    DateTime      @default(now())
+  updated_at    DateTime      @updatedAt
+  
+  @@unique([user_id, dose_id]) // تفاعل واحد لكل مستخدم مع كل جرعة
+  @@index([dose_id, reaction])
+  @@index([user_id, created_at])
+}
+
+// قوالب الجرعات الجاهزة
+model smart_dose_templates {
+  id              String               @id @default(cuid())
+  
+  // التصنيف
+  period          daily_doses_period
+  template_name   String               // "صباح النشاط", "موجز منتصف اليوم"
+  
+  // المحتوى
+  main_text       String               // العنوان الرئيسي
+  sub_text        String               // العنوان الفرعي
+  
+  // الاستخدام
+  usage_count     Int                  @default(0)
+  is_active       Boolean              @default(true)
+  priority        Int                  @default(1) // أولوية الظهور
+  
+  // التحرير
+  created_by      String
+  creator         users                @relation("DoseTemplateCreator", fields: [created_by], references: [id])
+  
+  created_at      DateTime             @default(now())
+  updated_at      DateTime             @updatedAt
+  
+  @@index([period, is_active])
+  @@index([priority, period])
 }
