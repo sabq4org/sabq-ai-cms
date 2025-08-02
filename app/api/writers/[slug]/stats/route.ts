@@ -8,9 +8,9 @@ export async function GET(
   { params }: { params: { slug: string } }
 ) {
   try {
-    const { slug } = params;
+    const { slug: rawSlug } = params;
     
-    if (!slug) {
+    if (!rawSlug) {
       return NextResponse.json(
         { 
           success: false,
@@ -20,7 +20,13 @@ export async function GET(
       );
     }
     
-    console.log(`📊 جلب إحصائيات الكاتب: ${slug}`);
+    // فك ترميز الـ slug للتعامل مع الأسماء العربية
+    const slug = decodeURIComponent(rawSlug);
+    
+    console.log(`📊 جلب إحصائيات الكاتب:`, {
+      rawSlug,
+      decodedSlug: slug
+    });
     
     // البحث عن الكاتب
     const writer = await prisma.article_authors.findFirst({
@@ -34,7 +40,8 @@ export async function GET(
         total_articles: true,
         total_views: true,
         total_likes: true,
-        avg_reading_time: true
+        total_shares: true,
+        ai_score: true
       }
     });
     

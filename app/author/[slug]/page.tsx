@@ -74,8 +74,17 @@ const ARTICLES_PER_PAGE = 9;
 
 export default function AuthorPage() {
   const params = useParams();
-  const slug = params?.slug as string;
+  const rawSlug = params?.slug as string;
   const { darkMode } = useDarkModeContext();
+  
+  // فك ترميز الـ slug للتعامل مع الأسماء العربية
+  const slug = rawSlug ? decodeURIComponent(rawSlug) : '';
+  
+  console.log('🔍 صفحة الكاتب:', {
+    rawSlug,
+    decodedSlug: slug,
+    areEqual: rawSlug === slug
+  });
   
   const [author, setAuthor] = useState<Author | null>(null);
   const [articles, setArticles] = useState<Article[]>([]);
@@ -216,17 +225,36 @@ export default function AuthorPage() {
         "min-h-screen flex items-center justify-center",
         darkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
       )}>
-        <div className="text-center">
+        <div className="text-center max-w-md">
           <User className="w-24 h-24 mx-auto mb-4 text-gray-400" />
           <h1 className="text-2xl font-bold mb-2">الكاتب غير موجود</h1>
-          <p className="text-gray-500 mb-6">عذراً، لم نتمكن من العثور على الكاتب المطلوب</p>
-          <Link 
-            href="/"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            العودة للرئيسية
-          </Link>
+          <p className="text-gray-500 mb-4">عذراً، لم نتمكن من العثور على الكاتب المطلوب</p>
+          
+          {/* معلومات تشخيصية للمطور فقط */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6 text-left">
+              <h3 className="text-sm font-semibold text-yellow-800 dark:text-yellow-200 mb-2">معلومات التشخيص</h3>
+              <pre className="text-xs text-yellow-700 dark:text-yellow-300 overflow-auto">
+                Raw Slug: {rawSlug}
+                Decoded Slug: {slug}
+                Are Equal: {String(rawSlug === slug)}
+              </pre>
+            </div>
+          )}
+          
+          <div className="space-y-3">
+            <Link 
+              href="/"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              العودة للرئيسية
+            </Link>
+            
+            <div className="text-sm text-gray-400">
+              أو جرب البحث في <Link href="/opinion" className="text-blue-500 hover:underline">صفحة قادة الرأي</Link>
+            </div>
+          </div>
         </div>
       </div>
     );

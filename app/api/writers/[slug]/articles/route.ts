@@ -8,10 +8,10 @@ export async function GET(
   { params }: { params: { slug: string } }
 ) {
   try {
-    const { slug } = params;
+    const { slug: rawSlug } = params;
     const { searchParams } = new URL(request.url);
     
-    if (!slug) {
+    if (!rawSlug) {
       return NextResponse.json(
         { 
           success: false,
@@ -21,6 +21,9 @@ export async function GET(
       );
     }
     
+    // فك ترميز الـ slug للتعامل مع الأسماء العربية
+    const slug = decodeURIComponent(rawSlug);
+    
     // معاملات البحث
     const search = searchParams.get('search') || '';
     const category = searchParams.get('category') || 'all';
@@ -29,7 +32,15 @@ export async function GET(
     const limit = parseInt(searchParams.get('limit') || '12');
     const skip = (page - 1) * limit;
     
-    console.log(`📚 جلب مقالات الكاتب: ${slug}`, { search, category, sort, page, limit });
+    console.log(`📚 جلب مقالات الكاتب:`, { 
+      rawSlug, 
+      decodedSlug: slug, 
+      search, 
+      category, 
+      sort, 
+      page, 
+      limit 
+    });
     
     // البحث عن الكاتب
     const writer = await prisma.article_authors.findFirst({

@@ -8,9 +8,9 @@ export async function GET(
   { params }: { params: { slug: string } }
 ) {
   try {
-    const { slug } = params;
+    const { slug: rawSlug } = params;
     
-    if (!slug) {
+    if (!rawSlug) {
       return NextResponse.json(
         { 
           success: false,
@@ -20,7 +20,14 @@ export async function GET(
       );
     }
     
-    console.log(`🔍 البحث عن الكاتب بالـ slug: ${slug}`);
+    // فك ترميز الـ slug للتعامل مع الأسماء العربية
+    const slug = decodeURIComponent(rawSlug);
+    
+    console.log(`🔍 البحث عن الكاتب:`, {
+      rawSlug,
+      decodedSlug: slug,
+      areEqual: rawSlug === slug
+    });
     
     // البحث عن الكاتب في جدول article_authors بناءً على slug
     const writer = await prisma.article_authors.findFirst({
@@ -34,20 +41,17 @@ export async function GET(
         slug: true,
         title: true,
         bio: true,
-        avatar_url: true,
-        cover_image: true,
-        specializations: true,
-        location: true,
         email: true,
-        website: true,
-        social_media: true,
-        verification_status: true,
-        joined_date: true,
+        avatar_url: true,
+        social_links: true,
+        role: true,
+        specializations: true,
         total_articles: true,
         total_views: true,
         total_likes: true,
-        avg_reading_time: true,
-        featured_topics: true,
+        total_shares: true,
+        ai_score: true,
+        last_article_at: true,
         is_active: true,
         created_at: true,
         updated_at: true
