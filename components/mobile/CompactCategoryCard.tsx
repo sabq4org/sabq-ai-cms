@@ -13,6 +13,7 @@ import {
   Sparkles 
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import ArticleViews from '@/components/ui/ArticleViews';
 import { ar } from 'date-fns/locale';
 
 interface Article {
@@ -213,13 +214,7 @@ export default function CompactCategoryCard({
                 {article.views_count && article.views_count > 0 && (
                   <>
                     <span className="text-gray-300 dark:text-gray-600">•</span>
-                    <span className="flex items-center gap-0.5">
-                      <Eye className="w-2.5 h-2.5" />
-                      {article.views_count > 1000 ? 
-                        `${(article.views_count/1000).toFixed(1)}k` : 
-                        article.views_count.toLocaleString('ar-SA')
-                      }
-                    </span>
+                    <ArticleViews count={article.views_count} className="text-[9px]" />
                   </>
                 )}
                 

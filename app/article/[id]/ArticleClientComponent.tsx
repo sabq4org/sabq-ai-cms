@@ -28,6 +28,7 @@ import ArticleAISummary from '@/components/article/ArticleAISummary';
 import ArticleStatsBlock from '@/components/article/ArticleStatsBlock';
 import SmartPersonalizedContent from '@/components/article/SmartPersonalizedContent';
 import { useReporterProfile } from '@/lib/hooks/useReporterProfile';
+import ArticleViews from '@/components/ui/ArticleViews';
 import '@/styles/mobile-article.css';
 import '@/styles/image-optimizations.css';
 import './article-styles.css';
@@ -329,11 +330,7 @@ export default function ArticleClientComponent({
                 <span>{article.reading_time || calculateReadingTime(article.content || '')} د</span>
               </div>
               {article.views !== undefined && (
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <Eye className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                  <span className="hidden sm:inline">{article.views} مشاهدة</span>
-                  <span className="sm:hidden">{article.views}</span>
-                </div>
+                <ArticleViews count={article.views} className="text-xs sm:text-sm" />
               )}
                 </div>
               </div>

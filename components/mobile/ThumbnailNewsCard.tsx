@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
+import ArticleViews from '@/components/ui/ArticleViews';
 import { getArticleLink } from '@/lib/utils';
 
 interface ThumbnailNewsCardProps {
@@ -214,12 +215,7 @@ export default function ThumbnailNewsCard({
                   
                   {/* المشاهدات */}
                   {article.views && article.views > 0 && (
-                    <div className={`flex items-center space-x-1 rtl:space-x-reverse ${sizeClasses.meta} ${
-                      darkMode ? 'text-gray-400' : 'text-gray-500'
-                    }`}>
-                      <Eye className="w-3 h-3" />
-                      <span>{article.views > 1000 ? `${(article.views/1000).toFixed(1)}k` : article.views}</span>
-                    </div>
+                    <ArticleViews count={article.views} className={sizeClasses.meta} />
                   )}
 
                   {/* التعليقات */}

@@ -8,6 +8,7 @@ import { formatDateShort } from '@/lib/date-utils';
 import { getValidImageUrl, generatePlaceholderImage } from '@/lib/cloudinary';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { getArticleLink } from '@/lib/utils';
+import ArticleViews from '@/components/ui/ArticleViews';
 
 interface Article {
   id: string;
@@ -177,10 +178,7 @@ export default function EnhancedMobileArticleCard({
                   <span>{formatDateShort(article.created_at)}</span>
                 </div>
                 {article.views_count > 0 && (
-                  <div className="meta-item">
-                    <Eye className="w-3 h-3" />
-                    <span>{article.views_count}</span>
-                  </div>
+                  <ArticleViews count={article.views_count} className="text-xs" />
                 )}
               </div>
             </div>
@@ -301,9 +299,8 @@ export default function EnhancedMobileArticleCard({
                 {/* إحصائيات جميلة */}
                 <div className="flex items-center gap-3">
                   {article.views_count > 0 && (
-                    <div className="flex items-center gap-1 bg-white/20 rounded-full px-2 py-1">
-                      <Eye className="w-3 h-3" />
-                      <span className="text-xs font-medium">{article.views_count}</span>
+                    <div className="bg-white/20 rounded-full px-2 py-1">
+                      <ArticleViews count={article.views_count} className="text-xs font-medium" />
                     </div>
                   )}
                   {article.reading_time && (
@@ -374,8 +371,7 @@ export default function EnhancedMobileArticleCard({
           </div>
           {article.views_count > 0 && (
             <div className="meta-item">
-              <Eye className="w-4 h-4" />
-              <span>{article.views_count}</span>
+              <ArticleViews count={article.views_count} />
             </div>
           )}
           {article.author_name && (
