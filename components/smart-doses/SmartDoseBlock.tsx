@@ -45,19 +45,28 @@ export default function SmartDoseBlock({ userId, className = '' }: SmartDoseBloc
       if (showLoading) setLoading(true);
       setError(null);
 
-      const params = new URLSearchParams({
-        period: currentPeriod,
-        ...(userId && { userId })
-      });
+      // محاولة جلب الجرعة من API أولاً
+      try {
+        const params = new URLSearchParams({
+          period: currentPeriod,
+          ...(userId && { userId })
+        });
 
-      const response = await fetch(`/api/doses?${params}`);
-      const data = await response.json();
+        const response = await fetch(`/api/doses?${params}`);
+        const data = await response.json();
 
-      if (data.success) {
-        setCurrentDose(data.dose);
-      } else {
-        setError(data.error || 'فشل في جلب الجرعة');
+        if (data.success) {
+          setCurrentDose(data.dose);
+          return;
+        }
+      } catch (apiError) {
+        console.warn('API غير متاح، استخدام البيانات المحلية:', apiError);
       }
+
+      // إذا فشل API، استخدم جرعة محلية
+      const localDose = getLocalDose(currentPeriod);
+      setCurrentDose(localDose);
+
     } catch (error) {
       console.error('خطأ في جلب الجرعة:', error);
       setError('خطأ في الاتصال بالخادم');
@@ -65,6 +74,58 @@ export default function SmartDoseBlock({ userId, className = '' }: SmartDoseBloc
       setLoading(false);
       setRefreshing(false);
     }
+  };
+
+  // جرعات محلية كـ fallback
+  const getLocalDose = (period: DosePeriod): DoseData => {
+    const localDoses = {
+      morning: {
+        id: 'local-morning',
+        period: 'morning' as DosePeriod,
+        main_text: 'ابدأ يومك بالأهم 👇',
+        sub_text: 'ملخص ذكي لما فاتك من أحداث البارحة… قبل فنجان القهوة ☕️',
+        topics: ['أخبار عامة', 'اقتصاد', 'تقنية'],
+        view_count: 150,
+        interaction_count: 12,
+        user_feedback: null,
+        created_at: new Date().toISOString()
+      },
+      noon: {
+        id: 'local-noon',
+        period: 'noon' as DosePeriod,
+        main_text: 'منتصف النهار… وحرارة الأخبار 🔥',
+        sub_text: 'إليك آخر المستجدات حتى هذه اللحظة، باختصار لا يفوّت',
+        topics: ['أخبار عاجلة', 'سياسة', 'رياضة'],
+        view_count: 89,
+        interaction_count: 7,
+        user_feedback: null,
+        created_at: new Date().toISOString()
+      },
+      evening: {
+        id: 'local-evening',
+        period: 'evening' as DosePeriod,
+        main_text: 'مساؤك ذكاء واطّلاع 🌇',
+        sub_text: 'إليك تحليلًا خفيفًا وذكيًا لأبرز قصص اليوم',
+        topics: ['تحليلات', 'ثقافة', 'مجتمع'],
+        view_count: 203,
+        interaction_count: 18,
+        user_feedback: null,
+        created_at: new Date().toISOString()
+      },
+      night: {
+        id: 'local-night',
+        period: 'night' as DosePeriod,
+        main_text: 'قبل أن تنام… تعرف على ملخص اليوم 🌙',
+        sub_text: '3 أخبار مختارة بعناية، خالية من الضجيج',
+        topics: ['ملخص اليوم', 'أخبار هادئة', 'إيجابية'],
+        view_count: 67,
+        interaction_count: 4,
+        user_feedback: null,
+        created_at: new Date().toISOString()
+      }
+    };
+
+    return localDoses[period] || localDoses.morning;
   };
 
   // جلب الجرعة عند التحميل

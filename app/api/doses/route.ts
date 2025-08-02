@@ -9,6 +9,15 @@ const prisma = new PrismaClient();
  */
 export async function GET(request: NextRequest) {
   try {
+    // التحقق من وجود OpenAI API Key
+    if (!process.env.OPENAI_API_KEY) {
+      return NextResponse.json({
+        success: false,
+        error: 'خدمة الجرعات الذكية غير متاحة حالياً',
+        fallback: true
+      }, { status: 503 });
+    }
+
     const { searchParams } = new URL(request.url);
     const period = (searchParams.get('period') as DosePeriod) || getCurrentPeriod();
     const userId = searchParams.get('userId');

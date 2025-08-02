@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, memo, Suspense } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import { Brain } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'react-hot-toast';
 import PageWrapper from '@/components/PageWrapper';
@@ -544,7 +545,18 @@ function NewspaperHomePage({
       
       {/* 3. الجرعات الذكية (Smart Doses) 💊 */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <SmartDoseBlock userId={undefined} />
+        <Suspense fallback={
+          <div className="flex items-center justify-center py-8">
+            <div className="text-center space-y-4">
+              <div className="w-12 h-12 mx-auto rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center animate-pulse">
+                <Brain className="w-6 h-6 text-white" />
+              </div>
+              <p className="text-gray-600 dark:text-gray-400">جاري تحضير الجرعة الذكية...</p>
+            </div>
+          </div>
+        }>
+          <SmartDoseBlock userId={undefined} />
+        </Suspense>
       </div>
       
       {/* 4. النشرة الصوتية (Audio Briefing) 🎧 */}

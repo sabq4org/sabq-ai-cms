@@ -1,8 +1,9 @@
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
+// إنشاء client اختياري - يعمل بدون API key
+const openai = process.env.OPENAI_API_KEY ? new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-});
+}) : null;
 
 export type DosePeriod = 'morning' | 'noon' | 'evening' | 'night';
 
@@ -114,6 +115,12 @@ export async function generateSmartDose({
 }): Promise<GeneratedDose> {
   
   try {
+    // إذا لم يكن OpenAI متاحاً، استخدم القوالب مباشرة
+    if (!openai) {
+      console.log('⚠️ OpenAI غير متاح، استخدام القوالب الاحتياطية');
+      return generateFallbackDose(period, recentArticles);
+    }
+
     // إعداد السياق
     const timeContext = getTimeContext(period);
     const articlesContext = summarizeArticles(recentArticles.slice(0, 10));
