@@ -60,7 +60,7 @@ export default function ArticleClientComponent({
   const [isReading, setIsReading] = useState(false);
   
   // جلب بروفايل المراسل
-  const { reporter, hasProfile, loading: reporterLoading } = useReporterProfile(article?.author?.id);
+  const { reporter, hasProfile, loading: reporterLoading } = useReporterProfile(article?.author?.name || '');
   
   // دالة لعرض أيقونة التحقق
   const getVerificationIcon = (badge: string) => {
@@ -230,36 +230,39 @@ export default function ArticleClientComponent({
       <main className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-[56px] sm:pt-[64px]">
         {/* منطقة المحتوى الرئيسية */}
         <div className="relative">
-          <article className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
-            {/* رأس المقال بخلفية شفافة بدون إطار */}
-            <header className="mb-8 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-4 sm:p-6 lg:p-8 relative z-10">
-            {/* التصنيف - محاذاة لليمين */}
-            {article.category && (
-              <div className="flex justify-end mb-4">
-                <Link
-                  href={`/categories/${article.category.slug}`}
-                  className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50 hover:shadow-md hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-800/30 dark:hover:to-indigo-800/30 transition-all hover:scale-105"
-                >
-                  {article.category.icon && <span className="text-sm sm:text-base">{article.category.icon}</span>}
-                  <span>{article.category.name}</span>
-                </Link>
-              </div>
-            )}
+          <article className="max-w-5xl mx-auto py-4 sm:py-6 lg:py-8">
+            {/* رأس المقال محسن للموبايل */}
+            <header className="mb-8 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl relative z-10">
+              
+              {/* Desktop Header */}
+              <div className="hidden sm:block px-6 lg:px-8 py-6 lg:py-8">
+                {/* التصنيف - محاذاة لليمين */}
+                {article.category && (
+                  <div className="flex justify-end mb-4">
+                    <Link
+                      href={`/categories/${article.category.slug}`}
+                      className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50 hover:shadow-md hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-800/30 dark:hover:to-indigo-800/30 transition-all hover:scale-105"
+                    >
+                      {article.category.icon && <span className="text-sm sm:text-base">{article.category.icon}</span>}
+                      <span>{article.category.name}</span>
+                    </Link>
+                  </div>
+                )}
 
-            {/* العنوان */}
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 text-gray-900 dark:text-white leading-tight text-right">
-              {article.title}
-            </h1>
-            
-            {/* العنوان الفرعي */}
-            {(article.subtitle || article.metadata?.subtitle) && (
-              <h2 className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-400 mb-6 text-right">
-                {article.subtitle || article.metadata?.subtitle}
-              </h2>
-            )}
+                {/* العنوان */}
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 text-gray-900 dark:text-white leading-tight text-right">
+                  {article.title}
+                </h1>
+                
+                {/* العنوان الفرعي */}
+                {article.excerpt && (
+                  <h2 className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-400 mb-6 text-right">
+                    {article.excerpt}
+                  </h2>
+                )}
 
-            {/* المعلومات الأساسية */}
-            <div className="flex flex-wrap items-center justify-start gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 text-right">
+                {/* المعلومات الأساسية - Desktop */}
+                <div className="flex flex-wrap items-center justify-start gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 text-right">
               {article.author && (
                 <div className="flex items-center gap-1.5 sm:gap-2">
                   <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
@@ -285,8 +288,8 @@ export default function ArticleClientComponent({
               )}
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                <span className="hidden sm:inline">{formatFullDate(article.published_at || article.created_at)}</span>
-                <span className="sm:hidden">{formatRelativeDate(article.published_at || article.created_at)}</span>
+                <span className="hidden sm:inline">{formatFullDate(article.published_at || article.created_at || '')}</span>
+                <span className="sm:hidden">{formatRelativeDate(article.published_at || article.created_at || '')}</span>
               </div>
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <Clock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
@@ -299,13 +302,81 @@ export default function ArticleClientComponent({
                   <span className="sm:hidden">{article.views}</span>
                 </div>
               )}
-            </div>
+                </div>
+              </div>
+
+              {/* Mobile Header محسن */}
+              <div className="sm:hidden px-2 py-4">
+                {/* العنوان الرئيسي - عرض أكبر مع هوامش أقل */}
+                <div className="px-1 mb-3">
+                  <h1 className="text-2xl xs:text-[26px] font-bold leading-tight text-gray-900 dark:text-white">
+                    {article.title}
+                  </h1>
+                </div>
+
+                {/* العنوان الفرعي - تصميم محسن */}
+                {article.excerpt && (
+                  <div className="px-1 mb-4">
+                    <h2 className="text-sm leading-relaxed text-gray-900 dark:text-gray-100 font-normal">
+                      {article.excerpt}
+                    </h2>
+                  </div>
+                )}
+
+                {/* حاوي للتصنيف ومعلومات النشر - تخطيط محسن */}
+                <div className="flex items-start justify-between px-1 gap-3">
+                  
+                  {/* التصنيف في اليمين (RTL friendly) */}
+                  <div className="flex-shrink-0 order-2">
+                    {article.category && (
+                      <Link
+                        href={`/categories/${article.category.slug}`}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/50 hover:shadow-sm transition-all"
+                      >
+                        {article.category.icon && <span className="text-sm">{article.category.icon}</span>}
+                        <span>{article.category.name}</span>
+                      </Link>
+                    )}
+                  </div>
+
+                  {/* معلومات النشر في اليسار - محاذاة مع الصورة */}
+                  <div className="flex flex-col items-start gap-1 text-xs text-gray-500 dark:text-gray-400 order-1 flex-1 max-w-[140px]">
+                    {/* الكاتب */}
+                    {article.author && (
+                      <div className="flex items-center gap-1.5">
+                        <User className="w-3 h-3 flex-shrink-0" />
+                        <span className="truncate max-w-[100px]">{article.author.name}</span>
+                      </div>
+                    )}
+                    
+                    {/* التاريخ ووقت القراءة */}
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="w-3 h-3 flex-shrink-0" />
+                        <span>{formatRelativeDate(article.published_at || article.created_at || '')}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-3 h-3 flex-shrink-0" />
+                        <span>{article.reading_time || calculateReadingTime(article.content || '')} د</span>
+                      </div>
+                    </div>
+
+                    {/* المشاهدات */}
+                    {article.views !== undefined && (
+                      <div className="flex items-center gap-1">
+                        <Eye className="w-3 h-3 flex-shrink-0" />
+                        <span>{article.views}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </header>
 
             {/* صورة المقال */}
             {article.featured_image && (
               <div className="mb-8">
-                <div className="-mx-4 sm:mx-0">
+                <div className="-mx-2 sm:mx-0">
                   <ArticleFeaturedImage
                     imageUrl={article.featured_image}
                     title={article.title}
