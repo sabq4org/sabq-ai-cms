@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Clock, Eye, User, Award, Zap, Heart, Bookmark, Share2 } from 'lucide-react';
+import ArticleViews from '@/components/ui/ArticleViews';
 import { formatDateShort } from '@/lib/date-utils';
 import { getValidImageUrl, generatePlaceholderImage } from '@/lib/cloudinary';
 import { formatDistanceToNow } from 'date-fns';
@@ -182,10 +183,7 @@ export default function MobileArticleCard({
                 <Clock className="w-3 h-3" />
                 <span>{String(formatDateShort(article.created_at) || '')}</span>
                 {article.views_count > 0 && (
-                  <>
-                    <Eye className="w-3 h-3" />
-                    <span>{String(article.views_count || 0)}</span>
-                  </>
+                  <ArticleViews count={article.views_count || article.views || 0} className="text-gray-500 dark:text-gray-400" />
                 )}
               </div>
             </div>
@@ -323,10 +321,7 @@ export default function MobileArticleCard({
               )}
               
               {article.views_count > 0 && (
-                <div className="flex items-center gap-1">
-                  <Eye className="w-3 h-3" />
-                  <span>{article.views_count}</span>
-                </div>
+                <ArticleViews count={article.views_count || article.views || 0} className="text-gray-500 dark:text-gray-400" />
               )}
             </div>
 

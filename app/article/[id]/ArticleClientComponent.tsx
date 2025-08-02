@@ -15,6 +15,7 @@ import OptimizedImage from '@/components/ui/optimized-image';
 import ArticleFeaturedImage from '@/components/article/ArticleFeaturedImage';
 
 import UltimateImage from '@/components/UltimateImage';
+import { useViewTracking } from '@/hooks/useViewTracking';
 import { Share2, Eye, Clock, Calendar,
   User, MessageCircle, TrendingUp, Hash, ChevronRight, Home,
   Twitter, Copy, Check, X, Menu, Heart, Bookmark, Headphones,
@@ -62,6 +63,14 @@ export default function ArticleClientComponent({
   
   // جلب بروفايل المراسل
   const { reporter, hasProfile, loading: reporterLoading } = useReporterProfile(article?.author?.name || '');
+  
+  // تتبع المشاهدات
+  const { elementRef: viewTrackingRef, hasViewed, isInView } = useViewTracking({
+    articleId: articleId,
+    threshold: 0.5, // 50% من المقال يجب أن يكون مرئي
+    minTime: 5000, // 5 ثواني
+    enabled: !!article // تفعيل فقط عند وجود المقال
+  });
   
   // دالة لعرض أيقونة التحقق
   const getVerificationIcon = (badge: string) => {
@@ -254,7 +263,7 @@ export default function ArticleClientComponent({
       <main className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-[56px] sm:pt-[64px]">
         {/* منطقة المحتوى الرئيسية */}
         <div className="relative">
-          <article className="max-w-5xl mx-auto py-4 sm:py-6 lg:py-8">
+          <article ref={viewTrackingRef} className="max-w-5xl mx-auto py-4 sm:py-6 lg:py-8">
             {/* رأس المقال محسن للموبايل */}
             <header className="mb-8 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl relative z-10">
               

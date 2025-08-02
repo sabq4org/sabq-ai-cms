@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import SafeImage from '@/components/ui/SafeImage';
+import ArticleViews from '@/components/ui/ArticleViews';
 import { Calendar, Clock, Eye, MessageSquare, Zap, Newspaper, TrendingUp, Sparkles, Target } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -177,10 +178,7 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
                   <Clock className="w-3 h-3" />
                   {article.reading_time || Math.ceil((article.content?.length || 0) / 1000)} دقائق
                 </span>
-                <span className="flex items-center gap-1">
-                  <Eye className="w-3 h-3" />
-                  {interactionCount > 1000 ? `${(interactionCount / 1000).toFixed(1)}k` : interactionCount}
-                </span>
+                <ArticleViews count={article.views || article.views_count || 0} />
                 {article.comments_count > 0 && (
                   <span className="flex items-center gap-1">
                     <MessageSquare className="w-3 h-3" />
@@ -280,10 +278,7 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
                 {formatDateGregorian(publishDate)}
               </span>
               <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1">
-                  <Eye className="w-3 h-3" />
-                  {interactionCount > 1000 ? `${(interactionCount / 1000).toFixed(1)}k` : interactionCount}
-                </span>
+                <ArticleViews count={article.views || article.views_count || 0} />
                 {article.comments_count > 0 && (
                   <span className="flex items-center gap-1">
                     <MessageSquare className="w-3 h-3" />

@@ -28,6 +28,7 @@ import { generatePersonalizedRecommendations } from '@/lib/ai-recommendations';
 import type { RecommendedArticle } from '@/lib/ai-recommendations';
 
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import ArticleViews from '@/components/ui/ArticleViews';
 import { Skeleton } from '@/components/ui/skeleton';
 import SafeHydration from '@/components/SafeHydration';
 
@@ -272,10 +273,10 @@ function NewspaperHomePage({
                       {news.author_name}
                     </span>
                   )}
-                  <span className={`flex items-center gap-1 ${darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
-                    <Eye className="w-3 h-3" />
-                    {news.views_count || 0}
-                  </span>
+                  <ArticleViews 
+                    count={news.views_count || news.views || 0} 
+                    className={darkMode ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400'} 
+                  />
                 </div>
               </div>
               {/* زر القراءة */}
