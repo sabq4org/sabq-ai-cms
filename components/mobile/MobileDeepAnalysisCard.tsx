@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Brain, Clock3, Eye, TrendingUp, Sparkles, Bot, User, Users } from 'lucide-react';
+import ArticleViews from '@/components/ui/ArticleViews';
 
 interface MobileDeepAnalysisCardProps {
   insight: {
@@ -206,10 +207,7 @@ export default function MobileDeepAnalysisCard({ insight, darkMode }: MobileDeep
                   <Clock3 className="w-3 h-3" />
                   {readTime} د
                 </span>
-                <span className={`flex items-center gap-1 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>
-                  <Eye className="w-3 h-3" />
-                  {articleViews > 999 ? `${(articleViews / 1000).toFixed(1)}k` : articleViews}
-                </span>
+                <ArticleViews count={articleViews} className={darkMode ? 'text-blue-400' : 'text-blue-600'} />
                 {qualityScore && qualityScore > 0 && (
                   <span className={`flex items-center gap-1 ${darkMode ? 'text-green-400' : 'text-green-600'}`}>
                     <TrendingUp className="w-3 h-3" />

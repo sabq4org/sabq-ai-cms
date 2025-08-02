@@ -15,6 +15,7 @@ import {
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { getArticleLink } from '@/lib/utils';
+import ArticleViews from '@/components/ui/ArticleViews';
 
 interface CompactNewsCardProps {
   article: {
@@ -122,10 +123,7 @@ export default function CompactNewsCard({
             {showStats && (
               <div className="absolute bottom-3 left-3 flex items-center space-x-3 rtl:space-x-reverse text-white text-xs">
                 {article.views && (
-                  <div className="flex items-center space-x-1 rtl:space-x-reverse">
-                    <Eye className="w-3 h-3" />
-                    <span>{article.views > 1000 ? `${(article.views/1000).toFixed(1)}k` : article.views}</span>
-                  </div>
+                  <ArticleViews count={article.views} className="text-white text-xs" />
                 )}
                 {article.reading_time && (
                   <div className="flex items-center space-x-1 rtl:space-x-reverse">

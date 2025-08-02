@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
 
 interface HealthData {
   timestamp: string;
@@ -101,18 +102,21 @@ export default function HealthDashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4">جاري تحميل بيانات النظام...</p>
+      <DashboardLayout pageTitle="صحة النظام" pageDescription="مراقبة حالة الخدمات والأنظمة">
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4">جاري تحميل بيانات النظام...</p>
+          </div>
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
   if (error) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
+      <DashboardLayout pageTitle="صحة النظام" pageDescription="مراقبة حالة الخدمات والأنظمة">
+        <div className="space-y-6">
         <Alert className="border-red-200 bg-red-50">
           <AlertDescription className="text-red-800">
             خطأ في تحميل بيانات النظام: {error}
@@ -128,12 +132,12 @@ export default function HealthDashboard() {
   if (!healthData) return null;
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6" dir="rtl">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">لوحة مراقبة النظام</h1>
-          <p className="text-gray-600">آخر تحديث: {new Date(healthData.timestamp).toLocaleString('ar-SA')}</p>
-        </div>
+    <DashboardLayout pageTitle="صحة النظام" pageDescription="مراقبة حالة الخدمات والأنظمة">
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <p className="text-gray-600">آخر تحديث: {new Date(healthData.timestamp).toLocaleString('ar-SA')}</p>
+          </div>
         <div className="flex gap-2">
           <Button
             variant={autoRefresh ? "default" : "outline"}
@@ -293,6 +297,7 @@ export default function HealthDashboard() {
           </CardContent>
         </Card>
       )}
-    </div>
+      </div>
+    </DashboardLayout>
   );
 }

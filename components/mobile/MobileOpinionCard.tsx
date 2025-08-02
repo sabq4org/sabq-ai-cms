@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Star, MessageSquare, Eye, Flame } from 'lucide-react';
 import { getArticleLink } from '@/lib/utils';
+import ArticleViews from '@/components/ui/ArticleViews';
 
 interface MobileOpinionCardProps {
   article: {
@@ -101,10 +102,7 @@ export default function MobileOpinionCard({ article, darkMode }: MobileOpinionCa
           {/* معلومات سفلية */}
           <div className="flex items-center justify-between text-xs">
             <div className="flex items-center gap-3 text-gray-500">
-              <span className="flex items-center gap-1">
-                <Eye className="w-3 h-3" />
-                {article.views_count > 999 ? `${(article.views_count / 1000).toFixed(1)}k` : article.views_count}
-              </span>
+              <ArticleViews count={article.views_count} />
               <span className="flex items-center gap-1">
                 <MessageSquare className="w-3 h-3" />
                 {article.comments_count}
