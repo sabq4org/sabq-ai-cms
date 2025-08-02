@@ -21,6 +21,7 @@ import {
   Zap, BarChart3, Layers, Award, ChevronDown, ExternalLink,
   Download, Printer, Send, Facebook, Linkedin, Instagram
 } from 'lucide-react';
+import ArticleViews from '@/components/ui/ArticleViews';
 
 interface ArticleClientComponentProps {
   initialArticle: ArticleData;
@@ -440,10 +441,7 @@ export default function ArticleClientComponentEnhanced({
               </div>
               
               {article.views !== undefined && (
-                <div className="flex items-center gap-2">
-                  <Eye className="w-4 h-4" />
-                  <span>{article.views.toLocaleString()} مشاهدة</span>
-                </div>
+                <ArticleViews count={article.views} />
               )}
             </div>
 
@@ -835,10 +833,7 @@ export default function ArticleClientComponentEnhanced({
               <div className="inline-flex p-3 rounded-full bg-blue-500/20 mb-3">
                 <Eye className="w-6 h-6 text-blue-600" />
               </div>
-              <div className="text-2xl font-bold text-blue-600">
-                {(article.views || 0).toLocaleString()}
-              </div>
-              <div className="text-sm opacity-70">مشاهدة</div>
+              <ArticleViews count={article.views || 0} className="text-2xl font-bold text-blue-600 justify-center" />
             </div>
 
             {/* الإعجابات */}

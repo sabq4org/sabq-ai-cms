@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-// تعطيل التخزين المؤقت لهذه الواجهة
+// تعطيل التخزين المؤقت بالكامل لضمان التحديث الفوري
 export const revalidate = 0;
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 
 export async function GET(request: NextRequest) {
   try {
@@ -76,10 +78,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       articles: formattedArticles,
-      count: formattedArticles.length
+      count: formattedArticles.length,
+      timestamp: new Date().toISOString() // للتأكد من التحديث
     }, {
       headers: {
-        'Cache-Control': 'no-store, max-age=0, must-revalidate',
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+        'Pragma': 'no-cache',
+        'Expires': '0',
       }
     });
 

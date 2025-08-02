@@ -17,6 +17,7 @@ import { Share2, Eye, Clock, Calendar,
 } from 'lucide-react';
 import ArticleInteractions from '@/components/article/ArticleInteractions';
 import AudioSummaryPlayer from '@/components/AudioSummaryPlayer';
+import ArticleViews from '@/components/ui/ArticleViews';
 
 // نوع البيانات
 interface Article {
@@ -333,10 +334,7 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
                       <Calendar className="w-4 h-4" />
                       <span>{formatFullDate(article.published_at || article.created_at || '')}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Eye className="w-4 h-4" />
-                      <span>{article.views || 0} مشاهدة</span>
-                    </div>
+                    <ArticleViews count={article.views || 0} className="text-white/90" />
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4" />
                       <span>{article.reading_time || calculateReadingTime(article.content)} دقائق</span>

@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { User, Calendar, Clock, Eye, ChevronRight } from 'lucide-react';
 import { formatDateGregorian, formatTimeOnly } from '@/lib/date-utils';
+import ArticleViews from '@/components/ui/ArticleViews';
 
 interface AuthorData {
   id?: string;
@@ -97,16 +98,8 @@ export default function AuthorInfo({
       </div>
 
       {/* المشاهدات */}
-      <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
-        <Eye className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-        <div className="flex flex-col">
-          <span className="font-bold text-gray-900 dark:text-white">
-            {views.toLocaleString('ar-SA')}
-          </span>
-          <span className="text-xs text-gray-500 dark:text-gray-400">
-            مشاهدة
-          </span>
-        </div>
+      <div className="px-3 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
+        <ArticleViews count={views} className="text-purple-600 dark:text-purple-400" />
       </div>
     </div>
   );

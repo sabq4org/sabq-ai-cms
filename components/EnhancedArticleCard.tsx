@@ -13,6 +13,7 @@ import {
   Zap, Volume2, Headphones, ThumbsUp, ThumbsDown,
   User, Calendar, MoreHorizontal, ExternalLink
 } from 'lucide-react';
+import ArticleViews from '@/components/ui/ArticleViews';
 
 
 
@@ -367,10 +368,7 @@ export default function EnhancedArticleCard({
 
             {/* الإحصائيات */}
             <div className="flex items-center gap-3 text-xs text-gray-500">
-                              <span className="flex items-center gap-1">
-                  <Eye className="w-3 h-3" />
-                  {formatCount(article?.views_count)}
-              </span>
+              <ArticleViews count={article?.views_count || article?.views || 0} />
               <span className="flex items-center gap-1">
                 <Clock className="w-3 h-3" />
                 {article.reading_time || 5} د
