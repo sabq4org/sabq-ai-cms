@@ -100,11 +100,13 @@ const BreakingNewsBar: React.FC<BreakingNewsBarProps> = ({
     <div className={`breaking-news-container ${className}`}>
       {/* الخبر العاجل - نسخة الموبايل */}
       <div className="lg:hidden">
-        <div className={`relative overflow-hidden rounded-xl mx-4 mb-6 shadow-lg ${
-          darkMode 
-            ? 'bg-gradient-to-r from-red-950 via-red-900 to-red-950 border border-red-800' 
-            : 'bg-gradient-to-r from-red-50 via-red-100 to-red-50 border border-red-200'
-        }`}>
+        {/* تحويل إلى fixed overlay لعدم دفع المحتوى */}
+        <div className="fixed top-0 left-0 right-0 z-40 mx-4 mt-4">
+          <div className={`relative overflow-hidden rounded-xl shadow-xl ${
+            darkMode 
+              ? 'bg-gradient-to-r from-red-950 via-red-900 to-red-950 border border-red-800' 
+              : 'bg-gradient-to-r from-red-50 via-red-100 to-red-50 border border-red-200'
+          }`}>
           {/* خلفية متحركة */}
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-red-500/10 to-transparent animate-pulse"></div>
           
