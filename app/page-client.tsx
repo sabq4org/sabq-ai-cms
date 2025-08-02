@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useCallback, useMemo, memo, Suspense } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { Brain } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'react-hot-toast';
 import PageWrapper from '@/components/PageWrapper';
