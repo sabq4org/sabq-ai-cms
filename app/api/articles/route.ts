@@ -309,17 +309,65 @@ export async function POST(request: NextRequest) {
     // التحقق من وجود التصنيف والمؤلف في قاعدة البيانات قبل الإنشاء
     console.log('🔍 التحقق من صحة المؤلف والتصنيف...');
     
-    const [author, category] = await Promise.all([
-      prisma.users.findUnique({ where: { id: authorId } }),
-      prisma.categories.findUnique({ where: { id: categoryId } })
-    ]);
+    // البحث عن المؤلف في جداول متعددة (article_authors أولاً، ثم users)
+    let author = null;
+    
+    // محاولة البحث في article_authors أولاً
+    try {
+      author = await prisma.article_authors.findUnique({ 
+        where: { id: authorId },
+        select: { id: true, full_name: true, email: true, is_active: true }
+      });
+      
+      if (author) {
+        console.log('✅ تم العثور على المؤلف في article_authors:', author.full_name);
+        
+        // التحقق من أن المؤلف نشط
+        if (!author.is_active) {
+          console.error('❌ المؤلف غير نشط:', authorId);
+          return NextResponse.json({
+            success: false,
+            error: 'المؤلف المحدد غير نشط في النظام',
+            details: `معرف المؤلف: ${authorId}`
+          }, { status: 400 });
+        }
+      }
+    } catch (error) {
+      console.log('⚠️ خطأ في البحث في article_authors:', error.message);
+    }
+    
+    // إذا لم يوجد في article_authors، ابحث في users
+    if (!author) {
+      try {
+        const userAuthor = await prisma.users.findUnique({ 
+          where: { id: authorId },
+          select: { id: true, name: true, email: true, role: true }
+        });
+        
+        if (userAuthor) {
+          console.log('✅ تم العثور على المؤلف في users:', userAuthor.name);
+          // تحويل بنية users لتتوافق مع article_authors
+          author = {
+            id: userAuthor.id,
+            full_name: userAuthor.name,
+            email: userAuthor.email,
+            is_active: true
+          };
+        }
+      } catch (error) {
+        console.log('⚠️ خطأ في البحث في users:', error.message);
+      }
+    }
+    
+    // فحص التصنيف
+    const category = await prisma.categories.findUnique({ where: { id: categoryId } });
     
     if (!author) {
-      console.error('❌ المؤلف غير موجود:', authorId);
+      console.error('❌ المؤلف غير موجود في أي جدول:', authorId);
       return NextResponse.json({
         success: false,
         error: 'المؤلف المحدد غير موجود في النظام',
-        details: `معرف المؤلف: ${authorId}`
+        details: `معرف المؤلف: ${authorId}. تأكد من اختيار مؤلف من القائمة المتاحة.`
       }, { status: 400 });
     }
     
@@ -333,7 +381,7 @@ export async function POST(request: NextRequest) {
     }
     
     console.log('✅ المؤلف والتصنيف صحيحان:', {
-      author: author.name || author.email,
+      author: author.full_name || author.name || author.email,
       category: category.name
     });
     

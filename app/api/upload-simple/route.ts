@@ -96,13 +96,31 @@ export async function POST(request: NextRequest) {
       });
       
     } catch (fileError: any) {
-      console.error('❌ [SIMPLE UPLOAD] خطأ في حفظ الملف:', fileError);
+      console.error('❌ [SIMPLE UPLOAD] خطأ في حفظ الملف:', {
+        message: fileError.message,
+        code: fileError.code,
+        path: fileError.path,
+        stack: fileError.stack
+      });
+      
+      // تشخيص إضافي
+      const diagnostics = {
+        uploadsDir: uploadsDir,
+        fileName: fileName,
+        fileExists: existsSync(uploadsDir),
+        processWorkingDir: process.cwd(),
+        nodeVersion: process.version
+      };
+      
+      console.error('📊 [SIMPLE UPLOAD] تشخيص إضافي:', diagnostics);
       
       return NextResponse.json(
         { 
           success: false, 
           error: 'فشل في حفظ الملف على الخادم',
           details: fileError.message,
+          errorCode: fileError.code,
+          diagnostics: diagnostics,
           suggestion: 'تأكد من صلاحيات الكتابة في مجلد public/uploads'
         },
         { status: 500 }
