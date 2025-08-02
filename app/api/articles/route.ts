@@ -213,8 +213,8 @@ export async function POST(request: NextRequest) {
   try {
     // معالجة آمنة لتحليل JSON
     try {
-      data = await request.json()
-      console.log('📦 البيانات المستلمة:', JSON.stringify(data, null, 2))
+      data = await request.json();
+      console.log('📦 البيانات المستلمة:', JSON.stringify(data, null, 2));
     } catch (jsonError: any) {
       console.error('❌ خطأ في تحليل JSON:', jsonError);
       return NextResponse.json({

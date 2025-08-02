@@ -739,31 +739,61 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
         let errorMessage = 'فشل في الحفظ';
         if (response) {
           try {
-            const errorData = await response.json();
-            console.error('❌ خطأ من الخادم:', errorData);
-          
-            // معالجة أفضل للأخطاء
-            if (errorData.error) {
-              errorMessage = errorData.error;
-              // إذا كان هناك تفاصيل إضافية للتصحيح
-              if (errorData.debug) {
-                console.error('🔍 تفاصيل التصحيح:', errorData.debug);
+            // تحقق من نوع المحتوى أولاً
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+              const errorData = await response.json();
+              console.error('❌ خطأ من الخادم (JSON):', errorData);
+            
+              // معالجة أفضل للأخطاء
+              if (errorData.error) {
+                errorMessage = errorData.error;
+                // إذا كان هناك تفاصيل إضافية للتصحيح
+                if (errorData.debug) {
+                  console.error('🔍 تفاصيل التصحيح:', errorData.debug);
+                }
+              } else if (errorData.details) {
+                errorMessage = errorData.details;
+              } else if (errorData.message) {
+                errorMessage = errorData.message;
+              } else {
+                errorMessage = `خطأ: ${response.status} ${response.statusText}`;
               }
-            } else if (errorData.details) {
-              errorMessage = errorData.details;
-            } else if (errorData.message) {
-              errorMessage = errorData.message;
-            } else if (response.status === 404) {
-              errorMessage = 'الصفحة المطلوبة غير موجودة';
-            } else if (response.status === 500) {
-              errorMessage = 'خطأ في الخادم - يرجى المحاولة مرة أخرى';
             } else {
-              errorMessage = `خطأ: ${response.status} ${response.statusText}`;
+              // المحتوى ليس JSON (مثل HTML error page)
+              const errorText = await response.text();
+              console.error('❌ خطأ من الخادم (غير JSON):', {
+                status: response.status,
+                statusText: response.statusText,
+                contentType: contentType,
+                responseText: errorText.substring(0, 200) + '...'
+              });
+              
+              // رسائل خطأ محددة حسب رمز الاستجابة
+              if (response.status === 404) {
+                errorMessage = 'الصفحة المطلوبة غير موجودة';
+              } else if (response.status === 500) {
+                errorMessage = 'خطأ في الخادم - يرجى المحاولة مرة أخرى لاحقاً';
+              } else if (response.status === 503) {
+                errorMessage = 'الخادم غير متاح حالياً - يرجى المحاولة لاحقاً';
+              } else {
+                errorMessage = `خطأ HTTP: ${response.status} - ${response.statusText}`;
+              }
             }
-          } catch (e) {
-            console.error('❌ خطأ في قراءة رسالة الخطأ:', e);
-            errorMessage = `خطأ HTTP: ${response.status} ${response.statusText}`;
+          } catch (parseError) {
+            console.error('❌ خطأ في تحليل رسالة الخطأ:', parseError);
+            console.error('📄 معلومات الاستجابة:', {
+              status: response.status,
+              statusText: response.statusText,
+              url: response.url,
+              headers: Object.fromEntries(response.headers.entries())
+            });
+            
+            // رسالة خطأ عامة مع معلومات أساسية
+            errorMessage = `خطأ HTTP ${response.status}: فشل في الاتصال بالخادم`;
           }
+        } else {
+          errorMessage = 'فشل في الاتصال بالخادم';
         }
         throw new Error(errorMessage);
       }

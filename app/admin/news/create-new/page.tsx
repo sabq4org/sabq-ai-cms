@@ -522,9 +522,36 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
           router.push('/admin/news');
         }, 1500);
       } else {
-        const errorData = await response.json();
-        console.error('❌ خطأ من الخادم:', errorData);
-        throw new Error(errorData.error || 'فشل في الحفظ');
+        // معالجة آمنة لأخطاء الخادم
+        let errorMessage = 'فشل في الحفظ';
+        try {
+          // تحقق من نوع المحتوى
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const errorData = await response.json();
+            console.error('❌ خطأ من الخادم (JSON):', errorData);
+            errorMessage = errorData.error || errorData.message || errorData.details || 'فشل في الحفظ';
+          } else {
+            // المحتوى ليس JSON
+            const errorText = await response.text();
+            console.error('❌ خطأ من الخادم (غير JSON):', {
+              status: response.status,
+              statusText: response.statusText,
+              contentType: contentType,
+              responseText: errorText.substring(0, 200) + '...'
+            });
+            
+            if (response.status === 500) {
+              errorMessage = 'خطأ في الخادم - يرجى المحاولة مرة أخرى';
+            } else {
+              errorMessage = `خطأ HTTP: ${response.status} ${response.statusText}`;
+            }
+          }
+        } catch (parseError) {
+          console.error('❌ خطأ في تحليل رسالة الخطأ:', parseError);
+          errorMessage = `خطأ HTTP ${response.status}: فشل في الاتصال بالخادم`;
+        }
+        throw new Error(errorMessage);
       }
       
     } catch (error) {
