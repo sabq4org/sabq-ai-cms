@@ -7,9 +7,31 @@ export async function POST(request: NextRequest) {
   try {
     console.log('📸 [SIMPLE UPLOAD] بدء رفع صورة...');
     
-    const formData = await request.formData();
-    const file = formData.get('file') as File;
-    const type = formData.get('type') as string || 'featured';
+    // معالجة آمنة لـ FormData
+    let formData: FormData;
+    let file: File | null = null;
+    let type: string = 'featured';
+    
+    try {
+      formData = await request.formData();
+      file = formData.get('file') as File;
+      type = formData.get('type') as string || 'featured';
+      
+      console.log('📋 [SIMPLE UPLOAD] معلومات FormData:', {
+        fileExists: !!file,
+        type: type,
+        formDataKeys: Array.from(formData.keys())
+      });
+      
+    } catch (formError: any) {
+      console.error('❌ [SIMPLE UPLOAD] خطأ في تحليل FormData:', formError);
+      return NextResponse.json({
+        success: false,
+        error: 'فشل في تحليل بيانات الملف',
+        details: 'تأكد من إرسال الملف بصيغة FormData صحيحة',
+        code: 'INVALID_FORM_DATA'
+      }, { status: 400 });
+    }
     
     if (!file) {
       return NextResponse.json(
@@ -128,15 +150,42 @@ export async function POST(request: NextRequest) {
     }
     
   } catch (error: any) {
-    console.error('❌ [SIMPLE UPLOAD] خطأ عام في رفع الملف:', error);
+    console.error('❌ [SIMPLE UPLOAD] خطأ عام في رفع الملف:', {
+      error: error.message,
+      name: error.name,
+      code: error.code,
+      stack: error.stack?.split('\n')[0]
+    });
+    
+    // معالجة خاصة لأنواع الأخطاء المختلفة
+    let errorMessage = 'حدث خطأ أثناء رفع الملف';
+    let errorDetails = error?.message || 'خطأ غير معروف';
+    let statusCode = 500;
+    let errorCode = 'UPLOAD_ERROR';
+    
+    if (error.name === 'SyntaxError') {
+      errorMessage = 'خطأ في تنسيق البيانات';
+      errorDetails = 'البيانات المرسلة غير صحيحة';
+      statusCode = 400;
+      errorCode = 'SYNTAX_ERROR';
+    } else if (error.code === 'ENOENT') {
+      errorMessage = 'مجلد الرفع غير موجود';
+      errorDetails = 'تأكد من وجود مجلد uploads في النظام';
+      errorCode = 'DIRECTORY_NOT_FOUND';
+    } else if (error.code === 'EACCES') {
+      errorMessage = 'لا توجد صلاحيات للكتابة';
+      errorDetails = 'النظام لا يملك صلاحيات لحفظ الملف';
+      errorCode = 'PERMISSION_DENIED';
+    }
     
     return NextResponse.json(
       {
         success: false,
-        error: 'حدث خطأ أثناء رفع الملف',
-        details: error?.message || 'خطأ غير معروف'
+        error: errorMessage,
+        details: errorDetails,
+        code: errorCode
       },
-      { status: 500 }
+      { status: statusCode }
     );
   }
 }

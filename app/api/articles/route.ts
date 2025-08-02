@@ -211,8 +211,19 @@ export async function POST(request: NextRequest) {
   let data: any = {}; // تعريف data خارج try block
   
   try {
-    data = await request.json()
-    console.log('📦 البيانات المستلمة:', JSON.stringify(data, null, 2))
+    // معالجة آمنة لتحليل JSON
+    try {
+      data = await request.json()
+      console.log('📦 البيانات المستلمة:', JSON.stringify(data, null, 2))
+    } catch (jsonError: any) {
+      console.error('❌ خطأ في تحليل JSON:', jsonError);
+      return NextResponse.json({
+        success: false,
+        error: 'البيانات المرسلة غير صحيحة',
+        details: 'فشل في تحليل البيانات المرسلة - تأكد من صحة تنسيق JSON',
+        code: 'INVALID_JSON'
+      }, { status: 400 });
+    }
     
     // توحيد أسماء الحقول المختلفة
     const authorId = data.author_id || data.authorId || data.article_author_id || null;
@@ -464,12 +475,48 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
     
+    // معالجة محسنة للأخطاء المختلفة
+    let errorMessage = 'فشل في إنشاء المقال';
+    let errorDetails = error.message || 'خطأ غير معروف';
+    let statusCode = 500;
+    let errorCode = error.code || 'UNKNOWN_ERROR';
+    
+    // معالجة خاصة لأنواع الأخطاء المختلفة
+    if (error.name === 'SyntaxError') {
+      errorMessage = 'خطأ في تنسيق البيانات';
+      errorDetails = 'البيانات المرسلة غير صحيحة أو تحتوي على أحرف غير مدعومة';
+      statusCode = 400;
+      errorCode = 'SYNTAX_ERROR';
+    } else if (error.name === 'ValidationError') {
+      errorMessage = 'خطأ في التحقق من البيانات';
+      statusCode = 400;
+      errorCode = 'VALIDATION_ERROR';
+    } else if (error.code === 'P2002') {
+      errorMessage = 'المقال موجود مسبقاً';
+      errorDetails = 'يوجد مقال آخر بنفس العنوان أو المعرف';
+      statusCode = 409;
+      errorCode = 'DUPLICATE_ARTICLE';
+    } else if (error.code === 'P2025') {
+      errorMessage = 'البيانات المرجعية غير موجودة';
+      errorDetails = 'المؤلف أو التصنيف المحدد غير موجود';
+      statusCode = 400;
+      errorCode = 'REFERENCE_NOT_FOUND';
+    }
+    
+    console.error('❌ خطأ مصنف في إنشاء المقال:', {
+      error: errorMessage,
+      details: errorDetails,
+      code: errorCode,
+      originalError: error.message,
+      stack: error.stack?.split('\n')[0] // أول سطر من الـ stack trace فقط
+    });
+    
     return NextResponse.json({
       success: false,
-      error: 'فشل في إنشاء المقال',
-      details: error.message || 'خطأ غير معروف',
-      code: error.code
-    }, { status: 500 })
+      error: errorMessage,
+      details: errorDetails,
+      code: errorCode
+    }, { status: statusCode })
   } finally {
     await prisma.$disconnect();
   }
