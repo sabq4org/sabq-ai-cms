@@ -3,8 +3,8 @@
  * Modern Articles Management Route
  */
 
-import ModernArticles from '@/components/admin/modern-dashboard/ModernArticles';
+import ModernArticlesNew from '@/components/admin/modern-dashboard/ModernArticlesNew';
 
 export default function ModernArticlesPage() {
-  return <ModernArticles />;
+  return <ModernArticlesNew />;
 }

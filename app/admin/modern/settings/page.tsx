@@ -3,8 +3,8 @@
  * Modern Settings Route
  */
 
-import ModernSettings from '@/components/admin/modern-dashboard/ModernSettings';
+import ModernSettingsNew from '@/components/admin/modern-dashboard/ModernSettingsNew';
 
 export default function ModernSettingsPage() {
-  return <ModernSettings />;
+  return <ModernSettingsNew />;
 }

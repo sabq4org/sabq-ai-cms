@@ -5,8 +5,8 @@
 
 'use client';
 
-import ModernAnalytics from '@/components/admin/modern-dashboard/ModernAnalytics';
+import ModernAnalyticsNew from '@/components/admin/modern-dashboard/ModernAnalyticsNew';
 
 export default function ModernAnalyticsPage() {
-  return <ModernAnalytics />;
+  return <ModernAnalyticsNew />;
 }

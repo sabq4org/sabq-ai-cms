@@ -5,21 +5,11 @@
 
 'use client';
 
-import React, { useState, useEffect, useMemo, Suspense } from 'react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { LoadingSpinner } from '@/components/ui/loading';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { cn } from '@/lib/utils';
 import dynamic from 'next/dynamic';
-import { 
-  Menu,
-  Bell,
-  Search,
-  Settings,
-  User,
-  ChevronLeft,
-  ChevronRight
-} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 // تحميل المكونات بشكل ديناميكي لتحسين الأداء
 const ModernSidebar = dynamic(() => import('./ModernSidebar'), {
@@ -32,6 +22,11 @@ const ModernHeader = dynamic(() => import('./ModernHeader'), {
   ssr: false
 });
 
+const WidthController = dynamic(() => import('@/components/design-system/WidthController'), {
+  loading: () => null,
+  ssr: false
+});
+
 interface DashboardLayoutProps {
   children: React.ReactNode;
   pageTitle?: string;
@@ -39,21 +34,22 @@ interface DashboardLayoutProps {
   className?: string;
 }
 
-export default function DashboardLayout({ 
-  children, 
+export default function DashboardLayout({
+  children,
   pageTitle = "لوحة التحكم",
   pageDescription = "إدارة منصة سبق الذكية",
-  className 
+  className
 }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [isFullWidth, setIsFullWidth] = useState(true);
 
   // تحديد حجم الشاشة
   useEffect(() => {
     const checkScreenSize = () => {
       const mobile = window.innerWidth < 1024;
       setIsMobile(mobile);
-      
+
       // على الشاشات الصغيرة، أغلق الشريط الجانبي تلقائياً
       if (mobile) {
         setSidebarOpen(false);
@@ -77,6 +73,13 @@ export default function DashboardLayout({
   }, [sidebarOpen, isMobile]);
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
+  // معالج التحكم في العرض
+  const handleWidthChange = (fullWidth: boolean) => {
+    setIsFullWidth(fullWidth);
+    // تطبيق فئة CSS على العنصر الجذر
+    document.documentElement.classList.toggle('full-width-dashboard', fullWidth);
+  };
 
   // منع الرندر حتى يتم التحميل على العميل
   // تم تعطيل هذا التحقق مؤقتاً لحل مشكلة التحميل
@@ -103,8 +106,8 @@ export default function DashboardLayout({
             sidebarOpen ? "w-64" : "w-16"
           )}
         >
-          <ModernSidebar 
-            isCollapsed={!sidebarOpen} 
+          <ModernSidebar
+            isCollapsed={!sidebarOpen}
             onToggle={toggleSidebar}
           />
         </aside>
@@ -114,8 +117,8 @@ export default function DashboardLayout({
       {isMobile && (
         <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
           <SheetContent side="right" className="w-64 p-0 bg-white dark:bg-gray-800">
-            <ModernSidebar 
-              isCollapsed={false} 
+            <ModernSidebar
+              isCollapsed={false}
               onToggle={() => setSidebarOpen(false)}
               isMobile={true}
             />
@@ -131,7 +134,7 @@ export default function DashboardLayout({
         )}
       >
         {/* الترويسة */}
-        <ModernHeader 
+        <ModernHeader
           pageTitle={pageTitle}
           pageDescription={pageDescription}
           onMenuClick={() => setSidebarOpen(!sidebarOpen)}
@@ -140,19 +143,34 @@ export default function DashboardLayout({
 
         {/* محتوى الصفحة */}
         <main className={cn(
-          "p-4 lg:p-6", 
+          "p-4 lg:p-6 xl:p-8 2xl:p-10", // padding متدرج حسب حجم الشاشة
           "pt-[calc(var(--dashboard-header-height)+1rem)]", // padding ديناميكي باستخدام CSS variable
           "bg-gray-50 dark:bg-gray-900 min-h-[calc(100vh-var(--dashboard-header-height))]",
+          "w-full", // عرض كامل
           "transition-colors duration-300",
           className
         )}>
-          {children}
+          {/* حاوية محتوى مرنة */}
+          <div className={cn(
+            "w-full mx-auto transition-all duration-300", // عرض كامل دائماً مع انتقال سلس
+            // تطبيق العرض حسب إعداد المستخدم
+            isFullWidth ? "max-w-none" : "max-w-7xl",
+            // padding إضافي للشاشات الواسعة في وضع العرض الكامل
+            isFullWidth && "xl:px-4 2xl:px-8"
+          )}>
+            {children}
+          </div>
         </main>
+
+        {/* مكون التحكم في العرض */}
+        <WidthController
+          onWidthChange={handleWidthChange}
+        />
       </div>
 
       {/* طبقة التداخل للهواتف */}
       {isMobile && sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-30 bg-black/50 dark:bg-black/70 lg:hidden transition-opacity duration-300"
           onClick={() => setSidebarOpen(false)}
         />

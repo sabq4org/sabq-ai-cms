@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useEffect, Component, ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import React, { Component, ReactNode, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 // تم إزالة DashboardLayout - تستخدم الصفحة layout.tsx الأساسي
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,30 +15,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { 
-  Search,
-  Edit,
-  Trash2,
-  Eye,
-  Clock,
-  Zap,
-  Users,
-  Plus,
-  MoreVertical,
-  FileText,
-  CheckCircle,
-  XCircle,
-  PauseCircle,
-  PlayCircle,
-} from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -47,7 +25,26 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Switch } from "@/components/ui/switch";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  CheckCircle,
+  Edit,
+  Eye,
+  FileText,
+  MoreVertical,
+  PauseCircle,
+  PlayCircle,
+  Plus,
+  Search,
+  Trash2,
+  Users,
+  XCircle
+} from 'lucide-react';
 
 // دالة تنسيق الأرقام (إبقاؤها بالإنجليزية)
 const formatNumber = (num: number): string => {
@@ -79,7 +76,6 @@ interface Article {
   category?: { name: string; id: string };
   category_id?: string;
   created_at: string;
-  published_at?: string;
   views?: number;
   breaking?: boolean;
   image?: string;
@@ -109,7 +105,7 @@ class AdminNewsErrorBoundary extends Component<
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('❌ خطأ في صفحة إدارة الأخبار:', error);
     console.error('🔍 تفاصيل الخطأ:', errorInfo);
-    
+
     // إرسال تقرير الخطأ (اختياري)
     if (typeof window !== 'undefined') {
       (window as any).sabqDebug?.addLog?.('admin-news-error', {
@@ -185,7 +181,7 @@ function AdminNewsPageContent() {
     });
     try {
       console.log(`🔍 جلب الأخبار مع الفلتر: ${filterStatus}`);
-      
+
       const params = new URLSearchParams({
         status: filterStatus, // استخدام الفلتر مباشرة بدلاً من تحويله لـ "all"
         limit: '50',
@@ -209,31 +205,31 @@ function AdminNewsPageContent() {
       });
       console.log(`📊 حالة الاستجابة: ${response.status}`);
       console.log(`📊 Content-Type: ${response.headers.get('content-type')}`);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-      
+
       // التحقق من نوع المحتوى قبل parsing
       const contentType = response.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
         console.error('❌ نوع المحتوى غير صحيح:', contentType);
-        
+
         // محاولة قراءة النص الخام للتشخيص
         const rawText = await response.text();
         console.error('📄 المحتوى الخام (أول 200 حرف):', rawText.substring(0, 200));
-        
+
         throw new Error(`الخادم لا يرسل JSON صحيح. نوع المحتوى: ${contentType}`);
       }
-      
+
       const data = await response.json();
-      console.log(`📦 بيانات مُستلمة:`, { 
-        success: data.success, 
-        total: data.pagination?.total || data.total, 
+      console.log(`📦 بيانات مُستلمة:`, {
+        success: data.success,
+        total: data.pagination?.total || data.total,
         articlesCount: data.data?.length || 0,
         error: data.error || null
       });
-      
+
       // التحقق من نجاح الاستجابة (API الجديد يستخدم data.success)
       if (!data.success) {
         console.error('❌ فشل API في جلب البيانات:', data.error);
@@ -241,7 +237,7 @@ function AdminNewsPageContent() {
         setArticles([]);
         return;
       }
-      
+
       // API الجديد يستخدم data.data بدلاً من data.articles
       if (data.data) {
         console.log('📦 معالجة البيانات...', {
@@ -249,7 +245,7 @@ function AdminNewsPageContent() {
           articlesReceived: data.data.length,
           firstArticleTitle: data.data[0]?.title?.substring(0, 50)
         });
-        
+
         // تنظيف البيانات وإضافة معالجة آمنة
         const cleanArticles = data.data.map((article: any) => ({
           ...article,
@@ -257,65 +253,66 @@ function AdminNewsPageContent() {
           status: article.status || 'draft'
         })).filter((article: any) => {
           const title = article.title?.toLowerCase() || '';
-          const isTestArticle = title.includes('test') || 
-                                title.includes('تجربة') || 
+          const isTestArticle = title.includes('test') ||
+                                title.includes('تجربة') ||
                                 title.includes('demo') ||
                                 title.includes('example');
-          
+
           return !isTestArticle && article.status !== 'scheduled';
         });
-        
+
         // ترتيب الأخبار حسب التاريخ (الأحدث أولاً) مع حماية من undefined
         const sortedArticles = cleanArticles.sort((a: any, b: any) => {
           if (!a || !b) return 0;
-          
+
           const dateA = new Date(a.published_at || a.created_at || 0).getTime();
           const dateB = new Date(b.published_at || b.created_at || 0).getTime();
-          
+
           // التحقق من صحة التواريخ
           if (isNaN(dateA) || isNaN(dateB)) {
             console.warn('⚠️ تاريخ غير صالح في المقال:', { a: a.id, b: b.id });
             return 0;
           }
-          
+
           return dateB - dateA;
         });
-        
+
         console.log('✅ تم معالجة البيانات بنجاح:', {
-          originalCount: data.articles.length,
+          originalCount: data.data?.length || 0,
           filteredCount: cleanArticles.length,
           finalCount: sortedArticles.length,
           status: filterStatus
         });
-        
+
         setArticles(sortedArticles);
         console.log(`🧹 بعد الفلترة:`, {
-          originalCount: data.articles.length,
+          originalCount: data.data?.length || 0,
           filteredCount: cleanArticles.length,
           finalCount: sortedArticles.length,
           status: filterStatus
         });
         console.log(`✅ تم جلب ${sortedArticles.length} خبر بحالة: ${filterStatus}`);
-        
+
         // حساب الإحصائيات من المقالات المُحملة
         calculateStats(sortedArticles);
       }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'خطأ غير معروف';
       console.error('❌ خطأ مفصل في جلب الأخبار:', {
-        error: error.message,
+        error: errorMessage,
         filterStatus,
         selectedCategory,
         timestamp: new Date().toISOString()
       });
-      
+
       // معلومات إضافية للتشخيص
       if (error instanceof TypeError) {
         console.error('🔍 خطأ في النوع - قد تكون مشكلة في API response');
       } else if (error instanceof SyntaxError) {
         console.error('🔍 خطأ في parsing JSON - قد تكون مشكلة في API format');
       }
-      
-      toast.error(`حدث خطأ في جلب الأخبار: ${error.message || 'خطأ غير معروف'}`);
+
+      toast.error(`حدث خطأ في جلب الأخبار: ${errorMessage}`);
       setArticles([]); // تأكد من إفراغ المقالات عند الخطأ
     } finally {
       setLoading(false);
@@ -339,26 +336,26 @@ function AdminNewsPageContent() {
   const calculateStatsFromAll = async () => {
     try {
       console.log('📊 جلب إحصائيات الأخبار فقط...');
-      
+
       // استدعاء API مع فلتر الأخبار فقط
               const response = await fetch('/api/admin/news?status=all&limit=1');
-      
+
       if (response.ok) {
         const data = await response.json();
-        
+
         if (data.success && data.stats) {
           setStats(data.stats);
           console.log('📊 إحصائيات الأخبار محدثة:', data.stats);
           return;
         }
       }
-      
+
       // إذا فشل API المخصص، استخدم الطريقة القديمة كـ fallback
       console.log('📊 استخدام Fallback للإحصائيات...');
-      
+
               const fallbackResponse = await fetch('/api/admin/news?status=all&limit=1000');
       const fallbackData = await fallbackResponse.json();
-      
+
       if (fallbackData.articles) {
         // تنظيف المقالات من التجريبية والمجدولة (مع حماية من null/undefined)
         const cleanArticles = fallbackData.articles.filter((article: any) => {
@@ -367,15 +364,15 @@ function AdminNewsPageContent() {
             console.warn('⚠️ مقال بدون عنوان صالح:', article?.id || 'unknown');
             return false;
           }
-          
+
           const title = article.title.toLowerCase();
-          const isTestArticle = title.includes('test') || 
-                                title.includes('تجربة') || 
+          const isTestArticle = title.includes('test') ||
+                                title.includes('تجربة') ||
                                 title.includes('demo') ||
                                 title.includes('example');
           return !isTestArticle && article.status !== 'scheduled';
         });
-        
+
         const stats = {
           total: cleanArticles.length,
           published: cleanArticles.filter((a: any) => a && a.status === 'published').length,
@@ -384,7 +381,7 @@ function AdminNewsPageContent() {
           deleted: cleanArticles.filter((a: any) => a && a.status === 'deleted').length,
           breaking: cleanArticles.filter((a: any) => a && a.breaking).length,
         };
-        
+
         setStats(stats);
         console.log('📊 الإحصائيات المحدثة (fallback):', stats);
       }
@@ -412,13 +409,13 @@ function AdminNewsPageContent() {
 
     // تصفية المقالات الصالحة فقط
     const validArticles = articles.filter(a => a && typeof a === 'object' && a.status);
-    
+
     const stats = {
       total: validArticles.length,
       published: validArticles.filter(a => a.status === 'published').length,
       draft: validArticles.filter(a => a.status === 'draft').length,
       archived: validArticles.filter(a => a.status === 'archived').length,
-      deleted: validArticles.filter(a => a.status === 'deleted').length,
+      deleted: 0, // لا يوجد حالة deleted في النظام الحالي
       breaking: validArticles.filter(a => a.breaking).length,
     };
     setStats(stats);
@@ -546,24 +543,24 @@ function AdminNewsPageContent() {
       fetchArticles(); // إذا لم يكن هناك بحث، ارجع للفلتر الحالي
       return;
     }
-    
+
     try {
       setLoading(true);
       // البحث في جميع الحالات
               const response = await fetch(`/api/admin/news?status=all&search=${encodeURIComponent(searchTerm)}&limit=100`);
       const data = await response.json();
-      
+
       if (data.articles) {
         // تنظيف النتائج من المقالات التجريبية فقط
         const searchResults = data.articles.filter((article: any) => {
           const title = article.title.toLowerCase();
-          const isTestArticle = title.includes('test') || 
-                                title.includes('تجربة') || 
+          const isTestArticle = title.includes('test') ||
+                                title.includes('تجربة') ||
                                 title.includes('demo') ||
                                 title.includes('example');
           return !isTestArticle && article.status !== 'scheduled';
         });
-        
+
         setArticles(searchResults);
         console.log(`🔍 نتائج البحث: ${searchResults.length} مقال`);
       }
@@ -582,11 +579,11 @@ function AdminNewsPageContent() {
       console.warn('⚠️ مقال مُعطل تم تخطيه:', article);
       return false;
     }
-    
+
     if (!searchTerm.trim()) return true;
     return article.title.toLowerCase().includes(searchTerm.toLowerCase());
   });
-  
+
   // logging للتشخيص
   console.log(`🔍 حالة البيانات الحالية:`, {
     articles: articles.length,
@@ -618,13 +615,22 @@ function AdminNewsPageContent() {
                 إدارة وتحرير المحتوى الإخباري
               </p>
             </div>
-            
-            <Link href="/admin/news/unified">
-              <Button className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600" size="lg">
-                <Plus className="w-5 h-5 ml-2" />
-                خبر جديد
-              </Button>
-            </Link>
+
+            <div className="flex gap-3">
+              <Link href="/admin/news/smart-editor">
+                <Button variant="outline" size="lg" className="border-blue-200 text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-300 dark:hover:bg-blue-900/20">
+                  <FileText className="w-5 h-5 ml-2" />
+                  المحرر الذكي ✨
+                </Button>
+              </Link>
+
+              <Link href="/admin/news/unified">
+                <Button className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600" size="lg">
+                  <Plus className="w-5 h-5 ml-2" />
+                  خبر جديد
+                </Button>
+              </Link>
+            </div>
           </div>
 
           {/* بطاقات الفلاتر - عرض حسب الحالة */}
@@ -689,7 +695,7 @@ function AdminNewsPageContent() {
                 onChange={(e) => {
                   const value = e.target.value;
                   setSearchTerm(value);
-                  
+
                   // تطبيق debounce للبحث الشامل
                   if (value.trim()) {
                     setTimeout(() => {
@@ -704,7 +710,7 @@ function AdminNewsPageContent() {
                 className="pr-10 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
               />
             </div>
-            
+
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
@@ -790,20 +796,20 @@ function AdminNewsPageContent() {
                           console.warn('⚠️ مقال فارغ في الجدول، تم تخطيه');
                           return null;
                         }
-                        
+
                         const dateTime = formatDateTime(article.published_at || article.created_at);
                         return (
                           <TableRow key={article.id} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900/50">
                             <TableCell className="text-right font-medium text-gray-900 dark:text-white">
                               {index + 1}
                             </TableCell>
-                            
+
                             <TableCell className="text-right">
                               <div className="flex items-start gap-3">
                                 {(article.image || article.featured_image) && (
-                                  <img 
-                                    src={article.image || article.featured_image} 
-                                    alt="" 
+                                  <img
+                                    src={article.image || article.featured_image}
+                                    alt=""
                                     className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
                                   />
                                 )}
@@ -848,8 +854,7 @@ function AdminNewsPageContent() {
                                 {article.status === 'published' && '✅ منشورة'}
                                 {article.status === 'draft' && '✏️ مسودة'}
                                 {article.status === 'archived' && '🗂️ مؤرشفة'}
-                                {article.status === 'deleted' && '❌ محذوفة'}
-                                {!['published', 'draft', 'archived', 'deleted'].includes(article.status) && `📝 ${article.status}`}
+                                {!['published', 'draft', 'archived'].includes(article.status) && `📝 ${article.status}`}
                               </Badge>
                             </TableCell>
 
@@ -888,10 +893,15 @@ function AdminNewsPageContent() {
                                     <Eye className="w-4 h-4 ml-3 text-blue-600 dark:text-blue-400" />
                                     <span className="font-medium">عرض الخبر</span>
                                   </DropdownMenuItem>
-                                  
+
                                   <DropdownMenuItem onClick={() => router.push(`/admin/news/unified?id=${article.id}`)} className="py-3 hover:bg-gray-50 dark:hover:bg-gray-700">
                                     <Edit className="w-4 h-4 ml-3 text-yellow-600 dark:text-yellow-400" />
                                     <span className="font-medium">تعديل الخبر</span>
+                                  </DropdownMenuItem>
+
+                                  <DropdownMenuItem onClick={() => router.push(`/admin/news/smart-editor?id=${article.id}`)} className="py-3 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <FileText className="w-4 h-4 ml-3 text-blue-600 dark:text-blue-400" />
+                                    <span className="font-medium text-blue-600 dark:text-blue-400">المحرر الذكي ✨</span>
                                   </DropdownMenuItem>
 
                                   {article.status === 'draft' && (
@@ -909,8 +919,8 @@ function AdminNewsPageContent() {
                                   )}
 
                                   <DropdownMenuSeparator />
-                                  
-                                  <DropdownMenuItem 
+
+                                  <DropdownMenuItem
                                     onClick={() => deleteArticle(article.id)}
                                     className="py-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
                                   >

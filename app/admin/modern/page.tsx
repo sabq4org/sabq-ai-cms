@@ -1,12 +1,12 @@
 /**
- * الصفحة الرئيسية للوحة التحكم الحديثة
+ * طريق لوحة التحكم الحديثة - الصفحة الرئيسية
+ * Modern Dashboard Route - Home Page
  */
 
 'use client';
 
-import React from 'react';
-import ModernDashboardHome from '@/components/admin/modern-dashboard/ModernDashboardHome';
+import ModernDashboardHomeFixed from '@/components/admin/modern-dashboard/ModernDashboardHomeFixed';
 
-export default function ModernAdminPage() {
-  return <ModernDashboardHome />;
+export default function ModernDashboardPage() {
+  return <ModernDashboardHomeFixed />;
 }

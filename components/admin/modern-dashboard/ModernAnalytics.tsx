@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
+import { DesignComponents } from '@/components/design-system/DesignSystemGuide';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import {
   TrendingUp,
@@ -176,11 +177,11 @@ export default function ModernAnalytics() {
   };
 
   // مكون بطاقة الإحصائية
-  const StatsCard = ({ 
-    title, 
-    value, 
-    subtitle, 
-    icon: Icon, 
+  const StatsCard = ({
+    title,
+    value,
+    subtitle,
+    icon: Icon,
     bgColor,
     iconColor,
     change,
@@ -198,8 +199,8 @@ export default function ModernAnalytics() {
     suffix?: string;
   }) => (
     <div className={`rounded-2xl p-4 sm:p-6 shadow-sm border transition-all duration-300 hover:shadow-md hover:scale-[1.02] ${
-      darkMode 
-        ? 'bg-gray-800 border-gray-700' 
+      darkMode
+        ? 'bg-gray-800 border-gray-700'
         : 'bg-white border-gray-100'
     }`}>
       <div className="flex items-center gap-3 sm:gap-4">
@@ -232,79 +233,64 @@ export default function ModernAnalytics() {
   );
 
   return (
-    <DashboardLayout 
+    <DashboardLayout
       pageTitle="التحليلات المتقدمة"
       pageDescription="تحليل شامل لأداء الموقع وسلوك الزوار"
     >
-      <div className={`transition-colors duration-300 ${
-        darkMode ? 'bg-gray-900' : ''
-      }`}>
-        {/* عنوان وتعريف الصفحة المحسن */}
-        <div className="mb-6 sm:mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-            <div>
-              <h1 className={`text-2xl sm:text-3xl font-bold mb-2 transition-colors duration-300 ${
-                darkMode ? 'text-white' : 'text-gray-800'
-              }`}>
-                📊 التحليلات المتقدمة
-              </h1>
-              <p className={`text-sm sm:text-base transition-colors duration-300 ${
-                darkMode ? 'text-gray-300' : 'text-gray-600'
-              }`}>
-                رؤى عميقة وتحليلات ذكية لأداء الموقع
-              </p>
+      <div className="space-y-8">
+        {/* رسالة الترحيب الاحترافية */}
+        <DesignComponents.StandardCard className="p-6 bg-gradient-to-l from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 border-purple-200 dark:border-purple-800">
+          <div className="flex items-start gap-4">
+            <div className="flex-shrink-0 w-12 h-12 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center">
+              <BarChart3 className="w-6 h-6 text-purple-600 dark:text-purple-400" />
             </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-700">
-                <Activity className="w-3 h-3 mr-1" />
-                {analyticsData.realtimeStats.activeUsers} مستخدم نشط
-              </Badge>
-              <Badge variant="outline" className={darkMode ? 'border-gray-600' : ''}>
-                <Zap className="w-3 h-3 mr-1" />
-                في الوقت الفعلي
-              </Badge>
+            <div className="flex-1">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                التحليلات المتقدمة
+              </h2>
+              <p className="text-gray-700 dark:text-gray-300 mb-4">
+                رؤى عميقة وتحليلات ذكية لأداء الموقع وسلوك الزوار
+              </p>
+              <div className="flex gap-3">
+                <DesignComponents.StatusIndicator
+                  status="success"
+                  text={`${analyticsData.realtimeStats.activeUsers} مستخدم نشط`}
+                />
+                <DesignComponents.StatusIndicator
+                  status="info"
+                  text="في الوقت الفعلي"
+                />
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-sm text-gray-500 dark:text-gray-400">آخر تحديث</div>
+              <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                {new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}
+              </div>
             </div>
           </div>
-          
-          {/* شريط المؤشرات السريعة */}
-          <div className={`rounded-xl p-3 border ${
-            darkMode 
-              ? 'bg-gray-800/50 border-gray-700' 
-              : 'bg-gray-50 border-gray-200'
-          }`}>
-            <div className="flex items-center justify-between text-xs sm:text-sm">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1">
-                  <Eye className={`w-4 h-4 text-blue-500`} />
-                  <span className={darkMode ? 'text-gray-300' : 'text-gray-600'}>
-                    {formatNumber(analyticsData.realtimeStats.pageViewsLastHour)} في الساعة الأخيرة
-                  </span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <UserCheck className={`w-4 h-4 text-green-500`} />
-                  <span className={darkMode ? 'text-gray-300' : 'text-gray-600'}>
-                    {stats.conversionRate}% معدل التحويل
-                  </span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Smartphone className={`w-4 h-4 text-orange-500`} />
-                  <span className={darkMode ? 'text-gray-300' : 'text-gray-600'}>
-                    {stats.mobilePercentage}% من الجوال
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => toast.success('تم تحديث البيانات')}
-                  className={`${darkMode ? 'border-gray-600 hover:bg-gray-700' : ''}`}
-                >
-                  <RefreshCw className="h-4 w-4 ml-2" />
-                  تحديث
+        </DesignComponents.StandardCard>
+
+        {/* الإحصائيات الرئيسية */}
+        <div>
+          <DesignComponents.SectionHeader
+            title="الإحصائيات الرئيسية"
+            description="أهم المؤشرات والبيانات لأداء الموقع"
+            action={
+              <DesignComponents.ActionBar>
+                <Button variant="outline" size="sm">
+                  <Filter className="w-4 h-4 ml-2" />
+                  تصفية
                 </Button>
-                <Button
-                  onClick={() => toast('قريباً: تصدير التقرير', { icon: '📊' })}
+                <Button size="sm">
+                  <Download className="w-4 h-4 ml-2" />
+                  تصدير
+                </Button>
+              </DesignComponents.ActionBar>
+            }
+          />
+
+          <DesignComponents.DynamicGrid minItemWidth="280px" className="mb-8">
                   className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white shadow-lg"
                 >
                   <Download className="h-4 w-4 ml-2" />
@@ -318,8 +304,8 @@ export default function ModernAnalytics() {
         {/* قسم النظام الذكي المحسن */}
         <div className="mb-6 sm:mb-8">
           <div className={`rounded-2xl p-4 sm:p-6 border transition-colors duration-300 ${
-            darkMode 
-              ? 'bg-gradient-to-br from-purple-900/40 to-indigo-900/40 border-purple-700/50' 
+            darkMode
+              ? 'bg-gradient-to-br from-purple-900/40 to-indigo-900/40 border-purple-700/50'
               : 'bg-gradient-to-br from-purple-50 to-indigo-50 border-purple-100'
           }`}>
             <div className="flex items-center justify-between mb-6">
@@ -341,12 +327,12 @@ export default function ModernAnalytics() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <select 
+                <select
                   value={selectedPeriod}
                   onChange={(e) => setSelectedPeriod(e.target.value)}
                   className={`px-3 py-1 text-sm rounded-md border ${
-                    darkMode 
-                      ? 'bg-gray-700 border-gray-600 text-white' 
+                    darkMode
+                      ? 'bg-gray-700 border-gray-600 text-white'
                       : 'bg-white border-gray-300'
                   }`}
                 >
@@ -357,12 +343,12 @@ export default function ModernAnalytics() {
                 </select>
               </div>
             </div>
-            
+
             {/* مؤشرات الأداء الذكية */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4">
               <div className={`rounded-xl p-3 sm:p-4 border transition-all duration-300 hover:scale-105 ${
-                darkMode 
-                  ? 'bg-gray-800/70 border-green-600/50 hover:bg-gray-800' 
+                darkMode
+                  ? 'bg-gray-800/70 border-green-600/50 hover:bg-gray-800'
                   : 'bg-white/80 border-green-100 hover:bg-white'
               }`}>
                 <div className="flex items-center gap-2 sm:gap-3">
@@ -379,10 +365,10 @@ export default function ModernAnalytics() {
                   </div>
                 </div>
               </div>
-              
+
               <div className={`rounded-xl p-3 sm:p-4 border transition-all duration-300 hover:scale-105 ${
-                darkMode 
-                  ? 'bg-gray-800/70 border-blue-600/50 hover:bg-gray-800' 
+                darkMode
+                  ? 'bg-gray-800/70 border-blue-600/50 hover:bg-gray-800'
                   : 'bg-white/80 border-blue-100 hover:bg-white'
               }`}>
                 <div className="flex items-center gap-2 sm:gap-3">
@@ -399,10 +385,10 @@ export default function ModernAnalytics() {
                   </div>
                 </div>
               </div>
-              
+
               <div className={`rounded-xl p-3 sm:p-4 border transition-all duration-300 hover:scale-105 ${
-                darkMode 
-                  ? 'bg-gray-800/70 border-purple-600/50 hover:bg-gray-800' 
+                darkMode
+                  ? 'bg-gray-800/70 border-purple-600/50 hover:bg-gray-800'
                   : 'bg-white/80 border-purple-100 hover:bg-white'
               }`}>
                 <div className="flex items-center gap-2 sm:gap-3">
@@ -419,10 +405,10 @@ export default function ModernAnalytics() {
                   </div>
                 </div>
               </div>
-              
+
               <div className={`rounded-xl p-3 sm:p-4 border transition-all duration-300 hover:scale-105 ${
-                darkMode 
-                  ? 'bg-gray-800/70 border-orange-600/50 hover:bg-gray-800' 
+                darkMode
+                  ? 'bg-gray-800/70 border-orange-600/50 hover:bg-gray-800'
                   : 'bg-white/80 border-orange-100 hover:bg-white'
               }`}>
                 <div className="flex items-center gap-2 sm:gap-3">
@@ -517,8 +503,8 @@ export default function ModernAnalytics() {
           <TabsContent value="overview" className="space-y-6">
             {/* أفضل الصفحات */}
             <div className={`rounded-2xl shadow-lg border overflow-hidden transition-colors duration-300 ${
-              darkMode 
-                ? 'bg-gray-800 border-gray-700' 
+              darkMode
+                ? 'bg-gray-800 border-gray-700'
                 : 'bg-white border-gray-100'
             }`}>
               <div className="p-6 border-b border-gray-200 dark:border-gray-700">
@@ -603,8 +589,8 @@ export default function ModernAnalytics() {
             {/* إحصائيات الأجهزة */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 ${
-                darkMode 
-                  ? 'bg-gray-800 border-gray-700' 
+                darkMode
+                  ? 'bg-gray-800 border-gray-700'
                   : 'bg-white border-gray-100'
               }`}>
                 <h3 className={`text-lg font-semibold mb-6 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
@@ -659,8 +645,8 @@ export default function ModernAnalytics() {
 
               {/* مصادر الزيارات */}
               <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 ${
-                darkMode 
-                  ? 'bg-gray-800 border-gray-700' 
+                darkMode
+                  ? 'bg-gray-800 border-gray-700'
                   : 'bg-white border-gray-100'
               }`}>
                 <h3 className={`text-lg font-semibold mb-6 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
@@ -743,8 +729,8 @@ export default function ModernAnalytics() {
           <TabsContent value="realtime" className="space-y-6">
             {/* إحصائيات الوقت الفعلي */}
             <div className={`rounded-2xl p-6 shadow-sm border transition-colors duration-300 ${
-              darkMode 
-                ? 'bg-gradient-to-br from-blue-900/40 to-indigo-900/40 border-blue-700/50' 
+              darkMode
+                ? 'bg-gradient-to-br from-blue-900/40 to-indigo-900/40 border-blue-700/50'
                 : 'bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-100'
             }`}>
               <div className="flex items-center justify-between mb-6">
@@ -756,7 +742,7 @@ export default function ModernAnalytics() {
                   مباشر
                 </Badge>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="text-center">
                   <div className={`text-4xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
@@ -783,7 +769,7 @@ export default function ModernAnalytics() {
                   </p>
                 </div>
               </div>
-              
+
               <div className="mt-6">
                 <h4 className={`text-sm font-medium mb-3 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                   الصفحات الأكثر نشاطاً الآن:

@@ -546,3 +546,148 @@ body {
     image-rendering: crisp-edges;
   }
 }
+
+/* ===== إصلاحات التمدد للشاشات الكبيرة ===== */
+
+/* فئات مساعدة للتخطيط المتجاوب */
+.full-width-layout {
+  width: 100%;
+  max-width: none;
+}
+
+.adaptive-width {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* نقاط انكسار للشاشات الواسعة */
+@media (min-width: 1536px) {
+  .container-2xl {
+    max-width: none;
+    width: 100%;
+  }
+
+  .dashboard-main-2xl {
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+  }
+}
+
+@media (min-width: 1920px) {
+  .container-ultra-wide {
+    max-width: none;
+    width: 100%;
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+}
+
+/* شبكة ديناميكية للشاشات الكبيرة */
+.dynamic-grid {
+  display: grid;
+  gap: var(--spacing-lg);
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+@media (min-width: 1280px) {
+  .dynamic-grid {
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  }
+}
+
+@media (min-width: 1536px) {
+  .dynamic-grid {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  }
+}
+
+/* فئات التحكم في العرض */
+.w-screen-full {
+  width: 100vw;
+  max-width: 100vw;
+}
+
+.max-w-screen-full {
+  max-width: 100vw;
+}
+
+/* إزالة محددات العرض القصوى */
+.no-max-width {
+  max-width: none !important;
+}
+
+.full-viewport-width {
+  width: 100vw;
+  max-width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+}
+
+/* تحسينات لوحة التحكم للشاشات الكبيرة */
+.dashboard-container {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dashboard-main-content {
+  width: 100%;
+  max-width: none;
+  display: flex;
+  flex-direction: column;
+}
+
+/* خيار المستخدم للتحكم في العرض */
+.width-control-toggle {
+  position: fixed;
+  top: 50%;
+  left: 1rem;
+  transform: translateY(-50%);
+  z-index: 1000;
+  background: var(--color-primary-500);
+  color: white;
+  border: none;
+  padding: 0.5rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  box-shadow: var(--shadow-lg);
+  transition: all 0.2s ease;
+}
+
+.width-control-toggle:hover {
+  background: var(--color-primary-600);
+  transform: translateY(-50%) scale(1.05);
+}
+
+/* فئة عالمية للعرض الكامل */
+html.full-width-dashboard .dashboard-main-content {
+  max-width: none !important;
+}
+
+html.full-width-dashboard .container {
+  max-width: none !important;
+}
+
+/* تحسينات إضافية للعرض الكامل */
+.full-width-layout .responsive-grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+@media (min-width: 1280px) {
+  .full-width-layout .responsive-grid {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  }
+}
+
+@media (min-width: 1536px) {
+  .full-width-layout .responsive-grid {
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  }
+}
+
+@media (min-width: 1920px) {
+  .full-width-layout .responsive-grid {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  }
+}

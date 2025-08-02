@@ -179,7 +179,7 @@ export const DesignComponents = {
   // حاوي المحتوى المحدود
   ContentContainer: ({ children, size = 'default', className = "" }: {
     children: React.ReactNode;
-    size?: 'sm' | 'default' | 'lg' | 'xl' | 'full';
+    size?: 'sm' | 'default' | 'lg' | 'xl' | 'full' | 'fluid';
     className?: string;
   }) => {
     const maxWidths = {
@@ -187,11 +187,12 @@ export const DesignComponents = {
       default: 'max-w-4xl',
       lg: 'max-w-6xl',
       xl: 'max-w-7xl',
-      full: 'max-w-full'
+      full: 'max-w-full',
+      fluid: 'max-w-none w-full' // خيار جديد للتمدد الكامل
     };
 
     return (
-      <div className={`${maxWidths[size]} mx-auto px-4 sm:px-6 lg:px-8 ${className}`}>
+      <div className={`${maxWidths[size]} mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 ${className}`}>
         {children}
       </div>
     );
@@ -238,6 +239,66 @@ export const DesignComponents = {
 
     return (
       <div className={`flex items-center gap-3 ${alignments[align]} flex-wrap`}>
+        {children}
+      </div>
+    );
+  },
+
+  // حاوية التمدد الكامل للشاشات الكبيرة
+  FullWidthContainer: ({ children, className = "" }: {
+    children: React.ReactNode;
+    className?: string;
+  }) => (
+    <div className={`w-full max-w-none ${className}`}>
+      {children}
+    </div>
+  ),
+
+  // شبكة تتمدد ديناميكياً حسب المحتوى
+  DynamicGrid: ({ children, minItemWidth = '280px', gap = 'gap-6', className = "" }: {
+    children: React.ReactNode;
+    minItemWidth?: string;
+    gap?: string;
+    className?: string;
+  }) => (
+    <div
+      className={`grid ${gap} ${className}`}
+      style={{ gridTemplateColumns: `repeat(auto-fit, minmax(${minItemWidth}, 1fr))` }}
+    >
+      {children}
+    </div>
+  ),
+
+  // مكون يتكيف مع العرض المتاح
+  ResponsiveWrapper: ({ children, breakpoints, className = "" }: {
+    children: React.ReactNode;
+    breakpoints?: {
+      sm?: string;
+      md?: string;
+      lg?: string;
+      xl?: string;
+      '2xl'?: string;
+    };
+    className?: string;
+  }) => {
+    const defaultBreakpoints = {
+      sm: 'max-w-sm',
+      md: 'max-w-2xl',
+      lg: 'max-w-4xl',
+      xl: 'max-w-6xl',
+      '2xl': 'max-w-none' // تمدد كامل على الشاشات الكبيرة جداً
+    };
+
+    const activeBreakpoints = { ...defaultBreakpoints, ...breakpoints };
+
+    return (
+      <div className={`
+        w-full mx-auto
+        ${activeBreakpoints.sm} sm:${activeBreakpoints.md}
+        md:${activeBreakpoints.lg} lg:${activeBreakpoints.xl}
+        xl:${activeBreakpoints['2xl']} 2xl:${activeBreakpoints['2xl']}
+        ${className}
+      `}>
         {children}
       </div>
     );
@@ -416,31 +477,60 @@ export default function DesignSystemGuide() {
             نقاط الانكسار والتكيف
           </h3>
 
-          <DesignComponents.StandardCard className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="font-medium mb-3">نقاط الانكسار</h4>
-                <div className="space-y-2">
-                  {Object.entries(DESIGN_TOKENS.breakpoints).map(([key, value]) => (
-                    <div key={key} className="flex justify-between text-sm">
-                      <span className="font-mono">{key}:</span>
-                      <span className="text-gray-600">{value}</span>
-                    </div>
-                  ))}
+          <DesignComponents.ResponsiveGrid cols={1}>
+            <DesignComponents.StandardCard className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <h4 className="font-medium mb-3">نقاط الانكسار</h4>
+                  <div className="space-y-2">
+                    {Object.entries(DESIGN_TOKENS.breakpoints).map(([key, value]) => (
+                      <div key={key} className="flex justify-between text-sm">
+                        <span className="font-mono">{key}:</span>
+                        <span className="text-gray-600">{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="font-medium mb-3">إرشادات التكيف</h4>
+                  <ul className="text-sm text-gray-600 space-y-1">
+                    <li>• الهاتف أولاً (Mobile First)</li>
+                    <li>• أعمدة مرنة للمحتوى</li>
+                    <li>• نصوص قابلة للقراءة</li>
+                    <li>• أزرار لمس مريحة</li>
+                  </ul>
                 </div>
               </div>
 
-              <div>
-                <h4 className="font-medium mb-3">إرشادات التكيف</h4>
-                <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• الهاتف أولاً (Mobile First)</li>
-                  <li>• أعمدة مرنة للمحتوى</li>
-                  <li>• نصوص قابلة للقراءة</li>
-                  <li>• أزرار لمس مريحة</li>
-                </ul>
+              {/* قسم جديد - حل مشكلة التمدد */}
+              <div className="border-t pt-6">
+                <h4 className="font-medium mb-3 text-green-700 dark:text-green-400">
+                  ✅ حل مشكلة عدم التمدد على الشاشات الكبيرة
+                </h4>
+                <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                  <div className="space-y-3 text-sm">
+                    <div>
+                      <strong>المشكلة:</strong> الواجهة محصورة في منتصف الشاشات الكبيرة
+                    </div>
+                    <div>
+                      <strong>الحل:</strong> نظام عرض ديناميكي مع تحكم المستخدم
+                    </div>
+                    <div>
+                      <strong>المميزات الجديدة:</strong>
+                      <ul className="list-disc list-inside mt-2 space-y-1">
+                        <li>زر تحكم في العرض (يمين الشاشة)</li>
+                        <li>تبديل بين العرض الكامل والمحدود</li>
+                        <li>حفظ إعداد المستخدم تلقائياً</li>
+                        <li>انتقالات سلسة وجميلة</li>
+                        <li>دعم شاشات 4K و 5K</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-          </DesignComponents.StandardCard>
+            </DesignComponents.StandardCard>
+          </DesignComponents.ResponsiveGrid>
         </section>
       </div>
     </div>

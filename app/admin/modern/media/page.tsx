@@ -3,8 +3,8 @@
  * Modern Media Management Route
  */
 
-import ModernMedia from '@/components/admin/modern-dashboard/ModernMedia';
+import ModernMediaNew from '@/components/admin/modern-dashboard/ModernMediaNew';
 
 export default function ModernMediaPage() {
-  return <ModernMedia />;
+  return <ModernMediaNew />;
 }

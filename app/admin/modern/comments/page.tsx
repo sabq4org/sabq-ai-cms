@@ -3,8 +3,8 @@
  * Modern Comments Management Route
  */
 
-import ModernComments from '@/components/admin/modern-dashboard/ModernComments';
+import ModernCommentsNew from '@/components/admin/modern-dashboard/ModernCommentsNew';
 
 export default function ModernCommentsPage() {
-  return <ModernComments />;
+  return <ModernCommentsNew />;
 }

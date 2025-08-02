@@ -2,11 +2,10 @@
  * صفحة إدارة السمات التكيفية الحديثة
  */
 
-import React from 'react';
-import ModernAdaptiveThemes from '@/components/admin/modern-dashboard/ModernAdaptiveThemes';
+import ModernAdaptiveThemesNew from '@/components/admin/modern-dashboard/ModernAdaptiveThemesNew';
 
 export default function ModernAdaptiveThemesPage() {
-  return <ModernAdaptiveThemes />;
+  return <ModernAdaptiveThemesNew />;
 }
 
 export const metadata = {

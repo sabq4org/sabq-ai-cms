@@ -5,8 +5,8 @@
 
 'use client';
 
-import ModernUsers from '@/components/admin/modern-dashboard/ModernUsers';
+import ModernUsersNew from '@/components/admin/modern-dashboard/ModernUsersNew';
 
 export default function ModernUsersPage() {
-  return <ModernUsers />;
+  return <ModernUsersNew />;
 }
