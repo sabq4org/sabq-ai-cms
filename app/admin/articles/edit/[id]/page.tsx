@@ -382,7 +382,7 @@ const EditArticlePage = () => {
                 محتوى المقال
               </label>
               <AdvancedEditor
-                value={form.content}
+                content={form.content}
                 onChange={(value) => setForm(prev => ({ ...prev, content: value }))}
                 placeholder="ابدأ كتابة المقال..."
               />
