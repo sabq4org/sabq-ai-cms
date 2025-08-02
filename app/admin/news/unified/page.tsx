@@ -347,7 +347,7 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
         // تحميل التصنيفات والمراسلين بشكل متوازي
         const [categoriesResponse, reportersResponse] = await Promise.all([
           fetch('/api/categories'),
-          fetch('/api/reporters?limit=100&active_only=true')
+          fetch('/api/admin/article-authors?active_only=true')
         ]);
         
         console.log('📡 استجابات API:', {
@@ -379,42 +379,42 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
           toast.error('فشل في تحميل التصنيفات');
         }
         
-        // معالجة المراسلين من API الجديد
+        // معالجة المؤلفين من API الجديد
         if (reportersResponse.ok) {
-          const reportersData = await reportersResponse.json();
-          console.log('📦 بيانات المراسلين المستلمة:', reportersData);
+          const authorsData = await reportersResponse.json();
+          console.log('📦 بيانات المؤلفين المستلمة:', authorsData);
           
-          if (reportersData.success && reportersData.reporters) {
-            // استخدام بيانات المراسلين من جدول reporters
-            loadedReporters = reportersData.reporters;
+          if (authorsData.success && authorsData.authors) {
+            // استخدام بيانات المؤلفين من جدول article_authors
+            const authorsArray = authorsData.authors;
             
             // تحويل البيانات لتتوافق مع النموذج المطلوب
-            const convertedReporters = loadedReporters.map((reporter: any) => ({
-              id: reporter.id,  // استخدام id من reporters
-              name: reporter.full_name,
-              email: '', // لا نحتاج البريد في هذا السياق
+            const convertedReporters = authorsArray.map((author: any) => ({
+              id: author.id,
+              name: author.full_name || author.name,
+              email: author.email || '',
               role: 'reporter',
-              avatar: null, // لا صور وهمية حسب السياسة الجديدة
-              title: reporter.title,
-              slug: reporter.slug,
-              is_verified: reporter.is_verified,
-              verification_badge: reporter.verification_badge
+              avatar: author.avatar_url || author.avatar,
+              title: author.title,
+              slug: author.slug,
+              is_verified: false,
+              verification_badge: null
             }));
             
             setReporters(convertedReporters);
-            console.log(`👥 تم جلب ${convertedReporters.length} مراسل من جدول reporters`, convertedReporters);
+            console.log(`👥 تم جلب ${convertedReporters.length} مؤلف من article_authors`, convertedReporters);
             
             if (convertedReporters.length > 0) {
               defaultReporterId = convertedReporters[0].id;
-              console.log(`👤 مراسل افتراضي: ${convertedReporters[0].name} (${defaultReporterId})`);
+              console.log(`👤 مؤلف افتراضي: ${convertedReporters[0].name} (${defaultReporterId})`);
             }
           } else {
-            console.log('⚠️ لا توجد مراسلين في قاعدة البيانات');
+            console.log('⚠️ لا توجد مؤلفين في قاعدة البيانات');
             setReporters([]);
-            toast.error('لا يوجد مراسلين متاحين');
+            toast.error('لا يوجد مؤلفين متاحين');
           }
         } else {
-          console.log('❌ فشل في تحميل المراسلين:', reportersResponse.status);
+          console.log('❌ فشل في تحميل المؤلفين:', reportersResponse.status);
           const errorText = await reportersResponse.text();
           console.error('رسالة الخطأ:', errorText);
           setReporters([]);

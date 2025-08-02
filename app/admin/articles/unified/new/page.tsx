@@ -108,7 +108,7 @@ export default function UnifiedArticleNewPage() {
         // تحميل بيانات متوازية
         const [categoriesRes, authorsRes] = await Promise.all([
           fetch('/api/categories?active=true'),
-          fetch('/api/team-members')
+          fetch('/api/admin/article-authors?active_only=true')
         ]);
         
         // معالجة التصنيفات
@@ -126,9 +126,17 @@ export default function UnifiedArticleNewPage() {
         // معالجة المؤلفين
         if (authorsRes.ok) {
           const data = await authorsRes.json();
-          const authorsData = data.data || data.members || [];
-          setAuthors(authorsData);
-          if (authorsData.length === 0) {
+          const authorsData = data.authors || data.data || [];
+          // تحويل البيانات لتتوافق مع واجهة Author
+          const formattedAuthors = authorsData.map((author: any) => ({
+            id: author.id,
+            name: author.full_name || author.name,
+            email: author.email,
+            avatar: author.avatar_url || author.avatar,
+            role: author.title || author.role
+          }));
+          setAuthors(formattedAuthors);
+          if (formattedAuthors.length === 0) {
             toast('لا يوجد مراسلين متاحين', { icon: '⚠️' });
           }
         } else {

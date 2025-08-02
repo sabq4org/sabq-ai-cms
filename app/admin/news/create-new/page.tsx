@@ -317,7 +317,7 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
         // تحميل التصنيفات والكتّاب بشكل متوازي
         const [categoriesResponse, authorsResponse] = await Promise.all([
           fetch('/api/categories'),
-          fetch('/api/team-members')
+          fetch('/api/admin/article-authors?active_only=true')
         ]);
         
         let loadedCategories = [];
@@ -343,7 +343,15 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
         // معالجة الكتّاب
         if (authorsResponse.ok) {
           const authorsData = await authorsResponse.json();
-          loadedAuthors = authorsData.data || [];
+          const authorsArray = authorsData.authors || authorsData.data || [];
+          // تحويل البيانات لتتوافق مع واجهة Author
+          loadedAuthors = authorsArray.map((author: any) => ({
+            id: author.id,
+            name: author.full_name || author.name,
+            email: author.email,
+            avatar: author.avatar_url || author.avatar,
+            role: author.title || author.role
+          }));
           setAuthors(loadedAuthors);
           console.log(`👥 تم جلب ${loadedAuthors.length} كاتب`);
           
