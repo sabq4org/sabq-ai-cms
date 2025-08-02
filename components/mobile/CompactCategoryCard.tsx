@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import Link from 'next/link';
 import { 
   Calendar, 
@@ -60,6 +60,17 @@ export default function CompactCategoryCard({
   showExcerpt = false,
   className = ''
 }: CompactCategoryCardProps) {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  const handleImageLoad = useCallback(() => {
+    setImageLoaded(true);
+  }, []);
+
+  const handleImageError = useCallback(() => {
+    setImageError(true);
+    setImageLoaded(true);
+  }, []);
   
   const getSizeClasses = () => {
     switch (size) {
@@ -111,20 +122,31 @@ export default function CompactCategoryCard({
           <div className={`relative ${sizeClasses.image} flex-shrink-0 rounded-lg overflow-hidden ${
             darkMode ? 'bg-gray-700' : 'bg-gray-100'
           }`}>
-            {article.featured_image ? (
-              <img
-                src={article.featured_image}
-                alt={article.title}
-                className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
-                onLoad={(e) => {
-                  (e.target as HTMLImageElement).style.opacity = '1';
-                }}
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src = '/images/placeholder-featured.jpg';
-                }}
-                style={{ opacity: 0 }}
-              />
+            {article.featured_image && !imageError ? (
+              <>
+                {/* شيمر أثناء التحميل */}
+                {!imageLoaded && (
+                  <div className={`absolute inset-0 animate-pulse ${
+                    darkMode ? 'bg-gray-600' : 'bg-gray-200'
+                  }`}>
+                    <div className="w-full h-full flex items-center justify-center">
+                      <div className={`animate-spin rounded-full ${
+                        size === 'small' ? 'w-4 h-4' : size === 'large' ? 'w-6 h-6' : 'w-5 h-5'
+                      } border-2 border-gray-300 border-t-transparent`}></div>
+                    </div>
+                  </div>
+                )}
+                <img
+                  src={article.featured_image}
+                  alt={article.title}
+                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
+                    imageLoaded ? 'opacity-100' : 'opacity-0'
+                  }`}
+                  onLoad={handleImageLoad}
+                  onError={handleImageError}
+                  loading="lazy"
+                />
+              </>
             ) : (
               <div className="w-full h-full flex items-center justify-center">
                 <Newspaper className={`${

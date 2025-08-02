@@ -16,7 +16,8 @@ import {
 } from 'lucide-react';
 import '../categories-fixes.css';
 import '../category-page-mobile.css';
-import CompactCategoryCard from '@/components/mobile/CompactCategoryCard';
+import '@/styles/mobile-category-cards.css';
+import LazyCompactCategoryCard from '@/components/mobile/LazyCompactCategoryCard';
 interface Category {
   id: number;
   name: string;
@@ -674,20 +675,20 @@ export default function CategoryDetailPage({ params }: PageProps) {
         ) : (
           <>
             {/* Mobile View - Compact Cards */}
-            <div className="md:hidden">
+            <div className="md:hidden category-cards-container">
               {/* شاشات أكبر (sm) - بطاقات متوسطة */}
               <div className="hidden sm:block space-y-3">
                 {filteredArticles && filteredArticles.length > 0 ? (
                   filteredArticles.map((article) => {
                     try {
                       return (
-                        <CompactCategoryCard
+                        <LazyCompactCategoryCard
                           key={article?.id || Math.random()}
                           article={article}
                           darkMode={darkMode}
                           size="medium"
                           showExcerpt={false}
-                          className="hover:shadow-lg transition-shadow duration-300"
+                          className="compact-category-card hover:shadow-lg transition-shadow duration-300"
                         />
                       );
                     } catch (error) {
@@ -709,13 +710,13 @@ export default function CategoryDetailPage({ params }: PageProps) {
                   filteredArticles.map((article) => {
                     try {
                       return (
-                        <CompactCategoryCard
+                        <LazyCompactCategoryCard
                           key={article?.id || Math.random()}
                           article={article}
                           darkMode={darkMode}
                           size="small"
                           showExcerpt={false}
-                          className="hover:shadow-md transition-shadow duration-300"
+                          className="compact-category-card hover:shadow-md transition-shadow duration-300"
                         />
                       );
                     } catch (error) {
