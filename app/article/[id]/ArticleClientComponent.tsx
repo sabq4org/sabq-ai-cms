@@ -205,6 +205,29 @@ export default function ArticleClientComponent({
     return Math.max(1, Math.ceil(wordCount / wordsPerMinute));
   };
 
+  // استخراج العنوان الفرعي من المحتوى إذا لم يكن موجود
+  const getSubtitle = () => {
+    // أولوية للعنوان الفرعي المحدد صراحة
+    if (article.subtitle) return article.subtitle;
+    if (article.metadata?.subtitle) return article.metadata.subtitle;
+    if (article.description) return article.description;
+    
+    // إذا لم يوجد، استخراج من بداية المحتوى
+    if (article.content) {
+      const firstParagraph = article.content
+        .split('\n\n')[0] // أول فقرة
+        .replace(/<[^>]*>/g, '') // إزالة HTML tags
+        .trim();
+      
+      // إذا كانت الفقرة الأولى قصيرة ومناسبة كعنوان فرعي
+      if (firstParagraph.length > 20 && firstParagraph.length <= 200) {
+        return firstParagraph;
+      }
+    }
+    
+    return null;
+  };
+
   // استخراج الكلمات المفتاحية
   const getKeywords = () => {
     if (article?.keywords && Array.isArray(article.keywords)) {
@@ -256,9 +279,9 @@ export default function ArticleClientComponent({
                 </h1>
                 
                 {/* العنوان الفرعي */}
-                {article.subtitle && (
+                {getSubtitle() && (
                   <h2 className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-400 mb-6 text-right">
-                    {article.subtitle}
+                    {getSubtitle()}
                   </h2>
                 )}
 
@@ -316,10 +339,10 @@ export default function ArticleClientComponent({
                 </div>
 
                 {/* العنوان الفرعي - تصميم محسن */}
-                {article.subtitle && (
+                {getSubtitle() && (
                   <div className="px-1 mb-4">
                     <h2 className="text-sm leading-relaxed text-gray-900 dark:text-gray-100 font-normal mobile-article-subtitle">
-                      {article.subtitle}
+                      {getSubtitle()}
                     </h2>
                   </div>
                 )}
