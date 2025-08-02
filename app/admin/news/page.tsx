@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Component, ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { ErrorBoundary } from 'react-error-boundary';
 import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -88,36 +87,73 @@ interface Article {
   reactions?: { like?: number; share?: number };
 }
 
-// مكون معالجة الأخطاء
-function ErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
-      <div className="max-w-md w-full text-center">
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-red-800 dark:text-red-200 mb-4">
-            حدث خطأ في صفحة إدارة الأخبار
-          </h2>
-          <p className="text-sm text-red-600 dark:text-red-300 mb-4">
-            {error.message || 'خطأ غير متوقع'}
-          </p>
-          <div className="space-y-2">
-            <button
-              onClick={resetErrorBoundary}
-              className="w-full bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
-            >
-              المحاولة مرة أخرى
-            </button>
-            <button
-              onClick={() => window.location.reload()}
-              className="w-full bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition-colors"
-            >
-              إعادة تحميل الصفحة
-            </button>
+// ErrorBoundary مخصص باستخدام React Class Component
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error?: Error;
+}
+
+class AdminNewsErrorBoundary extends Component<
+  { children: ReactNode },
+  ErrorBoundaryState
+> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('❌ خطأ في صفحة إدارة الأخبار:', error);
+    console.error('🔍 تفاصيل الخطأ:', errorInfo);
+    
+    // إرسال تقرير الخطأ (اختياري)
+    if (typeof window !== 'undefined') {
+      (window as any).sabqDebug?.addLog?.('admin-news-error', {
+        error: error.message,
+        stack: error.stack,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
+          <div className="max-w-md w-full text-center">
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
+              <h2 className="text-lg font-semibold text-red-800 dark:text-red-200 mb-4">
+                حدث خطأ في صفحة إدارة الأخبار
+              </h2>
+              <p className="text-sm text-red-600 dark:text-red-300 mb-4">
+                {this.state.error?.message || 'خطأ غير متوقع'}
+              </p>
+              <div className="space-y-2">
+                <button
+                  onClick={() => this.setState({ hasError: false, error: undefined })}
+                  className="w-full bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
+                >
+                  المحاولة مرة أخرى
+                </button>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="w-full bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition-colors"
+                >
+                  إعادة تحميل الصفحة
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-  );
+      );
+    }
+
+    return this.props.children;
+  }
 }
 
 function AdminNewsPageContent() {
@@ -870,26 +906,11 @@ function AdminNewsPageContent() {
   );
 }
 
-// تصدير المكون مع ErrorBoundary للحماية من الأخطاء
+// تصدير المكون مع ErrorBoundary المخصص للحماية من الأخطاء
 export default function AdminNewsPage() {
   return (
-    <ErrorBoundary
-      FallbackComponent={ErrorFallback}
-      onError={(error, errorInfo) => {
-        console.error('❌ خطأ في صفحة إدارة الأخبار:', error);
-        console.error('🔍 تفاصيل الخطأ:', errorInfo);
-        
-        // إرسال تقرير الخطأ (اختياري)
-        if (typeof window !== 'undefined') {
-          window.sabqDebug?.addLog?.('admin-news-error', {
-            error: error.message,
-            stack: error.stack,
-            timestamp: new Date().toISOString()
-          });
-        }
-      }}
-    >
+    <AdminNewsErrorBoundary>
       <AdminNewsPageContent />
-    </ErrorBoundary>
+    </AdminNewsErrorBoundary>
   );
 }
