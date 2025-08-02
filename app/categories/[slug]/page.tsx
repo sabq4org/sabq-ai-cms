@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import Link from 'next/link';
 import { getArticleLink } from '@/lib/utils';
 import CloudImage from '@/components/ui/CloudImage';
@@ -15,6 +16,7 @@ import {
 } from 'lucide-react';
 import '../categories-fixes.css';
 import '../category-page-mobile.css';
+import CompactCategoryCard from '@/components/mobile/CompactCategoryCard';
 interface Category {
   id: number;
   name: string;
@@ -111,6 +113,7 @@ interface CategoryStats {
 
 export default function CategoryDetailPage({ params }: PageProps) {
   const router = useRouter();
+  const { darkMode } = useDarkModeContext();
   const [category, setCategory] = useState<Category | null>(null);
   const [articles, setArticles] = useState<Article[]>([]);
   const [filteredArticles, setFilteredArticles] = useState<Article[]>([]);
@@ -670,81 +673,22 @@ export default function CategoryDetailPage({ params }: PageProps) {
           </div>
         ) : (
           <>
-            {/* Mobile View */}
-            <div className="md:hidden space-y-4">
+            {/* Mobile View - Compact Cards */}
+            <div className="md:hidden">
+              {/* شاشات أكبر (sm) - بطاقات متوسطة */}
+              <div className="hidden sm:block space-y-3">
                 {filteredArticles && filteredArticles.length > 0 ? (
                   filteredArticles.map((article) => {
                     try {
                       return (
-                        <Link key={article?.id || Math.random()} href={getArticleLink(article)} className="block">
-                          <article className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden active:scale-[0.98] transition-transform">
-                            {/* Mobile Card Layout */}
-                            <div className="flex p-4 gap-3">
-                      {/* Thumbnail */}
-                      <div className="relative w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-700">
-                        {article.featured_image ? (
-                          <img
-                            src={article.featured_image}
-                            alt={article.title || 'صورة المقال'}
-                            className="absolute inset-0 w-full h-full object-cover"
-                            onLoad={(e) => {
-                              (e.target as HTMLImageElement).style.opacity = '1';
-                            }}
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.src = '/images/placeholder-featured.jpg';
-                            }}
-                            style={{ opacity: 0, transition: 'opacity 0.3s' }}
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Newspaper className="w-8 h-8 text-gray-400 dark:text-gray-600" />
-                          </div>
-                        )}
-                        {/* Urgent Badge */}
-                        {article.is_breaking && (
-                          <div className="absolute top-1 right-1">
-                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded">
-                              <Zap className="w-2.5 h-2.5" />
-                              عاجل
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      
-                      {/* Content */}
-                      <div className="flex-1 min-w-0">
-                        {/* Title - 2 lines max */}
-                        <h3 className={`text-[15px] font-semibold leading-tight mb-2 line-clamp-2 ${
-                          article.is_breaking 
-                            ? 'text-red-700 dark:text-red-400' 
-                            : 'text-gray-900 dark:text-white'
-                        }`}>
-                          {article.title}
-                        </h3>
-                        
-                        {/* Meta Info */}
-                        <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-500 dark:text-gray-400">
-                          {/* Date */}
-                          <span className="flex items-center gap-0.5">
-                            <Calendar className="w-3 h-3" />
-                            {formatDate(article.published_at || article.created_at)}
-                          </span>
-                          {/* Views */}
-                          <span className="flex items-center gap-0.5">
-                            <Eye className="w-3 h-3" />
-                            {article.views_count > 0 ? article.views_count.toLocaleString('ar-SA') : 'جديد'}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      {/* Arrow */}
-                      <div className="flex items-center">
-                        <ArrowLeft className="w-4 h-4 text-gray-400" />
-                      </div>
-                    </div>
-                  </article>
-                </Link>
+                        <CompactCategoryCard
+                          key={article?.id || Math.random()}
+                          article={article}
+                          darkMode={darkMode}
+                          size="medium"
+                          showExcerpt={false}
+                          className="hover:shadow-lg transition-shadow duration-300"
+                        />
                       );
                     } catch (error) {
                       console.error('Error rendering article:', error);
@@ -757,6 +701,35 @@ export default function CategoryDetailPage({ params }: PageProps) {
                     <p className="text-gray-500">لا توجد مقالات للعرض</p>
                   </div>
                 )}
+              </div>
+
+              {/* شاشات صغيرة (xs) - بطاقات مصغرة */}
+              <div className="sm:hidden space-y-2">
+                {filteredArticles && filteredArticles.length > 0 ? (
+                  filteredArticles.map((article) => {
+                    try {
+                      return (
+                        <CompactCategoryCard
+                          key={article?.id || Math.random()}
+                          article={article}
+                          darkMode={darkMode}
+                          size="small"
+                          showExcerpt={false}
+                          className="hover:shadow-md transition-shadow duration-300"
+                        />
+                      );
+                    } catch (error) {
+                      console.error('Error rendering article:', error);
+                      return null;
+                    }
+                  })
+                ) : (
+                  <div className="text-center py-6">
+                    <BookOpen className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+                    <p className="text-gray-500 text-sm">لا توجد مقالات للعرض</p>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Desktop View - Keep existing */}
