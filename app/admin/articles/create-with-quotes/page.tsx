@@ -378,6 +378,15 @@ const NewArticlePage = () => {
         reading_time: aiContent.reading_time || Math.ceil(form.content.replace(/<[^>]*>/g, '').split(' ').filter(w => w.length > 0).length / 225)
       };
 
+      console.log('📤 [Article Save] إرسال بيانات المقال:', {
+        title: articleData.title,
+        content_length: articleData.content?.length,
+        article_author_id: articleData.article_author_id,
+        featured_image: articleData.featured_image ? 'موجود' : 'غير موجود',
+        tags_count: articleData.tags?.length,
+        status: articleData.status
+      });
+
       const response = await fetch('/api/admin/articles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -388,7 +397,9 @@ const NewArticlePage = () => {
         toast.success(status === 'draft' ? 'تم حفظ المسودة' : 'تم نشر المقال');
         router.push('/admin/articles');
       } else {
-        throw new Error('فشل في حفظ المقال');
+        const errorData = await response.json();
+        console.error('❌ خطأ في API:', errorData);
+        throw new Error(errorData.error || errorData.details || 'فشل في حفظ المقال');
       }
     } catch (error) {
       console.error('خطأ في الحفظ:', error);

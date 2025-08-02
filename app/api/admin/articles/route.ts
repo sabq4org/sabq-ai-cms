@@ -72,11 +72,25 @@ export async function POST(request: NextRequest) {
       }
     }
     
-    if (!category_id) {
-      return NextResponse.json({
-        success: false,
-        error: 'يجب اختيار تصنيف للمقال'
-      }, { status: 400 });
+    // البحث عن تصنيف افتراضي إذا لم يتم تحديد تصنيف
+    let final_category_id = category_id;
+    
+    if (!final_category_id) {
+      console.log('⚠️ لم يتم تحديد تصنيف، البحث عن تصنيف افتراضي...');
+      
+      // البحث عن أول تصنيف نشط
+      const defaultCategory = await prisma.categories.findFirst({
+        where: { is_active: true },
+        orderBy: { display_order: 'asc' }
+      });
+      
+      if (defaultCategory) {
+        final_category_id = defaultCategory.id;
+        console.log(`✅ تم استخدام التصنيف الافتراضي: ${defaultCategory.name} (${defaultCategory.id})`);
+      } else {
+        console.log('⚠️ لا توجد تصنيفات نشطة، سيتم المتابعة بدون تصنيف');
+        final_category_id = null;
+      }
     }
     
     // توليد slug من العنوان
@@ -110,7 +124,8 @@ export async function POST(request: NextRequest) {
       title: data.title,
       slug: articleSlug,
       article_author_id,
-      category_id,
+      original_category_id: category_id,
+      final_category_id,
       default_author_id
     });
     
@@ -145,8 +160,8 @@ export async function POST(request: NextRequest) {
         author: {
           connect: { id: default_author_id }
         },
-        categories: category_id ? {
-          connect: { id: category_id }
+        categories: final_category_id ? {
+          connect: { id: final_category_id }
         } : undefined,
         article_author: article_author_id ? {
           connect: { id: article_author_id }
