@@ -17,7 +17,8 @@ import {
 import '../categories-fixes.css';
 import '../category-page-mobile.css';
 import '@/styles/mobile-category-cards.css';
-import LazyCompactCategoryCard from '@/components/mobile/LazyCompactCategoryCard';
+import '@/styles/compact-category-cards-mini.css';
+import CompactCategoryCardMini from '@/components/mobile/CompactCategoryCardMini';
 interface Category {
   id: number;
   name: string;
@@ -674,21 +675,18 @@ export default function CategoryDetailPage({ params }: PageProps) {
           </div>
         ) : (
           <>
-            {/* Mobile View - Compact Cards */}
+            {/* Mobile View - Ultra Compact Cards (كما في محتوى مخصص لك) */}
             <div className="md:hidden category-cards-container">
-              {/* شاشات أكبر (sm) - بطاقات متوسطة */}
-              <div className="hidden sm:block space-y-3">
+              <div className="space-y-2">
                 {filteredArticles && filteredArticles.length > 0 ? (
-                  filteredArticles.map((article) => {
+                  filteredArticles.slice(0, 10).map((article) => { // حد أقصى 10 بطاقات
                     try {
                       return (
-                        <LazyCompactCategoryCard
+                        <CompactCategoryCardMini
                           key={article?.id || Math.random()}
                           article={article}
                           darkMode={darkMode}
-                          size="medium"
-                          showExcerpt={false}
-                          className="compact-category-card hover:shadow-lg transition-shadow duration-300"
+                          className="compact-category-card-mini hover:shadow-md transition-shadow duration-200"
                         />
                       );
                     } catch (error) {
@@ -702,32 +700,23 @@ export default function CategoryDetailPage({ params }: PageProps) {
                     <p className="text-gray-500">لا توجد مقالات للعرض</p>
                   </div>
                 )}
-              </div>
-
-              {/* شاشات صغيرة (xs) - بطاقات مصغرة */}
-              <div className="sm:hidden space-y-2">
-                {filteredArticles && filteredArticles.length > 0 ? (
-                  filteredArticles.map((article) => {
-                    try {
-                      return (
-                        <LazyCompactCategoryCard
-                          key={article?.id || Math.random()}
-                          article={article}
-                          darkMode={darkMode}
-                          size="small"
-                          showExcerpt={false}
-                          className="compact-category-card hover:shadow-md transition-shadow duration-300"
-                        />
-                      );
-                    } catch (error) {
-                      console.error('Error rendering article:', error);
-                      return null;
-                    }
-                  })
-                ) : (
-                  <div className="text-center py-6">
-                    <BookOpen className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-                    <p className="text-gray-500 text-sm">لا توجد مقالات للعرض</p>
+                
+                {/* زر عرض المزيد إذا كان هناك أكثر من 10 مقالات */}
+                {filteredArticles && filteredArticles.length > 10 && (
+                  <div className="text-center pt-4">
+                    <button 
+                      onClick={() => {
+                        // يمكن إضافة منطق لعرض المزيد لاحقاً
+                        window.location.href = `/categories/${categorySlug}`;
+                      }}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors show-more-button ${
+                        darkMode 
+                          ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' 
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      عرض المزيد ({filteredArticles.length - 10} مقال إضافي)
+                    </button>
                   </div>
                 )}
               </div>
