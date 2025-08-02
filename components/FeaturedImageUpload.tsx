@@ -79,7 +79,7 @@ export default function FeaturedImageUpload({ value, onChange, darkMode = false 
       console.log('🌐 إرسال طلب الرفع...');
       
       // رفع الصورة باستخدام API البسيط أولاً
-      let response = await fetch('/api/upload-simple', {
+      let response = await fetch('/api/upload-image', {
         method: 'POST',
         body: formData
       });

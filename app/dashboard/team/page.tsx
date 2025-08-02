@@ -333,9 +333,9 @@ export default function TeamPage() {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('type', 'avatar'); // إضافة نوع الرفع
-      console.log('إرسال الطلب إلى /api/upload-simple');
+      console.log('إرسال الطلب إلى /api/upload-image');
       // رفع الصورة إلى الخادم
-      const response = await fetch('/api/upload-simple', {
+      const response = await fetch('/api/upload-image', {
         method: 'POST',
         body: formData
       });
