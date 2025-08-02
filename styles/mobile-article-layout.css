@@ -63,14 +63,25 @@
 /* معلومات النشر */
 .mobile-article-metadata {
   /* تحسين التخطيط */
-  max-width: 160px;
-  min-width: 120px;
+  max-width: 180px;
+  min-width: 140px;
   
   /* تحسين النص */
   font-variant-numeric: tabular-nums;
   
   /* تحسين الأداء */
   contain: layout style;
+}
+
+/* الفواصل في معلومات النشر */
+.mobile-article-metadata .text-gray-300 {
+  opacity: 0.6;
+  margin: 0 2px;
+}
+
+/* تحسين التفاف النص في معلومات النشر */
+.mobile-article-metadata .flex-wrap {
+  line-height: 1.2;
 }
 
 /* الأيقونات */
@@ -99,6 +110,11 @@
   .mobile-article-metadata {
     max-width: 140px;
     font-size: 10px !important;
+  }
+  
+  /* تحسين معلومات النشر للشاشات الصغيرة */
+  .mobile-article-metadata .flex-wrap {
+    gap: 4px !important;
   }
 }
 

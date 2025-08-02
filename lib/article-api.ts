@@ -5,6 +5,7 @@ export interface ArticleData {
   title: string;
   content: string;
   excerpt?: string;
+  subtitle?: string; // العنوان الفرعي المستقل
   summary?: string;
   ai_summary?: string;
   keywords?: string[];

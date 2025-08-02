@@ -256,9 +256,9 @@ export default function ArticleClientComponent({
                 </h1>
                 
                 {/* العنوان الفرعي */}
-                {article.excerpt && (
+                {article.subtitle && (
                   <h2 className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-400 mb-6 text-right">
-                    {article.excerpt}
+                    {article.subtitle}
                   </h2>
                 )}
 
@@ -316,10 +316,10 @@ export default function ArticleClientComponent({
                 </div>
 
                 {/* العنوان الفرعي - تصميم محسن */}
-                {article.excerpt && (
+                {article.subtitle && (
                   <div className="px-1 mb-4">
                     <h2 className="text-sm leading-relaxed text-gray-900 dark:text-gray-100 font-normal mobile-article-subtitle">
-                      {article.excerpt}
+                      {article.subtitle}
                     </h2>
                   </div>
                 )}
@@ -341,34 +341,36 @@ export default function ArticleClientComponent({
                   </div>
 
                   {/* معلومات النشر في اليسار - محاذاة مع الصورة */}
-                  <div className="flex flex-col items-start gap-1 text-xs text-gray-500 dark:text-gray-400 order-1 flex-1 max-w-[140px] mobile-article-metadata">
-                    {/* الكاتب */}
+                  <div className="flex flex-col items-start gap-1.5 text-xs text-gray-500 dark:text-gray-400 order-1 flex-1 max-w-[160px] mobile-article-metadata">
+                    {/* المراسل في سطر منفصل */}
                     {article.author && (
                       <div className="flex items-center gap-1.5">
                         <User className="w-3 h-3 flex-shrink-0 mobile-article-icon" />
-                        <span className="truncate max-w-[100px]">{article.author.name}</span>
+                        <span className="truncate max-w-[120px]">{article.author.name}</span>
                       </div>
                     )}
                     
-                    {/* التاريخ ووقت القراءة */}
-                    <div className="flex flex-col gap-1">
+                    {/* التاريخ ووقت القراءة والمشاهدات في سطر واحد */}
+                    <div className="flex items-center gap-2 flex-wrap">
                       <div className="flex items-center gap-1">
                         <Calendar className="w-3 h-3 flex-shrink-0 mobile-article-icon" />
                         <span>{formatRelativeDate(article.published_at || article.created_at || '')}</span>
                       </div>
+                      <span className="text-gray-300 dark:text-gray-600">•</span>
                       <div className="flex items-center gap-1">
                         <Clock className="w-3 h-3 flex-shrink-0 mobile-article-icon" />
                         <span>{article.reading_time || calculateReadingTime(article.content || '')} د</span>
                       </div>
+                      {article.views !== undefined && (
+                        <>
+                          <span className="text-gray-300 dark:text-gray-600">•</span>
+                          <div className="flex items-center gap-1">
+                            <Eye className="w-3 h-3 flex-shrink-0 mobile-article-icon" />
+                            <span>{article.views}</span>
+                          </div>
+                        </>
+                      )}
                     </div>
-
-                    {/* المشاهدات */}
-                    {article.views !== undefined && (
-                      <div className="flex items-center gap-1">
-                        <Eye className="w-3 h-3 flex-shrink-0 mobile-article-icon" />
-                        <span>{article.views}</span>
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>
