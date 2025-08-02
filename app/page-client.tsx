@@ -51,6 +51,12 @@ const FeaturedNewsCarousel = dynamic(() => import('@/components/FeaturedNewsCaro
   ssr: true,
   loading: () => <Skeleton className="w-full h-80 rounded-lg" />
 });
+
+const BreakingNewsBar = dynamic(() => import('@/components/BreakingNewsBar'), {
+  ssr: false,
+  loading: () => <div className="w-full h-24 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse mx-4 mb-6" />
+});
+
 import { DeepAnalysis } from '@/types/deep-analysis';
 import { 
   Share2, 
@@ -519,6 +525,9 @@ function NewspaperHomePage({
       {/* 🔥 الترتيب الجديد المحدث للواجهة الرئيسية */}
       
       {/* 1. الهيدر ⬆️ - تم تأكيده أنه في المقدمة عبر Layout */}
+      
+      {/* 1.5. الخبر العاجل (Breaking News) 🔴 - فوق الأخبار المميزة */}
+      <BreakingNewsBar />
       
       {/* 2. الأخبار المميزة (Featured Articles) 🌟 */}
       {!featuredLoading && featuredArticle.length > 0 && (

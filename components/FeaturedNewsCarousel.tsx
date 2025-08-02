@@ -23,7 +23,6 @@ interface FeaturedArticle {
   views?: number;
   likes?: number;
   shares?: number;
-  breaking?: boolean; // حقل الأخبار العاجلة
   category?: {
     id: string;
     name: string;
@@ -144,65 +143,27 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                 {/* تدرج لوني للجوال (من الأسفل) والديسكتوب (من اليسار) */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent lg:bg-gradient-to-l lg:from-black/30 lg:via-transparent lg:to-transparent z-10"></div>
                 
-                {/* مستطيل الخبر العاجل - أعلى الصورة مباشرة */}
-                {currentArticle.breaking && (
-                  <div className="absolute top-3 left-3 right-3 z-40">
-                    <div className="breaking-news-mobile breaking-news-gradient breaking-news-shadow p-3 backdrop-blur-sm">
-                      {/* العنوان العلوي */}
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-lg breaking-news-pulse">🔴</span>
-                        <span className="breaking-news-badge">
-                          خبر عاجل
-                        </span>
-                      </div>
-                      
-                      {/* عنوان الخبر العاجل */}
-                      <p className="breaking-news-title line-clamp-2">
-                        {currentArticle.title}
-                      </p>
-                    </div>
+                {/* شارة الخبر المميز - الزاوية العلوية اليمنى */}
+                <div className="absolute top-3 right-3 z-30">
+                  <div className="bg-yellow-500 text-white px-2 py-1 text-xs rounded flex items-center gap-1">
+                    مميز ✨
                   </div>
-                )}
+                </div>
 
-                {/* شارة الخبر المميز - الزاوية العلوية اليمنى (فقط إذا لم يكن عاجل) */}
-                {!currentArticle.breaking && (
-                  <div className="absolute top-3 right-3 z-30">
-                    <div className="bg-yellow-500 text-white px-2 py-1 text-xs rounded flex items-center gap-1">
-                      مميز ✨
-                    </div>
-                  </div>
-                )}
-
-                {/* العنوان داخل الصورة - للجوال فقط (مخفي للأخبار العاجلة) */}
-                {!currentArticle.breaking && (
-                  <div className="lg:hidden absolute bottom-4 left-4 right-4 z-20">
-                    <h2 className="text-white text-lg font-semibold leading-snug">
-                      {currentArticle.title}
-                    </h2>
-                  </div>
-                )}
+                {/* العنوان داخل الصورة - للجوال فقط */}
+                <div className="lg:hidden absolute bottom-4 left-4 right-4 z-20">
+                  <h2 className="text-white text-lg font-semibold leading-snug">
+                    {currentArticle.title}
+                  </h2>
+                </div>
               </div>
             </div>
 
             {/* قسم النص - 6 أعمدة (50%) - مخفي في الجوال */}
             <div className="hidden lg:flex lg:col-span-6 p-4 lg:p-6 flex-col justify-between h-[280px] lg:h-[320px] overflow-hidden">
-              {/* شارة الخبر العاجل - نسخة الديسكتوب */}
-              {currentArticle.breaking && (
-                <div className="mb-4">
-                  <div className="inline-flex items-center gap-2 breaking-news-desktop breaking-news-shadow px-4 py-2">
-                    <span className="breaking-news-pulse">🔴</span>
-                    <span className="breaking-news-badge">
-                      خبر عاجل
-                    </span>
-                  </div>
-                </div>
-              )}
-
               {/* العنوان الرئيسي */}
               <h2 className={`text-xl lg:text-2xl xl:text-3xl font-bold mb-4 leading-tight line-clamp-3 transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400 ${
-                currentArticle.breaking 
-                  ? 'breaking-news-desktop-title' 
-                  : (darkMode ? 'text-white' : 'text-gray-900')
+                darkMode ? 'text-white' : 'text-gray-900'
               }`}>
                 {currentArticle.title}
               </h2>
