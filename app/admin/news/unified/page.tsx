@@ -1248,9 +1248,7 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
   }
   
   return (
-    <DashboardLayout 
-      pageTitle={isEditMode ? "تعديل المقال" : "إنشاء مقال جديد"}
-      pageDescription={isEditMode ? "تعديل وتحديث المقال الموجود" : "إنشاء مقال جديد بأدوات متقدمة"}
+    <div className="min-h-screen"
     >
       <div className={cn(
         "min-h-screen transition-all duration-300",
@@ -1957,6 +1955,6 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
           }}
         />
       </div>
-    </DashboardLayout>
+    </div>
   );
 }

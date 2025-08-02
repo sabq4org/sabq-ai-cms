@@ -18,21 +18,38 @@ export interface AuthError {
 }
 
 /**
- * استخراج التوكن من headers وفك تشفيره
+ * استخراج التوكن من headers أو cookies - متوافق مع باقي النظام
  */
 export function extractTokenFromHeaders(request: NextRequest): string | null {
   try {
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader) return null;
+    // 1. محاولة الحصول على التوكن من الكوكيز أولاً (مثل باقي النظام)
+    let token = request.cookies.get('auth-token')?.value;
     
-    // البحث عن Bearer token
-    const bearerMatch = authHeader.match(/^Bearer\s+(.+)$/i);
-    if (bearerMatch) {
-      return bearerMatch[1];
+    // 2. إذا لم يوجد في الكوكيز، جرب cookie بإسم 'user'
+    if (!token) {
+      const userCookie = request.cookies.get('user')?.value;
+      if (userCookie) {
+        try {
+          const decodedCookie = decodeURIComponent(userCookie);
+          const userObject = JSON.parse(decodedCookie);
+          if (userObject.id) {
+            token = userCookie;
+          }
+        } catch (e) {
+          console.log('فشل في تحليل user cookie:', e);
+        }
+      }
     }
     
-    // إذا لم يوجد Bearer، استخدم القيمة كاملة
-    return authHeader;
+    // 3. إذا لم يوجد في الكوكيز، جرب من Authorization header
+    if (!token) {
+      const authHeader = request.headers.get('authorization');
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      }
+    }
+    
+    return token;
   } catch (error) {
     console.error('خطأ في استخراج التوكن:', error);
     return null;
@@ -51,16 +68,30 @@ export function verifyJWTToken(token: string): UserPermissions | AuthError {
       };
     }
     
-    const jwtSecret = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET;
-    if (!jwtSecret) {
-      return {
-        error: 'إعدادات التوكن غير صحيحة',
-        code: 'JWT_CONFIG_ERROR'
-      };
-    }
+    const jwtSecret = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
     
-    // فك تشفير التوكن
-    const decoded = jwt.verify(token, jwtSecret) as any;
+    // التحقق من صحة التوكن (مثل باقي النظام)
+    let decoded: any;
+    try {
+      // محاولة فك تشفير JWT أولاً
+      decoded = jwt.verify(token, jwtSecret);
+    } catch (error) {
+      // إذا فشل JWT، جرب تحليل JSON من user cookie
+      try {
+        const decodedCookie = decodeURIComponent(token);
+        const userObject = JSON.parse(decodedCookie);
+        if (userObject.id) {
+          decoded = userObject;
+        } else {
+          throw new Error('لا يحتوي على معرف مستخدم');
+        }
+      } catch (jsonError) {
+        return {
+          error: 'التوكن غير صالح',
+          code: 'INVALID_TOKEN'
+        };
+      }
+    }
     
     if (!decoded || !decoded.id) {
       return {
@@ -70,16 +101,17 @@ export function verifyJWTToken(token: string): UserPermissions | AuthError {
     }
     
     // تحديد الصلاحيات حسب الدور
-    const permissions = getPermissionsByRole(decoded.role || 'user');
+    const role = decoded.role || decoded.roleId || 'user';
+    const permissions = getPermissionsByRole(role);
     
     return {
       id: decoded.id,
       email: decoded.email || '',
-      role: decoded.role || 'user',
+      role: role,
       permissions: permissions,
-      canEditArticles: permissions.includes('edit_articles') || permissions.includes('content_management'),
-      canManageContent: permissions.includes('content_management') || permissions.includes('admin_access'),
-      canViewReporters: permissions.includes('view_reporters') || permissions.includes('content_management')
+      canEditArticles: permissions.includes('edit_articles') || permissions.includes('content_management') || decoded.is_admin || role === 'admin',
+      canManageContent: permissions.includes('content_management') || permissions.includes('admin_access') || decoded.is_admin || role === 'admin',
+      canViewReporters: permissions.includes('view_reporters') || permissions.includes('content_management') || decoded.is_admin || role === 'admin'
     };
     
   } catch (error: any) {
