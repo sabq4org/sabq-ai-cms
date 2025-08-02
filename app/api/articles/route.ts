@@ -429,8 +429,8 @@ export async function POST(request: NextRequest) {
     }, { status: 201 })
     
   } catch (error: any) {
-    console.error('❌ خطأ في إنشاء المقال:', error)
-    console.error('Stack trace:', error.stack)
+    console.error('❌ خطأ في إنشاء المقال:', error);
+    console.error('Stack trace:', error.stack);
     
     // معالجة أخطاء Prisma الشائعة
     if (error.code === 'P2002') {
