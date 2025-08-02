@@ -509,7 +509,70 @@ const NewArticlePage = () => {
               </div>
             </div>
 
-            {/* 5. المحتوى */}
+            {/* 5. الصورة البارزة */}
+            <div className={cn(
+              "rounded-2xl p-6 shadow-sm border transition-colors duration-300",
+              darkMode 
+                ? "bg-gray-800 border-gray-700" 
+                : "bg-white border-gray-100"
+            )}>
+              <label className={cn(
+                "block text-sm font-medium mb-3 transition-colors duration-300",
+                darkMode ? "text-gray-200" : "text-gray-700"
+              )}>
+                <Image className="w-4 h-4 inline ml-2" />
+                الصورة البارزة
+              </label>
+              
+              {form.featured_image ? (
+                <div className="relative">
+                  <img 
+                    src={form.featured_image} 
+                    alt="الصورة البارزة" 
+                    className="w-full h-48 object-cover rounded-lg"
+                  />
+                  <button
+                    onClick={() => setForm(prev => ({ ...prev, featured_image: '' }))}
+                    className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <FileUpload
+                  onFileSelect={(url) => setForm(prev => ({ ...prev, featured_image: url }))}
+                  acceptedTypes="image/*"
+                  maxSizeMB={5}
+                  className={cn(
+                    "border-2 border-dashed rounded-lg p-6 text-center transition-colors duration-300",
+                    darkMode 
+                      ? "border-gray-600 hover:border-gray-500" 
+                      : "border-gray-300 hover:border-gray-400"
+                  )}
+                >
+                  <div className="flex flex-col items-center gap-2">
+                    <Upload className={cn(
+                      "w-8 h-8",
+                      darkMode ? "text-gray-400" : "text-gray-500"
+                    )} />
+                    <p className={cn(
+                      "text-sm",
+                      darkMode ? "text-gray-400" : "text-gray-600"
+                    )}>
+                      اضغط أو اسحب لرفع الصورة البارزة
+                    </p>
+                    <p className={cn(
+                      "text-xs",
+                      darkMode ? "text-gray-500" : "text-gray-400"
+                    )}>
+                      PNG, JPG, WebP (الحد الأقصى 5MB)
+                    </p>
+                  </div>
+                </FileUpload>
+              )}
+            </div>
+
+            {/* 6. المحتوى */}
             <div className={cn(
               "rounded-2xl p-6 shadow-sm border transition-colors duration-300",
               darkMode 
@@ -539,6 +602,61 @@ const NewArticlePage = () => {
                   </span>
                 )}
               </div>
+            </div>
+
+            {/* 7. العلامات */}
+            <div className={cn(
+              "rounded-2xl p-6 shadow-sm border transition-colors duration-300",
+              darkMode 
+                ? "bg-gray-800 border-gray-700" 
+                : "bg-white border-gray-100"
+            )}>
+              <label className={cn(
+                "block text-sm font-medium mb-3 transition-colors duration-300",
+                darkMode ? "text-gray-200" : "text-gray-700"
+              )}>
+                <Tag className="w-4 h-4 inline ml-2" />
+                العلامات والكلمات المفتاحية
+              </label>
+              
+              <input
+                type="text"
+                placeholder="اكتب علامة واضغط Enter..."
+                onKeyDown={handleTagInput}
+                className={cn(
+                  "w-full p-3 rounded-lg border mb-3 transition-colors duration-300",
+                  darkMode 
+                    ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500" 
+                    : "bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500"
+                )}
+              />
+              
+              {form.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {form.tags.map((tag, index) => (
+                    <span 
+                      key={index}
+                      className={cn(
+                        "inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm transition-colors duration-300",
+                        darkMode 
+                          ? "bg-blue-900/30 text-blue-400" 
+                          : "bg-blue-100 text-blue-700"
+                      )}
+                    >
+                      {tag}
+                      <button
+                        onClick={() => removeTag(tag)}
+                        className={cn(
+                          "ml-1 hover:text-red-500 transition-colors duration-300",
+                          darkMode ? "text-blue-300" : "text-blue-600"
+                        )}
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* AI Generated Quotes */}
