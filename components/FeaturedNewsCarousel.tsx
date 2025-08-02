@@ -150,6 +150,30 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                   </div>
                 </div>
 
+                {/* أسهم التنقل للجوال - داخل الصورة فقط */}
+                <div className="lg:hidden absolute inset-0 flex items-center justify-between px-3 pointer-events-none z-20">
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handlePrevious();
+                    }}
+                    className="p-2.5 rounded-full bg-black/50 hover:bg-black/70 text-white backdrop-blur-md pointer-events-auto transition-all duration-300 shadow-lg"
+                    aria-label="الخبر السابق"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleNext();
+                    }}
+                    className="p-2.5 rounded-full bg-black/50 hover:bg-black/70 text-white backdrop-blur-md pointer-events-auto transition-all duration-300 shadow-lg"
+                    aria-label="الخبر التالي"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                </div>
+
                 {/* العنوان داخل الصورة - للجوال فقط */}
                 <div className="lg:hidden absolute bottom-4 left-4 right-4 z-20">
                   <h2 className="text-white text-lg font-semibold leading-snug">
@@ -243,14 +267,15 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
         ))}
       </div>
 
-      {/* أزرار التنقل */}
-      <div className="absolute top-1/2 -translate-y-1/2 left-4 right-4 flex justify-between pointer-events-none">
+      {/* أزرار التنقل للديسكتوب فقط */}
+      <div className="hidden lg:flex absolute top-1/2 -translate-y-1/2 left-4 right-4 justify-between pointer-events-none">
         <button
           onClick={(e) => {
             e.preventDefault();
             handlePrevious();
           }}
-          className="p-2 rounded-full bg-black/20 hover:bg-black/40 text-white backdrop-blur-sm pointer-events-auto transition-all"
+          className="p-3 rounded-full bg-black/30 hover:bg-black/50 text-white backdrop-blur-sm pointer-events-auto transition-all duration-300"
+          aria-label="الخبر السابق"
         >
           <ChevronRight className="w-6 h-6" />
         </button>
@@ -259,7 +284,8 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
             e.preventDefault();
             handleNext();
           }}
-          className="p-2 rounded-full bg-black/20 hover:bg-black/40 text-white backdrop-blur-sm pointer-events-auto transition-all"
+          className="p-3 rounded-full bg-black/30 hover:bg-black/50 text-white backdrop-blur-sm pointer-events-auto transition-all duration-300"
+          aria-label="الخبر التالي"
         >
           <ChevronLeft className="w-6 h-6" />
         </button>
