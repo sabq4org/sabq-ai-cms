@@ -510,7 +510,9 @@ function NewspaperHomePage({
               {/* شريط الإحصائيات المحسن للموبايل */}
         <SafeHydration>
           {isMobileView && (
-            <CompactStatsBar darkMode={darkMode} />
+            <div className="mb-4">
+              <CompactStatsBar darkMode={darkMode} />
+            </div>
           )}
         </SafeHydration>
       
@@ -520,7 +522,9 @@ function NewspaperHomePage({
       
       {/* 2. الأخبار المميزة (Featured Articles) 🌟 */}
       {!featuredLoading && featuredArticle.length > 0 && (
-        <FeaturedNewsCarousel articles={featuredArticle} />
+        <div className="pt-8 pb-6">
+          <FeaturedNewsCarousel articles={featuredArticle} />
+        </div>
       )}
       
       {/* 3. الجرعات الذكية (Smart Doses) 💊 */}
