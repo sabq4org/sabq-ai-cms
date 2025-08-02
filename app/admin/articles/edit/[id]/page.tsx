@@ -276,22 +276,19 @@ const EditArticlePage = () => {
 
   if (initialLoading) {
     return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <RefreshCw className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
-            <p className={cn('text-lg', darkMode ? 'text-gray-300' : 'text-gray-600')}>
-              جاري تحميل بيانات المقال...
-            </p>
-          </div>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <RefreshCw className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
+          <p className={cn('text-lg', darkMode ? 'text-gray-300' : 'text-gray-600')}>
+            جاري تحميل بيانات المقال...
+          </p>
         </div>
-      </DashboardLayout>
+      </div>
     );
   }
 
   return (
-    <DashboardLayout>
-      <div className="min-h-screen p-6 bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen p-6 bg-gray-50 dark:bg-gray-900">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
@@ -660,8 +657,7 @@ const EditArticlePage = () => {
             </div>
           </div>
         </div>
-      </div>
-    </DashboardLayout>
+    </div>
   );
 };
 
