@@ -265,50 +265,52 @@ export default function ClassifierDashboard() {
         {/* نظرة عامة */}
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <SabqCard 
-              title="حالة النظام"
-              icon={Info}
-              variant="default"
-            >
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span>الحالة العامة:</span>
-                    {getHealthBadge(dashboardData.systemHealth)}
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span>النظام نشط:</span>
-                    <CheckCircle className="w-5 h-5 text-green-600" />
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span>قاعدة البيانات:</span>
-                    <CheckCircle className="w-5 h-5 text-green-600" />
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span>API متاح:</span>
-                    <CheckCircle className="w-5 h-5 text-green-600" />
-                  </div>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Info className="w-5 h-5" />
+                  حالة النظام
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span>الحالة العامة:</span>
+                  {getHealthBadge(dashboardData.systemHealth)}
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <span>النظام نشط:</span>
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <span>قاعدة البيانات:</span>
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <span>API متاح:</span>
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                </div>
 
-                  <Separator />
+                <Separator />
 
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>إصدار النظام:</span>
-                      <span className="font-mono">v1.0.0</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>آخر تحديث:</span>
-                      <span>يناير 2024</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>وقت التشغيل:</span>
-                      <span>99.9%</span>
-                    </div>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span>إصدار النظام:</span>
+                    <span className="font-mono">v1.0.0</span>
                   </div>
-                </CardContent>
-              </Card>
+                  <div className="flex justify-between">
+                    <span>آخر تحديث:</span>
+                    <span>يناير 2024</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>وقت التشغيل:</span>
+                    <span>99.9%</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
               <Card>
                 <CardHeader>
