@@ -36,7 +36,7 @@ async function getArticles(limit = 16) {
     
     try {
       const res = await fetch(
-        `${baseUrl}/api/articles?status=published&limit=${limit}&sortBy=published_at&order=desc&article_type=news`,
+        `${baseUrl}/api/news?status=published&limit=${limit}&sort=published_at&order=desc`,
         {
           next: { revalidate: 60 },
           headers: {
@@ -61,7 +61,15 @@ async function getArticles(limit = 16) {
       }
       
       const json = await res.json();
-      const articles = Array.isArray(json) ? json : (json.data ?? json.articles ?? []);
+      
+      // التحقق من نجاح الاستجابة (API الجديد)
+      if (!json.success) {
+        console.warn('⚠️ فشل API في إرجاع البيانات:', json.error);
+        return [];
+      }
+      
+      // API الجديد يستخدم json.data
+      const articles = json.data ?? [];
       
       if (!Array.isArray(articles)) {
         console.warn('⚠️ البيانات المستلمة ليست مصفوفة');

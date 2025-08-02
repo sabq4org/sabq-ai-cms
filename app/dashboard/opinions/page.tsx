@@ -55,10 +55,11 @@ export default function OpinionsPage() {
   }, [])
   const fetchArticles = async () => {
     try {
-      const response = await fetch('/api/articles?type=OPINION&limit=100')
+      const response = await fetch('/api/opinions?limit=100')
       if (response.ok) {
         const data = await response.json()
-        setArticles(data.articles || [])
+        // API الجديد يستخدم data.data بدلاً من data.articles
+        setArticles(data.data || [])
       } else {
         toast({
           title: 'خطأ في جلب المقالات',

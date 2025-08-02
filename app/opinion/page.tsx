@@ -1,774 +1,643 @@
+/**
+ * صفحة فهرس مقالات الرأي - /opinion
+ * عرض جميع مقالات الرأي من جدول opinion_articles
+ */
+
 'use client';
 
-import Image from 'next/image';
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { getArticleLink } from '@/lib/utils';
-import { formatDateShort } from '@/lib/date-utils';
-import { generatePlaceholderImage, getValidImageUrl } from '@/lib/cloudinary';
-import CloudImage from '@/components/ui/CloudImage';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import Image from 'next/image';
 import { 
-  Search, Filter, ChevronLeft, ChevronRight, Sparkles, 
-  TrendingUp, Calendar, User, Eye, Heart, MessageCircle, 
-  Share2, Volume2, Zap, Podcast, Flame, Star, Award,
-  Mic, BookOpen, Timer, BarChart3, Crown, Headphones,
-  PlayCircle, PauseCircle, ChevronDown, Brain, Quote,
-  ThumbsUp, ThumbsDown, X, Plus, HeartHandshake,
-  CheckCircle, Radio, Activity, Clock, Tag, ArrowLeft,
-  Newspaper, ArrowRight, Users
+  Search, 
+  Filter, 
+  Calendar, 
+  User, 
+  Eye, 
+  ArrowRight,
+  AlertTriangle,
+  Loader2,
+  Star,
+  Crown,
+  BookOpen,
+  Award,
+  Heart
 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
+
 interface OpinionArticle {
   id: string;
   title: string;
+  slug: string;
   excerpt?: string;
-  content?: string;
+  status: string;
+  published_at?: string;
+  writer_id: string;
+  article_type: string;
+  opinion_category?: string;
+  featured: boolean;
+  is_leader_opinion: boolean;
+  difficulty_level: string;
+  estimated_read?: number;
+  quality_score: number;
+  engagement_score: number;
+  ai_rating: number;
   featured_image?: string;
-  category_id?: number;
-  category_name?: string;
-  author_name?: string;
-  author_id?: string;
-  author_avatar?: string;
-  author_bio?: string;
-  author_specialization?: string;
-  author_followers?: number;
-  views_count: number;
-  likes_count?: number;
-  comments_count?: number;
-  shares_count?: number;
+  tags: string[];
+  topics: string[];
+  views: number;
+  likes: number;
+  saves: number;
+  shares: number;
+  comments_count: number;
   reading_time?: number;
   created_at: string;
-  published_at?: string;
-  is_trending?: boolean;
-  is_featured?: boolean;
-  type?: string;
-  ai_summary?: string;
-  ai_keywords?: string[];
-  engagement_score?: number;
-  topic_tags?: string[];
-  audio_url?: string;
-  podcast_duration?: number;
-  sentiment?: 'positive' | 'negative' | 'neutral' | 'mixed';
-  agree_count?: number;
-  disagree_count?: number;
-}
-interface OpinionAuthor {
-  id: string;
-  name: string;
-  avatar?: string;
-  bio?: string;
-  specialization?: string;
-  followers_count?: number;
-  articles_count?: number;
-  total_views?: number;
-  rating?: number;
-  badge?: 'gold' | 'silver' | 'bronze' | null;
-  social_links?: {
-    twitter?: string;
-    linkedin?: string;
-    website?: string;
+  writer: {
+    id: string;
+    full_name: string;
+    slug: string;
+    title?: string;
+    avatar_url?: string;
+    role?: string;
+    total_articles: number;
+    total_views: number;
+    is_active: boolean;
   };
-  is_featured?: boolean;
-  latest_article?: OpinionArticle;
 }
-interface FilterOptions {
-  author: string;
-  mood: 'all' | 'optimistic' | 'critical' | 'analytical' | 'controversial';
-  topic: string;
-  dateRange: 'all' | 'today' | 'week' | 'month';
-  format: 'all' | 'article' | 'podcast' | 'video';
-  sortBy: 'latest' | 'popular' | 'trending' | 'controversial';
+
+interface OpinionFilters {
+  search: string;
+  writer_id: string;
+  article_type: string;
+  difficulty_level: string;
+  is_leader_opinion: string;
+  featured: string;
+  quality_score: string;
+  sort: string;
+  order: string;
 }
-export default function OpinionPage() {
-  // الحالات الأساسية
-  const [articles, setArticles] = useState<OpinionArticle[]>([]);
-  const [authors, setAuthors] = useState<OpinionAuthor[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+
+export default function OpinionIndexPage() {
   const { darkMode } = useDarkModeContext();
   
-  // إعدادات العرض والفلترة
-  const [filters, setFilters] = useState<FilterOptions>({
-    author: 'all',
-    mood: 'all',
-    topic: 'all',
-    dateRange: 'all',
-    format: 'all',
-    sortBy: 'latest'
+  const [opinions, setOpinions] = useState<OpinionArticle[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [writers, setWriters] = useState<any[]>([]);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 18,
+    total: 0,
+    totalPages: 0,
+    hasMore: false
   });
-  const [showFilters, setShowFilters] = useState(false);
-  const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
-  const [selectedAuthor, setSelectedAuthor] = useState<string | null>(null);
   
-  // ميزات AI والتفاعل
-  const [currentPlayingId, setCurrentPlayingId] = useState<string | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [aiRecommendations, setAiRecommendations] = useState<OpinionArticle[]>([]);
-  const [topTrends, setTopTrends] = useState<string[]>([]);
-  const [userMood, setUserMood] = useState<string>('neutral');
-  
-  // المراجع
-  const authorsCarouselRef = useRef<HTMLDivElement>(null);
-  const [showLeftArrow, setShowLeftArrow] = useState(false);
-  const [showRightArrow, setShowRightArrow] = useState(true);
-  
-  // جلب البيانات الأولية
+  const [filters, setFilters] = useState<OpinionFilters>({
+    search: '',
+    writer_id: 'all',
+    article_type: 'all',
+    difficulty_level: 'all',
+    is_leader_opinion: 'all',
+    featured: 'all',
+    quality_score: 'all',
+    sort: 'published_at',
+    order: 'desc'
+  });
+
+  // جلب مقالات الرأي
   useEffect(() => {
-    fetchInitialData();
+    fetchOpinions();
+  }, [filters, pagination.page]);
+
+  // جلب الكتاب
+  useEffect(() => {
+    fetchWriters();
   }, []);
-  
-  // جلب المقالات عند تغيير الفلاتر
-  useEffect(() => {
-    fetchArticles();
-  }, [filters, searchQuery, selectedAuthor]);
-  
-  // تحديث أسهم التنقل للكاروسيل
-  useEffect(() => {
-    const checkScrollButtons = () => {
-      if (authorsCarouselRef.current) {
-        const { scrollLeft, scrollWidth, clientWidth } = authorsCarouselRef.current;
-        setShowLeftArrow(scrollLeft > 0);
-        setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 10);
-      }
-    };
-    const carousel = authorsCarouselRef.current;
-    carousel?.addEventListener('scroll', checkScrollButtons);
-    checkScrollButtons();
-    return () => {
-      carousel?.removeEventListener('scroll', checkScrollButtons);
-    };
-  }, [authors]);
-  const fetchInitialData = async () => {
-    try {
-      setLoading(true);
-      // جلب البيانات بالتوازي
-      const [articlesRes, authorsRes, trendsRes, recommendationsRes] = await Promise.all([
-        fetch('/api/articles?type=OPINION&status=published&limit=20'),
-        fetch('/api/opinion-authors?isActive=true&featured=true'),
-        fetch('/api/analytics/trending-topics?type=opinion').catch(() => null),
-        fetch('/api/ai/recommendations?type=opinion').catch(() => null)
-      ]);
-      // معالجة المقالات
-      const articlesData = await articlesRes.json();
-      const articlesList = Array.isArray(articlesData) ? articlesData : articlesData.articles || [];
-      setArticles(articlesList);
-      // معالجة الكتاب
-      if (authorsRes.ok) {
-        const authorsData = await authorsRes.json();
-        setAuthors(Array.isArray(authorsData) ? authorsData : authorsData.authors || []);
-      }
-      // معالجة المواضيع الرائجة
-      if (trendsRes?.ok) {
-        const trendsData = await trendsRes.json();
-        setTopTrends(trendsData.topics || []);
-      }
-      // معالجة التوصيات
-      if (recommendationsRes?.ok) {
-        const recommendationsData = await recommendationsRes.json();
-        setAiRecommendations(recommendationsData.articles || []);
-      }
-    } catch (error) {
-      console.error('خطأ في جلب البيانات:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  const fetchArticles = async () => {
-    try {
-      setLoading(true);
-      // بناء URL مع الفلاتر
-      let url = `/api/articles?status=published&limit=20`;
-      if (selectedAuthor) url += `&author_id=${selectedAuthor}`;
-      if (filters.topic !== 'all') url += `&tag=${filters.topic}`;
-      if (searchQuery) url += `&search=${encodeURIComponent(searchQuery)}`;
-      // ترتيب النتائج
-      switch (filters.sortBy) {
-        case 'popular':
-          url += '&sortBy=views_count&order=desc';
-          break;
-        case 'trending':
-          url += '&sortBy=engagement_score&order=desc';
-          break;
-        case 'controversial':
-          url += '&sortBy=comments_count&order=desc';
-          break;
-        default:
-          url += '&sortBy=published_at&order=desc';
-      }
-      // فلترة التاريخ
-      if (filters.dateRange !== 'all') {
-        const now = new Date();
-        let startDate = new Date();
-        switch (filters.dateRange) {
-          case 'today':
-            startDate.setHours(0, 0, 0, 0);
-            break;
-          case 'week':
-            startDate.setDate(now.getDate() - 7);
-            break;
-          case 'month':
-            startDate.setMonth(now.getMonth() - 1);
-            break;
-        }
-        url += `&from_date=${startDate.toISOString()}`;
-      }
-      const response = await fetch(url);
-      const data = await response.json();
-      const newArticles = Array.isArray(data) ? data : data.articles || [];
-      setArticles(newArticles);
-    } catch (error) {
-      console.error('خطأ في جلب المقالات:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  // التنقل في كاروسيل الكتاب
-  const scrollAuthors = (direction: 'left' | 'right') => {
-    if (authorsCarouselRef.current) {
-      const scrollAmount = 300;
-      authorsCarouselRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      });
-    }
-  };
-  // تشغيل الملخص الصوتي
-  const handleAudioPlay = async (articleId: string, audioUrl?: string, text?: string) => {
-    if (currentPlayingId === articleId) {
-      setIsPlaying(false);
-      setCurrentPlayingId(null);
-      if (!audioUrl) speechSynthesis.cancel();
-      return;
-    }
-    setIsPlaying(true);
-    setCurrentPlayingId(articleId);
-    if (audioUrl) {
-      // تشغيل ملف صوتي إذا كان متوفراً
-      const audio = new Audio(audioUrl);
-      audio.play();
-      audio.onended = () => {
-        setIsPlaying(false);
-        setCurrentPlayingId(null);
-      };
-    } else if (text) {
-      // استخدام TTS إذا لم يكن هناك ملف صوتي
-      try {
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'ar-SA';
-        utterance.rate = 0.9;
-        utterance.pitch = 1;
-        utterance.onend = () => {
-          setIsPlaying(false);
-          setCurrentPlayingId(null);
-        };
-        speechSynthesis.speak(utterance);
-      } catch (error) {
-        console.error('خطأ في تشغيل الصوت:', error);
-        setIsPlaying(false);
-        setCurrentPlayingId(null);
-      }
-    }
-  };
-  // تحديث الفلتر
-  const updateFilter = (key: keyof FilterOptions, value: string) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
-  };
-  // حساب نسبة التوافق مع اهتمامات المستخدم
-  const getRelevanceScore = (article: OpinionArticle): number => {
-    // نسبة وهمية للعرض - يمكن استبدالها بخوارزمية حقيقية
-    return Math.floor(Math.random() * 30) + 70;
-  };
-  // مكون بطاقة المقال - يتبع نفس تصميم NewsCard في الصفحة الرئيسية
-  const OpinionCard = ({ article }: { article: OpinionArticle }) => {
-    const [imageLoading, setImageLoading] = useState(true);
+
+  const fetchOpinions = async () => {
+    setLoading(true);
+    setError(null);
     
-    return (
-      <Link href={getArticleLink(article)} className="group block">
-        <article className={`h-full rounded-3xl overflow-hidden shadow-xl dark:shadow-gray-900/50 transition-all duration-300 transform ${
-          darkMode 
-            ? 'bg-gray-800 border border-gray-700' 
-            : 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700'
-        }`}>
-          {/* صورة المقال */}
-          <div className="relative h-40 sm:h-48 overflow-hidden">
-            <CloudImage
-              src={article.featured_image}
-              alt={article.title || 'صورة المقال'}
-              fill
-              className="w-full h-full object-cover transition-transform duration-500"
-              fallbackType="article"
-              priority={false}
-            />
-            {/* Category Badge */}
-            <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
-              <span className={`inline-flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-bold ${darkMode ? 'bg-blue-900/80 text-blue-200 backdrop-blur-sm' : 'bg-blue-500/90 text-white backdrop-blur-sm'}`}>
-                <Quote className="w-2 h-2 sm:w-3 sm:h-3" />
-                رأي
-              </span>
-            </div>
-            {/* بودكاست Badge إن وجد */}
-            {(article.audio_url || article.podcast_duration) && (
-              <div className="absolute top-2 left-2 sm:top-3 sm:left-3">
-                <span className={`inline-flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-bold ${darkMode ? 'bg-gray-900/80 text-gray-200 backdrop-blur-sm' : 'bg-gray-800/90 text-white backdrop-blur-sm'}`}>
-                  <Headphones className="w-2 h-2 sm:w-3 sm:h-3" />
-                  صوتي
-                </span>
-              </div>
-            )}
-          </div>
-          {/* محتوى البطاقة */}
-          <div className="p-4 sm:p-5">
-            {/* معلومات الكاتب */}
-            <div className="flex items-center gap-3 mb-3">
-              <div className="relative">
-                <CloudImage
-                  src={article.author_avatar}
-                  alt={article.author_name || ''}
-                  width={32}
-                  height={32}
-                  className="rounded-full"
-                  fallbackType="author"
-                />
-              </div>
-              <div className="flex-1">
-                <p className={`font-medium text-sm ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                  {article.author_name}
-                </p>
-                <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                  {article.author_specialization || 'كاتب رأي'}
-                </p>
-              </div>
-            </div>
-            
-            {/* العنوان */}
-            <h4 className={`font-bold text-base sm:text-lg mb-3 line-clamp-2 ${
-              darkMode 
-                ? 'text-white' 
-                : 'text-gray-900 dark:text-white'
-            } transition-colors`} title={article.title}>
-              {article.title}
-            </h4>
-            
-            {/* الملخص */}
-            {article.ai_summary && (
-              <p className={`text-sm mb-4 line-clamp-2 transition-colors duration-300 text-gray-600 dark:text-gray-400`}>
-                {article.ai_summary}
-              </p>
-            )}
-            
-            {/* التفاعلات */}
-            <div className="flex items-center gap-4 mb-3">
-              <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                <ThumbsUp className="w-3 h-3" />
-                <span>{article.agree_count || 0}</span>
-              </div>
-              <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                <ThumbsDown className="w-3 h-3" />
-                <span>{article.disagree_count || 0}</span>
-              </div>
-              <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                <MessageCircle className="w-3 h-3" />
-                <span>{article.comments_count || 0}</span>
-              </div>
-            </div>
-            
-            {/* التفاصيل السفلية */}
-            <div className={`flex items-center justify-between pt-3 sm:pt-4 border-t ${darkMode ? 'border-gray-700' : 'border-gray-100 dark:border-gray-700'}`}>
-              {/* المعلومات */}
-              <div className="flex items-center gap-2 sm:gap-3 text-xs">
-                <div className="text-sm text-gray-500 flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  {new Date(article.published_at || article.created_at).toLocaleDateString('ar-SA', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric',
-                    calendar: 'gregory',
-                    numberingSystem: 'latn'
-                  })}
-                </div>
-                {article.reading_time && (
-                  <span className={`flex items-center gap-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    <Clock className="w-3 h-3" />
-                    {article.reading_time} د
-                  </span>
-                )}
-              </div>
-              {/* زر القراءة */}
-              <div className={`p-2 rounded-xl transition-all ${darkMode ? 'bg-blue-900/20' : 'bg-blue-50 dark:bg-blue-900/20'}`}>
-                <ArrowLeft className={`w-4 h-4 transition-transform ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
-              </div>
-            </div>
-          </div>
-        </article>
-      </Link>
-    );
+    try {
+      const params = new URLSearchParams({
+        page: pagination.page.toString(),
+        limit: pagination.limit.toString(),
+        sort: filters.sort,
+        order: filters.order
+      });
+
+      // إضافة الفلاتر
+      if (filters.search) params.append('search', filters.search);
+      if (filters.writer_id !== 'all') params.append('writer_id', filters.writer_id);
+      if (filters.article_type !== 'all') params.append('article_type', filters.article_type);
+      if (filters.difficulty_level !== 'all') params.append('difficulty_level', filters.difficulty_level);
+      if (filters.is_leader_opinion !== 'all') params.append('is_leader_opinion', filters.is_leader_opinion);
+      if (filters.featured !== 'all') params.append('featured', filters.featured);
+      if (filters.quality_score !== 'all') params.append('quality_score_min', filters.quality_score);
+
+      console.log('🔍 جلب مقالات الرأي:', params.toString());
+
+      const response = await fetch(`/api/opinions?${params}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.error || 'فشل في جلب مقالات الرأي');
+      }
+      
+      setOpinions(data.data || []);
+      setPagination(prev => ({
+        ...prev,
+        total: data.pagination?.total || 0,
+        totalPages: data.pagination?.totalPages || 0,
+        hasMore: data.pagination?.hasMore || false
+      }));
+      
+    } catch (error) {
+      console.error('❌ خطأ في جلب مقالات الرأي:', error);
+      setError(error instanceof Error ? error.message : 'خطأ غير معروف');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
+  const fetchWriters = async () => {
+    try {
+      const response = await fetch('/api/writers');
+      if (response.ok) {
+        const data = await response.json();
+        setWriters(data.writers || []);
+      }
+    } catch (error) {
+      console.error('خطأ في جلب الكتاب:', error);
+    }
+  };
+
+  const handleFilterChange = (key: keyof OpinionFilters, value: string) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+    setPagination(prev => ({ ...prev, page: 1 })); // إعادة تعيين الصفحة
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    fetchOpinions();
+  };
+
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('ar-SA', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch {
+      return 'تاريخ غير صحيح';
+    }
+  };
+
+  const getDifficultyColor = (level: string) => {
+    switch (level) {
+      case 'easy': return 'text-green-600 bg-green-50 border-green-200';
+      case 'advanced': return 'text-red-600 bg-red-50 border-red-200';
+      default: return 'text-blue-600 bg-blue-50 border-blue-200';
+    }
+  };
+
+  const getDifficultyText = (level: string) => {
+    switch (level) {
+      case 'easy': return 'سهل';
+      case 'advanced': return 'متقدم';
+      default: return 'متوسط';
+    }
+  };
+
+  const getArticleTypeText = (type: string) => {
+    switch (type) {
+      case 'analysis': return 'تحليل';
+      case 'interview': return 'مقابلة';
+      case 'editorial': return 'افتتاحية';
+      case 'column': return 'عمود';
+      default: return 'رأي';
+    }
+  };
+
+  const loadMore = () => {
+    if (pagination.hasMore) {
+      setPagination(prev => ({ ...prev, page: prev.page + 1 }));
+    }
+  };
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
-      
-      {/* Hero Section - نفس تصميم الصفحة الرئيسية */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 mb-6 dark:from-blue-900/20 dark:to-purple-900/20 dark:border-blue-800/30">
-            <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-            <span className={`font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-              منصة متقدمة
+    <div className={cn('min-h-screen', darkMode ? 'bg-gray-900' : 'bg-gray-50')}>
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        
+        {/* العنوان الرئيسي */}
+        <header className="mb-8">
+          <div className="flex items-center gap-2 mb-4">
+            <Link href="/" className={cn('hover:underline', darkMode ? 'text-gray-400' : 'text-gray-600')}>
+              الرئيسية
+            </Link>
+            <ArrowRight className="w-4 h-4" />
+            <span className={cn('font-semibold', darkMode ? 'text-white' : 'text-gray-900')}>
+              مقالات الرأي
             </span>
-            <Quote className="w-5 h-5 text-purple-600 dark:text-purple-400" />
           </div>
-          <h1 className={`text-4xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-            قادة الرأي
+          
+          <h1 className={cn('text-3xl lg:text-4xl font-bold mb-2', darkMode ? 'text-white' : 'text-gray-900')}>
+            مقالات الرأي والتحليل
           </h1>
-          <p className={`text-xl max-w-2xl mx-auto ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-            آراء وتحليلات من أبرز الكتّاب وصنّاع الفكر
+          <p className={cn('text-lg', darkMode ? 'text-gray-400' : 'text-gray-600')}>
+            آراء وتحليلات معمقة من خبراء وكتاب متخصصين
           </p>
-        </div>
-      </section>
+        </header>
 
-      {/* شريط التصنيفات - نفس تصميم الصفحة الرئيسية */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 mb-8">
-        <div className={`rounded-3xl p-4 sm:p-6 lg:p-8 transition-all duration-500 shadow-lg dark:shadow-gray-900/50 ${darkMode ? 'bg-blue-900/10 border border-blue-800/30' : 'bg-blue-50 border border-blue-200/50'}`}>
-          <div className="text-center mb-6">
-            <h2 className={`text-xl sm:text-2xl font-bold mb-3 transition-colors duration-300 ${
-              darkMode ? 'text-white' : 'text-gray-800 dark:text-gray-100'
-            }`}>
-              استكشف حسب الكاتب
-            </h2>
-            <p className={`text-sm transition-colors duration-300 ${
-              darkMode ? 'text-gray-400' : 'text-gray-600'
-            }`}>
-              اختر الكاتب المفضل لديك لقراءة آرائه وتحليلاته
+        {/* شريط البحث والفلاتر */}
+        <Card className={cn('mb-8', darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white')}>
+          <CardContent className="p-6">
+            
+            {/* شريط البحث */}
+            <form onSubmit={handleSearch} className="mb-4">
+              <div className="flex gap-2">
+                <div className="flex-1 relative">
+                  <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Input
+                    type="text"
+                    placeholder="البحث في مقالات الرأي..."
+                    value={filters.search}
+                    onChange={(e) => handleFilterChange('search', e.target.value)}
+                    className="pr-10"
+                  />
+                </div>
+                <Button type="submit">
+                  بحث
+                </Button>
+              </div>
+            </form>
+
+            {/* الفلاتر */}
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+              
+              {/* فلتر الكاتب */}
+              <Select value={filters.writer_id} onValueChange={(value) => handleFilterChange('writer_id', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="الكاتب" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">جميع الكتاب</SelectItem>
+                  {writers.map((writer) => (
+                    <SelectItem key={writer.id} value={writer.id}>
+                      {writer.full_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* فلتر نوع المقال */}
+              <Select value={filters.article_type} onValueChange={(value) => handleFilterChange('article_type', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="النوع" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">جميع الأنواع</SelectItem>
+                  <SelectItem value="opinion">رأي</SelectItem>
+                  <SelectItem value="analysis">تحليل</SelectItem>
+                  <SelectItem value="interview">مقابلة</SelectItem>
+                  <SelectItem value="editorial">افتتاحية</SelectItem>
+                  <SelectItem value="column">عمود</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* فلتر مستوى الصعوبة */}
+              <Select value={filters.difficulty_level} onValueChange={(value) => handleFilterChange('difficulty_level', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="المستوى" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">جميع المستويات</SelectItem>
+                  <SelectItem value="easy">سهل</SelectItem>
+                  <SelectItem value="medium">متوسط</SelectItem>
+                  <SelectItem value="advanced">متقدم</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* فلتر قادة الرأي */}
+              <Select value={filters.is_leader_opinion} onValueChange={(value) => handleFilterChange('is_leader_opinion', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="قادة الرأي" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">الكل</SelectItem>
+                  <SelectItem value="true">قادة الرأي فقط</SelectItem>
+                  <SelectItem value="false">كتاب عاديون</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* فلتر المميز */}
+              <Select value={filters.featured} onValueChange={(value) => handleFilterChange('featured', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="مميز" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">الكل</SelectItem>
+                  <SelectItem value="true">مميز فقط</SelectItem>
+                  <SelectItem value="false">غير مميز</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* فلتر الجودة */}
+              <Select value={filters.quality_score} onValueChange={(value) => handleFilterChange('quality_score', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="الجودة" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">جميع المستويات</SelectItem>
+                  <SelectItem value="8">8+ ممتاز</SelectItem>
+                  <SelectItem value="7">7+ جيد جداً</SelectItem>
+                  <SelectItem value="6">6+ جيد</SelectItem>
+                  <SelectItem value="5">5+ مقبول</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* ترتيب حسب */}
+              <Select value={filters.sort} onValueChange={(value) => handleFilterChange('sort', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="ترتيب حسب" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="published_at">تاريخ النشر</SelectItem>
+                  <SelectItem value="created_at">تاريخ الإنشاء</SelectItem>
+                  <SelectItem value="views">المشاهدات</SelectItem>
+                  <SelectItem value="likes">الإعجابات</SelectItem>
+                  <SelectItem value="quality_score">الجودة</SelectItem>
+                  <SelectItem value="engagement_score">التفاعل</SelectItem>
+                  <SelectItem value="title">العنوان</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* ترتيب تصاعدي أم تنازلي */}
+              <Select value={filters.order} onValueChange={(value) => handleFilterChange('order', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="الترتيب" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="desc">الأحدث أولاً</SelectItem>
+                  <SelectItem value="asc">الأقدم أولاً</SelectItem>
+                </SelectContent>
+              </Select>
+
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* النتائج */}
+        {loading && pagination.page === 1 ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin" />
+            <span className="mr-2">جاري تحميل مقالات الرأي...</span>
+          </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <AlertTriangle className={cn('w-16 h-16 mx-auto mb-4', darkMode ? 'text-red-400' : 'text-red-500')} />
+            <h3 className={cn('text-xl font-semibold mb-2', darkMode ? 'text-white' : 'text-gray-900')}>
+              خطأ في تحميل مقالات الرأي
+            </h3>
+            <p className={cn('mb-4', darkMode ? 'text-gray-400' : 'text-gray-600')}>
+              {error}
+            </p>
+            <Button onClick={fetchOpinions}>
+              إعادة المحاولة
+            </Button>
+          </div>
+        ) : opinions.length === 0 ? (
+          <div className="text-center py-12">
+            <h3 className={cn('text-xl font-semibold mb-2', darkMode ? 'text-white' : 'text-gray-900')}>
+              لا توجد مقالات رأي
+            </h3>
+            <p className={cn('', darkMode ? 'text-gray-400' : 'text-gray-600')}>
+              لم نعثر على مقالات رأي تطابق معايير البحث الخاصة بك.
             </p>
           </div>
-          
-          {/* عرض الكتّاب بشكل أفقي مع إمكانية التمرير */}
-          <div className="relative">
-            <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2">
-              {/* زر "جميع الكتّاب" */}
-              <button
-                onClick={() => setSelectedAuthor(null)}
-                className={`flex-shrink-0 text-center transition-all duration-300 transform hover:scale-105 ${
-                  !selectedAuthor 
-                    ? 'scale-105' 
-                    : ''
-                }`}
-              >
-                <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center mb-2 transition-all border-2 ${
-                  !selectedAuthor 
-                    ? 'border-blue-500 ring-4 ring-blue-400/50' 
-                    : darkMode 
-                      ? 'border-gray-600 hover:border-gray-500' 
-                      : 'border-gray-300 hover:border-gray-400'
-                }`}>
-                  <Users className={`w-8 h-8 sm:w-10 sm:h-10 ${
-                    !selectedAuthor 
-                      ? darkMode 
-                        ? 'text-blue-400' 
-                        : 'text-blue-600'
-                      : darkMode 
-                        ? 'text-gray-400' 
-                        : 'text-gray-600'
-                  }`} />
-                </div>
-                <p className={`text-xs sm:text-sm font-medium ${
-                  !selectedAuthor 
-                    ? darkMode 
-                      ? 'text-blue-300' 
-                      : 'text-blue-700'
-                    : darkMode 
-                      ? 'text-gray-300' 
-                      : 'text-gray-700'
-                }`}>
-                  جميع الكتّاب
-                </p>
-              </button>
-              
-              {/* عرض الكتّاب */}
-              {authors.map((author) => (
-                <button
-                  key={author.id}
-                  onClick={() => setSelectedAuthor(author.id)}
-                  className={`flex-shrink-0 text-center transition-all duration-300 transform hover:scale-105 bg-transparent ${
-                    selectedAuthor === author.id 
-                      ? 'scale-105' 
-                      : ''
-                  }`}
+        ) : (
+          <>
+            {/* إحصائيات النتائج */}
+            <div className={cn('mb-6 text-sm', darkMode ? 'text-gray-400' : 'text-gray-600')}>
+              عرض {opinions.length} من أصل {pagination.total.toLocaleString('ar-SA')} مقال رأي
+            </div>
+
+            {/* شبكة مقالات الرأي */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {opinions.map((article) => (
+                <Link 
+                  key={article.id} 
+                  href={`/opinion/${article.slug}`}
+                  className={cn(
+                    'block rounded-lg border transition-all duration-300 hover:scale-105 hover:shadow-lg',
+                    darkMode ? 'border-gray-700 bg-gray-800 hover:border-blue-500' : 'border-gray-200 bg-white hover:border-blue-500'
+                  )}
                 >
-                  <div className={`relative w-16 h-16 sm:w-20 sm:h-20 mb-2 bg-transparent ${
-                    selectedAuthor === author.id 
-                      ? 'ring-4 ring-blue-400/50 dark:ring-blue-300/50' 
-                      : ''
-                  }`}>
-                    <CloudImage
-                      src={author.avatar}
-                      alt={author.name}
-                      width={64}
-                      height={64}
-                      className={`w-full h-full rounded-full object-cover transition-all ${
-                        selectedAuthor === author.id 
-                          ? 'border-3 border-blue-500' 
-                          : 'border-2 border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-600'
-                      }`}
-                      fallbackType="author"
-                    />
-                    {/* شارة عدد المقالات */}
-                    <div className={`absolute -bottom-1 -right-1 px-2 py-0.5 rounded-full text-xs font-bold ${
-                      selectedAuthor === author.id
-                        ? 'bg-blue-500 text-white'
-                        : darkMode 
-                          ? 'bg-gray-800 text-gray-200 border border-gray-700' 
-                          : 'bg-white text-gray-700 border border-gray-200'
-                    } shadow-sm`}>
-                      {author.articles_count || 0}
-                    </div>
-                    {/* شارة التميز إن وجدت */}
-                    {author.is_featured && (
-                      <div className="absolute -top-1 -left-1">
-                        <div className="relative">
-                          <Star className={`w-5 h-5 ${
-                            darkMode 
-                              ? 'text-yellow-400' 
-                              : 'text-yellow-500'
-                          } fill-current`} />
-                        </div>
+                  {/* الصورة المميزة */}
+                  {article.featured_image && (
+                    <div className="relative w-full h-48 rounded-t-lg overflow-hidden">
+                      <Image
+                        src={article.featured_image}
+                        alt={article.title}
+                        fill
+                        className="object-cover transition-transform duration-300 hover:scale-110"
+                      />
+                      
+                      {/* شارات على الصورة */}
+                      <div className="absolute top-2 right-2 flex flex-col gap-1">
+                        {article.is_leader_opinion && (
+                          <Badge className="bg-gradient-to-r from-yellow-500 to-orange-600 text-white text-xs">
+                            <Crown className="w-3 h-3 ml-1" />
+                            قائد رأي
+                          </Badge>
+                        )}
+                        {article.featured && (
+                          <Badge className="bg-blue-600 text-white text-xs">
+                            <Star className="w-3 h-3 ml-1" />
+                            مميز
+                          </Badge>
+                        )}
                       </div>
-                    )}
-                  </div>
-                  <div className="bg-transparent">
-                    <p className={`text-xs sm:text-sm font-medium line-clamp-2 px-1 ${
-                      selectedAuthor === author.id 
-                        ? darkMode 
-                          ? 'text-blue-300' 
-                          : 'text-blue-700'
-                        : darkMode 
-                          ? 'text-gray-300' 
-                          : 'text-gray-700'
-                    }`}>
-                      {author.name}
-                    </p>
-                    {author.specialization && (
-                      <p className={`text-xs mt-0.5 line-clamp-1 px-1 ${
-                        selectedAuthor === author.id
-                          ? darkMode 
-                            ? 'text-blue-400/70' 
-                            : 'text-blue-600/70'
-                          : darkMode 
-                            ? 'text-gray-500' 
-                            : 'text-gray-500'
-                      }`}>
-                        {author.specialization}
+
+                      {/* تقييم الجودة */}
+                      <div className="absolute bottom-2 left-2">
+                        <Badge 
+                          className={cn(
+                            'text-xs',
+                            article.quality_score >= 8 ? 'bg-green-600' : 
+                            article.quality_score >= 7 ? 'bg-blue-600' : 
+                            article.quality_score >= 6 ? 'bg-yellow-600' : 'bg-gray-600'
+                          )}
+                        >
+                          <Award className="w-3 h-3 ml-1" />
+                          {article.quality_score}/10
+                        </Badge>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="p-4">
+                    {/* شارات المقال */}
+                    <div className="flex flex-wrap gap-1 mb-2">
+                      <Badge variant="outline" className="text-xs">
+                        {getArticleTypeText(article.article_type)}
+                      </Badge>
+                      
+                      <Badge 
+                        variant="outline" 
+                        className={cn('text-xs', getDifficultyColor(article.difficulty_level))}
+                      >
+                        <BookOpen className="w-3 h-3 ml-1" />
+                        {getDifficultyText(article.difficulty_level)}
+                      </Badge>
+
+                      {article.opinion_category && (
+                        <Badge variant="secondary" className="text-xs">
+                          {article.opinion_category}
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    {/* العنوان */}
+                    <h3 className={cn('font-bold text-lg leading-tight mb-2 line-clamp-2', darkMode ? 'text-white' : 'text-gray-900')}>
+                      {article.title}
+                    </h3>
+                    
+                    {/* المقتطف */}
+                    {article.excerpt && (
+                      <p className={cn('text-sm leading-relaxed mb-3 line-clamp-3', darkMode ? 'text-gray-400' : 'text-gray-600')}>
+                        {article.excerpt}
                       </p>
                     )}
-                    {/* عدد المشاهدات */}
-                    {author.total_views && (
-                      <div className={`flex items-center justify-center gap-1 mt-1 text-xs ${
-                        darkMode 
-                          ? 'text-gray-500' 
-                          : 'text-gray-400'
-                      }`}>
-                        <Eye className="w-3 h-3" />
-                        <span>{author.total_views > 1000 ? `${(author.total_views / 1000).toFixed(1)}k` : author.total_views}</span>
+                    
+                    {/* الكلمات المفتاحية */}
+                    {article.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-3">
+                        {article.tags.slice(0, 3).map((tag, index) => (
+                          <span 
+                            key={index}
+                            className={cn(
+                              'text-xs px-2 py-1 rounded',
+                              darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'
+                            )}
+                          >
+                            #{tag}
+                          </span>
+                        ))}
+                        {article.tags.length > 3 && (
+                          <span className={cn('text-xs', darkMode ? 'text-gray-400' : 'text-gray-500')}>
+                            +{article.tags.length - 3}
+                          </span>
+                        )}
                       </div>
                     )}
-                  </div>
-                </button>
-              ))}
-            </div>
-            
-            {/* أسهم التمرير للموبايل */}
-            {authors.length > 5 && (
-              <>
-                <div className="absolute left-0 top-1/3 -translate-y-1/2 bg-gradient-to-r from-white dark:from-gray-900 to-transparent w-12 h-20 pointer-events-none md:hidden" />
-                <div className="absolute right-0 top-1/3 -translate-y-1/2 bg-gradient-to-l from-white dark:from-gray-900 to-transparent w-12 h-20 pointer-events-none md:hidden" />
-              </>
-            )}
-          </div>
-        </div>
-      </section>
+                    
+                    {/* معلومات إضافية */}
+                    <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />
+                          <span>{formatDate(article.published_at || article.created_at)}</span>
+                        </div>
+                        
+                        <div className="flex items-center gap-1">
+                          <Eye className="w-3 h-3" />
+                          <span>{article.views.toLocaleString('ar-SA')}</span>
+                        </div>
 
-      {/* المحتوى الرئيسي */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* قائمة المقالات - العمود الرئيسي */}
-          <div className="lg:col-span-3">
-            {/* عرض معلومات الكاتب المختار */}
-            {selectedAuthor && (
-              <div className="mb-6">
-                {(() => {
-                  const author = authors.find(a => a.id === selectedAuthor);
-                  if (!author) return null;
-                  return (
-                    <div className={`rounded-3xl p-6 shadow-lg dark:shadow-gray-900/50 border ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
-                      <div className="flex items-center gap-4">
-                        <CloudImage
-                          src={author.avatar}
-                          alt={author.name}
-                          width={64}
-                          height={64}
-                          className="rounded-full"
-                          fallbackType="author"
-                        />
-                        <div className="flex-1">
-                          <h3 className={`text-2xl font-bold mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                            {author.name}
-                          </h3>
-                          {author.specialization && (
-                            <p className={`text-sm mb-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                              {author.specialization}
-                            </p>
-                          )}
-                          {author.bio && (
-                            <p className={`text-sm line-clamp-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                              {author.bio}
-                            </p>
-                          )}
-                          <div className="flex items-center gap-4 mt-3 text-sm">
-                            <div className={`flex items-center gap-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                              <Newspaper className="w-4 h-4" />
-                              <span>{author.articles_count || 0} مقال</span>
-                            </div>
-                            <div className={`flex items-center gap-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                              <Eye className="w-4 h-4" />
-                              <span>{author.total_views?.toLocaleString() || 0} مشاهدة</span>
-                            </div>
-                            {author.followers_count && (
-                              <div className={`flex items-center gap-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                <Users className="w-4 h-4" />
-                                <span>{author.followers_count} متابع</span>
-                              </div>
+                        <div className="flex items-center gap-1">
+                          <Heart className="w-3 h-3" />
+                          <span>{article.likes}</span>
+                        </div>
+                      </div>
+                      
+                      {article.estimated_read && (
+                        <span>{article.estimated_read} دقيقة</span>
+                      )}
+                    </div>
+                    
+                    {/* معلومات الكاتب */}
+                    <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center gap-2">
+                        {article.writer.avatar_url && (
+                          <div className="w-8 h-8 rounded-full overflow-hidden">
+                            <Image
+                              src={article.writer.avatar_url}
+                              alt={article.writer.full_name}
+                              width={32}
+                              height={32}
+                              className="object-cover"
+                            />
+                          </div>
+                        )}
+                        
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className={cn('text-sm font-medium truncate', darkMode ? 'text-white' : 'text-gray-900')}>
+                              {article.writer.full_name}
+                            </span>
+                            {article.is_leader_opinion && (
+                              <Crown className="w-3 h-3 text-yellow-500" />
                             )}
                           </div>
+                          
+                          {article.writer.title && (
+                            <span className="text-xs text-gray-500 truncate block">
+                              {article.writer.title}
+                            </span>
+                          )}
                         </div>
-                        <button
-                          onClick={() => setSelectedAuthor(null)}
-                          className={`p-2 rounded-xl transition-colors ${
-                            darkMode 
-                              ? 'hover:bg-gray-700' 
-                              : 'hover:bg-gray-100'
-                          }`}
-                        >
-                          <X className={`w-5 h-5 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`} />
-                        </button>
+                        
+                        <div className="text-right">
+                          <div className="text-xs text-gray-500">
+                            {article.writer.total_articles} مقال
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {article.writer.total_views.toLocaleString('ar-SA')} مشاهدة
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  );
-                })()}
-              </div>
-            )}
-            
-            {/* توصية اليوم */}
-            {aiRecommendations.length > 0 && (
-              <div className="mb-8">
-                <div className="text-center mb-6">
-                  <h3 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                    مقال اليوم المقترح لك
-                  </h3>
-                </div>
-                <OpinionCard article={aiRecommendations[0]} />
-              </div>
-            )}
-            
-            {/* قائمة المقالات */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {articles.map((article) => (
-                <OpinionCard key={article.id} article={article} />
+                  </div>
+                </Link>
               ))}
             </div>
-            
-            {articles.length === 0 && (
-              <div className={`text-center py-20 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                <Quote className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                <p className="text-xl mb-2">لا توجد مقالات رأي حالياً</p>
-                <p className="text-sm">تحقق لاحقاً للحصول على آخر الآراء والتحليلات</p>
+
+            {/* زر تحميل المزيد */}
+            {pagination.hasMore && (
+              <div className="text-center">
+                <Button 
+                  onClick={loadMore} 
+                  disabled={loading}
+                  className="px-8 py-3"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 ml-2 animate-spin" />
+                      جاري التحميل...
+                    </>
+                  ) : (
+                    'تحميل المزيد'
+                  )}
+                </Button>
               </div>
             )}
-          </div>
-          
-          {/* الشريط الجانبي */}
-          <div className="space-y-6">
-            {/* أفضل 5 كتّاب الأسبوع */}
-            <div className={`rounded-3xl p-6 shadow-lg dark:shadow-gray-900/50 border ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
-              <h3 className={`text-lg font-bold mb-4 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                <Award className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                أفضل كتّاب الأسبوع
-              </h3>
-              <div className="space-y-3">
-                {authors.slice(0, 5).map((author, index) => (
-                  <Link
-                    key={author.id}
-                    href={`/author/${author.id}`}
-                    className={`flex items-center gap-3 p-3 rounded-xl transition-colors group ${
-                      darkMode 
-                        ? 'hover:bg-gray-700/50' 
-                        : 'hover:bg-gray-50'
-                    }`}
-                  >
-                    <span className={`text-lg font-bold ${
-                      index === 0 ? 'text-blue-600 dark:text-blue-400' :
-                      index === 1 ? 'text-gray-500' :
-                      index === 2 ? 'text-gray-400' :
-                      'text-gray-400'
-                    }`}>
-                      {index + 1}
-                    </span>
-                    <CloudImage
-                      src={author.avatar}
-                      alt={author.name}
-                      width={40}
-                      height={40}
-                      className="rounded-full"
-                      fallbackType="author"
-                    />
-                    <div className="flex-1">
-                      <p className={`font-medium text-sm ${darkMode ? 'text-white' : 'text-gray-900'} group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors`}>
-                        {author.name}
-                      </p>
-                      <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                        {author.articles_count || 0} مقال • {author.total_views?.toLocaleString() || 0} مشاهدة
-                      </p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-            
-            {/* إحصائيات القسم */}
-            <div className={`rounded-3xl p-6 shadow-lg dark:shadow-gray-900/50 border ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
-              <h3 className={`text-lg font-bold mb-4 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                <BarChart3 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                إحصائيات القسم
-              </h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>عدد المقالات</span>
-                  <span className={`font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{articles.length}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>عدد الكتّاب</span>
-                  <span className={`font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{authors.length}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>متوسط القراءة</span>
-                  <span className={`font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>5 دقائق</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>نسبة التفاعل</span>
-                  <span className="font-bold text-blue-600 dark:text-blue-400">87%</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
+          </>
+        )}
+      </div>
     </div>
   );
 }

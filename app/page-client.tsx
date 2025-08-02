@@ -321,10 +321,10 @@ function NewspaperHomePage({
     const fetchArticles = async () => {
       try {
         setArticlesLoading(true);
-        const res = await fetch('/api/articles?status=published&limit=20&sortBy=published_at&order=desc&article_type=news');
+        const res = await fetch('/api/news?status=published&limit=20&sort=published_at&order=desc');
         const json = await res.json();
-        // 💡 FIX: The API returns { success: true, articles: [...] }
-        const list = Array.isArray(json) ? json : (json.articles || json.data || []);
+        // 💡 API الجديد يرجع { success: true, data: [...] }
+        const list = json.success ? (json.data || []) : [];
         // تعيين المقالات للعرض في بلوك "محتوى مخصص لك"
         setArticles(list);
         if (list.length === 0) {
@@ -475,13 +475,13 @@ function NewspaperHomePage({
     setCategoryArticlesLoading(true);
     try {
       console.log(`🔍 جلب مقالات التصنيف ID: ${categoryId}`);
-              const res = await fetch(`/api/articles?status=published&category_id=${categoryId}&limit=20&sortBy=published_at&order=desc&article_type=news`);
+              const res = await fetch(`/api/news?status=published&category_id=${categoryId}&limit=20&sort=published_at&order=desc`);
       const json = await res.json();
       
-      console.log(`📊 استجابة API للتصنيف ${categoryId}:`, json);
+      console.log(`📊 استجابة API الجديد للتصنيف ${categoryId}:`, json);
       
       if (json.success) {
-        const list = json.articles || [];
+        const list = json.data || [];
         console.log(`✅ تم جلب ${list.length} مقال للتصنيف ${categoryId}`);
         setCategoryArticles(list);
       } else {

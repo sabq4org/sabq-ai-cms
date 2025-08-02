@@ -198,8 +198,8 @@ function AdminNewsPageContent() {
         params.append('category_id', selectedCategory);
       }
 
-      console.log(`📡 استدعاء API: /api/admin/news?${params}`);
-      const response = await fetch(`/api/admin/news?${params}`, {
+      console.log(`📡 استدعاء API الجديد: /api/news?${params}`);
+      const response = await fetch(`/api/news?${params}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -229,12 +229,12 @@ function AdminNewsPageContent() {
       const data = await response.json();
       console.log(`📦 بيانات مُستلمة:`, { 
         success: data.success, 
-        total: data.total, 
-        articlesCount: data.articles?.length || 0,
+        total: data.pagination?.total || data.total, 
+        articlesCount: data.data?.length || 0,
         error: data.error || null
       });
       
-      // التحقق من نجاح الاستجابة
+      // التحقق من نجاح الاستجابة (API الجديد يستخدم data.success)
       if (!data.success) {
         console.error('❌ فشل API في جلب البيانات:', data.error);
         toast.error(`فشل في جلب الأخبار: ${data.error || 'خطأ غير معروف'}`);
@@ -242,15 +242,16 @@ function AdminNewsPageContent() {
         return;
       }
       
-      if (data.articles) {
+      // API الجديد يستخدم data.data بدلاً من data.articles
+      if (data.data) {
         console.log('📦 معالجة البيانات...', {
-          total: data.total,
-          articlesReceived: data.articles.length,
-          firstArticleTitle: data.articles[0]?.title?.substring(0, 50)
+          total: data.pagination?.total || data.total,
+          articlesReceived: data.data.length,
+          firstArticleTitle: data.data[0]?.title?.substring(0, 50)
         });
         
         // تنظيف البيانات وإضافة معالجة آمنة
-        const cleanArticles = data.articles.map((article: any) => ({
+        const cleanArticles = data.data.map((article: any) => ({
           ...article,
           published_at: article.published_at || article.created_at,
           status: article.status || 'draft'
