@@ -128,6 +128,7 @@ export async function GET(request: NextRequest) {
       reading_time: article.reading_time,
       allow_comments: article.allow_comments !== false,
       created_at: article.created_at,
+      article_type: article.article_type, // 🔧 إضافة حقل article_type المفقود
       categories: article.categories,
       author: article.author || { id: '', name: 'غير محدد', email: '' }
     }));
