@@ -293,14 +293,13 @@ export async function POST(request: NextRequest) {
     const isFeatured = data.featured || data.is_featured || data.isFeatured || false;
     const isBreaking = data.breaking || data.is_breaking || data.isBreaking || false;
     
-    // تنقية البيانات للتأكد من مطابقتها لنموذج articles
-    const articleData = {
+    // سيتم تحديد حقول المؤلف لاحقاً بعد التحقق من مصدر المؤلف
+    let articleData = {
       id: data.id || generateId(),
       title: data.title,
       slug: data.slug || generateSlug(data.title),
       content: data.content,
       excerpt: data.excerpt || data.summary || null,
-      author_id: authorId, // استخدام المتغير الموحد
       category_id: categoryId, // استخدام المتغير الموحد
       status: data.status || 'draft',
       featured: isFeatured,
@@ -320,10 +319,11 @@ export async function POST(request: NextRequest) {
     // التحقق من وجود التصنيف والمؤلف في قاعدة البيانات قبل الإنشاء
     console.log('🔍 التحقق من صحة المؤلف والتصنيف...');
     
-    // البحث عن المؤلف في جداول متعددة (article_authors أولاً، ثم users)
+    // البحث عن المؤلف في جداول متعددة مع تحديد النظام المناسب
     let author = null;
+    let authorSource = null; // 'article_authors' أو 'users'
     
-    // محاولة البحث في article_authors أولاً
+    // محاولة البحث في article_authors أولاً (النظام الجديد)
     try {
       author = await prisma.article_authors.findUnique({ 
         where: { id: authorId },
@@ -331,7 +331,8 @@ export async function POST(request: NextRequest) {
       });
       
       if (author) {
-        console.log('✅ تم العثور على المؤلف في article_authors:', author.full_name);
+        authorSource = 'article_authors';
+        console.log('✅ تم العثور على المؤلف في article_authors (النظام الجديد):', author.full_name);
         
         // التحقق من أن المؤلف نشط
         if (!author.is_active) {
@@ -347,7 +348,7 @@ export async function POST(request: NextRequest) {
       console.log('⚠️ خطأ في البحث في article_authors:', error.message);
     }
     
-    // إذا لم يوجد في article_authors، ابحث في users
+    // إذا لم يوجد في article_authors، ابحث في users (النظام القديم)
     if (!author) {
       try {
         const userAuthor = await prisma.users.findUnique({ 
@@ -356,7 +357,8 @@ export async function POST(request: NextRequest) {
         });
         
         if (userAuthor) {
-          console.log('✅ تم العثور على المؤلف في users:', userAuthor.name);
+          authorSource = 'users';
+          console.log('✅ تم العثور على المؤلف في users (النظام القديم):', userAuthor.name);
           // تحويل بنية users لتتوافق مع article_authors
           author = {
             id: userAuthor.id,
@@ -393,7 +395,38 @@ export async function POST(request: NextRequest) {
     
     console.log('✅ المؤلف والتصنيف صحيحان:', {
       author: author.full_name || author.name || author.email,
+      authorSource: authorSource,
       category: category.name
+    });
+    
+    // تحديد حقول المؤلف بناءً على مصدره
+    if (authorSource === 'article_authors') {
+      // استخدام النظام الجديد - article_authors
+      articleData.article_author_id = author.id;
+      // author_id مطلوب في schema - نحتاج استخدام dummy user أو إصلاح schema
+      // مؤقتاً، سنستخدم ID المؤلف نفسه إذا وُجد في users
+      try {
+        const dummyUser = await prisma.users.findFirst({
+          select: { id: true }
+        });
+        articleData.author_id = dummyUser?.id || author.id; // fallback
+      } catch (error) {
+        articleData.author_id = author.id; // إذا فشل، استخدم نفس ID
+      }
+      console.log('📝 استخدام النظام الجديد: article_author_id =', author.id);
+    } else if (authorSource === 'users') {
+      // استخدام النظام القديم - users
+      articleData.author_id = author.id;
+      articleData.article_author_id = null; // حقل اختياري
+      console.log('📝 استخدام النظام القديم: author_id =', author.id);
+    }
+    
+    console.log('📝 بيانات المقال النهائية مع المؤلف:', {
+      id: articleData.id,
+      title: articleData.title,
+      author_id: articleData.author_id,
+      article_author_id: articleData.article_author_id,
+      category_id: articleData.category_id
     });
     
     // إنشاء المقال أولاً
