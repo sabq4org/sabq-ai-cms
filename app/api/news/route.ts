@@ -1,6 +1,6 @@
 /**
- * API للأخبار المنفصلة
- * /api/news - جلب الأخبار من جدول news_articles
+ * API للأخبار - يستخدم جدول articles مع فلتر نوع الأخبار
+ * /api/news - جلب الأخبار فقط
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -22,7 +22,6 @@ export async function GET(request: NextRequest) {
     const author_id = searchParams.get('author_id');
     const breaking = searchParams.get('breaking');
     const featured = searchParams.get('featured');
-    const urgent = searchParams.get('urgent');
     const search = searchParams.get('search');
     const date_from = searchParams.get('date_from');
     const date_to = searchParams.get('date_to');
@@ -30,11 +29,16 @@ export async function GET(request: NextRequest) {
     const order = searchParams.get('order') || 'desc';
     
     console.log('🔍 News API Request:', {
-      page, limit, status, category_id, author_id, breaking, featured, urgent, search, sort, order
+      page, limit, status, category_id, author_id, breaking, featured, search, sort, order
     });
     
     // بناء شروط البحث
-    const where: any = {};
+    const where: any = {
+      // فلتر الأخبار فقط (استبعاد مقالات الرأي)
+      article_type: {
+        notIn: ['opinion', 'analysis', 'interview', 'editorial']
+      }
+    };
     
     // فلتر الحالة
     if (status === 'all') {
@@ -48,7 +52,8 @@ export async function GET(request: NextRequest) {
     if (author_id) where.author_id = author_id;
     if (breaking === 'true') where.breaking = true;
     if (featured === 'true') where.featured = true;
-    if (urgent === 'true') where.urgent = true;
+    // urgent غير موجود في جدول articles القديم - تم تعطيله مؤقتاً
+    // if (urgent === 'true') where.urgent = true;
     
     // فلتر البحث النصي
     if (search) {
@@ -78,9 +83,9 @@ export async function GET(request: NextRequest) {
       orderBy.published_at = 'desc'; // افتراضي
     }
     
-    // جلب الأخبار والعدد الإجمالي
+    // جلب الأخبار والعدد الإجمالي من جدول articles
     const [news, totalCount] = await Promise.all([
-      prisma.news_articles.findMany({
+      prisma.articles.findMany({
         where,
         include: {
           categories: {
@@ -94,7 +99,7 @@ export async function GET(request: NextRequest) {
         skip,
         take: limit
       }),
-      prisma.news_articles.count({ where })
+      prisma.articles.count({ where })
     ]);
     
     // حساب معلومات الصفحات
@@ -103,10 +108,34 @@ export async function GET(request: NextRequest) {
     
     console.log(`✅ News API: تم جلب ${news.length} خبر من أصل ${totalCount}`);
     
+    // تحويل البيانات لتوافق واجهة NewsArticle
+    const formattedNews = news.map(article => ({
+      id: article.id,
+      title: article.title,
+      slug: article.slug,
+      excerpt: article.excerpt,
+      status: article.status,
+      published_at: article.published_at,
+      breaking: article.breaking || false,
+      featured: article.featured || false,
+      urgent: false, // لا يوجد في جدول articles القديم
+      source: null, // لا يوجد في جدول articles القديم
+      location: null, // لا يوجد في جدول articles القديم
+      featured_image: article.featured_image,
+      views: article.views || 0,
+      likes: article.likes || 0,
+      shares: article.shares || 0,
+      reading_time: article.reading_time,
+      allow_comments: article.allow_comments !== false,
+      created_at: article.created_at,
+      categories: article.categories,
+      author: article.author || { id: '', name: 'غير محدد', email: '' }
+    }));
+
     // إنشاء الاستجابة مع headers صريحة
     const response = NextResponse.json({
       success: true,
-      data: news,
+      data: formattedNews,
       pagination: {
         page,
         limit,
@@ -115,7 +144,7 @@ export async function GET(request: NextRequest) {
         hasMore
       },
       meta: {
-        filters: { status, category_id, author_id, breaking, featured, urgent, search },
+        filters: { status, category_id, author_id, breaking, featured, search },
         sort: { field: sort, order }
       }
     });
