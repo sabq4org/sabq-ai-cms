@@ -152,11 +152,9 @@ export default function DashboardLayout({
         )}>
           {/* حاوية محتوى مرنة */}
           <div className={cn(
-            "w-full mx-auto transition-all duration-300", // عرض كامل دائماً مع انتقال سلس
-            // تطبيق العرض حسب إعداد المستخدم
-            isFullWidth ? "max-w-none" : "max-w-7xl",
-            // padding إضافي للشاشات الواسعة في وضع العرض الكامل
-            isFullWidth && "xl:px-4 2xl:px-8"
+            "w-full transition-all duration-300", // عرض كامل دائماً بدون حدود قصوى
+            // padding للمحتوى
+            "space-y-6"
           )}>
             {children}
           </div>

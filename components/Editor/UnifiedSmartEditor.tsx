@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import OptimizedImageUpload from '@/components/ui/optimized-image-upload';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
@@ -17,35 +18,31 @@ import Link from '@tiptap/extension-link';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import {
-    AlertCircle,
-    Bold,
-    Brain,
-    Calendar,
-    Camera,
-    CheckCircle,
-    Clock,
-    FileText,
-    Heading1,
-    Heading2,
-    Image as ImageIcon,
-    Italic,
-    Link as LinkIcon,
-    List,
-    ListOrdered,
-    MapPin,
-    Plus,
-    Quote,
-    Redo,
-    RefreshCw,
-    Save,
-    Sparkles,
-    Trash2,
-    Type,
-    Undo,
-    User,
-    Users,
-    Wand2,
-    Zap
+  Bold,
+  Brain,
+  Calendar,
+  Camera,
+  CheckCircle,
+  Clock,
+  FileText,
+  Heading1,
+  Heading2,
+  Image as ImageIcon,
+  Italic,
+  Link as LinkIcon,
+  List,
+  ListOrdered,
+  Plus,
+  Quote,
+  Redo,
+  RefreshCw,
+  Save,
+  Sparkles,
+  Trash2,
+  Type,
+  Undo,
+  Users,
+  Wand2
 } from 'lucide-react';
 import React, { useCallback, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -302,156 +299,143 @@ const UnifiedSmartEditor: React.FC<UnifiedEditorProps> = ({
   }
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      {/* الهيدر الرئيسي */}
-      <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Brain className="w-8 h-8" />
-              <div>
-                <CardTitle className="text-2xl">المحرر الذكي الموحد</CardTitle>
-                <p className="text-blue-100">كل الأدوات في مكان واحد</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <Type className="w-4 h-4" />
-                <span>{articleData.wordCount} كلمة</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4" />
-                <span>{articleData.readingTime} دقيقة</span>
-              </div>
-              {lastSaved && (
-                <div className="flex items-center gap-2 text-green-200">
-                  <CheckCircle className="w-4 h-4" />
-                  <span>محفوظ</span>
-                </div>
-              )}
-            </div>
+    <div className="space-y-4 max-w-7xl mx-auto">
+      {/* شريط الحالة البسيط */}
+      <div className="flex items-center justify-between p-4 bg-white border rounded-lg shadow-sm">
+        <div className="flex items-center gap-3">
+          <Brain className="w-6 h-6 text-blue-600" />
+          <div>
+            <h1 className="text-lg font-semibold text-gray-900">المحرر الذكي</h1>
+            <p className="text-sm text-gray-500">محرر متطور وسهل الاستخدام</p>
           </div>
-        </CardHeader>
-      </Card>
+        </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* العمود الأيسر - المعلومات الأساسية */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* العناوين والملخص */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="w-5 h-5" />
-                معلومات المقال الأساسية
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="title">العنوان الرئيسي</Label>
-                <Input
-                  id="title"
-                  value={articleData.title}
-                  onChange={(e) => setArticleData(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder="أدخل العنوان الرئيسي للمقال..."
-                  className="mt-1"
-                />
-              </div>
+        <div className="flex items-center gap-6 text-sm text-gray-600">
+          <div className="flex items-center gap-1">
+            <Type className="w-4 h-4" />
+            <span>{articleData.wordCount} كلمة</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Clock className="w-4 h-4" />
+            <span>{articleData.readingTime} دقيقة</span>
+          </div>
+          {lastSaved && (
+            <div className="flex items-center gap-1 text-green-600">
+              <CheckCircle className="w-4 h-4" />
+              <span>محفوظ</span>
+            </div>
+          )}
+        </div>
+      </div>
 
-              <div>
-                <Label htmlFor="subtitle">العنوان الفرعي</Label>
-                <Input
-                  id="subtitle"
-                  value={articleData.subtitle}
-                  onChange={(e) => setArticleData(prev => ({ ...prev, subtitle: e.target.value }))}
-                  placeholder="أدخل العنوان الفرعي..."
-                  className="mt-1"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="summary">الملخص</Label>
-                <div className="flex gap-2 mt-1">
-                  <Textarea
-                    id="summary"
-                    value={articleData.summary}
-                    onChange={(e) => setArticleData(prev => ({ ...prev, summary: e.target.value }))}
-                    placeholder="ملخص مختصر للمقال..."
-                    rows={3}
-                    className="flex-1"
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-4">
+        {/* العمود الرئيسي - المحرر والمحتوى */}
+        <div className="xl:col-span-3 space-y-4">
+          {/* المعلومات الأساسية في صف واحد */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card className="shadow-sm">
+              <CardContent className="p-4 space-y-3">
+                <div>
+                  <Label htmlFor="title" className="text-sm font-medium">العنوان الرئيسي</Label>
+                  <Input
+                    id="title"
+                    value={articleData.title}
+                    onChange={(e) => setArticleData(prev => ({ ...prev, title: e.target.value }))}
+                    placeholder="أدخل العنوان الرئيسي..."
+                    className="mt-1"
                   />
-                  <Button
-                    onClick={generateSmartSummary}
-                    disabled={isGenerating}
-                    size="sm"
-                    className="self-start"
-                  >
-                    <Sparkles className="w-4 h-4" />
-                  </Button>
                 </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="category">التصنيف</Label>
-                  <Select
-                    value={articleData.category}
-                    onValueChange={(value) => setArticleData(prev => ({ ...prev, category: value }))}
-                  >
-                    <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="اختر التصنيف..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="politics">سياسة</SelectItem>
-                      <SelectItem value="economy">اقتصاد</SelectItem>
-                      <SelectItem value="technology">تقنية</SelectItem>
-                      <SelectItem value="sports">رياضة</SelectItem>
-                      <SelectItem value="culture">ثقافة</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label htmlFor="subtitle" className="text-sm font-medium">العنوان الفرعي</Label>
+                  <Input
+                    id="subtitle"
+                    value={articleData.subtitle}
+                    onChange={(e) => setArticleData(prev => ({ ...prev, subtitle: e.target.value }))}
+                    placeholder="أدخل العنوان الفرعي..."
+                    className="mt-1"
+                  />
                 </div>
+              </CardContent>
+            </Card>
 
+            <Card className="shadow-sm">
+              <CardContent className="p-4 space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-sm font-medium">التصنيف</Label>
+                    <Select
+                      value={articleData.category}
+                      onValueChange={(value) => setArticleData(prev => ({ ...prev, category: value }))}
+                    >
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="اختر..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="politics">سياسة</SelectItem>
+                        <SelectItem value="economy">اقتصاد</SelectItem>
+                        <SelectItem value="technology">تقنية</SelectItem>
+                        <SelectItem value="sports">رياضة</SelectItem>
+                        <SelectItem value="culture">ثقافة</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium">الأولوية</Label>
+                    <Select
+                      value={articleData.priority}
+                      onValueChange={(value: any) => setArticleData(prev => ({ ...prev, priority: value }))}
+                    >
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="اختر..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="breaking">🔴 عاجل</SelectItem>
+                        <SelectItem value="urgent">🟡 مهم</SelectItem>
+                        <SelectItem value="normal">⚪ عادي</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
                 <div>
-                  <Label htmlFor="priority">الأولوية</Label>
-                  <Select
-                    value={articleData.priority}
-                    onValueChange={(value: any) => setArticleData(prev => ({ ...prev, priority: value }))}
-                  >
-                    <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="اختر الأولوية..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="breaking">
-                        <div className="flex items-center gap-2">
-                          <AlertCircle className="w-4 h-4 text-red-500" />
-                          عاجل
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="urgent">
-                        <div className="flex items-center gap-2">
-                          <Zap className="w-4 h-4 text-orange-500" />
-                          مهم
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="normal">عادي</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label className="text-sm font-medium">الكلمات المفتاحية</Label>
+                  <Input
+                    value={articleData.tags.join(', ')}
+                    onChange={(e) => setArticleData(prev => ({
+                      ...prev,
+                      tags: e.target.value.split(',').map(tag => tag.trim()).filter(Boolean)
+                    }))}
+                    placeholder="تقنية, أخبار, تطوير..."
+                    className="mt-1"
+                  />
                 </div>
-              </div>
+              </CardContent>
+            </Card>
+          </div>
 
-              <div>
-                <Label htmlFor="tags">الكلمات المفتاحية</Label>
-                <Input
-                  id="tags"
-                  value={articleData.tags.join(', ')}
-                  onChange={(e) => setArticleData(prev => ({
-                    ...prev,
-                    tags: e.target.value.split(',').map(tag => tag.trim()).filter(Boolean)
-                  }))}
-                  placeholder="تقنية, ذكاء اصطناعي, صحافة..."
-                  className="mt-1"
-                />
+          {/* الملخص */}
+          <Card className="shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <FileText className="w-4 h-4 text-gray-600" />
+                <Label className="text-sm font-medium">الملخص</Label>
+                <Button
+                  onClick={generateSmartSummary}
+                  disabled={isGenerating}
+                  size="sm"
+                  variant="outline"
+                  className="mr-auto"
+                >
+                  <Sparkles className="w-3 h-3 ml-1" />
+                  توليد ذكي
+                </Button>
               </div>
+              <Textarea
+                value={articleData.summary}
+                onChange={(e) => setArticleData(prev => ({ ...prev, summary: e.target.value }))}
+                placeholder="ملخص مختصر للمقال..."
+                rows={2}
+                className="resize-none"
+              />
             </CardContent>
           </Card>
 
@@ -628,177 +612,137 @@ const UnifiedSmartEditor: React.FC<UnifiedEditorProps> = ({
         </div>
 
         {/* العمود الأيمن - الأدوات الجانبية */}
-        <div className="space-y-6">
+        <div className="space-y-4">
           {/* المراسل */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="w-5 h-5" />
-                المراسل
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {articleData.reporter ? (
-                <div className="p-4 border rounded-lg bg-blue-50 border-blue-200">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">
-                      {articleData.reporter.name.split(' ').map(n => n[0]).join('')}
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-medium">{articleData.reporter.name}</h4>
-                      <p className="text-sm text-gray-600">{articleData.reporter.email}</p>
-                      <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
-                        <MapPin className="w-3 h-3" />
-                        <span>{articleData.reporter.location}</span>
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setArticleData(prev => ({ ...prev, reporter: null }))}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
+          <div className="bg-white border rounded-lg p-4 shadow-sm">
+            <div className="flex items-center gap-2 mb-3">
+              <Users className="w-4 h-4 text-gray-600" />
+              <span className="text-sm font-medium">المراسل</span>
+            </div>
+
+            {articleData.reporter ? (
+              <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-medium">
+                  {articleData.reporter.name.split(' ').map(n => n[0]).join('')}
                 </div>
-              ) : (
-                <>
-                  <p className="text-sm text-gray-600 mb-3">اختر مراسل من القائمة:</p>
-                  <div className="space-y-2">
-                    {predefinedReporters.map((reporter, index) => (
-                      <Button
-                        key={index}
-                        variant="outline"
-                        size="sm"
-                        className="w-full justify-start"
-                        onClick={() => selectReporter(reporter)}
-                      >
-                        <User className="w-4 h-4 ml-2" />
-                        {reporter.name}
-                      </Button>
-                    ))}
-                  </div>
-                </>
-              )}
-
-              <Separator />
-
-              <div className="space-y-3">
-                <h4 className="text-sm font-medium">أو أضف مراسل جديد:</h4>
-                <Input placeholder="اسم المراسل" />
-                <Input placeholder="البريد الإلكتروني" type="email" />
-                <Input placeholder="الموقع" />
-                <Button className="w-full" size="sm">
-                  <Plus className="w-4 h-4 ml-1" />
-                  إضافة مراسل
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{articleData.reporter.name}</p>
+                  <p className="text-xs text-gray-500 truncate">{articleData.reporter.location}</p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setArticleData(prev => ({ ...prev, reporter: null }))}
+                  className="h-6 w-6 p-0"
+                >
+                  <Trash2 className="w-3 h-3" />
                 </Button>
               </div>
-            </CardContent>
-          </Card>
+            ) : (
+              <Select onValueChange={(value) => {
+                const reporter = predefinedReporters[parseInt(value)];
+                selectReporter(reporter);
+              }}>
+                <SelectTrigger className="text-sm">
+                  <SelectValue placeholder="اختر مراسل..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {predefinedReporters.map((reporter, index) => (
+                    <SelectItem key={index} value={index.toString()}>
+                      {reporter.name} - {reporter.location}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
 
-          {/* الموقع والتاريخ */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="w-5 h-5" />
-                التفاصيل الإضافية
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="location">موقع الحدث</Label>
-                <div className="flex items-center gap-2 mt-1">
-                  <MapPin className="w-4 h-4 text-gray-500" />
-                  <Input
-                    id="location"
-                    value={articleData.location}
-                    onChange={(e) => setArticleData(prev => ({ ...prev, location: e.target.value }))}
-                    placeholder="الرياض، السعودية"
-                  />
-                </div>
-              </div>
+          {/* التفاصيل الإضافية */}
+          <div className="bg-white border rounded-lg p-4 shadow-sm">
+            <div className="flex items-center gap-2 mb-3">
+              <Calendar className="w-4 h-4 text-gray-600" />
+              <span className="text-sm font-medium">التفاصيل</span>
+            </div>
 
+            <div className="space-y-3">
               <div>
-                <Label>تاريخ النشر</Label>
+                <Label className="text-xs text-gray-600">الموقع</Label>
                 <Input
-                  type="date"
-                  value={articleData.publishDate.toISOString().split('T')[0]}
-                  onChange={(e) => setArticleData(prev => ({
-                    ...prev,
-                    publishDate: new Date(e.target.value)
-                  }))}
-                  className="mt-1"
+                  value={articleData.location}
+                  onChange={(e) => setArticleData(prev => ({ ...prev, location: e.target.value }))}
+                  placeholder="الرياض، السعودية"
+                  className="mt-1 text-sm"
                 />
               </div>
 
               <div>
-                <Label>الحالة</Label>
+                <Label className="text-xs text-gray-600">الحالة</Label>
                 <Select
                   value={articleData.status}
                   onValueChange={(value: any) => setArticleData(prev => ({ ...prev, status: value }))}
                 >
-                  <SelectTrigger className="mt-1">
+                  <SelectTrigger className="mt-1 text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="draft">مسودة</SelectItem>
-                    <SelectItem value="review">قيد المراجعة</SelectItem>
-                    <SelectItem value="published">منشور</SelectItem>
+                    <SelectItem value="draft">🟡 مسودة</SelectItem>
+                    <SelectItem value="review">🔵 قيد المراجعة</SelectItem>
+                    <SelectItem value="published">🟢 منشور</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* الصور */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ImageIcon className="w-5 h-5" />
-                الصور المرفقة ({articleData.images.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {articleData.images.length > 0 ? (
-                <div className="grid grid-cols-2 gap-2">
-                  {articleData.images.map((image, index) => (
-                    <div key={index} className="relative group">
-                      <img
-                        src={image}
-                        alt={`صورة ${index + 1}`}
-                        className="w-full h-24 object-cover rounded border"
-                      />
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
-                        onClick={() => setArticleData(prev => ({
-                          ...prev,
-                          images: prev.images.filter((_, i) => i !== index)
-                        }))}
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <Camera className="w-12 h-12 text-gray-300 mx-auto mb-2" />
-                  <p className="text-sm text-gray-500">لا توجد صور مرفقة</p>
-                </div>
-              )}
+          <div className="bg-white border rounded-lg p-4 shadow-sm">
+            <div className="flex items-center gap-2 mb-3">
+              <ImageIcon className="w-4 h-4 text-gray-600" />
+              <span className="text-sm font-medium">الصور ({articleData.images.length})</span>
+            </div>
+            
+            <OptimizedImageUpload
+              onImageUpload={(imageUrl) => {
+                setArticleData(prev => ({
+                  ...prev,
+                  images: [...prev.images, imageUrl]
+                }));
+                
+                // إدراج في المحرر أيضاً
+                if (editor) {
+                  editor.chain().focus().setImage({ src: imageUrl }).run();
+                }
+              }}
+              maxSize={5} // 5MB
+              acceptedTypes={['image/jpeg', 'image/png', 'image/webp']}
+            />
 
-              <Button
-                variant="outline"
-                className="w-full mt-4"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <Camera className="w-4 h-4 ml-1" />
-                رفع صور جديدة
-              </Button>
-            </CardContent>
-          </Card>
+            {/* عرض الصور المرفقة */}
+            {articleData.images.length > 0 && (
+              <div className="grid grid-cols-3 gap-2 mt-4">
+                {articleData.images.map((image, index) => (
+                  <div key={index} className="relative group">
+                    <img
+                      src={image}
+                      alt={`صورة ${index + 1}`}
+                      className="w-full h-16 object-cover rounded border"
+                    />
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-0.5 right-0.5 opacity-0 group-hover:opacity-100 transition-opacity h-4 w-4 p-0"
+                      onClick={() => setArticleData(prev => ({
+                        ...prev,
+                        images: prev.images.filter((_, i) => i !== index)
+                      }))}
+                    >
+                      <Trash2 className="w-2 h-2" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

@@ -5,10 +5,18 @@ const nextConfig = {
     return 'build-' + Date.now();
   },
   
+  // إعدادات رفع الملفات
+  api: {
+    bodyParser: {
+      sizeLimit: '10mb', // زيادة الحد الأقصى لحجم الطلبات
+    },
+  },
+  
   experimental: {
     // Experimental support for optimizing stylesheets
     optimizeCss: {
       files: ["styles/globals.css", "styles/ArabicStyles.css"],
+      preload: false, // منع التحميل المسبق للـ CSS
     },
     cssChunking: "strict",
     turbo: {
