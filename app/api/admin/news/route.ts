@@ -78,7 +78,8 @@ export async function GET(request: NextRequest) {
       prisma.articles.count({ where })
     ]);
 
-    return NextResponse.json({
+    // إنشاء الاستجابة مع headers صريحة
+    const response = NextResponse.json({
       success: true,
       articles,
       total: totalCount,
@@ -88,14 +89,28 @@ export async function GET(request: NextRequest) {
       hasMore: skip + limit < totalCount
     });
 
+    // إضافة headers لمنع مشاكل الترميز
+    response.headers.set('Content-Type', 'application/json; charset=utf-8');
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    
+    return response;
+
   } catch (error: any) {
     console.error('❌ خطأ في جلب الأخبار:', error);
     
-    return NextResponse.json({
+    // إنشاء استجابة الخطأ مع headers صريحة
+    const errorResponse = NextResponse.json({
       success: false,
       error: 'حدث خطأ في جلب الأخبار',
       details: error.message || 'خطأ غير معروف'
     }, { status: 500 });
+
+    // إضافة headers لمنع مشاكل الترميز
+    errorResponse.headers.set('Content-Type', 'application/json; charset=utf-8');
+    errorResponse.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    
+    return errorResponse;
   } finally {
     await prisma.$disconnect();
   }

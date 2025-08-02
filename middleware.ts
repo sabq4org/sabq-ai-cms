@@ -40,12 +40,19 @@ export async function middleware(req: NextRequest) {
   
   // للـ API endpoints - cache ديناميكي
   if (pathname.startsWith('/api/')) {
-    // لا نضع cache للـ auth endpoints
-    if (!pathname.includes('/auth')) {
+    // لا نضع cache للـ auth endpoints أو admin endpoints
+    if (!pathname.includes('/auth') && !pathname.includes('/admin/')) {
       response.headers.set(
         'Cache-Control',
         'public, s-maxage=60, stale-while-revalidate=300'
       );
+    } else if (pathname.includes('/admin/')) {
+      // للـ admin APIs - no cache
+      response.headers.set(
+        'Cache-Control',
+        'no-cache, no-store, must-revalidate'
+      );
+      response.headers.set('Content-Type', 'application/json; charset=utf-8');
     }
   }
   

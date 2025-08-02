@@ -199,11 +199,31 @@ function AdminNewsPageContent() {
       }
 
       console.log(`📡 استدعاء API: /api/admin/news?${params}`);
-      const response = await fetch(`/api/admin/news?${params}`);
+      const response = await fetch(`/api/admin/news?${params}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Cache-Control': 'no-cache'
+        }
+      });
       console.log(`📊 حالة الاستجابة: ${response.status}`);
+      console.log(`📊 Content-Type: ${response.headers.get('content-type')}`);
       
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      // التحقق من نوع المحتوى قبل parsing
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('❌ نوع المحتوى غير صحيح:', contentType);
+        
+        // محاولة قراءة النص الخام للتشخيص
+        const rawText = await response.text();
+        console.error('📄 المحتوى الخام (أول 200 حرف):', rawText.substring(0, 200));
+        
+        throw new Error(`الخادم لا يرسل JSON صحيح. نوع المحتوى: ${contentType}`);
       }
       
       const data = await response.json();
