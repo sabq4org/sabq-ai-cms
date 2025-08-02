@@ -32,13 +32,7 @@ import {
   Settings,
   Calendar
 } from 'lucide-react';
-import dynamic from 'next/dynamic';
-// تم إزالة DashboardLayout - تستخدم الصفحة layout.tsx الأساسي
-// Dynamic imports for heavy components
-const ArticleEditor = dynamic(() => import('@/components/Editor/ArticleEditor'), {
-  ssr: false,
-  loading: () => <div className="h-96 flex items-center justify-center"><Loader2 className="animate-spin" /></div>
-});
+import SafeArticleEditor from '@/components/Editor/SafeArticleEditor';
 
 interface ArticleData {
   title: string;
@@ -101,28 +95,42 @@ export default function CreateArticlePage() {
   const handleImageUpload = async (file: File) => {
     try {
       setUploading(true);
-      const formData = new FormData();
-      formData.append('file', file);
+      console.log('🚀 [Image Upload] بدء رفع الصورة:', file.name, file.size);
+      
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', file);
+      uploadFormData.append('type', 'featured');
 
       const response = await fetch('/api/upload-image', {
         method: 'POST',
-        body: formData,
+        body: uploadFormData,
       });
 
+      console.log('📡 [Image Upload] Response status:', response.status);
+      
       if (!response.ok) {
-        throw new Error('فشل في رفع الصورة');
+        const errorData = await response.json();
+        console.error('❌ [Image Upload] Server error:', errorData);
+        throw new Error(errorData.error || 'فشل في رفع الصورة');
       }
 
       const data = await response.json();
+      console.log('✅ [Image Upload] Success data:', data);
+      
       const imageUrl = data.url || data.secure_url || data.path;
+      
+      if (!imageUrl) {
+        throw new Error('لم يتم الحصول على رابط الصورة');
+      }
       
       setImagePreview(imageUrl);
       setFormData(prev => ({ ...prev, featured_image: imageUrl }));
       toast.success('تم رفع الصورة بنجاح');
-          } catch (error) {
-      console.error('Error uploading image:', error);
-      toast.error('فشل في رفع الصورة');
-      } finally {
+      
+    } catch (error: any) {
+      console.error('❌ [Image Upload] Error:', error);
+      toast.error(error.message || 'فشل في رفع الصورة');
+    } finally {
       setUploading(false);
     }
   };
@@ -348,12 +356,12 @@ export default function CreateArticlePage() {
                 {/* Content Editor */}
                 <div className="space-y-2">
                   <Label>المحتوى *</Label>
-                  <div className="border rounded-lg overflow-hidden">
-                    <ArticleEditor
-                      initialContent={formData.content}
-                      onChange={handleContentChange}
-                    />
-                      </div>
+                  <SafeArticleEditor
+                    initialContent={formData.content}
+                    onChange={handleContentChange}
+                    placeholder="ابدأ بكتابة محتوى المقال هنا... سيتم حفظ التغييرات تلقائياً"
+                    minHeight={400}
+                  />
                 </div>
               </CardContent>
             </Card>
