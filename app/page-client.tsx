@@ -514,64 +514,24 @@ function NewspaperHomePage({
           )}
         </SafeHydration>
       
-      {/* عرض جميع البلوكات الذكية */}
-      {getOrderedBlocks().some(block => blocksConfig[block.key]?.enabled) && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-          {getOrderedBlocks().map(block => (
-            <div key={block.key} className="mb-6">
-              {block.component}
-            </div>
-          ))}
-        </div>
-      )}
-      {/* Smart Blocks - Below Header - أول بلوك أسفل الهيدر مباشرة */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <SmartSlot position="below_header" />
-      </div>
-      {/* Smart Blocks - Top Banner (للتوافق مع النظام القديم) */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <SmartSlot position="topBanner" />
-      </div>
+      {/* 🔥 الترتيب الجديد المحدث للواجهة الرئيسية */}
       
-      {/* بلوك النشرة الصوتية والوحدة الذكية - مزدوج */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <SmartAudioBlock />
-      </div>
+      {/* 1. الهيدر ⬆️ - تم تأكيده أنه في المقدمة عبر Layout */}
       
-      {/* بلوك الأخبار المميزة - كاروسيل */}
+      {/* 2. الأخبار المميزة (Featured Articles) 🌟 */}
       {!featuredLoading && featuredArticle.length > 0 && (
         <FeaturedNewsCarousel articles={featuredArticle} />
       )}
       
-      {/* بلوك الجرعات الذكي - ثاني بلوك */}
+      {/* 3. الجرعات الذكية (Smart Doses) 💊 */}
       <SmartDigestBlock />
-
-      {/* Smart Blocks - المحتوى المخصص (محتوى ذكي مخصص لك) - ثالث بلوك */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <SmartSlot position="beforePersonalization" />
+      
+      {/* 4. النشرة الصوتية (Audio Briefing) 🎧 */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <SmartAudioBlock />
       </div>
 
-      {/* Smart Blocks - Below Deep Analysis */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <SmartSlot position="below_deep_analysis" />
-      </div>
-      {/* Smart Blocks - After Highlights - مخفي للنسخة المطورة */}
-      {/* <SmartSlot position="afterHighlights" /> */}
-      {/* Elegant Separator */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-6 mt-6">
-        <div className="flex items-center justify-center">
-          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-          <div className={`px-6 py-2 rounded-full ${darkMode ? 'bg-gray-800 text-gray-400 dark:text-gray-500' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 dark:text-gray-500'}`}>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-              <span className="text-sm font-medium">المحتوى الذكي</span>
-              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
-            </div>
-          </div>
-          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-        </div>
-      </div>
-      {/* شريط التنقل بالتصنيفات */}
+      {/* 5. بلوك التصنيفات (Categories Block) 🏷️ */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 mb-8">
         <div className={`rounded-3xl p-4 sm:p-6 lg:p-8 transition-all duration-500 shadow-lg dark:shadow-gray-900/50 ${darkMode ? 'bg-blue-900/10 border border-blue-800/30' : 'bg-blue-50 dark:bg-blue-900/20/50 border border-blue-200/50'}`} style={{ 
           backdropFilter: 'blur(10px)',
@@ -783,6 +743,7 @@ function NewspaperHomePage({
         </div>
       </section>
       
+      {/* 6. بطاقات الأخبار المخصصة (Featured Cards) 📰 */}
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
         {/* Enhanced News Section */}
@@ -1005,6 +966,12 @@ function NewspaperHomePage({
         </section>
       </main>
 
+      {/* 7. مقترب (زاوية تحليلية) 📝 */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <MuqtarabBlock />
+      </div>
+
+      {/* 8. التحليل العميق (Deep Analysis) 🧠 */}
       {/* Deep Analysis Block - بلوك التحليل العميق - خارج main للامتداد الكامل */}
       <section className="relative w-full bg-[#1a365d] dark:bg-[#0d1b2a] py-16 mb-16">
         {/* خلفية متدرجة overlay تمتد بالكامل */}
@@ -1032,31 +999,25 @@ function NewspaperHomePage({
         </div>
       </section>
 
-      {/* وحدة مقترَب - المحتوى الإبداعي */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <MuqtarabBlock />
-      </div>
-
-      {/* استمرار المحتوى الرئيسي */}
+      {/* 9. قادة الرأي (Opinion Leaders) 👥 */}
       <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
-        {/* Smart Blocks - After Cards - مخفي للنسخة المطورة */}
-        {/* <SmartSlot position="afterCards" /> */}
-
-        {/* قسم رأي اليوم */}
         <TodayOpinionsSection darkMode={darkMode} />
       </main>
-      {/* Smart Blocks - Below Personalized Content */}
+
+      {/* 10. الرحلة المعرفية (Knowledge Journey) 🎓 */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <SmartSlot position="below_personalized" />
       </div>
-      {/* Smart Blocks - Above Footer */}
+      
+      {/* Smart Blocks إضافية */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SmartSlot position="above_footer" />
       </div>
+      
       {/* بلوك "ليلة هادئة" - فوق الـ footer */}
       <FooterDashboard />
 
-      {/* Footer Section */}
+      {/* 11. الفوتر (Footer) 🏁 */}
       <Footer />
       </div>
     </PageWrapper>
