@@ -50,6 +50,7 @@ export async function GET(request: NextRequest) {
       views: article.views || 0,
       likes: article.likes || 0,
       shares: article.shares || 0,
+      breaking: article.breaking, // حقل الأخبار العاجلة
       category: article.categories ? {
         id: article.categories.id,
         name: article.categories.name,
