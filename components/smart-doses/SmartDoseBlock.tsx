@@ -175,46 +175,63 @@ export default function SmartDoseBlock({ userId, className = '' }: SmartDoseBloc
 
   if (loading) {
     return (
-      <div className={cn('w-full', className)}>
-        <Card className="border border-gray-200 dark:border-gray-700">
-          <CardContent className="p-8">
-            <div className="flex items-center justify-center">
-              <div className="text-center space-y-4">
-                <div className="w-12 h-12 mx-auto rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center animate-pulse">
-                  <Brain className="w-6 h-6 text-white" />
+      <section className={cn('w-full', className)}>
+        <div className="w-full bg-gradient-to-r from-slate-50/50 via-white to-slate-50/50 dark:from-slate-900/50 dark:via-slate-800/50 dark:to-slate-900/50 py-8 lg:py-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="w-full bg-white dark:bg-slate-800 rounded-3xl shadow-xl p-8 lg:p-12">
+              <div className="flex flex-col lg:flex-row items-center justify-center gap-8 text-center">
+                <div className="relative">
+                  <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center animate-pulse shadow-2xl">
+                    <Brain className="w-10 h-10 text-white" />
+                  </div>
+                  <div className="absolute -inset-2 bg-gradient-to-br from-purple-500/20 to-indigo-600/20 rounded-full animate-ping" />
                 </div>
-                <p className="text-gray-600 dark:text-gray-400">جاري تحضير الجرعة الذكية...</p>
+                <div className="space-y-3">
+                  <h3 className="text-xl lg:text-2xl font-bold text-slate-900 dark:text-white">
+                    جاري تحضير جرعتك الذكية...
+                  </h3>
+                  <p className="text-slate-600 dark:text-slate-400">
+                    نقوم بتخصيص المحتوى وفقاً لاهتماماتك
+                  </p>
+                </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </div>
+      </section>
     );
   }
 
   if (error) {
     return (
-      <div className={cn('w-full', className)}>
-        <Card className="border border-red-200 bg-red-50/50 dark:border-red-800 dark:bg-red-900/10">
-          <CardContent className="p-6">
-            <div className="text-center space-y-4">
-              <div className="w-12 h-12 mx-auto rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
-                <Zap className="w-6 h-6 text-red-600" />
+      <section className={cn('w-full', className)}>
+        <div className="w-full bg-gradient-to-r from-slate-50/50 via-white to-slate-50/50 dark:from-slate-900/50 dark:via-slate-800/50 dark:to-slate-900/50 py-8 lg:py-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="w-full bg-white dark:bg-slate-800 rounded-3xl shadow-xl p-8 lg:p-12">
+              <div className="text-center space-y-6">
+                <div className="w-16 h-16 mx-auto rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
+                  <Zap className="w-8 h-8 text-red-600" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">
+                    عذراً، حدث خطأ في تحضير الجرعة
+                  </h3>
+                  <p className="text-slate-600 dark:text-slate-400 mb-6 max-w-md mx-auto">
+                    {error}
+                  </p>
+                  <Button 
+                    onClick={() => fetchCurrentDose()} 
+                    className="gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700"
+                  >
+                    <RefreshCw className="w-5 h-5" />
+                    إعادة المحاولة
+                  </Button>
+                </div>
               </div>
-              <p className="text-red-600 dark:text-red-400">{error}</p>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => fetchCurrentDose()}
-                className="text-red-600 border-red-600 hover:bg-red-50"
-              >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                إعادة المحاولة
-              </Button>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </div>
+      </section>
     );
   }
 
@@ -223,66 +240,80 @@ export default function SmartDoseBlock({ userId, className = '' }: SmartDoseBloc
   }
 
   return (
-    <div className={cn('w-full space-y-6', className)}>
-      {/* عنوان القسم */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center">
-            <Brain className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h2 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white">
-              الجرعة الذكية {periodIcon}
-            </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              {periodLabel} • محتوى مُخصص ومُلهم
-            </p>
-          </div>
-        </div>
-
-        {/* أزرار التحكم */}
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleRefresh}
-            disabled={refreshing}
-            className="gap-2"
-          >
-            <RefreshCw className={cn(
-              'w-4 h-4',
-              refreshing && 'animate-spin'
-            )} />
-            <span className="hidden sm:inline">تحديث</span>
-          </Button>
+    <section className={cn('w-full', className)}>
+      {/* Container للعرض الكامل */}
+      <div className="w-full bg-gradient-to-r from-slate-50/50 via-white to-slate-50/50 dark:from-slate-900/50 dark:via-slate-800/50 dark:to-slate-900/50 py-8 lg:py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => window.open('/doses', '_blank')}
-            className="gap-2"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">جميع الجرعات</span>
-          </Button>
+          {/* Header محسن مع العرض الكامل */}
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8 lg:mb-12">
+            <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6 mb-4 lg:mb-0">
+              <div className="flex items-center gap-3">
+                <div className="p-3 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 shadow-lg">
+                  <Brain className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white">
+                    الجرعات الذكية
+                  </h2>
+                  <p className="text-slate-600 dark:text-slate-400 mt-1">
+                    محتوى ملهم ومخصص لك
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3 px-4 py-2 bg-white/70 dark:bg-slate-800/70 rounded-full shadow-md backdrop-blur-sm">
+                <span className="text-2xl">{periodIcon}</span>
+                <div className="text-sm">
+                  <span className="font-medium text-slate-900 dark:text-white">{periodLabel}</span>
+                  <p className="text-slate-500 dark:text-slate-400">جرعة الآن</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={handleRefresh}
+                disabled={refreshing}
+                className="gap-3 px-6 py-3 rounded-full border-2 hover:bg-slate-50 dark:hover:bg-slate-800"
+              >
+                <RefreshCw className={cn('w-5 h-5', refreshing && 'animate-spin')} />
+                تحديث
+              </Button>
+              
+              <Button 
+                variant="ghost" 
+                size="lg" 
+                onClick={() => window.open('/doses', '_blank')}
+                className="gap-3 px-6 py-3 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                <ChevronLeft className="w-5 h-5" />
+                أرشيف الجرعات
+              </Button>
+            </div>
+          </div>
+
+          {/* بطاقة الجرعة بالعرض الكامل */}
+          <DailyDoseCard
+            dose={currentDose}
+            userId={userId}
+            onFeedback={handleFeedback}
+            className="w-full max-w-none"
+          />
+
+          {/* معلومات إضافية محسنة */}
+          <div className="mt-8 text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/60 dark:bg-slate-800/60 rounded-full backdrop-blur-sm">
+              <Clock className="w-4 h-4 text-slate-500" />
+              <span className="text-sm text-slate-600 dark:text-slate-400">
+                يتم تحديث الجرعات 4 مرات يومياً • مُولدة بالذكاء الاصطناعي ومُراجعة تحريرياً
+              </span>
+            </div>
+          </div>
         </div>
       </div>
-
-      {/* بطاقة الجرعة */}
-      <DailyDoseCard
-        dose={currentDose}
-        userId={userId}
-        onFeedback={handleFeedback}
-        className="max-w-2xl mx-auto"
-      />
-
-      {/* معلومات إضافية */}
-      <div className="text-center">
-        <p className="text-xs text-gray-500 dark:text-gray-400">
-          <Clock className="w-3 h-3 inline mr-1" />
-          يتم تحديث الجرعات 4 مرات يومياً • مُولدة بالذكاء الاصطناعي ومُراجعة تحريرياً
-        </p>
-      </div>
-    </div>
+    </section>
   );
 }
