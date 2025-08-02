@@ -35,6 +35,19 @@ const ServerErrorFallback: React.FC = () => {
           حدث خطأ داخلي في الخادم. نعمل على إصلاح المشكلة.
         </p>
         
+        {/* Debug info in development */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4 text-left">
+            <h3 className="text-sm font-semibold text-red-800 dark:text-red-200 mb-2">معلومات التشخيص (بيئة التطوير)</h3>
+            <pre className="text-xs text-red-700 dark:text-red-300 overflow-auto">
+              {typeof window !== 'undefined' && window.sabqDebug ? 
+                JSON.stringify(window.sabqDebug.getLogs?.().slice(-3) || [], null, 2) : 
+                'لا توجد معلومات debug متوفرة'
+              }
+            </pre>
+          </div>
+        )}
+        
         <div className="space-y-3">
           <button
             onClick={handleReload}

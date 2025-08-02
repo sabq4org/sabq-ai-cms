@@ -141,9 +141,17 @@ export default function AdminNewsPage() {
       console.log(`📦 بيانات مُستلمة:`, { 
         success: data.success, 
         total: data.total, 
-        articlesCount: data.articles?.length || 0 
+        articlesCount: data.articles?.length || 0,
+        error: data.error || null
       });
       
+      // التحقق من نجاح الاستجابة
+      if (!data.success) {
+        console.error('❌ فشل API في جلب البيانات:', data.error);
+        toast.error(`فشل في جلب الأخبار: ${data.error || 'خطأ غير معروف'}`);
+        setArticles([]);
+        return;
+      }
       
       if (data.articles) {
         console.log('📦 معالجة البيانات...', {
