@@ -92,7 +92,7 @@ select:focus-visible {
   .page-content-wrapper > *:first-child:not(.pulse-first-element) {
     padding-top: 56px !important;
   }
-  
+
   .page-content-wrapper > .pulse-first-element {
     margin-top: 56px !important;
   }
