@@ -15,7 +15,7 @@ import "../styles/mobile-news.css";
 import "../styles/mobile.css";
 import "../styles/muqtarab-animations.css";
 import "../styles/no-focus-outline.css";
-import "../styles/pulse-positioning.css";
+import "../styles/news-pulse-positioning.css";
 import "../styles/responsive-ui.css";
 import "../styles/smart-recommendations.css";
 import "../styles/tailwind-overrides.css";

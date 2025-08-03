@@ -587,7 +587,7 @@ function NewspaperHomePage({
         {/* شريط النبض الإخباري للموبايل - ملاصق للهيدر */}
         <SafeHydration>
           {isMobileView && (
-            <div className="pulse-ticker-mobile pulse-first-element">
+            <div className="pulse-ticker-mobile pulse-first-element" style={{ marginTop: '56px', paddingTop: 0 }}>
               <NewsPulseTicker className="mx-2" isMobile={true} />
             </div>
           )}
@@ -606,14 +606,16 @@ function NewspaperHomePage({
         {/* 1.1. شريط النبض الإخباري للديسكتوب 📡 - ملاصق للهيدر مباشرة */}
         <SafeHydration>
           {!isMobileView && (
-            <div className="pulse-ticker-desktop pulse-first-element">
+            <div className="pulse-ticker-desktop pulse-first-element" style={{ marginTop: '64px', paddingTop: 0 }}>
               <NewsPulseTicker className="" isMobile={false} />
             </div>
           )}
         </SafeHydration>
 
         {/* 1.5. الخبر العاجل (Breaking News) 🔴 - بعد شريط النبض */}
-        <BreakingNewsBar />
+        <div style={{ marginTop: '2rem' }}>
+          <BreakingNewsBar />
+        </div>
         {/* 2. الأخبار المميزة (Featured Articles) 🌟 */}
         {!featuredLoading && featuredArticle.length > 0 && (
           <div className="pt-8 pb-6">
