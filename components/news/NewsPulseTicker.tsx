@@ -219,6 +219,16 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
       >
 
 
+        {/* عبارة "نبض الأخبار" للديسكتوب فقط */}
+        {!isMobile && (
+          <div className="flex-shrink-0 mr-4">
+            <span className="text-sm font-bold text-blue-700 dark:text-blue-300 flex items-center gap-2">
+              <Zap className="w-4 h-4" />
+              نبض الأخبار
+            </span>
+          </div>
+        )}
+
         {/* محتوى الإشعار المتحرك */}
         <div className="flex-1 min-w-0">
           <AnimatePresence mode="wait">

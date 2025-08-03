@@ -603,22 +603,24 @@ function NewspaperHomePage({
         {/* 🔥 الترتيب الجديد المحدث للواجهة الرئيسية */}
         {/* 1. الهيدر ⬆️ - تم تأكيده أنه في المقدمة عبر Layout */}
 
-        {/* 1.1. شريط النبض الإخباري للديسكتوب 📡 - ملاصق للهيدر مباشرة */}
-        <SafeHydration>
-          {!isMobileView && (
-            <div className="pulse-ticker-desktop pulse-first-element" style={{ position: 'sticky', top: '64px', zIndex: 48, marginTop: 0, paddingTop: 0 }}>
-              <NewsPulseTicker className="" isMobile={false} />
-            </div>
-          )}
-        </SafeHydration>
+        {/* تم نقل شريط النبض ليكون مع الأخبار المميزة */}
 
         {/* 1.5. الخبر العاجل (Breaking News) 🔴 - بعد شريط النبض */}
         <div style={{ marginTop: '2rem' }}>
           <BreakingNewsBar />
         </div>
+        {/* 1.1. شريط النبض الإخباري للديسكتوب 📡 - محاذي مع الأخبار المميزة */}
+        <SafeHydration>
+          {!isMobileView && (
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+              <NewsPulseTicker className="" isMobile={false} />
+            </div>
+          )}
+        </SafeHydration>
+
         {/* 2. الأخبار المميزة (Featured Articles) 🌟 */}
         {!featuredLoading && featuredArticle.length > 0 && (
-          <div className="pt-8 pb-6">
+          <div className="pt-4 pb-6">
             <FeaturedNewsCarousel articles={featuredArticle} />
           </div>
         )}

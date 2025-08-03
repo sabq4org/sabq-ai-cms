@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
-import { cookies } from 'next/headers';
-import jwt from 'jsonwebtoken';
+import prisma from "@/lib/prisma";
+import jwt from "jsonwebtoken";
+import { cookies } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
 
 interface JWTPayload {
   userId: string;
@@ -11,13 +11,10 @@ interface JWTPayload {
 export async function POST(request: NextRequest) {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get('auth-token')?.value;
-    
+    const token = cookieStore.get("auth-token")?.value;
+
     if (!token) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     let userId: string;
@@ -25,10 +22,7 @@ export async function POST(request: NextRequest) {
       const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JWTPayload;
       userId = decoded.userId;
     } catch {
-      return NextResponse.json(
-        { error: 'Invalid token' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
     const body = await request.json();
@@ -36,7 +30,7 @@ export async function POST(request: NextRequest) {
 
     if (!sessionId) {
       return NextResponse.json(
-        { error: 'Session ID is required' },
+        { error: "Session ID is required" },
         { status: 400 }
       );
     }
@@ -54,13 +48,13 @@ export async function POST(request: NextRequest) {
     });
 
     // إذا وصل لنوع تفاعل جديد، سجله
-    if (interactionType && interactionType !== 'view') {
+    if (interactionType && interactionType !== "view") {
       const existingInteraction = await prisma.interactions.findFirst({
         where: {
           user_id: userId,
           target_id: updatedSession.article_id,
-          target_type: 'article',
-          type: 'reading_session',
+          target_type: "article",
+          type: "reading_session",
         },
       });
 
@@ -69,8 +63,8 @@ export async function POST(request: NextRequest) {
           data: {
             user_id: userId,
             target_id: updatedSession.article_id,
-            target_type: 'article',
-            type: 'reading_session',
+            target_type: "article",
+            type: "reading_session",
             metadata: {
               sessionId,
               interactionType,
@@ -88,10 +82,10 @@ export async function POST(request: NextRequest) {
       interactionType,
     });
   } catch (error) {
-    console.error('Error updating scroll progress:', error);
+    console.error("Error updating scroll progress:", error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
-} 
+}
