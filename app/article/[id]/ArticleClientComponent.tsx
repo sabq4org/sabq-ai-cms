@@ -261,7 +261,7 @@ export default function ArticleClientComponent({
       {/* شريط التقدم في القراءة */}
       <ReadingProgressBar />
       
-      <main className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-[56px] sm:pt-[64px]">
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-0 sm:pt-[64px]">
         {/* منطقة المحتوى الرئيسية */}
         <div className="relative">
           <article ref={viewTrackingRef} className="max-w-5xl mx-auto py-4 sm:py-6 lg:py-8">

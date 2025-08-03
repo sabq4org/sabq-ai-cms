@@ -289,7 +289,7 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
     <>
       <ArticleJsonLd article={article} />
       
-      <main className="pt-20 min-h-screen bg-gray-50 dark:bg-gray-900">
+      <main className="pt-0 sm:pt-20 min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* صورة المقال */}
         {article.featured_image && (
           <div className="relative h-[50vh] w-full">
