@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Calendar, Eye, User, Clock, Zap, Star, Heart, MessageSquare, Bookmark, Share2, TrendingUp, Sparkles, Target } from 'lucide-react';
+import ArticleViews from '@/components/ui/ArticleViews';
 import { formatDateGregorian, formatRelativeDate } from '@/lib/date-utils';
 import { getArticleLink } from '@/lib/utils';
 
@@ -265,12 +266,7 @@ export default function UnifiedMobileNewsCard({
                 </span>
                 
                 {/* المشاهدات المحسنة */}
-                <span className={`flex items-center gap-1 ${
-                  darkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}>
-                  <Eye className="w-3 h-3" />
-                  {formatNumber(data.interactionCount)}
-                </span>
+                <ArticleViews count={data.views} className="text-xs" />
               </div>
 
               {/* التاريخ الميلادي */}
@@ -303,12 +299,7 @@ export default function UnifiedMobileNewsCard({
             <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
               <div className="flex items-center gap-4">
                 {/* التفاعلات المدمجة */}
-                <span className={`flex items-center gap-1 text-xs ${
-                  darkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}>
-                  <Eye className="w-3.5 h-3.5" />
-                  {formatNumber(data.interactionCount)} تفاعل
-                </span>
+                <ArticleViews count={data.views} className="text-xs" />
 
                 {/* التعليقات */}
                 {data.comments_count > 0 && (
@@ -435,12 +426,7 @@ export default function UnifiedMobileNewsCard({
             {/* المعلومات المحسنة */}
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-2">
-                <span className={`flex items-center gap-1 ${
-                  darkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}>
-                  <Eye className="w-3 h-3" />
-                  {formatNumber(data.interactionCount)}
-                </span>
+                <ArticleViews count={data.views} className="text-xs" />
                 <span>•</span>
                 <span className={`flex items-center gap-1 ${
                   darkMode ? 'text-gray-400' : 'text-gray-500'
@@ -552,12 +538,7 @@ export default function UnifiedMobileNewsCard({
           <div className="space-y-2">
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-3">
-                <span className={`flex items-center gap-1 ${
-                  darkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}>
-                  <Eye className="w-3 h-3" />
-                  {formatNumber(data.interactionCount)} تفاعل
-                </span>
+                <ArticleViews count={data.views} className="text-xs" />
                 <span className={`flex items-center gap-1 ${
                   darkMode ? 'text-gray-400' : 'text-gray-500'
                 }`}>

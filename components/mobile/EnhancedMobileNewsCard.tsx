@@ -4,6 +4,7 @@ import React, { memo } from 'react';
 import Link from 'next/link';
 import SafeImage from '@/components/ui/SafeImage';
 import { Clock, Eye, MessageSquare, Share2, Bookmark, TrendingUp, Calendar, Heart, MessageCircle, Zap, Sparkles, Target } from 'lucide-react';
+import ArticleViews from '@/components/ui/ArticleViews';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { formatDateGregorian, formatDateShort } from '@/lib/date-utils';
@@ -310,10 +311,7 @@ export default function EnhancedMobileNewsCard({
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-                    <span className="flex items-center gap-1">
-                      <Eye className="w-3 h-3" />
-                      {formatNumber(interactionCount)} تفاعل
-                    </span>
+                    <ArticleViews count={news.views || interactionCount} className="text-xs" />
                     <span className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
                       {news.reading_time || 5} دقائق
@@ -413,10 +411,7 @@ export default function EnhancedMobileNewsCard({
                 <span>{news.reading_time || 5} دقائق</span>
               </div>
               
-              <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-                <Eye className="w-3.5 h-3.5" />
-                <span>{formatNumber(interactionCount)}</span>
-              </div>
+              <ArticleViews count={news.views || interactionCount} className="text-xs" />
             </div>
             
 

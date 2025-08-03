@@ -461,10 +461,10 @@ export default function ArticleClientComponent({
                           <span className="text-gray-300 dark:text-gray-600">
                             •
                           </span>
-                          <div className="flex items-center gap-1">
-                            <Eye className="w-3 h-3 flex-shrink-0 mobile-article-icon" />
-                            <span>{article.views}</span>
-                          </div>
+                          <ArticleViews
+                            count={article.views}
+                            className="text-xs"
+                          />
                         </>
                       )}
                     </div>

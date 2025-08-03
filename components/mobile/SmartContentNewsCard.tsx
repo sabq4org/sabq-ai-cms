@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { TrendingUp, Sparkles, Brain, MessageSquare, Zap, BarChart3, Clock, Eye, ArrowLeft } from 'lucide-react';
+import ArticleViews from '@/components/ui/ArticleViews';
 import CloudImage from '@/components/ui/CloudImage';
 import type { RecommendedArticle } from '@/lib/ai-recommendations';
 
@@ -13,6 +14,7 @@ interface ExtendedRecommendedArticle extends RecommendedArticle {
   featured_image?: string;
   category_name?: string;
   image_caption?: string; // وصف الصورة
+  views?: number; // عدد المشاهدات
   metadata?: {
     type?: string;
   };
@@ -302,6 +304,9 @@ export default function SmartContentNewsCard({
                   <span className={darkMode ? 'text-green-400' : 'text-green-600'}>
                     {article.readingTime} دقيقة
                   </span>
+                )}
+                {article.views && article.views > 0 && (
+                  <ArticleViews count={article.views} className="text-xs" />
                 )}
               </div>
               
