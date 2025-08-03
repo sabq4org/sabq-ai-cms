@@ -9,17 +9,17 @@ import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useSidebarPreferences } from "@/contexts/SidebarPreferencesContext";
 import { useToast } from "@/hooks/use-toast";
 import {
-  closestCenter,
   DndContext,
   DragEndEvent,
   KeyboardSensor,
   PointerSensor,
+  closestCenter,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
 import {
-  arrayMove,
   SortableContext,
+  arrayMove,
   sortableKeyboardCoordinates,
   useSortable,
   verticalListSortingStrategy,
@@ -185,7 +185,8 @@ function SortableItem({
 export default function SidebarCustomizer() {
   const { darkMode } = useDarkModeContext();
   const { toast } = useToast();
-  const { preferences, loading, updatePreferences, resetPreferences } = useSidebarPreferences();
+  const { preferences, loading, updatePreferences, resetPreferences } =
+    useSidebarPreferences();
   const [items, setItems] = useState(defaultSidebarItems);
   const [hiddenItems, setHiddenItems] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
@@ -197,8 +198,6 @@ export default function SidebarCustomizer() {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
-
-
 
   const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
@@ -280,17 +279,19 @@ export default function SidebarCustomizer() {
       // ترتيب العناصر حسب التفضيلات المحفوظة
       if (preferences.sidebar_order && preferences.sidebar_order.length > 0) {
         const orderedItems = preferences.sidebar_order
-          .map((id: string) => defaultSidebarItems.find(item => item.id === id))
+          .map((id: string) =>
+            defaultSidebarItems.find((item) => item.id === id)
+          )
           .filter(Boolean);
-        
+
         // إضافة أي عناصر جديدة لم تكن موجودة في الترتيب المحفوظ
         const newItems = defaultSidebarItems.filter(
-          item => !preferences.sidebar_order.includes(item.id)
+          (item) => !preferences.sidebar_order.includes(item.id)
         );
-        
+
         setItems([...orderedItems, ...newItems]);
       }
-      
+
       setHiddenItems(preferences.sidebar_hidden || []);
     }
   }, [preferences, loading]);

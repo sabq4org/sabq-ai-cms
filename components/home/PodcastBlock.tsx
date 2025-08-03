@@ -208,12 +208,15 @@ export default function PodcastBlock() {
                 <Mic className="w-5 sm:w-6 h-5 sm:h-6 text-blue-600" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className={cn(
-                  'text-base sm:text-lg font-bold line-clamp-2',
-                  darkMode ? 'text-gray-100' : 'text-gray-900'
-                )}>
-                  {newsletter.title}
-                </h3>
+                <div className="flex items-center gap-2 mb-1">
+                  <Mic className="w-4 h-4 text-blue-600" />
+                  <h3 className={cn(
+                    'text-base sm:text-lg font-bold line-clamp-2',
+                    darkMode ? 'text-gray-100' : 'text-gray-900'
+                  )}>
+                    {newsletter.title}
+                  </h3>
+                </div>
                 <div className="flex flex-wrap items-center gap-1 sm:gap-2 mt-1">
                   <Badge variant="secondary" className="text-xs">
                     <Radio className="w-3 h-3 mr-1" />

@@ -317,13 +317,16 @@ export default function EnhancedAudioNewsletter({
 
       {/* Episode info */}
       <div className="p-4">
-        <h4
-          className={`font-medium mb-2 line-clamp-2 ${
-            darkMode ? "text-white" : "text-gray-900"
-          }`}
-        >
-          {currentEpisode.title}
-        </h4>
+        <div className="flex items-center gap-2 mb-2">
+          <Mic className="w-4 h-4 text-blue-600" />
+          <h4
+            className={`font-bold line-clamp-2 ${
+              darkMode ? "text-white" : "text-gray-900"
+            }`}
+          >
+            {currentEpisode.title}
+          </h4>
+        </div>
 
         {currentEpisode.description && (
           <p

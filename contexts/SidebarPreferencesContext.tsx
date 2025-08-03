@@ -67,7 +67,10 @@ export function SidebarPreferencesProvider({
     try {
       // تحديث الحالة المحلية فوراً
       setPreferences(newPreferences);
-      localStorage.setItem("sidebar-preferences", JSON.stringify(newPreferences));
+      localStorage.setItem(
+        "sidebar-preferences",
+        JSON.stringify(newPreferences)
+      );
 
       // حفظ في قاعدة البيانات
       const response = await fetch("/api/user/preferences/sidebar", {
@@ -97,7 +100,7 @@ export function SidebarPreferencesProvider({
         sidebar_order: [],
         sidebar_hidden: [],
       };
-      
+
       // تحديث الحالة المحلية
       setPreferences(defaultPreferences);
       localStorage.removeItem("sidebar-preferences");

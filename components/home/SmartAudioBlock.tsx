@@ -165,14 +165,17 @@ function CompactPodcastSection() {
       <div className="flex flex-col md:flex-row items-center justify-between gap-4">
         {/* معلومات النشرة */}
         <div className="flex flex-col gap-1 flex-1 min-w-0">
-          <h3
-            className={cn(
-              "text-sm font-medium",
-              darkMode ? "text-gray-100" : "text-gray-700"
-            )}
-          >
-            {newsletter.title}
-          </h3>
+          <div className="flex items-center gap-2 mb-1">
+            <Mic className="w-4 h-4 text-blue-600" />
+            <h3
+              className={cn(
+                "text-sm font-bold",
+                darkMode ? "text-gray-100" : "text-gray-700"
+              )}
+            >
+              {newsletter.title}
+            </h3>
+          </div>
           <div className="flex items-center gap-3 text-xs text-gray-500">
             <span className="flex items-center gap-1">
               <Headphones className="w-3 h-3" />
