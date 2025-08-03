@@ -799,38 +799,29 @@ function AdminNewsPageContent() {
 
                         const dateTime = formatDateTime(article.published_at || article.created_at);
                         return (
-                          <TableRow key={article.id} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900/50">
-                            <TableCell className="text-right font-medium text-gray-900 dark:text-white">
+                          <TableRow key={article.id} className="h-12 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900/50">
+                            <TableCell className="py-1 text-right font-medium text-gray-900 dark:text-white text-xs">
                               {index + 1}
                             </TableCell>
 
-                            <TableCell className="text-right">
-                              <div className="flex items-start gap-3">
-                                {(article.image || article.featured_image) && (
-                                  <img
-                                    src={article.image || article.featured_image}
-                                    alt=""
-                                    className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
-                                  />
-                                )}
-                                <div className="flex-1">
-                                  <p className="font-semibold text-gray-900 dark:text-white line-clamp-2">{article.title || 'عنوان غير محدد'}</p>
-                                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                    <Users className="w-3 h-3 inline-block ml-1" />
-                                    {article.author?.name || article.author_name || 'غير محدد'}
-                                  </p>
-                                </div>
+                            <TableCell className="py-1 text-right">
+                              <div className="flex-1">
+                                <p className="text-sm font-semibold text-gray-900 dark:text-white line-clamp-2">{article.title || 'عنوان غير محدد'}</p>
+                                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                                  <Users className="w-2.5 h-2.5 inline-block ml-1" />
+                                  {article.author?.name || article.author_name || 'غير محدد'}
+                                </p>
                               </div>
                             </TableCell>
 
-                            <TableCell className="text-center">
+                            <TableCell className="py-1 text-center">
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <div className="inline-flex">
                                     <Switch
                                       checked={article.breaking || false}
                                       onCheckedChange={() => toggleBreakingNews(article.id, article.breaking || false)}
-                                      className="data-[state=checked]:bg-red-600 dark:data-[state=checked]:bg-red-500"
+                                      className="data-[state=checked]:bg-red-600 dark:data-[state=checked]:bg-red-500 scale-75"
                                     />
                                   </div>
                                 </TooltipTrigger>
@@ -840,16 +831,16 @@ function AdminNewsPageContent() {
                               </Tooltip>
                             </TableCell>
 
-                            <TableCell className="text-center">
+                            <TableCell className="py-1 text-center">
                               <Badge
                                 variant="outline"
-                                className={
+                                className={`text-xs ${
                                   article.status === 'published' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700' :
                                   article.status === 'draft' ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300 border-yellow-300 dark:border-yellow-700' :
                                   article.status === 'archived' ? 'bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 border-orange-300 dark:border-orange-700' :
                                   article.status === 'deleted' ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-red-300 dark:border-red-700' :
                                   'bg-gray-50 dark:bg-gray-900/20 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-700'
-                                }
+                                }`}
                               >
                                 {article.status === 'published' && '✅ منشورة'}
                                 {article.status === 'draft' && '✏️ مسودة'}
@@ -858,33 +849,33 @@ function AdminNewsPageContent() {
                               </Badge>
                             </TableCell>
 
-                            <TableCell className="text-center">
-                              <Badge variant="outline" className="border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30">
+                            <TableCell className="py-1 text-center">
+                              <Badge variant="outline" className="text-xs border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30">
                                 {getCategoryName(article)}
                               </Badge>
                             </TableCell>
 
-                            <TableCell className="text-center">
+                            <TableCell className="py-1 text-center">
                               <div className="flex items-center justify-center gap-1">
-                                <Eye className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                <Eye className="w-3 h-3 text-gray-400 dark:text-gray-500" />
+                                <span className="text-xs font-medium text-gray-900 dark:text-white">
                                   {formatNumber(article.views || 0)}
                                 </span>
                               </div>
                             </TableCell>
 
-                            <TableCell className="text-center">
-                              <div className="text-sm">
+                            <TableCell className="py-1 text-center">
+                              <div className="text-xs">
                                 <div className="font-medium text-gray-900 dark:text-white">{dateTime.date}</div>
-                                <div className="text-gray-500 dark:text-gray-400 text-xs mt-0.5">{dateTime.time}</div>
+                                <div className="text-gray-500 dark:text-gray-400 text-[10px] mt-0.5">{dateTime.time}</div>
                               </div>
                             </TableCell>
 
-                            <TableCell>
+                            <TableCell className="py-1">
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <Button variant="outline" size="sm" className="h-9 px-3 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
-                                    <MoreVertical className="w-4 h-4 ml-1" />
+                                  <Button variant="outline" size="sm" className="h-7 px-2 text-xs bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <MoreVertical className="w-3 h-3 ml-1" />
                                     إجراءات
                                   </Button>
                                 </DropdownMenuTrigger>

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Calendar, User, Clock, Zap, Star } from 'lucide-react';
 import ArticleViews from '@/components/ui/ArticleViews';
+import ReporterLink from '@/components/ReporterLink';
 import { formatRelativeDate } from '@/lib/date-utils';
 import { getArticleLink } from '@/lib/utils';
 
@@ -19,6 +20,13 @@ interface Article {
     id: string;
     name: string;
     email: string;
+    reporter?: {
+      id: string;
+      full_name: string;
+      slug: string;
+      is_verified?: boolean;
+      verification_badge?: string;
+    };
   } | null;
   category?: {
     id: string;
@@ -135,8 +143,13 @@ export default function MobileNewsCard({ article, darkMode = false }: MobileNews
                 <div className={`flex items-center gap-1 ${
                   darkMode ? 'text-gray-500' : 'text-gray-500'
                 }`}>
-                  <User className="w-3 h-3" />
-                  <span className="truncate max-w-[100px]">{author.name}</span>
+                  <ReporterLink
+                    author={author}
+                    size="sm"
+                    showIcon={true}
+                    showVerification={true}
+                    className="truncate max-w-[100px] text-xs"
+                  />
                 </div>
               )}
 

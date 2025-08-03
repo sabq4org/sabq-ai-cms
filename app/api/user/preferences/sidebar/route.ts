@@ -1,21 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
 
-// لأغراض الاختبار، سنحتفظ بالتفضيلات في الذاكرة مؤقتاً
-let mockPreferences: {
-  sidebar_order: any[] | null;
-  sidebar_hidden: any[];
-} = {
-  sidebar_order: null,
-  sidebar_hidden: [],
-};
+const prisma = new PrismaClient();
 
 export async function GET() {
   try {
     console.log("✅ GET sidebar preferences called");
-    return NextResponse.json({
-      sidebar_order: mockPreferences.sidebar_order,
-      sidebar_hidden: mockPreferences.sidebar_hidden,
+
+    // جلب التفضيلات من قاعدة البيانات
+    const preferences = await prisma.user_preferences.findFirst({
+      where: {
+        key: 'sidebar_settings'
+      }
     });
+
+    if (preferences) {
+      const settingsData = JSON.parse(preferences.value);
+      console.log("📦 Retrieved from database:", settingsData);
+      
+      return NextResponse.json({
+        sidebar_order: settingsData.sidebar_order || null,
+        sidebar_hidden: settingsData.sidebar_hidden || [],
+      });
+    } else {
+      console.log("📋 No preferences found, returning defaults");
+      return NextResponse.json({
+        sidebar_order: null,
+        sidebar_hidden: [],
+      });
+    }
   } catch (error) {
     console.error("❌ Error in GET /api/user/preferences/sidebar:", error);
     return NextResponse.json({
@@ -51,11 +64,32 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // حفظ التفضيلات في الذاكرة مؤقتاً
-    mockPreferences.sidebar_order = sidebar_order;
-    mockPreferences.sidebar_hidden = sidebar_hidden;
+    // إعداد البيانات للحفظ
+    const settingsData = {
+      sidebar_order,
+      sidebar_hidden
+    };
 
-    console.log("✅ Preferences saved successfully:", mockPreferences);
+    // حفظ التفضيلات في قاعدة البيانات
+    await prisma.user_preferences.upsert({
+      where: {
+        key: 'sidebar_settings'
+      },
+      update: {
+        value: JSON.stringify(settingsData),
+        updated_at: new Date()
+      },
+      create: {
+        id: `sidebar_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        key: 'sidebar_settings',
+        value: JSON.stringify(settingsData),
+        user_id: 'admin', // يمكن تحديث هذا ليكون ID المستخدم الحقيقي
+        created_at: new Date(),
+        updated_at: new Date()
+      }
+    });
+
+    console.log("✅ Preferences saved successfully to database:", settingsData);
 
     return NextResponse.json({
       message: "تم حفظ التفضيلات بنجاح",
@@ -72,14 +106,19 @@ export async function DELETE() {
   try {
     console.log("✅ DELETE sidebar preferences called");
 
-    // إعادة تعيين التفضيلات
-    mockPreferences.sidebar_order = null;
-    mockPreferences.sidebar_hidden = [];
+    // حذف التفضيلات من قاعدة البيانات
+    await prisma.user_preferences.deleteMany({
+      where: {
+        key: 'sidebar_settings'
+      }
+    });
 
-    console.log("✅ Preferences reset successfully");
+    console.log("✅ Preferences deleted successfully from database");
 
     return NextResponse.json({
-      message: "تم إعادة تعيين التفضيلات بنجاح",
+      message: "تم حذف التفضيلات بنجاح",
+      sidebar_order: null,
+      sidebar_hidden: [],
     });
   } catch (error) {
     console.error("❌ Error in DELETE /api/user/preferences/sidebar:", error);

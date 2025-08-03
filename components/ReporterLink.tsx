@@ -12,13 +12,22 @@ interface Reporter {
   verification_badge?: string;
 }
 
+interface Author {
+  id: string;
+  name: string;
+  reporter?: Reporter;
+}
+
 interface ReporterLinkProps {
   reporter?: Reporter | null;
+  author?: Author | null;
   authorName?: string;
+  userId?: string;
   className?: string;
   showIcon?: boolean;
   showVerification?: boolean;
   size?: 'sm' | 'md' | 'lg';
+  onClick?: (e: React.MouseEvent) => void;
 }
 
 // دالة للحصول على أيقونة التحقق
@@ -38,13 +47,18 @@ function getVerificationIcon(badge: string = 'verified') {
 
 export default function ReporterLink({
   reporter,
+  author,
   authorName,
+  userId,
   className = '',
   showIcon = true,
   showVerification = true,
-  size = 'md'
+  size = 'md',
+  onClick
 }: ReporterLinkProps) {
-  const displayName = reporter?.full_name || authorName;
+  // تحديد اسم العرض والمعلومات
+  const displayName = reporter?.full_name || author?.reporter?.full_name || author?.name || authorName;
+  const reporterData = reporter || author?.reporter;
   
   // إذا لم يكن هناك مراسل أو اسم، لا نعرض شيئاً
   if (!displayName) return null;
@@ -70,13 +84,21 @@ export default function ReporterLink({
   
   const classes = sizeClasses[size];
   
-  // إذا كان لدينا reporter مع slug، نعرض رابط
-  if (reporter?.slug) {
+  // تحديد الرابط المناسب
+  let linkHref = '';
+  if (reporterData?.slug) {
+    linkHref = `/reporter/${reporterData.slug}`;
+  } else if (userId) {
+    linkHref = `/user/${userId}`;
+  }
+  
+  // إذا كان لدينا رابط، نعرضه
+  if (linkHref) {
     return (
       <Link
-        href={`/reporter/${reporter.slug}`}
+        href={linkHref}
         className={`inline-flex items-center gap-1.5 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group ${className}`}
-        onClick={(e) => e.stopPropagation()}
+        onClick={onClick}
       >
         {showIcon && (
           <User className={`${classes.icon} group-hover:text-blue-600 dark:group-hover:text-blue-400`} />
@@ -84,14 +106,14 @@ export default function ReporterLink({
         <span className={`font-medium ${classes.text}`}>
           {displayName}
         </span>
-        {showVerification && reporter.is_verified && (
+        {showVerification && reporterData?.is_verified && (
           <div className="flex items-center">
             <div className={`rounded-full p-0.5 ${
-              reporter.verification_badge === 'expert' ? 'bg-yellow-500' :
-              reporter.verification_badge === 'senior' ? 'bg-purple-500' :
+              reporterData.verification_badge === 'expert' ? 'bg-yellow-500' :
+              reporterData.verification_badge === 'senior' ? 'bg-purple-500' :
               'bg-green-500'
             }`}>
-              {getVerificationIcon(reporter.verification_badge)}
+              {getVerificationIcon(reporterData.verification_badge)}
             </div>
           </div>
         )}
@@ -108,6 +130,17 @@ export default function ReporterLink({
       <span className={`font-medium ${classes.text}`}>
         {displayName}
       </span>
+      {showVerification && reporterData?.is_verified && (
+        <div className="flex items-center">
+          <div className={`rounded-full p-0.5 ${
+            reporterData.verification_badge === 'expert' ? 'bg-yellow-500' :
+            reporterData.verification_badge === 'senior' ? 'bg-purple-500' :
+            'bg-green-500'
+          }`}>
+            {getVerificationIcon(reporterData.verification_badge)}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
