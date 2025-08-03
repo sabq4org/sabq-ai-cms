@@ -291,17 +291,6 @@ export default function ArticleClientComponent({
       <main className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-0 sm:pt-[64px]">
         {/* منطقة المحتوى الرئيسية */}
         <div className="relative">
-          {/* صورة المقال */}
-          {article.featured_image && (
-            <div className="max-w-5xl mx-auto mb-6 sm:mb-8 px-4 sm:px-6 lg:px-8">
-              <ArticleFeaturedImage
-                imageUrl={article.featured_image}
-                title={article.title}
-                category={article.category}
-              />
-            </div>
-          )}
-
           <article
             ref={viewTrackingRef}
             className="max-w-5xl mx-auto py-4 sm:py-6 lg:py-8"
@@ -476,8 +465,19 @@ export default function ArticleClientComponent({
 
         {/* منطقة المحتوى */}
         <article className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+          {/* صورة المقال */}
+          {article.featured_image && (
+            <div className="mb-6 sm:mb-8">
+              <ArticleFeaturedImage
+                imageUrl={article.featured_image}
+                title={article.title}
+                category={article.category}
+              />
+            </div>
+          )}
+
           {/* الملخص الذكي مع التحويل الصوتي */}
-          <div className="mt-6 mb-6 sm:mb-8">
+          <div className="mb-6 sm:mb-8">
             <ArticleAISummary
               articleId={article.id}
               title={article.title || "مقال بدون عنوان"}
