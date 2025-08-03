@@ -473,20 +473,19 @@ export default function ArticleClientComponent({
               </div>
             </header>
 
-            {/* صورة المقال */}
-            {article.featured_image && (
-              <div className="mb-8">
-                <div className="-mx-2 sm:mx-0">
-                  <ArticleFeaturedImage
-                    imageUrl={article.featured_image}
-                    title={article.title}
-                    category={article.category}
-                  />
-                </div>
-              </div>
-            )}
           </article>
         </div>
+
+        {/* صورة المقال */}
+        {article.featured_image && (
+          <div>
+            <ArticleFeaturedImage
+              imageUrl={article.featured_image}
+              title={article.title}
+              category={article.category}
+            />
+          </div>
+        )}
 
         {/* منطقة المحتوى */}
         <article className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">

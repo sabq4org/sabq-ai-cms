@@ -1,8 +1,7 @@
-'use client';
+"use client";
 
-import React from 'react';
-import OptimizedImage from '@/components/ui/optimized-image';
-import { IMAGE_CONFIG } from './ImageDisplayConfig';
+import OptimizedImage from "@/components/ui/optimized-image";
+import { IMAGE_CONFIG } from "./ImageDisplayConfig";
 
 interface ArticleFeaturedImageProps {
   imageUrl: string;
@@ -14,19 +13,18 @@ interface ArticleFeaturedImageProps {
   };
 }
 
-export default function ArticleFeaturedImage({ 
-  imageUrl, 
-  title, 
-  category 
+export default function ArticleFeaturedImage({
+  imageUrl,
+  title,
+  category,
 }: ArticleFeaturedImageProps) {
-  
   // عرض بناءً على الوضع المحدد في الإعدادات
   switch (IMAGE_CONFIG.DISPLAY_MODE) {
-    case 'default':
+    case "default":
       return (
         <div className="relative w-full px-0 sm:px-6 lg:px-8">
-          {/* الصورة الرئيسية مع إطار وظل */}
-          <div className="relative overflow-hidden shadow-xl border border-gray-200 dark:border-gray-700">
+          {/* الصورة الرئيسية بدون إطار أو ظل */}
+          <div className="relative overflow-hidden">
             <OptimizedImage
               src={imageUrl}
               alt={title}
@@ -34,13 +32,12 @@ export default function ArticleFeaturedImage({
               priority={true}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1024px"
             />
-            {/* تدرج خفيف في الأسفل */}
-            <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+
           </div>
         </div>
       );
 
-    case 'blur-overlay':
+    case "blur-overlay":
       return (
         <div className="article-featured-image relative h-[400px] sm:h-[500px] lg:h-[600px] w-full overflow-hidden bg-gray-900 dark:bg-black">
           {/* صورة الخلفية المموهة */}
@@ -50,10 +47,10 @@ export default function ArticleFeaturedImage({
             className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 opacity-60"
             loading="lazy"
           />
-          
+
           {/* الطبقة الداكنة فوق الخلفية المموهة */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/60" />
-          
+
           {/* حاوي الصورة الرئيسية */}
           <div className="relative z-10 h-full flex items-center justify-center p-4 sm:p-8">
             <div className="max-w-4xl w-full h-full flex items-center justify-center">
@@ -67,14 +64,16 @@ export default function ArticleFeaturedImage({
               />
             </div>
           </div>
-          
+
           {/* معلومات إضافية اختيارية على الصورة */}
           {category && (
             <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
               <div className="max-w-4xl mx-auto">
-                <span 
+                <span
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-white backdrop-blur-md"
-                  style={{ backgroundColor: `${category.color || '#1a73e8'}99` }}
+                  style={{
+                    backgroundColor: `${category.color || "#1a73e8"}99`,
+                  }}
                 >
                   {category.icon && <span>{category.icon}</span>}
                   {category.name}
@@ -84,8 +83,8 @@ export default function ArticleFeaturedImage({
           )}
         </div>
       );
-      
-    case 'aspect-ratio':
+
+    case "aspect-ratio":
       return (
         <div className="article-featured-image w-full bg-gray-100 dark:bg-gray-800">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -98,13 +97,15 @@ export default function ArticleFeaturedImage({
                 priority={true}
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
               />
-              
+
               {/* تراكب التصنيف */}
               {category && (
                 <div className="absolute bottom-4 left-4">
-                  <span 
+                  <span
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-white backdrop-blur-md"
-                    style={{ backgroundColor: `${category.color || '#1a73e8'}CC` }}
+                    style={{
+                      backgroundColor: `${category.color || "#1a73e8"}CC`,
+                    }}
                   >
                     {category.icon && <span>{category.icon}</span>}
                     {category.name}
@@ -115,8 +116,8 @@ export default function ArticleFeaturedImage({
           </div>
         </div>
       );
-      
-    case 'fullwidth':
+
+    case "fullwidth":
       return (
         <div className="article-featured-image relative h-[300px] sm:h-[400px] md:h-[500px] lg:h-[60vh] w-full bg-gray-200 dark:bg-gray-800">
           <OptimizedImage
@@ -129,7 +130,7 @@ export default function ArticleFeaturedImage({
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 z-10" />
         </div>
       );
-      
+
     default:
       return null;
   }
