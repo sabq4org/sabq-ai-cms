@@ -79,7 +79,7 @@ select:focus-visible {
 /* استثناء العناصر التي لها كلاس pulse-first-element */
 .page-content-wrapper > *:first-child:not(.pulse-first-element) {
   margin-top: 0 !important;
-  padding-top: var(--header-height) !important;
+  padding-top: 0 !important;
 }
 
 /* تخصيص عناصر pulse-first-element لتكون ملاصقة للهيدر */
@@ -90,7 +90,7 @@ select:focus-visible {
 
 @media (max-width: 768px) {
   .page-content-wrapper > *:first-child:not(.pulse-first-element) {
-    padding-top: 56px !important;
+    padding-top: 0 !important;
   }
 
   .page-content-wrapper > .pulse-first-element {
