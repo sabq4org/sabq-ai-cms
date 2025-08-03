@@ -10,7 +10,17 @@ export interface ArticleData {
   ai_summary?: string;
   keywords?: string[];
   seo_keywords?: string | string[];
-  author?: { name: string; avatar?: string };
+  author?: { 
+    name: string; 
+    avatar?: string;
+    reporter?: {
+      id: string;
+      full_name: string;
+      slug: string;
+      is_verified?: boolean;
+      verification_badge?: string;
+    };
+  };
   likes?: number;
   saves?: number;
   shares?: number;

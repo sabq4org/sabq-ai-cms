@@ -193,12 +193,20 @@ export async function GET(
       author_specialty: article.article_author?.specializations?.[0] || null,
       author_avatar: authorAvatar,
       author_slug: article.article_author?.slug || null,
-      // دعم النظام القديم أيضاً
-      author: {
-        ...article.author,
-        name: authorName,
-        avatar: authorAvatar
-      },
+          // دعم النظام القديم أيضاً مع إضافة معلومات المراسل
+    author: {
+      ...article.author,
+      name: authorName,
+      avatar: authorAvatar,
+      // إضافة بيانات المراسل من article_author
+      reporter: article.article_author ? {
+        id: article.article_author.id,
+        full_name: article.article_author.full_name,
+        slug: article.article_author.slug,
+        is_verified: true, // افتراضي للمراسلين المسجلين
+        verification_badge: 'verified'
+      } : null
+    },
       success: true
     };
     
