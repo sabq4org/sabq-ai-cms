@@ -584,10 +584,10 @@ function NewspaperHomePage({
           direction: "rtl",
         }}
       >
-        {/* شريط النبض الإخباري للموبايل - بين الهيدر والإحصائيات */}
+        {/* شريط النبض الإخباري للموبايل - ملاصق للهيدر */}
         <SafeHydration>
           {isMobileView && (
-            <div className="mb-2">
+            <div className="pulse-ticker-mobile pulse-first-element">
               <NewsPulseTicker className="mx-2" isMobile={true} />
             </div>
           )}
@@ -602,14 +602,18 @@ function NewspaperHomePage({
         </SafeHydration>
         {/* 🔥 الترتيب الجديد المحدث للواجهة الرئيسية */}
         {/* 1. الهيدر ⬆️ - تم تأكيده أنه في المقدمة عبر Layout */}
-        {/* 1.5. الخبر العاجل (Breaking News) 🔴 - فوق الأخبار المميزة */}
-        <BreakingNewsBar />
-        {/* 1.6. شريط النبض الإخباري للديسكتوب 📡 - تحت الخبر العاجل */}
+
+        {/* 1.1. شريط النبض الإخباري للديسكتوب 📡 - ملاصق للهيدر مباشرة */}
         <SafeHydration>
           {!isMobileView && (
-            <NewsPulseTicker className="mb-6" isMobile={false} />
+            <div className="pulse-ticker-desktop pulse-first-element">
+              <NewsPulseTicker className="" isMobile={false} />
+            </div>
           )}
-        </SafeHydration>{" "}
+        </SafeHydration>
+
+        {/* 1.5. الخبر العاجل (Breaking News) 🔴 - بعد شريط النبض */}
+        <BreakingNewsBar />
         {/* 2. الأخبار المميزة (Featured Articles) 🌟 */}
         {!featuredLoading && featuredArticle.length > 0 && (
           <div className="pt-8 pb-6">

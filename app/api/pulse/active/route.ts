@@ -47,7 +47,7 @@ async function generateRealTimeNotifications() {
         id: `breaking-${article.id}`,
         type: "breaking_news",
         title: `🔴 عاجل: ${article.title}`,
-        target_url: `/articles/${article.slug}`,
+        target_url: `/article/${article.id}`,
         created_at:
           article.published_at?.toISOString() ||
           article.created_at.toISOString(),
@@ -96,7 +96,7 @@ async function generateRealTimeNotifications() {
         id: `analysis-${analysis.id}`,
         type: "deep_analysis",
         title: `📊 تحليل عميق: ${article.title}`,
-        target_url: `/articles/${article.slug}`,
+        target_url: `/article/${article.id}`,
         created_at: analysis.analyzed_at.toISOString(),
         expires_at: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
         priority: 4,
@@ -129,13 +129,13 @@ async function generateRealTimeNotifications() {
     for (const article of featuredArticles) {
       // تجنب التكرار
       if (
-        !notifications.some((n) => n.target_url === `/articles/${article.slug}`)
+        !notifications.some((n) => n.target_url === `/article/${article.id}`)
       ) {
         notifications.push({
           id: `featured-${article.id}`,
           type: "smart_dose",
           title: `⭐ مميز: ${article.title}`,
-          target_url: `/articles/${article.slug}`,
+          target_url: `/article/${article.id}`,
           created_at:
             article.published_at?.toISOString() ||
             article.created_at.toISOString(),
@@ -168,13 +168,13 @@ async function generateRealTimeNotifications() {
     for (const article of mostViewedArticles) {
       // تجنب التكرار
       if (
-        !notifications.some((n) => n.target_url === `/articles/${article.slug}`)
+        !notifications.some((n) => n.target_url === `/article/${article.id}`)
       ) {
         notifications.push({
           id: `trending-${article.id}`,
           type: "smart_dose",
           title: `🔥 الأكثر قراءة: ${article.title}`,
-          target_url: `/articles/${article.slug}`,
+          target_url: `/article/${article.id}`,
           created_at:
             article.published_at?.toISOString() ||
             article.created_at.toISOString(),
@@ -196,9 +196,9 @@ async function generateRealTimeNotifications() {
           published_at: { not: null },
           // استبعاد المقالات المضافة بالفعل
           NOT: {
-            slug: {
+            id: {
               in: notifications.map((n) =>
-                n.target_url.replace("/articles/", "")
+                n.target_url.replace("/article/", "")
               ),
             },
           },
@@ -222,7 +222,7 @@ async function generateRealTimeNotifications() {
           id: `latest-${article.id}`,
           type: "smart_dose",
           title: `📰 ${article.views > 50 ? "رائج" : "جديد"}: ${article.title}`,
-          target_url: `/articles/${article.slug}`,
+          target_url: `/article/${article.id}`,
           created_at:
             article.published_at?.toISOString() ||
             article.created_at.toISOString(),
