@@ -9,15 +9,15 @@
 
 /* جعل شريط النبض يبدأ مباشرة تحت الهيدر */
 .pulse-first-element {
-  margin-top: var(--header-height) !important;
-  padding-top: 0 !important;
+  margin-top: 0 !important;
+  padding-top: var(--header-height) !important;
   position: relative !important;
   z-index: 49 !important;
 }
 
 @media (max-width: 768px) {
   .pulse-first-element {
-    margin-top: 56px !important; /* ارتفاع الهيدر في الموبايل */
+    padding-top: 56px !important; /* ارتفاع الهيدر في الموبايل */
   }
 }
 
@@ -35,23 +35,15 @@
 
 /* جعل شريط النبض الإخباري ملاصق للهيدر تماماً */
 .pulse-ticker-mobile {
-  position: sticky !important;
-  top: var(--header-height) !important;
-  z-index: 48 !important;
+  position: relative !important;
   margin-bottom: 0 !important;
+  z-index: 48 !important;
 }
 
 .pulse-ticker-desktop {
-  position: sticky !important;
-  top: var(--header-height) !important;
-  z-index: 48 !important;
+  position: relative !important;
   margin-bottom: 0 !important;
-}
-
-@media (max-width: 768px) {
-  .pulse-ticker-mobile {
-    top: 56px !important;
-  }
+  z-index: 48 !important;
 }
 
 /* إزالة أي فراغات من العناصر التي تلي شريط النبض */
@@ -67,8 +59,30 @@ div[class*="breaking-news"] {
 }
 
 /* إزالة أي فراغات بين شريط النبض والشريط الإخباري */
-.pulse-ticker-mobile + .breaking-news-container,
-.pulse-ticker-desktop + .breaking-news-container {
+.pulse-ticker-mobile + *,
+.pulse-ticker-desktop + *,
+.pulse-first-element + * {
   margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* التأكد من أن الشريط الإخباري ملاصق لشريط النبض */
+.breaking-news-container {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* إزالة أي فراغات من العناصر داخل الشريط */
+.pulse-ticker-mobile > *,
+.pulse-ticker-desktop > *,
+.pulse-ticker-mobile div,
+.pulse-ticker-desktop div {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* إزالة الفراغ العلوي من شريط النبض نفسه */
+.pulse-ticker-mobile > div:first-child,
+.pulse-ticker-desktop > div:first-child {
   padding-top: 0 !important;
 }

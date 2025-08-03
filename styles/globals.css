@@ -84,17 +84,17 @@ select:focus-visible {
 
 /* تخصيص عناصر pulse-first-element لتكون ملاصقة للهيدر */
 .page-content-wrapper > .pulse-first-element {
-  margin-top: var(--header-height) !important;
-  padding-top: 0 !important;
+  margin-top: 0 !important;
+  padding-top: var(--header-height) !important;
 }
 
 @media (max-width: 768px) {
   .page-content-wrapper > *:first-child:not(.pulse-first-element) {
     padding-top: 56px !important;
   }
-
+  
   .page-content-wrapper > .pulse-first-element {
-    margin-top: 56px !important;
+    padding-top: 56px !important;
   }
 }
 
