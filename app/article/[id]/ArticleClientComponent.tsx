@@ -1,9 +1,12 @@
 "use client";
 
 import ArticleFeaturedImage from "@/components/article/ArticleFeaturedImage";
+import OpinionArticleLayout from "@/components/article/OpinionArticleLayout";
+import MobileOpinionLayout from "@/components/mobile/MobileOpinionLayout";
 import Footer from "@/components/Footer";
 import ReporterLink from "@/components/ReporterLink";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { ArticleData } from "@/lib/article-api";
 import { formatFullDate, formatRelativeDate } from "@/lib/date-utils";
 import "@/styles/mobile-article-layout.css";
@@ -44,6 +47,7 @@ export default function ArticleClientComponent({
 }: ArticleClientComponentProps) {
   const router = useRouter();
   const { darkMode } = useDarkModeContext();
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   // معالجة metadata إذا كانت string
   const processArticle = (articleData: any) => {
@@ -64,6 +68,18 @@ export default function ArticleClientComponent({
 
   const [article, setArticle] = useState<ArticleData | null>(
     processArticle(initialArticle) || null
+  );
+
+  // تحديد ما إذا كان المقال مقال رأي
+  const isOpinionArticle = article && (
+    article.article_type === 'opinion' || 
+    article.article_type === 'analysis' || 
+    article.article_type === 'editorial' || 
+    article.article_type === 'commentary' || 
+    article.article_type === 'column' ||
+    article.category?.slug === 'opinion' ||
+    article.category?.name?.includes('رأي') ||
+    article.category?.name?.includes('تحليل')
   );
   const [loading, setLoading] = useState(!initialArticle);
   const [isReading, setIsReading] = useState(false);
@@ -282,6 +298,15 @@ export default function ArticleClientComponent({
   };
 
   const keywords = getKeywords();
+
+  // إذا كان مقال رأي، استخدم التصميم المخصص
+  if (isOpinionArticle) {
+    if (isMobile) {
+      return <MobileOpinionLayout article={article} />;
+    } else {
+      return <OpinionArticleLayout article={article} />;
+    }
+  }
 
   return (
     <>
