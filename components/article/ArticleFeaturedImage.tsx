@@ -26,7 +26,7 @@ export default function ArticleFeaturedImage({
       return (
         <div className="relative w-full px-0 sm:px-6 lg:px-8">
           {/* الصورة الرئيسية مع إطار وظل */}
-          <div className="relative rounded-xl overflow-hidden shadow-xl border border-gray-200 dark:border-gray-700">
+          <div className="relative overflow-hidden shadow-xl border border-gray-200 dark:border-gray-700">
             <OptimizedImage
               src={imageUrl}
               alt={title}
@@ -60,7 +60,7 @@ export default function ArticleFeaturedImage({
               <OptimizedImage
                 src={imageUrl}
                 alt={title}
-                className="max-w-full max-h-full rounded-lg shadow-2xl transition-all duration-500 hover:scale-[1.02]"
+                className="max-w-full max-h-full shadow-2xl transition-all duration-500 hover:scale-[1.02]"
                 aspectRatio="auto"
                 priority={true}
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
@@ -89,7 +89,7 @@ export default function ArticleFeaturedImage({
       return (
         <div className="article-featured-image w-full bg-gray-100 dark:bg-gray-800">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="relative rounded-xl overflow-hidden shadow-xl">
+            <div className="relative overflow-hidden shadow-xl">
               <OptimizedImage
                 src={imageUrl}
                 alt={title}
