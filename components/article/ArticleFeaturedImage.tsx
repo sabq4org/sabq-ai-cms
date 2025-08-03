@@ -22,9 +22,9 @@ export default function ArticleFeaturedImage({
   switch (IMAGE_CONFIG.DISPLAY_MODE) {
     case "default":
       return (
-        <div className="relative w-full px-0 sm:px-6 lg:px-8">
+        <div className="relative w-full">
           {/* الصورة الرئيسية بدون إطار أو ظل */}
-          <div className="relative overflow-hidden">
+          <div className="relative overflow-hidden rounded-lg">
             <OptimizedImage
               src={imageUrl}
               alt={title}
