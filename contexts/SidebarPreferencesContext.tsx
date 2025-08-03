@@ -10,8 +10,8 @@ interface SidebarPreferences {
 interface SidebarPreferencesContextType {
   preferences: SidebarPreferences;
   loading: boolean;
-  updatePreferences: (preferences: SidebarPreferences) => void;
-  resetPreferences: () => void;
+  updatePreferences: (preferences: SidebarPreferences) => Promise<void>;
+  resetPreferences: () => Promise<void>;
 }
 
 const SidebarPreferencesContext = createContext<
@@ -63,18 +63,58 @@ export function SidebarPreferencesProvider({
     }
   };
 
-  const updatePreferences = (newPreferences: SidebarPreferences) => {
-    setPreferences(newPreferences);
-    localStorage.setItem("sidebar-preferences", JSON.stringify(newPreferences));
+  const updatePreferences = async (newPreferences: SidebarPreferences) => {
+    try {
+      // تحديث الحالة المحلية فوراً
+      setPreferences(newPreferences);
+      localStorage.setItem("sidebar-preferences", JSON.stringify(newPreferences));
+
+      // حفظ في قاعدة البيانات
+      const response = await fetch("/api/user/preferences/sidebar", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sidebar_order: newPreferences.sidebar_order,
+          sidebar_hidden: newPreferences.sidebar_hidden,
+        }),
+      });
+
+      if (!response.ok) {
+        console.error("فشل في حفظ التفضيلات في قاعدة البيانات");
+      } else {
+        console.log("✅ تم حفظ تفضيلات الشريط الجانبي في قاعدة البيانات");
+      }
+    } catch (error) {
+      console.error("خطأ في حفظ تفضيلات الشريط الجانبي:", error);
+    }
   };
 
-  const resetPreferences = () => {
-    const defaultPreferences = {
-      sidebar_order: [],
-      sidebar_hidden: [],
-    };
-    setPreferences(defaultPreferences);
-    localStorage.removeItem("sidebar-preferences");
+  const resetPreferences = async () => {
+    try {
+      const defaultPreferences = {
+        sidebar_order: [],
+        sidebar_hidden: [],
+      };
+      
+      // تحديث الحالة المحلية
+      setPreferences(defaultPreferences);
+      localStorage.removeItem("sidebar-preferences");
+
+      // حذف من قاعدة البيانات
+      const response = await fetch("/api/user/preferences/sidebar", {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        console.error("فشل في حذف التفضيلات من قاعدة البيانات");
+      } else {
+        console.log("✅ تم حذف تفضيلات الشريط الجانبي من قاعدة البيانات");
+      }
+    } catch (error) {
+      console.error("خطأ في حذف تفضيلات الشريط الجانبي:", error);
+    }
   };
 
   return (

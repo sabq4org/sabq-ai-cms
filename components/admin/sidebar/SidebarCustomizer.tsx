@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
+import { useSidebarPreferences } from "@/contexts/SidebarPreferencesContext";
 import { useToast } from "@/hooks/use-toast";
 import {
   closestCenter,
@@ -184,9 +185,9 @@ function SortableItem({
 export default function SidebarCustomizer() {
   const { darkMode } = useDarkModeContext();
   const { toast } = useToast();
+  const { preferences, loading, updatePreferences, resetPreferences } = useSidebarPreferences();
   const [items, setItems] = useState(defaultSidebarItems);
   const [hiddenItems, setHiddenItems] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -197,42 +198,7 @@ export default function SidebarCustomizer() {
     })
   );
 
-  const loadPreferences = useCallback(async () => {
-    try {
-      const response = await fetch("/api/user/preferences/sidebar");
-      if (response.ok) {
-        const data = await response.json();
 
-        // ترتيب العناصر حسب التفضيلات المحفوظة
-        if (data.sidebar_order && data.sidebar_order.length > 0) {
-          const orderedItems = data.sidebar_order
-            .map((id: string) =>
-              defaultSidebarItems.find((item) => item.id === id)
-            )
-            .filter(Boolean);
-
-          // إضافة أي عناصر جديدة لم تكن موجودة في الترتيب المحفوظ
-          const newItems = defaultSidebarItems.filter(
-            (item) => !data.sidebar_order.includes(item.id)
-          );
-
-          setItems([...orderedItems, ...newItems]);
-        }
-
-        setHiddenItems(data.sidebar_hidden || []);
-      }
-    } catch (error) {
-      console.error("خطأ في تحميل التفضيلات:", error);
-      // تجنب استدعاء toast في useEffect لمنع الحلقة اللانهائية
-      // toast({
-      //   title: "خطأ",
-      //   description: "فشل في تحميل التفضيلات",
-      //   variant: "destructive",
-      // });
-    } finally {
-      setLoading(false);
-    }
-  }, []);
 
   const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
@@ -263,25 +229,15 @@ export default function SidebarCustomizer() {
 
     setSaving(true);
     try {
-      const response = await fetch("/api/user/preferences/sidebar", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          sidebar_order: items.map((item) => item.id),
-          sidebar_hidden: hiddenItems,
-        }),
+      await updatePreferences({
+        sidebar_order: items.map((item) => item.id),
+        sidebar_hidden: hiddenItems,
       });
 
-      if (response.ok) {
-        toast({
-          title: "نجح الحفظ",
-          description: "تم حفظ تفضيلات الشريط الجانبي بنجاح",
-        });
-      } else {
-        throw new Error("فشل في حفظ التفضيلات");
-      }
+      toast({
+        title: "نجح الحفظ",
+        description: "تم حفظ تفضيلات الشريط الجانبي بنجاح",
+      });
     } catch (error) {
       console.error("خطأ في حفظ التفضيلات:", error);
       toast({
@@ -292,24 +248,17 @@ export default function SidebarCustomizer() {
     } finally {
       setSaving(false);
     }
-  }, [mounted, items, hiddenItems, toast]);
+  }, [mounted, items, hiddenItems, updatePreferences, toast]);
 
   const resetToDefault = useCallback(async () => {
     try {
-      const response = await fetch("/api/user/preferences/sidebar", {
-        method: "DELETE",
+      await resetPreferences();
+      setItems(defaultSidebarItems);
+      setHiddenItems([]);
+      toast({
+        title: "تم إعادة التعيين",
+        description: "تم إعادة تعيين الشريط الجانبي للوضع الافتراضي",
       });
-
-      if (response.ok) {
-        setItems(defaultSidebarItems);
-        setHiddenItems([]);
-        toast({
-          title: "تم إعادة التعيين",
-          description: "تم إعادة تعيين الشريط الجانبي للوضع الافتراضي",
-        });
-      } else {
-        throw new Error("فشل في إعادة التعيين");
-      }
     } catch (error) {
       console.error("خطأ في إعادة التعيين:", error);
       toast({
@@ -318,13 +267,33 @@ export default function SidebarCustomizer() {
         variant: "destructive",
       });
     }
-  }, [toast]);
+  }, [resetPreferences, toast]);
 
   // تحميل التفضيلات عند بدء التشغيل
   useEffect(() => {
     setMounted(true);
-    loadPreferences();
-  }, [loadPreferences]);
+  }, []);
+
+  // تحديث العناصر المحلية عند تغيير التفضيلات
+  useEffect(() => {
+    if (!loading && preferences) {
+      // ترتيب العناصر حسب التفضيلات المحفوظة
+      if (preferences.sidebar_order && preferences.sidebar_order.length > 0) {
+        const orderedItems = preferences.sidebar_order
+          .map((id: string) => defaultSidebarItems.find(item => item.id === id))
+          .filter(Boolean);
+        
+        // إضافة أي عناصر جديدة لم تكن موجودة في الترتيب المحفوظ
+        const newItems = defaultSidebarItems.filter(
+          item => !preferences.sidebar_order.includes(item.id)
+        );
+        
+        setItems([...orderedItems, ...newItems]);
+      }
+      
+      setHiddenItems(preferences.sidebar_hidden || []);
+    }
+  }, [preferences, loading]);
 
   // منع عرض المكون في الخادم لتجنب مشاكل SSR مع @dnd-kit
   if (!mounted) {
