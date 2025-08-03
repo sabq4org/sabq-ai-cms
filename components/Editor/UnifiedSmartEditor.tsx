@@ -18,31 +18,31 @@ import Link from '@tiptap/extension-link';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import {
-  Bold,
-  Brain,
-  Calendar,
-  Camera,
-  CheckCircle,
-  Clock,
-  FileText,
-  Heading1,
-  Heading2,
-  Image as ImageIcon,
-  Italic,
-  Link as LinkIcon,
-  List,
-  ListOrdered,
-  Plus,
-  Quote,
-  Redo,
-  RefreshCw,
-  Save,
-  Sparkles,
-  Trash2,
-  Type,
-  Undo,
-  Users,
-  Wand2
+    Bold,
+    Brain,
+    Calendar,
+    Camera,
+    CheckCircle,
+    Clock,
+    FileText,
+    Heading1,
+    Heading2,
+    Image as ImageIcon,
+    Italic,
+    Link as LinkIcon,
+    List,
+    ListOrdered,
+    Plus,
+    Quote,
+    Redo,
+    RefreshCw,
+    Save,
+    Sparkles,
+    Trash2,
+    Type,
+    Undo,
+    Users,
+    Wand2
 } from 'lucide-react';
 import React, { useCallback, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -700,14 +700,14 @@ const UnifiedSmartEditor: React.FC<UnifiedEditorProps> = ({
               <ImageIcon className="w-4 h-4 text-gray-600" />
               <span className="text-sm font-medium">الصور ({articleData.images.length})</span>
             </div>
-            
+
             <OptimizedImageUpload
               onImageUpload={(imageUrl) => {
                 setArticleData(prev => ({
                   ...prev,
                   images: [...prev.images, imageUrl]
                 }));
-                
+
                 // إدراج في المحرر أيضاً
                 if (editor) {
                   editor.chain().focus().setImage({ src: imageUrl }).run();

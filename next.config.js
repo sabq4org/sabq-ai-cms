@@ -4,14 +4,14 @@ const nextConfig = {
   generateBuildId: async () => {
     return 'build-' + Date.now();
   },
-  
+
   // إعدادات رفع الملفات
   api: {
     bodyParser: {
       sizeLimit: '10mb', // زيادة الحد الأقصى لحجم الطلبات
     },
   },
-  
+
   experimental: {
     // Experimental support for optimizing stylesheets
     optimizeCss: {
@@ -35,7 +35,7 @@ const nextConfig = {
       static: 180,
     },
   },
-  
+
   // تحسين الترقيم والتجميع
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
     // تحسين تجميع المكتبات
@@ -54,14 +54,14 @@ const nextConfig = {
         },
       },
     };
-    
+
     // تحسين الذاكرة
     config.optimization.usedExports = true;
     config.optimization.sideEffects = false;
-    
+
     return config;
   },
-  
+
 
 
   images: {
@@ -186,25 +186,25 @@ const nextConfig = {
         },
       };
     }
-    
+
     return config;
   },
   serverExternalPackages: ['sharp'],
-  
+
   // تحسينات الأداء لحل مشاكل Build Timeouts
   productionBrowserSourceMaps: false,
-  
+
   // زيادة timeout للصفحات الثقيلة
   staticPageGenerationTimeout: 90,
-  
+
   // تعطيل type checking أثناء البناء (مؤقتاً)
   typescript: {
     ignoreBuildErrors: true
   },
-  
+
   eslint: {
     ignoreDuringBuilds: true
   }
 };
 
-module.exports = nextConfig; 
+module.exports = nextConfig;

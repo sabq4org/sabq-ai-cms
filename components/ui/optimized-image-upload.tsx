@@ -8,7 +8,7 @@
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import { Camera, Upload, X, AlertCircle, CheckCircle } from 'lucide-react';
+import { AlertCircle, Camera, CheckCircle, Upload, X } from 'lucide-react';
 import React, { useCallback, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 
@@ -121,12 +121,12 @@ const OptimizedImageUpload: React.FC<OptimizedImageUploadProps> = ({
       // ضغط الصورة إذا كانت كبيرة
       let finalFile = file;
       const fileSizeMB = file.size / (1024 * 1024);
-      
+
       if (fileSizeMB > 2) { // ضغط الملفات أكبر من 2MB
         toast.loading('جاري ضغط الصورة...', { id: 'compress' });
         finalFile = await compressImage(file, 0.8);
         toast.dismiss('compress');
-        
+
         const compressedSizeMB = finalFile.size / (1024 * 1024);
         console.log(`📉 تم ضغط الصورة من ${fileSizeMB.toFixed(1)}MB إلى ${compressedSizeMB.toFixed(1)}MB`);
       }
@@ -174,9 +174,9 @@ const OptimizedImageUpload: React.FC<OptimizedImageUploadProps> = ({
 
     } catch (error) {
       console.error('❌ خطأ في رفع الصورة:', error);
-      
+
       let errorMessage = 'حدث خطأ أثناء رفع الصورة';
-      
+
       if (error instanceof Error) {
         if (error.message.includes('413') || error.message.includes('Too Large')) {
           errorMessage = 'حجم الملف كبير جداً. يرجى اختيار صورة أصغر';
@@ -204,7 +204,7 @@ const OptimizedImageUpload: React.FC<OptimizedImageUploadProps> = ({
     if (!files || files.length === 0) return;
 
     const file = files[0];
-    
+
     // التحقق من الملف
     const validationError = validateFile(file);
     if (validationError) {
@@ -214,7 +214,7 @@ const OptimizedImageUpload: React.FC<OptimizedImageUploadProps> = ({
 
     // رفع الملف
     await uploadFile(file);
-    
+
     // إعادة تعيين input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -272,9 +272,9 @@ const OptimizedImageUpload: React.FC<OptimizedImageUploadProps> = ({
         ) : previewUrl && uploadState.success ? (
           <div className="space-y-3">
             <div className="relative inline-block">
-              <img 
-                src={previewUrl} 
-                alt="معاينة" 
+              <img
+                src={previewUrl}
+                alt="معاينة"
                 className="w-24 h-24 object-cover rounded-lg mx-auto"
               />
               <Button

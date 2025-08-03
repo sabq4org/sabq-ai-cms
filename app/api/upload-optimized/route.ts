@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
     }
 
     const file = formData.get('file') as File;
-    
+
     if (!file) {
       return NextResponse.json({
         success: false,
@@ -110,13 +110,13 @@ export async function POST(request: NextRequest) {
 
     // التحقق من نوع الملف
     const allowedTypes = [
-      'image/jpeg', 
-      'image/jpg', 
-      'image/png', 
-      'image/webp', 
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/webp',
       'image/gif'
     ];
-    
+
     if (!allowedTypes.includes(file.type)) {
       return NextResponse.json({
         success: false,
@@ -153,10 +153,10 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('❌ [UPLOAD] خطأ في رفع الملف:', error);
-    
+
     // التحقق من نوع الخطأ
     if (error instanceof Error) {
-      if (error.message.includes('PayloadTooLargeError') || 
+      if (error.message.includes('PayloadTooLargeError') ||
           error.message.includes('Request Entity Too Large')) {
         return NextResponse.json({
           success: false,
