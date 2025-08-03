@@ -136,8 +136,10 @@ function CompactPodcastSection() {
           ? 'bg-gray-800/50 border-gray-600 text-gray-300' 
           : 'bg-amber-50/50 border-amber-200 text-gray-600'
       }`}>
-        <span className="text-2xl mb-2">🎙️</span>
-        <h3 className="text-sm font-bold mb-1">النشرة الصوتية</h3>
+        <div className="flex items-center gap-2 mb-2">
+          <Mic className="w-5 h-5 text-blue-600" />
+          <h3 className="text-sm font-bold">النشرة الصوتية</h3>
+        </div>
         <p className="text-xs opacity-75 mb-2">
           {error ? 'خطأ في التحميل' : 'لا توجد نشرة حالياً'}
         </p>

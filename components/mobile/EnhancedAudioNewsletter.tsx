@@ -17,7 +17,8 @@ import {
   Loader2,
   AlertCircle,
   Sparkles,
-  TrendingUp
+  TrendingUp,
+  Mic
 } from 'lucide-react';
 
 interface AudioEpisode {
@@ -240,12 +241,12 @@ export default function EnhancedAudioNewsletter({
             <div className={`p-2 rounded-lg ${
               darkMode ? 'bg-gray-700' : 'bg-blue-100'
             }`}>
-              <Headphones className={`w-5 h-5 ${
+              <Mic className={`w-5 h-5 ${
                 darkMode ? 'text-blue-400' : 'text-blue-600'
               }`} />
             </div>
             <div>
-              <h3 className={`font-semibold ${
+              <h3 className={`font-bold ${
                 darkMode ? 'text-white' : 'text-gray-900'
               }`}>
                 النشرة الصوتية

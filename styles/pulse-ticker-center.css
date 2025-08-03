@@ -1,16 +1,22 @@
 /* توسيط النص عمودياً في شريط النبض */
 
-/* التأكد من أن الشريط له ارتفاع مناسب */
+/* التأكد من أن الشريط له ارتفاع مناسب والتمدد الكامل */
 .pulse-ticker-desktop,
 .pulse-ticker-mobile {
   min-height: 48px !important; /* ارتفاع أدنى للديسكتوب */
   display: flex !important;
   align-items: center !important;
+  width: 100% !important; /* التمدد الكامل */
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 @media (max-width: 768px) {
   .pulse-ticker-mobile {
     min-height: 44px !important; /* ارتفاع أدنى للموبايل */
+    width: 100% !important; /* التمدد الكامل للموبايل */
+    padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 }
 

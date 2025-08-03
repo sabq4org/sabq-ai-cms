@@ -206,7 +206,7 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
       className={cn(
         "w-full bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20",
         "border-b border-blue-100 dark:border-blue-800",
-        isMobile ? "py-3 px-3 min-h-[44px]" : "py-4 px-4 min-h-[48px]",
+                  isMobile ? "py-3 pulse-ticker-mobile min-h-[44px]" : "py-4 px-4 pulse-ticker-desktop min-h-[48px]",
         "overflow-hidden relative flex items-center",
         className
       )}
@@ -217,38 +217,7 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
           isMobile ? "gap-2" : "gap-3"
         )}
       >
-        {/* مؤشر النبض */}
-        <div
-          className={cn(
-            "flex items-center gap-1 flex-shrink-0",
-            isMobile ? "gap-1" : "gap-2"
-          )}
-        >
-          <div className="relative">
-            <div
-              className={cn(
-                "bg-blue-500 rounded-full animate-pulse",
-                isMobile ? "w-2.5 h-2.5" : "w-3 h-3"
-              )}
-            ></div>
-            <div
-              className={cn(
-                "absolute inset-0 bg-blue-500 rounded-full animate-ping opacity-25",
-                isMobile ? "w-2.5 h-2.5" : "w-3 h-3"
-              )}
-            ></div>
-          </div>
-          <span
-            className={cn(
-              "font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wide",
-              isMobile ? "text-xs hidden sm:inline" : "text-xs"
-            )}
-          >
-            {isMobile ? "نبض" : "نبض الأخبار"}
-          </span>
-        </div>
-
-        {/* فاصل */}
+        {/* فاصل بصري فقط */}
         <div
           className={cn(
             "bg-blue-200 dark:bg-blue-700 flex-shrink-0",
@@ -314,14 +283,7 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
         )}
       </div>
 
-      {/* شريط التقدم المتحرك */}
-      <motion.div
-        key={currentNotification.id}
-        className="absolute bottom-0 left-0 h-0.5 bg-blue-500"
-        initial={{ width: "0%" }}
-        animate={{ width: "100%" }}
-        transition={{ duration: displayDuration / 1000, ease: "linear" }}
-      />
+
     </div>
   );
 };
