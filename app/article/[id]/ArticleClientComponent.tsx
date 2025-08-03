@@ -1,87 +1,105 @@
-'use client';
+"use client";
 
-import { ArticleData } from '@/lib/article-api';
-import Image from 'next/image';
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import '@/styles/mobile-article-layout.css';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import { formatFullDate, formatRelativeDate } from '@/lib/date-utils';
-import { getImageUrl, getOptimizedImageUrl } from '@/lib/utils';
-import ArticleJsonLd from '@/components/ArticleJsonLd';
-import Footer from '@/components/Footer';
-import OptimizedImage from '@/components/ui/optimized-image';
-import ArticleFeaturedImage from '@/components/article/ArticleFeaturedImage';
+import ArticleFeaturedImage from "@/components/article/ArticleFeaturedImage";
+import Footer from "@/components/Footer";
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
+import { ArticleData } from "@/lib/article-api";
+import { formatFullDate, formatRelativeDate } from "@/lib/date-utils";
+import "@/styles/mobile-article-layout.css";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
-import UltimateImage from '@/components/UltimateImage';
-import { useViewTracking } from '@/hooks/useViewTracking';
-import { Share2, Eye, Clock, Calendar,
-  User, MessageCircle, TrendingUp, Hash, ChevronRight, Home,
-  Twitter, Copy, Check, X, Menu, Heart, Bookmark, Headphones,
-  Play, Pause, Volume2, CheckCircle, Sparkles, BookOpen, Award, Star
-} from 'lucide-react';
-import { SmartInteractionButtons } from '@/components/article/SmartInteractionButtons';
+import { SmartInteractionButtons } from "@/components/article/SmartInteractionButtons";
+import { useViewTracking } from "@/hooks/useViewTracking";
+import {
+  Award,
+  BookOpen,
+  Calendar,
+  CheckCircle,
+  Clock,
+  Eye,
+  Hash,
+  Star,
+  User,
+} from "lucide-react";
 // import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
-import { ReadingProgressBar } from '@/components/article/ReadingProgressBar';
-import ArticleAISummary from '@/components/article/ArticleAISummary';
-import ArticleStatsBlock from '@/components/article/ArticleStatsBlock';
-import SmartPersonalizedContent from '@/components/article/SmartPersonalizedContent';
-import { useReporterProfile } from '@/lib/hooks/useReporterProfile';
-import ArticleViews from '@/components/ui/ArticleViews';
-import '@/styles/mobile-article.css';
-import '@/styles/image-optimizations.css';
-import './article-styles.css';
+import ArticleAISummary from "@/components/article/ArticleAISummary";
+import ArticleStatsBlock from "@/components/article/ArticleStatsBlock";
+import { ReadingProgressBar } from "@/components/article/ReadingProgressBar";
+import SmartPersonalizedContent from "@/components/article/SmartPersonalizedContent";
+import ArticleViews from "@/components/ui/ArticleViews";
+import { useReporterProfile } from "@/lib/hooks/useReporterProfile";
+import "@/styles/image-optimizations.css";
+import "@/styles/mobile-article.css";
+import "./article-styles.css";
 
 interface ArticleClientComponentProps {
   initialArticle: ArticleData;
   articleId: string;
 }
 
-export default function ArticleClientComponent({ 
+export default function ArticleClientComponent({
   initialArticle,
-  articleId
+  articleId,
 }: ArticleClientComponentProps) {
   const router = useRouter();
   const { darkMode } = useDarkModeContext();
-  
+
   // معالجة metadata إذا كانت string
   const processArticle = (articleData: any) => {
-    if (articleData && articleData.metadata && typeof articleData.metadata === 'string') {
+    if (
+      articleData &&
+      articleData.metadata &&
+      typeof articleData.metadata === "string"
+    ) {
       try {
         articleData.metadata = JSON.parse(articleData.metadata);
       } catch (e) {
-        console.error('خطأ في تحليل metadata:', e);
+        console.error("خطأ في تحليل metadata:", e);
         articleData.metadata = {};
       }
     }
     return articleData;
   };
-  
-  const [article, setArticle] = useState<ArticleData | null>(processArticle(initialArticle) || null);
+
+  const [article, setArticle] = useState<ArticleData | null>(
+    processArticle(initialArticle) || null
+  );
   const [loading, setLoading] = useState(!initialArticle);
   const [isReading, setIsReading] = useState(false);
-  
+
   // جلب بروفايل المراسل
-  const { reporter, hasProfile, loading: reporterLoading } = useReporterProfile(article?.author?.name || '');
-  
+  const {
+    reporter,
+    hasProfile,
+    loading: reporterLoading,
+  } = useReporterProfile(article?.author?.name || "");
+
   // تتبع المشاهدات
-  const { elementRef: viewTrackingRef, hasViewed, isInView } = useViewTracking({
+  const {
+    elementRef: viewTrackingRef,
+    hasViewed,
+    isInView,
+  } = useViewTracking({
     articleId: articleId,
     threshold: 0.5, // 50% من المقال يجب أن يكون مرئي
     minTime: 5000, // 5 ثواني
-    enabled: !!article // تفعيل فقط عند وجود المقال
+    enabled: !!article, // تفعيل فقط عند وجود المقال
   });
-  
+
   // دالة لعرض أيقونة التحقق
   const getVerificationIcon = (badge: string) => {
     switch (badge) {
-      case 'expert': return <Award className="w-3 h-3 text-purple-600" />;
-      case 'senior': return <Star className="w-3 h-3 text-yellow-600" />;
-      default: return <CheckCircle className="w-3 h-3 text-blue-600" />;
+      case "expert":
+        return <Award className="w-3 h-3 text-purple-600" />;
+      case "senior":
+        return <Star className="w-3 h-3 text-yellow-600" />;
+      default:
+        return <CheckCircle className="w-3 h-3 text-blue-600" />;
     }
   };
-  
+
   // جلب المقال إذا لم يتم تمريره
   useEffect(() => {
     if (!initialArticle) {
@@ -93,41 +111,45 @@ export default function ArticleClientComponent({
             const data = await response.json();
             setArticle(processArticle(data));
           } else {
-            console.error('Failed to fetch article:', response.status);
+            console.error("Failed to fetch article:", response.status);
           }
         } catch (error) {
-          console.error('Error fetching article:', error);
+          console.error("Error fetching article:", error);
         } finally {
           setLoading(false);
         }
       };
-      
+
       fetchArticle();
     }
   }, [initialArticle, articleId]);
-  
+
   // إذا لا يوجد مقال وجاري التحميل
   if (loading || !article) {
     return (
-      <div style={{
-        padding: '3rem', 
-        textAlign: 'center',
-        minHeight: '400px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
+      <div
+        style={{
+          padding: "3rem",
+          textAlign: "center",
+          minHeight: "400px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         <div>
-          <div style={{
-            width: '50px',
-            height: '50px',
-            border: '3px solid #e5e7eb',
-            borderTop: '3px solid #2563eb',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 1rem'
-          }}></div>
-          <p style={{color: '#6b7280'}}>جاري تحميل المقال...</p>
+          <div
+            style={{
+              width: "50px",
+              height: "50px",
+              border: "3px solid #e5e7eb",
+              borderTop: "3px solid #2563eb",
+              borderRadius: "50%",
+              animation: "spin 1s linear infinite",
+              margin: "0 auto 1rem",
+            }}
+          ></div>
+          <p style={{ color: "#6b7280" }}>جاري تحميل المقال...</p>
         </div>
       </div>
     );
@@ -137,34 +159,37 @@ export default function ArticleClientComponent({
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
-  
+
   // نظام تتبع التفاعل الذكي - معطل مؤقتاً لتجنب خطأ AuthProvider
   // const interactionTracking = useUserInteractionTracking(articleId);
 
   // إصلاح مشكلة استخدام marked
-  const [contentHtml, setContentHtml] = useState('');
-  
+  const [contentHtml, setContentHtml] = useState("");
+
   useEffect(() => {
     // تحويل المحتوى إلى HTML مع معالجة أفضل للحالات الخاصة
     const processContent = async () => {
       // التعامل مع المحتوى الفارغ
       if (!article.content) {
-        console.log('⚠️ محتوى المقال فارغ، عرض رسالة افتراضية');
-        setContentHtml('<p>المحتوى غير متوفر حالياً.</p>');
+        console.log("⚠️ محتوى المقال فارغ، عرض رسالة افتراضية");
+        setContentHtml("<p>المحتوى غير متوفر حالياً.</p>");
         return;
       }
-      
+
       // استخدام المحتوى كما هو إذا كان HTML
-      if (article.content.includes('<p>') || article.content.includes('<div>')) {
+      if (
+        article.content.includes("<p>") ||
+        article.content.includes("<div>")
+      ) {
         setContentHtml(article.content);
       } else {
         // تحويل النص العادي إلى HTML بسيط
-        const paragraphs = article.content.split('\n\n');
-        const html = paragraphs.map(p => `<p>${p}</p>`).join('');
-        setContentHtml(html || '<p>المحتوى غير متوفر بشكل كامل.</p>');
+        const paragraphs = article.content.split("\n\n");
+        const html = paragraphs.map((p) => `<p>${p}</p>`).join("");
+        setContentHtml(html || "<p>المحتوى غير متوفر بشكل كامل.</p>");
       }
     };
-    
+
     processContent();
   }, [article.content]);
 
@@ -208,7 +233,7 @@ export default function ArticleClientComponent({
     if (!content) {
       return 1; // قيمة افتراضية (دقيقة واحدة) للمحتوى الفارغ
     }
-    
+
     // حساب وقت القراءة
     const wordsPerMinute = 200;
     const wordCount = content.split(/\s+/).filter(Boolean).length;
@@ -221,20 +246,20 @@ export default function ArticleClientComponent({
     if (article.subtitle) return article.subtitle;
     if (article.metadata?.subtitle) return article.metadata.subtitle;
     if (article.description) return article.description;
-    
+
     // إذا لم يوجد، استخراج من بداية المحتوى
     if (article.content) {
       const firstParagraph = article.content
-        .split('\n\n')[0] // أول فقرة
-        .replace(/<[^>]*>/g, '') // إزالة HTML tags
+        .split("\n\n")[0] // أول فقرة
+        .replace(/<[^>]*>/g, "") // إزالة HTML tags
         .trim();
-      
+
       // إذا كانت الفقرة الأولى قصيرة ومناسبة كعنوان فرعي
       if (firstParagraph.length > 20 && firstParagraph.length <= 200) {
         return firstParagraph;
       }
     }
-    
+
     return null;
   };
 
@@ -244,8 +269,11 @@ export default function ArticleClientComponent({
       return article.keywords;
     }
     if (article?.seo_keywords) {
-      if (typeof article.seo_keywords === 'string') {
-        return article.seo_keywords.split(',').map(k => k.trim()).filter(Boolean);
+      if (typeof article.seo_keywords === "string") {
+        return article.seo_keywords
+          .split(",")
+          .map((k) => k.trim())
+          .filter(Boolean);
       }
       if (Array.isArray(article.seo_keywords)) {
         return article.seo_keywords;
@@ -260,14 +288,16 @@ export default function ArticleClientComponent({
     <>
       {/* شريط التقدم في القراءة */}
       <ReadingProgressBar />
-      
+
       <main className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-0 sm:pt-[64px]">
         {/* منطقة المحتوى الرئيسية */}
         <div className="relative">
-          <article ref={viewTrackingRef} className="max-w-5xl mx-auto py-4 sm:py-6 lg:py-8">
+          <article
+            ref={viewTrackingRef}
+            className="max-w-5xl mx-auto py-4 sm:py-6 lg:py-8"
+          >
             {/* رأس المقال محسن للموبايل */}
             <header className="mb-8 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl relative z-10">
-              
               {/* Desktop Header */}
               <div className="hidden sm:block px-6 lg:px-8 py-6 lg:py-8">
                 {/* التصنيف - محاذاة لليمين */}
@@ -277,7 +307,11 @@ export default function ArticleClientComponent({
                       href={`/categories/${article.category.slug}`}
                       className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50 hover:shadow-md hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-800/30 dark:hover:to-indigo-800/30 transition-all hover:scale-105"
                     >
-                      {article.category.icon && <span className="text-sm sm:text-base">{article.category.icon}</span>}
+                      {article.category.icon && (
+                        <span className="text-sm sm:text-base">
+                          {article.category.icon}
+                        </span>
+                      )}
                       <span>{article.category.name}</span>
                     </Link>
                   </div>
@@ -287,7 +321,7 @@ export default function ArticleClientComponent({
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 text-gray-900 dark:text-white leading-tight text-right">
                   {article.title}
                 </h1>
-                
+
                 {/* العنوان الفرعي */}
                 {getSubtitle() && (
                   <h2 className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-400 mb-6 text-right">
@@ -297,41 +331,58 @@ export default function ArticleClientComponent({
 
                 {/* المعلومات الأساسية - Desktop */}
                 <div className="flex flex-wrap items-center justify-start gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 text-right">
-              {article.author && (
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                  {hasProfile && reporter ? (
-                    <Link 
-                      href={reporter.profileUrl}
-                      className="flex items-center gap-1 hover:text-blue-600 dark:hover:text-blue-400 transition-all cursor-pointer group hover:underline decoration-blue-600/30 dark:decoration-blue-400/30 underline-offset-4"
-                      title={`عرض بروفايل ${reporter.full_name}`}
-                    >
-                      <span className="truncate max-w-[120px] sm:max-w-none group-hover:underline">
-                        {article.author.name}
-                      </span>
-                      {reporter.is_verified && (
-                        <span className="ml-1">
-                          {getVerificationIcon(reporter.verification_badge)}
+                  {article.author && (
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                      <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                      {hasProfile && reporter ? (
+                        <Link
+                          href={reporter.profileUrl}
+                          className="flex items-center gap-1 hover:text-blue-600 dark:hover:text-blue-400 transition-all cursor-pointer group hover:underline decoration-blue-600/30 dark:decoration-blue-400/30 underline-offset-4"
+                          title={`عرض بروفايل ${reporter.full_name}`}
+                        >
+                          <span className="truncate max-w-[120px] sm:max-w-none group-hover:underline">
+                            {article.author.name}
+                          </span>
+                          {reporter.is_verified && (
+                            <span className="ml-1">
+                              {getVerificationIcon(reporter.verification_badge)}
+                            </span>
+                          )}
+                        </Link>
+                      ) : (
+                        <span className="truncate max-w-[120px] sm:max-w-none">
+                          {article.author.name}
                         </span>
                       )}
-                    </Link>
-                  ) : (
-                    <span className="truncate max-w-[120px] sm:max-w-none">{article.author.name}</span>
+                    </div>
                   )}
-                </div>
-              )}
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                <span className="hidden sm:inline">{formatFullDate(article.published_at || article.created_at || '')}</span>
-                <span className="sm:hidden">{formatRelativeDate(article.published_at || article.created_at || '')}</span>
-              </div>
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <Clock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                <span>{article.reading_time || calculateReadingTime(article.content || '')} د</span>
-              </div>
-              {article.views !== undefined && (
-                <ArticleViews count={article.views} className="text-xs sm:text-sm" />
-              )}
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                    <span className="hidden sm:inline">
+                      {formatFullDate(
+                        article.published_at || article.created_at || ""
+                      )}
+                    </span>
+                    <span className="sm:hidden">
+                      {formatRelativeDate(
+                        article.published_at || article.created_at || ""
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <Clock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                    <span>
+                      {article.reading_time ||
+                        calculateReadingTime(article.content || "")}{" "}
+                      د
+                    </span>
+                  </div>
+                  {article.views !== undefined && (
+                    <ArticleViews
+                      count={article.views}
+                      className="text-xs sm:text-sm"
+                    />
+                  )}
                 </div>
               </div>
 
@@ -355,7 +406,6 @@ export default function ArticleClientComponent({
 
                 {/* حاوي للتصنيف ومعلومات النشر - تخطيط محسن */}
                 <div className="flex items-start justify-between px-1 gap-3 mobile-article-meta">
-                  
                   {/* التصنيف في اليمين (RTL friendly) */}
                   <div className="flex-shrink-0 order-2">
                     {article.category && (
@@ -363,7 +413,11 @@ export default function ArticleClientComponent({
                         href={`/categories/${article.category.slug}`}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/50 hover:shadow-sm transition-all mobile-article-category"
                       >
-                        {article.category.icon && <span className="text-sm">{article.category.icon}</span>}
+                        {article.category.icon && (
+                          <span className="text-sm">
+                            {article.category.icon}
+                          </span>
+                        )}
                         <span>{article.category.name}</span>
                       </Link>
                     )}
@@ -375,24 +429,38 @@ export default function ArticleClientComponent({
                     {article.author && (
                       <div className="flex items-center gap-1.5">
                         <User className="w-3 h-3 flex-shrink-0 mobile-article-icon" />
-                        <span className="truncate max-w-[120px]">{article.author.name}</span>
+                        <span className="truncate max-w-[120px]">
+                          {article.author.name}
+                        </span>
                       </div>
                     )}
-                    
+
                     {/* التاريخ ووقت القراءة والمشاهدات في سطر واحد */}
                     <div className="flex items-center gap-2 flex-wrap">
                       <div className="flex items-center gap-1">
                         <Calendar className="w-3 h-3 flex-shrink-0 mobile-article-icon" />
-                        <span>{formatRelativeDate(article.published_at || article.created_at || '')}</span>
+                        <span>
+                          {formatRelativeDate(
+                            article.published_at || article.created_at || ""
+                          )}
+                        </span>
                       </div>
-                      <span className="text-gray-300 dark:text-gray-600">•</span>
+                      <span className="text-gray-300 dark:text-gray-600">
+                        •
+                      </span>
                       <div className="flex items-center gap-1">
                         <Clock className="w-3 h-3 flex-shrink-0 mobile-article-icon" />
-                        <span>{article.reading_time || calculateReadingTime(article.content || '')} د</span>
+                        <span>
+                          {article.reading_time ||
+                            calculateReadingTime(article.content || "")}{" "}
+                          د
+                        </span>
                       </div>
                       {article.views !== undefined && (
                         <>
-                          <span className="text-gray-300 dark:text-gray-600">•</span>
+                          <span className="text-gray-300 dark:text-gray-600">
+                            •
+                          </span>
                           <div className="flex items-center gap-1">
                             <Eye className="w-3 h-3 flex-shrink-0 mobile-article-icon" />
                             <span>{article.views}</span>
@@ -422,31 +490,32 @@ export default function ArticleClientComponent({
 
         {/* منطقة المحتوى */}
         <article className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
-
           {/* الملخص الذكي مع التحويل الصوتي */}
           <div className="mb-6 sm:mb-8">
             <ArticleAISummary
               articleId={article.id}
-              title={article.title || 'مقال بدون عنوان'}
-              content={article.content || ''}
-              existingSummary={article.ai_summary || article.summary || article.excerpt || ''}
+              title={article.title || "مقال بدون عنوان"}
+              content={article.content || ""}
+              existingSummary={
+                article.ai_summary || article.summary || article.excerpt || ""
+              }
               className="shadow-lg"
             />
           </div>
 
           {/* شريط التفاعل الذكي */}
           <div className="mb-6 sm:mb-8">
-            <SmartInteractionButtons 
+            <SmartInteractionButtons
               articleId={article.id}
               initialStats={{
                 likes: article.likes || article.stats?.likes || 0,
                 saves: article.saves || article.stats?.saves || 0,
                 shares: article.shares || article.stats?.shares || 0,
-                comments: article.comments_count || 0
+                comments: article.comments_count || 0,
               }}
               onComment={() => {
                 // تم إزالة قسم التعليقات
-                console.log('تم النقر على التعليقات');
+                console.log("تم النقر على التعليقات");
               }}
             />
           </div>
@@ -475,36 +544,36 @@ export default function ArticleClientComponent({
               onClick={() => setIsReading(!isReading)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
                 isReading
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
               } hover:opacity-90`}
             >
               <BookOpen className="w-4 h-4" />
               <span className="text-sm font-medium">
-                {isReading ? 'إيقاف وضع القراءة' : 'وضع القراءة'}
+                {isReading ? "إيقاف وضع القراءة" : "وضع القراءة"}
               </span>
             </button>
           </div>
 
           {/* محتوى المقال */}
           <div className="mb-12">
-            <div 
+            <div
               className={`prose max-w-none dark:prose-invert
-                prose-headings:text-gray-900 dark:prose-headings:text-white 
-                prose-p:text-gray-700 dark:prose-p:text-gray-300 
-                prose-p:leading-relaxed 
+                prose-headings:text-gray-900 dark:prose-headings:text-white
+                prose-p:text-gray-700 dark:prose-p:text-gray-300
+                prose-p:leading-relaxed
                 prose-img:rounded-xl prose-img:shadow-xl
                 prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
                 prose-strong:text-gray-900 dark:prose-strong:text-white
                 prose-blockquote:border-blue-500 dark:prose-blockquote:border-blue-400
                 prose-blockquote:bg-blue-50 dark:prose-blockquote:bg-blue-900/20
                 prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-lg
-                ${isReading ? 'prose-xl' : 'prose-lg'}
+                ${isReading ? "prose-xl" : "prose-lg"}
               `}
               dangerouslySetInnerHTML={{ __html: contentHtml }}
             />
           </div>
-          
+
           {/* إحصائيات المقال */}
           <div className="mt-8 sm:mt-12">
             <ArticleStatsBlock
@@ -512,11 +581,15 @@ export default function ArticleClientComponent({
               likes={article.likes || article.stats?.likes || 0}
               saves={article.saves || article.stats?.saves || 0}
               shares={article.shares || article.stats?.shares || 0}
-              category={article.category ? {
-                name: article.category.name,
-                color: article.category.color,
-                icon: article.category.icon
-              } : undefined}
+              category={
+                article.category
+                  ? {
+                      name: article.category.name,
+                      color: article.category.color,
+                      icon: article.category.icon,
+                    }
+                  : undefined
+              }
               growthRate={Math.floor(Math.random() * 60)} // نسبة نمو عشوائية للعرض
             />
           </div>
@@ -534,7 +607,7 @@ export default function ArticleClientComponent({
           </div>
         </article>
       </main>
-      
+
       <Footer />
     </>
   );

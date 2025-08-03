@@ -6,12 +6,12 @@
   .min-h-screen.pt-\[56px\] {
     padding-top: 0 !important;
   }
-  
+
   /* صفحات المقالات القديمة */
   .pt-20 {
     padding-top: 0 !important;
   }
-  
+
   /* أول عنصر بعد الهيدر في الصفحات الداخلية */
   .fixed-header + main,
   header + main,
@@ -19,26 +19,26 @@
     margin-top: 0 !important;
     padding-top: 0 !important;
   }
-  
+
   /* ArticleClientComponent main element */
   main.min-h-screen.bg-gray-50,
   main.min-h-screen.bg-gray-900 {
     padding-top: 0 !important;
   }
-  
+
   /* صفحات الكتاب والمراسلين */
   .pt-16,
   .pb-16 {
     padding-top: 0 !important;
   }
-  
+
   /* إزالة أي margin-top من العناصر التي تلي الهيدر مباشرة */
   header + *,
   .fixed-header + *,
   .mobile-header + * {
     margin-top: 0 !important;
   }
-  
+
   /* التأكد من عدم وجود spacer elements */
   div[style*="height: 16px"],
   div[style*="height: 20px"],
@@ -50,38 +50,38 @@
   div[style*="height: 64px"] {
     display: none !important;
   }
-  
+
   /* إزالة padding من ContentWrapper في الصفحات الداخلية */
   .page-content-wrapper > main,
   .page-content-wrapper > article {
     padding-top: 0 !important;
     margin-top: 0 !important;
   }
-  
+
   /* تخصيص للصفحات المحددة */
   /* صفحة المقال */
   main[class*="article"] {
     padding-top: 0 !important;
   }
-  
+
   /* صفحة الكاتب */
   main[class*="writer"],
   main[class*="author"],
   main[class*="reporter"] {
     padding-top: 0 !important;
   }
-  
+
   /* صفحة التصنيف */
   main[class*="category"],
   main[class*="categories"] {
     padding-top: 0 !important;
   }
-  
+
   /* MobileLayout content */
   .mobile-main-content {
     padding-top: 0 !important;
   }
-  
+
   /* إزالة أي padding-top من العناصر الأولى داخل main */
   main > div:first-child,
   main > article:first-child,
