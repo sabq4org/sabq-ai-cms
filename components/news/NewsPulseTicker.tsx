@@ -206,7 +206,7 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
       className={cn(
         "w-full bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20",
         "border-b border-blue-100 dark:border-blue-800",
-        isMobile ? "py-3 px-3" : "py-4 px-4",
+        isMobile ? "py-3 px-3 min-h-[44px]" : "py-4 px-4 min-h-[48px]",
         "overflow-hidden relative flex items-center",
         className
       )}
@@ -279,7 +279,7 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
                 href={currentNotification.target_url}
                 onClick={() => recordClick(currentNotification.id)}
                 className={cn(
-                  "font-medium truncate hover:underline transition-colors duration-200",
+                  "font-medium truncate hover:underline transition-colors duration-200 flex items-center",
                   isMobile ? "text-xs sm:text-sm" : "text-sm",
                   getTypeColor(currentNotification.type)
                 )}
