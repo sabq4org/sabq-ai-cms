@@ -1,32 +1,28 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import { useAuth } from '@/hooks/useAuth';
-import { 
-  Menu, 
-  Search, 
-  Bell, 
-  User, 
-  Home, 
-  X, 
-  Sun, 
-  Moon,
-  ChevronDown,
-  Settings,
-  LogOut,
-  LayoutDashboard,
-  FileText,
-  Users,
-  BarChart3,
+import SabqLogo from "@/components/SabqLogo";
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
+import { useAuth } from "@/hooks/useAuth";
+import {
   Activity,
-  Zap,
-  Shield,
-  Globe
-} from 'lucide-react';
-import SabqLogo from '@/components/SabqLogo';
+  BarChart3,
+  Bell,
+  ChevronDown,
+  FileText,
+  Globe,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  Moon,
+  Search,
+  Settings,
+  Sun,
+  Users,
+  X,
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import React, { useState } from "react";
 
 interface DashboardMobileHeaderProps {
   title?: string;
@@ -35,43 +31,58 @@ interface DashboardMobileHeaderProps {
   onMenuClick?: () => void;
 }
 
-export default function DashboardMobileHeader({ 
+export default function DashboardMobileHeader({
   title = "لوحة التحكم",
   showSearch = true,
   showNotifications = true,
-  onMenuClick
+  onMenuClick,
 }: DashboardMobileHeaderProps) {
   const { darkMode, toggleDarkMode } = useDarkModeContext();
   const { user, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [notifications] = useState([
-    { id: 1, message: 'مقال جديد في انتظار المراجعة', type: 'info', time: '5 دقائق' },
-    { id: 2, message: 'تم نشر 3 مقالات جديدة', type: 'success', time: '10 دقائق' },
-    { id: 3, message: 'تحديث في إعدادات النظام', type: 'warning', time: '1 ساعة' }
+    {
+      id: 1,
+      message: "مقال جديد في انتظار المراجعة",
+      type: "info",
+      time: "5 دقائق",
+    },
+    {
+      id: 2,
+      message: "تم نشر 3 مقالات جديدة",
+      type: "success",
+      time: "10 دقائق",
+    },
+    {
+      id: 3,
+      message: "تحديث في إعدادات النظام",
+      type: "warning",
+      time: "1 ساعة",
+    },
   ]);
 
   // عناصر القائمة الجانبية
   const dashboardMenuItems = [
-    { label: 'الرئيسية', url: '/dashboard', icon: LayoutDashboard },
-    { label: 'المقالات', url: '/dashboard/articles', icon: FileText },
-    { label: 'المستخدمين', url: '/dashboard/users', icon: Users },
-    { label: 'الإحصائيات', url: '/dashboard/analytics', icon: BarChart3 },
-    { label: 'النشاطات', url: '/dashboard/activities', icon: Activity },
-    { label: 'الإعدادات', url: '/dashboard/settings', icon: Settings },
+    { label: "الرئيسية", url: "/dashboard", icon: LayoutDashboard },
+    { label: "المقالات", url: "/dashboard/articles", icon: FileText },
+    { label: "المستخدمين", url: "/dashboard/users", icon: Users },
+    { label: "الإحصائيات", url: "/dashboard/analytics", icon: BarChart3 },
+    { label: "النشاطات", url: "/dashboard/activities", icon: Activity },
+    { label: "الإعدادات", url: "/dashboard/settings", icon: Settings },
   ];
 
   const handleLogout = async () => {
     try {
       await logout();
-      router.push('/');
+      router.push("/");
     } catch (error) {
-      console.error('خطأ في تسجيل الخروج:', error);
+      console.error("خطأ في تسجيل الخروج:", error);
     }
   };
 
@@ -80,20 +91,23 @@ export default function DashboardMobileHeader({
     if (searchQuery.trim()) {
       router.push(`/dashboard/search?q=${encodeURIComponent(searchQuery)}`);
       setSearchOpen(false);
-      setSearchQuery('');
+      setSearchQuery("");
     }
   };
 
   return (
     <>
       {/* الهيدر الرئيسي */}
-      <header className={`
+      <header
+        className={`
         sticky top-0 z-50 w-full border-b transition-all duration-300
-        ${darkMode 
-          ? 'bg-gray-800/95 border-gray-700 backdrop-blur-sm' 
-          : 'bg-white/95 border-gray-200 backdrop-blur-sm'
+        ${
+          darkMode
+            ? "bg-gray-800/95 border-gray-700 backdrop-blur-sm"
+            : "bg-white/95 border-gray-200 backdrop-blur-sm"
         }
-      `}>
+      `}
+      >
         <div className="flex items-center justify-between px-4 py-3">
           {/* الجهة اليمنى - القائمة واللوجو */}
           <div className="flex items-center gap-3">
@@ -105,9 +119,10 @@ export default function DashboardMobileHeader({
               }}
               className={`
                 p-2 rounded-lg transition-colors duration-200
-                ${darkMode 
-                  ? 'hover:bg-gray-700 text-gray-300' 
-                  : 'hover:bg-gray-100 text-gray-600'
+                ${
+                  darkMode
+                    ? "hover:bg-gray-700 text-gray-300"
+                    : "hover:bg-gray-100 text-gray-600"
                 }
               `}
               aria-label="قائمة لوحة التحكم"
@@ -119,16 +134,20 @@ export default function DashboardMobileHeader({
             <Link href="/dashboard" className="flex items-center gap-3">
               <SabqLogo className="w-8 h-8" />
               <div className="hidden sm:block">
-                <h1 className={`
+                <h1
+                  className={`
                   text-lg font-bold transition-colors duration-300
-                  ${darkMode ? 'text-white' : 'text-gray-800'}
-                `}>
+                  ${darkMode ? "text-white" : "text-gray-800"}
+                `}
+                >
                   {title}
                 </h1>
-                <p className={`
+                <p
+                  className={`
                   text-xs transition-colors duration-300
-                  ${darkMode ? 'text-gray-400' : 'text-gray-500'}
-                `}>
+                  ${darkMode ? "text-gray-400" : "text-gray-500"}
+                `}
+                >
                   منصة سبق الذكية
                 </p>
               </div>
@@ -143,9 +162,10 @@ export default function DashboardMobileHeader({
                 onClick={() => setSearchOpen(!searchOpen)}
                 className={`
                   p-2 rounded-lg transition-colors duration-200
-                  ${darkMode 
-                    ? 'hover:bg-gray-700 text-gray-300' 
-                    : 'hover:bg-gray-100 text-gray-600'
+                  ${
+                    darkMode
+                      ? "hover:bg-gray-700 text-gray-300"
+                      : "hover:bg-gray-100 text-gray-600"
                   }
                 `}
                 aria-label="البحث"
@@ -160,9 +180,10 @@ export default function DashboardMobileHeader({
                 <button
                   className={`
                     p-2 rounded-lg transition-colors duration-200 relative
-                    ${darkMode 
-                      ? 'hover:bg-gray-700 text-gray-300' 
-                      : 'hover:bg-gray-100 text-gray-600'
+                    ${
+                      darkMode
+                        ? "hover:bg-gray-700 text-gray-300"
+                        : "hover:bg-gray-100 text-gray-600"
                     }
                   `}
                   aria-label="الإشعارات"
@@ -184,14 +205,19 @@ export default function DashboardMobileHeader({
               onClick={toggleDarkMode}
               className={`
                 p-2 rounded-lg transition-colors duration-200
-                ${darkMode 
-                  ? 'hover:bg-gray-700 text-yellow-400' 
-                  : 'hover:bg-gray-100 text-gray-600'
+                ${
+                  darkMode
+                    ? "hover:bg-gray-700 text-yellow-400"
+                    : "hover:bg-gray-100 text-gray-600"
                 }
               `}
               aria-label="تبديل وضع الظلام"
             >
-              {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              {darkMode ? (
+                <Sun className="w-5 h-5" />
+              ) : (
+                <Moon className="w-5 h-5" />
+              )}
             </button>
 
             {/* قائمة المستخدم */}
@@ -200,15 +226,16 @@ export default function DashboardMobileHeader({
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
                 className={`
                   flex items-center gap-2 p-2 rounded-lg transition-colors duration-200
-                  ${darkMode 
-                    ? 'hover:bg-gray-700 text-gray-300' 
-                    : 'hover:bg-gray-100 text-gray-600'
+                  ${
+                    darkMode
+                      ? "hover:bg-gray-700 text-gray-300"
+                      : "hover:bg-gray-100 text-gray-600"
                   }
                 `}
               >
                 <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                   <span className="text-white font-bold text-sm">
-                    {user?.name?.charAt(0) || 'م'}
+                    {user?.name?.charAt(0) || "م"}
                   </span>
                 </div>
                 <ChevronDown className="w-4 h-4" />
@@ -216,30 +243,42 @@ export default function DashboardMobileHeader({
 
               {/* قائمة المستخدم المنسدلة */}
               {userMenuOpen && (
-                <div className={`
+                <div
+                  className={`
                   absolute left-0 mt-2 w-56 rounded-lg shadow-lg border z-50
-                  ${darkMode 
-                    ? 'bg-gray-800 border-gray-700' 
-                    : 'bg-white border-gray-200'
+                  ${
+                    darkMode
+                      ? "bg-gray-800 border-gray-700"
+                      : "bg-white border-gray-200"
                   }
-                `}>
+                `}
+                >
                   <div className="p-3 border-b border-gray-200 dark:border-gray-700">
-                    <p className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {user?.name || 'مستخدم'}
+                    <p
+                      className={`font-medium ${
+                        darkMode ? "text-white" : "text-gray-900"
+                      }`}
+                    >
+                      {user?.name || "مستخدم"}
                     </p>
-                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      {user?.email || 'admin@sabq.ai'}
+                    <p
+                      className={`text-sm ${
+                        darkMode ? "text-gray-400" : "text-gray-500"
+                      }`}
+                    >
+                      {user?.email || "admin@sabq.ai"}
                     </p>
                   </div>
-                  
+
                   <div className="py-2">
                     <Link
                       href="/dashboard/settings"
                       className={`
                         flex items-center gap-3 px-3 py-2 text-sm transition-colors
-                        ${darkMode 
-                          ? 'hover:bg-gray-700 text-gray-300' 
-                          : 'hover:bg-gray-100 text-gray-700'
+                        ${
+                          darkMode
+                            ? "hover:bg-gray-700 text-gray-300"
+                            : "hover:bg-gray-100 text-gray-700"
                         }
                       `}
                       onClick={() => setUserMenuOpen(false)}
@@ -247,14 +286,15 @@ export default function DashboardMobileHeader({
                       <Settings className="w-4 h-4" />
                       الإعدادات
                     </Link>
-                    
+
                     <button
                       onClick={handleLogout}
                       className={`
                         w-full flex items-center gap-3 px-3 py-2 text-sm transition-colors
-                        ${darkMode 
-                          ? 'hover:bg-red-900/20 text-red-400' 
-                          : 'hover:bg-red-50 text-red-600'
+                        ${
+                          darkMode
+                            ? "hover:bg-red-900/20 text-red-400"
+                            : "hover:bg-red-50 text-red-600"
                         }
                       `}
                     >
@@ -270,10 +310,16 @@ export default function DashboardMobileHeader({
 
         {/* شريط البحث المنسدل */}
         {searchOpen && (
-          <div className={`
+          <div
+            className={`
             border-t px-4 py-3
-            ${darkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-gray-50'}
-          `}>
+            ${
+              darkMode
+                ? "border-gray-700 bg-gray-800"
+                : "border-gray-200 bg-gray-50"
+            }
+          `}
+          >
             <form onSubmit={handleSearch} className="flex gap-2">
               <div className="flex-1 relative">
                 <input
@@ -283,9 +329,10 @@ export default function DashboardMobileHeader({
                   placeholder="البحث في لوحة التحكم..."
                   className={`
                     w-full px-4 py-2 rounded-lg border transition-colors
-                    ${darkMode 
-                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
-                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                    ${
+                      darkMode
+                        ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                        : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
                     }
                   `}
                   autoFocus
@@ -306,39 +353,51 @@ export default function DashboardMobileHeader({
       {mobileMenuOpen && (
         <>
           {/* الخلفية المعتمة */}
-          <div 
+          <div
             className="fixed inset-0 bg-black/50 z-40"
             onClick={() => setMobileMenuOpen(false)}
           />
-          
+
           {/* القائمة الجانبية */}
-          <div className={`
+          <div
+            className={`
             fixed top-0 right-0 h-full w-80 z-50 transform transition-transform duration-300 overflow-y-auto
-            ${darkMode ? 'bg-gray-800' : 'bg-white'}
-            ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}
-          `}>
+            ${darkMode ? "bg-gray-800" : "bg-white"}
+            ${mobileMenuOpen ? "translate-x-0" : "translate-x-full"}
+          `}
+          >
             {/* رأس القائمة */}
-            <div className={`
+            <div
+              className={`
               flex items-center justify-between p-4 border-b
-              ${darkMode ? 'border-gray-700' : 'border-gray-200'}
-            `}>
+              ${darkMode ? "border-gray-700" : "border-gray-200"}
+            `}
+            >
               <div className="flex items-center gap-3">
                 <SabqLogo className="w-8 h-8" />
                 <div>
-                  <h2 className={`font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                  <h2
+                    className={`font-bold ${
+                      darkMode ? "text-white" : "text-gray-900"
+                    }`}
+                  >
                     لوحة التحكم
                   </h2>
-                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <p
+                    className={`text-sm ${
+                      darkMode ? "text-gray-400" : "text-gray-500"
+                    }`}
+                  >
                     منصة سبق الذكية
                   </p>
                 </div>
               </div>
-              
+
               <button
                 onClick={() => setMobileMenuOpen(false)}
                 className={`
                   p-2 rounded-lg transition-colors
-                  ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}
+                  ${darkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}
                 `}
               >
                 <X className="w-5 h-5" />
@@ -350,7 +409,7 @@ export default function DashboardMobileHeader({
               {dashboardMenuItems.map((item) => {
                 const isActive = pathname === item.url;
                 const Icon = item.icon;
-                
+
                 return (
                   <Link
                     key={item.url}
@@ -358,13 +417,14 @@ export default function DashboardMobileHeader({
                     onClick={() => setMobileMenuOpen(false)}
                     className={`
                       flex items-center gap-3 px-4 py-3 rounded-lg transition-colors
-                      ${isActive 
-                        ? darkMode 
-                          ? 'bg-blue-600 text-white' 
-                          : 'bg-blue-50 text-blue-600 border border-blue-200'
-                        : darkMode 
-                          ? 'hover:bg-gray-700 text-gray-300' 
-                          : 'hover:bg-gray-100 text-gray-700'
+                      ${
+                        isActive
+                          ? darkMode
+                            ? "bg-blue-600 text-white"
+                            : "bg-blue-50 text-blue-600 border border-blue-200"
+                          : darkMode
+                          ? "hover:bg-gray-700 text-gray-300"
+                          : "hover:bg-gray-100 text-gray-700"
                       }
                     `}
                   >
@@ -376,17 +436,20 @@ export default function DashboardMobileHeader({
             </nav>
 
             {/* رابط العودة للموقع */}
-            <div className={`
+            <div
+              className={`
               p-4 border-t mt-auto
-              ${darkMode ? 'border-gray-700' : 'border-gray-200'}
-            `}>
+              ${darkMode ? "border-gray-700" : "border-gray-200"}
+            `}
+            >
               <Link
                 href="/"
                 className={`
                   flex items-center gap-3 px-4 py-3 rounded-lg transition-colors
-                  ${darkMode 
-                    ? 'hover:bg-gray-700 text-gray-300 border border-gray-600' 
-                    : 'hover:bg-gray-100 text-gray-700 border border-gray-300'
+                  ${
+                    darkMode
+                      ? "hover:bg-gray-700 text-gray-300 border border-gray-600"
+                      : "hover:bg-gray-100 text-gray-700 border border-gray-300"
                   }
                 `}
                 onClick={() => setMobileMenuOpen(false)}
@@ -401,7 +464,7 @@ export default function DashboardMobileHeader({
 
       {/* إغلاق القوائم عند النقر خارجها */}
       {(userMenuOpen || searchOpen) && (
-        <div 
+        <div
           className="fixed inset-0 z-30"
           onClick={() => {
             setUserMenuOpen(false);

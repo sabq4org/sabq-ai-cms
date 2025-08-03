@@ -48,7 +48,6 @@ export async function POST(request: NextRequest) {
       },
       data: {
         scroll_depth: scrollDepth,
-        max_scroll_depth: maxScrollDepth,
         last_active: new Date(),
         is_completed: scrollDepth > 0.9,
       },

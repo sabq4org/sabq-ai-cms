@@ -1,11 +1,13 @@
 "use client";
 
+import ReporterLink from "@/components/ReporterLink";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
+import { useViewTracking } from "@/hooks/useViewTracking";
 import { ArticleData } from "@/lib/article-api";
 import { formatRelativeDate } from "@/lib/date-utils";
+import { cn } from "@/lib/utils";
 import {
   Award,
-  BookOpen,
   Calendar,
   Clock,
   Eye,
@@ -16,13 +18,10 @@ import {
   Star,
   User,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { SmartInteractionButtons } from "../article/SmartInteractionButtons";
-import { useViewTracking } from "@/hooks/useViewTracking";
-import { cn } from "@/lib/utils";
-import Image from "next/image";
-import ReporterLink from "@/components/ReporterLink";
 
 interface MobileOpinionLayoutProps {
   article: ArticleData;
@@ -291,8 +290,7 @@ export default function MobileOpinionLayout({
                           : "bg-blue-50 text-gray-700"
                       )}
                     >
-                      <Quote className="w-4 h-4 text-blue-500 mb-1" />
-                      "{quote}"
+                      <Quote className="w-4 h-4 text-blue-500 mb-1" />"{quote}"
                     </blockquote>
                   ))}
                 </div>

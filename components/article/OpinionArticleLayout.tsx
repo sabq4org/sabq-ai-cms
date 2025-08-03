@@ -1,28 +1,25 @@
 "use client";
 
+import ReporterLink from "@/components/ReporterLink";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
+import { useViewTracking } from "@/hooks/useViewTracking";
 import { ArticleData } from "@/lib/article-api";
 import { formatFullDate } from "@/lib/date-utils";
+import { cn } from "@/lib/utils";
 import {
   Award,
   BookOpen,
   Calendar,
   Clock,
   Eye,
-  Heart,
-  MessageCircle,
   Quote,
-  Share2,
   Star,
   User,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { SmartInteractionButtons } from "./SmartInteractionButtons";
-import { useViewTracking } from "@/hooks/useViewTracking";
-import { cn } from "@/lib/utils";
-import Image from "next/image";
-import ReporterLink from "@/components/ReporterLink";
 
 interface OpinionArticleLayoutProps {
   article: ArticleData;
@@ -236,8 +233,7 @@ export default function OpinionArticleLayout({
                         }`}
                       >
                         <BookOpen className="w-4 h-4" />
-                        {article.author?.reporter?.total_articles ||
-                          "عدة"}{" "}
+                        {article.author?.reporter?.total_articles || "عدة"}{" "}
                         مقالات
                       </span>
                       <span
@@ -397,8 +393,8 @@ export default function OpinionArticleLayout({
                             : "bg-blue-50 text-gray-700"
                         )}
                       >
-                        <Quote className="w-6 h-6 text-blue-500 mb-2" />
-                        "{quote}"
+                        <Quote className="w-6 h-6 text-blue-500 mb-2" />"{quote}
+                        "
                       </blockquote>
                     ))}
                   </div>
