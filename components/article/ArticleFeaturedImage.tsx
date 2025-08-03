@@ -32,7 +32,6 @@ export default function ArticleFeaturedImage({
               priority={true}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1024px"
             />
-
           </div>
         </div>
       );
