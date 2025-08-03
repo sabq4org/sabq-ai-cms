@@ -12,6 +12,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import DashboardMobileHeader from './DashboardMobileHeader';
 
 interface MobileDashboardLayoutProps {
   children: React.ReactNode;
@@ -91,42 +92,23 @@ export default function MobileDashboardLayout({
 
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
-      {/* شريط التنقل العلوي للموبايل */}
-      <div className={`
-        sticky top-0 z-50 border-b
-        ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}
-      `}>
-        <div className="flex items-center justify-between p-4">
-          {/* زر العودة */}
-          {showBack ? (
-            <button
-              onClick={() => onBack ? onBack() : router.back()}
-              className={`p-2 rounded-lg transition-colors ${
-                darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
-              }`}
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-          ) : (
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className={`p-2 rounded-lg transition-colors ${
-                darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
-              }`}
-            >
-              <Menu className="w-5 h-5" />
-            </button>
-          )}
+      {/* الهيدر المحسن للوحة التحكم */}
+      <DashboardMobileHeader 
+        title={title}
+        showSearch={showSearch}
+        showNotifications={true}
+        onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+      />
 
-          {/* العنوان */}
-          <h1 className={`text-lg font-bold truncate mx-4 ${
-            darkMode ? 'text-white' : 'text-gray-900'
-          }`}>
-            {title}
-          </h1>
-
-          {/* الأزرار السريعة */}
-          <div className="flex items-center gap-2">
+      {/* المحتوى الرئيسي */}
+      <main className="relative">
+        {/* الأزرار السريعة */}
+        {(showAdd || showFilter) && (
+          <div className={`
+            sticky top-[72px] z-40 border-b px-4 py-3
+            ${darkMode ? 'bg-gray-800/95 border-gray-700 backdrop-blur-sm' : 'bg-white/95 border-gray-200 backdrop-blur-sm'}
+          `}>
+            <div className="flex items-center gap-2">
             {showSearch && (
               <button
                 onClick={() => setIsSearchOpen(!isSearchOpen)}
