@@ -174,7 +174,7 @@ export default function AudioProgramsWidget({ position = 'header' }: { position?
 
   // عرض ككارد في الصفحة الرئيسية
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/40 dark:to-blue-900/30 rounded-lg shadow-sm overflow-hidden border border-blue-200 dark:border-blue-800/30">
+    <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/40 dark:to-blue-900/30 rounded-lg shadow-sm border border-blue-200 dark:border-blue-800/30">
       {/* الهيدر */}
       <div className="bg-gradient-to-r from-blue-400 to-blue-500 p-4">
         <div className="flex items-center justify-between">

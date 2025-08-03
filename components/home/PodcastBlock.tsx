@@ -112,7 +112,7 @@ export default function PodcastBlock() {
   if (isLoading) {
     return (
       <div className="w-full mb-4 sm:mb-6 px-2 sm:px-0">
-        <div className={`rounded-2xl p-6 border-2 border-dashed transition-all ${
+        <div className={`p-6 border-2 border-dashed transition-all ${
           darkMode 
             ? 'bg-gray-800/50 border-gray-600 text-gray-300' 
             : 'bg-blue-50/50 border-blue-200 text-gray-600'
@@ -130,7 +130,7 @@ export default function PodcastBlock() {
   if (error) {
     return (
       <div className="w-full mb-4 sm:mb-6 px-2 sm:px-0">
-        <div className={`rounded-2xl p-6 border-2 border-dashed transition-all ${
+        <div className={`p-6 border-2 border-dashed transition-all ${
           darkMode 
             ? 'bg-red-900/20 border-red-800 text-red-300' 
             : 'bg-red-50/50 border-red-200 text-red-600'
@@ -161,7 +161,7 @@ export default function PodcastBlock() {
   if (!newsletter) {
     return (
       <div className="w-full mb-4 sm:mb-6 px-2 sm:px-0">
-        <div className={`rounded-2xl p-6 border-2 border-dashed transition-all ${
+        <div className={`p-6 border-2 border-dashed transition-all ${
           darkMode 
             ? 'bg-gray-800/50 border-gray-600 text-gray-300' 
             : 'bg-amber-50/50 border-amber-200 text-gray-600'
@@ -194,7 +194,7 @@ export default function PodcastBlock() {
   return (
     <div className="w-full mb-4 sm:mb-6 px-2 sm:px-0">
       <Card className={cn(
-        'overflow-hidden transition-all duration-300',
+        'transition-all duration-300',
         darkMode ? 'bg-gray-800 border-gray-700' : 'bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200'
       )}>
         <div className="p-4 sm:p-6">
