@@ -205,7 +205,7 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
     <div
       className={cn(
         "w-full bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20",
-        "border-b border-blue-100 dark:border-blue-800",
+
                   isMobile ? "py-3 pulse-ticker-mobile min-h-[44px]" : "py-4 px-4 pulse-ticker-desktop min-h-[48px]",
         "overflow-hidden relative flex items-center",
         className
@@ -213,17 +213,11 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
     >
       <div
         className={cn(
-          "flex items-center gap-2 max-w-7xl mx-auto w-full",
+          "flex items-center gap-2 w-full px-4",
           isMobile ? "gap-2" : "gap-3"
         )}
       >
-        {/* فاصل بصري فقط */}
-        <div
-          className={cn(
-            "bg-blue-200 dark:bg-blue-700 flex-shrink-0",
-            isMobile ? "w-px h-3" : "w-px h-4"
-          )}
-        ></div>
+
 
         {/* محتوى الإشعار المتحرك */}
         <div className="flex-1 min-w-0">
