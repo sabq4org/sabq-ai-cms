@@ -32,7 +32,8 @@ button:focus-visible,
 *:focus {
   --tw-ring-shadow: 0 0 #0000 !important;
   --tw-ring-offset-shadow: 0 0 #0000 !important;
-  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000) !important;
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
+    var(--tw-shadow, 0 0 #0000) !important;
 }
 
 /* إلغاء تأثيرات التركيز للبطاقات */
@@ -63,8 +64,38 @@ select:focus-visible {
 
 /* التطبيق الموحّد للهيدر - تجنب التراكب */
 .page-content-wrapper {
-  padding-top: var(--header-height);
-  min-height: calc(100vh - var(--header-height));
+  padding-top: 0 !important; /* إزالة المسافة لجعل الشريط ملاصق للهيدر */
+  margin-top: 0 !important; /* إزالة الـ margin أيضاً */
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+/* أول عنصر في المحتوى يبدأ من الأعلى مباشرة */
+.page-content-wrapper > * {
+  position: relative;
+}
+
+/* استثناء العناصر التي لها كلاس pulse-first-element */
+.page-content-wrapper > *:first-child:not(.pulse-first-element) {
+  margin-top: 0 !important;
+  padding-top: var(--header-height) !important;
+}
+
+/* تخصيص عناصر pulse-first-element لتكون ملاصقة للهيدر */
+.page-content-wrapper > .pulse-first-element {
+  margin-top: var(--header-height) !important;
+  padding-top: 0 !important;
+}
+
+@media (max-width: 768px) {
+  .page-content-wrapper > *:first-child:not(.pulse-first-element) {
+    padding-top: 56px !important;
+  }
+  
+  .page-content-wrapper > .pulse-first-element {
+    margin-top: 56px !important;
+  }
 }
 
 .dashboard-content-wrapper {
@@ -127,19 +158,20 @@ html {
 @tailwind utilities;
 
 /* إلغاء تأثيرات underline على الروابط */
-@import './no-link-underline.css';
+@import "./no-link-underline.css";
 
 /* تحسينات تجربة المستخدم */
-@import './enhanced-responsive.css';
+@import "./enhanced-responsive.css";
 
 /* معالجة الأخطاء */
-@import './error-handling.css';
+@import "./error-handling.css";
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: 'IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', system-ui, sans-serif !important;
+  font-family: "IBM Plex Sans Arabic", "Tajawal", "Noto Sans Arabic", system-ui,
+    sans-serif !important;
 }
 
 html,
@@ -153,18 +185,28 @@ body {
 body {
   color: #1a202c;
   background: #ffffff;
-  font-family: 'IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', system-ui, sans-serif !important;
+  font-family: "IBM Plex Sans Arabic", "Tajawal", "Noto Sans Arabic", system-ui,
+    sans-serif !important;
   line-height: 1.7;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', system-ui, sans-serif !important;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "IBM Plex Sans Arabic", "Tajawal", "Noto Sans Arabic", system-ui,
+    sans-serif !important;
   font-weight: 700;
   line-height: 1.3;
 }
 
-p, div, span {
-  font-family: 'IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', system-ui, sans-serif !important;
+p,
+div,
+span {
+  font-family: "IBM Plex Sans Arabic", "Tajawal", "Noto Sans Arabic", system-ui,
+    sans-serif !important;
   line-height: 1.7;
 }
 
@@ -174,15 +216,20 @@ a {
 }
 
 button {
-  font-family: 'IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', system-ui, sans-serif !important;
+  font-family: "IBM Plex Sans Arabic", "Tajawal", "Noto Sans Arabic", system-ui,
+    sans-serif !important;
 }
 
-input, textarea, select {
-  font-family: 'IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', system-ui, sans-serif !important;
+input,
+textarea,
+select {
+  font-family: "IBM Plex Sans Arabic", "Tajawal", "Noto Sans Arabic", system-ui,
+    sans-serif !important;
 }
 
 .article-content {
-  font-family: 'IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', system-ui, sans-serif !important;
+  font-family: "IBM Plex Sans Arabic", "Tajawal", "Noto Sans Arabic", system-ui,
+    sans-serif !important;
   line-height: 1.8;
   text-align: right;
   direction: rtl;
@@ -191,12 +238,14 @@ input, textarea, select {
 .article-content h1,
 .article-content h2,
 .article-content h3 {
-  font-family: 'IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', system-ui, sans-serif !important;
+  font-family: "IBM Plex Sans Arabic", "Tajawal", "Noto Sans Arabic", system-ui,
+    sans-serif !important;
   font-weight: 700;
 }
 
 .article-content p {
-  font-family: 'IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', system-ui, sans-serif !important;
+  font-family: "IBM Plex Sans Arabic", "Tajawal", "Noto Sans Arabic", system-ui,
+    sans-serif !important;
   margin-bottom: 1.5rem;
   text-align: right;
 }
@@ -236,11 +285,13 @@ input, textarea, select {
   }
 
   .dark .shadow-md {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4),
+      0 2px 4px -1px rgba(0, 0, 0, 0.3);
   }
 
   .dark .shadow-lg {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4),
+      0 4px 6px -2px rgba(0, 0, 0, 0.3);
   }
 
   /* تحسين الحواف والإطارات */
@@ -309,7 +360,14 @@ input, textarea, select {
   }
 
   /* منع التحول في الصور والأيقونات */
-  img, svg, video, canvas, audio, iframe, embed, object {
+  img,
+  svg,
+  video,
+  canvas,
+  audio,
+  iframe,
+  embed,
+  object {
     transition: none !important;
   }
 }
@@ -351,18 +409,18 @@ input, textarea, select {
     line-height: 1.4 !important;
     margin-bottom: 0.75rem !important;
   }
-  
+
   .smart-section-subtext {
     font-size: 0.875rem !important; /* تصغير من text-sm */
     line-height: 1.5 !important;
     margin-bottom: 1rem !important;
   }
-  
+
   .smart-ai-label {
     font-size: 0.75rem !important; /* تصغير الشارة */
     padding: 0.375rem 0.75rem !important;
   }
-  
+
   .smart-section-header {
     padding-top: 0.75rem !important;
     padding-bottom: 0.5rem !important;
@@ -377,18 +435,18 @@ input, textarea, select {
     line-height: 1.3 !important;
     margin-bottom: 0.5rem !important;
   }
-  
+
   .smart-section-subtext {
     font-size: 0.8rem !important;
     line-height: 1.4 !important;
   }
-  
+
   .smart-ai-label {
     font-size: 0.7rem !important;
     padding: 0.25rem 0.5rem !important;
     gap: 0.5rem !important;
   }
-  
+
   .smart-ai-label .w-4 {
     width: 0.875rem !important;
     height: 0.875rem !important;
@@ -405,29 +463,34 @@ input, textarea, select {
     backdrop-filter: blur(8px) !important;
     background-opacity: 0.95 !important;
   }
-  
+
   .dark .breaking-news-mobile {
-    background-color: rgba(127, 29, 29, 0.9) !important; /* red-950 with opacity */
+    background-color: rgba(
+      127,
+      29,
+      29,
+      0.9
+    ) !important; /* red-950 with opacity */
     border-color: #991b1b !important; /* red-800 */
   }
-  
+
   .breaking-news-title {
     color: #c0392b !important;
     font-weight: bold !important;
     font-size: clamp(14px, 3vw, 16px) !important;
     line-height: 1.3 !important;
   }
-  
+
   .dark .breaking-news-title {
     color: #fca5a5 !important; /* red-200 */
   }
-  
+
   .breaking-news-badge {
     color: #e74c3c !important;
     font-weight: bold !important;
     font-size: 0.875rem !important; /* 14px */
   }
-  
+
   .dark .breaking-news-badge {
     color: #f87171 !important; /* red-400 */
   }
@@ -440,17 +503,17 @@ input, textarea, select {
     border: 1px solid #e74c3c !important;
     border-radius: 0.5rem !important;
   }
-  
+
   .dark .breaking-news-desktop {
     background-color: rgba(127, 29, 29, 0.9) !important;
     border-color: #991b1b !important;
   }
-  
+
   .breaking-news-desktop-title {
     color: #7f1d1d !important; /* red-800 */
     font-weight: bold !important;
   }
-  
+
   .dark .breaking-news-desktop-title {
     color: #fca5a5 !important; /* red-200 */
   }
@@ -462,7 +525,8 @@ input, textarea, select {
 }
 
 @keyframes breaking-pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -476,16 +540,22 @@ input, textarea, select {
 }
 
 .dark .breaking-news-gradient {
-  background: linear-gradient(135deg, rgba(127, 29, 29, 0.9) 0%, rgba(153, 27, 27, 0.9) 100%) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(127, 29, 29, 0.9) 0%,
+    rgba(153, 27, 27, 0.9) 100%
+  ) !important;
 }
 
 /* تحسين الظلال للأخبار العاجلة */
 .breaking-news-shadow {
-  box-shadow: 0 4px 6px -1px rgba(231, 76, 60, 0.2), 0 2px 4px -1px rgba(231, 76, 60, 0.1);
+  box-shadow: 0 4px 6px -1px rgba(231, 76, 60, 0.2),
+    0 2px 4px -1px rgba(231, 76, 60, 0.1);
 }
 
 .dark .breaking-news-shadow {
-  box-shadow: 0 4px 6px -1px rgba(127, 29, 29, 0.4), 0 2px 4px -1px rgba(127, 29, 29, 0.2);
+  box-shadow: 0 4px 6px -1px rgba(127, 29, 29, 0.4),
+    0 2px 4px -1px rgba(127, 29, 29, 0.2);
 }
 
 /* نهاية التحسينات */

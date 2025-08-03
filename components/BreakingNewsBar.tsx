@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { AlertTriangle, Clock, Eye, X } from 'lucide-react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import CloudImage from '@/components/ui/CloudImage';
-import { formatDateGregorian } from '@/lib/date-utils';
+import CloudImage from "@/components/ui/CloudImage";
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
+import { formatDateGregorian } from "@/lib/date-utils";
+import { AlertTriangle, Clock, X } from "lucide-react";
+import Link from "next/link";
+import React, { useEffect, useState } from "react";
 
 interface BreakingNews {
   id: string;
@@ -44,9 +44,9 @@ interface BreakingNewsBarProps {
   onClose?: () => void;
 }
 
-const BreakingNewsBar: React.FC<BreakingNewsBarProps> = ({ 
-  className = '', 
-  onClose 
+const BreakingNewsBar: React.FC<BreakingNewsBarProps> = ({
+  className = "",
+  onClose,
 }) => {
   const { darkMode } = useDarkModeContext();
   const [breakingNews, setBreakingNews] = useState<BreakingNews | null>(null);
@@ -58,13 +58,13 @@ const BreakingNewsBar: React.FC<BreakingNewsBarProps> = ({
     const fetchBreakingNews = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/breaking-news', {
-          cache: 'no-store',
+        const response = await fetch("/api/breaking-news", {
+          cache: "no-store",
           headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-          }
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+          },
         });
-        
+
         if (response.ok) {
           const data = await response.json();
           if (data.success && data.breakingNews) {
@@ -72,12 +72,12 @@ const BreakingNewsBar: React.FC<BreakingNewsBarProps> = ({
           }
         }
       } catch (error) {
-        console.error('خطأ في جلب الخبر العاجل:', error);
+        console.error("خطأ في جلب الخبر العاجل:", error);
       } finally {
         setLoading(false);
       }
     };
-    
+
     fetchBreakingNews();
   }, []);
 
@@ -97,17 +97,19 @@ const BreakingNewsBar: React.FC<BreakingNewsBarProps> = ({
   };
 
   return (
-    <div className={`breaking-news-container ${className}`}>
+    <div className={`breaking-news-container ${className}`} style={{ marginTop: 0, paddingTop: 0 }}>
       {/* الخبر العاجل - نسخة الموبايل */}
       <div className="lg:hidden">
-        <div className={`relative overflow-hidden rounded-xl mx-4 mb-6 shadow-lg ${
-          darkMode 
-            ? 'bg-gradient-to-r from-red-950 via-red-900 to-red-950 border border-red-800' 
-            : 'bg-gradient-to-r from-red-50 via-red-100 to-red-50 border border-red-200'
-        }`}>
+        <div
+          className={`relative overflow-hidden rounded-xl mx-4 mb-3 shadow-lg ${
+            darkMode
+              ? "bg-gradient-to-r from-red-950 via-red-900 to-red-950 border border-red-800"
+              : "bg-gradient-to-r from-red-50 via-red-100 to-red-50 border border-red-200"
+          }`}
+        >
           {/* خلفية متحركة */}
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-red-500/10 to-transparent animate-pulse"></div>
-          
+
           <div className="relative z-10 p-4">
             {/* رأس الخبر العاجل */}
             <div className="flex items-center justify-between mb-3">
@@ -116,24 +118,26 @@ const BreakingNewsBar: React.FC<BreakingNewsBarProps> = ({
                   <AlertTriangle className="w-4 h-4 text-white animate-pulse" />
                   <span className="text-white text-sm font-bold">عاجل</span>
                 </div>
-                
+
                 {breakingNews.category && (
-                  <span className={`text-xs px-2 py-1 rounded-full ${
-                    darkMode 
-                      ? 'bg-gray-700 text-gray-300' 
-                      : 'bg-gray-200 text-gray-700'
-                  }`}>
+                  <span
+                    className={`text-xs px-2 py-1 rounded-full ${
+                      darkMode
+                        ? "bg-gray-700 text-gray-300"
+                        : "bg-gray-200 text-gray-700"
+                    }`}
+                  >
                     {breakingNews.category.name}
                   </span>
                 )}
               </div>
-              
-              <button 
+
+              <button
                 onClick={handleDismiss}
                 className={`p-1 rounded-full transition-colors ${
-                  darkMode 
-                    ? 'hover:bg-red-800 text-red-300' 
-                    : 'hover:bg-red-100 text-red-600'
+                  darkMode
+                    ? "hover:bg-red-800 text-red-300"
+                    : "hover:bg-red-100 text-red-600"
                 }`}
               >
                 <X className="w-4 h-4" />
@@ -155,26 +159,32 @@ const BreakingNewsBar: React.FC<BreakingNewsBarProps> = ({
                     />
                   </div>
                 )}
-                
+
                 {/* النص */}
                 <div className="flex-1 min-w-0">
-                  <h3 className={`font-bold text-lg leading-tight mb-2 line-clamp-2 ${
-                    darkMode ? 'text-red-100' : 'text-red-900'
-                  }`}>
+                  <h3
+                    className={`font-bold text-lg leading-tight mb-2 line-clamp-2 ${
+                      darkMode ? "text-red-100" : "text-red-900"
+                    }`}
+                  >
                     {breakingNews.title}
                   </h3>
-                  
+
                   {/* معلومات إضافية */}
                   <div className="flex items-center gap-3 text-xs">
                     <div className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
-                      <span className={darkMode ? 'text-red-300' : 'text-red-600'}>
+                      <span
+                        className={darkMode ? "text-red-300" : "text-red-600"}
+                      >
                         {formatDateGregorian(breakingNews.published_at)}
                       </span>
                     </div>
-                    
+
                     {breakingNews.reading_time && (
-                      <span className={darkMode ? 'text-red-300' : 'text-red-600'}>
+                      <span
+                        className={darkMode ? "text-red-300" : "text-red-600"}
+                      >
                         {breakingNews.reading_time} دقيقة
                       </span>
                     )}
@@ -188,15 +198,17 @@ const BreakingNewsBar: React.FC<BreakingNewsBarProps> = ({
 
       {/* الخبر العاجل - نسخة الديسكتوب */}
       <div className="hidden lg:block">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 mt-8">
-          <div className={`relative overflow-hidden rounded-2xl shadow-xl ${
-            darkMode 
-              ? 'bg-gradient-to-r from-red-950 via-red-900 to-red-950 border border-red-800' 
-              : 'bg-gradient-to-r from-red-50 via-red-100 to-red-50 border border-red-200'
-          }`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-4" style={{ marginTop: 0 }}>
+          <div
+            className={`relative overflow-hidden rounded-2xl shadow-xl ${
+              darkMode
+                ? "bg-gradient-to-r from-red-950 via-red-900 to-red-950 border border-red-800"
+                : "bg-gradient-to-r from-red-50 via-red-100 to-red-50 border border-red-200"
+            }`}
+          >
             {/* خلفية متحركة */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-red-500/10 to-transparent animate-pulse"></div>
-            
+
             <div className="relative z-10 p-6">
               <Link href={getArticleLink()} className="block">
                 <div className="flex items-center gap-6">
@@ -207,16 +219,16 @@ const BreakingNewsBar: React.FC<BreakingNewsBarProps> = ({
                         <AlertTriangle className="w-5 h-5 text-white animate-pulse" />
                         <span className="text-white font-bold">خبر عاجل</span>
                       </div>
-                      
-                      <button 
+
+                      <button
                         onClick={(e) => {
                           e.preventDefault();
                           handleDismiss();
                         }}
                         className={`p-2 rounded-full transition-colors ${
-                          darkMode 
-                            ? 'hover:bg-red-800 text-red-300' 
-                            : 'hover:bg-red-100 text-red-600'
+                          darkMode
+                            ? "hover:bg-red-800 text-red-300"
+                            : "hover:bg-red-100 text-red-600"
                         }`}
                       >
                         <X className="w-5 h-5" />
@@ -236,36 +248,44 @@ const BreakingNewsBar: React.FC<BreakingNewsBarProps> = ({
                       />
                     </div>
                   )}
-                  
+
                   {/* المحتوى */}
                   <div className="flex-1 min-w-0">
-                    <h2 className={`font-bold text-2xl lg:text-3xl leading-tight mb-3 line-clamp-2 ${
-                      darkMode ? 'text-red-100' : 'text-red-900'
-                    }`}>
+                    <h2
+                      className={`font-bold text-2xl lg:text-3xl leading-tight mb-3 line-clamp-2 ${
+                        darkMode ? "text-red-100" : "text-red-900"
+                      }`}
+                    >
                       {breakingNews.title}
                     </h2>
-                    
+
                     {/* معلومات تفصيلية */}
                     <div className="flex items-center gap-6 text-sm">
                       <div className="flex items-center gap-2">
                         <Clock className="w-4 h-4" />
-                        <span className={darkMode ? 'text-red-300' : 'text-red-600'}>
+                        <span
+                          className={darkMode ? "text-red-300" : "text-red-600"}
+                        >
                           {formatDateGregorian(breakingNews.published_at)}
                         </span>
                       </div>
-                      
+
                       {breakingNews.reading_time && (
-                        <span className={darkMode ? 'text-red-300' : 'text-red-600'}>
+                        <span
+                          className={darkMode ? "text-red-300" : "text-red-600"}
+                        >
                           وقت القراءة: {breakingNews.reading_time} دقيقة
                         </span>
                       )}
-                      
+
                       {breakingNews.category && (
-                        <span className={`px-3 py-1 rounded-full ${
-                          darkMode 
-                            ? 'bg-gray-700 text-gray-300' 
-                            : 'bg-gray-200 text-gray-700'
-                        }`}>
+                        <span
+                          className={`px-3 py-1 rounded-full ${
+                            darkMode
+                              ? "bg-gray-700 text-gray-300"
+                              : "bg-gray-200 text-gray-700"
+                          }`}
+                        >
                           {breakingNews.category.name}
                         </span>
                       )}

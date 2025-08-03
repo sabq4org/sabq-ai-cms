@@ -12,6 +12,7 @@ import '../styles/theme-manager.css';
 import '../styles/mobile.css';
 import '../styles/muqtarab-animations.css';
 import '../styles/featured-mobile-card.css';
+import '../styles/logo-fixes.css';
 import type { Metadata } from 'next';
 import { IBM_Plex_Sans_Arabic } from 'next/font/google';
 import { Providers } from './providers';

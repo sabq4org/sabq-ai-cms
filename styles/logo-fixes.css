@@ -1,0 +1,100 @@
+/* تحسينات شعار سبق - إصلاح مشاكل المحاذاة والخلفية */
+
+/* الشعار الرئيسي في الهيدر */
+.logo-container {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: visible !important;
+}
+
+/* تحسين شعار سبق */
+.sabq-logo {
+  position: relative;
+  display: block;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  z-index: 51;
+}
+
+.sabq-logo img {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+  transition: all 0.3s ease;
+}
+
+.sabq-logo:hover img {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+  transform: scale(1.02);
+}
+
+/* إزالة أي خلفيات أو حدود من containers الشعار */
+.sabq-logo,
+.sabq-logo div,
+.sabq-logo span {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+/* تحسين الموقع في الهيدر */
+.fixed-header .sabq-logo {
+  position: relative;
+  z-index: 52;
+}
+
+/* للتأكد من أن الشعار يظهر فوق كل العناصر */
+.header-logo-wrapper {
+  position: relative;
+  z-index: 52 !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* إصلاح أي مشاكل في dark mode */
+[data-theme="dark"] .sabq-logo,
+.dark .sabq-logo {
+  background: transparent !important;
+}
+
+[data-theme="dark"] .sabq-logo img,
+.dark .sabq-logo img {
+  background: transparent !important;
+  filter: drop-shadow(0 1px 3px rgba(255, 255, 255, 0.1));
+}
+
+/* تحسين على الأجهزة المحمولة */
+@media (max-width: 768px) {
+  .sabq-logo {
+    transform: none;
+    z-index: 53;
+  }
+  
+  .sabq-logo img {
+    max-height: 32px;
+    width: auto;
+  }
+}
+
+/* إزالة أي background colors غير مرغوب فيها */
+.container .sabq-logo,
+.flex .sabq-logo,
+.grid .sabq-logo {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* التأكد من عدم تأثير أي wrapper بالشعار */
+.sabq-logo * {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}

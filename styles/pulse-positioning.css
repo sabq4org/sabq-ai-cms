@@ -1,0 +1,74 @@
+/* تموضع شريط النبض ملاصق للهيدر */
+
+/* إزالة أي فراغ بين الهيدر وشريط النبض */
+.pulse-ticker-mobile,
+.pulse-ticker-desktop {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* جعل شريط النبض يبدأ مباشرة تحت الهيدر */
+.pulse-first-element {
+  margin-top: var(--header-height) !important;
+  padding-top: 0 !important;
+  position: relative !important;
+  z-index: 49 !important;
+}
+
+@media (max-width: 768px) {
+  .pulse-first-element {
+    margin-top: 56px !important; /* ارتفاع الهيدر في الموبايل */
+  }
+}
+
+/* إزالة أي فراغات إضافية من المحتوى التالي */
+.page-content-wrapper > *:first-child {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* ضمان عدم وجود فراغ إضافي */
+.breaking-news-container {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* جعل شريط النبض الإخباري ملاصق للهيدر تماماً */
+.pulse-ticker-mobile {
+  position: sticky !important;
+  top: var(--header-height) !important;
+  z-index: 48 !important;
+  margin-bottom: 0 !important;
+}
+
+.pulse-ticker-desktop {
+  position: sticky !important;
+  top: var(--header-height) !important;
+  z-index: 48 !important;
+  margin-bottom: 0 !important;
+}
+
+@media (max-width: 768px) {
+  .pulse-ticker-mobile {
+    top: 56px !important;
+  }
+}
+
+/* إزالة أي فراغات من العناصر التي تلي شريط النبض */
+.pulse-first-element + * {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* خصوصية عالية لضمان عدم وجود فراغات */
+div[class*="breaking-news"] {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* إزالة أي فراغات بين شريط النبض والشريط الإخباري */
+.pulse-ticker-mobile + .breaking-news-container,
+.pulse-ticker-desktop + .breaking-news-container {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
