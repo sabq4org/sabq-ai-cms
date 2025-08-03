@@ -206,14 +206,14 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
       className={cn(
         "w-full bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20",
         "border-b border-blue-100 dark:border-blue-800",
-        isMobile ? "py-2 px-3" : "py-3 px-4",
-        "overflow-hidden relative",
+        isMobile ? "py-3 px-3" : "py-4 px-4",
+        "overflow-hidden relative flex items-center",
         className
       )}
     >
       <div
         className={cn(
-          "flex items-center gap-2 max-w-7xl mx-auto",
+          "flex items-center gap-2 max-w-7xl mx-auto w-full",
           isMobile ? "gap-2" : "gap-3"
         )}
       >
