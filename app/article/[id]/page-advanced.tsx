@@ -1,23 +1,26 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import React, { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import { formatFullDate, formatRelativeDate } from '@/lib/date-utils';
-import { getImageUrl } from '@/lib/utils';
-import ArticleJsonLd from '@/components/ArticleJsonLd';
-import Footer from '@/components/Footer';
-import { marked } from 'marked';
-import { Share2, Eye, Clock, Calendar,
-  User, MessageCircle, TrendingUp, Hash, ChevronRight, Home,
-  Twitter, Copy, Check, X, Menu, Heart, Bookmark, Headphones,
-  Play, Pause, Volume2, CheckCircle, Sparkles
-} from 'lucide-react';
-import ArticleInteractions from '@/components/article/ArticleInteractions';
-import AudioSummaryPlayer from '@/components/AudioSummaryPlayer';
-import ArticleViews from '@/components/ui/ArticleViews';
+import ArticleInteractions from "@/components/article/ArticleInteractions";
+import ArticleJsonLd from "@/components/ArticleJsonLd";
+import AudioSummaryPlayer from "@/components/AudioSummaryPlayer";
+import Footer from "@/components/Footer";
+import ArticleViews from "@/components/ui/ArticleViews";
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
+import { formatFullDate } from "@/lib/date-utils";
+import { getImageUrl } from "@/lib/utils";
+import {
+  Calendar,
+  Clock,
+  Hash,
+  Headphones,
+  Sparkles,
+  User,
+  X,
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 // نوع البيانات
 interface Article {
@@ -55,10 +58,10 @@ interface PageProps {
 
 export default function ArticlePageEnhanced({ params }: PageProps) {
   const router = useRouter();
-  const [articleId, setArticleId] = useState<string>('');
-  
+  const [articleId, setArticleId] = useState<string>("");
+
   useEffect(() => {
-    params.then(resolvedParams => {
+    params.then((resolvedParams) => {
       setArticleId(resolvedParams.id);
     });
   }, [params]);
@@ -69,57 +72,62 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
     liked: false,
     saved: false,
     likesCount: 0,
-    savesCount: 0
+    savesCount: 0,
   });
   const [showAudioPlayer, setShowAudioPlayer] = useState(false);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const [error, setError] = useState<string | null>(null);
-  const [errorType, setErrorType] = useState<'not_found' | 'not_published' | 'server_error' | null>(null);
+  const [errorType, setErrorType] = useState<
+    "not_found" | "not_published" | "server_error" | null
+  >(null);
 
   // تعريف دالة جلب المقال
   const fetchArticle = async (id: string) => {
     if (!id) return; // التحقق من وجود id
     try {
       setLoading(true);
-      console.log('جاري جلب المقال:', id);
+      console.log("جاري جلب المقال:", id);
       const response = await fetch(`/api/articles/${id}`);
-      
+
       if (!response.ok) {
-        console.error('فشل جلب المقال:', response.status, response.statusText);
+        console.error("فشل جلب المقال:", response.status, response.statusText);
         const errorData = await response.json().catch(() => ({}));
-        console.error('تفاصيل الخطأ:', errorData);
-        
+        console.error("تفاصيل الخطأ:", errorData);
+
         if (response.status === 404) {
-          setError('عذراً، المقال المطلوب غير موجود');
-          setErrorType('not_found');
-        } else if (response.status === 403 && errorData.code === 'ARTICLE_NOT_PUBLISHED') {
-          setError('هذه المقالة في وضع التحرير ولا يمكن عرضها للعامة');
-          setErrorType('not_published');
+          setError("عذراً، المقال المطلوب غير موجود");
+          setErrorType("not_found");
+        } else if (
+          response.status === 403 &&
+          errorData.code === "ARTICLE_NOT_PUBLISHED"
+        ) {
+          setError("هذه المقالة في وضع التحرير ولا يمكن عرضها للعامة");
+          setErrorType("not_published");
         } else {
-          setError('حدث خطأ في جلب المقال');
-          setErrorType('server_error');
+          setError("حدث خطأ في جلب المقال");
+          setErrorType("server_error");
         }
-        
+
         return;
       }
-      
+
       const data = await response.json();
-      console.log('تم جلب المقال بنجاح:', data.title);
+      console.log("تم جلب المقال بنجاح:", data.title);
       setArticle(data);
-      
+
       // تحديث عدادات التفاعل
       if (data.stats) {
-        setInteraction(prev => ({
+        setInteraction((prev) => ({
           ...prev,
           likesCount: data.stats.likes || 0,
-          savesCount: data.stats.saves || 0
+          savesCount: data.stats.saves || 0,
         }));
       }
     } catch (error) {
-      console.error('خطأ في جلب المقال:', error);
-      setError('حدث خطأ في الاتصال بالخادم');
-      setErrorType('server_error');
+      console.error("خطأ في جلب المقال:", error);
+      setError("حدث خطأ في الاتصال بالخادم");
+      setErrorType("server_error");
     } finally {
       setLoading(false);
     }
@@ -134,39 +142,39 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
 
   // معالجة الإعجاب
   const handleLike = async () => {
-    setInteraction(prev => ({
+    setInteraction((prev) => ({
       ...prev,
       liked: !prev.liked,
-      likesCount: prev.liked ? prev.likesCount - 1 : prev.likesCount + 1
+      likesCount: prev.liked ? prev.likesCount - 1 : prev.likesCount + 1,
     }));
-    
+
     try {
-      await fetch('/api/interactions/like', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ articleId })
+      await fetch("/api/interactions/like", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ articleId }),
       });
     } catch (error) {
-      console.error('Error liking article:', error);
+      console.error("Error liking article:", error);
     }
   };
 
   // معالجة الحفظ
   const handleSave = async () => {
-    setInteraction(prev => ({
+    setInteraction((prev) => ({
       ...prev,
       saved: !prev.saved,
-      savesCount: prev.saved ? prev.savesCount - 1 : prev.savesCount + 1
+      savesCount: prev.saved ? prev.savesCount - 1 : prev.savesCount + 1,
     }));
-    
+
     try {
-      await fetch('/api/interactions/bookmark', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ articleId })
+      await fetch("/api/interactions/bookmark", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ articleId }),
       });
     } catch (error) {
-      console.error('Error saving article:', error);
+      console.error("Error saving article:", error);
     }
   };
 
@@ -197,7 +205,7 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
   // حساب وقت القراءة
   const calculateReadingTime = (content: string) => {
     const wordsPerMinute = 200;
-    const wordCount = content.split(' ').length;
+    const wordCount = content.split(" ").length;
     return Math.max(1, Math.ceil(wordCount / wordsPerMinute));
   };
 
@@ -207,8 +215,11 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
       return article.keywords;
     }
     if (article?.seo_keywords) {
-      if (typeof article.seo_keywords === 'string') {
-        return article.seo_keywords.split(',').map(k => k.trim()).filter(Boolean);
+      if (typeof article.seo_keywords === "string") {
+        return article.seo_keywords
+          .split(",")
+          .map((k) => k.trim())
+          .filter(Boolean);
       }
       if (Array.isArray(article.seo_keywords)) {
         return article.seo_keywords;
@@ -224,7 +235,7 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
           {error ? (
             <>
               <div className="mb-4">
-                {errorType === 'not_published' ? (
+                {errorType === "not_published" ? (
                   <div className="w-20 h-20 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center mx-auto">
                     <Clock className="w-10 h-10 text-yellow-600 dark:text-yellow-400" />
                   </div>
@@ -233,34 +244,39 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
                 )}
               </div>
               <h2 className="text-2xl font-bold mb-3 text-gray-900 dark:text-white">
-                {errorType === 'not_found' && 'المقال غير موجود'}
-                {errorType === 'not_published' && 'المقال قيد التحرير'}
-                {errorType === 'server_error' && 'حدث خطأ'}
+                {errorType === "not_found" && "المقال غير موجود"}
+                {errorType === "not_published" && "المقال قيد التحرير"}
+                {errorType === "server_error" && "حدث خطأ"}
               </h2>
               <p className="text-lg mb-6 text-gray-600 dark:text-gray-400">
                 {error}
               </p>
-              
+
               {/* رسالة إضافية للمقالات غير المنشورة */}
-              {errorType === 'not_published' && (
+              {errorType === "not_published" && (
                 <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
                   <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                    هذه المقالة في وضع المسودة ولم يتم نشرها بعد. 
-                    إذا كنت محرراً، يرجى تسجيل الدخول لعرض المقالة.
+                    هذه المقالة في وضع المسودة ولم يتم نشرها بعد. إذا كنت
+                    محرراً، يرجى تسجيل الدخول لعرض المقالة.
                   </p>
                 </div>
               )}
-              
+
               <div className="flex gap-3 justify-center">
                 <button
-                  onClick={() => router.push('/')}
+                  onClick={() => router.push("/")}
                   className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
                 >
                   العودة للرئيسية
                 </button>
-                {errorType === 'not_published' && (
+                {errorType === "not_published" && (
                   <button
-                    onClick={() => router.push('/login?redirect=' + encodeURIComponent(window.location.pathname))}
+                    onClick={() =>
+                      router.push(
+                        "/login?redirect=" +
+                          encodeURIComponent(window.location.pathname)
+                      )
+                    }
                     className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors"
                   >
                     تسجيل الدخول
@@ -288,8 +304,8 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
   return (
     <>
       <ArticleJsonLd article={article} />
-      
-      <main className="pt-20 min-h-screen bg-gray-50 dark:bg-gray-900">
+
+      <main className="pt-0 sm:pt-20 min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* صورة المقال */}
         {article.featured_image && (
           <div className="relative h-[50vh] w-full">
@@ -312,7 +328,7 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
               <Link
                 href={`/categories/${article.category.slug}`}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-white mb-4"
-                style={{ backgroundColor: article.category.color || '#1a73e8' }}
+                style={{ backgroundColor: article.category.color || "#1a73e8" }}
               >
                 {article.category.icon && <span>{article.category.icon}</span>}
                 <span>{article.category.name}</span>
@@ -334,12 +350,20 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
               )}
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
-                <span>{formatFullDate(article.published_at || article.created_at || '')}</span>
+                <span>
+                  {formatFullDate(
+                    article.published_at || article.created_at || ""
+                  )}
+                </span>
               </div>
               <ArticleViews count={article.views || 0} />
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4" />
-                <span>{article.reading_time || calculateReadingTime(article.content)} دقائق</span>
+                <span>
+                  {article.reading_time ||
+                    calculateReadingTime(article.content)}{" "}
+                  دقائق
+                </span>
               </div>
             </div>
           </header>
@@ -359,14 +383,14 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
                     {article.excerpt || article.summary || article.ai_summary}
                   </p>
                 </div>
-                
+
                 {/* زر الاستماع - يظهر دائماً إذا كان هناك موجز */}
                 <button
                   onClick={toggleAudioPlayer}
                   className={`flex-shrink-0 p-2 rounded-lg transition-all ${
-                    showAudioPlayer 
-                      ? 'bg-blue-600 text-white' 
-                      : 'bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800/50'
+                    showAudioPlayer
+                      ? "bg-blue-600 text-white"
+                      : "bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800/50"
                   }`}
                   title="استمع للملخص"
                 >
@@ -380,7 +404,9 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
                   {/* استخدام AudioSummaryPlayer المتطور */}
                   <AudioSummaryPlayer
                     articleId={article.id}
-                    excerpt={article.excerpt || article.summary || article.ai_summary}
+                    excerpt={
+                      article.excerpt || article.summary || article.ai_summary
+                    }
                     audioUrl={article.audio_summary_url}
                   />
                 </div>
@@ -390,13 +416,13 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
 
           {/* شريط التفاعل */}
           <div className="mb-8 pb-4 border-b border-gray-200 dark:border-gray-700">
-            <ArticleInteractions 
+            <ArticleInteractions
               articleId={article.id}
               initialStats={{
                 likes: article.likes || interaction.likesCount || 0,
                 saves: article.saves || interaction.savesCount || 0,
                 shares: article.shares || 0,
-                views: article.views || 0
+                views: article.views || 0,
               }}
             />
           </div>
@@ -420,14 +446,14 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
           )}
 
           {/* محتوى المقال */}
-          <div 
+          <div
             className="prose prose-lg max-w-none dark:prose-invert"
             dangerouslySetInnerHTML={{ __html: article.content }}
           />
         </article>
       </main>
-      
+
       <Footer />
     </>
   );
-} 
+}

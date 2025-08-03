@@ -1,0 +1,40 @@
+/* توسيط النص عمودياً في شريط النبض */
+
+/* التأكد من أن الشريط له ارتفاع مناسب */
+.pulse-ticker-desktop,
+.pulse-ticker-mobile {
+  min-height: 48px !important; /* ارتفاع أدنى للديسكتوب */
+  display: flex !important;
+  align-items: center !important;
+}
+
+@media (max-width: 768px) {
+  .pulse-ticker-mobile {
+    min-height: 44px !important; /* ارتفاع أدنى للموبايل */
+  }
+}
+
+/* التأكد من توسيط جميع العناصر الداخلية */
+.pulse-ticker-desktop > div,
+.pulse-ticker-mobile > div {
+  display: flex !important;
+  align-items: center !important;
+  height: 100% !important;
+}
+
+/* توسيط النص والأيقونات */
+.pulse-ticker-desktop a,
+.pulse-ticker-mobile a,
+.pulse-ticker-desktop span,
+.pulse-ticker-mobile span {
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+/* ضبط line-height للنص */
+.pulse-ticker-desktop .font-medium,
+.pulse-ticker-mobile .font-medium {
+  line-height: 1.5 !important;
+  display: flex !important;
+  align-items: center !important;
+}
