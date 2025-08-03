@@ -3,24 +3,23 @@
  * Modern Comments Page - Professional Design
  */
 
-'use client';
+"use client";
 
-import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
-import { DesignComponents } from '@/components/design-system/DesignSystemGuide';
+import { DesignComponents } from "@/components/design-system/DesignSystemGuide";
 import {
-    Calendar,
-    Check,
-    Clock,
-    Filter,
-    Flag,
-    Heart,
-    MessageCircle,
-    MessageSquare,
-    MoreHorizontal,
-    Search,
-    X
-} from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+  Calendar,
+  Check,
+  Clock,
+  Filter,
+  Flag,
+  Heart,
+  MessageCircle,
+  MessageSquare,
+  MoreHorizontal,
+  Search,
+  X,
+} from "lucide-react";
+import React, { useEffect, useState } from "react";
 
 interface Comment {
   id: string;
@@ -34,7 +33,7 @@ interface Comment {
     id: string;
     title: string;
   };
-  status: 'pending' | 'approved' | 'rejected' | 'spam';
+  status: "pending" | "approved" | "rejected" | "spam";
   created_at: string;
   likes: number;
   replies: number;
@@ -44,85 +43,85 @@ interface Comment {
 const ModernCommentsNew: React.FC = () => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
   const [stats, setStats] = useState({
     total: 0,
     pending: 0,
     approved: 0,
     rejected: 0,
-    spam: 0
+    spam: 0,
   });
 
   // بيانات تجريبية للتعليقات
   const sampleComments: Comment[] = [
     {
-      id: '1',
-      content: 'مقال رائع ومفيد جداً، شكراً لكم على هذا المحتوى القيم',
+      id: "1",
+      content: "مقال رائع ومفيد جداً، شكراً لكم على هذا المحتوى القيم",
       author: {
-        name: 'أحمد محمد',
-        email: 'ahmed@example.com',
-        avatar: '/api/placeholder/40/40'
+        name: "أحمد محمد",
+        email: "ahmed@example.com",
+        avatar: "/api/placeholder/40/40",
       },
       article: {
-        id: '1',
-        title: 'آخر التطورات في التكنولوجيا'
+        id: "1",
+        title: "آخر التطورات في التكنولوجيا",
       },
-      status: 'approved',
-      created_at: '2025-01-28T10:30:00Z',
+      status: "approved",
+      created_at: "2025-01-28T10:30:00Z",
       likes: 15,
       replies: 3,
-      reported: false
+      reported: false,
     },
     {
-      id: '2',
-      content: 'هل يمكن توضيح النقطة الثالثة أكثر؟ لم أفهمها بوضوح',
+      id: "2",
+      content: "هل يمكن توضيح النقطة الثالثة أكثر؟ لم أفهمها بوضوح",
       author: {
-        name: 'فاطمة علي',
-        email: 'fatima@example.com'
+        name: "فاطمة علي",
+        email: "fatima@example.com",
       },
       article: {
-        id: '2',
-        title: 'دليل شامل للاستثمار'
+        id: "2",
+        title: "دليل شامل للاستثمار",
       },
-      status: 'pending',
-      created_at: '2025-01-28T09:15:00Z',
+      status: "pending",
+      created_at: "2025-01-28T09:15:00Z",
       likes: 8,
-      replies: 1
+      replies: 1,
     },
     {
-      id: '3',
-      content: 'المعلومات غير دقيقة، أرجو المراجعة',
+      id: "3",
+      content: "المعلومات غير دقيقة، أرجو المراجعة",
       author: {
-        name: 'سعد الغامدي',
-        email: 'saad@example.com'
+        name: "سعد الغامدي",
+        email: "saad@example.com",
       },
       article: {
-        id: '3',
-        title: 'تحليل السوق المالي'
+        id: "3",
+        title: "تحليل السوق المالي",
       },
-      status: 'pending',
-      created_at: '2025-01-28T08:45:00Z',
+      status: "pending",
+      created_at: "2025-01-28T08:45:00Z",
       likes: 2,
       replies: 0,
-      reported: true
+      reported: true,
     },
     {
-      id: '4',
-      content: 'محتوى ممتاز، أتطلع للمزيد من هذه المقالات',
+      id: "4",
+      content: "محتوى ممتاز، أتطلع للمزيد من هذه المقالات",
       author: {
-        name: 'نورا أحمد',
-        email: 'nora@example.com'
+        name: "نورا أحمد",
+        email: "nora@example.com",
       },
       article: {
-        id: '4',
-        title: 'مستقبل الطاقة المتجددة'
+        id: "4",
+        title: "مستقبل الطاقة المتجددة",
       },
-      status: 'approved',
-      created_at: '2025-01-28T07:20:00Z',
+      status: "approved",
+      created_at: "2025-01-28T07:20:00Z",
       likes: 12,
-      replies: 2
-    }
+      replies: 2,
+    },
   ];
 
   useEffect(() => {
@@ -137,44 +136,52 @@ const ModernCommentsNew: React.FC = () => {
   const calculateStats = (comments: Comment[]) => {
     const stats = {
       total: comments.length,
-      pending: comments.filter(c => c.status === 'pending').length,
-      approved: comments.filter(c => c.status === 'approved').length,
-      rejected: comments.filter(c => c.status === 'rejected').length,
-      spam: comments.filter(c => c.status === 'spam').length
+      pending: comments.filter((c) => c.status === "pending").length,
+      approved: comments.filter((c) => c.status === "approved").length,
+      rejected: comments.filter((c) => c.status === "rejected").length,
+      spam: comments.filter((c) => c.status === "spam").length,
     };
     setStats(stats);
   };
 
   const handleApprove = (commentId: string) => {
-    setComments(prev => prev.map(comment =>
-      comment.id === commentId
-        ? { ...comment, status: 'approved' as const }
-        : comment
-    ));
+    setComments((prev) =>
+      prev.map((comment) =>
+        comment.id === commentId
+          ? { ...comment, status: "approved" as const }
+          : comment
+      )
+    );
   };
 
   const handleReject = (commentId: string) => {
-    setComments(prev => prev.map(comment =>
-      comment.id === commentId
-        ? { ...comment, status: 'rejected' as const }
-        : comment
-    ));
+    setComments((prev) =>
+      prev.map((comment) =>
+        comment.id === commentId
+          ? { ...comment, status: "rejected" as const }
+          : comment
+      )
+    );
   };
 
   const handleMarkAsSpam = (commentId: string) => {
-    setComments(prev => prev.map(comment =>
-      comment.id === commentId
-        ? { ...comment, status: 'spam' as const }
-        : comment
-    ));
+    setComments((prev) =>
+      prev.map((comment) =>
+        comment.id === commentId
+          ? { ...comment, status: "spam" as const }
+          : comment
+      )
+    );
   };
 
-  const filteredComments = comments.filter(comment => {
-    const matchesSearch = comment.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         comment.author.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         comment.article.title.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredComments = comments.filter((comment) => {
+    const matchesSearch =
+      comment.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      comment.author.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      comment.article.title.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesFilter = filterStatus === 'all' || comment.status === filterStatus;
+    const matchesFilter =
+      filterStatus === "all" || comment.status === filterStatus;
 
     return matchesSearch && matchesFilter;
   });
@@ -182,57 +189,74 @@ const ModernCommentsNew: React.FC = () => {
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    const diffInHours = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60 * 60)
+    );
 
-    if (diffInHours < 1) return 'منذ أقل من ساعة';
+    if (diffInHours < 1) return "منذ أقل من ساعة";
     if (diffInHours < 24) return `منذ ${diffInHours} ساعة`;
     const diffInDays = Math.floor(diffInHours / 24);
     if (diffInDays < 7) return `منذ ${diffInDays} أيام`;
-    return date.toLocaleDateString('ar-SA');
+    return date.toLocaleDateString("ar-SA");
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'approved': return 'text-green-600 bg-green-50';
-      case 'pending': return 'text-yellow-600 bg-yellow-50';
-      case 'rejected': return 'text-red-600 bg-red-50';
-      case 'spam': return 'text-gray-600 bg-gray-50';
-      default: return 'text-gray-600 bg-gray-50';
+      case "approved":
+        return "text-green-600 bg-green-50";
+      case "pending":
+        return "text-yellow-600 bg-yellow-50";
+      case "rejected":
+        return "text-red-600 bg-red-50";
+      case "spam":
+        return "text-gray-600 bg-gray-50";
+      default:
+        return "text-gray-600 bg-gray-50";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'approved': return <Check className="w-3 h-3" />;
-      case 'pending': return <Clock className="w-3 h-3" />;
-      case 'rejected': return <X className="w-3 h-3" />;
-      case 'spam': return <Flag className="w-3 h-3" />;
-      default: return <MessageCircle className="w-3 h-3" />;
+      case "approved":
+        return <Check className="w-3 h-3" />;
+      case "pending":
+        return <Clock className="w-3 h-3" />;
+      case "rejected":
+        return <X className="w-3 h-3" />;
+      case "spam":
+        return <Flag className="w-3 h-3" />;
+      default:
+        return <MessageCircle className="w-3 h-3" />;
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'approved': return 'موافق عليه';
-      case 'pending': return 'في الانتظار';
-      case 'rejected': return 'مرفوض';
-      case 'spam': return 'سبام';
-      default: return status;
+      case "approved":
+        return "موافق عليه";
+      case "pending":
+        return "في الانتظار";
+      case "rejected":
+        return "مرفوض";
+      case "spam":
+        return "سبام";
+      default:
+        return status;
     }
   };
 
   if (loading) {
     return (
-      <DashboardLayout>
+      <>
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
-      </DashboardLayout>
+      </>
     );
   }
 
   return (
-    <DashboardLayout>
+    <>
       <div className="space-y-6 p-6">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 rounded-2xl p-8 text-white">
@@ -242,7 +266,9 @@ const ModernCommentsNew: React.FC = () => {
             </div>
             <div>
               <h1 className="text-2xl font-bold mb-2">إدارة التعليقات</h1>
-              <p className="text-blue-100">إدارة وموافقة التعليقات على المقالات</p>
+              <p className="text-blue-100">
+                إدارة وموافقة التعليقات على المقالات
+              </p>
             </div>
           </div>
         </div>
@@ -254,7 +280,9 @@ const ModernCommentsNew: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">إجمالي التعليقات</p>
-                  <p className="text-2xl font-bold text-blue-600">{stats.total}</p>
+                  <p className="text-2xl font-bold text-blue-600">
+                    {stats.total}
+                  </p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
                   <MessageSquare className="w-6 h-6 text-blue-600" />
@@ -268,7 +296,9 @@ const ModernCommentsNew: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">في الانتظار</p>
-                  <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
+                  <p className="text-2xl font-bold text-yellow-600">
+                    {stats.pending}
+                  </p>
                 </div>
                 <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
                   <Clock className="w-6 h-6 text-yellow-600" />
@@ -282,7 +312,9 @@ const ModernCommentsNew: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">موافق عليها</p>
-                  <p className="text-2xl font-bold text-green-600">{stats.approved}</p>
+                  <p className="text-2xl font-bold text-green-600">
+                    {stats.approved}
+                  </p>
                 </div>
                 <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
                   <Check className="w-6 h-6 text-green-600" />
@@ -296,7 +328,9 @@ const ModernCommentsNew: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">مرفوضة</p>
-                  <p className="text-2xl font-bold text-red-600">{stats.rejected}</p>
+                  <p className="text-2xl font-bold text-red-600">
+                    {stats.rejected}
+                  </p>
                 </div>
                 <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
                   <X className="w-6 h-6 text-red-600" />
@@ -310,7 +344,9 @@ const ModernCommentsNew: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">سبام</p>
-                  <p className="text-2xl font-bold text-gray-600">{stats.spam}</p>
+                  <p className="text-2xl font-bold text-gray-600">
+                    {stats.spam}
+                  </p>
                 </div>
                 <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
                   <Flag className="w-6 h-6 text-gray-600" />
@@ -373,7 +409,9 @@ const ModernCommentsNew: React.FC = () => {
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-medium text-gray-900">{comment.author.name}</span>
+                          <span className="font-medium text-gray-900">
+                            {comment.author.name}
+                          </span>
                           {comment.reported && (
                             <div title="تم الإبلاغ عن هذا التعليق">
                               <Flag className="w-4 h-4 text-red-500" />
@@ -389,7 +427,9 @@ const ModernCommentsNew: React.FC = () => {
 
                     {/* محتوى التعليق */}
                     <div className="mb-4">
-                      <p className="text-gray-700 leading-relaxed">{comment.content}</p>
+                      <p className="text-gray-700 leading-relaxed">
+                        {comment.content}
+                      </p>
                     </div>
 
                     {/* معلومات المقال */}
@@ -397,7 +437,9 @@ const ModernCommentsNew: React.FC = () => {
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <MessageSquare className="w-4 h-4" />
                         <span>تعليق على:</span>
-                        <span className="font-medium text-gray-900">{comment.article.title}</span>
+                        <span className="font-medium text-gray-900">
+                          {comment.article.title}
+                        </span>
                       </div>
                     </div>
 
@@ -415,14 +457,18 @@ const ModernCommentsNew: React.FC = () => {
 
                     {/* حالة التعليق */}
                     <div className="flex items-center justify-between">
-                      <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(comment.status)}`}>
+                      <div
+                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                          comment.status
+                        )}`}
+                      >
                         {getStatusIcon(comment.status)}
                         <span>{getStatusText(comment.status)}</span>
                       </div>
 
                       {/* أزرار العمليات */}
                       <div className="flex items-center gap-2">
-                        {comment.status === 'pending' && (
+                        {comment.status === "pending" && (
                           <>
                             <button
                               onClick={() => handleApprove(comment.id)}
@@ -464,13 +510,17 @@ const ModernCommentsNew: React.FC = () => {
           <DesignComponents.StandardCard>
             <div className="p-12 text-center">
               <MessageCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">لا توجد تعليقات</h3>
-              <p className="text-gray-500">لم يتم العثور على تعليقات تطابق معايير البحث المحددة</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                لا توجد تعليقات
+              </h3>
+              <p className="text-gray-500">
+                لم يتم العثور على تعليقات تطابق معايير البحث المحددة
+              </p>
             </div>
           </DesignComponents.StandardCard>
         )}
       </div>
-    </DashboardLayout>
+    </>
   );
 };
 

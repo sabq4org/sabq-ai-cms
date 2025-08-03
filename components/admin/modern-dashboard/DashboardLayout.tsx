@@ -3,28 +3,25 @@
  * Modern Dashboard Layout Component
  */
 
-'use client';
+"use client";
 
-import { LoadingSpinner } from '@/components/ui/loading';
-import { Sheet, SheetContent } from '@/components/ui/sheet';
-import { cn } from '@/lib/utils';
-import dynamic from 'next/dynamic';
-import React, { useEffect, useState } from 'react';
+import { LoadingSpinner } from "@/components/ui/loading";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
+import dynamic from "next/dynamic";
+import React, { useEffect, useState } from "react";
 
 // تحميل المكونات بشكل ديناميكي لتحسين الأداء
-const ModernSidebar = dynamic(() => import('./ModernSidebar'), {
+const ModernSidebar = dynamic(() => import("./ModernSidebar"), {
   loading: () => <LoadingSpinner size="sm" text="تحميل القائمة..." />,
-  ssr: false
+  ssr: false,
 });
 
-const ModernHeader = dynamic(() => import('./ModernHeader'), {
-  loading: () => <div className="h-16 bg-white dark:bg-gray-800 border-b animate-pulse" />,
-  ssr: false
-});
-
-const WidthController = dynamic(() => import('@/components/design-system/WidthController'), {
-  loading: () => null,
-  ssr: false
+const ModernHeader = dynamic(() => import("./ModernHeader"), {
+  loading: () => (
+    <div className="h-16 bg-white dark:bg-gray-800 border-b animate-pulse" />
+  ),
+  ssr: false,
 });
 
 interface DashboardLayoutProps {
@@ -38,11 +35,10 @@ export default function DashboardLayout({
   children,
   pageTitle = "لوحة التحكم",
   pageDescription = "إدارة منصة سبق الذكية",
-  className
+  className,
 }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
-  const [isFullWidth, setIsFullWidth] = useState(true);
 
   // تحديد حجم الشاشة
   useEffect(() => {
@@ -55,31 +51,24 @@ export default function DashboardLayout({
         setSidebarOpen(false);
       } else {
         // استرجاع حالة الشريط الجانبي من localStorage
-        const savedState = localStorage.getItem('sidebar-open');
-        setSidebarOpen(savedState !== 'false');
+        const savedState = localStorage.getItem("sidebar-open");
+        setSidebarOpen(savedState !== "false");
       }
     };
 
     checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-    return () => window.removeEventListener('resize', checkScreenSize);
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
   // حفظ حالة الشريط الجانبي
   useEffect(() => {
     if (!isMobile) {
-      localStorage.setItem('sidebar-open', sidebarOpen.toString());
+      localStorage.setItem("sidebar-open", sidebarOpen.toString());
     }
   }, [sidebarOpen, isMobile]);
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
-
-  // معالج التحكم في العرض
-  const handleWidthChange = (fullWidth: boolean) => {
-    setIsFullWidth(fullWidth);
-    // تطبيق فئة CSS على العنصر الجذر
-    document.documentElement.classList.toggle('full-width-dashboard', fullWidth);
-  };
 
   // منع الرندر حتى يتم التحميل على العميل
   // تم تعطيل هذا التحقق مؤقتاً لحل مشكلة التحميل
@@ -95,28 +84,29 @@ export default function DashboardLayout({
   // }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <div className="admin-dashboard-layout min-h-screen w-full bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
       {/* الشريط الجانبي للشاشات الكبيرة */}
       {!isMobile && (
         <aside
           className={cn(
-            "fixed top-0 right-0 z-40 h-screen transition-all duration-300 ease-in-out",
+            "fixed right-0 z-40 transition-all duration-300 ease-in-out",
+            "top-[var(--dashboard-header-height)] h-[calc(100vh-var(--dashboard-header-height))]",
             "bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700",
             "shadow-lg dark:shadow-gray-900/50",
             sidebarOpen ? "w-64" : "w-16"
           )}
         >
-          <ModernSidebar
-            isCollapsed={!sidebarOpen}
-            onToggle={toggleSidebar}
-          />
+          <ModernSidebar isCollapsed={!sidebarOpen} onToggle={toggleSidebar} />
         </aside>
       )}
 
       {/* الشريط الجانبي للهواتف */}
       {isMobile && (
         <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-          <SheetContent side="right" className="w-64 p-0 bg-white dark:bg-gray-800">
+          <SheetContent
+            side="right"
+            className="w-64 p-0 bg-white dark:bg-gray-800"
+          >
             <ModernSidebar
               isCollapsed={false}
               onToggle={() => setSidebarOpen(false)}
@@ -142,28 +132,27 @@ export default function DashboardLayout({
         />
 
         {/* محتوى الصفحة */}
-        <main className={cn(
-          "p-4 lg:p-6 xl:p-8 2xl:p-10", // padding متدرج حسب حجم الشاشة
-          "pt-[calc(var(--dashboard-header-height)+1rem)]", // padding ديناميكي باستخدام CSS variable
-          "bg-gray-50 dark:bg-gray-900 min-h-[calc(100vh-var(--dashboard-header-height))]",
-          "w-full", // عرض كامل
-          "transition-colors duration-300",
-          className
-        )}>
+        <main
+          className={cn(
+            "p-0 max-w-none", // إزالة كل الـ padding الجانبي وعدم تحديد عرض أقصى
+            "pt-[calc(var(--dashboard-header-height)+1rem)]", // padding ديناميكي باستخدام CSS variable
+            "bg-gray-50 dark:bg-gray-900 min-h-[calc(100vh-var(--dashboard-header-height))]",
+            "w-full", // عرض كامل
+            "transition-colors duration-300",
+            className
+          )}
+        >
           {/* حاوية محتوى مرنة */}
-          <div className={cn(
-            "w-full transition-all duration-300", // عرض كامل دائماً بدون حدود قصوى
-            // padding للمحتوى
-            "space-y-6"
-          )}>
+          <div
+            className={cn(
+              "w-full max-w-none transition-all duration-300", // عرض كامل دائماً بدون حدود قصوى
+              "px-4 lg:px-6 xl:px-8 2xl:px-10", // padding أفقي فقط
+              "space-y-6"
+            )}
+          >
             {children}
           </div>
         </main>
-
-        {/* مكون التحكم في العرض */}
-        <WidthController
-          onWidthChange={handleWidthChange}
-        />
       </div>
 
       {/* طبقة التداخل للهواتف */}

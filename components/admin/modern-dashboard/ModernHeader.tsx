@@ -2,13 +2,10 @@
  * الترويسة الحديثة - Modern Header
  */
 
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { useTheme } from '@/contexts/ThemeContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,23 +13,25 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { useTheme } from "@/contexts/ThemeContext";
+import { cn } from "@/lib/utils";
 import {
-  Menu,
-  Search,
   Bell,
-  Settings,
-  User,
-  Moon,
-  Sun,
   Globe,
-  LogOut,
-  UserCog,
   HelpCircle,
+  LogOut,
+  Menu,
+  Monitor,
+  Moon,
+  Search,
+  Settings,
+  Sun,
+  UserCog,
   Zap,
-  Monitor
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+} from "lucide-react";
+import { useState } from "react";
 
 interface ModernHeaderProps {
   pageTitle: string;
@@ -45,43 +44,52 @@ export default function ModernHeader({
   pageTitle,
   pageDescription,
   onMenuClick,
-  showMenuButton
+  showMenuButton,
 }: ModernHeaderProps) {
   const { theme, setTheme, resolvedTheme, mounted } = useTheme();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   // بيانات وهمية للإشعارات
   const notifications = [
-    { id: 1, title: 'مقال جديد تم نشره', time: 'منذ 5 دقائق', unread: true },
-    { id: 2, title: 'تعليق جديد في انتظار المراجعة', time: 'منذ 10 دقائق', unread: true },
-    { id: 3, title: 'تحديث النظام مكتمل', time: 'منذ ساعة', unread: false },
+    { id: 1, title: "مقال جديد تم نشره", time: "منذ 5 دقائق", unread: true },
+    {
+      id: 2,
+      title: "تعليق جديد في انتظار المراجعة",
+      time: "منذ 10 دقائق",
+      unread: true,
+    },
+    { id: 3, title: "تحديث النظام مكتمل", time: "منذ ساعة", unread: false },
   ];
 
-  const unreadCount = notifications.filter(n => n.unread).length;
+  const unreadCount = notifications.filter((n) => n.unread).length;
 
   // دالة تبديل الثيم
-  const handleThemeChange = (newTheme: 'light' | 'dark' | 'system') => {
+  const handleThemeChange = (newTheme: "light" | "dark" | "system") => {
     setTheme(newTheme);
   };
 
   const getThemeIcon = () => {
     if (!mounted) return <Sun className="h-5 w-5" />;
-    
-    if (theme === 'system') {
+
+    if (theme === "system") {
       return <Monitor className="h-5 w-5" />;
     }
-    return resolvedTheme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />;
+    return resolvedTheme === "dark" ? (
+      <Sun className="h-5 w-5" />
+    ) : (
+      <Moon className="h-5 w-5" />
+    );
   };
 
   const getThemeName = () => {
-    if (theme === 'system') return 'النظام';
-    if (theme === 'dark') return 'ليلي';
-    return 'نهاري';
+    if (theme === "system") return "النظام";
+    if (theme === "dark") return "ليلي";
+    return "نهاري";
   };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 h-[var(--dashboard-header-height)] transition-colors duration-300">
-      <div className="px-4 lg:px-6 h-full flex items-center justify-between">
+      <div className="px-4 lg:px-6 h-full flex items-center justify-between py-2">
         {/* الجانب الأيمن */}
         <div className="flex items-center gap-4">
           {/* زر القائمة للهواتف */}
@@ -96,14 +104,32 @@ export default function ModernHeader({
             </Button>
           )}
 
-          {/* عنوان الصفحة */}
-          <div>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-              {pageTitle}
-            </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {pageDescription}
-            </p>
+          {/* عنوان الصفحة مع شعار سبق */}
+          <div className="flex items-center gap-2">
+            {/* شعار سبق للوحة التحكم */}
+            <div className="flex items-center gap-2 mr-4">
+              <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">س</span>
+              </div>
+              <div className="hidden sm:block">
+                <span className="text-sm font-semibold text-red-600 dark:text-red-400">
+                  سبق
+                </span>
+                <span className="text-xs text-gray-500 dark:text-gray-400 block">
+                  لوحة التحكم
+                </span>
+              </div>
+            </div>
+
+            {/* عنوان الصفحة */}
+            <div>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+                {pageTitle}
+              </h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {pageDescription}
+              </p>
+            </div>
           </div>
         </div>
 
@@ -124,11 +150,7 @@ export default function ModernHeader({
         {/* الجانب الأيسر */}
         <div className="flex items-center gap-2">
           {/* زر البحث للهواتف */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="md:hidden"
-          >
+          <Button variant="ghost" size="sm" className="md:hidden">
             <Search className="h-5 w-5" />
           </Button>
 
@@ -138,8 +160,8 @@ export default function ModernHeader({
               <Button variant="ghost" size="sm" className="relative">
                 <Bell className="h-5 w-5" />
                 {unreadCount > 0 && (
-                  <Badge 
-                    variant="destructive" 
+                  <Badge
+                    variant="destructive"
                     className="absolute -top-1 -left-1 h-5 w-5 p-0 flex items-center justify-center text-xs"
                   >
                     {unreadCount}
@@ -147,19 +169,29 @@ export default function ModernHeader({
                 )}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+            <DropdownMenuContent
+              align="end"
+              className="w-80 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+            >
               <DropdownMenuLabel className="font-semibold">
                 الإشعارات ({unreadCount} غير مقروءة)
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               {notifications.map((notification) => (
-                <DropdownMenuItem key={notification.id} className="flex flex-col items-start p-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
+                <DropdownMenuItem
+                  key={notification.id}
+                  className="flex flex-col items-start p-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
                   <div className="flex items-start justify-between w-full">
                     <div className="flex-1">
-                      <p className={cn(
-                        "text-sm",
-                        notification.unread ? "font-medium text-gray-900 dark:text-white" : "text-gray-600 dark:text-gray-300"
-                      )}>
+                      <p
+                        className={cn(
+                          "text-sm",
+                          notification.unread
+                            ? "font-medium text-gray-900 dark:text-white"
+                            : "text-gray-600 dark:text-gray-300"
+                        )}
+                      >
                         {notification.title}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -182,41 +214,42 @@ export default function ModernHeader({
           {/* تبديل المظهر */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="gap-2"
-              >
+              <Button variant="ghost" size="sm" className="gap-2">
                 {getThemeIcon()}
-                <span className="hidden md:inline text-sm">{getThemeName()}</span>
+                <span className="hidden md:inline text-sm">
+                  {getThemeName()}
+                </span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-              <DropdownMenuItem 
-                onClick={() => handleThemeChange('light')}
+            <DropdownMenuContent
+              align="end"
+              className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+            >
+              <DropdownMenuItem
+                onClick={() => handleThemeChange("light")}
                 className={cn(
                   "gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700",
-                  theme === 'light' && "bg-blue-50 dark:bg-blue-900/30"
+                  theme === "light" && "bg-blue-50 dark:bg-blue-900/30"
                 )}
               >
                 <Sun className="h-4 w-4" />
                 <span>نهاري</span>
               </DropdownMenuItem>
-              <DropdownMenuItem 
-                onClick={() => handleThemeChange('dark')}
+              <DropdownMenuItem
+                onClick={() => handleThemeChange("dark")}
                 className={cn(
                   "gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700",
-                  theme === 'dark' && "bg-blue-50 dark:bg-blue-900/30"
+                  theme === "dark" && "bg-blue-50 dark:bg-blue-900/30"
                 )}
               >
                 <Moon className="h-4 w-4" />
                 <span>ليلي</span>
               </DropdownMenuItem>
-              <DropdownMenuItem 
-                onClick={() => handleThemeChange('system')}
+              <DropdownMenuItem
+                onClick={() => handleThemeChange("system")}
                 className={cn(
                   "gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700",
-                  theme === 'system' && "bg-blue-50 dark:bg-blue-900/30"
+                  theme === "system" && "bg-blue-50 dark:bg-blue-900/30"
                 )}
               >
                 <Monitor className="h-4 w-4" />
@@ -232,7 +265,10 @@ export default function ModernHeader({
                 <Globe className="h-5 w-5" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+            <DropdownMenuContent
+              align="end"
+              className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+            >
               <DropdownMenuItem className="hover:bg-gray-50 dark:hover:bg-gray-700">
                 🇸🇦 العربية
               </DropdownMenuItem>
@@ -254,10 +290,15 @@ export default function ModernHeader({
                 </span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+            <DropdownMenuContent
+              align="end"
+              className="w-56 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+            >
               <DropdownMenuLabel>
                 <div className="flex flex-col">
-                  <span className="font-medium text-gray-900 dark:text-white">أبو محمد</span>
+                  <span className="font-medium text-gray-900 dark:text-white">
+                    أبو محمد
+                  </span>
                   <span className="text-xs text-gray-500 dark:text-gray-400">
                     admin@sabq.ai
                   </span>

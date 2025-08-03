@@ -2,33 +2,14 @@
  * صفحة إدارة التعليقات مع التصميم الحديث RTL
  */
 
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-  MessageSquare,
-  Search,
-  Filter,
-  MoreHorizontal,
-  Trash2,
-  Eye,
-  Ban,
-  CheckCircle,
-  XCircle,
-  Flag,
-  Reply,
-  Calendar,
-  User,
-  ThumbsUp,
-  ThumbsDown,
-  AlertTriangle
-} from 'lucide-react';
+import { useEffect, useState } from "react";
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,6 +17,25 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import {
+  AlertTriangle,
+  Ban,
+  Calendar,
+  CheckCircle,
+  Eye,
+  Filter,
+  Flag,
+  MessageSquare,
+  MoreHorizontal,
+  Reply,
+  Search,
+  ThumbsDown,
+  ThumbsUp,
+  Trash2,
+  User,
+  XCircle,
+} from "lucide-react";
 
 interface Comment {
   id: string;
@@ -49,7 +49,7 @@ interface Comment {
     title: string;
     slug: string;
   };
-  status: 'approved' | 'pending' | 'rejected' | 'spam';
+  status: "approved" | "pending" | "rejected" | "spam";
   createdAt: string;
   updatedAt?: string;
   likes: number;
@@ -62,71 +62,75 @@ interface Comment {
 export default function AdminCommentsPage() {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'approved' | 'pending' | 'rejected' | 'spam'>('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "approved" | "pending" | "rejected" | "spam"
+  >("all");
 
   // بيانات وهمية للاختبار
   useEffect(() => {
     const mockComments: Comment[] = [
       {
-        id: '1',
-        content: 'مقال ممتاز ومفيد جداً، شكراً لكم على هذا المحتوى المميز. أتطلع لقراءة المزيد من هذه المقالات القيمة.',
+        id: "1",
+        content:
+          "مقال ممتاز ومفيد جداً، شكراً لكم على هذا المحتوى المميز. أتطلع لقراءة المزيد من هذه المقالات القيمة.",
         author: {
-          name: 'أحمد محمد الأحمد',
-          email: 'ahmed@example.com',
-          avatar: ''
+          name: "أحمد محمد الأحمد",
+          email: "ahmed@example.com",
+          avatar: "",
         },
         article: {
-          title: 'تطورات الذكاء الاصطناعي في 2024',
-          slug: 'ai-developments-2024'
+          title: "تطورات الذكاء الاصطناعي في 2024",
+          slug: "ai-developments-2024",
         },
-        status: 'approved',
-        createdAt: '2024-07-26T10:30:00Z',
+        status: "approved",
+        createdAt: "2024-07-26T10:30:00Z",
         likes: 15,
         dislikes: 2,
         reports: 0,
-        replies: []
+        replies: [],
       },
       {
-        id: '2',
-        content: 'لست متفق مع بعض النقاط المذكورة في المقال، خاصة الجزء المتعلق بالتأثير على الوظائف.',
+        id: "2",
+        content:
+          "لست متفق مع بعض النقاط المذكورة في المقال، خاصة الجزء المتعلق بالتأثير على الوظائف.",
         author: {
-          name: 'فاطمة علي السالم',
-          email: 'fatima@example.com',
-          avatar: ''
+          name: "فاطمة علي السالم",
+          email: "fatima@example.com",
+          avatar: "",
         },
         article: {
-          title: 'تطورات الذكاء الاصطناعي في 2024',
-          slug: 'ai-developments-2024'
+          title: "تطورات الذكاء الاصطناعي في 2024",
+          slug: "ai-developments-2024",
         },
-        status: 'pending',
-        createdAt: '2024-07-26T09:15:00Z',
+        status: "pending",
+        createdAt: "2024-07-26T09:15:00Z",
         likes: 8,
         dislikes: 5,
         reports: 1,
-        replies: []
+        replies: [],
       },
       {
-        id: '3',
-        content: 'محتوى سطحي ولا يقدم معلومات جديدة!',
+        id: "3",
+        content: "محتوى سطحي ولا يقدم معلومات جديدة!",
         author: {
-          name: 'مستخدم مجهول',
-          email: 'anonymous@example.com',
-          avatar: ''
+          name: "مستخدم مجهول",
+          email: "anonymous@example.com",
+          avatar: "",
         },
         article: {
-          title: 'دليل المبتدئين للبرمجة',
-          slug: 'programming-guide'
+          title: "دليل المبتدئين للبرمجة",
+          slug: "programming-guide",
         },
-        status: 'rejected',
-        createdAt: '2024-07-26T08:45:00Z',
+        status: "rejected",
+        createdAt: "2024-07-26T08:45:00Z",
         likes: 2,
         dislikes: 12,
         reports: 3,
-        replies: []
-      }
+        replies: [],
+      },
     ];
-    
+
     setTimeout(() => {
       setComments(mockComments);
       setLoading(false);
@@ -135,48 +139,47 @@ export default function AdminCommentsPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'approved':
-        return 'bg-green-100 text-green-700 border-green-200';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-      case 'rejected':
-        return 'bg-red-100 text-red-700 border-red-200';
-      case 'spam':
-        return 'bg-gray-100 text-gray-700 border-gray-200';
+      case "approved":
+        return "bg-green-100 text-green-700 border-green-200";
+      case "pending":
+        return "bg-yellow-100 text-yellow-700 border-yellow-200";
+      case "rejected":
+        return "bg-red-100 text-red-700 border-red-200";
+      case "spam":
+        return "bg-gray-100 text-gray-700 border-gray-200";
       default:
-        return 'bg-gray-100 text-gray-700 border-gray-200';
+        return "bg-gray-100 text-gray-700 border-gray-200";
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'approved':
-        return 'موافق عليه';
-      case 'pending':
-        return 'في الانتظار';
-      case 'rejected':
-        return 'مرفوض';
-      case 'spam':
-        return 'سبام';
+      case "approved":
+        return "موافق عليه";
+      case "pending":
+        return "في الانتظار";
+      case "rejected":
+        return "مرفوض";
+      case "spam":
+        return "سبام";
       default:
-        return 'غير محدد';
+        return "غير محدد";
     }
   };
 
-  const filteredComments = comments.filter(comment => {
-    const matchesSearch = comment.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         comment.author.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         comment.article.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || comment.status === statusFilter;
-    
+  const filteredComments = comments.filter((comment) => {
+    const matchesSearch =
+      comment.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      comment.author.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      comment.article.title.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus =
+      statusFilter === "all" || comment.status === statusFilter;
+
     return matchesSearch && matchesStatus;
   });
 
   return (
-    <DashboardLayout
-      pageTitle="إدارة التعليقات"
-      pageDescription="مراجعة وإدارة التعليقات على المقالات"
-    >
+    <>
       <div className="space-y-6" dir="rtl">
         {/* إحصائيات سريعة */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -202,7 +205,7 @@ export default function AdminCommentsPage() {
                 <div>
                   <p className="text-sm text-gray-600 mb-1">موافق عليها</p>
                   <p className="text-2xl font-bold text-green-600">
-                    {comments.filter(c => c.status === 'approved').length}
+                    {comments.filter((c) => c.status === "approved").length}
                   </p>
                 </div>
                 <div className="bg-green-100 p-3 rounded-full">
@@ -218,7 +221,7 @@ export default function AdminCommentsPage() {
                 <div>
                   <p className="text-sm text-gray-600 mb-1">في الانتظار</p>
                   <p className="text-2xl font-bold text-yellow-600">
-                    {comments.filter(c => c.status === 'pending').length}
+                    {comments.filter((c) => c.status === "pending").length}
                   </p>
                 </div>
                 <div className="bg-yellow-100 p-3 rounded-full">
@@ -234,7 +237,7 @@ export default function AdminCommentsPage() {
                 <div>
                   <p className="text-sm text-gray-600 mb-1">مرفوضة</p>
                   <p className="text-2xl font-bold text-red-600">
-                    {comments.filter(c => c.status === 'rejected').length}
+                    {comments.filter((c) => c.status === "rejected").length}
                   </p>
                 </div>
                 <div className="bg-red-100 p-3 rounded-full">
@@ -260,7 +263,7 @@ export default function AdminCommentsPage() {
                   />
                 </div>
               </div>
-              
+
               <div className="flex gap-2">
                 <select
                   value={statusFilter}
@@ -300,28 +303,46 @@ export default function AdminCommentsPage() {
             ) : (
               <div className="space-y-4">
                 {filteredComments.map((comment) => (
-                  <div key={comment.id} className="border border-gray-200 rounded-lg p-6 hover:bg-gray-50 transition-colors">
+                  <div
+                    key={comment.id}
+                    className="border border-gray-200 rounded-lg p-6 hover:bg-gray-50 transition-colors"
+                  >
                     <div className="flex items-start gap-4">
                       <Avatar className="w-10 h-10 flex-shrink-0">
-                        <AvatarImage src={comment.author.avatar} alt={comment.author.name} />
+                        <AvatarImage
+                          src={comment.author.avatar}
+                          alt={comment.author.name}
+                        />
                         <AvatarFallback className="bg-blue-100 text-blue-600">
-                          {comment.author.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
+                          {comment.author.name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")
+                            .substring(0, 2)}
                         </AvatarFallback>
                       </Avatar>
-                      
+
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-2">
                           <div>
                             <div className="flex items-center gap-2 mb-1">
-                              <h3 className="font-semibold text-gray-900">{comment.author.name}</h3>
-                              <Badge className={`${getStatusColor(comment.status)} border text-xs`}>
+                              <h3 className="font-semibold text-gray-900">
+                                {comment.author.name}
+                              </h3>
+                              <Badge
+                                className={`${getStatusColor(
+                                  comment.status
+                                )} border text-xs`}
+                              >
                                 {getStatusText(comment.status)}
                               </Badge>
                             </div>
                             <div className="flex items-center gap-4 text-sm text-gray-600">
                               <div className="flex items-center gap-1">
                                 <Calendar className="w-4 h-4" />
-                                {new Date(comment.createdAt).toLocaleDateString('ar-SA')}
+                                {new Date(comment.createdAt).toLocaleDateString(
+                                  "ar-SA"
+                                )}
                               </div>
                               <div className="flex items-center gap-1">
                                 <User className="w-4 h-4" />
@@ -346,7 +367,7 @@ export default function AdminCommentsPage() {
                                 الرد على التعليق
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
-                              {comment.status === 'pending' && (
+                              {comment.status === "pending" && (
                                 <>
                                   <DropdownMenuItem className="text-green-600">
                                     <CheckCircle className="w-4 h-4 ml-2" />
@@ -358,7 +379,7 @@ export default function AdminCommentsPage() {
                                   </DropdownMenuItem>
                                 </>
                               )}
-                              {comment.status === 'approved' && (
+                              {comment.status === "approved" && (
                                 <DropdownMenuItem className="text-yellow-600">
                                   <Ban className="w-4 h-4 ml-2" />
                                   إلغاء الموافقة
@@ -378,7 +399,9 @@ export default function AdminCommentsPage() {
                         </div>
 
                         <div className="mb-3">
-                          <p className="text-gray-800 leading-relaxed">{comment.content}</p>
+                          <p className="text-gray-800 leading-relaxed">
+                            {comment.content}
+                          </p>
                         </div>
 
                         <div className="flex items-center justify-between">
@@ -412,6 +435,6 @@ export default function AdminCommentsPage() {
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
+    </>
   );
 }

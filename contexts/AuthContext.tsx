@@ -1,8 +1,14 @@
-'use client';
+"use client";
 
-import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
-import Cookies from 'js-cookie';
-import { jwtDecode, JwtPayload } from 'jwt-decode';
+import Cookies from "js-cookie";
+import { jwtDecode, JwtPayload } from "jwt-decode";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 export interface User extends JwtPayload {
   id: string;
@@ -25,13 +31,27 @@ export interface AuthContextType {
   refreshUser: () => Promise<void>;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined
+);
 
 // Hook لاستخدام AuthContext
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    // في البيئة المحلية، أعطي تحذير بدلاً من خطأ
+    if (process.env.NODE_ENV === "development") {
+      console.warn("useAuth must be used within an AuthProvider");
+      return {
+        user: null,
+        loading: false,
+        isAuthenticated: false,
+        login: () => {},
+        logout: () => {},
+        refreshUser: async () => {},
+      };
+    }
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }
@@ -42,14 +62,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchUserFromAPI = async (): Promise<User | null> => {
     try {
-      const token = Cookies.get('auth-token');
+      const token = Cookies.get("auth-token");
       if (!token) return null;
 
-      const response = await fetch('/api/auth/me', {
+      const response = await fetch("/api/auth/me", {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
-        credentials: 'include',
+        credentials: "include",
       });
 
       if (response.ok) {
@@ -60,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       return null;
     } catch (error) {
-      console.error('خطأ في جلب بيانات المستخدم من API:', error);
+      console.error("خطأ في جلب بيانات المستخدم من API:", error);
       return null;
     }
   };
@@ -72,10 +92,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (userData) {
         setUser(userData);
         // مزامنة مع localStorage
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('user', JSON.stringify(userData));
+        if (typeof window !== "undefined") {
+          localStorage.setItem("user", JSON.stringify(userData));
           if (userData.id) {
-            localStorage.setItem('user_id', String(userData.id));
+            localStorage.setItem("user_id", String(userData.id));
           }
         }
         setLoading(false);
@@ -83,15 +103,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // إذا فشل API، محاولة قراءة من الكوكيز كـ fallback
-      const userCookie = Cookies.get('user');
+      const userCookie = Cookies.get("user");
       if (userCookie) {
         try {
           const userData = JSON.parse(decodeURIComponent(userCookie));
           setUser(userData);
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('user', JSON.stringify(userData));
+          if (typeof window !== "undefined") {
+            localStorage.setItem("user", JSON.stringify(userData));
             if (userData.id) {
-              localStorage.setItem('user_id', String(userData.id));
+              localStorage.setItem("user_id", String(userData.id));
             }
           }
           setLoading(false);
@@ -102,9 +122,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // إذا لم نجد أي بيانات مستخدم، تنظيف localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('user');
-        localStorage.removeItem('user_id');
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("user");
+        localStorage.removeItem("user_id");
       }
 
       // إذا لم نجد أي بيانات مستخدم
@@ -116,7 +136,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     }
   };
-  
+
   useEffect(() => {
     loadUserFromCookie();
   }, []);
@@ -125,12 +145,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const decodedUser = jwtDecode<User>(token);
       setUser(decodedUser);
-      Cookies.set('auth-token', token, { expires: 7, secure: true, sameSite: 'lax' });
-      Cookies.set('user', JSON.stringify(decodedUser), { expires: 7, secure: false, sameSite: 'lax' });
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('user', JSON.stringify(decodedUser));
+      Cookies.set("auth-token", token, {
+        expires: 7,
+        secure: true,
+        sameSite: "lax",
+      });
+      Cookies.set("user", JSON.stringify(decodedUser), {
+        expires: 7,
+        secure: false,
+        sameSite: "lax",
+      });
+      if (typeof window !== "undefined") {
+        localStorage.setItem("user", JSON.stringify(decodedUser));
         if (decodedUser.id) {
-          localStorage.setItem('user_id', String(decodedUser.id));
+          localStorage.setItem("user_id", String(decodedUser.id));
         }
       }
     } catch (error) {
@@ -141,41 +169,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     try {
       // استدعاء API تسجيل الخروج
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
       });
     } catch (error) {
-      console.error('خطأ في تسجيل الخروج:', error);
+      console.error("خطأ في تسجيل الخروج:", error);
     }
 
     setUser(null);
     // إزالة جميع الكوكيز المتعلقة بالمصادقة
-    Cookies.remove('user');
-    Cookies.remove('auth-token');
-    Cookies.remove('token');
-    
+    Cookies.remove("user");
+    Cookies.remove("auth-token");
+    Cookies.remove("token");
+
     // إزالة من localStorage أيضاً
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('user');
-      localStorage.removeItem('user_id');
-      localStorage.removeItem('user_preferences');
-      localStorage.removeItem('darkMode');
-      sessionStorage.removeItem('user');
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("user");
+      localStorage.removeItem("user_id");
+      localStorage.removeItem("user_preferences");
+      localStorage.removeItem("darkMode");
+      sessionStorage.removeItem("user");
       sessionStorage.clear(); // تنظيف جميع بيانات الجلسة
     }
-    
-    window.location.href = '/'; // العودة للصفحة الرئيسية بدلاً من صفحة تسجيل الدخول
+
+    window.location.href = "/"; // العودة للصفحة الرئيسية بدلاً من صفحة تسجيل الدخول
   };
 
   const refreshUser = async () => {
     const userData = await fetchUserFromAPI();
     if (userData) {
       setUser(userData);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('user', JSON.stringify(userData));
+      if (typeof window !== "undefined") {
+        localStorage.setItem("user", JSON.stringify(userData));
         if (userData.id) {
-          localStorage.setItem('user_id', String(userData.id));
+          localStorage.setItem("user_id", String(userData.id));
         }
       }
     } else {
@@ -184,8 +212,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, isAuthenticated: !!user, login, logout, refreshUser }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        isAuthenticated: !!user,
+        login,
+        logout,
+        refreshUser,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
-} 
+}

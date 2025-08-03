@@ -1,18 +1,21 @@
-'use client';
+"use client";
 
-import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
+import DashboardLayout from "@/components/admin/modern-dashboard/DashboardLayout";
+import { SidebarPreferencesProvider } from "@/contexts/SidebarPreferencesContext";
 
 export default function AdminLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
-    <DashboardLayout 
-      pageTitle="لوحة الإدارة"
-      pageDescription="إدارة منصة سبق الذكية"
-    >
-      {children}
-    </DashboardLayout>
+    <SidebarPreferencesProvider>
+      <DashboardLayout
+        pageTitle="لوحة الإدارة"
+        pageDescription="إدارة منصة سبق الذكية"
+      >
+        {children}
+      </DashboardLayout>
+    </SidebarPreferencesProvider>
   );
 }

@@ -2,7 +2,7 @@
 :root {
   --header-height: 64px; /* ارتفاع الهيدر الرئيسي */
   --mobile-header-height: 56px; /* ارتفاع الهيدر للموبايل */
-  --dashboard-header-height: 64px; /* ارتفاع هيدر لوحة التحكم */
+  --dashboard-header-height: 72px; /* ارتفاع هيدر لوحة التحكم */
 }
 
 /* إلغاء الإطار الأزرق عند التركيز */
@@ -101,6 +101,17 @@ select:focus-visible {
 .dashboard-content-wrapper {
   padding-top: var(--dashboard-header-height);
   min-height: calc(100vh - var(--dashboard-header-height));
+}
+
+/* التأكد من العرض الكامل للوحة التحكم */
+.admin-dashboard-layout {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+.admin-dashboard-layout main {
+  width: 100% !important;
+  max-width: none !important;
 }
 
 /* تصحيح موضع الهيدر الثابت */
