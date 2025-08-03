@@ -13,7 +13,7 @@
   position: sticky !important;
   top: var(--header-height) !important;
   z-index: 48 !important;
-  margin-top: var(--header-height) !important;
+  margin-top: 0 !important;
   margin-bottom: 0 !important;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
@@ -22,19 +22,19 @@
 @media (max-width: 768px) {
   .pulse-first-element {
     top: 56px !important;
-    margin-top: 56px !important;
+    margin-top: 0 !important;
   }
 }
 
 /* التأكد من أن شريط النبض ملاصق للهيدر */
 .page-content-wrapper > .pulse-first-element {
-  margin-top: var(--header-height) !important;
+  margin-top: 0 !important;
   padding-top: 0 !important;
 }
 
 @media (max-width: 768px) {
   .page-content-wrapper > .pulse-first-element {
-    margin-top: 56px !important;
+    margin-top: 0 !important;
   }
 }
 

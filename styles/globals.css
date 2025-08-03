@@ -84,7 +84,7 @@ select:focus-visible {
 
 /* تخصيص عناصر pulse-first-element لتكون ملاصقة للهيدر */
 .page-content-wrapper > .pulse-first-element {
-  margin-top: var(--header-height) !important;
+  margin-top: 0 !important;
   padding-top: 0 !important;
 }
 
@@ -94,7 +94,7 @@ select:focus-visible {
   }
 
   .page-content-wrapper > .pulse-first-element {
-    margin-top: 56px !important;
+    margin-top: 0 !important;
   }
 }
 

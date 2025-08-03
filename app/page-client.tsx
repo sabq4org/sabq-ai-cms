@@ -587,7 +587,7 @@ function NewspaperHomePage({
         {/* شريط النبض الإخباري للموبايل - ملاصق للهيدر */}
         <SafeHydration>
           {isMobileView && (
-            <div className="pulse-ticker-mobile pulse-first-element" style={{ marginTop: '56px', paddingTop: 0 }}>
+            <div className="pulse-ticker-mobile pulse-first-element" style={{ marginTop: 0, paddingTop: 0 }}>
               <NewsPulseTicker className="mx-2" isMobile={true} />
             </div>
           )}
@@ -606,7 +606,7 @@ function NewspaperHomePage({
         {/* 1.1. شريط النبض الإخباري للديسكتوب 📡 - ملاصق للهيدر مباشرة */}
         <SafeHydration>
           {!isMobileView && (
-            <div className="pulse-ticker-desktop pulse-first-element" style={{ marginTop: '64px', paddingTop: 0 }}>
+            <div className="pulse-ticker-desktop pulse-first-element" style={{ marginTop: 0, paddingTop: 0 }}>
               <NewsPulseTicker className="" isMobile={false} />
             </div>
           )}
