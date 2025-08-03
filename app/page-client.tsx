@@ -582,14 +582,12 @@ function NewspaperHomePage({
         }`}
         style={{
           direction: "rtl",
-          marginTop: "-64px",
-          paddingTop: "0",
         }}
       >
         {/* شريط النبض الإخباري للموبايل - ملاصق للهيدر */}
         <SafeHydration>
           {isMobileView && (
-            <div className="pulse-ticker-mobile pulse-first-element" style={{ position: 'absolute', top: '56px', left: 0, right: 0, zIndex: 48 }}>
+            <div className="pulse-ticker-mobile pulse-first-element" style={{ position: 'sticky', top: '56px', zIndex: 48, marginTop: 0, paddingTop: 0 }}>
               <NewsPulseTicker className="mx-2" isMobile={true} />
             </div>
           )}
@@ -597,7 +595,7 @@ function NewspaperHomePage({
         {/* شريط الإحصائيات المحسن للموبايل */}
         <SafeHydration>
           {isMobileView && (
-            <div className="mb-4" style={{ paddingTop: '100px' }}>
+            <div className="mb-4">
               <CompactStatsBar darkMode={darkMode} />
             </div>
           )}
@@ -608,14 +606,14 @@ function NewspaperHomePage({
         {/* 1.1. شريط النبض الإخباري للديسكتوب 📡 - ملاصق للهيدر مباشرة */}
         <SafeHydration>
           {!isMobileView && (
-            <div className="pulse-ticker-desktop pulse-first-element" style={{ position: 'absolute', top: '64px', left: 0, right: 0, zIndex: 48 }}>
+            <div className="pulse-ticker-desktop pulse-first-element" style={{ position: 'sticky', top: '64px', zIndex: 48, marginTop: 0, paddingTop: 0 }}>
               <NewsPulseTicker className="" isMobile={false} />
             </div>
           )}
         </SafeHydration>
 
         {/* 1.5. الخبر العاجل (Breaking News) 🔴 - بعد شريط النبض */}
-        <div style={{ marginTop: '2rem', paddingTop: isMobileView ? '0' : '100px' }}>
+        <div style={{ marginTop: '2rem' }}>
           <BreakingNewsBar />
         </div>
         {/* 2. الأخبار المميزة (Featured Articles) 🌟 */}
