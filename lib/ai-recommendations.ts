@@ -348,7 +348,7 @@ function determineArticleType(article: any): RecommendedArticle['type'] {
 }
 
 /**
- * 🚨 توصيات احتياطية في حالة الخطأ
+ * 🆘 توصيات احتياطية في حالة فشل الخوارزمية الرئيسية (محدثة للبيانات الحقيقية)
  */
 async function getFallbackRecommendations(
   category: string,
@@ -356,18 +356,86 @@ async function getFallbackRecommendations(
   limit: number
 ): Promise<RecommendedArticle[]> {
   try {
-    // محاكاة مقالات احتياطية
-    const fallbackArticles = await fetchPopularArticles(limit);
+    console.log('🔄 استخدام التوصيات الاحتياطية مع البيانات الحقيقية...');
     
-    return fallbackArticles.map((article, index) => ({
+    // استراتيجية الاحتياط: مزج من مصادر متعددة
+    const [categoryArticles, trendingArticles, recentArticles] = await Promise.all([
+      fetchArticlesByCategory(category, currentArticleId),
+      fetchTrendingArticles([]),
+      fetchRecentQualityArticles(currentArticleId, limit)
+    ]);
+    
+    // دمج النتائج بذكاء
+    const fallbackRecommendations = [
+      ...categoryArticles.slice(0, 2), // مقالين من نفس الفئة
+      ...trendingArticles.slice(0, 2), // مقالين رائجين
+      ...recentArticles.slice(0, Math.max(limit - 4, 2)) // الباقي من المقالات الحديثة الجيدة
+    ].filter(Boolean); // إزالة القيم الفارغة
+    
+    // إضافة معلومات الفولباك
+    const validRecommendations = fallbackRecommendations
+      .filter(article => article && article.id && article.title)
+      .slice(0, limit)
+      .map((article, index) => ({
       ...article,
-      reason: 'مقالة شائعة',
-      confidence: 60 - (index * 5),
-      type: 'مقالة' as const
+        reason: article.reason || 'محتوى مختار بعناية لك',
+        confidence: Math.max(article.confidence - 5, 45) // تقليل الثقة قليلاً فقط
     }));
 
+    console.log(`✅ تم توفير ${validRecommendations.length} توصية احتياطية`);
+    return validRecommendations;
+    
   } catch (error) {
-    console.error('فشل في جلب التوصيات الاحتياطية:', error);
+    console.error('❌ فشل حتى في التوصيات الاحتياطية:', error);
+    // في حالة الفشل التام، نعرض رسالة بدلاً من محتوى وهمي
+    return [];
+  }
+}
+
+/**
+ * 🆕 جلب مقالات حديثة عالية الجودة
+ */
+async function fetchRecentQualityArticles(excludeId: string, limit: number): Promise<RecommendedArticle[]> {
+  try {
+    const response = await fetch(`/api/articles?exclude=${excludeId}&limit=${limit * 2}&status=published&sortBy=published_at&order=desc&minViews=50`);
+    
+    if (!response.ok) return [];
+    
+    const data = await response.json();
+    
+    if (data.success && data.articles) {
+      const qualityArticles = data.articles.filter((article: any) =>
+        article && 
+        article.id && 
+        article.title && 
+        article.title.trim() !== '' &&
+        !article.title.toLowerCase().includes('test') &&
+        !article.title.toLowerCase().includes('placeholder') &&
+        article.featured_image &&
+        !article.featured_image.includes('placeholder') &&
+        article.category_name
+      );
+      
+      return qualityArticles.slice(0, limit).map((article: any) => ({
+        id: article.id.toString(),
+        title: article.title,
+        url: `/article/${article.id}`,
+        type: determineArticleTypeFromContent(article),
+        reason: 'محتوى حديث ومميز',
+        confidence: calculateConfidenceScore(article),
+        thumbnail: article.featured_image,
+        publishedAt: article.published_at || article.created_at,
+        category: article.category_name || 'عام',
+        readingTime: article.reading_time || 5,
+        viewsCount: article.views || 0,
+        engagement: article.engagement_score || 0
+      }));
+    }
+    
+    return [];
+    
+  } catch (error) {
+    console.error('❌ خطأ في جلب المقالات الحديثة الجيدة:', error);
     return [];
   }
 }
@@ -518,7 +586,7 @@ function ensureContentDiversity(
 }
 
 /**
- * 📰 جلب مقالات حسب النوع
+ * 📰 جلب مقالات حسب النوع (محدث للبيانات الحقيقية)
  */
 async function fetchArticlesByType(
   types: string[],
@@ -526,38 +594,63 @@ async function fetchArticlesByType(
   limit: number
 ): Promise<RecommendedArticle[]> {
   try {
-    // بدلاً من استخدام types، سنجلب مقالات عشوائية
-    // يمكن تحسين هذا لاحقاً بإضافة منطق أكثر ذكاءً
-    const response = await fetch(`/api/articles?exclude=${excludeId}&limit=${limit}&status=published&sortBy=published_at&order=desc`);
+    // جلب المقالات المنشورة مع تصفية محسنة
+    const response = await fetch(`/api/articles?exclude=${excludeId}&limit=${limit * 2}&status=published&sortBy=published_at&order=desc`);
     
-    if (!response.ok) return [];
+    if (!response.ok) {
+      console.warn('⚠️ فشل جلب المقالات من API');
+      return [];
+    }
     
     const data = await response.json();
     
-    if (data.success && data.articles) {
-      // فلترة المقالات حسب النوع من metadata إن وجد
-      const filteredArticles = data.articles.filter((article: any) => {
-        if (!article.metadata?.type) return true; // إذا لم يكن هناك نوع، اعتبره صالح
-        return types.some(type => article.metadata.type === type);
-      });
-      
-      return filteredArticles.slice(0, limit).map((article: any) => ({
-        id: article.id,
-        title: article.title,
-        url: `/article/${article.id}`,
-        type: article.metadata?.type || 'مقالة',
-        reason: getSmartReason(article.metadata?.type),
-        confidence: Math.floor(Math.random() * 20) + 70, // 70-90
-        thumbnail: article.featured_image || article.thumbnail || getDefaultImageByType(determineArticleType(article)),
-        publishedAt: article.published_at,
-        category: article.category_name || article.categories?.name || article.category,
-        readingTime: article.reading_time || Math.ceil((article.content?.length || 1000) / 200),
-        viewsCount: article.views || 0,
-        engagement: article.engagement_score || 0
-      }));
+    if (!data.success || !data.articles || !Array.isArray(data.articles)) {
+      console.warn('⚠️ استجابة غير صالحة من API المقالات');
+      return [];
     }
     
-    return [];
+    // فلترة المقالات للتأكد من صحة البيانات
+    const validArticles = data.articles.filter((article: any) => {
+      // التأكد من وجود البيانات الأساسية
+      return article && 
+             article.id && 
+             article.title && 
+             article.title.trim() !== '' &&
+             !article.title.includes('placeholder') &&
+             !article.title.includes('test') &&
+             article.featured_image && 
+             article.featured_image !== '' &&
+             !article.featured_image.includes('placeholder') &&
+             article.category_name; // التأكد من وجود تصنيف
+    });
+    
+    if (validArticles.length === 0) {
+      console.warn('⚠️ لا توجد مقالات صالحة');
+      return [];
+    }
+    
+    // تحويل إلى صيغة RecommendedArticle
+    const recommendations = validArticles.slice(0, limit).map((article: any) => {
+      const articleType = determineArticleTypeFromContent(article);
+      return {
+        id: article.id.toString(),
+        title: article.title,
+        url: `/article/${article.id}`,
+        type: articleType,
+        reason: getSmartReasonByType(articleType, article.category_name),
+        confidence: calculateConfidenceScore(article),
+        thumbnail: article.featured_image || article.thumbnail,
+        publishedAt: article.published_at || article.created_at,
+        category: article.category_name || article.categories?.name || 'عام',
+        readingTime: article.reading_time || Math.ceil((article.content?.length || 1000) / 200),
+        viewsCount: article.views || 0,
+        engagement: article.engagement_score || (article.views || 0) / 1000
+      };
+    });
+    
+    console.log(`✅ تم جلب ${recommendations.length} مقالة صالحة من النوع المطلوب`);
+    return recommendations;
+    
   } catch (error) {
     console.error('❌ خطأ في جلب المقالات حسب النوع:', error);
     return [];
@@ -609,92 +702,311 @@ function getSmartReason(type?: string): string {
 // 📡 دوال API المحاكاة (يجب استبدالها بـ APIs حقيقية)
 // =============================================================================
 
-async function fetchArticlesByCategories(categories: string[], excludeId: string) {
-  // محاكاة API call
-  return mockArticles.filter(article => 
-    categories.includes(article.category) && article.id !== excludeId
-  );
-}
-
-async function findSimilarToInteracted(likedIds: string[], excludeId: string) {
-  // محاكاة العثور على مقالات مشابهة للمقالات التي أعجب بها المستخدم
-  return mockArticles.filter(article => 
-    article.id !== excludeId && Math.random() > 0.7
-  );
-}
-
-async function fetchArticlesByCategory(category: string, excludeId: string) {
-  return mockArticles.filter(article => 
-    article.category === category && article.id !== excludeId
-  );
-}
-
-async function fetchTrendingArticles(tags: string[]) {
-  return mockArticles
-    .sort((a, b) => b.viewsCount - a.viewsCount)
-    .slice(0, 5);
-}
-
-async function fetchSemanticallySimilarArticles(articleId: string, tags: string[]) {
-  // محاكاة التشابه الدلالي
-  return mockArticles.filter(article => 
-    article.id !== articleId && Math.random() > 0.6
-  );
-}
-
-async function fetchPopularArticles(limit: number) {
-  return mockArticles
-    .sort((a, b) => b.viewsCount - a.viewsCount)
-    .slice(0, limit);
-}
-
-// =============================================================================
-// 🎭 بيانات محاكاة للاختبار
-// =============================================================================
-
-const mockArticles = [
-  {
-    id: 'ai-future-work-2025',
-    title: 'تحليل مباشر: مستقبل العمل مع الذكاء الاصطناعي في 2025',
-    url: '/article/ai-future-work-2025',
-    thumbnail: '/images/ai-future.jpg',
-    publishedAt: '2025-07-20T10:00:00Z',
-    category: 'تقنية',
-    readingTime: 5,
-    viewsCount: 15420,
-    engagement: 0.25
-  },
-  {
-    id: 'women-economic-empowerment',
-    title: 'رأي: التمكين الاقتصادي للمرأة السعودية - نجاحات وتحديات',
-    url: '/article/women-economic-empowerment', 
-    thumbnail: '/images/women-empowerment.jpg',
-    publishedAt: '2025-07-21T14:30:00Z',
-    category: 'اقتصاد',
-    readingTime: 4,
-    viewsCount: 8930,
-    engagement: 0.18
-  },
-  {
-    id: 'neom-weekly-summary',
-    title: 'ملخّص ذكي: أهم ما دار حول مشروع نيوم هذا الأسبوع',
-    url: '/article/neom-weekly-summary',
-    thumbnail: '/images/neom-summary.jpg', 
-    publishedAt: '2025-07-22T08:15:00Z',
-    category: 'أخبار',
-    readingTime: 3,
-    viewsCount: 12500,
-    engagement: 0.22
-  },
-  {
-    id: 'sports-analysis-saudi',
-    title: 'تحليل: الرياضة السعودية وخطط الاستثمار الجديدة',
-    url: '/article/sports-analysis-saudi',
-    thumbnail: '/images/sports-saudi.jpg',
-    publishedAt: '2025-07-19T16:45:00Z',
-    category: 'رياضة',
-    readingTime: 6,
-    viewsCount: 7600,
-    engagement: 0.15
+/**
+ * 📂 جلب مقالات حسب التصنيفات (محدث للبيانات الحقيقية)
+ */
+async function fetchArticlesByCategories(categories: string[], excludeId: string): Promise<RecommendedArticle[]> {
+  try {
+    // بناء معايير البحث للتصنيفات
+    const categoryQuery = categories.map(cat => `category=${encodeURIComponent(cat)}`).join('&');
+    const response = await fetch(`/api/articles?${categoryQuery}&exclude=${excludeId}&limit=15&status=published&sortBy=views&order=desc`);
+    
+    if (!response.ok) {
+      console.warn('⚠️ فشل جلب المقالات حسب التصنيفات');
+      return [];
+    }
+    
+    const data = await response.json();
+    
+    if (!data.success || !data.articles || !Array.isArray(data.articles)) {
+      console.warn('⚠️ استجابة غير صالحة من API المقالات (التصنيفات)');
+      return [];
+    }
+    
+    // فلترة وتحويل المقالات
+    const validArticles = data.articles.filter((article: any) => 
+      article && 
+      article.id && 
+      article.title && 
+      article.title.trim() !== '' &&
+      !article.title.includes('placeholder') &&
+      article.featured_image &&
+      article.category_name
+    );
+    
+    return validArticles.map((article: any) => ({
+      id: article.id.toString(),
+      title: article.title,
+      url: `/article/${article.id}`,
+      type: determineArticleTypeFromContent(article),
+      reason: `لأنك تهتم بمواضيع ${article.category_name}`,
+      confidence: Math.min(95, 70 + (article.views || 0) / 100),
+      thumbnail: article.featured_image,
+      publishedAt: article.published_at || article.created_at,
+      category: article.category_name,
+      readingTime: article.reading_time || 5,
+      viewsCount: article.views || 0,
+      engagement: article.engagement_score || (article.views || 0) / 1000
+    }));
+    
+  } catch (error) {
+    console.error('❌ خطأ في جلب المقالات حسب التصنيفات:', error);
+    return [];
   }
-];
+}
+
+/**
+ * 🔗 جلب مقالات مشابهة للمقالات التي تفاعل معها المستخدم
+ */
+async function findSimilarToInteracted(likedIds: string[], excludeId: string): Promise<RecommendedArticle[]> {
+  if (likedIds.length === 0) return [];
+  
+  try {
+    // جلب مقالات من نفس فئات المقالات التي أعجب بها
+    const idsQuery = likedIds.slice(0, 5).join(','); // أول 5 مقالات
+    const response = await fetch(`/api/articles/similar?ids=${idsQuery}&exclude=${excludeId}&limit=6`);
+    
+    if (!response.ok) return [];
+    
+    const data = await response.json();
+    
+    if (data.success && data.articles) {
+      return data.articles.map((article: any) => ({
+        id: article.id.toString(),
+        title: article.title,
+        url: `/article/${article.id}`,
+        type: determineArticleTypeFromContent(article),
+        reason: 'مشابه لمقالات أعجبت بها',
+        confidence: calculateConfidenceScore(article) + 10, // مكافأة للتشابه
+        thumbnail: article.featured_image,
+        publishedAt: article.published_at || article.created_at,
+        category: article.category_name || 'عام',
+        readingTime: article.reading_time || 5,
+        viewsCount: article.views || 0,
+        engagement: article.engagement_score || 0
+      }));
+    }
+    
+    return [];
+    
+  } catch (error) {
+    console.error('❌ خطأ في جلب المقالات المشابهة:', error);
+    return [];
+  }
+}
+
+/**
+ * 📂 جلب مقالات حسب تصنيف واحد
+ */
+async function fetchArticlesByCategory(category: string, excludeId: string): Promise<RecommendedArticle[]> {
+  return await fetchArticlesByCategories([category], excludeId);
+}
+
+/**
+ * 🔥 جلب المقالات الرائجة
+ */
+async function fetchTrendingArticles(tags: string[]): Promise<RecommendedArticle[]> {
+  try {
+    const response = await fetch(`/api/articles?limit=8&status=published&sortBy=views&order=desc&trending=true`);
+    
+    if (!response.ok) return [];
+    
+    const data = await response.json();
+    
+    if (data.success && data.articles) {
+      const validArticles = data.articles.filter((article: any) =>
+        article && 
+        article.id && 
+        article.title && 
+        article.featured_image &&
+        (article.views || 0) > 500 // معيار للرواج
+      );
+      
+      return validArticles.slice(0, 5).map((article: any) => ({
+        id: article.id.toString(),
+        title: article.title,
+        url: `/article/${article.id}`,
+        type: determineArticleTypeFromContent(article),
+        reason: `رائج في ${article.category_name || 'الموقع'} 🔥`,
+        confidence: Math.min(95, calculateConfidenceScore(article) + 15),
+        thumbnail: article.featured_image,
+        publishedAt: article.published_at || article.created_at,
+        category: article.category_name || 'عام',
+        readingTime: article.reading_time || 5,
+        viewsCount: article.views || 0,
+        engagement: article.engagement_score || 0
+      }));
+    }
+    
+    return [];
+    
+  } catch (error) {
+    console.error('❌ خطأ في جلب المقالات الرائجة:', error);
+    return [];
+  }
+}
+
+/**
+ * 🔎 جلب مقالات مشابهة دلالياً
+ */
+async function fetchSemanticallySimilarArticles(articleId: string, tags: string[]): Promise<RecommendedArticle[]> {
+  try {
+    // استخدام العلامات للبحث عن محتوى مشابه
+    const tagsQuery = tags.slice(0, 3).map(tag => `tag=${encodeURIComponent(tag)}`).join('&');
+    const response = await fetch(`/api/articles?${tagsQuery}&exclude=${articleId}&limit=6&status=published`);
+    
+    if (!response.ok) return [];
+    
+    const data = await response.json();
+    
+    if (data.success && data.articles) {
+      const validArticles = data.articles.filter((article: any) =>
+        article && article.id && article.title && article.featured_image
+      );
+      
+      return validArticles.slice(0, 4).map((article: any) => ({
+        id: article.id.toString(),
+        title: article.title,
+        url: `/article/${article.id}`,
+        type: determineArticleTypeFromContent(article),
+        reason: 'موضوع مشابه قد يهمك',
+        confidence: calculateConfidenceScore(article),
+        thumbnail: article.featured_image,
+        publishedAt: article.published_at || article.created_at,
+        category: article.category_name || 'عام',
+        readingTime: article.reading_time || 5,
+        viewsCount: article.views || 0,
+        engagement: article.engagement_score || 0
+      }));
+    }
+    
+    return [];
+    
+  } catch (error) {
+    console.error('❌ خطأ في جلب المقالات المشابهة دلالياً:', error);
+    return [];
+  }
+}
+
+/**
+ * ⭐ جلب المقالات الأكثر شعبية
+ */
+async function fetchPopularArticles(limit: number): Promise<RecommendedArticle[]> {
+  return await fetchTrendingArticles([]);
+}
+
+// =============================================================================
+// 🔧 دوال مساعدة جديدة للنظام الذكي
+// =============================================================================
+
+/**
+ * 🎯 تحديد نوع المقال من المحتوى
+ */
+function determineArticleTypeFromContent(article: any): RecommendedArticle['type'] {
+  const title = (article.title || '').toLowerCase();
+  const content = (article.content || '').toLowerCase();
+  const category = (article.category_name || '').toLowerCase();
+  
+  // تحليل العنوان للكلمات المفتاحية
+  if (title.includes('تحليل') || title.includes('دراسة') || title.includes('تقرير مفصل')) {
+    return 'تحليل';
+  }
+  
+  if (title.includes('رأي') || title.includes('وجهة نظر') || title.includes('كاتب')) {
+    return 'رأي';
+  }
+  
+  if (title.includes('عاجل') || title.includes('خبر') || title.includes('الآن')) {
+    return 'عاجل';
+  }
+  
+  if (title.includes('ملخص') || title.includes('موجز') || title.includes('في دقائق')) {
+    return 'ملخص';
+  }
+  
+  if (title.includes('تقرير') || category.includes('تقارير')) {
+    return 'تقرير';
+  }
+  
+  return 'مقالة';
+}
+
+/**
+ * 💫 حساب درجة الثقة في التوصية
+ */
+function calculateConfidenceScore(article: any): number {
+  let score = 50; // نقطة البداية
+  
+  // زيادة النقاط بناءً على المشاهدات
+  const views = article.views || 0;
+  if (views > 1000) score += 20;
+  if (views > 5000) score += 10;
+  if (views > 10000) score += 10;
+  
+  // زيادة النقاط بناءً على حداثة المقال
+  const publishedDate = new Date(article.published_at || article.created_at);
+  const daysDiff = (Date.now() - publishedDate.getTime()) / (1000 * 60 * 60 * 24);
+  
+  if (daysDiff < 1) score += 15; // مقال جديد
+  if (daysDiff < 7) score += 10; // أقل من أسبوع
+  if (daysDiff < 30) score += 5; // أقل من شهر
+  
+  // زيادة النقاط بناءً على وجود صورة جيدة
+  if (article.featured_image && !article.featured_image.includes('placeholder')) {
+    score += 5;
+  }
+  
+  // تقليل النقاط للمقالات المحذوفة أو المخفية
+  if (article.status !== 'published') {
+    score -= 30;
+  }
+  
+  return Math.min(Math.max(score, 10), 100); // الحد بين 10-100
+}
+
+/**
+ * 🎨 توليد أسباب ذكية للتوصية حسب النوع
+ */
+function getSmartReasonByType(type: RecommendedArticle['type'], category?: string): string {
+  const reasons = {
+    'تحليل': [
+      'تحليل معمق يثري معرفتك',
+      `دراسة شاملة في ${category || 'موضوع مهم'}`,
+      'محتوى تحليلي متقدم',
+      'رؤية عميقة للأحداث'
+    ],
+    'رأي': [
+      'وجهة نظر قد تغير تفكيرك',
+      `رأي متخصص في ${category || 'الموضوع'}`,
+      'منظور جديد للأحداث',
+      'كاتب معروف يشارك خبرته'
+    ],
+    'عاجل': [
+      'خبر مهم يستحق المتابعة',
+      'آخر التطورات',
+      'حدث جديد يؤثر عليك',
+      'معلومات حديثة ومهمة'
+    ],
+    'ملخص': [
+      'ملخص سريع ومفيد',
+      'أهم النقاط في دقائق',
+      'موجز شامل للموضوع',
+      'خلاصة ذكية للأحداث'
+    ],
+    'تقرير': [
+      'تقرير مفصل وموثق',
+      `بيانات وإحصائيات عن ${category || 'الموضوع'}`,
+      'معلومات موثقة ومفيدة',
+      'تقرير شامل بالأرقام'
+    ],
+    'مقالة': [
+      'مقال يناسب اهتماماتك',
+      `محتوى متميز في ${category || 'مجالك المفضل'}`,
+      'قراءة ممتعة ومفيدة',
+      'محتوى عالي الجودة'
+    ]
+  };
+  
+  const typeReasons = reasons[type] || reasons['مقالة'];
+  return typeReasons[Math.floor(Math.random() * typeReasons.length)];
+}

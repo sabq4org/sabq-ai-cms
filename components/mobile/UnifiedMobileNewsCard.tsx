@@ -1,12 +1,21 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Calendar, Eye, User, Clock, Zap, Star, Heart, MessageSquare, Bookmark, Share2, TrendingUp, Sparkles, Target } from 'lucide-react';
-import ArticleViews from '@/components/ui/ArticleViews';
-import { formatDateGregorian, formatRelativeDate } from '@/lib/date-utils';
-import { getArticleLink } from '@/lib/utils';
+import ArticleViews from "@/components/ui/ArticleViews";
+import { formatDateGregorian, formatRelativeDate } from "@/lib/date-utils";
+import { getArticleLink } from "@/lib/utils";
+import {
+  Bookmark,
+  Clock,
+  MessageSquare,
+  Share2,
+  Sparkles,
+  Star,
+  Target,
+  TrendingUp,
+  Zap,
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 // واجهة موحدة للبيانات
 interface UnifiedNewsData {
@@ -56,32 +65,32 @@ interface UnifiedNewsData {
 interface UnifiedMobileNewsCardProps {
   article: UnifiedNewsData;
   darkMode?: boolean;
-  variant?: 'default' | 'compact' | 'featured' | 'smart-block';
+  variant?: "default" | "compact" | "featured" | "smart-block";
   onBookmark?: (id: string | number) => void;
   onShare?: (article: UnifiedNewsData) => void;
   className?: string;
 }
 
-export default function UnifiedMobileNewsCard({ 
-  article, 
-  darkMode = false, 
-  variant = 'smart-block',
+export default function UnifiedMobileNewsCard({
+  article,
+  darkMode = false,
+  variant = "smart-block",
   onBookmark,
   onShare,
-  className = ''
+  className = "",
 }: UnifiedMobileNewsCardProps) {
-  
   // استخراج البيانات بطريقة موحدة مع ميزات الـ AI المحسنة
   const getUnifiedData = () => {
     const baseData = {
-      id: article.id?.toString() || '',
-      title: article.title || '',
-      slug: article.slug || article.id?.toString() || '',
-      excerpt: article.excerpt || article.summary || '',
-      featured_image: article.featured_image || '',
-      author_name: article.author?.name || article.author_name || '',
-      category_name: article.category?.name || article.category_name || '',
-      category_color: article.category?.color || article.category_color || '#6b7280',
+      id: article.id?.toString() || "",
+      title: article.title || "",
+      slug: article.slug || article.id?.toString() || "",
+      excerpt: article.excerpt || article.summary || "",
+      featured_image: article.featured_image || "",
+      author_name: article.author?.name || article.author_name || "",
+      category_name: article.category?.name || article.category_name || "",
+      category_color:
+        article.category?.color || article.category_color || "#6b7280",
       views: article.views || article.views_count || 0,
       reading_time: article.reading_time || 5,
       published_at: article.published_at || article.created_at,
@@ -90,50 +99,53 @@ export default function UnifiedMobileNewsCard({
       likes_count: article.likes_count || 0,
       comments_count: article.comments_count || 0,
       shares: article.shares || 0,
-      is_bookmarked: article.is_bookmarked || false
+      is_bookmarked: article.is_bookmarked || false,
     };
 
     // 🤖 AI-powered features
-    const personalizedScore = article.ai_compatibility_score || Math.floor(Math.random() * 100);
+    const personalizedScore =
+      article.ai_compatibility_score || Math.floor(Math.random() * 100);
     const isPersonalized = article.is_personalized || personalizedScore > 75;
-    const interactionCount = baseData.views + baseData.likes_count + baseData.shares;
-    const isTrending = baseData.views > 1000 && (article.engagement_rate || 0) > 0.8;
+    const interactionCount =
+      baseData.views + baseData.likes_count + baseData.shares;
+    const isTrending =
+      baseData.views > 1000 && (article.engagement_rate || 0) > 0.8;
 
     return {
       ...baseData,
       personalizedScore,
       isPersonalized,
       interactionCount,
-      isTrending
+      isTrending,
     };
   };
 
   const data = getUnifiedData();
-  
+
   // 🎨 Enhanced category colors and icons
   const getCategoryStyle = (categoryName: string) => {
-    const categoryMap: Record<string, {emoji: string, color: string}> = {
-      'تحليل': {emoji: '🧠', color: '#8b5cf6'},
-      'اقتصاد': {emoji: '📊', color: '#10b981'}, 
-      'رياضة': {emoji: '⚽', color: '#3b82f6'},
-      'تقنية': {emoji: '💻', color: '#6366f1'},
-      'سياسة': {emoji: '🏛️', color: '#ef4444'},
-      'ثقافة': {emoji: '🎭', color: '#ec4899'},
-      'علوم': {emoji: '🔬', color: '#06b6d4'},
-      'صحة': {emoji: '⚕️', color: '#059669'},
-      'سفر': {emoji: '✈️', color: '#f59e0b'},
-      'طعام': {emoji: '🍽️', color: '#f97316'},
-      'عام': {emoji: '📰', color: '#6b7280'}
+    const categoryMap: Record<string, { emoji: string; color: string }> = {
+      تحليل: { emoji: "🧠", color: "#8b5cf6" },
+      اقتصاد: { emoji: "📊", color: "#10b981" },
+      رياضة: { emoji: "⚽", color: "#3b82f6" },
+      تقنية: { emoji: "💻", color: "#6366f1" },
+      سياسة: { emoji: "🏛️", color: "#ef4444" },
+      ثقافة: { emoji: "🎭", color: "#ec4899" },
+      علوم: { emoji: "🔬", color: "#06b6d4" },
+      صحة: { emoji: "⚕️", color: "#059669" },
+      سفر: { emoji: "✈️", color: "#f59e0b" },
+      طعام: { emoji: "🍽️", color: "#f97316" },
+      عام: { emoji: "📰", color: "#6b7280" },
     };
-    
-    return categoryMap[categoryName] || categoryMap['عام'];
+
+    return categoryMap[categoryName] || categoryMap["عام"];
   };
-  
+
   const getTimeAgo = (dateString: string) => {
     try {
       return formatRelativeDate(dateString);
     } catch {
-      return 'منذ قليل';
+      return "منذ قليل";
     }
   };
 
@@ -144,7 +156,7 @@ export default function UnifiedMobileNewsCard({
   };
 
   const generatePlaceholderImage = (title: string) => {
-    const colors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6'];
+    const colors = ["#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6"];
     const color = colors[title.length % colors.length];
     return `data:image/svg+xml,${encodeURIComponent(`
       <svg width="400" height="225" xmlns="http://www.w3.org/2000/svg">
@@ -157,20 +169,23 @@ export default function UnifiedMobileNewsCard({
   };
 
   // بطاقة بتنسيق "بلوك المحتوى الذكي المخصص للاهتمامات"
-  if (variant === 'smart-block') {
+  if (variant === "smart-block") {
     return (
       <Link href={getArticleLink(data)} className={`block w-full ${className}`}>
-        <article className={`
+        <article
+          className={`
           relative overflow-hidden rounded-2xl transition-all duration-300 hover:shadow-lg group
-          ${data.breaking 
-            ? (darkMode 
-                ? 'bg-red-950/30 backdrop-blur-sm border-2 border-red-800/70 hover:bg-red-950/40' 
-                : 'bg-red-50/90 backdrop-blur-sm border-2 border-red-200 hover:bg-red-50')
-            : (darkMode 
-                ? 'bg-gray-800/90 backdrop-blur-sm border border-gray-700/50 hover:bg-gray-800' 
-                : 'bg-white/90 backdrop-blur-sm border border-gray-200/50 hover:bg-gray-50')
+          ${
+            data.breaking
+              ? darkMode
+                ? "bg-red-950/30 backdrop-blur-sm border-2 border-red-800/70 hover:bg-red-950/40"
+                : "bg-red-50/90 backdrop-blur-sm border-2 border-red-200 hover:bg-red-50"
+              : darkMode
+              ? "bg-gray-800/90 backdrop-blur-sm border border-gray-700/50 hover:bg-gray-800"
+              : "bg-white/90 backdrop-blur-sm border border-gray-200/50 hover:bg-gray-50"
           }
-        `}>
+        `}
+        >
           {/* الصورة الرئيسية */}
           <div className="relative h-48 w-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
             <Image
@@ -184,10 +199,10 @@ export default function UnifiedMobileNewsCard({
                 target.src = generatePlaceholderImage(data.title);
               }}
             />
-            
+
             {/* تدرج للخلفية */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-            
+
             {/* شارات الحالة المحسنة مع AI */}
             <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
               {data.breaking && (
@@ -217,39 +232,48 @@ export default function UnifiedMobileNewsCard({
             </div>
 
             {/* التصنيف المحسن */}
-            {data.category_name && (() => {
-              const categoryStyle = getCategoryStyle(data.category_name);
-              return (
-                <div className="absolute bottom-3 right-3 z-10">
-                  <span 
-                    className="flex items-center gap-1 px-3 py-1 text-white text-xs font-bold rounded-full shadow-lg backdrop-blur-sm"
-                    style={{ backgroundColor: categoryStyle.color }}
-                  >
-                    <span>{categoryStyle.emoji}</span>
-                    {data.category_name}
-                  </span>
-                </div>
-              );
-            })()}
+            {data.category_name &&
+              (() => {
+                const categoryStyle = getCategoryStyle(data.category_name);
+                return (
+                  <div className="absolute bottom-3 right-3 z-10">
+                    <span
+                      className="flex items-center gap-1 px-3 py-1 text-white text-xs font-bold rounded-full shadow-lg backdrop-blur-sm"
+                      style={{ backgroundColor: categoryStyle.color }}
+                    >
+                      <span>{categoryStyle.emoji}</span>
+                      {data.category_name}
+                    </span>
+                  </div>
+                );
+              })()}
           </div>
 
           {/* المحتوى */}
           <div className="p-5 space-y-4">
             {/* العنوان */}
-            <h3 className={`
-              text-lg font-bold leading-tight line-clamp-2 group-hover:text-blue-600 
+            <h3
+              className={`
+              text-lg font-bold leading-tight line-clamp-2 group-hover:text-blue-600
               transition-colors duration-200
-              ${darkMode ? 'text-white dark:group-hover:text-blue-400' : 'text-gray-900'}
-            `}>
+              ${
+                darkMode
+                  ? "text-white dark:group-hover:text-blue-400"
+                  : "text-gray-900"
+              }
+            `}
+            >
               {data.title}
             </h3>
 
             {/* الملخص */}
             {data.excerpt && (
-              <p className={`
+              <p
+                className={`
                 text-sm leading-relaxed line-clamp-2
-                ${darkMode ? 'text-gray-300' : 'text-gray-600'}
-              `}>
+                ${darkMode ? "text-gray-300" : "text-gray-600"}
+              `}
+              >
                 {data.excerpt}
               </p>
             )}
@@ -258,21 +282,23 @@ export default function UnifiedMobileNewsCard({
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-3">
                 {/* وقت القراءة */}
-                <span className={`flex items-center gap-1 ${
-                  darkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}>
+                <span
+                  className={`flex items-center gap-1 ${
+                    darkMode ? "text-gray-400" : "text-gray-500"
+                  }`}
+                >
                   <Clock className="w-3 h-3" />
                   {data.reading_time} دقائق
                 </span>
-                
+
                 {/* المشاهدات المحسنة */}
                 <ArticleViews count={data.views} className="text-xs" />
               </div>
 
               {/* التاريخ الميلادي */}
-              <span className={`${
-                darkMode ? 'text-gray-400' : 'text-gray-500'
-              }`}>
+              <span
+                className={`${darkMode ? "text-gray-400" : "text-gray-500"}`}
+              >
                 {formatDateGregorian(data.published_at)}
               </span>
             </div>
@@ -283,7 +309,7 @@ export default function UnifiedMobileNewsCard({
                 <Target className="w-3 h-3 text-purple-500" />
                 <div className="flex items-center gap-2 flex-1">
                   <div className="h-2 flex-1 bg-purple-200 dark:bg-purple-800 rounded-full overflow-hidden">
-                    <div 
+                    <div
                       className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-500"
                       style={{ width: `${data.personalizedScore}%` }}
                     />
@@ -303,9 +329,11 @@ export default function UnifiedMobileNewsCard({
 
                 {/* التعليقات */}
                 {data.comments_count > 0 && (
-                  <span className={`flex items-center gap-1 text-xs ${
-                    darkMode ? 'text-gray-400' : 'text-gray-500'
-                  }`}>
+                  <span
+                    className={`flex items-center gap-1 text-xs ${
+                      darkMode ? "text-gray-400" : "text-gray-500"
+                    }`}
+                  >
                     <MessageSquare className="w-3.5 h-3.5" />
                     {formatNumber(data.comments_count)}
                   </span>
@@ -321,8 +349,8 @@ export default function UnifiedMobileNewsCard({
                   }}
                   className={`p-1.5 rounded-full transition-colors duration-200 ${
                     data.is_bookmarked
-                      ? 'text-blue-600 bg-blue-100 dark:bg-blue-900/20'
-                      : 'text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20'
+                      ? "text-blue-600 bg-blue-100 dark:bg-blue-900/20"
+                      : "text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
                   }`}
                 >
                   <Bookmark className="w-4 h-4" />
@@ -334,9 +362,9 @@ export default function UnifiedMobileNewsCard({
                     onShare?.(article);
                   }}
                   className={`p-1.5 rounded-full transition-colors duration-200 ${
-                    darkMode 
-                      ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700' 
-                      : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+                    darkMode
+                      ? "text-gray-400 hover:text-gray-200 hover:bg-gray-700"
+                      : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
                   }`}
                 >
                   <Share2 className="w-4 h-4" />
@@ -350,20 +378,23 @@ export default function UnifiedMobileNewsCard({
   }
 
   // البطاقة المضغوطة
-  if (variant === 'compact') {
+  if (variant === "compact") {
     return (
       <Link href={getArticleLink(data)} className={`block w-full ${className}`}>
-        <article className={`
+        <article
+          className={`
           flex gap-4 p-4 rounded-xl transition-all duration-200 hover:shadow-md
-          ${data.breaking 
-            ? (darkMode 
-                ? 'bg-red-950/30 border-2 border-red-800/70 hover:bg-red-950/40' 
-                : 'bg-red-50 border-2 border-red-200 hover:bg-red-100')
-            : (darkMode 
-                ? 'bg-gray-800/50 hover:bg-gray-800/80' 
-                : 'bg-white hover:bg-gray-50')
+          ${
+            data.breaking
+              ? darkMode
+                ? "bg-red-950/30 border-2 border-red-800/70 hover:bg-red-950/40"
+                : "bg-red-50 border-2 border-red-200 hover:bg-red-100"
+              : darkMode
+              ? "bg-gray-800/50 hover:bg-gray-800/80"
+              : "bg-white hover:bg-gray-50"
           }
-        `}>
+        `}
+        >
           {/* الصورة المصغرة */}
           <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-700">
             <Image
@@ -401,25 +432,28 @@ export default function UnifiedMobileNewsCard({
                   رائج
                 </span>
               )}
-              {data.category_name && (() => {
-                const categoryStyle = getCategoryStyle(data.category_name);
-                return (
-                  <span 
-                    className="flex items-center gap-1 px-2 py-0.5 text-white text-xs font-bold rounded-full"
-                    style={{ backgroundColor: categoryStyle.color }}
-                  >
-                    <span>{categoryStyle.emoji}</span>
-                    {data.category_name}
-                  </span>
-                );
-              })()}
+              {data.category_name &&
+                (() => {
+                  const categoryStyle = getCategoryStyle(data.category_name);
+                  return (
+                    <span
+                      className="flex items-center gap-1 px-2 py-0.5 text-white text-xs font-bold rounded-full"
+                      style={{ backgroundColor: categoryStyle.color }}
+                    >
+                      <span>{categoryStyle.emoji}</span>
+                      {data.category_name}
+                    </span>
+                  );
+                })()}
             </div>
 
             {/* العنوان */}
-            <h3 className={`
+            <h3
+              className={`
               font-bold text-sm leading-tight line-clamp-2
-              ${darkMode ? 'text-white' : 'text-gray-900'}
-            `}>
+              ${darkMode ? "text-white" : "text-gray-900"}
+            `}
+            >
               {data.title}
             </h3>
 
@@ -428,14 +462,16 @@ export default function UnifiedMobileNewsCard({
               <div className="flex items-center gap-2">
                 <ArticleViews count={data.views} className="text-xs" />
                 <span>•</span>
-                <span className={`flex items-center gap-1 ${
-                  darkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}>
+                <span
+                  className={`flex items-center gap-1 ${
+                    darkMode ? "text-gray-400" : "text-gray-500"
+                  }`}
+                >
                   <Clock className="w-3 h-3" />
                   {data.reading_time} دقائق
                 </span>
               </div>
-              <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>
+              <span className={darkMode ? "text-gray-400" : "text-gray-500"}>
                 {formatDateGregorian(data.published_at)}
               </span>
             </div>
@@ -448,17 +484,20 @@ export default function UnifiedMobileNewsCard({
   // البطاقة الافتراضية
   return (
     <Link href={getArticleLink(data)} className={`block w-full ${className}`}>
-      <article className={`
+      <article
+        className={`
         overflow-hidden rounded-xl transition-all duration-200 hover:shadow-lg
-        ${data.breaking 
-          ? (darkMode 
-              ? 'bg-red-950/30 border-2 border-red-800/70' 
-              : 'bg-red-50 border-2 border-red-200')
-          : (darkMode 
-              ? 'bg-gray-800 border border-gray-700' 
-              : 'bg-white border border-gray-200')
+        ${
+          data.breaking
+            ? darkMode
+              ? "bg-red-950/30 border-2 border-red-800/70"
+              : "bg-red-50 border-2 border-red-200"
+            : darkMode
+            ? "bg-gray-800 border border-gray-700"
+            : "bg-white border border-gray-200"
         }
-      `}>
+      `}
+      >
         {/* الصورة */}
         <div className="relative h-40 w-full bg-gray-200 dark:bg-gray-700">
           <Image
@@ -502,34 +541,39 @@ export default function UnifiedMobileNewsCard({
                 مميز
               </span>
             )}
-            {data.category_name && (() => {
-              const categoryStyle = getCategoryStyle(data.category_name);
-              return (
-                <span 
-                  className="flex items-center gap-1 px-2 py-1 text-white text-xs font-bold rounded-full"
-                  style={{ backgroundColor: categoryStyle.color }}
-                >
-                  <span>{categoryStyle.emoji}</span>
-                  {data.category_name}
-                </span>
-              );
-            })()}
+            {data.category_name &&
+              (() => {
+                const categoryStyle = getCategoryStyle(data.category_name);
+                return (
+                  <span
+                    className="flex items-center gap-1 px-2 py-1 text-white text-xs font-bold rounded-full"
+                    style={{ backgroundColor: categoryStyle.color }}
+                  >
+                    <span>{categoryStyle.emoji}</span>
+                    {data.category_name}
+                  </span>
+                );
+              })()}
           </div>
 
           {/* العنوان */}
-          <h3 className={`
+          <h3
+            className={`
             font-bold text-base leading-tight line-clamp-2
-            ${darkMode ? 'text-white' : 'text-gray-900'}
-          `}>
+            ${darkMode ? "text-white" : "text-gray-900"}
+          `}
+          >
             {data.title}
           </h3>
 
           {/* الملخص */}
           {data.excerpt && (
-            <p className={`
+            <p
+              className={`
               text-sm leading-relaxed line-clamp-2
-              ${darkMode ? 'text-gray-300' : 'text-gray-600'}
-            `}>
+              ${darkMode ? "text-gray-300" : "text-gray-600"}
+            `}
+            >
               {data.excerpt}
             </p>
           )}
@@ -539,25 +583,27 @@ export default function UnifiedMobileNewsCard({
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-3">
                 <ArticleViews count={data.views} className="text-xs" />
-                <span className={`flex items-center gap-1 ${
-                  darkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}>
+                <span
+                  className={`flex items-center gap-1 ${
+                    darkMode ? "text-gray-400" : "text-gray-500"
+                  }`}
+                >
                   <Clock className="w-3 h-3" />
                   {data.reading_time} دقائق
                 </span>
               </div>
-              <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>
+              <span className={darkMode ? "text-gray-400" : "text-gray-500"}>
                 {formatDateGregorian(data.published_at)}
               </span>
             </div>
-            
+
             {/* نسبة التوافق AI */}
             {data.isPersonalized && (
               <div className="flex items-center gap-2 p-2 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800">
                 <Target className="w-3 h-3 text-purple-500" />
                 <div className="flex items-center gap-2 flex-1">
                   <div className="h-1.5 flex-1 bg-purple-200 dark:bg-purple-800 rounded-full overflow-hidden">
-                    <div 
+                    <div
                       className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-500"
                       style={{ width: `${data.personalizedScore}%` }}
                     />

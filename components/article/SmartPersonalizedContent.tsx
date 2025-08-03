@@ -266,95 +266,10 @@ export default function SmartPersonalizedContent({
       
     } catch (err) {
       console.error('❌ خطأ في توليد التوصيات الذكية:', err);
-      setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع');
+      setError('يتم التحضير لمحتوى يناسبك...');
       
-      // بيانات تجريبية محسّنة في حالة الخطأ
-      setRecommendations([
-        {
-          id: 'ai-future-work-backup',
-          title: 'تحليل مباشر: مستقبل العمل مع الذكاء الاصطناعي',
-          url: '/article/ai-future-work-backup',
-          type: 'تحليل',
-          reason: 'بناءً على اهتمامك بالتقنية',
-          confidence: 92,
-          thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=300&fit=crop',
-          publishedAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-          category: 'تقنية',
-          readingTime: 5,
-          viewsCount: 15420,
-          engagement: 0.25
-        },
-        {
-          id: 'economic-analysis-backup',
-          title: 'رأي: التمكين الاقتصادي في رؤية السعودية 2030',
-          url: '/article/economic-analysis-backup',
-          type: 'رأي',
-          reason: 'مشابه لمقالات أعجبتك سابقاً',
-          confidence: 88,
-          thumbnail: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=300&fit=crop',
-          publishedAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-          category: 'اقتصاد',
-          readingTime: 4,
-          viewsCount: 8930,
-          engagement: 0.18
-        },
-        {
-          id: 'breaking-news-backup',
-          title: 'عاجل: قرارات جديدة لتسهيل الاستثمار',
-          url: '/article/breaking-news-backup',
-          type: 'عاجل',
-          reason: 'آخر الأخبار في مجال اهتمامك',
-          confidence: 95,
-          thumbnail: 'https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?w=400&h=300&fit=crop',
-          publishedAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-          category: 'أخبار',
-          readingTime: 2,
-          viewsCount: 25420,
-          engagement: 0.35
-        },
-        {
-          id: 'creative-writing-backup',
-          title: 'قصة نجاح: من فكرة بسيطة إلى مشروع مليوني',
-          url: '/article/creative-writing-backup',
-          type: 'مقالة',
-          reason: 'محتوى إبداعي قد يثير اهتمامك',
-          confidence: 78,
-          thumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop',
-          publishedAt: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
-          category: 'قصص نجاح',
-          readingTime: 6,
-          viewsCount: 12300,
-          engagement: 0.22
-        },
-        {
-          id: 'tech-report-backup',
-          title: 'تقرير: أبرز التقنيات الناشئة في 2025',
-          url: '/article/tech-report-backup',
-          type: 'تقرير',
-          reason: 'تقرير شامل في مجال التقنية',
-          confidence: 85,
-          thumbnail: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=300&fit=crop',
-          publishedAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
-          category: 'تقنية',
-          readingTime: 8,
-          viewsCount: 18500,
-          engagement: 0.28
-        },
-        {
-          id: 'sports-summary-backup',
-          title: 'ملخص: أهم أحداث الأسبوع الرياضي',
-          url: '/article/sports-summary-backup',
-          type: 'ملخص',
-          reason: 'خلاصة سريعة للأحداث الرياضية',
-          confidence: 72,
-          thumbnail: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400&h=300&fit=crop',
-          publishedAt: new Date(Date.now() - 16 * 60 * 60 * 1000).toISOString(),
-          category: 'رياضة',
-          readingTime: 3,
-          viewsCount: 9800,
-          engagement: 0.15
-        }
-      ]);
+      // عدم عرض بيانات وهمية، بل رسالة تحضير
+      setRecommendations([]);
     } finally {
       setLoading(false);
     }
@@ -398,7 +313,48 @@ export default function SmartPersonalizedContent({
     );
   }
 
-  // إخفاء القسم في حالة عدم وجود توصيات
+  // عرض رسالة التحضير في حالة الخطأ وعدم وجود توصيات
+  if (!recommendations.length && error && error.includes('يتم التحضير')) {
+    return (
+      <section className={`w-full py-6 md:py-8 px-3 md:px-4 ${
+        darkMode ? 'bg-gray-800' : 'bg-gray-50'
+      }`}>
+        <div className="max-w-4xl mx-auto">
+          <div className={`text-center py-8 px-6 rounded-2xl border-2 border-dashed ${
+            darkMode 
+              ? 'border-gray-600 bg-gray-700/30' 
+              : 'border-gray-300 bg-white/50'
+          }`}>
+            <div className="flex flex-col items-center gap-4">
+              <div className="relative">
+                <Brain className={`w-12 h-12 ${
+                  darkMode ? 'text-purple-400' : 'text-purple-600'
+                } animate-pulse`} />
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-ping"></div>
+              </div>
+              <div>
+                <h3 className={`text-lg font-bold mb-2 ${
+                  darkMode ? 'text-white' : 'text-gray-900'
+                }`}>
+                  🧠 يتم التحضير لمحتوى يناسبك
+                </h3>
+                <p className={`text-sm ${
+                  darkMode ? 'text-gray-400' : 'text-gray-600'
+                }`}>
+                  نقوم بتحليل اهتماماتك وتحضير أفضل المقالات المخصصة لك
+                </p>
+              </div>
+              <div className={`w-32 h-2 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden`}>
+                <div className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse" style={{ width: '60%' }} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // إخفاء القسم في حالة عدم وجود توصيات وعدم وجود خطأ
   if (!recommendations.length && !error) {
     return null;
   }
