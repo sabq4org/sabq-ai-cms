@@ -9,6 +9,7 @@ import { formatFullDate, formatRelativeDate } from '@/lib/date-utils';
 import { getImageUrl, getOptimizedImageUrl } from '@/lib/utils';
 import ArticleJsonLd from '@/components/ArticleJsonLd';
 import Footer from '@/components/Footer';
+import ReporterLink from '@/components/ReporterLink';
 import UltimateImage from '@/components/UltimateImage';
 import { marked } from 'marked';
 import { Share2, Eye, Clock, Calendar,
@@ -234,8 +235,13 @@ function ArticleClientPage({ initialArticle, articleId }: ArticleClientPageProps
             <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
               {article.author && (
                 <div className="flex items-center gap-1.5 sm:gap-2">
-                  <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                  <span className="truncate max-w-[120px] sm:max-w-none">{String(article.author.name || 'كاتب غير محدد')}</span>
+                  <ReporterLink
+                    author={article.author as any}
+                    size="sm"
+                    showIcon={true}
+                    showVerification={true}
+                    className="truncate max-w-[120px] sm:max-w-none text-xs sm:text-sm"
+                  />
                 </div>
               )}
               <div className="flex items-center gap-1.5 sm:gap-2">

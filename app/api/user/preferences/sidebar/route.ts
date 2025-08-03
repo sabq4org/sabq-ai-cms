@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
@@ -10,14 +10,14 @@ export async function GET() {
     // جلب التفضيلات من قاعدة البيانات
     const preferences = await prisma.user_preferences.findFirst({
       where: {
-        key: 'sidebar_settings'
-      }
+        key: "sidebar_settings",
+      },
     });
 
     if (preferences) {
       const settingsData = JSON.parse(preferences.value);
       console.log("📦 Retrieved from database:", settingsData);
-      
+
       return NextResponse.json({
         sidebar_order: settingsData.sidebar_order || null,
         sidebar_hidden: settingsData.sidebar_hidden || [],
@@ -67,26 +67,26 @@ export async function POST(request: NextRequest) {
     // إعداد البيانات للحفظ
     const settingsData = {
       sidebar_order,
-      sidebar_hidden
+      sidebar_hidden,
     };
 
     // حفظ التفضيلات في قاعدة البيانات
     await prisma.user_preferences.upsert({
       where: {
-        key: 'sidebar_settings'
+        key: "sidebar_settings",
       },
       update: {
         value: JSON.stringify(settingsData),
-        updated_at: new Date()
+        updated_at: new Date(),
       },
       create: {
         id: `sidebar_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        key: 'sidebar_settings',
+        key: "sidebar_settings",
         value: JSON.stringify(settingsData),
-        user_id: 'admin', // يمكن تحديث هذا ليكون ID المستخدم الحقيقي
+        user_id: "admin", // يمكن تحديث هذا ليكون ID المستخدم الحقيقي
         created_at: new Date(),
-        updated_at: new Date()
-      }
+        updated_at: new Date(),
+      },
     });
 
     console.log("✅ Preferences saved successfully to database:", settingsData);
@@ -109,8 +109,8 @@ export async function DELETE() {
     // حذف التفضيلات من قاعدة البيانات
     await prisma.user_preferences.deleteMany({
       where: {
-        key: 'sidebar_settings'
-      }
+        key: "sidebar_settings",
+      },
     });
 
     console.log("✅ Preferences deleted successfully from database");

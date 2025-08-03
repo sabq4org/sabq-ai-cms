@@ -2,6 +2,7 @@
 
 import ArticleFeaturedImage from "@/components/article/ArticleFeaturedImage";
 import Footer from "@/components/Footer";
+import ReporterLink from "@/components/ReporterLink";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { ArticleData } from "@/lib/article-api";
 import { formatFullDate, formatRelativeDate } from "@/lib/date-utils";
@@ -333,27 +334,13 @@ export default function ArticleClientComponent({
                 <div className="flex flex-wrap items-center justify-start gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 text-right">
                   {article.author && (
                     <div className="flex items-center gap-1.5 sm:gap-2">
-                      <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                      {hasProfile && reporter ? (
-                        <Link
-                          href={reporter.profileUrl}
-                          className="flex items-center gap-1 hover:text-blue-600 dark:hover:text-blue-400 transition-all cursor-pointer group hover:underline decoration-blue-600/30 dark:decoration-blue-400/30 underline-offset-4"
-                          title={`عرض بروفايل ${reporter.full_name}`}
-                        >
-                          <span className="truncate max-w-[120px] sm:max-w-none group-hover:underline">
-                            {article.author.name}
-                          </span>
-                          {reporter.is_verified && (
-                            <span className="ml-1">
-                              {getVerificationIcon(reporter.verification_badge)}
-                            </span>
-                          )}
-                        </Link>
-                      ) : (
-                        <span className="truncate max-w-[120px] sm:max-w-none">
-                          {article.author.name}
-                        </span>
-                      )}
+                      <ReporterLink
+                        author={article.author as any}
+                        size="sm"
+                        showIcon={true}
+                        showVerification={true}
+                        className="truncate max-w-[120px] sm:max-w-none text-xs sm:text-sm"
+                      />
                     </div>
                   )}
                   <div className="flex items-center gap-1.5 sm:gap-2">
@@ -428,10 +415,13 @@ export default function ArticleClientComponent({
                     {/* المراسل في سطر منفصل */}
                     {article.author && (
                       <div className="flex items-center gap-1.5">
-                        <User className="w-3 h-3 flex-shrink-0 mobile-article-icon" />
-                        <span className="truncate max-w-[120px]">
-                          {article.author.name}
-                        </span>
+                        <ReporterLink
+                          author={article.author as any}
+                          size="sm"
+                          showIcon={true}
+                          showVerification={true}
+                          className="truncate max-w-[120px] text-xs"
+                        />
                       </div>
                     )}
 
