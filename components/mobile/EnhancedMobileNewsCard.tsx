@@ -229,129 +229,84 @@ export default function EnhancedMobileNewsCard({
     );
   }
 
-  // بطاقة Full Width للقوائم
+  // بطاقة Full Width للقوائم - تصميم "محتوى مخصص لك"
   if (variant === "full-width") {
     return (
-      <Link href={getArticleLink(news)} className="block w-full">
-        <article
-          className={`overflow-hidden transition-all ${
-            news.breaking
-              ? darkMode
-                ? "bg-red-950/30 border-2 border-red-800/70 active:bg-red-950/40"
-                : "bg-red-50 border-2 border-red-200 active:bg-red-100"
-              : darkMode
-              ? "bg-gray-800/50 active:bg-gray-700/50"
-              : "bg-white active:bg-gray-50"
+      <Link href={getArticleLink(news)} className="group block w-full">
+        <div
+          className={`relative h-32 flex flex-row rounded-xl border transition-all duration-300 hover:shadow-xl overflow-hidden ${
+            darkMode
+              ? "bg-gray-800 border-gray-700 hover:border-gray-600"
+              : "bg-white border-gray-200 hover:border-blue-200"
           }`}
         >
-          <div className="flex items-start p-4 gap-4">
-            {/* الصورة - مربعة مع زوايا دائرية */}
-            <div className="relative w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden bg-gray-200 dark:bg-gray-700">
-              <SafeImage
-                src={news.featured_image}
-                alt={news.title || "صورة المقال"}
-                fill
-                className="object-cover"
-                sizes="96px"
-                fallbackType="article"
-              />
-            </div>
+          {/* الصورة الرئيسية */}
+          <div className="relative w-2/5 h-full overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex-shrink-0">
+            <SafeImage
+              src={news.featured_image}
+              alt={news.title || "صورة المقال"}
+              fill
+              className="object-cover group-hover:scale-110 transition-transform duration-500"
+              sizes="40vw"
+              fallbackType="article"
+            />
+          </div>
 
-            {/* المحتوى */}
-            <div className="flex-1 min-w-0">
-              {/* الشارات والمؤشرات المحسنة */}
-              <div className="flex items-center gap-2 mb-2 flex-wrap">
-                {/* مؤشر الخبر العاجل */}
-                {news.breaking && (
-                  <span className="flex items-center gap-1 text-xs font-bold px-2 py-0.5 bg-red-500 text-white rounded-full animate-pulse">
-                    <Zap className="w-3 h-3" />
-                    عاجل
+          {/* المحتوى */}
+          <div className="flex-1 p-2 flex flex-col justify-between">
+            {/* نوع المحتوى */}
+            <div className="mb-1 flex flex-col gap-0.5">
+              <div className="flex items-center gap-2">
+                <span
+                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                    news.breaking
+                      ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
+                      : news.featured
+                      ? "bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400"
+                      : "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
+                  }`}
+                >
+                  <span className="text-xs">
+                    {news.breaking ? "🔥" : news.featured ? "⭐" : "📰"}
                   </span>
-                )}
-
-                {/* مخصص لك */}
-                {isPersonalized && (
-                  <span className="flex items-center gap-1 text-xs font-bold px-2 py-0.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full">
-                    <Sparkles className="w-3 h-3" />
-                    مخصص | {personalizedScore}%
-                  </span>
-                )}
-
-                {/* رائج */}
-                {isTrending && (
-                  <span className="flex items-center gap-1 text-xs font-bold px-2 py-0.5 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full">
-                    <TrendingUp className="w-3 h-3" />
-                    رائج
-                  </span>
-                )}
-
-                {/* التصنيف المحسن */}
-                {news.category_name &&
-                  (() => {
-                    const categoryStyle = getCategoryStyle(news.category_name);
-                    return (
-                      <span
-                        className="flex items-center gap-1 text-xs font-bold px-2 py-0.5 text-white rounded-full"
-                        style={{ backgroundColor: categoryStyle.color }}
-                      >
-                        <span>{categoryStyle.emoji}</span>
-                        {news.category_name}
-                      </span>
-                    );
-                  })()}
-
-                {/* مؤشر الخبر الجديد (آخر 12 ساعة) */}
-                {news.published_at &&
-                  (() => {
-                    const newsDate = new Date(news.published_at);
-                    const now = new Date();
-                    const hoursDiff =
-                      (now.getTime() - newsDate.getTime()) / (1000 * 60 * 60);
-                    return hoursDiff <= 12;
-                  })() && (
-                    <span className="text-xs font-bold px-2 py-0.5 bg-green-500 text-white rounded-full animate-pulse">
-                      🔥 جديد
-                    </span>
-                  )}
-
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  {formatDateGregorian(news.published_at || news.created_at)}
+                  {news.breaking ? "عاجل" : news.featured ? "مميز" : "خبر"}
                 </span>
               </div>
-
-              {/* العنوان */}
-              <h3
-                className={`font-semibold text-base leading-tight line-clamp-3 mb-2 ${
-                  darkMode ? "text-white" : "text-gray-900"
-                }`}
-              >
-                {news.title}
-              </h3>
-
-              {/* معلومات سريعة محسنة */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-                    <ArticleViews
-                      count={news.views || interactionCount}
-                      className="text-xs"
-                    />
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {news.reading_time || 5} دقائق
-                    </span>
-                    {news.comments_count > 0 && (
-                      <span className="flex items-center gap-1">
-                        <MessageCircle className="w-3 h-3" />
-                        {formatNumber(news.comments_count)}
-                      </span>
-                    )}
-                  </div>
-                </div>
+              
+              {/* العبارة التشويقية */}
+              <div className={`mt-1 ${darkMode ? "text-blue-300" : "text-blue-600"}`}>
+                <p className="text-[10px] font-medium">
+                  {news.category_name ? `أحدث أخبار ${news.category_name}` : "خبر جديد"}
+                </p>
               </div>
             </div>
+
+            {/* العنوان */}
+            <h3
+              className={`font-bold text-[11px] leading-tight mb-1 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors ${
+                darkMode ? "text-white" : "text-gray-900"
+              }`}
+            >
+              {news.title}
+            </h3>
+
+            {/* المعلومات الإضافية */}
+            <div className={`flex items-center justify-between text-[10px] ${
+              darkMode ? "text-gray-400" : "text-gray-500"
+            }`}>
+              <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-0.5">
+                  <Clock className="w-2.5 h-2.5" />
+                  <span>{news.reading_time || 5} د</span>
+                </div>
+              </div>
+              <span className="text-[9px]">
+                {formatDateGregorian(news.published_at || news.created_at)}
+              </span>
+            </div>
           </div>
-        </article>
+
+        </div>
       </Link>
     );
   }

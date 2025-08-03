@@ -67,110 +67,100 @@ export default function CompactCategoryCardMini({
   }, []);
 
   return (
-    <Link href={getArticleLink(article)} className="block">
-      <article className={`
-        ${className}
-        ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}
-        border rounded-lg transition-all duration-200 hover:shadow-md active:scale-[0.98] overflow-hidden
-        ${darkMode ? 'hover:shadow-gray-900/50' : 'hover:shadow-gray-200'}
-      `}>
-        
-        <div className="flex items-start p-3 gap-3">
-          
-          {/* الصورة المصغرة - حجم صغير جداً */}
-          <div className={`relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden ${
-            darkMode ? 'bg-gray-700' : 'bg-gray-100'
-          }`}>
-            {article.featured_image && !imageError ? (
-              <>
-                {/* شيمر أثناء التحميل */}
-                {!imageLoaded && (
-                  <div className={`absolute inset-0 animate-pulse ${
-                    darkMode ? 'bg-gray-600' : 'bg-gray-200'
-                  }`}>
-                    <div className="w-full h-full flex items-center justify-center">
-                      <div className="animate-spin rounded-full w-4 h-4 border-2 border-gray-300 border-t-transparent"></div>
-                    </div>
+    <Link href={getArticleLink(article)} className="group block">
+      <div
+        className={`relative h-32 flex flex-row rounded-xl border transition-all duration-300 hover:shadow-xl overflow-hidden ${
+          darkMode
+            ? "bg-gray-800 border-gray-700 hover:border-gray-600"
+            : "bg-white border-gray-200 hover:border-blue-200"
+        } ${className}`}
+      >
+        {/* الصورة الرئيسية */}
+        <div className="relative w-2/5 h-full overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex-shrink-0">
+          {article.featured_image && !imageError ? (
+            <>
+              {!imageLoaded && (
+                <div className={`absolute inset-0 animate-pulse ${
+                  darkMode ? 'bg-gray-600' : 'bg-gray-200'
+                }`}>
+                  <div className="w-full h-full flex items-center justify-center">
+                    <div className="animate-spin rounded-full w-4 h-4 border-2 border-gray-300 border-t-transparent"></div>
                   </div>
-                )}
-                <img
-                  src={article.featured_image}
-                  alt={article.title}
-                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
-                    imageLoaded ? 'opacity-100' : 'opacity-0'
-                  }`}
-                  onLoad={handleImageLoad}
-                  onError={handleImageError}
-                  loading="lazy"
-                />
-              </>
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <Newspaper className="w-5 h-5 text-gray-400 dark:text-gray-600" />
-              </div>
-            )}
-            
-            {/* شارة عاجل */}
-            {article.is_breaking && (
-              <div className="absolute -top-1 -right-1 z-10">
-                <span className="inline-flex items-center gap-0.5 px-1 py-0.5 bg-red-500 text-white text-[8px] font-bold rounded-full shadow-sm">
-                  <Zap className="w-2 h-2" />
-                </span>
-              </div>
-            )}
-            
-            {/* شارة مميز */}
-            {article.is_featured && !article.is_breaking && (
-              <div className="absolute -top-1 -right-1 z-10">
-                <span className="inline-flex items-center gap-0.5 px-1 py-0.5 bg-amber-500 text-white text-[8px] font-bold rounded-full shadow-sm">
-                  <Sparkles className="w-2 h-2" />
-                </span>
-              </div>
-            )}
-          </div>
+                </div>
+              )}
+              <img
+                src={article.featured_image}
+                alt={article.title}
+                className={`absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ${
+                  imageLoaded ? 'opacity-100' : 'opacity-0'
+                }`}
+                onLoad={handleImageLoad}
+                onError={handleImageError}
+                loading="lazy"
+              />
+            </>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <Newspaper className="w-8 h-8 text-gray-400 dark:text-gray-600" />
+            </div>
+          )}
+        </div>
 
-          {/* المحتوى النصي - مضغوط */}
-          <div className="flex-1 min-w-0">
-            
-            {/* العنوان - سطرين كحد أقصى */}
-            <h3 className={`text-sm font-semibold leading-tight line-clamp-2 mb-1 ${
-              article.is_breaking 
-                ? 'text-red-700 dark:text-red-400' 
-                : darkMode ? 'text-white' : 'text-gray-900'
-            } hover:${darkMode ? 'text-blue-400' : 'text-blue-600'} transition-colors`}>
-              {article.title}
-            </h3>
-
-            {/* معلومات مضغوطة في سطر واحد */}
-            <div className={`flex items-center gap-1.5 text-[10px] ${
-              darkMode ? 'text-gray-400' : 'text-gray-500'
-            }`}>
-              {/* التاريخ */}
-              <span className="flex items-center gap-0.5">
-                <Calendar className="w-2.5 h-2.5" />
-                {formatDate(article.published_at || article.created_at || '')}
+        {/* المحتوى */}
+        <div className="flex-1 p-2 flex flex-col justify-between">
+          {/* نوع المحتوى */}
+          <div className="mb-1 flex flex-col gap-0.5">
+            <div className="flex items-center gap-2">
+              <span
+                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                  article.is_breaking
+                    ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
+                    : article.is_featured
+                    ? "bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400"
+                    : "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
+                }`}
+              >
+                <span className="text-xs">
+                  {article.is_breaking ? "🔥" : article.is_featured ? "⭐" : "📰"}
+                </span>
+                {article.is_breaking ? "عاجل" : article.is_featured ? "مميز" : "خبر"}
               </span>
-              
-              {article.reading_time && (
-                <>
-                  <span className="text-gray-300 dark:text-gray-600">•</span>
-                  <span className="flex items-center gap-0.5">
-                    <Clock className="w-2.5 h-2.5" />
-                    {article.reading_time} د
-                  </span>
-                </>
-              )}
-              
-              {article.views_count && article.views_count > 0 && (
-                <>
-                  <span className="text-gray-300 dark:text-gray-600">•</span>
-                  <ArticleViews count={article.views_count} className="text-xs" />
-                </>
-              )}
+            </div>
+            
+            {/* العبارة التشويقية */}
+            <div className={`mt-1 ${darkMode ? "text-blue-300" : "text-blue-600"}`}>
+              <p className="text-[10px] font-medium">
+                {article.category_name ? `أحدث أخبار ${article.category_name}` : "خبر جديد"}
+              </p>
             </div>
           </div>
+
+          {/* العنوان */}
+          <h3
+            className={`font-bold text-[11px] leading-tight mb-1 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors ${
+              darkMode ? "text-white" : "text-gray-900"
+            }`}
+          >
+            {article.title}
+          </h3>
+
+          {/* المعلومات الإضافية */}
+          <div className={`flex items-center justify-between text-[10px] ${
+            darkMode ? "text-gray-400" : "text-gray-500"
+          }`}>
+            <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-0.5">
+                <Clock className="w-2.5 h-2.5" />
+                <span>{article.reading_time || 5} د</span>
+              </div>
+            </div>
+            <span className="text-[9px]">
+              {formatDate(article.published_at || article.created_at || '')}
+            </span>
+          </div>
         </div>
-      </article>
+
+      </div>
     </Link>
   );
 }
