@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
+import jwt from "jsonwebtoken";
+import { NextRequest, NextResponse } from "next/server";
 
 declare global {
   var prisma: PrismaClient | undefined;
@@ -22,9 +22,9 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const userIdParam = searchParams.get("userId");
-    
+
     let userId: string;
-    
+
     if (userIdParam) {
       // إذا تم تمرير userId في URL، استخدمه مباشرة
       console.log("🔍 البحث عن اهتمامات للمستخدم:", userIdParam);
@@ -84,10 +84,53 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - إضافة أو إزالة اهتمام
+// POST - إضافة أو إزالة اهتمام أو حفظ قائمة اهتمامات
 export async function POST(request: NextRequest) {
   try {
-    // التحقق من التوكن
+    const body = await request.json();
+    
+    // إذا كان الطلب من صفحة التفضيلات (يحتوي على userId و categoryIds)
+    if (body.userId && body.categoryIds) {
+      const { userId, categoryIds, source } = body;
+      
+      console.log("🔄 حفظ اهتمامات من صفحة التفضيلات:", { userId, categoryIds: categoryIds.length, source });
+      
+      // حذف الاهتمامات الحالية أولاً
+      await prisma.user_interests.updateMany({
+        where: { user_id: userId },
+        data: { is_active: false }
+      });
+      
+      // إضافة الاهتمامات الجديدة
+      for (const categoryId of categoryIds) {
+        const existingInterest = await prisma.user_interests.findFirst({
+          where: { user_id: userId, category_id: categoryId.toString() }
+        });
+        
+        if (existingInterest) {
+          await prisma.user_interests.update({
+            where: { id: existingInterest.id },
+            data: { is_active: true, updated_at: new Date() }
+          });
+        } else {
+          await prisma.user_interests.create({
+            data: {
+              user_id: userId,
+              category_id: categoryId.toString(),
+              is_active: true
+            }
+          });
+        }
+      }
+      
+      return NextResponse.json({
+        success: true,
+        message: "تم حفظ الاهتمامات بنجاح",
+        count: categoryIds.length
+      });
+    }
+    
+    // الطريقة القديمة للـ token authentication
     const token = request.cookies.get("auth-token")?.value;
 
     if (!token) {
@@ -101,7 +144,6 @@ export async function POST(request: NextRequest) {
       process.env.JWT_SECRET || "your-secret-key-change-this-in-production";
     const decoded = jwt.verify(token, JWT_SECRET) as any;
 
-    const body = await request.json();
     const { interestId, action } = body;
 
     if (!interestId || !action) {
@@ -111,8 +153,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const userId = parseInt(decoded.id);
-    const categoryId = parseInt(interestId);
+    const userId = decoded.id;
+    const categoryId = interestId.toString();
 
     // التحقق من وجود التصنيف
     const category = await prisma.categories.findUnique({
@@ -189,7 +231,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("خطأ في تحديث اهتمامات المستخدم:", error);
     return NextResponse.json(
-      { success: false, error: "خطأ في الخادم" },
+      { success: false, error: "خطأ في الخادم", details: error.message },
       { status: 500 }
     );
   }
