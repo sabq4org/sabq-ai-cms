@@ -209,8 +209,8 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
         "w-full bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20",
         isMobile
           ? "py-3 pulse-ticker-mobile min-h-[44px]"
-          : "py-4 pulse-ticker-desktop min-h-[48px]",
-        "overflow-hidden relative flex items-center",
+          : "py-4 pulse-ticker-desktop min-h-[56px]",
+        "overflow-hidden relative flex items-center justify-center",
         className
       )}
     >
@@ -241,7 +241,7 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.5, ease: "easeInOut" }}
-              className="flex items-center gap-2"
+              className="flex items-center justify-start gap-2 min-h-[32px]"
             >
               {/* أيقونة النوع - مخفية في الموبايل الصغير */}
               {!isMobile && (
@@ -255,12 +255,12 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
                 href={currentNotification.target_url}
                 onClick={() => recordClick(currentNotification.id)}
                 className={cn(
-                  "font-medium truncate hover:underline transition-colors duration-200 flex items-center",
-                  isMobile ? "text-xs sm:text-sm" : "text-sm",
+                  "font-medium truncate hover:underline transition-colors duration-200 flex items-center justify-center min-h-[24px]",
+                  isMobile ? "text-xs sm:text-sm leading-tight" : "text-sm leading-normal",
                   getTypeColor(currentNotification.type)
                 )}
               >
-                {currentNotification.title}
+                <span className="py-1">{currentNotification.title}</span>
               </Link>
             </motion.div>
           </AnimatePresence>
