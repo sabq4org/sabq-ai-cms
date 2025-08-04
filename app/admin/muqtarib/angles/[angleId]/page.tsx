@@ -30,6 +30,7 @@ import {
   Plus,
   Settings,
   Sparkles,
+  Trash2,
   TrendingUp,
   Upload,
   Users,
@@ -368,6 +369,15 @@ const ArticlesList = ({
                     <Edit className="w-4 h-4" />
                   </Button>
                 </Link>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleDeleteArticleClick(article)}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
               </div>
             </div>
           </CardContent>
@@ -441,6 +451,11 @@ export default function AngleDashboardPage() {
     coverImage: "",
   });
   const [editLoading, setEditLoading] = useState(false);
+
+  // حالة حذف المقالات
+  const [deleteArticleModalOpen, setDeleteArticleModalOpen] = useState(false);
+  const [articleToDelete, setArticleToDelete] = useState<AngleArticle | null>(null);
+  const [deletingArticle, setDeletingArticle] = useState(false);
 
   // جلب بيانات الزاوية والمقالات
   useEffect(() => {
@@ -584,6 +599,44 @@ export default function AngleDashboardPage() {
       toast.error("حدث خطأ في التحديث");
     } finally {
       setEditLoading(false);
+    }
+  };
+
+  // وظائف حذف المقالات
+  const handleDeleteArticleClick = (article: AngleArticle) => {
+    setArticleToDelete(article);
+    setDeleteArticleModalOpen(true);
+  };
+
+  const handleDeleteArticleConfirm = async () => {
+    if (!articleToDelete) return;
+
+    try {
+      setDeletingArticle(true);
+      console.log("🗑️ حذف المقال:", articleToDelete.title);
+
+      const response = await fetch(
+        `/api/muqtarib/angles/${angleId}/articles/${articleToDelete.id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (response.ok) {
+        // إزالة المقال من القائمة
+        setArticles((prev) => prev.filter((article) => article.id !== articleToDelete.id));
+        setDeleteArticleModalOpen(false);
+        setArticleToDelete(null);
+        toast.success("تم حذف المقال بنجاح!");
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.error || "حدث خطأ في حذف المقال");
+      }
+    } catch (error) {
+      console.error("خطأ في حذف المقال:", error);
+      toast.error("حدث خطأ في حذف المقال");
+    } finally {
+      setDeletingArticle(false);
     }
   };
 
@@ -977,6 +1030,71 @@ export default function AngleDashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Modal تأكيد حذف المقال */}
+      <Dialog open={deleteArticleModalOpen} onOpenChange={setDeleteArticleModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-red-600">تأكيد حذف المقال</DialogTitle>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <p className="text-gray-700 mb-2">
+              هل أنت متأكد من حذف المقال التالي؟
+            </p>
+            {articleToDelete && (
+              <div className="bg-gray-50 p-3 rounded-lg">
+                <h4 className="font-semibold text-gray-900">{articleToDelete.title}</h4>
+                {articleToDelete.excerpt && (
+                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                    {articleToDelete.excerpt}
+                  </p>
+                )}
+                <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
+                  <span>المؤلف: {articleToDelete.author?.name}</span>
+                  <span>•</span>
+                  <span>
+                    {articleToDelete.isPublished ? "منشور" : "مسودة"}
+                  </span>
+                </div>
+              </div>
+            )}
+            <p className="text-red-600 text-sm mt-3 font-medium">
+              ⚠️ هذا الإجراء لا يمكن التراجع عنه
+            </p>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDeleteArticleModalOpen(false);
+                setArticleToDelete(null);
+              }}
+              disabled={deletingArticle}
+            >
+              إلغاء
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteArticleConfirm}
+              disabled={deletingArticle}
+            >
+              {deletingArticle ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin ml-2" />
+                  جاري الحذف...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="w-4 h-4 ml-2" />
+                  حذف المقال
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
