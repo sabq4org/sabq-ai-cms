@@ -288,14 +288,20 @@ export default function AngleDashboardPage() {
         // جلب بيانات الزاوية
         console.log("🔍 جاري جلب بيانات الزاوية:", angleId);
         const angleResponse = await fetch(`/api/muqtarib/angles/${angleId}`);
-        console.log("📡 استجابة API الزاوية:", angleResponse.status, angleResponse.ok);
-        
+        console.log(
+          "📡 استجابة API الزاوية:",
+          angleResponse.status,
+          angleResponse.ok
+        );
+
         if (angleResponse.ok) {
           const angleData = await angleResponse.json();
           console.log("✅ تم جلب بيانات الزاوية:", angleData.angle?.title);
           setAngle(angleData.angle);
         } else {
-          console.error("❌ خطأ في جلب الزاوية:", angleResponse.status);
+          console.error("❌ خطأ في جلب الزاوية:", angleResponse.status, angleResponse.statusText);
+          const errorText = await angleResponse.text();
+          console.error("📄 محتوى خطأ الزاوية:", errorText);
           toast.error("الزاوية غير موجودة");
           router.push("/admin/muqtarib");
           return;

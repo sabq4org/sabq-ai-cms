@@ -9,7 +9,6 @@ import {
   BookOpen,
   Calendar,
   Eye,
-  Filter,
   Grid3X3,
   List,
   Loader2,
@@ -157,6 +156,7 @@ const AngleCard = ({ angle }: { angle: Angle }) => {
               <Button
                 size="sm"
                 className="bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={() => console.log("🔗 الانتقال للزاوية:", angle.id, angle.title)}
               >
                 إدارة
               </Button>
@@ -194,7 +194,7 @@ export default function MuqtaribDashboard() {
         console.log("🔍 جاري جلب جميع الزوايا من الصفحة الرئيسية...");
         const response = await fetch("/api/muqtarib/angles");
         console.log("📡 استجابة API الزوايا:", response.status, response.ok);
-        
+
         if (response.ok) {
           const data = await response.json();
           console.log("✅ تم جلب الزوايا:", data.angles?.length || 0);
@@ -223,6 +223,9 @@ export default function MuqtaribDashboard() {
             totalViews,
           });
         } else {
+          console.error("❌ فشل API الزوايا:", response.status, response.statusText);
+          const errorText = await response.text();
+          console.error("📄 محتوى الخطأ:", errorText);
           toast.error("فشل في تحميل الزوايا");
         }
       } catch (error) {
@@ -361,7 +364,9 @@ export default function MuqtaribDashboard() {
                     </Button>
                     <Button
                       size="sm"
-                      variant={filterPublished === false ? "default" : "outline"}
+                      variant={
+                        filterPublished === false ? "default" : "outline"
+                      }
                       onClick={() => setFilterPublished(false)}
                     >
                       مسودات
