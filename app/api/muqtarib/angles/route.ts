@@ -1,6 +1,6 @@
+import { CreateAngleForm } from "@/types/muqtarab";
 import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
-import { CreateAngleForm } from "@/types/muqtarab";
 
 const prisma = new PrismaClient();
 
@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 export async function POST(request: NextRequest) {
   try {
     const body: CreateAngleForm = await request.json();
-    
+
     // التحقق من البيانات المطلوبة
     if (!body.title?.trim() || !body.description?.trim() || !body.authorId) {
       return NextResponse.json(
@@ -29,30 +29,36 @@ export async function POST(request: NextRequest) {
     }
 
     // التحقق من عدم تكرار الـ slug
-    const existingAngle = await prisma.$queryRaw`
+    const existingAngle = (await prisma.$queryRaw`
       SELECT slug FROM angles WHERE slug = ${slug}
-    ` as { slug: string }[];
+    `) as { slug: string }[];
 
     if (existingAngle.length > 0) {
       slug = `${slug}-${Date.now()}`;
     }
 
     // إنشاء الزاوية
-    const result = await prisma.$queryRaw`
+    const result = (await prisma.$queryRaw`
       INSERT INTO angles (
-        title, slug, description, icon, theme_color, 
+        title, slug, description, icon, theme_color,
         author_id, cover_image, is_featured, is_published
       ) VALUES (
-        ${body.title}, ${slug}, ${body.description}, ${body.icon || null}, ${body.themeColor},
-        ${body.authorId}, ${body.coverImage || null}, ${body.isFeatured}, ${body.isPublished}
+        ${body.title}, ${slug}, ${body.description}, ${body.icon || null}, ${
+      body.themeColor
+    },
+        ${body.authorId}, ${body.coverImage || null}, ${body.isFeatured}, ${
+      body.isPublished
+    }
       ) RETURNING *
-    ` as any[];
+    `) as any[];
 
     const angle = result[0];
 
     return NextResponse.json({
       success: true,
-      message: body.isPublished ? "تم نشر الزاوية بنجاح" : "تم حفظ الزاوية كمسودة",
+      message: body.isPublished
+        ? "تم نشر الزاوية بنجاح"
+        : "تم حفظ الزاوية كمسودة",
       angle: {
         id: angle.id,
         title: angle.title,
@@ -66,9 +72,8 @@ export async function POST(request: NextRequest) {
         isPublished: angle.is_published,
         createdAt: angle.created_at,
         updatedAt: angle.updated_at,
-      }
+      },
     });
-
   } catch (error) {
     console.error("خطأ في إنشاء الزاوية:", error);
     return NextResponse.json(
@@ -89,9 +94,9 @@ export async function GET(request: NextRequest) {
     const published = searchParams.get("published") === "true";
     const featured = searchParams.get("featured") === "true";
     const authorId = searchParams.get("authorId");
-    
+
     const offset = (page - 1) * limit;
-    
+
     // بناء الشروط
     let whereClause = "WHERE 1=1";
     const params: any[] = [];
@@ -117,7 +122,7 @@ export async function GET(request: NextRequest) {
 
     // جلب الزوايا مع بيانات المؤلف
     const anglesQuery = `
-      SELECT 
+      SELECT
         a.*,
         u.name as author_name,
         u.avatar as author_avatar,
@@ -132,8 +137,11 @@ export async function GET(request: NextRequest) {
     `;
 
     params.push(limit, offset);
-    
-    const angles = await prisma.$queryRawUnsafe(anglesQuery, ...params) as any[];
+
+    const angles = (await prisma.$queryRawUnsafe(
+      anglesQuery,
+      ...params
+    )) as any[];
 
     // جلب العدد الإجمالي
     const countQuery = `
@@ -141,12 +149,12 @@ export async function GET(request: NextRequest) {
       FROM angles a
       ${whereClause}
     `;
-    
-    const countResult = await prisma.$queryRawUnsafe(
+
+    const countResult = (await prisma.$queryRawUnsafe(
       countQuery,
       ...params.slice(0, -2)
-    ) as { total: bigint }[];
-    
+    )) as { total: bigint }[];
+
     const total = Number(countResult[0].total);
 
     // تنسيق البيانات
@@ -181,9 +189,8 @@ export async function GET(request: NextRequest) {
         pages: Math.ceil(total / limit),
         hasNext: page * limit < total,
         hasPrev: page > 1,
-      }
+      },
     });
-
   } catch (error) {
     console.error("خطأ في جلب الزوايا:", error);
     return NextResponse.json(

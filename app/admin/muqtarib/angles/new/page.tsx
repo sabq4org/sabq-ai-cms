@@ -23,10 +23,24 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 // مكونات إضافية للواجهة
-const IconSelector = ({ value, onChange }: { value?: string; onChange: (icon: string) => void }) => {
+const IconSelector = ({
+  value,
+  onChange,
+}: {
+  value?: string;
+  onChange: (icon: string) => void;
+}) => {
   const icons = [
-    "BookOpen", "PenTool", "Brain", "Lightbulb", "Target", 
-    "Star", "Heart", "Zap", "Coffee", "Music"
+    "BookOpen",
+    "PenTool",
+    "Brain",
+    "Lightbulb",
+    "Target",
+    "Star",
+    "Heart",
+    "Zap",
+    "Coffee",
+    "Music",
   ];
 
   return (
@@ -48,10 +62,22 @@ const IconSelector = ({ value, onChange }: { value?: string; onChange: (icon: st
   );
 };
 
-const ColorPicker = ({ value, onChange }: { value: string; onChange: (color: string) => void }) => {
+const ColorPicker = ({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (color: string) => void;
+}) => {
   const colors = [
-    "#3B82F6", "#EF4444", "#10B981", "#F59E0B", 
-    "#8B5CF6", "#EC4899", "#06B6D4", "#84CC16"
+    "#3B82F6",
+    "#EF4444",
+    "#10B981",
+    "#F59E0B",
+    "#8B5CF6",
+    "#EC4899",
+    "#06B6D4",
+    "#84CC16",
   ];
 
   return (
@@ -113,7 +139,10 @@ const AnglePreview = ({ formData }: { formData: CreateAngleForm }) => {
             >
               <Sparkles className="w-4 h-4 text-white" />
             </div>
-            <h3 className="font-bold text-lg" style={{ color: formData.themeColor }}>
+            <h3
+              className="font-bold text-lg"
+              style={{ color: formData.themeColor }}
+            >
               {formData.title || "عنوان الزاوية"}
             </h3>
             {formData.isFeatured && (
@@ -122,17 +151,21 @@ const AnglePreview = ({ formData }: { formData: CreateAngleForm }) => {
               </span>
             )}
           </div>
-          
+
           <p className="text-gray-600 text-sm">
             {formData.description || "وصف الزاوية سيظهر هنا..."}
           </p>
-          
+
           <div className="flex items-center gap-2 text-xs text-gray-500">
             <span>بقلم: المؤلف</span>
             <span>•</span>
-            <span className={`px-2 py-1 rounded-full ${
-              formData.isPublished ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
-            }`}>
+            <span
+              className={`px-2 py-1 rounded-full ${
+                formData.isPublished
+                  ? "bg-green-100 text-green-800"
+                  : "bg-gray-100 text-gray-800"
+              }`}
+            >
               {formData.isPublished ? "منشورة" : "مسودة"}
             </span>
           </div>
@@ -162,7 +195,7 @@ export default function CreateAnglePage() {
     if (userData) {
       const parsedUser = JSON.parse(userData);
       setUser(parsedUser);
-      setFormData(prev => ({ ...prev, authorId: parsedUser.id }));
+      setFormData((prev) => ({ ...prev, authorId: parsedUser.id }));
     }
   }, []);
 
@@ -175,7 +208,7 @@ export default function CreateAnglePage() {
         .replace(/[^\u0600-\u06FF\w\s-]/g, "") // إزالة الرموز الخاصة
         .replace(/\s+/g, "-") // استبدال المسافات بـ -
         .trim();
-      setFormData(prev => ({ ...prev, slug }));
+      setFormData((prev) => ({ ...prev, slug }));
     }
   }, [formData.title]);
 
@@ -200,7 +233,9 @@ export default function CreateAnglePage() {
 
       if (response.ok) {
         const data = await response.json();
-        toast.success(publish ? "تم نشر الزاوية بنجاح!" : "تم حفظ الزاوية كمسودة");
+        toast.success(
+          publish ? "تم نشر الزاوية بنجاح!" : "تم حفظ الزاوية كمسودة"
+        );
         router.push(`/admin/muqtarib/angles/${data.angle.id}`);
       } else {
         const error = await response.json();
@@ -214,7 +249,9 @@ export default function CreateAnglePage() {
     }
   };
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -242,7 +279,7 @@ export default function CreateAnglePage() {
 
       if (response.ok) {
         const data = await response.json();
-        setFormData(prev => ({ ...prev, coverImage: data.url }));
+        setFormData((prev) => ({ ...prev, coverImage: data.url }));
         toast.success("تم رفع الصورة بنجاح");
       } else {
         toast.error("فشل في رفع الصورة");
@@ -295,7 +332,12 @@ export default function CreateAnglePage() {
                       id="title"
                       placeholder="مثال: تقنيات الذكاء الاصطناعي"
                       value={formData.title}
-                      onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          title: e.target.value,
+                        }))
+                      }
                       className="text-right"
                     />
                   </div>
@@ -306,7 +348,12 @@ export default function CreateAnglePage() {
                       id="slug"
                       placeholder="يتم إنشاؤه تلقائياً من العنوان"
                       value={formData.slug}
-                      onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          slug: e.target.value,
+                        }))
+                      }
                       className="text-left dir-ltr"
                     />
                     <p className="text-xs text-gray-500">
@@ -320,7 +367,12 @@ export default function CreateAnglePage() {
                       id="description"
                       placeholder="وصف مختصر يوضح محتوى وهدف هذه الزاوية..."
                       value={formData.description}
-                      onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          description: e.target.value,
+                        }))
+                      }
                       className="min-h-24 text-right"
                     />
                   </div>
@@ -340,7 +392,9 @@ export default function CreateAnglePage() {
                     <Label>أيقونة الزاوية</Label>
                     <IconSelector
                       value={formData.icon}
-                      onChange={(icon) => setFormData(prev => ({ ...prev, icon }))}
+                      onChange={(icon) =>
+                        setFormData((prev) => ({ ...prev, icon }))
+                      }
                     />
                   </div>
 
@@ -348,7 +402,9 @@ export default function CreateAnglePage() {
                     <Label>اللون المميز للزاوية</Label>
                     <ColorPicker
                       value={formData.themeColor}
-                      onChange={(color) => setFormData(prev => ({ ...prev, themeColor: color }))}
+                      onChange={(color) =>
+                        setFormData((prev) => ({ ...prev, themeColor: color }))
+                      }
                     />
                   </div>
 
@@ -366,7 +422,12 @@ export default function CreateAnglePage() {
                             type="button"
                             variant="outline"
                             size="sm"
-                            onClick={() => setFormData(prev => ({ ...prev, coverImage: undefined }))}
+                            onClick={() =>
+                              setFormData((prev) => ({
+                                ...prev,
+                                coverImage: undefined,
+                              }))
+                            }
                           >
                             إزالة الصورة
                           </Button>
@@ -375,8 +436,13 @@ export default function CreateAnglePage() {
                         <div className="space-y-4">
                           <Upload className="w-12 h-12 mx-auto text-gray-400" />
                           <div>
-                            <p className="text-sm text-gray-600">اسحب وأفلت الصورة هنا أو</p>
-                            <Label htmlFor="cover-upload" className="cursor-pointer text-blue-600 hover:text-blue-700">
+                            <p className="text-sm text-gray-600">
+                              اسحب وأفلت الصورة هنا أو
+                            </p>
+                            <Label
+                              htmlFor="cover-upload"
+                              className="cursor-pointer text-blue-600 hover:text-blue-700"
+                            >
                               اختر ملف
                             </Label>
                             <input
@@ -387,7 +453,9 @@ export default function CreateAnglePage() {
                               className="hidden"
                             />
                           </div>
-                          <p className="text-xs text-gray-500">PNG, JPG أو GIF (أقصى حجم: 5MB)</p>
+                          <p className="text-xs text-gray-500">
+                            PNG, JPG أو GIF (أقصى حجم: 5MB)
+                          </p>
                         </div>
                       )}
                     </div>
@@ -404,24 +472,38 @@ export default function CreateAnglePage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <Label htmlFor="featured">زاوية مميزة</Label>
-                      <p className="text-sm text-gray-500">ستظهر في القسم المميز بالصفحة الرئيسية</p>
+                      <p className="text-sm text-gray-500">
+                        ستظهر في القسم المميز بالصفحة الرئيسية
+                      </p>
                     </div>
                     <Switch
                       id="featured"
                       checked={formData.isFeatured}
-                      onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isFeatured: checked }))}
+                      onCheckedChange={(checked) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          isFeatured: checked,
+                        }))
+                      }
                     />
                   </div>
 
                   <div className="flex items-center justify-between">
                     <div>
                       <Label htmlFor="published">نشر فوري</Label>
-                      <p className="text-sm text-gray-500">جعل الزاوية متاحة للجمهور</p>
+                      <p className="text-sm text-gray-500">
+                        جعل الزاوية متاحة للجمهور
+                      </p>
                     </div>
                     <Switch
                       id="published"
                       checked={formData.isPublished}
-                      onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isPublished: checked }))}
+                      onCheckedChange={(checked) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          isPublished: checked,
+                        }))
+                      }
                     />
                   </div>
                 </CardContent>

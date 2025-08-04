@@ -1,22 +1,21 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Angle, AngleArticle, AngleFilterOptions } from "@/types/muqtarab";
 import {
   ArrowLeft,
+  BookOpen,
   Calendar,
   Clock,
   Eye,
   Filter,
   Heart,
-  MessageCircle,
   Share2,
+  Sparkles,
   TrendingUp,
   User,
-  Sparkles,
-  BookOpen,
 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -39,14 +38,14 @@ const AngleHeader = ({ angle }: { angle: Angle }) => {
           <div
             className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center"
             style={{
-              background: `linear-gradient(135deg, ${angle.themeColor}AA, ${angle.themeColor})`
+              background: `linear-gradient(135deg, ${angle.themeColor}AA, ${angle.themeColor})`,
             }}
           >
             <Sparkles className="w-24 h-24 text-white/70" />
           </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-        
+
         {/* محتوى الهيدر */}
         <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 text-white">
           <div className="flex items-start gap-4">
@@ -56,19 +55,23 @@ const AngleHeader = ({ angle }: { angle: Angle }) => {
             >
               <Sparkles className="w-8 h-8 text-white" />
             </div>
-            
+
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-3xl md:text-4xl font-bold">{angle.title}</h1>
+                <h1 className="text-3xl md:text-4xl font-bold">
+                  {angle.title}
+                </h1>
                 {angle.isFeatured && (
-                  <Badge className="bg-yellow-500/90 text-yellow-900">مميزة</Badge>
+                  <Badge className="bg-yellow-500/90 text-yellow-900">
+                    مميزة
+                  </Badge>
                 )}
               </div>
-              
+
               <p className="text-white/90 text-lg mb-4 leading-relaxed">
                 {angle.description}
               </p>
-              
+
               <div className="flex items-center gap-4 text-sm text-white/80">
                 <div className="flex items-center gap-2">
                   <User className="w-4 h-4" />
@@ -91,10 +94,10 @@ const AngleHeader = ({ angle }: { angle: Angle }) => {
   );
 };
 
-const AngleFilterBar = ({ 
-  filters, 
-  onFiltersChange 
-}: { 
+const AngleFilterBar = ({
+  filters,
+  onFiltersChange,
+}: {
   filters: AngleFilterOptions;
   onFiltersChange: (filters: AngleFilterOptions) => void;
 }) => {
@@ -105,29 +108,33 @@ const AngleFilterBar = ({
           <Filter className="w-5 h-5 text-gray-500" />
           <span className="font-medium">ترتيب حسب:</span>
         </div>
-        
+
         <div className="flex gap-2">
           {[
-            { key: 'newest', label: 'الأحدث' },
-            { key: 'popular', label: 'الأكثر قراءة' },
-            { key: 'trending', label: 'الأكثر تفاعلاً' },
+            { key: "newest", label: "الأحدث" },
+            { key: "popular", label: "الأكثر قراءة" },
+            { key: "trending", label: "الأكثر تفاعلاً" },
           ].map((option) => (
             <Button
               key={option.key}
               variant={filters.sortBy === option.key ? "default" : "outline"}
               size="sm"
-              onClick={() => onFiltersChange({ ...filters, sortBy: option.key as any })}
+              onClick={() =>
+                onFiltersChange({ ...filters, sortBy: option.key as any })
+              }
             >
               {option.label}
             </Button>
           ))}
         </div>
-        
+
         <div className="flex items-center gap-2 mr-auto">
           <span className="text-sm text-gray-500">الفترة الزمنية:</span>
           <select
             value={filters.timeRange}
-            onChange={(e) => onFiltersChange({ ...filters, timeRange: e.target.value as any })}
+            onChange={(e) =>
+              onFiltersChange({ ...filters, timeRange: e.target.value as any })
+            }
             className="px-3 py-1 border rounded-lg text-sm"
           >
             <option value="all">كل الأوقات</option>
@@ -152,17 +159,23 @@ const AngleArticleCard = ({ article }: { article: AngleArticle }) => {
 
   const getSentimentColor = (sentiment?: string) => {
     switch (sentiment) {
-      case "positive": return "text-green-600 bg-green-50";
-      case "critical": return "text-red-600 bg-red-50";
-      default: return "text-blue-600 bg-blue-50";
+      case "positive":
+        return "text-green-600 bg-green-50";
+      case "critical":
+        return "text-red-600 bg-red-50";
+      default:
+        return "text-blue-600 bg-blue-50";
     }
   };
 
   const getSentimentLabel = (sentiment?: string) => {
     switch (sentiment) {
-      case "positive": return "إيجابي";
-      case "critical": return "نقدي";
-      default: return "محايد";
+      case "positive":
+        return "إيجابي";
+      case "critical":
+        return "نقدي";
+      default:
+        return "محايد";
     }
   };
 
@@ -177,13 +190,17 @@ const AngleArticleCard = ({ article }: { article: AngleArticle }) => {
           />
         </div>
       )}
-      
+
       <CardContent className="p-6">
         <div className="flex items-start gap-3 mb-3">
-          <Badge className={`text-xs px-2 py-1 ${getSentimentColor(article.sentiment)}`}>
+          <Badge
+            className={`text-xs px-2 py-1 ${getSentimentColor(
+              article.sentiment
+            )}`}
+          >
             {getSentimentLabel(article.sentiment)}
           </Badge>
-          
+
           {article.tags && article.tags.length > 0 && (
             <div className="flex gap-1">
               {article.tags.slice(0, 2).map((tag, index) => (
@@ -194,29 +211,29 @@ const AngleArticleCard = ({ article }: { article: AngleArticle }) => {
             </div>
           )}
         </div>
-        
+
         <h3 className="font-bold text-lg mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
           {article.title}
         </h3>
-        
+
         {article.excerpt && (
           <p className="text-gray-600 text-sm mb-4 line-clamp-3">
             {article.excerpt}
           </p>
         )}
-        
+
         <div className="flex items-center justify-between text-sm text-gray-500">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1">
               <User className="w-4 h-4" />
               <span>{article.author?.name}</span>
             </div>
-            
+
             <div className="flex items-center gap-1">
               <Calendar className="w-4 h-4" />
               <span>{formatDate(article.createdAt)}</span>
             </div>
-            
+
             {article.readingTime && (
               <div className="flex items-center gap-1">
                 <Clock className="w-4 h-4" />
@@ -224,18 +241,26 @@ const AngleArticleCard = ({ article }: { article: AngleArticle }) => {
               </div>
             )}
           </div>
-          
+
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1">
               <Eye className="w-4 h-4" />
               <span>{article.views || 0}</span>
             </div>
-            
-            <Button size="sm" variant="ghost" className="text-gray-500 hover:text-blue-600">
+
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-gray-500 hover:text-blue-600"
+            >
               <Heart className="w-4 h-4" />
             </Button>
-            
-            <Button size="sm" variant="ghost" className="text-gray-500 hover:text-blue-600">
+
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-gray-500 hover:text-blue-600"
+            >
               <Share2 className="w-4 h-4" />
             </Button>
           </div>
@@ -245,10 +270,10 @@ const AngleArticleCard = ({ article }: { article: AngleArticle }) => {
   );
 };
 
-const AngleArticlesGrid = ({ 
-  articles, 
-  loading 
-}: { 
+const AngleArticlesGrid = ({
+  articles,
+  loading,
+}: {
   articles: AngleArticle[];
   loading: boolean;
 }) => {
@@ -273,8 +298,12 @@ const AngleArticlesGrid = ({
     return (
       <Card className="p-12 text-center">
         <BookOpen className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">لا توجد مقالات حتى الآن</h3>
-        <p className="text-gray-600 mb-6">ستظهر المقالات هنا عند نشرها في هذه الزاوية</p>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">
+          لا توجد مقالات حتى الآن
+        </h3>
+        <p className="text-gray-600 mb-6">
+          ستظهر المقالات هنا عند نشرها في هذه الزاوية
+        </p>
       </Card>
     );
   }
@@ -311,7 +340,7 @@ const Pagination = ({
       >
         السابق
       </Button>
-      
+
       {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
         let pageNum;
         if (totalPages <= 5) {
@@ -323,7 +352,7 @@ const Pagination = ({
         } else {
           pageNum = currentPage - 2 + i;
         }
-        
+
         return (
           <Button
             key={pageNum}
@@ -335,7 +364,7 @@ const Pagination = ({
           </Button>
         );
       })}
-      
+
       <Button
         variant="outline"
         size="sm"
@@ -352,7 +381,7 @@ export default function AnglePage() {
   const router = useRouter();
   const params = useParams();
   const slug = params.slug as string;
-  
+
   const [angle, setAngle] = useState<Angle | null>(null);
   const [articles, setArticles] = useState<AngleArticle[]>([]);
   const [loading, setLoading] = useState(true);
@@ -360,8 +389,8 @@ export default function AnglePage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [filters, setFilters] = useState<AngleFilterOptions>({
-    sortBy: 'newest',
-    timeRange: 'all',
+    sortBy: "newest",
+    timeRange: "all",
   });
 
   // جلب بيانات الزاوية
@@ -393,7 +422,7 @@ export default function AnglePage() {
   useEffect(() => {
     const fetchArticles = async () => {
       if (!angle) return;
-      
+
       setArticlesLoading(true);
       try {
         const params = new URLSearchParams({
@@ -407,7 +436,9 @@ export default function AnglePage() {
           params.append("sentiment", filters.sentiment);
         }
 
-        const response = await fetch(`/api/muqtarib/angles/${angle.id}/articles?${params}`);
+        const response = await fetch(
+          `/api/muqtarib/angles/${angle.id}/articles?${params}`
+        );
         if (response.ok) {
           const data = await response.json();
           setArticles(data.articles);
@@ -442,8 +473,12 @@ export default function AnglePage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <BookOpen className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">الزاوية غير موجودة</h2>
-          <p className="text-gray-600 mb-6">لم يتم العثور على الزاوية المطلوبة</p>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            الزاوية غير موجودة
+          </h2>
+          <p className="text-gray-600 mb-6">
+            لم يتم العثور على الزاوية المطلوبة
+          </p>
           <Link href="/muqtarib">
             <Button>
               <ArrowLeft className="w-4 h-4 ml-2" />
@@ -462,7 +497,11 @@ export default function AnglePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-3">
             <Link href="/muqtarib">
-              <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-gray-600 hover:text-gray-900"
+              >
                 <ArrowLeft className="w-4 h-4 ml-2" />
                 مُقترب
               </Button>
@@ -477,13 +516,13 @@ export default function AnglePage() {
         <div className="space-y-8">
           {/* هيدر الزاوية */}
           <AngleHeader angle={angle} />
-          
+
           {/* شريط الفلترة */}
           <AngleFilterBar filters={filters} onFiltersChange={setFilters} />
-          
+
           {/* شبكة المقالات */}
           <AngleArticlesGrid articles={articles} loading={articlesLoading} />
-          
+
           {/* التنقل بين الصفحات */}
           <Pagination
             currentPage={currentPage}
