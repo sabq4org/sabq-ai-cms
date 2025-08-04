@@ -4,8 +4,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Eye, Clock, Calendar, User, Filter, Search, ChevronDown, MessageCircle, Heart, Bookmark, Share2 } from 'lucide-react';
+import { Eye, Clock, Calendar, User, Filter, Search, ChevronDown, MessageCircle, Heart, Bookmark, Share2, FileText, PenTool, Grid3X3, List, Loader2, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import UnifiedMobileNewsCard from '@/components/mobile/UnifiedMobileNewsCard';
+import Footer from '@/components/Footer';
 
 interface Article {
   id: string;
@@ -206,96 +208,66 @@ export default function OpinionArticlesPage() {
 
   return (
     <>
-      <div className={cn(
-        "min-h-screen transition-colors duration-300",
-        darkMode ? "bg-gray-900" : "bg-gray-50"
-      )}>
-        {/* Header */}
-        <div className={cn(
-          "border-b transition-colors duration-300",
-          darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
-        )}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        {/* Hero Section */}
+        <section className="relative py-16 bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full blur-3xl bg-purple-200/30 dark:bg-purple-900/20" />
+            <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full blur-3xl bg-blue-200/30 dark:bg-blue-900/20" />
+          </div>
+          
+          <div className="relative max-w-7xl mx-auto px-4 md:px-6">
             <div className="text-center">
-              <h1 className={cn(
-                "text-4xl font-bold mb-4",
-                darkMode ? "text-white" : "text-gray-900"
-              )}>
+              <div className="inline-flex items-center justify-center w-20 h-20 mb-6 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-600 shadow-2xl">
+                <PenTool className="w-10 h-10 text-white" />
+              </div>
+              
+              <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 dark:text-white">
                 مقالات الرأي
               </h1>
-              <p className={cn(
-                "text-xl max-w-2xl mx-auto",
-                darkMode ? "text-gray-300" : "text-gray-600"
-              )}>
+              
+              <p className="text-xl text-gray-600 dark:text-gray-300 mb-2">
                 آراء وتحليلات من كتاب وخبراء مختصين في مختلف المجالات
               </p>
-            </div>
 
-            {/* الإحصائيات */}
-            <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className={cn(
-                "text-center p-6 rounded-lg",
-                darkMode ? "bg-gray-700" : "bg-blue-50"
-              )}>
-                <div className={cn(
-                  "text-3xl font-bold",
-                  darkMode ? "text-blue-400" : "text-blue-600"
-                )}>
-                  {statsLoading ? '...' : stats.total}
+              {/* إحصائيات مقالات الرأي */}
+              {!statsLoading && stats && (
+                <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-lg rounded-2xl p-6 text-center border border-gray-200/50 dark:border-gray-700/50 shadow-lg">
+                    <div className="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-2">
+                      {statsLoading ? <Loader2 className="w-8 h-8 animate-spin mx-auto" /> : stats.total}
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-300">
+                      إجمالي المقالات
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-lg rounded-2xl p-6 text-center border border-gray-200/50 dark:border-gray-700/50 shadow-lg">
+                    <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">
+                      {statsLoading ? <Loader2 className="w-8 h-8 animate-spin mx-auto" /> : stats.thisWeek}
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-300">
+                      هذا الأسبوع
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-lg rounded-2xl p-6 text-center border border-gray-200/50 dark:border-gray-700/50 shadow-lg">
+                    <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">
+                      {statsLoading ? <Loader2 className="w-8 h-8 animate-spin mx-auto" /> : stats.thisMonth}
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-300">
+                      هذا الشهر
+                    </div>
+                  </div>
                 </div>
-                <div className={cn(
-                  "text-sm",
-                  darkMode ? "text-gray-300" : "text-gray-600"
-                )}>
-                  إجمالي المقالات
-                </div>
-              </div>
-              
-              <div className={cn(
-                "text-center p-6 rounded-lg",
-                darkMode ? "bg-gray-700" : "bg-green-50"
-              )}>
-                <div className={cn(
-                  "text-3xl font-bold",
-                  darkMode ? "text-green-400" : "text-green-600"
-                )}>
-                  {statsLoading ? '...' : stats.thisWeek}
-                </div>
-                <div className={cn(
-                  "text-sm",
-                  darkMode ? "text-gray-300" : "text-gray-600"
-                )}>
-                  هذا الأسبوع
-                </div>
-              </div>
-              
-              <div className={cn(
-                "text-center p-6 rounded-lg",
-                darkMode ? "bg-gray-700" : "bg-purple-50"
-              )}>
-                <div className={cn(
-                  "text-3xl font-bold",
-                  darkMode ? "text-purple-400" : "text-purple-600"
-                )}>
-                  {statsLoading ? '...' : stats.thisMonth}
-                </div>
-                <div className={cn(
-                  "text-sm",
-                  darkMode ? "text-gray-300" : "text-gray-600"
-                )}>
-                  هذا الشهر
-                </div>
-              </div>
+              )}
             </div>
           </div>
-        </div>
+        </section>
 
         {/* الفلاتر والبحث */}
-        <div className={cn(
-          "border-b transition-colors duration-300",
-          darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
-        )}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-lg rounded-2xl border border-gray-200/50 dark:border-gray-700/50 p-6 shadow-lg">
             <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
               {/* البحث */}
               <form onSubmit={handleSearch} className="flex-1 max-w-md">
@@ -306,12 +278,7 @@ export default function OpinionArticlesPage() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="البحث في مقالات الرأي..."
-                    className={cn(
-                      "w-full pr-10 pl-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent",
-                      darkMode 
-                        ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400" 
-                        : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-                    )}
+                    className="w-full pr-10 pl-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200"
                   />
                 </div>
               </form>
@@ -322,12 +289,7 @@ export default function OpinionArticlesPage() {
                   <select
                     value={selectedCategory || ''}
                     onChange={(e) => setSelectedCategory(e.target.value || null)}
-                    className={cn(
-                      "appearance-none pr-10 pl-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent",
-                      darkMode 
-                        ? "bg-gray-700 border-gray-600 text-white" 
-                        : "bg-white border-gray-300 text-gray-900"
-                    )}
+                    className="appearance-none pr-10 pl-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 dark:text-white transition-all duration-200"
                   >
                     <option value="">جميع التصنيفات</option>
                     {categories.map(category => (
@@ -344,18 +306,13 @@ export default function OpinionArticlesPage() {
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as 'published_at' | 'views' | 'likes')}
-                    className={cn(
-                      "appearance-none pr-10 pl-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent",
-                      darkMode 
-                        ? "bg-gray-700 border-gray-600 text-white" 
-                        : "bg-white border-gray-300 text-gray-900"
-                    )}
+                    className="appearance-none pr-10 pl-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 dark:text-white transition-all duration-200"
                   >
                     <option value="published_at">الأحدث</option>
                     <option value="views">الأكثر مشاهدة</option>
                     <option value="likes">الأكثر إعجاباً</option>
                   </select>
-                  <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                  <TrendingUp className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                 </div>
               </div>
             </div>
@@ -400,156 +357,51 @@ export default function OpinionArticlesPage() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {articles.map((article) => (
-                    <Link 
-                      key={article.id} 
-                      href={`/article/${article.id}`}
-                      className={cn(
-                        "group block rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300",
-                        darkMode ? "bg-gray-800 hover:bg-gray-750" : "bg-white hover:shadow-xl"
-                      )}
-                    >
-                      {/* صورة المقال */}
-                      <div className="relative h-48 overflow-hidden">
-                        {article.featured_image ? (
-                          <Image
-                            src={article.featured_image}
-                            alt={article.title}
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
-                        ) : (
-                          <div className={cn(
-                            "w-full h-full flex items-center justify-center",
-                            darkMode ? "bg-gray-700" : "bg-gray-200"
-                          )}>
-                            <User className="w-12 h-12 text-gray-400" />
-                          </div>
-                        )}
-                        
-                        {/* نوع المقال */}
-                        <div className="absolute top-4 right-4">
-                          <span className={cn(
-                            "px-3 py-1 rounded-full text-xs font-medium",
-                            article.article_type === 'opinion' 
-                              ? "bg-purple-600 text-white"
-                              : article.article_type === 'analysis'
-                              ? "bg-blue-600 text-white"
-                              : "bg-green-600 text-white"
-                          )}>
-                            {article.article_type === 'opinion' ? 'رأي' :
-                             article.article_type === 'analysis' ? 'تحليل' : 'مقابلة'}
-                          </span>
-                        </div>
-
-                        {/* التصنيف */}
-                        {article.category && (
-                          <div className="absolute bottom-4 right-4">
-                            <span 
-                              className="px-2 py-1 rounded text-xs font-medium text-white"
-                              style={{ backgroundColor: article.category.color }}
-                            >
-                              {article.category.name}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* محتوى المقال */}
-                      <div className="p-6">
-                        <h3 className={cn(
-                          "text-lg font-bold mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors",
-                          darkMode ? "text-white" : "text-gray-900"
-                        )}>
-                          {article.title}
-                        </h3>
-
-                        <p className={cn(
-                          "text-sm mb-4 line-clamp-3",
-                          darkMode ? "text-gray-300" : "text-gray-600"
-                        )}>
-                          {article.excerpt}
-                        </p>
-
-                        {/* معلومات الكاتب */}
-                        <div className="flex items-center gap-2 mb-4">
-                          <User className="w-4 h-4 text-gray-400" />
-                          <div className="flex-1">
-                            <div className={cn(
-                              "text-sm font-medium",
-                              darkMode ? "text-gray-200" : "text-gray-800"
-                            )}>
-                              {article.author_name}
-                            </div>
-                            {article.author_specialty && (
-                              <div className="text-xs text-gray-400">
-                                {article.author_specialty}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* إحصائيات */}
-                        <div className="flex items-center justify-between text-xs text-gray-400">
-                          <div className="flex items-center gap-4">
-                            <span className="flex items-center gap-1">
-                              <Eye className="w-3 h-3" />
-                              {article.views.toLocaleString()}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              {article.reading_time} دقائق
-                            </span>
-                          </div>
-                          
-                          <div className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            {formatDate(article.published_at)}
-                          </div>
-                        </div>
-
-                        {/* تفاعل */}
-                        <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                          <div className="flex items-center gap-4 text-xs text-gray-400">
-                            <span className="flex items-center gap-1">
-                              <Heart className="w-3 h-3" />
-                              {article.likes}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <MessageCircle className="w-3 h-3" />
-                              {article.comments_count}
-                            </span>
-                          </div>
-                          
-                          <div className="flex items-center gap-2">
-                            <button className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
-                              <Bookmark className="w-3 h-3" />
-                            </button>
-                            <button className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
-                              <Share2 className="w-3 h-3" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
+                    <UnifiedMobileNewsCard
+                      key={article.id}
+                      article={{
+                        id: article.id,
+                        title: article.title,
+                        excerpt: article.excerpt,
+                        featured_image: article.featured_image,
+                        published_at: article.published_at,
+                        views: article.views,
+                        reading_time: article.reading_time,
+                        article_type: article.article_type,
+                        author_name: article.author_name,
+                        category: article.category ? {
+                          id: article.category.id,
+                          name: article.category.name,
+                          color: article.category.color
+                        } : null,
+                        likes: article.likes,
+                        comments_count: article.comments_count,
+                        saves: article.saves
+                      }}
+                    />
                   ))}
                 </div>
               )}
 
               {/* زر تحميل المزيد */}
               {hasMore && !loading && articles.length > 0 && (
-                <div className="text-center mt-8">
+                <div className="text-center mt-12">
                   <button
                     onClick={loadMore}
                     disabled={isLoadingMore}
-                    className={cn(
-                      "px-8 py-3 rounded-lg font-medium transition-colors",
-                      darkMode 
-                        ? "bg-blue-600 hover:bg-blue-700 text-white" 
-                        : "bg-blue-600 hover:bg-blue-700 text-white",
-                      isLoadingMore && "opacity-50 cursor-not-allowed"
-                    )}
+                    className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                   >
-                    {isLoadingMore ? 'جاري التحميل...' : 'تحميل المزيد'}
+                    {isLoadingMore ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        جاري التحميل...
+                      </>
+                    ) : (
+                      <>
+                        عرض المزيد
+                        <Grid3X3 className="w-5 h-5" />
+                      </>
+                    )}
                   </button>
                 </div>
               )}
@@ -557,6 +409,8 @@ export default function OpinionArticlesPage() {
           )}
         </div>
       </div>
+
+      <Footer />
     </>
   );
 }
