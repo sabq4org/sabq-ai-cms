@@ -1,6 +1,5 @@
 "use client";
 
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -142,7 +141,7 @@ export default function MuqtarabAdminPage() {
           </div>
         </div>
       </div>
-      
+
       <div className="space-y-6 p-6" dir="rtl">
         {/* رأس الصفحة */}
         <div className="bg-gradient-to-r from-blue-600 to-purple-700 rounded-xl p-6 text-white">
