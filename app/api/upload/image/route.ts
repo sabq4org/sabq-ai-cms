@@ -73,14 +73,13 @@ export async function POST(request: NextRequest) {
       fileName: fileName,
       fallback: true,
     });
-
   } catch (error) {
     console.error("خطأ في رفع الصورة:", error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: "خطأ في رفع الصورة",
-        details: error instanceof Error ? error.message : "Unknown error"
+        details: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 }
     );

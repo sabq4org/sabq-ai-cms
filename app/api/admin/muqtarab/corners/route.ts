@@ -141,10 +141,10 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("خطأ في إنشاء الزاوية:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: "خطأ في إنشاء الزاوية", 
-        details: error instanceof Error ? error.message : "Unknown error" 
+      {
+        success: false,
+        error: "خطأ في إنشاء الزاوية",
+        details: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 }
     );
