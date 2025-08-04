@@ -38,10 +38,16 @@ export async function POST(request: NextRequest) {
 
     try {
       // محاولة رفع إلى Cloudinary
+      console.log("🔄 Attempting Cloudinary upload...");
       const cloudinaryFormData = new FormData();
       cloudinaryFormData.append("file", file);
       cloudinaryFormData.append("upload_preset", "muqtarab_covers");
       cloudinaryFormData.append("folder", "muqtarab/covers");
+      
+      // إضافة API key إذا كان متوفر
+      if (process.env.CLOUDINARY_API_KEY) {
+        cloudinaryFormData.append("api_key", process.env.CLOUDINARY_API_KEY);
+      }
 
       const cloudinaryResponse = await fetch(
         `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload`,
@@ -53,17 +59,22 @@ export async function POST(request: NextRequest) {
 
       if (cloudinaryResponse.ok) {
         const cloudinaryData = await cloudinaryResponse.json();
+        console.log("✅ Cloudinary upload successful");
         return NextResponse.json({
           success: true,
           imageUrl: cloudinaryData.secure_url,
           publicId: cloudinaryData.public_id,
         });
+      } else {
+        const errorText = await cloudinaryResponse.text();
+        console.error("❌ Cloudinary error:", cloudinaryResponse.status, errorText);
       }
     } catch (cloudinaryError) {
-      console.log("Cloudinary upload failed, using fallback:", cloudinaryError);
+      console.error("❌ Cloudinary upload failed, using fallback:", cloudinaryError);
     }
 
     // Fallback: إنشاء Data URL محلي
+    console.log("⚠️ Using fallback: base64 data URL");
     const base64 = buffer.toString("base64");
     const dataUrl = `data:${file.type};base64,${base64}`;
 
@@ -72,6 +83,7 @@ export async function POST(request: NextRequest) {
       imageUrl: dataUrl,
       fileName: fileName,
       fallback: true,
+      message: "تم حفظ الصورة محلياً (Cloudinary غير متاح)",
     });
   } catch (error) {
     console.error("خطأ في رفع الصورة:", error);

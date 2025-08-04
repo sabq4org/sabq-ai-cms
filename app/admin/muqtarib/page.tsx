@@ -3,23 +3,29 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Angle } from "@/types/muqtarab";
 import {
-    BookOpen,
-    Calendar,
-    Eye,
-    Grid3X3,
-    List,
-    Loader2,
-    Plus,
-    Search,
-    Settings,
-    Star,
-    Trash2,
-    TrendingUp,
-    Users,
+  BookOpen,
+  Calendar,
+  Eye,
+  Grid3X3,
+  List,
+  Loader2,
+  Plus,
+  Search,
+  Settings,
+  Star,
+  Trash2,
+  TrendingUp,
+  Users,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -306,7 +312,9 @@ export default function MuqtaribDashboard() {
 
       if (response.ok) {
         // إزالة الزاوية من القائمة
-        setAngles((prev) => prev.filter((angle) => angle.id !== angleToDelete.id));
+        setAngles((prev) =>
+          prev.filter((angle) => angle.id !== angleToDelete.id)
+        );
         toast.success("تم حذف الزاوية بنجاح!");
         setDeleteModalOpen(false);
         setAngleToDelete(null);
@@ -315,7 +323,9 @@ export default function MuqtaribDashboard() {
         setStats((prev) => ({
           ...prev,
           totalAngles: prev.totalAngles - 1,
-          publishedAngles: angleToDelete.isPublished ? prev.publishedAngles - 1 : prev.publishedAngles,
+          publishedAngles: angleToDelete.isPublished
+            ? prev.publishedAngles - 1
+            : prev.publishedAngles,
         }));
       } else {
         const error = await response.json();
@@ -525,13 +535,16 @@ export default function MuqtaribDashboard() {
               تأكيد حذف الزاوية
             </DialogTitle>
           </DialogHeader>
-          
+
           <div className="py-4">
             <p className="text-gray-700 mb-4">
               هل أنت متأكد من حذف الزاوية{" "}
-              <strong className="text-gray-900">"{angleToDelete?.title}"</strong>؟
+              <strong className="text-gray-900">
+                "{angleToDelete?.title}"
+              </strong>
+              ؟
             </p>
-            
+
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
               <div className="flex items-start gap-3">
                 <Trash2 className="w-5 h-5 text-red-600 mt-0.5" />

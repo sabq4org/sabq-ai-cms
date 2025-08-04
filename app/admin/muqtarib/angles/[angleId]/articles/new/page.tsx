@@ -481,17 +481,25 @@ export default function CreateAngleArticlePage() {
       formDataUpload.append("file", file);
       formDataUpload.append("type", "article-cover");
 
-      const response = await fetch("/api/upload", {
+      const response = await fetch("/api/upload/image", {
         method: "POST",
         body: formDataUpload,
       });
 
       if (response.ok) {
         const data = await response.json();
-        setFormData((prev) => ({ ...prev, coverImage: data.url }));
-        toast.success("تم رفع الصورة بنجاح");
+        if (data.success) {
+          setFormData((prev) => ({ ...prev, coverImage: data.imageUrl }));
+          toast.success("تم رفع الصورة بنجاح");
+          if (data.fallback) {
+            toast("تم استخدام حفظ محلي للصورة", { icon: "⚠️" });
+          }
+        } else {
+          toast.error(data.error || "فشل في رفع الصورة");
+        }
       } else {
-        toast.error("فشل في رفع الصورة");
+        const errorData = await response.json().catch(() => ({}));
+        toast.error(errorData.error || "فشل في رفع الصورة");
       }
     } catch (error) {
       console.error("خطأ في رفع الصورة:", error);
