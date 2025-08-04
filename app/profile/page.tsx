@@ -26,6 +26,7 @@ import {
   Eye,
   Heart,
   Lock,
+  LogOut,
   MessageCircle,
   Share2,
   Sparkles,
@@ -748,6 +749,16 @@ export default function ProfilePage() {
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
 
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12 relative">
+            {/* زر تسجيل الخروج للديسكتوب - موقع محسن */}
+            <div className="hidden sm:block absolute top-6 left-4 lg:left-8">
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-sm flex items-center gap-2"
+              >
+                <LogOut className="w-4 h-4" />
+                تسجيل الخروج
+              </button>
+            </div>
             {/* التصميم المحسن للموبايل */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
               <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
@@ -850,8 +861,8 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* أزرار الإجراءات محسنة للموبايل */}
-              <div className="flex sm:flex-col gap-2 w-full sm:w-auto">
+              {/* أزرار الإجراءات محسنة */}
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                 <button
                   onClick={() => router.push("/profile/edit")}
                   className="flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-3 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition-all font-medium flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-sm sm:text-base"
@@ -859,9 +870,10 @@ export default function ProfilePage() {
                   <Edit2 className="w-4 h-4 sm:w-5 sm:h-5" />
                   تعديل الملف
                 </button>
+                {/* زر تسجيل الخروج منفصل للموبايل */}
                 <button
                   onClick={handleLogout}
-                  className="flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-sm sm:text-base"
+                  className="sm:hidden flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all font-medium shadow-lg text-sm"
                 >
                   تسجيل الخروج
                 </button>
