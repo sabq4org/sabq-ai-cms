@@ -309,157 +309,164 @@ export default function ArticleClientComponent({
             ref={viewTrackingRef}
             className="max-w-5xl mx-auto py-4 sm:py-6 lg:py-8"
           >
-            {/* رأس المقال محسن ومتطور */}
-            <header className="mb-8 bg-white dark:bg-gray-800 shadow-lg rounded-2xl relative z-10 overflow-hidden">
-              {/* Desktop Header محسن */}
-              <div className="hidden sm:block">
-                {/* خلفية تدرجية */}
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-800 dark:via-gray-800 dark:to-blue-900/20"></div>
-                
-                <div className="relative px-8 lg:px-12 py-8 lg:py-12">
-                  {/* العنوان والتصنيف */}
-                  <div className="text-center space-y-6">
-                    {/* العنوان الرئيسي */}
-                    <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 dark:text-white leading-tight tracking-tight">
-                      {article.title}
-                    </h1>
-
-                    {/* العنوان الفرعي */}
-                    {getSubtitle() && (
-                      <h2 className="text-lg sm:text-xl lg:text-2xl text-gray-600 dark:text-gray-300 font-light leading-relaxed max-w-4xl mx-auto">
-                        {getSubtitle()}
-                      </h2>
-                    )}
-
-                    {/* التصنيف المميز */}
-                    {article.category && (
-                      <div className="flex justify-center">
-                        <Link
-                          href={`/categories/${article.category.slug}`}
-                          className="inline-flex items-center gap-3 px-6 py-3 rounded-full text-sm font-semibold bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 transition-all hover:scale-105 shadow-lg hover:shadow-xl"
-                        >
-                          {article.category.icon && (
-                            <span className="text-lg">{article.category.icon}</span>
-                          )}
-                          <span>{article.category.name}</span>
-                        </Link>
-                      </div>
-                    )}
+            {/* رأس المقال محسن للموبايل */}
+            <header className="mb-8 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl relative z-10">
+              {/* Desktop Header */}
+              <div className="hidden sm:block px-6 lg:px-8 py-6 lg:py-8">
+                {/* التصنيف - محاذاة لليمين */}
+                {article.category && (
+                  <div className="flex justify-end mb-4">
+                    <Link
+                      href={`/categories/${article.category.slug}`}
+                      className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50 hover:shadow-md hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-800/30 dark:hover:to-indigo-800/30 transition-all hover:scale-105"
+                    >
+                      {article.category.icon && (
+                        <span className="text-sm sm:text-base">
+                          {article.category.icon}
+                        </span>
+                      )}
+                      <span>{article.category.name}</span>
+                    </Link>
                   </div>
+                )}
 
-                  {/* معلومات المقال في بطاقة */}
-                  <div className="mt-8 bg-white/70 dark:bg-gray-700/70 backdrop-blur-sm rounded-xl p-6 border border-gray-200/50 dark:border-gray-600/50">
-                    <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-600 dark:text-gray-300">
-                      {/* المؤلف */}
-                      {article.author && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-gray-400">بقلم:</span>
-                          <ReporterLink
-                            author={article.author as any}
-                            size="md"
-                            showIcon={true}
-                            showVerification={true}
-                            className="font-medium"
-                          />
-                        </div>
-                      )}
+                {/* العنوان */}
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 text-gray-900 dark:text-white leading-tight text-right">
+                  {article.title}
+                </h1>
 
-                      {/* الفاصل */}
-                      <span className="text-gray-300 dark:text-gray-600">•</span>
+                {/* العنوان الفرعي */}
+                {getSubtitle() && (
+                  <h2 className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-400 mb-6 text-right">
+                    {getSubtitle()}
+                  </h2>
+                )}
 
-                      {/* التاريخ */}
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-gray-400" />
-                        <span>{formatFullDate(article.published_at || article.created_at || "")}</span>
-                      </div>
-
-                      {/* الفاصل */}
-                      <span className="text-gray-300 dark:text-gray-600">•</span>
-
-                      {/* وقت القراءة */}
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-gray-400" />
-                        <span>{article.reading_time || calculateReadingTime(article.content || "")} دقيقة قراءة</span>
-                      </div>
-
-                      {/* المشاهدات */}
-                      {article.views !== undefined && (
-                        <>
-                          <span className="text-gray-300 dark:text-gray-600">•</span>
-                          <ArticleViews count={article.views} className="text-sm" />
-                        </>
-                      )}
+                {/* المعلومات الأساسية - Desktop */}
+                <div className="flex flex-wrap items-center justify-start gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 text-right">
+                  {article.author && (
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                      <ReporterLink
+                        author={article.author as any}
+                        size="sm"
+                        showIcon={true}
+                        showVerification={true}
+                        className="truncate max-w-[120px] sm:max-w-none text-xs sm:text-sm"
+                      />
                     </div>
+                  )}
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                    <span className="hidden sm:inline">
+                      {formatFullDate(
+                        article.published_at || article.created_at || ""
+                      )}
+                    </span>
+                    <span className="sm:hidden">
+                      {formatRelativeDate(
+                        article.published_at || article.created_at || ""
+                      )}
+                    </span>
                   </div>
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <Clock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                    <span>
+                      {article.reading_time ||
+                        calculateReadingTime(article.content || "")}{" "}
+                      د
+                    </span>
+                  </div>
+                  {article.views !== undefined && (
+                    <ArticleViews
+                      count={article.views}
+                      className="text-xs sm:text-sm"
+                    />
+                  )}
                 </div>
               </div>
 
-              {/* Mobile Header محسن ومتطور */}
-              <div className="sm:hidden">
-                {/* خلفية تدرجية للموبايل */}
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-800 dark:via-gray-800 dark:to-blue-900/20"></div>
-                
-                <div className="relative px-4 py-6 space-y-4">
-                  {/* العنوان الرئيسي */}
-                  <div className="text-center">
-                    <h1 className="text-2xl font-bold leading-tight text-gray-900 dark:text-white mb-3">
-                      {article.title}
-                    </h1>
-                    
-                    {/* العنوان الفرعي */}
-                    {getSubtitle() && (
-                      <h2 className="text-base leading-relaxed text-gray-600 dark:text-gray-300 font-normal">
-                        {getSubtitle()}
-                      </h2>
-                    )}
-                  </div>
+              {/* Mobile Header محسن */}
+              <div className="sm:hidden px-2 py-4 mobile-article-header">
+                {/* العنوان الرئيسي - عرض أكبر مع هوامش أقل */}
+                <div className="px-1 mb-3">
+                  <h1 className="text-2xl xs:text-[26px] font-bold leading-tight text-gray-900 dark:text-white mobile-article-title">
+                    {article.title}
+                  </h1>
+                </div>
 
-                  {/* التصنيف للموبايل */}
-                  {article.category && (
-                    <div className="flex justify-center">
+                {/* العنوان الفرعي - تصميم محسن */}
+                {getSubtitle() && (
+                  <div className="px-1 mb-4">
+                    <h2 className="text-sm leading-relaxed text-gray-900 dark:text-gray-100 font-normal mobile-article-subtitle">
+                      {getSubtitle()}
+                    </h2>
+                  </div>
+                )}
+
+                {/* حاوي للتصنيف ومعلومات النشر - تخطيط محسن */}
+                <div className="flex items-start justify-between px-1 gap-3 mobile-article-meta">
+                  {/* التصنيف في اليمين (RTL friendly) */}
+                  <div className="flex-shrink-0 order-2">
+                    {article.category && (
                       <Link
                         href={`/categories/${article.category.slug}`}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/50 hover:shadow-sm transition-all mobile-article-category"
                       >
                         {article.category.icon && (
-                          <span className="text-base">{article.category.icon}</span>
+                          <span className="text-sm">
+                            {article.category.icon}
+                          </span>
                         )}
                         <span>{article.category.name}</span>
                       </Link>
-                    </div>
-                  )}
+                    )}
+                  </div>
 
-                  {/* معلومات المقال للموبايل */}
-                  <div className="bg-white/70 dark:bg-gray-700/70 backdrop-blur-sm rounded-lg p-4 border border-gray-200/50 dark:border-gray-600/50">
-                    {/* المؤلف */}
+                  {/* معلومات النشر في اليسار - محاذاة مع الصورة */}
+                  <div className="flex flex-col items-start gap-1.5 text-xs text-gray-500 dark:text-gray-400 order-1 flex-1 max-w-[160px] mobile-article-metadata">
+                    {/* المراسل في سطر منفصل */}
                     {article.author && (
-                      <div className="flex items-center justify-center gap-2 mb-3 text-sm">
-                        <span className="text-gray-500 dark:text-gray-400">بقلم:</span>
+                      <div className="flex items-center gap-1.5">
                         <ReporterLink
                           author={article.author as any}
                           size="sm"
                           showIcon={true}
                           showVerification={true}
-                          className="font-medium"
+                          className="truncate max-w-[120px] text-xs"
                         />
                       </div>
                     )}
 
-                    {/* التاريخ ووقت القراءة والمشاهدات */}
-                    <div className="flex items-center justify-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                    {/* التاريخ ووقت القراءة والمشاهدات في سطر واحد */}
+                    <div className="flex items-center gap-2 flex-wrap">
                       <div className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        <span>{formatRelativeDate(article.published_at || article.created_at || "")}</span>
+                        <Calendar className="w-3 h-3 flex-shrink-0 mobile-article-icon" />
+                        <span>
+                          {formatRelativeDate(
+                            article.published_at || article.created_at || ""
+                          )}
+                        </span>
                       </div>
-                      <span>•</span>
+                      <span className="text-gray-300 dark:text-gray-600">
+                        •
+                      </span>
                       <div className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        <span>{article.reading_time || calculateReadingTime(article.content || "")} د</span>
+                        <Clock className="w-3 h-3 flex-shrink-0 mobile-article-icon" />
+                        <span>
+                          {article.reading_time ||
+                            calculateReadingTime(article.content || "")}{" "}
+                          د
+                        </span>
                       </div>
                       {article.views !== undefined && (
                         <>
-                          <span>•</span>
-                          <ArticleViews count={article.views} className="text-xs" />
+                          <span className="text-gray-300 dark:text-gray-600">
+                            •
+                          </span>
+                          <ArticleViews
+                            count={article.views}
+                            className="text-xs"
+                          />
                         </>
                       )}
                     </div>
@@ -470,8 +477,8 @@ export default function ArticleClientComponent({
           </article>
         </div>
 
-        {/* منطقة المحتوى المحسنة */}
-        <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+        {/* منطقة المحتوى */}
+        <article className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
           {/* صورة المقال */}
           {article.featured_image && (
             <div className="mb-6 sm:mb-8">
@@ -548,50 +555,35 @@ export default function ArticleClientComponent({
             </button>
           </div>
 
-          {/* محتوى المقال المحسن */}
+          {/* محتوى المقال */}
           <div className="mb-12">
             <div
               className={`prose max-w-none dark:prose-invert arabic-article-content
-                prose-headings:text-gray-900 dark:prose-headings:text-white prose-headings:font-bold
-                prose-p:text-gray-800 dark:prose-p:text-gray-200
-                prose-p:leading-relaxed prose-p:mb-6
-                prose-img:rounded-2xl prose-img:shadow-2xl prose-img:border prose-img:border-gray-200 dark:prose-img:border-gray-700
-                prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline prose-a:font-medium
-                prose-strong:text-gray-900 dark:prose-strong:text-white prose-strong:font-bold
-                prose-blockquote:border-r-4 prose-blockquote:border-blue-500 dark:prose-blockquote:border-blue-400
-                prose-blockquote:bg-blue-50/80 dark:prose-blockquote:bg-blue-900/20
-                prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-lg prose-blockquote:shadow-sm
-                prose-blockquote:not-italic prose-blockquote:font-medium
-                prose-ul:space-y-2 prose-ol:space-y-2
-                prose-li:text-gray-700 dark:prose-li:text-gray-300
+                prose-headings:text-gray-900 dark:prose-headings:text-white
+                prose-p:text-gray-700 dark:prose-p:text-gray-300
+                prose-p:leading-relaxed
+                prose-img:rounded-xl prose-img:shadow-xl
+                prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
+                prose-strong:text-gray-900 dark:prose-strong:text-white
+                prose-blockquote:border-blue-500 dark:prose-blockquote:border-blue-400
+                prose-blockquote:bg-blue-50 dark:prose-blockquote:bg-blue-900/20
+                prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-lg
                 ${isReading ? "prose-xl" : "prose-lg"}
               `}
-              style={{
-                fontSize: isReading ? '1.25rem' : '1.125rem',
-                lineHeight: isReading ? '1.8' : '1.7',
-              }}
               dangerouslySetInnerHTML={{ __html: contentHtml }}
             />
           </div>
 
-          {/* ستايلات محسنة للمحتوى العربي */}
+          {/* إصلاح التوجه العربي للمحتوى */}
           <style jsx>{`
-            .arabic-article-content {
-              direction: rtl !important;
-              text-align: right !important;
-              font-family: 'IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', system-ui, sans-serif !important;
-            }
-
             .arabic-article-content p {
               text-align: right !important;
               direction: rtl !important;
-              margin-bottom: 1.5rem !important;
-              text-indent: 2rem;
-              color: #374151;
             }
 
-            .dark .arabic-article-content p {
-              color: #d1d5db;
+            .arabic-article-content * {
+              text-align: right !important;
+              direction: rtl !important;
             }
 
             .arabic-article-content h1,
@@ -602,8 +594,6 @@ export default function ArticleClientComponent({
             .arabic-article-content h6 {
               text-align: right !important;
               direction: rtl !important;
-              margin: 2rem 0 1rem 0 !important;
-              font-weight: 700 !important;
             }
 
             .arabic-article-content blockquote {
@@ -611,50 +601,6 @@ export default function ArticleClientComponent({
               direction: rtl !important;
               border-right: 4px solid #3b82f6 !important;
               border-left: none !important;
-              margin: 1.5rem 0 !important;
-              font-style: normal !important;
-              padding: 1rem 1.5rem !important;
-              background: rgba(59, 130, 246, 0.05) !important;
-              border-radius: 0.5rem !important;
-            }
-
-            .arabic-article-content ul,
-            .arabic-article-content ol {
-              text-align: right !important;
-              direction: rtl !important;
-              padding-right: 2rem !important;
-              padding-left: 0 !important;
-            }
-
-            .arabic-article-content li {
-              text-align: right !important;
-              direction: rtl !important;
-              margin-bottom: 0.5rem !important;
-            }
-
-            .arabic-article-content img {
-              margin: 2rem auto !important;
-              border-radius: 1rem !important;
-              box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
-            }
-
-            .arabic-article-content a {
-              color: #2563eb !important;
-              font-weight: 500 !important;
-              transition: all 0.2s ease !important;
-            }
-
-            .arabic-article-content a:hover {
-              color: #1d4ed8 !important;
-              text-decoration: underline !important;
-            }
-
-            .dark .arabic-article-content a {
-              color: #60a5fa !important;
-            }
-
-            .dark .arabic-article-content a:hover {
-              color: #93c5fd !important;
             }
           `}</style>
 
