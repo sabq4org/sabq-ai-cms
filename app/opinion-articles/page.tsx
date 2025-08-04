@@ -1,13 +1,18 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Eye, Clock, Calendar, User, Filter, Search, ChevronDown, MessageCircle, Heart, Bookmark, Share2, FileText, PenTool, Grid3X3, List, Loader2, TrendingUp } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import UnifiedMobileNewsCard from '@/components/mobile/UnifiedMobileNewsCard';
-import Footer from '@/components/Footer';
+import Footer from "@/components/Footer";
+import UnifiedMobileNewsCard from "@/components/mobile/UnifiedMobileNewsCard";
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
+import { cn } from "@/lib/utils";
+import {
+  ChevronDown,
+  Grid3X3,
+  Loader2,
+  PenTool,
+  Search,
+  TrendingUp,
+} from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 
 interface Article {
   id: string;
@@ -51,25 +56,27 @@ export default function OpinionArticlesPage() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<'published_at' | 'views' | 'likes'>('published_at');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<"published_at" | "views" | "likes">(
+    "published_at"
+  );
+  const [searchQuery, setSearchQuery] = useState("");
   const [statsLoading, setStatsLoading] = useState(false);
   const [stats, setStats] = useState({
     total: 0,
     thisWeek: 0,
-    thisMonth: 0
+    thisMonth: 0,
   });
 
   // جلب التصنيفات
   const fetchCategories = useCallback(async () => {
     try {
-      const response = await fetch('/api/categories');
+      const response = await fetch("/api/categories");
       if (response.ok) {
         const data = await response.json();
         setCategories(data.categories || []);
       }
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.error("Error fetching categories:", error);
     }
   }, []);
 
@@ -78,92 +85,97 @@ export default function OpinionArticlesPage() {
     try {
       setStatsLoading(true);
       const params = new URLSearchParams({
-        status: 'published'
+        status: "published",
       });
 
       if (selectedCategory) {
-        params.append('category_id', selectedCategory);
+        params.append("category_id", selectedCategory);
       }
 
-      const response = await fetch(`/api/opinion-articles?${params}&limit=1000`);
+      const response = await fetch(
+        `/api/opinion-articles?${params}&limit=1000`
+      );
       if (response.ok) {
         const data = await response.json();
         const allArticles = data.articles || [];
-        
+
         const now = new Date();
         const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-        const thisWeek = allArticles.filter((article: Article) => 
-          new Date(article.published_at) >= oneWeekAgo
+        const thisWeek = allArticles.filter(
+          (article: Article) => new Date(article.published_at) >= oneWeekAgo
         ).length;
 
-        const thisMonth = allArticles.filter((article: Article) => 
-          new Date(article.published_at) >= oneMonthAgo
+        const thisMonth = allArticles.filter(
+          (article: Article) => new Date(article.published_at) >= oneMonthAgo
         ).length;
 
         setStats({
           total: allArticles.length,
           thisWeek,
-          thisMonth
+          thisMonth,
         });
       }
     } catch (error) {
-      console.error('Error fetching stats:', error);
+      console.error("Error fetching stats:", error);
     } finally {
       setStatsLoading(false);
     }
   }, [selectedCategory]);
 
   // جلب مقالات الرأي
-  const fetchArticles = useCallback(async (reset = false) => {
-    try {
-      if (reset) {
-        setLoading(true);
-      } else {
-        setIsLoadingMore(true);
-      }
-      setError(null);
-      
-      const currentPage = reset ? 1 : page;
-      const params = new URLSearchParams({
-        status: 'published',
-        limit: ITEMS_PER_PAGE.toString(),
-        page: currentPage.toString(),
-        sortBy: sortBy,
-        order: 'desc'
-      });
+  const fetchArticles = useCallback(
+    async (reset = false) => {
+      try {
+        if (reset) {
+          setLoading(true);
+        } else {
+          setIsLoadingMore(true);
+        }
+        setError(null);
 
-      if (selectedCategory) {
-        params.append('category_id', selectedCategory);
-      }
+        const currentPage = reset ? 1 : page;
+        const params = new URLSearchParams({
+          status: "published",
+          limit: ITEMS_PER_PAGE.toString(),
+          page: currentPage.toString(),
+          sortBy: sortBy,
+          order: "desc",
+        });
 
-      if (searchQuery.trim()) {
-        params.append('search', searchQuery.trim());
-      }
+        if (selectedCategory) {
+          params.append("category_id", selectedCategory);
+        }
 
-      const response = await fetch(`/api/opinion-articles?${params}`);
-      if (!response.ok) throw new Error('Failed to fetch opinion articles');
-      
-      const data = await response.json();
-      const fetchedArticles = data.articles || [];
-      
-      if (reset) {
-        setArticles(fetchedArticles);
-        setPage(1);
-      } else {
-        setArticles(prev => [...prev, ...fetchedArticles]);
+        if (searchQuery.trim()) {
+          params.append("search", searchQuery.trim());
+        }
+
+        const response = await fetch(`/api/opinion-articles?${params}`);
+        if (!response.ok) throw new Error("Failed to fetch opinion articles");
+
+        const data = await response.json();
+        const fetchedArticles = data.articles || [];
+
+        if (reset) {
+          setArticles(fetchedArticles);
+          setPage(1);
+        } else {
+          setArticles((prev) => [...prev, ...fetchedArticles]);
+        }
+
+        setHasMore(fetchedArticles.length === ITEMS_PER_PAGE);
+      } catch (error) {
+        console.error("Error fetching opinion articles:", error);
+        setError("فشل في تحميل مقالات الرأي");
+      } finally {
+        setLoading(false);
+        setIsLoadingMore(false);
       }
-      
-      setHasMore(fetchedArticles.length === ITEMS_PER_PAGE);
-    } catch (error) {
-      console.error('Error fetching opinion articles:', error);
-      setError('فشل في تحميل مقالات الرأي');
-    } finally {
-      setLoading(false);
-      setIsLoadingMore(false);
-    }
-  }, [page, selectedCategory, sortBy, searchQuery]);
+    },
+    [page, selectedCategory, sortBy, searchQuery]
+  );
 
   useEffect(() => {
     fetchCategories();
@@ -179,7 +191,7 @@ export default function OpinionArticlesPage() {
 
   const loadMore = () => {
     if (!loading && !isLoadingMore && hasMore) {
-      setPage(prev => prev + 1);
+      setPage((prev) => prev + 1);
       fetchArticles(false);
     }
   };
@@ -190,21 +202,21 @@ export default function OpinionArticlesPage() {
   };
 
   const getCategoryName = (categoryId: string) => {
-    const category = categories.find(cat => cat.id === categoryId);
-    return category?.name || 'غير مصنف';
+    const category = categories.find((cat) => cat.id === categoryId);
+    return category?.name || "غير مصنف";
   };
 
   const getCategoryColor = (categoryId: string) => {
-    const category = categories.find(cat => cat.id === categoryId);
-    return category?.color || '#3B82F6';
+    const category = categories.find((cat) => cat.id === categoryId);
+    return category?.color || "#3B82F6";
   };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('ar-SA', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return date.toLocaleDateString("ar-SA", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -217,17 +229,17 @@ export default function OpinionArticlesPage() {
             <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full blur-3xl bg-purple-200/30 dark:bg-purple-900/20" />
             <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full blur-3xl bg-blue-200/30 dark:bg-blue-900/20" />
           </div>
-          
+
           <div className="relative max-w-7xl mx-auto px-4 md:px-6">
             <div className="text-center">
               <div className="inline-flex items-center justify-center w-20 h-20 mb-6 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-600 shadow-2xl">
                 <PenTool className="w-10 h-10 text-white" />
               </div>
-              
+
               <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 dark:text-white">
                 مقالات الرأي
               </h1>
-              
+
               <p className="text-xl text-gray-600 dark:text-gray-300 mb-2">
                 آراء وتحليلات من كتاب وخبراء مختصين في مختلف المجالات
               </p>
@@ -237,25 +249,37 @@ export default function OpinionArticlesPage() {
                 <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-lg rounded-2xl p-6 text-center border border-gray-200/50 dark:border-gray-700/50 shadow-lg">
                     <div className="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-2">
-                      {statsLoading ? <Loader2 className="w-8 h-8 animate-spin mx-auto" /> : stats.total}
+                      {statsLoading ? (
+                        <Loader2 className="w-8 h-8 animate-spin mx-auto" />
+                      ) : (
+                        stats.total
+                      )}
                     </div>
                     <div className="text-sm text-gray-600 dark:text-gray-300">
                       إجمالي المقالات
                     </div>
                   </div>
-                  
+
                   <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-lg rounded-2xl p-6 text-center border border-gray-200/50 dark:border-gray-700/50 shadow-lg">
                     <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">
-                      {statsLoading ? <Loader2 className="w-8 h-8 animate-spin mx-auto" /> : stats.thisWeek}
+                      {statsLoading ? (
+                        <Loader2 className="w-8 h-8 animate-spin mx-auto" />
+                      ) : (
+                        stats.thisWeek
+                      )}
                     </div>
                     <div className="text-sm text-gray-600 dark:text-gray-300">
                       هذا الأسبوع
                     </div>
                   </div>
-                  
+
                   <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-lg rounded-2xl p-6 text-center border border-gray-200/50 dark:border-gray-700/50 shadow-lg">
                     <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">
-                      {statsLoading ? <Loader2 className="w-8 h-8 animate-spin mx-auto" /> : stats.thisMonth}
+                      {statsLoading ? (
+                        <Loader2 className="w-8 h-8 animate-spin mx-auto" />
+                      ) : (
+                        stats.thisMonth
+                      )}
                     </div>
                     <div className="text-sm text-gray-600 dark:text-gray-300">
                       هذا الشهر
@@ -289,12 +313,14 @@ export default function OpinionArticlesPage() {
                 {/* فلتر التصنيفات */}
                 <div className="relative">
                   <select
-                    value={selectedCategory || ''}
-                    onChange={(e) => setSelectedCategory(e.target.value || null)}
+                    value={selectedCategory || ""}
+                    onChange={(e) =>
+                      setSelectedCategory(e.target.value || null)
+                    }
                     className="appearance-none pr-10 pl-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 dark:text-white transition-all duration-200"
                   >
                     <option value="">جميع التصنيفات</option>
-                    {categories.map(category => (
+                    {categories.map((category) => (
                       <option key={category.id} value={category.id}>
                         {category.name}
                       </option>
@@ -307,7 +333,11 @@ export default function OpinionArticlesPage() {
                 <div className="relative">
                   <select
                     value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as 'published_at' | 'views' | 'likes')}
+                    onChange={(e) =>
+                      setSortBy(
+                        e.target.value as "published_at" | "views" | "likes"
+                      )
+                    }
                     className="appearance-none pr-10 pl-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 dark:text-white transition-all duration-200"
                   >
                     <option value="published_at">الأحدث</option>
@@ -332,10 +362,13 @@ export default function OpinionArticlesPage() {
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className={cn(
-                  "animate-pulse rounded-lg overflow-hidden",
-                  darkMode ? "bg-gray-800" : "bg-white"
-                )}>
+                <div
+                  key={i}
+                  className={cn(
+                    "animate-pulse rounded-lg overflow-hidden",
+                    darkMode ? "bg-gray-800" : "bg-white"
+                  )}
+                >
                   <div className="h-48 bg-gray-300"></div>
                   <div className="p-6 space-y-4">
                     <div className="h-4 bg-gray-300 rounded w-3/4"></div>
@@ -349,10 +382,12 @@ export default function OpinionArticlesPage() {
             <>
               {articles.length === 0 ? (
                 <div className="text-center py-12">
-                  <p className={cn(
-                    "text-xl",
-                    darkMode ? "text-gray-400" : "text-gray-600"
-                  )}>
+                  <p
+                    className={cn(
+                      "text-xl",
+                      darkMode ? "text-gray-400" : "text-gray-600"
+                    )}
+                  >
                     لا توجد مقالات رأي متاحة حالياً
                   </p>
                 </div>
@@ -371,20 +406,24 @@ export default function OpinionArticlesPage() {
                         reading_time: article.reading_time,
                         article_type: article.article_type,
                         author_name: article.author_name,
-                        author: article.author_name ? {
-                          id: article.author_id || '',
-                          name: article.author_name,
-                          avatar: article.author_avatar,
-                          specialty: article.author_specialty
-                        } : null,
-                        category: article.category ? {
-                          id: article.category.id,
-                          name: article.category.name,
-                          color: article.category.color
-                        } : null,
+                        author: article.author_name
+                          ? {
+                              id: article.author_id || "",
+                              name: article.author_name,
+                              avatar: article.author_avatar,
+                              specialty: article.author_specialty,
+                            }
+                          : null,
+                        category: article.category
+                          ? {
+                              id: article.category.id,
+                              name: article.category.name,
+                              color: article.category.color,
+                            }
+                          : null,
                         likes: article.likes,
                         comments_count: article.comments_count,
-                        saves: article.saves
+                        saves: article.saves,
                       }}
                     />
                   ))}

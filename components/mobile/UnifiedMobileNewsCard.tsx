@@ -601,14 +601,22 @@ export default function UnifiedMobileNewsCard({
                   </span>
                 </div>
               )}
-              
+
               {/* اسم وتخصص الكاتب */}
               <div className="flex-1 min-w-0">
-                <div className={`font-semibold text-sm ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                <div
+                  className={`font-semibold text-sm ${
+                    darkMode ? "text-white" : "text-gray-900"
+                  }`}
+                >
                   {article.author.name}
                 </div>
                 {article.author.specialty && (
-                  <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <div
+                    className={`text-xs ${
+                      darkMode ? "text-gray-400" : "text-gray-500"
+                    }`}
+                  >
                     {article.author.specialty}
                   </div>
                 )}
