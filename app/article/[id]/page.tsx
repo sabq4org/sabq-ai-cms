@@ -1,8 +1,5 @@
-import { generateMetadata } from './metadata';
-import dynamic from 'next/dynamic';
-
-// تحميل المكون الأصلي ديناميكياً
-const ArticleClientComponent = dynamic(() => import('./ArticleClientComponent'), { ssr: false });
+import { generateMetadata } from "./metadata";
+import ArticleClientComponent from "./ArticleClientComponent";
 
 interface ArticlePageProps {
   params: { id: string };
