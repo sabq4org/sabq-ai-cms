@@ -169,11 +169,7 @@ export default function RootLayout({
         className={`${ibmPlexArabic.variable} font-arabic`}
         suppressHydrationWarning
       >
-            <ReactErrorBoundary
-      onError={(error, errorInfo) => {
-        console.error('🚨 React Error Boundary نشط:', error, errorInfo);
-      }}
-    >
+            <ReactErrorBoundary>
       <ErrorBoundary>
         <AnalyticsProvider>
           <Providers>

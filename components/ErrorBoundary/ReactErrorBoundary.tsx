@@ -1,12 +1,11 @@
 "use client";
 
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { AlertTriangle, RefreshCw, Home, Bug } from 'lucide-react';
+import { AlertTriangle, Bug, Home, RefreshCw } from "lucide-react";
+import { Component, ErrorInfo, ReactNode } from "react";
 
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
-  onError?: (error: Error, errorInfo: ErrorInfo) => void;
 }
 
 interface State {
@@ -25,41 +24,43 @@ class ReactErrorBoundary extends Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    
+
     this.state = {
       hasError: false,
-      errorId: '',
+      errorId: "",
       retryCount: 0,
-      lastErrorTime: 0
+      lastErrorTime: 0,
     };
   }
 
   static getDerivedStateFromError(error: Error): Partial<State> {
     // تحديث الحالة للإشارة إلى حدوث خطأ
-    const errorId = `react_error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
+    const errorId = `react_error_${Date.now()}_${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
+
     return {
       hasError: true,
       error,
       errorId,
-      lastErrorTime: Date.now()
+      lastErrorTime: Date.now(),
     };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // تسجيل الخطأ
-    console.error('🚨 React Error Boundary اعترض خطأ:', {
+    console.error("🚨 React Error Boundary اعترض خطأ:", {
       error: error.message,
       stack: error.stack,
       componentStack: errorInfo.componentStack,
       errorId: this.state.errorId,
-      retryCount: this.state.retryCount
+      retryCount: this.state.retryCount,
     });
 
     // حفظ في localStorage للتتبع
     try {
       const errorLog = {
-        type: 'React Error Boundary',
+        type: "React Error Boundary",
         message: error.message,
         stack: error.stack,
         componentStack: errorInfo.componentStack,
@@ -67,29 +68,37 @@ class ReactErrorBoundary extends Component<Props, State> {
         timestamp: Date.now(),
         url: window.location.href,
         userAgent: navigator.userAgent,
-        retryCount: this.state.retryCount
+        retryCount: this.state.retryCount,
       };
 
-      const existingLogs = JSON.parse(localStorage.getItem('sabq_react_errors') || '[]');
+      const existingLogs = JSON.parse(
+        localStorage.getItem("sabq_react_errors") || "[]"
+      );
       existingLogs.push(errorLog);
-      
+
       // الاحتفاظ بآخر 50 خطأ فقط
       if (existingLogs.length > 50) {
         existingLogs.splice(0, existingLogs.length - 50);
       }
-      
-      localStorage.setItem('sabq_react_errors', JSON.stringify(existingLogs));
+
+      localStorage.setItem("sabq_react_errors", JSON.stringify(existingLogs));
     } catch (logError) {
-      console.warn('فشل في حفظ سجل الخطأ:', logError);
+      console.warn("فشل في حفظ سجل الخطأ:", logError);
     }
 
-    // استدعاء callback إذا وُجد
-    this.props.onError?.(error, errorInfo);
+    // تسجيل إضافي للخطأ (بدلاً من onError prop)
+    console.error('🚨 React Error Boundary - تفاصيل إضافية:', {
+      errorMessage: error.message,
+      errorStack: error.stack,
+      componentStack: errorInfo.componentStack,
+      timestamp: new Date().toISOString(),
+      url: typeof window !== 'undefined' ? window.location.href : 'unknown'
+    });
 
     // تحديث الحالة
     this.setState({
       error,
-      errorInfo
+      errorInfo,
     });
 
     // محاولة الإصلاح التلقائي للأخطاء الشائعة
@@ -97,38 +106,44 @@ class ReactErrorBoundary extends Component<Props, State> {
   }
 
   private attemptAutoRecovery = (error: Error) => {
-    const isInfiniteLoop = error.message.includes('Too many re-renders') || 
-                          error.message.includes('Maximum update depth exceeded') ||
-                          error.stack?.includes('react-dom') && error.message.includes('setState');
+    const isInfiniteLoop =
+      error.message.includes("Too many re-renders") ||
+      error.message.includes("Maximum update depth exceeded") ||
+      (error.stack?.includes("react-dom") &&
+        error.message.includes("setState"));
 
     if (isInfiniteLoop && this.state.retryCount < this.maxRetries) {
-      console.log(`🔄 محاولة الإصلاح التلقائي (${this.state.retryCount + 1}/${this.maxRetries})...`);
-      
+      console.log(
+        `🔄 محاولة الإصلاح التلقائي (${this.state.retryCount + 1}/${
+          this.maxRetries
+        })...`
+      );
+
       // تأخير قبل المحاولة مرة أخرى
       this.retryTimeoutId = setTimeout(() => {
-        this.setState(prevState => ({
+        this.setState((prevState) => ({
           hasError: false,
           error: undefined,
           errorInfo: undefined,
-          retryCount: prevState.retryCount + 1
+          retryCount: prevState.retryCount + 1,
         }));
       }, this.retryDelay * (this.state.retryCount + 1));
     }
   };
 
   private handleRetry = () => {
-    console.log('🔄 إعادة المحاولة يدوياً...');
-    
+    console.log("🔄 إعادة المحاولة يدوياً...");
+
     this.setState({
       hasError: false,
       error: undefined,
       errorInfo: undefined,
-      retryCount: this.state.retryCount + 1
+      retryCount: this.state.retryCount + 1,
     });
   };
 
   private handleGoHome = () => {
-    window.location.href = '/';
+    window.location.href = "/";
   };
 
   private handleReportError = () => {
@@ -139,12 +154,14 @@ class ReactErrorBoundary extends Component<Props, State> {
       componentStack: this.state.errorInfo?.componentStack,
       timestamp: this.state.lastErrorTime,
       url: window.location.href,
-      userAgent: navigator.userAgent
+      userAgent: navigator.userAgent,
     };
 
     // فتح نافذة جديدة لإرسال تقرير الخطأ
-    const reportUrl = `/api/error-report?data=${encodeURIComponent(JSON.stringify(errorReport))}`;
-    window.open(reportUrl, '_blank');
+    const reportUrl = `/api/error-report?data=${encodeURIComponent(
+      JSON.stringify(errorReport)
+    )}`;
+    window.open(reportUrl, "_blank");
   };
 
   componentWillUnmount() {
@@ -180,7 +197,7 @@ class ReactErrorBoundary extends Component<Props, State> {
             </p>
 
             {/* معلومات الخطأ (في وضع التطوير فقط) */}
-            {process.env.NODE_ENV === 'development' && this.state.error && (
+            {process.env.NODE_ENV === "development" && this.state.error && (
               <div className="mb-4 p-3 bg-gray-100 dark:bg-gray-700 rounded text-left text-xs">
                 <p className="font-mono text-red-600 dark:text-red-400 mb-2">
                   {this.state.error.message}
@@ -197,7 +214,9 @@ class ReactErrorBoundary extends Component<Props, State> {
             {/* معلومات إضافية */}
             <div className="text-xs text-gray-500 dark:text-gray-400 mb-6">
               <p>معرف الخطأ: {this.state.errorId}</p>
-              <p>محاولات الإصلاح: {this.state.retryCount}/{this.maxRetries}</p>
+              <p>
+                محاولات الإصلاح: {this.state.retryCount}/{this.maxRetries}
+              </p>
             </div>
 
             {/* أزرار الإجراءات */}
@@ -209,7 +228,9 @@ class ReactErrorBoundary extends Component<Props, State> {
                 className="w-full flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
-                {this.state.retryCount >= this.maxRetries ? 'تم استنفاد المحاولات' : 'إعادة المحاولة'}
+                {this.state.retryCount >= this.maxRetries
+                  ? "تم استنفاد المحاولات"
+                  : "إعادة المحاولة"}
               </button>
 
               {/* زر العودة للرئيسية */}

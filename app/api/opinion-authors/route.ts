@@ -1,32 +1,35 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   try {
     // استيراد آمن لـ Prisma
     let prisma;
     try {
-      const prismaModule = await import('@/lib/prisma');
+      const prismaModule = await import("@/lib/prisma");
       prisma = prismaModule.prisma;
     } catch (error) {
-      console.error('❌ فشل تحميل Prisma:', error);
-      return NextResponse.json({
-        success: false,
-        error: 'خطأ في النظام',
-        authors: []
-      }, { status: 500 });
+      console.error("❌ فشل تحميل Prisma:", error);
+      return NextResponse.json(
+        {
+          success: false,
+          error: "خطأ في النظام",
+          authors: [],
+        },
+        { status: 500 }
+      );
     }
 
     // محاولة جلب كتاب الرأي من article_authors بدلاً من opinion_authors
-    console.log('🔍 جلب كتاب الرأي من article_authors...');
-    
+    console.log("🔍 جلب كتاب الرأي من article_authors...");
+
     try {
       const authors = await prisma.article_authors.findMany({
-        where: { 
+        where: {
           is_active: true,
           // فلترة الكتاب الذين لديهم مقالات رأي
           specializations: {
-            contains: 'رأي'
-          }
+            contains: "رأي",
+          },
         },
         select: {
           id: true,
@@ -41,17 +44,17 @@ export async function GET(request: NextRequest) {
           total_articles: true,
           total_views: true,
           ai_score: true,
-          created_at: true
+          created_at: true,
         },
         orderBy: [
-          { ai_score: 'desc' },
-          { total_views: 'desc' },
-          { full_name: 'asc' }
-        ]
+          { ai_score: "desc" },
+          { total_views: "desc" },
+          { full_name: "asc" },
+        ],
       });
-      
+
       // تحويل البيانات لتتناسب مع الواجهة المطلوبة
-      const formattedAuthors = authors.map(author => ({
+      const formattedAuthors = authors.map((author) => ({
         id: author.id,
         name: author.full_name,
         bio: author.bio,
@@ -64,49 +67,51 @@ export async function GET(request: NextRequest) {
         stats: {
           totalArticles: author.total_articles || 0,
           totalViews: author.total_views || 0,
-          aiScore: author.ai_score || 0
-        }
+          aiScore: author.ai_score || 0,
+        },
       }));
-      
+
       console.log(`✅ تم جلب ${formattedAuthors.length} كاتب رأي`);
-      
+
       return NextResponse.json({
         success: true,
         authors: formattedAuthors,
-        total: formattedAuthors.length
+        total: formattedAuthors.length,
       });
-      
     } catch (dbError) {
-      console.warn('⚠️ فشل في جلب كتاب الرأي، استخدام بيانات افتراضية:', dbError);
-      
+      console.warn(
+        "⚠️ فشل في جلب كتاب الرأي، استخدام بيانات افتراضية:",
+        dbError
+      );
+
       // بيانات افتراضية في حالة فشل قاعدة البيانات
       const defaultAuthors = [
         {
-          id: '1',
-          name: 'كاتب رأي افتراضي',
-          bio: 'كاتب متخصص في مقالات الرأي والتحليل السياسي',
+          id: "1",
+          name: "كاتب رأي افتراضي",
+          bio: "كاتب متخصص في مقالات الرأي والتحليل السياسي",
           avatarUrl: null,
           isActive: true,
           displayOrder: 1,
-          title: 'كاتب رأي',
-          email: 'opinion@sabq.me',
-          specializations: 'رأي، تحليل سياسي',
+          title: "كاتب رأي",
+          email: "opinion@sabq.me",
+          specializations: "رأي، تحليل سياسي",
           stats: {
             totalArticles: 0,
             totalViews: 0,
-            aiScore: 0
-          }
-        }
+            aiScore: 0,
+          },
+        },
       ];
-      
+
       return NextResponse.json({
         success: true,
         authors: defaultAuthors,
         total: defaultAuthors.length,
-        fallback: true
+        fallback: true,
       });
     }
-    
+
     /*
     const authors = await prisma.opinion_authors.findMany({
       where: { isActive: true },
@@ -129,11 +134,14 @@ export async function GET(request: NextRequest) {
     });
     */
   } catch (error) {
-    console.error('❌ خطأ عام:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'خطأ في النظام',
-      authors: []
-    }, { status: 500 });
+    console.error("❌ خطأ عام:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: "خطأ في النظام",
+        authors: [],
+      },
+      { status: 500 }
+    );
   }
 }
