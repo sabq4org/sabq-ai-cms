@@ -32,7 +32,6 @@ import {
   Sparkles,
   Trash2,
   TrendingUp,
-  Upload,
   Users,
   X,
 } from "lucide-react";
@@ -364,7 +363,9 @@ const ArticlesList = ({
                   </Button>
                 </Link>
 
-                <Link href={`/admin/muqtarib/angles/${article.angleId}/articles/${article.id}`}>
+                <Link
+                  href={`/admin/muqtarib/angles/${article.angleId}/articles/${article.id}`}
+                >
                   <Button size="sm" variant="outline">
                     <Edit className="w-4 h-4" />
                   </Button>
@@ -454,7 +455,9 @@ export default function AngleDashboardPage() {
 
   // حالة حذف المقالات
   const [deleteArticleModalOpen, setDeleteArticleModalOpen] = useState(false);
-  const [articleToDelete, setArticleToDelete] = useState<AngleArticle | null>(null);
+  const [articleToDelete, setArticleToDelete] = useState<AngleArticle | null>(
+    null
+  );
   const [deletingArticle, setDeletingArticle] = useState(false);
 
   // جلب بيانات الزاوية والمقالات
@@ -624,7 +627,9 @@ export default function AngleDashboardPage() {
 
       if (response.ok) {
         // إزالة المقال من القائمة
-        setArticles((prev) => prev.filter((article) => article.id !== articleToDelete.id));
+        setArticles((prev) =>
+          prev.filter((article) => article.id !== articleToDelete.id)
+        );
         setDeleteArticleModalOpen(false);
         setArticleToDelete(null);
         toast.success("تم حذف المقال بنجاح!");
@@ -1032,19 +1037,24 @@ export default function AngleDashboardPage() {
       </div>
 
       {/* Modal تأكيد حذف المقال */}
-      <Dialog open={deleteArticleModalOpen} onOpenChange={setDeleteArticleModalOpen}>
+      <Dialog
+        open={deleteArticleModalOpen}
+        onOpenChange={setDeleteArticleModalOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="text-red-600">تأكيد حذف المقال</DialogTitle>
           </DialogHeader>
-          
+
           <div className="py-4">
             <p className="text-gray-700 mb-2">
               هل أنت متأكد من حذف المقال التالي؟
             </p>
             {articleToDelete && (
               <div className="bg-gray-50 p-3 rounded-lg">
-                <h4 className="font-semibold text-gray-900">{articleToDelete.title}</h4>
+                <h4 className="font-semibold text-gray-900">
+                  {articleToDelete.title}
+                </h4>
                 {articleToDelete.excerpt && (
                   <p className="text-sm text-gray-600 mt-1 line-clamp-2">
                     {articleToDelete.excerpt}
@@ -1053,9 +1063,7 @@ export default function AngleDashboardPage() {
                 <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
                   <span>المؤلف: {articleToDelete.author?.name}</span>
                   <span>•</span>
-                  <span>
-                    {articleToDelete.isPublished ? "منشور" : "مسودة"}
-                  </span>
+                  <span>{articleToDelete.isPublished ? "منشور" : "مسودة"}</span>
                 </div>
               </div>
             )}

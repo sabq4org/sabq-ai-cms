@@ -74,6 +74,7 @@ export default function Header() {
       highlight: false,
     },
     { url: "/categories", label: "الأقسام", icon: Folder, highlight: false },
+    { url: "/muqtarib", label: "مُقترب", icon: Target, highlight: false },
     { url: "/insights/deep", label: "عمق", icon: Brain, highlight: false },
     {
       url: "/moment-by-moment",
