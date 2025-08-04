@@ -171,6 +171,7 @@ export default function ProfilePage() {
   const dataFetchedRef = useRef(false);
   const fetchingInterestsRef = useRef(false);
   const manualRefreshRef = useRef(false); // 🆕 للتمييز بين التحديث اليدوي والتلقائي
+  const interestsLoadedImmediatelyRef = useRef(false); // 🆕 لتتبع تحميل الاهتمامات من fetchUserInterestsImmediately
   useEffect(() => {
     if (!fetchDataRef.current) {
       fetchDataRef.current = true;
@@ -181,10 +182,12 @@ export default function ProfilePage() {
   // إضافة listener لتحديث الاهتمامات عند العودة للصفحة (أقل تكراراً)
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (!document.hidden && user && !fetchingInterestsRef.current && preferences.length === 0) {
+      if (!document.hidden && user && !fetchingInterestsRef.current && preferences.length === 0 && !interestsLoadedImmediatelyRef.current) {
         // فقط إذا لم تكن الاهتمامات محملة مسبقاً
         console.log("👁️ الصفحة أصبحت مرئية وأحتاج لتحديث الاهتمامات");
         fetchUserInterestsImmediately();
+      } else if (interestsLoadedImmediatelyRef.current) {
+        console.log("👁️ الاهتمامات محملة بالفعل، تجاهل إعادة التحميل");
       }
     };
 
@@ -247,8 +250,10 @@ export default function ProfilePage() {
       // جلب الاهتمامات فوراً دون انتظار (مرة واحدة فقط)
       console.log("🚀 تحميل أولي للاهتمامات");
       fetchUserInterestsImmediately();
-      // ثم جلب باقي البيانات
-      fetchAllDataOptimized();
+      // تأخير جلب باقي البيانات لتجنب التداخل مع الاهتمامات
+      setTimeout(() => {
+        fetchAllDataOptimized();
+      }, 100);
     }
   }, [user]);
 
@@ -321,6 +326,7 @@ export default function ProfilePage() {
         // حماية إضافية: فقط أحدث الاهتمامات إذا كانت البيانات صحيحة
         if (userCategories.length > 0) {
           setPreferences(userCategories);
+          interestsLoadedImmediatelyRef.current = true; // 🆕 تحديد أن الاهتمامات تم تحميلها بنجاح
         }
         // إشعار بسيط فقط عند الضغط على زر التحديث يدوياً
         if (manualRefreshRef.current) {
@@ -429,14 +435,18 @@ export default function ProfilePage() {
           ? categoriesResult.value.categories || categoriesResult.value || []
           : [];
       // معالجة التفضيلات بطريقة موحدة
-      let userCategoryIds: string[] = [];
-      console.log("🔍 تحليل مصادر الاهتمامات:", {
-        userId: user.id,
-        interestsAPI:
-          interestsResult.status === "fulfilled" ? interestsResult.value : null,
-        userPreferences: user.preferences,
-        userInterests: user.interests,
-      });
+      // تجنب إعادة معالجة الاهتمامات إذا كانت محملة بالفعل من fetchUserInterestsImmediately
+      if (interestsLoadedImmediatelyRef.current && preferences.length > 0) {
+        console.log("✅ الاهتمامات محملة بالفعل من fetchUserInterestsImmediately، تجاهل fetchAllDataOptimized", preferences);
+      } else {
+        let userCategoryIds: string[] = [];
+        console.log("🔍 تحليل مصادر الاهتمامات:", {
+          userId: user.id,
+          interestsAPI:
+            interestsResult.status === "fulfilled" ? interestsResult.value : null,
+          userPreferences: user.preferences,
+          userInterests: user.interests,
+        });
       // 1. أولاً جرب من API الاهتمامات الجديد
       if (
         interestsResult.status === "fulfilled" &&
@@ -502,8 +512,13 @@ export default function ProfilePage() {
         setPreferences(userCategories);
       } else {
         console.log("❌ لم يتم العثور على اهتمامات للمستخدم");
-        setPreferences([]);
+        // لا نمسح الاهتمامات إذا كانت موجودة بالفعل - ربما تم تحميلها من fetchUserInterestsImmediately
+        if (preferences.length === 0) {
+          setPreferences([]);
+        }
       }
+      } // إغلاق شرط if (preferences.length > 0)
+      
       // معالجة التفاعلات
       if (
         interactionsResult.status === "fulfilled" &&
