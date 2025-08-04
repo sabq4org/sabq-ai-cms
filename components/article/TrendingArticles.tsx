@@ -25,13 +25,13 @@ interface Article {
 interface TrendingArticlesProps {
   currentArticleId?: string;
   limit?: number;
-  timeframe?: 'week' | 'month' | 'all';
+  timeframe?: "week" | "month" | "all";
 }
 
 export default function TrendingArticles({
   currentArticleId,
   limit = 5,
-  timeframe = 'week',
+  timeframe = "week",
 }: TrendingArticlesProps) {
   const { darkMode } = useDarkModeContext();
   const [articles, setArticles] = useState<Article[]>([]);
@@ -92,7 +92,12 @@ export default function TrendingArticles({
             darkMode ? "bg-orange-900/30" : "bg-orange-100"
           )}
         >
-          <TrendingUp className={cn("w-5 h-5", darkMode ? "text-orange-400" : "text-orange-600")} />
+          <TrendingUp
+            className={cn(
+              "w-5 h-5",
+              darkMode ? "text-orange-400" : "text-orange-600"
+            )}
+          />
         </div>
         <div>
           <h3
@@ -109,7 +114,11 @@ export default function TrendingArticles({
               darkMode ? "text-gray-400" : "text-gray-600"
             )}
           >
-            {timeframe === 'week' ? 'هذا الأسبوع' : timeframe === 'month' ? 'هذا الشهر' : 'الأكثر شعبية'}
+            {timeframe === "week"
+              ? "هذا الأسبوع"
+              : timeframe === "month"
+              ? "هذا الشهر"
+              : "الأكثر شعبية"}
           </p>
         </div>
       </div>
@@ -216,7 +225,7 @@ export default function TrendingArticles({
                         {article.author_name}
                       </span>
                     )}
-                    
+
                     <span
                       className={cn(
                         "flex items-center gap-1",
@@ -231,7 +240,12 @@ export default function TrendingArticles({
                   {/* المشاهدات */}
                   {article.views && (
                     <div className="flex items-center gap-1">
-                      <Eye className={cn("w-3 h-3", darkMode ? "text-green-400" : "text-green-600")} />
+                      <Eye
+                        className={cn(
+                          "w-3 h-3",
+                          darkMode ? "text-green-400" : "text-green-600"
+                        )}
+                      />
                       <span
                         className={cn(
                           "text-xs font-semibold",

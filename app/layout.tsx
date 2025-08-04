@@ -5,6 +5,7 @@ import ConditionalHeader from "../components/ConditionalHeader";
 import ErrorBoundary from "../components/ErrorBoundary";
 import GlobalErrorHandler from "../components/GlobalErrorHandler";
 import ContentWrapper from "../components/layout/ContentWrapper";
+import StructuredData from "../components/StructuredData";
 import "../styles/compact-stats.css";
 import "../styles/enhanced-dark-mode-mobile.css";
 import "../styles/enhanced-mobile-stats.css";
@@ -32,14 +33,96 @@ const ibmPlexArabic = IBM_Plex_Sans_Arabic({
 });
 
 export const metadata: Metadata = {
-  title: "صحيفة سبق الالكترونية AI",
-  description: "صحيفة سبق الإلكترونية - أخبار ومقالات بتقنية الذكاء الاصطناعي",
-  applicationName: "صحيفة سبق",
+  title: {
+    default: 'سبق الذكية - منصة الأخبار الذكية',
+    template: '%s - سبق الذكية',
+  },
+  description: 'منصة إعلامية مدعومة بالذكاء الاصطناعي تقدم تحليلات ومقالات وأخبار دقيقة وعميقة.',
+  applicationName: "سبق الذكية",
+  authors: [{ name: "فريق سبق الذكية" }],
+  keywords: [
+    "أخبار السعودية",
+    "الذكاء الاصطناعي", 
+    "تحليلات إخبارية",
+    "مقالات رأي",
+    "أخبار عاجلة",
+    "سبق الذكية",
+    "صحافة ذكية"
+  ],
+  creator: "سبق الذكية",
+  publisher: "سبق الذكية",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'ar_SA',
+    url: 'https://sabq.me',
+    siteName: 'سبق الذكية',
+    title: 'سبق الذكية - منصة الأخبار الذكية',
+    description: 'تابع أحدث الأخبار والتحليلات العميقة عبر منصة سبق الذكية المدعومة بالذكاء الاصطناعي.',
+    images: [
+      {
+        url: 'https://sabq.me/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'سبق الذكية - منصة الأخبار الذكية',
+        type: 'image/jpeg',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@sabq',
+    creator: '@sabq',
+    title: 'سبق الذكية - منصة الأخبار الذكية',
+    description: 'تابع أحدث الأخبار والتحليلات العميقة عبر منصة سبق الذكية المدعومة بالذكاء الاصطناعي.',
+    images: {
+      url: 'https://sabq.me/og-image.jpg',
+      alt: 'سبق الذكية',
+    },
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+    other: [
+      { rel: 'mask-icon', url: '/safari-pinned-tab.svg', color: '#5bbad5' },
+    ],
+  },
+  manifest: '/site.webmanifest',
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "صحيفة سبق",
+    title: "سبق الذكية",
+    startupImage: '/apple-touch-icon.png',
   },
+  alternates: {
+    canonical: 'https://sabq.me',
+    languages: {
+      'ar-SA': 'https://sabq.me',
+      'ar': 'https://sabq.me',
+    },
+  },
+  category: 'news',
 };
 
 export const viewport = {
@@ -90,6 +173,7 @@ export default function RootLayout({
             </Providers>
           </AnalyticsProvider>
         </ErrorBoundary>
+        <StructuredData pageType="home" />
       </body>
     </html>
   );

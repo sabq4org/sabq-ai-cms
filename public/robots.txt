@@ -1,0 +1,50 @@
+User-agent: *
+Allow: /
+
+# تجنب فهرسة صفحات الإدارة
+Disallow: /admin/
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /login/
+Disallow: /register/
+
+# تجنب فهرسة الصفحات الداخلية
+Disallow: /test-*
+Disallow: /debug/
+Disallow: /preview/
+
+# السماح بفهرسة المحتوى المهم
+Allow: /article/
+Allow: /news/
+Allow: /categories/
+Allow: /opinion/
+Allow: /opinion-articles/
+Allow: /reporter/
+
+# Crawl-delay للحد من الضغط على السيرفر
+Crawl-delay: 1
+
+# خريطة الموقع
+Sitemap: https://sabq.me/sitemap.xml
+Sitemap: https://sabq.me/news-sitemap.xml
+Sitemap: https://sabq.me/articles-sitemap.xml
+
+# إعدادات خاصة لـ Googlebot
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+# إعدادات خاصة لـ Bingbot
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# منع الروبوتات الضارة
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /

@@ -87,7 +87,12 @@ export default function AuthorLatestArticles({
             darkMode ? "bg-blue-900/30" : "bg-blue-100"
           )}
         >
-          <User className={cn("w-5 h-5", darkMode ? "text-blue-400" : "text-blue-600")} />
+          <User
+            className={cn(
+              "w-5 h-5",
+              darkMode ? "text-blue-400" : "text-blue-600"
+            )}
+          />
         </div>
         <div>
           <h3
@@ -200,7 +205,7 @@ export default function AuthorLatestArticles({
                       <Calendar className="w-3 h-3" />
                       {formatDate(article.published_at)}
                     </span>
-                    
+
                     {article.views && (
                       <span
                         className={cn(
