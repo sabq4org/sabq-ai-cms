@@ -5,8 +5,8 @@
 
 "use client";
 
-import ModernDashboard from "@/components/admin/modern-dashboard/ModernDashboard";
+import ModernDashboardHomeFullWidth from "@/components/admin/modern-dashboard/ModernDashboardHomeFullWidth";
 
 export default function ModernDashboardPage() {
-  return <ModernDashboard />;
+  return <ModernDashboardHomeFullWidth />;
 }
