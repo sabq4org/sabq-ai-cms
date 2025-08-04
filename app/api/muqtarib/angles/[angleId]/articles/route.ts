@@ -23,7 +23,7 @@ export async function POST(
 
     // التحقق من وجود الزاوية
     const angleExists = (await prisma.$queryRaw`
-      SELECT id FROM angles WHERE id = ${angleId}
+      SELECT id FROM angles WHERE id = ${angleId}::uuid
     `) as { id: string }[];
 
     if (angleExists.length === 0) {
@@ -40,9 +40,9 @@ export async function POST(
         sentiment, tags, cover_image, is_published,
         publish_date, reading_time
       ) VALUES (
-        ${angleId}, ${body.title}, ${body.content}, ${body.excerpt || null}, ${
+        ${angleId}::uuid, ${body.title}, ${body.content}, ${body.excerpt || null}, ${
       body.authorId
-    },
+    }::uuid,
         ${body.sentiment || "neutral"}, ${JSON.stringify(body.tags || [])}, ${
       body.coverImage || null
     },
@@ -110,7 +110,7 @@ export async function GET(
     const offset = (page - 1) * limit;
 
     // بناء شروط الفلترة
-    let whereClause = `WHERE aa.angle_id = $1`;
+    let whereClause = `WHERE aa.angle_id = $1::uuid`;
     const params: any[] = [angleId];
     let paramIndex = 2;
 

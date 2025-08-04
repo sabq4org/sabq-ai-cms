@@ -51,14 +51,14 @@ export async function POST(request: NextRequest) {
         title, slug, description, icon, theme_color,
         author_id, cover_image, is_featured, is_published
       ) VALUES (
-        ${body.title}, 
-        ${slug}, 
-        ${body.description}, 
-        ${body.icon || null}, 
+        ${body.title},
+        ${slug},
+        ${body.description},
+        ${body.icon || null},
         ${body.themeColor},
-        ${body.authorId || null}, 
-        ${body.coverImage || null}, 
-        ${body.isFeatured}, 
+        ${body.authorId || null},
+        ${body.coverImage || null},
+        ${body.isFeatured},
         ${body.isPublished}
       ) RETURNING *
     `) as any[];

@@ -24,7 +24,7 @@ export async function GET(
       FROM angles a
       LEFT JOIN users u ON a.author_id = u.id
       LEFT JOIN angle_articles aa ON a.id = aa.angle_id
-      WHERE a.id = $1
+      WHERE a.id = $1::uuid
       GROUP BY a.id, u.name, u.avatar
     `;
 
@@ -54,7 +54,7 @@ export async function GET(
         u.name as author_name
       FROM angle_articles aa
       LEFT JOIN users u ON aa.author_id = u.id
-      WHERE aa.angle_id = $1
+      WHERE aa.angle_id = $1::uuid
       ORDER BY aa.created_at DESC
       LIMIT 5
     `;
@@ -123,7 +123,7 @@ export async function PUT(
 
     // التحقق من وجود الزاوية
     const existingAngle = (await prisma.$queryRaw`
-      SELECT id FROM angles WHERE id = ${angleId}
+      SELECT id FROM angles WHERE id = ${angleId}::uuid
     `) as { id: string }[];
 
     if (existingAngle.length === 0) {
@@ -144,7 +144,7 @@ export async function PUT(
         is_featured = $6,
         is_published = $7,
         updated_at = CURRENT_TIMESTAMP
-      WHERE id = $8
+      WHERE id = $8::uuid
       RETURNING *
     `;
 
@@ -201,7 +201,7 @@ export async function DELETE(
 
     // التحقق من وجود الزاوية
     const existingAngle = (await prisma.$queryRaw`
-      SELECT id FROM angles WHERE id = ${angleId}
+      SELECT id FROM angles WHERE id = ${angleId}::uuid
     `) as { id: string }[];
 
     if (existingAngle.length === 0) {
@@ -213,7 +213,7 @@ export async function DELETE(
 
     // حذف الزاوية (سيتم حذف المقالات تلقائياً بسبب CASCADE)
     await prisma.$queryRaw`
-      DELETE FROM angles WHERE id = ${angleId}
+      DELETE FROM angles WHERE id = ${angleId}::uuid
     `;
 
     return NextResponse.json({

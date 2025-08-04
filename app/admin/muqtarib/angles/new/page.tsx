@@ -180,9 +180,12 @@ export default function CreateAnglePage() {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<CreateAngleForm>({
     title: "",
+    slug: "",
     description: "",
+    icon: "",
     themeColor: "#3B82F6",
     authorId: "", // سيتم تعيينه من المستخدم الحالي
+    coverImage: "",
     isFeatured: false,
     isPublished: false,
   });
