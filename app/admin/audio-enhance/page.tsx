@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Volume2, Waveform, Settings } from "lucide-react";
+import { Volume2, Activity, Settings } from "lucide-react";
 
 export default function AudioEnhancePage() {
   return (
@@ -37,7 +37,7 @@ export default function AudioEnhancePage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Waveform className="w-5 h-5 text-green-600" />
+              <Activity className="w-5 h-5 text-green-600" />
               تحليل الموجات
             </CardTitle>
           </CardHeader>
