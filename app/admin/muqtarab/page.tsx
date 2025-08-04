@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-// تم إزالة DashboardLayout - تستخدم الصفحة layout.tsx الأساسي
+import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
