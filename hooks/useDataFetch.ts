@@ -2,7 +2,7 @@
  * Hook محسن لجلب البيانات مع caching وتحسين الأداء
  */
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 interface UseDataFetchOptions<T> {
   endpoint: string;
@@ -158,7 +158,7 @@ export function useDataFetch<T>({
         abortControllerRef.current.abort();
       }
     };
-  }, [endpoint, cacheKey, retryAttempts, retryDelay, ...dependencies]);
+  }, [fetchData]);
 
   return {
     data,
@@ -171,9 +171,17 @@ export function useDataFetch<T>({
 
 // Hook لجلب المقالات محسن
 export function useArticles(filters: any = {}) {
-  const queryParams = new URLSearchParams(filters).toString();
-  const endpoint = `/api/articles${queryParams ? `?${queryParams}` : ""}`;
-  const cacheKey = `articles-${queryParams}`;
+  const queryParams = useMemo(() => {
+    return new URLSearchParams(filters).toString();
+  }, [filters]);
+  
+  const endpoint = useMemo(() => {
+    return `/api/articles${queryParams ? `?${queryParams}` : ""}`;
+  }, [queryParams]);
+  
+  const cacheKey = useMemo(() => {
+    return `articles-${queryParams}`;
+  }, [queryParams]);
 
   return useDataFetch({
     endpoint,
