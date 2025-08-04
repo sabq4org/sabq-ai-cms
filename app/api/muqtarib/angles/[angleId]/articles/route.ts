@@ -103,30 +103,39 @@ export async function GET(
   try {
     const { angleId } = params;
     const { searchParams } = new URL(request.url);
+    
+    console.log("🔍 [GET Articles] angleId:", angleId);
+    console.log("🔍 [GET Articles] searchParams:", Object.fromEntries(searchParams));
 
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "12");
     const sortBy = searchParams.get("sortBy") || "newest";
     const timeRange = searchParams.get("timeRange") || "all";
     const sentiment = searchParams.get("sentiment");
-    const published = searchParams.get("published") !== "false"; // افتراضياً نجلب المنشورة فقط
-
+    const publishedParam = searchParams.get("published");
+    
     const offset = (page - 1) * limit;
 
     // بناء شروط الفلترة
     let whereClause = `WHERE aa.angle_id = $1::uuid`;
-    const params: any[] = [angleId];
+    const queryParams: any[] = [angleId];
     let paramIndex = 2;
 
-    if (published) {
+    // تطبيق فلتر النشر فقط إذا تم تحديده صراحة
+    if (publishedParam === "true") {
       whereClause += ` AND aa.is_published = $${paramIndex}`;
-      params.push(true);
+      queryParams.push(true);
+      paramIndex++;
+    } else if (publishedParam === "false") {
+      whereClause += ` AND aa.is_published = $${paramIndex}`;
+      queryParams.push(false);
       paramIndex++;
     }
+    // إذا لم يتم تحديد published، جلب كل المقالات (منشورة ومسودات)
 
     if (sentiment) {
       whereClause += ` AND aa.sentiment = $${paramIndex}`;
-      params.push(sentiment);
+      queryParams.push(sentiment);
       paramIndex++;
     }
 
@@ -174,12 +183,17 @@ export async function GET(
       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
     `;
 
-    params.push(limit, offset);
+    queryParams.push(limit, offset);
+
+    console.log("📊 [GET Articles] SQL Query:", articlesQuery);
+    console.log("📊 [GET Articles] Params:", queryParams);
 
     const articles = (await prisma.$queryRawUnsafe(
       articlesQuery,
-      ...params
+      ...queryParams
     )) as any[];
+    
+    console.log("✅ [GET Articles] Found articles:", articles.length);
 
     // جلب العدد الإجمالي
     const countQuery = `
@@ -190,7 +204,7 @@ export async function GET(
 
     const countResult = (await prisma.$queryRawUnsafe(
       countQuery,
-      ...params.slice(0, -2)
+      ...queryParams.slice(0, -2)
     )) as { total: bigint }[];
 
     const total = Number(countResult[0].total);
@@ -235,9 +249,14 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error("خطأ في جلب مقالات الزاوية:", error);
+    console.error("❌ [GET Articles] خطأ في جلب مقالات الزاوية:", error);
+    console.error("❌ [GET Articles] Error details:", error?.message || error);
+    
     return NextResponse.json(
-      { error: "حدث خطأ في جلب المقالات" },
+      { 
+        error: "حدث خطأ في جلب المقالات",
+        details: process.env.NODE_ENV === 'development' ? error?.message : undefined
+      },
       { status: 500 }
     );
   } finally {

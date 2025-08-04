@@ -357,12 +357,26 @@ export default function AngleDashboardPage() {
 
         // جلب المقالات (منشورة ومسودات)
         setArticlesLoading(true);
+        console.log("🔍 جاري جلب مقالات الزاوية:", angleId);
         const articlesResponse = await fetch(
-          `/api/muqtarib/angles/${angleId}/articles?published=false&limit=10`
+          `/api/muqtarib/angles/${angleId}/articles?limit=10`,
+          {
+            cache: "no-store",
+            headers: {
+              "Cache-Control": "no-cache",
+            },
+          }
         );
+        console.log("📡 استجابة API المقالات:", articlesResponse.status, articlesResponse.ok);
+        
         if (articlesResponse.ok) {
           const articlesData = await articlesResponse.json();
-          setArticles(articlesData.articles);
+          console.log("✅ تم جلب المقالات:", articlesData.articles?.length || 0);
+          setArticles(articlesData.articles || []);
+        } else {
+          console.error("❌ خطأ في جلب المقالات:", articlesResponse.status);
+          const errorText = await articlesResponse.text();
+          console.error("📄 محتوى خطأ المقالات:", errorText);
         }
       } catch (error) {
         if (isMounted) {

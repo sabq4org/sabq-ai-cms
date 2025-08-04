@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
       cloudinaryFormData.append("file", file);
       cloudinaryFormData.append("upload_preset", "muqtarab_covers");
       cloudinaryFormData.append("folder", "muqtarab/covers");
-      
+
       // إضافة API key إذا كان متوفر
       if (process.env.CLOUDINARY_API_KEY) {
         cloudinaryFormData.append("api_key", process.env.CLOUDINARY_API_KEY);
@@ -67,10 +67,17 @@ export async function POST(request: NextRequest) {
         });
       } else {
         const errorText = await cloudinaryResponse.text();
-        console.error("❌ Cloudinary error:", cloudinaryResponse.status, errorText);
+        console.error(
+          "❌ Cloudinary error:",
+          cloudinaryResponse.status,
+          errorText
+        );
       }
     } catch (cloudinaryError) {
-      console.error("❌ Cloudinary upload failed, using fallback:", cloudinaryError);
+      console.error(
+        "❌ Cloudinary upload failed, using fallback:",
+        cloudinaryError
+      );
     }
 
     // Fallback: إنشاء Data URL محلي
