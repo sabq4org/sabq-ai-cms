@@ -101,7 +101,7 @@ export default function OpinionArticlesPage() {
       if (response.ok) {
         const data = await response.json();
         const allArticles = data.articles || [];
-        
+
         const now = new Date();
         const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
@@ -115,7 +115,7 @@ export default function OpinionArticlesPage() {
         ).length;
 
         const totalViews = allArticles.reduce(
-          (sum: number, article: Article) => sum + (article.views || 0), 
+          (sum: number, article: Article) => sum + (article.views || 0),
           0
         );
 
@@ -136,52 +136,52 @@ export default function OpinionArticlesPage() {
   // جلب مقالات الرأي
   const fetchArticles = useCallback(
     async (reset = false) => {
-    try {
-      if (reset) {
-        setLoading(true);
-      } else {
-        setIsLoadingMore(true);
-      }
-      setError(null);
-      
-      const currentPage = reset ? 1 : page;
-      const params = new URLSearchParams({
+      try {
+        if (reset) {
+          setLoading(true);
+        } else {
+          setIsLoadingMore(true);
+        }
+        setError(null);
+
+        const currentPage = reset ? 1 : page;
+        const params = new URLSearchParams({
           status: "published",
-        limit: ITEMS_PER_PAGE.toString(),
-        page: currentPage.toString(),
-        sortBy: sortBy,
+          limit: ITEMS_PER_PAGE.toString(),
+          page: currentPage.toString(),
+          sortBy: sortBy,
           order: "desc",
-      });
+        });
 
-      if (selectedCategory) {
+        if (selectedCategory) {
           params.append("category_id", selectedCategory);
-      }
+        }
 
-      if (searchQuery.trim()) {
+        if (searchQuery.trim()) {
           params.append("search", searchQuery.trim());
-      }
+        }
 
-      const response = await fetch(`/api/opinion-articles?${params}`);
+        const response = await fetch(`/api/opinion-articles?${params}`);
         if (!response.ok) throw new Error("Failed to fetch opinion articles");
-      
-      const data = await response.json();
-      const fetchedArticles = data.articles || [];
-      
-      if (reset) {
-        setArticles(fetchedArticles);
-        setPage(1);
-      } else {
+
+        const data = await response.json();
+        const fetchedArticles = data.articles || [];
+
+        if (reset) {
+          setArticles(fetchedArticles);
+          setPage(1);
+        } else {
           setArticles((prev) => [...prev, ...fetchedArticles]);
-      }
-      
-      setHasMore(fetchedArticles.length === ITEMS_PER_PAGE);
-    } catch (error) {
+        }
+
+        setHasMore(fetchedArticles.length === ITEMS_PER_PAGE);
+      } catch (error) {
         console.error("Error fetching opinion articles:", error);
         setError("فشل في تحميل مقالات الرأي");
-    } finally {
-      setLoading(false);
-      setIsLoadingMore(false);
-    }
+      } finally {
+        setLoading(false);
+        setIsLoadingMore(false);
+      }
     },
     [page, selectedCategory, sortBy, searchQuery]
   );
@@ -259,45 +259,61 @@ export default function OpinionArticlesPage() {
                   <div className="text-center px-2">
                     <div className="flex items-center gap-2">
                       <PenTool className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                      <div className="text-2xl font-bold text-gray-900 dark:text-white">{stats.total || 0}</div>
+                      <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {stats.total || 0}
+                      </div>
                     </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">مقال</div>
-            </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                      مقال
+                    </div>
+                  </div>
 
                   <div className="w-px h-10 bg-gray-300 dark:bg-gray-600 hidden md:block"></div>
-                  
+
                   <div className="text-center px-2">
                     <div className="flex items-center gap-2">
                       <Eye className="w-5 h-5 text-green-600 dark:text-green-400" />
                       <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                        {stats.totalViews > 999 ? `${(stats.totalViews / 1000).toFixed(1)}k` : (stats.totalViews || 0)}
-                </div>
-              </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">مشاهدة</div>
+                        {stats.totalViews > 999
+                          ? `${(stats.totalViews / 1000).toFixed(1)}k`
+                          : stats.totalViews || 0}
+                      </div>
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                      مشاهدة
+                    </div>
                   </div>
-                  
+
                   <div className="w-px h-10 bg-gray-300 dark:bg-gray-600 hidden md:block"></div>
-                  
+
                   <div className="text-center px-2">
                     <div className="flex items-center gap-2">
                       <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                      <div className="text-2xl font-bold text-gray-900 dark:text-white">{stats.thisWeek || 0}</div>
+                      <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {stats.thisWeek || 0}
+                      </div>
                     </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">هذا الأسبوع</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                      هذا الأسبوع
+                    </div>
                   </div>
-                  
+
                   <div className="w-px h-10 bg-gray-300 dark:bg-gray-600 hidden md:block"></div>
-                  
+
                   <div className="text-center px-2">
                     <div className="flex items-center gap-2">
                       <TrendingUp className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-                      <div className="text-2xl font-bold text-gray-900 dark:text-white">{stats.thisMonth || 0}</div>
+                      <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {stats.thisMonth || 0}
+                      </div>
                     </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">هذا الشهر</div>
-                </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                      هذا الشهر
+                    </div>
+                  </div>
                 </div>
               )}
-              
+
               {/* Loading indicator for stats */}
               {statsLoading && (
                 <div className="mt-6 inline-flex items-center gap-2 text-gray-500 dark:text-gray-400">
@@ -383,8 +399,8 @@ export default function OpinionArticlesPage() {
                 <div
                   key={i}
                   className={cn(
-                  "animate-pulse rounded-lg overflow-hidden",
-                  darkMode ? "bg-gray-800" : "bg-white"
+                    "animate-pulse rounded-lg overflow-hidden",
+                    darkMode ? "bg-gray-800" : "bg-white"
                   )}
                 >
                   <div className="h-48 bg-gray-300"></div>
@@ -402,8 +418,8 @@ export default function OpinionArticlesPage() {
                 <div className="text-center py-12">
                   <p
                     className={cn(
-                    "text-xl",
-                    darkMode ? "text-gray-400" : "text-gray-600"
+                      "text-xl",
+                      darkMode ? "text-gray-400" : "text-gray-600"
                     )}
                   >
                     لا توجد مقالات رأي متاحة حالياً
@@ -413,7 +429,7 @@ export default function OpinionArticlesPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {articles.map((article) => (
                     <OpinionArticleCard
-                      key={article.id} 
+                      key={article.id}
                       article={{
                         id: article.id,
                         title: article.title,

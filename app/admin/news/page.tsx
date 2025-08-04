@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { Component, ReactNode, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-// تم إزالة DashboardLayout - تستخدم الصفحة layout.tsx الأساسي
+import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
+import { DesignComponents } from '@/components/design-system/DesignSystemGuide';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -36,6 +37,9 @@ import {
   Edit,
   Eye,
   FileText,
+  Filter,
+  Download,
+  Sparkles,
   MoreVertical,
   PauseCircle,
   PlayCircle,
@@ -605,84 +609,178 @@ function AdminNewsPageContent() {
   };
 
   return (
-    <TooltipProvider>
-        <div className="space-y-6 p-6">
-          {/* العنوان والإجراءات */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">إدارة الأخبار</h1>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                إدارة وتحرير المحتوى الإخباري
-              </p>
+    <DashboardLayout
+      pageTitle="إدارة الأخبار"
+      pageDescription="إدارة وتحرير المحتوى الإخباري بنظام ذكي متطور"
+    >
+      <TooltipProvider>
+        <div className="space-y-6">
+          {/* رسالة الترحيب */}
+          <DesignComponents.StandardCard className="p-6 bg-gradient-to-l from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 border-green-200 dark:border-green-800">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-12 h-12 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center">
+                <FileText className="w-6 h-6 text-green-600 dark:text-green-400" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                  نظام إدارة الأخبار المتطور
+                </h2>
+                <p className="text-gray-700 dark:text-gray-300 mb-4">
+                  إدارة شاملة للمحتوى الإخباري مع أدوات ذكية لتحرير ونشر الأخبار
+                </p>
+                <div className="flex gap-3">
+                  <DesignComponents.StatusIndicator
+                    status="success"
+                    text={`${formatNumber(stats?.published || 0)} خبر منشور`}
+                  />
+                  <DesignComponents.StatusIndicator
+                    status="info"
+                    text={`${formatNumber(filteredArticles.length)} إجمالي`}
+                  />
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <Link href="/admin/news/smart-editor">
+                  <Button variant="outline" size="sm" className="border-blue-200 text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-300 dark:hover:bg-blue-900/20">
+                    <Sparkles className="w-4 h-4 ml-2" />
+                    المحرر الذكي
+                  </Button>
+                </Link>
+                <Link href="/admin/news/unified">
+                  <Button className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600" size="sm">
+                    <Plus className="w-4 h-4 ml-2" />
+                    خبر جديد
+                  </Button>
+                </Link>
+              </div>
             </div>
+          </DesignComponents.StandardCard>
 
-            <div className="flex gap-3">
-              <Link href="/admin/news/smart-editor">
-                <Button variant="outline" size="lg" className="border-blue-200 text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-300 dark:hover:bg-blue-900/20">
-                  <FileText className="w-5 h-5 ml-2" />
-                  المحرر الذكي ✨
-                </Button>
-              </Link>
+          {/* إحصائيات الأخبار */}
+          <div>
+            <DesignComponents.SectionHeader
+              title="إحصائيات الأخبار"
+              description="نظرة عامة على حالة المحتوى الإخباري"
+              action={
+                <DesignComponents.ActionBar>
+                  <Button variant="outline" size="sm">
+                    <Filter className="w-4 h-4 ml-2" />
+                    تصفية
+                  </Button>
+                  <Button size="sm">
+                    <Download className="w-4 h-4 ml-2" />
+                    تصدير
+                  </Button>
+                </DesignComponents.ActionBar>
+              }
+            />
 
-              <Link href="/admin/news/unified">
-                <Button className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600" size="lg">
-                  <Plus className="w-5 h-5 ml-2" />
-                  خبر جديد
-                </Button>
-              </Link>
+            {/* بطاقات إحصائيات الأخبار */}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+              {/* بطاقة الأخبار المنشورة */}
+              <DesignComponents.StandardCard 
+                className={`p-6 hover:shadow-lg transition-shadow cursor-pointer ${filterStatus === 'published' ? 'ring-2 ring-green-500' : ''}`} 
+                onClick={() => setFilterStatus('published')}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                      الأخبار المنشورة
+                    </p>
+                    <div className="flex items-center gap-3 mt-2">
+                      <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        {formatNumber(stats?.published || 0)}
+                      </p>
+                      <div className="flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-full text-green-700 bg-green-100 dark:bg-green-900/30 dark:text-green-400">
+                        <CheckCircle className="w-3 h-3" />
+                        نشط
+                      </div>
+                    </div>
+                  </div>
+                  <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-green-100 dark:bg-green-900/30">
+                    <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
+                  </div>
+                </div>
+              </DesignComponents.StandardCard>
+
+              {/* بطاقة المسودات */}
+              <DesignComponents.StandardCard 
+                className={`p-6 hover:shadow-lg transition-shadow cursor-pointer ${filterStatus === 'draft' ? 'ring-2 ring-yellow-500' : ''}`} 
+                onClick={() => setFilterStatus('draft')}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                      المسودات
+                    </p>
+                    <div className="flex items-center gap-3 mt-2">
+                      <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        {formatNumber(stats?.draft || 0)}
+                      </p>
+                      <div className="flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-full text-yellow-700 bg-yellow-100 dark:bg-yellow-900/30 dark:text-yellow-400">
+                        <PauseCircle className="w-3 h-3" />
+                        مؤجل
+                      </div>
+                    </div>
+                  </div>
+                  <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-yellow-100 dark:bg-yellow-900/30">
+                    <PauseCircle className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
+                  </div>
+                </div>
+              </DesignComponents.StandardCard>
+
+              {/* بطاقة الأرشيف */}
+              <DesignComponents.StandardCard 
+                className={`p-6 hover:shadow-lg transition-shadow cursor-pointer ${filterStatus === 'archived' ? 'ring-2 ring-orange-500' : ''}`} 
+                onClick={() => setFilterStatus('archived')}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                      المؤرشفة
+                    </p>
+                    <div className="flex items-center gap-3 mt-2">
+                      <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        {formatNumber(stats?.archived || 0)}
+                      </p>
+                      <div className="flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-full text-orange-700 bg-orange-100 dark:bg-orange-900/30 dark:text-orange-400">
+                        <XCircle className="w-3 h-3" />
+                        محفوظ
+                      </div>
+                    </div>
+                  </div>
+                  <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-orange-100 dark:bg-orange-900/30">
+                    <XCircle className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+                  </div>
+                </div>
+              </DesignComponents.StandardCard>
+
+              {/* بطاقة المحذوفة */}
+              <DesignComponents.StandardCard 
+                className={`p-6 hover:shadow-lg transition-shadow cursor-pointer ${filterStatus === 'deleted' ? 'ring-2 ring-red-500' : ''}`} 
+                onClick={() => setFilterStatus('deleted')}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                      المحذوفة
+                    </p>
+                    <div className="flex items-center gap-3 mt-2">
+                      <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        {formatNumber(stats?.deleted || 0)}
+                      </p>
+                      <div className="flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-full text-red-700 bg-red-100 dark:bg-red-900/30 dark:text-red-400">
+                        <Trash2 className="w-3 h-3" />
+                        محذوف
+                      </div>
+                    </div>
+                  </div>
+                  <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-red-100 dark:bg-red-900/30">
+                    <Trash2 className="w-6 h-6 text-red-600 dark:text-red-400" />
+                  </div>
+                </div>
+              </DesignComponents.StandardCard>
             </div>
-          </div>
-
-          {/* بطاقات الفلاتر - عرض حسب الحالة */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card className={`cursor-pointer hover:shadow-lg dark:hover:shadow-gray-900/50 transition-shadow border-gray-200 dark:border-gray-700 ${filterStatus === 'published' ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' : 'bg-white dark:bg-gray-800'}`} onClick={() => setFilterStatus('published')}>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">✅ منشورة</p>
-                    <p className="text-2xl font-bold text-green-600 dark:text-green-400">{formatNumber(stats?.published || 0)}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">الافتراضي</p>
-                  </div>
-                  <CheckCircle className="w-8 h-8 text-green-500 dark:text-green-400" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className={`cursor-pointer hover:shadow-lg dark:hover:shadow-gray-900/50 transition-shadow border-gray-200 dark:border-gray-700 ${filterStatus === 'draft' ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800' : 'bg-white dark:bg-gray-800'}`} onClick={() => setFilterStatus('draft')}>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">✏️ مسودة</p>
-                    <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{formatNumber(stats?.draft || 0)}</p>
-                  </div>
-                  <PauseCircle className="w-8 h-8 text-yellow-500 dark:text-yellow-400" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className={`cursor-pointer hover:shadow-lg dark:hover:shadow-gray-900/50 transition-shadow border-gray-200 dark:border-gray-700 ${filterStatus === 'archived' ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800' : 'bg-white dark:bg-gray-800'}`} onClick={() => setFilterStatus('archived')}>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">🗂️ مؤرشفة</p>
-                    <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{formatNumber(stats?.archived || 0)}</p>
-                  </div>
-                  <XCircle className="w-8 h-8 text-orange-500 dark:text-orange-400" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className={`cursor-pointer hover:shadow-lg dark:hover:shadow-gray-900/50 transition-shadow border-gray-200 dark:border-gray-700 ${filterStatus === 'deleted' ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800' : 'bg-white dark:bg-gray-800'}`} onClick={() => setFilterStatus('deleted')}>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">❌ محذوفة</p>
-                    <p className="text-2xl font-bold text-red-600 dark:text-red-400">{formatNumber(stats?.deleted || 0)}</p>
-                  </div>
-                  <Trash2 className="w-8 h-8 text-red-500 dark:text-red-400" />
-                </div>
-              </CardContent>
-            </Card>
           </div>
 
           {/* شريط البحث والفلاتر */}
@@ -932,6 +1030,7 @@ function AdminNewsPageContent() {
           </Card>
         </div>
       </TooltipProvider>
+    </DashboardLayout>
   );
 }
 
