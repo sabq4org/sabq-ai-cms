@@ -3,12 +3,13 @@
 import DeepAnalysisBlock from "@/components/DeepAnalysisBlock";
 import Footer from "@/components/Footer";
 import FooterDashboard from "@/components/FooterDashboard";
+import PageWrapper from "@/components/PageWrapper";
 import { SmartSlot } from "@/components/home/SmartSlot";
 import CompactStatsBar from "@/components/mobile/CompactStatsBar";
 import EnhancedMobileNewsCard from "@/components/mobile/EnhancedMobileNewsCard";
 import SmartContentNewsCard from "@/components/mobile/SmartContentNewsCard";
+
 import NewsPulseTicker from "@/components/news/NewsPulseTicker";
-import PageWrapper from "@/components/PageWrapper";
 import CloudImage from "@/components/ui/CloudImage";
 import { useAuth } from "@/hooks/useAuth";
 import type { RecommendedArticle } from "@/lib/ai-recommendations";

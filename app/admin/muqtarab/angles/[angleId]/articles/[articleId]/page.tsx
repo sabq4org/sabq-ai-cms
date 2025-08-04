@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Angle, MuqtaribArticleForm } from "@/types/muqtarab";
+import { Angle, MuqtarabArticleForm } from "@/types/muqtarab";
 import {
   ArrowLeft,
   Brain,
@@ -222,7 +222,7 @@ export default function EditAngleArticlePage() {
   const [user, setUser] = useState<any>(null);
 
   // بيانات النموذج
-  const [formData, setFormData] = useState<MuqtaribArticleForm>({
+  const [formData, setFormData] = useState<MuqtarabArticleForm>({
     angleId: angleId,
     title: "",
     excerpt: "",
@@ -276,7 +276,7 @@ export default function EditAngleArticlePage() {
           setAngle(angleData.angle);
         } else {
           toast.error("الزاوية غير موجودة");
-          router.push("/admin/muqtarib");
+          router.push("/admin/muqtarab");
           return;
         }
 
@@ -310,7 +310,7 @@ export default function EditAngleArticlePage() {
           }
         } else {
           toast.error("المقال غير موجود");
-          router.push(`/admin/muqtarib/angles/${angleId}`);
+          router.push(`/admin/muqtarab/angles/${angleId}`);
           return;
         }
       } catch (error) {
@@ -489,7 +489,7 @@ export default function EditAngleArticlePage() {
         );
 
         // العودة إلى صفحة الزاوية
-        router.push(`/admin/muqtarib/angles/${angleId}`);
+        router.push(`/admin/muqtarab/angles/${angleId}`);
       } else {
         const errorData = await response.json();
         console.error("❌ خطأ في تحديث المقال:", errorData);
@@ -522,7 +522,7 @@ export default function EditAngleArticlePage() {
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
-                onClick={() => router.push(`/admin/muqtarib/angles/${angleId}`)}
+                onClick={() => router.push(`/admin/muqtarab/angles/${angleId}`)}
                 className="flex items-center gap-2"
               >
                 <ArrowLeft className="w-4 h-4" />

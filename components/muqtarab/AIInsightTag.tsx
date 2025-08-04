@@ -8,7 +8,7 @@ interface AIInsightTagProps {
 export function AIInsightTag({ score, className = "" }: AIInsightTagProps) {
   if (score >= 90) {
     return (
-      <Badge 
+      <Badge
         className={`text-green-700 bg-green-100 border-green-300 ${className}`}
         variant="outline"
       >
@@ -17,10 +17,10 @@ export function AIInsightTag({ score, className = "" }: AIInsightTagProps) {
       </Badge>
     );
   }
-  
+
   if (score >= 75) {
     return (
-      <Badge 
+      <Badge
         className={`text-yellow-700 bg-yellow-100 border-yellow-300 ${className}`}
         variant="outline"
       >
@@ -29,9 +29,9 @@ export function AIInsightTag({ score, className = "" }: AIInsightTagProps) {
       </Badge>
     );
   }
-  
+
   return (
-    <Badge 
+    <Badge
       className={`text-gray-600 bg-gray-100 border-gray-300 ${className}`}
       variant="outline"
     >

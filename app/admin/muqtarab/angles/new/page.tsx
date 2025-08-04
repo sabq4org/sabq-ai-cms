@@ -243,11 +243,11 @@ export default function CreateAnglePage() {
         // التحقق من وجود معرف الزاوية قبل التوجيه
         if (data.angle && data.angle.id) {
           console.log("تم إنشاء الزاوية بمعرف:", data.angle.id);
-          router.push(`/admin/muqtarib/angles/${data.angle.id}`);
+          router.push(`/admin/muqtarab/angles/${data.angle.id}`);
         } else {
           console.error("معرف الزاوية غير موجود في الاستجابة:", data);
           // توجيه إلى صفحة قائمة الزوايا بدلاً من ذلك
-          router.push("/admin/muqtarib");
+          router.push("/admin/muqtarab");
         }
       } else {
         const error = await response.json();
@@ -312,7 +312,7 @@ export default function CreateAnglePage() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => router.push("/admin/muqtarib")}
+                onClick={() => router.push("/admin/muqtarab")}
                 className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
               >
                 <ArrowLeft className="w-4 h-4 ml-2" />

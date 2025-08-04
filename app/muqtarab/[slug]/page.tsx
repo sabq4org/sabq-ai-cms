@@ -2,393 +2,552 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Angle, AngleArticle } from "@/types/muqtarab";
 import {
   ArrowLeft,
-  Bell,
-  BellOff,
+  BookOpen,
   Calendar,
+  Clock,
   Eye,
+  Filter,
+  Heart,
+  MessageCircle,
+  Search,
   Share2,
   Sparkles,
+  TrendingUp,
   User,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
-interface Corner {
-  id: string;
-  title: string;
-  slug: string;
-  description: string;
-  icon?: string;
-  themeColor: string;
-  coverImage?: string;
-  isFeatured: boolean;
-  isPublished: boolean;
-  createdAt: string;
-  updatedAt: string;
-  authorId: string;
-  articlesCount: number;
-  author?: {
-    id: string;
-    name: string;
-    email: string;
-    image?: string;
-  };
-}
+type SortOption = "latest" | "popular" | "oldest";
 
-interface Article {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string;
-  cover_image: string;
-  published_at: string;
-  read_time: number;
-  views: number;
-  likes: number;
-  ai_compatibility_score?: number;
-}
-
-export default function CornerPage() {
+export default function AnglePage() {
   const params = useParams();
   const router = useRouter();
-  const { darkMode } = useDarkModeContext();
-  const [corner, setCorner] = useState<Corner | null>(null);
-  const [articles, setArticles] = useState<Article[]>([]);
+  const slug = params.slug as string;
+
+  const [angle, setAngle] = useState<Angle | null>(null);
+  const [articles, setArticles] = useState<AngleArticle[]>([]);
+  const [filteredArticles, setFilteredArticles] = useState<AngleArticle[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isFollowing, setIsFollowing] = useState(false);
-  const [followersCount, setFollowersCount] = useState(0);
+  const [articlesLoading, setArticlesLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<SortOption>("latest");
+  const [showOnlyPublished, setShowOnlyPublished] = useState(true);
 
+  // جلب بيانات الزاوية
   useEffect(() => {
-    if (params.slug) {
-      fetchCornerData();
-    }
-  }, [params.slug]);
+    const fetchAngleData = async () => {
+      try {
+        console.log("🔍 جاري جلب بيانات الزاوية:", slug);
 
-  const fetchCornerData = async () => {
-    try {
-      setLoading(true);
+        // جلب بيانات الزاوية بالـ slug
+        const angleResponse = await fetch(
+          `/api/muqtarab/angles/by-slug/${slug}`,
+          {
+            cache: "no-store",
+          }
+        );
 
-      // جلب بيانات الزاوية
-      const cornerResponse = await fetch(
-        `/api/muqtarab/angles/by-slug/${params.slug}`
-      );
-      if (cornerResponse.ok) {
-        const cornerResult = await cornerResponse.json();
-        const cornerData = cornerResult.angle;
-        setCorner(cornerData);
-        setFollowersCount(0); // لاحقاً سيتم تطبيق نظام المتابعة
+        if (!angleResponse.ok) {
+          console.error("❌ فشل في جلب الزاوية:", angleResponse.status);
+          toast.error("الزاوية غير موجودة");
+          router.push("/muqtarab");
+          return;
+        }
+
+        const angleData = await angleResponse.json();
+        console.log("✅ تم جلب بيانات الزاوية:", angleData.angle.title);
+        setAngle(angleData.angle);
 
         // جلب مقالات الزاوية
+        setArticlesLoading(true);
         const articlesResponse = await fetch(
-          `/api/muqtarab/angles/${cornerData.id}/articles`
+          `/api/muqtarab/angles/${angleData.angle.id}/articles?limit=50`,
+          {
+            cache: "no-store",
+          }
         );
+
         if (articlesResponse.ok) {
           const articlesData = await articlesResponse.json();
-          setArticles(articlesData || []);
+          console.log(
+            "✅ تم جلب المقالات:",
+            articlesData.articles?.length || 0
+          );
+          setArticles(articlesData.articles || []);
+          setFilteredArticles(articlesData.articles || []);
+        } else {
+          console.error("❌ فشل في جلب المقالات:", articlesResponse.status);
+          toast.error("فشل في تحميل المقالات");
         }
+      } catch (error) {
+        console.error("خطأ في تحميل الزاوية:", error);
+        toast.error("حدث خطأ في التحميل");
+        router.push("/muqtarab");
+      } finally {
+        setLoading(false);
+        setArticlesLoading(false);
       }
-    } catch (error) {
-      console.error("خطأ في جلب بيانات الزاوية:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  const handleFollow = async () => {
-    try {
-      const response = await fetch(
-        `/api/muqtarab/corners/${params.slug}/follow`,
-        {
-          method: isFollowing ? "DELETE" : "POST",
-          headers: { "Content-Type": "application/json" },
-        }
+    if (slug) {
+      fetchAngleData();
+    }
+  }, [slug, router]);
+
+  // فلترة وترتيب المقالات
+  useEffect(() => {
+    let filtered = articles;
+
+    // فلترة المقالات المنشورة فقط
+    if (showOnlyPublished) {
+      filtered = filtered.filter((article) => article.isPublished);
+    }
+
+    // فلترة بالبحث
+    if (searchQuery) {
+      filtered = filtered.filter(
+        (article) =>
+          article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          article.excerpt?.toLowerCase().includes(searchQuery.toLowerCase())
       );
-
-      if (response.ok) {
-        setIsFollowing(!isFollowing);
-        setFollowersCount((prev) => (isFollowing ? prev - 1 : prev + 1));
-      }
-    } catch (error) {
-      console.error("خطأ في متابعة الزاوية:", error);
     }
-  };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("ar-SA", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
+    // ترتيب المقالات
+    switch (sortBy) {
+      case "latest":
+        filtered = filtered.sort(
+          (a, b) =>
+            new Date(b.publishDate || b.createdAt).getTime() -
+            new Date(a.publishDate || a.createdAt).getTime()
+        );
+        break;
+      case "oldest":
+        filtered = filtered.sort(
+          (a, b) =>
+            new Date(a.publishDate || a.createdAt).getTime() -
+            new Date(b.publishDate || b.createdAt).getTime()
+        );
+        break;
+      case "popular":
+        // يمكن إضافة منطق ترتيب حسب المشاهدات أو التفاعل
+        filtered = filtered.sort(
+          (a, b) => (b.readingTime || 0) - (a.readingTime || 0)
+        );
+        break;
+    }
+
+    setFilteredArticles(filtered);
+  }, [articles, searchQuery, sortBy, showOnlyPublished]);
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">جاري تحميل الزاوية...</p>
+        </div>
       </div>
     );
   }
 
-  if (!corner) {
+  if (!angle) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
             الزاوية غير موجودة
-          </h2>
-          <Button onClick={() => router.push("/muqtarab")}>
-            العودة إلى مقترب
-          </Button>
+          </h1>
+          <p className="text-gray-600 mb-4">
+            لم يتم العثور على الزاوية المطلوبة
+          </p>
+          <Link href="/muqtarab">
+            <Button>العودة إلى مُقترب</Button>
+          </Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div
-      className={`min-h-screen ${darkMode ? "bg-gray-900" : "bg-gray-50"}`}
-      dir="rtl"
-    >
-      {/* غلاف الزاوية */}
-      <div className="relative h-96 overflow-hidden">
-        {corner.cover_image && (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header الزاوية */}
+      <AngleHeader angle={angle} />
+
+      {/* شريط الفلترة */}
+      <AngleFilterBar
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+        showOnlyPublished={showOnlyPublished}
+        setShowOnlyPublished={setShowOnlyPublished}
+        articlesCount={filteredArticles.length}
+      />
+
+      {/* شبكة المقالات */}
+      <AngleArticlesGrid
+        articles={filteredArticles}
+        loading={articlesLoading}
+        angle={angle}
+      />
+    </div>
+  );
+}
+
+// مكون ترويسة الزاوية
+function AngleHeader({ angle }: { angle: Angle }) {
+  return (
+    <div className="relative overflow-hidden">
+      {/* خلفية الزاوية */}
+      <div className="relative h-80 md:h-96">
+        {angle.coverImage ? (
           <Image
-            src={corner.cover_image}
-            alt={corner.name}
+            src={angle.coverImage}
+            alt={angle.title}
             fill
             className="object-cover"
-            priority
           />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-blue-600 to-indigo-700"></div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+        <div className="absolute inset-0 bg-black/50"></div>
+      </div>
 
-        {/* محتوى الغلاف */}
-        <div className="absolute bottom-0 left-0 right-0 p-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                {corner.is_featured && (
-                  <Badge className="mb-4 bg-yellow-500 text-black">
+      {/* محتوى الترويسة */}
+      <div className="absolute inset-0 flex items-center">
+        <div className="max-w-7xl mx-auto px-4 w-full">
+          {/* نافذة تنقل */}
+          <div className="mb-6">
+            <Link
+              href="/muqtarab"
+              className="inline-flex items-center gap-2 text-white/80 hover:text-white transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>العودة إلى مُقترب</span>
+            </Link>
+          </div>
+
+          <div className="flex flex-col lg:flex-row gap-8 items-start">
+            {/* معلومات الزاوية */}
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-4">
+                {angle.isFeatured && (
+                  <Badge className="bg-yellow-500 text-yellow-900 border-0">
                     <Sparkles className="w-4 h-4 ml-1" />
                     زاوية مميزة
                   </Badge>
                 )}
-
-                <h1 className="text-4xl font-bold text-white mb-4">
-                  {corner.name}
-                </h1>
-
-                {corner.description && (
-                  <p className="text-xl text-gray-200 mb-6 max-w-2xl">
-                    {corner.description}
-                  </p>
-                )}
-
-                <div className="flex items-center gap-6 text-gray-300">
-                  <div className="flex items-center gap-2">
-                    <User className="w-5 h-5" />
-                    <span className="font-medium">{corner.author_name}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-5 h-5" />
-                    <span>بدأت في {formatDate(corner.created_at)}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Eye className="w-5 h-5" />
-                    <span>{corner.articles_count} مقال</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* أزرار التفاعل */}
-              <div className="flex gap-3">
-                <Button
-                  onClick={handleFollow}
-                  className={`flex items-center gap-2 ${
-                    isFollowing
-                      ? "bg-green-600 hover:bg-green-700"
-                      : "bg-blue-600 hover:bg-blue-700"
-                  } text-white`}
-                >
-                  {isFollowing ? (
-                    <>
-                      <BellOff className="w-4 h-4" />
-                      إلغاء المتابعة
-                    </>
-                  ) : (
-                    <>
-                      <Bell className="w-4 h-4" />
-                      متابعة الزاوية
-                    </>
-                  )}
-                  <span className="text-sm">({followersCount})</span>
-                </Button>
-
-                <Button
-                  variant="outline"
-                  className="text-white border-white hover:bg-white/10"
-                >
-                  <Share2 className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* زر العودة */}
-        <div className="absolute top-8 right-8">
-          <Button
-            variant="outline"
-            onClick={() => router.push("/muqtarab")}
-            className="text-white border-white hover:bg-white/10"
-          >
-            <ArrowLeft className="w-4 h-4 ml-2" />
-            العودة لمقترب
-          </Button>
-        </div>
-      </div>
-
-      {/* المحتوى الرئيسي */}
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* أرشيف المواضيع */}
-          <div className="lg:col-span-2">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                أرشيف المواضيع ({articles.length})
-              </h2>
-            </div>
-
-            {articles.length > 0 ? (
-              <div className="space-y-6">
-                {articles.map((article) => (
-                  <Card
-                    key={article.id}
-                    className="overflow-hidden hover:shadow-lg transition-shadow"
+                {angle.isPublished && (
+                  <Badge
+                    variant="secondary"
+                    className="bg-green-600 text-white border-0"
                   >
-                    <div className="flex">
-                      {article.cover_image && (
-                        <div className="w-48 h-32 relative flex-shrink-0">
-                          <Image
-                            src={article.cover_image}
-                            alt={article.title}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                      )}
-
-                      <div className="flex-1 p-6">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <Link
-                              href={`/muqtarab/${corner.slug}/${article.slug}`}
-                              className="block hover:text-blue-600 transition-colors"
-                            >
-                              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 line-clamp-2">
-                                {article.title}
-                              </h3>
-                            </Link>
-
-                            {article.excerpt && (
-                              <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
-                                {article.excerpt}
-                              </p>
-                            )}
-
-                            <div className="flex items-center gap-4 text-sm text-gray-500">
-                              <span className="flex items-center gap-1">
-                                <Calendar className="w-4 h-4" />
-                                {formatDate(article.published_at)}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Eye className="w-4 h-4" />
-                                {article.views} مشاهدة
-                              </span>
-                              <span>{article.read_time} دقائق قراءة</span>
-                            </div>
-                          </div>
-
-                          {/* مؤشر التوافق */}
-                          {article.ai_compatibility_score && (
-                            <div className="text-center ml-4">
-                              <div className="text-2xl font-bold text-blue-600">
-                                {article.ai_compatibility_score}%
-                              </div>
-                              <div className="text-xs text-gray-500">
-                                يلائم ذوقك
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
+                    منشورة
+                  </Badge>
+                )}
               </div>
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-gray-600 dark:text-gray-400">
-                  لا توجد مقالات في هذه الزاوية حتى الآن
+
+              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
+                {angle.title}
+              </h1>
+
+              {angle.description && (
+                <p className="text-xl text-white/90 mb-6 leading-relaxed max-w-3xl">
+                  {angle.description}
                 </p>
+              )}
+
+              {/* إحصائيات الزاوية */}
+              <div className="flex flex-wrap gap-6 text-white/80">
+                <div className="flex items-center gap-2">
+                  <BookOpen className="w-5 h-5" />
+                  <span>{angle.articlesCount || 0} مقالة</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <User className="w-5 h-5" />
+                  <span>بواسطة {angle.author?.name}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-5 h-5" />
+                  <span>
+                    أُنشئت في{" "}
+                    {new Date(angle.createdAt).toLocaleDateString("ar-SA")}
+                  </span>
+                </div>
               </div>
-            )}
-          </div>
+            </div>
 
-          {/* الشريط الجانبي */}
-          <div className="space-y-6">
-            {/* معلومات الكاتب */}
-            <Card>
-              <CardHeader>
-                <CardTitle>عن الكاتب</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center">
-                  <h3 className="font-bold text-lg mb-2">
-                    {corner.author_name}
-                  </h3>
-                  {corner.author_bio && (
-                    <p className="text-gray-600 dark:text-gray-400 text-sm">
-                      {corner.author_bio}
-                    </p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* إحصائيات الزاوية */}
-            <Card>
-              <CardHeader>
-                <CardTitle>إحصائيات</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span>عدد المقالات</span>
-                    <span className="font-bold">{corner.articles_count}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>المتابعون</span>
-                    <span className="font-bold">{followersCount}</span>
-                  </div>
-                  {corner.category_name && (
-                    <div className="flex justify-between">
-                      <span>التصنيف</span>
-                      <Badge variant="secondary">{corner.category_name}</Badge>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+            {/* أزرار التفاعل */}
+            <div className="flex flex-col gap-3">
+              <Button
+                size="lg"
+                className="bg-white text-blue-600 hover:bg-gray-100 min-w-[150px]"
+              >
+                <Heart className="w-5 h-5 ml-2" />
+                متابعة الزاوية
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-white text-white hover:bg-white/10 min-w-[150px]"
+              >
+                <Share2 className="w-5 h-5 ml-2" />
+                مشاركة
+              </Button>
+            </div>
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+// مكون شريط الفلترة
+function AngleFilterBar({
+  searchQuery,
+  setSearchQuery,
+  sortBy,
+  setSortBy,
+  showOnlyPublished,
+  setShowOnlyPublished,
+  articlesCount,
+}: {
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  sortBy: SortOption;
+  setSortBy: (sort: SortOption) => void;
+  showOnlyPublished: boolean;
+  setShowOnlyPublished: (show: boolean) => void;
+  articlesCount: number;
+}) {
+  const sortOptions = [
+    { value: "latest" as SortOption, label: "الأحدث", icon: Calendar },
+    { value: "popular" as SortOption, label: "الأكثر قراءة", icon: TrendingUp },
+    { value: "oldest" as SortOption, label: "الأقدم", icon: Clock },
+  ];
+
+  return (
+    <div className="bg-white border-b sticky top-0 z-40 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 py-4">
+        <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+          {/* البحث */}
+          <div className="flex-1 max-w-md relative">
+            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="ابحث في مقالات الزاوية..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pr-10 pl-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
+          {/* الفلاتر والترتيب */}
+          <div className="flex items-center gap-4">
+            {/* عدد المقالات */}
+            <div className="text-sm text-gray-500">{articlesCount} مقالة</div>
+
+            <Separator orientation="vertical" className="h-6" />
+
+            {/* ترتيب المقالات */}
+            <div className="flex items-center gap-2">
+              <Filter className="w-4 h-4 text-gray-500" />
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortOption)}
+                className="border border-gray-200 rounded-lg px-3 py-1 text-sm focus:ring-2 focus:ring-blue-500"
+              >
+                {sortOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* فلتر المنشور فقط */}
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={showOnlyPublished}
+                onChange={(e) => setShowOnlyPublished(e.target.checked)}
+                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span>المنشور فقط</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// مكون شبكة المقالات
+function AngleArticlesGrid({
+  articles,
+  loading,
+  angle,
+}: {
+  articles: AngleArticle[];
+  loading: boolean;
+  angle: Angle;
+}) {
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="bg-white rounded-xl p-6 animate-pulse">
+              <div className="w-full h-48 bg-gray-200 rounded-lg mb-4"></div>
+              <div className="h-4 bg-gray-200 rounded mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (articles.length === 0) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-16">
+        <div className="text-center">
+          <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <BookOpen className="w-12 h-12 text-gray-400" />
+          </div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            لا توجد مقالات
+          </h3>
+          <p className="text-gray-500 mb-6">
+            لم يتم نشر أي مقالات في هذه الزاوية بعد
+          </p>
+          <Link href="/admin/muqtarab/angles/new">
+            <Button>
+              <BookOpen className="w-4 h-4 ml-2" />
+              إنشاء مقال جديد
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {articles.map((article) => (
+          <AngleArticleCard key={article.id} article={article} angle={angle} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// مكون بطاقة المقال
+function AngleArticleCard({
+  article,
+  angle,
+}: {
+  article: AngleArticle;
+  angle: Angle;
+}) {
+  return (
+    <Card className="group rounded-xl overflow-hidden border-0 shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1">
+      {/* صورة المقال */}
+      <div className="relative h-48 w-full overflow-hidden">
+        {article.coverImage ? (
+          <Image
+            src={article.coverImage}
+            alt={article.title}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-200"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+            <BookOpen className="w-12 h-12 text-gray-400" />
+          </div>
+        )}
+
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+
+        {/* شارة الحالة */}
+        <div className="absolute top-3 right-3">
+          {article.isPublished ? (
+            <Badge className="bg-green-600 text-white border-0">منشور</Badge>
+          ) : (
+            <Badge variant="secondary">مسودة</Badge>
+          )}
+        </div>
+      </div>
+
+      <CardContent className="p-5">
+        {/* عنوان المقال */}
+        <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-2 leading-tight">
+          {article.title}
+        </h3>
+
+        {/* مقدمة المقال */}
+        {article.excerpt && (
+          <p className="text-gray-600 text-sm mb-4 line-clamp-3 leading-relaxed">
+            {article.excerpt}
+          </p>
+        )}
+
+        {/* معلومات المقال */}
+        <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
+          <div className="flex items-center gap-2">
+            <User className="w-3 h-3" />
+            <span>{article.author?.name}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Clock className="w-3 h-3" />
+            <span>{article.readingTime || 5} دقائق</span>
+          </div>
+        </div>
+
+        {/* تاريخ النشر والتفاعل */}
+        <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
+          <span>
+            {new Date(
+              article.publishDate || article.createdAt
+            ).toLocaleDateString("ar-SA")}
+          </span>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1">
+              <Eye className="w-3 h-3" />
+              <span>234</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Heart className="w-3 h-3" />
+              <span>12</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <MessageCircle className="w-3 h-3" />
+              <span>5</span>
+            </div>
+          </div>
+        </div>
+
+        {/* زر القراءة */}
+        <Link href={`/muqtarab/${angle.slug}/${article.id}`}>
+          <Button
+            variant="ghost"
+            className="w-full justify-start text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-0 h-8"
+          >
+            <BookOpen className="w-4 h-4 ml-2" />
+            قراءة المقال
+          </Button>
+        </Link>
+      </CardContent>
+    </Card>
   );
 }

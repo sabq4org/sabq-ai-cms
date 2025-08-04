@@ -47,11 +47,11 @@ export default function AngleArticlePage() {
 
         // جلب بيانات الزاوية
         const angleResponse = await fetch(
-          `/api/muqtarib/angles/by-slug/${slug}`
+          `/api/muqtarab/angles/by-slug/${slug}`
         );
         if (!angleResponse.ok) {
           toast.error("الزاوية غير موجودة");
-          router.push("/muqtarib");
+          router.push("/muqtarab");
           return;
         }
 
@@ -61,12 +61,12 @@ export default function AngleArticlePage() {
 
         // جلب بيانات المقال
         const articleResponse = await fetch(
-          `/api/muqtarib/angles/${angleData.angle.id}/articles/${articleId}`
+          `/api/muqtarab/angles/${angleData.angle.id}/articles/${articleId}`
         );
 
         if (!articleResponse.ok) {
           toast.error("المقال غير موجود");
-          router.push(`/muqtarib/${slug}`);
+          router.push(`/muqtarab/${slug}`);
           return;
         }
 
@@ -76,7 +76,7 @@ export default function AngleArticlePage() {
 
         // جلب المقالات ذات الصلة
         const relatedResponse = await fetch(
-          `/api/muqtarib/angles/${angleData.angle.id}/articles?limit=6&exclude=${articleId}`
+          `/api/muqtarab/angles/${angleData.angle.id}/articles?limit=6&exclude=${articleId}`
         );
 
         if (relatedResponse.ok) {
@@ -86,7 +86,7 @@ export default function AngleArticlePage() {
       } catch (error) {
         console.error("خطأ في تحميل البيانات:", error);
         toast.error("حدث خطأ في التحميل");
-        router.push("/muqtarib");
+        router.push("/muqtarab");
       } finally {
         setLoading(false);
       }
@@ -116,7 +116,7 @@ export default function AngleArticlePage() {
             المقال غير موجود
           </h1>
           <p className="text-gray-600 mb-4">لم يتم العثور على المقال المطلوب</p>
-          <Link href="/muqtarib">
+          <Link href="/muqtarab">
             <Button>العودة إلى مُقترب</Button>
           </Link>
         </div>
@@ -192,7 +192,7 @@ function StickyHeader({
     <div className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-b z-50 transition-all duration-200">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href={`/muqtarib/${angle.slug}`}>
+          <Link href={`/muqtarab/${angle.slug}`}>
             <Button variant="ghost" size="sm">
               <ArrowLeft className="w-4 h-4 ml-1" />
               {angle.title}
@@ -227,12 +227,12 @@ function Breadcrumbs({
 }) {
   return (
     <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
-      <Link href="/muqtarib" className="hover:text-blue-600 transition-colors">
+      <Link href="/muqtarab" className="hover:text-blue-600 transition-colors">
         مُقترب
       </Link>
       <span>/</span>
       <Link
-        href={`/muqtarib/${angle.slug}`}
+        href={`/muqtarab/${angle.slug}`}
         className="hover:text-blue-600 transition-colors"
       >
         {angle.title}
@@ -255,7 +255,7 @@ function ArticleHeader({
     <div className="mb-8">
       {/* شارات وتصنيفات */}
       <div className="flex flex-wrap items-center gap-2 mb-4">
-        <Link href={`/muqtarib/${angle.slug}`}>
+        <Link href={`/muqtarab/${angle.slug}`}>
           <Badge
             variant="secondary"
             className="hover:bg-blue-100 transition-colors cursor-pointer"
@@ -482,7 +482,7 @@ function BackToAngle({ angle }: { angle: Angle }) {
     <div className="text-center mb-12">
       <div className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors">
         <Cpu className="w-5 h-5" />
-        <Link href={`/muqtarib/${angle.slug}`} className="text-lg font-medium">
+        <Link href={`/muqtarab/${angle.slug}`} className="text-lg font-medium">
           ← العودة إلى زاوية {angle.title}
         </Link>
       </div>
@@ -533,7 +533,7 @@ function RecommendedArticles({
                 <span>{article.readingTime || 5} دقائق</span>
               </div>
 
-              <Link href={`/muqtarib/${angle.slug}/${article.id}`}>
+              <Link href={`/muqtarab/${angle.slug}/${article.id}`}>
                 <Button
                   variant="ghost"
                   size="sm"

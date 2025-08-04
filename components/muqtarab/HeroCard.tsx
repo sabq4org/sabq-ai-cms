@@ -2,10 +2,10 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { AIInsightTag } from "./AIInsightTag";
 import { Clock, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { AIInsightTag } from "./AIInsightTag";
 
 interface HeroArticle {
   id: string;
@@ -45,27 +45,31 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
   };
 
   return (
-    <Card className={`overflow-hidden hover:shadow-xl transition-all duration-300 ${className}`}>
-      <Link href={`/muqtarib/${heroArticle.angle.slug}/${heroArticle.slug}`}>
+    <Card
+      className={`overflow-hidden hover:shadow-xl transition-all duration-300 ${className}`}
+    >
+      <Link href={`/muqtarab/${heroArticle.angle.slug}/${heroArticle.slug}`}>
         <div className="grid md:grid-cols-2 gap-0">
           {/* القسم البصري */}
           <div className="relative h-64 md:h-80 overflow-hidden order-2 md:order-1">
             {heroArticle.coverImage ? (
-              <Image 
-                src={heroArticle.coverImage} 
-                alt={heroArticle.title} 
-                fill 
-                className="object-cover hover:scale-105 transition-transform duration-300" 
+              <Image
+                src={heroArticle.coverImage}
+                alt={heroArticle.title}
+                fill
+                className="object-cover hover:scale-105 transition-transform duration-300"
               />
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
                 <div className="text-white text-center">
                   <div className="text-4xl mb-2">🧠</div>
-                  <div className="text-lg font-semibold">{heroArticle.angle.title}</div>
+                  <div className="text-lg font-semibold">
+                    {heroArticle.angle.title}
+                  </div>
                 </div>
               </div>
             )}
-            
+
             {/* شارة الزاوية */}
             <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-sm rounded-full px-3 py-1 text-sm text-gray-800 font-medium shadow-lg">
               <span className="mr-1">🧠</span>
@@ -96,16 +100,16 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
                 <Clock className="w-4 h-4" />
                 <span>{heroArticle.readingTime} دقائق قراءة</span>
               </div>
-              
+
               <span>•</span>
-              
+
               <div className="flex items-center gap-1">
                 <User className="w-4 h-4" />
                 <span>{heroArticle.author.name}</span>
               </div>
-              
+
               <span>•</span>
-              
+
               <span>{formatDate(heroArticle.publishDate)}</span>
             </div>
 
@@ -113,9 +117,9 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
             {heroArticle.tags && heroArticle.tags.length > 0 && (
               <div className="flex gap-2 flex-wrap">
                 {heroArticle.tags.slice(0, 3).map((tag, index) => (
-                  <Badge 
-                    key={index} 
-                    variant="outline" 
+                  <Badge
+                    key={index}
+                    variant="outline"
                     className="text-xs text-gray-600 dark:text-gray-300"
                   >
                     {tag}
@@ -135,8 +139,11 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
                 <span className="mr-1">⭐</span>
                 مقال مميز
               </Badge>
-              
-              <Badge variant="outline" className="text-blue-600 border-blue-200">
+
+              <Badge
+                variant="outline"
+                className="text-blue-600 border-blue-200"
+              >
                 <span className="mr-1">👁</span>
                 {heroArticle.views} مشاهدة
               </Badge>

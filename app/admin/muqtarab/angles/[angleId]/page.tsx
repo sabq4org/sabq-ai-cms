@@ -366,7 +366,7 @@ const ArticlesList = ({
                   </Link>
 
                   <Link
-                    href={`/admin/muqtarib/angles/${article.angleId}/articles/${article.id}`}
+                    href={`/admin/muqtarab/angles/${article.angleId}/articles/${article.id}`}
                   >
                     <Button size="sm" variant="outline">
                       <Edit className="w-4 h-4" />
@@ -511,7 +511,7 @@ export default function AngleDashboardPage() {
           const errorText = await angleResponse.text();
           console.error("📄 محتوى خطأ الزاوية:", errorText);
           toast.error("الزاوية غير موجودة");
-          router.push("/admin/muqtarib");
+          router.push("/admin/muqtarab");
           return;
         }
 
@@ -673,7 +673,7 @@ export default function AngleDashboardPage() {
           <p className="text-gray-600 mb-6">
             لم يتم العثور على الزاوية المطلوبة
           </p>
-          <Button onClick={() => router.push("/admin/muqtarib")}>
+          <Button onClick={() => router.push("/admin/muqtarab")}>
             <ArrowLeft className="w-4 h-4 ml-2" />
             العودة لمُقترب
           </Button>
@@ -692,7 +692,7 @@ export default function AngleDashboardPage() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => router.push("/admin/muqtarib")}
+                onClick={() => router.push("/admin/muqtarab")}
                 className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
               >
                 <ArrowLeft className="w-4 h-4 ml-2" />
@@ -711,7 +711,7 @@ export default function AngleDashboardPage() {
             </div>
 
             <div className="flex gap-3">
-              <Link href={`/admin/muqtarib/angles/${angleId}/articles/new`}>
+              <Link href={`/admin/muqtarab/angles/${angleId}/articles/new`}>
                 <Button className="bg-blue-600 hover:bg-blue-700">
                   <Plus className="w-4 h-4 ml-2" />
                   مقال جديد
@@ -820,7 +820,7 @@ export default function AngleDashboardPage() {
                   المقالات ({articles.length})
                 </h3>
 
-                <Link href={`/admin/muqtarib/angles/${angleId}/articles/new`}>
+                <Link href={`/admin/muqtarab/angles/${angleId}/articles/new`}>
                   <Button size="sm">
                     <Plus className="w-4 h-4 ml-2" />
                     مقال جديد

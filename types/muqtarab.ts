@@ -2,15 +2,15 @@
 // تصميم معماري متكامل للزوايا والمقالات
 
 export interface CreateAngleForm {
-  title: string;                // عنوان الزاوية
-  slug?: string;                // رابط الزاوية (يُولد تلقائيًا من العنوان)
-  description: string;          // وصف مختصر للزاوية
-  icon?: string;                // أيقونة الزاوية (من مكتبة Lucide)
-  themeColor: string;          // اللون البارز للزاوية (hex)
-  authorId: string;            // صاحب الزاوية (user.id)
-  isFeatured: boolean;         // هل الزاوية مميزة؟
-  isPublished: boolean;        // حالة النشر
-  coverImage?: string;         // صورة غلاف الزاوية (Cloudinary)
+  title: string; // عنوان الزاوية
+  slug?: string; // رابط الزاوية (يُولد تلقائيًا من العنوان)
+  description: string; // وصف مختصر للزاوية
+  icon?: string; // أيقونة الزاوية (من مكتبة Lucide)
+  themeColor: string; // اللون البارز للزاوية (hex)
+  authorId: string; // صاحب الزاوية (user.id)
+  isFeatured: boolean; // هل الزاوية مميزة؟
+  isPublished: boolean; // حالة النشر
+  coverImage?: string; // صورة غلاف الزاوية (Cloudinary)
 }
 
 export interface Angle {
@@ -35,12 +35,12 @@ export interface Angle {
   updatedAt: Date;
 }
 
-export interface MuqtaribArticleForm {
-  angleId: string;             // معرف الزاوية
+export interface MuqtarabArticleForm {
+  angleId: string; // معرف الزاوية
   title: string;
-  excerpt?: string;            // ملخص اختياري
-  content: string;             // باستخدام محرر Tiptap
-  tags?: string[];             // وسوم اختيارية
+  excerpt?: string; // ملخص اختياري
+  content: string; // باستخدام محرر Tiptap
+  tags?: string[]; // وسوم اختيارية
   readingTime?: number;
   authorId: string;
   sentiment?: "neutral" | "positive" | "critical"; // اتجاه المقال
@@ -85,15 +85,15 @@ export interface AngleStats {
     views: number;
   };
   recentActivity?: {
-    type: 'article_created' | 'article_published' | 'article_updated';
+    type: "article_created" | "article_published" | "article_updated";
     title: string;
     timestamp: Date;
   }[];
 }
 
 export interface AngleFilterOptions {
-  sortBy: 'newest' | 'popular' | 'trending';
-  timeRange: 'all' | 'week' | 'month' | 'year';
-  sentiment?: 'neutral' | 'positive' | 'critical';
+  sortBy: "newest" | "popular" | "trending";
+  timeRange: "all" | "week" | "month" | "year";
+  sentiment?: "neutral" | "positive" | "critical";
   tags?: string[];
 }

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Angle, MuqtaribArticleForm } from "@/types/muqtarab";
+import { Angle, MuqtarabArticleForm } from "@/types/muqtarab";
 import {
   ArrowLeft,
   Brain,
@@ -213,7 +213,7 @@ const ArticlePreview = ({
   formData,
   angle,
 }: {
-  formData: MuqtaribArticleForm;
+  formData: MuqtarabArticleForm;
   angle: Angle;
 }) => {
   const formatDate = (date: Date) => {
@@ -347,7 +347,7 @@ export default function CreateAngleArticlePage() {
   const [angleLoading, setAngleLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
 
-  const [formData, setFormData] = useState<MuqtaribArticleForm>({
+  const [formData, setFormData] = useState<MuqtarabArticleForm>({
     angleId,
     title: "",
     excerpt: "",
@@ -396,7 +396,7 @@ export default function CreateAngleArticlePage() {
           setAngle(data.angle);
         } else {
           toast.error("الزاوية غير موجودة");
-          router.push("/admin/muqtarib");
+          router.push("/admin/muqtarab");
         }
       } catch (error) {
         console.error("خطأ في جلب البيانات:", error);
@@ -543,7 +543,7 @@ export default function CreateAngleArticlePage() {
         toast.success(
           publish ? "تم نشر المقال بنجاح!" : "تم حفظ المقال كمسودة"
         );
-        router.push(`/admin/muqtarib/angles/${angleId}`);
+        router.push(`/admin/muqtarab/angles/${angleId}`);
       } else {
         const errorText = await response.text();
         console.error("❌ خطأ API:", response.status, errorText);
@@ -585,7 +585,7 @@ export default function CreateAngleArticlePage() {
           <p className="text-gray-600 mb-6">
             لم يتم العثور على الزاوية المطلوبة
           </p>
-          <Button onClick={() => router.push("/admin/muqtarib")}>
+          <Button onClick={() => router.push("/admin/muqtarab")}>
             <ArrowLeft className="w-4 h-4 ml-2" />
             العودة لمُقترب
           </Button>
@@ -604,7 +604,7 @@ export default function CreateAngleArticlePage() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => router.push(`/admin/muqtarib/angles/${angleId}`)}
+                onClick={() => router.push(`/admin/muqtarab/angles/${angleId}`)}
                 className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
               >
                 <ArrowLeft className="w-4 h-4 ml-2" />
