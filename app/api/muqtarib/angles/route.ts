@@ -8,11 +8,19 @@ const prisma = new PrismaClient();
 export async function POST(request: NextRequest) {
   try {
     const body: CreateAngleForm = await request.json();
+    
+    console.log('📥 البيانات المستلمة:', {
+      title: body.title,
+      description: body.description?.substring(0, 50) + '...',
+      authorId: body.authorId,
+      themeColor: body.themeColor,
+      isPublished: body.isPublished
+    });
 
     // التحقق من البيانات المطلوبة
-    if (!body.title?.trim() || !body.description?.trim() || !body.authorId) {
+    if (!body.title?.trim() || !body.description?.trim()) {
       return NextResponse.json(
-        { error: "العنوان والوصف ومعرف المؤلف مطلوبة" },
+        { error: "العنوان والوصف مطلوبان" },
         { status: 400 }
       );
     }
@@ -43,16 +51,22 @@ export async function POST(request: NextRequest) {
         title, slug, description, icon, theme_color,
         author_id, cover_image, is_featured, is_published
       ) VALUES (
-        ${body.title}, ${slug}, ${body.description}, ${body.icon || null}, ${
-      body.themeColor
-    },
-        ${body.authorId}, ${body.coverImage || null}, ${body.isFeatured}, ${
-      body.isPublished
-    }
+        ${body.title}, ${slug}, ${body.description}, ${body.icon || null}, ${body.themeColor},
+        ${body.authorId || null}, ${body.coverImage || null}, ${body.isFeatured}, ${body.isPublished}
       ) RETURNING *
     `) as any[];
 
     const angle = result[0];
+    
+    if (!angle) {
+      throw new Error('فشل في إنشاء الزاوية - لم يتم إرجاع بيانات');
+    }
+
+    console.log('✅ تم إنشاء الزاوية بنجاح:', {
+      id: angle.id,
+      title: angle.title,
+      slug: angle.slug
+    });
 
     return NextResponse.json({
       success: true,

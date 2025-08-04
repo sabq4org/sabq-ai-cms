@@ -236,7 +236,16 @@ export default function CreateAnglePage() {
         toast.success(
           publish ? "تم نشر الزاوية بنجاح!" : "تم حفظ الزاوية كمسودة"
         );
-        router.push(`/admin/muqtarib/angles/${data.angle.id}`);
+        
+        // التحقق من وجود معرف الزاوية قبل التوجيه
+        if (data.angle && data.angle.id) {
+          console.log('تم إنشاء الزاوية بمعرف:', data.angle.id);
+          router.push(`/admin/muqtarib/angles/${data.angle.id}`);
+        } else {
+          console.error('معرف الزاوية غير موجود في الاستجابة:', data);
+          // توجيه إلى صفحة قائمة الزوايا بدلاً من ذلك
+          router.push('/admin/muqtarab');
+        }
       } else {
         const error = await response.json();
         toast.error(error.error || "حدث خطأ في الحفظ");
