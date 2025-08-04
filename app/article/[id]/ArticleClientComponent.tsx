@@ -59,7 +59,8 @@ export default function ArticleClientComponent({
       try {
         articleData.metadata = JSON.parse(articleData.metadata);
       } catch (e) {
-        console.error("خطأ في تحليل metadata:", e);
+        // تجاهل أخطاء تحليل metadata وتعيين قيمة افتراضية
+        console.warn("تحذير: فشل في تحليل metadata، استخدام قيمة افتراضية");
         articleData.metadata = {};
       }
     }
@@ -132,10 +133,10 @@ export default function ArticleClientComponent({
             const data = await response.json();
             setArticle(processArticle(data));
           } else {
-            console.error("Failed to fetch article:", response.status);
+            console.warn("تحذير: فشل في تحميل المقال، كود الاستجابة:", response.status);
           }
         } catch (error) {
-          console.error("Error fetching article:", error);
+          console.warn("تحذير: خطأ في شبكة أثناء تحميل المقال:", error?.message || error);
         } finally {
           setLoading(false);
         }
