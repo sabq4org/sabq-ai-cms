@@ -178,29 +178,30 @@ export default function ProfilePage() {
     }
   }, []);
 
-  // إضافة listener لتحديث الاهتمامات عند العودة للصفحة
+  // إضافة listener لتحديث الاهتمامات عند العودة للصفحة (أقل تكراراً)
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (!document.hidden && user && !fetchingInterestsRef.current) {
-        // عندما يعود المستخدم للصفحة، نحدث الاهتمامات فقط إذا لم تكن قيد التحديث
-        console.log("👁️ الصفحة أصبحت مرئية - تحديث الاهتمامات");
+      if (!document.hidden && user && !fetchingInterestsRef.current && preferences.length === 0) {
+        // فقط إذا لم تكن الاهتمامات محملة مسبقاً
+        console.log("👁️ الصفحة أصبحت مرئية وأحتاج لتحديث الاهتمامات");
         fetchUserInterestsImmediately();
       }
     };
 
-    const handleFocus = () => {
-      if (user && !fetchingInterestsRef.current) {
-        console.log("🔄 تم التركيز على الصفحة - تحديث الاهتمامات");
-        fetchUserInterestsImmediately();
-      }
-    };
+    // إزالة handleFocus لتقليل التحديثات المتكررة
+    // const handleFocus = () => {
+    //   if (user && !fetchingInterestsRef.current) {
+    //     console.log("🔄 تم التركيز على الصفحة - تحديث الاهتمامات");
+    //     fetchUserInterestsImmediately();
+    //   }
+    // };
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("focus", handleFocus);
+    // window.addEventListener("focus", handleFocus);
 
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("focus", handleFocus);
+      // window.removeEventListener("focus", handleFocus);
     };
   }, [user]);
 
@@ -243,7 +244,8 @@ export default function ProfilePage() {
   useEffect(() => {
     if (user && !dataFetchedRef.current) {
       dataFetchedRef.current = true;
-      // جلب الاهتمامات فوراً دون انتظار
+      // جلب الاهتمامات فوراً دون انتظار (مرة واحدة فقط)
+      console.log("🚀 تحميل أولي للاهتمامات");
       fetchUserInterestsImmediately();
       // ثم جلب باقي البيانات
       fetchAllDataOptimized();
@@ -316,7 +318,10 @@ export default function ProfilePage() {
           }));
 
         console.log("🎯 تم عرض الاهتمامات فوراً:", userCategories);
-        setPreferences(userCategories);
+        // حماية إضافية: فقط أحدث الاهتمامات إذا كانت البيانات صحيحة
+        if (userCategories.length > 0) {
+          setPreferences(userCategories);
+        }
         // إشعار بسيط فقط عند الضغط على زر التحديث يدوياً
         if (manualRefreshRef.current) {
           toast.success(`تم تحديث ${userCategories.length} اهتمام! ✨`);
@@ -324,7 +329,11 @@ export default function ProfilePage() {
         }
       } else if (userCategoryIds.length === 0) {
         console.log("❓ لم يتم العثور على اهتمامات للمستخدم");
-        setPreferences([]);
+        // لا نمسح الاهتمامات إذا كانت موجودة مسبقاً
+        // setPreferences([]);
+      } else if (userCategoryIds.length > 0 && allCategories.length === 0) {
+        console.log("⏳ الاهتمامات موجودة لكن التصنيفات لم تحمل بعد، انتظار...");
+        // لا نمسح الاهتمامات، ننتظر تحميل التصنيفات
       }
     } catch (error) {
       console.error("❌ خطأ في جلب الاهتمامات فوراً:", error);
