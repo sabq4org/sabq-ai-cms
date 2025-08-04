@@ -247,7 +247,7 @@ export default function CreateAnglePage() {
         } else {
           console.error("معرف الزاوية غير موجود في الاستجابة:", data);
           // توجيه إلى صفحة قائمة الزوايا بدلاً من ذلك
-          router.push("/admin/muqtarab");
+          router.push("/admin/muqtarib");
         }
       } else {
         const error = await response.json();

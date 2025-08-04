@@ -286,11 +286,16 @@ export default function AngleDashboardPage() {
         setLoading(true);
 
         // جلب بيانات الزاوية
+        console.log("🔍 جاري جلب بيانات الزاوية:", angleId);
         const angleResponse = await fetch(`/api/muqtarib/angles/${angleId}`);
+        console.log("📡 استجابة API الزاوية:", angleResponse.status, angleResponse.ok);
+        
         if (angleResponse.ok) {
           const angleData = await angleResponse.json();
+          console.log("✅ تم جلب بيانات الزاوية:", angleData.angle?.title);
           setAngle(angleData.angle);
         } else {
+          console.error("❌ خطأ في جلب الزاوية:", angleResponse.status);
           toast.error("الزاوية غير موجودة");
           router.push("/admin/muqtarib");
           return;
@@ -315,7 +320,10 @@ export default function AngleDashboardPage() {
     };
 
     if (angleId) {
+      console.log("🚀 بدء تحميل الصفحة مع angleId:", angleId);
       fetchData();
+    } else {
+      console.error("❌ angleId غير موجود");
     }
   }, [angleId, router]);
 

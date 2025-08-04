@@ -191,9 +191,13 @@ export default function MuqtaribDashboard() {
         setLoading(true);
 
         // جلب جميع الزوايا
+        console.log("🔍 جاري جلب جميع الزوايا من الصفحة الرئيسية...");
         const response = await fetch("/api/muqtarib/angles");
+        console.log("📡 استجابة API الزوايا:", response.status, response.ok);
+        
         if (response.ok) {
           const data = await response.json();
+          console.log("✅ تم جلب الزوايا:", data.angles?.length || 0);
           setAngles(data.angles || []);
 
           // حساب الإحصائيات
