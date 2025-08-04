@@ -52,7 +52,7 @@ export async function POST(
       body.excerpt || null,
       body.authorId,
       body.sentiment || "neutral",
-      JSON.stringify(body.tags || []),
+      body.tags || [],
       body.coverImage || null,
       body.isPublished,
       body.publishDate ? new Date(body.publishDate) : null,
@@ -74,10 +74,7 @@ export async function POST(
         excerpt: article.excerpt,
         authorId: article.author_id,
         sentiment: article.sentiment,
-        tags:
-          typeof article.tags === "string"
-            ? JSON.parse(article.tags)
-            : article.tags,
+        tags: Array.isArray(article.tags) ? article.tags : [],
         coverImage: article.cover_image,
         isPublished: article.is_published,
         publishDate: article.publish_date,

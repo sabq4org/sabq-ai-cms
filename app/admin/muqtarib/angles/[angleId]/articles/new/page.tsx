@@ -370,14 +370,23 @@ export default function CreateAngleArticlePage() {
         if (userData) {
           const parsedUser = JSON.parse(userData);
           setUser(parsedUser);
-          // استخدام نص بسيط بدلاً من UUID لتجنب مشاكل التوافق
           setFormData((prev) => ({
             ...prev,
-            authorId: parsedUser.id || parsedUser.email || "admin",
+            authorId: parsedUser.id,
           }));
         } else {
-          // fallback إذا لم يكن هناك مستخدم مسجل
-          setFormData((prev) => ({ ...prev, authorId: "admin" }));
+          // fallback: استخدام أول مستخدم من النظام
+          try {
+            const usersResponse = await fetch('/api/users');
+            if (usersResponse.ok) {
+              const usersData = await usersResponse.json();
+              if (usersData.users && usersData.users.length > 0) {
+                setFormData((prev) => ({ ...prev, authorId: usersData.users[0].id }));
+              }
+            }
+          } catch (error) {
+            console.error('خطأ في جلب المستخدمين:', error);
+          }
         }
 
         // جلب بيانات الزاوية
