@@ -1,29 +1,37 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Image from 'next/image';
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { RadixSelect, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useToast } from '@/hooks/use-toast';
-import { 
-  Send, 
-  Save, 
-  Clock, 
-  FileText,
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  RadixSelect,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Calendar,
+  Clock,
   Code,
   Eye,
+  FileText,
+  Save,
+  Send,
   Users,
-  Calendar,
-  Palette,
-  Variable
-} from 'lucide-react';
+  Variable,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 interface EmailTemplate {
   id: string;
   name: string;
@@ -34,20 +42,20 @@ interface EmailTemplate {
 }
 export default function EmailComposePage() {
   const { toast } = useToast();
-  const [subject, setSubject] = useState('');
-  const [htmlContent, setHtmlContent] = useState('');
-  const [textContent, setTextContent] = useState('');
-  const [selectedTemplate, setSelectedTemplate] = useState('');
+  const [subject, setSubject] = useState("");
+  const [htmlContent, setHtmlContent] = useState("");
+  const [textContent, setTextContent] = useState("");
+  const [selectedTemplate, setSelectedTemplate] = useState("");
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [showPreview, setShowPreview] = useState(false);
   const [showSchedule, setShowSchedule] = useState(false);
-  const [scheduleDate, setScheduleDate] = useState('');
-  const [scheduleTime, setScheduleTime] = useState('');
+  const [scheduleDate, setScheduleDate] = useState("");
+  const [scheduleTime, setScheduleTime] = useState("");
   const [targetFilter, setTargetFilter] = useState<any>({
-    status: 'active',
-    categories: []
+    status: "active",
+    categories: [],
   });
-  const [activeTab, setActiveTab] = useState('visual');
+  const [activeTab, setActiveTab] = useState("visual");
   const [saving, setSaving] = useState(false);
   const [sending, setSending] = useState(false);
   // جلب القوالب
@@ -56,66 +64,66 @@ export default function EmailComposePage() {
   }, []);
   const fetchTemplates = async () => {
     try {
-      const response = await fetch('/api/email/templates');
+      const response = await fetch("/api/email/templates");
       const data = await response.json();
       if (data.success) {
         setTemplates(data.data);
       }
     } catch (error) {
-      console.error('خطأ في جلب القوالب:', error);
+      console.error("خطأ في جلب القوالب:", error);
     }
   };
   // تحميل قالب
   const loadTemplate = async (templateId: string) => {
-    const template = templates.find(t => t.id === templateId);
+    const template = templates.find((t) => t.id === templateId);
     if (template) {
       setSubject(template.subject);
       setHtmlContent(template.htmlContent);
-      setTextContent(template.textContent || '');
+      setTextContent(template.textContent || "");
       toast({
-        title: 'تم',
-        description: 'تم تحميل القالب بنجاح'
+        title: "تم",
+        description: "تم تحميل القالب بنجاح",
       });
     }
   };
   // حفظ كقالب
   const saveAsTemplate = async () => {
-    const name = prompt('أدخل اسم القالب:');
+    const name = prompt("أدخل اسم القالب:");
     if (!name) return;
     setSaving(true);
     try {
-      const response = await fetch('/api/email/templates', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/email/templates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name,
           subject,
           htmlContent,
           textContent,
           metadata: {
-            variables: extractVariables(htmlContent)
-          }
-        })
+            variables: extractVariables(htmlContent),
+          },
+        }),
       });
       const data = await response.json();
       if (data.success) {
         toast({
-          title: 'تم',
-          description: 'تم حفظ القالب بنجاح'
+          title: "تم",
+          description: "تم حفظ القالب بنجاح",
         });
         fetchTemplates();
       } else {
         toast({
-          title: 'خطأ',
+          title: "خطأ",
           description: data.error,
-          variant: 'destructive'
+          variant: "destructive",
         });
       }
     } catch (error) {
       toast({
-        title: 'خطأ',
-        description: 'فشل في حفظ القالب',
-        variant: 'destructive'
+        title: "خطأ",
+        description: "فشل في حفظ القالب",
+        variant: "destructive",
       });
     } finally {
       setSaving(false);
@@ -125,15 +133,15 @@ export default function EmailComposePage() {
   const extractVariables = (content: string) => {
     const regex = /\{\{([^}]+)\}\}/g;
     const matches = content.match(regex) || [];
-    return [...new Set(matches.map(m => m.replace(/[{}]/g, '').trim()))];
+    return [...new Set(matches.map((m) => m.replace(/[{}]/g, "").trim()))];
   };
   // إرسال الرسالة
   const sendEmail = async (scheduled = false) => {
     if (!subject || !htmlContent) {
       toast({
-        title: 'خطأ',
-        description: 'يجب إدخال العنوان والمحتوى',
-        variant: 'destructive'
+        title: "خطأ",
+        description: "يجب إدخال العنوان والمحتوى",
+        variant: "destructive",
       });
       return;
     }
@@ -144,39 +152,41 @@ export default function EmailComposePage() {
         htmlContent,
         textContent,
         targetFilter,
-        status: scheduled ? 'queued' : 'sending'
+        status: scheduled ? "queued" : "sending",
       };
       if (scheduled && scheduleDate && scheduleTime) {
         jobData.scheduledAt = new Date(`${scheduleDate}T${scheduleTime}`);
       }
-      const response = await fetch('/api/email/jobs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(jobData)
+      const response = await fetch("/api/email/jobs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(jobData),
       });
       const data = await response.json();
       if (data.success) {
         toast({
-          title: 'تم',
-          description: scheduled ? 'تم جدولة الرسالة بنجاح' : 'تم إرسال الرسالة بنجاح'
+          title: "تم",
+          description: scheduled
+            ? "تم جدولة الرسالة بنجاح"
+            : "تم إرسال الرسالة بنجاح",
         });
         // إعادة تعيين النموذج
-        setSubject('');
-        setHtmlContent('');
-        setTextContent('');
-        setSelectedTemplate('');
+        setSubject("");
+        setHtmlContent("");
+        setTextContent("");
+        setSelectedTemplate("");
       } else {
         toast({
-          title: 'خطأ',
+          title: "خطأ",
           description: data.error,
-          variant: 'destructive'
+          variant: "destructive",
         });
       }
     } catch (error) {
       toast({
-        title: 'خطأ',
-        description: 'فشل في إرسال الرسالة',
-        variant: 'destructive'
+        title: "خطأ",
+        description: "فشل في إرسال الرسالة",
+        variant: "destructive",
       });
     } finally {
       setSending(false);
@@ -212,12 +222,12 @@ export default function EmailComposePage() {
       </body>
       </html>
     `;
-    const blob = new Blob([previewHtml], { type: 'text/html' });
+    const blob = new Blob([previewHtml], { type: "text/html" });
     const url = URL.createObjectURL(blob);
-    window.open(url, '_blank');
+    window.open(url, "_blank");
   };
   return (
-  <div className="container mx-auto p-6">
+    <div className="container mx-auto p-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">محرر الرسائل البريدية</h1>
         <p className="text-gray-600">إنشاء وإرسال رسائل بريدية مخصصة</p>
@@ -233,16 +243,19 @@ export default function EmailComposePage() {
               {/* اختيار القالب */}
               <div>
                 <Label>القالب (اختياري)</Label>
-                <RadixSelect value={selectedTemplate} onValueChange={(value) => {
-                  setSelectedTemplate(value);
-                  if (value) loadTemplate(value);
-                }}>
+                <RadixSelect
+                  value={selectedTemplate}
+                  onValueChange={(value) => {
+                    setSelectedTemplate(value);
+                    if (value) loadTemplate(value);
+                  }}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="اختر قالباً محفوظاً" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">بدون قالب</SelectItem>
-                    {templates.map(template => (
+                    {templates.map((template) => (
                       <SelectItem key={template.id} value={template.id}>
                         {template.name}
                       </SelectItem>
@@ -283,7 +296,8 @@ export default function EmailComposePage() {
                         placeholder="اكتب محتوى الرسالة هنا... يمكنك استخدام HTML"
                       />
                       <div className="mt-2 text-sm text-gray-500">
-                        نصيحة: يمكنك استخدام وسوم HTML مثل &lt;p&gt;, &lt;h1&gt;, &lt;strong&gt;, &lt;a&gt;
+                        نصيحة: يمكنك استخدام وسوم HTML مثل &lt;p&gt;,
+                        &lt;h1&gt;, &lt;strong&gt;, &lt;a&gt;
                       </div>
                     </div>
                   </TabsContent>
@@ -315,8 +329,16 @@ export default function EmailComposePage() {
                   المتغيرات المتاحة
                 </h4>
                 <div className="flex flex-wrap gap-2">
-                  {['{{name}}', '{{email}}', '{{date}}', '{{unsubscribe_url}}'].map(variable => (
-                    <code key={variable} className="bg-white px-2 py-1 rounded text-sm">
+                  {[
+                    "{{name}}",
+                    "{{email}}",
+                    "{{date}}",
+                    "{{unsubscribe_url}}",
+                  ].map((variable) => (
+                    <code
+                      key={variable}
+                      className="bg-white px-2 py-1 rounded text-sm"
+                    >
                       {variable}
                     </code>
                   ))}
@@ -338,9 +360,11 @@ export default function EmailComposePage() {
             <CardContent className="space-y-4">
               <div>
                 <Label>حالة المشتركين</Label>
-                <RadixSelect 
-                  value={targetFilter.status} 
-                  onValueChange={(value) => setTargetFilter({...targetFilter, status: value})}
+                <RadixSelect
+                  value={targetFilter.status}
+                  onValueChange={(value) =>
+                    setTargetFilter({ ...targetFilter, status: value })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -416,7 +440,7 @@ export default function EmailComposePage() {
                 type="date"
                 value={scheduleDate}
                 onChange={(e) => setScheduleDate(e.target.value)}
-                min={new Date().toISOString().split('T')[0]}
+                min={new Date().toISOString().split("T")[0]}
               />
             </div>
             <div>

@@ -1671,6 +1671,9 @@ model MuqtarabCorner {
   category_id   String?
   category      categories? @relation(fields: [category_id], references: [id])
 
+  // التصميم والهوية البصرية
+  theme_color   String   @default("#3B82F6") // اللون المميز للزاوية
+
   // إعدادات الذكاء الاصطناعي
   ai_enabled    Boolean  @default(true)
 
