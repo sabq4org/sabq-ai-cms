@@ -37,7 +37,7 @@ import "@/styles/mobile-article.css";
 import "./article-styles.css";
 
 interface ArticleClientComponentProps {
-  initialArticle: ArticleData;
+  initialArticle: ArticleData | null;
   articleId: string;
 }
 

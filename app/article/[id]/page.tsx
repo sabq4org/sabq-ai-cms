@@ -1,5 +1,8 @@
 import { generateMetadata } from './metadata';
-import ArticleClientWrapper from './ArticleClientWrapper';
+import dynamic from 'next/dynamic';
+
+// تحميل المكون الأصلي ديناميكياً
+const ArticleClientComponent = dynamic(() => import('./ArticleClientComponent'), { ssr: false });
 
 interface ArticlePageProps {
   params: { id: string };
@@ -9,5 +12,5 @@ interface ArticlePageProps {
 export { generateMetadata };
 
 export default function ArticlePage({ params }: ArticlePageProps) {
-  return <ArticleClientWrapper articleId={params.id} />;
+  return <ArticleClientComponent articleId={params.id} initialArticle={null} />;
 }
