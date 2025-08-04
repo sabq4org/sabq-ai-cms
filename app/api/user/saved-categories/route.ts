@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
 
@@ -78,13 +78,13 @@ export async function GET(request: NextRequest) {
     if (preference) {
       const preferenceData = preference.value as any || {};
       const categoryIds = preferenceData.interests || [];
-      
+
       // استخدام البيانات المحفوظة مباشرة بدون تحويل مدمر
       console.log('✅ تم العثور على التفضيلات المحفوظة:', {
         categoryIds: categoryIds,
         source: 'user_preferences'
       });
-      
+
       return corsResponse({
         success: true,
         categoryIds: categoryIds,
@@ -107,4 +107,4 @@ export async function GET(request: NextRequest) {
       error: 'حدث خطأ في جلب التصنيفات المحفوظة'
     }, 500);
   }
-} 
+}

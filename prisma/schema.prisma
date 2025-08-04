@@ -150,7 +150,7 @@ model articles {
   likes             Int                 @default(0)
   saves             Int                 @default(0)
   shares            Int                 @default(0)
-  
+
   // New fields for enhanced article system
   article_author_id String?
   summary           String?             // ملخص تلقائي
@@ -158,22 +158,22 @@ model articles {
   tags              String[]            // كلمات مفتاحية
   article_type      String              @default("opinion") // نوع المقال
   is_opinion_leader Boolean             @default(false) // قائد الرأي اليوم
-  
+
   // Existing relationships
   categories        categories?         @relation(fields: [category_id], references: [id])
   interactions      interactions[]
-  
+
   // Author relationship (existing)
   author            users?              @relation("ArticleAuthor", fields: [author_id], references: [id])
-  
+
   // New article author relationship
   article_author    article_authors?    @relation(fields: [article_author_id], references: [id])
-  
+
   // AI system relationships
   ml_predictions    MLPredictions[]
   sentiment_analyses SentimentAnalysis[]
   article_quotes    article_quotes[]
-  
+
   @@index([article_author_id])
   @@index([article_type])
   @@index([tags])
@@ -311,7 +311,7 @@ model daily_doses {
   publishedAt      DateTime?
   views            Int                @default(0)
   metadata         Json?
-  
+
   // إضافات الجرعات الذكية
   topics           String[]           @default([])      // مواضيع الجرعة
   source_articles  String[]           @default([])      // معرفات المقالات المستخدمة
@@ -323,7 +323,7 @@ model daily_doses {
   share_count      Int                @default(0)       // عدد المشاركات
   created_by       String?                              // المحرر
   editor_notes     String?                              // ملاحظات المحرر
-  
+
   createdAt        DateTime           @default(now())
   updatedAt        DateTime
 
@@ -839,18 +839,18 @@ model users {
   reset_token_expiry   DateTime?
   created_at           DateTime               @default(now())
   updated_at           DateTime
-  
+
   // Existing relationships
   audio_episodes       audio_episodes[]
   audio_programs       audio_programs[]
   interactions         interactions[]
-  
+
   // Articles authored by this user
   authored_articles    articles[]             @relation("ArticleAuthor")
-  
+
   // Reporter profile relationship
   reporter_profile     reporters?
-  
+
   // New AI system relationships
   user_settings        UserSettings[]
   ml_predictions       MLPredictions[]
@@ -858,7 +858,7 @@ model users {
   smart_notifications  SmartNotifications[]
   user_recommendations UserRecommendations[]
   search_queries       SearchQueries[]
-  
+
   // Muqtarab relationships
   muqtarab_corners     MuqtarabCorner[]
   muqtarab_articles    MuqtarabArticle[]
@@ -866,13 +866,13 @@ model users {
   muqtarab_analytics   MuqtarabAnalytics[]
   muqtarab_followers   MuqtarabFollower[]
   muqtarab_comments    MuqtarabComment[]
-  
+
   // Smart Doses relationships
   user_doses           daily_doses[]          @relation("UserDoses")
   created_doses        daily_doses[]          @relation("DoseCreator")
   dose_feedback        smart_dose_feedback[]  @relation("DoseFeedbackUser")
   dose_templates       smart_dose_templates[] @relation("DoseTemplateCreator")
-  
+
   // User interests relationship
   interests            user_interests[]
 
@@ -889,29 +889,29 @@ model users {
 model reporters {
   id                    String   @id @default(cuid())
   user_id               String   @unique
-  
+
   // معلومات الهوية
   full_name             String
   slug                  String   @unique  // للـ URL
   title                 String?            // مثل "مراسل ميداني", "محرر اقتصادي"
   bio                   String?           // النبذة المهنية
   avatar_url            String?
-  
+
   // التحقق والمكانة
   is_verified           Boolean  @default(false)
   verification_badge    String?  @default("verified") // "verified", "expert", "senior"
-  
+
   // التخصصات والتغطية
   specializations       Json?    // ["اقتصاد", "سياسة", "رياضة"]
   coverage_areas        Json?    // ["الرياض", "المنطقة الشرقية", "دولي"]
   languages             Json?    @default("[\"ar\"]") // ["ar", "en"]
-  
+
   // روابط التواصل
   twitter_url           String?
   linkedin_url          String?
   website_url           String?
   email_public          String?  // بريد عام للتواصل
-  
+
   // إحصائيات الأداء
   total_articles        Int      @default(0)
   total_views           Int      @default(0)
@@ -919,26 +919,26 @@ model reporters {
   total_shares          Int      @default(0)
   avg_reading_time      Float?
   engagement_rate       Float    @default(0.0)
-  
+
   // تحليل ذكي
   writing_style         Json?    // تحليل أسلوب الكتابة
   popular_topics        Json?    // أكثر المواضيع كتابة
   publication_pattern   Json?    // نمط النشر (أوقات، أيام)
   reader_demographics   Json?    // تحليل الجمهور
-  
+
   // إعدادات العرض
   is_active             Boolean  @default(true)
   show_stats            Boolean  @default(true)
   show_contact          Boolean  @default(false)
   display_order         Int?
-  
+
   // التواريخ
   created_at            DateTime @default(now())
   updated_at            DateTime @updatedAt
-  
+
   // العلاقات
   user                  users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  
+
   @@map("reporters")
   @@index([slug])
   @@index([is_active])
@@ -1196,12 +1196,12 @@ model SentimentAnalysis {
   language          String           @default("ar")
   model_version     String           // إصدار نموذج التحليل
   processed_at      DateTime         @default(now())
-  
+
   // User relationships (optional)
   user_id           String?
   user              users?           @relation(fields: [user_id], references: [id], onDelete: SetNull)
-  
-  // Article relationships (optional) 
+
+  // Article relationships (optional)
   article_id        String?
   article           articles?        @relation(fields: [article_id], references: [id], onDelete: SetNull)
 
@@ -1462,20 +1462,20 @@ model SmartEntityTypes {
   color       String // لون hex للتمييز البصري
   description String?
   is_active   Boolean @default(true)
-  
+
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
-  
+
   // Relations
   entities    SmartEntities[]
-  
+
   @@map("smart_entity_types")
 }
 
 // جدول الكيانات الذكية
 model SmartEntities {
   id               String @id @default(cuid())
-  
+
   // معلومات أساسية
   name             String
   name_ar          String?
@@ -1483,48 +1483,48 @@ model SmartEntities {
   entity_type_id   String
   description      String?
   short_bio        String?
-  
+
   // تقييم الأهمية
   importance_score Int     @default(5) // 1-10
   is_active        Boolean @default(true)
   is_verified      Boolean @default(false)
-  
+
   // أسماء بديلة ومرادفات
   aliases          Json?   // ["اسم بديل 1", "اسم بديل 2"]
-  
+
   // روابط ومعلومات خارجية
   official_website String?
   wikipedia_url    String?
   social_media     Json?   // {twitter: "", linkedin: "", instagram: ""}
-  
+
   // معلومات زمنية
   birth_date       DateTime?
   start_date       DateTime? // تاريخ بداية المشروع/المنصب
   end_date         DateTime? // تاريخ النهاية
-  
+
   // موقع جغرافي
   location         String?
   country          String?  @default("SA")
   region           String?
-  
+
   // معلومات SEO
   slug             String?  @unique
   seo_keywords     String?
-  
+
   // الشعبية والتفاعل
   mention_count    Int      @default(0) // عدد مرات الذكر في المقالات
   click_count      Int      @default(0) // عدد النقرات على الروابط
   last_mentioned   DateTime?
-  
+
   created_at       DateTime @default(now())
   updated_at       DateTime @updatedAt
-  
+
   // Relations
   entity_type      SmartEntityTypes @relation(fields: [entity_type_id], references: [id])
   entity_links_source EntityLinks[] @relation("SourceEntity")
   entity_links_target EntityLinks[] @relation("TargetEntity")
   smart_links      SmartArticleLinks[]
-  
+
   @@map("smart_entities")
   @@index([entity_type_id])
   @@index([importance_score])
@@ -1540,13 +1540,13 @@ model EntityLinks {
   relationship_ar   String?  // يعمل في، عضو في، يقع في، جزء من
   strength          Int      @default(1) // قوة العلاقة 1-10
   is_active         Boolean  @default(true)
-  
+
   source_entity     SmartEntities @relation("SourceEntity", fields: [source_entity_id], references: [id])
   target_entity     SmartEntities @relation("TargetEntity", fields: [target_entity_id], references: [id])
-  
+
   created_at        DateTime @default(now())
   updated_at        DateTime @updatedAt
-  
+
   @@map("entity_links")
   @@unique([source_entity_id, target_entity_id, relationship_type])
 }
@@ -1556,34 +1556,34 @@ model SmartArticleLinks {
   id              String   @id @default(cuid())
   article_id      String   // معرف المقال
   entity_id       String
-  
+
   // معلومات الرابط في النص
   matched_text    String   // النص الذي تم ربطه
   context_before  String?  // السياق قبل الكلمة
   context_after   String?  // السياق بعد الكلمة
   position        Int      // موقع الرابط في النص
   confidence      Float    @default(1.0) // مستوى الثقة في الربط
-  
+
   // نوع الرابط
   link_type       String   // entity, tooltip, modal, external
   target_url      String?  // الرابط المستهدف
   tooltip_content String?  // محتوى tooltip
-  
+
   // حالة الرابط
   is_approved     Boolean  @default(false) // موافقة المحرر
   is_active       Boolean  @default(true)
   auto_generated  Boolean  @default(true)  // تم إنشاؤه تلقائياً
-  
+
   // إحصائيات
   clicks          Int      @default(0)
   impressions     Int      @default(0)
   last_clicked    DateTime?
-  
+
   entity          SmartEntities @relation(fields: [entity_id], references: [id])
-  
+
   created_at      DateTime @default(now())
   updated_at      DateTime @updatedAt
-  
+
   @@map("smart_article_links")
   @@index([article_id])
   @@index([entity_id])
@@ -1596,27 +1596,27 @@ model SmartTerms {
 
   term_ar         String?
   term_en         String?
-  
+
   definition      String   // التعريف المختصر
   detailed_def    String?  // التعريف المفصل
   example         String?  // مثال على الاستخدام
-  
+
   category        String?  // اقتصادي، سياسي، تقني، طبي
   difficulty      String   @default("medium") // easy, medium, hard
-  
+
   // مرادفات
   synonyms        Json?    // ["الناتج المحلي", "GDP", "إجمالي الناتج المحلي"]
-  
+
   // روابط خارجية
   reference_url   String?
   wikipedia_url   String?
-  
+
   usage_count     Int      @default(0)
   is_active       Boolean  @default(true)
-  
+
   created_at      DateTime @default(now())
   updated_at      DateTime @updatedAt
-  
+
   @@map("smart_terms")
   @@index([category])
   @@index([usage_count])
@@ -1628,26 +1628,26 @@ model LinkAnalytics {
   link_id         String?  // معرف الرابط الذكي
   article_id      String
   entity_id       String?
-  
+
   // نوع الحدث
   event_type      String   // click, impression, hover, copy
-  
+
   // معلومات المستخدم (مجهولة)
   user_agent      String?
   ip_hash         String?  // hash للـ IP
   session_id      String?
-  
+
   // معلومات السياق
   referrer        String?
   time_on_page    Int?     // بالثواني
   scroll_depth    Float?   // 0.0 - 1.0
-  
+
   // معلومات الجهاز
   device_type     String?  // mobile, desktop, tablet
   browser_type    String?
-  
+
   timestamp       DateTime @default(now())
-  
+
   @@map("link_analytics")
   @@index([article_id])
   @@index([entity_id])
@@ -1666,31 +1666,31 @@ model MuqtarabCorner {
   author_bio    String?  // نبذة عن الكاتب
   cover_image   String?  // صورة الغلاف
   description   String?  // وصف الزاوية
-  
+
   // التصنيف
   category_id   String?
   category      categories? @relation(fields: [category_id], references: [id])
-  
+
   // إعدادات الذكاء الاصطناعي
   ai_enabled    Boolean  @default(true)
-  
+
   // حالة الزاوية
   is_active     Boolean  @default(true)
   is_featured   Boolean  @default(false)
-  
+
   // معلومات الإنشاء
   created_by    String?
   creator       users?   @relation(fields: [created_by], references: [id])
-  
+
   // التواريخ
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
-  
+
   // العلاقات
   articles      MuqtarabArticle[]
   analytics     MuqtarabAnalytics[]
   followers     MuqtarabFollower[]
-  
+
   @@map("muqtarab_corners")
   @@index([slug])
   @@index([is_active])
@@ -1701,60 +1701,60 @@ model MuqtarabCorner {
 // جدول المقالات/المواضيع
 model MuqtarabArticle {
   id                    String   @id @default(cuid())
-  
+
   // ربط بالزاوية
   corner_id             String
   corner                MuqtarabCorner @relation(fields: [corner_id], references: [id], onDelete: Cascade)
-  
+
   // محتوى المقال
   title                 String   // العنوان
   slug                  String   @unique // رابط المقال
   content               String   @db.Text // المحتوى الكامل
   excerpt               String?  // مقتطف
   cover_image           String?  // صورة الغلاف
-  
+
   // معلومات المؤلف
   author_name           String?  // يمكن أن يكون مختلف عن كاتب الزاوية
   author_bio            String?
   author_avatar         String?
-  
+
   // الكلمات المفتاحية
   tags                  String[] // كلمات مفتاحية للتوافق مع تفضيلات المستخدم
-  
+
   // إعدادات المقال
   is_featured           Boolean  @default(false)
   read_time             Int?     // وقت القراءة المتوقع بالدقائق
-  
+
   // الجدولة والنشر
   publish_at            DateTime?
   status                String   @default("draft") // draft, published, archived, scheduled
-  
+
   // تحليلات الذكاء الاصطناعي
   ai_sentiment          String?  // ساخر، تأملي، عاطفي، تحليلي، إلهامي
   ai_compatibility_score Int?    @default(0) // نسبة ملاءمة 0-100
   ai_summary            String?  // ملخص تلقائي
   ai_keywords           String[] // كلمات مفتاحية مستخرجة بالـ AI
   ai_mood               String?  // حالة النص العامة
-  
+
   // إحصائيات أساسية
   view_count            Int      @default(0)
   like_count            Int      @default(0)
   share_count           Int      @default(0)
   comment_count         Int      @default(0)
-  
+
   // معلومات الإنشاء
   created_by            String?
   creator               users?   @relation(fields: [created_by], references: [id])
-  
+
   // التواريخ
   created_at            DateTime @default(now())
   updated_at            DateTime @updatedAt
-  
+
   // العلاقات
   analytics             MuqtarabAnalytics[]
   interactions          MuqtarabInteraction[]
   comments              MuqtarabComment[]
-  
+
   @@map("muqtarab_articles")
   @@index([corner_id])
   @@index([slug])
@@ -1769,26 +1769,26 @@ model MuqtarabArticle {
 // جدول تفاعلات المستخدمين
 model MuqtarabInteraction {
   id            String   @id @default(cuid())
-  
+
   // ربط بالمقال والمستخدم
   article_id    String
   article       MuqtarabArticle @relation(fields: [article_id], references: [id], onDelete: Cascade)
-  
+
   user_id       String?
   user          users?   @relation(fields: [user_id], references: [id])
-  
+
   // نوع التفاعل
   interaction_type String // like, save, share, comment, follow_corner
-  
+
   // بيانات إضافية
   metadata      Json?    // لحفظ بيانات إضافية حسب نوع التفاعل
-  
+
   // معلومات الجلسة (للمستخدمين غير المسجلين)
   session_id    String?
   ip_hash       String?
-  
+
   created_at    DateTime @default(now())
-  
+
   @@map("muqtarab_interactions")
   @@index([article_id])
   @@index([user_id])
@@ -1800,54 +1800,54 @@ model MuqtarabInteraction {
 // جدول تحليلات القراءة المتقدمة
 model MuqtarabAnalytics {
   id                String   @id @default(cuid())
-  
+
   // ربط بالمقال والزاوية
   article_id        String?
   article           MuqtarabArticle? @relation(fields: [article_id], references: [id], onDelete: Cascade)
-  
+
   corner_id         String?
   corner            MuqtarabCorner? @relation(fields: [corner_id], references: [id], onDelete: Cascade)
-  
+
   // معلومات المستخدم
   user_id           String?
   user              users?   @relation(fields: [user_id], references: [id])
-  
+
   // بيانات الجلسة
   session_id        String?
   ip_hash           String?
-  
+
   // إحصائيات القراءة
   view_duration     Int?     // مدة المشاهدة بالثواني
   scroll_depth      Float?   // عمق التمرير (0.0 - 1.0)
   completion_rate   Float?   // نسبة إكمال القراءة
-  
+
   // مصدر الوصول
   referrer_source   String?  // social, search, direct, internal
   referrer_url      String?
   utm_source        String?
   utm_medium        String?
   utm_campaign      String?
-  
+
   // معلومات الجهاز
   device_type       String?  // mobile, desktop, tablet
   browser_type      String?
   operating_system  String?
   screen_resolution String?
-  
+
   // الموقع الجغرافي (تقريبي)
   country_code      String?
   city              String?
-  
+
   // تحليلات سلوكية
   bounce_rate       Boolean  @default(false) // هل غادر مباشرة؟
   return_visitor    Boolean  @default(false) // زائر عائد؟
-  
+
   // وقت الزيارة
   visit_hour        Int?     // ساعة الزيارة (0-23)
   visit_day         Int?     // يوم الأسبوع (1-7)
-  
+
   created_at        DateTime @default(now())
-  
+
   @@map("muqtarab_analytics")
   @@index([article_id])
   @@index([corner_id])
@@ -1861,20 +1861,20 @@ model MuqtarabAnalytics {
 // جدول متابعة الزوايا
 model MuqtarabFollower {
   id         String   @id @default(cuid())
-  
+
   // ربط بالزاوية والمستخدم
   corner_id  String
   corner     MuqtarabCorner @relation(fields: [corner_id], references: [id], onDelete: Cascade)
-  
+
   user_id    String
   user       users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  
+
   // إعدادات الإشعارات
   notifications_enabled Boolean @default(true)
   email_notifications   Boolean @default(false)
-  
+
   created_at DateTime @default(now())
-  
+
   @@map("muqtarab_followers")
   @@unique([corner_id, user_id])
   @@index([corner_id])
@@ -1884,34 +1884,34 @@ model MuqtarabFollower {
 // جدول التعليقات (إضافي للمستقبل)
 model MuqtarabComment {
   id         String   @id @default(cuid())
-  
+
   // ربط بالمقال
   article_id String
   article    MuqtarabArticle @relation(fields: [article_id], references: [id], onDelete: Cascade)
-  
+
   // معلومات المعلق
   user_id    String?
   user       users?   @relation(fields: [user_id], references: [id])
-  
+
   // للزوار غير المسجلين
   guest_name  String?
   guest_email String?
-  
+
   // محتوى التعليق
   content    String   @db.Text
-  
+
   // حالة التعليق
   is_approved Boolean @default(false)
   is_hidden   Boolean @default(false)
-  
+
   // رد على تعليق آخر
   parent_id  String?
   parent     MuqtarabComment? @relation("CommentReplies", fields: [parent_id], references: [id])
   replies    MuqtarabComment[] @relation("CommentReplies")
-  
+
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-  
+
   @@map("muqtarab_comments")
   @@index([article_id])
   @@index([user_id])
@@ -1941,11 +1941,11 @@ model article_authors {
   last_article_at  DateTime?
   created_at       DateTime           @default(now())
   updated_at       DateTime           @updatedAt
-  
+
   // Relationships
   articles         articles[]
   author_analytics author_analytics[]
-  
+
   @@index([slug])
   @@index([is_active])
 }
@@ -1958,10 +1958,10 @@ model article_quotes {
   ai_confidence  Float    @default(0.0)
   is_featured    Boolean  @default(false)
   created_at     DateTime @default(now())
-  
+
   // Relationships
   article        articles @relation(fields: [article_id], references: [id], onDelete: Cascade)
-  
+
   @@index([article_id])
 }
 
@@ -1977,10 +1977,10 @@ model author_analytics {
   reading_time_avg Float           @default(0.0)
   created_at       DateTime        @default(now())
   updated_at       DateTime        @updatedAt
-  
+
   // Relationships
   author           article_authors @relation(fields: [author_id], references: [id], onDelete: Cascade)
-  
+
   @@unique([author_id, date])
   @@index([author_id, date])
 }
@@ -2000,29 +2000,29 @@ enum DoseReaction {
 // جدول تفاعل المستخدمين مع الجرعات
 model smart_dose_feedback {
   id            String        @id @default(cuid())
-  
+
   // المستخدم والجرعة
   user_id       String
   user          users         @relation("DoseFeedbackUser", fields: [user_id], references: [id], onDelete: Cascade)
   dose_id       String
   dose          daily_doses   @relation(fields: [dose_id], references: [id], onDelete: Cascade)
-  
+
   // نوع التفاعل
   reaction      DoseReaction  @default(neutral)
   shared        Boolean       @default(false)
   saved         Boolean       @default(false)
-  
+
   // الوقت والسلوك
   time_spent    Int?          // بالثواني
   read_percentage Float?      // نسبة القراءة (0-1)
-  
+
   // البيانات الإضافية
   comment       String?       // تعليق اختياري
   platform      String?       // منصة المشاركة
-  
+
   created_at    DateTime      @default(now())
   updated_at    DateTime      @updatedAt
-  
+
   @@unique([user_id, dose_id]) // تفاعل واحد لكل مستخدم مع كل جرعة
   @@index([dose_id, reaction])
   @@index([user_id, created_at])
@@ -2031,27 +2031,27 @@ model smart_dose_feedback {
 // قوالب الجرعات الجاهزة
 model smart_dose_templates {
   id              String               @id @default(cuid())
-  
+
   // التصنيف
   period          daily_doses_period
   template_name   String               // "صباح النشاط", "موجز منتصف اليوم"
-  
+
   // المحتوى
   main_text       String               // العنوان الرئيسي
   sub_text        String               // العنوان الفرعي
-  
+
   // الاستخدام
   usage_count     Int                  @default(0)
   is_active       Boolean              @default(true)
   priority        Int                  @default(1) // أولوية الظهور
-  
+
   // التحرير
   created_by      String
   creator         users                @relation("DoseTemplateCreator", fields: [created_by], references: [id])
-  
+
   created_at      DateTime             @default(now())
   updated_at      DateTime             @updatedAt
-  
+
   @@index([period, is_active])
   @@index([priority, period])
 }
@@ -2064,11 +2064,11 @@ model user_interests {
   is_active   Boolean   @default(true)
   created_at  DateTime  @default(now())
   updated_at  DateTime  @updatedAt
-  
+
   // العلاقات
   user        users      @relation(fields: [user_id], references: [id], onDelete: Cascade)
   category    categories @relation(fields: [category_id], references: [id], onDelete: Cascade)
-  
+
   @@unique([user_id, category_id])
   @@index([user_id])
   @@index([category_id])

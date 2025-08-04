@@ -169,6 +169,8 @@ export default function ProfilePage() {
   // منع تكرار الطلبات
   const fetchDataRef = useRef(false);
   const dataFetchedRef = useRef(false);
+  const fetchingInterestsRef = useRef(false);
+  const manualRefreshRef = useRef(false); // 🆕 للتمييز بين التحديث اليدوي والتلقائي
   useEffect(() => {
     if (!fetchDataRef.current) {
       fetchDataRef.current = true;
@@ -179,15 +181,15 @@ export default function ProfilePage() {
   // إضافة listener لتحديث الاهتمامات عند العودة للصفحة
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (!document.hidden && user) {
-        // عندما يعود المستخدم للصفحة، نحدث الاهتمامات
+      if (!document.hidden && user && !fetchingInterestsRef.current) {
+        // عندما يعود المستخدم للصفحة، نحدث الاهتمامات فقط إذا لم تكن قيد التحديث
         console.log("👁️ الصفحة أصبحت مرئية - تحديث الاهتمامات");
         fetchUserInterestsImmediately();
       }
     };
 
     const handleFocus = () => {
-      if (user) {
+      if (user && !fetchingInterestsRef.current) {
         console.log("🔄 تم التركيز على الصفحة - تحديث الاهتمامات");
         fetchUserInterestsImmediately();
       }
@@ -250,9 +252,10 @@ export default function ProfilePage() {
 
   // دالة مخصصة لجلب الاهتمامات فوراً
   const fetchUserInterestsImmediately = async () => {
-    if (!user) return;
+    if (!user || fetchingInterestsRef.current) return;
 
     try {
+      fetchingInterestsRef.current = true;
       console.log("🚀 جلب الاهتمامات فوراً للمستخدم:", user.id);
 
       // جلب الاهتمامات والتصنيفات بشكل متوازي
@@ -268,10 +271,13 @@ export default function ProfilePage() {
       if (interestsRes.status === "fulfilled" && interestsRes.value.ok) {
         const interestsData = await interestsRes.value.json();
         console.log("📡 استجابة API الاهتمامات:", interestsData);
-        
+
         if (interestsData.success) {
           // تجربة التنسيق الجديد أولاً
-          if (interestsData.interests && Array.isArray(interestsData.interests)) {
+          if (
+            interestsData.interests &&
+            Array.isArray(interestsData.interests)
+          ) {
             userCategoryIds = interestsData.interests.map((interest: any) =>
               String(interest.interestId)
             );
@@ -311,7 +317,11 @@ export default function ProfilePage() {
 
         console.log("🎯 تم عرض الاهتمامات فوراً:", userCategories);
         setPreferences(userCategories);
-        // تم إزالة الرسالة المزعجة
+        // إشعار بسيط فقط عند الضغط على زر التحديث يدوياً
+        if (manualRefreshRef.current) {
+          toast.success(`تم تحديث ${userCategories.length} اهتمام! ✨`);
+          manualRefreshRef.current = false; // 🆕 إعادة تعيين المتغير بعد الإشعار
+        }
       } else if (userCategoryIds.length === 0) {
         console.log("❓ لم يتم العثور على اهتمامات للمستخدم");
         setPreferences([]);
@@ -329,6 +339,8 @@ export default function ProfilePage() {
         }));
         setPreferences(fallbackPreferences);
       }
+    } finally {
+      fetchingInterestsRef.current = false;
     }
   };
   // دالة محسّنة لجلب جميع البيانات بشكل متوازي
@@ -1052,14 +1064,27 @@ export default function ProfilePage() {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => {
-                          fetchUserInterestsImmediately();
-                          // تم إزالة الرسالة المزعجة
+                          if (!fetchingInterestsRef.current) {
+                            manualRefreshRef.current = true; // 🆕 تعيين أن هذا تحديث يدوي
+                            fetchUserInterestsImmediately();
+                          }
                         }}
-                        className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 font-medium flex items-center gap-1 text-sm transition-colors"
+                        disabled={fetchingInterestsRef.current}
+                        className={`font-medium flex items-center gap-1 text-sm transition-colors ${
+                          fetchingInterestsRef.current
+                            ? "text-gray-400 cursor-not-allowed"
+                            : "text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300"
+                        }`}
                         title="تحديث الاهتمامات"
                       >
-                        <ArrowRight className="w-4 h-4 transform rotate-180" />
-                        تحديث
+                        {fetchingInterestsRef.current ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-green-600 border-t-transparent" />
+                        ) : (
+                          <ArrowRight className="w-4 h-4 transform rotate-180" />
+                        )}
+                        {fetchingInterestsRef.current
+                          ? "جاري التحديث..."
+                          : "تحديث"}
                       </button>
                       <Link
                         href="/welcome/preferences"

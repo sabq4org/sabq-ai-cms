@@ -4,8 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import { 
-  Heart, Star, TrendingUp, 
+import {
+  Heart, Star, TrendingUp,
   BookOpen, Zap, ArrowRight, Gift, Award, Target,
   Sparkles, Trophy, Calendar, Share2
 } from 'lucide-react';
@@ -56,23 +56,23 @@ export default function WelcomeFeedPage() {
         if (userData) {
           const parsedUser = JSON.parse(userData);
           setUser(parsedUser);
-          
+
           // جلب التصنيفات من API
           const loadedCategories = await fetchCategories();
-          
+
           // استخدام categoryIds إذا كانت متوفرة، وإلا استخدم interests
           const userCategoryIds = parsedUser.categoryIds || parsedUser.interests || [];
-          
+
           console.log('🔍 فحص اهتمامات المستخدم:', {
             categoryIds: parsedUser.categoryIds,
             interests: parsedUser.interests,
             finalUserCategoryIds: userCategoryIds,
             loadedCategoriesCount: loadedCategories.length
           });
-          
+
           // تحديث التصنيفات المطابقة للمستخدم
           if (loadedCategories.length > 0 && userCategoryIds.length > 0) {
-            const matchedCategories = loadedCategories.filter(cat => 
+            const matchedCategories = loadedCategories.filter(cat =>
               userCategoryIds.includes(cat.id)
             );
             setUserCategories(matchedCategories);
@@ -86,10 +86,10 @@ export default function WelcomeFeedPage() {
               userCategoryIdsCount: userCategoryIds.length
             });
           }
-          
+
           // تم إلغاء جلب المقالات المقترحة حسب طلب المستخدم
           console.log('🚫 تم إلغاء جلب المقالات المقترحة');
-          
+
         } else {
           // إذا لم توجد بيانات المستخدم، توجيه للصفحة الرئيسية
           console.log('⚠️ لا توجد بيانات مستخدم - التوجيه للصفحة الرئيسية');
@@ -99,11 +99,11 @@ export default function WelcomeFeedPage() {
 
         // إلغاء Timeout إذا تم التحميل بنجاح
         clearTimeout(timeoutId);
-        
+
       } catch (error) {
         console.error('خطأ في تحميل بيانات المستخدم:', error);
         setError('حدث خطأ في تحميل البيانات. سيتم توجيهك للصفحة الرئيسية...');
-        
+
         // توجيه للصفحة الرئيسية بعد 3 ثوانٍ
         setTimeout(() => {
           router.push('/');
@@ -129,7 +129,7 @@ export default function WelcomeFeedPage() {
           return result.categories;
         }
       }
-      
+
       console.warn('⚠️ فشل جلب التصنيفات من API');
       return [];
     } catch (error) {
@@ -139,7 +139,7 @@ export default function WelcomeFeedPage() {
   };
 
   // ===== تم حذف جميع دوال ومراجع المقالات المخصصة نهائياً =====
-  
+
   const handleStartReading = () => {
     toast.success('مرحباً بك في صحيفة سبق! 🎉');
     router.push('/');
@@ -157,12 +157,12 @@ export default function WelcomeFeedPage() {
         <div className="text-center max-w-md mx-auto p-6">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600 dark:text-gray-400 mb-4">جاري تحضير تجربتك المخصصة...</p>
-          
+
           {/* مؤشر تقدم وهمي للراحة البصرية */}
           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-4">
             <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{ width: '70%' }}></div>
           </div>
-          
+
           <p className="text-sm text-gray-500 dark:text-gray-500">
             💡 نحضر لك المحتوى المناسب لاهتماماتك
           </p>
@@ -180,7 +180,7 @@ export default function WelcomeFeedPage() {
           </div>
           <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-2">مشكلة في التحميل</h2>
           <p className="text-gray-600 dark:text-gray-400 mb-6">{error}</p>
-          
+
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <button
               onClick={handleRetry}
@@ -224,7 +224,7 @@ export default function WelcomeFeedPage() {
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-300 dark:bg-blue-600 rounded-full blur-3xl opacity-30 animate-pulse"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-300 dark:bg-purple-600 rounded-full blur-3xl opacity-30 animate-pulse delay-1000"></div>
       </div>
-      
+
       <div className="relative z-10 max-w-6xl mx-auto p-4 pt-20">
         {/* ترحيب شخصي */}
         <div className="text-center mb-12">
@@ -237,7 +237,7 @@ export default function WelcomeFeedPage() {
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-6">
             تهانينا! لقد أكملت إعداد ملفك الشخصي وحصلت على أول نقاط الولاء. إليك تجربة مخصصة بناءً على اهتماماتك.
           </p>
-          
+
           {/* بطاقة نقاط الولاء */}
           <div className="inline-flex items-center gap-4 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-2xl p-6 shadow-lg border border-white/50 dark:border-gray-700/50 mb-8">
             <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full">
@@ -256,14 +256,14 @@ export default function WelcomeFeedPage() {
           <p className="text-center text-gray-600 dark:text-gray-400 mb-6">
             التصنيفات التي اخترتها لعرض المحتوى الأنسب لك
           </p>
-          
+
           <div className="flex flex-wrap justify-center gap-4">
             {userCategories.length > 0 ? (
               userCategories.map((category) => (
                 <div
                   key={category.id}
                   className="flex items-center gap-3 px-6 py-3 text-white rounded-full shadow-lg transform hover:scale-105 transition-all duration-300"
-                  style={{ 
+                  style={{
                     background: `linear-gradient(135deg, ${category.color_hex}, ${category.color_hex}dd)`
                   }}
                 >
@@ -299,7 +299,7 @@ export default function WelcomeFeedPage() {
             <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">مستوى مبتدئ</h3>
             <p className="text-gray-600 dark:text-gray-400 text-sm">ابدأ رحلتك في القراءة</p>
           </div>
-          
+
           <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-2xl p-6 shadow-lg border border-white/50 dark:border-gray-700/50 text-center">
             <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full mx-auto mb-4">
               <Award className="w-6 h-6 text-white" />
@@ -307,7 +307,7 @@ export default function WelcomeFeedPage() {
             <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">{loyaltyPoints} نقطة</h3>
             <p className="text-gray-600 dark:text-gray-400 text-sm">نقاط الولاء الحالية</p>
           </div>
-          
+
           <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-2xl p-6 shadow-lg border border-white/50 dark:border-gray-700/50 text-center">
             <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mx-auto mb-4">
               <Calendar className="w-6 h-6 text-white" />
@@ -315,7 +315,7 @@ export default function WelcomeFeedPage() {
             <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">اليوم الأول</h3>
             <p className="text-gray-600 dark:text-gray-400 text-sm">من رحلتك معنا</p>
           </div>
-          
+
           <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-2xl p-6 shadow-lg border border-white/50 dark:border-gray-700/50 text-center">
             <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full mx-auto mb-4">
               <Share2 className="w-6 h-6 text-white" />
@@ -328,7 +328,7 @@ export default function WelcomeFeedPage() {
         {/* نصائح سريعة */}
         <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-2xl p-8 shadow-lg border border-white/50 dark:border-gray-700/50 mb-12">
           <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-6 text-center">نصائح لتحقيق أقصى استفادة</h3>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex items-start gap-4">
               <div className="flex items-center justify-center w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex-shrink-0">
@@ -339,7 +339,7 @@ export default function WelcomeFeedPage() {
                 <p className="text-sm text-gray-600 dark:text-gray-400">احصل على نقاط إضافية بقراءة مقال واحد يومياً</p>
               </div>
             </div>
-            
+
             <div className="flex items-start gap-4">
               <div className="flex items-center justify-center w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex-shrink-0">
                 <Share2 className="w-4 h-4 text-green-600 dark:text-green-400" />
@@ -349,7 +349,7 @@ export default function WelcomeFeedPage() {
                 <p className="text-sm text-gray-600 dark:text-gray-400">احصل على 5 نقاط عند مشاركة مقال</p>
               </div>
             </div>
-            
+
             <div className="flex items-start gap-4">
               <div className="flex items-center justify-center w-8 h-8 bg-purple-100 dark:bg-purple-900 rounded-full flex-shrink-0">
                 <Heart className="w-4 h-4 text-purple-600 dark:text-purple-400" />
@@ -359,7 +359,7 @@ export default function WelcomeFeedPage() {
                 <p className="text-sm text-gray-600 dark:text-gray-400">أعجب واحفظ المقالات المفضلة</p>
               </div>
             </div>
-            
+
             <div className="flex items-start gap-4">
               <div className="flex items-center justify-center w-8 h-8 bg-orange-100 dark:bg-orange-900 rounded-full flex-shrink-0">
                 <Target className="w-4 h-4 text-orange-600 dark:text-orange-400" />
@@ -381,7 +381,7 @@ export default function WelcomeFeedPage() {
             <span>ابدأ القراءة الآن</span>
             <ArrowRight className="w-5 h-5" />
           </button>
-          
+
           <Link
             href="/profile"
             className="px-8 py-4 text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-center"
