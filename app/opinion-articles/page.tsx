@@ -1,11 +1,13 @@
 "use client";
 
 import Footer from "@/components/Footer";
-import UnifiedMobileNewsCard from "@/components/mobile/UnifiedMobileNewsCard";
+import OpinionArticleCard from "@/components/mobile/OpinionArticleCard";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { cn } from "@/lib/utils";
 import {
+  Calendar,
   ChevronDown,
+  Eye,
   Grid3X3,
   Loader2,
   PenTool,
@@ -65,6 +67,7 @@ export default function OpinionArticlesPage() {
     total: 0,
     thisWeek: 0,
     thisMonth: 0,
+    totalViews: 0,
   });
 
   // جلب التصنيفات
@@ -98,7 +101,7 @@ export default function OpinionArticlesPage() {
       if (response.ok) {
         const data = await response.json();
         const allArticles = data.articles || [];
-
+        
         const now = new Date();
         const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
@@ -111,10 +114,16 @@ export default function OpinionArticlesPage() {
           (article: Article) => new Date(article.published_at) >= oneMonthAgo
         ).length;
 
+        const totalViews = allArticles.reduce(
+          (sum: number, article: Article) => sum + (article.views || 0), 
+          0
+        );
+
         setStats({
           total: allArticles.length,
           thisWeek,
           thisMonth,
+          totalViews,
         });
       }
     } catch (error) {
@@ -127,52 +136,52 @@ export default function OpinionArticlesPage() {
   // جلب مقالات الرأي
   const fetchArticles = useCallback(
     async (reset = false) => {
-      try {
-        if (reset) {
-          setLoading(true);
-        } else {
-          setIsLoadingMore(true);
-        }
-        setError(null);
-
-        const currentPage = reset ? 1 : page;
-        const params = new URLSearchParams({
+    try {
+      if (reset) {
+        setLoading(true);
+      } else {
+        setIsLoadingMore(true);
+      }
+      setError(null);
+      
+      const currentPage = reset ? 1 : page;
+      const params = new URLSearchParams({
           status: "published",
-          limit: ITEMS_PER_PAGE.toString(),
-          page: currentPage.toString(),
-          sortBy: sortBy,
+        limit: ITEMS_PER_PAGE.toString(),
+        page: currentPage.toString(),
+        sortBy: sortBy,
           order: "desc",
-        });
+      });
 
-        if (selectedCategory) {
+      if (selectedCategory) {
           params.append("category_id", selectedCategory);
-        }
+      }
 
-        if (searchQuery.trim()) {
+      if (searchQuery.trim()) {
           params.append("search", searchQuery.trim());
-        }
+      }
 
-        const response = await fetch(`/api/opinion-articles?${params}`);
+      const response = await fetch(`/api/opinion-articles?${params}`);
         if (!response.ok) throw new Error("Failed to fetch opinion articles");
-
-        const data = await response.json();
-        const fetchedArticles = data.articles || [];
-
-        if (reset) {
-          setArticles(fetchedArticles);
-          setPage(1);
-        } else {
+      
+      const data = await response.json();
+      const fetchedArticles = data.articles || [];
+      
+      if (reset) {
+        setArticles(fetchedArticles);
+        setPage(1);
+      } else {
           setArticles((prev) => [...prev, ...fetchedArticles]);
-        }
-
-        setHasMore(fetchedArticles.length === ITEMS_PER_PAGE);
-      } catch (error) {
+      }
+      
+      setHasMore(fetchedArticles.length === ITEMS_PER_PAGE);
+    } catch (error) {
         console.error("Error fetching opinion articles:", error);
         setError("فشل في تحميل مقالات الرأي");
-      } finally {
-        setLoading(false);
-        setIsLoadingMore(false);
-      }
+    } finally {
+      setLoading(false);
+      setIsLoadingMore(false);
+    }
     },
     [page, selectedCategory, sortBy, searchQuery]
   );
@@ -244,47 +253,56 @@ export default function OpinionArticlesPage() {
                 آراء وتحليلات من كتاب وخبراء مختصين في مختلف المجالات
               </p>
 
-              {/* إحصائيات مقالات الرأي */}
-              {!statsLoading && stats && (
-                <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-lg rounded-2xl p-6 text-center border border-gray-200/50 dark:border-gray-700/50 shadow-lg">
-                    <div className="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-2">
-                      {statsLoading ? (
-                        <Loader2 className="w-8 h-8 animate-spin mx-auto" />
-                      ) : (
-                        stats.total
-                      )}
+              {/* إحصائيات مقالات الرأي - نفس تصميم قسم الأخبار */}
+              {stats && !statsLoading && (
+                <div className="mt-6 inline-flex flex-wrap justify-center items-center gap-4 md:gap-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl px-4 md:px-6 py-3 shadow-lg">
+                  <div className="text-center px-2">
+                    <div className="flex items-center gap-2">
+                      <PenTool className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                      <div className="text-2xl font-bold text-gray-900 dark:text-white">{stats.total || 0}</div>
                     </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-300">
-                      إجمالي المقالات
-                    </div>
-                  </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">مقال</div>
+            </div>
 
-                  <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-lg rounded-2xl p-6 text-center border border-gray-200/50 dark:border-gray-700/50 shadow-lg">
-                    <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">
-                      {statsLoading ? (
-                        <Loader2 className="w-8 h-8 animate-spin mx-auto" />
-                      ) : (
-                        stats.thisWeek
-                      )}
-                    </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-300">
-                      هذا الأسبوع
-                    </div>
+                  <div className="w-px h-10 bg-gray-300 dark:bg-gray-600 hidden md:block"></div>
+                  
+                  <div className="text-center px-2">
+                    <div className="flex items-center gap-2">
+                      <Eye className="w-5 h-5 text-green-600 dark:text-green-400" />
+                      <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {stats.totalViews > 999 ? `${(stats.totalViews / 1000).toFixed(1)}k` : (stats.totalViews || 0)}
+                </div>
+              </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">مشاهدة</div>
                   </div>
-
-                  <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-lg rounded-2xl p-6 text-center border border-gray-200/50 dark:border-gray-700/50 shadow-lg">
-                    <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">
-                      {statsLoading ? (
-                        <Loader2 className="w-8 h-8 animate-spin mx-auto" />
-                      ) : (
-                        stats.thisMonth
-                      )}
+                  
+                  <div className="w-px h-10 bg-gray-300 dark:bg-gray-600 hidden md:block"></div>
+                  
+                  <div className="text-center px-2">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                      <div className="text-2xl font-bold text-gray-900 dark:text-white">{stats.thisWeek || 0}</div>
                     </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-300">
-                      هذا الشهر
-                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">هذا الأسبوع</div>
                   </div>
+                  
+                  <div className="w-px h-10 bg-gray-300 dark:bg-gray-600 hidden md:block"></div>
+                  
+                  <div className="text-center px-2">
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                      <div className="text-2xl font-bold text-gray-900 dark:text-white">{stats.thisMonth || 0}</div>
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">هذا الشهر</div>
+                </div>
+                </div>
+              )}
+              
+              {/* Loading indicator for stats */}
+              {statsLoading && (
+                <div className="mt-6 inline-flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-sm">جاري تحميل الإحصائيات...</span>
                 </div>
               )}
             </div>
@@ -365,8 +383,8 @@ export default function OpinionArticlesPage() {
                 <div
                   key={i}
                   className={cn(
-                    "animate-pulse rounded-lg overflow-hidden",
-                    darkMode ? "bg-gray-800" : "bg-white"
+                  "animate-pulse rounded-lg overflow-hidden",
+                  darkMode ? "bg-gray-800" : "bg-white"
                   )}
                 >
                   <div className="h-48 bg-gray-300"></div>
@@ -384,8 +402,8 @@ export default function OpinionArticlesPage() {
                 <div className="text-center py-12">
                   <p
                     className={cn(
-                      "text-xl",
-                      darkMode ? "text-gray-400" : "text-gray-600"
+                    "text-xl",
+                    darkMode ? "text-gray-400" : "text-gray-600"
                     )}
                   >
                     لا توجد مقالات رأي متاحة حالياً
@@ -394,8 +412,8 @@ export default function OpinionArticlesPage() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {articles.map((article) => (
-                    <UnifiedMobileNewsCard
-                      key={article.id}
+                    <OpinionArticleCard
+                      key={article.id} 
                       article={{
                         id: article.id,
                         title: article.title,
