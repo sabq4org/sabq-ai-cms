@@ -5,12 +5,7 @@ const nextConfig = {
     return "build-" + Date.now();
   },
 
-  // إعدادات رفع الملفات
-  api: {
-    bodyParser: {
-      sizeLimit: "10mb", // زيادة الحد الأقصى لحجم الطلبات
-    },
-  },
+  // Note: api config moved to individual route handlers
 
   experimental: {
     // Experimental support for optimizing stylesheets
@@ -19,20 +14,23 @@ const nextConfig = {
       preload: false, // منع التحميل المسبق للـ CSS
     },
     cssChunking: "strict",
-    turbo: {
-      rules: {
-        "*.svg": {
-          loaders: ["@svgr/webpack"],
-          as: "*.js",
-        },
-      },
-    },
+    // turbo config moved to turbopack object
     webpackBuildWorker: true,
     // تحسين التحميل
     ppr: false,
     staleTimes: {
       dynamic: 30,
       static: 180,
+    },
+  },
+
+  // Turbopack configuration (stable in Next.js 15)
+  turbopack: {
+    rules: {
+      "*.svg": {
+        loaders: ["@svgr/webpack"],
+        as: "*.js",
+      },
     },
   },
 
