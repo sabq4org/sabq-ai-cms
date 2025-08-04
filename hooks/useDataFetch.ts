@@ -132,7 +132,7 @@ export function useDataFetch<T>({
       cache.delete(cacheKey);
     }
     await fetchData();
-  }, [fetchData, cacheKey]);
+  }, [cacheKey]);
 
   // تحديث البيانات يدوياً
   const updateData = useCallback((newData: T) => {
@@ -152,7 +152,7 @@ export function useDataFetch<T>({
         abortControllerRef.current.abort();
       }
     };
-  }, [fetchData, ...dependencies]);
+  }, [endpoint, cacheKey, retryAttempts, retryDelay, ...dependencies]);
 
   return {
     data,

@@ -3,6 +3,7 @@ import { IBM_Plex_Sans_Arabic } from "next/font/google";
 import AnalyticsProvider from "../components/Analytics/AnalyticsProvider";
 import ConditionalHeader from "../components/ConditionalHeader";
 import ErrorBoundary from "../components/ErrorBoundary";
+import ReactErrorBoundary from "../components/ErrorBoundary/ReactErrorBoundary";
 import GlobalErrorHandler from "../components/GlobalErrorHandler";
 import StructuredData from "../components/StructuredData";
 import ContentWrapper from "../components/layout/ContentWrapper";
@@ -168,15 +169,21 @@ export default function RootLayout({
         className={`${ibmPlexArabic.variable} font-arabic`}
         suppressHydrationWarning
       >
-        <ErrorBoundary>
-          <AnalyticsProvider>
-            <Providers>
-              <GlobalErrorHandler />
-              <ConditionalHeader />
-              <ContentWrapper>{children}</ContentWrapper>
-            </Providers>
-          </AnalyticsProvider>
-        </ErrorBoundary>
+            <ReactErrorBoundary
+      onError={(error, errorInfo) => {
+        console.error('🚨 React Error Boundary نشط:', error, errorInfo);
+      }}
+    >
+      <ErrorBoundary>
+        <AnalyticsProvider>
+          <Providers>
+            <GlobalErrorHandler />
+            <ConditionalHeader />
+            <ContentWrapper>{children}</ContentWrapper>
+          </Providers>
+        </AnalyticsProvider>
+      </ErrorBoundary>
+    </ReactErrorBoundary>
         <StructuredData pageType="home" />
       </body>
     </html>
