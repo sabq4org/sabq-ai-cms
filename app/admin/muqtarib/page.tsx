@@ -516,10 +516,9 @@ export default function MuqtaribDashboard() {
           </div>
         </div>
       </div>
-    </div>
 
-    {/* Modal تأكيد الحذف */}
-    <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+      {/* Modal تأكيد الحذف */}
+      <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-xl text-red-600">
