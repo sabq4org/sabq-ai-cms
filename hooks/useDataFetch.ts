@@ -43,29 +43,15 @@ export function useDataFetch<T>({
   const abortControllerRef = useRef<AbortController | null>(null);
   const retryCountRef = useRef(0);
 
-  // التحقق من الـ cache
-  const getCachedData = useCallback((key: string) => {
-    if (!key) return null;
-    const cached = cache.get(key);
-    if (cached && Date.now() < cached.expiry) {
-      return cached.data;
+  // تنظيف Cache منتهي الصلاحية
+  const cleanExpiredCache = useCallback(() => {
+    const now = Date.now();
+    for (const [key, value] of cache.entries()) {
+      if (value.expiry <= now) {
+        cache.delete(key);
+      }
     }
-    cache.delete(key);
-    return null;
   }, []);
-
-  // حفظ البيانات في الـ cache
-  const setCachedData = useCallback(
-    (key: string, data: any) => {
-      if (!key) return;
-      cache.set(key, {
-        data,
-        timestamp: Date.now(),
-        expiry: Date.now() + cacheTime,
-      });
-    },
-    [cacheTime]
-  );
 
   // جلب البيانات مع retry
   const fetchData = useCallback(
@@ -75,11 +61,11 @@ export function useDataFetch<T>({
         abortControllerRef.current.abort();
       }
 
-      // التحقق من الـ cache أولاً
+      // التحقق من الـ cache أولاً (مباشرة بدون function call)
       if (cacheKey) {
-        const cachedData = getCachedData(cacheKey);
-        if (cachedData) {
-          setData(cachedData);
+        const cached = cache.get(cacheKey);
+        if (cached && cached.expiry > Date.now()) {
+          setData(cached.data);
           setError(null);
           return;
         }
@@ -103,9 +89,13 @@ export function useDataFetch<T>({
 
         const result = await response.json();
 
-        // حفظ في الـ cache
+        // حفظ في الـ cache (مباشرة بدون function call)
         if (cacheKey) {
-          setCachedData(cacheKey, result);
+          cache.set(cacheKey, {
+            data: result,
+            timestamp: Date.now(),
+            expiry: Date.now() + cacheTime,
+          });
         }
 
         setData(result);
@@ -131,14 +121,7 @@ export function useDataFetch<T>({
         setLoading(false);
       }
     },
-    [
-      endpoint,
-      cacheKey,
-      getCachedData,
-      setCachedData,
-      retryAttempts,
-      retryDelay,
-    ]
+    [endpoint, cacheKey, cacheTime, retryAttempts, retryDelay]
   );
 
   // إعادة جلب البيانات
@@ -148,18 +131,22 @@ export function useDataFetch<T>({
       cache.delete(cacheKey);
     }
     await fetchData();
-  }, [cacheKey]);
+  }, [cacheKey, fetchData]);
 
   // تحديث البيانات يدوياً
   const updateData = useCallback(
     (newData: T) => {
       setData(newData);
-      // تحديث الـ cache أيضاً
+      // تحديث الـ cache أيضاً (مباشرة)
       if (cacheKey) {
-        setCachedData(cacheKey, newData);
+        cache.set(cacheKey, {
+          data: newData,
+          timestamp: Date.now(),
+          expiry: Date.now() + cacheTime,
+        });
       }
     },
-    [cacheKey, setCachedData]
+    [cacheKey, cacheTime]
   );
 
   // جلب البيانات عند تغيير المعاملات

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
@@ -99,7 +99,7 @@ export default function PersonalizedContent() {
     if (userPreferences.length > 0 || !userId) {
       fetchPersonalizedContent();
     }
-  }, [userPreferences]);
+  }, [userPreferences, userId, fetchPersonalizedContent]);
 
   const fetchCategories = async () => {
     try {
@@ -125,7 +125,7 @@ export default function PersonalizedContent() {
     }
   };
 
-  const fetchPersonalizedContent = async () => {
+  const fetchPersonalizedContent = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -251,7 +251,7 @@ export default function PersonalizedContent() {
       userInterests,
       articlesByCategory
     });
-  };
+  }, [userId, userPreferences, categories]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
