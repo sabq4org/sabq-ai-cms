@@ -25,17 +25,153 @@ import {
   Edit,
   Eye,
   FileText,
+  Image as ImageIcon,
   Loader2,
   Plus,
   Settings,
   Sparkles,
   TrendingUp,
+  Upload,
   Users,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+
+// مكون رفع الصور للزاوية
+const AngleImageUploader = ({
+  onImageUpload,
+  currentImage,
+}: {
+  onImageUpload: (imageUrl: string) => void;
+  currentImage?: string;
+}) => {
+  const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+
+  const handleFileUpload = async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("يرجى اختيار ملف صورة صحيح");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("حجم الصورة يجب أن يكون أقل من 5 ميجابايت");
+      return;
+    }
+
+    try {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("type", "angle-cover");
+
+      const response = await fetch("/api/upload/image", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          onImageUpload(data.imageUrl);
+          toast.success("تم رفع الصورة بنجاح");
+          if (data.fallback) {
+            toast("تم استخدام حفظ محلي للصورة", { icon: "⚠️" });
+          }
+        } else {
+          toast.error(data.error || "فشل في رفع الصورة");
+        }
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        toast.error(errorData.error || "فشل في رفع الصورة");
+      }
+    } catch (error) {
+      console.error("خطأ في رفع الصورة:", error);
+      toast.error("حدث خطأ في رفع الصورة");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const files = Array.from(e.dataTransfer.files);
+    if (files[0]) {
+      handleFileUpload(files[0]);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleFileUpload(file);
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      {currentImage && (
+        <div className="relative">
+          <img
+            src={currentImage}
+            alt="صورة الزاوية"
+            className="w-full h-32 object-cover rounded-lg"
+          />
+          <Button
+            type="button"
+            variant="destructive"
+            size="sm"
+            className="absolute top-2 right-2"
+            onClick={() => onImageUpload("")}
+          >
+            <X className="w-4 h-4" />
+          </Button>
+        </div>
+      )}
+
+      <div
+        className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${
+          dragOver
+            ? "border-blue-500 bg-blue-50"
+            : "border-gray-300 hover:border-gray-400"
+        }`}
+        onDrop={handleDrop}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragOver(true);
+        }}
+        onDragLeave={() => setDragOver(false)}
+      >
+        {uploading ? (
+          <div className="flex items-center justify-center gap-2">
+            <Loader2 className="w-5 h-5 animate-spin" />
+            <span className="text-sm">جاري رفع الصورة...</span>
+          </div>
+        ) : (
+          <>
+            <ImageIcon className="w-8 h-8 mx-auto text-gray-400 mb-2" />
+            <div className="space-y-1">
+              <p className="text-sm text-gray-600">
+                اسحب وأفلت صورة هنا أو انقر لاختيار صورة
+              </p>
+              <p className="text-xs text-gray-500">PNG، JPG، GIF حتى 5MB</p>
+            </div>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileSelect}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            />
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
 
 // مكون بطاقة إحصائية
 const StatCard = ({
@@ -302,6 +438,7 @@ export default function AngleDashboardPage() {
     themeColor: "#3B82F6",
     isFeatured: false,
     isPublished: false,
+    coverImage: "",
   });
   const [editLoading, setEditLoading] = useState(false);
 
@@ -342,6 +479,7 @@ export default function AngleDashboardPage() {
               themeColor: angleData.angle.themeColor || "#3B82F6",
               isFeatured: angleData.angle.isFeatured || false,
               isPublished: angleData.angle.isPublished || false,
+              coverImage: angleData.angle.coverImage || "",
             });
           }
         } else {
@@ -743,6 +881,17 @@ export default function AngleDashboardPage() {
                               className="flex-1 text-left direction-ltr"
                             />
                           </div>
+                        </div>
+
+                        {/* صورة الغلاف */}
+                        <div className="grid gap-2">
+                          <Label>صورة الغلاف</Label>
+                          <AngleImageUploader
+                            onImageUpload={(imageUrl) =>
+                              handleEditFormChange("coverImage", imageUrl)
+                            }
+                            currentImage={editFormData.coverImage}
+                          />
                         </div>
 
                         {/* الإعدادات */}

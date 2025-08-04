@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
@@ -10,7 +10,7 @@ export async function GET(
 ) {
   try {
     const { angleId, articleId } = params;
-    
+
     console.log("🔍 [GET Article] angleId:", angleId, "articleId:", articleId);
 
     // التحقق من وجود الزاوية
@@ -26,7 +26,7 @@ export async function GET(
     }
 
     // جلب المقال مع تفاصيل المؤلف
-    const articles = await prisma.$queryRaw`
+    const articles = (await prisma.$queryRaw`
       SELECT
         aa.*,
         u.name as author_name,
@@ -34,7 +34,7 @@ export async function GET(
       FROM angle_articles aa
       LEFT JOIN users u ON aa.author_id = u.id
       WHERE aa.id = ${articleId}::uuid AND aa.angle_id = ${angleId}::uuid
-    ` as any[];
+    `) as any[];
 
     if (!articles || articles.length === 0) {
       return NextResponse.json(
@@ -69,7 +69,10 @@ export async function GET(
       updatedAt: article.updated_at,
     };
 
-    console.log("✅ [GET Article] تم جلب المقال بنجاح:", formattedArticle.title);
+    console.log(
+      "✅ [GET Article] تم جلب المقال بنجاح:",
+      formattedArticle.title
+    );
 
     return NextResponse.json({
       success: true,
@@ -78,10 +81,11 @@ export async function GET(
   } catch (error) {
     console.error("❌ [GET Article] خطأ في جلب المقال:", error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: "حدث خطأ في جلب المقال",
-        details: process.env.NODE_ENV === "development" ? error?.message : undefined
+        details:
+          process.env.NODE_ENV === "development" ? error?.message : undefined,
       },
       { status: 500 }
     );
@@ -96,7 +100,7 @@ export async function PUT(
   try {
     const { angleId, articleId } = params;
     const body = await request.json();
-    
+
     console.log("📝 [PUT Article] تحديث المقال:", articleId);
     console.log("📝 [PUT Article] البيانات المُستلمة:", body);
 
@@ -122,7 +126,7 @@ export async function PUT(
 
     // التحقق من وجود المقال
     const articleExists = await prisma.$queryRaw`
-      SELECT id FROM angle_articles 
+      SELECT id FROM angle_articles
       WHERE id = ${articleId}::uuid AND angle_id = ${angleId}::uuid
     `;
 
@@ -134,7 +138,7 @@ export async function PUT(
     }
 
     // تحديث المقال
-    const updateResult = await prisma.$queryRaw`
+    const updateResult = (await prisma.$queryRaw`
       UPDATE angle_articles SET
         title = ${body.title},
         content = ${body.content},
@@ -148,7 +152,7 @@ export async function PUT(
         updated_at = CURRENT_TIMESTAMP
       WHERE id = ${articleId}::uuid AND angle_id = ${angleId}::uuid
       RETURNING *
-    ` as any[];
+    `) as any[];
 
     if (!updateResult || updateResult.length === 0) {
       return NextResponse.json(
@@ -178,7 +182,10 @@ export async function PUT(
       updatedAt: updatedArticle.updated_at,
     };
 
-    console.log("✅ [PUT Article] تم تحديث المقال بنجاح:", formattedArticle.title);
+    console.log(
+      "✅ [PUT Article] تم تحديث المقال بنجاح:",
+      formattedArticle.title
+    );
 
     return NextResponse.json({
       success: true,
@@ -190,10 +197,11 @@ export async function PUT(
   } catch (error) {
     console.error("❌ [PUT Article] خطأ في تحديث المقال:", error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: "حدث خطأ في تحديث المقال",
-        details: process.env.NODE_ENV === "development" ? error?.message : undefined
+        details:
+          process.env.NODE_ENV === "development" ? error?.message : undefined,
       },
       { status: 500 }
     );
@@ -207,14 +215,14 @@ export async function DELETE(
 ) {
   try {
     const { angleId, articleId } = params;
-    
+
     console.log("🗑️ [DELETE Article] حذف المقال:", articleId);
 
     // التحقق من وجود المقال
-    const articleExists = await prisma.$queryRaw`
-      SELECT id, title FROM angle_articles 
+    const articleExists = (await prisma.$queryRaw`
+      SELECT id, title FROM angle_articles
       WHERE id = ${articleId}::uuid AND angle_id = ${angleId}::uuid
-    ` as any[];
+    `) as any[];
 
     if (!articleExists || articleExists.length === 0) {
       return NextResponse.json(
@@ -227,7 +235,7 @@ export async function DELETE(
 
     // حذف المقال
     await prisma.$queryRaw`
-      DELETE FROM angle_articles 
+      DELETE FROM angle_articles
       WHERE id = ${articleId}::uuid AND angle_id = ${angleId}::uuid
     `;
 
@@ -240,10 +248,11 @@ export async function DELETE(
   } catch (error) {
     console.error("❌ [DELETE Article] خطأ في حذف المقال:", error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: "حدث خطأ في حذف المقال",
-        details: process.env.NODE_ENV === "development" ? error?.message : undefined
+        details:
+          process.env.NODE_ENV === "development" ? error?.message : undefined,
       },
       { status: 500 }
     );
