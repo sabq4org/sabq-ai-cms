@@ -333,7 +333,11 @@ export default function ProfilePage() {
         if (userCategories.length > 0) {
           setPreferences(userCategories);
           interestsLoadedImmediatelyRef.current = true; // 🆕 تحديد أن الاهتمامات تم تحميلها بنجاح
-          console.log("✅ تم تعيين interestsLoadedImmediatelyRef إلى true مع", userCategories.length, "اهتمام");
+          console.log(
+            "✅ تم تعيين interestsLoadedImmediatelyRef إلى true مع",
+            userCategories.length,
+            "اهتمام"
+          );
         }
         // إشعار بسيط فقط عند الضغط على زر التحديث يدوياً
         if (manualRefreshRef.current) {
@@ -370,7 +374,7 @@ export default function ProfilePage() {
   // دالة محسّنة لجلب جميع البيانات بشكل متوازي
   const fetchAllDataOptimized = async () => {
     if (!user) return;
-    
+
     // تجنب التشغيل إذا كانت الاهتمامات محملة بالفعل
     if (interestsLoadedImmediatelyRef.current) {
       console.log("🛑 تجاهل fetchAllDataOptimized - الاهتمامات محملة بالفعل");
@@ -454,9 +458,9 @@ export default function ProfilePage() {
       console.log("🔍 فحص حالة الاهتمامات في fetchAllDataOptimized:", {
         interestsLoadedImmediately: interestsLoadedImmediatelyRef.current,
         preferencesLength: preferences.length,
-        preferences: preferences
+        preferences: preferences,
       });
-      
+
       if (interestsLoadedImmediatelyRef.current && preferences.length > 0) {
         console.log(
           "✅ الاهتمامات محملة بالفعل من fetchUserInterestsImmediately، تجاهل fetchAllDataOptimized",
@@ -800,9 +804,9 @@ export default function ProfilePage() {
                       <Camera className="w-8 h-8 text-white" />
                     )}
                   </label>
-                  {/* شارة العضوية مصغرة للموبايل */}
-                  <div className="absolute -bottom-1 -right-1 w-8 h-8 sm:w-12 sm:h-12 bg-white rounded-full flex items-center justify-center shadow-lg">
-                    <span className="text-lg sm:text-2xl">
+                  {/* شارة العضوية مصغرة ومحسنة */}
+                  <div className="absolute -bottom-1 -left-1 w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center shadow-md ring-1 ring-white/50">
+                    <span className="text-xs sm:text-sm">
                       {membership.icon}
                     </span>
                   </div>
