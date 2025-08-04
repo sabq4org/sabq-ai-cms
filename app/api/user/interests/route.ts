@@ -1,6 +1,16 @@
-import prisma from "@/lib/prisma";
-import jwt from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
+import jwt from "jsonwebtoken";
+import { PrismaClient } from "@prisma/client";
+
+declare global {
+  var prisma: PrismaClient | undefined;
+}
+
+const prisma = global.prisma || new PrismaClient();
+
+if (process.env.NODE_ENV === "development") {
+  global.prisma = prisma;
+}
 
 /**
  * API لإدارة اهتمامات المستخدمين
@@ -10,20 +20,31 @@ import { NextRequest, NextResponse } from "next/server";
 // GET - جلب اهتمامات المستخدم
 export async function GET(request: NextRequest) {
   try {
-    // التحقق من التوكن
-    const token = request.cookies.get("auth-token")?.value;
+    const { searchParams } = new URL(request.url);
+    const userIdParam = searchParams.get("userId");
+    
+    let userId: string;
+    
+    if (userIdParam) {
+      // إذا تم تمرير userId في URL، استخدمه مباشرة
+      console.log("🔍 البحث عن اهتمامات للمستخدم:", userIdParam);
+      userId = userIdParam;
+    } else {
+      // التحقق من التوكن
+      const token = request.cookies.get("auth-token")?.value;
 
-    if (!token) {
-      return NextResponse.json(
-        { success: false, error: "غير مصرح - يرجى تسجيل الدخول" },
-        { status: 401 }
-      );
+      if (!token) {
+        return NextResponse.json(
+          { success: false, error: "غير مصرح - يرجى تسجيل الدخول" },
+          { status: 401 }
+        );
+      }
+
+      const JWT_SECRET =
+        process.env.JWT_SECRET || "your-secret-key-change-this-in-production";
+      const decoded = jwt.verify(token, JWT_SECRET) as any;
+      userId = decoded.id;
     }
-
-    const JWT_SECRET =
-      process.env.JWT_SECRET || "your-secret-key-change-this-in-production";
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
-    const userId = parseInt(decoded.id);
 
     // جلب اهتمامات المستخدم من قاعدة البيانات
     const userInterests = await prisma.user_interests.findMany({
@@ -36,7 +57,6 @@ export async function GET(request: NextRequest) {
           select: {
             id: true,
             name: true,
-            name_ar: true,
             icon: true,
           },
         },
@@ -46,7 +66,6 @@ export async function GET(request: NextRequest) {
     const interests = userInterests.map((ui) => ({
       interestId: ui.category_id,
       categoryName: ui.category?.name,
-      categoryNameAr: ui.category?.name_ar,
       icon: ui.category?.icon,
       addedAt: ui.created_at,
     }));
@@ -203,7 +222,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const userId = parseInt(decoded.id);
+    const userId = decoded.id;
 
     // إزالة جميع الاهتمامات الحالية
     await prisma.user_interests.updateMany({
@@ -216,7 +235,7 @@ export async function PUT(request: NextRequest) {
 
     // إضافة الاهتمامات الجديدة
     for (const interestId of interests) {
-      const categoryId = parseInt(interestId);
+      const categoryId = interestId.toString();
 
       // التحقق من وجود التصنيف
       const category = await prisma.categories.findUnique({

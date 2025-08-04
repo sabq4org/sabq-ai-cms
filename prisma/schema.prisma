@@ -285,6 +285,7 @@ model categories {
   updated_at    DateTime
   articles      articles[]
   muqtarab_corners MuqtarabCorner[]
+  user_interests   user_interests[]
 }
 
 model comments {
@@ -871,6 +872,9 @@ model users {
   created_doses        daily_doses[]          @relation("DoseCreator")
   dose_feedback        smart_dose_feedback[]  @relation("DoseFeedbackUser")
   dose_templates       smart_dose_templates[] @relation("DoseTemplateCreator")
+  
+  // User interests relationship
+  interests            user_interests[]
 
   @@index([email], map: "idx_users_email")
   @@index([role], map: "idx_users_role")
@@ -2050,4 +2054,23 @@ model smart_dose_templates {
   
   @@index([period, is_active])
   @@index([priority, period])
+}
+
+// جدول اهتمامات المستخدمين
+model user_interests {
+  id          Int       @id @default(autoincrement())
+  user_id     String
+  category_id String
+  is_active   Boolean   @default(true)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  
+  // العلاقات
+  user        users      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  category    categories @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  
+  @@unique([user_id, category_id])
+  @@index([user_id])
+  @@index([category_id])
+  @@index([is_active])
 }

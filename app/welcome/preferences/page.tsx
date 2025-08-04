@@ -236,7 +236,7 @@ export default function PreferencesPage() {
               <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto">
                 {hasExistingInterests ? (
                   <>
-                    عدّل اهتماماتك من <span className="font-bold text-blue-600">{categories.length}</span> تصنيف متاح
+                    عدّل اهتماماتك من <span className="font-bold text-blue-600">{categories.length}</span> تصنيفات
                     <br />
                     <span className="text-lg text-gray-500">يمكنك اختيار من 3 إلى {Math.min(10, categories.length)} تصنيفات</span>
                   </>
