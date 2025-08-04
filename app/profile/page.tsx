@@ -182,7 +182,13 @@ export default function ProfilePage() {
   // إضافة listener لتحديث الاهتمامات عند العودة للصفحة (أقل تكراراً)
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (!document.hidden && user && !fetchingInterestsRef.current && preferences.length === 0 && !interestsLoadedImmediatelyRef.current) {
+      if (
+        !document.hidden &&
+        user &&
+        !fetchingInterestsRef.current &&
+        preferences.length === 0 &&
+        !interestsLoadedImmediatelyRef.current
+      ) {
         // فقط إذا لم تكن الاهتمامات محملة مسبقاً
         console.log("👁️ الصفحة أصبحت مرئية وأحتاج لتحديث الاهتمامات");
         fetchUserInterestsImmediately();
@@ -338,7 +344,9 @@ export default function ProfilePage() {
         // لا نمسح الاهتمامات إذا كانت موجودة مسبقاً
         // setPreferences([]);
       } else if (userCategoryIds.length > 0 && allCategories.length === 0) {
-        console.log("⏳ الاهتمامات موجودة لكن التصنيفات لم تحمل بعد، انتظار...");
+        console.log(
+          "⏳ الاهتمامات موجودة لكن التصنيفات لم تحمل بعد، انتظار..."
+        );
         // لا نمسح الاهتمامات، ننتظر تحميل التصنيفات
       }
     } catch (error) {
@@ -437,88 +445,96 @@ export default function ProfilePage() {
       // معالجة التفضيلات بطريقة موحدة
       // تجنب إعادة معالجة الاهتمامات إذا كانت محملة بالفعل من fetchUserInterestsImmediately
       if (interestsLoadedImmediatelyRef.current && preferences.length > 0) {
-        console.log("✅ الاهتمامات محملة بالفعل من fetchUserInterestsImmediately، تجاهل fetchAllDataOptimized", preferences);
+        console.log(
+          "✅ الاهتمامات محملة بالفعل من fetchUserInterestsImmediately، تجاهل fetchAllDataOptimized",
+          preferences
+        );
       } else {
         let userCategoryIds: string[] = [];
         console.log("🔍 تحليل مصادر الاهتمامات:", {
           userId: user.id,
           interestsAPI:
-            interestsResult.status === "fulfilled" ? interestsResult.value : null,
+            interestsResult.status === "fulfilled"
+              ? interestsResult.value
+              : null,
           userPreferences: user.preferences,
           userInterests: user.interests,
         });
-      // 1. أولاً جرب من API الاهتمامات الجديد
-      if (
-        interestsResult.status === "fulfilled" &&
-        interestsResult.value?.success &&
-        interestsResult.value?.data?.categoryIds?.length > 0
-      ) {
-        const categoryIds = interestsResult.value.data.categoryIds;
-        userCategoryIds = categoryIds.map((id: any) => String(id)); // تحويل إلى string للتوافق
-        console.log("✅ تم جلب الاهتمامات من API الجديد:", userCategoryIds);
-
-        // إذا كانت هناك بيانات تصنيفات جاهزة من API، استخدمها مباشرة
+        // 1. أولاً جرب من API الاهتمامات الجديد
         if (
-          interestsResult.value.data.categories &&
-          Array.isArray(interestsResult.value.data.categories)
+          interestsResult.status === "fulfilled" &&
+          interestsResult.value?.success &&
+          interestsResult.value?.data?.categoryIds?.length > 0
         ) {
-          const userCategories = interestsResult.value.data.categories.map(
-            (cat: any) => ({
-              category_id: String(cat.id),
-              category_name: cat.name_ar || cat.name,
-              category_icon: cat.icon || "📌",
-              category_color: cat.color_hex || cat.color || "#6B7280",
-            })
-          );
-          console.log(
-            "✅ تم استخدام بيانات التصنيفات الجاهزة من API:",
-            userCategories
-          );
-          setPreferences(userCategories);
-          return; // انتهى، لا نحتاج لمعالجة إضافية
-        }
-      }
-      // 2. إذا لم نجد، جرب من localStorage preferences
-      else if (user.preferences && user.preferences.length > 0) {
-        userCategoryIds = user.preferences;
-        console.log(
-          "✅ تم جلب الاهتمامات من user.preferences:",
-          userCategoryIds
-        );
-      }
-      // 3. إذا لم نجد، جرب من interests في user object
-      else if (user.interests && user.interests.length > 0) {
-        userCategoryIds = user.interests;
-        console.log("✅ تم جلب الاهتمامات من user.interests:", userCategoryIds);
-      }
-      // تحويل IDs إلى بيانات التصنيفات
-      if (userCategoryIds.length > 0 && allCategories.length > 0) {
-        const userCategories = allCategories
-          .filter((cat: any) => {
-            // محاولة المطابقة بالـ ID أو الـ slug
-            return (
-              userCategoryIds.includes(cat.id) ||
-              userCategoryIds.includes(cat.slug) ||
-              userCategoryIds.includes(String(cat.id))
+          const categoryIds = interestsResult.value.data.categoryIds;
+          userCategoryIds = categoryIds.map((id: any) => String(id)); // تحويل إلى string للتوافق
+          console.log("✅ تم جلب الاهتمامات من API الجديد:", userCategoryIds);
+
+          // إذا كانت هناك بيانات تصنيفات جاهزة من API، استخدمها مباشرة
+          if (
+            interestsResult.value.data.categories &&
+            Array.isArray(interestsResult.value.data.categories)
+          ) {
+            const userCategories = interestsResult.value.data.categories.map(
+              (cat: any) => ({
+                category_id: String(cat.id),
+                category_name: cat.name_ar || cat.name,
+                category_icon: cat.icon || "📌",
+                category_color: cat.color_hex || cat.color || "#6B7280",
+              })
             );
-          })
-          .map((cat: any) => ({
-            category_id: cat.id,
-            category_name: cat.name || cat.name_ar,
-            category_icon: cat.icon || "📌",
-            category_color: cat.color || "#6B7280",
-          }));
-        console.log("✅ تم تحويل الاهتمامات إلى تصنيفات:", userCategories);
-        setPreferences(userCategories);
-      } else {
-        console.log("❌ لم يتم العثور على اهتمامات للمستخدم");
-        // لا نمسح الاهتمامات إذا كانت موجودة بالفعل - ربما تم تحميلها من fetchUserInterestsImmediately
-        if (preferences.length === 0) {
-          setPreferences([]);
+            console.log(
+              "✅ تم استخدام بيانات التصنيفات الجاهزة من API:",
+              userCategories
+            );
+            setPreferences(userCategories);
+            return; // انتهى، لا نحتاج لمعالجة إضافية
+          }
         }
-      }
+        // 2. إذا لم نجد، جرب من localStorage preferences
+        else if (user.preferences && user.preferences.length > 0) {
+          userCategoryIds = user.preferences;
+          console.log(
+            "✅ تم جلب الاهتمامات من user.preferences:",
+            userCategoryIds
+          );
+        }
+        // 3. إذا لم نجد، جرب من interests في user object
+        else if (user.interests && user.interests.length > 0) {
+          userCategoryIds = user.interests;
+          console.log(
+            "✅ تم جلب الاهتمامات من user.interests:",
+            userCategoryIds
+          );
+        }
+        // تحويل IDs إلى بيانات التصنيفات
+        if (userCategoryIds.length > 0 && allCategories.length > 0) {
+          const userCategories = allCategories
+            .filter((cat: any) => {
+              // محاولة المطابقة بالـ ID أو الـ slug
+              return (
+                userCategoryIds.includes(cat.id) ||
+                userCategoryIds.includes(cat.slug) ||
+                userCategoryIds.includes(String(cat.id))
+              );
+            })
+            .map((cat: any) => ({
+              category_id: cat.id,
+              category_name: cat.name || cat.name_ar,
+              category_icon: cat.icon || "📌",
+              category_color: cat.color || "#6B7280",
+            }));
+          console.log("✅ تم تحويل الاهتمامات إلى تصنيفات:", userCategories);
+          setPreferences(userCategories);
+        } else {
+          console.log("❌ لم يتم العثور على اهتمامات للمستخدم");
+          // لا نمسح الاهتمامات إذا كانت موجودة بالفعل - ربما تم تحميلها من fetchUserInterestsImmediately
+          if (preferences.length === 0) {
+            setPreferences([]);
+          }
+        }
       } // إغلاق شرط if (preferences.length > 0)
-      
+
       // معالجة التفاعلات
       if (
         interactionsResult.status === "fulfilled" &&
