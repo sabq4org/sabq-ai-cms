@@ -103,9 +103,12 @@ export async function GET(
   try {
     const { angleId } = params;
     const { searchParams } = new URL(request.url);
-    
+
     console.log("🔍 [GET Articles] angleId:", angleId);
-    console.log("🔍 [GET Articles] searchParams:", Object.fromEntries(searchParams));
+    console.log(
+      "🔍 [GET Articles] searchParams:",
+      Object.fromEntries(searchParams)
+    );
 
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "12");
@@ -113,7 +116,7 @@ export async function GET(
     const timeRange = searchParams.get("timeRange") || "all";
     const sentiment = searchParams.get("sentiment");
     const publishedParam = searchParams.get("published");
-    
+
     const offset = (page - 1) * limit;
 
     // بناء شروط الفلترة
@@ -192,7 +195,7 @@ export async function GET(
       articlesQuery,
       ...queryParams
     )) as any[];
-    
+
     console.log("✅ [GET Articles] Found articles:", articles.length);
 
     // جلب العدد الإجمالي
@@ -251,11 +254,12 @@ export async function GET(
   } catch (error) {
     console.error("❌ [GET Articles] خطأ في جلب مقالات الزاوية:", error);
     console.error("❌ [GET Articles] Error details:", error?.message || error);
-    
+
     return NextResponse.json(
-      { 
+      {
         error: "حدث خطأ في جلب المقالات",
-        details: process.env.NODE_ENV === 'development' ? error?.message : undefined
+        details:
+          process.env.NODE_ENV === "development" ? error?.message : undefined,
       },
       { status: 500 }
     );

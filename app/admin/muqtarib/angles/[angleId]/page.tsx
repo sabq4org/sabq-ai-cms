@@ -227,9 +227,11 @@ const ArticlesList = ({
                   </Button>
                 </Link>
 
-                <Button size="sm" variant="outline">
-                  <Edit className="w-4 h-4" />
-                </Button>
+                <Link href={`/admin/muqtarib/angles/${article.angleId}/articles/${article.id}`}>
+                  <Button size="sm" variant="outline">
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                </Link>
               </div>
             </div>
           </CardContent>
@@ -367,11 +369,18 @@ export default function AngleDashboardPage() {
             },
           }
         );
-        console.log("📡 استجابة API المقالات:", articlesResponse.status, articlesResponse.ok);
-        
+        console.log(
+          "📡 استجابة API المقالات:",
+          articlesResponse.status,
+          articlesResponse.ok
+        );
+
         if (articlesResponse.ok) {
           const articlesData = await articlesResponse.json();
-          console.log("✅ تم جلب المقالات:", articlesData.articles?.length || 0);
+          console.log(
+            "✅ تم جلب المقالات:",
+            articlesData.articles?.length || 0
+          );
           setArticles(articlesData.articles || []);
         } else {
           console.error("❌ خطأ في جلب المقالات:", articlesResponse.status);

@@ -133,10 +133,16 @@ export default function ArticleClientComponent({
             const data = await response.json();
             setArticle(processArticle(data));
           } else {
-            console.warn("تحذير: فشل في تحميل المقال، كود الاستجابة:", response.status);
+            console.warn(
+              "تحذير: فشل في تحميل المقال، كود الاستجابة:",
+              response.status
+            );
           }
         } catch (error) {
-          console.warn("تحذير: خطأ في شبكة أثناء تحميل المقال:", error?.message || error);
+          console.warn(
+            "تحذير: خطأ في شبكة أثناء تحميل المقال:",
+            error?.message || error
+          );
         } finally {
           setLoading(false);
         }
