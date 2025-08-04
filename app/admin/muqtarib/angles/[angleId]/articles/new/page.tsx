@@ -370,7 +370,11 @@ export default function CreateAngleArticlePage() {
         if (userData) {
           const parsedUser = JSON.parse(userData);
           setUser(parsedUser);
-          setFormData((prev) => ({ ...prev, authorId: parsedUser.id }));
+          // استخدام نص بسيط بدلاً من UUID لتجنب مشاكل التوافق
+          setFormData((prev) => ({ ...prev, authorId: parsedUser.id || parsedUser.email || "admin" }));
+        } else {
+          // fallback إذا لم يكن هناك مستخدم مسجل
+          setFormData((prev) => ({ ...prev, authorId: "admin" }));
         }
 
         // جلب بيانات الزاوية
@@ -490,6 +494,11 @@ export default function CreateAngleArticlePage() {
       return;
     }
 
+    if (!formData.authorId) {
+      toast.error("خطأ في تحديد المؤلف، يرجى تسجيل الدخول مرة أخرى");
+      return;
+    }
+
     setLoading(true);
     try {
       const payload = {
@@ -498,25 +507,37 @@ export default function CreateAngleArticlePage() {
         publishDate: publish ? new Date() : undefined,
       };
 
+      console.log("📤 إرسال بيانات المقال:", payload);
+
       const response = await fetch(`/api/muqtarib/angles/${angleId}/articles`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
+      console.log("📡 استجابة API:", response.status, response.ok);
+
       if (response.ok) {
         const data = await response.json();
+        console.log("✅ تم حفظ المقال:", data);
         toast.success(
           publish ? "تم نشر المقال بنجاح!" : "تم حفظ المقال كمسودة"
         );
         router.push(`/admin/muqtarib/angles/${angleId}`);
       } else {
-        const error = await response.json();
-        toast.error(error.error || "حدث خطأ في الحفظ");
+        const errorText = await response.text();
+        console.error("❌ خطأ API:", response.status, errorText);
+        
+        try {
+          const errorJson = JSON.parse(errorText);
+          toast.error(errorJson.error || "حدث خطأ في الحفظ");
+        } catch {
+          toast.error(`خطأ ${response.status}: ${errorText.substring(0, 100)}`);
+        }
       }
     } catch (error) {
       console.error("خطأ في حفظ المقال:", error);
-      toast.error("حدث خطأ غير متوقع");
+      toast.error("حدث خطأ في الاتصال بالخادم");
     } finally {
       setLoading(false);
     }

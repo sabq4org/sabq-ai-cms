@@ -34,23 +34,29 @@ export async function POST(
     }
 
     // إنشاء المقال
-    const result = (await prisma.$queryRaw`
+    const result = (await prisma.$queryRawUnsafe(`
       INSERT INTO angle_articles (
         angle_id, title, content, excerpt, author_id,
         sentiment, tags, cover_image, is_published,
         publish_date, reading_time
       ) VALUES (
-        ${angleId}::uuid, ${body.title}, ${body.content}, ${body.excerpt || null}, ${
-      body.authorId
-    }::uuid,
-        ${body.sentiment || "neutral"}, ${JSON.stringify(body.tags || [])}, ${
-      body.coverImage || null
-    },
-        ${body.isPublished}, ${
-      body.publishDate ? new Date(body.publishDate) : null
-    }, ${body.readingTime || 0}
+        $1::uuid, $2, $3, $4, $5,
+        $6, $7, $8, $9,
+        $10, $11
       ) RETURNING *
-    `) as any[];
+    `, 
+      angleId,
+      body.title,
+      body.content,
+      body.excerpt || null,
+      body.authorId,
+      body.sentiment || "neutral",
+      JSON.stringify(body.tags || []),
+      body.coverImage || null,
+      body.isPublished,
+      body.publishDate ? new Date(body.publishDate) : null,
+      body.readingTime || 0
+    )) as any[];
 
     const article = result[0];
 

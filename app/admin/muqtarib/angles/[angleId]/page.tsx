@@ -3,11 +3,18 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import { Angle, AngleArticle } from "@/types/muqtarab";
 import {
   ArrowLeft,
@@ -283,7 +290,7 @@ export default function AngleDashboardPage() {
   const [articles, setArticles] = useState<AngleArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [articlesLoading, setArticlesLoading] = useState(false);
-  
+
   // حالة modal التعديل
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editFormData, setEditFormData] = useState({
@@ -292,7 +299,7 @@ export default function AngleDashboardPage() {
     description: "",
     themeColor: "#3B82F6",
     isFeatured: false,
-    isPublished: false
+    isPublished: false,
   });
   const [editLoading, setEditLoading] = useState(false);
 
@@ -308,10 +315,10 @@ export default function AngleDashboardPage() {
         // جلب بيانات الزاوية
         console.log("🔍 جاري جلب بيانات الزاوية:", angleId);
         const angleResponse = await fetch(`/api/muqtarib/angles/${angleId}`, {
-          cache: 'no-store',
+          cache: "no-store",
           headers: {
-            'Cache-Control': 'no-cache'
-          }
+            "Cache-Control": "no-cache",
+          },
         });
         console.log(
           "📡 استجابة API الزاوية:",
@@ -323,7 +330,7 @@ export default function AngleDashboardPage() {
           const angleData = await angleResponse.json();
           console.log("✅ تم جلب بيانات الزاوية:", angleData.angle?.title);
           setAngle(angleData.angle);
-          
+
           // تحديث form data للتعديل
           if (angleData.angle) {
             setEditFormData({
@@ -332,11 +339,15 @@ export default function AngleDashboardPage() {
               description: angleData.angle.description || "",
               themeColor: angleData.angle.themeColor || "#3B82F6",
               isFeatured: angleData.angle.isFeatured || false,
-              isPublished: angleData.angle.isPublished || false
+              isPublished: angleData.angle.isPublished || false,
             });
           }
         } else {
-          console.error("❌ خطأ في جلب الزاوية:", angleResponse.status, angleResponse.statusText);
+          console.error(
+            "❌ خطأ في جلب الزاوية:",
+            angleResponse.status,
+            angleResponse.statusText
+          );
           const errorText = await angleResponse.text();
           console.error("📄 محتوى خطأ الزاوية:", errorText);
           toast.error("الزاوية غير موجودة");
@@ -380,16 +391,16 @@ export default function AngleDashboardPage() {
 
   // وظائف التعديل
   const handleEditFormChange = (field: string, value: any) => {
-    setEditFormData(prev => ({
+    setEditFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   const handleUpdateAngle = async () => {
     try {
       setEditLoading(true);
-      
+
       const response = await fetch(`/api/muqtarib/angles/${angleId}`, {
         method: "PUT",
         headers: {
@@ -617,16 +628,21 @@ export default function AngleDashboardPage() {
                 <CardContent className="space-y-3">
                   <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
                     <DialogTrigger asChild>
-                      <Button variant="outline" className="w-full justify-start">
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start"
+                      >
                         <Edit className="w-4 h-4 ml-2" />
                         تعديل معلومات الزاوية
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                       <DialogHeader>
-                        <DialogTitle className="text-xl">تعديل معلومات الزاوية</DialogTitle>
+                        <DialogTitle className="text-xl">
+                          تعديل معلومات الزاوية
+                        </DialogTitle>
                       </DialogHeader>
-                      
+
                       <div className="grid gap-6 py-4">
                         {/* العنوان */}
                         <div className="grid gap-2">
@@ -634,7 +650,9 @@ export default function AngleDashboardPage() {
                           <Input
                             id="edit-title"
                             value={editFormData.title}
-                            onChange={(e) => handleEditFormChange("title", e.target.value)}
+                            onChange={(e) =>
+                              handleEditFormChange("title", e.target.value)
+                            }
                             placeholder="أدخل عنوان الزاوية"
                             className="text-right"
                           />
@@ -646,7 +664,9 @@ export default function AngleDashboardPage() {
                           <Input
                             id="edit-slug"
                             value={editFormData.slug}
-                            onChange={(e) => handleEditFormChange("slug", e.target.value)}
+                            onChange={(e) =>
+                              handleEditFormChange("slug", e.target.value)
+                            }
                             placeholder="رابط-الزاوية"
                             className="text-left direction-ltr"
                           />
@@ -661,7 +681,12 @@ export default function AngleDashboardPage() {
                           <Textarea
                             id="edit-description"
                             value={editFormData.description}
-                            onChange={(e) => handleEditFormChange("description", e.target.value)}
+                            onChange={(e) =>
+                              handleEditFormChange(
+                                "description",
+                                e.target.value
+                              )
+                            }
                             placeholder="وصف مختصر عن الزاوية"
                             className="text-right min-h-[100px]"
                           />
@@ -675,12 +700,22 @@ export default function AngleDashboardPage() {
                               id="edit-theme-color"
                               type="color"
                               value={editFormData.themeColor}
-                              onChange={(e) => handleEditFormChange("themeColor", e.target.value)}
+                              onChange={(e) =>
+                                handleEditFormChange(
+                                  "themeColor",
+                                  e.target.value
+                                )
+                              }
                               className="w-16 h-10 p-1 border rounded"
                             />
                             <Input
                               value={editFormData.themeColor}
-                              onChange={(e) => handleEditFormChange("themeColor", e.target.value)}
+                              onChange={(e) =>
+                                handleEditFormChange(
+                                  "themeColor",
+                                  e.target.value
+                                )
+                              }
                               placeholder="#3B82F6"
                               className="flex-1 text-left direction-ltr"
                             />
@@ -699,13 +734,17 @@ export default function AngleDashboardPage() {
                             <Switch
                               id="edit-featured"
                               checked={editFormData.isFeatured}
-                              onCheckedChange={(checked) => handleEditFormChange("isFeatured", checked)}
+                              onCheckedChange={(checked) =>
+                                handleEditFormChange("isFeatured", checked)
+                              }
                             />
                           </div>
 
                           <div className="flex items-center justify-between">
                             <div className="grid gap-1">
-                              <Label htmlFor="edit-published">نشر الزاوية</Label>
+                              <Label htmlFor="edit-published">
+                                نشر الزاوية
+                              </Label>
                               <p className="text-xs text-gray-500">
                                 جعل الزاوية مرئية للقراء
                               </p>
@@ -713,23 +752,30 @@ export default function AngleDashboardPage() {
                             <Switch
                               id="edit-published"
                               checked={editFormData.isPublished}
-                              onCheckedChange={(checked) => handleEditFormChange("isPublished", checked)}
+                              onCheckedChange={(checked) =>
+                                handleEditFormChange("isPublished", checked)
+                              }
                             />
                           </div>
                         </div>
                       </div>
 
                       <DialogFooter className="gap-2">
-                        <Button 
-                          variant="outline" 
+                        <Button
+                          variant="outline"
                           onClick={() => setEditModalOpen(false)}
                           disabled={editLoading}
                         >
                           إلغاء
                         </Button>
-                        <Button 
+                        <Button
                           onClick={handleUpdateAngle}
-                          disabled={editLoading || !editFormData.title || !editFormData.slug || !editFormData.description}
+                          disabled={
+                            editLoading ||
+                            !editFormData.title ||
+                            !editFormData.slug ||
+                            !editFormData.description
+                          }
                         >
                           {editLoading ? (
                             <>
