@@ -156,7 +156,9 @@ const AngleCard = ({ angle }: { angle: Angle }) => {
               <Button
                 size="sm"
                 className="bg-blue-600 hover:bg-blue-700 text-white"
-                onClick={() => console.log("🔗 الانتقال للزاوية:", angle.id, angle.title)}
+                onClick={() =>
+                  console.log("🔗 الانتقال للزاوية:", angle.id, angle.title)
+                }
               >
                 إدارة
               </Button>
@@ -196,13 +198,13 @@ export default function MuqtaribDashboard() {
         // جلب جميع الزوايا
         console.log("🔍 جاري جلب جميع الزوايا من الصفحة الرئيسية...");
         const response = await fetch("/api/muqtarib/angles", {
-          cache: 'no-store',
+          cache: "no-store",
           headers: {
-            'Cache-Control': 'no-cache'
-          }
+            "Cache-Control": "no-cache",
+          },
         });
         console.log("📡 استجابة API الزوايا:", response.status, response.ok);
-        
+
         if (response.ok && isMounted) {
           const data = await response.json();
           console.log("✅ تم جلب الزوايا:", data.angles?.length || 0);
@@ -231,7 +233,11 @@ export default function MuqtaribDashboard() {
             totalViews,
           });
         } else if (isMounted) {
-          console.error("❌ فشل API الزوايا:", response.status, response.statusText);
+          console.error(
+            "❌ فشل API الزوايا:",
+            response.status,
+            response.statusText
+          );
           const errorText = await response.text();
           console.error("📄 محتوى الخطأ:", errorText);
           toast.error("فشل في تحميل الزوايا");
