@@ -87,7 +87,7 @@ export async function POST(
       { status: 500 }
     );
   } finally {
-    await prisma.$disconnect();
+    // إزالة $disconnect لتجنب مشاكل Concurrent Requests
   }
 }
 
@@ -237,6 +237,6 @@ export async function GET(
       { status: 500 }
     );
   } finally {
-    await prisma.$disconnect();
+    // إزالة $disconnect لتجنب مشاكل Concurrent Requests
   }
 }
