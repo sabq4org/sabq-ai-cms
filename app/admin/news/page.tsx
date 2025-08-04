@@ -655,7 +655,7 @@ function AdminNewsPageContent() {
       pageDescription="إدارة وتحرير المحتوى الإخباري بنظام ذكي متطور"
     >
       <TooltipProvider>
-        <div className="space-y-6">
+        <div className="min-h-screen w-full space-y-6 pb-8">
           {/* رسالة الترحيب */}
           <DesignComponents.StandardCard className="p-6 bg-gradient-to-l from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 border-green-200 dark:border-green-800">
             <div className="flex items-start gap-4">
@@ -881,7 +881,7 @@ function AdminNewsPageContent() {
           </div>
 
           {/* جدول المقالات */}
-          <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+          <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 min-h-[600px] flex flex-col">
             <div className="p-4 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -941,7 +941,7 @@ function AdminNewsPageContent() {
                 </div>
               </div>
             </div>
-            <CardContent className="p-0">
+            <CardContent className="p-0 flex-1 flex flex-col">
               {loading ? (
                 <div className="p-8 text-center">
                   <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-white"></div>
@@ -950,13 +950,36 @@ function AdminNewsPageContent() {
                   </p>
                 </div>
               ) : filteredArticles.length === 0 ? (
-                <div className="p-8 text-center">
-                  <p className="text-gray-600 dark:text-gray-400">
-                    لا توجد أخبار
-                  </p>
+                <div className="flex-1 flex items-center justify-center p-12">
+                  <div className="text-center">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                      <FileText className="w-8 h-8 text-gray-400 dark:text-gray-500" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                      لا توجد أخبار
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6">
+                      {searchTerm.trim() 
+                        ? `لا توجد نتائج للبحث "${searchTerm}"`
+                        : filterStatus === 'published' 
+                        ? 'لا توجد أخبار منشورة حالياً'
+                        : filterStatus === 'draft'
+                        ? 'لا توجد مسودات'
+                        : filterStatus === 'archived'
+                        ? 'لا توجد أخبار مؤرشفة'
+                        : 'لا توجد أخبار في هذا القسم'
+                      }
+                    </p>
+                    <Link href="/admin/news/unified">
+                      <Button className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600">
+                        <Plus className="w-4 h-4 ml-2" />
+                        إنشاء خبر جديد
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto flex-1">
                   <Table>
                     <TableHeader className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
                       <TableRow>
