@@ -1,81 +1,88 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-import { existsSync } from 'fs';
+import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
-    const file = formData.get('file') as File;
+    const file = formData.get("file") as File;
 
     if (!file) {
       return NextResponse.json(
-        { error: 'لم يتم العثور على ملف' },
+        { success: false, error: "لم يتم اختيار ملف" },
         { status: 400 }
       );
     }
 
     // التحقق من نوع الملف
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-    if (!allowedTypes.includes(file.type)) {
+    if (!file.type.startsWith("image/")) {
       return NextResponse.json(
-        { error: 'نوع الملف غير مدعوم. يُسمح فقط بـ: JPEG, PNG, GIF, WebP' },
+        { success: false, error: "يرجى اختيار ملف صورة فقط" },
         { status: 400 }
       );
     }
 
-    // التحقق من حجم الملف (5MB كحد أقصى)
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (file.size > maxSize) {
+    // التحقق من حجم الملف (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
       return NextResponse.json(
-        { error: 'حجم الملف كبير جداً. الحد الأقصى 5MB' },
+        { success: false, error: "حجم الصورة يجب أن يكون أقل من 5 ميجابايت" },
         { status: 400 }
       );
     }
 
+    // تحويل الملف إلى Buffer
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
     // إنشاء اسم ملف فريد
     const timestamp = Date.now();
-    const originalName = file.name.replace(/[^a-zA-Z0-9._-]/g, '');
-    const fileName = `${timestamp}-${originalName}`;
+    const fileName = `muqtarab_cover_${timestamp}_${file.name}`;
 
-    // إنشاء مجلد الرفع إذا لم يكن موجوداً
-    const uploadDir = join(process.cwd(), 'public', 'uploads', 'images');
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true });
+    try {
+      // محاولة رفع إلى Cloudinary
+      const cloudinaryFormData = new FormData();
+      cloudinaryFormData.append("file", file);
+      cloudinaryFormData.append("upload_preset", "muqtarab_covers");
+      cloudinaryFormData.append("folder", "muqtarab/covers");
+
+      const cloudinaryResponse = await fetch(
+        `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload`,
+        {
+          method: "POST",
+          body: cloudinaryFormData,
+        }
+      );
+
+      if (cloudinaryResponse.ok) {
+        const cloudinaryData = await cloudinaryResponse.json();
+        return NextResponse.json({
+          success: true,
+          imageUrl: cloudinaryData.secure_url,
+          publicId: cloudinaryData.public_id,
+        });
+      }
+    } catch (cloudinaryError) {
+      console.log("Cloudinary upload failed, using fallback:", cloudinaryError);
     }
 
-    // حفظ الملف
-    const filePath = join(uploadDir, fileName);
-    await writeFile(filePath, buffer);
-
-    // إرجاع رابط الملف
-    const fileUrl = `/uploads/images/${fileName}`;
+    // Fallback: إنشاء Data URL محلي
+    const base64 = buffer.toString("base64");
+    const dataUrl = `data:${file.type};base64,${base64}`;
 
     return NextResponse.json({
       success: true,
-      url: fileUrl,
+      imageUrl: dataUrl,
       fileName: fileName,
-      size: file.size,
-      type: file.type
+      fallback: true,
     });
 
   } catch (error) {
-    console.error('خطأ في رفع الصورة:', error);
+    console.error("خطأ في رفع الصورة:", error);
     return NextResponse.json(
-      { error: 'خطأ في رفع الصورة' },
+      { 
+        success: false, 
+        error: "خطأ في رفع الصورة",
+        details: error instanceof Error ? error.message : "Unknown error"
+      },
       { status: 500 }
     );
   }
-}
-
-// دعم GET لعرض معلومات الصور المرفوعة
-export async function GET() {
-  return NextResponse.json({
-    message: 'خدمة رفع الصور تعمل بشكل طبيعي',
-    allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'],
-    maxSize: '5MB'
-  });
 }

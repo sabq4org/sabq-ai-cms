@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Lightbulb, Palette, Save } from "lucide-react";
+import { ArrowLeft, Lightbulb, Palette, Save, Upload, X } from "lucide-react";
 
 interface Category {
   id: string;
@@ -62,6 +62,150 @@ const ColorPicker = ({
           onChange={(e) => onChange(e.target.value)}
           className="w-8 h-8 rounded-full border-2 border-gray-200 cursor-pointer"
         />
+      </div>
+    </div>
+  );
+};
+
+// مكون رفع الصورة
+const ImageUploader = ({
+  value,
+  onChange,
+}: {
+  value?: string;
+  onChange: (imageUrl: string) => void;
+}) => {
+  const [uploading, setUploading] = useState(false);
+  const [preview, setPreview] = useState<string>(value || "");
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // التحقق من نوع الملف
+    if (!file.type.startsWith("image/")) {
+      alert("يرجى اختيار ملف صورة فقط");
+      return;
+    }
+
+    // التحقق من حجم الملف (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      alert("حجم الصورة يجب أن يكون أقل من 5 ميجابايت");
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      // إنشاء FormData لرفع الصورة
+      const formData = new FormData();
+      formData.append("file", file);
+
+      // رفع باستخدام API المحلي
+      const response = await fetch("/api/upload/image", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setPreview(data.imageUrl);
+          onChange(data.imageUrl);
+        } else {
+          alert(data.error || "فشل في رفع الصورة");
+          throw new Error(data.error);
+        }
+      } else {
+        throw new Error("فشل في رفع الصورة");
+      }
+    } catch (error) {
+      console.error("خطأ في رفع الصورة:", error);
+      // Fallback: إنشاء preview محلي
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setPreview(result);
+        onChange(result);
+      };
+      reader.readAsDataURL(file);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const removeImage = () => {
+    setPreview("");
+    onChange("");
+  };
+
+  return (
+    <div className="space-y-4">
+      {preview ? (
+        <div className="relative">
+          <img
+            src={preview}
+            alt="معاينة صورة الغلاف"
+            className="w-full h-48 object-cover rounded-lg border-2 border-gray-200"
+          />
+          <button
+            type="button"
+            onClick={removeImage}
+            className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      ) : (
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
+          <Upload className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+          <div className="space-y-2">
+            <p className="text-gray-600">اختر صورة غلاف للزاوية</p>
+            <p className="text-sm text-gray-500">PNG, JPG, GIF حتى 5MB</p>
+          </div>
+        </div>
+      )}
+
+      <div className="flex items-center gap-4">
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleFileUpload}
+          className="hidden"
+          id="cover-image-upload"
+          disabled={uploading}
+        />
+        <label
+          htmlFor="cover-image-upload"
+          className={`flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer ${
+            uploading ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+        >
+          {uploading ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+              جاري الرفع...
+            </>
+          ) : (
+            <>
+              <Upload className="w-4 h-4" />
+              {preview ? "تغيير الصورة" : "رفع صورة"}
+            </>
+          )}
+        </label>
+
+        {preview && !value?.startsWith("data:") && (
+          <Input
+            type="url"
+            placeholder="أو أدخل رابط صورة"
+            value={preview}
+            onChange={(e) => {
+              setPreview(e.target.value);
+              onChange(e.target.value);
+            }}
+            className="flex-1"
+          />
+        )}
       </div>
     </div>
   );
@@ -270,16 +414,16 @@ export default function CreateCornerPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="cover_image">رابط صورة الغلاف</Label>
-                  <Input
-                    id="cover_image"
+                  <Label htmlFor="cover_image">صورة غلاف الزاوية</Label>
+                  <ImageUploader
                     value={formData.cover_image}
-                    onChange={(e) =>
-                      handleInputChange("cover_image", e.target.value)
+                    onChange={(imageUrl) =>
+                      handleInputChange("cover_image", imageUrl)
                     }
-                    placeholder="https://example.com/image.jpg"
-                    type="url"
                   />
+                  <p className="text-xs text-gray-500 mt-2">
+                    اختر صورة معبرة تمثل محتوى الزاوية وهويتها البصرية
+                  </p>
                 </div>
               </CardContent>
             </Card>

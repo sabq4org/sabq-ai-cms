@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
       ) VALUES (
         ${name}, ${slug}, ${author_name}, ${author_bio || null},
         ${description || null}, ${cover_image || null}, ${category_id || null},
-        ${themeColor}, ${ai_enabled}, ${is_active}, ${is_featured}, ${null}
+        ${themeColor}, ${ai_enabled}, ${is_active}, ${is_featured}, ${"admin"}
       ) RETURNING *;
     `;
 
@@ -141,7 +141,11 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("خطأ في إنشاء الزاوية:", error);
     return NextResponse.json(
-      { success: false, error: "خطأ في إنشاء الزاوية" },
+      { 
+        success: false, 
+        error: "خطأ في إنشاء الزاوية", 
+        details: error instanceof Error ? error.message : "Unknown error" 
+      },
       { status: 500 }
     );
   }
