@@ -1,21 +1,24 @@
-import { MetadataRoute } from 'next';
+import { MetadataRoute } from "next";
 
 // دالة جلب المقالات من API
 async function getArticles() {
   try {
-    const baseUrl = process.env.NEXTAUTH_URL || 'https://sabq.me';
-    const response = await fetch(`${baseUrl}/api/articles?limit=1000&published=true`, {
-      cache: 'no-store',
-    });
-    
+    const baseUrl = process.env.NEXTAUTH_URL || "https://sabq.me";
+    const response = await fetch(
+      `${baseUrl}/api/articles?limit=1000&published=true`,
+      {
+        cache: "no-store",
+      }
+    );
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
+
     const data = await response.json();
     return data.articles || data.data || [];
   } catch (error) {
-    console.error('Error fetching articles for sitemap:', error);
+    console.error("Error fetching articles for sitemap:", error);
     return [];
   }
 }
@@ -23,74 +26,74 @@ async function getArticles() {
 // دالة جلب التصنيفات
 async function getCategories() {
   try {
-    const baseUrl = process.env.NEXTAUTH_URL || 'https://sabq.me';
+    const baseUrl = process.env.NEXTAUTH_URL || "https://sabq.me";
     const response = await fetch(`${baseUrl}/api/categories`, {
-      cache: 'no-store',
+      cache: "no-store",
     });
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
+
     const data = await response.json();
     return data.categories || [];
   } catch (error) {
-    console.error('Error fetching categories for sitemap:', error);
+    console.error("Error fetching categories for sitemap:", error);
     return [];
   }
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://sabq.me';
-  
+  const baseUrl = "https://sabq.me";
+
   // الصفحات الثابتة
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
       lastModified: new Date(),
-      changeFrequency: 'daily',
+      changeFrequency: "daily",
       priority: 1,
     },
     {
       url: `${baseUrl}/news`,
       lastModified: new Date(),
-      changeFrequency: 'hourly',
+      changeFrequency: "hourly",
       priority: 0.9,
     },
     {
       url: `${baseUrl}/opinion-articles`,
       lastModified: new Date(),
-      changeFrequency: 'daily',
+      changeFrequency: "daily",
       priority: 0.8,
     },
     {
       url: `${baseUrl}/categories`,
       lastModified: new Date(),
-      changeFrequency: 'weekly',
+      changeFrequency: "weekly",
       priority: 0.7,
     },
     {
       url: `${baseUrl}/about`,
       lastModified: new Date(),
-      changeFrequency: 'monthly',
+      changeFrequency: "monthly",
       priority: 0.5,
     },
     {
       url: `${baseUrl}/contact`,
       lastModified: new Date(),
-      changeFrequency: 'monthly',
+      changeFrequency: "monthly",
       priority: 0.5,
     },
     {
       url: `${baseUrl}/privacy-policy`,
       lastModified: new Date(),
-      changeFrequency: 'yearly',
+      changeFrequency: "yearly",
       priority: 0.3,
     },
     {
       url: `${baseUrl}/terms-of-use`,
       lastModified: new Date(),
-      changeFrequency: 'yearly',
+      changeFrequency: "yearly",
       priority: 0.3,
     },
   ];
@@ -99,25 +102,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const articles = await getArticles();
   const articlePages: MetadataRoute.Sitemap = articles.map((article: any) => ({
     url: `${baseUrl}/article/${article.id}`,
-    lastModified: new Date(article.published_at || article.updated_at || article.created_at),
-    changeFrequency: 'weekly' as const,
-    priority: article.article_type === 'breaking' ? 0.9 : 
-             article.article_type === 'news' ? 0.8 : 
-             article.article_type === 'opinion' ? 0.7 : 0.6,
+    lastModified: new Date(
+      article.published_at || article.updated_at || article.created_at
+    ),
+    changeFrequency: "weekly" as const,
+    priority:
+      article.article_type === "breaking"
+        ? 0.9
+        : article.article_type === "news"
+        ? 0.8
+        : article.article_type === "opinion"
+        ? 0.7
+        : 0.6,
   }));
 
   // جلب التصنيفات
   const categories = await getCategories();
-  const categoryPages: MetadataRoute.Sitemap = categories.map((category: any) => ({
-    url: `${baseUrl}/categories/${category.slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'daily' as const,
-    priority: 0.6,
-  }));
+  const categoryPages: MetadataRoute.Sitemap = categories.map(
+    (category: any) => ({
+      url: `${baseUrl}/categories/${category.slug}`,
+      lastModified: new Date(),
+      changeFrequency: "daily" as const,
+      priority: 0.6,
+    })
+  );
 
-  return [
-    ...staticPages,
-    ...articlePages,
-    ...categoryPages,
-  ];
+  return [...staticPages, ...articlePages, ...categoryPages];
 }

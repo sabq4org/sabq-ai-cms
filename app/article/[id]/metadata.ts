@@ -24,14 +24,11 @@ async function getArticleBySlug(slug: string): Promise<Article | null> {
   try {
     // استخدام prisma مباشرة بدلاً من API call
     const { default: prisma } = await import("@/lib/prisma");
-    
+
     const article = await prisma.articles.findFirst({
       where: {
-        OR: [
-          { id: slug },
-          { slug: slug }
-        ],
-        status: "published"
+        OR: [{ id: slug }, { slug: slug }],
+        status: "published",
       },
       select: {
         id: true,
@@ -47,15 +44,15 @@ async function getArticleBySlug(slug: string): Promise<Article | null> {
         article_type: true,
         categories: {
           select: {
-            name: true
-          }
+            name: true,
+          },
         },
         article_author: {
           select: {
-            full_name: true
-          }
-        }
-      }
+            full_name: true,
+          },
+        },
+      },
     });
 
     if (!article) {
@@ -76,9 +73,8 @@ async function getArticleBySlug(slug: string): Promise<Article | null> {
       category_name: article.categories?.name,
       article_type: article.article_type,
       reading_time: article.reading_time,
-      views: article.views
+      views: article.views,
     };
-    
   } catch (error) {
     console.error("Error fetching article for metadata:", error);
     return null;
@@ -163,13 +159,15 @@ export async function generateMetadata({
   // تجنب API calls في generateMetadata وإعطاء metadata أساسية
   // سيتم تحديث metadata ديناميكياً من العميل
   const articleId = params.id;
-  
+
   return {
     title: "مقال - سبق الذكية",
-    description: "اقرأ هذا المقال من سبق الذكية - منصة الأخبار الذكية المدعومة بالذكاء الاصطناعي.",
+    description:
+      "اقرأ هذا المقال من سبق الذكية - منصة الأخبار الذكية المدعومة بالذكاء الاصطناعي.",
     openGraph: {
       title: "مقال - سبق الذكية",
-      description: "اقرأ هذا المقال من سبق الذكية - منصة الأخبار الذكية المدعومة بالذكاء الاصطناعي.",
+      description:
+        "اقرأ هذا المقال من سبق الذكية - منصة الأخبار الذكية المدعومة بالذكاء الاصطناعي.",
       url: `https://sabq.me/article/${articleId}`,
       siteName: "سبق الذكية",
       images: [
@@ -189,7 +187,8 @@ export async function generateMetadata({
       site: "@sabq",
       creator: "@sabq",
       title: "مقال - سبق الذكية",
-      description: "اقرأ هذا المقال من سبق الذكية - منصة الأخبار الذكية المدعومة بالذكاء الاصطناعي.",
+      description:
+        "اقرأ هذا المقال من سبق الذكية - منصة الأخبار الذكية المدعومة بالذكاء الاصطناعي.",
       images: {
         url: "https://sabq.me/og-image.jpg",
         alt: "سبق الذكية",
@@ -200,7 +199,7 @@ export async function generateMetadata({
     },
   };
 
-  /* 
+  /*
   // الكود الأصلي معطل مؤقتاً حتى إصلاح مشاكل API
   const article = await getArticleBySlug(params.id);
 

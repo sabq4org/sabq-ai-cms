@@ -1,5 +1,5 @@
-import { generateMetadata } from "./metadata";
 import ArticleClientComponent from "./ArticleClientComponent";
+import { generateMetadata } from "./metadata";
 
 interface ArticlePageProps {
   params: { id: string };

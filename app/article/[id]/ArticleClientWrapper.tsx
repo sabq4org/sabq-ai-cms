@@ -1,24 +1,39 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import dynamic from 'next/dynamic';
-import { Loader2, AlertCircle, BookOpen } from 'lucide-react';
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
+import { AlertCircle, Loader2 } from "lucide-react";
+import dynamic from "next/dynamic";
+import { useEffect, useState } from "react";
 
 /**
  * 🗞️ مكون عميل لصفحة تفاصيل المقال - توجيه ذكي حسب نوع المحتوى
- * 
+ *
  * 📰 للأخبار: التصميم الإخباري الكلاسيكي
  * 🧠 لمقالات الرأي: التصميم الذكي مع ميزات AI
  * 📊 للتحليلات: التصميم الذكي مع ميزات متقدمة
  */
 
 // Dynamic imports للمكونات المختلفة
-const SmartArticleHero = dynamic(() => import('@/components/article/SmartArticleHero'), { ssr: false });
-const SmartContentRenderer = dynamic(() => import('@/components/article/SmartContentRenderer'), { ssr: false });
-const SmartSummary = dynamic(() => import('@/components/article/SmartSummary'), { ssr: false });
-const SmartRecommendations = dynamic(() => import('@/components/article/SmartRecommendations'), { ssr: false });
-const ArticleClientComponent = dynamic(() => import('./ArticleClientComponent'), { ssr: false });
+const SmartArticleHero = dynamic(
+  () => import("@/components/article/SmartArticleHero"),
+  { ssr: false }
+);
+const SmartContentRenderer = dynamic(
+  () => import("@/components/article/SmartContentRenderer"),
+  { ssr: false }
+);
+const SmartSummary = dynamic(
+  () => import("@/components/article/SmartSummary"),
+  { ssr: false }
+);
+const SmartRecommendations = dynamic(
+  () => import("@/components/article/SmartRecommendations"),
+  { ssr: false }
+);
+const ArticleClientComponent = dynamic(
+  () => import("./ArticleClientComponent"),
+  { ssr: false }
+);
 
 interface ArticleData {
   id: string;
@@ -39,24 +54,37 @@ interface ArticleData {
   author_name?: string;
   author?: { name: string; avatar?: string; slug?: string; id?: string };
   article_type?: string;
-  
+
   // Smart data للمقالات الذكية
   ai_analysis?: {
-    tone: 'analytical' | 'emotional' | 'satirical' | 'educational' | 'investigative';
+    tone:
+      | "analytical"
+      | "emotional"
+      | "satirical"
+      | "educational"
+      | "investigative";
     depth_score: number;
-    recommendation: 'highly_recommended' | 'recommended' | 'neutral' | 'not_recommended';
-    complexity_level: 'beginner' | 'intermediate' | 'advanced';
-    reading_goal: 'daily_read' | 'deep_analysis' | 'quick_insight' | 'entertainment';
+    recommendation:
+      | "highly_recommended"
+      | "recommended"
+      | "neutral"
+      | "not_recommended";
+    complexity_level: "beginner" | "intermediate" | "advanced";
+    reading_goal:
+      | "daily_read"
+      | "deep_analysis"
+      | "quick_insight"
+      | "entertainment";
   };
-  
+
   // Smart quotes - المقتطفات الذكية
   smart_quotes?: Array<{
     text: string;
     context: string;
     relevance_score: number;
-    emotional_impact: 'high' | 'medium' | 'low';
+    emotional_impact: "high" | "medium" | "low";
   }>;
-  
+
   // AI Summary - الملخص الذكي
   ai_summary?: {
     brief: string;
@@ -64,7 +92,7 @@ interface ArticleData {
     conclusion: string;
     reading_time_saved: number;
   };
-  
+
   // Smart recommendations
   recommendations?: Array<{
     id: string;
@@ -72,11 +100,11 @@ interface ArticleData {
     reason: string;
     similarity_score: number;
   }>;
-  
+
   // Additional fields
   tags?: string[];
   topics?: string[];
-  reading_difficulty?: 'easy' | 'medium' | 'hard';
+  reading_difficulty?: "easy" | "medium" | "hard";
   target_audience?: string[];
   estimated_reading_time: number;
   category_name?: string;
@@ -86,36 +114,43 @@ interface ArticleClientWrapperProps {
   articleId: string;
 }
 
-export default function ArticleClientWrapper({ articleId }: ArticleClientWrapperProps) {
+export default function ArticleClientWrapper({
+  articleId,
+}: ArticleClientWrapperProps) {
   const { darkMode } = useDarkModeContext();
   const [article, setArticle] = useState<ArticleData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [renderMode, setRenderMode] = useState<'news' | 'smart'>('news'); // Default للأخبار
-  
+  const [renderMode, setRenderMode] = useState<"news" | "smart">("news"); // Default للأخبار
+
   // تحديد نوع العرض حسب نوع المقال
-  const determineRenderMode = (article: ArticleData): 'news' | 'smart' => {
+  const determineRenderMode = (article: ArticleData): "news" | "smart" => {
     const articleType = article.article_type?.toLowerCase();
-    
+
     // الأخبار العادية تستخدم التصميم الإخباري
-    if (articleType === 'news' || articleType === 'breaking' || !articleType) {
-      return 'news';
+    if (articleType === "news" || articleType === "breaking" || !articleType) {
+      return "news";
     }
-    
+
     // مقالات الرأي والتحليل تستخدم التصميم الذكي
-    if (articleType === 'opinion' || articleType === 'analysis' || articleType === 'editorial' || articleType === 'interview') {
-      return 'smart';
+    if (
+      articleType === "opinion" ||
+      articleType === "analysis" ||
+      articleType === "editorial" ||
+      articleType === "interview"
+    ) {
+      return "smart";
     }
-    
+
     // Default للأخبار
-    return 'news';
+    return "news";
   };
 
   // Fetch article data
   useEffect(() => {
     const fetchArticle = async () => {
       if (!articleId) {
-        setError('معرف المقال غير صحيح');
+        setError("معرف المقال غير صحيح");
         setLoading(false);
         return;
       }
@@ -126,29 +161,29 @@ export default function ArticleClientWrapper({ articleId }: ArticleClientWrapper
 
         // محاولة جلب المقال من API
         const response = await fetch(`/api/articles/${articleId}`);
-        
+
         if (!response.ok) {
           if (response.status === 404) {
-            setError('المقال غير موجود');
+            setError("المقال غير موجود");
           } else {
-            setError('حدث خطأ في تحميل المقال');
+            setError("حدث خطأ في تحميل المقال");
           }
           setLoading(false);
           return;
         }
 
         const data = await response.json();
-        
+
         if (data.success && data.article) {
           const articleData = data.article;
           setArticle(articleData);
           setRenderMode(determineRenderMode(articleData));
         } else {
-          setError(data.error || 'فشل في تحميل المقال');
+          setError(data.error || "فشل في تحميل المقال");
         }
       } catch (error) {
-        console.error('خطأ في جلب المقال:', error);
-        setError('حدث خطأ في الاتصال');
+        console.error("خطأ في جلب المقال:", error);
+        setError("حدث خطأ في الاتصال");
       } finally {
         setLoading(false);
       }
@@ -160,10 +195,18 @@ export default function ArticleClientWrapper({ articleId }: ArticleClientWrapper
   // حالة التحميل
   if (loading) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      <div
+        className={`min-h-screen flex items-center justify-center ${
+          darkMode ? "bg-gray-900" : "bg-gray-50"
+        }`}
+      >
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
-          <p className={`text-lg ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+          <p
+            className={`text-lg ${
+              darkMode ? "text-gray-300" : "text-gray-600"
+            }`}
+          >
             جاري تحميل المقال...
           </p>
         </div>
@@ -174,14 +217,26 @@ export default function ArticleClientWrapper({ articleId }: ArticleClientWrapper
   // حالة الخطأ
   if (error || !article) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      <div
+        className={`min-h-screen flex items-center justify-center ${
+          darkMode ? "bg-gray-900" : "bg-gray-50"
+        }`}
+      >
         <div className="text-center max-w-md mx-auto p-6">
           <AlertCircle className="w-16 h-16 mx-auto mb-4 text-red-500" />
-          <h1 className={`text-2xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-            {error === 'المقال غير موجود' ? 'المقال غير موجود' : 'حدث خطأ'}
+          <h1
+            className={`text-2xl font-bold mb-4 ${
+              darkMode ? "text-white" : "text-gray-900"
+            }`}
+          >
+            {error === "المقال غير موجود" ? "المقال غير موجود" : "حدث خطأ"}
           </h1>
-          <p className={`text-lg mb-6 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-            {error || 'لم نتمكن من العثور على المقال المطلوب'}
+          <p
+            className={`text-lg mb-6 ${
+              darkMode ? "text-gray-300" : "text-gray-600"
+            }`}
+          >
+            {error || "لم نتمكن من العثور على المقال المطلوب"}
           </p>
           <button
             onClick={() => window.history.back()}
@@ -195,13 +250,15 @@ export default function ArticleClientWrapper({ articleId }: ArticleClientWrapper
   }
 
   // عرض التصميم حسب النوع
-  if (renderMode === 'smart') {
+  if (renderMode === "smart") {
     // التصميم الذكي لمقالات الرأي والتحليل
     return (
-      <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      <div
+        className={`min-h-screen ${darkMode ? "bg-gray-900" : "bg-gray-50"}`}
+      >
         {/* Hero Section */}
         <SmartArticleHero article={article} />
-        
+
         {/* Main Content */}
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Article Content with Smart Quotes */}
@@ -212,7 +269,7 @@ export default function ArticleClientWrapper({ articleId }: ArticleClientWrapper
             authorName={article.author_name}
             className="mb-12"
           />
-          
+
           {/* Smart Summary */}
           {article.ai_summary && (
             <SmartSummary
@@ -221,7 +278,7 @@ export default function ArticleClientWrapper({ articleId }: ArticleClientWrapper
               originalReadingTime={article.reading_time || 5}
             />
           )}
-          
+
           {/* Smart Recommendations */}
           {article.recommendations && (
             <SmartRecommendations
@@ -230,7 +287,7 @@ export default function ArticleClientWrapper({ articleId }: ArticleClientWrapper
             />
           )}
         </div>
-        
+
         {/* Schema.org structured data */}
         <script
           type="application/ld+json"
@@ -243,19 +300,19 @@ export default function ArticleClientWrapper({ articleId }: ArticleClientWrapper
               image: article.featured_image,
               author: {
                 "@type": "Person",
-                name: article.author_name || "سبق الذكية"
+                name: article.author_name || "سبق الذكية",
               },
               publisher: {
                 "@type": "Organization",
                 name: "سبق الذكية",
                 logo: {
                   "@type": "ImageObject",
-                  url: "https://sabq.me/logo.png"
-                }
+                  url: "https://sabq.me/logo.png",
+                },
               },
               datePublished: article.published_at,
-              dateModified: article.published_at
-            })
+              dateModified: article.published_at,
+            }),
           }}
         />
       </div>
@@ -263,5 +320,7 @@ export default function ArticleClientWrapper({ articleId }: ArticleClientWrapper
   }
 
   // التصميم العادي للأخبار
-  return <ArticleClientComponent initialArticle={article} articleId={articleId} />;
+  return (
+    <ArticleClientComponent initialArticle={article} articleId={articleId} />
+  );
 }

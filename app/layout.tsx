@@ -4,23 +4,24 @@ import AnalyticsProvider from "../components/Analytics/AnalyticsProvider";
 import ConditionalHeader from "../components/ConditionalHeader";
 import ErrorBoundary from "../components/ErrorBoundary";
 import GlobalErrorHandler from "../components/GlobalErrorHandler";
-import ContentWrapper from "../components/layout/ContentWrapper";
 import StructuredData from "../components/StructuredData";
+import ContentWrapper from "../components/layout/ContentWrapper";
 import "../styles/compact-stats.css";
 import "../styles/enhanced-dark-mode-mobile.css";
 import "../styles/enhanced-mobile-stats.css";
 import "../styles/featured-mobile-card.css";
 import "../styles/globals.css";
 import "../styles/minimal-fix.css";
+import "../styles/mobile-internal-pages-fix.css";
 import "../styles/mobile-news.css";
 import "../styles/mobile.css";
-import "../styles/mobile-internal-pages-fix.css";
 import "../styles/muqtarab-animations.css";
 import "../styles/news-pulse-positioning.css";
 import "../styles/no-focus-outline.css";
 import "../styles/pulse-ticker-center.css";
 import "../styles/remove-gap.css";
 import "../styles/responsive-ui.css";
+import "../styles/saas-dashboard.css";
 import "../styles/smart-recommendations.css";
 import "../styles/tailwind-overrides.css";
 import "../styles/theme-manager.css";
@@ -34,20 +35,21 @@ const ibmPlexArabic = IBM_Plex_Sans_Arabic({
 
 export const metadata: Metadata = {
   title: {
-    default: 'سبق الذكية - منصة الأخبار الذكية',
-    template: '%s - سبق الذكية',
+    default: "سبق الذكية - منصة الأخبار الذكية",
+    template: "%s - سبق الذكية",
   },
-  description: 'منصة إعلامية مدعومة بالذكاء الاصطناعي تقدم تحليلات ومقالات وأخبار دقيقة وعميقة.',
+  description:
+    "منصة إعلامية مدعومة بالذكاء الاصطناعي تقدم تحليلات ومقالات وأخبار دقيقة وعميقة.",
   applicationName: "سبق الذكية",
   authors: [{ name: "فريق سبق الذكية" }],
   keywords: [
     "أخبار السعودية",
-    "الذكاء الاصطناعي", 
+    "الذكاء الاصطناعي",
     "تحليلات إخبارية",
     "مقالات رأي",
     "أخبار عاجلة",
     "سبق الذكية",
-    "صحافة ذكية"
+    "صحافة ذكية",
   ],
   creator: "سبق الذكية",
   publisher: "سبق الذكية",
@@ -57,31 +59,33 @@ export const metadata: Metadata = {
     telephone: false,
   },
   openGraph: {
-    type: 'website',
-    locale: 'ar_SA',
-    url: 'https://sabq.me',
-    siteName: 'سبق الذكية',
-    title: 'سبق الذكية - منصة الأخبار الذكية',
-    description: 'تابع أحدث الأخبار والتحليلات العميقة عبر منصة سبق الذكية المدعومة بالذكاء الاصطناعي.',
+    type: "website",
+    locale: "ar_SA",
+    url: "https://sabq.me",
+    siteName: "سبق الذكية",
+    title: "سبق الذكية - منصة الأخبار الذكية",
+    description:
+      "تابع أحدث الأخبار والتحليلات العميقة عبر منصة سبق الذكية المدعومة بالذكاء الاصطناعي.",
     images: [
       {
-        url: 'https://sabq.me/og-image.jpg',
+        url: "https://sabq.me/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: 'سبق الذكية - منصة الأخبار الذكية',
-        type: 'image/jpeg',
+        alt: "سبق الذكية - منصة الأخبار الذكية",
+        type: "image/jpeg",
       },
     ],
   },
   twitter: {
-    card: 'summary_large_image',
-    site: '@sabq',
-    creator: '@sabq',
-    title: 'سبق الذكية - منصة الأخبار الذكية',
-    description: 'تابع أحدث الأخبار والتحليلات العميقة عبر منصة سبق الذكية المدعومة بالذكاء الاصطناعي.',
+    card: "summary_large_image",
+    site: "@sabq",
+    creator: "@sabq",
+    title: "سبق الذكية - منصة الأخبار الذكية",
+    description:
+      "تابع أحدث الأخبار والتحليلات العميقة عبر منصة سبق الذكية المدعومة بالذكاء الاصطناعي.",
     images: {
-      url: 'https://sabq.me/og-image.jpg',
-      alt: 'سبق الذكية',
+      url: "https://sabq.me/og-image.jpg",
+      alt: "سبق الذكية",
     },
   },
   robots: {
@@ -90,39 +94,39 @@ export const metadata: Metadata = {
     googleBot: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
     },
   },
   icons: {
     icon: [
-      { url: '/favicon.ico' },
-      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
-      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: "/favicon.ico" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
     ],
     apple: [
-      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
     ],
     other: [
-      { rel: 'mask-icon', url: '/safari-pinned-tab.svg', color: '#5bbad5' },
+      { rel: "mask-icon", url: "/safari-pinned-tab.svg", color: "#5bbad5" },
     ],
   },
-  manifest: '/site.webmanifest',
+  manifest: "/site.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "سبق الذكية",
-    startupImage: '/apple-touch-icon.png',
+    startupImage: "/apple-touch-icon.png",
   },
   alternates: {
-    canonical: 'https://sabq.me',
+    canonical: "https://sabq.me",
     languages: {
-      'ar-SA': 'https://sabq.me',
-      'ar': 'https://sabq.me',
+      "ar-SA": "https://sabq.me",
+      ar: "https://sabq.me",
     },
   },
-  category: 'news',
+  category: "news",
 };
 
 export const viewport = {
