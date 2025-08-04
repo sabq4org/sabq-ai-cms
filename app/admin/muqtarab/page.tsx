@@ -1,22 +1,22 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
-  PlusCircle, 
-  Eye, 
-  Edit3, 
-  Trash2, 
-  Users, 
-  FileText, 
-  TrendingUp,
-  Lightbulb,
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
   Brain,
-  Sparkles
-} from 'lucide-react';
+  Edit3,
+  Eye,
+  FileText,
+  Lightbulb,
+  PlusCircle,
+  Sparkles,
+  Trash2,
+  TrendingUp,
+  Users,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface Corner {
   id: string;
@@ -55,11 +55,11 @@ export default function MuqtarabAdminPage() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      
+
       // جلب الإحصائيات والزوايا
       const [statsResponse, cornersResponse] = await Promise.all([
-        fetch('/api/admin/muqtarab/stats'),
-        fetch('/api/admin/muqtarab/corners?limit=6')
+        fetch("/api/admin/muqtarab/stats"),
+        fetch("/api/admin/muqtarab/corners?limit=6"),
       ]);
 
       if (statsResponse.ok) {
@@ -71,49 +71,79 @@ export default function MuqtarabAdminPage() {
         const cornersData = await cornersResponse.json();
         setCorners(cornersData.data.corners || []);
       }
-
     } catch (error) {
-      console.error('خطأ في جلب البيانات:', error);
-      setError('حدث خطأ في تحميل البيانات');
+      console.error("خطأ في جلب البيانات:", error);
+      setError("حدث خطأ في تحميل البيانات");
     } finally {
       setLoading(false);
     }
   };
 
   const handleDeleteCorner = async (id: string) => {
-    if (!confirm('هل أنت متأكد من حذف هذه الزاوية؟')) return;
+    if (!confirm("هل أنت متأكد من حذف هذه الزاوية؟")) return;
 
     try {
       const response = await fetch(`/api/admin/muqtarab/corners/${id}`, {
-        method: 'DELETE'
+        method: "DELETE",
       });
 
       if (response.ok) {
-        setCorners(corners.filter(corner => corner.id !== id));
+        setCorners(corners.filter((corner) => corner.id !== id));
       } else {
         const error = await response.json();
-        alert(error.error || 'حدث خطأ في حذف الزاوية');
+        alert(error.error || "حدث خطأ في حذف الزاوية");
       }
     } catch (error) {
-      console.error('خطأ في حذف الزاوية:', error);
-      alert('حدث خطأ في حذف الزاوية');
+      console.error("خطأ في حذف الزاوية:", error);
+      alert("حدث خطأ في حذف الزاوية");
     }
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <Sparkles className="w-12 h-12 animate-spin mx-auto mb-4 text-blue-600" />
-            <p className="text-gray-600">جاري تحميل وحدة مُقترَب...</p>
-          </div>
+        <div className="text-center">
+          <Sparkles className="w-12 h-12 animate-spin mx-auto mb-4 text-blue-600" />
+          <p className="text-gray-600">جاري تحميل وحدة مُقترَب...</p>
         </div>
+      </div>
     );
   }
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6" dir="rtl">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* شريط التنقل العلوي */}
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div className="px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push("/admin")}
+                className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+              >
+                ← العودة للوحة الرئيسية
+              </Button>
+              <span className="text-gray-400">/</span>
+              <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                وحدة مُقترَب
+              </h1>
+            </div>
+            <div className="flex gap-3">
+              <Button
+                onClick={() => router.push("/admin/muqtarab/corners/create")}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                <PlusCircle className="w-4 h-4 ml-2" />
+                زاوية جديدة
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div className="space-y-6 p-6" dir="rtl">
         {/* رأس الصفحة */}
         <div className="bg-gradient-to-r from-blue-600 to-purple-700 rounded-xl p-6 text-white">
           <div className="flex items-center justify-between">
@@ -123,19 +153,21 @@ export default function MuqtarabAdminPage() {
               </div>
               <div>
                 <h1 className="text-3xl font-bold">وحدة مُقترَب</h1>
-                <p className="text-blue-100 mt-1">حيث يلتقي الفكر بالتقنية بالأسلوب</p>
+                <p className="text-blue-100 mt-1">
+                  حيث يلتقي الفكر بالتقنية بالأسلوب
+                </p>
               </div>
             </div>
             <div className="flex gap-3">
-              <Button 
-                onClick={() => router.push('/admin/muqtarab/corners/create')}
+              <Button
+                onClick={() => router.push("/admin/muqtarab/corners/create")}
                 className="bg-white text-blue-600 hover:bg-blue-50"
               >
                 <PlusCircle className="w-5 h-5 ml-2" />
                 زاوية جديدة
               </Button>
-              <Button 
-                onClick={() => router.push('/admin/muqtarab/articles/create')}
+              <Button
+                onClick={() => router.push("/admin/muqtarab/articles/create")}
                 variant="outline"
                 className="border-white text-white hover:bg-white/10"
               >
@@ -154,7 +186,9 @@ export default function MuqtarabAdminPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600">إجمالي الزوايا</p>
-                    <p className="text-3xl font-bold text-blue-600">{stats.total_corners}</p>
+                    <p className="text-3xl font-bold text-blue-600">
+                      {stats.total_corners}
+                    </p>
                   </div>
                   <div className="p-3 bg-blue-100 rounded-xl">
                     <Lightbulb className="w-6 h-6 text-blue-600" />
@@ -168,7 +202,9 @@ export default function MuqtarabAdminPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600">إجمالي المقالات</p>
-                    <p className="text-3xl font-bold text-green-600">{stats.total_articles}</p>
+                    <p className="text-3xl font-bold text-green-600">
+                      {stats.total_articles}
+                    </p>
                   </div>
                   <div className="p-3 bg-green-100 rounded-xl">
                     <FileText className="w-6 h-6 text-green-600" />
@@ -182,7 +218,9 @@ export default function MuqtarabAdminPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600">إجمالي التفاعلات</p>
-                    <p className="text-3xl font-bold text-purple-600">{stats.total_interactions}</p>
+                    <p className="text-3xl font-bold text-purple-600">
+                      {stats.total_interactions}
+                    </p>
                   </div>
                   <div className="p-3 bg-purple-100 rounded-xl">
                     <TrendingUp className="w-6 h-6 text-purple-600" />
@@ -196,7 +234,9 @@ export default function MuqtarabAdminPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600">إجمالي المشاهدات</p>
-                    <p className="text-3xl font-bold text-orange-600">{stats.total_views}</p>
+                    <p className="text-3xl font-bold text-orange-600">
+                      {stats.total_views}
+                    </p>
                   </div>
                   <div className="p-3 bg-orange-100 rounded-xl">
                     <Eye className="w-6 h-6 text-orange-600" />
@@ -215,9 +255,9 @@ export default function MuqtarabAdminPage() {
                 <Brain className="w-5 h-5 text-blue-600" />
                 الزوايا الحديثة
               </CardTitle>
-              <Button 
-                variant="outline" 
-                onClick={() => router.push('/admin/muqtarab/corners')}
+              <Button
+                variant="outline"
+                onClick={() => router.push("/admin/muqtarab/corners")}
               >
                 عرض الكل
               </Button>
@@ -227,9 +267,15 @@ export default function MuqtarabAdminPage() {
             {corners.length === 0 ? (
               <div className="text-center py-12">
                 <Lightbulb className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">لا توجد زوايا حتى الآن</h3>
-                <p className="text-gray-600 mb-4">ابدأ بإنشاء أول زاوية إبداعية</p>
-                <Button onClick={() => router.push('/admin/muqtarab/corners/create')}>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  لا توجد زوايا حتى الآن
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  ابدأ بإنشاء أول زاوية إبداعية
+                </p>
+                <Button
+                  onClick={() => router.push("/admin/muqtarab/corners/create")}
+                >
                   <PlusCircle className="w-4 h-4 ml-2" />
                   إنشاء زاوية جديدة
                 </Button>
@@ -237,14 +283,18 @@ export default function MuqtarabAdminPage() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {corners.map((corner) => (
-                  <div 
+                  <div
                     key={corner.id}
                     className="border rounded-xl p-6 hover:shadow-lg transition-shadow"
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
-                        <h3 className="font-bold text-lg mb-1">{corner.name}</h3>
-                        <p className="text-sm text-gray-600 mb-2">بقلم: {corner.author_name}</p>
+                        <h3 className="font-bold text-lg mb-1">
+                          {corner.name}
+                        </h3>
+                        <p className="text-sm text-gray-600 mb-2">
+                          بقلم: {corner.author_name}
+                        </p>
                         {corner.description && (
                           <p className="text-sm text-gray-500 line-clamp-2 mb-3">
                             {corner.description}
@@ -252,12 +302,14 @@ export default function MuqtarabAdminPage() {
                         )}
                       </div>
                       <div className="flex gap-2">
-                        <span className={`px-2 py-1 text-xs rounded-full ${
-                          corner.is_active 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-gray-100 text-gray-800'
-                        }`}>
-                          {corner.is_active ? 'نشط' : 'غير نشط'}
+                        <span
+                          className={`px-2 py-1 text-xs rounded-full ${
+                            corner.is_active
+                              ? "bg-green-100 text-green-800"
+                              : "bg-gray-100 text-gray-800"
+                          }`}
+                        >
+                          {corner.is_active ? "نشط" : "غير نشط"}
                         </span>
                         {corner.is_featured && (
                           <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">
@@ -279,24 +331,30 @@ export default function MuqtarabAdminPage() {
                     </div>
 
                     <div className="flex gap-2">
-                      <Button 
-                        size="sm" 
+                      <Button
+                        size="sm"
                         variant="outline"
-                        onClick={() => router.push(`/admin/muqtarab/corners/${corner.id}`)}
+                        onClick={() =>
+                          router.push(`/admin/muqtarab/corners/${corner.id}`)
+                        }
                       >
                         <Eye className="w-4 h-4 ml-1" />
                         عرض
                       </Button>
-                      <Button 
-                        size="sm" 
+                      <Button
+                        size="sm"
                         variant="outline"
-                        onClick={() => router.push(`/admin/muqtarab/corners/${corner.id}/edit`)}
+                        onClick={() =>
+                          router.push(
+                            `/admin/muqtarab/corners/${corner.id}/edit`
+                          )
+                        }
                       >
                         <Edit3 className="w-4 h-4 ml-1" />
                         تعديل
                       </Button>
-                      <Button 
-                        size="sm" 
+                      <Button
+                        size="sm"
                         variant="outline"
                         onClick={() => handleDeleteCorner(corner.id)}
                         className="text-red-600 hover:text-red-700"
@@ -319,34 +377,34 @@ export default function MuqtarabAdminPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="h-20 flex-col"
-                onClick={() => router.push('/admin/muqtarab/corners')}
+                onClick={() => router.push("/admin/muqtarab/corners")}
               >
                 <Lightbulb className="w-6 h-6 mb-2" />
                 إدارة الزوايا
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="h-20 flex-col"
-                onClick={() => router.push('/admin/muqtarab/articles')}
+                onClick={() => router.push("/admin/muqtarab/articles")}
               >
                 <FileText className="w-6 h-6 mb-2" />
                 إدارة المقالات
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="h-20 flex-col"
-                onClick={() => router.push('/admin/muqtarab/analytics')}
+                onClick={() => router.push("/admin/muqtarab/analytics")}
               >
                 <TrendingUp className="w-6 h-6 mb-2" />
                 التحليلات
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="h-20 flex-col"
-                onClick={() => router.push('/admin/muqtarab/settings')}
+                onClick={() => router.push("/admin/muqtarab/settings")}
               >
                 <Brain className="w-6 h-6 mb-2" />
                 إعدادات الذكاء الاصطناعي
@@ -355,6 +413,6 @@ export default function MuqtarabAdminPage() {
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
+    </div>
   );
 }
