@@ -20,6 +20,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { SmartInteractionButtons } from "./SmartInteractionButtons";
+import AuthorLatestArticles from "./AuthorLatestArticles";
+import TrendingArticles from "./TrendingArticles";
 
 interface OpinionArticleLayoutProps {
   article: ArticleData;
@@ -81,10 +83,13 @@ export default function OpinionArticleLayout({
         } pt-0 sm:pt-[64px]`}
       >
         <div className="relative">
-          <article
-            ref={viewTrackingRef}
-            className="max-w-4xl mx-auto py-6 sm:py-8 lg:py-12"
-          >
+          <div className="max-w-7xl mx-auto py-6 sm:py-8 lg:py-12">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              {/* المحتوى الرئيسي */}
+              <article
+                ref={viewTrackingRef}
+                className="lg:col-span-8"
+              >
             {/* رأس المقال - محسن للمحمول */}
             <header className="mb-8 px-4 sm:px-6 lg:px-8">
               {/* التصنيف والشارات */}
@@ -152,7 +157,7 @@ export default function OpinionArticleLayout({
 
               {/* معلومات الكاتب - المنطقة الأهم */}
               <div
-                className={`bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-6 border ${
+                className={`bg-gradient-to-r from-white/80 to-blue-50/80 dark:from-gray-800/80 dark:to-blue-900/20 backdrop-blur-sm rounded-2xl p-8 border shadow-lg ${
                   darkMode ? "border-gray-700" : "border-gray-200"
                 } mb-8`}
               >
@@ -165,9 +170,9 @@ export default function OpinionArticleLayout({
                         <Image
                           src={article.author.reporter.avatar_url}
                           alt={article.author.name}
-                          width={80}
-                          height={80}
-                          className="rounded-full object-cover border-4 border-white dark:border-gray-600 shadow-lg"
+                          width={100}
+                          height={100}
+                          className="rounded-full object-cover border-4 border-white dark:border-gray-600 shadow-xl ring-4 ring-blue-100 dark:ring-blue-900/30"
                         />
                         {/* شارة التحقق */}
                         {article.author.reporter.is_verified && (
@@ -178,13 +183,13 @@ export default function OpinionArticleLayout({
                       </div>
                     ) : (
                       <div
-                        className={`w-20 h-20 rounded-full flex items-center justify-center border-4 border-white dark:border-gray-600 shadow-lg ${
+                        className={`w-24 h-24 rounded-full flex items-center justify-center border-4 border-white dark:border-gray-600 shadow-xl ring-4 ring-blue-100 dark:ring-blue-900/30 ${
                           darkMode
-                            ? "bg-gray-700 text-gray-300"
-                            : "bg-gray-200 text-gray-600"
+                            ? "bg-gradient-to-br from-gray-700 to-gray-800 text-gray-300"
+                            : "bg-gradient-to-br from-gray-200 to-gray-300 text-gray-600"
                         }`}
                       >
-                        <User className="w-8 h-8" />
+                        <User className="w-10 h-10" />
                       </div>
                     )}
                   </div>
@@ -510,8 +515,32 @@ export default function OpinionArticleLayout({
               )}
             </div>
           </article>
+
+          {/* القائمة الجانبية - مخفية في الموبايل */}
+          <aside className="hidden lg:block lg:col-span-4">
+            <div className="space-y-6">
+              {/* آخر مقالات الكاتب */}
+              {article.author?.id && (
+                <AuthorLatestArticles
+                  authorId={article.author.id}
+                  authorName={article.author.name}
+                  currentArticleId={article.id}
+                  limit={5}
+                />
+              )}
+
+              {/* أكثر المقالات قراءة */}
+              <TrendingArticles
+                currentArticleId={article.id}
+                limit={5}
+                timeframe="week"
+              />
+            </div>
+          </aside>
         </div>
-      </main>
+      </div>
+    </div>
+  </main>
     </>
   );
 }
