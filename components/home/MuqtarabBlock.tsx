@@ -99,13 +99,13 @@ export default function MuqtarabBlock({ className }: MuqtarabBlockProps) {
           console.log("⚠️ [MuqtarabBlock] لا توجد مقالات مميزة");
         }
       } else {
-        console.error(
+        console.warn(
           "❌ [MuqtarabBlock] خطأ في جلب المقال المميز:",
           response.status
         );
       }
     } catch (error) {
-      console.error("خطأ في جلب المقال المميز:", error);
+      console.warn("خطأ في جلب المقال المميز:", error);
     } finally {
       setHeroLoading(false);
     }
