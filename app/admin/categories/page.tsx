@@ -2,6 +2,7 @@
 
 import { DesignComponents } from "@/components/design-system/DesignSystemGuide";
 import { Button } from "@/components/ui/button";
+import { formatDashboardStat } from "@/lib/format-utils";
 import { cn } from "@/lib/utils";
 import {
   ArrowUpRight,
@@ -129,7 +130,7 @@ const CategoriesPage = () => {
     },
     {
       title: "إجمالي المقالات",
-      value: formatNumber(stats.totalArticles),
+      value: formatDashboardStat(stats.totalArticles),
       icon: FileText,
       change: "+12%",
       changeType: "increase" as const,
@@ -168,7 +169,7 @@ const CategoriesPage = () => {
                 />
                 <DesignComponents.StatusIndicator
                   status="info"
-                  text={`${formatNumber(stats.totalArticles)} مقال`}
+                  text={`${formatDashboardStat(stats.totalArticles)} مقال`}
                 />
               </div>
             </div>
@@ -352,7 +353,7 @@ const CategoriesPage = () => {
                     <div className="flex items-center gap-1">
                       <FileText className="w-4 h-4 text-gray-400" />
                       <span className="text-gray-600 dark:text-gray-400">
-                        {formatNumber(category.articleCount)} مقال
+                        {formatDashboardStat(category.articleCount)} مقال
                       </span>
                     </div>
                     <div className="flex items-center gap-1">

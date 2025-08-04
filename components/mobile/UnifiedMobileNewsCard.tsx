@@ -2,6 +2,7 @@
 
 import ArticleViews from "@/components/ui/ArticleViews";
 import { formatDateGregorian, formatRelativeDate } from "@/lib/date-utils";
+import { formatCommentsCount } from "@/lib/format-utils";
 import { getArticleLink } from "@/lib/utils";
 import {
   Bookmark,
@@ -337,7 +338,7 @@ export default function UnifiedMobileNewsCard({
                     }`}
                   >
                     <MessageSquare className="w-3.5 h-3.5" />
-                    {formatNumber(data.comments_count)}
+                    {formatCommentsCount(data.comments_count)}
                   </span>
                 )}
               </div>

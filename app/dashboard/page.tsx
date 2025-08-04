@@ -3,6 +3,7 @@
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { formatDashboardStat } from "@/lib/format-utils";
 import {
   Activity,
   AlertCircle,
@@ -660,7 +661,7 @@ export default function DashboardPage() {
                   darkMode ? "text-white" : "text-gray-900"
                 }`}
               >
-                {loading ? "..." : stats.totalArticles.toLocaleString()}
+                {loading ? "..." : formatDashboardStat(stats.totalArticles)}
               </h3>
               <p
                 className={`text-sm ${
@@ -698,7 +699,7 @@ export default function DashboardPage() {
                   darkMode ? "text-white" : "text-gray-900"
                 }`}
               >
-                {loading ? "..." : stats.breakingNews.toLocaleString()}
+                {loading ? "..." : formatDashboardStat(stats.breakingNews)}
               </h3>
               <p
                 className={`text-sm ${
@@ -735,7 +736,7 @@ export default function DashboardPage() {
                   darkMode ? "text-white" : "text-gray-900"
                 }`}
               >
-                {loading ? "..." : stats.activeUsers.toLocaleString()}
+                {loading ? "..." : formatDashboardStat(stats.activeUsers)}
               </h3>
               <p
                 className={`text-sm ${
@@ -776,7 +777,7 @@ export default function DashboardPage() {
                   darkMode ? "text-white" : "text-gray-900"
                 }`}
               >
-                {loading ? "..." : stats.newComments.toLocaleString()}
+                {loading ? "..." : formatDashboardStat(stats.newComments)}
               </h3>
               <p
                 className={`text-sm ${

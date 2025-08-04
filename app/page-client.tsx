@@ -197,9 +197,50 @@ function NewspaperHomePage({
   console.log("🔧 NewspaperHomePage: تحضير useEffects...");
 
   // دوال مؤقتة
-  const handleInterestClick = (interestId: string) => {
-    /* TODO: تنفيذ فعل عند اختيار الاهتمام */
-  };
+  const handleInterestClick = useCallback(
+    (interestId: string) => {
+      try {
+        // تحديث اهتمامات المستخدم المحلية
+        setUserInterests((prev) => {
+          const exists = prev.includes(interestId);
+          if (exists) {
+            // إزالة الاهتمام إذا كان موجوداً
+            return prev.filter((id) => id !== interestId);
+          } else {
+            // إضافة الاهتمام الجديد
+            return [...prev, interestId];
+          }
+        });
+
+        // إرسال التحديث للخادم إذا كان المستخدم مسجلاً
+        if (user?.id) {
+          fetch("/api/user/interests", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              userId: user.id,
+              interestId: interestId,
+              action: userInterests.includes(interestId) ? "remove" : "add",
+            }),
+          }).catch((error) => {
+            console.error("خطأ في تحديث الاهتمامات:", error);
+          });
+        }
+
+        // إعادة جلب المحتوى المخصص عند تغيير الاهتمامات
+        setPersonalizedLoading(true);
+        setTimeout(() => {
+          setPersonalizedLoading(false);
+          // يمكن إضافة منطق إعادة جلب المحتوى هنا
+        }, 1000);
+      } catch (error) {
+        console.error("خطأ في معالجة اختيار الاهتمام:", error);
+      }
+    },
+    [user, userInterests]
+  );
   const handleTogglePersonalized = () => {
     setShowPersonalized((prev) => !prev);
   };

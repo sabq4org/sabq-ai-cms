@@ -558,7 +558,7 @@ export default function ArticleClientComponent({
           {/* محتوى المقال */}
           <div className="mb-12">
             <div
-              className={`prose max-w-none dark:prose-invert
+              className={`prose max-w-none dark:prose-invert arabic-article-content
                 prose-headings:text-gray-900 dark:prose-headings:text-white
                 prose-p:text-gray-700 dark:prose-p:text-gray-300
                 prose-p:leading-relaxed
@@ -573,6 +573,36 @@ export default function ArticleClientComponent({
               dangerouslySetInnerHTML={{ __html: contentHtml }}
             />
           </div>
+
+          {/* إصلاح التوجه العربي للمحتوى */}
+          <style jsx>{`
+            .arabic-article-content p {
+              text-align: right !important;
+              direction: rtl !important;
+            }
+
+            .arabic-article-content * {
+              text-align: right !important;
+              direction: rtl !important;
+            }
+
+            .arabic-article-content h1,
+            .arabic-article-content h2,
+            .arabic-article-content h3,
+            .arabic-article-content h4,
+            .arabic-article-content h5,
+            .arabic-article-content h6 {
+              text-align: right !important;
+              direction: rtl !important;
+            }
+
+            .arabic-article-content blockquote {
+              text-align: right !important;
+              direction: rtl !important;
+              border-right: 4px solid #3b82f6 !important;
+              border-left: none !important;
+            }
+          `}</style>
 
           {/* إحصائيات المقال */}
           <div className="mt-8 sm:mt-12">

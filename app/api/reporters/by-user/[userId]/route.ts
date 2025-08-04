@@ -1,28 +1,28 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
+import { NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
-    const { userId } = params;
-    
+    const { userId } = await params;
+
     if (!userId) {
       return NextResponse.json(
-        { 
+        {
           success: false,
           hasProfile: false,
-          error: 'معرف المستخدم مطلوب' 
+          error: "معرف المستخدم مطلوب",
         },
         { status: 400 }
       );
     }
-    
+
     console.log(`🔍 البحث عن بروفايل المراسل للمستخدم: ${userId}`);
-    
+
     // البحث عن البروفايل في جدول reporters بناءً على user_id
     const reporter = await prisma.reporters.findFirst({
       where: { user_id: userId },
@@ -34,21 +34,23 @@ export async function GET(
         avatar_url: true,
         is_verified: true,
         verification_badge: true,
-        is_active: true
-      }
+        is_active: true,
+      },
     });
-    
+
     if (!reporter) {
       console.log(`❌ لا يوجد بروفايل للمستخدم: ${userId}`);
       return NextResponse.json({
         success: true,
         hasProfile: false,
-        reporter: null
+        reporter: null,
       });
     }
-    
-    console.log(`✅ تم العثور على بروفايل: ${reporter.full_name} (${reporter.slug})`);
-    
+
+    console.log(
+      `✅ تم العثور على بروفايل: ${reporter.full_name} (${reporter.slug})`
+    );
+
     return NextResponse.json({
       success: true,
       hasProfile: true,
@@ -59,19 +61,21 @@ export async function GET(
         title: reporter.title,
         avatar_url: reporter.avatar_url,
         is_verified: reporter.is_verified,
-        verification_badge: reporter.verification_badge || 'verified',
+        verification_badge: reporter.verification_badge || "verified",
         is_active: reporter.is_active,
-        profileUrl: `/reporter/${reporter.slug}`
-      }
+        profileUrl: `/reporter/${reporter.slug}`,
+      },
     });
-    
   } catch (error: any) {
-    console.error('خطأ في جلب بروفايل المراسل:', error);
-    return NextResponse.json({
-      success: false,
-      hasProfile: false,
-      error: 'حدث خطأ في جلب بيانات المراسل'
-    }, { status: 500 });
+    console.error("خطأ في جلب بروفايل المراسل:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        hasProfile: false,
+        error: "حدث خطأ في جلب بيانات المراسل",
+      },
+      { status: 500 }
+    );
   } finally {
     await prisma.$disconnect();
   }

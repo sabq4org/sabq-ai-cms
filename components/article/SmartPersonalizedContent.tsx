@@ -5,6 +5,7 @@ import {
   generatePersonalizedRecommendations,
   type RecommendedArticle,
 } from "@/lib/ai-recommendations";
+import { formatNumber } from "@/lib/config/localization";
 import { formatRelativeDate } from "@/lib/date-utils";
 import { Brain, Clock, Eye, RefreshCw, Sparkles, Star } from "lucide-react";
 import Link from "next/link";
@@ -264,7 +265,7 @@ const SmartRecommendationCard: React.FC<{
               {!isMobileScreen && (
                 <div className="flex items-center gap-0.5 sm:gap-1">
                   <Eye className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4" />
-                  <span>{article.viewsCount.toLocaleString("ar-SA")}</span>
+                  <span>{formatNumber(article.viewsCount)}</span>
                 </div>
               )}
             </div>

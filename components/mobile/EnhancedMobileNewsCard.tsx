@@ -3,6 +3,7 @@
 import ArticleViews from "@/components/ui/ArticleViews";
 import SafeImage from "@/components/ui/SafeImage";
 import { formatDateGregorian } from "@/lib/date-utils";
+import { formatCommentsCount } from "@/lib/format-utils";
 import { getArticleLink } from "@/lib/utils";
 import {
   Bookmark,
@@ -343,7 +344,7 @@ export default function EnhancedMobileNewsCard({
                     {news.comments_count > 0 && (
                       <span className="flex items-center gap-1">
                         <MessageCircle className="w-3 h-3" />
-                        {formatNumber(news.comments_count)}
+                        {formatCommentsCount(news.comments_count)}
                       </span>
                     )}
                   </div>

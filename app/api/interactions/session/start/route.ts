@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
-import { cookies } from 'next/headers';
-import jwt from 'jsonwebtoken';
+import prisma from "@/lib/prisma";
+import jwt from "jsonwebtoken";
+import { cookies } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
 
 interface JWTPayload {
   userId: string;
@@ -11,13 +11,10 @@ interface JWTPayload {
 export async function POST(request: NextRequest) {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get('auth-token')?.value;
-    
+    const token = cookieStore.get("auth-token")?.value;
+
     if (!token) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     let userId: string;
@@ -25,10 +22,7 @@ export async function POST(request: NextRequest) {
       const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JWTPayload;
       userId = decoded.userId;
     } catch {
-      return NextResponse.json(
-        { error: 'Invalid token' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
     const body = await request.json();
@@ -36,7 +30,7 @@ export async function POST(request: NextRequest) {
 
     if (!articleId || !sessionId) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: "Missing required fields" },
         { status: 400 }
       );
     }
@@ -44,15 +38,14 @@ export async function POST(request: NextRequest) {
     // إنشاء جلسة قراءة جديدة
     const readingSession = await prisma.user_reading_sessions.create({
       data: {
-        session_id: sessionId,
+        id: sessionId, // استخدام sessionId كمعرف
         user_id: userId,
         article_id: articleId,
-        start_time: new Date(),
-        device_type: deviceType || 'desktop',
+        started_at: new Date(),
+        device_type: deviceType || "desktop",
         scroll_depth: 0,
-        max_scroll_depth: 0,
-        total_time: 0,
-        is_completed: false,
+        read_percentage: 0,
+        duration_seconds: 0,
       },
     });
 
@@ -61,8 +54,8 @@ export async function POST(request: NextRequest) {
       data: {
         user_id: userId,
         target_id: articleId,
-        target_type: 'article',
-        type: 'view',
+        target_type: "article",
+        type: "view",
         metadata: {
           sessionId,
           deviceType,
@@ -73,13 +66,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       sessionId: readingSession.session_id,
-      message: 'Reading session started',
+      message: "Reading session started",
     });
   } catch (error) {
-    console.error('Error starting reading session:', error);
+    console.error("Error starting reading session:", error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
-} 
+}

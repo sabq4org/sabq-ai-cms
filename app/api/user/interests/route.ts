@@ -1,286 +1,257 @@
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import prisma from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { NextRequest, NextResponse } from "next/server";
 
-// Helper function للاستجابة مع CORS
-function corsResponse(data: any, status: number = 200) {
-  return NextResponse.json(data, {
-    status,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
-  });
-}
+/**
+ * API لإدارة اهتمامات المستخدمين
+ * يدعم إضافة وإزالة اهتمامات المستخدمين
+ */
 
-// GET: جلب اهتمامات المستخدم
+// GET - جلب اهتمامات المستخدم
 export async function GET(request: NextRequest) {
   try {
-    // التأكد من وجود URL صحيح
-    if (!request.url) {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
       return NextResponse.json(
-        { error: 'Invalid request URL' },
+        { success: false, error: "غير مصرح - يرجى تسجيل الدخول" },
+        { status: 401 }
+      );
+    }
+
+    const userId = parseInt(session.user.id);
+
+    // جلب اهتمامات المستخدم من قاعدة البيانات
+    const userInterests = await prisma.user_interests.findMany({
+      where: {
+        user_id: userId,
+        is_active: true,
+      },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+            name_ar: true,
+            icon: true,
+          },
+        },
+      },
+    });
+
+    const interests = userInterests.map((ui) => ({
+      interestId: ui.category_id,
+      categoryName: ui.category?.name,
+      categoryNameAr: ui.category?.name_ar,
+      icon: ui.category?.icon,
+      addedAt: ui.created_at,
+    }));
+
+    return NextResponse.json({
+      success: true,
+      interests: interests,
+      count: interests.length,
+    });
+  } catch (error) {
+    console.error("خطأ في جلب اهتمامات المستخدم:", error);
+    return NextResponse.json(
+      { success: false, error: "خطأ في الخادم" },
+      { status: 500 }
+    );
+  }
+}
+
+// POST - إضافة أو إزالة اهتمام
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { success: false, error: "غير مصرح - يرجى تسجيل الدخول" },
+        { status: 401 }
+      );
+    }
+
+    const body = await request.json();
+    const { interestId, action } = body;
+
+    if (!interestId || !action) {
+      return NextResponse.json(
+        { success: false, error: "معرف الاهتمام والإجراء مطلوبان" },
         { status: 400 }
       );
     }
-    
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
 
-    if (!userId) {
-      return corsResponse({
-        success: false,
-        error: 'معرف المستخدم مطلوب'
-      }, 400);
-    }
+    const userId = parseInt(session.user.id);
+    const categoryId = parseInt(interestId);
 
-    // جلب اهتمامات المستخدم من user_preferences
-    const userPreference = await prisma.user_preferences.findUnique({
-      where: {
-        user_id_key: {
-          user_id: userId,
-          key: 'interests'
-        }
-      }
+    // التحقق من وجود التصنيف
+    const category = await prisma.categories.findUnique({
+      where: { id: categoryId },
     });
 
-    let categoryIds: string[] = [];
-
-    if (userPreference && userPreference.value) {
-      const preferenceData = userPreference.value as any;
-      
-      // التعامل مع صيغ مختلفة للبيانات
-      if (Array.isArray(preferenceData)) {
-        categoryIds = preferenceData.map((id: any) => String(id).trim()).filter((id: string) => id && id.length > 0);
-      } else if (preferenceData.interests && Array.isArray(preferenceData.interests)) {
-        categoryIds = preferenceData.interests.map((id: any) => String(id).trim()).filter((id: string) => id && id.length > 0);
-      } else if (preferenceData.categoryIds && Array.isArray(preferenceData.categoryIds)) {
-        categoryIds = preferenceData.categoryIds.map((id: any) => String(id).trim()).filter((id: string) => id && id.length > 0);
-      }
+    if (!category) {
+      return NextResponse.json(
+        { success: false, error: "التصنيف غير موجود" },
+        { status: 404 }
+      );
     }
 
-    // جلب معلومات التصنيفات
-    let categories: any[] = [];
-    if (categoryIds.length > 0) {
-      try {
-        // محاولة جلب من قاعدة البيانات أولاً
-        const dbCategories = await prisma.categories.findMany({
-          where: {
-            id: { in: categoryIds },
-            is_active: true
-          },
-          orderBy: { display_order: 'asc' }
-        });
-
-        if (dbCategories.length > 0) {
-          categories = dbCategories.map((cat: any) => ({
-            id: cat.id,
-            name: cat.name,
-            name_ar: cat.name,
-            name_en: cat.name_en || '',
-            slug: cat.slug,
-            description: cat.description || '',
-            color: cat.color || '#6B7280',
-            color_hex: cat.color || '#6B7280',
-            icon: cat.icon || '📁',
-            position: cat.display_order || 0
-          }));
-        } else {
-          // إذا لم نجد في قاعدة البيانات، نجلب من ملف JSON
-          const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/data/categories.json`);
-          const data = await response.json();
-          
-          if (data.categories) {
-            categories = data.categories
-              .filter((cat: any) => categoryIds.includes(cat.id) && cat.is_active)
-              .map((cat: any) => ({
-                id: cat.id,
-                name: cat.name_ar,
-                name_ar: cat.name_ar,
-                name_en: cat.name_en || '',
-                slug: cat.slug,
-                description: cat.description || '',
-                color: cat.color_hex || '#6B7280',
-                color_hex: cat.color_hex || '#6B7280',
-                icon: cat.icon || '📁',
-                position: cat.position || 0
-              }));
-          }
-        }
-      } catch (dbError) {
-        console.error('خطأ في جلب التصنيفات:', dbError);
-        // إرجاع معرفات فقط في حالة الخطأ
-        categories = categoryIds.map((id: string) => ({ id, name: `تصنيف ${id}` }));
-      }
-    }
-
-    return corsResponse({
-      success: true,
-      data: {
-        categoryIds,
-        categories,
-        count: categoryIds.length
-      }
-    });
-
-  } catch (error) {
-    console.error('خطأ في جلب الاهتمامات:', error);
-    return corsResponse({
-      success: false,
-      error: 'حدث خطأ في جلب الاهتمامات'
-    }, 500);
-  }
-}
-
-// POST: حفظ اهتمامات المستخدم
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { userId, categoryIds, source = 'manual' } = body;
-
-    if (!userId) {
-      return corsResponse({
-        success: false,
-        error: 'معرف المستخدم مطلوب'
-      }, 400);
-    }
-
-    if (!categoryIds || !Array.isArray(categoryIds)) {
-      return corsResponse({
-        success: false,
-        error: 'قائمة التصنيفات مطلوبة'
-      }, 400);
-    }
-
-         // تنظيف وتحويل المعرفات إلى strings صحيحة
-     const validCategoryIds = categoryIds
-       .map((id: any) => String(id).trim())
-       .filter((id: string) => id && id.length > 0);
-
-    if (validCategoryIds.length < 3) {
-      return corsResponse({
-        success: false,
-        error: 'الرجاء اختيار 3 تصنيفات على الأقل لإكمال تخصيص تجربتك'
-      }, 400);
-    }
-
-    if (validCategoryIds.length > 10) {
-      return corsResponse({
-        success: false,
-        error: 'لا يمكن اختيار أكثر من 10 تصنيفات'
-      }, 400);
-    }
-
-    try {
-      // للمستخدمين الضيوف، نحفظ في localStorage فقط
-      if (userId.startsWith('guest-')) {
-        console.log('💾 حفظ تفضيلات الضيف:', { userId, categoryIds: validCategoryIds });
-        return corsResponse({
-          success: true,
-          message: 'تم حفظ التفضيلات للمستخدم الضيف',
-          data: {
-            userId,
-            categoryIds: validCategoryIds,
-            source
-          }
-        });
-      }
-
-      // للمستخدمين المسجلين، نحفظ في قاعدة البيانات
-      const preferenceData = {
-        interests: validCategoryIds,
-        categoryIds: validCategoryIds,
-        interests_updated_at: new Date().toISOString(),
-        interests_source: source
-      };
-
-      await prisma.user_preferences.upsert({
+    if (action === "add") {
+      // إضافة اهتمام جديد
+      const existingInterest = await prisma.user_interests.findFirst({
         where: {
-          user_id_key: {
-            user_id: userId,
-            key: 'interests'
-          }
-        },
-        update: {
-          value: preferenceData,
-          updated_at: new Date()
-        },
-        create: {
-          id: `pref-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           user_id: userId,
-          key: 'interests',
-          value: preferenceData,
-          created_at: new Date(),
-          updated_at: new Date()
-        }
+          category_id: categoryId,
+        },
       });
 
-      console.log('✅ تم حفظ تفضيلات المستخدم:', { userId, categoryIds: validCategoryIds });
-
-      // حفظ نشاط في سجل النشاطات
-      try {
-        await prisma.activity_logs.create({
+      if (existingInterest) {
+        // إذا كان موجوداً، فعّله
+        await prisma.user_interests.update({
+          where: { id: existingInterest.id },
           data: {
-            id: `activity-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-            user_id: userId,
-            action: 'update_interests',
-            metadata: {
-              categoryIds: validCategoryIds,
-              count: validCategoryIds.length,
-              source
-            },
-            created_at: new Date()
-          }
+            is_active: true,
+            updated_at: new Date(),
+          },
         });
-      } catch (logError) {
-        console.error('خطأ في حفظ سجل النشاط:', logError);
-        // نتجاهل خطأ السجل ونستمر
+      } else {
+        // إنشاء اهتمام جديد
+        await prisma.user_interests.create({
+          data: {
+            user_id: userId,
+            category_id: categoryId,
+            is_active: true,
+            created_at: new Date(),
+            updated_at: new Date(),
+          },
+        });
       }
 
-      return corsResponse({
+      return NextResponse.json({
         success: true,
-        message: 'تم حفظ الاهتمامات بنجاح',
+        message: "تم إضافة الاهتمام بنجاح",
+        action: "added",
+      });
+    } else if (action === "remove") {
+      // إزالة اهتمام (تعطيله)
+      await prisma.user_interests.updateMany({
+        where: {
+          user_id: userId,
+          category_id: categoryId,
+        },
         data: {
-          userId,
-          categoryIds: validCategoryIds,
-          source,
-          count: validCategoryIds.length
-        }
+          is_active: false,
+          updated_at: new Date(),
+        },
       });
 
-    } catch (dbError) {
-      console.error('خطأ في قاعدة البيانات:', dbError);
-      
-      // في حالة فشل قاعدة البيانات، نستمر بدون خطأ للضيوف
-      if (userId.startsWith('guest-')) {
-        return corsResponse({
-          success: true,
-          message: 'تم حفظ التفضيلات محلياً',
-          data: { userId, categoryIds: validCategoryIds, source }
-        });
-      }
-      
-      return corsResponse({
-        success: false,
-        error: 'حدث خطأ في حفظ الاهتمامات في قاعدة البيانات'
-      }, 500);
+      return NextResponse.json({
+        success: true,
+        message: "تم إزالة الاهتمام بنجاح",
+        action: "removed",
+      });
+    } else {
+      return NextResponse.json(
+        { success: false, error: "إجراء غير صحيح. يجب أن يكون add أو remove" },
+        { status: 400 }
+      );
     }
-
   } catch (error) {
-    console.error('خطأ في معالجة الطلب:', error);
-    return corsResponse({
-      success: false,
-      error: 'حدث خطأ في معالجة الطلب'
-    }, 500);
+    console.error("خطأ في تحديث اهتمامات المستخدم:", error);
+    return NextResponse.json(
+      { success: false, error: "خطأ في الخادم" },
+      { status: 500 }
+    );
   }
 }
 
-// PUT: تحديث اهتمامات المستخدم (نفس POST)
+// PUT - تحديث جميع اهتمامات المستخدم دفعة واحدة
 export async function PUT(request: NextRequest) {
-  return POST(request);
-}
+  try {
+    const session = await getServerSession(authOptions);
 
-// OPTIONS: للـ CORS
-export async function OPTIONS() {
-  return corsResponse({}, 200);
-} 
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { success: false, error: "غير مصرح - يرجى تسجيل الدخول" },
+        { status: 401 }
+      );
+    }
+
+    const body = await request.json();
+    const { interests } = body;
+
+    if (!Array.isArray(interests)) {
+      return NextResponse.json(
+        { success: false, error: "قائمة الاهتمامات يجب أن تكون مصفوفة" },
+        { status: 400 }
+      );
+    }
+
+    const userId = parseInt(session.user.id);
+
+    // إزالة جميع الاهتمامات الحالية
+    await prisma.user_interests.updateMany({
+      where: { user_id: userId },
+      data: {
+        is_active: false,
+        updated_at: new Date(),
+      },
+    });
+
+    // إضافة الاهتمامات الجديدة
+    for (const interestId of interests) {
+      const categoryId = parseInt(interestId);
+
+      // التحقق من وجود التصنيف
+      const category = await prisma.categories.findUnique({
+        where: { id: categoryId },
+      });
+
+      if (category) {
+        const existingInterest = await prisma.user_interests.findFirst({
+          where: {
+            user_id: userId,
+            category_id: categoryId,
+          },
+        });
+
+        if (existingInterest) {
+          // تفعيل الاهتمام الموجود
+          await prisma.user_interests.update({
+            where: { id: existingInterest.id },
+            data: {
+              is_active: true,
+              updated_at: new Date(),
+            },
+          });
+        } else {
+          // إنشاء اهتمام جديد
+          await prisma.user_interests.create({
+            data: {
+              user_id: userId,
+              category_id: categoryId,
+              is_active: true,
+              created_at: new Date(),
+              updated_at: new Date(),
+            },
+          });
+        }
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "تم تحديث الاهتمامات بنجاح",
+      updatedCount: interests.length,
+    });
+  } catch (error) {
+    console.error("خطأ في تحديث جميع اهتمامات المستخدم:", error);
+    return NextResponse.json(
+      { success: false, error: "خطأ في الخادم" },
+      { status: 500 }
+    );
+  }
+}

@@ -174,11 +174,11 @@ export function useArticles(filters: any = {}) {
   const queryParams = useMemo(() => {
     return new URLSearchParams(filters).toString();
   }, [filters]);
-  
+
   const endpoint = useMemo(() => {
     return `/api/articles${queryParams ? `?${queryParams}` : ""}`;
   }, [queryParams]);
-  
+
   const cacheKey = useMemo(() => {
     return `articles-${queryParams}`;
   }, [queryParams]);

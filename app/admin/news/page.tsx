@@ -27,6 +27,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { formatDateTime } from "@/lib/date-utils";
+import { formatDashboardStat } from "@/lib/format-utils";
 import {
   CheckCircle,
   Download,
@@ -49,24 +51,17 @@ import { useRouter } from "next/navigation";
 import React, { Component, ReactNode, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-// دالة تنسيق الأرقام (إبقاؤها بالإنجليزية)
+// دالة تنسيق الأرقام (محدثة للأرقام الغربية)
 const formatNumber = (num: number): string => {
-  return num.toLocaleString("en-US");
+  return formatDashboardStat(num);
 };
 
-// دالة تنسيق التاريخ والوقت
-const formatDateTime = (date: string | Date) => {
-  const publishDate = new Date(date);
-  const dateStr = publishDate.toLocaleDateString("ar-SA", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-  const timeStr = publishDate.toLocaleTimeString("ar-SA", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-  return { date: dateStr, time: timeStr };
+// دالة تنسيق التاريخ والوقت (تعيد الآن كائن مع التاريخ والوقت)
+const formatDateTimeLocal = (date: string | Date) => {
+  const dateTime = formatDateTime(date.toString());
+  const timePart = dateTime.split(" ").slice(-1)[0]; // استخراج الوقت
+  const datePart = dateTime.replace(` ${timePart}`, ""); // استخراج التاريخ
+  return { date: datePart, time: timePart };
 };
 
 interface Article {
@@ -1012,7 +1007,7 @@ function AdminNewsPageContent() {
                           return null;
                         }
 
-                        const dateTime = formatDateTime(
+                        const dateTime = formatDateTimeLocal(
                           article.published_at || article.created_at
                         );
                         return (
