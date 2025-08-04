@@ -519,61 +519,62 @@ export default function MuqtaribDashboard() {
 
       {/* Modal تأكيد الحذف */}
       <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle className="text-xl text-red-600">
-            تأكيد حذف الزاوية
-          </DialogTitle>
-        </DialogHeader>
-
-        <div className="py-4">
-          <p className="text-gray-700 mb-4">
-            هل أنت متأكد من حذف الزاوية{" "}
-            <strong className="text-gray-900">"{angleToDelete?.title}"</strong>؟
-          </p>
-
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-            <div className="flex items-start gap-3">
-              <Trash2 className="w-5 h-5 text-red-600 mt-0.5" />
-              <div>
-                <p className="text-red-800 font-medium mb-1">تحذير مهم</p>
-                <ul className="text-red-700 text-sm space-y-1">
-                  <li>• سيتم حذف الزاوية نهائياً</li>
-                  <li>• سيتم حذف جميع المقالات المرتبطة بها</li>
-                  <li>• لا يمكن التراجع عن هذا الإجراء</li>
-                </ul>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-xl text-red-600">
+              تأكيد حذف الزاوية
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <p className="text-gray-700 mb-4">
+              هل أنت متأكد من حذف الزاوية{" "}
+              <strong className="text-gray-900">"{angleToDelete?.title}"</strong>؟
+            </p>
+            
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+              <div className="flex items-start gap-3">
+                <Trash2 className="w-5 h-5 text-red-600 mt-0.5" />
+                <div>
+                  <p className="text-red-800 font-medium mb-1">تحذير مهم</p>
+                  <ul className="text-red-700 text-sm space-y-1">
+                    <li>• سيتم حذف الزاوية نهائياً</li>
+                    <li>• سيتم حذف جميع المقالات المرتبطة بها</li>
+                    <li>• لا يمكن التراجع عن هذا الإجراء</li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <DialogFooter className="gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setDeleteModalOpen(false)}
-            disabled={deleting}
-          >
-            إلغاء
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={handleDeleteConfirm}
-            disabled={deleting}
-          >
-            {deleting ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin ml-2" />
-                جاري الحذف...
-              </>
-            ) : (
-              <>
-                <Trash2 className="w-4 h-4 ml-2" />
-                حذف نهائي
-              </>
-            )}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteModalOpen(false)}
+              disabled={deleting}
+            >
+              إلغاء
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+              disabled={deleting}
+            >
+              {deleting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin ml-2" />
+                  جاري الحذف...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="w-4 h-4 ml-2" />
+                  حذف نهائي
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }
