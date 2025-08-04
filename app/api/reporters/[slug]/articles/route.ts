@@ -79,12 +79,41 @@ export async function GET(
       orderBy.published_at = 'desc';
     }
     
-    // جلب المقالات الحقيقية للمراسل
-    const articles = await prisma.articles.findMany({
-      where: {
-        author_id: reporter.user_id,
-        status: 'published'
+    // البحث عن المراسل في جدول article_authors
+    const articleAuthor = await prisma.article_authors.findFirst({
+      where: { 
+        full_name: reporter.full_name,
+        is_active: true
       },
+      select: { id: true }
+    });
+    
+    // بناء شروط البحث الكاملة مع دعم النظامين
+    const baseWhere = {
+      OR: [
+        { author_id: reporter.user_id },
+        ...(articleAuthor ? [{ article_author_id: articleAuthor.id }] : [])
+      ],
+      status: 'published'
+    };
+    
+    // إضافة شروط البحث والفلترة
+    const finalWhere: any = { ...baseWhere };
+    
+    if (search) {
+      finalWhere.title = {
+        contains: search,
+        mode: 'insensitive'
+      };
+    }
+    
+    if (category !== 'all') {
+      finalWhere.category_id = parseInt(category);
+    }
+    
+    // جلب المقالات الحقيقية للمراسل (دعم النظامين القديم والجديد)
+    const articles = await prisma.articles.findMany({
+      where: finalWhere,
       orderBy: orderBy,
       take: limit,
       select: {

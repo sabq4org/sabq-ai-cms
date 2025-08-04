@@ -1070,7 +1070,7 @@ const ReporterProfilePage: React.FC = () => {
             <div className="relative">
               <div className="w-24 h-24 lg:w-32 lg:h-32 rounded-full overflow-hidden ring-4 ring-blue-200 dark:ring-slate-600 shadow-lg">
                 <CloudImage
-                  src={reporter.avatar_url || '/default-avatar.png'}
+                  src={reporter.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(reporter.full_name)}&background=3b82f6&color=fff&size=200&rounded=true&bold=true`}
                   alt={reporter.full_name}
                   width={128}
                   height={128}

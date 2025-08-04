@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
+import { NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
@@ -9,19 +9,19 @@ export async function GET(
 ) {
   try {
     const { slug } = params;
-    
+
     if (!slug) {
       return NextResponse.json(
-        { 
+        {
           success: false,
-          error: 'معرف المراسل مطلوب' 
+          error: "معرف المراسل مطلوب",
         },
         { status: 400 }
       );
     }
-    
+
     console.log(`🔍 البحث عن المراسل بالـ slug: ${slug}`);
-    
+
     // دالة تحويل الأسماء العربية (نفس المنطق من ReporterLink)
     function convertArabicNameToSlug(name: string): string {
       return name
@@ -41,12 +41,12 @@ export async function GET(
         .replace(/\-+/g, "-")
         .replace(/^-|-$/g, "");
     }
-    
+
     // البحث عن المراسل في جدول reporters بناءً على slug
     let reporter = await prisma.reporters.findFirst({
-      where: { 
+      where: {
         slug: slug,
-        is_active: true 
+        is_active: true,
       },
       select: {
         id: true,
@@ -79,27 +79,27 @@ export async function GET(
         show_stats: true,
         show_contact: true,
         created_at: true,
-        updated_at: true
-      }
+        updated_at: true,
+      },
     });
-    
+
     // إذا لم يُعثر على المراسل، حاول البحث بالاسم العربي المُحول
     if (!reporter) {
       console.log(`⚠️ لم يُعثر على المراسل بالـ slug: ${slug}`);
       console.log(`🔄 محاولة البحث بالاسم العربي المُحول...`);
-      
+
       // فك ترميز slug إذا كان مرمز
       const decodedSlug = decodeURIComponent(slug);
       console.log(`🔍 البحث بالاسم المفكوك: ${decodedSlug}`);
-      
+
       // محاولة البحث بالاسم الكامل
       reporter = await prisma.reporters.findFirst({
-        where: { 
+        where: {
           full_name: {
             contains: decodedSlug,
-            mode: 'insensitive'
+            mode: "insensitive",
           },
-          is_active: true 
+          is_active: true,
         },
         select: {
           id: true,
@@ -132,22 +132,22 @@ export async function GET(
           show_stats: true,
           show_contact: true,
           created_at: true,
-          updated_at: true
-        }
+          updated_at: true,
+        },
       });
-      
+
       if (!reporter) {
         // محاولة أخيرة: البحث بـ slug يبدأ بالاسم المحول
         const convertedSlug = convertArabicNameToSlug(decodedSlug);
         if (convertedSlug) {
           console.log(`🔍 البحث بالـ slug المحول: ${convertedSlug}`);
           reporter = await prisma.reporters.findFirst({
-            where: { 
+            where: {
               slug: {
                 startsWith: convertedSlug,
-                mode: 'insensitive'
+                mode: "insensitive",
               },
-              is_active: true 
+              is_active: true,
             },
             select: {
               id: true,
@@ -180,23 +180,26 @@ export async function GET(
               show_stats: true,
               show_contact: true,
               created_at: true,
-              updated_at: true
-            }
+              updated_at: true,
+            },
           });
         }
       }
     }
-    
+
     if (!reporter) {
       console.log(`❌ لا يوجد مراسل بالـ slug أو الاسم: ${slug}`);
-      return NextResponse.json({
-        success: false,
-        error: 'المراسل غير موجود'
-      }, { status: 404 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "المراسل غير موجود",
+        },
+        { status: 404 }
+      );
     }
-    
+
     console.log(`✅ تم العثور على المراسل: ${reporter.full_name}`);
-    
+
     return NextResponse.json({
       success: true,
       reporter: {
@@ -208,10 +211,10 @@ export async function GET(
         bio: reporter.bio,
         avatar_url: reporter.avatar_url,
         is_verified: reporter.is_verified,
-        verification_badge: reporter.verification_badge || 'verified',
+        verification_badge: reporter.verification_badge || "verified",
         specializations: reporter.specializations || [],
         coverage_areas: reporter.coverage_areas || [],
-        languages: reporter.languages || ['ar'],
+        languages: reporter.languages || ["ar"],
         twitter_url: reporter.twitter_url,
         linkedin_url: reporter.linkedin_url,
         website_url: reporter.website_url,
@@ -230,16 +233,18 @@ export async function GET(
         show_stats: reporter.show_stats,
         show_contact: reporter.show_contact,
         created_at: reporter.created_at,
-        updated_at: reporter.updated_at
-      }
+        updated_at: reporter.updated_at,
+      },
     });
-    
   } catch (error: any) {
-    console.error('خطأ في جلب بيانات المراسل:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'حدث خطأ في جلب بيانات المراسل'
-    }, { status: 500 });
+    console.error("خطأ في جلب بيانات المراسل:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: "حدث خطأ في جلب بيانات المراسل",
+      },
+      { status: 500 }
+    );
   } finally {
     await prisma.$disconnect();
   }
