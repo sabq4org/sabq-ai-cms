@@ -34,7 +34,8 @@ export async function POST(
     }
 
     // إنشاء المقال
-    const result = (await prisma.$queryRawUnsafe(`
+    const result = (await prisma.$queryRawUnsafe(
+      `
       INSERT INTO angle_articles (
         angle_id, title, content, excerpt, author_id,
         sentiment, tags, cover_image, is_published,
@@ -44,7 +45,7 @@ export async function POST(
         $6, $7, $8, $9,
         $10, $11
       ) RETURNING *
-    `, 
+    `,
       angleId,
       body.title,
       body.content,

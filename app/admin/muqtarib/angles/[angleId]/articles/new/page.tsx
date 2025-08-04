@@ -371,7 +371,10 @@ export default function CreateAngleArticlePage() {
           const parsedUser = JSON.parse(userData);
           setUser(parsedUser);
           // استخدام نص بسيط بدلاً من UUID لتجنب مشاكل التوافق
-          setFormData((prev) => ({ ...prev, authorId: parsedUser.id || parsedUser.email || "admin" }));
+          setFormData((prev) => ({
+            ...prev,
+            authorId: parsedUser.id || parsedUser.email || "admin",
+          }));
         } else {
           // fallback إذا لم يكن هناك مستخدم مسجل
           setFormData((prev) => ({ ...prev, authorId: "admin" }));
@@ -527,7 +530,7 @@ export default function CreateAngleArticlePage() {
       } else {
         const errorText = await response.text();
         console.error("❌ خطأ API:", response.status, errorText);
-        
+
         try {
           const errorJson = JSON.parse(errorText);
           toast.error(errorJson.error || "حدث خطأ في الحفظ");

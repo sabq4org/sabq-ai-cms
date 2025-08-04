@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Angle } from "@/types/muqtarab";
 import {
@@ -16,6 +17,7 @@ import {
   Search,
   Settings,
   Star,
+  Trash2,
   TrendingUp,
   Users,
 } from "lucide-react";
@@ -152,17 +154,25 @@ const AngleCard = ({ angle }: { angle: Angle }) => {
               </span>
             </div>
 
-            <Link href={`/admin/muqtarib/angles/${angle.id}`}>
+            <div className="flex gap-2">
+              <Link href={`/admin/muqtarib/angles/${angle.id}`}>
+                <Button
+                  size="sm"
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  إدارة
+                </Button>
+              </Link>
+              
               <Button
                 size="sm"
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-                onClick={() =>
-                  console.log("🔗 الانتقال للزاوية:", angle.id, angle.title)
-                }
+                variant="outline"
+                onClick={() => handleDeleteClick(angle)}
+                className="text-red-600 hover:text-red-700 hover:bg-red-50"
               >
-                إدارة
+                <Trash2 className="w-4 h-4" />
               </Button>
-            </Link>
+            </div>
           </div>
         </div>
       </CardContent>
@@ -177,6 +187,11 @@ export default function MuqtaribDashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterPublished, setFilterPublished] = useState<boolean | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  
+  // حالة الحذف
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [angleToDelete, setAngleToDelete] = useState<Angle | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   // إحصائيات عامة
   const [stats, setStats] = useState({
@@ -273,6 +288,46 @@ export default function MuqtaribDashboard() {
 
     return matchesSearch && matchesFilter;
   });
+
+  // وظائف الحذف
+  const handleDeleteClick = (angle: Angle) => {
+    setAngleToDelete(angle);
+    setDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!angleToDelete) return;
+
+    setDeleting(true);
+    try {
+      const response = await fetch(`/api/muqtarib/angles/${angleToDelete.id}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        // إزالة الزاوية من القائمة
+        setAngles((prev) => prev.filter((angle) => angle.id !== angleToDelete.id));
+        toast.success("تم حذف الزاوية بنجاح!");
+        setDeleteModalOpen(false);
+        setAngleToDelete(null);
+        
+        // تحديث الإحصائيات
+        setStats((prev) => ({
+          ...prev,
+          totalAngles: prev.totalAngles - 1,
+          publishedAngles: angleToDelete.isPublished ? prev.publishedAngles - 1 : prev.publishedAngles,
+        }));
+      } else {
+        const error = await response.json();
+        toast.error(error.error || "حدث خطأ في حذف الزاوية");
+      }
+    } catch (error) {
+      console.error("خطأ في حذف الزاوية:", error);
+      toast.error("حدث خطأ في الاتصال بالخادم");
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -462,5 +517,64 @@ export default function MuqtaribDashboard() {
         </div>
       </div>
     </div>
+
+    {/* Modal تأكيد الحذف */}
+    <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle className="text-xl text-red-600">
+            تأكيد حذف الزاوية
+          </DialogTitle>
+        </DialogHeader>
+        
+        <div className="py-4">
+          <p className="text-gray-700 mb-4">
+            هل أنت متأكد من حذف الزاوية{" "}
+            <strong className="text-gray-900">"{angleToDelete?.title}"</strong>؟
+          </p>
+          
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+            <div className="flex items-start gap-3">
+              <Trash2 className="w-5 h-5 text-red-600 mt-0.5" />
+              <div>
+                <p className="text-red-800 font-medium mb-1">تحذير مهم</p>
+                <ul className="text-red-700 text-sm space-y-1">
+                  <li>• سيتم حذف الزاوية نهائياً</li>
+                  <li>• سيتم حذف جميع المقالات المرتبطة بها</li>
+                  <li>• لا يمكن التراجع عن هذا الإجراء</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter className="gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => setDeleteModalOpen(false)}
+            disabled={deleting}
+          >
+            إلغاء
+          </Button>
+          <Button 
+            variant="destructive"
+            onClick={handleDeleteConfirm}
+            disabled={deleting}
+          >
+            {deleting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin ml-2" />
+                جاري الحذف...
+              </>
+            ) : (
+              <>
+                <Trash2 className="w-4 h-4 ml-2" />
+                حذف نهائي
+              </>
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

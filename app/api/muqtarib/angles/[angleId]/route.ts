@@ -213,7 +213,12 @@ export async function DELETE(
       );
     }
 
-    // حذف الزاوية (سيتم حذف المقالات تلقائياً بسبب CASCADE)
+    // حذف المقالات المرتبطة أولاً
+    await prisma.$queryRaw`
+      DELETE FROM angle_articles WHERE angle_id = ${angleId}::uuid
+    `;
+
+    // حذف الزاوية
     await prisma.$queryRaw`
       DELETE FROM angles WHERE id = ${angleId}::uuid
     `;
