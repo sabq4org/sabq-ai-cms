@@ -19,7 +19,9 @@ interface Article {
   reading_time: number;
   article_type: string;
   author_name: string;
-  author_specialty: string;
+  author_id?: string;
+  author_avatar?: string;
+  author_specialty?: string;
   category: {
     id: string;
     name: string;
@@ -369,6 +371,12 @@ export default function OpinionArticlesPage() {
                         reading_time: article.reading_time,
                         article_type: article.article_type,
                         author_name: article.author_name,
+                        author: article.author_name ? {
+                          id: article.author_id || '',
+                          name: article.author_name,
+                          avatar: article.author_avatar,
+                          specialty: article.author_specialty
+                        } : null,
                         category: article.category ? {
                           id: article.category.id,
                           name: article.category.name,

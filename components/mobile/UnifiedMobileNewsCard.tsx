@@ -29,6 +29,8 @@ interface UnifiedNewsData {
     id: string;
     name: string;
     email?: string;
+    avatar?: string;
+    specialty?: string;
   } | null;
   author_name?: string;
   author_id?: string;
@@ -576,6 +578,42 @@ export default function UnifiedMobileNewsCard({
             >
               {data.excerpt}
             </p>
+          )}
+
+          {/* معلومات الكاتب - مخصص لمقالات الرأي */}
+          {article.author && (
+            <div className="flex items-center gap-2 p-2 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700">
+              {/* صورة الكاتب */}
+              {article.author.avatar ? (
+                <div className="w-8 h-8 rounded-full overflow-hidden">
+                  <Image
+                    src={article.author.avatar}
+                    alt={article.author.name}
+                    width={32}
+                    height={32}
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                  <span className="text-blue-600 dark:text-blue-400 font-bold text-sm">
+                    {article.author.name.charAt(0)}
+                  </span>
+                </div>
+              )}
+              
+              {/* اسم وتخصص الكاتب */}
+              <div className="flex-1 min-w-0">
+                <div className={`font-semibold text-sm ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                  {article.author.name}
+                </div>
+                {article.author.specialty && (
+                  <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    {article.author.specialty}
+                  </div>
+                )}
+              </div>
+            </div>
           )}
 
           {/* المعلومات السفلية المحسنة */}

@@ -5,21 +5,20 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { 
-  BarChart3, 
-  Users, 
-  FileText, 
-  Eye, 
-  MessageSquare, 
-  TrendingUp,
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
+import {
   ArrowUpRight,
-  Settings,
-  Plus
-} from 'lucide-react';
+  BarChart3,
+  Eye,
+  FileText,
+  MessageSquare,
+  Plus,
+  TrendingUp,
+  Users,
+} from "lucide-react";
+import { useState } from "react";
 
 export default function ModernDashboardPage() {
   const { darkMode } = useDarkModeContext();
@@ -27,7 +26,7 @@ export default function ModernDashboardPage() {
     totalUsers: 1248,
     totalArticles: 856,
     totalViews: 45230,
-    totalComments: 324
+    totalComments: 324,
   });
 
   return (
@@ -56,7 +55,9 @@ export default function ModernDashboardPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalUsers.toLocaleString()}</div>
+            <div className="text-2xl font-bold">
+              {stats.totalUsers.toLocaleString()}
+            </div>
             <p className="text-xs text-muted-foreground flex items-center gap-1">
               <TrendingUp className="w-3 h-3 text-green-500" />
               +12% من الشهر الماضي
@@ -70,7 +71,9 @@ export default function ModernDashboardPage() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalArticles.toLocaleString()}</div>
+            <div className="text-2xl font-bold">
+              {stats.totalArticles.toLocaleString()}
+            </div>
             <p className="text-xs text-muted-foreground flex items-center gap-1">
               <TrendingUp className="w-3 h-3 text-green-500" />
               +8% من الشهر الماضي
@@ -84,7 +87,9 @@ export default function ModernDashboardPage() {
             <Eye className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalViews.toLocaleString()}</div>
+            <div className="text-2xl font-bold">
+              {stats.totalViews.toLocaleString()}
+            </div>
             <p className="text-xs text-muted-foreground flex items-center gap-1">
               <TrendingUp className="w-3 h-3 text-green-500" />
               +15% من الشهر الماضي
@@ -98,7 +103,9 @@ export default function ModernDashboardPage() {
             <MessageSquare className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalComments.toLocaleString()}</div>
+            <div className="text-2xl font-bold">
+              {stats.totalComments.toLocaleString()}
+            </div>
             <p className="text-xs text-muted-foreground flex items-center gap-1">
               <TrendingUp className="w-3 h-3 text-green-500" />
               +5% من الشهر الماضي
