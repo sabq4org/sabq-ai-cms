@@ -1,6 +1,5 @@
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth";
+import jwt from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
@@ -11,16 +10,20 @@ import { NextRequest, NextResponse } from "next/server";
 // GET - جلب اهتمامات المستخدم
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    // التحقق من التوكن
+    const token = request.cookies.get("auth-token")?.value;
 
-    if (!session?.user?.id) {
+    if (!token) {
       return NextResponse.json(
         { success: false, error: "غير مصرح - يرجى تسجيل الدخول" },
         { status: 401 }
       );
     }
 
-    const userId = parseInt(session.user.id);
+    const JWT_SECRET =
+      process.env.JWT_SECRET || "your-secret-key-change-this-in-production";
+    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    const userId = parseInt(decoded.id);
 
     // جلب اهتمامات المستخدم من قاعدة البيانات
     const userInterests = await prisma.user_interests.findMany({
@@ -65,14 +68,19 @@ export async function GET(request: NextRequest) {
 // POST - إضافة أو إزالة اهتمام
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    // التحقق من التوكن
+    const token = request.cookies.get("auth-token")?.value;
 
-    if (!session?.user?.id) {
+    if (!token) {
       return NextResponse.json(
         { success: false, error: "غير مصرح - يرجى تسجيل الدخول" },
         { status: 401 }
       );
     }
+
+    const JWT_SECRET =
+      process.env.JWT_SECRET || "your-secret-key-change-this-in-production";
+    const decoded = jwt.verify(token, JWT_SECRET) as any;
 
     const body = await request.json();
     const { interestId, action } = body;
@@ -84,7 +92,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const userId = parseInt(session.user.id);
+    const userId = parseInt(decoded.id);
     const categoryId = parseInt(interestId);
 
     // التحقق من وجود التصنيف
@@ -171,14 +179,19 @@ export async function POST(request: NextRequest) {
 // PUT - تحديث جميع اهتمامات المستخدم دفعة واحدة
 export async function PUT(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    // التحقق من التوكن
+    const token = request.cookies.get("auth-token")?.value;
 
-    if (!session?.user?.id) {
+    if (!token) {
       return NextResponse.json(
         { success: false, error: "غير مصرح - يرجى تسجيل الدخول" },
         { status: 401 }
       );
     }
+
+    const JWT_SECRET =
+      process.env.JWT_SECRET || "your-secret-key-change-this-in-production";
+    const decoded = jwt.verify(token, JWT_SECRET) as any;
 
     const body = await request.json();
     const { interests } = body;
@@ -190,7 +203,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const userId = parseInt(session.user.id);
+    const userId = parseInt(decoded.id);
 
     // إزالة جميع الاهتمامات الحالية
     await prisma.user_interests.updateMany({

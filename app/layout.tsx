@@ -19,6 +19,7 @@ import "../styles/mobile.css";
 import "../styles/muqtarab-animations.css";
 import "../styles/news-pulse-positioning.css";
 import "../styles/no-focus-outline.css";
+import "../styles/profile-mobile.css";
 import "../styles/pulse-ticker-center.css";
 import "../styles/remove-gap.css";
 import "../styles/responsive-ui.css";
@@ -169,17 +170,17 @@ export default function RootLayout({
         className={`${ibmPlexArabic.variable} font-arabic`}
         suppressHydrationWarning
       >
-            <ReactErrorBoundary>
-      <ErrorBoundary>
-        <AnalyticsProvider>
-          <Providers>
-            <GlobalErrorHandler />
-            <ConditionalHeader />
-            <ContentWrapper>{children}</ContentWrapper>
-          </Providers>
-        </AnalyticsProvider>
-      </ErrorBoundary>
-    </ReactErrorBoundary>
+        <ReactErrorBoundary>
+          <ErrorBoundary>
+            <AnalyticsProvider>
+              <Providers>
+                <GlobalErrorHandler />
+                <ConditionalHeader />
+                <ContentWrapper>{children}</ContentWrapper>
+              </Providers>
+            </AnalyticsProvider>
+          </ErrorBoundary>
+        </ReactErrorBoundary>
         <StructuredData pageType="home" />
       </body>
     </html>
