@@ -267,10 +267,21 @@ export default function ProfilePage() {
       // معالجة نتيجة الاهتمامات
       if (interestsRes.status === "fulfilled" && interestsRes.value.ok) {
         const interestsData = await interestsRes.value.json();
-        if (interestsData.success && interestsData.data?.categoryIds) {
-          userCategoryIds = interestsData.data.categoryIds.map((id: any) =>
-            String(id)
-          );
+        console.log("📡 استجابة API الاهتمامات:", interestsData);
+        
+        if (interestsData.success) {
+          // تجربة التنسيق الجديد أولاً
+          if (interestsData.interests && Array.isArray(interestsData.interests)) {
+            userCategoryIds = interestsData.interests.map((interest: any) =>
+              String(interest.interestId)
+            );
+          }
+          // تجربة التنسيق القديم كـ fallback
+          else if (interestsData.data?.categoryIds) {
+            userCategoryIds = interestsData.data.categoryIds.map((id: any) =>
+              String(id)
+            );
+          }
           console.log("✅ تم جلب الاهتمامات من API:", userCategoryIds);
         }
       }
