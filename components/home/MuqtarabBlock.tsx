@@ -229,11 +229,6 @@ export default function MuqtarabBlock({ className }: MuqtarabBlockProps) {
         {/* البطاقة المميزة (Hero Article) */}
         {!heroLoading && heroArticle && (
           <div className="mb-8">
-            <div className="mb-4">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                المقال المميز
-              </h3>
-            </div>
             <HeroCard heroArticle={heroArticle} />
           </div>
         )}

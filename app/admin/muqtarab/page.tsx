@@ -218,7 +218,7 @@ export default function MuqtaribDashboard() {
 
         // جلب جميع الزوايا
         console.log("🔍 جاري جلب جميع الزوايا من الصفحة الرئيسية...");
-        const response = await fetch("/api/muqtarib/angles", {
+        const response = await fetch("/api/muqtarab/angles", {
           cache: "no-store",
           headers: {
             "Cache-Control": "no-cache",
@@ -306,7 +306,7 @@ export default function MuqtaribDashboard() {
 
     setDeleting(true);
     try {
-      const response = await fetch(`/api/muqtarib/angles/${angleToDelete.id}`, {
+      const response = await fetch(`/api/muqtarab/angles/${angleToDelete.id}`, {
         method: "DELETE",
       });
 
