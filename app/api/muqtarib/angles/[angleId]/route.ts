@@ -137,20 +137,22 @@ export async function PUT(
     const updateQuery = `
       UPDATE angles SET
         title = $1,
-        description = $2,
-        icon = $3,
-        theme_color = $4,
-        cover_image = $5,
-        is_featured = $6,
-        is_published = $7,
+        slug = $2,
+        description = $3,
+        icon = $4,
+        theme_color = $5,
+        cover_image = $6,
+        is_featured = $7,
+        is_published = $8,
         updated_at = CURRENT_TIMESTAMP
-      WHERE id = $8::uuid
+      WHERE id = $9::uuid
       RETURNING *
     `;
 
     const result = (await prisma.$queryRawUnsafe(
       updateQuery,
       body.title,
+      body.slug,
       body.description,
       body.icon || null,
       body.themeColor,

@@ -3,6 +3,11 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { Angle, AngleArticle } from "@/types/muqtarab";
 import {
   ArrowLeft,
@@ -278,6 +283,18 @@ export default function AngleDashboardPage() {
   const [articles, setArticles] = useState<AngleArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [articlesLoading, setArticlesLoading] = useState(false);
+  
+  // حالة modal التعديل
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    title: "",
+    slug: "",
+    description: "",
+    themeColor: "#3B82F6",
+    isFeatured: false,
+    isPublished: false
+  });
+  const [editLoading, setEditLoading] = useState(false);
 
   // جلب بيانات الزاوية والمقالات
   useEffect(() => {
@@ -306,6 +323,18 @@ export default function AngleDashboardPage() {
           const angleData = await angleResponse.json();
           console.log("✅ تم جلب بيانات الزاوية:", angleData.angle?.title);
           setAngle(angleData.angle);
+          
+          // تحديث form data للتعديل
+          if (angleData.angle) {
+            setEditFormData({
+              title: angleData.angle.title || "",
+              slug: angleData.angle.slug || "",
+              description: angleData.angle.description || "",
+              themeColor: angleData.angle.themeColor || "#3B82F6",
+              isFeatured: angleData.angle.isFeatured || false,
+              isPublished: angleData.angle.isPublished || false
+            });
+          }
         } else {
           console.error("❌ خطأ في جلب الزاوية:", angleResponse.status, angleResponse.statusText);
           const errorText = await angleResponse.text();
@@ -348,6 +377,43 @@ export default function AngleDashboardPage() {
       isMounted = false;
     };
   }, [angleId, router]);
+
+  // وظائف التعديل
+  const handleEditFormChange = (field: string, value: any) => {
+    setEditFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleUpdateAngle = async () => {
+    try {
+      setEditLoading(true);
+      
+      const response = await fetch(`/api/muqtarib/angles/${angleId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(editFormData),
+      });
+
+      if (response.ok) {
+        const updatedData = await response.json();
+        setAngle(updatedData.angle);
+        setEditModalOpen(false);
+        toast.success("تم تحديث معلومات الزاوية بنجاح!");
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.error || "حدث خطأ في التحديث");
+      }
+    } catch (error) {
+      console.error("خطأ في تحديث الزاوية:", error);
+      toast.error("حدث خطأ في التحديث");
+    } finally {
+      setEditLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -549,10 +615,134 @@ export default function AngleDashboardPage() {
                   <CardTitle className="text-lg">إعدادات سريعة</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <Button variant="outline" className="w-full justify-start">
-                    <Edit className="w-4 h-4 ml-2" />
-                    تعديل معلومات الزاوية
-                  </Button>
+                  <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" className="w-full justify-start">
+                        <Edit className="w-4 h-4 ml-2" />
+                        تعديل معلومات الزاوية
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle className="text-xl">تعديل معلومات الزاوية</DialogTitle>
+                      </DialogHeader>
+                      
+                      <div className="grid gap-6 py-4">
+                        {/* العنوان */}
+                        <div className="grid gap-2">
+                          <Label htmlFor="edit-title">العنوان*</Label>
+                          <Input
+                            id="edit-title"
+                            value={editFormData.title}
+                            onChange={(e) => handleEditFormChange("title", e.target.value)}
+                            placeholder="أدخل عنوان الزاوية"
+                            className="text-right"
+                          />
+                        </div>
+
+                        {/* الرابط */}
+                        <div className="grid gap-2">
+                          <Label htmlFor="edit-slug">الرابط (slug)*</Label>
+                          <Input
+                            id="edit-slug"
+                            value={editFormData.slug}
+                            onChange={(e) => handleEditFormChange("slug", e.target.value)}
+                            placeholder="رابط-الزاوية"
+                            className="text-left direction-ltr"
+                          />
+                          <p className="text-xs text-gray-500">
+                            سيكون الرابط: /muqtarib/{editFormData.slug}
+                          </p>
+                        </div>
+
+                        {/* الوصف */}
+                        <div className="grid gap-2">
+                          <Label htmlFor="edit-description">الوصف*</Label>
+                          <Textarea
+                            id="edit-description"
+                            value={editFormData.description}
+                            onChange={(e) => handleEditFormChange("description", e.target.value)}
+                            placeholder="وصف مختصر عن الزاوية"
+                            className="text-right min-h-[100px]"
+                          />
+                        </div>
+
+                        {/* اللون المميز */}
+                        <div className="grid gap-2">
+                          <Label htmlFor="edit-theme-color">اللون المميز</Label>
+                          <div className="flex items-center gap-3">
+                            <Input
+                              id="edit-theme-color"
+                              type="color"
+                              value={editFormData.themeColor}
+                              onChange={(e) => handleEditFormChange("themeColor", e.target.value)}
+                              className="w-16 h-10 p-1 border rounded"
+                            />
+                            <Input
+                              value={editFormData.themeColor}
+                              onChange={(e) => handleEditFormChange("themeColor", e.target.value)}
+                              placeholder="#3B82F6"
+                              className="flex-1 text-left direction-ltr"
+                            />
+                          </div>
+                        </div>
+
+                        {/* الإعدادات */}
+                        <div className="grid gap-4">
+                          <div className="flex items-center justify-between">
+                            <div className="grid gap-1">
+                              <Label htmlFor="edit-featured">زاوية مميزة</Label>
+                              <p className="text-xs text-gray-500">
+                                إظهار الزاوية في القسم المميز
+                              </p>
+                            </div>
+                            <Switch
+                              id="edit-featured"
+                              checked={editFormData.isFeatured}
+                              onCheckedChange={(checked) => handleEditFormChange("isFeatured", checked)}
+                            />
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <div className="grid gap-1">
+                              <Label htmlFor="edit-published">نشر الزاوية</Label>
+                              <p className="text-xs text-gray-500">
+                                جعل الزاوية مرئية للقراء
+                              </p>
+                            </div>
+                            <Switch
+                              id="edit-published"
+                              checked={editFormData.isPublished}
+                              onCheckedChange={(checked) => handleEditFormChange("isPublished", checked)}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <DialogFooter className="gap-2">
+                        <Button 
+                          variant="outline" 
+                          onClick={() => setEditModalOpen(false)}
+                          disabled={editLoading}
+                        >
+                          إلغاء
+                        </Button>
+                        <Button 
+                          onClick={handleUpdateAngle}
+                          disabled={editLoading || !editFormData.title || !editFormData.slug || !editFormData.description}
+                        >
+                          {editLoading ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin ml-2" />
+                              جاري التحديث...
+                            </>
+                          ) : (
+                            "حفظ التغييرات"
+                          )}
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
 
                   <Button variant="outline" className="w-full justify-start">
                     <BarChart3 className="w-4 h-4 ml-2" />
