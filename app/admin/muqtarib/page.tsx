@@ -186,16 +186,24 @@ export default function MuqtaribDashboard() {
 
   // جلب البيانات
   useEffect(() => {
+    let isMounted = true; // تجنب Race Conditions
+
     const fetchData = async () => {
       try {
+        if (!isMounted) return; // تجنب التنفيذ إذا تم إلغاء التحميل
         setLoading(true);
 
         // جلب جميع الزوايا
         console.log("🔍 جاري جلب جميع الزوايا من الصفحة الرئيسية...");
-        const response = await fetch("/api/muqtarib/angles");
+        const response = await fetch("/api/muqtarib/angles", {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache'
+          }
+        });
         console.log("📡 استجابة API الزوايا:", response.status, response.ok);
-
-        if (response.ok) {
+        
+        if (response.ok && isMounted) {
           const data = await response.json();
           console.log("✅ تم جلب الزوايا:", data.angles?.length || 0);
           setAngles(data.angles || []);
@@ -222,21 +230,30 @@ export default function MuqtaribDashboard() {
             totalArticles,
             totalViews,
           });
-        } else {
+        } else if (isMounted) {
           console.error("❌ فشل API الزوايا:", response.status, response.statusText);
           const errorText = await response.text();
           console.error("📄 محتوى الخطأ:", errorText);
           toast.error("فشل في تحميل الزوايا");
         }
       } catch (error) {
-        console.error("خطأ في جلب البيانات:", error);
-        toast.error("حدث خطأ في تحميل البيانات");
+        if (isMounted) {
+          console.error("خطأ في جلب البيانات:", error);
+          toast.error("حدث خطأ في تحميل البيانات");
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchData();
+
+    // تنظيف عند إلغاء التحميل
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // فلترة الزوايا

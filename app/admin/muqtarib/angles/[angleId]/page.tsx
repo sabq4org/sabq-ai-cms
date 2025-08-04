@@ -281,13 +281,21 @@ export default function AngleDashboardPage() {
 
   // جلب بيانات الزاوية والمقالات
   useEffect(() => {
+    let isMounted = true;
+
     const fetchData = async () => {
       try {
+        if (!isMounted) return;
         setLoading(true);
 
         // جلب بيانات الزاوية
         console.log("🔍 جاري جلب بيانات الزاوية:", angleId);
-        const angleResponse = await fetch(`/api/muqtarib/angles/${angleId}`);
+        const angleResponse = await fetch(`/api/muqtarib/angles/${angleId}`, {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache'
+          }
+        });
         console.log(
           "📡 استجابة API الزاوية:",
           angleResponse.status,
@@ -317,11 +325,15 @@ export default function AngleDashboardPage() {
           setArticles(articlesData.articles);
         }
       } catch (error) {
-        console.error("خطأ في جلب البيانات:", error);
-        toast.error("حدث خطأ في تحميل البيانات");
+        if (isMounted) {
+          console.error("خطأ في جلب البيانات:", error);
+          toast.error("حدث خطأ في تحميل البيانات");
+        }
       } finally {
-        setLoading(false);
-        setArticlesLoading(false);
+        if (isMounted) {
+          setLoading(false);
+          setArticlesLoading(false);
+        }
       }
     };
 
@@ -331,6 +343,10 @@ export default function AngleDashboardPage() {
     } else {
       console.error("❌ angleId غير موجود");
     }
+
+    return () => {
+      isMounted = false;
+    };
   }, [angleId, router]);
 
   if (loading) {
