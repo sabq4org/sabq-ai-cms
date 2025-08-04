@@ -289,7 +289,7 @@ const ArticlesList = ({
 
   return (
     <div className="space-y-4">
-      {articles.map((article) => (
+      {articles.filter(article => article && article.id).map((article) => (
         <Card key={article.id} className="hover:shadow-md transition-shadow">
           <CardContent className="p-4">
             <div className="flex items-start gap-4">
@@ -607,6 +607,10 @@ export default function AngleDashboardPage() {
 
   // وظائف حذف المقالات
   const handleDeleteArticleClick = (article: AngleArticle) => {
+    if (!article || !article.id) {
+      console.warn("⚠️ مقال غير صالح:", article);
+      return;
+    }
     setArticleToDelete(article);
     setDeleteArticleModalOpen(true);
   };
