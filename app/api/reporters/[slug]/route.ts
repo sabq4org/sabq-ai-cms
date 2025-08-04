@@ -22,8 +22,28 @@ export async function GET(
     
     console.log(`🔍 البحث عن المراسل بالـ slug: ${slug}`);
     
+    // دالة تحويل الأسماء العربية (نفس المنطق من ReporterLink)
+    function convertArabicNameToSlug(name: string): string {
+      return name
+        .replace(/عبدالله/g, "abdullah")
+        .replace(/البرقاوي/g, "barqawi")
+        .replace(/علي/g, "ali")
+        .replace(/الحازمي/g, "alhazmi")
+        .replace(/أحمد/g, "ahmed")
+        .replace(/محمد/g, "mohammed")
+        .replace(/فاطمة/g, "fatima")
+        .replace(/نورا/g, "nora")
+        .replace(/عمر/g, "omar")
+        .replace(/النجار/g, "najjar")
+        .replace(/\s+/g, "-")
+        .toLowerCase()
+        .replace(/[^\w\-]/g, "")
+        .replace(/\-+/g, "-")
+        .replace(/^-|-$/g, "");
+    }
+    
     // البحث عن المراسل في جدول reporters بناءً على slug
-    const reporter = await prisma.reporters.findFirst({
+    let reporter = await prisma.reporters.findFirst({
       where: { 
         slug: slug,
         is_active: true 
@@ -63,8 +83,112 @@ export async function GET(
       }
     });
     
+    // إذا لم يُعثر على المراسل، حاول البحث بالاسم العربي المُحول
     if (!reporter) {
-      console.log(`❌ لا يوجد مراسل بالـ slug: ${slug}`);
+      console.log(`⚠️ لم يُعثر على المراسل بالـ slug: ${slug}`);
+      console.log(`🔄 محاولة البحث بالاسم العربي المُحول...`);
+      
+      // فك ترميز slug إذا كان مرمز
+      const decodedSlug = decodeURIComponent(slug);
+      console.log(`🔍 البحث بالاسم المفكوك: ${decodedSlug}`);
+      
+      // محاولة البحث بالاسم الكامل
+      reporter = await prisma.reporters.findFirst({
+        where: { 
+          full_name: {
+            contains: decodedSlug,
+            mode: 'insensitive'
+          },
+          is_active: true 
+        },
+        select: {
+          id: true,
+          user_id: true,
+          full_name: true,
+          slug: true,
+          title: true,
+          bio: true,
+          avatar_url: true,
+          is_verified: true,
+          verification_badge: true,
+          specializations: true,
+          coverage_areas: true,
+          languages: true,
+          twitter_url: true,
+          linkedin_url: true,
+          website_url: true,
+          email_public: true,
+          total_articles: true,
+          total_views: true,
+          total_likes: true,
+          total_shares: true,
+          avg_reading_time: true,
+          engagement_rate: true,
+          writing_style: true,
+          popular_topics: true,
+          publication_pattern: true,
+          reader_demographics: true,
+          is_active: true,
+          show_stats: true,
+          show_contact: true,
+          created_at: true,
+          updated_at: true
+        }
+      });
+      
+      if (!reporter) {
+        // محاولة أخيرة: البحث بـ slug يبدأ بالاسم المحول
+        const convertedSlug = convertArabicNameToSlug(decodedSlug);
+        if (convertedSlug) {
+          console.log(`🔍 البحث بالـ slug المحول: ${convertedSlug}`);
+          reporter = await prisma.reporters.findFirst({
+            where: { 
+              slug: {
+                startsWith: convertedSlug,
+                mode: 'insensitive'
+              },
+              is_active: true 
+            },
+            select: {
+              id: true,
+              user_id: true,
+              full_name: true,
+              slug: true,
+              title: true,
+              bio: true,
+              avatar_url: true,
+              is_verified: true,
+              verification_badge: true,
+              specializations: true,
+              coverage_areas: true,
+              languages: true,
+              twitter_url: true,
+              linkedin_url: true,
+              website_url: true,
+              email_public: true,
+              total_articles: true,
+              total_views: true,
+              total_likes: true,
+              total_shares: true,
+              avg_reading_time: true,
+              engagement_rate: true,
+              writing_style: true,
+              popular_topics: true,
+              publication_pattern: true,
+              reader_demographics: true,
+              is_active: true,
+              show_stats: true,
+              show_contact: true,
+              created_at: true,
+              updated_at: true
+            }
+          });
+        }
+      }
+    }
+    
+    if (!reporter) {
+      console.log(`❌ لا يوجد مراسل بالـ slug أو الاسم: ${slug}`);
       return NextResponse.json({
         success: false,
         error: 'المراسل غير موجود'

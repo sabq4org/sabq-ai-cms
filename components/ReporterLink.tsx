@@ -45,6 +45,26 @@ function getVerificationIcon(badge: string = "verified") {
   }
 }
 
+// دالة تحويل الأسماء العربية إلى slugs لاتينية
+function convertArabicNameToSlug(name: string): string {
+  return name
+    .replace(/عبدالله/g, "abdullah")
+    .replace(/البرقاوي/g, "barqawi")
+    .replace(/علي/g, "ali")
+    .replace(/الحازمي/g, "alhazmi")
+    .replace(/أحمد/g, "ahmed")
+    .replace(/محمد/g, "mohammed")
+    .replace(/فاطمة/g, "fatima")
+    .replace(/نورا/g, "nora")
+    .replace(/عمر/g, "omar")
+    .replace(/النجار/g, "najjar")
+    .replace(/\s+/g, "-")
+    .toLowerCase()
+    .replace(/[^\w\-]/g, "")
+    .replace(/\-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
 export default function ReporterLink({
   reporter,
   author,
@@ -92,6 +112,13 @@ export default function ReporterLink({
   let linkHref = "";
   if (reporterData?.slug) {
     linkHref = `/reporter/${reporterData.slug}`;
+  } else if (displayName) {
+    // تحويل الاسم العربي إلى slug لاتيني للبحث
+    const convertedSlug = convertArabicNameToSlug(displayName);
+    if (convertedSlug) {
+      // استخدام الـ slug المحول مباشرة
+      linkHref = `/reporter/${convertedSlug}`;
+    }
   } else if (userId) {
     linkHref = `/user/${userId}`;
   }
