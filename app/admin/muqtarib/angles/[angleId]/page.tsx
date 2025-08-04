@@ -289,101 +289,103 @@ const ArticlesList = ({
 
   return (
     <div className="space-y-4">
-      {articles.filter(article => article && article.id).map((article) => (
-        <Card key={article.id} className="hover:shadow-md transition-shadow">
-          <CardContent className="p-4">
-            <div className="flex items-start gap-4">
-              {article.coverImage && (
-                <img
-                  src={article.coverImage}
-                  alt={article.title}
-                  className="w-16 h-16 rounded-lg object-cover"
-                />
-              )}
-
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-4 mb-2">
-                  <h3 className="font-semibold text-gray-900 line-clamp-2">
-                    {article.title}
-                  </h3>
-
-                  <div className="flex items-center gap-2">
-                    <Badge
-                      className={`text-xs ${getSentimentColor(
-                        article.sentiment
-                      )}`}
-                    >
-                      {getSentimentLabel(article.sentiment)}
-                    </Badge>
-
-                    <Badge
-                      variant={article.isPublished ? "default" : "secondary"}
-                      className="text-xs"
-                    >
-                      {article.isPublished ? "منشور" : "مسودة"}
-                    </Badge>
-                  </div>
-                </div>
-
-                {article.excerpt && (
-                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                    {article.excerpt}
-                  </p>
+      {articles
+        .filter((article) => article && article.id)
+        .map((article) => (
+          <Card key={article.id} className="hover:shadow-md transition-shadow">
+            <CardContent className="p-4">
+              <div className="flex items-start gap-4">
+                {article.coverImage && (
+                  <img
+                    src={article.coverImage}
+                    alt={article.title}
+                    className="w-16 h-16 rounded-lg object-cover"
+                  />
                 )}
 
-                <div className="flex items-center gap-4 text-xs text-gray-500">
-                  <div className="flex items-center gap-1">
-                    <Users className="w-3 h-3" />
-                    <span>{article.author?.name}</span>
-                  </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-4 mb-2">
+                    <h3 className="font-semibold text-gray-900 line-clamp-2">
+                      {article.title}
+                    </h3>
 
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-3 h-3" />
-                    <span>{formatDate(article.createdAt)}</span>
-                  </div>
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        className={`text-xs ${getSentimentColor(
+                          article.sentiment
+                        )}`}
+                      >
+                        {getSentimentLabel(article.sentiment)}
+                      </Badge>
 
-                  <div className="flex items-center gap-1">
-                    <Eye className="w-3 h-3" />
-                    <span>{article.views || 0} مشاهدة</span>
-                  </div>
-
-                  {article.readingTime && (
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      <span>{article.readingTime} دقيقة</span>
+                      <Badge
+                        variant={article.isPublished ? "default" : "secondary"}
+                        className="text-xs"
+                      >
+                        {article.isPublished ? "منشور" : "مسودة"}
+                      </Badge>
                     </div>
+                  </div>
+
+                  {article.excerpt && (
+                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                      {article.excerpt}
+                    </p>
                   )}
+
+                  <div className="flex items-center gap-4 text-xs text-gray-500">
+                    <div className="flex items-center gap-1">
+                      <Users className="w-3 h-3" />
+                      <span>{article.author?.name}</span>
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      <Calendar className="w-3 h-3" />
+                      <span>{formatDate(article.createdAt)}</span>
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      <Eye className="w-3 h-3" />
+                      <span>{article.views || 0} مشاهدة</span>
+                    </div>
+
+                    {article.readingTime && (
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        <span>{article.readingTime} دقيقة</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <Link href={`/article/${article.id}`}>
+                    <Button size="sm" variant="outline">
+                      <Eye className="w-4 h-4" />
+                    </Button>
+                  </Link>
+
+                  <Link
+                    href={`/admin/muqtarib/angles/${article.angleId}/articles/${article.id}`}
+                  >
+                    <Button size="sm" variant="outline">
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                  </Link>
+
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleDeleteArticleClick(article)}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
                 </div>
               </div>
-
-              <div className="flex gap-2">
-                <Link href={`/article/${article.id}`}>
-                  <Button size="sm" variant="outline">
-                    <Eye className="w-4 h-4" />
-                  </Button>
-                </Link>
-
-                <Link
-                  href={`/admin/muqtarib/angles/${article.angleId}/articles/${article.id}`}
-                >
-                  <Button size="sm" variant="outline">
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                </Link>
-
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleDeleteArticleClick(article)}
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+            </CardContent>
+          </Card>
+        ))}
     </div>
   );
 };

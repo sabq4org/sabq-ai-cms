@@ -13,22 +13,19 @@ export async function GET(
     console.log("🔍 البحث عن الزاوية بالـ slug:", slug);
 
     if (!slug) {
-      return NextResponse.json(
-        { error: "slug مطلوب" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "slug مطلوب" }, { status: 400 });
     }
 
     // البحث عن الزاوية بالـ slug مع المؤلف وعدد المقالات
     const query = `
-      SELECT 
+      SELECT
         a.*,
         u.name as author_name,
         u.email as author_email,
-        u.profile_image as author_image,
+        u.avatar as author_image,
         (
-          SELECT COUNT(*)::int 
-          FROM angle_articles aa 
+          SELECT COUNT(*)::int
+          FROM angle_articles aa
           WHERE aa.angle_id = a.id AND aa.is_published = true
         ) as articles_count
       FROM angles a
@@ -67,12 +64,14 @@ export async function GET(
       updatedAt: angleRow.updated_at,
       authorId: angleRow.author_id,
       articlesCount: angleRow.articles_count,
-      author: angleRow.author_name ? {
-        id: angleRow.author_id,
-        name: angleRow.author_name,
-        email: angleRow.author_email,
-        image: angleRow.author_image,
-      } : null,
+      author: angleRow.author_name
+        ? {
+            id: angleRow.author_id,
+            name: angleRow.author_name,
+            email: angleRow.author_email,
+            image: angleRow.author_image,
+          }
+        : null,
     };
 
     console.log("✅ تم تحويل بيانات الزاوية:", angle.title);
@@ -81,14 +80,16 @@ export async function GET(
       success: true,
       angle,
     });
-
   } catch (error) {
     console.error("❌ خطأ في جلب الزاوية بالـ slug:", error);
-    
+
     return NextResponse.json(
-      { 
+      {
         error: "حدث خطأ في جلب بيانات الزاوية",
-        details: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
+        details:
+          process.env.NODE_ENV === "development"
+            ? (error as Error).message
+            : undefined,
       },
       { status: 500 }
     );

@@ -12,13 +12,12 @@ import {
   Clock,
   Cpu,
   Eye,
-  Heart,
   Headphones,
+  Heart,
   MessageCircle,
   Play,
   Share2,
   Tag,
-  ThumbsUp,
   User,
   Volume2,
 } from "lucide-react";
@@ -47,7 +46,9 @@ export default function AngleArticlePage() {
         console.log("🔍 جاري جلب المقال:", articleId, "من الزاوية:", slug);
 
         // جلب بيانات الزاوية
-        const angleResponse = await fetch(`/api/muqtarib/angles/by-slug/${slug}`);
+        const angleResponse = await fetch(
+          `/api/muqtarib/angles/by-slug/${slug}`
+        );
         if (!angleResponse.ok) {
           toast.error("الزاوية غير موجودة");
           router.push("/muqtarib");
@@ -82,7 +83,6 @@ export default function AngleArticlePage() {
           const relatedData = await relatedResponse.json();
           setRelatedArticles(relatedData.articles?.slice(0, 3) || []);
         }
-
       } catch (error) {
         console.error("خطأ في تحميل البيانات:", error);
         toast.error("حدث خطأ في التحميل");
@@ -112,7 +112,9 @@ export default function AngleArticlePage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">المقال غير موجود</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            المقال غير موجود
+          </h1>
           <p className="text-gray-600 mb-4">لم يتم العثور على المقال المطلوب</p>
           <Link href="/muqtarib">
             <Button>العودة إلى مُقترب</Button>
@@ -166,7 +168,13 @@ export default function AngleArticlePage() {
 }
 
 // مكون الشريط العلوي الثابت
-function StickyHeader({ angle, article }: { angle: Angle; article: AngleArticle }) {
+function StickyHeader({
+  angle,
+  article,
+}: {
+  angle: Angle;
+  article: AngleArticle;
+}) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -195,7 +203,7 @@ function StickyHeader({ angle, article }: { angle: Angle; article: AngleArticle 
             {article.title}
           </span>
         </div>
-        
+
         <div className="flex items-center gap-2">
           <Button size="sm" variant="ghost">
             <Bookmark className="w-4 h-4" />
@@ -210,15 +218,21 @@ function StickyHeader({ angle, article }: { angle: Angle; article: AngleArticle 
 }
 
 // مكون مسار التنقل
-function Breadcrumbs({ angle, article }: { angle: Angle; article: AngleArticle }) {
+function Breadcrumbs({
+  angle,
+  article,
+}: {
+  angle: Angle;
+  article: AngleArticle;
+}) {
   return (
     <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
       <Link href="/muqtarib" className="hover:text-blue-600 transition-colors">
         مُقترب
       </Link>
       <span>/</span>
-      <Link 
-        href={`/muqtarib/${angle.slug}`} 
+      <Link
+        href={`/muqtarib/${angle.slug}`}
         className="hover:text-blue-600 transition-colors"
       >
         {angle.title}
@@ -230,22 +244,31 @@ function Breadcrumbs({ angle, article }: { angle: Angle; article: AngleArticle }
 }
 
 // مكون ترويسة المقال
-function ArticleHeader({ article, angle }: { article: AngleArticle; angle: Angle }) {
+function ArticleHeader({
+  article,
+  angle,
+}: {
+  article: AngleArticle;
+  angle: Angle;
+}) {
   return (
     <div className="mb-8">
       {/* شارات وتصنيفات */}
       <div className="flex flex-wrap items-center gap-2 mb-4">
         <Link href={`/muqtarib/${angle.slug}`}>
-          <Badge 
-            variant="secondary" 
+          <Badge
+            variant="secondary"
             className="hover:bg-blue-100 transition-colors cursor-pointer"
-            style={{ backgroundColor: angle.themeColor + "20", color: angle.themeColor }}
+            style={{
+              backgroundColor: angle.themeColor + "20",
+              color: angle.themeColor,
+            }}
           >
             <Cpu className="w-3 h-3 ml-1" />
             {angle.title}
           </Badge>
         </Link>
-        
+
         {article.tags && article.tags.length > 0 && (
           <>
             {article.tags.slice(0, 3).map((tag, index) => (
@@ -256,18 +279,23 @@ function ArticleHeader({ article, angle }: { article: AngleArticle; angle: Angle
             ))}
           </>
         )}
-        
+
         {article.sentiment && (
-          <Badge 
-            variant="outline" 
+          <Badge
+            variant="outline"
             className={
-              article.sentiment === 'positive' ? 'text-green-600 border-green-200' :
-              article.sentiment === 'negative' ? 'text-red-600 border-red-200' :
-              'text-gray-600 border-gray-200'
+              article.sentiment === "positive"
+                ? "text-green-600 border-green-200"
+                : article.sentiment === "negative"
+                ? "text-red-600 border-red-200"
+                : "text-gray-600 border-gray-200"
             }
           >
-            {article.sentiment === 'positive' ? '😊 إيجابي' :
-             article.sentiment === 'negative' ? '😞 سلبي' : '😐 محايد'}
+            {article.sentiment === "positive"
+              ? "😊 إيجابي"
+              : article.sentiment === "negative"
+              ? "😞 سلبي"
+              : "😐 محايد"}
           </Badge>
         )}
       </div>
@@ -300,9 +328,11 @@ function ArticleHeader({ article, angle }: { article: AngleArticle; angle: Angle
               <User className="w-6 h-6 text-blue-600" />
             </div>
           )}
-          
+
           <div>
-            <p className="font-semibold text-gray-900">{article.author?.name}</p>
+            <p className="font-semibold text-gray-900">
+              {article.author?.name}
+            </p>
             <p className="text-sm text-gray-500">كاتب في {angle.title}</p>
           </div>
         </div>
@@ -311,7 +341,9 @@ function ArticleHeader({ article, angle }: { article: AngleArticle; angle: Angle
           <div className="flex items-center gap-1">
             <Calendar className="w-4 h-4" />
             <span>
-              {new Date(article.publishDate || article.createdAt).toLocaleDateString("ar-SA")}
+              {new Date(
+                article.publishDate || article.createdAt
+              ).toLocaleDateString("ar-SA")}
             </span>
           </div>
           <div className="flex items-center gap-1">
@@ -339,9 +371,11 @@ function AudioPlayer({ article }: { article: AngleArticle }) {
     <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div 
+          <div
             className={`w-12 h-12 rounded-full flex items-center justify-center cursor-pointer transition-colors ${
-              isPlaying ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 border-2 border-blue-200'
+              isPlaying
+                ? "bg-blue-600 text-white"
+                : "bg-white text-blue-600 border-2 border-blue-200"
             }`}
             onClick={() => setIsPlaying(!isPlaying)}
           >
@@ -351,10 +385,12 @@ function AudioPlayer({ article }: { article: AngleArticle }) {
               <Play className="w-5 h-5 mr-0.5" />
             )}
           </div>
-          
+
           <div>
             <p className="font-medium text-gray-900">استمع للمقال</p>
-            <p className="text-sm text-gray-600">تحويل النص إلى صوت بالذكاء الاصطناعي</p>
+            <p className="text-sm text-gray-600">
+              تحويل النص إلى صوت بالذكاء الاصطناعي
+            </p>
           </div>
         </div>
 
@@ -363,7 +399,7 @@ function AudioPlayer({ article }: { article: AngleArticle }) {
           <Volume2 className="w-5 h-5 text-blue-600" />
         </div>
       </div>
-      
+
       {isPlaying && (
         <div className="mt-4 flex items-center gap-3">
           <div className="flex-1 h-1 bg-blue-200 rounded-full overflow-hidden">
@@ -383,7 +419,7 @@ function ArticleContent({ article }: { article: AngleArticle }) {
       {/* معالجة محتوى Tiptap */}
       <div className="bg-white rounded-xl p-8 shadow-sm border">
         {article.content ? (
-          <div 
+          <div
             className="leading-relaxed"
             dangerouslySetInnerHTML={{ __html: article.content }}
           />
@@ -431,7 +467,9 @@ function ArticleInteractions({ article }: { article: AngleArticle }) {
         size="sm"
         onClick={() => setBookmarked(!bookmarked)}
       >
-        <Bookmark className={`w-4 h-4 ml-2 ${bookmarked ? "fill-current" : ""}`} />
+        <Bookmark
+          className={`w-4 h-4 ml-2 ${bookmarked ? "fill-current" : ""}`}
+        />
         {bookmarked ? "محفوظ" : "حفظ"}
       </Button>
     </div>
@@ -465,10 +503,13 @@ function RecommendedArticles({
   return (
     <div>
       <h2 className="text-2xl font-bold text-gray-900 mb-6">مقالات ذات صلة</h2>
-      
+
       <div className="grid md:grid-cols-3 gap-6">
         {articles.map((article) => (
-          <Card key={article.id} className="group rounded-xl overflow-hidden border-0 shadow-md hover:shadow-lg transition-all duration-200">
+          <Card
+            key={article.id}
+            className="group rounded-xl overflow-hidden border-0 shadow-md hover:shadow-lg transition-all duration-200"
+          >
             <div className="relative h-40 w-full overflow-hidden">
               {article.coverImage ? (
                 <Image
@@ -481,19 +522,23 @@ function RecommendedArticles({
                 <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300"></div>
               )}
             </div>
-            
+
             <CardContent className="p-4">
               <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 leading-tight">
                 {article.title}
               </h3>
-              
+
               <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
                 <span>{article.author?.name}</span>
                 <span>{article.readingTime || 5} دقائق</span>
               </div>
-              
+
               <Link href={`/muqtarib/${angle.slug}/${article.id}`}>
-                <Button variant="ghost" size="sm" className="w-full justify-start text-blue-600 p-0 h-6">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start text-blue-600 p-0 h-6"
+                >
                   قراءة المقال ←
                 </Button>
               </Link>

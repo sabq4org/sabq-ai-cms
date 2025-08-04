@@ -7,7 +7,6 @@ import { Separator } from "@/components/ui/separator";
 import { Angle, AngleArticle } from "@/types/muqtarab";
 import {
   ArrowLeft,
-  BarChart3,
   BookOpen,
   Calendar,
   Clock,
@@ -20,7 +19,6 @@ import {
   Sparkles,
   TrendingUp,
   User,
-  Users,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -51,9 +49,12 @@ export default function AnglePage() {
         console.log("🔍 جاري جلب بيانات الزاوية:", slug);
 
         // جلب بيانات الزاوية بالـ slug
-        const angleResponse = await fetch(`/api/muqtarib/angles/by-slug/${slug}`, {
-          cache: "no-store",
-        });
+        const angleResponse = await fetch(
+          `/api/muqtarib/angles/by-slug/${slug}`,
+          {
+            cache: "no-store",
+          }
+        );
 
         if (!angleResponse.ok) {
           console.error("❌ فشل في جلب الزاوية:", angleResponse.status);
@@ -77,7 +78,10 @@ export default function AnglePage() {
 
         if (articlesResponse.ok) {
           const articlesData = await articlesResponse.json();
-          console.log("✅ تم جلب المقالات:", articlesData.articles?.length || 0);
+          console.log(
+            "✅ تم جلب المقالات:",
+            articlesData.articles?.length || 0
+          );
           setArticles(articlesData.articles || []);
           setFilteredArticles(articlesData.articles || []);
         } else {
@@ -135,7 +139,9 @@ export default function AnglePage() {
         break;
       case "popular":
         // يمكن إضافة منطق ترتيب حسب المشاهدات أو التفاعل
-        filtered = filtered.sort((a, b) => (b.readingTime || 0) - (a.readingTime || 0));
+        filtered = filtered.sort(
+          (a, b) => (b.readingTime || 0) - (a.readingTime || 0)
+        );
         break;
     }
 
@@ -157,8 +163,12 @@ export default function AnglePage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">الزاوية غير موجودة</h1>
-          <p className="text-gray-600 mb-4">لم يتم العثور على الزاوية المطلوبة</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            الزاوية غير موجودة
+          </h1>
+          <p className="text-gray-600 mb-4">
+            لم يتم العثور على الزاوية المطلوبة
+          </p>
           <Link href="/muqtarib">
             <Button>العودة إلى مُقترب</Button>
           </Link>
@@ -237,7 +247,10 @@ function AngleHeader({ angle }: { angle: Angle }) {
                   </Badge>
                 )}
                 {angle.isPublished && (
-                  <Badge variant="secondary" className="bg-green-600 text-white border-0">
+                  <Badge
+                    variant="secondary"
+                    className="bg-green-600 text-white border-0"
+                  >
                     منشورة
                   </Badge>
                 )}
@@ -266,7 +279,8 @@ function AngleHeader({ angle }: { angle: Angle }) {
                 <div className="flex items-center gap-2">
                   <Calendar className="w-5 h-5" />
                   <span>
-                    أُنشئت في {new Date(angle.createdAt).toLocaleDateString("ar-SA")}
+                    أُنشئت في{" "}
+                    {new Date(angle.createdAt).toLocaleDateString("ar-SA")}
                   </span>
                 </div>
               </div>
@@ -340,9 +354,7 @@ function AngleFilterBar({
           {/* الفلاتر والترتيب */}
           <div className="flex items-center gap-4">
             {/* عدد المقالات */}
-            <div className="text-sm text-gray-500">
-              {articlesCount} مقالة
-            </div>
+            <div className="text-sm text-gray-500">{articlesCount} مقالة</div>
 
             <Separator orientation="vertical" className="h-6" />
 
@@ -412,7 +424,9 @@ function AngleArticlesGrid({
           <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <BookOpen className="w-12 h-12 text-gray-400" />
           </div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">لا توجد مقالات</h3>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            لا توجد مقالات
+          </h3>
           <p className="text-gray-500 mb-6">
             لم يتم نشر أي مقالات في هذه الزاوية بعد
           </p>
@@ -462,9 +476,9 @@ function AngleArticleCard({
             <BookOpen className="w-12 h-12 text-gray-400" />
           </div>
         )}
-        
+
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-        
+
         {/* شارة الحالة */}
         <div className="absolute top-3 right-3">
           {article.isPublished ? (
@@ -503,7 +517,9 @@ function AngleArticleCard({
         {/* تاريخ النشر والتفاعل */}
         <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
           <span>
-            {new Date(article.publishDate || article.createdAt).toLocaleDateString("ar-SA")}
+            {new Date(
+              article.publishDate || article.createdAt
+            ).toLocaleDateString("ar-SA")}
           </span>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1">
