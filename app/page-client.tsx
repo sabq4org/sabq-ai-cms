@@ -587,7 +587,16 @@ function NewspaperHomePage({
         {/* شريط النبض الإخباري للموبايل - ملاصق للهيدر */}
         <SafeHydration>
           {isMobileView && (
-            <div className="pulse-ticker-mobile pulse-first-element" style={{ position: 'sticky', top: '56px', zIndex: 48, marginTop: 0, paddingTop: 0 }}>
+            <div
+              className="pulse-ticker-mobile pulse-first-element"
+              style={{
+                position: "sticky",
+                top: "56px",
+                zIndex: 48,
+                marginTop: 0,
+                paddingTop: 0,
+              }}
+            >
               <NewsPulseTicker className="mx-2" isMobile={true} />
             </div>
           )}
@@ -613,7 +622,7 @@ function NewspaperHomePage({
         </SafeHydration>
 
         {/* 1.5. الخبر العاجل (Breaking News) 🔴 - بعد شريط النبض */}
-        <div style={{ marginTop: '2rem' }}>
+        <div style={{ marginTop: "2rem" }}>
           <BreakingNewsBar />
         </div>
 
@@ -1449,7 +1458,7 @@ export default function PageClient({
     if (initialStats && initialStats.loading === false) {
       setStats(initialStats);
     }
-  }, [initialStats]);
+  }, []); // إزالة initialStats من dependency array
 
   return (
     <NewspaperHomePage

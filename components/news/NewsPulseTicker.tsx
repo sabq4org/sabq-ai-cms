@@ -176,13 +176,15 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
       });
     }, displayDuration);
 
-    // تسجيل مشاهدة الإشعار الأول
+    return () => clearInterval(interval);
+  }, [notifications, displayDuration, recordView]);
+
+  // تسجيل مشاهدة الإشعار الحالي (منفصل عن timer)
+  useEffect(() => {
     if (notifications[currentIndex]) {
       recordView(notifications[currentIndex].id);
     }
-
-    return () => clearInterval(interval);
-  }, [notifications, displayDuration, recordView, currentIndex]);
+  }, [currentIndex, notifications, recordView]);
 
   // إذا كان يحمل أو لا توجد إشعارات
   if (isLoading) {
@@ -205,7 +207,9 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
     <div
       className={cn(
         "w-full bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20",
-        isMobile ? "py-3 pulse-ticker-mobile min-h-[44px]" : "py-4 pulse-ticker-desktop min-h-[48px]",
+        isMobile
+          ? "py-3 pulse-ticker-mobile min-h-[44px]"
+          : "py-4 pulse-ticker-desktop min-h-[48px]",
         "overflow-hidden relative flex items-center",
         className
       )}
@@ -213,11 +217,11 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
       <div
         className={cn(
           "flex items-center gap-2 w-full",
-          isMobile ? "gap-2 px-4" : "gap-3 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+          isMobile
+            ? "gap-2 px-4"
+            : "gap-3 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
         )}
       >
-
-
         {/* عبارة "نبض الأخبار" للديسكتوب فقط */}
         {!isMobile && (
           <div className="flex-shrink-0 mr-4">
@@ -285,8 +289,6 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
           </div>
         )}
       </div>
-
-
     </div>
   );
 };

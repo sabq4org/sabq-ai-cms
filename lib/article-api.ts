@@ -6,10 +6,15 @@ export interface ArticleData {
   content: string;
   excerpt?: string;
   subtitle?: string; // العنوان الفرعي المستقل
+  description?: string; // وصف المقال
   summary?: string;
   ai_summary?: string;
   keywords?: string[];
   seo_keywords?: string | string[];
+  metadata?: {
+    subtitle?: string;
+    [key: string]: any;
+  };
   author?: {
     name: string;
     avatar?: string;
@@ -36,6 +41,7 @@ export interface ArticleData {
   views?: number;
   reading_time?: number;
   status?: string;
+  article_type?: string; // نوع المقال
   allow_comments?: boolean;
   comments_count?: number;
   stats?: {

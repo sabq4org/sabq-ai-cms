@@ -83,6 +83,12 @@ export default function ArticleClientComponent({
       article.category?.name?.includes("تحليل"));
   const [loading, setLoading] = useState(!initialArticle);
   const [isReading, setIsReading] = useState(false);
+  const [showAudioPlayer, setShowAudioPlayer] = useState(false);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
+  const [contentHtml, setContentHtml] = useState("");
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   // جلب بروفايل المراسل
   const {
@@ -139,6 +145,24 @@ export default function ArticleClientComponent({
     }
   }, [initialArticle, articleId]);
 
+  // معالجة المحتوى إلى HTML
+  useEffect(() => {
+    if (!article?.content) {
+      setContentHtml("<p>المحتوى غير متوفر حالياً.</p>");
+      return;
+    }
+
+    // استخدام المحتوى كما هو إذا كان HTML
+    if (article.content.includes("<p>") || article.content.includes("<div>")) {
+      setContentHtml(article.content);
+    } else {
+      // تحويل النص العادي إلى HTML بسيط
+      const paragraphs = article.content.split("\n\n");
+      const html = paragraphs.map((p) => `<p>${p}</p>`).join("");
+      setContentHtml(html || "<p>المحتوى غير متوفر بشكل كامل.</p>");
+    }
+  }, [article?.content]);
+
   // إذا لا يوجد مقال وجاري التحميل
   if (loading || !article) {
     return (
@@ -169,44 +193,9 @@ export default function ArticleClientComponent({
       </div>
     );
   }
-  const [showAudioPlayer, setShowAudioPlayer] = useState(false);
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
 
   // نظام تتبع التفاعل الذكي - معطل مؤقتاً لتجنب خطأ AuthProvider
   // const interactionTracking = useUserInteractionTracking(articleId);
-
-  // إصلاح مشكلة استخدام marked
-  const [contentHtml, setContentHtml] = useState("");
-
-  useEffect(() => {
-    // تحويل المحتوى إلى HTML مع معالجة أفضل للحالات الخاصة
-    const processContent = async () => {
-      // التعامل مع المحتوى الفارغ
-      if (!article.content) {
-        console.log("⚠️ محتوى المقال فارغ، عرض رسالة افتراضية");
-        setContentHtml("<p>المحتوى غير متوفر حالياً.</p>");
-        return;
-      }
-
-      // استخدام المحتوى كما هو إذا كان HTML
-      if (
-        article.content.includes("<p>") ||
-        article.content.includes("<div>")
-      ) {
-        setContentHtml(article.content);
-      } else {
-        // تحويل النص العادي إلى HTML بسيط
-        const paragraphs = article.content.split("\n\n");
-        const html = paragraphs.map((p) => `<p>${p}</p>`).join("");
-        setContentHtml(html || "<p>المحتوى غير متوفر بشكل كامل.</p>");
-      }
-    };
-
-    processContent();
-  }, [article.content]);
 
   // معالجة الإعجاب
   const handleLike = async () => {

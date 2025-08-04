@@ -19,146 +19,147 @@ interface Article {
   views?: number;
 }
 
-// دالة جلب المقال من قاعدة البيانات مباشرة (تجنب مشاكل API في generateMetadata)
-async function getArticleBySlug(slug: string): Promise<Article | null> {
-  try {
-    // استخدام prisma مباشرة بدلاً من API call
-    const { default: prisma } = await import("@/lib/prisma");
-
-    const article = await prisma.articles.findFirst({
-      where: {
-        OR: [{ id: slug }, { slug: slug }],
-        status: "published",
-      },
-      select: {
-        id: true,
-        title: true,
-        content: true,
-        excerpt: true,
-        summary: true,
-        featured_image: true,
-        published_at: true,
-        author_name: true,
-        reading_time: true,
-        views: true,
-        article_type: true,
-        categories: {
-          select: {
-            name: true,
-          },
-        },
-        article_author: {
-          select: {
-            full_name: true,
-          },
-        },
-      },
-    });
-
-    if (!article) {
-      console.log(`Article not found: ${slug}`);
-      return null;
-    }
-
-    // تحويل البيانات للصيغة المطلوبة
-    return {
-      id: article.id,
-      title: article.title,
-      content: article.content,
-      excerpt: article.excerpt,
-      summary: article.summary,
-      featured_image: article.featured_image,
-      published_at: article.published_at,
-      author_name: article.article_author?.full_name || article.author_name,
-      category_name: article.categories?.name,
-      article_type: article.article_type,
-      reading_time: article.reading_time,
-      views: article.views,
-    };
-  } catch (error) {
-    console.error("Error fetching article for metadata:", error);
-    return null;
-  }
-}
-
-// توليد العنوان الديناميكي
-function generateTitle(article: Article): string {
-  if (!article.title) return "سبق الذكية";
-
-  // قطع العنوان إذا كان طويلاً جداً (SEO best practice)
-  const title =
-    article.title.length > 60
-      ? `${article.title.substring(0, 57)}...`
-      : article.title;
-
-  return `${title} - سبق الذكية`;
-}
-
-// توليد الوصف الديناميكي
-function generateDescription(article: Article): string {
-  const defaultDesc =
-    "اقرأ هذا المقال من سبق الذكية - منصة الأخبار الذكية المدعومة بالذكاء الاصطناعي";
-
-  if (article.excerpt) {
-    return article.excerpt.length > 160
-      ? `${article.excerpt.substring(0, 157)}...`
-      : article.excerpt;
-  }
-
-  if (article.summary) {
-    return article.summary.length > 160
-      ? `${article.summary.substring(0, 157)}...`
-      : article.summary;
-  }
-
-  return defaultDesc;
-}
-
-// توليد نوع المقال للـ OpenGraph
-function getArticleType(article: Article): "article" | "website" {
-  const newsTypes = ["news", "breaking", "urgent"];
-  const articleTypes = ["opinion", "analysis", "editorial", "interview"];
-
-  if (newsTypes.includes(article.article_type || "")) {
-    return "article";
-  }
-
-  if (articleTypes.includes(article.article_type || "")) {
-    return "article";
-  }
-
-  return "article"; // default to article for all content
-}
-
-// توليد الكلمات المفتاحية
-function generateKeywords(article: Article): string[] {
-  const baseKeywords = ["سبق الذكية", "أخبار", "مقالات"];
-
-  if (article.category_name) {
-    baseKeywords.push(article.category_name);
-  }
-
-  if (article.author_name) {
-    baseKeywords.push(article.author_name);
-  }
-
-  // إضافة كلمات من العنوان (أول 3 كلمات)
-  if (article.title) {
-    const titleWords = article.title.split(" ").slice(0, 3);
-    baseKeywords.push(...titleWords);
-  }
-
-  return baseKeywords;
-}
-
+// تحسين generateMetadata للعمل مع Next.js 15
 export async function generateMetadata({
   params,
 }: {
-  params: ArticleParams;
+  params: Promise<ArticleParams>;
 }): Promise<Metadata> {
   // تجنب API calls في generateMetadata وإعطاء metadata أساسية
   // سيتم تحديث metadata ديناميكياً من العميل
-  const articleId = params.id;
+  const { id: articleId } = await params;
+
+  // دالة جلب المقال من قاعدة البيانات مباشرة (تجنب مشاكل API في generateMetadata)
+  async function getArticleBySlug(slug: string): Promise<Article | null> {
+    try {
+      // استخدام prisma مباشرة بدلاً من API call
+      const { default: prisma } = await import("@/lib/prisma");
+
+      const article = await prisma.articles.findFirst({
+        where: {
+          OR: [{ id: slug }, { slug: slug }],
+          status: "published",
+        },
+        select: {
+          id: true,
+          title: true,
+          content: true,
+          excerpt: true,
+          summary: true,
+          featured_image: true,
+          published_at: true,
+          author_name: true,
+          reading_time: true,
+          views: true,
+          article_type: true,
+          categories: {
+            select: {
+              name: true,
+            },
+          },
+          article_author: {
+            select: {
+              full_name: true,
+            },
+          },
+        },
+      });
+
+      if (!article) {
+        console.log(`Article not found: ${slug}`);
+        return null;
+      }
+
+      // تحويل البيانات للصيغة المطلوبة
+      return {
+        id: article.id,
+        title: article.title,
+        content: article.content,
+        excerpt: article.excerpt,
+        summary: article.summary,
+        featured_image: article.featured_image,
+        published_at: article.published_at,
+        author_name: article.article_author?.full_name || article.author_name,
+        category_name: article.categories?.name,
+        article_type: article.article_type,
+        reading_time: article.reading_time,
+        views: article.views,
+      };
+    } catch (error) {
+      console.error("Error fetching article for metadata:", error);
+      return null;
+    }
+  }
+
+  // توليد العنوان الديناميكي
+  function generateTitle(article: Article): string {
+    if (!article.title) return "سبق الذكية";
+
+    // قطع العنوان إذا كان طويلاً جداً (SEO best practice)
+    const title =
+      article.title.length > 60
+        ? `${article.title.substring(0, 57)}...`
+        : article.title;
+
+    return `${title} - سبق الذكية`;
+  }
+
+  // توليد الوصف الديناميكي
+  function generateDescription(article: Article): string {
+    const defaultDesc =
+      "اقرأ هذا المقال من سبق الذكية - منصة الأخبار الذكية المدعومة بالذكاء الاصطناعي";
+
+    if (article.excerpt) {
+      return article.excerpt.length > 160
+        ? `${article.excerpt.substring(0, 157)}...`
+        : article.excerpt;
+    }
+
+    if (article.summary) {
+      return article.summary.length > 160
+        ? `${article.summary.substring(0, 157)}...`
+        : article.summary;
+    }
+
+    return defaultDesc;
+  }
+
+  // توليد نوع المقال للـ OpenGraph
+  function getArticleType(article: Article): "article" | "website" {
+    const newsTypes = ["news", "breaking", "urgent"];
+    const articleTypes = ["opinion", "analysis", "editorial", "interview"];
+
+    if (newsTypes.includes(article.article_type || "")) {
+      return "article";
+    }
+
+    if (articleTypes.includes(article.article_type || "")) {
+      return "article";
+    }
+
+    return "article"; // default to article for all content
+  }
+
+  // توليد الكلمات المفتاحية
+  function generateKeywords(article: Article): string[] {
+    const baseKeywords = ["سبق الذكية", "أخبار", "مقالات"];
+
+    if (article.category_name) {
+      baseKeywords.push(article.category_name);
+    }
+
+    if (article.author_name) {
+      baseKeywords.push(article.author_name);
+    }
+
+    // إضافة كلمات من العنوان (أول 3 كلمات)
+    if (article.title) {
+      const titleWords = article.title.split(" ").slice(0, 3);
+      baseKeywords.push(...titleWords);
+    }
+
+    return baseKeywords;
+  }
 
   return {
     title: "مقال - سبق الذكية",
