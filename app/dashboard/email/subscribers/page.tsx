@@ -229,7 +229,7 @@ export default function SubscribersPage() {
                 <SelectValue placeholder="كل الحالات" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">كل الحالات</SelectItem>
+                <SelectItem value="all">كل الحالات</SelectItem>
                 <SelectItem value="active">نشط</SelectItem>
                 <SelectItem value="inactive">غير متفاعل</SelectItem>
                 <SelectItem value="unsubscribed">ألغى الاشتراك</SelectItem>

@@ -241,7 +241,7 @@ export default function EmailComposePage() {
                     <SelectValue placeholder="اختر قالباً محفوظاً" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">بدون قالب</SelectItem>
+                    <SelectItem value="none">بدون قالب</SelectItem>
                     {templates.map(template => (
                       <SelectItem key={template.id} value={template.id}>
                         {template.name}

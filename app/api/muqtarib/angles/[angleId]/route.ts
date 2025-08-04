@@ -13,7 +13,7 @@ export async function GET(
 
     // جلب بيانات الزاوية مع إحصائيات
     const angleQuery = `
-      SELECT 
+      SELECT
         a.*,
         u.name as author_name,
         u.avatar as author_avatar,
@@ -44,7 +44,7 @@ export async function GET(
 
     // جلب أحدث المقالات (آخر 5)
     const recentArticlesQuery = `
-      SELECT 
+      SELECT
         aa.id,
         aa.title,
         aa.excerpt,

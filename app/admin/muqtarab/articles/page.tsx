@@ -88,8 +88,8 @@ export default function ArticlesManagementPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [cornerFilter, setCornerFilter] = useState('');
-  const [sentimentFilter, setSentimentFilter] = useState('');
+  const [cornerFilter, setCornerFilter] = useState('all');
+  const [sentimentFilter, setSentimentFilter] = useState('all');
   const [pagination, setPagination] = useState<PaginationData>({
     page: 1,
     limit: 10,
@@ -223,7 +223,7 @@ export default function ArticlesManagementPage() {
                   <SelectValue placeholder="الزاوية" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">جميع الزوايا</SelectItem>
+                                        <SelectItem value="all">جميع الزوايا</SelectItem>
                   {corners.map((corner) => (
                     <SelectItem key={corner.id} value={corner.id}>
                       {corner.name}
@@ -237,7 +237,7 @@ export default function ArticlesManagementPage() {
                   <SelectValue placeholder="النمط" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">جميع الأنماط</SelectItem>
+                                        <SelectItem value="all">جميع الأنماط</SelectItem>
                   <SelectItem value="ساخر">😏 ساخر</SelectItem>
                   <SelectItem value="تأملي">🤔 تأملي</SelectItem>
                   <SelectItem value="عاطفي">❤️ عاطفي</SelectItem>

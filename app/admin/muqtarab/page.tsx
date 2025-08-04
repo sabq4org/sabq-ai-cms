@@ -131,7 +131,7 @@ export default function MuqtarabAdminPage() {
             </div>
             <div className="flex gap-3">
               <Button
-                onClick={() => router.push("/admin/muqtarab/corners/create")}
+                onClick={() => router.push("/admin/muqtarab/angles/new")}
                 className="bg-blue-600 hover:bg-blue-700 text-white"
               >
                 <PlusCircle className="w-4 h-4 ml-2" />
@@ -159,7 +159,7 @@ export default function MuqtarabAdminPage() {
             </div>
             <div className="flex gap-3">
               <Button
-                onClick={() => router.push("/admin/muqtarab/corners/create")}
+                onClick={() => router.push("/admin/muqtarib/angles/new")}
                 className="bg-white text-blue-600 hover:bg-blue-50"
               >
                 <PlusCircle className="w-5 h-5 ml-2" />
@@ -273,7 +273,7 @@ export default function MuqtarabAdminPage() {
                   ابدأ بإنشاء أول زاوية إبداعية
                 </p>
                 <Button
-                  onClick={() => router.push("/admin/muqtarab/corners/create")}
+                  onClick={() => router.push("/admin/muqtarib/angles/new")}
                 >
                   <PlusCircle className="w-4 h-4 ml-2" />
                   إنشاء زاوية جديدة

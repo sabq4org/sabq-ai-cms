@@ -1,12 +1,12 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import { Angle, MuqtaribArticleForm } from "@/types/muqtarab";
 import {
   ArrowLeft,
@@ -71,7 +71,7 @@ const ContentEditor = ({
             📷
           </button>
         </div>
-        
+
         <textarea
           value={content}
           onChange={(e) => onChange(e.target.value)}
@@ -80,10 +80,12 @@ const ContentEditor = ({
           dir="rtl"
         />
       </div>
-      
+
       <div className="flex items-center gap-2 text-sm text-gray-500">
         <Clock className="w-4 h-4" />
-        <span>وقت القراءة المقدر: {Math.ceil(content.split(" ").length / 200)} دقيقة</span>
+        <span>
+          وقت القراءة المقدر: {Math.ceil(content.split(" ").length / 200)} دقيقة
+        </span>
       </div>
     </div>
   );
@@ -98,25 +100,25 @@ const TagsInput = ({
   onChange: (tags: string[]) => void;
 }) => {
   const [inputValue, setInputValue] = useState("");
-  
+
   const addTag = () => {
     if (inputValue.trim() && !tags.includes(inputValue.trim())) {
       onChange([...tags, inputValue.trim()]);
       setInputValue("");
     }
   };
-  
+
   const removeTag = (tagToRemove: string) => {
-    onChange(tags.filter(tag => tag !== tagToRemove));
+    onChange(tags.filter((tag) => tag !== tagToRemove));
   };
-  
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       e.preventDefault();
       addTag();
     }
   };
-  
+
   return (
     <div className="space-y-3">
       <div className="flex gap-2">
@@ -131,11 +133,15 @@ const TagsInput = ({
           <Hash className="w-4 h-4" />
         </Button>
       </div>
-      
+
       {tags.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {tags.map((tag, index) => (
-            <Badge key={index} variant="secondary" className="flex items-center gap-1">
+            <Badge
+              key={index}
+              variant="secondary"
+              className="flex items-center gap-1"
+            >
               {tag}
               <button
                 type="button"
@@ -161,11 +167,26 @@ const SentimentSelector = ({
   onChange: (sentiment: "neutral" | "positive" | "critical") => void;
 }) => {
   const sentiments = [
-    { key: "neutral", label: "محايد", color: "bg-blue-100 text-blue-800", icon: "😐" },
-    { key: "positive", label: "إيجابي", color: "bg-green-100 text-green-800", icon: "😊" },
-    { key: "critical", label: "نقدي", color: "bg-red-100 text-red-800", icon: "🤔" },
+    {
+      key: "neutral",
+      label: "محايد",
+      color: "bg-blue-100 text-blue-800",
+      icon: "😐",
+    },
+    {
+      key: "positive",
+      label: "إيجابي",
+      color: "bg-green-100 text-green-800",
+      icon: "😊",
+    },
+    {
+      key: "critical",
+      label: "نقدي",
+      color: "bg-red-100 text-red-800",
+      icon: "🤔",
+    },
   ];
-  
+
   return (
     <div className="grid grid-cols-3 gap-3">
       {sentiments.map((sentiment) => (
@@ -202,15 +223,18 @@ const ArticlePreview = ({
       day: "numeric",
     });
   };
-  
+
   const getSentimentIcon = (sentiment: string) => {
     switch (sentiment) {
-      case "positive": return "😊";
-      case "critical": return "🤔";
-      default: return "😐";
+      case "positive":
+        return "😊";
+      case "critical":
+        return "🤔";
+      default:
+        return "😐";
     }
   };
-  
+
   return (
     <Card className="sticky top-6">
       <CardHeader>
@@ -233,7 +257,7 @@ const ArticlePreview = ({
             <p className="text-xs text-gray-500">الزاوية</p>
           </div>
         </div>
-        
+
         {/* صورة الغلاف */}
         <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden">
           {formData.coverImage ? (
@@ -248,31 +272,34 @@ const ArticlePreview = ({
             </div>
           )}
         </div>
-        
+
         {/* محتوى المعاينة */}
         <div className="space-y-3">
           <h3 className="font-bold text-lg leading-tight">
             {formData.title || "عنوان المقال"}
           </h3>
-          
+
           {formData.excerpt && (
             <p className="text-gray-600 text-sm leading-relaxed">
               {formData.excerpt}
             </p>
           )}
-          
+
           <div className="flex items-center gap-2 text-xs">
             <Badge className="text-xs">
               {getSentimentIcon(formData.sentiment || "neutral")}
-              {formData.sentiment === "positive" ? "إيجابي" 
-                : formData.sentiment === "critical" ? "نقدي" : "محايد"}
+              {formData.sentiment === "positive"
+                ? "إيجابي"
+                : formData.sentiment === "critical"
+                ? "نقدي"
+                : "محايد"}
             </Badge>
-            
+
             <Badge variant="outline" className="text-xs">
               {formData.isPublished ? "منشور" : "مسودة"}
             </Badge>
           </div>
-          
+
           {formData.tags && formData.tags.length > 0 && (
             <div className="flex flex-wrap gap-1">
               {formData.tags.slice(0, 3).map((tag, index) => (
@@ -287,7 +314,7 @@ const ArticlePreview = ({
               )}
             </div>
           )}
-          
+
           <div className="flex items-center gap-4 text-xs text-gray-500 pt-2 border-t">
             <div className="flex items-center gap-1">
               <User className="w-3 h-3" />
@@ -314,12 +341,12 @@ export default function CreateAngleArticlePage() {
   const router = useRouter();
   const params = useParams();
   const angleId = params.angleId as string;
-  
+
   const [loading, setLoading] = useState(false);
   const [angle, setAngle] = useState<Angle | null>(null);
   const [angleLoading, setAngleLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
-  
+
   const [formData, setFormData] = useState<MuqtaribArticleForm>({
     angleId,
     title: "",
@@ -331,9 +358,9 @@ export default function CreateAngleArticlePage() {
     sentiment: "neutral",
     isPublished: false,
   });
-  
+
   const [user, setUser] = useState<any>(null);
-  
+
   // جلب بيانات الزاوية والمستخدم
   useEffect(() => {
     const fetchData = async () => {
@@ -343,9 +370,9 @@ export default function CreateAngleArticlePage() {
         if (userData) {
           const parsedUser = JSON.parse(userData);
           setUser(parsedUser);
-          setFormData(prev => ({ ...prev, authorId: parsedUser.id }));
+          setFormData((prev) => ({ ...prev, authorId: parsedUser.id }));
         }
-        
+
         // جلب بيانات الزاوية
         const response = await fetch(`/api/muqtarib/angles/${angleId}`);
         if (response.ok) {
@@ -362,24 +389,26 @@ export default function CreateAngleArticlePage() {
         setAngleLoading(false);
       }
     };
-    
+
     fetchData();
   }, [angleId, router]);
-  
+
   // حساب وقت القراءة تلقائياً
   useEffect(() => {
-    const wordCount = formData.content.split(" ").filter(word => word.trim()).length;
+    const wordCount = formData.content
+      .split(" ")
+      .filter((word) => word.trim()).length;
     const readingTime = Math.ceil(wordCount / 200); // 200 كلمة في الدقيقة
-    setFormData(prev => ({ ...prev, readingTime }));
+    setFormData((prev) => ({ ...prev, readingTime }));
   }, [formData.content]);
-  
+
   // تحليل اتجاه المقال بالذكاء الاصطناعي
   const analyzeSentiment = async () => {
     if (!formData.content.trim()) {
       toast.error("يرجى كتابة محتوى المقال أولاً");
       return;
     }
-    
+
     setAnalyzing(true);
     try {
       const response = await fetch("/api/ai/analyze-sentiment", {
@@ -390,14 +419,19 @@ export default function CreateAngleArticlePage() {
           title: formData.title,
         }),
       });
-      
+
       if (response.ok) {
         const data = await response.json();
-        setFormData(prev => ({ ...prev, sentiment: data.sentiment }));
-        toast.success(`تم تحليل الاتجاه: ${
-          data.sentiment === "positive" ? "إيجابي" 
-          : data.sentiment === "critical" ? "نقدي" : "محايد"
-        }`);
+        setFormData((prev) => ({ ...prev, sentiment: data.sentiment }));
+        toast.success(
+          `تم تحليل الاتجاه: ${
+            data.sentiment === "positive"
+              ? "إيجابي"
+              : data.sentiment === "critical"
+              ? "نقدي"
+              : "محايد"
+          }`
+        );
       } else {
         toast.error("فشل في تحليل الاتجاه");
       }
@@ -408,35 +442,37 @@ export default function CreateAngleArticlePage() {
       setAnalyzing(false);
     }
   };
-  
+
   // رفع صورة الغلاف
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    
+
     if (!file.type.startsWith("image/")) {
       toast.error("يرجى اختيار ملف صورة صحيح");
       return;
     }
-    
+
     if (file.size > 5 * 1024 * 1024) {
       toast.error("حجم الصورة يجب أن يكون أقل من 5 ميجابايت");
       return;
     }
-    
+
     try {
       const formDataUpload = new FormData();
       formDataUpload.append("file", file);
       formDataUpload.append("type", "article-cover");
-      
+
       const response = await fetch("/api/upload", {
         method: "POST",
         body: formDataUpload,
       });
-      
+
       if (response.ok) {
         const data = await response.json();
-        setFormData(prev => ({ ...prev, coverImage: data.url }));
+        setFormData((prev) => ({ ...prev, coverImage: data.url }));
         toast.success("تم رفع الصورة بنجاح");
       } else {
         toast.error("فشل في رفع الصورة");
@@ -446,14 +482,14 @@ export default function CreateAngleArticlePage() {
       toast.error("حدث خطأ في رفع الصورة");
     }
   };
-  
+
   // حفظ المقال
   const handleSubmit = async (publish: boolean = false) => {
     if (!formData.title.trim() || !formData.content.trim()) {
       toast.error("يرجى ملء العنوان والمحتوى");
       return;
     }
-    
+
     setLoading(true);
     try {
       const payload = {
@@ -461,16 +497,18 @@ export default function CreateAngleArticlePage() {
         isPublished: publish,
         publishDate: publish ? new Date() : undefined,
       };
-      
+
       const response = await fetch(`/api/muqtarib/angles/${angleId}/articles`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      
+
       if (response.ok) {
         const data = await response.json();
-        toast.success(publish ? "تم نشر المقال بنجاح!" : "تم حفظ المقال كمسودة");
+        toast.success(
+          publish ? "تم نشر المقال بنجاح!" : "تم حفظ المقال كمسودة"
+        );
         router.push(`/admin/muqtarib/angles/${angleId}`);
       } else {
         const error = await response.json();
@@ -483,7 +521,7 @@ export default function CreateAngleArticlePage() {
       setLoading(false);
     }
   };
-  
+
   if (angleLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -494,14 +532,18 @@ export default function CreateAngleArticlePage() {
       </div>
     );
   }
-  
+
   if (!angle) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Sparkles className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">الزاوية غير موجودة</h2>
-          <p className="text-gray-600 mb-6">لم يتم العثور على الزاوية المطلوبة</p>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            الزاوية غير موجودة
+          </h2>
+          <p className="text-gray-600 mb-6">
+            لم يتم العثور على الزاوية المطلوبة
+          </p>
           <Button onClick={() => router.push("/admin/muqtarib")}>
             <ArrowLeft className="w-4 h-4 ml-2" />
             العودة لمُقترب
@@ -510,7 +552,7 @@ export default function CreateAngleArticlePage() {
       </div>
     );
   }
-  
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* شريط التنقل العلوي */}
@@ -532,7 +574,7 @@ export default function CreateAngleArticlePage() {
                 مقال جديد
               </h1>
             </div>
-            
+
             <div className="flex items-center gap-3">
               <Button
                 variant="outline"
@@ -551,7 +593,7 @@ export default function CreateAngleArticlePage() {
           </div>
         </div>
       </div>
-      
+
       <div className="p-6">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -569,18 +611,28 @@ export default function CreateAngleArticlePage() {
                       id="title"
                       placeholder="عنوان جذاب ومعبر..."
                       value={formData.title}
-                      onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          title: e.target.value,
+                        }))
+                      }
                       className="text-right"
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="excerpt">الملخص (اختياري)</Label>
                     <Textarea
                       id="excerpt"
                       placeholder="ملخص مختصر يظهر في بطاقة المقال..."
                       value={formData.excerpt}
-                      onChange={(e) => setFormData(prev => ({ ...prev, excerpt: e.target.value }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          excerpt: e.target.value,
+                        }))
+                      }
                       className="min-h-20 text-right"
                       maxLength={300}
                     />
@@ -590,7 +642,7 @@ export default function CreateAngleArticlePage() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               {/* محتوى المقال */}
               <Card>
                 <CardHeader>
@@ -599,11 +651,13 @@ export default function CreateAngleArticlePage() {
                 <CardContent>
                   <ContentEditor
                     content={formData.content}
-                    onChange={(content) => setFormData(prev => ({ ...prev, content }))}
+                    onChange={(content) =>
+                      setFormData((prev) => ({ ...prev, content }))
+                    }
                   />
                 </CardContent>
               </Card>
-              
+
               {/* التصنيف والوسوم */}
               <Card>
                 <CardHeader>
@@ -614,20 +668,24 @@ export default function CreateAngleArticlePage() {
                     <Label>اتجاه المقال</Label>
                     <SentimentSelector
                       value={formData.sentiment || "neutral"}
-                      onChange={(sentiment) => setFormData(prev => ({ ...prev, sentiment }))}
+                      onChange={(sentiment) =>
+                        setFormData((prev) => ({ ...prev, sentiment }))
+                      }
                     />
                   </div>
-                  
+
                   <div className="space-y-3">
                     <Label>الوسوم</Label>
                     <TagsInput
                       tags={formData.tags || []}
-                      onChange={(tags) => setFormData(prev => ({ ...prev, tags }))}
+                      onChange={(tags) =>
+                        setFormData((prev) => ({ ...prev, tags }))
+                      }
                     />
                   </div>
                 </CardContent>
               </Card>
-              
+
               {/* صورة الغلاف */}
               <Card>
                 <CardHeader>
@@ -646,7 +704,12 @@ export default function CreateAngleArticlePage() {
                           type="button"
                           variant="outline"
                           size="sm"
-                          onClick={() => setFormData(prev => ({ ...prev, coverImage: undefined }))}
+                          onClick={() =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              coverImage: undefined,
+                            }))
+                          }
                         >
                           إزالة الصورة
                         </Button>
@@ -655,8 +718,13 @@ export default function CreateAngleArticlePage() {
                       <div className="space-y-4">
                         <Upload className="w-12 h-12 mx-auto text-gray-400" />
                         <div>
-                          <p className="text-sm text-gray-600">اسحب وأفلت الصورة هنا أو</p>
-                          <Label htmlFor="cover-upload" className="cursor-pointer text-blue-600 hover:text-blue-700">
+                          <p className="text-sm text-gray-600">
+                            اسحب وأفلت الصورة هنا أو
+                          </p>
+                          <Label
+                            htmlFor="cover-upload"
+                            className="cursor-pointer text-blue-600 hover:text-blue-700"
+                          >
                             اختر ملف
                           </Label>
                           <input
@@ -667,13 +735,15 @@ export default function CreateAngleArticlePage() {
                             className="hidden"
                           />
                         </div>
-                        <p className="text-xs text-gray-500">PNG, JPG أو GIF (أقصى حجم: 5MB)</p>
+                        <p className="text-xs text-gray-500">
+                          PNG, JPG أو GIF (أقصى حجم: 5MB)
+                        </p>
                       </div>
                     )}
                   </div>
                 </CardContent>
               </Card>
-              
+
               {/* إعدادات النشر */}
               <Card>
                 <CardHeader>
@@ -683,25 +753,33 @@ export default function CreateAngleArticlePage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <Label htmlFor="published">نشر فوري</Label>
-                      <p className="text-sm text-gray-500">جعل المقال متاحاً للقراء</p>
+                      <p className="text-sm text-gray-500">
+                        جعل المقال متاحاً للقراء
+                      </p>
                     </div>
                     <Switch
                       id="published"
                       checked={formData.isPublished}
-                      onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isPublished: checked }))}
+                      onCheckedChange={(checked) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          isPublished: checked,
+                        }))
+                      }
                     />
                   </div>
-                  
+
                   {formData.isPublished && (
                     <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
                       <p className="text-sm text-green-800">
-                        سيتم نشر المقال فور الحفظ وسيكون متاحاً للقراء في زاوية "{angle.title}"
+                        سيتم نشر المقال فور الحفظ وسيكون متاحاً للقراء في زاوية
+                        "{angle.title}"
                       </p>
                     </div>
                   )}
                 </CardContent>
               </Card>
-              
+
               {/* أزرار الحفظ */}
               <div className="flex gap-4">
                 <Button
@@ -731,7 +809,7 @@ export default function CreateAngleArticlePage() {
                 </Button>
               </div>
             </div>
-            
+
             {/* معاينة المقال */}
             <div className="lg:col-span-1">
               <ArticlePreview formData={formData} angle={angle} />

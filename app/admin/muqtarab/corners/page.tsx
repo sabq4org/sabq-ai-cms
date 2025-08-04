@@ -140,7 +140,7 @@ export default function CornersManagementPage() {
               إدارة وتنظيم زوايا المحتوى الإبداعي في منصة مُقترَب
             </p>
           </div>
-          <Button onClick={() => router.push('/admin/muqtarab/corners/create')}>
+          <Button onClick={() => router.push('/admin/muqtarib/angles/new')}>
             <Plus className="w-4 h-4 ml-2" />
             إنشاء زاوية جديدة
           </Button>
@@ -194,7 +194,7 @@ export default function CornersManagementPage() {
                 <p className="text-gray-600 dark:text-gray-400 mb-4">
                   لم يتم العثور على زوايا تطابق البحث المحدد
                 </p>
-                <Button onClick={() => router.push('/admin/muqtarab/corners/create')}>
+                <Button onClick={() => router.push('/admin/muqtarib/angles/new')}>
                   <Plus className="w-4 h-4 ml-2" />
                   إنشاء زاوية جديدة
                 </Button>

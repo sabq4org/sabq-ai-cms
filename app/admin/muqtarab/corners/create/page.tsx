@@ -297,7 +297,7 @@ export default function CreateCornerPage() {
                       <SelectValue placeholder="اختر التصنيف" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">بدون تصنيف</SelectItem>
+                      <SelectItem value="none">بدون تصنيف</SelectItem>
                       {categories.map((category) => (
                         <SelectItem key={category.id} value={category.id}>
                           {category.name}

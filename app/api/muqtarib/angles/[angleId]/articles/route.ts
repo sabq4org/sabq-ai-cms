@@ -1,6 +1,6 @@
+import { MuqtaribArticleForm } from "@/types/muqtarab";
 import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
-import { MuqtaribArticleForm } from "@/types/muqtarab";
 
 const prisma = new PrismaClient();
 
@@ -36,13 +36,19 @@ export async function POST(
     // إنشاء المقال
     const result = (await prisma.$queryRaw`
       INSERT INTO angle_articles (
-        angle_id, title, content, excerpt, author_id, 
-        sentiment, tags, cover_image, is_published, 
+        angle_id, title, content, excerpt, author_id,
+        sentiment, tags, cover_image, is_published,
         publish_date, reading_time
       ) VALUES (
-        ${angleId}, ${body.title}, ${body.content}, ${body.excerpt || null}, ${body.authorId},
-        ${body.sentiment || "neutral"}, ${JSON.stringify(body.tags || [])}, ${body.coverImage || null}, 
-        ${body.isPublished}, ${body.publishDate ? new Date(body.publishDate) : null}, ${body.readingTime || 0}
+        ${angleId}, ${body.title}, ${body.content}, ${body.excerpt || null}, ${
+      body.authorId
+    },
+        ${body.sentiment || "neutral"}, ${JSON.stringify(body.tags || [])}, ${
+      body.coverImage || null
+    },
+        ${body.isPublished}, ${
+      body.publishDate ? new Date(body.publishDate) : null
+    }, ${body.readingTime || 0}
       ) RETURNING *
     `) as any[];
 
@@ -50,7 +56,9 @@ export async function POST(
 
     return NextResponse.json({
       success: true,
-      message: body.isPublished ? "تم نشر المقال بنجاح" : "تم حفظ المقال كمسودة",
+      message: body.isPublished
+        ? "تم نشر المقال بنجاح"
+        : "تم حفظ المقال كمسودة",
       article: {
         id: article.id,
         angleId: article.angle_id,
@@ -59,7 +67,10 @@ export async function POST(
         excerpt: article.excerpt,
         authorId: article.author_id,
         sentiment: article.sentiment,
-        tags: typeof article.tags === 'string' ? JSON.parse(article.tags) : article.tags,
+        tags:
+          typeof article.tags === "string"
+            ? JSON.parse(article.tags)
+            : article.tags,
         coverImage: article.cover_image,
         isPublished: article.is_published,
         publishDate: article.publish_date,
@@ -88,14 +99,14 @@ export async function GET(
   try {
     const { angleId } = params;
     const { searchParams } = new URL(request.url);
-    
+
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "12");
     const sortBy = searchParams.get("sortBy") || "newest";
     const timeRange = searchParams.get("timeRange") || "all";
     const sentiment = searchParams.get("sentiment");
     const published = searchParams.get("published") !== "false"; // افتراضياً نجلب المنشورة فقط
-    
+
     const offset = (page - 1) * limit;
 
     // بناء شروط الفلترة
@@ -122,9 +133,11 @@ export async function GET(
         month: "aa.created_at >= NOW() - INTERVAL '30 days'",
         year: "aa.created_at >= NOW() - INTERVAL '365 days'",
       };
-      
+
       if (timeConditions[timeRange as keyof typeof timeConditions]) {
-        whereClause += ` AND ${timeConditions[timeRange as keyof typeof timeConditions]}`;
+        whereClause += ` AND ${
+          timeConditions[timeRange as keyof typeof timeConditions]
+        }`;
       }
     }
 
@@ -146,7 +159,7 @@ export async function GET(
 
     // جلب المقالات
     const articlesQuery = `
-      SELECT 
+      SELECT
         aa.*,
         u.name as author_name,
         u.avatar as author_avatar
@@ -158,7 +171,7 @@ export async function GET(
     `;
 
     params.push(limit, offset);
-    
+
     const articles = (await prisma.$queryRawUnsafe(
       articlesQuery,
       ...params
@@ -170,12 +183,12 @@ export async function GET(
       FROM angle_articles aa
       ${whereClause}
     `;
-    
+
     const countResult = (await prisma.$queryRawUnsafe(
       countQuery,
       ...params.slice(0, -2)
     )) as { total: bigint }[];
-    
+
     const total = Number(countResult[0].total);
 
     // تنسيق البيانات
@@ -192,7 +205,10 @@ export async function GET(
         avatar: article.author_avatar,
       },
       sentiment: article.sentiment,
-      tags: typeof article.tags === 'string' ? JSON.parse(article.tags) : article.tags,
+      tags:
+        typeof article.tags === "string"
+          ? JSON.parse(article.tags)
+          : article.tags,
       coverImage: article.cover_image,
       isPublished: article.is_published,
       publishDate: article.publish_date,

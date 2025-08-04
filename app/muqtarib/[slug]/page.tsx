@@ -3,6 +3,13 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Angle, AngleArticle, AngleFilterOptions } from "@/types/muqtarab";
 import {
   ArrowLeft,
@@ -130,18 +137,22 @@ const AngleFilterBar = ({
 
         <div className="flex items-center gap-2 mr-auto">
           <span className="text-sm text-gray-500">الفترة الزمنية:</span>
-          <select
+          <Select
             value={filters.timeRange}
-            onChange={(e) =>
-              onFiltersChange({ ...filters, timeRange: e.target.value as any })
+            onValueChange={(value) =>
+              onFiltersChange({ ...filters, timeRange: value as any })
             }
-            className="px-3 py-1 border rounded-lg text-sm"
           >
-            <option value="all">كل الأوقات</option>
-            <option value="week">هذا الأسبوع</option>
-            <option value="month">هذا الشهر</option>
-            <option value="year">هذا العام</option>
-          </select>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="اختر الفترة" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">كل الأوقات</SelectItem>
+              <SelectItem value="week">هذا الأسبوع</SelectItem>
+              <SelectItem value="month">هذا الشهر</SelectItem>
+              <SelectItem value="year">هذا العام</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
     </Card>

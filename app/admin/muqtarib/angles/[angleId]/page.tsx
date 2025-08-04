@@ -1,9 +1,9 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Angle, AngleArticle, AngleStats } from "@/types/muqtarab";
+import { Angle, AngleArticle } from "@/types/muqtarab";
 import {
   ArrowLeft,
   BarChart3,
@@ -47,8 +47,13 @@ const StatCard = ({
             <p className="text-sm font-medium text-gray-600">{title}</p>
             <p className="text-2xl font-bold text-gray-900">{value}</p>
             {trend && (
-              <p className={`text-xs ${trend.value >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {trend.value >= 0 ? '↗' : '↘'} {Math.abs(trend.value)}% {trend.label}
+              <p
+                className={`text-xs ${
+                  trend.value >= 0 ? "text-green-600" : "text-red-600"
+                }`}
+              >
+                {trend.value >= 0 ? "↗" : "↘"} {Math.abs(trend.value)}%{" "}
+                {trend.label}
               </p>
             )}
           </div>
@@ -124,8 +129,12 @@ const ArticlesList = ({
     return (
       <Card className="p-8 text-center">
         <FileText className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">لا توجد مقالات</h3>
-        <p className="text-gray-600 mb-4">ابدأ بإنشاء أول مقال في هذه الزاوية</p>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">
+          لا توجد مقالات
+        </h3>
+        <p className="text-gray-600 mb-4">
+          ابدأ بإنشاء أول مقال في هذه الزاوية
+        </p>
       </Card>
     );
   }
@@ -143,20 +152,22 @@ const ArticlesList = ({
                   className="w-16 h-16 rounded-lg object-cover"
                 />
               )}
-              
+
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-4 mb-2">
                   <h3 className="font-semibold text-gray-900 line-clamp-2">
                     {article.title}
                   </h3>
-                  
+
                   <div className="flex items-center gap-2">
                     <Badge
-                      className={`text-xs ${getSentimentColor(article.sentiment)}`}
+                      className={`text-xs ${getSentimentColor(
+                        article.sentiment
+                      )}`}
                     >
                       {getSentimentLabel(article.sentiment)}
                     </Badge>
-                    
+
                     <Badge
                       variant={article.isPublished ? "default" : "secondary"}
                       className="text-xs"
@@ -165,29 +176,29 @@ const ArticlesList = ({
                     </Badge>
                   </div>
                 </div>
-                
+
                 {article.excerpt && (
                   <p className="text-sm text-gray-600 mb-3 line-clamp-2">
                     {article.excerpt}
                   </p>
                 )}
-                
+
                 <div className="flex items-center gap-4 text-xs text-gray-500">
                   <div className="flex items-center gap-1">
                     <Users className="w-3 h-3" />
                     <span>{article.author?.name}</span>
                   </div>
-                  
+
                   <div className="flex items-center gap-1">
                     <Calendar className="w-3 h-3" />
                     <span>{formatDate(article.createdAt)}</span>
                   </div>
-                  
+
                   <div className="flex items-center gap-1">
                     <Eye className="w-3 h-3" />
                     <span>{article.views || 0} مشاهدة</span>
                   </div>
-                  
+
                   {article.readingTime && (
                     <div className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
@@ -196,14 +207,14 @@ const ArticlesList = ({
                   )}
                 </div>
               </div>
-              
+
               <div className="flex gap-2">
                 <Link href={`/article/${article.id}`}>
                   <Button size="sm" variant="outline">
                     <Eye className="w-4 h-4" />
                   </Button>
                 </Link>
-                
+
                 <Button size="sm" variant="outline">
                   <Edit className="w-4 h-4" />
                 </Button>
@@ -235,7 +246,10 @@ const RecentActivity = ({ activities }: { activities: any[] }) => {
       <CardContent>
         <div className="space-y-4">
           {activities.map((activity, index) => (
-            <div key={index} className="flex items-center gap-3 pb-4 border-b last:border-b-0">
+            <div
+              key={index}
+              className="flex items-center gap-3 pb-4 border-b last:border-b-0"
+            >
               <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                 <FileText className="w-4 h-4 text-blue-600" />
               </div>
@@ -259,18 +273,18 @@ export default function AngleDashboardPage() {
   const router = useRouter();
   const params = useParams();
   const angleId = params.angleId as string;
-  
+
   const [angle, setAngle] = useState<Angle | null>(null);
   const [articles, setArticles] = useState<AngleArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [articlesLoading, setArticlesLoading] = useState(false);
-  
+
   // جلب بيانات الزاوية والمقالات
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
+
         // جلب بيانات الزاوية
         const angleResponse = await fetch(`/api/muqtarib/angles/${angleId}`);
         if (angleResponse.ok) {
@@ -281,7 +295,7 @@ export default function AngleDashboardPage() {
           router.push("/admin/muqtarib");
           return;
         }
-        
+
         // جلب المقالات (منشورة ومسودات)
         setArticlesLoading(true);
         const articlesResponse = await fetch(
@@ -299,12 +313,12 @@ export default function AngleDashboardPage() {
         setArticlesLoading(false);
       }
     };
-    
+
     if (angleId) {
       fetchData();
     }
   }, [angleId, router]);
-  
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -315,14 +329,18 @@ export default function AngleDashboardPage() {
       </div>
     );
   }
-  
+
   if (!angle) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Sparkles className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">الزاوية غير موجودة</h2>
-          <p className="text-gray-600 mb-6">لم يتم العثور على الزاوية المطلوبة</p>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            الزاوية غير موجودة
+          </h2>
+          <p className="text-gray-600 mb-6">
+            لم يتم العثور على الزاوية المطلوبة
+          </p>
           <Button onClick={() => router.push("/admin/muqtarib")}>
             <ArrowLeft className="w-4 h-4 ml-2" />
             العودة لمُقترب
@@ -331,7 +349,7 @@ export default function AngleDashboardPage() {
       </div>
     );
   }
-  
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* شريط التنقل العلوي */}
@@ -359,7 +377,7 @@ export default function AngleDashboardPage() {
                 {angle.isPublished ? "منشورة" : "مسودة"}
               </Badge>
             </div>
-            
+
             <div className="flex gap-3">
               <Link href={`/admin/muqtarib/angles/${angleId}/articles/new`}>
                 <Button className="bg-blue-600 hover:bg-blue-700">
@@ -367,7 +385,7 @@ export default function AngleDashboardPage() {
                   مقال جديد
                 </Button>
               </Link>
-              
+
               <Button variant="outline">
                 <Settings className="w-4 h-4 ml-2" />
                 إعدادات
@@ -376,7 +394,7 @@ export default function AngleDashboardPage() {
           </div>
         </div>
       </div>
-      
+
       <div className="p-6">
         <div className="max-w-7xl mx-auto space-y-8">
           {/* هيدر الزاوية */}
@@ -397,7 +415,7 @@ export default function AngleDashboardPage() {
                     <Sparkles className="w-12 h-12 text-white" />
                   </div>
                 )}
-                
+
                 <div className="flex-1">
                   <h2 className="text-2xl font-bold text-gray-900 mb-2">
                     {angle.title}
@@ -405,7 +423,7 @@ export default function AngleDashboardPage() {
                   <p className="text-gray-600 mb-4 leading-relaxed">
                     {angle.description}
                   </p>
-                  
+
                   <div className="flex items-center gap-6 text-sm text-gray-500">
                     <div className="flex items-center gap-2">
                       <Users className="w-4 h-4" />
@@ -414,7 +432,8 @@ export default function AngleDashboardPage() {
                     <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4" />
                       <span>
-                        أُنشئت في {new Date(angle.createdAt).toLocaleDateString("ar-SA")}
+                        أُنشئت في{" "}
+                        {new Date(angle.createdAt).toLocaleDateString("ar-SA")}
                       </span>
                     </div>
                     <Link href={`/muqtarib/${angle.slug}`}>
@@ -428,7 +447,7 @@ export default function AngleDashboardPage() {
               </div>
             </CardContent>
           </Card>
-          
+
           {/* بطاقات الإحصائيات */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <StatCard
@@ -437,21 +456,21 @@ export default function AngleDashboardPage() {
               icon={BookOpen}
               color="bg-blue-500"
             />
-            
+
             <StatCard
               title="إجمالي المشاهدات"
               value={angle.totalViews || 0}
               icon={Eye}
               color="bg-green-500"
             />
-            
+
             <StatCard
               title="متوسط وقت القراءة"
               value={`${Math.round(angle.avgReadingTime || 0)} دقيقة`}
               icon={Clock}
               color="bg-purple-500"
             />
-            
+
             <StatCard
               title="مؤشر النشاط"
               value="85%"
@@ -460,7 +479,7 @@ export default function AngleDashboardPage() {
               trend={{ value: 12, label: "هذا الشهر" }}
             />
           </div>
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* قائمة المقالات */}
             <div className="lg:col-span-2 space-y-6">
@@ -468,7 +487,7 @@ export default function AngleDashboardPage() {
                 <h3 className="text-lg font-semibold text-gray-900">
                   المقالات ({articles.length})
                 </h3>
-                
+
                 <Link href={`/admin/muqtarib/angles/${angleId}/articles/new`}>
                   <Button size="sm">
                     <Plus className="w-4 h-4 ml-2" />
@@ -476,20 +495,24 @@ export default function AngleDashboardPage() {
                   </Button>
                 </Link>
               </div>
-              
+
               <ArticlesList articles={articles} loading={articlesLoading} />
             </div>
-            
+
             {/* الشريط الجانبي */}
             <div className="space-y-6">
               {/* النشاط الحديث */}
               <RecentActivity
-                activities={angle.recentArticles?.map((article) => ({
-                  title: `تم ${article.isPublished ? 'نشر' : 'حفظ'} "${article.title}"`,
-                  timestamp: article.createdAt,
-                })) || []}
+                activities={
+                  angle.recentArticles?.map((article) => ({
+                    title: `تم ${article.isPublished ? "نشر" : "حفظ"} "${
+                      article.title
+                    }"`,
+                    timestamp: article.createdAt,
+                  })) || []
+                }
               />
-              
+
               {/* إعدادات سريعة */}
               <Card>
                 <CardHeader>
@@ -500,12 +523,12 @@ export default function AngleDashboardPage() {
                     <Edit className="w-4 h-4 ml-2" />
                     تعديل معلومات الزاوية
                   </Button>
-                  
+
                   <Button variant="outline" className="w-full justify-start">
                     <BarChart3 className="w-4 h-4 ml-2" />
                     إحصائيات مفصلة
                   </Button>
-                  
+
                   <Button variant="outline" className="w-full justify-start">
                     <Settings className="w-4 h-4 ml-2" />
                     إعدادات الخصوصية
