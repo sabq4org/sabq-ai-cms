@@ -91,17 +91,12 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
               )}
             </div>
 
-            {/* شارة "مقال مميز" - الزاوية العلوية اليسرى */}
+            {/* شارة "مقال مميز" - يسار */}
             <div className="absolute top-3 left-3">
               <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 shadow-lg backdrop-blur-sm">
                 <span className="mr-1">⭐</span>
                 مميز
               </Badge>
-            </div>
-
-            {/* مؤشر AI Score - الزاوية العلوية اليمنى */}
-            <div className="absolute top-3 right-3">
-              <AIInsightTag score={heroArticle.aiScore} />
             </div>
 
             {/* الطبقة الشفافة التدريجية */}
@@ -114,41 +109,34 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
                 {heroArticle.title}
               </h2>
 
-              {/* المعلومات السفلية */}
-              <div className="flex items-center justify-between">
-                {/* تصنيف المقال */}
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-1 rounded-full">
-                    <span className="text-sm">
-                      {heroArticle.angle.icon || "🧠"}
-                    </span>
-                    <span className="text-xs font-medium text-gray-200">
-                      {heroArticle.angle.title}
-                    </span>
-                  </div>
-                </div>
+                          {/* المعلومات السفلية - محسنة للموبايل */}
+            <div className="flex items-center justify-between">
+              {/* اليسار - فارغ أو معلومات ثانوية */}
+              <div></div>
 
-                {/* معلومات إضافية */}
-                <div className="flex items-center gap-3 text-xs text-gray-300">
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    <span>{heroArticle.readingTime}د</span>
-                  </div>
-
-                  <div className="flex items-center gap-1">
-                    <User className="w-3 h-3" />
-                    <span>{heroArticle.author.name.split(" ")[0]}</span>
-                  </div>
+              {/* اليمين - ليبل اسم الزاوية + ليبل نسبة الإبداع */}
+              <div className="flex items-center gap-2">
+                {/* ليبل اسم الزاوية */}
+                <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-1 rounded-full">
+                  <span className="text-sm">
+                    {heroArticle.angle.icon || "🧠"}
+                  </span>
+                  <span className="text-xs font-medium text-gray-200">
+                    {heroArticle.angle.title}
+                  </span>
                 </div>
+                
+                {/* ليبل نسبة الإبداع */}
+                <AIInsightTag score={heroArticle.aiScore} />
               </div>
+            </div>
 
-              {/* مؤشر المشاهدات - صغير ومتميز */}
-              <div className="absolute bottom-2 left-4">
-                <div className="flex items-center gap-1 text-xs text-gray-300">
-                  <span>👁</span>
-                  <span>{heroArticle.views}</span>
-                </div>
-              </div>
+                        {/* بيانات الكاتب والقراءة والمشاهدة - يمين بدون ليبل */}
+            <div className="flex justify-end items-center gap-3 text-xs text-gray-300 mt-2">
+              <span>{heroArticle.author.name.split(" ")[0]}</span>
+              <span>{heroArticle.readingTime}د</span>
+              <span>{heroArticle.views}</span>
+            </div>
             </div>
           </div>
         </Link>
