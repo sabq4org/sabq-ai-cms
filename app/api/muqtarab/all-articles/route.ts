@@ -1,12 +1,12 @@
+import { createCacheKey, performanceLogger, withCache } from "@/lib/cache";
 import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
-import { withCache, createCacheKey, performanceLogger, queryOptimizer } from "@/lib/cache";
 
 const prisma = new PrismaClient();
 
 export async function GET(request: NextRequest) {
-  const timer = performanceLogger('Muqtarab All Articles');
-  
+  const timer = performanceLogger("Muqtarab All Articles");
+
   try {
     const { searchParams } = new URL(request.url);
 
@@ -20,22 +20,22 @@ export async function GET(request: NextRequest) {
     const offset = (page - 1) * limit;
 
     // إنشاء cache key ديناميكي
-    const cacheKey = createCacheKey('muqtarab:articles', {
+    const cacheKey = createCacheKey("muqtarab:articles", {
       page,
       limit,
       sortBy,
-      category: category || 'all',
-      featured
+      category: category || "all",
+      featured,
     });
 
     // التحقق من الـ cache
     const cacheManager = withCache(cacheKey, 5, true); // 5 دقائق cache
     const cachedData = cacheManager.get();
-    
+
     if (cachedData) {
       console.log("⚡ [Cache HIT] Muqtarab Articles:", cacheKey);
       return NextResponse.json(cachedData, {
-        headers: cacheManager.getCacheHeaders()
+        headers: cacheManager.getCacheHeaders(),
       });
     }
 
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
       category,
       featured,
       offset,
-      cacheKey
+      cacheKey,
     });
 
     // بناء استعلام ديناميكي لجلب جميع مقالات الزوايا المنشورة
@@ -218,10 +218,10 @@ export async function GET(request: NextRequest) {
 
     // حفظ البيانات في الـ cache
     cacheManager.set(responseData);
-    
+
     // تسجيل الأداء
     const duration = timer.end(formattedArticles.length);
-    
+
     console.log("✅ [All Muqtarab Articles] تم جلب المقالات:", {
       found: formattedArticles.length,
       total: totalCount,
@@ -229,13 +229,12 @@ export async function GET(request: NextRequest) {
       totalPages,
       angles: Object.keys(angleStats).length,
       duration: `${duration}ms`,
-      cached: true
+      cached: true,
     });
 
     return NextResponse.json(responseData, {
-      headers: cacheManager.getCacheHeaders()
+      headers: cacheManager.getCacheHeaders(),
     });
-    
   } catch (error) {
     console.error("❌ [All Muqtarab Articles] خطأ في جلب المقالات:", error);
 

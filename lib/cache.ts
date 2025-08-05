@@ -1,5 +1,4 @@
 // نظام Cache محسن للأداء العالي
-import { NextResponse } from 'next/server';
 
 // Cache في الذاكرة (Memory Cache) مع TTL
 interface CacheItem {
@@ -24,13 +23,13 @@ class MemoryCache {
     this.cache.set(key, {
       data,
       timestamp: Date.now(),
-      ttl
+      ttl,
     });
   }
 
   get(key: string): any | null {
     const item = this.cache.get(key);
-    
+
     if (!item) {
       return null;
     }
@@ -70,7 +69,7 @@ class MemoryCache {
   getStats() {
     return {
       size: this.cache.size,
-      keys: Array.from(this.cache.keys())
+      keys: Array.from(this.cache.keys()),
     };
   }
 }
@@ -80,7 +79,7 @@ export const cache = new MemoryCache();
 
 // دالة helper لـ cache مع NextResponse headers
 export function withCache<T>(
-  key: string, 
+  key: string,
   ttlMinutes: number = 5,
   publicCache: boolean = true
 ) {
@@ -89,22 +88,27 @@ export function withCache<T>(
     set: (data: T) => cache.set(key, data, ttlMinutes),
     has: () => cache.has(key),
     getCacheHeaders: () => ({
-      'Cache-Control': publicCache 
-        ? `public, s-maxage=${ttlMinutes * 60}, stale-while-revalidate=${ttlMinutes * 60 * 2}`
+      "Cache-Control": publicCache
+        ? `public, s-maxage=${ttlMinutes * 60}, stale-while-revalidate=${
+            ttlMinutes * 60 * 2
+          }`
         : `private, max-age=${ttlMinutes * 60}`,
-      'X-Cache-Status': cache.has(key) ? 'HIT' : 'MISS',
-      'X-Cache-TTL': `${ttlMinutes}m`
-    })
+      "X-Cache-Status": cache.has(key) ? "HIT" : "MISS",
+      "X-Cache-TTL": `${ttlMinutes}m`,
+    }),
   };
 }
 
 // دالة لإنشاء cache key ديناميكي
-export function createCacheKey(prefix: string, params: Record<string, any>): string {
+export function createCacheKey(
+  prefix: string,
+  params: Record<string, any>
+): string {
   const sortedParams = Object.keys(params)
     .sort()
-    .map(key => `${key}:${params[key]}`)
-    .join(',');
-  
+    .map((key) => `${key}:${params[key]}`)
+    .join(",");
+
   return `${prefix}:${sortedParams}`;
 }
 
@@ -112,46 +116,56 @@ export function createCacheKey(prefix: string, params: Record<string, any>): str
 export const cacheInvalidation = {
   // مسح cache المقالات عند إضافة/تعديل مقال
   invalidateArticles: () => {
-    const keys = Array.from(cache['cache'].keys());
-    keys.forEach(key => {
-      if (key.includes('muqtarab:') || key.includes('articles:') || key.includes('featured:')) {
+    const keys = Array.from(cache["cache"].keys());
+    keys.forEach((key) => {
+      if (
+        key.includes("muqtarab:") ||
+        key.includes("articles:") ||
+        key.includes("featured:")
+      ) {
         cache.delete(key);
       }
     });
   },
-  
+
   // مسح cache الزوايا عند تعديل زاوية
   invalidateAngles: () => {
-    const keys = Array.from(cache['cache'].keys());
-    keys.forEach(key => {
-      if (key.includes('angles:') || key.includes('muqtarab:')) {
+    const keys = Array.from(cache["cache"].keys());
+    keys.forEach((key) => {
+      if (key.includes("angles:") || key.includes("muqtarab:")) {
         cache.delete(key);
       }
     });
   },
-  
+
   // مسح كل شيء
   invalidateAll: () => {
     cache.clear();
-  }
+  },
 };
 
 // Middleware للأداء
 export function performanceLogger(apiName: string) {
   const start = Date.now();
-  
+
   return {
     end: (itemCount?: number) => {
       const duration = Date.now() - start;
-      console.log(`⚡ [${apiName}] Duration: ${duration}ms${itemCount ? `, Items: ${itemCount}` : ''}`);
-      
+      console.log(
+        `⚡ [${apiName}] Duration: ${duration}ms${
+          itemCount ? `, Items: ${itemCount}` : ""
+        }`
+      );
+
       // تحذير عند البطء
       if (duration > 1000) {
-        console.warn(`🐌 [${apiName}] SLOW QUERY: ${duration}ms - Consider optimization`);
+        console.warn(
+          `🐌 [${apiName}] SLOW QUERY: ${duration}ms - Consider optimization`
+        );
       }
-      
+
       return duration;
-    }
+    },
   };
 }
 
@@ -172,9 +186,9 @@ export const queryOptimizer = {
     tags: true,
     sentiment: true,
     angle_id: true,
-    author_id: true
+    author_id: true,
   }),
-  
+
   // تحسين include للعلاقات
   getAngleInclude: () => ({
     id: true,
@@ -183,16 +197,16 @@ export const queryOptimizer = {
     icon: true,
     theme_color: true,
     description: true,
-    is_published: true
+    is_published: true,
   }),
-  
+
   // تحسين include للمؤلف
   getAuthorInclude: () => ({
     id: true,
     name: true,
     avatar: true,
-    email: true
-  })
+    email: true,
+  }),
 };
 
 export default cache;

@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PageLoadingSkeleton } from "@/components/ui/skeleton";
 import { Angle } from "@/types/muqtarab";
 import {
   BookOpen,
@@ -16,7 +17,6 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
-import { LoadingSkeletons, PageLoadingSkeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";

@@ -1,10 +1,11 @@
+import React from "react";
 import { cn } from "@/lib/utils";
 
 interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   animate?: boolean;
 }
 
-export function Skeleton({ 
+export function Skeleton({
   className,
   animate = true,
   ...props
@@ -28,15 +29,15 @@ export function ArticleCardSkeleton() {
     <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
       {/* صورة المقال */}
       <Skeleton className="w-full h-48 mb-4 rounded-lg" />
-      
+
       {/* عنوان المقال */}
       <Skeleton className="h-6 w-3/4 mb-2" />
       <Skeleton className="h-6 w-1/2 mb-3" />
-      
+
       {/* مقتطف */}
       <Skeleton className="h-4 w-full mb-2" />
       <Skeleton className="h-4 w-2/3 mb-4" />
-      
+
       {/* معلومات المقال */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -63,19 +64,19 @@ export function MuqtarabCardSkeleton() {
           <Skeleton className="h-4 w-20" />
         </div>
       </div>
-      
+
       {/* صورة المقال */}
       <Skeleton className="w-full h-64 mb-4 rounded-lg" />
-      
+
       {/* عنوان المقال */}
       <Skeleton className="h-6 w-full mb-2" />
       <Skeleton className="h-6 w-2/3 mb-3" />
-      
+
       {/* مقتطف */}
       <Skeleton className="h-4 w-full mb-2" />
       <Skeleton className="h-4 w-full mb-2" />
       <Skeleton className="h-4 w-1/2 mb-4" />
-      
+
       {/* معلومات إضافية */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -102,12 +103,12 @@ export function AngleCardSkeleton() {
           <Skeleton className="h-4 w-48" />
         </div>
       </div>
-      
+
       {/* الوصف */}
       <Skeleton className="h-4 w-full mb-2" />
       <Skeleton className="h-4 w-full mb-2" />
       <Skeleton className="h-4 w-1/3 mb-4" />
-      
+
       {/* الإحصائيات */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-4">
@@ -121,7 +122,7 @@ export function AngleCardSkeleton() {
           </div>
         </div>
       </div>
-      
+
       {/* زر العمل */}
       <Skeleton className="h-10 w-full rounded-lg" />
     </div>
@@ -134,12 +135,12 @@ export function NewsCardSkeleton() {
       <div className="flex gap-4">
         {/* صورة الخبر */}
         <Skeleton className="w-24 h-24 rounded-lg flex-shrink-0" />
-        
+
         <div className="flex-1">
           {/* عنوان الخبر */}
           <Skeleton className="h-5 w-full mb-2" />
           <Skeleton className="h-5 w-2/3 mb-3" />
-          
+
           {/* معلومات الخبر */}
           <div className="flex items-center gap-3">
             <Skeleton className="h-4 w-16" />
@@ -161,7 +162,7 @@ export function PageLoadingSkeleton() {
         <div className="max-w-7xl mx-auto px-4 text-center">
           <Skeleton className="h-12 w-64 mx-auto mb-4" />
           <Skeleton className="h-6 w-96 mx-auto mb-8" />
-          
+
           {/* إحصائيات */}
           <div className="flex justify-center items-center gap-8">
             <div className="text-center">
@@ -179,7 +180,7 @@ export function PageLoadingSkeleton() {
           </div>
         </div>
       </div>
-      
+
       {/* Content Skeleton */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -202,7 +203,7 @@ export const LoadingSkeletons = {
       ))}
     </div>
   ),
-  
+
   // تحميل قائمة الزوايا
   AngleGrid: ({ count = 4 }: { count?: number }) => (
     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -211,7 +212,7 @@ export const LoadingSkeletons = {
       ))}
     </div>
   ),
-  
+
   // تحميل قائمة الأخبار
   NewsList: ({ count = 5 }: { count?: number }) => (
     <div className="space-y-4">
@@ -220,7 +221,7 @@ export const LoadingSkeletons = {
       ))}
     </div>
   ),
-  
+
   // تحميل مقترب
   MuqtarabGrid: ({ count = 8 }: { count?: number }) => (
     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -228,5 +229,5 @@ export const LoadingSkeletons = {
         <MuqtarabCardSkeleton key={i} />
       ))}
     </div>
-  )
+  ),
 };

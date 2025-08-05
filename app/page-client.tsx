@@ -21,51 +21,36 @@ import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
 
 import SafeHydration from "@/components/SafeHydration";
+import SafeComponentLoader, { SafeDynamicComponent } from "@/components/SafeComponentLoader";
 import ArticleViews from "@/components/ui/ArticleViews";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 
-// Dynamic imports for components that appear below the fold
-const TodayOpinionsSection = dynamic(
+// Safe Dynamic imports for components that appear below the fold
+const TodayOpinionsSection = SafeDynamicComponent.withSkeleton(
   () => import("@/components/TodayOpinionsSection"),
-  {
-    ssr: true,
-    loading: () => <Skeleton className="w-full h-96 rounded-lg" />,
-  }
+  { className: "w-full h-96 rounded-lg" }
 );
 
-const SmartAudioBlock = dynamic(
+const SmartAudioBlock = SafeDynamicComponent.withSkeleton(
   () => import("@/components/home/SmartAudioBlock"),
-  {
-    ssr: true,
-    loading: () => <Skeleton className="w-full h-40 rounded-lg" />,
-  }
+  { className: "w-full h-40 rounded-lg" }
 );
 
-const MuqtarabBlock = dynamic(
+const MuqtarabBlock = SafeDynamicComponent.withSkeleton(
   () => import("@/components/home/EnhancedMuqtarabBlock"),
-  {
-    ssr: true,
-    loading: () => <Skeleton className="w-full h-96 rounded-lg" />,
-  }
+  { className: "w-full h-96 rounded-lg" }
 );
 
-// تم حذف SmartDoseBlock
-
-const FeaturedNewsCarousel = dynamic(
+const FeaturedNewsCarousel = SafeDynamicComponent.withSkeleton(
   () => import("@/components/FeaturedNewsCarousel"),
-  {
-    ssr: true,
-    loading: () => <Skeleton className="w-full h-80 rounded-lg" />,
-  }
+  { className: "w-full h-80 rounded-lg" }
 );
 
-const BreakingNewsBar = dynamic(() => import("@/components/BreakingNewsBar"), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-24 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse mx-4 mb-6" />
-  ),
-});
+const BreakingNewsBar = SafeDynamicComponent.withCustomFallback(
+  () => import("@/components/BreakingNewsBar"),
+  <div className="w-full h-24 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse mx-4 mb-6" />
+);
 
 import { DeepAnalysis } from "@/types/deep-analysis";
 import {

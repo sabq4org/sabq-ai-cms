@@ -28,7 +28,7 @@ export const DatabaseOptimizer = {
     category_id: true,
     author_id: true,
     seo_title: true,
-    seo_description: true
+    seo_description: true,
   },
 
   // تحسين استعلامات الزوايا
@@ -46,7 +46,7 @@ export const DatabaseOptimizer = {
     updated_at: true,
     author_id: true,
     views_count: true,
-    articles_count: true
+    articles_count: true,
   },
 
   // تحسين include للكاتب
@@ -58,8 +58,8 @@ export const DatabaseOptimizer = {
       avatar: true,
       bio: true,
       title: true,
-      social_links: true
-    }
+      social_links: true,
+    },
   },
 
   // تحسين include للتصنيف
@@ -70,8 +70,8 @@ export const DatabaseOptimizer = {
       slug: true,
       color: true,
       icon: true,
-      description: true
-    }
+      description: true,
+    },
   },
 
   // استعلام محسن للمقالات المميزة
@@ -80,26 +80,30 @@ export const DatabaseOptimizer = {
       AND: [
         { status: "published" },
         { is_published: true },
-        { featured: true }
-      ]
+        { featured: true },
+      ],
     },
     select: DatabaseOptimizer.optimizedArticleSelect,
     include: {
       categories: DatabaseOptimizer.optimizedCategoryInclude,
-      users: DatabaseOptimizer.optimizedAuthorInclude
+      users: DatabaseOptimizer.optimizedAuthorInclude,
     },
     orderBy: [
       { featured: "desc" },
       { published_at: "desc" },
-      { views: "desc" }
+      { views: "desc" },
     ],
-    take: limit
+    take: limit,
   }),
 
   // استعلام محسن لمقالات مقترب
-  getMuqtarabArticlesQuery: (page: number, limit: number, sortBy: string = "newest") => {
+  getMuqtarabArticlesQuery: (
+    page: number,
+    limit: number,
+    sortBy: string = "newest"
+  ) => {
     const offset = (page - 1) * limit;
-    
+
     let orderBy: any[] = [];
     switch (sortBy) {
       case "popular":
@@ -114,10 +118,7 @@ export const DatabaseOptimizer = {
 
     return {
       where: {
-        AND: [
-          { is_published: true },
-          { angle_id: { not: null } }
-        ]
+        AND: [{ is_published: true }, { angle_id: { not: null } }],
       },
       select: {
         id: true,
@@ -132,17 +133,17 @@ export const DatabaseOptimizer = {
         tags: true,
         sentiment: true,
         angle_id: true,
-        author_id: true
+        author_id: true,
       },
       include: {
         angles: {
-          select: DatabaseOptimizer.optimizedAngleSelect
+          select: DatabaseOptimizer.optimizedAngleSelect,
         },
-        users: DatabaseOptimizer.optimizedAuthorInclude
+        users: DatabaseOptimizer.optimizedAuthorInclude,
       },
       orderBy,
       skip: offset,
-      take: limit
+      take: limit,
     };
   },
 
@@ -155,15 +156,12 @@ export const DatabaseOptimizer = {
       _count: {
         select: {
           angle_articles: {
-            where: { is_published: true }
-          }
-        }
-      }
+            where: { is_published: true },
+          },
+        },
+      },
     },
-    orderBy: [
-      { is_featured: "desc" },
-      { created_at: "desc" }
-    ]
+    orderBy: [{ is_featured: "desc" }, { created_at: "desc" }],
   }),
 
   // استعلام محسن للأخبار العاجلة
@@ -173,19 +171,16 @@ export const DatabaseOptimizer = {
         { status: "published" },
         { is_published: true },
         { breaking: true },
-        { article_type: { not: "opinion" } }
-      ]
+        { article_type: { not: "opinion" } },
+      ],
     },
     select: DatabaseOptimizer.optimizedArticleSelect,
     include: {
       categories: DatabaseOptimizer.optimizedCategoryInclude,
-      users: DatabaseOptimizer.optimizedAuthorInclude
+      users: DatabaseOptimizer.optimizedAuthorInclude,
     },
-    orderBy: [
-      { published_at: "desc" },
-      { created_at: "desc" }
-    ],
-    take: limit
+    orderBy: [{ published_at: "desc" }, { created_at: "desc" }],
+    take: limit,
   }),
 
   // Raw SQL queries محسنة للإحصائيات
@@ -205,7 +200,7 @@ export const DatabaseOptimizer = {
         LEFT JOIN angle_articles aa ON a.id = aa.angle_id
       `;
     }
-    
+
     return `
       SELECT
         COUNT(CASE WHEN status = 'published' AND is_published = true THEN 1 END) as published_articles,
@@ -232,25 +227,25 @@ export const DatabaseOptimizer = {
     "CREATE INDEX IF NOT EXISTS idx_angle_articles_published ON angle_articles(is_published) WHERE is_published = true;",
     "CREATE INDEX IF NOT EXISTS idx_angle_articles_angle_id ON angle_articles(angle_id, is_published);",
     "CREATE INDEX IF NOT EXISTS idx_categories_active ON categories(is_active) WHERE is_active = true;",
-    "CREATE INDEX IF NOT EXISTS idx_users_active ON users(is_active) WHERE is_active = true;"
+    "CREATE INDEX IF NOT EXISTS idx_users_active ON users(is_active) WHERE is_active = true;",
   ],
 
   // دالة لإنشاء الفهارس
   async createIndexes(prisma: any) {
     console.log("🔧 Creating database indexes for performance optimization...");
-    
+
     for (const indexQuery of DatabaseOptimizer.suggestedIndexes) {
       try {
         await prisma.$executeRawUnsafe(indexQuery);
-        console.log(`✅ Index created: ${indexQuery.split(' ')[5]}`);
+        console.log(`✅ Index created: ${indexQuery.split(" ")[5]}`);
       } catch (error) {
         // تجاهل الأخطاء إذا كان الفهرس موجود بالفعل
-        if (!error.message.includes('already exists')) {
+        if (!error.message.includes("already exists")) {
           console.warn(`⚠️ Failed to create index: ${error.message}`);
         }
       }
     }
-    
+
     console.log("✅ Database optimization completed!");
   },
 
@@ -274,7 +269,7 @@ export const DatabaseOptimizer = {
         prisma.angles.count(),
         prisma.categories.count(),
         prisma.users.count(),
-        prisma.angle_articles.count()
+        prisma.angle_articles.count(),
       ]);
 
       return {
@@ -283,13 +278,13 @@ export const DatabaseOptimizer = {
         categories: stats[2],
         users: stats[3],
         angleArticles: stats[4],
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     } catch (error) {
       console.error("❌ Failed to get database stats:", error);
       return null;
     }
-  }
+  },
 };
 
 export default DatabaseOptimizer;

@@ -1,8 +1,8 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 // مسار ملف المقالات
-const articlesPath = path.join(__dirname, '../data/articles.json');
+const articlesPath = path.join(__dirname, "../data/articles.json");
 
 // دالة لإنشاء ID فريد للمقال
 function generateArticleId(title) {
@@ -10,8 +10,8 @@ function generateArticleId(title) {
   const randomString = Math.random().toString(36).substring(2, 8);
   const titleSlug = title
     .toLowerCase()
-    .replace(/[^\u0600-\u06FFa-z0-9\s]/g, '')
-    .replace(/\s+/g, '-')
+    .replace(/[^\u0600-\u06FFa-z0-9\s]/g, "")
+    .replace(/\s+/g, "-")
     .substring(0, 20);
   return `article-${titleSlug}-${timestamp}-${randomString}`;
 }
@@ -22,7 +22,7 @@ function addRealArticle(articleData) {
     // قراءة المقالات الحالية
     let articles = [];
     if (fs.existsSync(articlesPath)) {
-      const data = fs.readFileSync(articlesPath, 'utf8');
+      const data = fs.readFileSync(articlesPath, "utf8");
       articles = JSON.parse(data);
     }
 
@@ -30,44 +30,47 @@ function addRealArticle(articleData) {
     const newArticle = {
       id: generateArticleId(articleData.title),
       title: articleData.title,
-      slug: articleData.slug || articleData.title.toLowerCase().replace(/\s+/g, '-'),
+      slug:
+        articleData.slug ||
+        articleData.title.toLowerCase().replace(/\s+/g, "-"),
       content: articleData.content,
-      summary: articleData.summary || articleData.content.substring(0, 200) + '...',
+      summary:
+        articleData.summary || articleData.content.substring(0, 200) + "...",
       category: articleData.category,
       tags: articleData.tags || [],
-      author: articleData.author || 'محرر سبق',
-      author_id: articleData.author_id || 'editor-sabq',
+      author: articleData.author || "محرر سبق",
+      author_id: articleData.author_id || "editor-sabq",
       featured_image: articleData.featured_image || null,
       views: articleData.views || 0, // المشاهدات الحقيقية فقط
       likes: articleData.likes || Math.floor(Math.random() * 50),
       shares: articleData.shares || Math.floor(Math.random() * 20),
-      status: 'published',
+      status: "published",
       featured: articleData.featured || false,
       breaking: articleData.breaking || false,
-      quality_score: articleData.quality_score || Math.floor(Math.random() * 20) + 80,
+      quality_score:
+        articleData.quality_score || Math.floor(Math.random() * 20) + 80,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       published_at: new Date().toISOString(),
-      source_type: 'original',
-      reading_time: Math.ceil(articleData.content.length / 1000) || 2
+      source_type: "original",
+      reading_time: Math.ceil(articleData.content.length / 1000) || 2,
     };
 
     // إضافة المقال للمصفوفة
     articles.push(newArticle);
 
     // حفظ الملف
-    fs.writeFileSync(articlesPath, JSON.stringify(articles, null, 2), 'utf8');
+    fs.writeFileSync(articlesPath, JSON.stringify(articles, null, 2), "utf8");
 
     console.log(`✅ تم إضافة المقال بنجاح: "${newArticle.title}"`);
     console.log(`📝 ID: ${newArticle.id}`);
     console.log(`📂 التصنيف: ${newArticle.category}`);
     console.log(`👁️ المشاهدات: ${newArticle.views}`);
     console.log(`⭐ النقاط: ${newArticle.quality_score}`);
-    
-    return newArticle;
 
+    return newArticle;
   } catch (error) {
-    console.error('❌ خطأ في إضافة المقال:', error);
+    console.error("❌ خطأ في إضافة المقال:", error);
     throw error;
   }
 }
@@ -84,7 +87,7 @@ const sampleArticles = [
     category: "اقتصاد",
     tags: ["نفط", "صادرات", "اقتصاد", "طاقة"],
     featured: true,
-    views: 15420
+    views: 15420,
   },
   {
     title: "إطلاق مشروع نيوم الجديد للطيران المتقدم",
@@ -96,35 +99,35 @@ const sampleArticles = [
     category: "تقنية",
     tags: ["نيوم", "طيران", "تقنية", "مستقبل"],
     breaking: true,
-    views: 12340
-  }
+    views: 12340,
+  },
 ];
 
 // دالة لإضافة المقالات النموذجية
 function addSampleArticles() {
-  console.log('🚀 إضافة مقالات نموذجية...\n');
-  
+  console.log("🚀 إضافة مقالات نموذجية...\n");
+
   sampleArticles.forEach((article, index) => {
     console.log(`📝 إضافة المقال ${index + 1}:`);
     addRealArticle(article);
-    console.log('');
+    console.log("");
   });
-  
-  console.log('✅ تم إضافة جميع المقالات النموذجية بنجاح!');
+
+  console.log("✅ تم إضافة جميع المقالات النموذجية بنجاح!");
 }
 
 // تصدير الدوال للاستخدام
 module.exports = {
   addRealArticle,
-  addSampleArticles
+  addSampleArticles,
 };
 
 // تشغيل السكريبت مباشرة إذا تم استدعاؤه
 if (require.main === module) {
-  console.log('🎯 مرحباً بك في أداة إضافة المقالات الحقيقية!');
-  console.log('💡 لإضافة المقالات النموذجية، قم بتشغيل: addSampleArticles()');
-  console.log('📚 أو استخدم: addRealArticle(articleData) لإضافة مقال مخصص\n');
-  
+  console.log("🎯 مرحباً بك في أداة إضافة المقالات الحقيقية!");
+  console.log("💡 لإضافة المقالات النموذجية، قم بتشغيل: addSampleArticles()");
+  console.log("📚 أو استخدم: addRealArticle(articleData) لإضافة مقال مخصص\n");
+
   // إضافة المقالات النموذجية
   addSampleArticles();
-} 
+}
