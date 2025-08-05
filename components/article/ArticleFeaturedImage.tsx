@@ -24,21 +24,38 @@ export default function ArticleFeaturedImage({
       return (
         <div className="relative w-full">
           {/* الصورة الرئيسية بدون إطار أو ظل */}
-          <div className="relative overflow-hidden rounded-lg">
+          <div className="relative overflow-hidden rounded-xl shadow-lg">
             <OptimizedImage
               src={imageUrl}
               alt={title}
-              className="w-full object-cover max-h-[250px] sm:max-h-[400px] lg:max-h-[500px]"
+              className="w-full object-cover h-[350px] sm:h-[500px] md:h-[600px] lg:h-[700px]"
               priority={true}
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1024px"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
             />
+            {/* تدرج خفيف في الأسفل */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
+            
+            {/* عرض التصنيف على الصورة إن وجد */}
+            {category && (
+              <div className="absolute bottom-4 right-4">
+                <span
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-white backdrop-blur-md shadow-lg"
+                  style={{
+                    backgroundColor: `${category.color || "#1a73e8"}DD`,
+                  }}
+                >
+                  {category.icon && <span>{category.icon}</span>}
+                  {category.name}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       );
 
     case "blur-overlay":
       return (
-        <div className="article-featured-image relative h-[400px] sm:h-[500px] lg:h-[600px] w-full overflow-hidden bg-gray-900 dark:bg-black">
+        <div className="article-featured-image relative h-[450px] sm:h-[600px] md:h-[700px] lg:h-[80vh] w-full overflow-hidden bg-gray-900 dark:bg-black">
           {/* صورة الخلفية المموهة */}
           <img
             src={imageUrl}
@@ -86,7 +103,7 @@ export default function ArticleFeaturedImage({
     case "aspect-ratio":
       return (
         <div className="article-featured-image w-full bg-gray-100 dark:bg-gray-800">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="w-full">
             <div className="relative overflow-hidden shadow-xl">
               <OptimizedImage
                 src={imageUrl}
@@ -118,7 +135,7 @@ export default function ArticleFeaturedImage({
 
     case "fullwidth":
       return (
-        <div className="article-featured-image relative h-[300px] sm:h-[400px] md:h-[500px] lg:h-[60vh] w-full bg-gray-200 dark:bg-gray-800">
+        <div className="article-featured-image relative h-[400px] sm:h-[550px] md:h-[650px] lg:h-[75vh] w-full bg-gray-200 dark:bg-gray-800">
           <OptimizedImage
             src={imageUrl}
             alt={title}
@@ -127,6 +144,21 @@ export default function ArticleFeaturedImage({
             sizes="100vw"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 z-10" />
+          
+          {/* عرض التصنيف على الصورة */}
+          {category && (
+            <div className="absolute bottom-6 right-6 z-20">
+              <span
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-base font-medium text-white backdrop-blur-md shadow-xl"
+                style={{
+                  backgroundColor: `${category.color || "#1a73e8"}DD`,
+                }}
+              >
+                {category.icon && <span className="text-lg">{category.icon}</span>}
+                {category.name}
+              </span>
+            </div>
+          )}
         </div>
       );
 

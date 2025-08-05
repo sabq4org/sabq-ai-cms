@@ -8,10 +8,11 @@ export type ImageDisplayMode = 'default' | 'blur-overlay' | 'aspect-ratio' | 'fu
 // تكوين عرض الصور
 export const IMAGE_CONFIG = {
   // وضع العرض الحالي
-  // blur-overlay: صورة في المنتصف مع خلفية مموهة (الحالي)
+  // default: صورة كبيرة مع ظل وتأثيرات
+  // blur-overlay: صورة في المنتصف مع خلفية مموهة
   // aspect-ratio: صورة بنسبة عرض ثابتة
-  // fullwidth: صورة بعرض كامل (التصميم القديم)
-  DISPLAY_MODE: 'default' as ImageDisplayMode,
+  // fullwidth: صورة بعرض كامل
+  DISPLAY_MODE: 'fullwidth' as ImageDisplayMode,
   
   // نسبة العرض للوضع aspect-ratio
   ASPECT_RATIO: '16:9', // يمكن تغييرها إلى '4:3' أو '1:1'

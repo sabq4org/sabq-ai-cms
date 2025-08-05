@@ -563,18 +563,19 @@ export default function ArticleClientComponent({
           </article>
         </div>
 
+        {/* صورة المقال - عرض كامل بدون حاوية */}
+        {article.featured_image && (
+          <div className="w-full mb-6 sm:mb-8">
+            <ArticleFeaturedImage
+              imageUrl={article.featured_image}
+              title={article.title}
+              category={article.category}
+            />
+          </div>
+        )}
+        
         {/* منطقة المحتوى */}
         <article className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
-          {/* صورة المقال */}
-          {article.featured_image && (
-            <div className="mb-6 sm:mb-8">
-              <ArticleFeaturedImage
-                imageUrl={article.featured_image}
-                title={article.title}
-                category={article.category}
-              />
-            </div>
-          )}
 
           {/* الملخص الذكي مع التحويل الصوتي */}
           <div className="mb-6 sm:mb-8">
