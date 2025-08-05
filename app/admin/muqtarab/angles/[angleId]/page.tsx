@@ -473,7 +473,7 @@ export default function AngleDashboardPage() {
 
         // جلب بيانات الزاوية
         console.log("🔍 جاري جلب بيانات الزاوية:", angleId);
-        const angleResponse = await fetch(`/api/muqtarib/angles/${angleId}`, {
+        const angleResponse = await fetch(`/api/muqtarab/angles/${angleId}`, {
           cache: "no-store",
           headers: {
             "Cache-Control": "no-cache",
@@ -519,7 +519,7 @@ export default function AngleDashboardPage() {
         setArticlesLoading(true);
         console.log("🔍 جاري جلب مقالات الزاوية:", angleId);
         const articlesResponse = await fetch(
-          `/api/muqtarib/angles/${angleId}/articles?limit=10`,
+          `/api/muqtarab/angles/${angleId}/articles?limit=10`,
           {
             cache: "no-store",
             headers: {

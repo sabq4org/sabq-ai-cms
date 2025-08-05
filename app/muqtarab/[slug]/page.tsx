@@ -275,52 +275,134 @@ function AngleHeader({ angle }: { angle: Angle }) {
           </Link>
         </div>
 
-        {/* صندوق معلومات الزاوية الجديد */}
+        {/* صندوق معلومات الزاوية المحسن - تصميم متجاوب وواضح */}
         <div className="absolute bottom-6 right-6 left-6 md:left-auto md:max-w-2xl">
-          <div className="bg-white/95 dark:bg-black/90 rounded-2xl px-6 py-5 shadow-2xl backdrop-blur-md border border-white/20">
-            {/* رأس الصندوق */}
-            <div className="flex items-start justify-between mb-4">
+          {/* تصميم الجوال - مبسط ومقسم */}
+          <div className="block md:hidden">
+            {/* عنوان الزاوية على الصورة للجوال */}
+            <div className="bg-black/60 backdrop-blur-sm rounded-xl px-4 py-3 mb-3">
               <div className="flex items-center gap-3">
                 <div
-                  className="p-2 rounded-xl"
-                  style={{ backgroundColor: `${angle.themeColor}20` }}
+                  className="flex-shrink-0 p-2 rounded-full shadow-lg"
+                  style={{
+                    backgroundColor: angle.themeColor,
+                    color: "white",
+                  }}
                 >
-                  <IconComponent
-                    className="w-6 h-6"
-                    style={{ color: angle.themeColor }}
-                  />
+                  <IconComponent className="w-5 h-5" />
                 </div>
-                <div>
-                  <h1
-                    className="text-2xl md:text-3xl font-bold leading-tight"
-                    style={{ color: angle.themeColor }}
+                <h1 className="text-xl font-bold text-white leading-tight flex-1">
+                  {angle.title}
+                </h1>
+                {angle.isFeatured && (
+                  <Badge
+                    className="text-xs font-medium px-2 py-1 border-0 shadow-sm"
+                    style={{
+                      backgroundColor: angle.themeColor,
+                      color: "white",
+                    }}
                   >
-                    {angle.title}
-                  </h1>
-                  {angle.isFeatured && (
-                    <Badge
-                      className="mt-1 text-xs border-0"
-                      style={{
-                        backgroundColor: `${angle.themeColor}15`,
-                        color: angle.themeColor,
-                      }}
+                    مميزة
+                  </Badge>
+                )}
+              </div>
+            </div>
+
+            {/* صندوق الوصف والتفاصيل للجوال */}
+            <div className="bg-white/90 dark:bg-black/80 backdrop-blur-md rounded-xl p-4 shadow-lg border border-white/20">
+              {/* مؤشر التخصص */}
+              <div
+                className="text-xs uppercase tracking-wide font-semibold mb-2"
+                style={{ color: angle.themeColor }}
+              >
+                🧠 زاوية متخصصة
+              </div>
+
+              {/* الوصف مع التنسيق المحسن */}
+              {angle.description && (
+                <div className="prose prose-sm max-w-none whitespace-pre-line text-gray-800 dark:text-gray-200 text-sm leading-relaxed mb-3">
+                  {angle.description}
+                </div>
+              )}
+
+              {/* الإحصائيات */}
+              <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400 mb-3">
+                <div className="flex items-center gap-1">
+                  <BookOpen className="w-3 h-3" />
+                  <span>{angle.articlesCount || 0} مقالة</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <User className="w-3 h-3" />
+                  <span>{angle.author?.name}</span>
+                </div>
+              </div>
+
+              {/* زر المتابعة للجوال */}
+              <Button
+                className="w-full shadow-lg border-0 text-white font-medium transition-all duration-200 hover:scale-105"
+                style={{ backgroundColor: angle.themeColor }}
+              >
+                <Heart className="w-4 h-4 ml-2" />
+                متابعة الزاوية
+              </Button>
+            </div>
+          </div>
+
+          {/* تصميم الديسكتوب - محسن مع خلفية شفافة */}
+          <div className="hidden md:block bg-white/80 dark:bg-black/80 backdrop-blur-sm rounded-2xl px-6 py-5 shadow-2xl border border-white/20">
+            {/* رأس الصندوق مع مؤشر التخصص */}
+            <div className="mb-4">
+              {/* مؤشر التخصص */}
+              <div
+                className="text-xs uppercase tracking-wide font-semibold mb-1"
+                style={{ color: angle.themeColor }}
+              >
+                🧠 زاوية متخصصة
+              </div>
+
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div
+                    className="p-3 rounded-xl shadow-lg"
+                    style={{
+                      backgroundColor: angle.themeColor,
+                      color: "white",
+                    }}
+                  >
+                    <IconComponent className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h1
+                      className="text-2xl md:text-3xl font-bold leading-tight"
+                      style={{ color: angle.themeColor }}
                     >
-                      <Sparkles className="w-3 h-3 ml-1" />
-                      زاوية مميزة
-                    </Badge>
-                  )}
+                      {angle.title}
+                    </h1>
+                    {angle.isFeatured && (
+                      <Badge
+                        className="mt-1 text-xs border-0"
+                        style={{
+                          backgroundColor: `${angle.themeColor}15`,
+                          color: angle.themeColor,
+                        }}
+                      >
+                        <Sparkles className="w-3 h-3 ml-1" />
+                        زاوية مميزة
+                      </Badge>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* وصف الزاوية */}
+            {/* وصف الزاوية مع التنسيق المحسن */}
             {angle.description && (
-              <p className="text-gray-700 dark:text-gray-300 text-sm md:text-base leading-relaxed mb-4">
+              <div className="prose prose-sm max-w-none whitespace-pre-line text-gray-800 dark:text-gray-300 text-sm md:text-base leading-relaxed mb-4">
                 {angle.description}
-              </p>
+              </div>
             )}
 
-            {/* إحصائيات الزاوية */}
+            {/* إحصائيات محسنة */}
             <div className="flex flex-wrap gap-4 text-gray-600 dark:text-gray-400 text-xs md:text-sm mb-4">
               <div className="flex items-center gap-1">
                 <BookOpen className="w-4 h-4" />
@@ -328,12 +410,12 @@ function AngleHeader({ angle }: { angle: Angle }) {
               </div>
               <div className="flex items-center gap-1">
                 <User className="w-4 h-4" />
-                <span>{angle.author?.name}</span>
+                <span>بواسطة {angle.author?.name}</span>
               </div>
               <div className="flex items-center gap-1">
                 <Calendar className="w-4 h-4" />
                 <span>
-                  {new Date(angle.createdAt).toLocaleDateString("ar-SA")}
+                  آخر تحديث {new Date(angle.createdAt).toLocaleDateString("ar-SA")}
                 </span>
               </div>
             </div>
@@ -341,10 +423,9 @@ function AngleHeader({ angle }: { angle: Angle }) {
             {/* أزرار التفاعل المحسنة */}
             <div className="flex flex-col sm:flex-row gap-3">
               <Button
-                className="flex-1 font-medium border-0 shadow-md hover:shadow-lg transition-all"
+                className="flex-1 font-medium border-0 shadow-lg text-white transition-all duration-200 hover:scale-105"
                 style={{
                   backgroundColor: angle.themeColor,
-                  color: "white",
                 }}
               >
                 <Heart className="w-4 h-4 ml-2" />
@@ -352,7 +433,7 @@ function AngleHeader({ angle }: { angle: Angle }) {
               </Button>
               <Button
                 variant="outline"
-                className="flex-1 font-medium border-2 hover:bg-gray-50 dark:hover:bg-gray-800"
+                className="flex-1 font-medium border-2 shadow-lg transition-all duration-200 hover:scale-105"
                 style={{
                   borderColor: angle.themeColor,
                   color: angle.themeColor,
