@@ -217,6 +217,7 @@ export async function GET(
       id: article.id,
       angleId: article.angle_id,
       title: article.title,
+      slug: article.slug || article.id, // إضافة slug مع fallback للـ id
       content: article.content,
       excerpt: article.excerpt,
       authorId: article.author_id,

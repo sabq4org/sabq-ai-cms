@@ -25,7 +25,7 @@ export async function GET(
       );
     }
 
-    // جلب المقال مع تفاصيل المؤلف
+    // جلب المقال مع تفاصيل المؤلف (البحث بالـ id أو slug)
     const articles = (await prisma.$queryRaw`
       SELECT
         aa.*,
@@ -33,7 +33,8 @@ export async function GET(
         u.avatar as author_avatar
       FROM angle_articles aa
       LEFT JOIN users u ON aa.author_id = u.id
-      WHERE aa.id = ${articleId}::uuid AND aa.angle_id = ${angleId}::uuid
+      WHERE aa.angle_id = ${angleId}::uuid 
+        AND (aa.id = ${articleId}::uuid OR aa.slug = ${articleId})
     `) as any[];
 
     if (!articles || articles.length === 0) {
@@ -50,6 +51,7 @@ export async function GET(
       id: article.id,
       angleId: article.angle_id,
       title: article.title,
+      slug: article.slug || article.id, // إضافة slug مع fallback للـ id
       content: article.content,
       excerpt: article.excerpt,
       authorId: article.author_id,

@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
       id: article.id,
       title: article.title,
       excerpt: article.excerpt,
-      slug: article.slug,
+      slug: article.slug || article.id, // fallback to id if slug is null
       coverImage: article.cover_image,
       readingTime: article.reading_time || 5,
       publishDate: article.publish_date,
