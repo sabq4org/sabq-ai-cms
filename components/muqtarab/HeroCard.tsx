@@ -128,13 +128,13 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
                 <User className="w-3 h-3" />
                 <span>{heroArticle.author.name}</span>
               </div>
-              
+
               {/* أيقونة القراءة والدقائق */}
               <div className="flex items-center gap-1">
                 <Clock className="w-3 h-3" />
                 <span>{heroArticle.readingTime}د</span>
               </div>
-              
+
               {/* أيقونة المشاهدة والعدد */}
               <div className="flex items-center gap-1">
                 <Eye className="w-3 h-3" />
@@ -143,9 +143,9 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
             </div>
 
             {/* المحتوى النصي في الأسفل */}
-            <div className="absolute bottom-0 w-full p-4 text-white">
+            <div className="absolute bottom-0 left-0 right-0 p-4 text-white" style={{ bottom: '60px' }}>
               {/* العنوان */}
-              <h2 className="text-lg font-bold leading-tight mb-3 line-clamp-2">
+              <h2 className="text-lg font-bold leading-tight line-clamp-2">
                 {heroArticle.title}
               </h2>
             </div>
