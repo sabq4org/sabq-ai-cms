@@ -172,6 +172,9 @@ export default function RootLayout({
 
         {/* React Error #130 Fix Script */}
         <script src="/react-130-fix.js" async></script>
+        
+        {/* Production Error Fixes */}
+        <script src="/production-error-fixes.js" async></script>
       </head>
       <body
         className={`${ibmPlexArabic.variable} font-arabic`}

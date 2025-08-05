@@ -7,14 +7,8 @@ export const runtime = 'nodejs';
 // GET /api/templates/active
 export async function GET(request: NextRequest) {
   try {
-    if (!request.url) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid request URL' },
-        { status: 400 }
-      );
-    }
-    
-    const { searchParams } = new URL(request.url)
+    // استخدام nextUrl بدلاً من url للتحقق من صحة URL
+    const { searchParams } = request.nextUrl || new URL(request.url || 'http://localhost:3000')
     const type = searchParams.get('type') as TemplateType
     const categoryId = searchParams.get('category_id')
     const countryCode = searchParams.get('country_code')

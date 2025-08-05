@@ -708,9 +708,9 @@ async function fetchArticlesByType(
       return [];
     }
 
-    // فلترة المقالات للتأكد من صحة البيانات
+    // فلترة المقالات للتأكد من صحة البيانات الأساسية
     const validArticles = data.articles.filter((article: any) => {
-      // التأكد من وجود البيانات الأساسية
+      // التأكد من وجود البيانات الأساسية المطلوبة
       return (
         article &&
         article.id &&
@@ -718,15 +718,17 @@ async function fetchArticlesByType(
         article.title.trim() !== "" &&
         !article.title.includes("placeholder") &&
         !article.title.includes("test") &&
-        article.featured_image &&
-        article.featured_image !== "" &&
-        !article.featured_image.includes("placeholder") &&
-        article.category_name
-      ); // التأكد من وجود تصنيف
+        // الصورة المميزة اختيارية - يمكن أن تكون null أو فارغة
+        (article.featured_image === null || 
+         article.featured_image === "" || 
+         (article.featured_image && !article.featured_image.includes("placeholder"))) &&
+        // التصنيف مطلوب
+        (article.category_name || article.categories?.name || article.category?.name)
+      );
     });
 
     if (validArticles.length === 0) {
-      console.warn("⚠️ لا توجد مقالات صالحة");
+      console.debug("🔍 لم يتم العثور على مقالات تطابق معايير الفلترة المحددة");
       return [];
     }
 

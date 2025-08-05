@@ -7,7 +7,7 @@ const nextConfig = {
 
   // Note: api config moved to individual route handlers
 
-    experimental: {
+  experimental: {
     // Experimental support for optimizing stylesheets
     optimizeCss: {
       files: ["styles/globals.css", "styles/ArabicStyles.css"],
@@ -157,7 +157,7 @@ const nextConfig = {
 
     return config;
   },
-  
+
   // نقل serverComponentsExternalPackages خارج experimental
   serverExternalPackages: ["sharp"],
 
