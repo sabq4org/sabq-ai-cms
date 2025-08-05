@@ -1,8 +1,7 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { Brain } from 'lucide-react';
+import { Brain } from "lucide-react";
+import Link from "next/link";
 
 interface DeepAnalysisCardProps {
   title: string;
@@ -15,11 +14,11 @@ interface DeepAnalysisCardProps {
  * مكون بطاقة التحليل العميق المبسط - مصمم للموبايل
  * حسب تعليمات التصميم الذكي من "سبق الذكية"
  */
-export const DeepAnalysisCard = ({ 
-  title, 
-  href, 
-  onClick, 
-  className = "" 
+export const DeepAnalysisCard = ({
+  title,
+  href,
+  onClick,
+  className = "",
 }: DeepAnalysisCardProps) => {
   const handleClick = () => {
     onClick?.();
@@ -30,7 +29,7 @@ export const DeepAnalysisCard = ({
     <div
       onClick={handleClick}
       className={`
-        rounded-xl border border-zinc-200 dark:border-zinc-800 
+        rounded-xl border border-zinc-200 dark:border-zinc-800
         bg-white dark:bg-zinc-900 p-3 space-y-2 min-h-[80px] h-fit
         hover:shadow-md active:scale-[.98] transition-all cursor-pointer
         ${className}

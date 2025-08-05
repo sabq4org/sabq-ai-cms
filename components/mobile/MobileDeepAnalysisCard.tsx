@@ -1,8 +1,7 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { Brain } from 'lucide-react';
+import { Brain } from "lucide-react";
+import Link from "next/link";
 
 interface MobileDeepAnalysisCardProps {
   insight: {
@@ -61,19 +60,22 @@ interface MobileDeepAnalysisCardProps {
   darkMode: boolean;
 }
 
-export default function MobileDeepAnalysisCard({ insight, darkMode }: MobileDeepAnalysisCardProps) {
+export default function MobileDeepAnalysisCard({
+  insight,
+  darkMode,
+}: MobileDeepAnalysisCardProps) {
   // استخدام البيانات المبسطة - التركيز على العنوان فقط
   const metadata = insight.metadata || {};
-  const articleTitle = metadata.title || insight.title || 'تحليل عميق';
+  const articleTitle = metadata.title || insight.title || "تحليل عميق";
   const articleUrl = `/insights/deep/${insight.id}`;
-  
+
   const handleClick = () => {
     // إضافة تأثير تفاعلي للضغط
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       // يمكن إضافة منطق تتبع هنا
     }
   };
-  
+
   return (
     <Link href={articleUrl} className="block">
       <div
@@ -81,9 +83,8 @@ export default function MobileDeepAnalysisCard({ insight, darkMode }: MobileDeep
         className={`
           rounded-xl border bg-white dark:bg-zinc-900 p-3 space-y-2 min-h-[80px] h-fit
           hover:shadow-md active:scale-[.98] transition-all cursor-pointer
-          ${darkMode 
-            ? 'border-zinc-800 shadow-sm' 
-            : 'border-zinc-200 shadow-sm'
+          ${
+            darkMode ? "border-zinc-800 shadow-sm" : "border-zinc-200 shadow-sm"
           }
         `}
       >
@@ -102,4 +103,4 @@ export default function MobileDeepAnalysisCard({ insight, darkMode }: MobileDeep
       </div>
     </Link>
   );
-} 
+}
