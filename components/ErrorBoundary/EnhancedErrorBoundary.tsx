@@ -1,8 +1,8 @@
 "use client";
 
-import React, { ErrorInfo, ReactNode } from "react";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, AlertTriangle, Home, Bug } from "lucide-react";
+import { AlertTriangle, Bug, Home, RefreshCw } from "lucide-react";
+import React, { ErrorInfo, ReactNode } from "react";
 
 interface Props {
   children: ReactNode;
@@ -29,12 +29,14 @@ export class EnhancedErrorBoundary extends React.Component<Props, State> {
 
   static getDerivedStateFromError(error: Error): State {
     // تحديث الحالة للعرض التالي ليظهر واجهة الأخطاء
-    const errorId = `error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
+    const errorId = `error_${Date.now()}_${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
+
     return {
       hasError: true,
       error,
-      errorId
+      errorId,
     };
   }
 
@@ -44,7 +46,7 @@ export class EnhancedErrorBoundary extends React.Component<Props, State> {
       error: error.message,
       stack: error.stack,
       componentStack: errorInfo.componentStack,
-      errorId: this.state.errorId
+      errorId: this.state.errorId,
     });
 
     // معالجة خاصة لـ React Error #130
@@ -78,45 +80,49 @@ export class EnhancedErrorBoundary extends React.Component<Props, State> {
     console.log("Error Message:", error.message);
     console.log("Component Stack:", errorInfo.componentStack);
     console.log("Error Stack:", error.stack);
-    
+
     // تحليل المكونات المحتملة المشكلة
     const componentStack = errorInfo.componentStack;
     const problemComponents = this.extractProblemComponents(componentStack);
-    
+
     if (problemComponents.length > 0) {
       console.log("🎯 Potential Problem Components:", problemComponents);
     }
-    
+
     console.groupEnd();
   }
 
   // استخراج المكونات المحتملة المشكلة
   private extractProblemComponents(componentStack: string): string[] {
-    const lines = componentStack.split('\n');
+    const lines = componentStack.split("\n");
     const components: string[] = [];
-    
-    lines.forEach(line => {
+
+    lines.forEach((line) => {
       const match = line.match(/in (\w+)/);
-      if (match && match[1] && !['div', 'span', 'p', 'h1', 'h2', 'h3'].includes(match[1])) {
+      if (
+        match &&
+        match[1] &&
+        !["div", "span", "p", "h1", "h2", "h3"].includes(match[1])
+      ) {
         components.push(match[1]);
       }
     });
-    
+
     return [...new Set(components)]; // إزالة التكرارات
   }
 
   // تقرير الخطأ للمراقبة
   private reportError(error: Error, errorInfo: ErrorInfo) {
     // يمكن إرسال التقرير لخدمة مراقبة الأخطاء
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       // إرسال للمتصفح console للمطورين
       console.table({
-        'Error ID': this.state.errorId,
-        'Error Type': error.name,
-        'Message': error.message,
-        'Time': new Date().toISOString(),
-        'User Agent': navigator.userAgent,
-        'URL': window.location.href
+        "Error ID": this.state.errorId,
+        "Error Type": error.name,
+        Message: error.message,
+        Time: new Date().toISOString(),
+        "User Agent": navigator.userAgent,
+        URL: window.location.href,
       });
     }
   }
@@ -126,11 +132,11 @@ export class EnhancedErrorBoundary extends React.Component<Props, State> {
     if (this.retryCount < this.maxRetries) {
       this.retryCount++;
       console.log(`🔄 Retrying... (${this.retryCount}/${this.maxRetries})`);
-      
-      this.setState({ 
-        hasError: false, 
-        error: undefined, 
-        errorInfo: undefined 
+
+      this.setState({
+        hasError: false,
+        error: undefined,
+        errorInfo: undefined,
       });
     } else {
       console.warn("❌ Maximum retry attempts reached");
@@ -139,15 +145,15 @@ export class EnhancedErrorBoundary extends React.Component<Props, State> {
 
   // إعادة تحميل الصفحة
   handleReload = () => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       window.location.reload();
     }
   };
 
   // الذهاب للصفحة الرئيسية
   handleGoHome = () => {
-    if (typeof window !== 'undefined') {
-      window.location.href = '/';
+    if (typeof window !== "undefined") {
+      window.location.href = "/";
     }
   };
 
@@ -164,17 +170,17 @@ export class EnhancedErrorBoundary extends React.Component<Props, State> {
             <div className="flex justify-center mb-4">
               <AlertTriangle className="h-16 w-16 text-red-500" />
             </div>
-            
+
             <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
               حدث خطأ غير متوقع
             </h1>
-            
+
             <p className="text-gray-600 dark:text-gray-400 mb-6">
               نعتذر، حدث خطأ أثناء تحميل هذه الصفحة. يرجى المحاولة مرة أخرى.
             </p>
 
             {/* معلومات الخطأ للمطورين */}
-            {process.env.NODE_ENV === 'development' && this.state.error && (
+            {process.env.NODE_ENV === "development" && this.state.error && (
               <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4 text-left">
                 <div className="flex items-center mb-2">
                   <Bug className="h-4 w-4 text-red-500 mr-2" />
@@ -190,10 +196,10 @@ export class EnhancedErrorBoundary extends React.Component<Props, State> {
                 </p>
               </div>
             )}
-            
+
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               {this.retryCount < this.maxRetries && (
-                <Button 
+                <Button
                   onClick={this.handleRetry}
                   className="flex items-center gap-2"
                 >
@@ -201,8 +207,8 @@ export class EnhancedErrorBoundary extends React.Component<Props, State> {
                   إعادة المحاولة ({this.maxRetries - this.retryCount} متبقية)
                 </Button>
               )}
-              
-              <Button 
+
+              <Button
                 onClick={this.handleReload}
                 variant="outline"
                 className="flex items-center gap-2"
@@ -210,8 +216,8 @@ export class EnhancedErrorBoundary extends React.Component<Props, State> {
                 <RefreshCw className="h-4 w-4" />
                 إعادة تحميل الصفحة
               </Button>
-              
-              <Button 
+
+              <Button
                 onClick={this.handleGoHome}
                 variant="ghost"
                 className="flex items-center gap-2"

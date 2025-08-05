@@ -5,6 +5,7 @@ import ConditionalHeader from "../components/ConditionalHeader";
 import ErrorBoundary from "../components/ErrorBoundary";
 import ReactErrorBoundary from "../components/ErrorBoundary/ReactErrorBoundary";
 import EnhancedErrorBoundary from "../components/ErrorBoundary/EnhancedErrorBoundary";
+import ReactErrorRecovery from "../components/ReactErrorRecovery";
 import GlobalErrorHandler from "../components/GlobalErrorHandler";
 import StructuredData from "../components/StructuredData";
 import ContentWrapper from "../components/layout/ContentWrapper";
@@ -167,24 +168,29 @@ export default function RootLayout({
           href="https://sabq-cms-content.s3.us-east-1.amazonaws.com"
         />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        
+        {/* React Error #130 Fix Script */}
+        <script src="/react-130-fix.js" async></script>
       </head>
       <body
         className={`${ibmPlexArabic.variable} font-arabic`}
         suppressHydrationWarning
       >
-        <EnhancedErrorBoundary>
-          <ReactErrorBoundary>
-            <ErrorBoundary>
-              <AnalyticsProvider>
-                <Providers>
-                  <GlobalErrorHandler />
-                  <ConditionalHeader />
-                  <ContentWrapper>{children}</ContentWrapper>
-                </Providers>
-              </AnalyticsProvider>
-            </ErrorBoundary>
-          </ReactErrorBoundary>
-        </EnhancedErrorBoundary>
+        <ReactErrorRecovery>
+          <EnhancedErrorBoundary>
+            <ReactErrorBoundary>
+              <ErrorBoundary>
+                <AnalyticsProvider>
+                  <Providers>
+                    <GlobalErrorHandler />
+                    <ConditionalHeader />
+                    <ContentWrapper>{children}</ContentWrapper>
+                  </Providers>
+                </AnalyticsProvider>
+              </ErrorBoundary>
+            </ReactErrorBoundary>
+          </EnhancedErrorBoundary>
+        </ReactErrorRecovery>
         <StructuredData pageType="home" />
       </body>
     </html>

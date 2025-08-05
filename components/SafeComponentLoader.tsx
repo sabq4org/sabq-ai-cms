@@ -1,7 +1,8 @@
 "use client";
 
-import React, { Suspense, lazy, ComponentType } from "react";
+import React, { ComponentType, Suspense, lazy } from "react";
 import EnhancedErrorBoundary from "./ErrorBoundary/EnhancedErrorBoundary";
+import { ComponentValidator } from "./ComponentValidator";
 import { Skeleton } from "./ui/skeleton";
 
 interface SafeComponentLoaderProps {
@@ -18,7 +19,7 @@ export function SafeComponentLoader({
   fallback,
   errorFallback,
   props,
-  name = "Component"
+  name = "Component",
 }: SafeComponentLoaderProps) {
   // إنشاء lazy component مع معالجة الأخطاء
   const LazyComponent = React.useMemo(() => {
@@ -26,17 +27,17 @@ export function SafeComponentLoader({
       try {
         console.log(`🔄 Loading component: ${name}`);
         const module = await component();
-        
+
         // التحقق من صحة المكون
         if (!module || !module.default) {
           throw new Error(`Component ${name} does not have a default export`);
         }
-        
+
         console.log(`✅ Component loaded successfully: ${name}`);
         return module;
       } catch (error) {
         console.error(`❌ Failed to load component ${name}:`, error);
-        
+
         // إرجاع مكون fallback بدلاً من الخطأ
         return {
           default: () => (
@@ -45,7 +46,7 @@ export function SafeComponentLoader({
                 ⚠️ تعذر تحميل المكون: {name}
               </p>
             </div>
-          )
+          ),
         };
       }
     });
@@ -67,9 +68,11 @@ export function SafeComponentLoader({
 
   return (
     <EnhancedErrorBoundary fallback={errorFallback || defaultErrorFallback}>
-      <Suspense fallback={fallback || defaultFallback}>
-        <LazyComponent {...props} />
-      </Suspense>
+      <ComponentValidator componentName={name} fallback={errorFallback || defaultErrorFallback}>
+        <Suspense fallback={fallback || defaultFallback}>
+          <LazyComponent {...props} />
+        </Suspense>
+      </ComponentValidator>
     </EnhancedErrorBoundary>
   );
 }
@@ -79,7 +82,9 @@ export function useSafeComponent(
   componentLoader: () => Promise<{ default: ComponentType<any> }>,
   name?: string
 ) {
-  const [Component, setComponent] = React.useState<ComponentType<any> | null>(null);
+  const [Component, setComponent] = React.useState<ComponentType<any> | null>(
+    null
+  );
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<Error | null>(null);
 
@@ -90,19 +95,21 @@ export function useSafeComponent(
       try {
         setLoading(true);
         setError(null);
-        
+
         const module = await componentLoader();
-        
+
         if (mounted) {
           if (module && module.default) {
             setComponent(() => module.default);
           } else {
-            throw new Error(`Component ${name || 'Unknown'} does not have a default export`);
+            throw new Error(
+              `Component ${name || "Unknown"} does not have a default export`
+            );
           }
         }
       } catch (err) {
         if (mounted) {
-          console.error(`Failed to load component ${name || 'Unknown'}:`, err);
+          console.error(`Failed to load component ${name || "Unknown"}:`, err);
           setError(err as Error);
         }
       } finally {
@@ -133,11 +140,11 @@ export const SafeDynamicComponent = {
       <SafeComponentLoader
         component={componentLoader}
         fallback={
-          <Skeleton 
+          <Skeleton
             className={skeletonProps?.className || "w-full h-32 rounded-lg"}
             style={{
               height: skeletonProps?.height,
-              width: skeletonProps?.width
+              width: skeletonProps?.width,
             }}
           />
         }
@@ -180,7 +187,7 @@ export const SafeDynamicComponent = {
         name={componentLoader.name}
       />
     ));
-  }
+  },
 };
 
 export default SafeComponentLoader;
