@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   ArrowLeft,
-  BookOpen,
   Brain,
   Clock,
   Eye,
@@ -413,23 +412,27 @@ export default function MuqtarabBlock({ className }: MuqtarabBlockProps) {
         )}
 
         {/* رسالة عدم وجود محتوى - تظهر فقط إذا لم يكن هناك أي محتوى على الإطلاق */}
-        {!heroLoading && !angleLoading && !heroArticle && !angleArticle && articles.length === 0 && (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-gray-100 to-blue-100 dark:from-gray-800 dark:to-blue-900/20 flex items-center justify-center">
-              <Brain className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+        {!heroLoading &&
+          !angleLoading &&
+          !heroArticle &&
+          !angleArticle &&
+          articles.length === 0 && (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-gray-100 to-blue-100 dark:from-gray-800 dark:to-blue-900/20 flex items-center justify-center">
+                <Brain className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                لا توجد مقالات إبداعية حالياً
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                نعمل على إنتاج محتوى إبداعي مخصص لك
+              </p>
+              <Button onClick={handleRefresh} variant="outline" size="sm">
+                <RefreshCw className="w-4 h-4 ml-2" />
+                تحديث
+              </Button>
             </div>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-              لا توجد مقالات إبداعية حالياً
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              نعمل على إنتاج محتوى إبداعي مخصص لك
-            </p>
-            <Button onClick={handleRefresh} variant="outline" size="sm">
-              <RefreshCw className="w-4 h-4 ml-2" />
-              تحديث
-            </Button>
-          </div>
-        )}
+          )}
       </div>
 
       {/* مؤشر الذكاء الاصطناعي */}
@@ -446,7 +449,10 @@ export default function MuqtarabBlock({ className }: MuqtarabBlockProps) {
 // مكون بطاقة مقال الزاوية - محسن
 function AngleArticleCard({ angleArticle }: { angleArticle: AngleArticle }) {
   return (
-    <Link href={`/muqtarab/${angleArticle.angle.slug}/${angleArticle.slug}`} className="block">
+    <Link
+      href={`/muqtarab/${angleArticle.angle.slug}/${angleArticle.slug}`}
+      className="block"
+    >
       <div className="relative bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 h-80 group">
         {/* الجزء العلوي - الصورة مع ليبلز */}
         <div className="relative h-1/2 overflow-hidden">
@@ -509,14 +515,10 @@ function AngleArticleCard({ angleArticle }: { angleArticle: AngleArticle }) {
 
         {/* الجزء السفلي - المحتوى */}
         <div className="h-1/2 p-4 flex flex-col justify-between">
-          {/* العنوان */}
+          {/* المحتوى النصي */}
           <div className="flex-1">
-            <h3 className="font-bold text-base text-gray-900 dark:text-white line-clamp-3 leading-tight mb-2">
-              {angleArticle.title}
-            </h3>
-            
             {angleArticle.excerpt && (
-              <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
+              <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 leading-relaxed">
                 {angleArticle.excerpt}
               </p>
             )}
@@ -527,9 +529,7 @@ function AngleArticleCard({ angleArticle }: { angleArticle: AngleArticle }) {
             {/* الكاتب */}
             <div className="flex items-center gap-1">
               <User className="w-3 h-3" />
-              <span className="font-medium">
-                {angleArticle.author.name}
-              </span>
+              <span className="font-medium">{angleArticle.author.name}</span>
             </div>
 
             {/* وقت القراءة والمشاهدات */}

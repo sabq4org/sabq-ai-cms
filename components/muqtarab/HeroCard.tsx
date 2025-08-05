@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Clock, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { AIInsightTag } from "./AIInsightTag";
 
 interface HeroArticle {
   id: string;
@@ -84,26 +83,26 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
             </Badge>
           </div>
 
-          {/* ليبل "إبداعي" + اسم الزاوية - الزاوية العلوية اليمنى */}
+          {/* اسم الزاوية + إبداعي - الزاوية العلوية اليمنى */}
           <div className="absolute top-3 right-3 flex flex-col gap-2">
-            <Badge className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white border-0 shadow-lg backdrop-blur-sm">
-              <span className="mr-1">✨</span>
-              إبداعي
-            </Badge>
-            <div 
+            <div
               className="flex items-center gap-1 px-3 py-1 rounded-full backdrop-blur-sm shadow-lg"
               style={{
-                backgroundColor: heroArticle.angle.themeColor ? `${heroArticle.angle.themeColor}E6` : 'rgba(59, 130, 246, 0.9)',
-                color: 'white'
+                backgroundColor: heroArticle.angle.themeColor
+                  ? `${heroArticle.angle.themeColor}E6`
+                  : "rgba(59, 130, 246, 0.9)",
+                color: "white",
               }}
             >
-              <span className="text-sm">
-                {heroArticle.angle.icon || "🧠"}
-              </span>
+              <span className="text-sm">{heroArticle.angle.icon || "🧠"}</span>
               <span className="text-sm font-bold">
                 {heroArticle.angle.title}
               </span>
             </div>
+            <Badge className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white border-0 shadow-lg backdrop-blur-sm">
+              <span className="mr-1">✨</span>
+              إبداعي
+            </Badge>
           </div>
 
           {/* الطبقة الشفافة التدريجية */}
@@ -118,12 +117,9 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
 
             {/* بيانات تحت العنوان: الاسم ووقت القراءة والمشاهدة */}
             <div className="flex items-center justify-between text-sm">
-              {/* معلومات المؤلف */}
-              <div className="flex items-center gap-1 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full">
-                <User className="w-4 h-4" />
-                <span className="font-medium">
-                  {heroArticle.author.name}
-                </span>
+              {/* اسم المؤلف بدون ليبل */}
+              <div className="bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                <span className="font-medium">{heroArticle.author.name}</span>
               </div>
 
               {/* وقت القراءة والمشاهدات */}
