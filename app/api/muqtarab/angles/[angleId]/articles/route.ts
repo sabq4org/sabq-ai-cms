@@ -7,10 +7,10 @@ const prisma = new PrismaClient();
 // إنشاء مقال جديد في الزاوية
 export async function POST(
   request: NextRequest,
-  { params }: { params: { angleId: string } }
+  { params }: { params: Promise<{ angleId: string }> }
 ) {
   try {
-    const { angleId } = params;
+    const { angleId } = await params;
     const body: MuqtaribArticleForm = await request.json();
 
     // التحقق من البيانات المطلوبة
@@ -98,10 +98,10 @@ export async function POST(
 // جلب مقالات الزاوية
 export async function GET(
   request: NextRequest,
-  { params }: { params: { angleId: string } }
+  { params }: { params: Promise<{ angleId: string }> }
 ) {
   try {
-    const { angleId } = params;
+    const { angleId } = await params;
     const { searchParams } = new URL(request.url);
 
     console.log("🔍 [GET Articles] angleId:", angleId);

@@ -36,6 +36,7 @@ export default function AngleArticlePage() {
   const [angle, setAngle] = useState<Angle | null>(null);
   const [article, setArticle] = useState<AngleArticle | null>(null);
   const [relatedArticles, setRelatedArticles] = useState<AngleArticle[]>([]);
+  const [crossAngleArticles, setCrossAngleArticles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -74,7 +75,7 @@ export default function AngleArticlePage() {
         console.log("✅ تم جلب بيانات المقال:", articleData.article.title);
         setArticle(articleData.article);
 
-        // جلب المقالات ذات الصلة
+        // جلب المقالات ذات الصلة من نفس الزاوية
         const relatedResponse = await fetch(
           `/api/muqtarab/angles/${angleData.angle.id}/articles?limit=6&exclude=${articleId}`
         );
@@ -82,6 +83,16 @@ export default function AngleArticlePage() {
         if (relatedResponse.ok) {
           const relatedData = await relatedResponse.json();
           setRelatedArticles(relatedData.articles?.slice(0, 3) || []);
+        }
+
+        // جلب مقالات من زوايا أخرى
+        const crossAngleResponse = await fetch(
+          `/api/muqtarab/cross-angle-recommendations?currentAngleId=${angleData.angle.id}&currentArticleId=${articleId}&limit=3`
+        );
+
+        if (crossAngleResponse.ok) {
+          const crossAngleData = await crossAngleResponse.json();
+          setCrossAngleArticles(crossAngleData.articles || []);
         }
       } catch (error) {
         console.error("خطأ في تحميل البيانات:", error);
@@ -224,12 +235,19 @@ export default function AngleArticlePage() {
           </Link>
         </div>
 
-        {/* مقالات مقترحة ذكية */}
-        <SmartRecommendations
-          articles={relatedArticles}
-          angle={angle}
-          currentArticle={article}
-        />
+        {/* مقالات مقترحة ذكية من نفس الزاوية */}
+        {relatedArticles.length > 0 && (
+          <SmartRecommendations
+            articles={relatedArticles}
+            angle={angle}
+            currentArticle={article}
+          />
+        )}
+
+        {/* مقالات من زوايا أخرى */}
+        {crossAngleArticles.length > 0 && (
+          <CrossAngleRecommendations articles={crossAngleArticles} />
+        )}
       </div>
     </div>
   );
@@ -348,23 +366,6 @@ function ArticleHeader({
 }) {
   return (
     <div className="mb-4 md:mb-8">
-      {/* ليبل اسم الزاوية للموبايل فقط */}
-      <div className="block md:hidden mb-3">
-        <Link href={`/muqtarab/${angle.slug}`}>
-          <Badge
-            variant="secondary"
-            className="hover:bg-opacity-80 transition-colors cursor-pointer text-sm px-3 py-1"
-            style={{
-              backgroundColor: angle.themeColor,
-              color: "white",
-            }}
-          >
-            <Cpu className="w-3 h-3 ml-1" />
-            {angle.title}
-          </Badge>
-        </Link>
-      </div>
-
       {/* شارات وتصنيفات */}
       <div className="flex flex-wrap items-center gap-1 md:gap-2 mb-3 md:mb-4">
         <Link href={`/muqtarab/${angle.slug}`}>
@@ -663,7 +664,7 @@ function SmartRecommendations({
     <div>
       <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
         <h2 className="text-lg md:text-2xl font-bold text-gray-900">
-          مقالات مقترحة لك
+          مقالات أخرى من نفس الزاوية
         </h2>
         <div
           className="px-2 py-1 md:px-3 rounded-full text-xs font-medium text-white"
@@ -816,12 +817,14 @@ function ArticleContent({ article }: { article: AngleArticle }) {
           fontSize: "1rem",
         }}
       />
-      
+
       {/* الكلمات المفتاحية في نهاية المحتوى */}
       {article.tags && article.tags.length > 0 && (
         <div className="mt-6 pt-4 border-t border-gray-200">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm font-medium text-gray-600 ml-2">المواضيع:</span>
+            <span className="text-sm font-medium text-gray-600 ml-2">
+              المواضيع:
+            </span>
             {article.tags.slice(0, 5).map((tag, index) => (
               <Badge key={index} variant="outline" className="text-xs">
                 <Tag className="w-3 h-3 ml-1" />
@@ -883,7 +886,8 @@ function AIAnalysisSection({
     if (
       title.includes("الخوارزمية") ||
       title.includes("AI") ||
-      title.includes("ذكاء")
+      title.includes("ذكاء") ||
+      title.includes("اصطناعي")
     )
       score += 20;
     if (title.includes("مستقبل") || title.includes("تطور")) score += 15;
@@ -905,26 +909,29 @@ function AIAnalysisSection({
   const getScoreDescription = (score: number) => {
     if (score >= 85)
       return {
-        text: "إبداعي",
-        emoji: "🍒",
+        text: "إبداعي ومبتكر",
+        emoji: "🎯",
         color: "text-purple-700",
-        bg: "bg-purple-50",
+        bg: "bg-gradient-to-br from-purple-50 to-pink-50",
         border: "border-purple-200",
+        gradient: "from-purple-500 to-pink-500",
       };
     if (score >= 70)
       return {
         text: "مثير للتفكير",
         emoji: "💡",
         color: "text-blue-700",
-        bg: "bg-blue-50",
+        bg: "bg-gradient-to-br from-blue-50 to-cyan-50",
         border: "border-blue-200",
+        gradient: "from-blue-500 to-cyan-500",
       };
     return {
-      text: "تحليل بشري",
-      emoji: "🤔",
-      color: "text-gray-700",
-      bg: "bg-gray-50",
-      border: "border-gray-200",
+      text: "تحليل معمق",
+      emoji: "🧠",
+      color: "text-emerald-700",
+      bg: "bg-gradient-to-br from-emerald-50 to-teal-50",
+      border: "border-emerald-200",
+      gradient: "from-emerald-500 to-teal-500",
     };
   };
 
@@ -932,42 +939,106 @@ function AIAnalysisSection({
 
   return (
     <div
-      className={`${scoreDesc.bg} ${scoreDesc.border} border rounded-lg md:rounded-xl p-4 md:p-6 mb-4 md:mb-8`}
+      className={`${scoreDesc.bg} ${scoreDesc.border} border-2 rounded-2xl p-6 md:p-8 mb-6 md:mb-10 shadow-lg hover:shadow-xl transition-all duration-300 group`}
     >
-      <div className="flex items-start gap-3 md:gap-4">
-        <div className="text-xl md:text-2xl">{scoreDesc.emoji}</div>
-        <div className="flex-1">
+      {/* Header مع أيقونة AI محسنة */}
+      <div className="flex items-center gap-3 mb-6">
+        <div
+          className={`w-12 h-12 md:w-14 md:h-14 bg-gradient-to-r ${scoreDesc.gradient} rounded-full flex items-center justify-center text-white text-xl md:text-2xl shadow-lg group-hover:scale-110 transition-transform duration-300`}
+        >
+          🤖
+        </div>
+        <div>
           <h3
-            className={`font-bold ${scoreDesc.color} text-base md:text-lg mb-2`}
+            className={`font-bold ${scoreDesc.color} text-lg md:text-xl mb-1`}
           >
             تحليل الذكاء الاصطناعي
           </h3>
-          <p className={`${scoreDesc.color} mb-3`}>
-            <span className="font-bold text-lg md:text-xl">{aiScore}%</span>{" "}
-            {scoreDesc.text}
-          </p>
-          <p className="text-xs md:text-sm text-gray-600 leading-relaxed">
-            هذا المقال يحتوي على لغة تحليلية واستشرافية عالية ويستخدم أمثلة
-            تقنية حديثة. تم تقييمه باستخدام خوارزميات الذكاء الاصطناعي لتحليل
-            العمق والإبداع.
-          </p>
+          <p className="text-sm text-gray-600">تقييم ذكي لجودة وعمق المحتوى</p>
+        </div>
+      </div>
 
-          {/* مؤشر النقاط */}
-          <div className="mt-3 flex items-center gap-2">
-            <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-              <div
-                className="h-full rounded-full transition-all duration-1000"
-                style={{
-                  width: `${aiScore}%`,
-                  backgroundColor: angle.themeColor,
-                }}
-              />
-            </div>
-            <span className="text-xs text-gray-500 font-mono">
-              {aiScore}/100
-            </span>
+      {/* النتيجة والوصف */}
+      <div className="mb-6">
+        <div className="flex items-center gap-3 mb-3">
+          <span className="text-2xl">{scoreDesc.emoji}</span>
+          <div>
+            <p className={`${scoreDesc.color} text-lg md:text-xl font-bold`}>
+              {aiScore}% - {scoreDesc.text}
+            </p>
           </div>
         </div>
+
+        <p className="text-sm md:text-base text-gray-700 leading-relaxed bg-white/50 p-4 rounded-lg">
+          يصنف هذا المقال كمحتوى <strong>{scoreDesc.text.toLowerCase()}</strong>{" "}
+          بناءً على تحليل اللغة المستخدمة، عمق الأفكار المطروحة، والاستشراف
+          المستقبلي. تم التقييم باستخدام خوارزميات متقدمة لفهم السياق والمعنى.
+        </p>
+      </div>
+
+      {/* مؤشر النقاط المحسن */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between text-sm text-gray-600">
+          <span>درجة التحليل</span>
+          <span className="font-mono font-bold">{aiScore}/100</span>
+        </div>
+
+        <div className="relative">
+          <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden shadow-inner">
+            <div
+              className={`h-full rounded-full bg-gradient-to-r ${scoreDesc.gradient} transition-all duration-1000 ease-out shadow-sm`}
+              style={{
+                width: `${aiScore}%`,
+              }}
+            />
+          </div>
+          {/* النقاط المرجعية */}
+          <div className="flex justify-between text-xs text-gray-400 mt-1">
+            <span>ضعيف</span>
+            <span>جيد</span>
+            <span>ممتاز</span>
+          </div>
+        </div>
+      </div>
+
+      {/* معايير التقييم */}
+      <div className="mt-6 pt-4 border-t border-gray-200/50">
+        <details className="group/details">
+          <summary className="cursor-pointer text-sm text-gray-600 hover:text-gray-800 transition-colors flex items-center gap-2">
+            <span>📊 معايير التقييم</span>
+            <svg
+              className="w-4 h-4 transition-transform group-open/details:rotate-180"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </summary>
+          <div className="mt-3 text-xs text-gray-600 space-y-2">
+            <div className="flex justify-between">
+              <span>• تحليل العنوان والكلمات المفتاحية</span>
+              <span>20 نقطة</span>
+            </div>
+            <div className="flex justify-between">
+              <span>• عمق المحتوى وطول النص</span>
+              <span>15 نقطة</span>
+            </div>
+            <div className="flex justify-between">
+              <span>• اللغة التحليلية والاستشرافية</span>
+              <span>10 نقاط</span>
+            </div>
+            <div className="flex justify-between">
+              <span>• التخصص التقني</span>
+              <span>5 نقاط</span>
+            </div>
+          </div>
+        </details>
       </div>
     </div>
   );
@@ -1036,6 +1107,96 @@ function AuthorSection({
           <span className="hidden md:inline">1,234 مشاهدة</span>
           <span className="md:hidden">1.2k</span>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// مكون المقالات من زوايا أخرى
+function CrossAngleRecommendations({ articles }: { articles: any[] }) {
+  if (articles.length === 0) return null;
+
+  return (
+    <div className="mt-8 md:mt-12">
+      <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
+        <h2 className="text-lg md:text-2xl font-bold text-gray-900">
+          مقالات من زوايا أخرى
+        </h2>
+        <div className="px-2 py-1 md:px-3 rounded-full text-xs font-medium bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+          استكشف
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+        {articles.map((article, index) => (
+          <Card
+            key={article.id}
+            className="group rounded-lg md:rounded-xl overflow-hidden border-0 shadow-sm md:shadow-md hover:shadow-md md:hover:shadow-lg transition-all duration-200"
+          >
+            <div className="relative h-32 md:h-40 w-full overflow-hidden">
+              {article.coverImage ? (
+                <Image
+                  src={article.coverImage}
+                  alt={article.title}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-200"
+                />
+              ) : (
+                <div
+                  className="w-full h-full opacity-20"
+                  style={{
+                    background: `linear-gradient(135deg, ${article.angle.themeColor} 0%, #1f2937 100%)`,
+                  }}
+                />
+              )}
+
+              {/* شارة الزاوية */}
+              <div className="absolute top-2 right-2">
+                <Badge
+                  className="text-xs font-medium text-white shadow-lg"
+                  style={{
+                    backgroundColor: article.angle.themeColor,
+                  }}
+                >
+                  {article.angle.title}
+                </Badge>
+              </div>
+            </div>
+
+            <div className="p-3 md:p-4">
+              <Link href={`/muqtarab/${article.angle.slug}/${article.id}`}>
+                <h3 className="font-bold text-sm md:text-base text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors duration-200 mb-2">
+                  {article.title}
+                </h3>
+              </Link>
+
+              {article.excerpt && (
+                <p className="text-xs md:text-sm text-gray-600 line-clamp-2 mb-3">
+                  {article.excerpt}
+                </p>
+              )}
+
+              <div className="flex items-center justify-between text-xs text-gray-500">
+                <div className="flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  <span>{article.readingTime || 5} دقائق</span>
+                </div>
+
+                <div className="flex items-center gap-1">
+                  <Eye className="w-3 h-3" />
+                  <span className="hidden md:inline">
+                    {article.views?.toLocaleString() || 0} مشاهدة
+                  </span>
+                  <span className="md:hidden">
+                    {article.views > 1000
+                      ? (article.views / 1000).toFixed(1) + "k"
+                      : article.views || 0}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </Card>
+        ))}
       </div>
     </div>
   );
