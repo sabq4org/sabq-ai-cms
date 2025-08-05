@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { formatFullDate, formatRelativeDate } from "@/lib/date-utils";
+import { useEffect, useState } from "react";
 
 interface SafeDateDisplayProps {
   date: string;
@@ -25,9 +25,8 @@ export default function SafeDateDisplay({
     setMounted(true);
     // تنسيق التاريخ فقط بعد التحميل على العميل
     if (date) {
-      const formatted = format === "full" 
-        ? formatFullDate(date)
-        : formatRelativeDate(date);
+      const formatted =
+        format === "full" ? formatFullDate(date) : formatRelativeDate(date);
       setFormattedDate(formatted);
     }
   }, [date, format]);
