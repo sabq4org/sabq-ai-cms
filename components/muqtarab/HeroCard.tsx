@@ -99,18 +99,20 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
               </Badge>
             </div>
 
-            {/* ليبل اسم الزاوية + ليبل نسبة الإبداع - أعلى الصورة يمين */}
+                        {/* ليبل اسم الزاوية + ليبل نسبة الإبداع - أعلى الصورة يمين */}
             <div className="absolute top-3 right-3 flex items-center gap-2">
-              {/* ليبل اسم الزاوية بالألوان الرسمية */}
-              <div 
-                className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium text-white backdrop-blur-sm"
+              {/* ليبل اسم الزاوية - نفس شكل AIInsightTag */}
+              <Badge 
+                className="backdrop-blur-sm border-0 text-white font-medium"
+                variant="outline"
                 style={{
                   backgroundColor: heroArticle.angle.themeColor || "#8B5CF6",
+                  borderColor: heroArticle.angle.themeColor || "#8B5CF6",
                 }}
               >
-                <span>{heroArticle.angle.icon || "🧠"}</span>
-                <span>{heroArticle.angle.title}</span>
-              </div>
+                <span className="mr-1">{heroArticle.angle.icon || "🧠"}</span>
+                {heroArticle.angle.title}
+              </Badge>
               
               {/* ليبل نسبة الإبداع */}
               <AIInsightTag score={heroArticle.aiScore} />
@@ -125,8 +127,6 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
               <h2 className="text-lg font-bold leading-tight mb-3 line-clamp-2">
                 {heroArticle.title}
               </h2>
-
-              
 
               {/* بيانات الكاتب والقراءة والمشاهدة - يمين بدون ليبل */}
               <div className="flex justify-end items-center gap-3 text-xs text-gray-300 mt-2">
