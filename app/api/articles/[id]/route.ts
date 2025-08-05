@@ -9,10 +9,12 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    console.log("🚀 بدء GET request - المرحلة 1");
     const { id } = await context.params;
-    console.log(`📰 جلب المقال: ${id}`);
+    console.log(`📰 جلب المقال: ${id} - المرحلة 2`);
 
     if (!id) {
+      console.log("❌ معرف المقال مفقود - المرحلة 2.1");
       return NextResponse.json(
         {
           success: false,
@@ -23,58 +25,78 @@ export async function GET(
       );
     }
 
+    console.log(`✅ معرف المقال موجود: ${id} - المرحلة 3`);
+
     // استخدام مدير الاتصال لضمان الاتصال
     // السماح بجلب أي حالة عند استخدام ?all=true
     const url = new URL(request.url);
     const includeAll = url.searchParams.get("all") === "true";
 
-    // محاولة الاتصال بقاعدة البيانات
+    // محاولة الاتصال بقاعدة البيانات بطريقة قوية
     let article;
     try {
-      // محاولة التأكد من الاتصال أولاً
-      await prisma.$connect();
+      console.log("🔗 محاولة الاتصال بقاعدة البيانات - المرحلة 4");
 
-      article = await dbConnectionManager.executeWithConnection(async () => {
-        return await prisma.articles.findFirst({
-          where: {
-            OR: [{ id: id }, { slug: id }],
-            ...(includeAll ? {} : { status: "published" }),
-          },
-          include: {
-            categories: true,
-            author: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-                avatar: true,
-              },
+      // فصل واتصال جديد لحل مشكلة Engine not connected
+      try {
+        await prisma.$disconnect();
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      } catch (disconnectError) {
+        console.log("⚠️ خطأ في قطع الاتصال (متوقع):", disconnectError);
+      }
+
+      await prisma.$connect();
+      console.log("✅ اتصال Prisma نجح - المرحلة 5");
+
+      // تأكد من الاتصال قبل الاستعلام
+      await prisma.$queryRaw`SELECT 1 as test`;
+      console.log("✅ اختبار قاعدة البيانات نجح - المرحلة 5.5");
+
+      // استعلام مباشر
+      console.log("🔍 تنفيذ استعلام قاعدة البيانات - المرحلة 6");
+      article = await prisma.articles.findFirst({
+        where: {
+          OR: [{ id: id }, { slug: id }],
+          ...(includeAll ? {} : { status: "published" }),
+        },
+        include: {
+          categories: true,
+          author: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              avatar: true,
             },
-            article_author: {
-              select: {
-                id: true,
-                full_name: true,
-                slug: true,
-                title: true,
-                avatar_url: true,
-                specializations: true,
-              },
+          },
+          article_author: {
+            select: {
+              id: true,
+              full_name: true,
+              slug: true,
+              title: true,
+              avatar_url: true,
+              specializations: true,
             },
           },
-        });
+        },
       });
+      console.log(
+        "✅ استعلام قاعدة البيانات اكتمل - المرحلة 7",
+        article ? "مقال موجود" : "مقال غير موجود"
+      );
     } catch (dbError: any) {
-      console.error("❌ خطأ في الاتصال بقاعدة البيانات:", dbError);
+      console.error("❌ خطأ في الاتصال بقاعدة البيانات - المرحلة 8:", dbError);
 
       // إذا كان الخطأ متعلق بعدم الاتصال، حاول مرة أخرى
       if (dbError.message?.includes("Engine is not yet connected")) {
         console.log("🔄 محاولة إعادة الاتصال...");
         try {
           await prisma.$disconnect();
-          await new Promise((resolve) => setTimeout(resolve, 1000));
+          await new Promise((resolve) => setTimeout(resolve, 2000)); // زيادة الوقت
           await prisma.$connect();
 
-          // محاولة أخرى
+          // محاولة أخرى مباشرة بدون مدير الاتصالات
           article = await prisma.articles.findFirst({
             where: {
               OR: [{ id: id }, { slug: id }],
