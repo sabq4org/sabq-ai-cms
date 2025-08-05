@@ -6,13 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Angle } from "@/types/muqtarab";
-import {
+import { 
   BookOpen,
   Calendar,
   Eye,
-  Lightbulb,
+  Lightbulb, 
   Plus,
-  Search,
+  Search, 
   Sparkles,
   TrendingUp,
   Users,
@@ -45,10 +45,35 @@ interface HeroArticle {
   };
 }
 
+interface FeaturedArticle {
+  id: string;
+  title: string;
+  excerpt: string;
+  slug: string;
+  coverImage?: string;
+  readingTime: number;
+  publishDate: string;
+  views: number;
+  tags: string[];
+  angle: {
+    id: string;
+    title: string;
+    slug: string;
+    icon?: string;
+    themeColor?: string;
+  };
+  author: {
+    name: string;
+    avatar?: string;
+  };
+  createdAt: string;
+}
+
 export default function MuqtaribPage() {
   const [angles, setAngles] = useState<Angle[]>([]);
   const [filteredAngles, setFilteredAngles] = useState<Angle[]>([]);
   const [heroArticle, setHeroArticle] = useState<HeroArticle | null>(null);
+  const [featuredArticles, setFeaturedArticles] = useState<FeaturedArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
@@ -64,8 +89,8 @@ export default function MuqtaribPage() {
 
   // جلب الزوايا والمقال المميز
   useEffect(() => {
-    const fetchData = async () => {
-      try {
+  const fetchData = async () => {
+    try {
         console.log("🔍 جاري جلب بيانات مُقترب...");
 
         // جلب الزوايا
@@ -111,13 +136,36 @@ export default function MuqtaribPage() {
           console.warn("تحذير: فشل في جلب المقال المميز:", heroError);
           // لا نظهر خطأ للمستخدم هنا لأن المقال المميز اختياري
         }
-      } catch (error) {
+
+        // جلب المقالات المختارة
+        try {
+          const featuredResponse = await fetch("/api/muqtarab/featured-articles", {
+            cache: "no-store",
+            headers: {
+              "Cache-Control": "no-cache",
+            },
+          });
+
+          if (featuredResponse.ok) {
+            const featuredData = await featuredResponse.json();
+            if (featuredData.success && featuredData.articles) {
+              console.log("✅ تم جلب المقالات المختارة:", featuredData.articles.length);
+              setFeaturedArticles(featuredData.articles);
+            } else {
+              console.log("📝 لا توجد مقالات مختارة متاحة");
+            }
+          }
+        } catch (featuredError) {
+          console.warn("تحذير: فشل في جلب المقالات المختارة:", featuredError);
+          // لا نظهر خطأ للمستخدم هنا لأن المقالات المختارة اختيارية
+        }
+    } catch (error) {
         console.error("خطأ في جلب البيانات:", error);
         toast.error("حدث خطأ في التحميل");
-      } finally {
-        setLoading(false);
-      }
-    };
+    } finally {
+      setLoading(false);
+    }
+  };
 
     fetchData();
   }, []);
@@ -160,7 +208,7 @@ export default function MuqtaribPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
+          <div className="text-center">
           <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">جاري تحميل مُقترب...</p>
         </div>
@@ -212,15 +260,15 @@ export default function MuqtaribPage() {
                   <span className="hidden md:inline">اقتراح زاوية جديدة</span>
                 </Button>
               </Link>
-              <Button
+            <Button 
                 size="sm"
-                variant="outline"
+              variant="outline" 
                 className="border-white text-white hover:bg-white/10 w-full sm:w-auto"
-              >
+            >
                 <BookOpen className="w-4 h-4 ml-2" />
                 <span className="md:hidden">استكشاف</span>
                 <span className="hidden md:inline">استكشف الزوايا</span>
-              </Button>
+            </Button>
             </div>
           </div>
         </div>
@@ -260,6 +308,28 @@ export default function MuqtaribPage() {
           </div>
           <div className="hidden md:block">
             <HeroCard heroArticle={heroArticle} className="mb-8" />
+          </div>
+        </div>
+      )}
+
+      {/* المقالات المختارة من الزوايا - محسن للموبايل */}
+      {featuredArticles.length > 0 && (
+        <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
+          <div className="text-center mb-4 md:mb-6">
+            <h2 className="text-xl md:text-3xl font-bold text-gray-900 mb-1 md:mb-2 flex items-center justify-center gap-2 md:gap-3">
+              <BookOpen className="w-5 h-5 md:w-8 md:h-8 text-blue-600" />
+              مقالات مختارة من الزوايا
+            </h2>
+            <p className="text-sm md:text-base text-gray-600 hidden md:block">
+              اكتشف أحدث المقالات من مختلف الزوايا الفكرية
+            </p>
+          </div>
+
+          {/* شبكة المقالات المختارة */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            {featuredArticles.slice(0, 6).map((article) => (
+              <FeaturedArticleCard key={article.id} article={article} />
+            ))}
           </div>
         </div>
       )}
@@ -321,7 +391,7 @@ export default function MuqtaribPage() {
                     <MobileFeaturedAngleCard key={angle.id} angle={angle} />
                   ))}
               </div>
-            </div>
+                    </div>
             <div className="hidden md:grid lg:grid-cols-2 gap-6">
               {angles
                 .filter((angle) => angle.isFeatured)
@@ -329,8 +399,8 @@ export default function MuqtaribPage() {
                 .map((angle) => (
                   <FeaturedAngleCard key={angle.id} angle={angle} />
                 ))}
-            </div>
-          </div>
+                      </div>
+                        </div>
         )}
 
         {/* شبكة الزوايا - محسنة للموبايل */}
@@ -343,8 +413,8 @@ export default function MuqtaribPage() {
             </h2>
             <div className="text-xs md:text-sm text-gray-500">
               {filteredAngles.length} زاوية
-            </div>
-          </div>
+                        </div>
+                      </div>
 
           {filteredAngles.length === 0 ? (
             <div className="text-center py-12 md:py-16">
@@ -356,8 +426,8 @@ export default function MuqtaribPage() {
               </h3>
               <p className="text-sm md:text-base text-gray-500">
                 جرب تغيير معايير البحث أو الفلتر
-              </p>
-            </div>
+                        </p>
+                      </div>
           ) : (
             <>
               {/* عرض مختلف للموبايل والديسكتوب */}
@@ -413,8 +483,8 @@ function MobileHeroCard({ heroArticle }: { heroArticle: HeroArticle }) {
               قراءة
             </Button>
           </Link>
-        </div>
-      </div>
+                    </div>
+                  </div>
     </Card>
   );
 }
@@ -451,7 +521,7 @@ function MobileFeaturedAngleCard({ angle }: { angle: Angle }) {
           استكشاف
         </Button>
       </Link>
-    </Card>
+              </Card>
   );
 }
 
@@ -515,7 +585,7 @@ function AngleCard({ angle }: { angle: Angle }) {
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center">
             <BookOpen className="w-16 h-16 text-white/80" />
-          </div>
+                    </div>
         )}
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
@@ -523,7 +593,7 @@ function AngleCard({ angle }: { angle: Angle }) {
         <div className="absolute bottom-4 left-4 right-4">
           <h3 className="text-white font-bold text-lg line-clamp-2">
             {angle.title}
-          </h3>
+                      </h3>
         </div>
 
         {angle.isFeatured && (
@@ -531,22 +601,22 @@ function AngleCard({ angle }: { angle: Angle }) {
             <Badge className="bg-yellow-500 text-yellow-900 border-0">
               <Sparkles className="w-3 h-3 ml-1" />
               مميزة
-            </Badge>
+                        </Badge>
           </div>
         )}
-      </div>
-
+                      </div>
+                      
       <CardContent className="p-4 space-y-3">
         <div className="flex items-center gap-4 text-sm text-gray-500">
-          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-1">
             <BookOpen className="w-4 h-4" />
             <span>{angle.articlesCount || 0} مقالة</span>
-          </div>
-          <div className="flex items-center gap-1">
+                          </div>
+                          <div className="flex items-center gap-1">
             <Users className="w-4 h-4" />
             <span>{angle.author?.name}</span>
-          </div>
-        </div>
+                          </div>
+                        </div>
 
         {angle.description && (
           <p className="text-gray-700 text-sm line-clamp-3 leading-relaxed">
@@ -565,6 +635,82 @@ function AngleCard({ angle }: { angle: Angle }) {
         </Link>
       </CardContent>
     </Card>
+  );
+}
+
+// مكون بطاقة المقال المختار
+function FeaturedArticleCard({ article }: { article: FeaturedArticle }) {
+  return (
+    <Card className="group rounded-xl overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+      <div className="relative h-40 md:h-48 w-full overflow-hidden">
+        {article.coverImage ? (
+          <Image
+            src={article.coverImage}
+            alt={article.title}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center">
+            <BookOpen className="w-12 h-12 md:w-16 md:h-16 text-white/80" />
+          </div>
+        )}
+        
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+        
+        {/* شارة الزاوية */}
+        <div className="absolute top-3 right-3">
+          <Badge 
+            className="text-xs border-0 text-white shadow-lg"
+            style={{ 
+              backgroundColor: article.angle.themeColor || '#3B82F6',
+            }}
+          >
+            {article.angle.title}
+          </Badge>
+        </div>
+                      </div>
+                      
+      <CardContent className="p-3 md:p-4 space-y-2 md:space-y-3">
+        <h3 className="font-bold text-sm md:text-lg text-gray-900 line-clamp-2 leading-tight">
+          {article.title}
+        </h3>
+
+        {article.excerpt && (
+          <p className="text-xs md:text-sm text-gray-600 line-clamp-2 leading-relaxed">
+            {article.excerpt}
+          </p>
+        )}
+
+        <div className="flex items-center justify-between text-xs text-gray-500">
+          <div className="flex items-center gap-1">
+            <Calendar className="w-3 h-3" />
+            <span>{article.readingTime} د</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Eye className="w-3 h-3" />
+            <span>{article.views}</span>
+                      </div>
+                    </div>
+
+        <div className="flex items-center justify-between pt-2">
+          <div className="text-xs text-gray-500">
+            {article.author.name}
+          </div>
+          <Link href={`/muqtarab/${article.angle.slug}/${article.slug}`}>
+            <Button
+              size="sm"
+              className="text-xs px-3 py-1 h-7"
+              style={{ 
+                backgroundColor: article.angle.themeColor || '#3B82F6',
+              }}
+            >
+              قراءة
+            </Button>
+          </Link>
+                  </div>
+                </CardContent>
+              </Card>
   );
 }
 
@@ -628,7 +774,7 @@ function FeaturedAngleCard({ angle }: { angle: Angle }) {
               </Button>
             </Link>
           </div>
-        </div>
+            </div>
       </div>
     </Card>
   );

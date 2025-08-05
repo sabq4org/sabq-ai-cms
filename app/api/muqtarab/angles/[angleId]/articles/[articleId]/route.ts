@@ -25,7 +25,7 @@ export async function GET(
       );
     }
 
-        // جلب المقال مع تفاصيل المؤلف (البحث بالـ id فقط)
+    // جلب المقال مع تفاصيل المؤلف (البحث بالـ id فقط)
     const articles = (await prisma.$queryRaw`
       SELECT
         aa.*,
@@ -33,7 +33,7 @@ export async function GET(
         u.avatar as author_avatar
       FROM angle_articles aa
       LEFT JOIN users u ON aa.author_id = u.id
-      WHERE aa.angle_id = ${angleId}::uuid 
+      WHERE aa.angle_id = ${angleId}::uuid
         AND aa.id = ${articleId}::uuid
     `) as any[];
 
