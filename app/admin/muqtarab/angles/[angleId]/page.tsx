@@ -462,6 +462,59 @@ export default function AngleDashboardPage() {
   );
   const [deletingArticle, setDeletingArticle] = useState(false);
 
+  // دالة بدء حذف المقال
+  const handleDeleteArticleClick = (article: AngleArticle) => {
+    console.log("🗑️ طلب حذف المقال:", article.title);
+    setArticleToDelete(article);
+    setDeleteArticleModalOpen(true);
+  };
+
+  // دالة تأكيد حذف المقال
+  const handleDeleteArticleConfirm = async () => {
+    if (!articleToDelete || !angle) {
+      console.error("❌ لا توجد بيانات للحذف");
+      return;
+    }
+
+    try {
+      setDeletingArticle(true);
+      console.log("🗑️ جاري حذف المقال:", articleToDelete.title);
+
+      const response = await fetch(
+        `/api/muqtarab/angles/${angle.id}/articles/${articleToDelete.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.ok) {
+        console.log("✅ تم حذف المقال بنجاح");
+        toast.success("تم حذف المقال بنجاح");
+        
+        // تحديث قائمة المقالات
+        setArticles((prevArticles) =>
+          prevArticles.filter((article) => article.id !== articleToDelete.id)
+        );
+        
+        // إغلاق Modal
+        setDeleteArticleModalOpen(false);
+        setArticleToDelete(null);
+      } else {
+        const errorData = await response.json();
+        console.error("❌ خطأ في حذف المقال:", errorData);
+        toast.error(errorData.error || "حدث خطأ أثناء حذف المقال");
+      }
+    } catch (error) {
+      console.error("خطأ في حذف المقال:", error);
+      toast.error("حدث خطأ أثناء حذف المقال");
+    } finally {
+      setDeletingArticle(false);
+    }
+  };
+
   // جلب بيانات الزاوية والمقالات
   useEffect(() => {
     let isMounted = true;
@@ -607,49 +660,7 @@ export default function AngleDashboardPage() {
     }
   };
 
-  // وظائف حذف المقالات
-  const handleDeleteArticleClick = (article: AngleArticle) => {
-    if (!article || !article.id) {
-      console.warn("⚠️ مقال غير صالح:", article);
-      return;
-    }
-    setArticleToDelete(article);
-    setDeleteArticleModalOpen(true);
-  };
 
-  const handleDeleteArticleConfirm = async () => {
-    if (!articleToDelete) return;
-
-    try {
-      setDeletingArticle(true);
-      console.log("🗑️ حذف المقال:", articleToDelete.title);
-
-      const response = await fetch(
-        `/api/muqtarib/angles/${angleId}/articles/${articleToDelete.id}`,
-        {
-          method: "DELETE",
-        }
-      );
-
-      if (response.ok) {
-        // إزالة المقال من القائمة
-        setArticles((prev) =>
-          prev.filter((article) => article.id !== articleToDelete.id)
-        );
-        setDeleteArticleModalOpen(false);
-        setArticleToDelete(null);
-        toast.success("تم حذف المقال بنجاح!");
-      } else {
-        const errorData = await response.json();
-        toast.error(errorData.error || "حدث خطأ في حذف المقال");
-      }
-    } catch (error) {
-      console.error("خطأ في حذف المقال:", error);
-      toast.error("حدث خطأ في حذف المقال");
-    } finally {
-      setDeletingArticle(false);
-    }
-  };
 
   if (loading) {
     return (
