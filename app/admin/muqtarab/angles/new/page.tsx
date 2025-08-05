@@ -228,7 +228,7 @@ export default function CreateAnglePage() {
         isPublished: publish,
       };
 
-      const response = await fetch("/api/muqtarib/angles", {
+      const response = await fetch("/api/muqtarab/angles", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

@@ -636,7 +636,7 @@ export default function AngleDashboardPage() {
     try {
       setEditLoading(true);
 
-      const response = await fetch(`/api/muqtarib/angles/${angleId}`, {
+      const response = await fetch(`/api/muqtarab/angles/${angleId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

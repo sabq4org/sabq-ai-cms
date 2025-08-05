@@ -638,7 +638,7 @@ export default function CreateAngleArticlePage() {
         }
 
         // جلب بيانات الزاوية
-        const response = await fetch(`/api/muqtarib/angles/${angleId}`);
+        const response = await fetch(`/api/muqtarab/angles/${angleId}`);
         if (response.ok) {
           const data = await response.json();
           setAngle(data.angle);
@@ -777,7 +777,7 @@ export default function CreateAngleArticlePage() {
 
       console.log("📤 إرسال بيانات المقال:", payload);
 
-      const response = await fetch(`/api/muqtarib/angles/${angleId}/articles`, {
+      const response = await fetch(`/api/muqtarab/angles/${angleId}/articles`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
