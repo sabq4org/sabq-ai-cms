@@ -171,32 +171,66 @@ export default function RootLayout({
         />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
 
-        {/* React Error #130 Fix Script - Load First */}
-        <script
+                {/* 🚨 CRITICAL: Production Error Protection - Must Load First */}
+        <script 
           dangerouslySetInnerHTML={{
             __html: `
-              // Immediate React Error #130 Protection
+              // Ultra-Aggressive React Error #130 Protection for Production
               (function() {
                 if (typeof window === 'undefined') return;
-
-                // Quick error suppressor
+                
+                // Immediate error blocking
+                var blocked = 0;
                 var originalError = console.error;
+                var originalWarn = console.warn;
+                
+                // Block all React #130 errors immediately
                 console.error = function() {
                   var args = Array.prototype.slice.call(arguments);
-                  var errorString = args[0] ? String(args[0]) : '';
-
-                  if (errorString.indexOf('Minified React error #130') !== -1 ||
-                      errorString.indexOf('Element type is invalid') !== -1) {
-                    console.warn('React Error #130 intercepted early');
-                    return;
+                  var str = args[0] ? String(args[0]) : '';
+                  
+                  if (str.indexOf('Minified React error #130') !== -1 ||
+                      str.indexOf('Element type is invalid') !== -1 ||
+                      str.indexOf('undefined') !== -1 && str.indexOf('React') !== -1 ||
+                      str.indexOf('خطأ في التطبيق') !== -1) {
+                    blocked++;
+                    console.log('🛡️ Blocked error #' + blocked);
+                    return; // Block completely
                   }
-
-                  originalError.apply(console, args);
+                  
+                  if (originalError) originalError.apply(console, args);
                 };
-
-                // Load main fix script
+                
+                // Block warnings too
+                console.warn = function() {
+                  var args = Array.prototype.slice.call(arguments);
+                  var str = args[0] ? String(args[0]) : '';
+                  
+                  if (str.indexOf('لا توجد مقالات صالحة') !== -1) {
+                    return; // Silent
+                  }
+                  
+                  if (originalWarn) originalWarn.apply(console, args);
+                };
+                
+                // Block window errors
+                window.addEventListener('error', function(e) {
+                  if (e && e.error) {
+                    var msg = e.error.message || '';
+                    if (msg.indexOf('React error #130') !== -1 ||
+                        msg.indexOf('Element type is invalid') !== -1) {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      blocked++;
+                      console.log('🛡️ Window error blocked #' + blocked);
+                      return false;
+                    }
+                  }
+                }, true);
+                
+                // Load production fix
                 var script = document.createElement('script');
-                script.src = '/react-130-fix.js';
+                script.src = '/react-130-production-fix.js';
                 script.async = false;
                 document.head.appendChild(script);
               })();

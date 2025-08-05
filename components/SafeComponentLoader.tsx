@@ -4,6 +4,7 @@ import React, { ComponentType, Suspense, lazy } from "react";
 import { ComponentValidator } from "./ComponentValidator";
 import EnhancedErrorBoundary from "./ErrorBoundary/EnhancedErrorBoundary";
 import { Skeleton } from "./ui/skeleton";
+import SafeFallbackComponent, { EmptyFallback } from "./SafeFallbackComponent";
 
 interface SafeComponentLoaderProps {
   component: () => Promise<{ default: ComponentType<any> }>;
