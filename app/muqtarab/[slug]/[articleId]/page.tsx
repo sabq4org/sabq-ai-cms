@@ -752,7 +752,7 @@ function SmartRecommendations({
                 </span>
               </div>
 
-              <Link href={`/muqtarab/${angle.slug}/${article.id}`}>
+              <Link href={`/muqtarab/${angle.slug}/${article.slug || article.id}`}>
                 <Button
                   variant="ghost"
                   size="sm"

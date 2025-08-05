@@ -673,7 +673,7 @@ function AngleArticleCard({
         </div>
 
         {/* زر القراءة */}
-        <Link href={`/muqtarab/${angle.slug}/${article.id}`}>
+        <Link href={`/muqtarab/${angle.slug}/${article.slug || article.id}`}>
           <Button
             variant="ghost"
             className="w-full justify-start p-0 h-8"
