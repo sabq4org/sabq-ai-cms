@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
-import { getImageUrl } from '@/lib/image-utils';
-import { getProductionImageUrl } from '@/lib/production-image-fix';
+import { getImageUrl } from "@/lib/image-utils";
+import { getProductionImageUrl } from "@/lib/production-image-fix";
+import Image from "next/image";
+import React, { useState } from "react";
 
 interface CloudImageProps {
   src?: string | null;
@@ -14,7 +14,7 @@ interface CloudImageProps {
   priority?: boolean;
   fill?: boolean;
   sizes?: string;
-  fallbackType?: 'article' | 'author' | 'category' | 'default';
+  fallbackType?: "article" | "author" | "category" | "default";
   quality?: number;
   onError?: () => void;
 }
@@ -24,13 +24,13 @@ export default function CloudImage({
   alt,
   width = 800,
   height = 600,
-  className = '',
+  className = "",
   priority = false,
   fill = false,
   sizes,
-  fallbackType = 'default',
+  fallbackType = "default",
   quality = 80,
-  onError
+  onError,
 }: CloudImageProps) {
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -39,8 +39,10 @@ export default function CloudImage({
   const imageUrl = React.useMemo(() => {
     try {
       // تحديد بيئة التشغيل
-      const isProduction = process.env.NODE_ENV === 'production' || 
-                          (typeof window !== 'undefined' && window.location.hostname !== 'localhost');
+      const isProduction =
+        process.env.NODE_ENV === "production" ||
+        (typeof window !== "undefined" &&
+          window.location.hostname !== "localhost");
 
       // استخدام معالج الإنتاج في بيئة الإنتاج
       if (isProduction) {
@@ -48,7 +50,7 @@ export default function CloudImage({
           width,
           height,
           quality,
-          fallbackType
+          fallbackType,
         });
       }
 
@@ -57,14 +59,16 @@ export default function CloudImage({
         width,
         height,
         quality,
-        fallbackType
+        fallbackType,
       });
     } catch (error) {
-      console.error('خطأ في معالجة رابط الصورة:', error);
+      console.error("خطأ في معالجة رابط الصورة:", error);
       // استخدام معالج الإنتاج للصور الافتراضية
-      const isProduction = process.env.NODE_ENV === 'production' || 
-                          (typeof window !== 'undefined' && window.location.hostname !== 'localhost');
-      
+      const isProduction =
+        process.env.NODE_ENV === "production" ||
+        (typeof window !== "undefined" &&
+          window.location.hostname !== "localhost");
+
       if (isProduction) {
         return getProductionImageUrl(null, { fallbackType });
       }
@@ -93,34 +97,46 @@ export default function CloudImage({
         <Image
           src={imageUrl}
           alt={alt}
-          fill
-          sizes={sizes || '100vw'}
+          fill={true}
+          sizes={sizes || "100vw"}
           quality={quality}
           priority={priority}
-          className={`object-cover ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
+          className={`object-cover ${
+            isLoading ? "opacity-0" : "opacity-100"
+          } transition-opacity duration-300`}
           onError={handleError}
           onLoad={handleLoad}
+          style={{ objectFit: "cover" }}
         />
       </div>
     );
   }
 
-  // للصور ذات الأبعاد المحددة
+  // للصور ذات الأبعاد المحددة - التحقق من صحة القيم
+  const validWidth = width && !isNaN(width) ? width : 800;
+  const validHeight = height && !isNaN(height) ? height : 600;
+
   return (
-    <div className={`relative overflow-hidden ${className}`} style={{ width, height }}>
+    <div
+      className={`relative overflow-hidden ${className}`}
+      style={{ width: validWidth, height: validHeight }}
+    >
       {isLoading && (
         <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse" />
       )}
       <Image
         src={imageUrl}
-        alt={alt}
-        width={width}
-        height={height}
+        alt={alt || "صورة"}
+        width={validWidth}
+        height={validHeight}
         quality={quality}
         priority={priority}
-        className={`object-cover w-full h-full ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
+        className={`object-cover w-full h-full ${
+          isLoading ? "opacity-0" : "opacity-100"
+        } transition-opacity duration-300`}
         onError={handleError}
         onLoad={handleLoad}
+        style={{ objectFit: "cover" }}
       />
     </div>
   );
@@ -131,7 +147,7 @@ export function CloudAvatar({
   src,
   alt,
   size = 40,
-  className = ''
+  className = "",
 }: {
   src?: string | null;
   alt: string;
@@ -154,8 +170,8 @@ export function CloudAvatar({
 export function ArticleImage({
   src,
   alt,
-  className = '',
-  priority = false
+  className = "",
+  priority = false,
 }: {
   src?: string | null;
   alt: string;
@@ -173,4 +189,4 @@ export function ArticleImage({
       priority={priority}
     />
   );
-} 
+}

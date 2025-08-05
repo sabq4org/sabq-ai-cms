@@ -23,6 +23,12 @@ export async function GET(request: NextRequest) {
     console.log("🔍 جلب كتاب الرأي من article_authors...");
 
     try {
+      // التحقق من وجود جدول article_authors
+      if (!prisma.article_authors) {
+        console.warn("⚠️ جدول article_authors غير موجود في prisma client");
+        throw new Error("article_authors table not available");
+      }
+
       const authors = await prisma.article_authors.findMany({
         where: {
           is_active: true,

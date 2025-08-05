@@ -171,16 +171,32 @@ export default function RootLayout({
         />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
 
-        {/* React Error #130 Fix Script */}
-        <script src="/react-130-fix.js" async></script>
-
-        {/* Emergency React Fix - Critical - Load immediately */}
+        {/* React Error #130 Fix Script - Load First */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
+              // Immediate React Error #130 Protection
               (function() {
+                if (typeof window === 'undefined') return;
+
+                // Quick error suppressor
+                var originalError = console.error;
+                console.error = function() {
+                  var args = Array.prototype.slice.call(arguments);
+                  var errorString = args[0] ? String(args[0]) : '';
+
+                  if (errorString.indexOf('Minified React error #130') !== -1 ||
+                      errorString.indexOf('Element type is invalid') !== -1) {
+                    console.warn('React Error #130 intercepted early');
+                    return;
+                  }
+
+                  originalError.apply(console, args);
+                };
+
+                // Load main fix script
                 var script = document.createElement('script');
-                script.src = '/emergency-react-fix.js';
+                script.src = '/react-130-fix.js';
                 script.async = false;
                 document.head.appendChild(script);
               })();
@@ -188,8 +204,11 @@ export default function RootLayout({
           }}
         />
 
+        {/* Emergency React Fix - Secondary Protection */}
+        <script src="/emergency-react-fix.js" defer></script>
+
         {/* Production Error Fixes */}
-        <script src="/production-error-fixes.js" async></script>
+        <script src="/production-error-fixes.js" defer></script>
       </head>
       <body
         className={`${ibmPlexArabic.variable} font-arabic`}

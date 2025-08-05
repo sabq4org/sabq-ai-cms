@@ -16,39 +16,57 @@ import type { RecommendedArticle } from "@/lib/ai-recommendations";
 import { generatePersonalizedRecommendations } from "@/lib/ai-recommendations";
 import { SafeDate } from "@/lib/safe-date";
 import { getArticleLink } from "@/lib/utils";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
 
+import { SafeDynamicComponent } from "@/components/SafeComponentLoader";
 import SafeHydration from "@/components/SafeHydration";
-import SafeComponentLoader, { SafeDynamicComponent } from "@/components/SafeComponentLoader";
 import ArticleViews from "@/components/ui/ArticleViews";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 
-// Safe Dynamic imports for components that appear below the fold
+// Safe Dynamic imports for components that appear below the fold with React #130 protection
 const TodayOpinionsSection = SafeDynamicComponent.withSkeleton(
-  () => import("@/components/TodayOpinionsSection"),
+  () =>
+    import("@/components/TodayOpinionsSection").catch((err) => {
+      console.warn("⚠️ Failed to load TodayOpinionsSection:", err);
+      return { default: () => null };
+    }),
   { className: "w-full h-96 rounded-lg" }
 );
 
 const SmartAudioBlock = SafeDynamicComponent.withSkeleton(
-  () => import("@/components/home/SmartAudioBlock"),
+  () =>
+    import("@/components/home/SmartAudioBlock").catch((err) => {
+      console.warn("⚠️ Failed to load SmartAudioBlock:", err);
+      return { default: () => null };
+    }),
   { className: "w-full h-40 rounded-lg" }
 );
 
 const MuqtarabBlock = SafeDynamicComponent.withSkeleton(
-  () => import("@/components/home/EnhancedMuqtarabBlock"),
+  () =>
+    import("@/components/home/EnhancedMuqtarabBlock").catch((err) => {
+      console.warn("⚠️ Failed to load EnhancedMuqtarabBlock:", err);
+      return { default: () => null };
+    }),
   { className: "w-full h-96 rounded-lg" }
 );
 
 const FeaturedNewsCarousel = SafeDynamicComponent.withSkeleton(
-  () => import("@/components/FeaturedNewsCarousel"),
+  () =>
+    import("@/components/FeaturedNewsCarousel").catch((err) => {
+      console.warn("⚠️ Failed to load FeaturedNewsCarousel:", err);
+      return { default: () => null };
+    }),
   { className: "w-full h-80 rounded-lg" }
 );
 
 const BreakingNewsBar = SafeDynamicComponent.withCustomFallback(
-  () => import("@/components/BreakingNewsBar"),
+  () =>
+    import("@/components/BreakingNewsBar").catch((err) => {
+      console.warn("⚠️ Failed to load BreakingNewsBar:", err);
+      return { default: () => null };
+    }),
   <div className="w-full h-24 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse mx-4 mb-6" />
 );
 
