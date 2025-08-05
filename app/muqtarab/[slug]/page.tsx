@@ -282,7 +282,7 @@ function AngleHeader({ angle }: { angle: Angle }) {
 
             {/* معلومات الزاوية */}
             <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
+              <div className="flex items-center gap-3 mb-2">
               <h1
                 className="text-2xl md:text-3xl font-bold"
                 style={{ color: angle.themeColor }}
@@ -352,6 +352,7 @@ function AngleHeader({ angle }: { angle: Angle }) {
                 <Share2 className="w-4 h-4 ml-2" />
                 مشاركة
               </Button>
+            </div>
             </div>
           </div>
 
