@@ -34,7 +34,7 @@ export default function ArticleFeaturedImage({
             />
             {/* تدرج خفيف في الأسفل */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
-            
+
             {/* عرض التصنيف على الصورة إن وجد */}
             {category && (
               <div className="absolute bottom-4 right-4">
@@ -144,7 +144,7 @@ export default function ArticleFeaturedImage({
             sizes="100vw"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 z-10" />
-          
+
           {/* عرض التصنيف على الصورة */}
           {category && (
             <div className="absolute bottom-6 right-6 z-20">
@@ -154,11 +154,46 @@ export default function ArticleFeaturedImage({
                   backgroundColor: `${category.color || "#1a73e8"}DD`,
                 }}
               >
-                {category.icon && <span className="text-lg">{category.icon}</span>}
+                {category.icon && (
+                  <span className="text-lg">{category.icon}</span>
+                )}
                 {category.name}
               </span>
             </div>
           )}
+        </div>
+      );
+
+    case "content-width":
+      return (
+        <div className="article-featured-image w-full">
+          {/* حاوي بعرض المحتوى مطابق لعرض النص */}
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="relative overflow-hidden rounded-xl">
+              <OptimizedImage
+                src={imageUrl}
+                alt={title}
+                className="w-full object-cover h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px]"
+                priority={true}
+                sizes="(max-width: 640px) calc(100vw - 2rem), (max-width: 1024px) calc(100vw - 3rem), 1152px"
+              />
+
+              {/* عرض التصنيف على الصورة (اختياري) */}
+              {category && (
+                <div className="absolute bottom-4 right-4">
+                  <span
+                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium text-white backdrop-blur-sm"
+                    style={{
+                      backgroundColor: `${category.color || "#1a73e8"}CC`,
+                    }}
+                  >
+                    {category.icon && <span>{category.icon}</span>}
+                    {category.name}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       );
 

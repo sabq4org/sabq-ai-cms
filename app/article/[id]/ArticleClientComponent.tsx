@@ -4,12 +4,11 @@ import Footer from "@/components/Footer";
 import ReporterLink from "@/components/ReporterLink";
 import ArticleFeaturedImage from "@/components/article/ArticleFeaturedImage";
 import OpinionArticleLayout from "@/components/article/OpinionArticleLayout";
+import SafeDateDisplay from "@/components/article/SafeDateDisplay";
 import MobileOpinionLayout from "@/components/mobile/MobileOpinionLayout";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { ArticleData } from "@/lib/article-api";
-import { formatFullDate, formatRelativeDate } from "@/lib/date-utils";
-import SafeDateDisplay from "@/components/article/SafeDateDisplay";
 import "@/styles/mobile-article-layout.css";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -528,7 +527,9 @@ export default function ArticleClientComponent({
                         <Calendar className="w-3 h-3 flex-shrink-0 mobile-article-icon" />
                         <span>
                           <SafeDateDisplay
-                            date={article.published_at || article.created_at || ""}
+                            date={
+                              article.published_at || article.created_at || ""
+                            }
                             format="relative"
                           />
                         </span>
@@ -573,10 +574,9 @@ export default function ArticleClientComponent({
             />
           </div>
         )}
-        
+
         {/* منطقة المحتوى */}
         <article className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
-
           {/* الملخص الذكي مع التحويل الصوتي */}
           <div className="mb-6 sm:mb-8">
             <ArticleAISummary
