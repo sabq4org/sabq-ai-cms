@@ -130,16 +130,18 @@ export default function AngleArticlePage() {
       <StickyHeader angle={angle} article={article} />
 
       {/* محتوى المقال */}
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* مسار التنقل */}
-        <Breadcrumbs angle={angle} article={article} />
+      <div className="max-w-4xl mx-auto px-3 md:px-4 py-4 md:py-8">
+        {/* مسار التنقل - مخفي في الموبايل */}
+        <div className="hidden md:block">
+          <Breadcrumbs angle={angle} article={article} />
+        </div>
 
         {/* ترويسة المقال */}
         <ArticleHeader article={article} angle={angle} />
 
         {/* صورة الغلاف */}
         {article.coverImage && (
-          <div className="relative w-full h-80 md:h-96 rounded-2xl overflow-hidden mb-8 shadow-lg">
+          <div className="relative w-full h-48 md:h-80 lg:h-96 rounded-lg md:rounded-2xl overflow-hidden mb-4 md:mb-8 shadow-sm md:shadow-lg">
             <Image
               src={article.coverImage}
               alt={article.title}
@@ -156,12 +158,50 @@ export default function AngleArticlePage() {
         <AIAnalysisSection article={article} angle={angle} />
 
         {/* التفاعل والمشاركة */}
-        <ArticleInteractions article={article} />
+        <div className="flex flex-wrap items-center justify-between gap-3 md:gap-4 p-4 md:p-6 bg-white rounded-lg md:rounded-xl border">
+          <div className="flex items-center gap-2 md:gap-4">
+            <Button size="sm" variant="ghost" className="h-8 md:h-9 px-2 md:px-3">
+              <Heart className="w-4 h-4 ml-1" />
+              <span className="hidden sm:inline">إعجاب</span>
+              <span className="text-xs text-gray-500 ml-1">142</span>
+            </Button>
+            <Button size="sm" variant="ghost" className="h-8 md:h-9 px-2 md:px-3">
+              <MessageCircle className="w-4 h-4 ml-1" />
+              <span className="hidden sm:inline">تعليق</span>
+              <span className="text-xs text-gray-500 ml-1">23</span>
+            </Button>
+            <Button size="sm" variant="ghost" className="h-8 md:h-9 px-2 md:px-3">
+              <Bookmark className="w-4 h-4 ml-1" />
+              <span className="hidden sm:inline">حفظ</span>
+            </Button>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" className="h-8 md:h-9 px-2 md:px-3">
+              <Share2 className="w-4 h-4 ml-1" />
+              <span className="hidden sm:inline">مشاركة</span>
+            </Button>
+          </div>
+        </div>
 
-        <Separator className="my-8" />
+        <Separator className="my-4 md:my-8" />
 
         {/* العودة إلى الزاوية */}
-        <BackToAngle angle={angle} />
+        <div className="text-center py-4 md:py-6">
+          <Link href={`/muqtarab/${angle.slug}`}>
+            <Button 
+              size="lg" 
+              className="px-6 md:px-8"
+              style={{ 
+                backgroundColor: angle.themeColor,
+                borderColor: angle.themeColor 
+              }}
+            >
+              <ArrowLeft className="w-4 h-4 ml-2" />
+              <span className="hidden sm:inline">العودة إلى زاوية {angle.title}</span>
+              <span className="sm:hidden">العودة للزاوية</span>
+            </Button>
+          </Link>
+        </div>
 
         {/* مقالات مقترحة ذكية */}
         <SmartRecommendations
@@ -203,11 +243,11 @@ function StickyHeader({
         style={{ backgroundColor: angle.themeColor }}
       />
 
-      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="max-w-7xl mx-auto px-3 md:px-4 py-2 md:py-3 flex items-center justify-between">
+        <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
           <Link href={`/muqtarab/${angle.slug}`}>
             <Badge
-              className="cursor-pointer transition-all hover:scale-105"
+              className="cursor-pointer transition-all hover:scale-105 text-xs md:text-sm"
               style={{
                 backgroundColor: angle.themeColor + "20",
                 color: angle.themeColor,
@@ -215,21 +255,24 @@ function StickyHeader({
               }}
             >
               <ArrowLeft className="w-3 h-3 ml-1" />
-              {angle.title}
+              <span className="hidden sm:inline">{angle.title}</span>
+              <span className="sm:hidden">الزاوية</span>
             </Badge>
           </Link>
-          <Separator orientation="vertical" className="h-4" />
-          <span className="text-sm text-gray-600 truncate max-w-md">
+          <Separator orientation="vertical" className="h-3 md:h-4 hidden sm:block" />
+          <span className="text-xs md:text-sm text-gray-600 truncate max-w-[120px] sm:max-w-md">
             {article.title}
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button size="sm" variant="ghost">
-            <Bookmark className="w-4 h-4" />
+        <div className="flex items-center gap-1 md:gap-2">
+          <Button size="sm" variant="ghost" className="h-8 w-8 md:h-9 md:w-auto md:px-3">
+            <Bookmark className="w-3 h-3 md:w-4 md:h-4" />
+            <span className="hidden md:inline ml-1">حفظ</span>
           </Button>
-          <Button size="sm" variant="ghost">
-            <Share2 className="w-4 h-4" />
+          <Button size="sm" variant="ghost" className="h-8 w-8 md:h-9 md:w-auto md:px-3">
+            <Share2 className="w-3 h-3 md:w-4 md:h-4" />
+            <span className="hidden md:inline ml-1">مشاركة</span>
           </Button>
         </div>
       </div>
@@ -272,27 +315,28 @@ function ArticleHeader({
   angle: Angle;
 }) {
   return (
-    <div className="mb-8">
+    <div className="mb-4 md:mb-8">
       {/* شارات وتصنيفات */}
-      <div className="flex flex-wrap items-center gap-2 mb-4">
+      <div className="flex flex-wrap items-center gap-1 md:gap-2 mb-3 md:mb-4">
         <Link href={`/muqtarab/${angle.slug}`}>
           <Badge
             variant="secondary"
-            className="hover:bg-blue-100 transition-colors cursor-pointer"
+            className="hover:bg-blue-100 transition-colors cursor-pointer text-xs md:text-sm"
             style={{
               backgroundColor: angle.themeColor + "20",
               color: angle.themeColor,
             }}
           >
             <Cpu className="w-3 h-3 ml-1" />
-            {angle.title}
+            <span className="hidden sm:inline">{angle.title}</span>
+            <span className="sm:hidden">الزاوية</span>
           </Badge>
         </Link>
 
         {article.tags && article.tags.length > 0 && (
           <>
             {article.tags.slice(0, 3).map((tag, index) => (
-              <Badge key={index} variant="outline" className="text-xs">
+              <Badge key={index} variant="outline" className={`text-xs ${index >= 2 ? 'hidden sm:inline-flex' : ''}`}>
                 <Tag className="w-3 h-3 ml-1" />
                 {tag}
               </Badge>
@@ -303,13 +347,13 @@ function ArticleHeader({
         {article.sentiment && (
           <Badge
             variant="outline"
-            className={
+            className={`text-xs ${
               article.sentiment === "positive"
                 ? "text-green-600 border-green-200"
                 : article.sentiment === "negative"
                 ? "text-red-600 border-red-200"
                 : "text-gray-600 border-gray-200"
-            }
+            }`}
           >
             {article.sentiment === "positive"
               ? "😊 إيجابي"
@@ -321,13 +365,13 @@ function ArticleHeader({
       </div>
 
       {/* عنوان المقال */}
-      <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+      <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight">
         {article.title}
       </h1>
 
       {/* مقدمة المقال */}
       {article.excerpt && (
-        <p className="text-xl text-gray-700 mb-8 leading-relaxed">
+        <p className="text-base md:text-xl text-gray-700 mb-4 md:mb-8 leading-relaxed">
           {article.excerpt}
         </p>
       )}
@@ -336,46 +380,52 @@ function ArticleHeader({
       <OpeningQuote article={article} angle={angle} />
 
       {/* معلومات المؤلف والنشر */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 bg-white rounded-xl border">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 md:gap-4 p-4 md:p-6 bg-white rounded-lg md:rounded-xl border">
+        <div className="flex items-center gap-3 md:gap-4">
           {article.author?.image ? (
             <Image
               src={article.author.image}
               alt={article.author.name}
-              width={48}
-              height={48}
-              className="rounded-full"
+              width={40}
+              height={40}
+              className="rounded-full md:w-12 md:h-12"
             />
           ) : (
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-              <User className="w-6 h-6 text-blue-600" />
+            <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-100 rounded-full flex items-center justify-center">
+              <User className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
             </div>
           )}
 
           <div>
-            <p className="font-semibold text-gray-900">
+            <p className="font-semibold text-gray-900 text-sm md:text-base">
               {article.author?.name}
             </p>
-            <p className="text-sm text-gray-500">كاتب في {angle.title}</p>
+            <p className="text-xs md:text-sm text-gray-500">كاتب في {angle.title}</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-6 text-sm text-gray-500">
+        <div className="flex items-center gap-3 md:gap-6 text-xs md:text-sm text-gray-500 w-full sm:w-auto">
           <div className="flex items-center gap-1">
-            <Calendar className="w-4 h-4" />
-            <span>
+            <Calendar className="w-3 h-3 md:w-4 md:h-4" />
+            <span className="hidden sm:inline">
               {new Date(
                 article.publishDate || article.createdAt
               ).toLocaleDateString("ar-SA")}
             </span>
+            <span className="sm:hidden">
+              {new Date(
+                article.publishDate || article.createdAt
+              ).toLocaleDateString("ar-SA", { month: "short", day: "numeric" })}
+            </span>
           </div>
           <div className="flex items-center gap-1">
-            <Clock className="w-4 h-4" />
-            <span>{article.readingTime || 5} دقائق قراءة</span>
+            <Clock className="w-3 h-3 md:w-4 md:h-4" />
+            <span>{article.readingTime || 5} د</span>
           </div>
           <div className="flex items-center gap-1">
-            <Eye className="w-4 h-4" />
-            <span>1,234 مشاهدة</span>
+            <Eye className="w-3 h-3 md:w-4 md:h-4" />
+            <span className="hidden md:inline">1,234 مشاهدة</span>
+            <span className="md:hidden">1.2k</span>
           </div>
         </div>
       </div>
@@ -620,23 +670,23 @@ function SmartRecommendations({
 
   return (
     <div>
-      <div className="flex items-center gap-3 mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">مقالات مقترحة لك</h2>
+      <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
+        <h2 className="text-lg md:text-2xl font-bold text-gray-900">مقالات مقترحة لك</h2>
         <div
-          className="px-3 py-1 rounded-full text-xs font-medium text-white"
+          className="px-2 py-1 md:px-3 rounded-full text-xs font-medium text-white"
           style={{ backgroundColor: angle.themeColor }}
         >
           ذكاء اصطناعي
         </div>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         {smartSortedArticles.map((article, index) => (
           <Card
             key={article.id}
-            className="group rounded-xl overflow-hidden border-0 shadow-md hover:shadow-lg transition-all duration-200"
+            className="group rounded-lg md:rounded-xl overflow-hidden border-0 shadow-sm md:shadow-md hover:shadow-md md:hover:shadow-lg transition-all duration-200"
           >
-            <div className="relative h-40 w-full overflow-hidden">
+            <div className="relative h-32 md:h-40 w-full overflow-hidden">
               {article.coverImage ? (
                 <Image
                   src={article.coverImage}
@@ -664,18 +714,18 @@ function SmartRecommendations({
               </div>
             </div>
 
-            <CardContent className="p-4">
-              <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 leading-tight">
+            <CardContent className="p-3 md:p-4">
+              <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 leading-tight text-sm md:text-base">
                 {article.title}
               </h3>
 
-              <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
-                <span>{article.author?.name}</span>
-                <span>{article.readingTime || 5} دقائق</span>
+              <div className="flex items-center justify-between text-xs text-gray-500 mb-2 md:mb-3">
+                <span className="truncate">{article.author?.name}</span>
+                <span>{article.readingTime || 5} د</span>
               </div>
 
               {/* مؤشر التشابه */}
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-2 mb-2 md:mb-3">
                 <div className="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden">
                   <div
                     className="h-full rounded-full"
@@ -686,7 +736,8 @@ function SmartRecommendations({
                   />
                 </div>
                 <span className="text-xs text-gray-400">
-                  {70 + index * 10}% تشابه
+                  <span className="hidden sm:inline">{70 + index * 10}% تشابه</span>
+                  <span className="sm:hidden">{70 + index * 10}%</span>
                 </span>
               </div>
 
@@ -694,10 +745,11 @@ function SmartRecommendations({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="w-full justify-start p-0 h-6"
+                  className="w-full justify-start p-0 h-6 text-xs md:text-sm"
                   style={{ color: angle.themeColor }}
                 >
-                  قراءة المقال ←
+                  <span className="hidden sm:inline">قراءة المقال ←</span>
+                  <span className="sm:hidden">قراءة ←</span>
                 </Button>
               </Link>
             </CardContent>
@@ -805,19 +857,19 @@ function AIAnalysisSection({
 
   return (
     <div
-      className={`${scoreDesc.bg} ${scoreDesc.border} border rounded-xl p-6 mb-8`}
+      className={`${scoreDesc.bg} ${scoreDesc.border} border rounded-lg md:rounded-xl p-4 md:p-6 mb-4 md:mb-8`}
     >
-      <div className="flex items-start gap-4">
-        <div className="text-2xl">{scoreDesc.emoji}</div>
+      <div className="flex items-start gap-3 md:gap-4">
+        <div className="text-xl md:text-2xl">{scoreDesc.emoji}</div>
         <div className="flex-1">
-          <h3 className={`font-bold ${scoreDesc.color} text-lg mb-2`}>
+          <h3 className={`font-bold ${scoreDesc.color} text-base md:text-lg mb-2`}>
             تحليل الذكاء الاصطناعي
           </h3>
           <p className={`${scoreDesc.color} mb-3`}>
-            <span className="font-bold text-xl">{aiScore}%</span>{" "}
+            <span className="font-bold text-lg md:text-xl">{aiScore}%</span>{" "}
             {scoreDesc.text}
           </p>
-          <p className="text-sm text-gray-600 leading-relaxed">
+          <p className="text-xs md:text-sm text-gray-600 leading-relaxed">
             هذا المقال يحتوي على لغة تحليلية واستشرافية عالية ويستخدم أمثلة
             تقنية حديثة. تم تقييمه باستخدام خوارزميات الذكاء الاصطناعي لتحليل
             العمق والإبداع.
