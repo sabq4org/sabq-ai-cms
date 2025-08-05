@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // مكوّن تحميل محسّن لصفحة مقترب
@@ -14,9 +15,9 @@ export function MuqtarabPageSkeleton() {
 
           {/* شريط الإحصائيات */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
-            {[...Array(4)].map((_, i) => (
+            {Array.from({ length: 4 }, (_, i) => (
               <div
-                key={i}
+                key={`stat-${i}`}
                 className="bg-white/70 backdrop-blur-sm rounded-xl p-4"
               >
                 <Skeleton className="h-8 w-12 mx-auto mb-2" />
@@ -59,8 +60,8 @@ export function MuqtarabPageSkeleton() {
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
             <Skeleton className="h-12 w-full md:w-80" />
             <div className="flex gap-2 overflow-x-auto">
-              {[...Array(5)].map((_, i) => (
-                <Skeleton key={i} className="h-10 w-24 rounded-full" />
+              {Array.from({ length: 5 }, (_, i) => (
+                <Skeleton key={`filter-${i}`} className="h-10 w-24 rounded-full" />
               ))}
             </div>
           </div>
@@ -68,9 +69,9 @@ export function MuqtarabPageSkeleton() {
 
         {/* شبكة الزوايا */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {[...Array(8)].map((_, i) => (
+          {Array.from({ length: 8 }, (_, i) => (
             <div
-              key={i}
+              key={`angle-${i}`}
               className="bg-white rounded-xl shadow-lg overflow-hidden"
             >
               <Skeleton className="h-48 w-full" />

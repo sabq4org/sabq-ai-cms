@@ -3,6 +3,7 @@
 import { HeroCard } from "@/components/muqtarab/HeroCard";
 import WithMuqtarabErrorBoundary from "@/components/muqtarab/MuqtarabErrorBoundary";
 import { MuqtarabPageSkeleton } from "@/components/muqtarab/MuqtarabSkeletons";
+import { SafeMuqtarabWrapper } from "@/components/muqtarab/SafeMuqtarabWrapper";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -1031,8 +1032,10 @@ function MuqtarabFooter({ stats }: { stats: MuqtarabStats | null }) {
 
 export default function MuqtaribPage() {
   return (
-    <WithMuqtarabErrorBoundary>
-      <MuqtaribPageContent />
-    </WithMuqtarabErrorBoundary>
+    <SafeMuqtarabWrapper>
+      <WithMuqtarabErrorBoundary>
+        <MuqtaribPageContent />
+      </WithMuqtarabErrorBoundary>
+    </SafeMuqtarabWrapper>
   );
 }
