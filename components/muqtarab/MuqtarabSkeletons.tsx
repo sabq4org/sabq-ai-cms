@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // مكوّن تحميل محسّن لصفحة مقترب
@@ -12,11 +11,14 @@ export function MuqtarabPageSkeleton() {
         <div className="text-center mb-12">
           <Skeleton className="h-12 w-64 mx-auto mb-4" />
           <Skeleton className="h-6 w-96 mx-auto mb-8" />
-          
+
           {/* شريط الإحصائيات */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="bg-white/70 backdrop-blur-sm rounded-xl p-4">
+              <div
+                key={i}
+                className="bg-white/70 backdrop-blur-sm rounded-xl p-4"
+              >
                 <Skeleton className="h-8 w-12 mx-auto mb-2" />
                 <Skeleton className="h-4 w-20 mx-auto" />
               </div>
@@ -67,7 +69,10 @@ export function MuqtarabPageSkeleton() {
         {/* شبكة الزوايا */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {[...Array(8)].map((_, i) => (
-            <div key={i} className="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div
+              key={i}
+              className="bg-white rounded-xl shadow-lg overflow-hidden"
+            >
               <Skeleton className="h-48 w-full" />
               <div className="p-6">
                 <div className="flex items-center gap-2 mb-3">
@@ -139,7 +144,10 @@ export function AngleArticleSkeleton() {
           <Skeleton className="h-8 w-48 mb-6" />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="bg-white rounded-xl shadow-lg overflow-hidden">
+              <div
+                key={i}
+                className="bg-white rounded-xl shadow-lg overflow-hidden"
+              >
                 <Skeleton className="h-32 w-full" />
                 <div className="p-4">
                   <Skeleton className="h-5 w-full mb-2" />

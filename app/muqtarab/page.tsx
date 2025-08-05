@@ -1,14 +1,13 @@
 "use client";
 
 import { HeroCard } from "@/components/muqtarab/HeroCard";
+import WithMuqtarabErrorBoundary from "@/components/muqtarab/MuqtarabErrorBoundary";
+import { MuqtarabPageSkeleton } from "@/components/muqtarab/MuqtarabSkeletons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { MuqtarabPageSkeleton } from "@/components/muqtarab/MuqtarabSkeletons";
 import { Angle } from "@/types/muqtarab";
-import WithMuqtarabErrorBoundary from "@/components/muqtarab/MuqtarabErrorBoundary";
-import React from "react";
 import {
   BookOpen,
   Calendar,
@@ -114,13 +113,13 @@ function MuqtaribPageContent() {
         const optimizedResponse = await fetch("/api/muqtarab/optimized-page", {
           // إزالة no-cache للسماح بـ browser caching
           headers: {
-            "Accept": "application/json",
+            Accept: "application/json",
           },
         });
 
         if (optimizedResponse.ok) {
           const data = await optimizedResponse.json();
-          
+
           if (data.success) {
             console.log("✅ تم جلب البيانات المُحسّنة:", {
               angles: data.angles?.length || 0,
@@ -134,14 +133,14 @@ function MuqtaribPageContent() {
             setHeroArticle(data.heroArticle);
             setStats(data.stats);
             setFeaturedArticles(data.featuredArticles || []);
-            
+
             return; // نجح التحميل المُحسّن
           }
         }
 
         // Fallback: استخدام الطريقة القديمة في حالة فشل الـ optimized endpoint
         console.log("⚠️ استخدام fallback للتحميل التقليدي...");
-        
+
         // جلب الزوايا بشكل منفصل
         const anglesResponse = await fetch("/api/muqtarab/angles");
         if (anglesResponse.ok) {
@@ -175,7 +174,6 @@ function MuqtaribPageContent() {
         } catch (statsError) {
           console.warn("تحذير: فشل في جلب الإحصائيات:", statsError);
         }
-
       } catch (error) {
         console.error("خطأ في جلب البيانات:", error);
         toast.error("حدث خطأ في التحميل");

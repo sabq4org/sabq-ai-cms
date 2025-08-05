@@ -1,4 +1,4 @@
-import { withCache, createCacheKey } from "@/lib/cache";
+import { createCacheKey, withCache } from "@/lib/cache";
 import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -7,15 +7,15 @@ const prisma = new PrismaClient();
 // GET: صفحة مقترب مُحسّنة مع cache ذكي
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
-  
+
   try {
     const { searchParams } = new URL(request.url);
     const filter = searchParams.get("filter") || "all";
-    
+
     // إنشاء cache key
     const cacheKey = createCacheKey("muqtarab:page", { filter });
     const cacheManager = withCache(cacheKey, 10, true); // 10 دقائق cache
-    
+
     // التحقق من الـ cache
     const cachedData = cacheManager.get();
     if (cachedData) {
@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
         FROM angle_articles aa
         JOIN angles a ON aa.angle_id = a.id
         LEFT JOIN users u ON aa.author_id = u.id
-        WHERE aa.is_published = true 
+        WHERE aa.is_published = true
           AND a.is_published = true
           AND 'مميز' = ANY(aa.tags)
         ORDER BY aa.views DESC, aa.publish_date DESC
@@ -116,15 +116,15 @@ export async function GET(request: NextRequest) {
         FROM angle_articles aa
         JOIN angles a ON aa.angle_id = a.id
         LEFT JOIN users u ON aa.author_id = u.id
-        WHERE aa.is_published = true 
+        WHERE aa.is_published = true
           AND a.is_published = true
         ORDER BY aa.views DESC, aa.publish_date DESC
         LIMIT 6
-      `
+      `,
     ]);
 
     // تنسيق البيانات
-    const formattedAngles = (angles as any[]).map(angle => ({
+    const formattedAngles = (angles as any[]).map((angle) => ({
       id: angle.id,
       title: angle.title,
       slug: angle.slug,
@@ -143,63 +143,73 @@ export async function GET(request: NextRequest) {
       },
     }));
 
-    const formattedHeroArticle = (heroArticle as any[])[0] ? {
-      id: (heroArticle as any[])[0].id,
-      title: (heroArticle as any[])[0].title,
-      excerpt: (heroArticle as any[])[0].excerpt,
-      coverImage: (heroArticle as any[])[0].cover_image,
-      readingTime: (heroArticle as any[])[0].reading_time,
-      publishDate: (heroArticle as any[])[0].publish_date,
-      views: (heroArticle as any[])[0].views,
-      tags: (heroArticle as any[])[0].tags,
-      angle: {
-        title: (heroArticle as any[])[0].angle_title,
-        slug: (heroArticle as any[])[0].angle_slug,
-        icon: (heroArticle as any[])[0].angle_icon,
-        themeColor: (heroArticle as any[])[0].angle_theme_color,
-      },
-      author: {
-        name: (heroArticle as any[])[0].author_name,
-        avatar: (heroArticle as any[])[0].author_avatar,
-      },
-    } : null;
+    const formattedHeroArticle = (heroArticle as any[])[0]
+      ? {
+          id: (heroArticle as any[])[0].id,
+          title: (heroArticle as any[])[0].title,
+          excerpt: (heroArticle as any[])[0].excerpt,
+          coverImage: (heroArticle as any[])[0].cover_image,
+          readingTime: (heroArticle as any[])[0].reading_time,
+          publishDate: (heroArticle as any[])[0].publish_date,
+          views: (heroArticle as any[])[0].views,
+          tags: (heroArticle as any[])[0].tags,
+          angle: {
+            title: (heroArticle as any[])[0].angle_title,
+            slug: (heroArticle as any[])[0].angle_slug,
+            icon: (heroArticle as any[])[0].angle_icon,
+            themeColor: (heroArticle as any[])[0].angle_theme_color,
+          },
+          author: {
+            name: (heroArticle as any[])[0].author_name,
+            avatar: (heroArticle as any[])[0].author_avatar,
+          },
+        }
+      : null;
 
-    const formattedStats = (stats as any[])[0] ? {
-      totalAngles: Number((stats as any[])[0].total_angles) || 0,
-      publishedAngles: Number((stats as any[])[0].published_angles) || 0,
-      totalArticles: Number((stats as any[])[0].total_articles) || 0,
-      publishedArticles: Number((stats as any[])[0].published_articles) || 0,
-      totalViews: Number((stats as any[])[0].total_views) || 0,
-      uniqueAuthors: Number((stats as any[])[0].unique_authors) || 0,
-      displayViews: {
-        raw: Number((stats as any[])[0].total_views) || 0,
-        formatted: Number((stats as any[])[0].total_views) >= 1000 
-          ? `${(Number((stats as any[])[0].total_views) / 1000).toFixed(1)}K`
-          : String(Number((stats as any[])[0].total_views) || 0),
-      },
-    } : null;
+    const formattedStats = (stats as any[])[0]
+      ? {
+          totalAngles: Number((stats as any[])[0].total_angles) || 0,
+          publishedAngles: Number((stats as any[])[0].published_angles) || 0,
+          totalArticles: Number((stats as any[])[0].total_articles) || 0,
+          publishedArticles:
+            Number((stats as any[])[0].published_articles) || 0,
+          totalViews: Number((stats as any[])[0].total_views) || 0,
+          uniqueAuthors: Number((stats as any[])[0].unique_authors) || 0,
+          displayViews: {
+            raw: Number((stats as any[])[0].total_views) || 0,
+            formatted:
+              Number((stats as any[])[0].total_views) >= 1000
+                ? `${(Number((stats as any[])[0].total_views) / 1000).toFixed(
+                    1
+                  )}K`
+                : String(Number((stats as any[])[0].total_views) || 0),
+          },
+        }
+      : null;
 
-    const formattedFeaturedArticles = (featuredArticles as any[]).map(article => ({
-      id: article.id,
-      title: article.title,
-      excerpt: article.excerpt,
-      coverImage: article.cover_image,
-      readingTime: article.reading_time,
-      publishDate: article.publish_date,
-      views: article.views,
-      tags: article.tags,
-      angle: {
-        id: article.angle_id,
-        title: article.angle_title,
-        slug: article.angle_slug,
-        icon: article.angle_icon,
-        themeColor: article.angle_theme_color,
-      },
-      author: {
-        name: article.author_name,
-        avatar: article.author_avatar,
-      },
-    }));
+    const formattedFeaturedArticles = (featuredArticles as any[]).map(
+      (article) => ({
+        id: article.id,
+        title: article.title,
+        excerpt: article.excerpt,
+        coverImage: article.cover_image,
+        readingTime: article.reading_time,
+        publishDate: article.publish_date,
+        views: article.views,
+        tags: article.tags,
+        angle: {
+          id: article.angle_id,
+          title: article.angle_title,
+          slug: article.angle_slug,
+          icon: article.angle_icon,
+          themeColor: article.angle_theme_color,
+        },
+        author: {
+          name: article.author_name,
+          avatar: article.author_avatar,
+        },
+      })
+    );
 
     const responseData = {
       success: true,
@@ -227,15 +237,17 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(responseData, {
       headers: cacheManager.getCacheHeaders(),
     });
-
   } catch (error) {
     console.error("❌ [Muqtarab Page] خطأ في جلب البيانات:", error);
-    
+
     return NextResponse.json(
       {
         success: false,
         error: "حدث خطأ في تحميل صفحة مقترب",
-        details: process.env.NODE_ENV === "development" ? (error as Error)?.message : undefined,
+        details:
+          process.env.NODE_ENV === "development"
+            ? (error as Error)?.message
+            : undefined,
       },
       { status: 500 }
     );
