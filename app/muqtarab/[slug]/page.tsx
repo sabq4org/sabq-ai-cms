@@ -199,7 +199,7 @@ export default function AnglePage() {
           <div className="lg:col-span-2">
             <AIAnalysisWidget angle={angle} />
           </div>
-          
+
           {/* المعلومة السريعة */}
           <div>
             <QuickInfoWidget angle={angle} />
@@ -262,7 +262,9 @@ function InteractiveIntro({ angle }: { angle: Angle }) {
               🤖 مرحباً بك في عالم الذكاء الاصطناعي
             </h2>
             <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
-              استكشف أحدث التطورات في تقنيات الذكاء الاصطناعي والتعلم الآلي. من التطبيقات العملية إلى الابتكارات المستقبلية، نقدم لك تحليلات عميقة وآراء خبراء في هذا المجال الثوري.
+              استكشف أحدث التطورات في تقنيات الذكاء الاصطناعي والتعلم الآلي. من
+              التطبيقات العملية إلى الابتكارات المستقبلية، نقدم لك تحليلات عميقة
+              وآراء خبراء في هذا المجال الثوري.
             </p>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
@@ -275,7 +277,7 @@ function InteractiveIntro({ angle }: { angle: Angle }) {
               </div>
             </div>
           </div>
-          
+
           {/* الفيديو التعريفي المرئي */}
           <div className="relative">
             <div className="bg-gradient-to-br from-blue-600 to-purple-700 rounded-2xl p-8 text-center text-white">
@@ -286,8 +288,8 @@ function InteractiveIntro({ angle }: { angle: Angle }) {
                 <h3 className="text-xl font-bold mb-2">جولة تفاعلية</h3>
                 <p className="text-blue-100">استكشف الزاوية في 60 ثانية</p>
               </div>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="bg-white/10 border-white/30 text-white hover:bg-white/20"
               >
                 <Play className="w-4 h-4 ml-2" />
@@ -307,13 +309,13 @@ function AIAnalysisWidget({ angle }: { angle: Angle }) {
     { label: "المقالات هذا الأسبوع", value: "3", trend: "+15%" },
     { label: "متوسط وقت القراءة", value: "5 دقائق", trend: "مثالي" },
     { label: "مستوى التفاعل", value: "عالي", trend: "+8%" },
-    { label: "التقييم الذكي", value: "4.8/5", trend: "ممتاز" }
+    { label: "التقييم الذكي", value: "4.8/5", trend: "ممتاز" },
   ];
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
       <div className="flex items-center gap-3 mb-6">
-        <div 
+        <div
           className="p-3 rounded-xl"
           style={{ backgroundColor: `${angle.themeColor}15` }}
         >
@@ -331,14 +333,17 @@ function AIAnalysisWidget({ angle }: { angle: Angle }) {
 
       <div className="grid grid-cols-2 gap-4">
         {insights.map((insight, index) => (
-          <div key={index} className="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-xl">
+          <div
+            key={index}
+            className="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-xl"
+          >
             <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
               {insight.label}
             </div>
             <div className="text-lg font-bold text-gray-900 dark:text-white mb-1">
               {insight.value}
             </div>
-            <div 
+            <div
               className="text-xs font-medium"
               style={{ color: angle.themeColor }}
             >
@@ -366,7 +371,7 @@ function QuickInfoWidget({ angle }: { angle: Angle }) {
     "يستطيع الذكاء الاصطناعي الآن كتابة الشعر بمستوى يضاهي الشعراء المحترفين",
     "أكثر من 80% من الشركات تستخدم AI في عمليات خدمة العملاء",
     "الذكاء الاصطناعي يمكنه التنبؤ بالطقس بدقة 90% لمدة أسبوع مقدماً",
-    "GPT-4 يحتوي على أكثر من تريليون معامل للمعالجة اللغوية"
+    "GPT-4 يحتوي على أكثر من تريليون معامل للمعالجة اللغوية",
   ];
 
   const [currentFact, setCurrentFact] = useState(0);
@@ -398,9 +403,7 @@ function QuickInfoWidget({ angle }: { angle: Angle }) {
               <div
                 key={index}
                 className={`w-2 h-2 rounded-full transition-all ${
-                  index === currentFact 
-                    ? 'bg-yellow-500 w-6' 
-                    : 'bg-yellow-300'
+                  index === currentFact ? "bg-yellow-500 w-6" : "bg-yellow-300"
                 }`}
               />
             ))}
@@ -418,7 +421,7 @@ function RelatedTopicsWidget({ angle }: { angle: Angle }) {
     { title: "الشبكات العصبية", articles: 8, trend: "مستقر" },
     { title: "معالجة اللغة الطبيعية", articles: 12, trend: "صاعد" },
     { title: "الرؤية الحاسوبية", articles: 6, trend: "جديد" },
-    { title: "الذكاء الاصطناعي التوليدي", articles: 20, trend: "رائج" }
+    { title: "الذكاء الاصطناعي التوليدي", articles: 20, trend: "رائج" },
   ];
 
   return (
@@ -427,10 +430,10 @@ function RelatedTopicsWidget({ angle }: { angle: Angle }) {
         <Hash className="w-5 h-5" style={{ color: angle.themeColor }} />
         مواضيع ذات صلة
       </h3>
-      
+
       <div className="space-y-3">
         {relatedTopics.map((topic, index) => (
-          <div 
+          <div
             key={index}
             className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors cursor-pointer"
           >
@@ -443,10 +446,14 @@ function RelatedTopicsWidget({ angle }: { angle: Angle }) {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Badge 
-                variant={topic.trend === 'رائج' ? 'default' : 'secondary'}
+              <Badge
+                variant={topic.trend === "رائج" ? "default" : "secondary"}
                 className="text-xs"
-                style={topic.trend === 'رائج' ? { backgroundColor: angle.themeColor } : {}}
+                style={
+                  topic.trend === "رائج"
+                    ? { backgroundColor: angle.themeColor }
+                    : {}
+                }
               >
                 {topic.trend}
               </Badge>
@@ -665,7 +672,8 @@ function AngleHeader({ angle }: { angle: Angle }) {
               <div className="flex items-center gap-1">
                 <Calendar className="w-4 h-4" />
                 <span>
-                  آخر تحديث {new Date(angle.createdAt).toLocaleDateString("ar-SA")}
+                  آخر تحديث{" "}
+                  {new Date(angle.createdAt).toLocaleDateString("ar-SA")}
                 </span>
               </div>
             </div>
@@ -992,7 +1000,7 @@ function AngleFooter({ angle }: { angle: Angle }) {
           {/* معلومات الزاوية */}
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <div 
+              <div
                 className="p-3 rounded-xl"
                 style={{ backgroundColor: angle.themeColor }}
               >
@@ -1020,12 +1028,18 @@ function AngleFooter({ angle }: { angle: Angle }) {
             <h4 className="text-lg font-semibold mb-4">روابط سريعة</h4>
             <ul className="space-y-2 text-gray-300">
               <li>
-                <Link href="/muqtarab" className="hover:text-white transition-colors">
+                <Link
+                  href="/muqtarab"
+                  className="hover:text-white transition-colors"
+                >
                   العودة إلى مُقترب
                 </Link>
               </li>
               <li>
-                <Link href="/muqtarab/تقنية-ai" className="hover:text-white transition-colors">
+                <Link
+                  href="/muqtarab/تقنية-ai"
+                  className="hover:text-white transition-colors"
+                >
                   أحدث المقالات
                 </Link>
               </li>
@@ -1046,7 +1060,7 @@ function AngleFooter({ angle }: { angle: Angle }) {
           <div>
             <h4 className="text-lg font-semibold mb-4">تابعنا</h4>
             <div className="space-y-4">
-              <Button 
+              <Button
                 className="w-full text-white border-white/30 hover:bg-white/10"
                 style={{ borderColor: angle.themeColor }}
                 variant="outline"
@@ -1054,15 +1068,27 @@ function AngleFooter({ angle }: { angle: Angle }) {
                 <Heart className="w-4 h-4 ml-2" />
                 متابعة الزاوية
               </Button>
-              
+
               <div className="flex gap-3">
-                <Button size="sm" variant="outline" className="flex-1 border-white/30 text-white hover:bg-white/10">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1 border-white/30 text-white hover:bg-white/10"
+                >
                   <Share2 className="w-4 h-4" />
                 </Button>
-                <Button size="sm" variant="outline" className="flex-1 border-white/30 text-white hover:bg-white/10">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1 border-white/30 text-white hover:bg-white/10"
+                >
                   <MessageCircle className="w-4 h-4" />
                 </Button>
-                <Button size="sm" variant="outline" className="flex-1 border-white/30 text-white hover:bg-white/10">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1 border-white/30 text-white hover:bg-white/10"
+                >
                   📧
                 </Button>
               </div>
@@ -1091,7 +1117,7 @@ function AngleFooter({ angle }: { angle: Angle }) {
         </div>
 
         {/* شريط بلون الزاوية في الأسفل */}
-        <div 
+        <div
           className="mt-6 h-1 rounded-full"
           style={{ backgroundColor: angle.themeColor }}
         />

@@ -6,10 +6,10 @@ const prisma = new PrismaClient();
 // GET: جلب زاوية بالـ slug
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = params;
+    const { slug } = await params;
     console.log("🔍 البحث عن الزاوية بالـ slug:", slug);
 
     if (!slug) {

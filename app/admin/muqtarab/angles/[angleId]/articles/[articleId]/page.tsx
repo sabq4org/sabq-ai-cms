@@ -139,8 +139,6 @@ const ImageUploader = ({
     }
   };
 
-
-
   return (
     <div className="space-y-3">
       {currentImage && (
@@ -194,9 +192,9 @@ const ImageUploader = ({
               variant="outline"
               className="mt-3"
               onClick={() => {
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = 'image/*';
+                const input = document.createElement("input");
+                input.type = "file";
+                input.accept = "image/*";
                 input.onchange = (e) => {
                   const file = (e.target as HTMLInputElement).files?.[0];
                   if (file) {
@@ -290,7 +288,7 @@ export default function EditAngleArticlePage() {
           console.error("❌ خطأ في استجابة الزاوية:", {
             status: angleResponse.status,
             statusText: angleResponse.statusText,
-            error: errorText
+            error: errorText,
           });
           toast.error(`الزاوية غير موجودة (${angleResponse.status})`);
           router.push("/admin/muqtarab");
@@ -333,7 +331,7 @@ export default function EditAngleArticlePage() {
           console.error("❌ خطأ في استجابة المقال:", {
             status: articleResponse.status,
             statusText: articleResponse.statusText,
-            error: errorText
+            error: errorText,
           });
           toast.error(`المقال غير موجود (${articleResponse.status})`);
           router.push(`/admin/muqtarab/angles/${angleId}`);
@@ -806,8 +804,7 @@ export default function EditAngleArticlePage() {
               <CardContent>
                 <div className="space-y-2 text-sm">
                   <div>
-                    <strong>العنوان:</strong>{" "}
-                    {formData.title || "بدون عنوان"}
+                    <strong>العنوان:</strong> {formData.title || "بدون عنوان"}
                   </div>
                   <div>
                     <strong>الكلمات:</strong>{" "}
