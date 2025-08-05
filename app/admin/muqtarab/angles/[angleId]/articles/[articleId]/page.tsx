@@ -26,49 +26,312 @@ import {
   X,
 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
-// مكونات محرر المحتوى المتقدم
-const ContentEditor = ({
+// محرر المحتوى المتقدم مع Markdown وميزات احترافية
+const AdvancedContentEditor = ({
   content,
   onChange,
 }: {
   content: string;
   onChange: (content: string) => void;
 }) => {
+  const [activeTools, setActiveTools] = useState<string[]>([]);
+  const [showPreview, setShowPreview] = useState(false);
+  const [editorStats, setEditorStats] = useState({
+    words: 0,
+    characters: 0,
+    paragraphs: 0,
+    readingTime: 0,
+  });
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // حساب الإحصائيات
+  useEffect(() => {
+    const words = content.trim() ? content.trim().split(/\s+/).length : 0;
+    const characters = content.length;
+    const paragraphs = content.split("\n\n").filter((p) => p.trim()).length;
+    const readingTime = Math.ceil(words / 200); // متوسط 200 كلمة في الدقيقة
+
+    setEditorStats({ words, characters, paragraphs, readingTime });
+  }, [content]);
+
+  // وظائف التنسيق
+  const insertFormatting = (
+    before: string,
+    after: string = "",
+    placeholder: string = ""
+  ) => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = content.substring(start, end);
+    const text = selectedText || placeholder;
+
+    const newContent =
+      content.substring(0, start) +
+      before +
+      text +
+      after +
+      content.substring(end);
+
+    onChange(newContent);
+
+    // إعادة تحديد النص المدرج
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(
+        start + before.length,
+        start + before.length + text.length
+      );
+    }, 0);
+  };
+
+  const toolbarActions = [
+    {
+      id: "bold",
+      icon: "B",
+      title: "عريض",
+      action: () => insertFormatting("**", "**", "نص عريض"),
+      shortcut: "Ctrl+B",
+    },
+    {
+      id: "italic",
+      icon: "I",
+      title: "مائل",
+      action: () => insertFormatting("*", "*", "نص مائل"),
+      shortcut: "Ctrl+I",
+    },
+    {
+      id: "underline",
+      icon: "U",
+      title: "تسطير",
+      action: () => insertFormatting("<u>", "</u>", "نص مسطر"),
+      shortcut: "Ctrl+U",
+    },
+    {
+      id: "strike",
+      icon: "S",
+      title: "يتوسطه خط",
+      action: () => insertFormatting("~~", "~~", "نص محذوف"),
+      shortcut: "Alt+S",
+    },
+    {
+      id: "h1",
+      icon: "H1",
+      title: "عنوان رئيسي",
+      action: () => insertFormatting("\n# ", "\n", "عنوان رئيسي"),
+      shortcut: "Ctrl+1",
+    },
+    {
+      id: "h2",
+      icon: "H2",
+      title: "عنوان فرعي",
+      action: () => insertFormatting("\n## ", "\n", "عنوان فرعي"),
+      shortcut: "Ctrl+2",
+    },
+    {
+      id: "h3",
+      icon: "H3",
+      title: "عنوان صغير",
+      action: () => insertFormatting("\n### ", "\n", "عنوان صغير"),
+      shortcut: "Ctrl+3",
+    },
+    {
+      id: "quote",
+      icon: '"',
+      title: "اقتباس",
+      action: () => insertFormatting("\n> ", "\n", "نص الاقتباس"),
+      shortcut: "Ctrl+Q",
+    },
+    {
+      id: "ul",
+      icon: "•",
+      title: "قائمة نقطية",
+      action: () => insertFormatting("\n- ", "\n", "عنصر القائمة"),
+      shortcut: "Ctrl+L",
+    },
+    {
+      id: "ol",
+      icon: "1.",
+      title: "قائمة مرقمة",
+      action: () => insertFormatting("\n1. ", "\n", "عنصر مرقم"),
+      shortcut: "Ctrl+Shift+L",
+    },
+    {
+      id: "link",
+      icon: "🔗",
+      title: "رابط",
+      action: () => insertFormatting("[", "](http://example.com)", "نص الرابط"),
+      shortcut: "Ctrl+K",
+    },
+    {
+      id: "code",
+      icon: "<>",
+      title: "كود",
+      action: () => insertFormatting("`", "`", "كود"),
+      shortcut: "Ctrl+E",
+    },
+    {
+      id: "codeblock",
+      icon: "{ }",
+      title: "مجموعة كود",
+      action: () => insertFormatting("\n```\n", "\n```\n", "كود متعدد الأسطر"),
+      shortcut: "Ctrl+Shift+E",
+    },
+  ];
+
+  // معاينة المحتوى المنسق
+  const renderPreview = (text: string) => {
+    return text
+      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\*(.*?)\*/g, "<em>$1</em>")
+      .replace(/<u>(.*?)<\/u>/g, "<u>$1</u>")
+      .replace(/~~(.*?)~~/g, "<del>$1</del>")
+      .replace(/^### (.*$)/gm, "<h3>$1</h3>")
+      .replace(/^## (.*$)/gm, "<h2>$1</h2>")
+      .replace(/^# (.*$)/gm, "<h1>$1</h1>")
+      .replace(/^> (.*$)/gm, "<blockquote>$1</blockquote>")
+      .replace(/^- (.*$)/gm, "<li>$1</li>")
+      .replace(/^1\. (.*$)/gm, "<li>$1</li>")
+      .replace(/`(.*?)`/g, "<code>$1</code>")
+      .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>')
+      .replace(/\n/g, "<br>");
+  };
+
+  // اختصارات الكيبورد
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    const { ctrlKey, altKey, shiftKey, key } = e;
+
+    if (ctrlKey) {
+      switch (key) {
+        case "b":
+          e.preventDefault();
+          insertFormatting("**", "**", "نص عريض");
+          break;
+        case "i":
+          e.preventDefault();
+          insertFormatting("*", "*", "نص مائل");
+          break;
+        case "u":
+          e.preventDefault();
+          insertFormatting("<u>", "</u>", "نص مسطر");
+          break;
+        case "q":
+          e.preventDefault();
+          insertFormatting("\n> ", "\n", "نص الاقتباس");
+          break;
+        case "k":
+          e.preventDefault();
+          insertFormatting("[", "](http://example.com)", "نص الرابط");
+          break;
+        case "e":
+          e.preventDefault();
+          if (shiftKey) {
+            insertFormatting("\n```\n", "\n```\n", "كود متعدد الأسطر");
+          } else {
+            insertFormatting("`", "`", "كود");
+          }
+          break;
+        case "1":
+        case "2":
+        case "3":
+          e.preventDefault();
+          const level = "#".repeat(parseInt(key));
+          insertFormatting(`\n${level} `, "\n", `عنوان مستوى ${key}`);
+          break;
+      }
+    }
+  };
+
   return (
-    <div className="space-y-3">
-      <div className="border rounded-lg p-4 min-h-[400px] bg-white">
-        <div className="flex items-center gap-2 pb-3 border-b mb-3">
-          <div className="flex gap-1">
-            <button className="p-2 rounded hover:bg-gray-100" title="عريض">
-              <strong>B</strong>
-            </button>
-            <button className="p-2 rounded hover:bg-gray-100" title="مائل">
-              <em>I</em>
-            </button>
-            <button className="p-2 rounded hover:bg-gray-100" title="تسطير">
-              <u>U</u>
-            </button>
-            <div className="border-l mx-2"></div>
-            <button className="p-2 rounded hover:bg-gray-100" title="عنوان">
-              H1
-            </button>
-            <button className="p-2 rounded hover:bg-gray-100" title="قائمة">
-              •
-            </button>
-            <button className="p-2 rounded hover:bg-gray-100" title="رقمية">
-              1.
-            </button>
+    <div className="space-y-4">
+      {/* شريط الأدوات المتقدم */}
+      <div className="bg-white border rounded-lg p-3 shadow-sm">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <div className="flex gap-1 flex-wrap">
+              {toolbarActions.map((tool) => (
+                <Button
+                  key={tool.id}
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 px-2 text-xs font-medium hover:bg-gray-100 transition-colors"
+                  onClick={tool.action}
+                  title={`${tool.title} (${tool.shortcut})`}
+                >
+                  {tool.icon}
+                </Button>
+              ))}
+            </div>
+            <div className="border-l h-6 mx-2"></div>
+            <Button
+              type="button"
+              variant={showPreview ? "default" : "outline"}
+              size="sm"
+              onClick={() => setShowPreview(!showPreview)}
+              className="h-8 px-3 text-xs"
+            >
+              {showPreview ? "📝 تحرير" : "👁️ معاينة"}
+            </Button>
+          </div>
+
+          {/* إحصائيات المحرر */}
+          <div className="flex items-center gap-4 text-xs text-gray-500">
+            <span>{editorStats.words} كلمة</span>
+            <span>{editorStats.characters} حرف</span>
+            <span>{editorStats.paragraphs} فقرة</span>
+            <span>{editorStats.readingTime} د قراءة</span>
           </div>
         </div>
-        <Textarea
-          value={content}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder="اكتب محتوى المقال هنا..."
-          className="min-h-[350px] border-0 focus:ring-0 resize-none"
-        />
+
+        {/* منطقة التحرير */}
+        <div className="border rounded-lg overflow-hidden">
+          {showPreview ? (
+            <div
+              className="p-4 min-h-[400px] bg-gray-50 prose prose-lg max-w-none"
+              dangerouslySetInnerHTML={{
+                __html:
+                  renderPreview(content) ||
+                  '<p class="text-gray-400">لا يوجد محتوى للمعاينة...</p>',
+              }}
+            />
+          ) : (
+            <Textarea
+              ref={textareaRef}
+              value={content}
+              onChange={(e) => onChange(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="ابدأ الكتابة هنا... يمكنك استخدام Markdown للتنسيق أو الأزرار أعلاه
+
+أمثلة على التنسيق:
+**نص عريض** *نص مائل* ~~نص محذوف~~
+# عنوان رئيسي
+## عنوان فرعي
+> اقتباس مهم
+- عنصر في قائمة
+1. عنصر مرقم
+[رابط](http://example.com)
+`كود مضمن`
+
+```
+مجموعة كود
+متعددة الأسطر
+```"
+              className="min-h-[400px] border-0 focus:ring-0 resize-none bg-white"
+            />
+          )}
+        </div>
+
+        {/* نصائح سريعة */}
+        <div className="mt-3 p-2 bg-blue-50 rounded text-xs text-blue-700">
+          💡 <strong>نصائح:</strong> استخدم Ctrl+B للخط العريض، Ctrl+I للمائل،
+          Ctrl+K للروابط، Ctrl+1/2/3 للعناوين
+        </div>
       </div>
     </div>
   );
@@ -642,7 +905,7 @@ export default function EditAngleArticlePage() {
                 <CardTitle>محتوى المقال</CardTitle>
               </CardHeader>
               <CardContent>
-                <ContentEditor
+                <AdvancedContentEditor
                   content={formData.content}
                   onChange={(content) =>
                     setFormData((prev) => ({ ...prev, content }))

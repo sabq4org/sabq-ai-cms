@@ -562,37 +562,7 @@ function AudioPlayer({ article }: { article: AngleArticle }) {
   );
 }
 
-// مكون محتوى المقال المحسن
-function ArticleContent({ article }: { article: AngleArticle }) {
-  return (
-    <div className="mb-8">
-      {/* محتوى المقال مع تنسيق احترافي */}
-      <div className="bg-white rounded-xl p-8 shadow-sm border">
-        {article.content ? (
-          <div
-            className="prose prose-lg dark:prose-invert max-w-none leading-relaxed
-                       prose-headings:text-gray-900 prose-headings:font-bold
-                       prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4
-                       prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-3
-                       prose-p:text-gray-700 prose-p:leading-relaxed prose-p:mb-4
-                       prose-strong:text-gray-900 prose-strong:font-semibold
-                       prose-blockquote:border-l-4 prose-blockquote:border-blue-500
-                       prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-gray-600
-                       prose-ul:list-disc prose-ol:list-decimal
-                       prose-li:mb-2 prose-li:text-gray-700
-                       prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded
-                       prose-pre:bg-gray-900 prose-pre:text-gray-100"
-            dangerouslySetInnerHTML={{ __html: article.content }}
-          />
-        ) : (
-          <div className="text-center py-12 text-gray-500">
-            <p>محتوى المقال غير متاح حالياً</p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+
 
 // مكون التفاعل
 function ArticleInteractions({ article }: { article: AngleArticle }) {
@@ -797,6 +767,69 @@ function SmartRecommendations({
           </Card>
         ))}
       </div>
+    </div>
+  );
+}
+
+// مكون عرض محتوى المقال مع تنسيق Markdown
+function ArticleContent({ article }: { article: AngleArticle }) {
+  // تحويل Markdown إلى HTML
+  const renderMarkdownContent = (content: string) => {
+    if (!content) return "";
+
+    return content
+      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\*(.*?)\*/g, "<em>$1</em>")
+      .replace(/<u>(.*?)<\/u>/g, "<u>$1</u>")
+      .replace(/~~(.*?)~~/g, "<del>$1</del>")
+      .replace(
+        /^### (.*$)/gm,
+        '<h3 class="text-xl font-bold text-gray-900 mt-6 mb-4">$1</h3>'
+      )
+      .replace(
+        /^## (.*$)/gm,
+        '<h2 class="text-2xl font-bold text-gray-900 mt-8 mb-4">$1</h2>'
+      )
+      .replace(
+        /^# (.*$)/gm,
+        '<h1 class="text-3xl font-bold text-gray-900 mt-8 mb-6">$1</h1>'
+      )
+      .replace(
+        /^> (.*$)/gm,
+        '<blockquote class="border-r-4 border-blue-400 pr-4 mr-4 text-gray-600 italic my-4">$1</blockquote>'
+      )
+      .replace(/^- (.*$)/gm, '<li class="mb-1">$1</li>')
+      .replace(/^1\. (.*$)/gm, '<li class="mb-1">$1</li>')
+      .replace(
+        /`(.*?)`/g,
+        '<code class="bg-gray-100 px-2 py-1 rounded text-sm font-mono">$1</code>'
+      )
+      .replace(
+        /\[(.*?)\]\((.*?)\)/g,
+        '<a href="$2" target="_blank" class="text-blue-600 hover:text-blue-800 underline">$1</a>'
+      )
+      .replace(
+        /```([\s\S]*?)```/g,
+        '<pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto my-4"><code class="text-sm">$1</code></pre>'
+      )
+      .replace(/---/g, '<hr class="my-6 border-gray-300">')
+      .replace(/\n\n/g, '</p><p class="mb-4">')
+      .replace(/^\s*(.+)/gm, '<p class="mb-4">$1</p>');
+  };
+
+  return (
+    <div className="mb-8">
+      <div
+        className="prose prose-lg dark:prose-invert max-w-none leading-relaxed text-gray-800"
+        dangerouslySetInnerHTML={{
+          __html: renderMarkdownContent(article.content || ""),
+        }}
+        style={{
+          whiteSpace: "pre-line",
+          lineHeight: "1.8",
+          fontSize: "1.1rem",
+        }}
+      />
     </div>
   );
 }
