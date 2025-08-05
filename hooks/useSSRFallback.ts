@@ -2,8 +2,8 @@
  * Hook لاستخدام نظام الاحتياط لـ SSR
  */
 
-import { useEffect, useRef, useState } from 'react';
-import { SSRFallbackSystem } from '@/lib/recovery/SSRFallbackSystem';
+import { SSRFallbackSystem } from "@/lib/recovery/SSRFallbackSystem";
+import { useEffect, useRef, useState } from "react";
 
 export interface UseSSRFallbackOptions {
   enableAutoFallback?: boolean;
@@ -29,7 +29,7 @@ export function useSSRFallback(options: UseSSRFallbackOptions = {}) {
     fallbackMode: false,
     hasErrors: false,
     errorsCount: 0,
-    isLoading: true
+    isLoading: true,
   });
 
   const ssrSystemRef = useRef<SSRFallbackSystem | null>(null);
@@ -44,7 +44,7 @@ export function useSSRFallback(options: UseSSRFallbackOptions = {}) {
       hydrationTimeout: options.hydrationTimeout ?? 10000,
       maxRetries: options.maxRetries ?? 2,
       preserveUserState: options.preserveUserState ?? true,
-      enableDiagnostics: process.env.NODE_ENV === 'development'
+      enableDiagnostics: process.env.NODE_ENV === "development",
     });
 
     // مراقبة حالة النظام
@@ -52,14 +52,14 @@ export function useSSRFallback(options: UseSSRFallbackOptions = {}) {
       if (!mountedRef.current || !ssrSystemRef.current) return;
 
       const stats = ssrSystemRef.current.getSSRStats();
-      
-      setState(prevState => {
+
+      setState((prevState) => {
         const newState = {
           isHydrated: stats.isHydrated,
           fallbackMode: stats.fallbackMode,
           hasErrors: stats.errorsCount > 0,
           errorsCount: stats.errorsCount,
-          isLoading: !stats.isHydrated && !stats.fallbackMode
+          isLoading: !stats.isHydrated && !stats.fallbackMode,
         };
 
         // استدعاء callbacks عند تغيير الحالة
@@ -80,29 +80,33 @@ export function useSSRFallback(options: UseSSRFallbackOptions = {}) {
       });
     };
 
-    // فحص دوري لحالة النظام
-    const interval = setInterval(checkSystemState, 500);
-
-    // فحص أولي
+    // فحص أولي فقط
     checkSystemState();
+
+    // فحص واحد بعد التحميل
+    const timeoutId = setTimeout(() => {
+      if (mountedRef.current) {
+        checkSystemState();
+      }
+    }, 1000);
 
     // تنظيف عند إلغاء التحميل
     return () => {
       mountedRef.current = false;
-      clearInterval(interval);
+      clearTimeout(timeoutId);
     };
   }, [
     options.enableAutoFallback,
     options.hydrationTimeout,
     options.maxRetries,
-    options.preserveUserState
+    options.preserveUserState,
   ]);
 
   // وظائف التحكم
   const forceCSRMode = () => {
     if (ssrSystemRef.current) {
       // تفعيل وضع CSR القسري
-      sessionStorage.setItem('sabq_force_csr', 'true');
+      sessionStorage.setItem("sabq_force_csr", "true");
       window.location.reload();
     }
   };
@@ -115,7 +119,7 @@ export function useSSRFallback(options: UseSSRFallbackOptions = {}) {
         fallbackMode: false,
         hasErrors: false,
         errorsCount: 0,
-        isLoading: true
+        isLoading: true,
       });
     }
   };
@@ -133,19 +137,19 @@ export function useSSRFallback(options: UseSSRFallbackOptions = {}) {
   return {
     // الحالة
     ...state,
-    
+
     // وظائف التحكم
     forceCSRMode,
     resetSystem,
     getDetailedStats,
     restoreUserState,
-    
+
     // معلومات إضافية
     shouldSkipSSR: SSRFallbackSystem.shouldSkipSSR(),
-    
+
     // مساعدات
     isReady: state.isHydrated || state.fallbackMode,
-    hasIssues: state.hasErrors || state.fallbackMode
+    hasIssues: state.hasErrors || state.fallbackMode,
   };
 }
 
@@ -174,7 +178,7 @@ export function useCSRMode() {
   }, []);
 
   const enableCSRMode = () => {
-    sessionStorage.setItem('sabq_force_csr', 'true');
+    sessionStorage.setItem("sabq_force_csr", "true");
     setIsCSRMode(true);
   };
 
@@ -186,6 +190,6 @@ export function useCSRMode() {
   return {
     isCSRMode,
     enableCSRMode,
-    disableCSRMode
+    disableCSRMode,
   };
 }

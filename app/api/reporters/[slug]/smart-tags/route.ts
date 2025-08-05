@@ -1,14 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
+import { NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
 export async function GET(
   request: NextRequest,
-  context: { params: Promise<{ slug: string }> }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = await context.params;
+    const { slug } = await params;
     console.log(`🏷️ جلب الكلمات المفتاحية الذكية للمراسل: ${slug}`);
 
     // العثور على المراسل
@@ -17,15 +17,18 @@ export async function GET(
       select: {
         id: true,
         user_id: true,
-        full_name: true
-      }
+        full_name: true,
+      },
     });
 
     if (!reporter) {
-      return NextResponse.json({
-        success: false,
-        error: 'المراسل غير موجود'
-      }, { status: 404 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "المراسل غير موجود",
+        },
+        { status: 404 }
+      );
     }
 
     // جلب الكلمات المفتاحية المستخدمة في مقالات هذا المراسل فقط
@@ -44,32 +47,36 @@ export async function GET(
     `;
 
     // تحويل النتائج إلى تنسيق مفهوم
-    const formattedTags = (smartTags as any[]).map(tag => ({
+    const formattedTags = (smartTags as any[]).map((tag) => ({
       term: tag.term,
-      count: Number(tag.usage_count)
+      count: Number(tag.usage_count),
     }));
 
-    console.log(`✅ تم جلب ${formattedTags.length} كلمة مفتاحية للمراسل ${reporter.full_name}`);
+    console.log(
+      `✅ تم جلب ${formattedTags.length} كلمة مفتاحية للمراسل ${reporter.full_name}`
+    );
 
     return NextResponse.json({
       success: true,
       tags: formattedTags,
       reporter: {
         id: reporter.id,
-        name: reporter.full_name
+        name: reporter.full_name,
       },
-      total: formattedTags.length
+      total: formattedTags.length,
     });
-
   } catch (error: any) {
-    console.error('❌ خطأ في جلب الكلمات المفتاحية:', error);
-    
-    return NextResponse.json({
-      success: false,
-      error: 'فشل في جلب الكلمات المفتاحية',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
-    }, { status: 500 });
-    
+    console.error("❌ خطأ في جلب الكلمات المفتاحية:", error);
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: "فشل في جلب الكلمات المفتاحية",
+        details:
+          process.env.NODE_ENV === "development" ? error.message : undefined,
+      },
+      { status: 500 }
+    );
   } finally {
     await prisma.$disconnect();
   }

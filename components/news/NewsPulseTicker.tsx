@@ -176,13 +176,15 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
       });
     }, displayDuration);
 
-    // تسجيل مشاهدة الإشعار الأول
+    return () => clearInterval(interval);
+  }, [notifications, displayDuration, recordView]);
+
+  // تسجيل مشاهدة الإشعار الحالي (منفصل عن timer)
+  useEffect(() => {
     if (notifications[currentIndex]) {
       recordView(notifications[currentIndex].id);
     }
-
-    return () => clearInterval(interval);
-  }, [notifications, displayDuration, recordView, currentIndex]);
+  }, [currentIndex, notifications, recordView]);
 
   // إذا كان يحمل أو لا توجد إشعارات
   if (isLoading) {
@@ -205,56 +207,30 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
     <div
       className={cn(
         "w-full bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20",
-        "border-b border-blue-100 dark:border-blue-800",
-        isMobile ? "py-3 px-3 min-h-[44px]" : "py-4 px-4 min-h-[48px]",
-        "overflow-hidden relative flex items-center",
+        isMobile
+          ? "py-3 pulse-ticker-mobile min-h-[44px]"
+          : "py-4 pulse-ticker-desktop min-h-[56px]",
+        "overflow-hidden relative flex items-center justify-center",
         className
       )}
     >
       <div
         className={cn(
-          "flex items-center gap-2 max-w-7xl mx-auto w-full",
-          isMobile ? "gap-2" : "gap-3"
+          "flex items-center gap-2 w-full",
+          isMobile
+            ? "gap-2 px-4"
+            : "gap-3 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
         )}
       >
-        {/* مؤشر النبض */}
-        <div
-          className={cn(
-            "flex items-center gap-1 flex-shrink-0",
-            isMobile ? "gap-1" : "gap-2"
-          )}
-        >
-          <div className="relative">
-            <div
-              className={cn(
-                "bg-blue-500 rounded-full animate-pulse",
-                isMobile ? "w-2.5 h-2.5" : "w-3 h-3"
-              )}
-            ></div>
-            <div
-              className={cn(
-                "absolute inset-0 bg-blue-500 rounded-full animate-ping opacity-25",
-                isMobile ? "w-2.5 h-2.5" : "w-3 h-3"
-              )}
-            ></div>
+        {/* عبارة "نبض الأخبار" للديسكتوب فقط */}
+        {!isMobile && (
+          <div className="flex-shrink-0 mr-4">
+            <span className="text-sm font-bold text-blue-700 dark:text-blue-300 flex items-center gap-2">
+              <Zap className="w-4 h-4" />
+              نبض الأخبار
+            </span>
           </div>
-          <span
-            className={cn(
-              "font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wide",
-              isMobile ? "text-xs hidden sm:inline" : "text-xs"
-            )}
-          >
-            {isMobile ? "نبض" : "نبض الأخبار"}
-          </span>
-        </div>
-
-        {/* فاصل */}
-        <div
-          className={cn(
-            "bg-blue-200 dark:bg-blue-700 flex-shrink-0",
-            isMobile ? "w-px h-3" : "w-px h-4"
-          )}
-        ></div>
+        )}
 
         {/* محتوى الإشعار المتحرك */}
         <div className="flex-1 min-w-0">
@@ -265,7 +241,7 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.5, ease: "easeInOut" }}
-              className="flex items-center gap-2"
+              className="flex items-center justify-start gap-2 min-h-[32px]"
             >
               {/* أيقونة النوع - مخفية في الموبايل الصغير */}
               {!isMobile && (
@@ -279,12 +255,12 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
                 href={currentNotification.target_url}
                 onClick={() => recordClick(currentNotification.id)}
                 className={cn(
-                  "font-medium truncate hover:underline transition-colors duration-200 flex items-center",
-                  isMobile ? "text-xs sm:text-sm" : "text-sm",
+                  "font-medium truncate hover:underline transition-colors duration-200 flex items-center justify-center min-h-[24px]",
+                  isMobile ? "text-xs sm:text-sm leading-tight" : "text-sm leading-normal",
                   getTypeColor(currentNotification.type)
                 )}
               >
-                {currentNotification.title}
+                <span className="py-1">{currentNotification.title}</span>
               </Link>
             </motion.div>
           </AnimatePresence>
@@ -313,15 +289,6 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
           </div>
         )}
       </div>
-
-      {/* شريط التقدم المتحرك */}
-      <motion.div
-        key={currentNotification.id}
-        className="absolute bottom-0 left-0 h-0.5 bg-blue-500"
-        initial={{ width: "0%" }}
-        animate={{ width: "100%" }}
-        transition={{ duration: displayDuration / 1000, ease: "linear" }}
-      />
     </div>
   );
 };

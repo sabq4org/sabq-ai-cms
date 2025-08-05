@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { Toaster, toast, Toast } from 'react-hot-toast';
-import { editorNotificationManager } from '@/lib/services/EditorNotificationFilter';
+import { editorNotificationManager } from "@/lib/services/EditorNotificationFilter";
+import { useEffect } from "react";
+import { toast, Toaster } from "react-hot-toast";
 
 // احتفاظ بالـ toast الأصلي
 const originalToast = {
@@ -17,35 +17,68 @@ const originalToast = {
 
 export default function FilteredToaster() {
   useEffect(() => {
-    // استبدال دوال الـ toast بنسخ مفلترة
+    // تأكد من أن المدير جاهز قبل التعديل
+    if (!editorNotificationManager) {
+      return;
+    }
+
+    // تأكد من أن التعديل لم يحدث من قبل
+    if (toast.success !== originalToast.success) {
+      return;
+    }
+
+    // استبدال دوال الـ toast بنسخ مفلترة مع حماية
     toast.success = (message: any, options?: any) => {
-      const messageStr = typeof message === 'string' ? message : String(message);
-      if (!editorNotificationManager.shouldShowMessage(messageStr, 'success')) {
-        editorNotificationManager.logFilteredMessage(messageStr, 'success');
-        return '';
+      try {
+        const messageStr =
+          typeof message === "string" ? message : String(message);
+        if (
+          !editorNotificationManager.shouldShowMessage(messageStr, "success")
+        ) {
+          editorNotificationManager.logFilteredMessage(messageStr, "success");
+          return "";
+        }
+        const transformedMessage =
+          editorNotificationManager.transformMessage(messageStr);
+        return originalToast.success(transformedMessage, options);
+      } catch (error) {
+        console.warn("خطأ في toast.success:", error);
+        return originalToast.success(message, options);
       }
-      const transformedMessage = editorNotificationManager.transformMessage(messageStr);
-      return originalToast.success(transformedMessage, options);
     };
 
     toast.error = (message: any, options?: any) => {
-      const messageStr = typeof message === 'string' ? message : String(message);
-      if (!editorNotificationManager.shouldShowMessage(messageStr, 'error')) {
-        editorNotificationManager.logFilteredMessage(messageStr, 'error');
-        return '';
+      try {
+        const messageStr =
+          typeof message === "string" ? message : String(message);
+        if (!editorNotificationManager.shouldShowMessage(messageStr, "error")) {
+          editorNotificationManager.logFilteredMessage(messageStr, "error");
+          return "";
+        }
+        const transformedMessage =
+          editorNotificationManager.transformMessage(messageStr);
+        return originalToast.error(transformedMessage, options);
+      } catch (error) {
+        console.warn("خطأ في toast.error:", error);
+        return originalToast.error(message, options);
       }
-      const transformedMessage = editorNotificationManager.transformMessage(messageStr);
-      return originalToast.error(transformedMessage, options);
     };
 
     toast.loading = (message: any, options?: any) => {
-      const messageStr = typeof message === 'string' ? message : String(message);
-      if (!editorNotificationManager.shouldShowMessage(messageStr, 'info')) {
-        editorNotificationManager.logFilteredMessage(messageStr, 'info');
-        return '';
+      try {
+        const messageStr =
+          typeof message === "string" ? message : String(message);
+        if (!editorNotificationManager.shouldShowMessage(messageStr, "info")) {
+          editorNotificationManager.logFilteredMessage(messageStr, "info");
+          return "";
+        }
+        const transformedMessage =
+          editorNotificationManager.transformMessage(messageStr);
+        return originalToast.loading(transformedMessage, options);
+      } catch (error) {
+        console.warn("خطأ في toast.loading:", error);
+        return originalToast.loading(message, options);
       }
-      const transformedMessage = editorNotificationManager.transformMessage(messageStr);
-      return originalToast.loading(transformedMessage, options);
     };
 
     // استعادة الدوال الأصلية عند إلغاء التحميل
@@ -57,25 +90,25 @@ export default function FilteredToaster() {
   }, []);
 
   return (
-    <Toaster 
+    <Toaster
       position="top-center"
       reverseOrder={false}
       toastOptions={{
         duration: 4000,
         style: {
-          direction: 'rtl',
-          fontFamily: 'var(--font-ibm-plex-arabic), Arial, sans-serif',
+          direction: "rtl",
+          fontFamily: "var(--font-ibm-plex-arabic), Arial, sans-serif",
         },
         success: {
           style: {
-            background: '#10b981',
-            color: 'white',
+            background: "#10b981",
+            color: "white",
           },
         },
         error: {
           style: {
-            background: '#ef4444',
-            color: 'white',
+            background: "#ef4444",
+            color: "white",
           },
         },
       }}

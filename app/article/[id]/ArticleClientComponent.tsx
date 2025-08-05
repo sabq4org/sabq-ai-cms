@@ -1,8 +1,12 @@
 "use client";
 
-import ArticleFeaturedImage from "@/components/article/ArticleFeaturedImage";
 import Footer from "@/components/Footer";
+import ReporterLink from "@/components/ReporterLink";
+import ArticleFeaturedImage from "@/components/article/ArticleFeaturedImage";
+import OpinionArticleLayout from "@/components/article/OpinionArticleLayout";
+import MobileOpinionLayout from "@/components/mobile/MobileOpinionLayout";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { ArticleData } from "@/lib/article-api";
 import { formatFullDate, formatRelativeDate } from "@/lib/date-utils";
 import "@/styles/mobile-article-layout.css";
@@ -18,10 +22,8 @@ import {
   Calendar,
   CheckCircle,
   Clock,
-  Eye,
   Hash,
   Star,
-  User,
 } from "lucide-react";
 // import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
 import ArticleAISummary from "@/components/article/ArticleAISummary";
@@ -35,7 +37,7 @@ import "@/styles/mobile-article.css";
 import "./article-styles.css";
 
 interface ArticleClientComponentProps {
-  initialArticle: ArticleData;
+  initialArticle: ArticleData | null;
   articleId: string;
 }
 
@@ -45,6 +47,7 @@ export default function ArticleClientComponent({
 }: ArticleClientComponentProps) {
   const router = useRouter();
   const { darkMode } = useDarkModeContext();
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   // معالجة metadata إذا كانت string
   const processArticle = (articleData: any) => {
@@ -56,7 +59,8 @@ export default function ArticleClientComponent({
       try {
         articleData.metadata = JSON.parse(articleData.metadata);
       } catch (e) {
-        console.error("خطأ في تحليل metadata:", e);
+        // تجاهل أخطاء تحليل metadata وتعيين قيمة افتراضية
+        console.warn("تحذير: فشل في تحليل metadata، استخدام قيمة افتراضية");
         articleData.metadata = {};
       }
     }
@@ -66,8 +70,26 @@ export default function ArticleClientComponent({
   const [article, setArticle] = useState<ArticleData | null>(
     processArticle(initialArticle) || null
   );
+
+  // تحديد ما إذا كان المقال مقال رأي
+  const isOpinionArticle =
+    article &&
+    (article.article_type === "opinion" ||
+      article.article_type === "analysis" ||
+      article.article_type === "editorial" ||
+      article.article_type === "commentary" ||
+      article.article_type === "column" ||
+      article.category?.slug === "opinion" ||
+      article.category?.name?.includes("رأي") ||
+      article.category?.name?.includes("تحليل"));
   const [loading, setLoading] = useState(!initialArticle);
   const [isReading, setIsReading] = useState(false);
+  const [showAudioPlayer, setShowAudioPlayer] = useState(false);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
+  const [contentHtml, setContentHtml] = useState("");
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   // جلب بروفايل المراسل
   const {
@@ -111,10 +133,16 @@ export default function ArticleClientComponent({
             const data = await response.json();
             setArticle(processArticle(data));
           } else {
-            console.error("Failed to fetch article:", response.status);
+            console.warn(
+              "تحذير: فشل في تحميل المقال، كود الاستجابة:",
+              response.status
+            );
           }
         } catch (error) {
-          console.error("Error fetching article:", error);
+          console.warn(
+            "تحذير: خطأ في شبكة أثناء تحميل المقال:",
+            error?.message || error
+          );
         } finally {
           setLoading(false);
         }
@@ -123,6 +151,24 @@ export default function ArticleClientComponent({
       fetchArticle();
     }
   }, [initialArticle, articleId]);
+
+  // معالجة المحتوى إلى HTML
+  useEffect(() => {
+    if (!article?.content) {
+      setContentHtml("<p>المحتوى غير متوفر حالياً.</p>");
+      return;
+    }
+
+    // استخدام المحتوى كما هو إذا كان HTML
+    if (article.content.includes("<p>") || article.content.includes("<div>")) {
+      setContentHtml(article.content);
+    } else {
+      // تحويل النص العادي إلى HTML بسيط
+      const paragraphs = article.content.split("\n\n");
+      const html = paragraphs.map((p) => `<p>${p}</p>`).join("");
+      setContentHtml(html || "<p>المحتوى غير متوفر بشكل كامل.</p>");
+    }
+  }, [article?.content]);
 
   // إذا لا يوجد مقال وجاري التحميل
   if (loading || !article) {
@@ -154,44 +200,9 @@ export default function ArticleClientComponent({
       </div>
     );
   }
-  const [showAudioPlayer, setShowAudioPlayer] = useState(false);
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
 
   // نظام تتبع التفاعل الذكي - معطل مؤقتاً لتجنب خطأ AuthProvider
   // const interactionTracking = useUserInteractionTracking(articleId);
-
-  // إصلاح مشكلة استخدام marked
-  const [contentHtml, setContentHtml] = useState("");
-
-  useEffect(() => {
-    // تحويل المحتوى إلى HTML مع معالجة أفضل للحالات الخاصة
-    const processContent = async () => {
-      // التعامل مع المحتوى الفارغ
-      if (!article.content) {
-        console.log("⚠️ محتوى المقال فارغ، عرض رسالة افتراضية");
-        setContentHtml("<p>المحتوى غير متوفر حالياً.</p>");
-        return;
-      }
-
-      // استخدام المحتوى كما هو إذا كان HTML
-      if (
-        article.content.includes("<p>") ||
-        article.content.includes("<div>")
-      ) {
-        setContentHtml(article.content);
-      } else {
-        // تحويل النص العادي إلى HTML بسيط
-        const paragraphs = article.content.split("\n\n");
-        const html = paragraphs.map((p) => `<p>${p}</p>`).join("");
-        setContentHtml(html || "<p>المحتوى غير متوفر بشكل كامل.</p>");
-      }
-    };
-
-    processContent();
-  }, [article.content]);
 
   // معالجة الإعجاب
   const handleLike = async () => {
@@ -284,6 +295,15 @@ export default function ArticleClientComponent({
 
   const keywords = getKeywords();
 
+  // إذا كان مقال رأي، استخدم التصميم المخصص
+  if (isOpinionArticle) {
+    if (isMobile) {
+      return <MobileOpinionLayout article={article} />;
+    } else {
+      return <OpinionArticleLayout article={article} />;
+    }
+  }
+
   return (
     <>
       {/* شريط التقدم في القراءة */}
@@ -333,27 +353,13 @@ export default function ArticleClientComponent({
                 <div className="flex flex-wrap items-center justify-start gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 text-right">
                   {article.author && (
                     <div className="flex items-center gap-1.5 sm:gap-2">
-                      <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                      {hasProfile && reporter ? (
-                        <Link
-                          href={reporter.profileUrl}
-                          className="flex items-center gap-1 hover:text-blue-600 dark:hover:text-blue-400 transition-all cursor-pointer group hover:underline decoration-blue-600/30 dark:decoration-blue-400/30 underline-offset-4"
-                          title={`عرض بروفايل ${reporter.full_name}`}
-                        >
-                          <span className="truncate max-w-[120px] sm:max-w-none group-hover:underline">
-                            {article.author.name}
-                          </span>
-                          {reporter.is_verified && (
-                            <span className="ml-1">
-                              {getVerificationIcon(reporter.verification_badge)}
-                            </span>
-                          )}
-                        </Link>
-                      ) : (
-                        <span className="truncate max-w-[120px] sm:max-w-none">
-                          {article.author.name}
-                        </span>
-                      )}
+                      <ReporterLink
+                        author={article.author as any}
+                        size="sm"
+                        showIcon={true}
+                        showVerification={true}
+                        className="truncate max-w-[120px] sm:max-w-none text-xs sm:text-sm"
+                      />
                     </div>
                   )}
                   <div className="flex items-center gap-1.5 sm:gap-2">
@@ -428,10 +434,13 @@ export default function ArticleClientComponent({
                     {/* المراسل في سطر منفصل */}
                     {article.author && (
                       <div className="flex items-center gap-1.5">
-                        <User className="w-3 h-3 flex-shrink-0 mobile-article-icon" />
-                        <span className="truncate max-w-[120px]">
-                          {article.author.name}
-                        </span>
+                        <ReporterLink
+                          author={article.author as any}
+                          size="sm"
+                          showIcon={true}
+                          showVerification={true}
+                          className="truncate max-w-[120px] text-xs"
+                        />
                       </div>
                     )}
 
@@ -461,10 +470,10 @@ export default function ArticleClientComponent({
                           <span className="text-gray-300 dark:text-gray-600">
                             •
                           </span>
-                          <div className="flex items-center gap-1">
-                            <Eye className="w-3 h-3 flex-shrink-0 mobile-article-icon" />
-                            <span>{article.views}</span>
-                          </div>
+                          <ArticleViews
+                            count={article.views}
+                            className="text-xs"
+                          />
                         </>
                       )}
                     </div>
@@ -472,24 +481,22 @@ export default function ArticleClientComponent({
                 </div>
               </div>
             </header>
-
-            {/* صورة المقال */}
-            {article.featured_image && (
-              <div className="mb-8">
-                <div className="-mx-2 sm:mx-0">
-                  <ArticleFeaturedImage
-                    imageUrl={article.featured_image}
-                    title={article.title}
-                    category={article.category}
-                  />
-                </div>
-              </div>
-            )}
           </article>
         </div>
 
         {/* منطقة المحتوى */}
         <article className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+          {/* صورة المقال */}
+          {article.featured_image && (
+            <div className="mb-6 sm:mb-8">
+              <ArticleFeaturedImage
+                imageUrl={article.featured_image}
+                title={article.title}
+                category={article.category}
+              />
+            </div>
+          )}
+
           {/* الملخص الذكي مع التحويل الصوتي */}
           <div className="mb-6 sm:mb-8">
             <ArticleAISummary
@@ -558,7 +565,7 @@ export default function ArticleClientComponent({
           {/* محتوى المقال */}
           <div className="mb-12">
             <div
-              className={`prose max-w-none dark:prose-invert
+              className={`prose max-w-none dark:prose-invert arabic-article-content
                 prose-headings:text-gray-900 dark:prose-headings:text-white
                 prose-p:text-gray-700 dark:prose-p:text-gray-300
                 prose-p:leading-relaxed
@@ -573,6 +580,36 @@ export default function ArticleClientComponent({
               dangerouslySetInnerHTML={{ __html: contentHtml }}
             />
           </div>
+
+          {/* إصلاح التوجه العربي للمحتوى */}
+          <style jsx>{`
+            .arabic-article-content p {
+              text-align: right !important;
+              direction: rtl !important;
+            }
+
+            .arabic-article-content * {
+              text-align: right !important;
+              direction: rtl !important;
+            }
+
+            .arabic-article-content h1,
+            .arabic-article-content h2,
+            .arabic-article-content h3,
+            .arabic-article-content h4,
+            .arabic-article-content h5,
+            .arabic-article-content h6 {
+              text-align: right !important;
+              direction: rtl !important;
+            }
+
+            .arabic-article-content blockquote {
+              text-align: right !important;
+              direction: rtl !important;
+              border-right: 4px solid #3b82f6 !important;
+              border-left: none !important;
+            }
+          `}</style>
 
           {/* إحصائيات المقال */}
           <div className="mt-8 sm:mt-12">

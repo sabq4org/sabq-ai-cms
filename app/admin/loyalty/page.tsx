@@ -2,32 +2,30 @@
  * صفحة برنامج الولاء الرئيسية مع التصميم الحديث RTL
  */
 
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { useEffect, useState } from "react";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Heart,
-  Users,
-  Star,
-  TrendingUp,
-  Gift,
-  Target,
-  Award,
-  Calendar,
-  BarChart3,
-  Plus,
-  Settings,
-  Eye,
-  ArrowUpRight,
   ArrowDownRight,
+  ArrowUpRight,
+  Award,
+  BarChart3,
+  Calendar,
   Crown,
+  Eye,
+  Gift,
+  Heart,
+  Sparkles,
+  Star,
+  Target,
+  TrendingUp,
+  Users,
   Zap,
-  Sparkles
-} from 'lucide-react';
+} from "lucide-react";
 
 interface LoyaltyStats {
   totalMembers: number;
@@ -49,7 +47,7 @@ export default function AdminLoyaltyPage() {
     pointsDistributed: 0,
     redemptions: 0,
     memberGrowth: 0,
-    engagementRate: 0
+    engagementRate: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -64,25 +62,25 @@ export default function AdminLoyaltyPage() {
         pointsDistributed: 2850000,
         redemptions: 1240,
         memberGrowth: 12.5,
-        engagementRate: 78.3
+        engagementRate: 78.3,
       });
       setLoading(false);
     }, 1000);
   }, []);
 
   const formatNumber = (num: number) => {
-    return num.toLocaleString('ar-SA');
+    return num.toLocaleString("ar-SA");
   };
 
-  const StatsCard = ({ 
-    title, 
-    value, 
-    subtitle, 
-    icon: Icon, 
+  const StatsCard = ({
+    title,
+    value,
+    subtitle,
+    icon: Icon,
     bgColor,
     iconColor,
     trend,
-    trendValue
+    trendValue,
   }: {
     title: string;
     value: string | number;
@@ -90,20 +88,24 @@ export default function AdminLoyaltyPage() {
     icon: any;
     bgColor: string;
     iconColor: string;
-    trend?: 'up' | 'down';
+    trend?: "up" | "down";
     trendValue?: number;
   }) => (
     <Card className="relative overflow-hidden">
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-4">
-          <div className={`w-12 h-12 ${bgColor} rounded-xl flex items-center justify-center`}>
+          <div
+            className={`w-12 h-12 ${bgColor} rounded-xl flex items-center justify-center`}
+          >
             <Icon className={`w-6 h-6 ${iconColor}`} />
           </div>
           {trend && trendValue && (
-            <div className={`flex items-center gap-1 text-sm font-medium ${
-              trend === 'up' ? 'text-green-600' : 'text-red-600'
-            }`}>
-              {trend === 'up' ? (
+            <div
+              className={`flex items-center gap-1 text-sm font-medium ${
+                trend === "up" ? "text-green-600" : "text-red-600"
+              }`}
+            >
+              {trend === "up" ? (
                 <ArrowUpRight className="w-4 h-4" />
               ) : (
                 <ArrowDownRight className="w-4 h-4" />
@@ -115,7 +117,7 @@ export default function AdminLoyaltyPage() {
         <div>
           <p className="text-sm text-gray-600 mb-1">{title}</p>
           <p className="text-2xl font-bold text-gray-900 mb-1">
-            {loading ? '...' : value}
+            {loading ? "..." : value}
           </p>
           <p className="text-xs text-gray-500">{subtitle}</p>
         </div>
@@ -124,10 +126,7 @@ export default function AdminLoyaltyPage() {
   );
 
   return (
-    <DashboardLayout
-      pageTitle="برنامج الولاء"
-      pageDescription="نظرة عامة شاملة على برنامج الولاء والمكافآت"
-    >
+    <>
       <div className="space-y-6" dir="rtl">
         {/* ترحيب وإحصائيات سريعة */}
         <div className="bg-gradient-to-br from-purple-500 to-pink-600 text-white p-6 rounded-2xl">
@@ -171,7 +170,7 @@ export default function AdminLoyaltyPage() {
             trend="up"
             trendValue={stats.memberGrowth}
           />
-          
+
           <StatsCard
             title="الأعضاء النشطين"
             value={formatNumber(stats.activeMembers)}
@@ -182,7 +181,7 @@ export default function AdminLoyaltyPage() {
             trend="up"
             trendValue={8.2}
           />
-          
+
           <StatsCard
             title="إجمالي المكافآت"
             value={stats.totalRewards}
@@ -191,7 +190,7 @@ export default function AdminLoyaltyPage() {
             bgColor="bg-purple-100"
             iconColor="text-purple-600"
           />
-          
+
           <StatsCard
             title="النقاط الموزعة"
             value={formatNumber(stats.pointsDistributed)}
@@ -241,7 +240,7 @@ export default function AdminLoyaltyPage() {
                 </p>
                 <p className="text-sm text-gray-600">من الأعضاء النشطين</p>
                 <div className="w-full bg-gray-200 rounded-full h-2 mt-3">
-                  <div 
+                  <div
                     className="bg-blue-600 h-2 rounded-full transition-all duration-1000"
                     style={{ width: `${stats.engagementRate}%` }}
                   />
@@ -263,11 +262,7 @@ export default function AdminLoyaltyPage() {
                   {stats.activeCampaigns}
                 </p>
                 <p className="text-sm text-gray-600">حملة جارية</p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-3 w-full"
-                >
+                <Button variant="outline" size="sm" className="mt-3 w-full">
                   <Eye className="w-4 h-4 ml-2" />
                   عرض الحملات
                 </Button>
@@ -284,21 +279,21 @@ export default function AdminLoyaltyPage() {
               <span className="text-sm">إدارة الأعضاء</span>
             </div>
           </Button>
-          
+
           <Button className="h-16 bg-purple-600 hover:bg-purple-700 text-white">
             <div className="flex flex-col items-center gap-1">
               <Gift className="w-5 h-5" />
               <span className="text-sm">إدارة المكافآت</span>
             </div>
           </Button>
-          
+
           <Button className="h-16 bg-green-600 hover:bg-green-700 text-white">
             <div className="flex flex-col items-center gap-1">
               <TrendingUp className="w-5 h-5" />
               <span className="text-sm">إدارة الحملات</span>
             </div>
           </Button>
-          
+
           <Button className="h-16 bg-orange-600 hover:bg-orange-700 text-white">
             <div className="flex flex-col items-center gap-1">
               <BarChart3 className="w-5 h-5" />
@@ -325,17 +320,37 @@ export default function AdminLoyaltyPage() {
             <CardContent>
               <div className="space-y-3">
                 {[
-                  { name: 'أحمد محمد', reward: 'قسيمة خصم 50 ريال', points: 500, time: '5 دقائق' },
-                  { name: 'فاطمة علي', reward: 'اشتراك شهري مجاني', points: 1000, time: '15 دقيقة' },
-                  { name: 'محمد أحمد', reward: 'كتاب إلكتروني', points: 200, time: '30 دقيقة' }
+                  {
+                    name: "أحمد محمد",
+                    reward: "قسيمة خصم 50 ريال",
+                    points: 500,
+                    time: "5 دقائق",
+                  },
+                  {
+                    name: "فاطمة علي",
+                    reward: "اشتراك شهري مجاني",
+                    points: 1000,
+                    time: "15 دقيقة",
+                  },
+                  {
+                    name: "محمد أحمد",
+                    reward: "كتاب إلكتروني",
+                    points: 200,
+                    time: "30 دقيقة",
+                  },
                 ].map((item, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  >
                     <div>
                       <p className="font-medium text-gray-900">{item.name}</p>
                       <p className="text-sm text-gray-600">{item.reward}</p>
                     </div>
                     <div className="text-left">
-                      <p className="text-sm font-medium text-blue-600">{item.points} نقطة</p>
+                      <p className="text-sm font-medium text-blue-600">
+                        {item.points} نقطة
+                      </p>
                       <p className="text-xs text-gray-500">منذ {item.time}</p>
                     </div>
                   </div>
@@ -360,16 +375,38 @@ export default function AdminLoyaltyPage() {
             <CardContent>
               <div className="space-y-3">
                 {[
-                  { name: 'سارة أحمد', points: 15420, level: 'ذهبي', badge: '👑' },
-                  { name: 'عبدالله محمد', points: 12350, level: 'فضي', badge: '🥈' },
-                  { name: 'نور فاطمة', points: 9870, level: 'برونزي', badge: '🥉' }
+                  {
+                    name: "سارة أحمد",
+                    points: 15420,
+                    level: "ذهبي",
+                    badge: "👑",
+                  },
+                  {
+                    name: "عبدالله محمد",
+                    points: 12350,
+                    level: "فضي",
+                    badge: "🥈",
+                  },
+                  {
+                    name: "نور فاطمة",
+                    points: 9870,
+                    level: "برونزي",
+                    badge: "🥉",
+                  },
                 ].map((member, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  >
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">{member.badge}</span>
                       <div>
-                        <p className="font-medium text-gray-900">{member.name}</p>
-                        <p className="text-sm text-gray-600">مستوى {member.level}</p>
+                        <p className="font-medium text-gray-900">
+                          {member.name}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          مستوى {member.level}
+                        </p>
                       </div>
                     </div>
                     <div className="text-left">
@@ -384,6 +421,6 @@ export default function AdminLoyaltyPage() {
           </Card>
         </div>
       </div>
-    </DashboardLayout>
+    </>
   );
 }

@@ -2,43 +2,12 @@
  * صفحة إدارة القراء والمستخدمين المسجلين
  */
 
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import {
-  Users,
-  Search,
-  Filter,
-  MoreHorizontal,
-  Edit,
-  Trash2,
-  Mail,
-  Calendar,
-  Shield,
-  Eye,
-  Ban,
-  CheckCircle,
-  Activity,
-  Download,
-  ChevronLeft,
-  ChevronRight,
-  MessageSquare,
-  Heart,
-  BookOpen,
-  TrendingUp,
-  Clock,
-  UserCheck,
-  UserX,
-  AlertCircle,
-  RefreshCw
-} from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -46,24 +15,50 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { toast } from 'react-hot-toast';
-import { format } from 'date-fns';
-import { ar } from 'date-fns/locale';
+} from "@/components/ui/select";
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
+import { format } from "date-fns";
+import { ar } from "date-fns/locale";
+import {
+  Activity,
+  Ban,
+  BookOpen,
+  Calendar,
+  CheckCircle,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Download,
+  Edit,
+  Eye,
+  Heart,
+  Mail,
+  MessageSquare,
+  MoreHorizontal,
+  RefreshCw,
+  Search,
+  Trash2,
+  TrendingUp,
+  UserCheck,
+  Users,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
 
 interface Reader {
   id: string;
   name: string;
   email: string;
   avatar?: string;
-  status: 'active' | 'inactive' | 'banned';
+  status: "active" | "inactive" | "banned";
   email_verified: boolean;
   created_at: string;
   last_login?: string;
@@ -74,7 +69,7 @@ interface Reader {
     bookmarks: number;
   };
   subscription?: {
-    type: 'free' | 'premium' | 'vip';
+    type: "free" | "premium" | "vip";
     expires_at?: string;
   };
 }
@@ -83,10 +78,10 @@ export default function ReadersManagementPage() {
   const { darkMode } = useDarkModeContext();
   const [readers, setReaders] = useState<Reader[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [verifiedFilter, setVerifiedFilter] = useState<string>('all');
-  const [subscriptionFilter, setSubscriptionFilter] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [verifiedFilter, setVerifiedFilter] = useState<string>("all");
+  const [subscriptionFilter, setSubscriptionFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalReaders, setTotalReaders] = useState(0);
@@ -97,17 +92,19 @@ export default function ReadersManagementPage() {
   // جلب بيانات القراء
   const fetchReaders = async () => {
     try {
-      const response = await fetch(`/api/users/readers?page=${currentPage}&limit=${ITEMS_PER_PAGE}&search=${searchTerm}&status=${statusFilter}&verified=${verifiedFilter}&subscription=${subscriptionFilter}`);
-      
-      if (!response.ok) throw new Error('فشل في جلب البيانات');
-      
+      const response = await fetch(
+        `/api/users/readers?page=${currentPage}&limit=${ITEMS_PER_PAGE}&search=${searchTerm}&status=${statusFilter}&verified=${verifiedFilter}&subscription=${subscriptionFilter}`
+      );
+
+      if (!response.ok) throw new Error("فشل في جلب البيانات");
+
       const data = await response.json();
       setReaders(data.readers || []);
       setTotalPages(data.totalPages || 1);
       setTotalReaders(data.total || 0);
     } catch (error) {
-      console.error('خطأ في جلب القراء:', error);
-      toast.error('فشل في جلب بيانات القراء');
+      console.error("خطأ في جلب القراء:", error);
+      toast.error("فشل في جلب بيانات القراء");
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -134,55 +131,62 @@ export default function ReadersManagementPage() {
   // حساب الإحصائيات
   const stats = {
     total: totalReaders,
-    active: readers.filter(r => r.status === 'active').length,
-    verified: readers.filter(r => r.email_verified).length,
-    premium: readers.filter(r => r.subscription?.type === 'premium').length,
-    recentlyActive: readers.filter(r => {
+    active: readers.filter((r) => r.status === "active").length,
+    verified: readers.filter((r) => r.email_verified).length,
+    premium: readers.filter((r) => r.subscription?.type === "premium").length,
+    recentlyActive: readers.filter((r) => {
       if (!r.last_login) return false;
       const threeDaysAgo = new Date();
       threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
       return new Date(r.last_login) > threeDaysAgo;
-    }).length
+    }).length,
   };
 
   // معالجات الإجراءات
   const handleBanReader = async (id: string) => {
-    if (!confirm('هل أنت متأكد من حظر هذا القارئ؟')) return;
-    
+    if (!confirm("هل أنت متأكد من حظر هذا القارئ؟")) return;
+
     try {
-      const response = await fetch(`/api/users/${id}/ban`, { method: 'POST' });
-      if (!response.ok) throw new Error('فشل في حظر القارئ');
-      
-      toast.success('تم حظر القارئ بنجاح');
+      const response = await fetch(`/api/users/${id}/ban`, { method: "POST" });
+      if (!response.ok) throw new Error("فشل في حظر القارئ");
+
+      toast.success("تم حظر القارئ بنجاح");
       fetchReaders();
     } catch (error) {
-      toast.error('فشل في حظر القارئ');
+      toast.error("فشل في حظر القارئ");
     }
   };
 
   const handleActivateReader = async (id: string) => {
     try {
-      const response = await fetch(`/api/users/${id}/activate`, { method: 'POST' });
-      if (!response.ok) throw new Error('فشل في تفعيل القارئ');
-      
-      toast.success('تم تفعيل القارئ بنجاح');
+      const response = await fetch(`/api/users/${id}/activate`, {
+        method: "POST",
+      });
+      if (!response.ok) throw new Error("فشل في تفعيل القارئ");
+
+      toast.success("تم تفعيل القارئ بنجاح");
       fetchReaders();
     } catch (error) {
-      toast.error('فشل في تفعيل القارئ');
+      toast.error("فشل في تفعيل القارئ");
     }
   };
 
   const handleDeleteReader = async (id: string) => {
-    if (!confirm('هل أنت متأكد من حذف هذا القارئ؟ هذا الإجراء لا يمكن التراجع عنه.')) return;
-    
+    if (
+      !confirm(
+        "هل أنت متأكد من حذف هذا القارئ؟ هذا الإجراء لا يمكن التراجع عنه."
+      )
+    )
+      return;
+
     try {
-      const response = await fetch(`/api/users/${id}`, { method: 'DELETE' });
-      if (!response.ok) throw new Error('فشل في حذف القارئ');
-      
-      toast.success('تم حذف القارئ بنجاح');
+      const response = await fetch(`/api/users/${id}`, { method: "DELETE" });
+      if (!response.ok) throw new Error("فشل في حذف القارئ");
+
+      toast.success("تم حذف القارئ بنجاح");
       fetchReaders();
     } catch (error) {
-      toast.error('فشل في حذف القارئ');
+      toast.error("فشل في حذف القارئ");
     }
   };
 
@@ -194,68 +198,66 @@ export default function ReadersManagementPage() {
   const exportReaders = () => {
     // تصدير البيانات كـ CSV
     const csvContent = [
-      ['الاسم', 'البريد الإلكتروني', 'الحالة', 'تاريخ التسجيل', 'آخر دخول'],
-      ...readers.map(r => [
+      ["الاسم", "البريد الإلكتروني", "الحالة", "تاريخ التسجيل", "آخر دخول"],
+      ...readers.map((r) => [
         r.name,
         r.email,
         r.status,
-        format(new Date(r.created_at), 'yyyy-MM-dd'),
-        r.last_login ? format(new Date(r.last_login), 'yyyy-MM-dd') : 'لم يسجل دخول'
-      ])
-    ].map(row => row.join(',')).join('\n');
+        format(new Date(r.created_at), "yyyy-MM-dd"),
+        r.last_login
+          ? format(new Date(r.last_login), "yyyy-MM-dd")
+          : "لم يسجل دخول",
+      ]),
+    ]
+      .map((row) => row.join(","))
+      .join("\n");
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `readers_${format(new Date(), 'yyyy-MM-dd')}.csv`;
+    link.download = `readers_${format(new Date(), "yyyy-MM-dd")}.csv`;
     link.click();
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active':
-        return 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300';
-      case 'inactive':
-        return 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300';
-      case 'banned':
-        return 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300';
+      case "active":
+        return "bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300";
+      case "inactive":
+        return "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300";
+      case "banned":
+        return "bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300";
       default:
-        return 'bg-gray-100 dark:bg-gray-900/20 text-gray-700 dark:text-gray-300';
+        return "bg-gray-100 dark:bg-gray-900/20 text-gray-700 dark:text-gray-300";
     }
   };
 
   const getSubscriptionColor = (type: string) => {
     switch (type) {
-      case 'premium':
-        return 'bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300';
-      case 'vip':
-        return 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300';
+      case "premium":
+        return "bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300";
+      case "vip":
+        return "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300";
       default:
-        return 'bg-gray-100 dark:bg-gray-900/20 text-gray-700 dark:text-gray-300';
+        return "bg-gray-100 dark:bg-gray-900/20 text-gray-700 dark:text-gray-300";
     }
   };
 
   if (loading) {
     return (
-      <DashboardLayout
-        pageTitle="إدارة القراء"
-        pageDescription="إدارة المستخدمين المسجلين في الموقع"
-      >
+      <>
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
             <p className="text-gray-500">جاري تحميل البيانات...</p>
           </div>
         </div>
-      </DashboardLayout>
+      </>
     );
   }
 
   return (
-    <DashboardLayout
-      pageTitle="إدارة القراء"
-      pageDescription="إدارة المستخدمين المسجلين في الموقع"
-    >
+    <>
       <div className="space-y-6">
         {/* بطاقات الإحصائيات */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -263,8 +265,12 @@ export default function ReadersManagementPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-blue-600 dark:text-blue-400">إجمالي القراء</p>
-                  <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{stats.total.toLocaleString()}</p>
+                  <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                    إجمالي القراء
+                  </p>
+                  <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                    {stats.total.toLocaleString()}
+                  </p>
                 </div>
                 <Users className="h-8 w-8 text-blue-500 opacity-50" />
               </div>
@@ -275,8 +281,12 @@ export default function ReadersManagementPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-green-600 dark:text-green-400">نشطون</p>
-                  <p className="text-2xl font-bold text-green-900 dark:text-green-100">{stats.active.toLocaleString()}</p>
+                  <p className="text-sm font-medium text-green-600 dark:text-green-400">
+                    نشطون
+                  </p>
+                  <p className="text-2xl font-bold text-green-900 dark:text-green-100">
+                    {stats.active.toLocaleString()}
+                  </p>
                 </div>
                 <UserCheck className="h-8 w-8 text-green-500 opacity-50" />
               </div>
@@ -287,8 +297,12 @@ export default function ReadersManagementPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-purple-600 dark:text-purple-400">موثقون</p>
-                  <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">{stats.verified.toLocaleString()}</p>
+                  <p className="text-sm font-medium text-purple-600 dark:text-purple-400">
+                    موثقون
+                  </p>
+                  <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">
+                    {stats.verified.toLocaleString()}
+                  </p>
                 </div>
                 <CheckCircle className="h-8 w-8 text-purple-500 opacity-50" />
               </div>
@@ -299,8 +313,12 @@ export default function ReadersManagementPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400">مشتركون</p>
-                  <p className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">{stats.premium.toLocaleString()}</p>
+                  <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400">
+                    مشتركون
+                  </p>
+                  <p className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">
+                    {stats.premium.toLocaleString()}
+                  </p>
                 </div>
                 <TrendingUp className="h-8 w-8 text-yellow-500 opacity-50" />
               </div>
@@ -311,8 +329,12 @@ export default function ReadersManagementPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-cyan-600 dark:text-cyan-400">نشطون مؤخراً</p>
-                  <p className="text-2xl font-bold text-cyan-900 dark:text-cyan-100">{stats.recentlyActive.toLocaleString()}</p>
+                  <p className="text-sm font-medium text-cyan-600 dark:text-cyan-400">
+                    نشطون مؤخراً
+                  </p>
+                  <p className="text-2xl font-bold text-cyan-900 dark:text-cyan-100">
+                    {stats.recentlyActive.toLocaleString()}
+                  </p>
                 </div>
                 <Activity className="h-8 w-8 text-cyan-500 opacity-50" />
               </div>
@@ -352,7 +374,10 @@ export default function ReadersManagementPage() {
                   </SelectContent>
                 </Select>
 
-                <Select value={verifiedFilter} onValueChange={setVerifiedFilter}>
+                <Select
+                  value={verifiedFilter}
+                  onValueChange={setVerifiedFilter}
+                >
                   <SelectTrigger className="w-[140px]">
                     <SelectValue placeholder="التوثيق" />
                   </SelectTrigger>
@@ -363,7 +388,10 @@ export default function ReadersManagementPage() {
                   </SelectContent>
                 </Select>
 
-                <Select value={subscriptionFilter} onValueChange={setSubscriptionFilter}>
+                <Select
+                  value={subscriptionFilter}
+                  onValueChange={setSubscriptionFilter}
+                >
                   <SelectTrigger className="w-[140px]">
                     <SelectValue placeholder="الاشتراك" />
                   </SelectTrigger>
@@ -384,12 +412,11 @@ export default function ReadersManagementPage() {
                   onClick={handleRefresh}
                   disabled={refreshing}
                 >
-                  <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                  <RefreshCw
+                    className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
+                  />
                 </Button>
-                <Button
-                  variant="outline"
-                  onClick={exportReaders}
-                >
+                <Button variant="outline" onClick={exportReaders}>
                   <Download className="h-4 w-4 ml-2" />
                   تصدير
                 </Button>
@@ -427,13 +454,20 @@ export default function ReadersManagementPage() {
                 </thead>
                 <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
                   {readers.map((reader) => (
-                    <tr key={reader.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                    <tr
+                      key={reader.id}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    >
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <Avatar className="h-10 w-10">
                             <AvatarImage src={reader.avatar} />
                             <AvatarFallback>
-                              {reader.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                              {reader.name
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")
+                                .toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
                           <div className="mr-4">
@@ -452,7 +486,11 @@ export default function ReadersManagementPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <Badge className={getStatusColor(reader.status)}>
-                          {reader.status === 'active' ? 'نشط' : reader.status === 'inactive' ? 'غير نشط' : 'محظور'}
+                          {reader.status === "active"
+                            ? "نشط"
+                            : reader.status === "inactive"
+                            ? "غير نشط"
+                            : "محظور"}
                         </Badge>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -473,8 +511,16 @@ export default function ReadersManagementPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {reader.subscription ? (
-                          <Badge className={getSubscriptionColor(reader.subscription.type)}>
-                            {reader.subscription.type === 'premium' ? 'مميز' : reader.subscription.type === 'vip' ? 'VIP' : 'مجاني'}
+                          <Badge
+                            className={getSubscriptionColor(
+                              reader.subscription.type
+                            )}
+                          >
+                            {reader.subscription.type === "premium"
+                              ? "مميز"
+                              : reader.subscription.type === "vip"
+                              ? "VIP"
+                              : "مجاني"}
                           </Badge>
                         ) : (
                           <Badge className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
@@ -486,12 +532,26 @@ export default function ReadersManagementPage() {
                         <div className="space-y-1">
                           <div className="flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
-                            <span>انضم: {format(new Date(reader.created_at), 'dd MMM yyyy', { locale: ar })}</span>
+                            <span>
+                              انضم:{" "}
+                              {format(
+                                new Date(reader.created_at),
+                                "dd MMM yyyy",
+                                { locale: ar }
+                              )}
+                            </span>
                           </div>
                           {reader.last_login && (
                             <div className="flex items-center gap-1">
                               <Clock className="h-3 w-3" />
-                              <span>آخر دخول: {format(new Date(reader.last_login), 'dd MMM yyyy', { locale: ar })}</span>
+                              <span>
+                                آخر دخول:{" "}
+                                {format(
+                                  new Date(reader.last_login),
+                                  "dd MMM yyyy",
+                                  { locale: ar }
+                                )}
+                              </span>
                             </div>
                           )}
                         </div>
@@ -515,7 +575,7 @@ export default function ReadersManagementPage() {
                               تعديل
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            {reader.status === 'active' ? (
+                            {reader.status === "active" ? (
                               <DropdownMenuItem
                                 onClick={() => handleBanReader(reader.id)}
                                 className="text-red-600 dark:text-red-400"
@@ -553,36 +613,47 @@ export default function ReadersManagementPage() {
               <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between">
                   <div className="text-sm text-gray-700 dark:text-gray-300">
-                    عرض {((currentPage - 1) * ITEMS_PER_PAGE) + 1} إلى {Math.min(currentPage * ITEMS_PER_PAGE, totalReaders)} من {totalReaders} قارئ
+                    عرض {(currentPage - 1) * ITEMS_PER_PAGE + 1} إلى{" "}
+                    {Math.min(currentPage * ITEMS_PER_PAGE, totalReaders)} من{" "}
+                    {totalReaders} قارئ
                   </div>
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.max(1, prev - 1))
+                      }
                       disabled={currentPage === 1}
                     >
                       <ChevronRight className="h-4 w-4" />
                     </Button>
                     <div className="flex items-center gap-1">
-                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                        const page = i + 1;
-                        return (
-                          <Button
-                            key={page}
-                            variant={currentPage === page ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setCurrentPage(page)}
-                          >
-                            {page}
-                          </Button>
-                        );
-                      })}
+                      {Array.from(
+                        { length: Math.min(5, totalPages) },
+                        (_, i) => {
+                          const page = i + 1;
+                          return (
+                            <Button
+                              key={page}
+                              variant={
+                                currentPage === page ? "default" : "outline"
+                              }
+                              size="sm"
+                              onClick={() => setCurrentPage(page)}
+                            >
+                              {page}
+                            </Button>
+                          );
+                        }
+                      )}
                     </div>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                      }
                       disabled={currentPage === totalPages}
                     >
                       <ChevronLeft className="h-4 w-4" />
@@ -594,6 +665,6 @@ export default function ReadersManagementPage() {
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
+    </>
   );
 }

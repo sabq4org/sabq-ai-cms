@@ -1,356 +1,791 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { 
-  Lightbulb, 
-  Brain, 
-  Search, 
-  Filter, 
-  Eye, 
-  Clock, 
+import { HeroCard } from "@/components/muqtarab/HeroCard";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Angle } from "@/types/muqtarab";
+import {
+  BookOpen,
+  Calendar,
+  Eye,
+  Lightbulb,
+  Plus,
+  Search,
+  Sparkles,
   TrendingUp,
   Users,
-  ArrowLeft,
-  Star
-} from 'lucide-react';
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
-interface Corner {
-  id: string;
-  name: string;
-  slug: string;
-  author_name: string;
-  description: string;
-  cover_image: string;
-  category_name: string;
-  articles_count: number;
-  followers_count: number;
-  is_featured: boolean;
-  created_at: string;
-}
-
-interface Article {
+interface HeroArticle {
   id: string;
   title: string;
-  slug: string;
   excerpt: string;
-  cover_image: string;
-  author_name: string;
-  corner_name: string;
-  corner_slug: string;
-  read_time: number;
-  ai_sentiment: string;
-  ai_compatibility_score: number;
-  view_count: number;
-  created_at: string;
+  slug: string;
+  coverImage?: string;
+  readingTime: number;
+  publishDate: string;
+  views: number;
+  tags: string[];
+  aiScore: number;
+  angle: {
+    title: string;
+    slug: string;
+    icon?: string;
+    themeColor?: string;
+  };
+  author: {
+    name: string;
+    avatar?: string;
+  };
 }
 
-export default function MuqtarabHomePage() {
-  const router = useRouter();
-  const [featuredCorners, setFeaturedCorners] = useState<Corner[]>([]);
-  const [recentArticles, setRecentArticles] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+interface FeaturedArticle {
+  id: string;
+  title: string;
+  excerpt: string;
+  slug: string;
+  coverImage?: string;
+  readingTime: number;
+  publishDate: string;
+  views: number;
+  tags: string[];
+  angle: {
+    id: string;
+    title: string;
+    slug: string;
+    icon?: string;
+    themeColor?: string;
+  };
+  author: {
+    name: string;
+    avatar?: string;
+  };
+  createdAt: string;
+}
 
+export default function MuqtaribPage() {
+  const [angles, setAngles] = useState<Angle[]>([]);
+  const [filteredAngles, setFilteredAngles] = useState<Angle[]>([]);
+  const [heroArticle, setHeroArticle] = useState<HeroArticle | null>(null);
+  const [featuredArticles, setFeaturedArticles] = useState<FeaturedArticle[]>(
+    []
+  );
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedFilter, setSelectedFilter] = useState("all");
+
+  // فلاتر التصنيف
+  const filters = [
+    { id: "all", label: "جميع الزوايا", icon: BookOpen },
+    { id: "featured", label: "مميزة", icon: Sparkles },
+    { id: "trending", label: "الأكثر تفاعلاً", icon: TrendingUp },
+    { id: "recent", label: "الأحدث", icon: Calendar },
+    { id: "tech", label: "تقنية", icon: Lightbulb },
+  ];
+
+  // جلب الزوايا والمقال المميز
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        console.log("🔍 جاري جلب بيانات مُقترب...");
+
+        // جلب الزوايا
+        const anglesResponse = await fetch("/api/muqtarab/angles", {
+          cache: "no-store",
+          headers: {
+            "Cache-Control": "no-cache",
+          },
+        });
+
+        if (anglesResponse.ok) {
+          const anglesData = await anglesResponse.json();
+          console.log("✅ تم جلب الزوايا:", anglesData.angles?.length || 0);
+          setAngles(anglesData.angles || []);
+          setFilteredAngles(anglesData.angles || []);
+        } else {
+          console.error("❌ فشل في جلب الزوايا:", anglesResponse.status);
+          toast.error("فشل في تحميل الزوايا");
+        }
+
+        // جلب المقال المميز
+        try {
+          const heroResponse = await fetch("/api/muqtarab/hero-article", {
+            cache: "no-store",
+            headers: {
+              "Cache-Control": "no-cache",
+            },
+          });
+
+          if (heroResponse.ok) {
+            const heroData = await heroResponse.json();
+            if (heroData.success && heroData.heroArticle) {
+              console.log(
+                "✅ تم جلب المقال المميز:",
+                heroData.heroArticle.title
+              );
+              setHeroArticle(heroData.heroArticle);
+            } else {
+              console.log("📝 لا يوجد مقال مميز متاح");
+            }
+          }
+        } catch (heroError) {
+          console.warn("تحذير: فشل في جلب المقال المميز:", heroError);
+          // لا نظهر خطأ للمستخدم هنا لأن المقال المميز اختياري
+        }
+
+        // جلب المقالات المختارة
+        try {
+          const featuredResponse = await fetch(
+            "/api/muqtarab/featured-articles",
+            {
+              cache: "no-store",
+              headers: {
+                "Cache-Control": "no-cache",
+              },
+            }
+          );
+
+          if (featuredResponse.ok) {
+            const featuredData = await featuredResponse.json();
+            if (featuredData.success && featuredData.articles) {
+              console.log(
+                "✅ تم جلب المقالات المختارة:",
+                featuredData.articles.length
+              );
+              setFeaturedArticles(featuredData.articles);
+            } else {
+              console.log("📝 لا توجد مقالات مختارة متاحة");
+            }
+          }
+        } catch (featuredError) {
+          console.warn("تحذير: فشل في جلب المقالات المختارة:", featuredError);
+          // لا نظهر خطأ للمستخدم هنا لأن المقالات المختارة اختيارية
+        }
+      } catch (error) {
+        console.error("خطأ في جلب البيانات:", error);
+        toast.error("حدث خطأ في التحميل");
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchData();
   }, []);
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      // محاكاة جلب البيانات (سيتم استبدالها بـ APIs حقيقية)
-      const mockCorners: Corner[] = [
-        {
-          id: '1',
-          name: 'زاوية أحمد الرحالة',
-          slug: 'ahmed-rahala',
-          author_name: 'أحمد الرحالة',
-          description: 'زاوية تحليلية مختصة في الشؤون الاقتصادية والاجتماعية',
-          cover_image: '/images/placeholder.jpg',
-          category_name: 'تحليل',
-          articles_count: 15,
-          followers_count: 1240,
-          is_featured: true,
-          created_at: '2024-01-15'
-        },
-        {
-          id: '2',
-          name: 'كتابات سارة',
-          slug: 'sara-writings',
-          author_name: 'سارة أحمد',
-          description: 'مقالات متنوعة في الثقافة والمجتمع',
-          cover_image: '/images/placeholder.jpg',
-          category_name: 'ثقافة',
-          articles_count: 22,
-          followers_count: 890,
-          is_featured: true,
-          created_at: '2024-01-10'
-        }
-      ];
+  // فلترة الزوايا
+  useEffect(() => {
+    let filtered = angles;
 
-      const mockArticles: Article[] = [
-        {
-          id: '1',
-          title: 'مستقبل الذكاء الاصطناعي في الصحافة العربية',
-          slug: 'ai-future-arabic-journalism',
-          excerpt: 'نظرة على كيفية تأثير الذكاء الاصطناعي على مستقبل الصحافة والإعلام في العالم العربي...',
-          cover_image: '/images/ai-future.jpg',
-          author_name: 'أحمد الرحالة',
-          corner_name: 'زاوية أحمد الرحالة',
-          corner_slug: 'ahmed-rahala',
-          read_time: 8,
-          ai_sentiment: 'تحليلي',
-          ai_compatibility_score: 87,
-          view_count: 1520,
-          created_at: '2024-01-20'
-        },
-        {
-          id: '2',
-          title: 'رحلة في عالم الكتابة الإبداعية',
-          slug: 'creative-writing-journey',
-          excerpt: 'تجربة شخصية في عالم الكتابة الإبداعية ونصائح للكتّاب الناشئين...',
-          cover_image: '/images/placeholder.jpg',
-          author_name: 'سارة أحمد',
-          corner_name: 'كتابات سارة',
-          corner_slug: 'sara-writings',
-          read_time: 6,
-          ai_sentiment: 'إلهامي',
-          ai_compatibility_score: 92,
-          view_count: 980,
-          created_at: '2024-01-18'
-        }
-      ];
-
-      setFeaturedCorners(mockCorners);
-      setRecentArticles(mockArticles);
-    } catch (error) {
-      console.error('خطأ في جلب البيانات:', error);
-    } finally {
-      setLoading(false);
+    // فلترة بالبحث
+    if (searchQuery) {
+      filtered = filtered.filter(
+        (angle) =>
+          angle.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          angle.description?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
     }
-  };
 
-  const getSentimentIcon = (sentiment: string) => {
-    const icons = {
-      'ساخر': '😏',
-      'تأملي': '🤔',
-      'عاطفي': '❤️',
-      'تحليلي': '🔍',
-      'إلهامي': '✨'
-    };
-    return icons[sentiment as keyof typeof icons] || '📝';
-  };
+    // فلترة بالتصنيف
+    switch (selectedFilter) {
+      case "featured":
+        filtered = filtered.filter((angle) => angle.isFeatured);
+        break;
+      case "recent":
+        filtered = filtered.sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        break;
+      case "trending":
+        // يمكن إضافة منطق ترتيب حسب التفاعل
+        filtered = filtered.sort(
+          (a, b) => (b.articlesCount || 0) - (a.articlesCount || 0)
+        );
+        break;
+    }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-SA', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
+    setFilteredAngles(filtered);
+  }, [angles, searchQuery, selectedFilter]);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-50 dark:from-gray-900 dark:via-gray-800/30 dark:to-gray-900">
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <Lightbulb className="w-12 h-12 animate-pulse mx-auto mb-4 text-blue-600" />
-            <p className="text-gray-600">جاري تحميل منصة مُقترَب...</p>
-          </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">جاري تحميل مُقترب...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-50 dark:from-gray-900 dark:via-gray-800/30 dark:to-gray-900" dir="rtl">
-      {/* الهيدر */}
-      <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl">
-                <Lightbulb className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">مُقترَب</h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400">حيث يلتقي الفكر بالتقنية بالأسلوب</p>
-              </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Hero Section - محسن للموبايل */}
+      <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
+        <div className="absolute inset-0 bg-black/20"></div>
+        <div className="relative max-w-7xl mx-auto px-4 py-8 md:py-20">
+          <div className="text-center">
+            {/* شارة سبق - أصغر للموبايل */}
+            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 mb-4 md:mb-6">
+              <Sparkles className="w-4 h-4 md:w-5 md:h-5" />
+              <span className="text-xs md:text-sm font-medium">
+                منصة سبق الذكية
+              </span>
             </div>
-            <Button 
-              variant="outline" 
-              onClick={() => router.push('/')}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              العودة للرئيسية
-            </Button>
+
+            {/* العنوان - متجاوب */}
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-3 md:mb-6">
+              مُقتَرب
+            </h1>
+
+            {/* الوصف - مختصر للموبايل */}
+            <p className="text-sm md:text-xl lg:text-2xl mb-6 md:mb-8 max-w-3xl mx-auto leading-relaxed px-2">
+              <span className="md:hidden">
+                زوايا فكرية متخصصة في مختلف المجالات والثقافة والتقنية
+              </span>
+              <span className="hidden md:block">
+                زوايا فكرية متخصصة تقدم محتوى عميق ومتميز في مختلف المجالات،
+                <br />
+                من التقنية إلى الثقافة والفكر المعاصر
+              </span>
+            </p>
+
+            {/* الأزرار - محسنة للموبايل */}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link href="/admin/muqtarab/angles/new">
+                <Button
+                  size="sm"
+                  className="bg-white text-blue-600 hover:bg-gray-100 w-full sm:w-auto"
+                >
+                  <Plus className="w-4 h-4 ml-2" />
+                  <span className="md:hidden">زاوية جديدة</span>
+                  <span className="hidden md:inline">اقتراح زاوية جديدة</span>
+                </Button>
+              </Link>
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-white text-white hover:bg-white/10 w-full sm:w-auto"
+              >
+                <BookOpen className="w-4 h-4 ml-2" />
+                <span className="md:hidden">استكشاف</span>
+                <span className="hidden md:inline">استكشف الزوايا</span>
+              </Button>
+            </div>
           </div>
         </div>
-      </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* البحث */}
-        <Card className="mb-8">
-          <CardContent className="p-6">
+        {/* موجات زخرفية - أصغر للموبايل */}
+        <div className="absolute bottom-0 left-0 right-0">
+          <svg
+            viewBox="0 0 1200 120"
+            preserveAspectRatio="none"
+            className="relative block w-full h-6 md:h-12"
+          >
+            <path
+              d="M0,0V60c0,0,200,50,600,0s600,50,600,0V0"
+              className="fill-current text-gray-50"
+            ></path>
+          </svg>
+        </div>
+      </div>
+
+      {/* المقال المميز (Hero Article) - محسن للموبايل */}
+      {heroArticle && (
+        <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
+          {/* عنوان مختصر للموبايل */}
+          <div className="text-center mb-4 md:mb-6">
+            <h2 className="text-xl md:text-3xl font-bold text-gray-900 mb-1 md:mb-2">
+              <span className="md:hidden">المقال المميز</span>
+              <span className="hidden md:inline">المقال المميز</span>
+            </h2>
+            <p className="text-sm md:text-base text-gray-600 hidden md:block">
+              اكتشف أحدث المقالات المميزة في زوايا مُقترب
+            </p>
+          </div>
+
+          {/* بطاقة مميزة محسنة للموبايل */}
+          <div className="md:hidden">
+            <MobileHeroCard heroArticle={heroArticle} />
+          </div>
+          <div className="hidden md:block">
+            <HeroCard heroArticle={heroArticle} className="mb-8" />
+          </div>
+        </div>
+      )}
+
+      {/* المقالات المختارة من الزوايا - محسن للموبايل */}
+      {featuredArticles.length > 0 && (
+        <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
+          <div className="text-center mb-4 md:mb-6">
+            <h2 className="text-xl md:text-3xl font-bold text-gray-900 mb-1 md:mb-2 flex items-center justify-center gap-2 md:gap-3">
+              <BookOpen className="w-5 h-5 md:w-8 md:h-8 text-blue-600" />
+              مقالات مختارة من الزوايا
+            </h2>
+            <p className="text-sm md:text-base text-gray-600 hidden md:block">
+              اكتشف أحدث المقالات من مختلف الزوايا الفكرية
+            </p>
+          </div>
+
+          {/* شبكة المقالات المختارة */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            {featuredArticles.slice(0, 6).map((article) => (
+              <FeaturedArticleCard key={article.id} article={article} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* البحث والفلاتر - محسن للموبايل */}
+      <div className="max-w-7xl mx-auto px-4 py-4 md:py-8">
+        <div className="bg-white rounded-xl md:rounded-2xl shadow-md md:shadow-lg p-4 md:p-6 mb-6 md:mb-8">
+          <div className="flex flex-col gap-3 md:gap-4">
+            {/* شريط البحث - محسن للموبايل */}
             <div className="relative">
-              <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400" />
               <Input
-                placeholder="البحث في الزوايا والمقالات الإبداعية..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pr-12 text-lg py-3"
+                placeholder="ابحث في الزوايا..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pr-10 h-10 md:h-12 text-sm md:text-lg rounded-lg md:rounded-xl border-gray-200 focus:ring-2 focus:ring-blue-500"
               />
             </div>
-          </CardContent>
-        </Card>
 
-        {/* الزوايا المميزة */}
-        <section className="mb-12">
-          <div className="flex items-center gap-3 mb-6">
-            <Star className="w-6 h-6 text-yellow-500" />
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">الزوايا المميزة</h2>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {featuredCorners.map((corner) => (
-              <Card 
-                key={corner.id}
-                className="hover:shadow-xl transition-shadow duration-300 cursor-pointer"
-                onClick={() => router.push(`/muqtarab/${corner.slug}`)}
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white text-2xl">
-                      {corner.name.charAt(0)}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white">{corner.name}</h3>
-                        <Badge variant="outline" className="text-yellow-600 border-yellow-600">
-                          مميز
-                        </Badge>
-                      </div>
-                      <p className="text-gray-600 dark:text-gray-400 mb-3">{corner.description}</p>
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
-                        <div className="flex items-center gap-1">
-                          <Users className="w-4 h-4" />
-                          <span>{corner.followers_count} متابع</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Eye className="w-4 h-4" />
-                          <span>{corner.articles_count} مقال</span>
-                        </div>
-                      </div>
-                      <div className="mt-3">
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          بقلم: <span className="font-medium">{corner.author_name}</span>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
-
-        {/* المقالات الحديثة */}
-        <section>
-          <div className="flex items-center gap-3 mb-6">
-            <Brain className="w-6 h-6 text-purple-500" />
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">المقالات الحديثة</h2>
-          </div>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {recentArticles.map((article) => (
-              <Card 
-                key={article.id}
-                className="hover:shadow-xl transition-shadow duration-300 cursor-pointer"
-                onClick={() => router.push(`/muqtarab/${article.corner_slug}/${article.slug}`)}
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center text-white text-lg">
-                      {getSentimentIcon(article.ai_sentiment)}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 line-clamp-2">
-                        {article.title}
-                      </h3>
-                      <p className="text-gray-600 dark:text-gray-400 text-sm mb-3 line-clamp-2">
-                        {article.excerpt}
-                      </p>
-                      
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        <Badge variant="outline" className="flex items-center gap-1">
-                          <Brain className="w-3 h-3" />
-                          {article.ai_sentiment}
-                        </Badge>
-                        <Badge variant="outline" className="text-blue-600 border-blue-600">
-                          💡 {article.ai_compatibility_score}% متوافق
-                        </Badge>
-                      </div>
-                      
-                      <div className="flex items-center justify-between text-sm text-gray-500">
-                        <div className="flex items-center gap-4">
-                          <div className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" />
-                            <span>{article.read_time} دقائق</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Eye className="w-4 h-4" />
-                            <span>{article.view_count}</span>
-                          </div>
-                        </div>
-                        <span>{formatDate(article.created_at)}</span>
-                      </div>
-                      
-                      <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          في زاوية: <span className="font-medium text-blue-600">{article.corner_name}</span>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
-
-        {/* دعوة للمشاركة */}
-        <Card className="mt-12 bg-gradient-to-r from-blue-600 to-purple-700 text-white">
-          <CardContent className="p-8 text-center">
-            <Lightbulb className="w-16 h-16 mx-auto mb-4 opacity-80" />
-            <h3 className="text-2xl font-bold mb-2">انضم إلى مُقترَب</h3>
-            <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
-              شارك أفكارك الإبداعية واكتشف محتوى مخصص بناءً على اهتماماتك. 
-              منصة مُقترَب تجمع بين الفكر والتقنية لتقدم لك تجربة قراءة فريدة.
-            </p>
-            <div className="flex gap-4 justify-center">
-              <Button 
-                variant="secondary"
-                onClick={() => router.push('/register')}
-              >
-                إنشاء حساب
-              </Button>
-              <Button 
-                variant="outline"
-                className="border-white text-white hover:bg-white hover:text-blue-600"
-                onClick={() => router.push('/login')}
-              >
-                تسجيل الدخول
-              </Button>
+            {/* فلاتر التصنيف - محسنة للموبايل */}
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              {filters.map((filter) => {
+                const Icon = filter.icon;
+                return (
+                  <Button
+                    key={filter.id}
+                    size="sm"
+                    variant={
+                      selectedFilter === filter.id ? "default" : "outline"
+                    }
+                    onClick={() => setSelectedFilter(filter.id)}
+                    className="whitespace-nowrap rounded-lg md:rounded-xl text-xs md:text-sm"
+                  >
+                    <Icon className="w-3 h-3 md:w-4 md:h-4 ml-1 md:ml-2" />
+                    {filter.label}
+                  </Button>
+                );
+              })}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+
+        {/* الزوايا المميزة - محسنة للموبايل */}
+        {selectedFilter === "all" && (
+          <div className="mb-8 md:mb-12">
+            <h2 className="text-lg md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
+              <Sparkles className="w-5 h-5 md:w-8 md:h-8 text-yellow-500" />
+              الزوايا المميزة
+            </h2>
+
+            {/* عرض مختلف للموبايل والديسكتوب */}
+            <div className="md:hidden">
+              {/* شبكة صغيرة للموبايل */}
+              <div className="grid grid-cols-2 gap-3">
+                {angles
+                  .filter((angle) => angle.isFeatured)
+                  .slice(0, 4)
+                  .map((angle) => (
+                    <MobileFeaturedAngleCard key={angle.id} angle={angle} />
+                  ))}
+              </div>
+            </div>
+            <div className="hidden md:grid lg:grid-cols-2 gap-6">
+              {angles
+                .filter((angle) => angle.isFeatured)
+                .slice(0, 2)
+                .map((angle) => (
+                  <FeaturedAngleCard key={angle.id} angle={angle} />
+                ))}
+            </div>
+          </div>
+        )}
+
+        {/* شبكة الزوايا - محسنة للموبايل */}
+        <div className="mb-6 md:mb-8">
+          <div className="flex items-center justify-between mb-4 md:mb-6">
+            <h2 className="text-lg md:text-3xl font-bold text-gray-900">
+              {selectedFilter === "all"
+                ? "جميع الزوايا"
+                : filters.find((f) => f.id === selectedFilter)?.label}
+            </h2>
+            <div className="text-xs md:text-sm text-gray-500">
+              {filteredAngles.length} زاوية
+            </div>
+          </div>
+
+          {filteredAngles.length === 0 ? (
+            <div className="text-center py-12 md:py-16">
+              <div className="w-16 h-16 md:w-24 md:h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
+                <Search className="w-8 h-8 md:w-12 md:h-12 text-gray-400" />
+              </div>
+              <h3 className="text-lg md:text-xl font-semibold text-gray-900 mb-2">
+                لا توجد زوايا
+              </h3>
+              <p className="text-sm md:text-base text-gray-500">
+                جرب تغيير معايير البحث أو الفلتر
+              </p>
+            </div>
+          ) : (
+            <>
+              {/* عرض مختلف للموبايل والديسكتوب */}
+              <div className="md:hidden">
+                {/* قائمة مبسطة للموبايل */}
+                <div className="space-y-3">
+                  {filteredAngles.map((angle) => (
+                    <MobileAngleCard key={angle.id} angle={angle} />
+                  ))}
+                </div>
+              </div>
+              <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {filteredAngles.map((angle) => (
+                  <AngleCard key={angle.id} angle={angle} />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </div>
+  );
+}
+
+// مكون المقال المميز للموبايل
+function MobileHeroCard({ heroArticle }: { heroArticle: HeroArticle }) {
+  return (
+    <Card className="flex gap-3 items-start p-4 rounded-xl shadow-sm bg-white border">
+      {heroArticle.coverImage && (
+        <div className="relative w-20 h-20 flex-shrink-0">
+          <Image
+            src={heroArticle.coverImage}
+            alt={heroArticle.title}
+            fill
+            className="rounded-md object-cover"
+          />
+        </div>
+      )}
+      <div className="flex-1 min-w-0">
+        <div className="text-sm font-semibold leading-snug line-clamp-2 mb-2">
+          {heroArticle.title}
+        </div>
+        <div className="text-xs text-gray-500 line-clamp-2 mb-3">
+          {heroArticle.excerpt}
+        </div>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-xs text-gray-400">
+            <Calendar className="w-3 h-3" />
+            <span>{heroArticle.readingTime} د</span>
+          </div>
+          <Link
+            href={`/muqtarab/${heroArticle.angle.slug}/${
+              heroArticle.slug || heroArticle.id
+            }`}
+          >
+            <Button size="sm" className="text-xs px-3 py-1 h-7">
+              قراءة
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+// مكون الزاوية المميزة للموبايل
+function MobileFeaturedAngleCard({ angle }: { angle: Angle }) {
+  return (
+    <Card className="p-3 rounded-xl shadow-sm bg-white text-center">
+      <div className="relative w-16 h-16 mx-auto mb-2">
+        {angle.coverImage ? (
+          <Image
+            src={angle.coverImage}
+            alt={angle.title}
+            fill
+            className="rounded-lg object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-blue-400 to-indigo-600 rounded-lg flex items-center justify-center">
+            <BookOpen className="w-8 h-8 text-white" />
+          </div>
+        )}
+        {angle.isFeatured && (
+          <div className="absolute -top-1 -right-1">
+            <Sparkles className="w-4 h-4 text-yellow-500" />
+          </div>
+        )}
+      </div>
+      <h3 className="text-sm font-semibold line-clamp-2 mb-1">{angle.title}</h3>
+      <div className="text-xs text-gray-500 mb-2">
+        {angle.articlesCount || 0} مقالة
+      </div>
+      <Link href={`/muqtarab/${angle.slug}`}>
+        <Button size="sm" variant="outline" className="text-xs w-full">
+          استكشاف
+        </Button>
+      </Link>
+    </Card>
+  );
+}
+
+// مكون الزاوية للموبايل
+function MobileAngleCard({ angle }: { angle: Angle }) {
+  return (
+    <Card className="flex items-center gap-3 p-3 rounded-lg shadow-sm bg-white">
+      <div className="relative w-12 h-12 flex-shrink-0">
+        {angle.coverImage ? (
+          <Image
+            src={angle.coverImage}
+            alt={angle.title}
+            fill
+            className="rounded-md object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-blue-400 to-indigo-600 rounded-md flex items-center justify-center">
+            <BookOpen className="w-6 h-6 text-white" />
+          </div>
+        )}
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          <h3 className="text-sm font-semibold line-clamp-1">{angle.title}</h3>
+          {angle.isFeatured && (
+            <Sparkles className="w-3 h-3 text-yellow-500 flex-shrink-0" />
+          )}
+        </div>
+        <p className="text-xs text-gray-600 line-clamp-2 mb-2">
+          {angle.description}
+        </p>
+        <div className="flex items-center justify-between">
+          <div className="text-xs text-gray-400">
+            {angle.articlesCount || 0} مقالة
+          </div>
+          <Link href={`/muqtarab/${angle.slug}`}>
+            <Button size="sm" variant="ghost" className="text-xs px-2 py-1 h-6">
+              <Eye className="w-3 h-3 ml-1" />
+              عرض
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+// مكون بطاقة الزاوية العادية
+function AngleCard({ angle }: { angle: Angle }) {
+  return (
+    <Card className="group rounded-2xl overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+      <div className="relative h-48 w-full overflow-hidden">
+        {angle.coverImage ? (
+          <Image
+            src={angle.coverImage}
+            alt={angle.title}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center">
+            <BookOpen className="w-16 h-16 text-white/80" />
+          </div>
+        )}
+
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+
+        <div className="absolute bottom-4 left-4 right-4">
+          <h3 className="text-white font-bold text-lg line-clamp-2">
+            {angle.title}
+          </h3>
+        </div>
+
+        {angle.isFeatured && (
+          <div className="absolute top-3 right-3">
+            <Badge className="bg-yellow-500 text-yellow-900 border-0">
+              <Sparkles className="w-3 h-3 ml-1" />
+              مميزة
+            </Badge>
+          </div>
+        )}
+      </div>
+
+      <CardContent className="p-4 space-y-3">
+        <div className="flex items-center gap-4 text-sm text-gray-500">
+          <div className="flex items-center gap-1">
+            <BookOpen className="w-4 h-4" />
+            <span>{angle.articlesCount || 0} مقالة</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Users className="w-4 h-4" />
+            <span>{angle.author?.name}</span>
+          </div>
+        </div>
+
+        {angle.description && (
+          <p className="text-gray-700 text-sm line-clamp-3 leading-relaxed">
+            {angle.description}
+          </p>
+        )}
+
+        <Link href={`/muqtarab/${angle.slug}`}>
+          <Button
+            variant="ghost"
+            className="w-full justify-start text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-0 h-8"
+          >
+            <Eye className="w-4 h-4 ml-2" />
+            استكشاف الزاوية
+          </Button>
+        </Link>
+      </CardContent>
+    </Card>
+  );
+}
+
+// مكون بطاقة المقال المختار
+function FeaturedArticleCard({ article }: { article: FeaturedArticle }) {
+  return (
+    <Card className="group rounded-xl overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+      <div className="relative h-40 md:h-48 w-full overflow-hidden">
+        {article.coverImage ? (
+          <Image
+            src={article.coverImage}
+            alt={article.title}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center">
+            <BookOpen className="w-12 h-12 md:w-16 md:h-16 text-white/80" />
+          </div>
+        )}
+
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+
+        {/* شارة الزاوية */}
+        <div className="absolute top-3 right-3">
+          <Badge
+            className="text-xs border-0 text-white shadow-lg"
+            style={{
+              backgroundColor: article.angle.themeColor || "#3B82F6",
+            }}
+          >
+            {article.angle.title}
+          </Badge>
+        </div>
+      </div>
+
+      <CardContent className="p-3 md:p-4 space-y-2 md:space-y-3">
+        <h3 className="font-bold text-sm md:text-lg text-gray-900 line-clamp-2 leading-tight">
+          {article.title}
+        </h3>
+
+        {article.excerpt && (
+          <p className="text-xs md:text-sm text-gray-600 line-clamp-2 leading-relaxed">
+            {article.excerpt}
+          </p>
+        )}
+
+        <div className="flex items-center justify-between text-xs text-gray-500">
+          <div className="flex items-center gap-1">
+            <Calendar className="w-3 h-3" />
+            <span>{article.readingTime} د</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Eye className="w-3 h-3" />
+            <span>{article.views}</span>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between pt-2">
+          <div className="text-xs text-gray-500">{article.author.name}</div>
+          <Link href={`/muqtarab/${article.angle.slug}/${article.slug}`}>
+            <Button
+              size="sm"
+              className="text-xs px-3 py-1 h-7"
+              style={{
+                backgroundColor: article.angle.themeColor || "#3B82F6",
+              }}
+            >
+              قراءة
+            </Button>
+          </Link>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// مكون بطاقة الزاوية المميزة
+function FeaturedAngleCard({ angle }: { angle: Angle }) {
+  return (
+    <Card className="group rounded-2xl overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-300">
+      <div className="flex h-64">
+        <div className="relative w-1/2 overflow-hidden">
+          {angle.coverImage ? (
+            <Image
+              src={angle.coverImage}
+              alt={angle.title}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center">
+              <BookOpen className="w-20 h-20 text-white/80" />
+            </div>
+          )}
+          <div className="absolute inset-0 bg-black/20"></div>
+        </div>
+
+        <div className="w-1/2 p-6 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <Badge className="bg-yellow-500 text-yellow-900 border-0">
+                <Sparkles className="w-3 h-3 ml-1" />
+                زاوية مميزة
+              </Badge>
+            </div>
+
+            <h3 className="text-2xl font-bold text-gray-900 mb-3 line-clamp-2">
+              {angle.title}
+            </h3>
+
+            {angle.description && (
+              <p className="text-gray-600 line-clamp-3 mb-4 leading-relaxed">
+                {angle.description}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+              <div className="flex items-center gap-1">
+                <BookOpen className="w-4 h-4" />
+                <span>{angle.articlesCount || 0} مقالة</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Users className="w-4 h-4" />
+                <span>{angle.author?.name}</span>
+              </div>
+            </div>
+
+            <Link href={`/muqtarab/${angle.slug}`}>
+              <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                <Eye className="w-4 h-4 ml-2" />
+                استكشاف الزاوية
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    </Card>
   );
 }

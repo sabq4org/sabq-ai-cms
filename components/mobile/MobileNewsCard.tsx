@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Calendar, User, Clock, Zap, Star } from 'lucide-react';
-import ArticleViews from '@/components/ui/ArticleViews';
-import { formatRelativeDate } from '@/lib/date-utils';
-import { getArticleLink } from '@/lib/utils';
+import ReporterLink from "@/components/ReporterLink";
+import ArticleViews from "@/components/ui/ArticleViews";
+import { formatRelativeDate } from "@/lib/date-utils";
+import { getArticleLink } from "@/lib/utils";
+import { Calendar, Clock, Star, Zap } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 interface Article {
   id: string;
@@ -19,6 +19,13 @@ interface Article {
     id: string;
     name: string;
     email: string;
+    reporter?: {
+      id: string;
+      full_name: string;
+      slug: string;
+      is_verified?: boolean;
+      verification_badge?: string;
+    };
   } | null;
   category?: {
     id: string;
@@ -40,7 +47,10 @@ interface MobileNewsCardProps {
   darkMode?: boolean;
 }
 
-export default function MobileNewsCard({ article, darkMode = false }: MobileNewsCardProps) {
+export default function MobileNewsCard({
+  article,
+  darkMode = false,
+}: MobileNewsCardProps) {
   const {
     title,
     slug,
@@ -54,19 +64,21 @@ export default function MobileNewsCard({ article, darkMode = false }: MobileNews
     published_at,
     created_at,
     featured = false,
-    breaking = false
+    breaking = false,
   } = article;
 
   const displayDate = published_at || created_at;
-  const displayExcerpt = excerpt || summary || '';
+  const displayExcerpt = excerpt || summary || "";
 
   return (
-    <Link 
+    <Link
       href={getArticleLink(article)}
       className={`block w-full mb-3 ${
-        darkMode ? 'bg-gray-800' : 'bg-white'
+        darkMode ? "bg-gray-800" : "bg-white"
       } rounded-lg shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden border ${
-        darkMode ? 'border-gray-700 hover:border-gray-600' : 'border-gray-200 hover:border-gray-300'
+        darkMode
+          ? "border-gray-700 hover:border-gray-600"
+          : "border-gray-200 hover:border-gray-300"
       }`}
     >
       <div className="p-4">
@@ -101,7 +113,7 @@ export default function MobileNewsCard({ article, darkMode = false }: MobileNews
                   className="object-cover"
                   sizes="80px"
                   onError={(e) => {
-                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.style.display = "none";
                   }}
                 />
               </div>
@@ -113,17 +125,21 @@ export default function MobileNewsCard({ article, darkMode = false }: MobileNews
             {/* تم إزالة التصنيف */}
 
             {/* العنوان */}
-            <h3 className={`font-semibold text-sm line-clamp-3 mb-1 ${
-              darkMode ? 'text-white' : 'text-gray-900'
-            }`}>
+            <h3
+              className={`font-semibold text-sm line-clamp-3 mb-1 ${
+                darkMode ? "text-white" : "text-gray-900"
+              }`}
+            >
               {title}
             </h3>
 
             {/* المقتطف */}
             {displayExcerpt && (
-              <p className={`text-xs line-clamp-2 mb-2 ${
-                darkMode ? 'text-gray-400' : 'text-gray-600'
-              }`}>
+              <p
+                className={`text-xs line-clamp-2 mb-2 ${
+                  darkMode ? "text-gray-400" : "text-gray-600"
+                }`}
+              >
                 {displayExcerpt}
               </p>
             )}
@@ -132,18 +148,27 @@ export default function MobileNewsCard({ article, darkMode = false }: MobileNews
             <div className="flex items-center gap-3 text-xs">
               {/* الكاتب */}
               {author && (
-                <div className={`flex items-center gap-1 ${
-                  darkMode ? 'text-gray-500' : 'text-gray-500'
-                }`}>
-                  <User className="w-3 h-3" />
-                  <span className="truncate max-w-[100px]">{author.name}</span>
+                <div
+                  className={`flex items-center gap-1 ${
+                    darkMode ? "text-gray-500" : "text-gray-500"
+                  }`}
+                >
+                  <ReporterLink
+                    author={author}
+                    size="sm"
+                    showIcon={true}
+                    showVerification={true}
+                    className="truncate max-w-[100px] text-xs"
+                  />
                 </div>
               )}
 
               {/* التاريخ */}
-              <div className={`flex items-center gap-1 ${
-                darkMode ? 'text-gray-500' : 'text-gray-500'
-              }`}>
+              <div
+                className={`flex items-center gap-1 ${
+                  darkMode ? "text-gray-500" : "text-gray-500"
+                }`}
+              >
                 <Calendar className="w-3 h-3" />
                 <span>{formatRelativeDate(displayDate)}</span>
               </div>
@@ -152,9 +177,11 @@ export default function MobileNewsCard({ article, darkMode = false }: MobileNews
               <ArticleViews count={views} className="text-gray-500 text-xs" />
 
               {/* وقت القراءة */}
-              <div className={`flex items-center gap-1 ${
-                darkMode ? 'text-gray-500' : 'text-gray-500'
-              }`}>
+              <div
+                className={`flex items-center gap-1 ${
+                  darkMode ? "text-gray-500" : "text-gray-500"
+                }`}
+              >
                 <Clock className="w-3 h-3" />
                 <span>{reading_time} د</span>
               </div>

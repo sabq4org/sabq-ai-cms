@@ -3,10 +3,10 @@
  * Modern Dashboard Route - Home Page
  */
 
-'use client';
+"use client";
 
-import ModernDashboardHomeFixed from '@/components/admin/modern-dashboard/ModernDashboardHomeFixed';
+import ModernDashboardHomeFullWidth from "@/components/admin/modern-dashboard/ModernDashboardHomeFullWidth";
 
 export default function ModernDashboardPage() {
-  return <ModernDashboardHomeFixed />;
+  return <ModernDashboardHomeFullWidth />;
 }

@@ -1,27 +1,29 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import { formatFullDate, formatRelativeDate } from '@/lib/date-utils';
-import { getImageUrl, getOptimizedImageUrl } from '@/lib/utils';
-import ArticleJsonLd from '@/components/ArticleJsonLd';
-import Footer from '@/components/Footer';
-import UltimateImage from '@/components/UltimateImage';
-import { marked } from 'marked';
-import { Share2, Eye, Clock, Calendar,
-  User, MessageCircle, TrendingUp, Hash, ChevronRight, Home,
-  Twitter, Copy, Check, X, Menu, Heart, Bookmark, Headphones,
-  Play, Pause, Volume2, CheckCircle, Sparkles
-} from 'lucide-react';
-import { SmartInteractionButtons } from '@/components/article/SmartInteractionButtons';
-import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
-import { ReadingProgressBar } from '@/components/article/ReadingProgressBar';
-import AudioSummaryPlayer from '@/components/AudioSummaryPlayer';
-import '@/styles/mobile-article.css';
-import '@/styles/image-optimizations.css';
+import ArticleJsonLd from "@/components/ArticleJsonLd";
+import Footer from "@/components/Footer";
+import ReporterLink from "@/components/ReporterLink";
+import { ReadingProgressBar } from "@/components/article/ReadingProgressBar";
+import { SmartInteractionButtons } from "@/components/article/SmartInteractionButtons";
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
+import { useUserInteractionTracking } from "@/hooks/useUserInteractionTracking";
+import { formatFullDate, formatRelativeDate } from "@/lib/date-utils";
+import "@/styles/image-optimizations.css";
+import "@/styles/mobile-article.css";
+import {
+  Calendar,
+  Clock,
+  Eye,
+  Hash,
+  Pause,
+  Play,
+  Sparkles,
+  Volume2,
+} from "lucide-react";
+import { marked } from "marked";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
 
 // نوع البيانات
 interface Article {
@@ -59,7 +61,10 @@ interface ArticleClientPageProps {
   articleId: string;
 }
 
-function ArticleClientPage({ initialArticle, articleId }: ArticleClientPageProps) {
+function ArticleClientPage({
+  initialArticle,
+  articleId,
+}: ArticleClientPageProps) {
   const router = useRouter();
   const { darkMode } = useDarkModeContext();
   const [article, setArticle] = useState<Article | null>(initialArticle);
@@ -69,7 +74,9 @@ function ArticleClientPage({ initialArticle, articleId }: ArticleClientPageProps
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const [error, setError] = useState<string | null>(null);
-  const [errorType, setErrorType] = useState<'not_found' | 'not_published' | 'server_error' | null>(null);
+  const [errorType, setErrorType] = useState<
+    "not_found" | "not_published" | "server_error" | null
+  >(null);
 
   // نظام تتبع التفاعل الذكي
   const interactionTracking = useUserInteractionTracking(articleId);
@@ -110,9 +117,11 @@ function ArticleClientPage({ initialArticle, articleId }: ArticleClientPageProps
           }, 100);
         } else {
           // توليد الصوت من الموجز
-          const response = await fetch(`/api/voice-summary?articleId=${articleId}`);
+          const response = await fetch(
+            `/api/voice-summary?articleId=${articleId}`
+          );
           const data = await response.json();
-          
+
           if (data.success && data.audioUrl) {
             setAudioUrl(data.audioUrl);
             // شغل الصوت مباشرة بعد تحميله
@@ -125,7 +134,7 @@ function ArticleClientPage({ initialArticle, articleId }: ArticleClientPageProps
           }
         }
       } catch (err) {
-        console.error('خطأ في تحميل الصوت:', err);
+        console.error("خطأ في تحميل الصوت:", err);
       } finally {
         setIsLoadingAudio(false);
       }
@@ -155,7 +164,7 @@ function ArticleClientPage({ initialArticle, articleId }: ArticleClientPageProps
   // حساب وقت القراءة
   const calculateReadingTime = (content: string) => {
     const wordsPerMinute = 200;
-    const wordCount = content.split(' ').length;
+    const wordCount = content.split(" ").length;
     return Math.max(1, Math.ceil(wordCount / wordsPerMinute));
   };
 
@@ -165,8 +174,11 @@ function ArticleClientPage({ initialArticle, articleId }: ArticleClientPageProps
       return article.keywords;
     }
     if (article?.seo_keywords) {
-      if (typeof article.seo_keywords === 'string') {
-        return article.seo_keywords.split(',').map((k: string) => k.trim()).filter(Boolean);
+      if (typeof article.seo_keywords === "string") {
+        return article.seo_keywords
+          .split(",")
+          .map((k: string) => k.trim())
+          .filter(Boolean);
       }
       if (Array.isArray(article.seo_keywords)) {
         return article.seo_keywords;
@@ -183,10 +195,9 @@ function ArticleClientPage({ initialArticle, articleId }: ArticleClientPageProps
 
   return (
     <>
-      
       {/* شريط التقدم في القراءة */}
       <ReadingProgressBar />
-      
+
       <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* صورة المقال - حل مبسط ومضمون */}
         {article.featured_image && (
@@ -196,62 +207,104 @@ function ArticleClientPage({ initialArticle, articleId }: ArticleClientPageProps
               alt={article.title}
               className="w-full h-full object-cover transition-opacity duration-500"
               onLoad={(e) => {
-                console.log('✅ صورة المقال تم تحميلها:', article.featured_image);
+                console.log(
+                  "✅ صورة المقال تم تحميلها:",
+                  article.featured_image
+                );
                 const target = e.target as HTMLImageElement;
-                target.style.opacity = '1';
+                target.style.opacity = "1";
               }}
               onError={(e) => {
-                console.error('❌ فشل تحميل صورة المقال، جاري المحاولة مع صورة بديلة:', article.featured_image);
+                console.error(
+                  "❌ فشل تحميل صورة المقال، جاري المحاولة مع صورة بديلة:",
+                  article.featured_image
+                );
                 const target = e.target as HTMLImageElement;
-                target.src = '/images/placeholder-featured.jpg';
+                target.src = "/images/placeholder-featured.jpg";
               }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 z-10" />
           </div>
         )}
 
-        <article className={`max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 ${!article.featured_image ? 'pt-20 sm:pt-24' : ''}`}>
+        <article
+          className={`max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 ${
+            !article.featured_image ? "pt-20 sm:pt-24" : ""
+          }`}
+        >
           {/* رأس المقال */}
           <header className="mb-8">
             {/* التصنيف */}
             {article.category && (
               <Link
-                href={`/categories/${String(article.category.slug || '')}`}
+                href={`/categories/${String(article.category.slug || "")}`}
                 className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium text-white mb-3 sm:mb-4"
-                style={{ backgroundColor: article.category.color || '#1a73e8' }}
+                style={{ backgroundColor: article.category.color || "#1a73e8" }}
               >
-                {article.category.icon && <span className="text-sm sm:text-base">{String(article.category.icon)}</span>}
-                <span>{String(article.category.name || 'غير محدد')}</span>
+                {article.category.icon && (
+                  <span className="text-sm sm:text-base">
+                    {String(article.category.icon)}
+                  </span>
+                )}
+                <span>{String(article.category.name || "غير محدد")}</span>
               </Link>
             )}
 
             {/* العنوان */}
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 text-gray-900 dark:text-white leading-tight">
-              {String(article.title || 'عنوان غير محدد')}
+              {String(article.title || "عنوان غير محدد")}
             </h1>
 
             {/* المعلومات الأساسية */}
             <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
               {article.author && (
                 <div className="flex items-center gap-1.5 sm:gap-2">
-                  <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                  <span className="truncate max-w-[120px] sm:max-w-none">{String(article.author.name || 'كاتب غير محدد')}</span>
+                  <ReporterLink
+                    author={article.author as any}
+                    size="sm"
+                    showIcon={true}
+                    showVerification={true}
+                    className="truncate max-w-[120px] sm:max-w-none text-xs sm:text-sm"
+                  />
                 </div>
               )}
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                <span className="hidden sm:inline">{String(formatFullDate(article.published_at || article.created_at) || 'غير محدد')}</span>
-                <span className="sm:hidden">{String(formatRelativeDate(article.published_at || article.created_at) || 'غير محدد')}</span>
+                <span className="hidden sm:inline">
+                  {String(
+                    formatFullDate(
+                      article.published_at || article.created_at
+                    ) || "غير محدد"
+                  )}
+                </span>
+                <span className="sm:hidden">
+                  {String(
+                    formatRelativeDate(
+                      article.published_at || article.created_at
+                    ) || "غير محدد"
+                  )}
+                </span>
               </div>
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <Clock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                <span>{String(article.reading_time || calculateReadingTime(article.content) || 0)} د</span>
+                <span>
+                  {String(
+                    article.reading_time ||
+                      calculateReadingTime(article.content) ||
+                      0
+                  )}{" "}
+                  د
+                </span>
               </div>
               {article.views !== undefined && (
                 <div className="flex items-center gap-1.5 sm:gap-2">
                   <Eye className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                  <span className="hidden sm:inline">{String(article.views || 0)} مشاهدة</span>
-                  <span className="sm:hidden">{String(article.views || 0)}</span>
+                  <span className="hidden sm:inline">
+                    {String(article.views || 0)} مشاهدة
+                  </span>
+                  <span className="sm:hidden">
+                    {String(article.views || 0)}
+                  </span>
                 </div>
               )}
             </div>
@@ -269,19 +322,24 @@ function ArticleClientPage({ initialArticle, articleId }: ArticleClientPageProps
                     🧠 الملخص الذكي
                   </h3>
                   <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 leading-relaxed">
-                    {String(article.excerpt || article.summary || article.ai_summary || '')}
+                    {String(
+                      article.excerpt ||
+                        article.summary ||
+                        article.ai_summary ||
+                        ""
+                    )}
                   </p>
                 </div>
-                
+
                 {/* زر الاستماع المباشر */}
                 <button
                   onClick={toggleAudioPlayer}
                   className={`flex-shrink-0 p-2 rounded-lg transition-all ${
-                    isAudioPlaying 
-                      ? 'bg-red-600 text-white hover:bg-red-700' 
+                    isAudioPlaying
+                      ? "bg-red-600 text-white hover:bg-red-700"
                       : isLoadingAudio
-                      ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 cursor-wait'
-                      : 'bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800/50'
+                      ? "bg-gray-300 dark:bg-gray-600 text-gray-500 cursor-wait"
+                      : "bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800/50"
                   }`}
                   title={isAudioPlaying ? "إيقاف" : "استمع للملخص"}
                   disabled={isLoadingAudio}
@@ -312,18 +370,19 @@ function ArticleClientPage({ initialArticle, articleId }: ArticleClientPageProps
 
           {/* شريط التفاعل الذكي */}
           <div className="mb-6 sm:mb-8 pb-4 border-b border-gray-200 dark:border-gray-700">
-            <SmartInteractionButtons 
+            <SmartInteractionButtons
               articleId={String(article.id)}
               initialStats={{
                 likes: Number(article.likes || article.stats?.likes || 0),
                 saves: Number(article.saves || article.stats?.saves || 0),
                 shares: Number(article.shares || article.stats?.shares || 0),
-                comments: Number(article.comments_count || 0)
+                comments: Number(article.comments_count || 0),
               }}
               onComment={() => {
                 // التمرير لقسم التعليقات
-                const commentsSection = document.getElementById('comments-section');
-                commentsSection?.scrollIntoView({ behavior: 'smooth' });
+                const commentsSection =
+                  document.getElementById("comments-section");
+                commentsSection?.scrollIntoView({ behavior: "smooth" });
               }}
             />
           </div>
@@ -347,7 +406,7 @@ function ArticleClientPage({ initialArticle, articleId }: ArticleClientPageProps
           )}
 
           {/* محتوى المقال */}
-          <div 
+          <div
             className="prose prose-lg max-w-none dark:prose-invert
               prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-white
               prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed prose-p:mb-4
@@ -357,10 +416,11 @@ function ArticleClientPage({ initialArticle, articleId }: ArticleClientPageProps
               prose-ul:text-gray-700 dark:prose-ul:text-gray-300 prose-ol:text-gray-700 dark:prose-ol:text-gray-300
               prose-li:mb-2 prose-li:leading-relaxed
               text-base sm:text-lg leading-relaxed"
-            style={{ 
-              direction: 'rtl', 
-              textAlign: 'right',
-              fontFamily: 'var(--font-ibm-plex-arabic), IBM Plex Sans Arabic, system-ui, sans-serif'
+            style={{
+              direction: "rtl",
+              textAlign: "right",
+              fontFamily:
+                "var(--font-ibm-plex-arabic), IBM Plex Sans Arabic, system-ui, sans-serif",
             }}
             dangerouslySetInnerHTML={{ __html: marked(article.content) }}
           />
@@ -373,7 +433,7 @@ function ArticleClientPage({ initialArticle, articleId }: ArticleClientPageProps
               summary: article.excerpt || article.summary || article.ai_summary,
               content: article.content,
               featured_image: article.featured_image,
-              author: article.author?.name || 'فريق التحرير',
+              author: article.author?.name || "فريق التحرير",
               published_at: article.published_at || article.created_at,
               created_at: article.created_at,
             }}

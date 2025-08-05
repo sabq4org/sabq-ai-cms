@@ -3,11 +3,10 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Settings } from 'lucide-react';
-import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
 
 export default function ClassifierPage() {
   return (
-    <DashboardLayout pageTitle="نظام التصنيف الذكي" pageDescription="مراقبة وإدارة نظام التصنيف التلقائي">
+    <>
       <div className="space-y-6">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-6 text-white">
@@ -58,6 +57,6 @@ export default function ClassifierPage() {
           </Card>
         </div>
       </div>
-    </DashboardLayout>
+    </>
   );
 }

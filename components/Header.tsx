@@ -74,6 +74,7 @@ export default function Header() {
       highlight: false,
     },
     { url: "/categories", label: "الأقسام", icon: Folder, highlight: false },
+    { url: "/muqtarab", label: "مُقترب", icon: Target, highlight: false },
     { url: "/insights/deep", label: "عمق", icon: Brain, highlight: false },
     {
       url: "/moment-by-moment",
@@ -120,7 +121,7 @@ export default function Header() {
         darkMode
           ? "bg-gray-900/95 border-gray-800"
           : "bg-blue-50/95 border-blue-200"
-      } backdrop-blur-md border-b shadow-sm`}
+      } border-b shadow-sm`}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-full relative">
         <div className="flex items-center justify-between h-full">
@@ -130,7 +131,7 @@ export default function Header() {
             className="flex-shrink-0 relative z-50 hover:scale-105 transition-transform duration-200 header-logo-wrapper"
           >
             {settingsLoading ? (
-              <div className="h-8 sm:h-10 w-28 sm:w-36 bg-gray-200 dark:bg-gray-700 animate-pulse rounded"></div>
+              <div className="h-8 sm:h-10 w-28 sm:w-36 animate-pulse"></div>
             ) : (
               logoUrl && (
                 <div className="relative w-28 sm:w-36 h-8 sm:h-10 bg-transparent overflow-visible logo-container sabq-logo logo-fix">

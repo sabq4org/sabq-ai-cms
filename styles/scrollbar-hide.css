@@ -1,0 +1,31 @@
+/* إخفاء شريط التمرير للفلاتر والعناصر التفاعلية */
+
+.scrollbar-hide {
+  /* للمتصفحات الحديثة */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  /* للمتصفحات المبنية على webkit */
+  display: none;
+}
+
+/* تحسينات إضافية للتمرير الناعم */
+.scrollbar-hide {
+  scroll-behavior: smooth;
+}
+
+/* تأثير تفاعلي للفلاتر */
+.filter-button {
+  transition: all 0.2s ease-in-out;
+}
+
+.filter-button:hover {
+  transform: translateY(-1px);
+}
+
+.filter-button.active {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.15);
+}

@@ -3,27 +3,26 @@
  * Modern Adaptive Themes Page - Professional Design
  */
 
-'use client';
+"use client";
 
-import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
-import { DesignComponents } from '@/components/design-system/DesignSystemGuide';
+import { DesignComponents } from "@/components/design-system/DesignSystemGuide";
 import {
-    Calendar,
-    Check,
-    Copy,
-    Edit,
-    Monitor,
-    Palette,
-    Plus,
-    RefreshCw,
-    Smartphone,
-    Star,
-    Trash2,
-    Upload,
-    Users,
-    Zap
-} from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+  Calendar,
+  Check,
+  Copy,
+  Edit,
+  Monitor,
+  Palette,
+  Plus,
+  RefreshCw,
+  Smartphone,
+  Star,
+  Trash2,
+  Upload,
+  Users,
+  Zap,
+} from "lucide-react";
+import React, { useEffect, useState } from "react";
 
 interface AdaptiveTheme {
   id: string;
@@ -60,8 +59,10 @@ interface AdaptiveTheme {
 const ModernAdaptiveThemesNew: React.FC = () => {
   const [themes, setThemes] = useState<AdaptiveTheme[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTheme, setActiveTheme] = useState<string>('');
-  const [previewMode, setPreviewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+  const [activeTheme, setActiveTheme] = useState<string>("");
+  const [previewMode, setPreviewMode] = useState<
+    "desktop" | "tablet" | "mobile"
+  >("desktop");
   const [showThemeEditor, setShowThemeEditor] = useState(false);
   const [editingTheme, setEditingTheme] = useState<AdaptiveTheme | null>(null);
   const [saving, setSaving] = useState(false);
@@ -69,105 +70,105 @@ const ModernAdaptiveThemesNew: React.FC = () => {
   // بيانات السمات التجريبية
   const sampleThemes: AdaptiveTheme[] = [
     {
-      id: '1',
-      name: 'السمة الافتراضية',
-      description: 'السمة الأساسية للموقع مع تصميم نظيف ومتوازن',
-      preview_image: '/api/placeholder/400/300',
+      id: "1",
+      name: "السمة الافتراضية",
+      description: "السمة الأساسية للموقع مع تصميم نظيف ومتوازن",
+      preview_image: "/api/placeholder/400/300",
       is_active: true,
       is_default: true,
-      created_at: '2025-01-15T10:00:00Z',
+      created_at: "2025-01-15T10:00:00Z",
       usage_count: 1250,
       rating: 4.8,
       colors: {
-        primary: '#3B82F6',
-        secondary: '#6366F1',
-        accent: '#F59E0B',
-        background: '#FFFFFF',
-        surface: '#F8FAFC',
-        text: '#1F2937'
+        primary: "#3B82F6",
+        secondary: "#6366F1",
+        accent: "#F59E0B",
+        background: "#FFFFFF",
+        surface: "#F8FAFC",
+        text: "#1F2937",
       },
       settings: {
-        font_family: 'Cairo',
-        font_size: '16px',
-        border_radius: '8px',
-        spacing: 'normal'
+        font_family: "Cairo",
+        font_size: "16px",
+        border_radius: "8px",
+        spacing: "normal",
       },
       responsive: {
         mobile: true,
         tablet: true,
-        desktop: true
+        desktop: true,
       },
-      features: ['تصميم متجاوب', 'وضع داكن', 'خطوط عربية', 'سرعة التحميل']
+      features: ["تصميم متجاوب", "وضع داكن", "خطوط عربية", "سرعة التحميل"],
     },
     {
-      id: '2',
-      name: 'السمة الداكنة',
-      description: 'تصميم داكن مريح للعينين مع ألوان هادئة',
-      preview_image: '/api/placeholder/400/300',
+      id: "2",
+      name: "السمة الداكنة",
+      description: "تصميم داكن مريح للعينين مع ألوان هادئة",
+      preview_image: "/api/placeholder/400/300",
       is_active: false,
       is_default: false,
-      created_at: '2025-01-20T14:30:00Z',
+      created_at: "2025-01-20T14:30:00Z",
       usage_count: 890,
       rating: 4.6,
       colors: {
-        primary: '#60A5FA',
-        secondary: '#A78BFA',
-        accent: '#FBBF24',
-        background: '#111827',
-        surface: '#1F2937',
-        text: '#F9FAFB'
+        primary: "#60A5FA",
+        secondary: "#A78BFA",
+        accent: "#FBBF24",
+        background: "#111827",
+        surface: "#1F2937",
+        text: "#F9FAFB",
       },
       settings: {
-        font_family: 'Cairo',
-        font_size: '16px',
-        border_radius: '12px',
-        spacing: 'comfortable'
+        font_family: "Cairo",
+        font_size: "16px",
+        border_radius: "12px",
+        spacing: "comfortable",
       },
       responsive: {
         mobile: true,
         tablet: true,
-        desktop: true
+        desktop: true,
       },
-      features: ['وضع داكن', 'راحة العينين', 'تباين عالي', 'توفير البطارية']
+      features: ["وضع داكن", "راحة العينين", "تباين عالي", "توفير البطارية"],
     },
     {
-      id: '3',
-      name: 'السمة الملونة',
-      description: 'تصميم حيوي مع ألوان جذابة ومتدرجات جميلة',
-      preview_image: '/api/placeholder/400/300',
+      id: "3",
+      name: "السمة الملونة",
+      description: "تصميم حيوي مع ألوان جذابة ومتدرجات جميلة",
+      preview_image: "/api/placeholder/400/300",
       is_active: false,
       is_default: false,
-      created_at: '2025-01-25T09:15:00Z',
+      created_at: "2025-01-25T09:15:00Z",
       usage_count: 567,
       rating: 4.4,
       colors: {
-        primary: '#EC4899',
-        secondary: '#8B5CF6',
-        accent: '#10B981',
-        background: '#FEFEFE',
-        surface: '#F0F9FF',
-        text: '#0F172A'
+        primary: "#EC4899",
+        secondary: "#8B5CF6",
+        accent: "#10B981",
+        background: "#FEFEFE",
+        surface: "#F0F9FF",
+        text: "#0F172A",
       },
       settings: {
-        font_family: 'Tajawal',
-        font_size: '15px',
-        border_radius: '16px',
-        spacing: 'compact'
+        font_family: "Tajawal",
+        font_size: "15px",
+        border_radius: "16px",
+        spacing: "compact",
       },
       responsive: {
         mobile: true,
         tablet: false,
-        desktop: true
+        desktop: true,
       },
-      features: ['ألوان جذابة', 'متدرجات', 'تأثيرات بصرية', 'تفاعلية']
-    }
+      features: ["ألوان جذابة", "متدرجات", "تأثيرات بصرية", "تفاعلية"],
+    },
   ];
 
   useEffect(() => {
     // محاكاة جلب البيانات
     setTimeout(() => {
       setThemes(sampleThemes);
-      const active = sampleThemes.find(theme => theme.is_active);
+      const active = sampleThemes.find((theme) => theme.is_active);
       if (active) setActiveTheme(active.id);
       setLoading(false);
     }, 1000);
@@ -176,25 +177,27 @@ const ModernAdaptiveThemesNew: React.FC = () => {
   const handleActivateTheme = async (themeId: string) => {
     setSaving(true);
     // محاكاة تفعيل السمة
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    setThemes(prev => prev.map(theme => ({
-      ...theme,
-      is_active: theme.id === themeId
-    })));
+    setThemes((prev) =>
+      prev.map((theme) => ({
+        ...theme,
+        is_active: theme.id === themeId,
+      }))
+    );
     setActiveTheme(themeId);
     setSaving(false);
   };
 
   const handleDeleteTheme = async (themeId: string) => {
-    const theme = themes.find(t => t.id === themeId);
+    const theme = themes.find((t) => t.id === themeId);
     if (theme?.is_default) {
-      alert('لا يمكن حذف السمة الافتراضية');
+      alert("لا يمكن حذف السمة الافتراضية");
       return;
     }
 
-    if (confirm('هل أنت متأكد من حذف هذه السمة؟')) {
-      setThemes(prev => prev.filter(theme => theme.id !== themeId));
+    if (confirm("هل أنت متأكد من حذف هذه السمة؟")) {
+      setThemes((prev) => prev.filter((theme) => theme.id !== themeId));
     }
   };
 
@@ -206,18 +209,20 @@ const ModernAdaptiveThemesNew: React.FC = () => {
       is_active: false,
       is_default: false,
       created_at: new Date().toISOString(),
-      usage_count: 0
+      usage_count: 0,
     };
-    setThemes(prev => [...prev, newTheme]);
+    setThemes((prev) => [...prev, newTheme]);
   };
 
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
-    const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+    const diffInDays = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24)
+    );
 
-    if (diffInDays === 0) return 'اليوم';
-    if (diffInDays === 1) return 'أمس';
+    if (diffInDays === 0) return "اليوم";
+    if (diffInDays === 1) return "أمس";
     if (diffInDays < 7) return `منذ ${diffInDays} أيام`;
     if (diffInDays < 30) return `منذ ${Math.floor(diffInDays / 7)} أسابيع`;
     return `منذ ${Math.floor(diffInDays / 30)} شهر`;
@@ -225,24 +230,27 @@ const ModernAdaptiveThemesNew: React.FC = () => {
 
   const getPreviewIcon = () => {
     switch (previewMode) {
-      case 'mobile': return <Smartphone className="w-4 h-4" />;
-      case 'tablet': return <Monitor className="w-4 h-4" />;
-      default: return <Monitor className="w-4 h-4" />;
+      case "mobile":
+        return <Smartphone className="w-4 h-4" />;
+      case "tablet":
+        return <Monitor className="w-4 h-4" />;
+      default:
+        return <Monitor className="w-4 h-4" />;
     }
   };
 
   if (loading) {
     return (
-      <DashboardLayout>
+      <>
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
-      </DashboardLayout>
+      </>
     );
   }
 
   return (
-    <DashboardLayout>
+    <>
       <div className="space-y-6 p-6">
         {/* Header */}
         <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-2xl p-8 text-white">
@@ -253,7 +261,9 @@ const ModernAdaptiveThemesNew: React.FC = () => {
               </div>
               <div>
                 <h1 className="text-2xl font-bold mb-2">السمات التكيفية</h1>
-                <p className="text-indigo-100">إدارة وتخصيص مظهر الموقع والألوان</p>
+                <p className="text-indigo-100">
+                  إدارة وتخصيص مظهر الموقع والألوان
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -279,7 +289,9 @@ const ModernAdaptiveThemesNew: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">إجمالي السمات</p>
-                  <p className="text-2xl font-bold text-indigo-600">{themes.length}</p>
+                  <p className="text-2xl font-bold text-indigo-600">
+                    {themes.length}
+                  </p>
                 </div>
                 <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
                   <Palette className="w-6 h-6 text-indigo-600" />
@@ -308,7 +320,9 @@ const ModernAdaptiveThemesNew: React.FC = () => {
                 <div>
                   <p className="text-sm text-gray-600 mb-1">إجمالي الاستخدام</p>
                   <p className="text-2xl font-bold text-blue-600">
-                    {themes.reduce((sum, theme) => sum + theme.usage_count, 0).toLocaleString()}
+                    {themes
+                      .reduce((sum, theme) => sum + theme.usage_count, 0)
+                      .toLocaleString()}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -324,7 +338,10 @@ const ModernAdaptiveThemesNew: React.FC = () => {
                 <div>
                   <p className="text-sm text-gray-600 mb-1">متوسط التقييم</p>
                   <p className="text-2xl font-bold text-yellow-600">
-                    {(themes.reduce((sum, theme) => sum + theme.rating, 0) / themes.length).toFixed(1)}
+                    {(
+                      themes.reduce((sum, theme) => sum + theme.rating, 0) /
+                      themes.length
+                    ).toFixed(1)}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
@@ -342,18 +359,28 @@ const ModernAdaptiveThemesNew: React.FC = () => {
               <div className="flex items-center gap-4">
                 <h3 className="font-semibold text-gray-900">معاينة السمات</h3>
                 <div className="flex items-center gap-2">
-                  {(['desktop', 'tablet', 'mobile'] as const).map((mode) => (
+                  {(["desktop", "tablet", "mobile"] as const).map((mode) => (
                     <button
                       key={mode}
                       onClick={() => setPreviewMode(mode)}
                       className={`p-2 rounded-lg transition-colors ${
                         previewMode === mode
-                          ? 'bg-indigo-100 text-indigo-600'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          ? "bg-indigo-100 text-indigo-600"
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                       }`}
-                      title={mode === 'desktop' ? 'سطح المكتب' : mode === 'tablet' ? 'الجهاز اللوحي' : 'الهاتف'}
+                      title={
+                        mode === "desktop"
+                          ? "سطح المكتب"
+                          : mode === "tablet"
+                          ? "الجهاز اللوحي"
+                          : "الهاتف"
+                      }
                     >
-                      {mode === 'mobile' ? <Smartphone className="w-4 h-4" /> : <Monitor className="w-4 h-4" />}
+                      {mode === "mobile" ? (
+                        <Smartphone className="w-4 h-4" />
+                      ) : (
+                        <Monitor className="w-4 h-4" />
+                      )}
                     </button>
                   ))}
                 </div>
@@ -362,8 +389,11 @@ const ModernAdaptiveThemesNew: React.FC = () => {
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-600">عرض:</span>
                 <span className="text-sm font-medium text-gray-900">
-                  {previewMode === 'desktop' ? 'سطح المكتب' :
-                   previewMode === 'tablet' ? 'جهاز لوحي' : 'هاتف'}
+                  {previewMode === "desktop"
+                    ? "سطح المكتب"
+                    : previewMode === "tablet"
+                    ? "جهاز لوحي"
+                    : "هاتف"}
                 </span>
               </div>
             </div>
@@ -380,7 +410,7 @@ const ModernAdaptiveThemesNew: React.FC = () => {
                   <div
                     className="aspect-video rounded-lg bg-gradient-to-br overflow-hidden"
                     style={{
-                      background: `linear-gradient(135deg, ${theme.colors.primary}, ${theme.colors.secondary})`
+                      background: `linear-gradient(135deg, ${theme.colors.primary}, ${theme.colors.secondary})`,
                     }}
                   >
                     <div className="p-4 h-full flex flex-col justify-between text-white">
@@ -428,7 +458,9 @@ const ModernAdaptiveThemesNew: React.FC = () => {
                 {/* معلومات السمة */}
                 <div className="space-y-3">
                   <div>
-                    <h3 className="font-bold text-gray-900 mb-1">{theme.name}</h3>
+                    <h3 className="font-bold text-gray-900 mb-1">
+                      {theme.name}
+                    </h3>
                     <p className="text-sm text-gray-600">{theme.description}</p>
                   </div>
 
@@ -437,7 +469,9 @@ const ModernAdaptiveThemesNew: React.FC = () => {
                     <div className="flex items-center gap-4">
                       <div className="flex items-center gap-1">
                         <Users className="w-4 h-4 text-gray-400" />
-                        <span className="text-gray-600">{theme.usage_count.toLocaleString()}</span>
+                        <span className="text-gray-600">
+                          {theme.usage_count.toLocaleString()}
+                        </span>
                       </div>
                       <div className="flex items-center gap-1">
                         <Star className="w-4 h-4 text-yellow-500" />
@@ -452,20 +486,25 @@ const ModernAdaptiveThemesNew: React.FC = () => {
 
                   {/* لوحة الألوان */}
                   <div className="flex gap-2">
-                    {Object.values(theme.colors).slice(0, 5).map((color, index) => (
-                      <div
-                        key={index}
-                        className="w-6 h-6 rounded-full border-2 border-white shadow-sm"
-                        style={{ backgroundColor: color }}
-                        title={color}
-                      />
-                    ))}
+                    {Object.values(theme.colors)
+                      .slice(0, 5)
+                      .map((color, index) => (
+                        <div
+                          key={index}
+                          className="w-6 h-6 rounded-full border-2 border-white shadow-sm"
+                          style={{ backgroundColor: color }}
+                          title={color}
+                        />
+                      ))}
                   </div>
 
                   {/* الميزات */}
                   <div className="flex flex-wrap gap-1">
                     {theme.features.slice(0, 2).map((feature, index) => (
-                      <span key={index} className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                      <span
+                        key={index}
+                        className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full"
+                      >
                         {feature}
                       </span>
                     ))}
@@ -535,20 +574,26 @@ const ModernAdaptiveThemesNew: React.FC = () => {
 
         {/* إضافة سمة جديدة */}
         <DesignComponents.StandardCard>
-          <div className="p-8 text-center border-2 border-dashed border-gray-200 rounded-lg hover:border-indigo-300 transition-colors cursor-pointer"
-               onClick={() => setShowThemeEditor(true)}>
+          <div
+            className="p-8 text-center border-2 border-dashed border-gray-200 rounded-lg hover:border-indigo-300 transition-colors cursor-pointer"
+            onClick={() => setShowThemeEditor(true)}
+          >
             <div className="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Plus className="w-8 h-8 text-indigo-600" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">إنشاء سمة جديدة</h3>
-            <p className="text-gray-600 mb-4">قم بإنشاء سمة مخصصة بألوان وإعدادات خاصة بك</p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              إنشاء سمة جديدة
+            </h3>
+            <p className="text-gray-600 mb-4">
+              قم بإنشاء سمة مخصصة بألوان وإعدادات خاصة بك
+            </p>
             <button className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors">
               ابدأ الآن
             </button>
           </div>
         </DesignComponents.StandardCard>
       </div>
-    </DashboardLayout>
+    </>
   );
 };
 

@@ -3,33 +3,32 @@
  * Modern Advanced Analytics Page - Enhanced Professional Design
  */
 
-'use client';
+"use client";
 
-import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
-import { DesignComponents } from '@/components/design-system/DesignSystemGuide';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { cn } from '@/lib/utils';
+import { DesignComponents } from "@/components/design-system/DesignSystemGuide";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 import {
-    Activity,
-    ArrowDownRight,
-    ArrowUpRight,
-    BarChart3,
-    Clock,
-    Download,
-    Eye,
-    Filter,
-    Globe,
-    LineChart,
-    Monitor,
-    Share2,
-    Smartphone,
-    Sparkles,
-    Tablet,
-    Target,
-    Users
-} from 'lucide-react';
-import { useState } from 'react';
+  Activity,
+  ArrowDownRight,
+  ArrowUpRight,
+  BarChart3,
+  Clock,
+  Download,
+  Eye,
+  Filter,
+  Globe,
+  LineChart,
+  Monitor,
+  Share2,
+  Smartphone,
+  Sparkles,
+  Tablet,
+  Target,
+  Users,
+} from "lucide-react";
+import { useState } from "react";
 
 interface AnalyticsData {
   pageViews: number;
@@ -38,8 +37,16 @@ interface AnalyticsData {
   bounceRate: number;
   topPages: Array<{ page: string; views: number; change: number }>;
   deviceStats: Array<{ device: string; percentage: number; count: number }>;
-  trafficSources: Array<{ source: string; percentage: number; visitors: number }>;
-  geographicData: Array<{ country: string; visitors: number; percentage: number }>;
+  trafficSources: Array<{
+    source: string;
+    percentage: number;
+    visitors: number;
+  }>;
+  geographicData: Array<{
+    country: string;
+    visitors: number;
+    percentage: number;
+  }>;
   realtimeStats: {
     activeUsers: number;
     pageViewsLastHour: number;
@@ -50,47 +57,47 @@ interface AnalyticsData {
 const analyticsData: AnalyticsData = {
   pageViews: 128459,
   uniqueVisitors: 45231,
-  avgSessionDuration: '4:23',
+  avgSessionDuration: "4:23",
   bounceRate: 42.3,
   topPages: [
-    { page: '/news/economy/saudi-vision-2030', views: 15420, change: 12.5 },
-    { page: '/news/tech/ai-middle-east', views: 12890, change: 8.2 },
-    { page: '/news/politics/g20-summit', views: 9760, change: -2.1 },
-    { page: '/news/sports/world-cup', views: 8430, change: 15.3 },
-    { page: '/news/business/startup-funding', views: 7250, change: 5.7 }
+    { page: "/news/economy/saudi-vision-2030", views: 15420, change: 12.5 },
+    { page: "/news/tech/ai-middle-east", views: 12890, change: 8.2 },
+    { page: "/news/politics/g20-summit", views: 9760, change: -2.1 },
+    { page: "/news/sports/world-cup", views: 8430, change: 15.3 },
+    { page: "/news/business/startup-funding", views: 7250, change: 5.7 },
   ],
   deviceStats: [
-    { device: 'desktop', percentage: 45.2, count: 20454 },
-    { device: 'mobile', percentage: 41.8, count: 18906 },
-    { device: 'tablet', percentage: 13.0, count: 5871 }
+    { device: "desktop", percentage: 45.2, count: 20454 },
+    { device: "mobile", percentage: 41.8, count: 18906 },
+    { device: "tablet", percentage: 13.0, count: 5871 },
   ],
   trafficSources: [
-    { source: 'Organic Search', percentage: 52.3, visitors: 23656 },
-    { source: 'Direct', percentage: 28.7, visitors: 12981 },
-    { source: 'Social Media', percentage: 12.4, visitors: 5609 },
-    { source: 'Email', percentage: 4.2, visitors: 1900 },
-    { source: 'Referral', percentage: 2.4, visitors: 1085 }
+    { source: "Organic Search", percentage: 52.3, visitors: 23656 },
+    { source: "Direct", percentage: 28.7, visitors: 12981 },
+    { source: "Social Media", percentage: 12.4, visitors: 5609 },
+    { source: "Email", percentage: 4.2, visitors: 1900 },
+    { source: "Referral", percentage: 2.4, visitors: 1085 },
   ],
   geographicData: [
-    { country: 'السعودية', visitors: 25120, percentage: 55.5 },
-    { country: 'الإمارات', visitors: 8940, percentage: 19.8 },
-    { country: 'قطر', visitors: 4230, percentage: 9.4 },
-    { country: 'الكويت', visitors: 3850, percentage: 8.5 },
-    { country: 'البحرين', visitors: 3091, percentage: 6.8 }
+    { country: "السعودية", visitors: 25120, percentage: 55.5 },
+    { country: "الإمارات", visitors: 8940, percentage: 19.8 },
+    { country: "قطر", visitors: 4230, percentage: 9.4 },
+    { country: "الكويت", visitors: 3850, percentage: 8.5 },
+    { country: "البحرين", visitors: 3091, percentage: 6.8 },
   ],
   realtimeStats: {
     activeUsers: 1247,
     pageViewsLastHour: 3456,
     topActivePages: [
-      '/news/breaking/oil-prices',
-      '/news/tech/metaverse-summit',
-      '/news/economy/inflation-report'
-    ]
-  }
+      "/news/breaking/oil-prices",
+      "/news/tech/metaverse-summit",
+      "/news/economy/inflation-report",
+    ],
+  },
 };
 
 export default function ModernAnalyticsNew() {
-  const [selectedPeriod, setSelectedPeriod] = useState('7d');
+  const [selectedPeriod, setSelectedPeriod] = useState("7d");
 
   const formatNumber = (num: number) => {
     if (num >= 1000000) return `${(num / 1000000).toFixed(1)}م`;
@@ -100,62 +107,67 @@ export default function ModernAnalyticsNew() {
 
   const getDeviceIcon = (device: string) => {
     switch (device) {
-      case 'desktop': return Monitor;
-      case 'mobile': return Smartphone;
-      case 'tablet': return Tablet;
-      default: return Monitor;
+      case "desktop":
+        return Monitor;
+      case "mobile":
+        return Smartphone;
+      case "tablet":
+        return Tablet;
+      default:
+        return Monitor;
     }
   };
 
   const getDeviceName = (device: string) => {
     switch (device) {
-      case 'desktop': return 'سطح المكتب';
-      case 'mobile': return 'الجوال';
-      case 'tablet': return 'الجهاز اللوحي';
-      default: return device;
+      case "desktop":
+        return "سطح المكتب";
+      case "mobile":
+        return "الجوال";
+      case "tablet":
+        return "الجهاز اللوحي";
+      default:
+        return device;
     }
   };
 
   const statsCards = [
     {
-      title: 'مشاهدات الصفحة',
+      title: "مشاهدات الصفحة",
       value: formatNumber(analyticsData.pageViews),
       icon: Eye,
-      change: '+12.5%',
-      changeType: 'increase' as const,
-      color: 'blue'
+      change: "+12.5%",
+      changeType: "increase" as const,
+      color: "blue",
     },
     {
-      title: 'الزوار الفريدون',
+      title: "الزوار الفريدون",
       value: formatNumber(analyticsData.uniqueVisitors),
       icon: Users,
-      change: '+8.2%',
-      changeType: 'increase' as const,
-      color: 'green'
+      change: "+8.2%",
+      changeType: "increase" as const,
+      color: "green",
     },
     {
-      title: 'متوسط مدة الجلسة',
+      title: "متوسط مدة الجلسة",
       value: analyticsData.avgSessionDuration,
       icon: Clock,
-      change: '+5.1%',
-      changeType: 'increase' as const,
-      color: 'purple'
+      change: "+5.1%",
+      changeType: "increase" as const,
+      color: "purple",
     },
     {
-      title: 'معدل الارتداد',
+      title: "معدل الارتداد",
       value: `${analyticsData.bounceRate}%`,
       icon: Target,
-      change: '-2.3%',
-      changeType: 'decrease' as const,
-      color: 'orange'
-    }
+      change: "-2.3%",
+      changeType: "decrease" as const,
+      color: "orange",
+    },
   ];
 
   return (
-    <DashboardLayout
-      pageTitle="التحليلات المتقدمة"
-      pageDescription="تحليل شامل لأداء الموقع وسلوك الزوار"
-    >
+    <>
       <div className="space-y-8">
         {/* رسالة الترحيب الاحترافية */}
         <DesignComponents.StandardCard className="p-6 bg-gradient-to-l from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 border-purple-200 dark:border-purple-800">
@@ -182,9 +194,14 @@ export default function ModernAnalyticsNew() {
               </div>
             </div>
             <div className="text-right">
-              <div className="text-sm text-gray-500 dark:text-gray-400">آخر تحديث</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                آخر تحديث
+              </div>
               <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                {new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}
+                {new Date().toLocaleTimeString("ar-SA", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
               </div>
             </div>
           </div>
@@ -212,9 +229,13 @@ export default function ModernAnalyticsNew() {
           <DesignComponents.DynamicGrid minItemWidth="280px" className="mb-8">
             {statsCards.map((stat, index) => {
               const Icon = stat.icon;
-              const ChangeIcon = stat.changeType === 'increase' ? ArrowUpRight : ArrowDownRight;
+              const ChangeIcon =
+                stat.changeType === "increase" ? ArrowUpRight : ArrowDownRight;
               return (
-                <DesignComponents.StandardCard key={index} className="p-6 hover:shadow-lg transition-shadow">
+                <DesignComponents.StandardCard
+                  key={index}
+                  className="p-6 hover:shadow-lg transition-shadow"
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
@@ -224,31 +245,45 @@ export default function ModernAnalyticsNew() {
                         <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                           {stat.value}
                         </p>
-                        <div className={cn(
-                          "flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-full",
-                          stat.changeType === 'increase'
-                            ? "text-green-700 bg-green-100 dark:bg-green-900/30 dark:text-green-400"
-                            : "text-red-700 bg-red-100 dark:bg-red-900/30 dark:text-red-400"
-                        )}>
+                        <div
+                          className={cn(
+                            "flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-full",
+                            stat.changeType === "increase"
+                              ? "text-green-700 bg-green-100 dark:bg-green-900/30 dark:text-green-400"
+                              : "text-red-700 bg-red-100 dark:bg-red-900/30 dark:text-red-400"
+                          )}
+                        >
                           <ChangeIcon className="w-3 h-3" />
                           {stat.change}
                         </div>
                       </div>
                     </div>
-                    <div className={cn(
-                      "w-12 h-12 rounded-lg flex items-center justify-center",
-                      stat.color === 'blue' && "bg-blue-100 dark:bg-blue-900/30",
-                      stat.color === 'green' && "bg-green-100 dark:bg-green-900/30",
-                      stat.color === 'purple' && "bg-purple-100 dark:bg-purple-900/30",
-                      stat.color === 'orange' && "bg-orange-100 dark:bg-orange-900/30"
-                    )}>
-                      <Icon className={cn(
-                        "w-6 h-6",
-                        stat.color === 'blue' && "text-blue-600 dark:text-blue-400",
-                        stat.color === 'green' && "text-green-600 dark:text-green-400",
-                        stat.color === 'purple' && "text-purple-600 dark:text-purple-400",
-                        stat.color === 'orange' && "text-orange-600 dark:text-orange-400"
-                      )} />
+                    <div
+                      className={cn(
+                        "w-12 h-12 rounded-lg flex items-center justify-center",
+                        stat.color === "blue" &&
+                          "bg-blue-100 dark:bg-blue-900/30",
+                        stat.color === "green" &&
+                          "bg-green-100 dark:bg-green-900/30",
+                        stat.color === "purple" &&
+                          "bg-purple-100 dark:bg-purple-900/30",
+                        stat.color === "orange" &&
+                          "bg-orange-100 dark:bg-orange-900/30"
+                      )}
+                    >
+                      <Icon
+                        className={cn(
+                          "w-6 h-6",
+                          stat.color === "blue" &&
+                            "text-blue-600 dark:text-blue-400",
+                          stat.color === "green" &&
+                            "text-green-600 dark:text-green-400",
+                          stat.color === "purple" &&
+                            "text-purple-600 dark:text-purple-400",
+                          stat.color === "orange" &&
+                            "text-orange-600 dark:text-orange-400"
+                        )}
+                      />
                     </div>
                   </div>
                 </DesignComponents.StandardCard>
@@ -277,17 +312,26 @@ export default function ModernAnalyticsNew() {
                 </div>
                 <div className="space-y-3">
                   {analyticsData.topPages.map((page, index) => (
-                    <div key={index} className="flex items-center justify-between">
+                    <div
+                      key={index}
+                      className="flex items-center justify-between"
+                    >
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{page.page}</p>
-                        <p className="text-xs text-gray-500">{formatNumber(page.views)} مشاهدة</p>
+                        <p className="text-sm font-medium truncate">
+                          {page.page}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {formatNumber(page.views)} مشاهدة
+                        </p>
                       </div>
-                      <div className={cn(
-                        "flex items-center gap-1 text-sm px-2 py-1 rounded-full",
-                        page.change > 0
-                          ? "text-green-700 bg-green-100 dark:bg-green-900/30"
-                          : "text-red-700 bg-red-100 dark:bg-red-900/30"
-                      )}>
+                      <div
+                        className={cn(
+                          "flex items-center gap-1 text-sm px-2 py-1 rounded-full",
+                          page.change > 0
+                            ? "text-green-700 bg-green-100 dark:bg-green-900/30"
+                            : "text-red-700 bg-red-100 dark:bg-red-900/30"
+                        )}
+                      >
                         {page.change > 0 ? (
                           <ArrowUpRight className="w-3 h-3" />
                         ) : (
@@ -306,25 +350,45 @@ export default function ModernAnalyticsNew() {
                     <Activity className="h-5 w-5 text-green-500" />
                     <h3 className="font-semibold">الإحصائيات المباشرة</h3>
                   </div>
-                  <DesignComponents.StatusIndicator status="success" text="مباشر" />
+                  <DesignComponents.StatusIndicator
+                    status="success"
+                    text="مباشر"
+                  />
                 </div>
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">المستخدمون النشطون</span>
-                    <span className="text-lg font-bold">{analyticsData.realtimeStats.activeUsers}</span>
+                    <span className="text-sm text-gray-600">
+                      المستخدمون النشطون
+                    </span>
+                    <span className="text-lg font-bold">
+                      {analyticsData.realtimeStats.activeUsers}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">المشاهدات في الساعة الأخيرة</span>
-                    <span className="text-lg font-bold">{formatNumber(analyticsData.realtimeStats.pageViewsLastHour)}</span>
+                    <span className="text-sm text-gray-600">
+                      المشاهدات في الساعة الأخيرة
+                    </span>
+                    <span className="text-lg font-bold">
+                      {formatNumber(
+                        analyticsData.realtimeStats.pageViewsLastHour
+                      )}
+                    </span>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600 mb-2">الصفحات النشطة:</p>
+                    <p className="text-sm text-gray-600 mb-2">
+                      الصفحات النشطة:
+                    </p>
                     <div className="space-y-1">
-                      {analyticsData.realtimeStats.topActivePages.map((page, index) => (
-                        <div key={index} className="text-xs text-gray-500 bg-gray-50 dark:bg-gray-800 px-2 py-1 rounded">
-                          {page}
-                        </div>
-                      ))}
+                      {analyticsData.realtimeStats.topActivePages.map(
+                        (page, index) => (
+                          <div
+                            key={index}
+                            className="text-xs text-gray-500 bg-gray-50 dark:bg-gray-800 px-2 py-1 rounded"
+                          >
+                            {page}
+                          </div>
+                        )
+                      )}
                     </div>
                   </div>
                 </div>
@@ -342,7 +406,10 @@ export default function ModernAnalyticsNew() {
               </div>
               <div className="space-y-3">
                 {analyticsData.trafficSources.map((source, index) => (
-                  <div key={index} className="flex items-center justify-between">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between"
+                  >
                     <span className="text-sm">{source.source}</span>
                     <div className="flex items-center gap-3">
                       <span className="text-xs text-gray-600">
@@ -375,8 +442,12 @@ export default function ModernAnalyticsNew() {
                         <DeviceIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                       </div>
                       <div>
-                        <h3 className="font-semibold">{getDeviceName(device.device)}</h3>
-                        <p className="text-sm text-gray-600">{formatNumber(device.count)} جهاز</p>
+                        <h3 className="font-semibold">
+                          {getDeviceName(device.device)}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          {formatNumber(device.count)} جهاز
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
@@ -386,7 +457,9 @@ export default function ModernAnalyticsNew() {
                           style={{ width: `${device.percentage}%` }}
                         />
                       </div>
-                      <span className="text-lg font-bold">{device.percentage}%</span>
+                      <span className="text-lg font-bold">
+                        {device.percentage}%
+                      </span>
                     </div>
                   </DesignComponents.StandardCard>
                 );
@@ -404,7 +477,10 @@ export default function ModernAnalyticsNew() {
               </div>
               <div className="space-y-3">
                 {analyticsData.geographicData.map((country, index) => (
-                  <div key={index} className="flex items-center justify-between">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between"
+                  >
                     <span className="text-sm">{country.country}</span>
                     <div className="flex items-center gap-3">
                       <span className="text-xs text-gray-600">
@@ -413,7 +489,9 @@ export default function ModernAnalyticsNew() {
                       <div className="w-16 bg-gray-200 rounded-full h-2">
                         <div
                           className="bg-blue-500 h-2 rounded-full"
-                          style={{ width: `${(country.percentage / 60) * 100}%` }}
+                          style={{
+                            width: `${(country.percentage / 60) * 100}%`,
+                          }}
                         />
                       </div>
                       <span className="text-xs font-medium w-8 text-right">
@@ -441,10 +519,13 @@ export default function ModernAnalyticsNew() {
                 موقعك يحقق نمواً مستمراً مع زيادة في المشاهدات والزوار الفريدين
               </p>
             </div>
-            <DesignComponents.StatusIndicator status="success" text="نمو إيجابي" />
+            <DesignComponents.StatusIndicator
+              status="success"
+              text="نمو إيجابي"
+            />
           </div>
         </DesignComponents.StandardCard>
       </div>
-    </DashboardLayout>
+    </>
   );
 }

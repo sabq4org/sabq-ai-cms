@@ -1,17 +1,20 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import { 
-  ChevronLeft, ChevronRight, Search, Filter, Plus, 
-  MoreVertical, Edit, Trash2, Eye, Calendar, Clock,
-  Zap, Users, TrendingUp, BarChart3, Newspaper,
-  PenTool, FileText, Settings, Menu, X
+import {
+    BarChart3,
+    FileText,
+    Filter,
+    Menu,
+    Newspaper,
+    Plus,
+    Search,
+    Settings,
+    X
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+import DashboardMobileHeader from './DashboardMobileHeader';
 
 interface MobileDashboardLayoutProps {
   children: React.ReactNode;
@@ -59,27 +62,27 @@ export default function MobileDashboardLayout({
 
   // قائمة الروابط السريعة للموبايل
   const quickLinks = [
-    { 
-      title: 'إنشاء خبر', 
-      icon: <Plus className="w-5 h-5" />, 
+    {
+      title: 'إنشاء خبر',
+      icon: <Plus className="w-5 h-5" />,
       href: '/dashboard/news/unified',
       color: 'bg-blue-500'
     },
-    { 
-      title: 'إدارة الأخبار', 
-      icon: <Newspaper className="w-5 h-5" />, 
+    {
+      title: 'إدارة الأخبار',
+      icon: <Newspaper className="w-5 h-5" />,
       href: '/dashboard/news',
       color: 'bg-green-500'
     },
-    { 
-      title: 'التحليلات', 
-      icon: <BarChart3 className="w-5 h-5" />, 
+    {
+      title: 'التحليلات',
+      icon: <BarChart3 className="w-5 h-5" />,
       href: '/dashboard/insights',
       color: 'bg-purple-500'
     },
-    { 
-      title: 'المقالات', 
-      icon: <FileText className="w-5 h-5" />, 
+    {
+      title: 'المقالات',
+      icon: <FileText className="w-5 h-5" />,
       href: '/dashboard/article',
       color: 'bg-orange-500'
     }
@@ -91,88 +94,70 @@ export default function MobileDashboardLayout({
 
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
-      {/* شريط التنقل العلوي للموبايل */}
-      <div className={`
-        sticky top-0 z-50 border-b
-        ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}
-      `}>
-        <div className="flex items-center justify-between p-4">
-          {/* زر العودة */}
-          {showBack ? (
-            <button
-              onClick={() => onBack ? onBack() : router.back()}
-              className={`p-2 rounded-lg transition-colors ${
-                darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
-              }`}
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-          ) : (
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className={`p-2 rounded-lg transition-colors ${
-                darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
-              }`}
-            >
-              <Menu className="w-5 h-5" />
-            </button>
-          )}
+      {/* الهيدر المحسن للوحة التحكم */}
+      <DashboardMobileHeader
+        title={title}
+        showSearch={showSearch}
+        showNotifications={true}
+        onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+      />
 
-          {/* العنوان */}
-          <h1 className={`text-lg font-bold truncate mx-4 ${
-            darkMode ? 'text-white' : 'text-gray-900'
-          }`}>
-            {title}
-          </h1>
+      {/* المحتوى الرئيسي */}
+      <main className="relative">
+        {/* الأزرار السريعة */}
+        {(showAdd || showFilter) && (
+          <div className={`
+            sticky top-[72px] z-40 border-b px-4 py-3
+            ${darkMode ? 'bg-gray-800/95 border-gray-700 backdrop-blur-sm' : 'bg-white/95 border-gray-200 backdrop-blur-sm'}
+          `}>
+            <div className="flex items-center gap-2">
+              {showSearch && (
+                <button
+                  onClick={() => setIsSearchOpen(!isSearchOpen)}
+                  className={`p-2 rounded-lg transition-colors ${
+                    isSearchOpen
+                      ? 'bg-blue-500 text-white'
+                      : darkMode
+                        ? 'hover:bg-gray-700 text-gray-300'
+                        : 'hover:bg-gray-100 text-gray-600'
+                  }`}
+                >
+                  <Search className="w-5 h-5" />
+                </button>
+              )}
 
-          {/* الأزرار السريعة */}
-          <div className="flex items-center gap-2">
-            {showSearch && (
+              {showFilter && (
+                <button
+                  onClick={onFilter}
+                  className={`p-2 rounded-lg transition-colors ${
+                    darkMode ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-100 text-gray-600'
+                  }`}
+                >
+                  <Filter className="w-5 h-5" />
+                </button>
+              )}
+
+              {showAdd && (
+                <button
+                  onClick={onAdd}
+                  className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                  <Plus className="w-5 h-5" />
+                </button>
+              )}
+
+              {/* قائمة هامبرغر */}
               <button
-                onClick={() => setIsSearchOpen(!isSearchOpen)}
-                className={`p-2 rounded-lg transition-colors ${
-                  isSearchOpen 
-                    ? 'bg-blue-500 text-white' 
-                    : darkMode 
-                      ? 'hover:bg-gray-700 text-gray-300' 
-                      : 'hover:bg-gray-100 text-gray-600'
-                }`}
-              >
-                <Search className="w-5 h-5" />
-              </button>
-            )}
-
-            {showFilter && (
-              <button
-                onClick={onFilter}
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className={`p-2 rounded-lg transition-colors ${
                   darkMode ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-100 text-gray-600'
                 }`}
               >
-                <Filter className="w-5 h-5" />
+                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
-            )}
-
-            {showAdd && (
-              <button
-                onClick={onAdd}
-                className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-              >
-                <Plus className="w-5 h-5" />
-              </button>
-            )}
-
-            {/* قائمة هامبرغر */}
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className={`p-2 rounded-lg transition-colors ${
-                darkMode ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-100 text-gray-600'
-              }`}
-            >
-              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* شريط البحث القابل للتوسيع */}
         {isSearchOpen && (
@@ -189,8 +174,8 @@ export default function MobileDashboardLayout({
                 }}
                 className={`
                   w-full pl-10 pr-4 py-2 rounded-lg border
-                  ${darkMode 
-                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                  ${darkMode
+                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
                     : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
                   }
                   focus:outline-none focus:ring-2 focus:ring-blue-500
@@ -239,12 +224,12 @@ export default function MobileDashboardLayout({
             </div>
           </div>
         )}
-      </div>
 
-      {/* المحتوى الرئيسي */}
-      <div className="p-4">
-        {children}
-      </div>
+        {/* المحتوى الرئيسي */}
+        <div className="p-4">
+          {children}
+        </div>
+      </main>
 
       {/* شريط التنقل السفلي الثابت (اختياري) */}
       <div className={`
@@ -262,7 +247,7 @@ export default function MobileDashboardLayout({
             <Settings className="w-5 h-5 mb-1" />
             <span className="text-xs">الرئيسية</span>
           </button>
-          
+
           <button
             onClick={() => router.push('/dashboard/news')}
             className={`flex flex-col items-center p-2 rounded-lg transition-colors ${
@@ -272,7 +257,7 @@ export default function MobileDashboardLayout({
             <Newspaper className="w-5 h-5 mb-1" />
             <span className="text-xs">الأخبار</span>
           </button>
-          
+
           <button
             onClick={() => router.push('/dashboard/insights')}
             className={`flex flex-col items-center p-2 rounded-lg transition-colors ${
@@ -282,7 +267,7 @@ export default function MobileDashboardLayout({
             <BarChart3 className="w-5 h-5 mb-1" />
             <span className="text-xs">الإحصائيات</span>
           </button>
-          
+
           <button
             onClick={() => router.push('/dashboard/article')}
             className={`flex flex-col items-center p-2 rounded-lg transition-colors ${

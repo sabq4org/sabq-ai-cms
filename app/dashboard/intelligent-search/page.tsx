@@ -3,30 +3,29 @@
  * Intelligent Search Page
  */
 
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
+
 import {
-  Search,
+  BarChart3,
   Brain,
-  Zap,
-  Target,
   Clock,
+  Eye,
+  FileText,
+  Filter,
+  RefreshCw,
+  Search,
+  Settings,
+  Target,
   TrendingUp,
   Users,
-  FileText,
-  BarChart3,
-  Settings,
-  RefreshCw,
-  Filter,
-  Eye,
-  ThumbsUp
-} from 'lucide-react';
+  Zap,
+} from "lucide-react";
 
 interface SearchQuery {
   id: string;
@@ -48,91 +47,89 @@ interface SearchAnalytics {
 
 const searchQueriesData: SearchQuery[] = [
   {
-    id: '1',
-    query: 'أخبار الذكاء الاصطناعي في السعودية',
+    id: "1",
+    query: "أخبار الذكاء الاصطناعي في السعودية",
     results: 147,
     responseTime: 0.23,
     accuracy: 96,
-    timestamp: '2024-01-26T10:30:00Z',
-    category: 'تقنية',
-    userId: 'user_123'
+    timestamp: "2024-01-26T10:30:00Z",
+    category: "تقنية",
+    userId: "user_123",
   },
   {
-    id: '2',
-    query: 'رؤية 2030 التطورات الجديدة',
+    id: "2",
+    query: "رؤية 2030 التطورات الجديدة",
     results: 89,
     responseTime: 0.18,
     accuracy: 94,
-    timestamp: '2024-01-26T10:25:00Z',
-    category: 'اقتصاد',
-    userId: 'user_456'
+    timestamp: "2024-01-26T10:25:00Z",
+    category: "اقتصاد",
+    userId: "user_456",
   },
   {
-    id: '3',
-    query: 'أسعار النفط اليوم',
+    id: "3",
+    query: "أسعار النفط اليوم",
     results: 234,
     responseTime: 0.15,
     accuracy: 98,
-    timestamp: '2024-01-26T10:20:00Z',
-    category: 'اقتصاد'
+    timestamp: "2024-01-26T10:20:00Z",
+    category: "اقتصاد",
   },
   {
-    id: '4',
-    query: 'كأس العالم 2026 المنتخب السعودي',
+    id: "4",
+    query: "كأس العالم 2026 المنتخب السعودي",
     results: 67,
     responseTime: 0.31,
     accuracy: 91,
-    timestamp: '2024-01-26T10:15:00Z',
-    category: 'رياضة',
-    userId: 'user_789'
-  }
+    timestamp: "2024-01-26T10:15:00Z",
+    category: "رياضة",
+    userId: "user_789",
+  },
 ];
 
 const analyticsData: SearchAnalytics = {
   totalQueries: 15420,
   avgResponseTime: 0.22,
   successRate: 94.7,
-  popularCategories: ['اقتصاد', 'تقنية', 'سياسة', 'رياضة', 'ثقافة']
+  popularCategories: ["اقتصاد", "تقنية", "سياسة", "رياضة", "ثقافة"],
 };
 
 export default function IntelligentSearchPage() {
   const [searchQueries, setSearchQueries] = useState(searchQueriesData);
   const [analytics, setAnalytics] = useState(analyticsData);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredQueries = searchQueries.filter(query =>
-    query.query.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    query.category.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredQueries = searchQueries.filter(
+    (query) =>
+      query.query.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      query.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
-      'تقنية': 'blue',
-      'اقتصاد': 'green',
-      'سياسة': 'purple',
-      'رياضة': 'orange',
-      'ثقافة': 'pink'
+      تقنية: "blue",
+      اقتصاد: "green",
+      سياسة: "purple",
+      رياضة: "orange",
+      ثقافة: "pink",
     };
-    return colors[category] || 'gray';
+    return colors[category] || "gray";
   };
 
   const getAccuracyColor = (accuracy: number) => {
-    if (accuracy >= 95) return 'text-green-600';
-    if (accuracy >= 90) return 'text-yellow-600';
-    return 'text-red-600';
+    if (accuracy >= 95) return "text-green-600";
+    if (accuracy >= 90) return "text-yellow-600";
+    return "text-red-600";
   };
 
   const getResponseTimeColor = (time: number) => {
-    if (time <= 0.2) return 'text-green-600';
-    if (time <= 0.3) return 'text-yellow-600';
-    return 'text-red-600';
+    if (time <= 0.2) return "text-green-600";
+    if (time <= 0.3) return "text-yellow-600";
+    return "text-red-600";
   };
 
   return (
-    <DashboardLayout 
-      pageTitle="البحث الذكي"
-      pageDescription="نظام البحث المدعوم بالذكاء الاصطناعي والمعالجة الطبيعية للغة العربية"
-    >
+    <>
       <div className="space-y-6">
         {/* شريط الأدوات العلوي */}
         <div className="flex flex-col sm:flex-row gap-4 justify-between">
@@ -166,16 +163,38 @@ export default function IntelligentSearchPage() {
         {/* الإحصائيات السريعة */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[
-            { title: 'إجمالي الاستعلامات', value: analytics.totalQueries.toLocaleString(), icon: Search, color: 'blue' },
-            { title: 'متوسط وقت الاستجابة', value: `${analytics.avgResponseTime}s`, icon: Zap, color: 'green' },
-            { title: 'معدل النجاح', value: `${analytics.successRate}%`, icon: Target, color: 'purple' },
-            { title: 'الاستعلامات اليوم', value: '2,847', icon: TrendingUp, color: 'orange' }
+            {
+              title: "إجمالي الاستعلامات",
+              value: analytics.totalQueries.toLocaleString(),
+              icon: Search,
+              color: "blue",
+            },
+            {
+              title: "متوسط وقت الاستجابة",
+              value: `${analytics.avgResponseTime}s`,
+              icon: Zap,
+              color: "green",
+            },
+            {
+              title: "معدل النجاح",
+              value: `${analytics.successRate}%`,
+              icon: Target,
+              color: "purple",
+            },
+            {
+              title: "الاستعلامات اليوم",
+              value: "2,847",
+              icon: TrendingUp,
+              color: "orange",
+            },
           ].map((stat) => (
             <Card key={stat.title}>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{stat.title}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {stat.title}
+                    </p>
                     <p className="text-2xl font-bold">{stat.value}</p>
                   </div>
                   <stat.icon className={`h-8 w-8 text-${stat.color}-500`} />
@@ -197,18 +216,20 @@ export default function IntelligentSearchPage() {
             <CardContent>
               <div className="space-y-4">
                 {[
-                  { label: 'دقة النتائج', value: 96, color: 'green' },
-                  { label: 'فهم السياق', value: 91, color: 'blue' },
-                  { label: 'المعالجة العربية', value: 94, color: 'purple' },
-                  { label: 'سرعة البحث', value: 88, color: 'orange' }
+                  { label: "دقة النتائج", value: 96, color: "green" },
+                  { label: "فهم السياق", value: 91, color: "blue" },
+                  { label: "المعالجة العربية", value: 94, color: "purple" },
+                  { label: "سرعة البحث", value: 88, color: "orange" },
                 ].map((metric) => (
                   <div key={metric.label} className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-sm font-medium">{metric.label}</span>
+                      <span className="text-sm font-medium">
+                        {metric.label}
+                      </span>
                       <span className="text-sm font-bold">{metric.value}%</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
+                      <div
                         className={`h-2 rounded-full bg-${metric.color}-500 transition-all duration-300`}
                         style={{ width: `${metric.value}%` }}
                       />
@@ -229,19 +250,30 @@ export default function IntelligentSearchPage() {
             <CardContent>
               <div className="space-y-3">
                 {analytics.popularCategories.map((category, index) => (
-                  <div key={category} className="flex items-center justify-between">
+                  <div
+                    key={category}
+                    className="flex items-center justify-between"
+                  >
                     <div className="flex items-center gap-2">
-                      <div className={`w-3 h-3 rounded-full bg-${getCategoryColor(category)}-500`} />
+                      <div
+                        className={`w-3 h-3 rounded-full bg-${getCategoryColor(
+                          category
+                        )}-500`}
+                      />
                       <span className="font-medium">{category}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-20 bg-gray-200 rounded-full h-2">
-                        <div 
-                          className={`h-2 rounded-full bg-${getCategoryColor(category)}-500`}
-                          style={{ width: `${100 - (index * 15)}%` }}
+                        <div
+                          className={`h-2 rounded-full bg-${getCategoryColor(
+                            category
+                          )}-500`}
+                          style={{ width: `${100 - index * 15}%` }}
                         />
                       </div>
-                      <span className="text-sm text-gray-600">{100 - (index * 15)}%</span>
+                      <span className="text-sm text-gray-600">
+                        {100 - index * 15}%
+                      </span>
                     </div>
                   </div>
                 ))}
@@ -261,13 +293,20 @@ export default function IntelligentSearchPage() {
           <CardContent>
             <div className="space-y-4">
               {filteredQueries.map((query) => (
-                <div key={query.id} className="p-4 border rounded-lg hover:shadow-md transition-all duration-200">
+                <div
+                  key={query.id}
+                  className="p-4 border rounded-lg hover:shadow-md transition-all duration-200"
+                >
                   <div className="flex items-start justify-between">
                     <div className="flex-1 space-y-2">
                       <div className="flex items-center gap-2 flex-wrap">
                         <Search className="h-4 w-4 text-gray-500" />
                         <span className="font-medium">{query.query}</span>
-                        <Badge className={`bg-${getCategoryColor(query.category)}-100 text-${getCategoryColor(query.category)}-700`}>
+                        <Badge
+                          className={`bg-${getCategoryColor(
+                            query.category
+                          )}-100 text-${getCategoryColor(query.category)}-700`}
+                        >
                           {query.category}
                         </Badge>
                         {query.userId && (
@@ -277,27 +316,39 @@ export default function IntelligentSearchPage() {
                           </Badge>
                         )}
                       </div>
-                      
+
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                         <div className="flex items-center gap-1">
                           <FileText className="h-4 w-4 text-blue-500" />
                           <span>{query.results} نتيجة</span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <Zap className={`h-4 w-4 ${getResponseTimeColor(query.responseTime)}`} />
+                          <Zap
+                            className={`h-4 w-4 ${getResponseTimeColor(
+                              query.responseTime
+                            )}`}
+                          />
                           <span>{query.responseTime}s</span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <Target className={`h-4 w-4 ${getAccuracyColor(query.accuracy)}`} />
+                          <Target
+                            className={`h-4 w-4 ${getAccuracyColor(
+                              query.accuracy
+                            )}`}
+                          />
                           <span>{query.accuracy}% دقة</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Clock className="h-4 w-4 text-gray-500" />
-                          <span>{new Date(query.timestamp).toLocaleTimeString('ar-SA')}</span>
+                          <span>
+                            {new Date(query.timestamp).toLocaleTimeString(
+                              "ar-SA"
+                            )}
+                          </span>
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center gap-2">
                       <Button variant="outline" size="sm">
                         <Eye className="h-4 w-4 mr-1" />
@@ -326,10 +377,7 @@ export default function IntelligentSearchPage() {
           <CardContent>
             <div className="space-y-4">
               <div className="flex gap-2">
-                <Input 
-                  placeholder="جرب البحث هنا..." 
-                  className="flex-1"
-                />
+                <Input placeholder="جرب البحث هنا..." className="flex-1" />
                 <Button className="bg-green-600 hover:bg-green-700">
                   <Search className="h-4 w-4 mr-2" />
                   بحث
@@ -342,6 +390,6 @@ export default function IntelligentSearchPage() {
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
+    </>
   );
 }

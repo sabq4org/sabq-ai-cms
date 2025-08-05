@@ -2,63 +2,12 @@
  * صفحة إدارة أعضاء الفريق
  */
 
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import {
-  Users,
-  Search,
-  Filter,
-  MoreHorizontal,
-  Edit,
-  Trash2,
-  UserPlus,
-  Mail,
-  Phone,
-  Calendar,
-  Shield,
-  Eye,
-  Ban,
-  CheckCircle,
-  Briefcase,
-  Building,
-  Award,
-  Clock,
-  Activity,
-  UserCheck,
-  UserX,
-  RefreshCw,
-  Download,
-  Upload,
-  Star,
-  Link,
-  Twitter,
-  Linkedin,
-  Facebook,
-  Instagram
-} from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -66,14 +15,54 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
-import { toast } from 'react-hot-toast';
-import { format } from 'date-fns';
-import { ar } from 'date-fns/locale';
-import { ImageUploadComponent as ImageUpload } from '@/components/ui/ImageUpload';
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ImageUploadComponent as ImageUpload } from "@/components/ui/ImageUpload";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
+import { format } from "date-fns";
+import { ar } from "date-fns/locale";
+import {
+  Briefcase,
+  Building,
+  Calendar,
+  CheckCircle,
+  Edit,
+  Facebook,
+  Instagram,
+  Linkedin,
+  Mail,
+  MoreHorizontal,
+  Phone,
+  RefreshCw,
+  Search,
+  Shield,
+  Trash2,
+  Twitter,
+  UserCheck,
+  UserPlus,
+  Users,
+  UserX,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
 
 interface TeamMember {
   id: string;
@@ -130,93 +119,93 @@ export default function TeamManagementPage() {
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
   const [rolesLoading, setRolesLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [roleFilter, setRoleFilter] = useState<string>('all');
-  const [departmentFilter, setDepartmentFilter] = useState<string>('all');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [departmentFilter, setDepartmentFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [refreshing, setRefreshing] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [formData, setFormData] = useState<TeamMemberForm>({
-    name: '',
-    email: '',
-    role: '',
-    department: '',
-    position: '',
-    bio: '',
-    avatar: '',
-    phone: '',
+    name: "",
+    email: "",
+    role: "",
+    department: "",
+    position: "",
+    bio: "",
+    avatar: "",
+    phone: "",
     social_links: {
-      twitter: '',
-      linkedin: '',
-      facebook: '',
-      instagram: ''
+      twitter: "",
+      linkedin: "",
+      facebook: "",
+      instagram: "",
     },
-    is_active: true
+    is_active: true,
   });
 
   // جلب الأدوار من قاعدة البيانات
   const fetchRoles = async () => {
     try {
       setRolesLoading(true);
-      console.log('🔍 [DEBUG] جلب الأدوار من قاعدة البيانات...');
-      console.log('🔍 [DEBUG] URL:', '/api/admin/roles');
-      
-      const response = await fetch('/api/admin/roles', {
-        cache: 'no-cache',
+      console.log("🔍 [DEBUG] جلب الأدوار من قاعدة البيانات...");
+      console.log("🔍 [DEBUG] URL:", "/api/admin/roles");
+
+      const response = await fetch("/api/admin/roles", {
+        cache: "no-cache",
         headers: {
-          'Content-Type': 'application/json'
-        }
+          "Content-Type": "application/json",
+        },
       });
-      
-      console.log('📡 [DEBUG] Response status:', response.status);
-      console.log('📡 [DEBUG] Response ok:', response.ok);
-      
+
+      console.log("📡 [DEBUG] Response status:", response.status);
+      console.log("📡 [DEBUG] Response ok:", response.ok);
+
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-      
+
       const data = await response.json();
-      console.log('📊 [DEBUG] استجابة API الأدوار:', data);
-      console.log('📊 [DEBUG] data.success:', data.success);
-      console.log('📊 [DEBUG] data.data length:', data.data?.length);
-      
+      console.log("📊 [DEBUG] استجابة API الأدوار:", data);
+      console.log("📊 [DEBUG] data.success:", data.success);
+      console.log("📊 [DEBUG] data.data length:", data.data?.length);
+
       if (data.success && data.data) {
         // تحويل البيانات للتنسيق المطلوب
         const rolesData = data.data.map((role: any) => ({
           id: role.id,
           name: role.name,
           display_name: role.display_name || role.name,
-          description: role.description
+          description: role.description,
         }));
-        
-        console.log('🔄 [DEBUG] rolesData before setRoles:', rolesData);
+
+        console.log("🔄 [DEBUG] rolesData before setRoles:", rolesData);
         setRoles(rolesData);
-        console.log('✅ [DEBUG] تم جلب الأدوار:', rolesData.length, 'دور');
-        console.log('✅ [DEBUG] عينة من الأدوار:', rolesData.slice(0, 3));
+        console.log("✅ [DEBUG] تم جلب الأدوار:", rolesData.length, "دور");
+        console.log("✅ [DEBUG] عينة من الأدوار:", rolesData.slice(0, 3));
       } else {
-        console.warn('⚠️ لا توجد أدوار في الاستجابة');
+        console.warn("⚠️ لا توجد أدوار في الاستجابة");
         // استخدام الأدوار الافتراضية كـ fallback
         setRoles([
-          { id: '1', name: 'admin', display_name: 'مدير' },
-          { id: '2', name: 'editor', display_name: 'محرر' },
-          { id: '3', name: 'reporter', display_name: 'مراسل' },
-          { id: '4', name: 'writer', display_name: 'كاتب' }
+          { id: "1", name: "admin", display_name: "مدير" },
+          { id: "2", name: "editor", display_name: "محرر" },
+          { id: "3", name: "reporter", display_name: "مراسل" },
+          { id: "4", name: "writer", display_name: "كاتب" },
         ]);
       }
     } catch (error) {
-      console.error('❌ خطأ في جلب الأدوار:', error);
-      toast.error('فشل في جلب الأدوار، سيتم استخدام القائمة الافتراضية');
-      
+      console.error("❌ خطأ في جلب الأدوار:", error);
+      toast.error("فشل في جلب الأدوار، سيتم استخدام القائمة الافتراضية");
+
       // استخدام الأدوار الافتراضية عند الفشل
       setRoles([
-        { id: '1', name: 'admin', display_name: 'مدير' },
-        { id: '2', name: 'editor', display_name: 'محرر' },
-        { id: '3', name: 'reporter', display_name: 'مراسل' },
-        { id: '4', name: 'writer', display_name: 'كاتب' },
-        { id: '5', name: 'chief_editor', display_name: 'رئيس التحرير' },
-        { id: '6', name: 'moderator', display_name: 'مشرف' }
+        { id: "1", name: "admin", display_name: "مدير" },
+        { id: "2", name: "editor", display_name: "محرر" },
+        { id: "3", name: "reporter", display_name: "مراسل" },
+        { id: "4", name: "writer", display_name: "كاتب" },
+        { id: "5", name: "chief_editor", display_name: "رئيس التحرير" },
+        { id: "6", name: "moderator", display_name: "مشرف" },
       ]);
     } finally {
       setRolesLoading(false);
@@ -227,23 +216,23 @@ export default function TeamManagementPage() {
   const fetchTeamMembers = async (forceRefresh = false) => {
     try {
       // إضافة cache busting لضمان جلب البيانات الجديدة
-      const cacheBuster = forceRefresh ? `?t=${Date.now()}` : '';
+      const cacheBuster = forceRefresh ? `?t=${Date.now()}` : "";
       const response = await fetch(`/api/team-members${cacheBuster}`, {
-        cache: 'no-cache',
+        cache: "no-cache",
         headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        }
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          Pragma: "no-cache",
+          Expires: "0",
+        },
       });
-      if (!response.ok) throw new Error('فشل في جلب البيانات');
-      
+      if (!response.ok) throw new Error("فشل في جلب البيانات");
+
       const data = await response.json();
-      console.log('📋 تم جلب بيانات الفريق:', data.members?.length || 0, 'عضو');
+      console.log("📋 تم جلب بيانات الفريق:", data.members?.length || 0, "عضو");
       setTeamMembers(data.members || []);
     } catch (error) {
-      console.error('خطأ في جلب أعضاء الفريق:', error);
-      toast.error('فشل في جلب بيانات الفريق');
+      console.error("خطأ في جلب أعضاء الفريق:", error);
+      toast.error("فشل في جلب بيانات الفريق");
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -252,72 +241,77 @@ export default function TeamManagementPage() {
 
   useEffect(() => {
     // جلب البيانات بشكل متوازي
-    Promise.all([
-      fetchTeamMembers(),
-      fetchRoles()
-    ]).then(() => {
-      console.log('✅ تم جلب جميع البيانات');
-    }).catch((error) => {
-      console.error('❌ خطأ في جلب البيانات:', error);
-    });
+    Promise.all([fetchTeamMembers(), fetchRoles()])
+      .then(() => {
+        console.log("✅ تم جلب جميع البيانات");
+      })
+      .catch((error) => {
+        console.error("❌ خطأ في جلب البيانات:", error);
+      });
   }, []);
 
   // فلترة أعضاء الفريق
-  const filteredMembers = teamMembers.filter(member => {
-    const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (member.position && member.position.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesRole = roleFilter === 'all' || member.role === roleFilter;
-    const matchesDepartment = departmentFilter === 'all' || member.department === departmentFilter;
-    const matchesStatus = statusFilter === 'all' || 
-                         (statusFilter === 'active' && member.is_active) ||
-                         (statusFilter === 'inactive' && !member.is_active);
-    
+  const filteredMembers = teamMembers.filter((member) => {
+    const matchesSearch =
+      member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (member.position &&
+        member.position.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesRole = roleFilter === "all" || member.role === roleFilter;
+    const matchesDepartment =
+      departmentFilter === "all" || member.department === departmentFilter;
+    const matchesStatus =
+      statusFilter === "all" ||
+      (statusFilter === "active" && member.is_active) ||
+      (statusFilter === "inactive" && !member.is_active);
+
     return matchesSearch && matchesRole && matchesDepartment && matchesStatus;
   });
 
   // حساب الإحصائيات
   const stats = {
     total: teamMembers.length,
-    active: teamMembers.filter(m => m.is_active).length,
-    editors: teamMembers.filter(m => m.role === 'editor').length,
-    reporters: teamMembers.filter(m => m.role === 'reporter').length,
-    admins: teamMembers.filter(m => m.role === 'chief_editor' || m.role === 'admin').length
+    active: teamMembers.filter((m) => m.is_active).length,
+    editors: teamMembers.filter((m) => m.role === "editor").length,
+    reporters: teamMembers.filter((m) => m.role === "reporter").length,
+    admins: teamMembers.filter(
+      (m) => m.role === "chief_editor" || m.role === "admin"
+    ).length,
   };
 
   // معالجات النموذج
   const handleInputChange = (field: string, value: any) => {
-    if (field.includes('.')) {
-      const [parent, child] = field.split('.');
-      setFormData(prev => ({
+    if (field.includes(".")) {
+      const [parent, child] = field.split(".");
+      setFormData((prev) => ({
         ...prev,
         [parent]: {
           ...(prev as any)[parent],
-          [child]: value
-        }
+          [child]: value,
+        },
       }));
     } else {
-      setFormData(prev => ({ ...prev, [field]: value }));
+      setFormData((prev) => ({ ...prev, [field]: value }));
     }
   };
 
   const handleAddMember = () => {
     setFormData({
-      name: '',
-      email: '',
-      role: '', // ✅ إزالة القيمة الافتراضية - سيبدأ فارغاً
-      department: '',
-      position: '',
-      bio: '',
-      avatar: '',
-      phone: '',
+      name: "",
+      email: "",
+      role: "", // ✅ إزالة القيمة الافتراضية - سيبدأ فارغاً
+      department: "",
+      position: "",
+      bio: "",
+      avatar: "",
+      phone: "",
       social_links: {
-        twitter: '',
-        linkedin: '',
-        facebook: '',
-        instagram: ''
+        twitter: "",
+        linkedin: "",
+        facebook: "",
+        instagram: "",
       },
-      is_active: true
+      is_active: true,
     });
     setIsAddModalOpen(true);
   };
@@ -328,18 +322,18 @@ export default function TeamManagementPage() {
       name: member.name,
       email: member.email,
       role: member.role,
-      department: member.department || '',
-      position: member.position || '',
-      bio: member.bio || '',
-      avatar: member.avatar || '',
-      phone: member.phone || '',
+      department: member.department || "",
+      position: member.position || "",
+      bio: member.bio || "",
+      avatar: member.avatar || "",
+      phone: member.phone || "",
       social_links: member.social_links || {
-        twitter: '',
-        linkedin: '',
-        facebook: '',
-        instagram: ''
+        twitter: "",
+        linkedin: "",
+        facebook: "",
+        instagram: "",
       },
-      is_active: member.is_active
+      is_active: member.is_active,
     });
     setIsEditModalOpen(true);
   };
@@ -347,177 +341,184 @@ export default function TeamManagementPage() {
   const handleSaveMember = async () => {
     try {
       // التحقق من البيانات المطلوبة مع تشخيص أفضل
-      console.log('🔍 التحقق من البيانات:', formData);
-      
+      console.log("🔍 التحقق من البيانات:", formData);
+
       if (!formData.name || !formData.email || !formData.role) {
         const missingFields = [];
-        if (!formData.name) missingFields.push('الاسم');
-        if (!formData.email) missingFields.push('البريد الإلكتروني');
-        if (!formData.role) missingFields.push('الدور');
-        
-        console.log('❌ حقول ناقصة:', missingFields);
-        toast.error(`الرجاء ملء الحقول المطلوبة: ${missingFields.join(', ')}`);
+        if (!formData.name) missingFields.push("الاسم");
+        if (!formData.email) missingFields.push("البريد الإلكتروني");
+        if (!formData.role) missingFields.push("الدور");
+
+        console.log("❌ حقول ناقصة:", missingFields);
+        toast.error(`الرجاء ملء الحقول المطلوبة: ${missingFields.join(", ")}`);
         return;
       }
-      
-      const url = selectedMember 
+
+      const url = selectedMember
         ? `/api/team-members/${selectedMember.id}`
-        : '/api/team-members';
-      
-      const method = selectedMember ? 'PUT' : 'POST';
-      
-      console.log('📤 إرسال البيانات:', { 
-        url, 
-        method, 
-        formDataSummary: { 
-          name: formData.name?.length || 0, 
-          email: formData.email?.length || 0, 
-          role: formData.role?.length || 0 
+        : "/api/team-members";
+
+      const method = selectedMember ? "PUT" : "POST";
+
+      console.log("📤 إرسال البيانات:", {
+        url,
+        method,
+        formDataSummary: {
+          name: formData.name?.length || 0,
+          email: formData.email?.length || 0,
+          role: formData.role?.length || 0,
         },
         fullFormData: formData,
         window_location: window.location.origin,
-        full_url: window.location.origin + url
+        full_url: window.location.origin + url,
       });
-      
+
       // التحقق من الاتصال أولاً
-      console.log('🔗 اختبار الاتصال بالـ API...');
+      console.log("🔗 اختبار الاتصال بالـ API...");
       try {
-        const testResponse = await fetch('/api/team-members', {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
+        const testResponse = await fetch("/api/team-members", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
         });
-        console.log('✅ اختبار الاتصال نجح:', testResponse.status);
+        console.log("✅ اختبار الاتصال نجح:", testResponse.status);
       } catch (testError: any) {
-        console.error('❌ فشل اختبار الاتصال:', testError);
+        console.error("❌ فشل اختبار الاتصال:", testError);
         throw new Error(`فشل في الاتصال بالخادم: ${testError.message}`);
       }
-      
+
       const response = await fetch(url, {
         method,
-        headers: { 
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
         },
         body: JSON.stringify(formData),
         // إضافة timeout أطول
-        signal: AbortSignal.timeout(10000) // 10 ثوانٍ
+        signal: AbortSignal.timeout(10000), // 10 ثوانٍ
       });
-      
-      console.log('📄 استجابة الخادم:', {
+
+      console.log("📄 استجابة الخادم:", {
         status: response.status,
         statusText: response.statusText,
-        ok: response.ok
+        ok: response.ok,
       });
-      
+
       let data;
       try {
         data = await response.json();
-        console.log('📋 بيانات الاستجابة:', data);
+        console.log("📋 بيانات الاستجابة:", data);
       } catch (parseError) {
-        console.error('❌ خطأ في تحليل الاستجابة:', parseError);
+        console.error("❌ خطأ في تحليل الاستجابة:", parseError);
         const rawText = await response.text();
-        console.log('📄 استجابة نصية خام:', rawText);
+        console.log("📄 استجابة نصية خام:", rawText);
         throw new Error(`خطأ في تحليل الاستجابة: ${response.status}`);
       }
-      
+
       if (!response.ok) {
-        const errorMessage = data.error || data.message || `خطأ HTTP ${response.status}: ${response.statusText}`;
-        console.error('❌ خطأ من الخادم:', {
+        const errorMessage =
+          data.error ||
+          data.message ||
+          `خطأ HTTP ${response.status}: ${response.statusText}`;
+        console.error("❌ خطأ من الخادم:", {
           status: response.status,
           error: data.error,
           details: data.details,
-          debug: data.debug
+          debug: data.debug,
         });
         throw new Error(errorMessage);
       }
-      
-      toast.success(selectedMember ? 'تم تحديث العضو بنجاح' : 'تم إضافة العضو بنجاح');
-      
-      console.log('🔄 [DEBUG] بدء تحديث قائمة الأعضاء...');
-      console.log('🔄 [DEBUG] عدد الأعضاء قبل التحديث:', teamMembers.length);
-      
+
+      toast.success(
+        selectedMember ? "تم تحديث العضو بنجاح" : "تم إضافة العضو بنجاح"
+      );
+
+      console.log("🔄 [DEBUG] بدء تحديث قائمة الأعضاء...");
+      console.log("🔄 [DEBUG] عدد الأعضاء قبل التحديث:", teamMembers.length);
+
       // إعادة جلب البيانات على الفور مع force refresh
       await fetchTeamMembers(true);
-      
-      console.log('🔄 [DEBUG] عدد الأعضاء بعد التحديث:', teamMembers.length);
-      
+
+      console.log("🔄 [DEBUG] عدد الأعضاء بعد التحديث:", teamMembers.length);
+
       setIsAddModalOpen(false);
       setIsEditModalOpen(false);
       setSelectedMember(null);
       // إعادة تعيين النموذج
       setFormData({
-        name: '',
-        email: '',
-        role: '',
-        department: '',
-        position: '',
-        bio: '',
-        avatar: '',
-        phone: '',
+        name: "",
+        email: "",
+        role: "",
+        department: "",
+        position: "",
+        bio: "",
+        avatar: "",
+        phone: "",
         social_links: {
-          twitter: '',
-          linkedin: '',
-          facebook: '',
-          instagram: ''
+          twitter: "",
+          linkedin: "",
+          facebook: "",
+          instagram: "",
         },
-        is_active: true
+        is_active: true,
       });
-      
+
       // تأكيد إضافي بعد ثانية واحدة
       setTimeout(() => {
         fetchTeamMembers(true);
       }, 1000);
     } catch (error: any) {
-      console.error('❌ خطأ في حفظ العضو:', error);
-      console.error('📊 تفاصيل الخطأ:', {
+      console.error("❌ خطأ في حفظ العضو:", error);
+      console.error("📊 تفاصيل الخطأ:", {
         message: error.message,
         stack: error.stack,
         name: error.name,
-        type: error.constructor.name
+        type: error.constructor.name,
       });
-      
-      let errorMessage = 'فشل في حفظ البيانات';
-      
-      if (error.name === 'TypeError' && error.message.includes('Load failed')) {
-        errorMessage = 'فشل في الاتصال بالخادم - تحقق من اتصال الشبكة';
-      } else if (error.name === 'AbortError') {
-        errorMessage = 'انتهت مهلة الاتصال - حاول مرة أخرى';
+
+      let errorMessage = "فشل في حفظ البيانات";
+
+      if (error.name === "TypeError" && error.message.includes("Load failed")) {
+        errorMessage = "فشل في الاتصال بالخادم - تحقق من اتصال الشبكة";
+      } else if (error.name === "AbortError") {
+        errorMessage = "انتهت مهلة الاتصال - حاول مرة أخرى";
       } else if (error.message) {
         errorMessage = error.message;
       }
-      
+
       toast.error(errorMessage);
     }
   };
 
   const handleDeleteMember = async (id: string) => {
-    if (!confirm('هل أنت متأكد من حذف هذا العضو؟')) return;
-    
+    if (!confirm("هل أنت متأكد من حذف هذا العضو؟")) return;
+
     try {
-      const response = await fetch(`/api/team-members/${id}`, { method: 'DELETE' });
-      if (!response.ok) throw new Error('فشل في حذف العضو');
-      
-      toast.success('تم حذف العضو بنجاح');
+      const response = await fetch(`/api/team-members/${id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) throw new Error("فشل في حذف العضو");
+
+      toast.success("تم حذف العضو بنجاح");
       fetchTeamMembers();
     } catch (error) {
-      toast.error('فشل في حذف العضو');
+      toast.error("فشل في حذف العضو");
     }
   };
 
   const handleToggleStatus = async (member: TeamMember) => {
     try {
       const response = await fetch(`/api/team-members/${member.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_active: !member.is_active })
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_active: !member.is_active }),
       });
-      
-      if (!response.ok) throw new Error('فشل في تحديث الحالة');
-      
-      toast.success(member.is_active ? 'تم تعطيل العضو' : 'تم تفعيل العضو');
+
+      if (!response.ok) throw new Error("فشل في تحديث الحالة");
+
+      toast.success(member.is_active ? "تم تعطيل العضو" : "تم تفعيل العضو");
       fetchTeamMembers();
     } catch (error) {
-      toast.error('فشل في تحديث الحالة');
+      toast.error("فشل في تحديث الحالة");
     }
   };
 
@@ -528,77 +529,73 @@ export default function TeamManagementPage() {
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case 'chief_editor':
-      case 'admin':
-        return 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300';
-      case 'editor':
-        return 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300';
-      case 'reporter':
-        return 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300';
+      case "chief_editor":
+      case "admin":
+        return "bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300";
+      case "editor":
+        return "bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300";
+      case "reporter":
+        return "bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300";
       default:
-        return 'bg-gray-100 dark:bg-gray-900/20 text-gray-700 dark:text-gray-300';
+        return "bg-gray-100 dark:bg-gray-900/20 text-gray-700 dark:text-gray-300";
     }
   };
 
   const getRoleText = (role: string) => {
     switch (role) {
-      case 'system_admin':
-        return 'مدير النظام';
-      case 'chief_editor':
-        return 'رئيس التحرير';
-      case 'admin':
-        return 'مدير';
-      case 'editor':
-        return 'محرر';
-      case 'reporter':
-        return 'مراسل';
-      case 'moderator':
-        return 'مشرف';
-      case 'writer':
-        return 'كاتب';
+      case "system_admin":
+        return "مدير النظام";
+      case "chief_editor":
+        return "رئيس التحرير";
+      case "admin":
+        return "مدير";
+      case "editor":
+        return "محرر";
+      case "reporter":
+        return "مراسل";
+      case "moderator":
+        return "مشرف";
+      case "writer":
+        return "كاتب";
       default:
         return role;
     }
   };
 
   // تحويل الأدوار المجلبة من قاعدة البيانات للتنسيق المطلوب
-  const availableRoles = roles.map(role => ({
+  const availableRoles = roles.map((role) => ({
     value: role.name,
-    label: role.display_name
+    label: role.display_name,
   }));
-  
+
   // تشخيص لمعرفة القيم الحالية
-  console.log('🎯 [DEBUG] Current state:');
-  console.log('  - rolesLoading:', rolesLoading);
-  console.log('  - roles.length:', roles.length);
-  console.log('  - availableRoles.length:', availableRoles.length);
-  console.log('  - formData.role:', formData.role);
-  console.log('  - availableRoles:', availableRoles.slice(0, 3));
+  console.log("🎯 [DEBUG] Current state:");
+  console.log("  - rolesLoading:", rolesLoading);
+  console.log("  - roles.length:", roles.length);
+  console.log("  - availableRoles.length:", availableRoles.length);
+  console.log("  - formData.role:", formData.role);
+  console.log("  - availableRoles:", availableRoles.slice(0, 3));
 
   // قائمة الأقسام
-  const departments = [...new Set(teamMembers.map(m => m.department).filter(Boolean))];
+  const departments = [
+    ...new Set(teamMembers.map((m) => m.department).filter(Boolean)),
+  ];
 
   if (loading) {
     return (
-      <DashboardLayout
-        pageTitle="إدارة الفريق"
-        pageDescription="إدارة أعضاء فريق التحرير والإدارة"
-      >
+      <>
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
             <p className="text-gray-500">جاري تحميل البيانات...</p>
           </div>
         </div>
-      </DashboardLayout>
+      </>
     );
   }
 
   return (
-    <DashboardLayout
-      pageTitle="إدارة الفريق"
-      pageDescription="إدارة أعضاء فريق التحرير والإدارة"
-    >
+    <>
       <div className="space-y-6">
         {/* بطاقات الإحصائيات */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -606,8 +603,12 @@ export default function TeamManagementPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-blue-600 dark:text-blue-400">إجمالي الفريق</p>
-                  <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{stats.total}</p>
+                  <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                    إجمالي الفريق
+                  </p>
+                  <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                    {stats.total}
+                  </p>
                 </div>
                 <Users className="h-8 w-8 text-blue-500 opacity-50" />
               </div>
@@ -618,8 +619,12 @@ export default function TeamManagementPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-green-600 dark:text-green-400">نشطون</p>
-                  <p className="text-2xl font-bold text-green-900 dark:text-green-100">{stats.active}</p>
+                  <p className="text-sm font-medium text-green-600 dark:text-green-400">
+                    نشطون
+                  </p>
+                  <p className="text-2xl font-bold text-green-900 dark:text-green-100">
+                    {stats.active}
+                  </p>
                 </div>
                 <UserCheck className="h-8 w-8 text-green-500 opacity-50" />
               </div>
@@ -630,8 +635,12 @@ export default function TeamManagementPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-purple-600 dark:text-purple-400">محررون</p>
-                  <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">{stats.editors}</p>
+                  <p className="text-sm font-medium text-purple-600 dark:text-purple-400">
+                    محررون
+                  </p>
+                  <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">
+                    {stats.editors}
+                  </p>
                 </div>
                 <Edit className="h-8 w-8 text-purple-500 opacity-50" />
               </div>
@@ -642,8 +651,12 @@ export default function TeamManagementPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400">مراسلون</p>
-                  <p className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">{stats.reporters}</p>
+                  <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400">
+                    مراسلون
+                  </p>
+                  <p className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">
+                    {stats.reporters}
+                  </p>
                 </div>
                 <Briefcase className="h-8 w-8 text-yellow-500 opacity-50" />
               </div>
@@ -654,8 +667,12 @@ export default function TeamManagementPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-red-600 dark:text-red-400">إداريون</p>
-                  <p className="text-2xl font-bold text-red-900 dark:text-red-100">{stats.admins}</p>
+                  <p className="text-sm font-medium text-red-600 dark:text-red-400">
+                    إداريون
+                  </p>
+                  <p className="text-2xl font-bold text-red-900 dark:text-red-100">
+                    {stats.admins}
+                  </p>
                 </div>
                 <Shield className="h-8 w-8 text-red-500 opacity-50" />
               </div>
@@ -689,7 +706,7 @@ export default function TeamManagementPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">جميع الأدوار</SelectItem>
-                    {availableRoles.map(role => (
+                    {availableRoles.map((role) => (
                       <SelectItem key={role.value} value={role.value}>
                         {role.label}
                       </SelectItem>
@@ -698,14 +715,17 @@ export default function TeamManagementPage() {
                 </Select>
 
                 {departments.length > 0 && (
-                  <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+                  <Select
+                    value={departmentFilter}
+                    onValueChange={setDepartmentFilter}
+                  >
                     <SelectTrigger className="w-[140px]">
                       <SelectValue placeholder="القسم" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">جميع الأقسام</SelectItem>
-                      {departments.map(dept => (
-                        <SelectItem key={dept} value={dept || ''}>
+                      {departments.map((dept) => (
+                        <SelectItem key={dept} value={dept || ""}>
                           {dept}
                         </SelectItem>
                       ))}
@@ -733,7 +753,9 @@ export default function TeamManagementPage() {
                   onClick={handleRefresh}
                   disabled={refreshing}
                 >
-                  <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                  <RefreshCw
+                    className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
+                  />
                 </Button>
                 <Button onClick={handleAddMember}>
                   <UserPlus className="h-4 w-4 ml-2" />
@@ -754,7 +776,11 @@ export default function TeamManagementPage() {
                     <Avatar className="h-12 w-12">
                       <AvatarImage src={member.avatar} />
                       <AvatarFallback>
-                        {member.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                        {member.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                          .toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div>
@@ -775,11 +801,15 @@ export default function TeamManagementPage() {
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>الإجراءات</DropdownMenuLabel>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => handleEditMember(member)}>
+                      <DropdownMenuItem
+                        onClick={() => handleEditMember(member)}
+                      >
                         <Edit className="h-4 w-4 ml-2" />
                         تعديل
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleToggleStatus(member)}>
+                      <DropdownMenuItem
+                        onClick={() => handleToggleStatus(member)}
+                      >
                         {member.is_active ? (
                           <>
                             <UserX className="h-4 w-4 ml-2" />
@@ -809,21 +839,21 @@ export default function TeamManagementPage() {
                     <Mail className="h-4 w-4" />
                     <span>{member.email}</span>
                   </div>
-                  
+
                   {member.position && (
                     <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                       <Briefcase className="h-4 w-4" />
                       <span>{member.position}</span>
                     </div>
                   )}
-                  
+
                   {member.department && (
                     <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                       <Building className="h-4 w-4" />
                       <span>{member.department}</span>
                     </div>
                   )}
-                  
+
                   {member.phone && (
                     <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                       <Phone className="h-4 w-4" />
@@ -839,36 +869,58 @@ export default function TeamManagementPage() {
                 )}
 
                 {/* الروابط الاجتماعية */}
-                {member.social_links && Object.values(member.social_links).some(link => link) && (
-                  <div className="mt-3 flex gap-2">
-                    {member.social_links.twitter && (
-                      <a href={member.social_links.twitter} target="_blank" rel="noopener noreferrer">
-                        <Twitter className="h-4 w-4 text-gray-400 hover:text-blue-500" />
-                      </a>
-                    )}
-                    {member.social_links.linkedin && (
-                      <a href={member.social_links.linkedin} target="_blank" rel="noopener noreferrer">
-                        <Linkedin className="h-4 w-4 text-gray-400 hover:text-blue-600" />
-                      </a>
-                    )}
-                    {member.social_links.facebook && (
-                      <a href={member.social_links.facebook} target="_blank" rel="noopener noreferrer">
-                        <Facebook className="h-4 w-4 text-gray-400 hover:text-blue-700" />
-                      </a>
-                    )}
-                    {member.social_links.instagram && (
-                      <a href={member.social_links.instagram} target="_blank" rel="noopener noreferrer">
-                        <Instagram className="h-4 w-4 text-gray-400 hover:text-pink-600" />
-                      </a>
-                    )}
-                  </div>
-                )}
+                {member.social_links &&
+                  Object.values(member.social_links).some((link) => link) && (
+                    <div className="mt-3 flex gap-2">
+                      {member.social_links.twitter && (
+                        <a
+                          href={member.social_links.twitter}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Twitter className="h-4 w-4 text-gray-400 hover:text-blue-500" />
+                        </a>
+                      )}
+                      {member.social_links.linkedin && (
+                        <a
+                          href={member.social_links.linkedin}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Linkedin className="h-4 w-4 text-gray-400 hover:text-blue-600" />
+                        </a>
+                      )}
+                      {member.social_links.facebook && (
+                        <a
+                          href={member.social_links.facebook}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Facebook className="h-4 w-4 text-gray-400 hover:text-blue-700" />
+                        </a>
+                      )}
+                      {member.social_links.instagram && (
+                        <a
+                          href={member.social_links.instagram}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Instagram className="h-4 w-4 text-gray-400 hover:text-pink-600" />
+                        </a>
+                      )}
+                    </div>
+                  )}
 
                 <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                   <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                     <div className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
-                      <span>انضم: {format(new Date(member.created_at), 'dd MMM yyyy', { locale: ar })}</span>
+                      <span>
+                        انضم:{" "}
+                        {format(new Date(member.created_at), "dd MMM yyyy", {
+                          locale: ar,
+                        })}
+                      </span>
                     </div>
                     <div className="flex items-center gap-1">
                       {member.is_active ? (
@@ -885,18 +937,23 @@ export default function TeamManagementPage() {
         </div>
 
         {/* نموذج إضافة/تعديل عضو */}
-        <Dialog open={isAddModalOpen || isEditModalOpen} onOpenChange={() => {
-          setIsAddModalOpen(false);
-          setIsEditModalOpen(false);
-          setSelectedMember(null);
-        }}>
+        <Dialog
+          open={isAddModalOpen || isEditModalOpen}
+          onOpenChange={() => {
+            setIsAddModalOpen(false);
+            setIsEditModalOpen(false);
+            setSelectedMember(null);
+          }}
+        >
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
-                {selectedMember ? 'تعديل عضو الفريق' : 'إضافة عضو جديد'}
+                {selectedMember ? "تعديل عضو الفريق" : "إضافة عضو جديد"}
               </DialogTitle>
               <DialogDescription>
-                {selectedMember ? 'قم بتحديث بيانات العضو' : 'أدخل بيانات العضو الجديد'}
+                {selectedMember
+                  ? "قم بتحديث بيانات العضو"
+                  : "أدخل بيانات العضو الجديد"}
               </DialogDescription>
             </DialogHeader>
 
@@ -907,7 +964,7 @@ export default function TeamManagementPage() {
                   <Input
                     id="name"
                     value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    onChange={(e) => handleInputChange("name", e.target.value)}
                     placeholder="أدخل الاسم الكامل"
                   />
                 </div>
@@ -917,7 +974,7 @@ export default function TeamManagementPage() {
                     id="email"
                     type="email"
                     value={formData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    onChange={(e) => handleInputChange("email", e.target.value)}
                     placeholder="example@sabq.org"
                   />
                 </div>
@@ -926,25 +983,36 @@ export default function TeamManagementPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="role">الدور الوظيفي *</Label>
-                  
+
                   {/* 🔧 Select مُبسط للاختبار */}
                   <select
                     id="role"
                     value={formData.role}
                     onChange={(e) => {
-                      console.log('🔄 [DEBUG] تغيير الدور (HTML Select):', e.target.value);
-                      console.log('🔄 [DEBUG] قبل التغيير formData.role:', formData.role);
-                      handleInputChange('role', e.target.value);
-                      console.log('🔄 [DEBUG] بعد التغيير formData.role:', e.target.value);
+                      console.log(
+                        "🔄 [DEBUG] تغيير الدور (HTML Select):",
+                        e.target.value
+                      );
+                      console.log(
+                        "🔄 [DEBUG] قبل التغيير formData.role:",
+                        formData.role
+                      );
+                      handleInputChange("role", e.target.value);
+                      console.log(
+                        "🔄 [DEBUG] بعد التغيير formData.role:",
+                        e.target.value
+                      );
                     }}
                     disabled={rolesLoading}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                   >
                     <option value="">
-                      {rolesLoading ? "جاري تحميل الأدوار..." : "اختر الدور الوظيفي"}
+                      {rolesLoading
+                        ? "جاري تحميل الأدوار..."
+                        : "اختر الدور الوظيفي"}
                     </option>
                     {!rolesLoading && availableRoles.length > 0 ? (
-                      availableRoles.map(role => (
+                      availableRoles.map((role) => (
                         <option key={role.value} value={role.value}>
                           {role.label}
                         </option>
@@ -955,22 +1023,26 @@ export default function TeamManagementPage() {
                       </option>
                     ) : null}
                   </select>
-                  
+
                   {/* تشخيص محسن */}
                   <div className="text-xs text-gray-500">
                     {rolesLoading ? (
-                      '⏳ جاري تحميل الأدوار...'
+                      "⏳ جاري تحميل الأدوار..."
                     ) : (
                       <>
-                        الدور المختار: <strong>{formData.role || 'لم يتم الاختيار'}</strong>
-                        {availableRoles.length > 0 && ` (${availableRoles.length} دور متاح)`}
+                        الدور المختار:{" "}
+                        <strong>{formData.role || "لم يتم الاختيار"}</strong>
+                        {availableRoles.length > 0 &&
+                          ` (${availableRoles.length} دور متاح)`}
                       </>
                     )}
                   </div>
-                  
+
                   {/* تشخيص إضافي */}
                   <div className="text-xs text-blue-600">
-                    🔍 Debug: rolesLoading={rolesLoading.toString()}, roles.length={roles.length}, availableRoles.length={availableRoles.length}
+                    🔍 Debug: rolesLoading={rolesLoading.toString()},
+                    roles.length={roles.length}, availableRoles.length=
+                    {availableRoles.length}
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -978,7 +1050,9 @@ export default function TeamManagementPage() {
                   <Input
                     id="position"
                     value={formData.position}
-                    onChange={(e) => handleInputChange('position', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("position", e.target.value)
+                    }
                     placeholder="مثال: محرر أول"
                   />
                 </div>
@@ -990,7 +1064,9 @@ export default function TeamManagementPage() {
                   <Input
                     id="department"
                     value={formData.department}
-                    onChange={(e) => handleInputChange('department', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("department", e.target.value)
+                    }
                     placeholder="مثال: قسم الأخبار"
                   />
                 </div>
@@ -999,7 +1075,7 @@ export default function TeamManagementPage() {
                   <Input
                     id="phone"
                     value={formData.phone}
-                    onChange={(e) => handleInputChange('phone', e.target.value)}
+                    onChange={(e) => handleInputChange("phone", e.target.value)}
                     placeholder="+966 5XXXXXXXX"
                   />
                 </div>
@@ -1010,7 +1086,7 @@ export default function TeamManagementPage() {
                 <Textarea
                   id="bio"
                   value={formData.bio}
-                  onChange={(e) => handleInputChange('bio', e.target.value)}
+                  onChange={(e) => handleInputChange("bio", e.target.value)}
                   placeholder="نبذة عن العضو..."
                   rows={3}
                 />
@@ -1018,30 +1094,30 @@ export default function TeamManagementPage() {
 
               <div className="space-y-2">
                 <Label>الصورة الشخصية</Label>
-                
+
                 {/* ✅ مكون رفع الصور المُحدث */}
                 <ImageUpload
                   currentImage={formData.avatar}
                   onImageUploaded={(url) => {
-                    console.log('🖼️ [DEBUG] تم رفع الصورة:', url);
-                    handleInputChange('avatar', url);
+                    console.log("🖼️ [DEBUG] تم رفع الصورة:", url);
+                    handleInputChange("avatar", url);
                   }}
                   type="avatar"
                   accept="image/*"
                   maxSize={5}
                   label="رفع صورة شخصية"
                 />
-                
+
                 {/* معاينة الصورة */}
                 {formData.avatar && (
                   <div className="mt-2">
-                    <img 
-                      src={formData.avatar} 
-                      alt="معاينة الصورة" 
+                    <img
+                      src={formData.avatar}
+                      alt="معاينة الصورة"
                       className="w-16 h-16 rounded-full object-cover border"
                       onError={(e) => {
-                        console.log('❌ فشل في تحميل الصورة:', formData.avatar);
-                        e.currentTarget.style.display = 'none';
+                        console.log("❌ فشل في تحميل الصورة:", formData.avatar);
+                        e.currentTarget.style.display = "none";
                       }}
                     />
                   </div>
@@ -1052,38 +1128,66 @@ export default function TeamManagementPage() {
                 <Label>الروابط الاجتماعية</Label>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="twitter" className="text-sm">Twitter</Label>
+                    <Label htmlFor="twitter" className="text-sm">
+                      Twitter
+                    </Label>
                     <Input
                       id="twitter"
                       value={formData.social_links.twitter}
-                      onChange={(e) => handleInputChange('social_links.twitter', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange(
+                          "social_links.twitter",
+                          e.target.value
+                        )
+                      }
                       placeholder="https://twitter.com/username"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="linkedin" className="text-sm">LinkedIn</Label>
+                    <Label htmlFor="linkedin" className="text-sm">
+                      LinkedIn
+                    </Label>
                     <Input
                       id="linkedin"
                       value={formData.social_links.linkedin}
-                      onChange={(e) => handleInputChange('social_links.linkedin', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange(
+                          "social_links.linkedin",
+                          e.target.value
+                        )
+                      }
                       placeholder="https://linkedin.com/in/username"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="facebook" className="text-sm">Facebook</Label>
+                    <Label htmlFor="facebook" className="text-sm">
+                      Facebook
+                    </Label>
                     <Input
                       id="facebook"
                       value={formData.social_links.facebook}
-                      onChange={(e) => handleInputChange('social_links.facebook', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange(
+                          "social_links.facebook",
+                          e.target.value
+                        )
+                      }
                       placeholder="https://facebook.com/username"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="instagram" className="text-sm">Instagram</Label>
+                    <Label htmlFor="instagram" className="text-sm">
+                      Instagram
+                    </Label>
                     <Input
                       id="instagram"
                       value={formData.social_links.instagram}
-                      onChange={(e) => handleInputChange('social_links.instagram', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange(
+                          "social_links.instagram",
+                          e.target.value
+                        )
+                      }
                       placeholder="https://instagram.com/username"
                     />
                   </div>
@@ -1091,13 +1195,17 @@ export default function TeamManagementPage() {
               </div>
 
               <div className="flex items-center justify-between">
-                <Label htmlFor="is_active" className="text-sm">حالة العضو</Label>
+                <Label htmlFor="is_active" className="text-sm">
+                  حالة العضو
+                </Label>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-500">معطل</span>
                   <Switch
                     id="is_active"
                     checked={formData.is_active}
-                    onCheckedChange={(checked) => handleInputChange('is_active', checked)}
+                    onCheckedChange={(checked) =>
+                      handleInputChange("is_active", checked)
+                    }
                   />
                   <span className="text-sm text-gray-500">نشط</span>
                 </div>
@@ -1105,20 +1213,23 @@ export default function TeamManagementPage() {
             </div>
 
             <DialogFooter>
-              <Button variant="outline" onClick={() => {
-                setIsAddModalOpen(false);
-                setIsEditModalOpen(false);
-                setSelectedMember(null);
-              }}>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsAddModalOpen(false);
+                  setIsEditModalOpen(false);
+                  setSelectedMember(null);
+                }}
+              >
                 إلغاء
               </Button>
               <Button onClick={handleSaveMember}>
-                {selectedMember ? 'حفظ التغييرات' : 'إضافة العضو'}
+                {selectedMember ? "حفظ التغييرات" : "إضافة العضو"}
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
-    </DashboardLayout>
+    </>
   );
 }

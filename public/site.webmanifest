@@ -1,0 +1,80 @@
+{
+  "name": "سبق الذكية - منصة الأخبار الذكية",
+  "short_name": "سبق الذكية",
+  "description": "منصة إعلامية مدعومة بالذكاء الاصطناعي تقدم تحليلات ومقالات وأخبار دقيقة وعميقة",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1e40af",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["news", "productivity", "education"],
+  "screenshots": [
+    {
+      "src": "/screenshot-mobile.png",
+      "sizes": "828x1792",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/screenshot-desktop.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "الأخبار العاجلة",
+      "short_name": "أخبار عاجلة",
+      "description": "تصفح آخر الأخبار العاجلة",
+      "url": "/news?filter=breaking",
+      "icons": [{ "src": "/icons/breaking-news.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "مقالات الرأي",
+      "short_name": "مقالات رأي",
+      "description": "اقرأ أحدث مقالات الرأي والتحليلات",
+      "url": "/opinion-articles",
+      "icons": [{ "src": "/icons/opinion.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "البحث",
+      "short_name": "بحث",
+      "description": "ابحث في الأخبار والمقالات",
+      "url": "/search",
+      "icons": [{ "src": "/icons/search.png", "sizes": "96x96" }]
+    }
+  ]
+}

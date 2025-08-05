@@ -3,12 +3,13 @@
 import DeepAnalysisBlock from "@/components/DeepAnalysisBlock";
 import Footer from "@/components/Footer";
 import FooterDashboard from "@/components/FooterDashboard";
+import PageWrapper from "@/components/PageWrapper";
 import { SmartSlot } from "@/components/home/SmartSlot";
 import CompactStatsBar from "@/components/mobile/CompactStatsBar";
 import EnhancedMobileNewsCard from "@/components/mobile/EnhancedMobileNewsCard";
 import SmartContentNewsCard from "@/components/mobile/SmartContentNewsCard";
+
 import NewsPulseTicker from "@/components/news/NewsPulseTicker";
-import PageWrapper from "@/components/PageWrapper";
 import CloudImage from "@/components/ui/CloudImage";
 import { useAuth } from "@/hooks/useAuth";
 import type { RecommendedArticle } from "@/lib/ai-recommendations";
@@ -41,10 +42,13 @@ const SmartAudioBlock = dynamic(
   }
 );
 
-const MuqtarabBlock = dynamic(() => import("@/components/home/MuqtarabBlock"), {
-  ssr: true,
-  loading: () => <Skeleton className="w-full h-96 rounded-lg" />,
-});
+const MuqtarabBlock = dynamic(
+  () => import("@/components/home/EnhancedMuqtarabBlock"),
+  {
+    ssr: true,
+    loading: () => <Skeleton className="w-full h-96 rounded-lg" />,
+  }
+);
 
 // تم حذف SmartDoseBlock
 
@@ -197,9 +201,50 @@ function NewspaperHomePage({
   console.log("🔧 NewspaperHomePage: تحضير useEffects...");
 
   // دوال مؤقتة
-  const handleInterestClick = (interestId: string) => {
-    /* TODO: تنفيذ فعل عند اختيار الاهتمام */
-  };
+  const handleInterestClick = useCallback(
+    (interestId: string) => {
+      try {
+        // تحديث اهتمامات المستخدم المحلية
+        setUserInterests((prev) => {
+          const exists = prev.includes(interestId);
+          if (exists) {
+            // إزالة الاهتمام إذا كان موجوداً
+            return prev.filter((id) => id !== interestId);
+          } else {
+            // إضافة الاهتمام الجديد
+            return [...prev, interestId];
+          }
+        });
+
+        // إرسال التحديث للخادم إذا كان المستخدم مسجلاً
+        if (user?.id) {
+          fetch("/api/user/interests", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              userId: user.id,
+              interestId: interestId,
+              action: userInterests.includes(interestId) ? "remove" : "add",
+            }),
+          }).catch((error) => {
+            console.error("خطأ في تحديث الاهتمامات:", error);
+          });
+        }
+
+        // إعادة جلب المحتوى المخصص عند تغيير الاهتمامات
+        setPersonalizedLoading(true);
+        setTimeout(() => {
+          setPersonalizedLoading(false);
+          // يمكن إضافة منطق إعادة جلب المحتوى هنا
+        }, 1000);
+      } catch (error) {
+        console.error("خطأ في معالجة اختيار الاهتمام:", error);
+      }
+    },
+    [user, userInterests]
+  );
   const handleTogglePersonalized = () => {
     setShowPersonalized((prev) => !prev);
   };
@@ -584,14 +629,8 @@ function NewspaperHomePage({
           direction: "rtl",
         }}
       >
-        {/* شريط النبض الإخباري للموبايل - ملاصق للهيدر */}
-        <SafeHydration>
-          {isMobileView && (
-            <div className="pulse-ticker-mobile pulse-first-element" style={{ position: 'sticky', top: '56px', zIndex: 48, marginTop: 0, paddingTop: 0 }}>
-              <NewsPulseTicker className="mx-2" isMobile={true} />
-            </div>
-          )}
-        </SafeHydration>
+        {/* شريط النبض الإخباري للموبايل - محذوف حسب الطلب */}
+        {/* تم إزالة شريط النبض الإخباري من نسخة الموبايل فقط */}
         {/* شريط الإحصائيات المحسن للموبايل */}
         <SafeHydration>
           {isMobileView && (
@@ -603,22 +642,23 @@ function NewspaperHomePage({
         {/* 🔥 الترتيب الجديد المحدث للواجهة الرئيسية */}
         {/* 1. الهيدر ⬆️ - تم تأكيده أنه في المقدمة عبر Layout */}
 
-        {/* 1.1. شريط النبض الإخباري للديسكتوب 📡 - ملاصق للهيدر مباشرة */}
+        {/* 1.1. شريط النبض الإخباري للديسكتوب 📡 - متلاصق مع الهيدر وبعرض الصفحة */}
         <SafeHydration>
           {!isMobileView && (
-            <div className="pulse-ticker-desktop pulse-first-element" style={{ position: 'sticky', top: '64px', zIndex: 48, marginTop: 0, paddingTop: 0 }}>
+            <div className="w-full">
               <NewsPulseTicker className="" isMobile={false} />
             </div>
           )}
         </SafeHydration>
 
         {/* 1.5. الخبر العاجل (Breaking News) 🔴 - بعد شريط النبض */}
-        <div style={{ marginTop: '2rem' }}>
+        <div style={{ marginTop: "2rem" }}>
           <BreakingNewsBar />
         </div>
+
         {/* 2. الأخبار المميزة (Featured Articles) 🌟 */}
         {!featuredLoading && featuredArticle.length > 0 && (
-          <div className="pt-8 pb-6">
+          <div className="pt-4 pb-6">
             <FeaturedNewsCarousel articles={featuredArticle} />
           </div>
         )}
@@ -1448,7 +1488,7 @@ export default function PageClient({
     if (initialStats && initialStats.loading === false) {
       setStats(initialStats);
     }
-  }, [initialStats]);
+  }, []); // إزالة initialStats من dependency array
 
   return (
     <NewspaperHomePage

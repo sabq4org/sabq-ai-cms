@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
-import { cookies } from 'next/headers';
-import jwt from 'jsonwebtoken';
+import prisma from "@/lib/prisma";
+import jwt from "jsonwebtoken";
+import { cookies } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
 
 interface JWTPayload {
   userId: string;
@@ -11,13 +11,10 @@ interface JWTPayload {
 export async function POST(request: NextRequest) {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get('auth-token')?.value;
-    
+    const token = cookieStore.get("auth-token")?.value;
+
     if (!token) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     let userId: string;
@@ -25,10 +22,7 @@ export async function POST(request: NextRequest) {
       const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JWTPayload;
       userId = decoded.userId;
     } catch {
-      return NextResponse.json(
-        { error: 'Invalid token' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
     const body = await request.json();
@@ -44,7 +38,7 @@ export async function POST(request: NextRequest) {
 
     if (!sessionId || !articleId) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: "Missing required fields" },
         { status: 400 }
       );
     }
@@ -56,11 +50,10 @@ export async function POST(request: NextRequest) {
         article_id: articleId,
       },
       data: {
-        end_time: new Date(exitTime),
-        total_time: Math.floor(duration / 1000), // تحويل من ميلي ثانية إلى ثانية
-        scroll_depth: maxScrollDepth || 0,
-        is_completed: maxScrollDepth > 0.9,
-        last_active: new Date(),
+        ended_at: new Date(),
+        duration_seconds: totalTime,
+        scroll_depth: scrollDepth,
+        read_percentage: readPercentage,
       },
     });
 
@@ -68,7 +61,7 @@ export async function POST(request: NextRequest) {
     if (interactions) {
       // تحديث نقاط الولاء بناءً على التفاعلات
       let loyaltyPoints = 0;
-      
+
       // نقاط القراءة
       if (maxScrollDepth > 0.9) {
         loyaltyPoints += 10; // قراءة كاملة
@@ -91,7 +84,7 @@ export async function POST(request: NextRequest) {
         data: {
           user_id: userId,
           points: loyaltyPoints,
-          points_type: 'article_interaction',
+          points_type: "article_interaction",
           description: `تفاعل مع مقال: ${articleId}`,
           metadata: {
             articleId,
@@ -116,7 +109,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'Reading session ended successfully',
+      message: "Reading session ended successfully",
       stats: {
         duration: Math.floor(duration / 1000),
         scrollDepth: maxScrollDepth,
@@ -124,10 +117,10 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Error ending reading session:', error);
+    console.error("Error ending reading session:", error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
-} 
+}

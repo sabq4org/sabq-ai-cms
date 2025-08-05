@@ -1,22 +1,27 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  Activity, 
-  Users, 
-  Eye, 
-  BarChart3,
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { formatNumber } from "@/lib/config/localization";
+import {
+  Activity,
   AlertTriangle,
-  Zap,
+  BarChart3,
   Clock,
-  Target
-} from 'lucide-react';
+  Eye,
+  Target,
+  Users,
+  Zap,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface AnalyticsData {
   current_visitors: number;
@@ -46,21 +51,21 @@ interface AnalyticsData {
 
 export default function AdvancedAnalyticsDashboard() {
   const [realTimeData, setRealTimeData] = useState<AnalyticsData | null>(null);
-  const [selectedMetric, setSelectedMetric] = useState('page_views');
-  const [timeRange, setTimeRange] = useState('24h');
+  const [selectedMetric, setSelectedMetric] = useState("page_views");
+  const [timeRange, setTimeRange] = useState("24h");
   const [loading, setLoading] = useState(false);
 
   // جلب البيانات في الوقت الفعلي
   useEffect(() => {
     const fetchRealTimeData = async () => {
       try {
-        const response = await fetch('/api/analytics/realtime');
+        const response = await fetch("/api/analytics/realtime");
         const result = await response.json();
         if (result.success) {
           setRealTimeData(result.data);
         }
       } catch (error) {
-        console.error('Error fetching real-time data:', error);
+        console.error("Error fetching real-time data:", error);
       }
     };
 
@@ -73,33 +78,29 @@ export default function AdvancedAnalyticsDashboard() {
   const executeAnalyticsQuery = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/analytics/query', {
-        method: 'POST',
+      const response = await fetch("/api/analytics/query", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           metric: selectedMetric,
           time_range: timeRange,
-          dimensions: ['date'],
-          filters: []
+          dimensions: ["date"],
+          filters: [],
         }),
       });
-      
+
       const result = await response.json();
       if (result.success) {
-        console.log('Analytics result:', result.data);
+        console.log("Analytics result:", result.data);
         // هنا يمكن إضافة منطق لعرض النتائج
       }
     } catch (error) {
-      console.error('Analytics query error:', error);
+      console.error("Analytics query error:", error);
     } finally {
       setLoading(false);
     }
-  };
-
-  const formatNumber = (num: number) => {
-    return new Intl.NumberFormat('ar-SA').format(num);
   };
 
   return (
@@ -119,7 +120,8 @@ export default function AdvancedAnalyticsDashboard() {
           </Badge>
           {realTimeData?.last_updated && (
             <span className="text-sm text-muted-foreground">
-              آخر تحديث: {new Date(realTimeData.last_updated).toLocaleTimeString('ar-SA')}
+              آخر تحديث:{" "}
+              {new Date(realTimeData.last_updated).toLocaleTimeString("ar-SA")}
             </span>
           )}
         </div>
@@ -129,46 +131,52 @@ export default function AdvancedAnalyticsDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">الزوار الحاليون</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              الزوار الحاليون
+            </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {realTimeData ? formatNumber(realTimeData.current_visitors) : '...'}
+              {realTimeData
+                ? formatNumber(realTimeData.current_visitors)
+                : "..."}
             </div>
-            <p className="text-xs text-muted-foreground">
-              نشط الآن
-            </p>
+            <p className="text-xs text-muted-foreground">نشط الآن</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">الجلسات النشطة</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              الجلسات النشطة
+            </CardTitle>
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {realTimeData ? formatNumber(realTimeData.active_sessions) : '...'}
+              {realTimeData
+                ? formatNumber(realTimeData.active_sessions)
+                : "..."}
             </div>
-            <p className="text-xs text-muted-foreground">
-              جلسة نشطة
-            </p>
+            <p className="text-xs text-muted-foreground">جلسة نشطة</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">مشاهدات الساعة الماضية</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              مشاهدات الساعة الماضية
+            </CardTitle>
             <Eye className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {realTimeData ? formatNumber(realTimeData.page_views_last_hour) : '...'}
+              {realTimeData
+                ? formatNumber(realTimeData.page_views_last_hour)
+                : "..."}
             </div>
-            <p className="text-xs text-muted-foreground">
-              آخر 60 دقيقة
-            </p>
+            <p className="text-xs text-muted-foreground">آخر 60 دقيقة</p>
           </CardContent>
         </Card>
 
@@ -179,11 +187,9 @@ export default function AdvancedAnalyticsDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {realTimeData?.performance_metrics.conversion_rate || '...'}
+              {realTimeData?.performance_metrics.conversion_rate || "..."}
             </div>
-            <p className="text-xs text-muted-foreground">
-              معدل الأداء
-            </p>
+            <p className="text-xs text-muted-foreground">معدل الأداء</p>
           </CardContent>
         </Card>
       </div>
@@ -200,8 +206,8 @@ export default function AdvancedAnalyticsDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="text-sm font-medium">المقياس</label>
-              <select 
-                value={selectedMetric} 
+              <select
+                value={selectedMetric}
                 onChange={(e) => setSelectedMetric(e.target.value)}
                 className="w-full p-2 border rounded-md"
               >
@@ -212,11 +218,11 @@ export default function AdvancedAnalyticsDashboard() {
                 <option value="conversion_rate">معدل التحويل</option>
               </select>
             </div>
-            
+
             <div>
               <label className="text-sm font-medium">الفترة الزمنية</label>
-              <select 
-                value={timeRange} 
+              <select
+                value={timeRange}
                 onChange={(e) => setTimeRange(e.target.value)}
                 className="w-full p-2 border rounded-md"
               >
@@ -229,7 +235,7 @@ export default function AdvancedAnalyticsDashboard() {
             </div>
 
             <div className="flex items-end">
-              <Button 
+              <Button
                 onClick={executeAnalyticsQuery}
                 disabled={loading}
                 className="w-full"
@@ -271,7 +277,10 @@ export default function AdvancedAnalyticsDashboard() {
               <CardContent>
                 <div className="space-y-2">
                   {realTimeData?.top_pages.map((page, index) => (
-                    <div key={index} className="flex items-center justify-between">
+                    <div
+                      key={index}
+                      className="flex items-center justify-between"
+                    >
                       <span className="text-sm">{page.path}</span>
                       <Badge variant="secondary">
                         {formatNumber(page.visitors)}
@@ -320,12 +329,18 @@ export default function AdvancedAnalyticsDashboard() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-4">
-                {realTimeData && Object.entries(realTimeData.traffic_sources).map(([source, value]) => (
-                  <div key={source} className="flex items-center justify-between p-3 border rounded">
-                    <span className="capitalize">{source}</span>
-                    <span className="font-bold">{value}%</span>
-                  </div>
-                ))}
+                {realTimeData &&
+                  Object.entries(realTimeData.traffic_sources).map(
+                    ([source, value]) => (
+                      <div
+                        key={source}
+                        className="flex items-center justify-between p-3 border rounded"
+                      >
+                        <span className="capitalize">{source}</span>
+                        <span className="font-bold">{value}%</span>
+                      </div>
+                    )
+                  )}
               </div>
             </CardContent>
           </Card>
@@ -358,7 +373,10 @@ export default function AdvancedAnalyticsDashboard() {
               {realTimeData?.anomalies && realTimeData.anomalies.length > 0 ? (
                 <div className="space-y-3">
                   {realTimeData.anomalies.map((anomaly, index) => (
-                    <div key={index} className="flex items-start gap-3 p-3 border rounded-lg bg-orange-50">
+                    <div
+                      key={index}
+                      className="flex items-start gap-3 p-3 border rounded-lg bg-orange-50"
+                    >
                       <AlertTriangle className="w-5 h-5 text-orange-500 mt-0.5" />
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
@@ -371,7 +389,7 @@ export default function AdvancedAnalyticsDashboard() {
                           {anomaly.description}
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">
-                          {new Date(anomaly.timestamp).toLocaleString('ar-SA')}
+                          {new Date(anomaly.timestamp).toLocaleString("ar-SA")}
                         </p>
                       </div>
                     </div>

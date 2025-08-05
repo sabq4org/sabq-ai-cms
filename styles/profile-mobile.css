@@ -1,0 +1,94 @@
+/*
+ * أنماط CSS خاصة بصفحة الملف الشخصي المحسنة للموبايل
+ * Mobile-optimized CSS for profile page
+ */
+
+/* إخفاء شريط التمرير للتبويبات الأفقية */
+.scrollbar-hide {
+  /* Firefox */
+  scrollbar-width: none;
+
+  /* IE and Edge */
+  -ms-overflow-style: none;
+}
+
+/* Webkit browsers (Chrome, Safari, Edge Chromium) */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* تحسين التمرير الأفقي على الموبايل */
+.scrollbar-hide {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* تحسين تجربة اللمس للأزرار */
+@media (max-width: 768px) {
+  .touch-optimized {
+    min-height: 44px; /* الحد الأدنى لحجم اللمس */
+    min-width: 44px;
+  }
+
+  /* تحسين النصوص على الشاشات الصغيرة */
+  .mobile-text-optimize {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* تحسين الانتقالات للموبايل */
+@media (prefers-reduced-motion: no-preference) {
+  .mobile-smooth-transition {
+    transition: all 0.2s ease-in-out;
+  }
+}
+
+/* تحسين الشاشات فائقة الصغر (iPhone SE) */
+@media (max-width: 375px) {
+  .ultra-mobile-text {
+    font-size: 0.875rem; /* 14px */
+    line-height: 1.25rem; /* 20px */
+  }
+
+  .ultra-mobile-padding {
+    padding: 0.75rem; /* 12px */
+  }
+
+  .ultra-mobile-margin {
+    margin: 0.5rem; /* 8px */
+  }
+}
+
+/* تحسين الوضع المظلم */
+@media (prefers-color-scheme: dark) {
+  .dark-mode-gradient {
+    background: linear-gradient(
+      to bottom right,
+      rgb(55, 48, 163),
+      rgb(59, 130, 246),
+      rgb(79, 70, 229)
+    );
+  }
+}
+
+/* تحسينات خاصة بـ RTL */
+html[dir="rtl"] .profile-container {
+  direction: rtl;
+}
+
+html[dir="rtl"] .profile-tabs {
+  direction: rtl;
+}
+
+/* تحسينات للشاشات اللمسية */
+@media (hover: none) and (pointer: coarse) {
+  .touch-card {
+    transform: scale(1);
+    transition: transform 0.1s ease;
+  }
+
+  .touch-card:active {
+    transform: scale(0.98);
+  }
+}

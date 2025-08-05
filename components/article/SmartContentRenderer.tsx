@@ -1,9 +1,8 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState, useRef } from 'react';
-import Image from 'next/image';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import SmartQuoteCard from './SmartQuoteCard';
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
+import { useEffect, useRef, useState } from "react";
+import SmartQuoteCard from "./SmartQuoteCard";
 
 interface SmartContentRendererProps {
   content: string;
@@ -12,8 +11,13 @@ interface SmartContentRendererProps {
     text: string;
     context?: string;
     importance_score: number;
-    emotional_impact: 'high' | 'medium' | 'low';
-    quote_type: 'key_insight' | 'call_to_action' | 'expert_opinion' | 'data_point' | 'conclusion';
+    emotional_impact: "high" | "medium" | "low";
+    quote_type:
+      | "key_insight"
+      | "call_to_action"
+      | "expert_opinion"
+      | "data_point"
+      | "conclusion";
     position_in_article: number;
   }>;
   articleTitle: string;
@@ -22,21 +26,23 @@ interface SmartContentRendererProps {
 }
 
 interface ProcessedContent {
-  type: 'text' | 'quote' | 'image' | 'video';
+  type: "text" | "quote" | "image" | "video";
   content: string;
   quote?: any;
   position: number;
 }
 
-export default function SmartContentRenderer({ 
-  content, 
-  smartQuotes = [], 
-  articleTitle, 
+export default function SmartContentRenderer({
+  content,
+  smartQuotes = [],
+  articleTitle,
   authorName,
-  className = ''
+  className = "",
 }: SmartContentRendererProps) {
   const { darkMode } = useDarkModeContext();
-  const [processedContent, setProcessedContent] = useState<ProcessedContent[]>([]);
+  const [processedContent, setProcessedContent] = useState<ProcessedContent[]>(
+    []
+  );
   const [readingProgress, setReadingProgress] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -46,36 +52,39 @@ export default function SmartContentRenderer({
       // Split content into paragraphs
       const paragraphs = content
         .split(/\n\s*\n/)
-        .filter(p => p.trim())
-        .map(p => p.trim());
+        .filter((p) => p.trim())
+        .map((p) => p.trim());
 
       const processed: ProcessedContent[] = [];
       let currentPosition = 0;
 
       paragraphs.forEach((paragraph, index) => {
         const paragraphPosition = ((index + 1) / paragraphs.length) * 100;
-        
+
         // Add the paragraph
         processed.push({
-          type: 'text',
+          type: "text",
           content: paragraph,
-          position: paragraphPosition
+          position: paragraphPosition,
         });
 
         // Check if any quotes should be inserted after this paragraph
-        const quotesToInsert = smartQuotes.filter(quote => {
+        const quotesToInsert = smartQuotes.filter((quote) => {
           const quotePosition = quote.position_in_article;
-          const prevPosition = index > 0 ? ((index) / paragraphs.length) * 100 : 0;
-          return quotePosition > prevPosition && quotePosition <= paragraphPosition;
+          const prevPosition =
+            index > 0 ? (index / paragraphs.length) * 100 : 0;
+          return (
+            quotePosition > prevPosition && quotePosition <= paragraphPosition
+          );
         });
 
         // Insert quotes
-        quotesToInsert.forEach(quote => {
+        quotesToInsert.forEach((quote) => {
           processed.push({
-            type: 'quote',
-            content: '',
+            type: "quote",
+            content: "",
             quote: quote,
-            position: quote.position_in_article
+            position: quote.position_in_article,
           });
         });
       });
@@ -96,38 +105,42 @@ export default function SmartContentRenderer({
       const element = contentRef.current;
       const rect = element.getBoundingClientRect();
       const windowHeight = window.innerHeight;
-      
+
       // Calculate how much of the content is visible
       const visibleTop = Math.max(0, -rect.top);
       const visibleBottom = Math.min(rect.height, windowHeight - rect.top);
       const visibleHeight = Math.max(0, visibleBottom - visibleTop);
-      
+
       const progress = (visibleHeight / rect.height) * 100;
       setReadingProgress(Math.min(100, Math.max(0, progress)));
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
     handleScroll(); // Initial calculation
-    
-    return () => window.removeEventListener('scroll', handleScroll);
+
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const renderParagraph = (text: string, index: number) => {
     // Handle different types of content blocks
-    if (text.startsWith('<h1>') || text.startsWith('<h2>') || text.startsWith('<h3>')) {
+    if (
+      text.startsWith("<h1>") ||
+      text.startsWith("<h2>") ||
+      text.startsWith("<h3>")
+    ) {
       return (
-        <div 
+        <div
           key={index}
           className={`
             text-2xl sm:text-3xl font-bold mb-6 mt-8
-            ${darkMode ? 'text-white' : 'text-gray-900'}
+            ${darkMode ? "text-white" : "text-gray-900"}
           `}
           dangerouslySetInnerHTML={{ __html: text }}
         />
       );
     }
 
-    if (text.startsWith('<img')) {
+    if (text.startsWith("<img")) {
       return (
         <div key={index} className="my-8">
           <div className="relative rounded-2xl overflow-hidden shadow-lg">
@@ -137,13 +150,17 @@ export default function SmartContentRenderer({
       );
     }
 
-    if (text.startsWith('<blockquote>')) {
+    if (text.startsWith("<blockquote>")) {
       return (
-        <blockquote 
+        <blockquote
           key={index}
           className={`
             my-6 p-6 border-r-4 border-blue-400 rounded-lg
-            ${darkMode ? 'bg-gray-800 text-gray-200' : 'bg-blue-50 text-gray-700'}
+            ${
+              darkMode
+                ? "bg-gray-800 text-gray-200"
+                : "bg-blue-50 text-gray-700"
+            }
             italic text-lg leading-relaxed
           `}
           dangerouslySetInnerHTML={{ __html: text }}
@@ -153,11 +170,11 @@ export default function SmartContentRenderer({
 
     // Regular paragraph
     return (
-      <p 
+      <p
         key={index}
         className={`
-          text-lg leading-relaxed mb-6
-          ${darkMode ? 'text-gray-200' : 'text-gray-800'}
+          text-lg leading-relaxed mb-6 arabic-content-paragraph
+          ${darkMode ? "text-gray-200" : "text-gray-800"}
         `}
         dangerouslySetInnerHTML={{ __html: text }}
       />
@@ -168,18 +185,18 @@ export default function SmartContentRenderer({
     <div className={`relative ${className}`}>
       {/* Reading Progress Indicator */}
       <div className="fixed top-0 left-0 right-0 z-50">
-        <div 
+        <div
           className="h-1 bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300"
           style={{ width: `${readingProgress}%` }}
         />
       </div>
 
       {/* Content */}
-      <div 
+      <div
         ref={contentRef}
         className={`
           max-w-4xl mx-auto prose prose-lg
-          ${darkMode ? 'prose-invert' : ''}
+          ${darkMode ? "prose-invert" : ""}
           prose-headings:font-bold
           prose-p:text-lg prose-p:leading-relaxed
           prose-img:rounded-2xl prose-img:shadow-lg
@@ -190,7 +207,7 @@ export default function SmartContentRenderer({
         `}
       >
         {processedContent.map((item, index) => {
-          if (item.type === 'quote' && item.quote) {
+          if (item.type === "quote" && item.quote) {
             return (
               <SmartQuoteCard
                 key={`quote-${item.quote.id}`}
@@ -201,7 +218,7 @@ export default function SmartContentRenderer({
             );
           }
 
-          if (item.type === 'text') {
+          if (item.type === "text") {
             return renderParagraph(item.content, index);
           }
 
@@ -210,20 +227,34 @@ export default function SmartContentRenderer({
       </div>
 
       {/* Floating Reading Stats */}
-      <div className={`
+      <div
+        className={`
         fixed bottom-6 right-6 p-4 rounded-2xl shadow-lg backdrop-blur-md
-        ${darkMode ? 'bg-gray-800/80 border border-gray-600' : 'bg-white/80 border border-gray-200'}
+        ${
+          darkMode
+            ? "bg-gray-800/80 border border-gray-600"
+            : "bg-white/80 border border-gray-200"
+        }
         transition-all duration-300 hover:scale-105
-      `}>
+      `}
+      >
         <div className="text-center">
-          <div className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+          <div
+            className={`text-2xl font-bold ${
+              darkMode ? "text-white" : "text-gray-900"
+            }`}
+          >
             {Math.round(readingProgress)}%
           </div>
-          <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+          <div
+            className={`text-xs ${
+              darkMode ? "text-gray-400" : "text-gray-600"
+            }`}
+          >
             تقدم القراءة
           </div>
           <div className="mt-2 w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full overflow-hidden">
-            <div 
+            <div
               className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300"
               style={{ width: `${readingProgress}%` }}
             />
@@ -233,24 +264,36 @@ export default function SmartContentRenderer({
 
       {/* Enhanced Typography Styles */}
       <style jsx global>{`
+        .arabic-content-paragraph {
+          text-align: right !important;
+          direction: rtl !important;
+        }
+
+        .arabic-content-paragraph * {
+          text-align: right !important;
+          direction: rtl !important;
+        }
+
         .prose p {
           margin-bottom: 1.5rem;
           line-height: 1.8;
         }
-        
-        .prose h1, .prose h2, .prose h3 {
+
+        .prose h1,
+        .prose h2,
+        .prose h3 {
           margin-top: 2rem;
           margin-bottom: 1rem;
           line-height: 1.3;
         }
-        
+
         .prose blockquote {
           margin: 2rem 0;
           padding: 1.5rem;
           border-radius: 0.75rem;
           position: relative;
         }
-        
+
         .prose blockquote::before {
           content: '"';
           position: absolute;
@@ -260,48 +303,51 @@ export default function SmartContentRenderer({
           opacity: 0.3;
           line-height: 1;
         }
-        
+
         .prose img {
           margin: 2rem auto;
           border-radius: 1rem;
-          box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
-        
-        .prose ul, .prose ol {
+
+        .prose ul,
+        .prose ol {
           margin: 1.5rem 0;
           padding-right: 1.5rem;
         }
-        
+
         .prose li {
           margin-bottom: 0.5rem;
           line-height: 1.7;
         }
-        
+
         .prose strong {
           font-weight: 700;
         }
-        
+
         .prose em {
           font-style: italic;
           opacity: 0.9;
         }
-        
+
         .prose code {
-          background: rgba(0,0,0,0.1);
+          background: rgba(0, 0, 0, 0.1);
           padding: 0.2rem 0.4rem;
           border-radius: 0.25rem;
           font-size: 0.9em;
         }
-        
-        ${darkMode ? `
+
+        ${darkMode
+          ? `
           .prose code {
             background: rgba(255,255,255,0.1);
           }
-          
+
           .prose blockquote {
             background: rgba(55, 65, 81, 0.5);
           }
-        ` : `
+        `
+          : `
           .prose blockquote {
             background: rgba(239, 246, 255, 0.5);
           }

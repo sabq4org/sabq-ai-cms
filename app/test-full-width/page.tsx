@@ -6,6 +6,7 @@
 'use client';
 
 import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
+import { SidebarPreferencesProvider } from '@/contexts/SidebarPreferencesContext';
 import { DesignComponents } from '@/components/design-system/DesignSystemGuide';
 import { Button } from '@/components/ui/button';
 import {
@@ -37,10 +38,11 @@ const articlesData = [
 
 export default function FullWidthTestPage() {
   return (
-    <DashboardLayout
-      pageTitle="اختبار حل التمدد الكامل"
-      pageDescription="صفحة لاختبار حل مشكلة عدم التمدد على الشاشات الكبيرة"
-    >
+    <SidebarPreferencesProvider>
+      <DashboardLayout
+        pageTitle="اختبار حل التمدد الكامل"
+        pageDescription="صفحة لاختبار حل مشكلة عدم التمدد على الشاشات الكبيرة"
+      >
       <div className="space-y-8">
         {/* رسالة الترحيب والإرشادات */}
         <DesignComponents.StandardCard className="p-6 bg-gradient-to-l from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
@@ -210,6 +212,7 @@ export default function FullWidthTestPage() {
           </div>
         </DesignComponents.StandardCard>
       </div>
-    </DashboardLayout>
+      </DashboardLayout>
+    </SidebarPreferencesProvider>
   );
 }

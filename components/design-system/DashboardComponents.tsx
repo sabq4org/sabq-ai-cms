@@ -6,38 +6,39 @@
  * للحفاظ على التناسق والتصميم الموحد
  */
 
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { formatNumber } from "@/lib/config/localization";
+import { cn } from "@/lib/utils";
 import {
-    Activity,
-    ArrowDown,
-    ArrowUp,
-    BarChart3,
-    Bell,
-    Calendar,
-    ChevronRight,
-    Download,
-    Edit,
-    Eye,
-    FileText,
-    Filter,
-    Globe,
-    MoreHorizontal,
-    PieChart,
-    Plus,
-    RefreshCw,
-    Search,
-    Settings,
-    Trash2,
-    TrendingDown,
-    TrendingUp,
-    User,
-    Users
-} from 'lucide-react';
-import React from 'react';
+  Activity,
+  ArrowDown,
+  ArrowUp,
+  BarChart3,
+  Bell,
+  Calendar,
+  ChevronRight,
+  Download,
+  Edit,
+  Eye,
+  FileText,
+  Filter,
+  Globe,
+  MoreHorizontal,
+  PieChart,
+  Plus,
+  RefreshCw,
+  Search,
+  Settings,
+  Trash2,
+  TrendingDown,
+  TrendingUp,
+  User,
+  Users,
+} from "lucide-react";
+import React from "react";
 
 // أنواع البيانات المشتركة
 export interface DashboardStats {
@@ -45,18 +46,18 @@ export interface DashboardStats {
   value: string | number;
   change?: {
     value: number;
-    trend: 'up' | 'down' | 'neutral';
+    trend: "up" | "down" | "neutral";
     period?: string;
   };
   icon?: React.ReactNode;
-  color?: 'blue' | 'green' | 'yellow' | 'red' | 'purple' | 'gray';
+  color?: "blue" | "green" | "yellow" | "red" | "purple" | "gray";
 }
 
 export interface TableAction {
   label: string;
   icon: React.ReactNode;
   onClick: () => void;
-  variant?: 'default' | 'danger' | 'success' | 'warning';
+  variant?: "default" | "danger" | "success" | "warning";
 }
 
 export interface TableColumn<T = any> {
@@ -73,22 +74,22 @@ export const StatsCard: React.FC<DashboardStats & { className?: string }> = ({
   value,
   change,
   icon,
-  color = 'blue',
-  className
+  color = "blue",
+  className,
 }) => {
   const colorVariants = {
-    blue: 'bg-blue-50 text-blue-600 border-blue-100',
-    green: 'bg-green-50 text-green-600 border-green-100',
-    yellow: 'bg-yellow-50 text-yellow-600 border-yellow-100',
-    red: 'bg-red-50 text-red-600 border-red-100',
-    purple: 'bg-purple-50 text-purple-600 border-purple-100',
-    gray: 'bg-gray-50 text-gray-600 border-gray-100'
+    blue: "bg-blue-50 text-blue-600 border-blue-100",
+    green: "bg-green-50 text-green-600 border-green-100",
+    yellow: "bg-yellow-50 text-yellow-600 border-yellow-100",
+    red: "bg-red-50 text-red-600 border-red-100",
+    purple: "bg-purple-50 text-purple-600 border-purple-100",
+    gray: "bg-gray-50 text-gray-600 border-gray-100",
   };
 
   const trendColors = {
-    up: 'text-green-600',
-    down: 'text-red-600',
-    neutral: 'text-gray-500'
+    up: "text-green-600",
+    down: "text-red-600",
+    neutral: "text-gray-500",
   };
 
   return (
@@ -99,15 +100,21 @@ export const StatsCard: React.FC<DashboardStats & { className?: string }> = ({
             {title}
           </p>
           <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            {typeof value === 'number' ? value.toLocaleString('ar') : value}
+            {typeof value === "number" ? formatNumber(value) : value}
           </p>
 
           {change && (
-            <div className={cn("flex items-center gap-1 mt-2 text-sm", trendColors[change.trend])}>
-              {change.trend === 'up' && <ArrowUp className="w-4 h-4" />}
-              {change.trend === 'down' && <ArrowDown className="w-4 h-4" />}
+            <div
+              className={cn(
+                "flex items-center gap-1 mt-2 text-sm",
+                trendColors[change.trend]
+              )}
+            >
+              {change.trend === "up" && <ArrowUp className="w-4 h-4" />}
+              {change.trend === "down" && <ArrowDown className="w-4 h-4" />}
               <span className="font-medium">
-                {change.value > 0 ? '+' : ''}{change.value}%
+                {change.value > 0 ? "+" : ""}
+                {change.value}%
               </span>
               {change.period && (
                 <span className="text-gray-500">منذ {change.period}</span>
@@ -143,7 +150,10 @@ export const PageHeader: React.FC<{
             <React.Fragment key={index}>
               {index > 0 && <ChevronRight className="w-4 h-4" />}
               {crumb.href ? (
-                <a href={crumb.href} className="hover:text-gray-700 transition-colors">
+                <a
+                  href={crumb.href}
+                  className="hover:text-gray-700 transition-colors"
+                >
                   {crumb.label}
                 </a>
               ) : (
@@ -170,9 +180,7 @@ export const PageHeader: React.FC<{
         </div>
 
         {actions && (
-          <div className="flex items-center gap-3 flex-shrink-0">
-            {actions}
-          </div>
+          <div className="flex items-center gap-3 flex-shrink-0">{actions}</div>
         )}
       </div>
     </div>
@@ -187,13 +195,23 @@ export const DataTable: React.FC<{
   loading?: boolean;
   emptyMessage?: string;
   className?: string;
-}> = ({ data, columns, actions, loading, emptyMessage = "لا توجد بيانات", className }) => {
+}> = ({
+  data,
+  columns,
+  actions,
+  loading,
+  emptyMessage = "لا توجد بيانات",
+  className,
+}) => {
   if (loading) {
     return (
       <Card className={cn("p-6", className)}>
         <div className="animate-pulse space-y-4">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-12 bg-gray-200 dark:bg-gray-700 rounded" />
+            <div
+              key={i}
+              className="h-12 bg-gray-200 dark:bg-gray-700 rounded"
+            />
           ))}
         </div>
       </Card>
@@ -235,13 +253,18 @@ export const DataTable: React.FC<{
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
             {data.map((item, index) => (
-              <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+              <tr
+                key={index}
+                className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+              >
                 {columns.map((column) => (
-                  <td key={column.key} className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
+                  <td
+                    key={column.key}
+                    className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100"
+                  >
                     {column.render
                       ? column.render(item[column.key], item)
-                      : item[column.key]
-                    }
+                      : item[column.key]}
                   </td>
                 ))}
                 {actions && (
@@ -291,7 +314,8 @@ export const ActionsDropdown: React.FC<{
                 }}
                 className={cn(
                   "w-full flex items-center gap-3 px-4 py-2 text-sm text-right hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors",
-                  action.variant === 'danger' && "text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20",
+                  action.variant === "danger" &&
+                    "text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20",
                   index === 0 && "rounded-t-lg",
                   index === actions.length - 1 && "rounded-b-lg"
                 )}
@@ -323,9 +347,9 @@ export const SearchAndFilterBar: React.FC<{
   onAdd,
   addLabel = "إضافة جديد",
   searchPlaceholder = "البحث...",
-  className
+  className,
 }) => {
-  const [searchQuery, setSearchQuery] = React.useState('');
+  const [searchQuery, setSearchQuery] = React.useState("");
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -333,7 +357,12 @@ export const SearchAndFilterBar: React.FC<{
   };
 
   return (
-    <div className={cn("flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between", className)}>
+    <div
+      className={cn(
+        "flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between",
+        className
+      )}
+    >
       {/* البحث */}
       <div className="relative flex-1 max-w-md">
         <Search className="w-5 h-5 absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -383,7 +412,7 @@ export const ErrorState: React.FC<{
   title = "حدث خطأ",
   message = "عذراً، حدث خطأ غير متوقع",
   onRetry,
-  className
+  className,
 }) => {
   return (
     <div className={cn("p-12 text-center", className)}>
@@ -394,9 +423,7 @@ export const ErrorState: React.FC<{
         <h3 className="text-lg font-semibold text-red-700 dark:text-red-400 mb-2">
           {title}
         </h3>
-        <p className="text-red-600 dark:text-red-500 mb-6">
-          {message}
-        </p>
+        <p className="text-red-600 dark:text-red-500 mb-6">{message}</p>
         {onRetry && (
           <Button variant="outline" onClick={onRetry}>
             <RefreshCw className="w-4 h-4 ml-2" />
@@ -438,7 +465,7 @@ export const EmptyState: React.FC<{
   message = "لم يتم العثور على أي عناصر",
   action,
   icon,
-  className
+  className,
 }) => {
   return (
     <div className={cn("p-12 text-center", className)}>
@@ -447,9 +474,7 @@ export const EmptyState: React.FC<{
         <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
           {title}
         </h3>
-        <p className="text-gray-500 dark:text-gray-400 mb-6">
-          {message}
-        </p>
+        <p className="text-gray-500 dark:text-gray-400 mb-6">{message}</p>
         {action && (
           <Button variant="primary" onClick={action.onClick}>
             <Plus className="w-4 h-4 ml-2" />
@@ -467,7 +492,12 @@ export const StatsGrid: React.FC<{
   className?: string;
 }> = ({ stats, className }) => {
   return (
-    <div className={cn("grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6", className)}>
+    <div
+      className={cn(
+        "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6",
+        className
+      )}
+    >
       {stats.map((stat, index) => (
         <StatsCard key={index} {...stat} />
       ))}
@@ -492,7 +522,7 @@ export const DashboardIcons = {
   TrendingUp,
   TrendingDown,
   User,
-  Users
+  Users,
 };
 
 export default {
@@ -505,5 +535,5 @@ export default {
   LoadingState,
   EmptyState,
   StatsGrid,
-  DashboardIcons
+  DashboardIcons,
 };

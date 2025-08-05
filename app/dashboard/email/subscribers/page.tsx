@@ -1,35 +1,42 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Image from 'next/image';
-import { useState, useEffect, useRef } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, RadixSelect } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
-import { 
-  Mail, 
-  UserPlus, 
-  Upload, 
-  Search, 
-  Filter, 
-  MoreVertical,
-  Download,
-  Trash2,
-  Edit,
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  RadixSelect,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import {
+  AlertCircle,
   CheckCircle,
+  Download,
+  Mail,
+  Search,
+  Trash2,
+  Upload,
+  UserPlus,
   XCircle,
-  AlertCircle
-} from 'lucide-react';
+} from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
 interface Subscriber {
   id: string;
   email: string;
   name?: string;
-  status: 'active' | 'inactive' | 'unsubscribed';
+  status: "active" | "inactive" | "unsubscribed";
   preferences?: any;
   createdAt: string;
   _count: {
@@ -42,8 +49,8 @@ export default function SubscribersPage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showImportDialog, setShowImportDialog] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -53,9 +60,9 @@ export default function SubscribersPage() {
       setLoading(true);
       const params = new URLSearchParams({
         page: page.toString(),
-        limit: '20',
+        limit: "20",
         ...(searchTerm && { search: searchTerm }),
-        ...(statusFilter && { status: statusFilter })
+        ...(statusFilter && { status: statusFilter }),
       });
       const response = await fetch(`/api/email/subscribers?${params}`);
       const data = await response.json();
@@ -65,9 +72,9 @@ export default function SubscribersPage() {
       }
     } catch (error) {
       toast({
-        title: 'خطأ',
-        description: 'فشل في جلب المشتركين',
-        variant: 'destructive'
+        title: "خطأ",
+        description: "فشل في جلب المشتركين",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -81,34 +88,34 @@ export default function SubscribersPage() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     try {
-      const response = await fetch('/api/email/subscribers', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/email/subscribers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: formData.get('email'),
-          name: formData.get('name') || undefined
-        })
+          email: formData.get("email"),
+          name: formData.get("name") || undefined,
+        }),
       });
       const data = await response.json();
       if (data.success) {
         toast({
-          title: 'تم',
-          description: data.message
+          title: "تم",
+          description: data.message,
         });
         setShowAddDialog(false);
         fetchSubscribers();
       } else {
         toast({
-          title: 'خطأ',
+          title: "خطأ",
           description: data.error,
-          variant: 'destructive'
+          variant: "destructive",
         });
       }
     } catch (error) {
       toast({
-        title: 'خطأ',
-        description: 'فشل في إضافة المشترك',
-        variant: 'destructive'
+        title: "خطأ",
+        description: "فشل في إضافة المشترك",
+        variant: "destructive",
       });
     }
   };
@@ -117,32 +124,32 @@ export default function SubscribersPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
     try {
-      const response = await fetch('/api/email/subscribers', {
-        method: 'PUT',
-        body: formData
+      const response = await fetch("/api/email/subscribers", {
+        method: "PUT",
+        body: formData,
       });
       const data = await response.json();
       if (data.success) {
         toast({
-          title: 'تم الاستيراد',
-          description: data.message
+          title: "تم الاستيراد",
+          description: data.message,
         });
         setShowImportDialog(false);
         fetchSubscribers();
       } else {
         toast({
-          title: 'خطأ',
+          title: "خطأ",
           description: data.error,
-          variant: 'destructive'
+          variant: "destructive",
         });
       }
     } catch (error) {
       toast({
-        title: 'خطأ',
-        description: 'فشل في استيراد الملف',
-        variant: 'destructive'
+        title: "خطأ",
+        description: "فشل في استيراد الملف",
+        variant: "destructive",
       });
     }
   };
@@ -150,66 +157,80 @@ export default function SubscribersPage() {
   const updateSubscriberStatus = async (id: string, status: string) => {
     try {
       const response = await fetch(`/api/email/subscribers/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status })
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
       });
       const data = await response.json();
       if (data.success) {
         toast({
-          title: 'تم',
-          description: 'تم تحديث حالة المشترك'
+          title: "تم",
+          description: "تم تحديث حالة المشترك",
         });
         fetchSubscribers();
       }
     } catch (error) {
       toast({
-        title: 'خطأ',
-        description: 'فشل في تحديث الحالة',
-        variant: 'destructive'
+        title: "خطأ",
+        description: "فشل في تحديث الحالة",
+        variant: "destructive",
       });
     }
   };
   // حذف مشترك
   const deleteSubscriber = async (id: string) => {
-    if (!confirm('هل أنت متأكد من حذف هذا المشترك؟')) return;
+    if (!confirm("هل أنت متأكد من حذف هذا المشترك؟")) return;
     try {
       const response = await fetch(`/api/email/subscribers/${id}`, {
-        method: 'DELETE'
+        method: "DELETE",
       });
       const data = await response.json();
       if (data.success) {
         toast({
-          title: 'تم',
-          description: 'تم حذف المشترك'
+          title: "تم",
+          description: "تم حذف المشترك",
         });
         fetchSubscribers();
       }
     } catch (error) {
       toast({
-        title: 'خطأ',
-        description: 'فشل في حذف المشترك',
-        variant: 'destructive'
+        title: "خطأ",
+        description: "فشل في حذف المشترك",
+        variant: "destructive",
       });
     }
   };
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'active':
-        return <Badge className="bg-green-500"><CheckCircle className="w-3 h-3 mr-1" /> نشط</Badge>;
-      case 'inactive':
-        return <Badge className="bg-yellow-500"><AlertCircle className="w-3 h-3 mr-1" /> غير متفاعل</Badge>;
-      case 'unsubscribed':
-        return <Badge className="bg-red-500"><XCircle className="w-3 h-3 mr-1" /> ألغى الاشتراك</Badge>;
+      case "active":
+        return (
+          <Badge className="bg-green-500">
+            <CheckCircle className="w-3 h-3 mr-1" /> نشط
+          </Badge>
+        );
+      case "inactive":
+        return (
+          <Badge className="bg-yellow-500">
+            <AlertCircle className="w-3 h-3 mr-1" /> غير متفاعل
+          </Badge>
+        );
+      case "unsubscribed":
+        return (
+          <Badge className="bg-red-500">
+            <XCircle className="w-3 h-3 mr-1" /> ألغى الاشتراك
+          </Badge>
+        );
       default:
         return null;
     }
   };
   return (
-  <div className="container mx-auto p-6">
+    <div className="container mx-auto p-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">إدارة المشتركين</h1>
-        <p className="text-gray-600">إدارة قائمة المشتركين في النشرة البريدية</p>
+        <p className="text-gray-600">
+          إدارة قائمة المشتركين في النشرة البريدية
+        </p>
       </div>
       {/* شريط الأدوات */}
       <Card className="mb-6">
@@ -229,7 +250,7 @@ export default function SubscribersPage() {
                 <SelectValue placeholder="كل الحالات" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">كل الحالات</SelectItem>
+                <SelectItem value="all">كل الحالات</SelectItem>
                 <SelectItem value="active">نشط</SelectItem>
                 <SelectItem value="inactive">غير متفاعل</SelectItem>
                 <SelectItem value="unsubscribed">ألغى الاشتراك</SelectItem>
@@ -260,11 +281,7 @@ export default function SubscribersPage() {
                     </div>
                     <div>
                       <Label htmlFor="name">الاسم (اختياري)</Label>
-                      <Input
-                        id="name"
-                        name="name"
-                        placeholder="الاسم الكامل"
-                      />
+                      <Input id="name" name="name" placeholder="الاسم الكامل" />
                     </div>
                     <Button type="submit" className="w-full">
                       إضافة المشترك
@@ -272,7 +289,10 @@ export default function SubscribersPage() {
                   </form>
                 </DialogContent>
               </Dialog>
-              <Dialog open={showImportDialog} onOpenChange={setShowImportDialog}>
+              <Dialog
+                open={showImportDialog}
+                onOpenChange={setShowImportDialog}
+              >
                 <DialogTrigger asChild>
                   <Button variant="outline">
                     <Upload className="w-4 h-4 ml-2" />
@@ -298,12 +318,12 @@ export default function SubscribersPage() {
                       className="w-full"
                       onClick={() => {
                         // تحميل نموذج CSV
-                        const csv = 'email,name\nexample@email.com,اسم المشترك';
-                        const blob = new Blob([csv], { type: 'text/csv' });
+                        const csv = "email,name\nexample@email.com,اسم المشترك";
+                        const blob = new Blob([csv], { type: "text/csv" });
                         const url = window.URL.createObjectURL(blob);
-                        const a = document.createElement('a');
+                        const a = document.createElement("a");
                         a.href = url;
-                        a.download = 'subscribers_template.csv';
+                        a.download = "subscribers_template.csv";
                         a.click();
                       }}
                     >
@@ -344,38 +364,52 @@ export default function SubscribersPage() {
                 </thead>
                 <tbody>
                   {subscribers.map((subscriber) => (
-                    <tr key={subscriber.id} className="border-b hover:bg-gray-50">
+                    <tr
+                      key={subscriber.id}
+                      className="border-b hover:bg-gray-50"
+                    >
                       <td className="p-4">
                         <div className="flex items-center gap-2">
                           <Mail className="w-4 h-4 text-gray-400" />
                           {subscriber.email}
                         </div>
                       </td>
-                      <td className="p-4">{subscriber.name || '-'}</td>
-                      <td className="p-4">{getStatusBadge(subscriber.status)}</td>
+                      <td className="p-4">{subscriber.name || "-"}</td>
+                      <td className="p-4">
+                        {getStatusBadge(subscriber.status)}
+                      </td>
                       <td className="p-4">{subscriber._count.emailLogs}</td>
                       <td className="p-4">
-                        {new Date(subscriber.createdAt).toLocaleDateString('ar-SA', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric',
-                          calendar: 'gregory',
-                          numberingSystem: 'latn'
-                        })}
+                        {new Date(subscriber.createdAt).toLocaleDateString(
+                          "ar-SA",
+                          {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                            calendar: "gregory",
+                            numberingSystem: "latn",
+                          }
+                        )}
                       </td>
                       <td className="p-4">
                         <div className="flex items-center gap-2">
                           <RadixSelect
                             value={subscriber.status}
-                            onValueChange={(value: string) => updateSubscriberStatus(subscriber.id, value)}
+                            onValueChange={(value: string) =>
+                              updateSubscriberStatus(subscriber.id, value)
+                            }
                           >
                             <SelectTrigger className="w-[140px] h-8">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="active">نشط</SelectItem>
-                              <SelectItem value="inactive">غير متفاعل</SelectItem>
-                              <SelectItem value="unsubscribed">ألغى الاشتراك</SelectItem>
+                              <SelectItem value="inactive">
+                                غير متفاعل
+                              </SelectItem>
+                              <SelectItem value="unsubscribed">
+                                ألغى الاشتراك
+                              </SelectItem>
                             </SelectContent>
                           </RadixSelect>
                           <Button
@@ -398,7 +432,7 @@ export default function SubscribersPage() {
             <div className="flex justify-center gap-2 mt-6">
               <Button
                 variant="outline"
-                onClick={() => setPage(p => Math.max(1, p - 1))}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
               >
                 السابق
@@ -408,7 +442,7 @@ export default function SubscribersPage() {
               </span>
               <Button
                 variant="outline"
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
               >
                 التالي
