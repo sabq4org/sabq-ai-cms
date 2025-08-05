@@ -1,16 +1,18 @@
 "use client";
 
-import React, { Suspense } from "react";
 import { MuqtarabPageSkeleton } from "@/components/muqtarab/MuqtarabSkeletons";
+import React, { Suspense } from "react";
 
 // Safe wrapper لمعالجة خطأ React #130
-export function SafeMuqtarabWrapper({ children }: { children: React.ReactNode }) {
+export function SafeMuqtarabWrapper({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <React.StrictMode>
       <Suspense fallback={<MuqtarabPageSkeleton />}>
-        <ErrorBoundary>
-          {children}
-        </ErrorBoundary>
+        <ErrorBoundary>{children}</ErrorBoundary>
       </Suspense>
     </React.StrictMode>
   );
@@ -29,11 +31,11 @@ class ErrorBoundary extends React.Component<
   static getDerivedStateFromError(error: Error) {
     // تحديث state لإظهار fallback UI
     console.warn("🔧 React Error intercepted:", error.message);
-    return { 
-      hasError: true, 
-      errorMessage: error.message.includes("Minified React error #130") 
-        ? "React rendering error" 
-        : error.message 
+    return {
+      hasError: true,
+      errorMessage: error.message.includes("Minified React error #130")
+        ? "React rendering error"
+        : error.message,
     };
   }
 
@@ -41,12 +43,12 @@ class ErrorBoundary extends React.Component<
     // معالجة خاصة لخطأ React #130
     if (error.message.includes("Minified React error #130")) {
       console.warn("🔧 React #130 error intercepted and handled");
-      
+
       // إعادة تعيين الحالة بعد فترة قصيرة
       setTimeout(() => {
         this.setState({ hasError: false, errorMessage: undefined });
       }, 100);
-      
+
       return;
     }
 

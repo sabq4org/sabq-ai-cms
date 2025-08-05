@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // مكوّن تحميل محسّن لصفحة مقترب
@@ -61,7 +60,10 @@ export function MuqtarabPageSkeleton() {
             <Skeleton className="h-12 w-full md:w-80" />
             <div className="flex gap-2 overflow-x-auto">
               {Array.from({ length: 5 }, (_, i) => (
-                <Skeleton key={`filter-${i}`} className="h-10 w-24 rounded-full" />
+                <Skeleton
+                  key={`filter-${i}`}
+                  className="h-10 w-24 rounded-full"
+                />
               ))}
             </div>
           </div>
