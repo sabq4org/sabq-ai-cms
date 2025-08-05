@@ -14,8 +14,10 @@ import {
   Cpu,
   Eye,
   Filter,
+  Hash,
   Heart,
   MessageCircle,
+  Play,
   Rocket,
   Search,
   Share2,
@@ -187,6 +189,42 @@ export default function AnglePage() {
       {/* Header الزاوية */}
       <AngleHeader angle={angle} />
 
+      {/* المقدمة التفاعلية */}
+      <InteractiveIntro angle={angle} />
+
+      {/* قسم المكونات الذكية */}
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="grid lg:grid-cols-3 gap-6 mb-8">
+          {/* التحليل الذكي */}
+          <div className="lg:col-span-2">
+            <AIAnalysisWidget angle={angle} />
+          </div>
+          
+          {/* المعلومة السريعة */}
+          <div>
+            <QuickInfoWidget angle={angle} />
+          </div>
+        </div>
+
+        {/* المواضيع ذات الصلة */}
+        <div className="mb-8">
+          <RelatedTopicsWidget angle={angle} />
+        </div>
+      </div>
+
+      {/* فاصل تصميمي */}
+      <div className="max-w-7xl mx-auto px-4">
+        <Separator className="my-8" />
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            📚 مقالات الزاوية
+          </h2>
+          <p className="text-gray-600">
+            اكتشف أحدث المقالات والتحليلات في عالم الذكاء الاصطناعي
+          </p>
+        </div>
+      </div>
+
       {/* شريط الفلترة */}
       <AngleFilterBar
         searchQuery={searchQuery}
@@ -205,6 +243,218 @@ export default function AnglePage() {
         loading={articlesLoading}
         angle={angle}
       />
+
+      {/* فوتر الزاوية المخصص */}
+      <AngleFooter angle={angle} />
+    </div>
+  );
+}
+
+// مكون المقدمة التفاعلية
+function InteractiveIntro({ angle }: { angle: Angle }) {
+  return (
+    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-blue-900 py-8 px-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-8 items-center">
+          {/* النص التعريفي */}
+          <div>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4">
+              🤖 مرحباً بك في عالم الذكاء الاصطناعي
+            </h2>
+            <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
+              استكشف أحدث التطورات في تقنيات الذكاء الاصطناعي والتعلم الآلي. من التطبيقات العملية إلى الابتكارات المستقبلية، نقدم لك تحليلات عميقة وآراء خبراء في هذا المجال الثوري.
+            </p>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span>محدث يومياً</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                <span>تحليلات AI متقدمة</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* الفيديو التعريفي المرئي */}
+          <div className="relative">
+            <div className="bg-gradient-to-br from-blue-600 to-purple-700 rounded-2xl p-8 text-center text-white">
+              <div className="mb-6">
+                <div className="inline-flex items-center justify-center w-20 h-20 bg-white/20 rounded-full mb-4">
+                  <Brain className="w-10 h-10" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">جولة تفاعلية</h3>
+                <p className="text-blue-100">استكشف الزاوية في 60 ثانية</p>
+              </div>
+              <Button 
+                variant="outline" 
+                className="bg-white/10 border-white/30 text-white hover:bg-white/20"
+              >
+                <Play className="w-4 h-4 ml-2" />
+                ابدأ الجولة
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// مكون التحليل الذكي
+function AIAnalysisWidget({ angle }: { angle: Angle }) {
+  const insights = [
+    { label: "المقالات هذا الأسبوع", value: "3", trend: "+15%" },
+    { label: "متوسط وقت القراءة", value: "5 دقائق", trend: "مثالي" },
+    { label: "مستوى التفاعل", value: "عالي", trend: "+8%" },
+    { label: "التقييم الذكي", value: "4.8/5", trend: "ممتاز" }
+  ];
+
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+      <div className="flex items-center gap-3 mb-6">
+        <div 
+          className="p-3 rounded-xl"
+          style={{ backgroundColor: `${angle.themeColor}15` }}
+        >
+          <Brain className="w-6 h-6" style={{ color: angle.themeColor }} />
+        </div>
+        <div>
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+            📊 تحليل AI للزاوية
+          </h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            رؤى ذكية محدثة تلقائياً
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        {insights.map((insight, index) => (
+          <div key={index} className="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-xl">
+            <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+              {insight.label}
+            </div>
+            <div className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+              {insight.value}
+            </div>
+            <div 
+              className="text-xs font-medium"
+              style={{ color: angle.themeColor }}
+            >
+              {insight.trend}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+        <div className="flex items-center gap-2 text-sm">
+          <Sparkles className="w-4 h-4 text-blue-600" />
+          <span className="text-blue-800 dark:text-blue-200">
+            <strong>توقع AI:</strong> نمو في المحتوى التقني بنسبة 12% هذا الشهر
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// مكون المعلومة السريعة
+function QuickInfoWidget({ angle }: { angle: Angle }) {
+  const facts = [
+    "يستطيع الذكاء الاصطناعي الآن كتابة الشعر بمستوى يضاهي الشعراء المحترفين",
+    "أكثر من 80% من الشركات تستخدم AI في عمليات خدمة العملاء",
+    "الذكاء الاصطناعي يمكنه التنبؤ بالطقس بدقة 90% لمدة أسبوع مقدماً",
+    "GPT-4 يحتوي على أكثر من تريليون معامل للمعالجة اللغوية"
+  ];
+
+  const [currentFact, setCurrentFact] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentFact((prev) => (prev + 1) % facts.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-2xl p-6 border border-yellow-200 dark:border-yellow-800">
+      <div className="flex items-start gap-4">
+        <div className="flex-shrink-0">
+          <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center">
+            <span className="text-2xl">💡</span>
+          </div>
+        </div>
+        <div className="flex-1">
+          <h3 className="text-lg font-bold text-yellow-800 dark:text-yellow-300 mb-2">
+            هل تعلم؟
+          </h3>
+          <p className="text-yellow-700 dark:text-yellow-200 leading-relaxed">
+            {facts[currentFact]}
+          </p>
+          <div className="flex gap-2 mt-3">
+            {facts.map((_, index) => (
+              <div
+                key={index}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  index === currentFact 
+                    ? 'bg-yellow-500 w-6' 
+                    : 'bg-yellow-300'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// مكون المواضيع ذات الصلة
+function RelatedTopicsWidget({ angle }: { angle: Angle }) {
+  const relatedTopics = [
+    { title: "التعلم الآلي", articles: 15, trend: "صاعد" },
+    { title: "الشبكات العصبية", articles: 8, trend: "مستقر" },
+    { title: "معالجة اللغة الطبيعية", articles: 12, trend: "صاعد" },
+    { title: "الرؤية الحاسوبية", articles: 6, trend: "جديد" },
+    { title: "الذكاء الاصطناعي التوليدي", articles: 20, trend: "رائج" }
+  ];
+
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+        <Hash className="w-5 h-5" style={{ color: angle.themeColor }} />
+        مواضيع ذات صلة
+      </h3>
+      
+      <div className="space-y-3">
+        {relatedTopics.map((topic, index) => (
+          <div 
+            key={index}
+            className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors cursor-pointer"
+          >
+            <div className="flex-1">
+              <div className="font-medium text-gray-900 dark:text-white">
+                {topic.title}
+              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                {topic.articles} مقالة
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge 
+                variant={topic.trend === 'رائج' ? 'default' : 'secondary'}
+                className="text-xs"
+                style={topic.trend === 'رائج' ? { backgroundColor: angle.themeColor } : {}}
+              >
+                {topic.trend}
+              </Badge>
+              <ArrowLeft className="w-4 h-4 text-gray-400" />
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -729,5 +979,123 @@ function AngleArticleCard({
         </Link>
       </CardContent>
     </Card>
+  );
+}
+
+// فوتر الزاوية المخصص
+function AngleFooter({ angle }: { angle: Angle }) {
+  return (
+    <footer className="mt-16 bg-gradient-to-r from-gray-800 to-gray-900 text-white">
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        {/* القسم الرئيسي */}
+        <div className="grid md:grid-cols-3 gap-8 mb-8">
+          {/* معلومات الزاوية */}
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <div 
+                className="p-3 rounded-xl"
+                style={{ backgroundColor: angle.themeColor }}
+              >
+                <Brain className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="text-xl font-bold">{angle.title}</h3>
+            </div>
+            <p className="text-gray-300 leading-relaxed mb-4">
+              {angle.description}
+            </p>
+            <div className="flex items-center gap-4 text-sm text-gray-400">
+              <div className="flex items-center gap-1">
+                <BookOpen className="w-4 h-4" />
+                <span>{angle.articlesCount || 0} مقالة</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <User className="w-4 h-4" />
+                <span>{angle.author?.name}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* روابط سريعة */}
+          <div>
+            <h4 className="text-lg font-semibold mb-4">روابط سريعة</h4>
+            <ul className="space-y-2 text-gray-300">
+              <li>
+                <Link href="/muqtarab" className="hover:text-white transition-colors">
+                  العودة إلى مُقترب
+                </Link>
+              </li>
+              <li>
+                <Link href="/muqtarab/تقنية-ai" className="hover:text-white transition-colors">
+                  أحدث المقالات
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:text-white transition-colors">
+                  الأرشيف
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:text-white transition-colors">
+                  اشترك في النشرة
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* المشاركة والمتابعة */}
+          <div>
+            <h4 className="text-lg font-semibold mb-4">تابعنا</h4>
+            <div className="space-y-4">
+              <Button 
+                className="w-full text-white border-white/30 hover:bg-white/10"
+                style={{ borderColor: angle.themeColor }}
+                variant="outline"
+              >
+                <Heart className="w-4 h-4 ml-2" />
+                متابعة الزاوية
+              </Button>
+              
+              <div className="flex gap-3">
+                <Button size="sm" variant="outline" className="flex-1 border-white/30 text-white hover:bg-white/10">
+                  <Share2 className="w-4 h-4" />
+                </Button>
+                <Button size="sm" variant="outline" className="flex-1 border-white/30 text-white hover:bg-white/10">
+                  <MessageCircle className="w-4 h-4" />
+                </Button>
+                <Button size="sm" variant="outline" className="flex-1 border-white/30 text-white hover:bg-white/10">
+                  📧
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* فاصل */}
+        <div className="border-t border-gray-700 pt-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="text-gray-400 text-sm">
+              © 2025 صحيفة سبق الذكية - جميع الحقوق محفوظة
+            </div>
+            <div className="flex items-center gap-4 text-sm text-gray-400">
+              <Link href="#" className="hover:text-white transition-colors">
+                سياسة الخصوصية
+              </Link>
+              <Link href="#" className="hover:text-white transition-colors">
+                شروط الاستخدام
+              </Link>
+              <Link href="#" className="hover:text-white transition-colors">
+                اتصل بنا
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* شريط بلون الزاوية في الأسفل */}
+        <div 
+          className="mt-6 h-1 rounded-full"
+          style={{ backgroundColor: angle.themeColor }}
+        />
+      </div>
+    </footer>
   );
 }
