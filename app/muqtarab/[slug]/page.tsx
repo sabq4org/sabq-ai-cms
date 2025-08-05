@@ -21,6 +21,7 @@ import {
     Share2,
     Sparkles,
     Target,
+    TrendingUp,
     User,
     Zap
 } from "lucide-react";
