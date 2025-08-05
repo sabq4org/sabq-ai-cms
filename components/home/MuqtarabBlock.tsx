@@ -291,26 +291,25 @@ export default function MuqtarabBlock({ className }: MuqtarabBlockProps) {
         className
       )}
     >
-      {/* رأس الوحدة */}
-      <div className="relative p-6 border-b border-gray-200 dark:border-gray-700/50">
-        <div className="relative flex items-center justify-between">
-          <div className="flex items-center gap-4">
+      {/* رأس الوحدة - محسن للموبايل */}
+      <div className="relative">
+        {/* الهيدر المدمج */}
+        <div className="p-4 md:p-6">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="p-3 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 shadow-lg">
-                <Lightbulb className="w-6 h-6 text-white" />
+              <div className="p-2 md:p-3 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 shadow-lg">
+                <Lightbulb className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
                   مقترَب
                 </h2>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 mt-1">
                   حيث يلتقي الفكر بالتقنية بالأسلوب
                 </p>
               </div>
             </div>
-          </div>
 
-          <div className="flex items-center gap-2">
             <Button
               onClick={handleRefresh}
               disabled={refreshing}
@@ -323,30 +322,37 @@ export default function MuqtarabBlock({ className }: MuqtarabBlockProps) {
               />
             </Button>
           </div>
-        </div>
 
-        {/* فلاتر الفئات */}
-        <div className="relative mt-4 flex items-center gap-2 overflow-x-auto pb-2">
-          {categories.map((category) => (
-            <button
-              key={category.value || "all"}
-              onClick={() => setSelectedCategory(category.value)}
-              className={cn(
-                "flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 whitespace-nowrap",
-                selectedCategory === category.value
-                  ? "bg-white dark:bg-gray-800 text-purple-600 dark:text-purple-300 shadow-md scale-105"
-                  : "text-gray-600 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-gray-800/50"
-              )}
-            >
-              <span>{category.emoji}</span>
-              <span>{category.name}</span>
-            </button>
-          ))}
+          {/* فلاتر الفئات - شريط تمرير أفقي للموبايل */}
+          <div className="relative">
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              {categories.map((category) => (
+                <button
+                  key={category.value || "all"}
+                  onClick={() => setSelectedCategory(category.value)}
+                  className={cn(
+                    "flex-shrink-0 flex items-center gap-2 transition-all duration-200",
+                    "md:px-3 md:py-2 md:rounded-full",
+                    "px-2 py-2 rounded-full",
+                    selectedCategory === category.value
+                      ? "bg-white dark:bg-gray-800 text-purple-600 dark:text-purple-300 shadow-md scale-105"
+                      : "text-gray-600 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-gray-800/50"
+                  )}
+                  title={category.name} // tooltip للموبايل
+                >
+                  <span className="text-base md:text-sm">{category.emoji}</span>
+                  <span className="hidden md:inline text-sm font-medium whitespace-nowrap">
+                    {category.name}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
       {/* المحتوى */}
-      <div className="p-6">
+      <div className="p-4 md:p-6">
         {/* البطاقة المميزة (Hero Article) */}
         {!heroLoading && heroArticle && (
           <div className="mb-8">

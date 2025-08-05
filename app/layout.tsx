@@ -24,6 +24,7 @@ import "../styles/pulse-ticker-center.css";
 import "../styles/remove-gap.css";
 import "../styles/responsive-ui.css";
 import "../styles/saas-dashboard.css";
+import "../styles/scrollbar-hide.css";
 import "../styles/smart-recommendations.css";
 import "../styles/tailwind-overrides.css";
 import "../styles/theme-manager.css";

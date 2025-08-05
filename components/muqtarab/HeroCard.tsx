@@ -45,112 +45,101 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
   };
 
   return (
-    <Card
-      className={`overflow-hidden hover:shadow-xl transition-all duration-300 ${className}`}
-    >
+    <div className={`relative w-full group ${className}`}>
       <Link href={`/muqtarab/${heroArticle.angle.slug}/${heroArticle.slug}`}>
-        <div className="grid md:grid-cols-2 gap-0">
-          {/* القسم البصري */}
-          <div className="relative h-64 md:h-80 overflow-hidden order-2 md:order-1">
+        {/* الحاوي الرئيسي - التصميم الجديد */}
+        <div className="relative w-full h-[240px] md:h-[280px] rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300">
+          
+          {/* الصورة الخلفية */}
+          <div className="absolute inset-0">
             {heroArticle.coverImage ? (
               <Image
                 src={heroArticle.coverImage}
                 alt={heroArticle.title}
                 fill
-                className="object-cover hover:scale-105 transition-transform duration-300"
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+              <div 
+                className="w-full h-full bg-gradient-to-br from-blue-500 via-purple-600 to-indigo-700 flex items-center justify-center"
+                style={{
+                  background: heroArticle.angle.themeColor 
+                    ? `linear-gradient(135deg, ${heroArticle.angle.themeColor}90, ${heroArticle.angle.themeColor})`
+                    : 'linear-gradient(135deg, #3B82F6, #8B5CF6, #6366F1)'
+                }}
+              >
                 <div className="text-white text-center">
-                  <div className="text-4xl mb-2">🧠</div>
-                  <div className="text-lg font-semibold">
+                  <div className="text-4xl md:text-5xl mb-2">🧠</div>
+                  <div className="text-lg md:text-xl font-semibold">
                     {heroArticle.angle.title}
                   </div>
                 </div>
               </div>
             )}
-
-            {/* شارة الزاوية */}
-            <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-sm rounded-full px-3 py-1 text-sm text-gray-800 font-medium shadow-lg">
-              <span className="mr-1">🧠</span>
-              {heroArticle.angle.title}
-            </div>
-
-            {/* مؤشر AI Score */}
-            <div className="absolute top-3 right-3">
-              <AIInsightTag score={heroArticle.aiScore} />
-            </div>
           </div>
 
-          {/* القسم النصي */}
-          <div className="flex flex-col justify-center space-y-4 p-6 md:p-8 order-1 md:order-2">
+          {/* شارة "مقال مميز" - الزاوية العلوية اليسرى */}
+          <div className="absolute top-3 left-3">
+            <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 shadow-lg backdrop-blur-sm">
+              <span className="mr-1">⭐</span>
+              مميز
+            </Badge>
+          </div>
+
+          {/* مؤشر AI Score - الزاوية العلوية اليمنى */}
+          <div className="absolute top-3 right-3">
+            <AIInsightTag score={heroArticle.aiScore} />
+          </div>
+
+          {/* الطبقة الشفافة التدريجية */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+
+          {/* المحتوى النصي في الأسفل */}
+          <div className="absolute bottom-0 w-full p-4 md:p-6 text-white">
+            
             {/* العنوان */}
-            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold leading-tight text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+            <h2 className="text-lg md:text-xl lg:text-2xl font-bold leading-tight mb-3 line-clamp-2">
               {heroArticle.title}
             </h2>
 
-            {/* المقطع التعريفي */}
-            <p className="text-gray-600 dark:text-gray-300 text-sm md:text-base line-clamp-3 leading-relaxed">
-              {heroArticle.excerpt}
-            </p>
-
-            {/* معلومات المقال */}
-            <div className="flex items-center gap-4 text-xs md:text-sm text-gray-500 dark:text-gray-400">
-              <div className="flex items-center gap-1">
-                <Clock className="w-4 h-4" />
-                <span>{heroArticle.readingTime} دقائق قراءة</span>
+            {/* المعلومات السفلية */}
+            <div className="flex items-center justify-between">
+              
+              {/* تصنيف المقال */}
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-1 rounded-full">
+                  <span className="text-sm">{heroArticle.angle.icon || '🧠'}</span>
+                  <span className="text-xs md:text-sm font-medium text-gray-200">
+                    {heroArticle.angle.title}
+                  </span>
+                </div>
               </div>
 
-              <span>•</span>
-
-              <div className="flex items-center gap-1">
-                <User className="w-4 h-4" />
-                <span>{heroArticle.author.name}</span>
+              {/* معلومات إضافية */}
+              <div className="flex items-center gap-3 text-xs text-gray-300">
+                <div className="flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  <span>{heroArticle.readingTime}د</span>
+                </div>
+                
+                <div className="flex items-center gap-1">
+                  <User className="w-3 h-3" />
+                  <span className="hidden sm:inline">{heroArticle.author.name}</span>
+                  <span className="sm:hidden">{heroArticle.author.name.split(' ')[0]}</span>
+                </div>
               </div>
-
-              <span>•</span>
-
-              <span>{formatDate(heroArticle.publishDate)}</span>
             </div>
 
-            {/* العلامات (Tags) */}
-            {heroArticle.tags && heroArticle.tags.length > 0 && (
-              <div className="flex gap-2 flex-wrap">
-                {heroArticle.tags.slice(0, 3).map((tag, index) => (
-                  <Badge
-                    key={index}
-                    variant="outline"
-                    className="text-xs text-gray-600 dark:text-gray-300"
-                  >
-                    {tag}
-                  </Badge>
-                ))}
-                {heroArticle.tags.length > 3 && (
-                  <Badge variant="outline" className="text-xs text-gray-500">
-                    +{heroArticle.tags.length - 3}
-                  </Badge>
-                )}
+            {/* مؤشر المشاهدات - صغير ومتميز */}
+            <div className="absolute bottom-2 left-4">
+              <div className="flex items-center gap-1 text-xs text-gray-300">
+                <span>👁</span>
+                <span>{heroArticle.views}</span>
               </div>
-            )}
-
-            {/* مؤشر "مقال مميز" */}
-            <div className="flex items-center gap-2">
-              <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0">
-                <span className="mr-1">⭐</span>
-                مقال مميز
-              </Badge>
-
-              <Badge
-                variant="outline"
-                className="text-blue-600 border-blue-200"
-              >
-                <span className="mr-1">👁</span>
-                {heroArticle.views} مشاهدة
-              </Badge>
             </div>
           </div>
         </div>
       </Link>
-    </Card>
+    </div>
   );
 }
