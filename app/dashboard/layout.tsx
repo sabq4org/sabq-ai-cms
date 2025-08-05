@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
-import { SidebarPreferencesProvider } from '@/contexts/SidebarPreferencesContext';
+import DashboardLayout from "@/components/admin/modern-dashboard/DashboardLayout";
+import { SidebarPreferencesProvider } from "@/contexts/SidebarPreferencesContext";
 
 export default function DashboardRootLayout({
   children,
@@ -10,7 +10,7 @@ export default function DashboardRootLayout({
 }) {
   return (
     <SidebarPreferencesProvider>
-      <DashboardLayout 
+      <DashboardLayout
         pageTitle="لوحة التحكم"
         pageDescription="إدارة منصة سبق الذكية"
       >

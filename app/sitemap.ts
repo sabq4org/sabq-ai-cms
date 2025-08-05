@@ -12,7 +12,14 @@ async function getArticles() {
     );
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      console.error(`HTTP error! status: ${response.status}`);
+      return [];
+    }
+
+    const contentType = response.headers.get("content-type");
+    if (!contentType?.includes("application/json")) {
+      console.error("Response is not JSON, received:", contentType);
+      return [];
     }
 
     const data = await response.json();
@@ -32,7 +39,14 @@ async function getCategories() {
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      console.error(`HTTP error! status: ${response.status}`);
+      return [];
+    }
+
+    const contentType = response.headers.get("content-type");
+    if (!contentType?.includes("application/json")) {
+      console.error("Response is not JSON, received:", contentType);
+      return [];
     }
 
     const data = await response.json();
