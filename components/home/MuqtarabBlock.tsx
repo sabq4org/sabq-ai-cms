@@ -364,46 +364,50 @@ export default function MuqtarabBlock({ className }: MuqtarabBlockProps) {
           </div>
         )}
 
-        {articles.length > 0 ? (
+        {/* عرض المقالات الإضافية إذا كانت موجودة */}
+        {articles.length > 0 && (
           <>
             <div className="space-y-6 mb-6">
               {/* البطاقات - شبكة متنوعة */}
-              {articles.length > 0 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {articles.slice(0, 2).map((article, index) => (
-                    <MuqtarabCard
-                      key={article.id}
-                      article={article}
-                      variant="medium"
-                      className="lg:col-span-2"
-                    />
-                  ))}
-                  {articles.slice(2).map((article, index) => (
-                    <MuqtarabCard
-                      key={article.id}
-                      article={article}
-                      variant="small"
-                      className="lg:col-span-1"
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* رابط عرض المزيد */}
-            <div className="flex justify-center">
-              <Link href="/muqtarab">
-                <Button
-                  variant="outline"
-                  className="group bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
-                >
-                  <span>استكشف المزيد من مقترَب</span>
-                  <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-                </Button>
-              </Link>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {articles.slice(0, 2).map((article, index) => (
+                  <MuqtarabCard
+                    key={article.id}
+                    article={article}
+                    variant="medium"
+                    className="lg:col-span-2"
+                  />
+                ))}
+                {articles.slice(2).map((article, index) => (
+                  <MuqtarabCard
+                    key={article.id}
+                    article={article}
+                    variant="small"
+                    className="lg:col-span-1"
+                  />
+                ))}
+              </div>
             </div>
           </>
-        ) : (
+        )}
+
+        {/* رابط عرض المزيد - يظهر دائماً إذا كان هناك أي محتوى */}
+        {(heroArticle || angleArticle || articles.length > 0) && (
+          <div className="flex justify-center">
+            <Link href="/muqtarab">
+              <Button
+                variant="outline"
+                className="group bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+              >
+                <span>استكشف المزيد من مقترَب</span>
+                <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+              </Button>
+            </Link>
+          </div>
+        )}
+
+        {/* رسالة عدم وجود محتوى - تظهر فقط إذا لم يكن هناك أي محتوى على الإطلاق */}
+        {!heroLoading && !angleLoading && !heroArticle && !angleArticle && articles.length === 0 && (
           <div className="text-center py-12">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-gray-100 to-blue-100 dark:from-gray-800 dark:to-blue-900/20 flex items-center justify-center">
               <Brain className="w-8 h-8 text-blue-600 dark:text-blue-400" />
