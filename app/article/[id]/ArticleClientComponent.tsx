@@ -9,6 +9,7 @@ import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { ArticleData } from "@/lib/article-api";
 import { formatFullDate, formatRelativeDate } from "@/lib/date-utils";
+import SafeDateDisplay from "@/components/article/SafeDateDisplay";
 import "@/styles/mobile-article-layout.css";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -440,14 +441,16 @@ export default function ArticleClientComponent({
                   <div className="flex items-center gap-1.5 sm:gap-2">
                     <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                     <span className="hidden sm:inline">
-                      {formatFullDate(
-                        article.published_at || article.created_at || ""
-                      )}
+                      <SafeDateDisplay
+                        date={article.published_at || article.created_at || ""}
+                        format="full"
+                      />
                     </span>
                     <span className="sm:hidden">
-                      {formatRelativeDate(
-                        article.published_at || article.created_at || ""
-                      )}
+                      <SafeDateDisplay
+                        date={article.published_at || article.created_at || ""}
+                        format="relative"
+                      />
                     </span>
                   </div>
                   <div className="flex items-center gap-1.5 sm:gap-2">
@@ -524,9 +527,10 @@ export default function ArticleClientComponent({
                       <div className="flex items-center gap-1">
                         <Calendar className="w-3 h-3 flex-shrink-0 mobile-article-icon" />
                         <span>
-                          {formatRelativeDate(
-                            article.published_at || article.created_at || ""
-                          )}
+                          <SafeDateDisplay
+                            date={article.published_at || article.created_at || ""}
+                            format="relative"
+                          />
                         </span>
                       </div>
                       <span className="text-gray-300 dark:text-gray-600">

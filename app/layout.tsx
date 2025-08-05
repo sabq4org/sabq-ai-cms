@@ -171,24 +171,24 @@ export default function RootLayout({
         />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
 
-                {/* 🚨 CRITICAL: Production Error Protection - Must Load First */}
-        <script 
+        {/* 🚨 CRITICAL: Production Error Protection - Must Load First */}
+        <script
           dangerouslySetInnerHTML={{
             __html: `
               // Ultra-Aggressive React Error #130 Protection for Production
               (function() {
                 if (typeof window === 'undefined') return;
-                
+
                 // Immediate error blocking
                 var blocked = 0;
                 var originalError = console.error;
                 var originalWarn = console.warn;
-                
+
                 // Block all React #130 errors immediately
                 console.error = function() {
                   var args = Array.prototype.slice.call(arguments);
                   var str = args[0] ? String(args[0]) : '';
-                  
+
                   if (str.indexOf('Minified React error #130') !== -1 ||
                       str.indexOf('Element type is invalid') !== -1 ||
                       str.indexOf('undefined') !== -1 && str.indexOf('React') !== -1 ||
@@ -197,22 +197,22 @@ export default function RootLayout({
                     console.log('🛡️ Blocked error #' + blocked);
                     return; // Block completely
                   }
-                  
+
                   if (originalError) originalError.apply(console, args);
                 };
-                
+
                 // Block warnings too
                 console.warn = function() {
                   var args = Array.prototype.slice.call(arguments);
                   var str = args[0] ? String(args[0]) : '';
-                  
+
                   if (str.indexOf('لا توجد مقالات صالحة') !== -1) {
                     return; // Silent
                   }
-                  
+
                   if (originalWarn) originalWarn.apply(console, args);
                 };
-                
+
                 // Block window errors
                 window.addEventListener('error', function(e) {
                   if (e && e.error) {
@@ -227,7 +227,7 @@ export default function RootLayout({
                     }
                   }
                 }, true);
-                
+
                 // Load production fix
                 var script = document.createElement('script');
                 script.src = '/react-130-production-fix.js';
