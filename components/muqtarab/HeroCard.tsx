@@ -99,10 +99,10 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
               </Badge>
             </div>
 
-                        {/* ليبل اسم الزاوية + ليبل نسبة الإبداع - أعلى الصورة يمين */}
+            {/* ليبل اسم الزاوية + ليبل نسبة الإبداع - أعلى الصورة يمين */}
             <div className="absolute top-3 right-3 flex items-center gap-2">
               {/* ليبل اسم الزاوية - نفس شكل AIInsightTag */}
-              <Badge 
+              <Badge
                 className="backdrop-blur-sm border-0 text-white font-medium"
                 variant="outline"
                 style={{
@@ -113,7 +113,7 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
                 <span className="mr-1">{heroArticle.angle.icon || "🧠"}</span>
                 {heroArticle.angle.title}
               </Badge>
-              
+
               {/* ليبل نسبة الإبداع */}
               <AIInsightTag score={heroArticle.aiScore} />
             </div>
@@ -121,19 +121,33 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
             {/* الطبقة الشفافة التدريجية */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
+            {/* بيانات النشر على الصورة يمين */}
+            <div className="absolute bottom-3 right-3 flex items-center gap-3 text-xs text-white backdrop-blur-sm bg-black/40 px-3 py-2 rounded-lg">
+              {/* أيقونة الكاتب واسمه كاملاً */}
+              <div className="flex items-center gap-1">
+                <User className="w-3 h-3" />
+                <span>{heroArticle.author.name}</span>
+              </div>
+              
+              {/* أيقونة القراءة والدقائق */}
+              <div className="flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                <span>{heroArticle.readingTime}د</span>
+              </div>
+              
+              {/* أيقونة المشاهدة والعدد */}
+              <div className="flex items-center gap-1">
+                <Eye className="w-3 h-3" />
+                <span>{heroArticle.views}</span>
+              </div>
+            </div>
+
             {/* المحتوى النصي في الأسفل */}
             <div className="absolute bottom-0 w-full p-4 text-white">
               {/* العنوان */}
               <h2 className="text-lg font-bold leading-tight mb-3 line-clamp-2">
                 {heroArticle.title}
               </h2>
-
-              {/* بيانات الكاتب والقراءة والمشاهدة - يمين بدون ليبل */}
-              <div className="flex justify-end items-center gap-3 text-xs text-gray-300 mt-2">
-                <span>{heroArticle.author.name.split(" ")[0]}</span>
-                <span>{heroArticle.readingTime}د</span>
-                <span>{heroArticle.views}</span>
-              </div>
             </div>
           </div>
         </Link>
