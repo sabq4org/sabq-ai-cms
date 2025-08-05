@@ -261,74 +261,68 @@ export default function MuqtaribPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header Section - متناسق مع باقي النظام */}
-      <section className="bg-background border-b py-6 md:py-8 px-4 md:px-10">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            {/* معلومات الزاوية */}
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-                  <BookOpen className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div>
-                  <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-                    مُقترب
-                  </h1>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Badge variant="secondary" className="text-xs">
-                      <Sparkles className="w-3 h-3 mr-1" />
-                      زوايا فكرية
-                    </Badge>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Hero Section - مماثل لصفحة الأخبار */}
+      <section className="relative py-16 bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full blur-3xl bg-blue-200/30 dark:bg-blue-900/20" />
+          <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full blur-3xl bg-purple-200/30 dark:bg-purple-900/20" />
+        </div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 md:px-6">
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-20 h-20 mb-6 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-2xl">
+              <BookOpen className="w-10 h-10 text-white" />
+            </div>
+            
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 dark:text-white">
+              مُقترب
+            </h1>
+            
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-2">
+              زوايا فكرية متخصصة في مختلف المجالات
+            </p>
+            
+            {/* إحصائيات مقترب */}
+            {stats && (
+              <div className="mt-6 inline-flex flex-wrap justify-center items-center gap-4 md:gap-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl px-4 md:px-6 py-3 shadow-lg">
+                <div className="text-center px-2">
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">{stats.publishedAngles}</div>
                   </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">زاوية</div>
+                </div>
+                
+                <div className="w-px h-10 bg-gray-300 dark:bg-gray-600 hidden md:block"></div>
+                
+                <div className="text-center px-2">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-green-600 dark:text-green-400" />
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">{stats.publishedArticles}</div>
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">مقال</div>
+                </div>
+                
+                <div className="w-px h-10 bg-gray-300 dark:bg-gray-600 hidden md:block"></div>
+                
+                <div className="text-center px-2">
+                  <div className="flex items-center gap-2">
+                    <Eye className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">{stats.displayViews.formatted}</div>
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">قراءة</div>
                 </div>
               </div>
-
-              <p className="text-muted-foreground text-sm md:text-base max-w-2xl leading-relaxed">
-                زوايا فكرية متخصصة تقدم محتوى عميق ومتنوع في مختلف المجالات، من
-                التقنية والثقافة إلى الفكر المعاصر والتحليل العميق.
-              </p>
-            </div>
-
-            {/* الإحصائيات والأزرار */}
-            <div className="flex flex-col sm:flex-row items-center gap-4 md:gap-6">
-              {/* إحصائيات حقيقية */}
-              <div className="flex items-center gap-4 md:gap-6 text-center">
-                <div className="text-center">
-                  <p className="font-bold text-foreground text-lg md:text-xl">
-                    {stats ? stats.publishedAngles : filteredAngles.length}
-                  </p>
-                  <p className="text-muted-foreground text-xs md:text-sm">
-                    زاوية
-                  </p>
-                </div>
-                <div className="text-center">
-                  <p className="font-bold text-foreground text-lg md:text-xl">
-                    {stats
-                      ? stats.publishedArticles
-                      : featuredArticles.length + (heroArticle ? 1 : 0)}
-                  </p>
-                  <p className="text-muted-foreground text-xs md:text-sm">
-                    مقال
-                  </p>
-                </div>
-                <div className="text-center">
-                  <p className="font-bold text-foreground text-lg md:text-xl">
-                    {stats
-                      ? stats.displayViews.formatted
-                      : heroArticle
-                      ? (heroArticle.views / 1000).toFixed(1) + "K"
-                      : "0"}
-                  </p>
-                  <p className="text-muted-foreground text-xs md:text-sm">
-                    قراءة
-                  </p>
-                </div>
+            )}
+            
+            {/* Loading indicator for stats */}
+            {!stats && (
+              <div className="mt-6 inline-flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+                <span className="text-sm">جاري تحميل الإحصائيات...</span>
               </div>
-
-              {/* أزرار العمل - محذوفة */}
-            </div>
+            )}
           </div>
         </div>
       </section>
