@@ -189,7 +189,7 @@ export default function AnglePage() {
         <div className="max-w-7xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Link 
+              <Link
                 href="/muqtarab"
                 className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
               >
@@ -204,19 +204,15 @@ export default function AnglePage() {
                 size="sm"
                 variant="outline"
                 className="text-xs"
-                style={{ 
-                  borderColor: angle.themeColor + '40',
-                  color: angle.themeColor 
+                style={{
+                  borderColor: angle.themeColor + "40",
+                  color: angle.themeColor,
                 }}
               >
                 <Heart className="w-3 h-3 ml-1" />
                 متابعة
               </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="text-xs"
-              >
+              <Button size="sm" variant="ghost" className="text-xs">
                 <Share2 className="w-3 h-3 ml-1" />
                 مشاركة
               </Button>
@@ -271,22 +267,24 @@ function AngleHeader({ angle }: { angle: Angle }) {
     <div className="bg-white border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* عنوان الزاوية وتفاصيلها الأساسية */}
-        <div className="flex items-start gap-4 mb-6">
-          {/* أيقونة الزاوية */}
-          <div
-            className="p-3 rounded-xl shadow-sm"
-            style={{
-              backgroundColor: angle.themeColor + '10',
-              color: angle.themeColor,
-            }}
-          >
-            <IconComponent className="w-6 h-6" />
-          </div>
+        <div className="flex items-start gap-6 mb-6">
+          {/* القسم الأيسر: أيقونة ومعلومات الزاوية */}
+          <div className="flex items-start gap-4 flex-1">
+            {/* أيقونة الزاوية */}
+            <div
+              className="p-3 rounded-xl shadow-sm"
+              style={{
+                backgroundColor: angle.themeColor + "10",
+                color: angle.themeColor,
+              }}
+            >
+              <IconComponent className="w-6 h-6" />
+            </div>
 
-          {/* معلومات الزاوية */}
-          <div className="flex-1">
+            {/* معلومات الزاوية */}
+            <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
-              <h1 
+              <h1
                 className="text-2xl md:text-3xl font-bold"
                 style={{ color: angle.themeColor }}
               >
@@ -296,7 +294,7 @@ function AngleHeader({ angle }: { angle: Angle }) {
                 <Badge
                   className="text-xs"
                   style={{
-                    backgroundColor: angle.themeColor + '20',
+                    backgroundColor: angle.themeColor + "20",
                     color: angle.themeColor,
                   }}
                 >
@@ -326,7 +324,9 @@ function AngleHeader({ angle }: { angle: Angle }) {
               <div className="flex items-center gap-1">
                 <Calendar className="w-4 h-4" />
                 <span>
-                  {new Date(angle.updatedAt || angle.createdAt).toLocaleDateString("ar-SA")}
+                  {new Date(
+                    angle.updatedAt || angle.createdAt
+                  ).toLocaleDateString("ar-SA")}
                 </span>
               </div>
             </div>
@@ -346,7 +346,7 @@ function AngleHeader({ angle }: { angle: Angle }) {
                 size="sm"
                 variant="outline"
                 style={{
-                  borderColor: angle.themeColor + '40',
+                  borderColor: angle.themeColor + "40",
                   color: angle.themeColor,
                 }}
               >
@@ -355,12 +355,59 @@ function AngleHeader({ angle }: { angle: Angle }) {
               </Button>
             </div>
           </div>
+
+          {/* القسم الأيمن: صورة غلاف الزاوية */}
+          {angle.coverImage && (
+            <div className="flex-shrink-0">
+              {/* إصدار الديسكتوب - صورة كبيرة */}
+              <div className="hidden md:block">
+                <div className="relative w-48 h-32 rounded-xl overflow-hidden shadow-lg group cursor-pointer">
+                  <Image
+                    src={angle.coverImage}
+                    alt={angle.title}
+                    fill
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  {/* طبقة شفافة بلون الزاوية مع تأثير hover */}
+                  <div 
+                    className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-300"
+                    style={{ backgroundColor: angle.themeColor }}
+                  />
+                  {/* شارة صغيرة */}
+                  <div className="absolute bottom-2 right-2">
+                    <div 
+                      className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs shadow-lg"
+                      style={{ backgroundColor: angle.themeColor }}
+                    >
+                      <IconComponent className="w-3 h-3" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* إصدار الموبايل - صورة صغيرة دائرية */}
+              <div className="block md:hidden">
+                <div className="relative w-16 h-16 rounded-full overflow-hidden shadow-md">
+                  <Image
+                    src={angle.coverImage}
+                    alt={angle.title}
+                    fill
+                    className="object-cover"
+                  />
+                  <div 
+                    className="absolute inset-0 opacity-20"
+                    style={{ backgroundColor: angle.themeColor }}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* خط فاصل بلون الزاوية */}
-        <div 
+        <div
           className="h-1 w-full rounded-full"
-          style={{ backgroundColor: angle.themeColor + '20' }}
+          style={{ backgroundColor: angle.themeColor + "20" }}
         />
       </div>
     </div>
