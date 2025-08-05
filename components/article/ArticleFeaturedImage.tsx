@@ -23,15 +23,29 @@ export default function ArticleFeaturedImage({
     case "default":
       return (
         <div className="relative w-full">
-          {/* الصورة الرئيسية بدون إطار أو ظل */}
-          <div className="relative overflow-hidden rounded-lg">
+          {/* الصورة الرئيسية - محسنة بحجم أكبر */}
+          <div className="relative overflow-hidden rounded-lg shadow-lg">
             <OptimizedImage
               src={imageUrl}
               alt={title}
-              className="w-full object-cover max-h-[250px] sm:max-h-[400px] lg:max-h-[500px]"
+              className="w-full object-cover h-[350px] sm:h-[450px] md:h-[550px] lg:h-[600px]"
               priority={true}
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1024px"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 95vw, 1200px"
             />
+            {/* عرض التصنيف إذا وُجد */}
+            {category && (
+              <div className="absolute top-4 right-4">
+                <span
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium text-white shadow-md backdrop-blur-sm"
+                  style={{
+                    backgroundColor: `${category.color || "#1a73e8"}CC`,
+                  }}
+                >
+                  {category.icon && <span>{category.icon}</span>}
+                  <span>{category.name}</span>
+                </span>
+              </div>
+            )}
           </div>
         </div>
       );
@@ -118,15 +132,34 @@ export default function ArticleFeaturedImage({
 
     case "fullwidth":
       return (
-        <div className="article-featured-image relative h-[300px] sm:h-[400px] md:h-[500px] lg:h-[60vh] w-full bg-gray-200 dark:bg-gray-800">
-          <OptimizedImage
-            src={imageUrl}
-            alt={title}
-            className="w-full h-full object-cover"
-            priority={true}
-            sizes="100vw"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 z-10" />
+        <div className="article-featured-image relative w-full">
+          {/* حاوي الصورة بعرض المحتوى */}
+          <div className="relative h-[350px] sm:h-[450px] md:h-[550px] lg:h-[650px] w-full overflow-hidden bg-gray-200 dark:bg-gray-800 rounded-lg">
+            <OptimizedImage
+              src={imageUrl}
+              alt={title}
+              className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+              priority={true}
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 95vw, 1200px"
+            />
+            {/* تدرج خفيف للتحسين البصري */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
+            
+            {/* عرض التصنيف على الصورة إذا وُجد */}
+            {category && (
+              <div className="absolute top-4 right-4 z-10">
+                <span
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-white shadow-lg backdrop-blur-sm"
+                  style={{
+                    backgroundColor: `${category.color || "#1a73e8"}CC`,
+                  }}
+                >
+                  {category.icon && <span className="text-base">{category.icon}</span>}
+                  <span>{category.name}</span>
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       );
 
