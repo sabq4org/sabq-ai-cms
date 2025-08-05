@@ -11,11 +11,9 @@ import {
   Calendar,
   Eye,
   Lightbulb,
-  Plus,
   Search,
   Sparkles,
   TrendingUp,
-  Users,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -167,7 +165,7 @@ export default function MuqtaribPage() {
               console.log("📊 تم جلب الإحصائيات:", {
                 زوايا: statsData.stats.publishedAngles,
                 مقالات: statsData.stats.publishedArticles,
-                مشاهدات: statsData.stats.totalViews
+                مشاهدات: statsData.stats.totalViews,
               });
               setStats(statsData.stats);
             }
@@ -307,7 +305,9 @@ export default function MuqtaribPage() {
                 </div>
                 <div className="text-center">
                   <p className="font-bold text-foreground text-lg md:text-xl">
-                    {stats ? stats.publishedArticles : (featuredArticles.length + (heroArticle ? 1 : 0))}
+                    {stats
+                      ? stats.publishedArticles
+                      : featuredArticles.length + (heroArticle ? 1 : 0)}
                   </p>
                   <p className="text-muted-foreground text-xs md:text-sm">
                     مقال
@@ -315,7 +315,11 @@ export default function MuqtaribPage() {
                 </div>
                 <div className="text-center">
                   <p className="font-bold text-foreground text-lg md:text-xl">
-                    {stats ? stats.displayViews.formatted : (heroArticle ? (heroArticle.views / 1000).toFixed(1) + "K" : "0")}
+                    {stats
+                      ? stats.displayViews.formatted
+                      : heroArticle
+                      ? (heroArticle.views / 1000).toFixed(1) + "K"
+                      : "0"}
                   </p>
                   <p className="text-muted-foreground text-xs md:text-sm">
                     قراءة
@@ -323,25 +327,7 @@ export default function MuqtaribPage() {
                 </div>
               </div>
 
-              {/* أزرار العمل */}
-              <div className="flex flex-col sm:flex-row gap-2">
-                <Link href="/admin/muqtarab/angles/new">
-                  <Button size="sm" className="w-full sm:w-auto">
-                    <Plus className="w-4 h-4 mr-2" />
-                    <span className="sm:hidden">إضافة</span>
-                    <span className="hidden sm:inline">زاوية جديدة</span>
-                  </Button>
-                </Link>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="w-full sm:w-auto"
-                >
-                  <Users className="w-4 h-4 mr-2" />
-                  <span className="sm:hidden">الكتاب</span>
-                  <span className="hidden sm:inline">كتاب مقترب</span>
-                </Button>
-              </div>
+              {/* أزرار العمل - محذوفة */}
             </div>
           </div>
         </div>
