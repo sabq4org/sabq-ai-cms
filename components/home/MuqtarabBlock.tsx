@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   ArrowLeft,
+  BookOpen,
   Brain,
   Clock,
   Eye,
@@ -446,93 +447,85 @@ export default function MuqtarabBlock({ className }: MuqtarabBlockProps) {
   );
 }
 
-// مكون بطاقة مقال الزاوية - محسن
+// مكون بطاقة مقال الزاوية
 function AngleArticleCard({ angleArticle }: { angleArticle: AngleArticle }) {
   return (
-    <Link
-      href={`/muqtarab/${angleArticle.angle.slug}/${angleArticle.slug}`}
-      className="block"
-    >
-      <div className="relative bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 h-80 group">
-        {/* الجزء العلوي - الصورة مع ليبلز */}
-        <div className="relative h-1/2 overflow-hidden">
-          {angleArticle.coverImage ? (
-            <img
-              src={angleArticle.coverImage}
-              alt={angleArticle.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              onError={(e) => {
-                e.currentTarget.style.display = "none";
-                const parent = e.currentTarget.parentElement;
-                if (parent) {
-                  const fallback = parent.querySelector(".fallback-bg");
-                  if (fallback) {
-                    (fallback as HTMLElement).style.display = "flex";
-                  }
+    <div className="relative bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 aspect-square">
+      {/* الثلث العلوي - الصورة */}
+      <div className="relative h-1/3 overflow-hidden">
+        {angleArticle.coverImage ? (
+          <img
+            src={angleArticle.coverImage}
+            alt={angleArticle.title}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              // في حالة فشل تحميل الصورة، إخفاءها وإظهار البديل
+              e.currentTarget.style.display = "none";
+              const parent = e.currentTarget.parentElement;
+              if (parent) {
+                const fallback = parent.querySelector(".fallback-bg");
+                if (fallback) {
+                  (fallback as HTMLElement).style.display = "flex";
                 }
-              }}
-            />
-          ) : null}
-
-          {/* خلفية بديلة */}
-          <div
-            className={`fallback-bg w-full h-full flex items-center justify-center ${
-              !angleArticle.coverImage ? "flex" : "hidden"
-            }`}
-            style={{
-              background: `linear-gradient(135deg, ${
-                angleArticle.angle.themeColor || "#8B5CF6"
-              }20, ${angleArticle.angle.themeColor || "#8B5CF6"}60)`,
+              }
             }}
-          >
-            <Brain
-              className="w-12 h-12"
-              style={{ color: angleArticle.angle.themeColor || "#8B5CF6" }}
-            />
-          </div>
+          />
+        ) : null}
 
-          {/* ليبل "إبداعي" - يسار */}
-          <div className="absolute top-3 left-3">
-            <div className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-2 py-1 rounded-full text-xs font-medium shadow-lg backdrop-blur-sm">
-              <span className="mr-1">✨</span>
-              إبداعي
-            </div>
-          </div>
-
-          {/* اسم الزاوية - يمين */}
-          <div className="absolute top-3 right-3">
-            <div
-              className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold text-white shadow-lg backdrop-blur-sm"
-              style={{
-                backgroundColor: angleArticle.angle.themeColor || "#8B5CF6",
-              }}
-            >
-              <Brain className="w-3 h-3" />
-              {angleArticle.angle.title}
-            </div>
-          </div>
+        {/* خلفية بديلة - تظهر إذا لم توجد صورة أو فشل تحميلها */}
+        <div
+          className={`fallback-bg w-full h-full flex items-center justify-center ${
+            !angleArticle.coverImage ? "flex" : "hidden"
+          }`}
+          style={{
+            background: `linear-gradient(135deg, ${
+              angleArticle.angle.themeColor || "#8B5CF6"
+            }20, ${angleArticle.angle.themeColor || "#8B5CF6"}40)`,
+          }}
+        >
+          <Brain
+            className="w-8 h-8"
+            style={{ color: angleArticle.angle.themeColor || "#8B5CF6" }}
+          />
         </div>
 
-        {/* الجزء السفلي - المحتوى */}
-        <div className="h-1/2 p-4 flex flex-col justify-between">
-          {/* المحتوى النصي */}
-          <div className="flex-1">
-            {angleArticle.excerpt && (
-              <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 leading-relaxed">
-                {angleArticle.excerpt}
-              </p>
-            )}
+        {/* شارة الزاوية - مطلقة في الزاوية العلوية */}
+        <div className="absolute top-2 right-2">
+          <div
+            className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium text-white backdrop-blur-sm"
+            style={{
+              backgroundColor: angleArticle.angle.themeColor || "#8B5CF6",
+            }}
+          >
+            <Brain className="w-3 h-3" />
+            {angleArticle.angle.title}
           </div>
+        </div>
+      </div>
 
-          {/* بيانات الكاتب ووقت القراءة والمشاهدات */}
-          <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-            {/* الكاتب */}
+      {/* الثلثين السفليين - المحتوى */}
+      <div className="h-2/3 p-4 flex flex-col justify-between">
+        {/* العنوان والمقتطف */}
+        <div className="space-y-2 flex-1">
+          <h3 className="font-bold text-sm text-gray-900 dark:text-white line-clamp-3 leading-tight">
+            {angleArticle.title}
+          </h3>
+
+          <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2">
+            {angleArticle.excerpt}
+          </p>
+        </div>
+
+        {/* الأيقونات وزر القراءة */}
+        <div className="space-y-3 mt-3">
+          {/* معلومات صغيرة */}
+          <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
             <div className="flex items-center gap-1">
               <User className="w-3 h-3" />
-              <span className="font-medium">{angleArticle.author.name}</span>
+              <span className="truncate max-w-16">
+                {angleArticle.author.name}
+              </span>
             </div>
-
-            {/* وقت القراءة والمشاهدات */}
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1">
                 <Clock className="w-3 h-3" />
@@ -544,8 +537,26 @@ function AngleArticleCard({ angleArticle }: { angleArticle: AngleArticle }) {
               </div>
             </div>
           </div>
+
+          {/* زر القراءة */}
+          <Link
+            href={`/muqtarab/${angleArticle.angle.slug}/${angleArticle.slug}`}
+            className="block"
+          >
+            <Button
+              size="sm"
+              className="w-full text-xs py-2 rounded-lg font-medium transition-all duration-200 hover:scale-105"
+              style={{
+                backgroundColor: angleArticle.angle.themeColor || "#8B5CF6",
+                color: "white",
+              }}
+            >
+              <BookOpen className="w-3 h-3 ml-1" />
+              قراءة المقال
+            </Button>
+          </Link>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }
