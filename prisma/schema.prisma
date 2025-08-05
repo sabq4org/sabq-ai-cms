@@ -866,7 +866,7 @@ model users {
   reporter_profile         reporters?
   dose_feedback            smart_dose_feedback[]     @relation("DoseFeedbackUser")
   dose_templates           smart_dose_templates[]    @relation("DoseTemplateCreator")
-  interests                user_interests[]
+  user_interests           user_interests[]
 
   @@index([email], map: "idx_users_email")
   @@index([role], map: "idx_users_role")
