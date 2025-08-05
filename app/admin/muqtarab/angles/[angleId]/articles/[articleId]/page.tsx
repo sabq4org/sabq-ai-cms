@@ -270,12 +270,20 @@ export default function EditAngleArticlePage() {
         }
 
         // جلب بيانات الزاوية
-        const angleResponse = await fetch(`/api/muqtarib/angles/${angleId}`);
+        console.log("🔍 جاري جلب بيانات الزاوية:", angleId);
+        const angleResponse = await fetch(`/api/muqtarab/angles/${angleId}`);
         if (angleResponse.ok) {
           const angleData = await angleResponse.json();
+          console.log("✅ تم جلب بيانات الزاوية:", angleData);
           setAngle(angleData.angle);
         } else {
-          toast.error("الزاوية غير موجودة");
+          const errorText = await angleResponse.text();
+          console.error("❌ خطأ في استجابة الزاوية:", {
+            status: angleResponse.status,
+            statusText: angleResponse.statusText,
+            error: errorText
+          });
+          toast.error(`الزاوية غير موجودة (${angleResponse.status})`);
           router.push("/admin/muqtarab");
           return;
         }
@@ -283,7 +291,7 @@ export default function EditAngleArticlePage() {
         // جلب بيانات المقال
         console.log("🔍 جاري جلب بيانات المقال:", articleId);
         const articleResponse = await fetch(
-          `/api/muqtarib/angles/${angleId}/articles/${articleId}`
+          `/api/muqtarab/angles/${angleId}/articles/${articleId}`
         );
 
         if (articleResponse.ok) {
@@ -306,10 +314,19 @@ export default function EditAngleArticlePage() {
               publishDate: article.publishDate || null,
             });
           } else {
+            console.error("❌ فشل في جلب بيانات المقال:", articleData);
             toast.error("فشل في جلب بيانات المقال");
+            router.push(`/admin/muqtarab/angles/${angleId}`);
+            return;
           }
         } else {
-          toast.error("المقال غير موجود");
+          const errorText = await articleResponse.text();
+          console.error("❌ خطأ في استجابة المقال:", {
+            status: articleResponse.status,
+            statusText: articleResponse.statusText,
+            error: errorText
+          });
+          toast.error(`المقال غير موجود (${articleResponse.status})`);
           router.push(`/admin/muqtarab/angles/${angleId}`);
           return;
         }
@@ -468,7 +485,7 @@ export default function EditAngleArticlePage() {
       console.log("📤 إرسال تعديلات المقال:", payload);
 
       const response = await fetch(
-        `/api/muqtarib/angles/${angleId}/articles/${articleId}`,
+        `/api/muqtarab/angles/${angleId}/articles/${articleId}`,
         {
           method: "PUT",
           headers: {
