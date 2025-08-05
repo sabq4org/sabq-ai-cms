@@ -1,8 +1,8 @@
 "use client";
 
 import { HeroCard } from "@/components/muqtarab/HeroCard";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   ArrowLeft,
@@ -492,7 +492,7 @@ function AngleArticleCard({ angleArticle }: { angleArticle: AngleArticle }) {
 
         {/* ليبل اسم الزاوية - نفس شكل HeroCard */}
         <div className="absolute top-2 right-2">
-          <Badge 
+          <Badge
             className="backdrop-blur-sm border-0 text-white font-medium"
             variant="outline"
             style={{
@@ -500,23 +500,23 @@ function AngleArticleCard({ angleArticle }: { angleArticle: AngleArticle }) {
               borderColor: angleArticle.angle.themeColor || "#8B5CF6",
             }}
           >
-            <span className="mr-1">{angleArticle.angle.icon || "🧠"}</span>
+            <span className="mr-1">{angleArticle.angle.icon || "💡"}</span>
             {angleArticle.angle.title}
           </Badge>
         </div>
       </div>
 
       {/* الثلثين السفليين - المحتوى */}
-      <div className="h-2/3 p-4 flex flex-col justify-between">
+      <div className="h-2/3 p-3 flex flex-col">
         {/* العنوان فقط */}
-        <div className="flex-1">
+        <div className="mb-2">
           <h3 className="font-bold text-sm text-gray-900 dark:text-white line-clamp-3 leading-tight">
             {angleArticle.title}
           </h3>
         </div>
 
         {/* الأيقونات وزر القراءة */}
-        <div className="space-y-2 mt-2">
+        <div className="space-y-2 mt-auto">
           {/* معلومات صغيرة */}
           <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
             <div className="flex items-center gap-1">
