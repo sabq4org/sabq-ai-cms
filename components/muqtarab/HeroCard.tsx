@@ -143,7 +143,12 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
             </div>
 
             {/* المحتوى النصي في الأسفل */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 text-white" style={{ bottom: '45px' }}>
+            <div 
+              className="absolute bottom-0 left-0 right-0 p-4 text-white" 
+              style={{ 
+                bottom: heroArticle.title.length > 50 ? '55px' : '35px' 
+              }}
+            >
               {/* العنوان */}
               <h2 className="text-lg font-bold leading-tight line-clamp-2">
                 {heroArticle.title}
