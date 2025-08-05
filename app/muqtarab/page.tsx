@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { PageLoadingSkeleton } from "@/components/ui/skeleton";
+import { MuqtarabPageSkeleton } from "@/components/muqtarab/MuqtarabSkeletons";
 import { Angle } from "@/types/muqtarab";
 import WithMuqtarabErrorBoundary from "@/components/muqtarab/MuqtarabErrorBoundary";
 import React from "react";
@@ -104,109 +104,78 @@ function MuqtaribPageContent() {
     { id: "tech", label: "تقنية", icon: Lightbulb },
   ];
 
-  // جلب الزوايا والمقال المميز
+  // جلب الزوايا والمقال المميز مُحسّن
   useEffect(() => {
     const fetchData = async () => {
       try {
         console.log("🔍 جاري جلب بيانات مُقترب...");
 
-        // جلب الزوايا
-        const anglesResponse = await fetch("/api/muqtarab/angles", {
-          cache: "no-store",
+        // استخدام endpoint محسّن واحد بدلاً من عدة calls
+        const optimizedResponse = await fetch("/api/muqtarab/optimized-page", {
+          // إزالة no-cache للسماح بـ browser caching
           headers: {
-            "Cache-Control": "no-cache",
+            "Accept": "application/json",
           },
         });
 
-        if (anglesResponse.ok) {
-          const anglesData = await anglesResponse.json();
-          console.log("✅ تم جلب الزوايا:", anglesData.angles?.length || 0);
-          setAngles(anglesData.angles || []);
-          setFilteredAngles(anglesData.angles || []);
-        } else {
-          console.error("❌ فشل في جلب الزوايا:", anglesResponse.status);
-          toast.error("فشل في تحميل الزوايا");
+        if (optimizedResponse.ok) {
+          const data = await optimizedResponse.json();
+          
+          if (data.success) {
+            console.log("✅ تم جلب البيانات المُحسّنة:", {
+              angles: data.angles?.length || 0,
+              heroArticle: data.heroArticle ? "✓" : "✗",
+              featuredArticles: data.featuredArticles?.length || 0,
+              cached: data.cached,
+            });
+
+            setAngles(data.angles || []);
+            setFilteredAngles(data.angles || []);
+            setHeroArticle(data.heroArticle);
+            setStats(data.stats);
+            setFeaturedArticles(data.featuredArticles || []);
+            
+            return; // نجح التحميل المُحسّن
+          }
         }
 
-        // جلب المقال المميز
-        try {
-          const heroResponse = await fetch("/api/muqtarab/hero-article", {
-            cache: "no-store",
-            headers: {
-              "Cache-Control": "no-cache",
-            },
-          });
+        // Fallback: استخدام الطريقة القديمة في حالة فشل الـ optimized endpoint
+        console.log("⚠️ استخدام fallback للتحميل التقليدي...");
+        
+        // جلب الزوايا بشكل منفصل
+        const anglesResponse = await fetch("/api/muqtarab/angles");
+        if (anglesResponse.ok) {
+          const anglesData = await anglesResponse.json();
+          setAngles(anglesData.angles || []);
+          setFilteredAngles(anglesData.angles || []);
+        }
 
+        // جلب المقال المميز (اختياري)
+        try {
+          const heroResponse = await fetch("/api/muqtarab/hero-article");
           if (heroResponse.ok) {
             const heroData = await heroResponse.json();
             if (heroData.success && heroData.heroArticle) {
-              console.log(
-                "✅ تم جلب المقال المميز:",
-                heroData.heroArticle.title
-              );
               setHeroArticle(heroData.heroArticle);
-            } else {
-              console.log("📝 لا يوجد مقال مميز متاح");
             }
           }
         } catch (heroError) {
           console.warn("تحذير: فشل في جلب المقال المميز:", heroError);
-          // لا نظهر خطأ للمستخدم هنا لأن المقال المميز اختياري
         }
 
-        // جلب الإحصائيات الحقيقية
+        // جلب الإحصائيات (اختياري)
         try {
-          const statsResponse = await fetch("/api/muqtarab/stats", {
-            cache: "no-store",
-            headers: {
-              "Cache-Control": "no-cache",
-            },
-          });
-
+          const statsResponse = await fetch("/api/muqtarab/stats");
           if (statsResponse.ok) {
             const statsData = await statsResponse.json();
             if (statsData.success && statsData.stats) {
-              console.log("📊 تم جلب الإحصائيات:", {
-                زوايا: statsData.stats.publishedAngles,
-                مقالات: statsData.stats.publishedArticles,
-                مشاهدات: statsData.stats.totalViews,
-              });
               setStats(statsData.stats);
             }
           }
         } catch (statsError) {
           console.warn("تحذير: فشل في جلب الإحصائيات:", statsError);
-          // الإحصائيات اختيارية
         }
 
-        // جلب المقالات المختارة
-        try {
-          const featuredResponse = await fetch(
-            "/api/muqtarab/featured-articles",
-            {
-              cache: "no-store",
-              headers: {
-                "Cache-Control": "no-cache",
-              },
-            }
-          );
-
-          if (featuredResponse.ok) {
-            const featuredData = await featuredResponse.json();
-            if (featuredData.success && featuredData.articles) {
-              console.log(
-                "✅ تم جلب المقالات المختارة:",
-                featuredData.articles.length
-              );
-              setFeaturedArticles(featuredData.articles);
-            } else {
-              console.log("📝 لا توجد مقالات مختارة متاحة");
-            }
-          }
-        } catch (featuredError) {
-          console.warn("تحذير: فشل في جلب المقالات المختارة:", featuredError);
-          // لا نظهر خطأ للمستخدم هنا لأن المقالات المختارة اختيارية
-        }
       } catch (error) {
         console.error("خطأ في جلب البيانات:", error);
         toast.error("حدث خطأ في التحميل");
@@ -255,7 +224,7 @@ function MuqtaribPageContent() {
 
   // Loading state مع Skeleton
   if (loading) {
-    return <PageLoadingSkeleton />;
+    return <MuqtarabPageSkeleton />;
   }
 
   return (

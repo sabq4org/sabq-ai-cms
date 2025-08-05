@@ -1,9 +1,10 @@
+import { withCache, createCacheKey } from "@/lib/cache";
 import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
-// GET: جلب زاوية بالـ slug
+// GET: جلب زاوية بالـ slug مُحسّن مع cache
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
@@ -16,28 +17,44 @@ export async function GET(
       return NextResponse.json({ error: "slug مطلوب" }, { status: 400 });
     }
 
-    // البحث عن الزاوية بالـ slug مع المؤلف وعدد المقالات
-    const query = `
+    // إنشاء cache key
+    const cacheKey = createCacheKey("angle:by-slug", { slug });
+    const cacheManager = withCache(cacheKey, 15, true); // 15 دقيقة cache
+
+    // التحقق من الـ cache
+    const cachedData = cacheManager.get();
+    if (cachedData) {
+      console.log("⚡ [Cache HIT] Angle by slug:", slug);
+      return NextResponse.json(cachedData, {
+        headers: cacheManager.getCacheHeaders(),
+      });
+    }
+
+    // استعلام محسّن باستخدام الفهارس الجديدة
+    const result = await prisma.$queryRaw`
       SELECT
-        a.*,
+        a.id,
+        a.title,
+        a.slug,
+        a.description,
+        a.icon,
+        a.theme_color,
+        a.cover_image,
+        a.is_featured,
+        a.is_published,
+        a.created_at,
+        a.updated_at,
+        a.author_id,
         u.name as author_name,
         u.email as author_email,
         u.avatar as author_image,
-        (
-          SELECT COUNT(*)::int
-          FROM angle_articles aa
-          WHERE aa.angle_id = a.id AND aa.is_published = true
-        ) as articles_count
+        COUNT(aa.id)::int as articles_count
       FROM angles a
       LEFT JOIN users u ON a.author_id = u.id
-      WHERE a.slug = $1 AND a.is_published = true
+      LEFT JOIN angle_articles aa ON a.id = aa.angle_id AND aa.is_published = true
+      WHERE a.slug = ${slug} AND a.is_published = true
+      GROUP BY a.id, u.name, u.email, u.avatar
     `;
-
-    console.log("📊 SQL Query:", query);
-    console.log("📋 Parameters:", [slug]);
-
-    const result = await prisma.$queryRawUnsafe(query, slug);
-    console.log("🔍 نتيجة البحث:", result);
 
     if (!Array.isArray(result) || result.length === 0) {
       console.log("❌ لم يتم العثور على الزاوية");
@@ -74,11 +91,19 @@ export async function GET(
         : null,
     };
 
-    console.log("✅ تم تحويل بيانات الزاوية:", angle.title);
-
-    return NextResponse.json({
+    const responseData = {
       success: true,
       angle,
+      cached: false,
+    };
+
+    // حفظ في الـ cache
+    cacheManager.set(responseData);
+
+    console.log("✅ تم تحويل بيانات الزاوية:", angle.title);
+
+    return NextResponse.json(responseData, {
+      headers: cacheManager.getCacheHeaders(),
     });
   } catch (error) {
     console.error("❌ خطأ في جلب الزاوية بالـ slug:", error);
