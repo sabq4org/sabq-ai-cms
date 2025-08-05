@@ -626,23 +626,8 @@ function NewspaperHomePage({
           direction: "rtl",
         }}
       >
-        {/* شريط النبض الإخباري للموبايل - ملاصق للهيدر */}
-        <SafeHydration>
-          {isMobileView && (
-            <div
-              className="pulse-ticker-mobile pulse-first-element"
-              style={{
-                position: "sticky",
-                top: "56px",
-                zIndex: 48,
-                marginTop: 0,
-                paddingTop: 0,
-              }}
-            >
-              <NewsPulseTicker className="mx-2" isMobile={true} />
-            </div>
-          )}
-        </SafeHydration>
+        {/* شريط النبض الإخباري للموبايل - محذوف حسب الطلب */}
+        {/* تم إزالة شريط النبض الإخباري من نسخة الموبايل فقط */}
         {/* شريط الإحصائيات المحسن للموبايل */}
         <SafeHydration>
           {isMobileView && (
