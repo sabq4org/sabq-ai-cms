@@ -377,7 +377,7 @@ const ArticlesList = ({
                     size="sm"
                     variant="outline"
                     onClick={() => handleDeleteArticleClick(article)}
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50 cursor-pointer"
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -487,18 +487,19 @@ export default function AngleDashboardPage() {
           headers: {
             "Content-Type": "application/json",
           },
+          cache: "no-store",
         }
       );
 
       if (response.ok) {
         console.log("✅ تم حذف المقال بنجاح");
         toast.success("تم حذف المقال بنجاح");
-        
+
         // تحديث قائمة المقالات
         setArticles((prevArticles) =>
           prevArticles.filter((article) => article.id !== articleToDelete.id)
         );
-        
+
         // إغلاق Modal
         setDeleteArticleModalOpen(false);
         setArticleToDelete(null);
@@ -659,8 +660,6 @@ export default function AngleDashboardPage() {
       setEditLoading(false);
     }
   };
-
-
 
   if (loading) {
     return (
