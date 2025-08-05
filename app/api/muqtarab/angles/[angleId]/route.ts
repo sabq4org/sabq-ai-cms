@@ -6,10 +6,10 @@ const prisma = new PrismaClient();
 // جلب بيانات زاوية واحدة
 export async function GET(
   request: NextRequest,
-  { params }: { params: { angleId: string } }
+  { params }: { params: Promise<{ angleId: string }> }
 ) {
   try {
-    const { angleId } = params;
+    const { angleId } = await params;
 
     // جلب بيانات الزاوية مع إحصائيات
     const angleQuery = `

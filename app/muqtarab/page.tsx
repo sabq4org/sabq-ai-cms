@@ -1,11 +1,11 @@
 "use client";
 
+import { HeroCard } from "@/components/muqtarab/HeroCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Angle } from "@/types/muqtarab";
-import { HeroCard } from "@/components/muqtarab/HeroCard";
 import {
   BookOpen,
   Calendar,
@@ -98,7 +98,10 @@ export default function MuqtaribPage() {
           if (heroResponse.ok) {
             const heroData = await heroResponse.json();
             if (heroData.success && heroData.heroArticle) {
-              console.log("✅ تم جلب المقال المميز:", heroData.heroArticle.title);
+              console.log(
+                "✅ تم جلب المقال المميز:",
+                heroData.heroArticle.title
+              );
               setHeroArticle(heroData.heroArticle);
             } else {
               console.log("📝 لا يوجد مقال مميز متاح");
@@ -108,7 +111,6 @@ export default function MuqtaribPage() {
           console.warn("تحذير: فشل في جلب المقال المميز:", heroError);
           // لا نظهر خطأ للمستخدم هنا لأن المقال المميز اختياري
         }
-
       } catch (error) {
         console.error("خطأ في جلب البيانات:", error);
         toast.error("حدث خطأ في التحميل");
@@ -176,11 +178,15 @@ export default function MuqtaribPage() {
             {/* شارة سبق - أصغر للموبايل */}
             <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 mb-4 md:mb-6">
               <Sparkles className="w-4 h-4 md:w-5 md:h-5" />
-              <span className="text-xs md:text-sm font-medium">منصة سبق الذكية</span>
+              <span className="text-xs md:text-sm font-medium">
+                منصة سبق الذكية
+              </span>
             </div>
 
             {/* العنوان - متجاوب */}
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-3 md:mb-6">مُقتَرب</h1>
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-3 md:mb-6">
+              مُقتَرب
+            </h1>
 
             {/* الوصف - مختصر للموبايل */}
             <p className="text-sm md:text-xl lg:text-2xl mb-6 md:mb-8 max-w-3xl mx-auto leading-relaxed px-2">
@@ -247,7 +253,7 @@ export default function MuqtaribPage() {
               اكتشف أحدث المقالات المميزة في زوايا مُقترب
             </p>
           </div>
-          
+
           {/* بطاقة مميزة محسنة للموبايل */}
           <div className="md:hidden">
             <MobileHeroCard heroArticle={heroArticle} />
@@ -348,7 +354,9 @@ export default function MuqtaribPage() {
               <h3 className="text-lg md:text-xl font-semibold text-gray-900 mb-2">
                 لا توجد زوايا
               </h3>
-              <p className="text-sm md:text-base text-gray-500">جرب تغيير معايير البحث أو الفلتر</p>
+              <p className="text-sm md:text-base text-gray-500">
+                جرب تغيير معايير البحث أو الفلتر
+              </p>
             </div>
           ) : (
             <>
@@ -434,9 +442,7 @@ function MobileFeaturedAngleCard({ angle }: { angle: Angle }) {
           </div>
         )}
       </div>
-      <h3 className="text-sm font-semibold line-clamp-2 mb-1">
-        {angle.title}
-      </h3>
+      <h3 className="text-sm font-semibold line-clamp-2 mb-1">{angle.title}</h3>
       <div className="text-xs text-gray-500 mb-2">
         {angle.articlesCount || 0} مقالة
       </div>
@@ -467,12 +473,10 @@ function MobileAngleCard({ angle }: { angle: Angle }) {
           </div>
         )}
       </div>
-      
+
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          <h3 className="text-sm font-semibold line-clamp-1">
-            {angle.title}
-          </h3>
+          <h3 className="text-sm font-semibold line-clamp-1">{angle.title}</h3>
           {angle.isFeatured && (
             <Sparkles className="w-3 h-3 text-yellow-500 flex-shrink-0" />
           )}

@@ -6,10 +6,10 @@ const prisma = new PrismaClient();
 // جلب مقال محدد
 export async function GET(
   request: NextRequest,
-  { params }: { params: { angleId: string; articleId: string } }
+  { params }: { params: Promise<{ angleId: string; articleId: string }> }
 ) {
   try {
-    const { angleId, articleId } = params;
+    const { angleId, articleId } = await params;
 
     console.log("🔍 [GET Article] angleId:", angleId, "articleId:", articleId);
 
@@ -95,10 +95,10 @@ export async function GET(
 // تحديث مقال
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { angleId: string; articleId: string } }
+  { params }: { params: Promise<{ angleId: string; articleId: string }> }
 ) {
   try {
-    const { angleId, articleId } = params;
+    const { angleId, articleId } = await params;
     const body = await request.json();
 
     console.log("📝 [PUT Article] تحديث المقال:", articleId);
@@ -211,10 +211,10 @@ export async function PUT(
 // حذف مقال
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { angleId: string; articleId: string } }
+  { params }: { params: Promise<{ angleId: string; articleId: string }> }
 ) {
   try {
-    const { angleId, articleId } = params;
+    const { angleId, articleId } = await params;
 
     console.log("🗑️ [DELETE Article] حذف المقال:", articleId);
 
