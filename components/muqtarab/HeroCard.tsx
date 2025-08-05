@@ -99,6 +99,23 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
               </Badge>
             </div>
 
+            {/* ليبل اسم الزاوية + ليبل نسبة الإبداع - أعلى الصورة يمين */}
+            <div className="absolute top-3 right-3 flex items-center gap-2">
+              {/* ليبل اسم الزاوية بالألوان الرسمية */}
+              <div 
+                className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium text-white backdrop-blur-sm"
+                style={{
+                  backgroundColor: heroArticle.angle.themeColor || "#8B5CF6",
+                }}
+              >
+                <span>{heroArticle.angle.icon || "🧠"}</span>
+                <span>{heroArticle.angle.title}</span>
+              </div>
+              
+              {/* ليبل نسبة الإبداع */}
+              <AIInsightTag score={heroArticle.aiScore} />
+            </div>
+
             {/* الطبقة الشفافة التدريجية */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
@@ -109,34 +126,14 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
                 {heroArticle.title}
               </h2>
 
-                          {/* المعلومات السفلية - محسنة للموبايل */}
-            <div className="flex items-center justify-between">
-              {/* اليسار - فارغ أو معلومات ثانوية */}
-              <div></div>
+              
 
-              {/* اليمين - ليبل اسم الزاوية + ليبل نسبة الإبداع */}
-              <div className="flex items-center gap-2">
-                {/* ليبل اسم الزاوية */}
-                <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-1 rounded-full">
-                  <span className="text-sm">
-                    {heroArticle.angle.icon || "🧠"}
-                  </span>
-                  <span className="text-xs font-medium text-gray-200">
-                    {heroArticle.angle.title}
-                  </span>
-                </div>
-                
-                {/* ليبل نسبة الإبداع */}
-                <AIInsightTag score={heroArticle.aiScore} />
+              {/* بيانات الكاتب والقراءة والمشاهدة - يمين بدون ليبل */}
+              <div className="flex justify-end items-center gap-3 text-xs text-gray-300 mt-2">
+                <span>{heroArticle.author.name.split(" ")[0]}</span>
+                <span>{heroArticle.readingTime}د</span>
+                <span>{heroArticle.views}</span>
               </div>
-            </div>
-
-                        {/* بيانات الكاتب والقراءة والمشاهدة - يمين بدون ليبل */}
-            <div className="flex justify-end items-center gap-3 text-xs text-gray-300 mt-2">
-              <span>{heroArticle.author.name.split(" ")[0]}</span>
-              <span>{heroArticle.readingTime}د</span>
-              <span>{heroArticle.views}</span>
-            </div>
             </div>
           </div>
         </Link>
