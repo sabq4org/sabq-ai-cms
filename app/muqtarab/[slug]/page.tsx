@@ -6,24 +6,23 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Angle, AngleArticle } from "@/types/muqtarab";
 import {
-  ArrowLeft,
-  BookOpen,
-  Brain,
-  Calendar,
-  Clock,
-  Cpu,
-  Eye,
-  Filter,
-  Heart,
-  MessageCircle,
-  Rocket,
-  Search,
-  Share2,
-  Sparkles,
-  Target,
-  TrendingUp,
-  User,
-  Zap,
+    ArrowLeft,
+    BookOpen,
+    Brain,
+    Calendar,
+    Clock,
+    Cpu,
+    Eye,
+    Filter,
+    Heart,
+    MessageCircle,
+    Rocket,
+    Search,
+    Share2,
+    Sparkles,
+    Target,
+    User,
+    Zap
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -304,11 +303,11 @@ function AngleHeader({ angle }: { angle: Angle }) {
               )}
             </div>
 
-            {/* وصف الزاوية */}
+            {/* وصف الزاوية مع الحفاظ على التنسيق الأصلي */}
             {angle.description && (
-              <p className="text-gray-600 text-base leading-relaxed mb-4 max-w-2xl">
+              <div className="text-gray-600 text-base leading-relaxed mb-4 max-w-2xl whitespace-pre-line">
                 {angle.description}
-              </p>
+              </div>
             )}
 
             {/* إحصائيات مبسطة */}
@@ -369,13 +368,13 @@ function AngleHeader({ angle }: { angle: Angle }) {
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                   {/* طبقة شفافة بلون الزاوية مع تأثير hover */}
-                  <div 
+                  <div
                     className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-300"
                     style={{ backgroundColor: angle.themeColor }}
                   />
                   {/* شارة صغيرة */}
                   <div className="absolute bottom-2 right-2">
-                    <div 
+                    <div
                       className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs shadow-lg"
                       style={{ backgroundColor: angle.themeColor }}
                     >
@@ -384,7 +383,7 @@ function AngleHeader({ angle }: { angle: Angle }) {
                   </div>
                 </div>
               </div>
-              
+
               {/* إصدار الموبايل - صورة صغيرة دائرية */}
               <div className="block md:hidden">
                 <div className="relative w-16 h-16 rounded-full overflow-hidden shadow-md">
@@ -394,7 +393,7 @@ function AngleHeader({ angle }: { angle: Angle }) {
                     fill
                     className="object-cover"
                   />
-                  <div 
+                  <div
                     className="absolute inset-0 opacity-20"
                     style={{ backgroundColor: angle.themeColor }}
                   />
