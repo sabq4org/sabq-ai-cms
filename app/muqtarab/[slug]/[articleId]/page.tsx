@@ -348,15 +348,20 @@ function ArticleHeader({
 }) {
   return (
     <div className="mb-4 md:mb-8">
-      {/* اسم الزاوية للموبايل فقط */}
-      <div className="block md:hidden mb-2">
+      {/* ليبل اسم الزاوية للموبايل فقط */}
+      <div className="block md:hidden mb-3">
         <Link href={`/muqtarab/${angle.slug}`}>
-          <h2
-            className="text-lg font-bold hover:underline transition-colors"
-            style={{ color: angle.themeColor }}
+          <Badge
+            variant="secondary"
+            className="hover:bg-opacity-80 transition-colors cursor-pointer text-sm px-3 py-1"
+            style={{
+              backgroundColor: angle.themeColor,
+              color: "white",
+            }}
           >
+            <Cpu className="w-3 h-3 ml-1" />
             {angle.title}
-          </h2>
+          </Badge>
         </Link>
       </div>
 
@@ -372,8 +377,7 @@ function ArticleHeader({
             }}
           >
             <Cpu className="w-3 h-3 ml-1" />
-            <span className="hidden sm:inline">{angle.title}</span>
-            <span className="sm:hidden">الزاوية</span>
+            {angle.title}
           </Badge>
         </Link>
 
@@ -404,18 +408,6 @@ function ArticleHeader({
 
       {/* فراغ */}
       <div className="mb-4"></div>
-
-      {/* الكلمات المفتاحية */}
-      {article.tags && article.tags.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2 mb-6">
-          {article.tags.slice(0, 5).map((tag, index) => (
-            <Badge key={index} variant="outline" className="text-xs">
-              <Tag className="w-3 h-3 ml-1" />
-              {tag}
-            </Badge>
-          ))}
-        </div>
-      )}
 
       {/* مقدمة المقال */}
       {article.excerpt && (
@@ -824,6 +816,21 @@ function ArticleContent({ article }: { article: AngleArticle }) {
           fontSize: "1rem",
         }}
       />
+      
+      {/* الكلمات المفتاحية في نهاية المحتوى */}
+      {article.tags && article.tags.length > 0 && (
+        <div className="mt-6 pt-4 border-t border-gray-200">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-medium text-gray-600 ml-2">المواضيع:</span>
+            {article.tags.slice(0, 5).map((tag, index) => (
+              <Badge key={index} variant="outline" className="text-xs">
+                <Tag className="w-3 h-3 ml-1" />
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
