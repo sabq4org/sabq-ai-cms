@@ -69,6 +69,18 @@ interface FeaturedArticle {
   createdAt: string;
 }
 
+interface MuqtarabStats {
+  totalAngles: number;
+  publishedAngles: number;
+  totalArticles: number;
+  publishedArticles: number;
+  totalViews: number;
+  displayViews: {
+    raw: number;
+    formatted: string;
+  };
+}
+
 export default function MuqtaribPage() {
   const [angles, setAngles] = useState<Angle[]>([]);
   const [filteredAngles, setFilteredAngles] = useState<Angle[]>([]);
@@ -76,6 +88,7 @@ export default function MuqtaribPage() {
   const [featuredArticles, setFeaturedArticles] = useState<FeaturedArticle[]>(
     []
   );
+  const [stats, setStats] = useState<MuqtarabStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
@@ -137,6 +150,31 @@ export default function MuqtaribPage() {
         } catch (heroError) {
           console.warn("تحذير: فشل في جلب المقال المميز:", heroError);
           // لا نظهر خطأ للمستخدم هنا لأن المقال المميز اختياري
+        }
+
+        // جلب الإحصائيات الحقيقية
+        try {
+          const statsResponse = await fetch("/api/muqtarab/stats", {
+            cache: "no-store",
+            headers: {
+              "Cache-Control": "no-cache",
+            },
+          });
+
+          if (statsResponse.ok) {
+            const statsData = await statsResponse.json();
+            if (statsData.success && statsData.stats) {
+              console.log("📊 تم جلب الإحصائيات:", {
+                زوايا: statsData.stats.publishedAngles,
+                مقالات: statsData.stats.publishedArticles,
+                مشاهدات: statsData.stats.totalViews
+              });
+              setStats(statsData.stats);
+            }
+          }
+        } catch (statsError) {
+          console.warn("تحذير: فشل في جلب الإحصائيات:", statsError);
+          // الإحصائيات اختيارية
         }
 
         // جلب المقالات المختارة
@@ -248,44 +286,47 @@ export default function MuqtaribPage() {
                   </div>
                 </div>
               </div>
-              
+
               <p className="text-muted-foreground text-sm md:text-base max-w-2xl leading-relaxed">
-                زوايا فكرية متخصصة تقدم محتوى عميق ومتنوع في مختلف المجالات، 
-                من التقنية والثقافة إلى الفكر المعاصر والتحليل العميق.
+                زوايا فكرية متخصصة تقدم محتوى عميق ومتنوع في مختلف المجالات، من
+                التقنية والثقافة إلى الفكر المعاصر والتحليل العميق.
               </p>
             </div>
 
             {/* الإحصائيات والأزرار */}
             <div className="flex flex-col sm:flex-row items-center gap-4 md:gap-6">
-              {/* إحصائيات مباشرة */}
+              {/* إحصائيات حقيقية */}
               <div className="flex items-center gap-4 md:gap-6 text-center">
                 <div className="text-center">
                   <p className="font-bold text-foreground text-lg md:text-xl">
-                    {filteredAngles.length}
+                    {stats ? stats.publishedAngles : filteredAngles.length}
                   </p>
-                  <p className="text-muted-foreground text-xs md:text-sm">زاوية</p>
+                  <p className="text-muted-foreground text-xs md:text-sm">
+                    زاوية
+                  </p>
                 </div>
                 <div className="text-center">
                   <p className="font-bold text-foreground text-lg md:text-xl">
-                    {featuredArticles.length + (heroArticle ? 1 : 0)}
+                    {stats ? stats.publishedArticles : (featuredArticles.length + (heroArticle ? 1 : 0))}
                   </p>
-                  <p className="text-muted-foreground text-xs md:text-sm">مقال</p>
+                  <p className="text-muted-foreground text-xs md:text-sm">
+                    مقال
+                  </p>
                 </div>
                 <div className="text-center">
                   <p className="font-bold text-foreground text-lg md:text-xl">
-                    {heroArticle ? (heroArticle.views / 1000).toFixed(1) : '0'}K
+                    {stats ? stats.displayViews.formatted : (heroArticle ? (heroArticle.views / 1000).toFixed(1) + "K" : "0")}
                   </p>
-                  <p className="text-muted-foreground text-xs md:text-sm">قراءة</p>
+                  <p className="text-muted-foreground text-xs md:text-sm">
+                    قراءة
+                  </p>
                 </div>
               </div>
 
               {/* أزرار العمل */}
               <div className="flex flex-col sm:flex-row gap-2">
                 <Link href="/admin/muqtarab/angles/new">
-                  <Button
-                    size="sm"
-                    className="w-full sm:w-auto"
-                  >
+                  <Button size="sm" className="w-full sm:w-auto">
                     <Plus className="w-4 h-4 mr-2" />
                     <span className="sm:hidden">إضافة</span>
                     <span className="hidden sm:inline">زاوية جديدة</span>

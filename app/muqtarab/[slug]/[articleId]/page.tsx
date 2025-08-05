@@ -1053,8 +1053,14 @@ function AuthorSection({
         </div>
         <div className="flex items-center gap-1">
           <Eye className="w-3 h-3 md:w-4 md:h-4" />
-          <span className="hidden md:inline">1,234 مشاهدة</span>
-          <span className="md:hidden">1.2k</span>
+          <span className="hidden md:inline">
+            {(article.views || 0).toLocaleString()} مشاهدة
+          </span>
+          <span className="md:hidden">
+            {article.views > 1000 
+              ? (article.views / 1000).toFixed(1) + "k" 
+              : (article.views || 0)}
+          </span>
         </div>
       </div>
     </div>

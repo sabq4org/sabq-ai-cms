@@ -665,7 +665,11 @@ function AngleArticleCard({
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1">
               <Eye className="w-3 h-3" />
-              <span>234</span>
+              <span>
+                {article.views > 1000 
+                  ? (article.views / 1000).toFixed(1) + "k" 
+                  : (article.views || 0)}
+              </span>
             </div>
             <div className="flex items-center gap-1">
               <Heart className="w-3 h-3" />
