@@ -16,6 +16,7 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
+import { LoadingSkeletons, PageLoadingSkeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -250,15 +251,9 @@ export default function MuqtaribPage() {
     setFilteredAngles(filtered);
   }, [angles, searchQuery, selectedFilter]);
 
+  // Loading state مع Skeleton
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">جاري تحميل مُقترب...</p>
-        </div>
-      </div>
-    );
+    return <PageLoadingSkeleton />;
   }
 
   return (
@@ -898,15 +893,11 @@ function MuqtarabFooter({ stats }: { stats: MuqtarabStats | null }) {
               </div>
               <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                 <BookOpen className="w-4 h-4 text-green-500" />
-                <span>
-                  {stats ? stats.publishedAngles : "0"} زاوية منشورة
-                </span>
+                <span>{stats ? stats.publishedAngles : "0"} زاوية منشورة</span>
               </div>
               <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                 <Sparkles className="w-4 h-4 text-purple-500" />
-                <span>
-                  {stats ? stats.publishedArticles : "0"} مقال منشور
-                </span>
+                <span>{stats ? stats.publishedArticles : "0"} مقال منشور</span>
               </div>
             </div>
           </div>

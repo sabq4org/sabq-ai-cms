@@ -1,11 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { FeaturedArticleManager } from '@/lib/services/featured-article-manager';
+import { withCache, createCacheKey, performanceLogger } from '@/lib/cache';
 
-// تعطيل التخزين المؤقت لهذه الواجهة
-export const revalidate = 0;
+// تفعيل التخزين المؤقت المحسن
+export const revalidate = 300; // 5 دقائق
 
 export async function GET(request: NextRequest) {
+  const timer = performanceLogger('Featured News API');
+  
   try {
+    // Cache key للأخبار المميزة
+    const cacheKey = 'featured-news:current';
+    const cacheManager = withCache(cacheKey, 10, true); // 10 دقائق cache
+    
+    // التحقق من الـ cache
+    const cachedData = cacheManager.get();
+    if (cachedData) {
+      console.log("⚡ [Cache HIT] Featured News");
+      timer.end();
+      return NextResponse.json(cachedData, {
+        headers: cacheManager.getCacheHeaders()
+      });
+    }
+
     // جلب المقال المميز باستخدام المدير المركزي
     const featuredArticle = await FeaturedArticleManager.getCurrentFeatured();
 
@@ -53,13 +70,21 @@ export async function GET(request: NextRequest) {
       updated_at: featuredArticle.updated_at
     };
 
-    return NextResponse.json({
+    // إنشاء البيانات للإرجاع
+    const responseData = {
       success: true,
       article: formattedArticle
-    }, {
-      headers: {
-        'Cache-Control': 'no-store, max-age=0, must-revalidate',
-      }
+    };
+
+    // حفظ في الـ cache
+    cacheManager.set(responseData);
+    
+    // تسجيل الأداء
+    const duration = timer.end();
+    console.log(`✅ [Featured News] Duration: ${duration}ms, Cached: true`);
+
+    return NextResponse.json(responseData, {
+      headers: cacheManager.getCacheHeaders()
     });
 
   } catch (error: any) {

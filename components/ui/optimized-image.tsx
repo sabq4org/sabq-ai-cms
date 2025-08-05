@@ -1,130 +1,224 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { cn } from '@/lib/utils';
+import Image from "next/image";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface OptimizedImageProps {
   src: string;
   alt: string;
+  width?: number;
+  height?: number;
   className?: string;
-  fallbackSrc?: string;
-  aspectRatio?: '16:9' | '4:3' | '1:1' | 'auto';
-  sizes?: string;
+  fill?: boolean;
   priority?: boolean;
+  quality?: number;
+  sizes?: string;
+  placeholder?: "blur" | "empty";
+  blurDataURL?: string;
   onLoad?: () => void;
   onError?: () => void;
 }
 
-export default function OptimizedImage({
+export function OptimizedImage({
   src,
   alt,
+  width,
+  height,
   className,
-  fallbackSrc = '/images/placeholder-featured.jpg', // صورة بديلة افتراضية
-  aspectRatio = 'auto',
-  sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 1200px',
+  fill = false,
   priority = false,
+  quality = 75,
+  sizes,
+  placeholder = "empty",
+  blurDataURL,
   onLoad,
-  onError
+  onError,
+  ...props
 }: OptimizedImageProps) {
-  const [imageSrc, setImageSrc] = useState(src);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
-  // تحويل مسار الصورة إلى صيغ مختلفة
-  const getImageFormat = (url: string, format: string) => {
-    // إذا كانت الصورة من S3 أو CDN، نفترض أن الخادم يدعم تحويل الصيغ
-    const urlParts = url.split('.');
-    if (urlParts.length > 1) {
-      urlParts[urlParts.length - 1] = format;
-      return urlParts.join('.');
-    }
-    return url;
-  };
-
-  const aspectRatioClasses = {
-    '16:9': 'aspect-w-16 aspect-h-9',
-    '4:3': 'aspect-w-4 aspect-h-3',
-    '1:1': 'aspect-w-1 aspect-h-1',
-    'auto': ''
-  };
-
-  const handleLoad = () => {
-    setIsLoading(false);
-    setHasError(false);
-    onLoad?.();
-  };
-
+  // معالجة الصور المكسورة
   const handleError = () => {
-    if (imageSrc !== fallbackSrc) {
-      setImageSrc(fallbackSrc);
-      setHasError(true);
-    }
+    setHasError(true);
     setIsLoading(false);
     onError?.();
   };
 
-  return (
-    <div className={cn(
-      'relative overflow-hidden bg-gray-100 dark:bg-gray-800',
-      aspectRatio !== 'auto' && aspectRatioClasses[aspectRatio],
-      className
-    )}>
-      {/* مؤشر التحميل */}
-      {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-8 h-8 border-3 border-gray-300 dark:border-gray-600 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin" />
-        </div>
-      )}
+  const handleLoad = () => {
+    setIsLoading(false);
+    onLoad?.();
+  };
 
-      {/* الصورة مع دعم صيغ متعددة */}
-      <picture className={cn('block w-full h-full', aspectRatio !== 'auto' && 'absolute inset-0')}>
-        {/* WebP format */}
-        {!hasError && imageSrc !== fallbackSrc && (
-          <>
-            <source
-              type="image/webp"
-              srcSet={`
-                ${getImageFormat(imageSrc, 'webp')} 1x,
-                ${getImageFormat(imageSrc, 'webp')}?w=1600 2x
-              `}
-              sizes={sizes}
-            />
-            
-            {/* AVIF format (أحدث وأكثر كفاءة) */}
-            <source
-              type="image/avif"
-              srcSet={`
-                ${getImageFormat(imageSrc, 'avif')} 1x,
-                ${getImageFormat(imageSrc, 'avif')}?w=1600 2x
-              `}
-              sizes={sizes}
-            />
-          </>
+  // صورة placeholder عند الخطأ
+  if (hasError) {
+    return (
+      <div
+        className={cn(
+          "bg-gray-200 dark:bg-gray-700 flex items-center justify-center",
+          className
         )}
+        style={{ width, height }}
+      >
+        <svg
+          className="w-8 h-8 text-gray-400"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+          />
+        </svg>
+      </div>
+    );
+  }
 
-        {/* الصورة الافتراضية */}
-        <img
-          src={imageSrc}
-          alt={alt}
-          loading={priority ? 'eager' : 'lazy'}
-          decoding="async"
+  return (
+    <div className={cn("relative overflow-hidden", className)}>
+      {/* Loading skeleton */}
+      {isLoading && (
+        <div
           className={cn(
-            'w-full h-full transition-opacity duration-300',
-            isLoading ? 'opacity-0' : 'opacity-100',
-            aspectRatio === 'auto' ? 'object-contain' : 'object-cover'
+            "absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse",
+            fill ? "w-full h-full" : ""
           )}
-          onLoad={handleLoad}
-          onError={handleError}
-          sizes={sizes}
+          style={!fill ? { width, height } : undefined}
         />
-      </picture>
-
-      {/* رسالة الخطأ */}
-      {hasError && (
-        <div className="absolute bottom-4 left-4 right-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-2 text-xs text-yellow-800 dark:text-yellow-200">
-          تم استخدام صورة بديلة
-        </div>
       )}
+
+      <Image
+        src={src}
+        alt={alt}
+        width={fill ? undefined : width}
+        height={fill ? undefined : height}
+        fill={fill}
+        priority={priority}
+        quality={quality}
+        sizes={sizes}
+        placeholder={placeholder}
+        blurDataURL={blurDataURL}
+        onLoad={handleLoad}
+        onError={handleError}
+        className={cn(
+          "transition-opacity duration-300",
+          isLoading ? "opacity-0" : "opacity-100",
+          fill ? "object-cover" : ""
+        )}
+        {...props}
+      />
     </div>
+  );
+}
+
+// مكون خاص للصور مع Lazy Loading
+export function LazyImage({
+  src,
+  alt,
+  className,
+  ...props
+}: OptimizedImageProps) {
+  return (
+    <OptimizedImage
+      src={src}
+      alt={alt}
+      className={className}
+      loading="lazy"
+      placeholder="blur"
+      blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
+      {...props}
+    />
+  );
+}
+
+// مكون محسن لصور المقالات
+export function ArticleImage({
+  src,
+  alt,
+  aspectRatio = "16/9",
+  className,
+  priority = false,
+  ...props
+}: OptimizedImageProps & { aspectRatio?: string }) {
+  const [mounted, setMounted] = useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div
+        className={cn(
+          "bg-gray-200 dark:bg-gray-700 animate-pulse rounded-lg",
+          className
+        )}
+        style={{ aspectRatio }}
+      />
+    );
+  }
+
+  return (
+    <div
+      className={cn("relative overflow-hidden rounded-lg", className)}
+      style={{ aspectRatio }}
+    >
+      <OptimizedImage
+        src={src}
+        alt={alt}
+        fill
+        priority={priority}
+        quality={85}
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        className="object-cover hover:scale-105 transition-transform duration-300"
+        {...props}
+      />
+    </div>
+  );
+}
+
+// مكون محسن لصور الزوايا
+export function AngleImage({
+  src,
+  alt,
+  size = 64,
+  className,
+  ...props
+}: OptimizedImageProps & { size?: number }) {
+  return (
+    <OptimizedImage
+      src={src}
+      alt={alt}
+      width={size}
+      height={size}
+      quality={90}
+      className={cn("rounded-xl object-cover", className)}
+      {...props}
+    />
+  );
+}
+
+// مكون محسن للصور الشخصية
+export function AvatarImage({
+  src,
+  alt,
+  size = 40,
+  className,
+  ...props
+}: OptimizedImageProps & { size?: number }) {
+  return (
+    <OptimizedImage
+      src={src}
+      alt={alt}
+      width={size}
+      height={size}
+      quality={90}
+      className={cn("rounded-full object-cover", className)}
+      {...props}
+    />
   );
 }
