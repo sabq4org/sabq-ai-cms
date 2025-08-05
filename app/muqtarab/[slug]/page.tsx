@@ -184,6 +184,47 @@ export default function AnglePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* شريط التنقل العلوي */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Link 
+                href="/muqtarab"
+                className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span className="text-sm font-medium">العودة إلى مُقترب</span>
+              </Link>
+              <span className="text-gray-300">|</span>
+              <span className="text-gray-600 text-sm">{angle.title}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-xs"
+                style={{ 
+                  borderColor: angle.themeColor + '40',
+                  color: angle.themeColor 
+                }}
+              >
+                <Heart className="w-3 h-3 ml-1" />
+                متابعة
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="text-xs"
+              >
+                <Share2 className="w-3 h-3 ml-1" />
+                مشاركة
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Header الزاوية */}
       <AngleHeader angle={angle} />
 
@@ -227,215 +268,85 @@ function AngleHeader({ angle }: { angle: Angle }) {
   const IconComponent = getAngleIcon(angle.icon);
 
   return (
-    <div className="relative overflow-hidden">
-      {/* الشريط العلوي بلون الزاوية */}
-      <div
-        className="h-3 w-full"
-        style={{ backgroundColor: angle.themeColor }}
-      />
-
-      {/* هيدر الزاوية الجديد */}
-      <div className="relative h-[350px] md:h-[400px] overflow-hidden">
-        {/* صورة الخلفية */}
-        {angle.coverImage ? (
-          <Image
-            src={angle.coverImage}
-            alt={angle.title}
-            fill
-            className="object-cover"
-          />
-        ) : (
+    <div className="bg-white border-b border-gray-200">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* عنوان الزاوية وتفاصيلها الأساسية */}
+        <div className="flex items-start gap-4 mb-6">
+          {/* أيقونة الزاوية */}
           <div
-            className="w-full h-full"
+            className="p-3 rounded-xl shadow-sm"
             style={{
-              background: `linear-gradient(135deg, ${angle.themeColor} 0%, #1f2937 100%)`,
+              backgroundColor: angle.themeColor + '10',
+              color: angle.themeColor,
             }}
-          />
-        )}
-
-        {/* طبقة داكنة محسنة للوضوح */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-
-        {/* طبقة إضافية بلون الزاوية */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background: `linear-gradient(45deg, ${angle.themeColor}20 0%, transparent 60%)`,
-          }}
-        />
-
-        {/* زر العودة المحسن - ثابت وواضح */}
-        <div className="absolute top-6 right-6 z-20">
-          <Link
-            href="/muqtarab"
-            className="inline-flex items-center gap-2 bg-white/95 dark:bg-black/90 text-gray-900 dark:text-white hover:bg-white dark:hover:bg-black transition-all px-4 py-2 rounded-full shadow-lg backdrop-blur-sm border border-white/20"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm font-medium">العودة إلى مُقترب</span>
-          </Link>
-        </div>
-
-        {/* صندوق معلومات الزاوية المحسن - تصميم متجاوب وواضح */}
-        <div className="absolute bottom-6 right-6 left-6 md:left-auto md:max-w-2xl">
-          {/* تصميم الجوال - مبسط ومقسم */}
-          <div className="block md:hidden">
-            {/* عنوان الزاوية على الصورة للجوال */}
-            <div className="bg-black/60 backdrop-blur-sm rounded-xl px-4 py-3 mb-3">
-              <div className="flex items-center gap-3">
-                <div
-                  className="flex-shrink-0 p-2 rounded-full shadow-lg"
-                  style={{
-                    backgroundColor: angle.themeColor,
-                    color: "white",
-                  }}
-                >
-                  <IconComponent className="w-5 h-5" />
-                </div>
-                <h1 className="text-xl font-bold text-white leading-tight flex-1">
-                  {angle.title}
-                </h1>
-                {angle.isFeatured && (
-                  <Badge
-                    className="text-xs font-medium px-2 py-1 border-0 shadow-sm"
-                    style={{
-                      backgroundColor: angle.themeColor,
-                      color: "white",
-                    }}
-                  >
-                    مميزة
-                  </Badge>
-                )}
-              </div>
-            </div>
-
-            {/* صندوق الوصف والتفاصيل للجوال */}
-            <div className="bg-white/90 dark:bg-black/80 backdrop-blur-md rounded-xl p-4 shadow-lg border border-white/20">
-              {/* مؤشر التخصص */}
-              <div
-                className="text-xs uppercase tracking-wide font-semibold mb-2"
-                style={{ color: angle.themeColor }}
-              >
-                🧠 زاوية متخصصة
-              </div>
-
-              {/* الوصف مع التنسيق المحسن */}
-              {angle.description && (
-                <div className="prose prose-sm max-w-none whitespace-pre-line text-gray-800 dark:text-gray-200 text-sm leading-relaxed mb-3">
-                  {angle.description}
-                </div>
-              )}
-
-              {/* الإحصائيات */}
-              <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400 mb-3">
-                <div className="flex items-center gap-1">
-                  <BookOpen className="w-3 h-3" />
-                  <span>{angle.articlesCount || 0} مقالة</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <User className="w-3 h-3" />
-                  <span>{angle.author?.name}</span>
-                </div>
-              </div>
-
-              {/* زر المتابعة للجوال */}
-              <Button
-                className="w-full shadow-lg border-0 text-white font-medium transition-all duration-200 hover:scale-105"
-                style={{ backgroundColor: angle.themeColor }}
-              >
-                <Heart className="w-4 h-4 ml-2" />
-                متابعة الزاوية
-              </Button>
-            </div>
+            <IconComponent className="w-6 h-6" />
           </div>
 
-          {/* تصميم الديسكتوب - محسن مع خلفية شفافة */}
-          <div className="hidden md:block bg-white/80 dark:bg-black/80 backdrop-blur-sm rounded-2xl px-6 py-5 shadow-2xl border border-white/20">
-            {/* رأس الصندوق مع مؤشر التخصص */}
-            <div className="mb-4">
-              {/* مؤشر التخصص */}
-              <div
-                className="text-xs uppercase tracking-wide font-semibold mb-1"
+          {/* معلومات الزاوية */}
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-2">
+              <h1 
+                className="text-2xl md:text-3xl font-bold"
                 style={{ color: angle.themeColor }}
               >
-                🧠 زاوية متخصصة
-              </div>
-
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div
-                    className="p-3 rounded-xl shadow-lg"
-                    style={{
-                      backgroundColor: angle.themeColor,
-                      color: "white",
-                    }}
-                  >
-                    <IconComponent className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h1
-                      className="text-2xl md:text-3xl font-bold leading-tight"
-                      style={{ color: angle.themeColor }}
-                    >
-                      {angle.title}
-                    </h1>
-                    {angle.isFeatured && (
-                      <Badge
-                        className="mt-1 text-xs border-0"
-                        style={{
-                          backgroundColor: `${angle.themeColor}15`,
-                          color: angle.themeColor,
-                        }}
-                      >
-                        <Sparkles className="w-3 h-3 ml-1" />
-                        زاوية مميزة
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              </div>
+                {angle.title}
+              </h1>
+              {angle.isFeatured && (
+                <Badge
+                  className="text-xs"
+                  style={{
+                    backgroundColor: angle.themeColor + '20',
+                    color: angle.themeColor,
+                  }}
+                >
+                  <Sparkles className="w-3 h-3 ml-1" />
+                  مميزة
+                </Badge>
+              )}
             </div>
 
-            {/* وصف الزاوية مع التنسيق المحسن */}
+            {/* وصف الزاوية */}
             {angle.description && (
-              <div className="prose prose-sm max-w-none whitespace-pre-line text-gray-800 dark:text-gray-300 text-sm md:text-base leading-relaxed mb-4">
+              <p className="text-gray-600 text-base leading-relaxed mb-4 max-w-2xl">
                 {angle.description}
-              </div>
+              </p>
             )}
 
-            {/* إحصائيات محسنة */}
-            <div className="flex flex-wrap gap-4 text-gray-600 dark:text-gray-400 text-xs md:text-sm mb-4">
+            {/* إحصائيات مبسطة */}
+            <div className="flex items-center gap-6 text-sm text-gray-500 mb-4">
               <div className="flex items-center gap-1">
                 <BookOpen className="w-4 h-4" />
                 <span>{angle.articlesCount || 0} مقالة</span>
               </div>
               <div className="flex items-center gap-1">
                 <User className="w-4 h-4" />
-                <span>بواسطة {angle.author?.name}</span>
+                <span>{angle.author?.name}</span>
               </div>
               <div className="flex items-center gap-1">
                 <Calendar className="w-4 h-4" />
                 <span>
-                  آخر تحديث {new Date(angle.createdAt).toLocaleDateString("ar-SA")}
+                  {new Date(angle.updatedAt || angle.createdAt).toLocaleDateString("ar-SA")}
                 </span>
               </div>
             </div>
 
-            {/* أزرار التفاعل المحسنة */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            {/* أزرار بسيطة */}
+            <div className="flex items-center gap-3">
               <Button
-                className="flex-1 font-medium border-0 shadow-lg text-white transition-all duration-200 hover:scale-105"
-                style={{
-                  backgroundColor: angle.themeColor,
-                }}
+                size="sm"
+                className="text-white shadow-sm"
+                style={{ backgroundColor: angle.themeColor }}
               >
                 <Heart className="w-4 h-4 ml-2" />
-                متابعة الزاوية
+                متابعة
               </Button>
+
               <Button
+                size="sm"
                 variant="outline"
-                className="flex-1 font-medium border-2 shadow-lg transition-all duration-200 hover:scale-105"
                 style={{
-                  borderColor: angle.themeColor,
+                  borderColor: angle.themeColor + '40',
                   color: angle.themeColor,
                 }}
               >
@@ -445,6 +356,12 @@ function AngleHeader({ angle }: { angle: Angle }) {
             </div>
           </div>
         </div>
+
+        {/* خط فاصل بلون الزاوية */}
+        <div 
+          className="h-1 w-full rounded-full"
+          style={{ backgroundColor: angle.themeColor + '20' }}
+        />
       </div>
     </div>
   );
