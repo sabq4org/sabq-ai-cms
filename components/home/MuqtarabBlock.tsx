@@ -3,7 +3,17 @@
 import { HeroCard } from "@/components/muqtarab/HeroCard";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { ArrowLeft, BookOpen, Brain, Clock, Eye, Lightbulb, RefreshCw, Sparkles, User } from "lucide-react";
+import {
+  ArrowLeft,
+  BookOpen,
+  Brain,
+  Clock,
+  Eye,
+  Lightbulb,
+  RefreshCw,
+  Sparkles,
+  User,
+} from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import MuqtarabCard from "./MuqtarabCard";
@@ -142,23 +152,29 @@ export default function MuqtarabBlock({ className }: MuqtarabBlockProps) {
       console.log("🔍 [MuqtarabBlock] جاري جلب مقال من زاوية فكر رقمي...");
 
       // أولاً، جلب معرف زاوية "فكر رقمي"
-      const angleResponse = await fetch("/api/muqtarab/angles/by-slug/digital-thinking", {
-        cache: "no-store",
-        headers: {
-          "Cache-Control": "no-cache",
-        },
-      });
+      const angleResponse = await fetch(
+        "/api/muqtarab/angles/by-slug/digital-thinking",
+        {
+          cache: "no-store",
+          headers: {
+            "Cache-Control": "no-cache",
+          },
+        }
+      );
 
       if (angleResponse.ok) {
         const angleData = await angleResponse.json();
         if (angleData.success && angleData.angle) {
           // جلب أحدث مقال من هذه الزاوية
-          const articlesResponse = await fetch(`/api/muqtarab/angles/${angleData.angle.id}/articles`, {
-            cache: "no-store",
-            headers: {
-              "Cache-Control": "no-cache",
-            },
-          });
+          const articlesResponse = await fetch(
+            `/api/muqtarab/angles/${angleData.angle.id}/articles`,
+            {
+              cache: "no-store",
+              headers: {
+                "Cache-Control": "no-cache",
+              },
+            }
+          );
 
           if (articlesResponse.ok) {
             const articlesData = await articlesResponse.json();
@@ -171,7 +187,9 @@ export default function MuqtarabBlock({ className }: MuqtarabBlockProps) {
               setAngleArticle({
                 id: latestArticle.id,
                 title: latestArticle.title,
-                excerpt: latestArticle.excerpt,
+                excerpt:
+                  latestArticle.excerpt ||
+                  latestArticle.title.substring(0, 120) + "...",
                 slug: latestArticle.slug,
                 coverImage: latestArticle.coverImage,
                 readingTime: latestArticle.readingTime,
@@ -188,7 +206,9 @@ export default function MuqtarabBlock({ className }: MuqtarabBlockProps) {
                 author: latestArticle.author,
               });
             } else {
-              console.log("⚠️ [MuqtarabBlock] لا توجد مقالات في زاوية فكر رقمي");
+              console.log(
+                "⚠️ [MuqtarabBlock] لا توجد مقالات في زاوية فكر رقمي"
+              );
             }
           }
         }
@@ -326,7 +346,10 @@ export default function MuqtarabBlock({ className }: MuqtarabBlockProps) {
         {/* بطاقة مقال الزاوية */}
         {!angleLoading && angleArticle && (
           <div className="mb-6">
-            <AngleArticleCard angleArticle={angleArticle} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <AngleArticleCard angleArticle={angleArticle} />
+              {/* مساحة لمقالات إضافية في المستقبل */}
+            </div>
           </div>
         )}
 
@@ -402,65 +425,88 @@ export default function MuqtarabBlock({ className }: MuqtarabBlockProps) {
 // مكون بطاقة مقال الزاوية
 function AngleArticleCard({ angleArticle }: { angleArticle: AngleArticle }) {
   return (
-    <div className="relative bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-xl p-4 border border-purple-100 dark:border-purple-800/50">
-      {/* شارة الزاوية */}
-      <div className="flex items-center gap-2 mb-3">
-        <div 
-          className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium text-white"
-          style={{ backgroundColor: angleArticle.angle.themeColor || '#8B5CF6' }}
-        >
-          <Brain className="w-3 h-3" />
-          {angleArticle.angle.title}
-        </div>
-        <span className="text-xs text-gray-500 dark:text-gray-400">زاوية مميزة</span>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-        {/* المحتوى */}
-        <div className="md:col-span-2 space-y-2">
-          <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-2 leading-tight">
-            {angleArticle.title}
-          </h3>
-          
-          <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
-            {angleArticle.excerpt}
-          </p>
-
-          <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-            <div className="flex items-center gap-1">
-              <User className="w-3 h-3" />
-              <span>{angleArticle.author.name}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Clock className="w-3 h-3" />
-              <span>{angleArticle.readingTime} د</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Eye className="w-3 h-3" />
-              <span>{angleArticle.views}</span>
-            </div>
+    <div className="relative bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 aspect-square">
+      {/* الثلث العلوي - الصورة */}
+      <div className="relative h-1/3 overflow-hidden">
+        {angleArticle.coverImage &&
+        !angleArticle.coverImage.startsWith("data:") ? (
+          <img
+            src={angleArticle.coverImage}
+            alt={angleArticle.title}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div 
+            className="w-full h-full flex items-center justify-center"
+            style={{
+              background: `linear-gradient(135deg, ${angleArticle.angle.themeColor || '#8B5CF6'}20, ${angleArticle.angle.themeColor || '#8B5CF6'}40)`
+            }}
+          >
+            <Brain 
+              className="w-8 h-8"
+              style={{ color: angleArticle.angle.themeColor || '#8B5CF6' }}
+            />
+          </div>
+        )}
+        
+        {/* شارة الزاوية - مطلقة في الزاوية العلوية */}
+        <div className="absolute top-2 right-2">
+          <div
+            className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium text-white backdrop-blur-sm"
+            style={{
+              backgroundColor: angleArticle.angle.themeColor || "#8B5CF6",
+            }}
+          >
+            <Brain className="w-3 h-3" />
+            {angleArticle.angle.title}
           </div>
         </div>
+      </div>
 
-        {/* الصورة وزر القراءة */}
-        <div className="flex flex-col items-center gap-3">
-          {angleArticle.coverImage && (
-            <div className="relative w-full h-20 rounded-lg overflow-hidden">
-              <img
-                src={angleArticle.coverImage}
-                alt={angleArticle.title}
-                className="w-full h-full object-cover"
-              />
+      {/* الثلثين السفليين - المحتوى */}
+      <div className="h-2/3 p-4 flex flex-col justify-between">
+        {/* العنوان والمقتطف */}
+        <div className="space-y-2 flex-1">
+          <h3 className="font-bold text-sm text-gray-900 dark:text-white line-clamp-3 leading-tight">
+            {angleArticle.title}
+          </h3>
+
+          <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2">
+            {angleArticle.excerpt}
+          </p>
+        </div>
+
+        {/* الأيقونات وزر القراءة */}
+        <div className="space-y-3 mt-3">
+          {/* معلومات صغيرة */}
+          <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+            <div className="flex items-center gap-1">
+              <User className="w-3 h-3" />
+              <span className="truncate max-w-16">{angleArticle.author.name}</span>
             </div>
-          )}
-          
-          <Link href={`/muqtarab/${angleArticle.angle.slug}/${angleArticle.slug}`}>
-            <Button 
-              size="sm" 
-              className="text-xs px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:scale-105"
-              style={{ 
-                backgroundColor: angleArticle.angle.themeColor || '#8B5CF6',
-                color: 'white'
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                <span>{angleArticle.readingTime}د</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Eye className="w-3 h-3" />
+                <span>{angleArticle.views}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* زر القراءة */}
+          <Link
+            href={`/muqtarab/${angleArticle.angle.slug}/${angleArticle.slug}`}
+            className="block"
+          >
+            <Button
+              size="sm"
+              className="w-full text-xs py-2 rounded-lg font-medium transition-all duration-200 hover:scale-105"
+              style={{
+                backgroundColor: angleArticle.angle.themeColor || "#8B5CF6",
+                color: "white",
               }}
             >
               <BookOpen className="w-3 h-3 ml-1" />
