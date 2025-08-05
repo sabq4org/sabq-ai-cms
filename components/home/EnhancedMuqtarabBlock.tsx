@@ -247,136 +247,133 @@ export default function EnhancedMuqtarabBlock({
     </div>
   );
 
-  // مكون البطاقة المميزة الكبيرة
+  // مكون البطاقة المميزة - موحد مع البطاقات العادية للهواتف
   const FeaturedArticleCard = ({ article }: { article: AngleArticle }) => {
     const themeColor = article.angle.themeColor || "#6366f1";
 
     return (
-      <Card className="group overflow-hidden hover:shadow-2xl transition-all duration-500 border-0 shadow-lg bg-white dark:bg-gray-800/80 backdrop-blur-sm">
-        <div className="grid md:grid-cols-2 gap-0">
-          {/* صورة المقال */}
-          <div className="relative h-64 md:h-80 overflow-hidden">
-            <Image
-              src={article.coverImage || "/images/default-article.jpg"}
-              alt={article.title}
-              fill
-              className="object-cover transition-transform duration-500 group-hover:scale-110"
-              sizes="(max-width: 768px) 100vw, 50vw"
-            />
+      <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-0 shadow-sm dark:bg-gray-800/50 dark:hover:bg-gray-800/80 relative">
+        {/* خط ملامس بلون الزاوية في الأسفل */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-1 transition-all duration-300 group-hover:h-1.5"
+          style={{ backgroundColor: themeColor }}
+        ></div>
 
-            {/* تدرج للنص */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        {/* صورة المقال */}
+        <div className="relative h-48 overflow-hidden">
+          <Image
+            src={article.coverImage || "/images/default-article.jpg"}
+            alt={article.title}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
 
-            {/* شارة مميز كبيرة - يسار */}
-            <div className="absolute top-4 left-4">
-              <Badge className="bg-gradient-to-r from-yellow-500 to-amber-600 text-white px-3 py-1.5 text-sm font-bold shadow-lg">
-                <Star className="w-4 h-4 mr-1.5" />
-                مقال مميز
+          {/* شارات الحالة */}
+          <div className="absolute top-3 left-3 flex gap-2">
+            <Badge className="bg-yellow-500/90 text-white text-xs px-2 py-1">
+              <Star className="w-3 h-3 mr-1" />
+              مميز
+            </Badge>
+            {article.isRecent && (
+              <Badge className="bg-green-500/90 text-white text-xs px-2 py-1">
+                جديد
               </Badge>
-            </div>
-
-            {/* ليبل الزاوية بلونها - فوق يمين */}
-            <div
-              className="absolute top-4 right-4 px-3 py-1.5 rounded-full text-white font-bold text-sm shadow-lg"
-              style={{
-                backgroundColor: themeColor,
-                boxShadow: `0 4px 15px ${themeColor}40`,
-              }}
-            >
-              {article.angle.icon && (
-                <span className="mr-1.5">{article.angle.icon}</span>
-              )}
-              {article.angle.title}
-            </div>
-          </div>
-
-          {/* محتوى البطاقة */}
-          <div className="p-6 md:p-8 flex flex-col justify-center">
-            {/* عنوان المقال */}
-            <Link
-              href={article.link}
-              className="block group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
-            >
-              <h2 className="text-2xl md:text-3xl font-bold leading-tight mb-4 line-clamp-3">
-                {article.title}
-              </h2>
-            </Link>
-
-            {/* مقتطف المقال */}
-            <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed mb-6 line-clamp-3">
-              {article.excerpt}
-            </p>
-
-            {/* معلومات شاملة في سطر واحد */}
-            <div className="flex items-center justify-between flex-wrap gap-4 mb-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-              {/* معلومات المؤلف */}
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                  {article.author.avatar ? (
-                    <Image
-                      src={article.author.avatar}
-                      alt={article.author.name}
-                      width={32}
-                      height={32}
-                      className="rounded-full"
-                    />
-                  ) : (
-                    <User className="w-4 h-4 text-gray-500" />
-                  )}
-                </div>
-                <span className="font-medium text-gray-900 dark:text-white text-sm">
-                  {article.author.name}
-                </span>
-              </div>
-
-              {/* تاريخ النشر */}
-              <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
-                <Calendar className="w-4 h-4" />
-                <time className="text-sm">
-                  {new Date(article.publishDate).toLocaleDateString("ar-SA", {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </time>
-              </div>
-
-              {/* المشاهدات */}
-              <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
-                <Eye className="w-4 h-4" />
-                <span className="text-sm font-medium">
-                  {article.views.toLocaleString()} مشاهدة
-                </span>
-              </div>
-
-              {/* وقت القراءة */}
-              <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
-                <Clock className="w-4 h-4" />
-                <span className="text-sm">{article.readingTime} دقائق</span>
-              </div>
-            </div>
-
-            {/* التصنيفات */}
-            {article.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {article.tags.slice(0, 4).map((tag) => (
-                  <Badge
-                    key={tag}
-                    variant="secondary"
-                    className="px-3 py-1 text-sm"
-                    style={{
-                      backgroundColor: `${themeColor}15`,
-                      color: themeColor,
-                      borderColor: `${themeColor}30`,
-                    }}
-                  >
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
             )}
           </div>
+
+          {/* ليبل الزاوية بلونها */}
+          <div
+            className="absolute top-3 right-3 px-2 py-1 rounded-full text-white text-xs font-medium shadow-md"
+            style={{
+              backgroundColor: themeColor,
+              boxShadow: `0 2px 8px ${themeColor}40`,
+            }}
+          >
+            {article.angle.icon && (
+              <span className="mr-1">{article.angle.icon}</span>
+            )}
+            {article.angle.title}
+          </div>
         </div>
+
+        {/* محتوى البطاقة */}
+        <CardContent className="p-4 space-y-3">
+          {/* عنوان المقال */}
+          <Link
+            href={article.link}
+            className="block group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
+          >
+            <h3 className="font-bold text-lg leading-tight line-clamp-2 mb-2">
+              {article.title}
+            </h3>
+          </Link>
+
+          {/* مقتطف المقال */}
+          <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2 leading-relaxed">
+            {article.excerpt}
+          </p>
+
+          {/* معلومات إضافية */}
+          <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                {article.readingTime} دقائق
+              </span>
+              <span className="flex items-center gap-1">
+                <Eye className="w-3 h-3" />
+                {article.views.toLocaleString()}
+              </span>
+            </div>
+
+            <time className="text-xs">
+              {new Date(article.publishDate).toLocaleDateString("ar-SA", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              })}
+            </time>
+          </div>
+
+          {/* معلومات المؤلف */}
+          <div className="flex items-center gap-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+            <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+              {article.author.avatar ? (
+                <Image
+                  src={article.author.avatar}
+                  alt={article.author.name}
+                  width={24}
+                  height={24}
+                  className="rounded-full"
+                />
+              ) : (
+                <User className="w-3 h-3 text-gray-500" />
+              )}
+            </div>
+            <span className="text-xs font-medium">{article.author.name}</span>
+          </div>
+
+          {/* التصنيفات - مخفية من الواجهة */}
+          {/* تم إخفاء الكلمات المفتاحية من واجهة المستخدم */}
+          {/* {article.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {article.tags.slice(0, 3).map((tag) => (
+                <Badge
+                  key={tag}
+                  variant="secondary"
+                  className="text-xs px-2 py-0.5"
+                  style={{
+                    backgroundColor: `${themeColor}10`,
+                    color: themeColor,
+                  }}
+                >
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          )} */}
+        </CardContent>
       </Card>
     );
   };
@@ -386,7 +383,13 @@ export default function EnhancedMuqtarabBlock({
     const themeColor = article.angle.themeColor || "#6366f1";
 
     return (
-      <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-0 shadow-sm hover:shadow-xl dark:bg-gray-800/50 dark:hover:bg-gray-800/80">
+      <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-0 shadow-sm dark:bg-gray-800/50 dark:hover:bg-gray-800/80 relative">
+        {/* خط ملامس بلون الزاوية في الأسفل */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-1 transition-all duration-300 group-hover:h-1.5"
+          style={{ backgroundColor: themeColor }}
+        ></div>
+
         {/* صورة المقال */}
         <div className="relative h-48 overflow-hidden">
           <Image
@@ -484,8 +487,9 @@ export default function EnhancedMuqtarabBlock({
             <span className="text-xs font-medium">{article.author.name}</span>
           </div>
 
-          {/* التصنيفات */}
-          {article.tags.length > 0 && (
+          {/* التصنيفات - مخفية من الواجهة */}
+          {/* تم إخفاء الكلمات المفتاحية من واجهة المستخدم */}
+          {/* {article.tags.length > 0 && (
             <div className="flex flex-wrap gap-1">
               {article.tags.slice(0, 3).map((tag) => (
                 <Badge
@@ -501,7 +505,7 @@ export default function EnhancedMuqtarabBlock({
                 </Badge>
               ))}
             </div>
-          )}
+          )} */}
         </CardContent>
       </Card>
     );

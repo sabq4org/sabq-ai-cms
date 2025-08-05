@@ -700,8 +700,9 @@ function ArticleContent({ article }: { article: AngleArticle }) {
         }}
       />
 
-      {/* الكلمات المفتاحية في نهاية المحتوى */}
-      {article.tags && article.tags.length > 0 && (
+      {/* الكلمات المفتاحية في نهاية المحتوى - مخفية من الواجهة */}
+      {/* تم إخفاء الكلمات المفتاحية من واجهة المستخدم */}
+      {/* {article.tags && article.tags.length > 0 && (
         <div className="mt-6 pt-4 border-t border-gray-200">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-sm font-medium text-gray-600 ml-2">
@@ -715,7 +716,7 @@ function ArticleContent({ article }: { article: AngleArticle }) {
             ))}
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 }

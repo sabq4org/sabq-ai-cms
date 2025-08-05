@@ -291,57 +291,73 @@ export default function MuqtarabBlock({ className }: MuqtarabBlockProps) {
         className
       )}
     >
-      {/* رأس الوحدة - محسن للموبايل */}
+      {/* رأس الوحدة - محسن للهواتف */}
       <div className="relative">
-        {/* الهيدر المدمج */}
-        <div className="p-4 md:p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 md:p-3 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 shadow-lg">
-                <Lightbulb className="w-5 h-5 md:w-6 md:h-6 text-white" />
-              </div>
-              <div>
-                <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
-                  مقترَب
-                </h2>
-                <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 mt-1">
-                  حيث يلتقي الفكر بالتقنية بالأسلوب
-                </p>
-              </div>
+        {/* الهيدر المضغوط للموبايل */}
+        <div className="p-2 sm:p-3 md:p-4">
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
+            {/* العنوان مع أيقونة مبسطة */}
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-6 bg-gradient-to-b from-blue-500 to-purple-600 rounded-full"></div>
+              <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 dark:text-white">
+                مقترَب
+              </h2>
+              <Sparkles className="w-4 h-4 text-blue-500" />
             </div>
 
-            <Button
-              onClick={handleRefresh}
-              disabled={refreshing}
-              size="sm"
-              variant="ghost"
-              className="text-blue-600 hover:text-blue-700 hover:bg-blue-100 dark:hover:bg-blue-900/20"
-            >
-              <RefreshCw
-                className={cn("w-4 h-4", refreshing && "animate-spin")}
-              />
-            </Button>
+            {/* أيقونات مبسطة */}
+            <div className="flex items-center gap-1">
+              <Button
+                onClick={handleRefresh}
+                disabled={refreshing}
+                size="sm"
+                variant="ghost"
+                className="p-1.5 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                title="تحديث"
+              >
+                <RefreshCw
+                  className={cn(
+                    "w-4 h-4 text-blue-600",
+                    refreshing && "animate-spin"
+                  )}
+                />
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="p-1.5 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800"
+                title="عرض الكل"
+                asChild
+              >
+                <Link href="/muqtarab">
+                  <ArrowLeft className="w-4 h-4 text-gray-600" />
+                </Link>
+              </Button>
+            </div>
           </div>
 
-          {/* فلاتر الفئات - شريط تمرير أفقي للموبايل */}
+          {/* فلاتر الفئات - محسنة للهواتف */}
           <div className="relative">
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            <div className="flex items-center gap-0.5 sm:gap-1 md:gap-2 overflow-x-auto pb-1 sm:pb-2 scrollbar-hide scroll-smooth">
               {categories.map((category) => (
                 <button
                   key={category.value || "all"}
                   onClick={() => setSelectedCategory(category.value)}
                   className={cn(
-                    "flex-shrink-0 flex items-center gap-2 transition-all duration-200",
-                    "md:px-3 md:py-2 md:rounded-full",
-                    "px-2 py-2 rounded-full",
+                    "flex-shrink-0 flex items-center gap-1 transition-all duration-200",
+                    "px-1.5 py-1 sm:px-2 sm:py-1.5 md:px-3 md:py-2 rounded-md sm:rounded-lg md:rounded-full",
+                    "min-w-[30px] sm:min-w-[36px] md:min-w-auto text-center",
+                    "touch-manipulation", // تحسين اللمس للهواتف
                     selectedCategory === category.value
-                      ? "bg-white dark:bg-gray-800 text-purple-600 dark:text-purple-300 shadow-md scale-105"
-                      : "text-gray-600 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-gray-800/50"
+                      ? "bg-white dark:bg-gray-800 text-purple-600 dark:text-blue-400 shadow-md scale-105 ring-2 ring-purple-200 dark:ring-blue-500/30"
+                      : "text-gray-600 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-gray-800/50 active:bg-white/70 dark:active:bg-gray-800/70"
                   )}
-                  title={category.name} // tooltip للموبايل
+                  title={category.name}
                 >
-                  <span className="text-base md:text-sm">{category.emoji}</span>
-                  <span className="hidden md:inline text-sm font-medium whitespace-nowrap">
+                  <span className="text-xs sm:text-sm md:text-base">
+                    {category.emoji}
+                  </span>
+                  <span className="hidden md:inline text-xs font-medium whitespace-nowrap">
                     {category.name}
                   </span>
                 </button>
@@ -351,31 +367,31 @@ export default function MuqtarabBlock({ className }: MuqtarabBlockProps) {
         </div>
       </div>
 
-      {/* المحتوى */}
-      <div className="p-4 md:p-6">
-        {/* البطاقة المميزة (Hero Article) */}
+      {/* المحتوى - محسن للهواتف */}
+      <div className="p-2 sm:p-3 md:p-4 lg:p-6">
+        {/* البطاقة المميزة (Hero Article) - محسنة للهواتف */}
         {!heroLoading && heroArticle && (
-          <div className="mb-8">
+          <div className="mb-4 sm:mb-6 md:mb-8">
             <HeroCard heroArticle={heroArticle} />
           </div>
         )}
 
-        {/* بطاقة مقال الزاوية */}
+        {/* بطاقة مقال الزاوية - محسنة للهواتف */}
         {!angleLoading && angleArticle && (
-          <div className="mb-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="mb-3 sm:mb-4 md:mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
               <AngleArticleCard angleArticle={angleArticle} />
               {/* مساحة لمقالات إضافية في المستقبل */}
             </div>
           </div>
         )}
 
-        {/* عرض المقالات الإضافية إذا كانت موجودة */}
+        {/* عرض المقالات الإضافية - محسنة للهواتف */}
         {articles.length > 0 && (
           <>
-            <div className="space-y-6 mb-6">
-              {/* البطاقات - شبكة متنوعة */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="space-y-3 sm:space-y-4 md:space-y-6 mb-3 sm:mb-4 md:mb-6">
+              {/* البطاقات - شبكة متنوعة محسنة للهواتف */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
                 {articles.slice(0, 2).map((article, index) => (
                   <MuqtarabCard
                     key={article.id}
