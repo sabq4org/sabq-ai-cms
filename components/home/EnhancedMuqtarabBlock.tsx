@@ -247,18 +247,18 @@ export default function EnhancedMuqtarabBlock({
     </div>
   );
 
-    // مكون البطاقة المميزة - تصميم مختلف للديسكتوب والهواتف
+  // مكون البطاقة المميزة - تصميم مختلف للديسكتوب والهواتف
   const FeaturedArticleCard = ({ article }: { article: AngleArticle }) => {
     const themeColor = article.angle.themeColor || "#6366f1";
 
     return (
       <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-0 shadow-sm dark:bg-gray-800/50 dark:hover:bg-gray-800/80 relative">
         {/* خط ملامس بلون الزاوية في الأسفل */}
-        <div 
+        <div
           className="absolute bottom-0 left-0 right-0 h-1 transition-all duration-300 group-hover:h-1.5"
           style={{ backgroundColor: themeColor }}
         ></div>
-        
+
         {/* تصميم الديسكتوب - نصف صورة ونصف محتوى */}
         <div className="hidden md:grid md:grid-cols-2 gap-0">
           {/* صورة المقال */}

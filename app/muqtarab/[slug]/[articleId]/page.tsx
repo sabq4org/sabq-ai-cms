@@ -16,7 +16,6 @@ import {
   Heart,
   MessageCircle,
   Share2,
-  Tag,
   User,
 } from "lucide-react";
 import Image from "next/image";
@@ -1057,9 +1056,9 @@ function AuthorSection({
             {(article.views || 0).toLocaleString()} مشاهدة
           </span>
           <span className="md:hidden">
-            {article.views > 1000 
-              ? (article.views / 1000).toFixed(1) + "k" 
-              : (article.views || 0)}
+            {article.views > 1000
+              ? (article.views / 1000).toFixed(1) + "k"
+              : article.views || 0}
           </span>
         </div>
       </div>

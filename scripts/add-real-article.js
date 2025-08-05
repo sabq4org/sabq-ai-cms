@@ -38,7 +38,7 @@ function addRealArticle(articleData) {
       author: articleData.author || 'محرر سبق',
       author_id: articleData.author_id || 'editor-sabq',
       featured_image: articleData.featured_image || null,
-      views: articleData.views || Math.floor(Math.random() * 1000) + 100,
+      views: articleData.views || 0, // المشاهدات الحقيقية فقط
       likes: articleData.likes || Math.floor(Math.random() * 50),
       shares: articleData.shares || Math.floor(Math.random() * 20),
       status: 'published',

@@ -147,7 +147,7 @@ export async function getArticleData(id: string): Promise<ArticleData | null> {
           created_at: article.created_at.toISOString(),
           updated_at: article.updated_at.toISOString(),
           slug: article.slug || undefined,
-          views: (article.views || 0) + 1, // إضافة 1 للمشاهدة الحالية
+          views: article.views || 0, // المشاهدات الحقيقية فقط
           reading_time: article.reading_time || undefined,
           status: article.status,
           allow_comments: article.allow_comments ?? true,

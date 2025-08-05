@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
 
     // جلب إحصائيات شاملة
     const statsQuery = `
-      SELECT 
+      SELECT
         COUNT(DISTINCT a.id) as total_angles,
         COUNT(CASE WHEN a.is_published = true THEN 1 END) as published_angles,
         COUNT(CASE WHEN a.is_featured = true THEN 1 END) as featured_angles,
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     console.log("📋 [Muqtarab Stats] تشغيل الاستعلام:", statsQuery);
 
     const statsResult = (await prisma.$queryRawUnsafe(statsQuery)) as any[];
-    
+
     if (!statsResult || statsResult.length === 0) {
       console.log("❌ [Muqtarab Stats] لا توجد إحصائيات");
       return NextResponse.json(
@@ -39,14 +39,16 @@ export async function GET(request: NextRequest) {
 
     // جلب أحدث المقالات للتحقق من النشاط
     const recentArticlesQuery = `
-      SELECT 
+      SELECT
         COUNT(*) as recent_articles_count
       FROM angle_articles aa
-      WHERE aa.is_published = true 
+      WHERE aa.is_published = true
         AND aa.created_at >= NOW() - INTERVAL '7 days'
     `;
 
-    const recentResult = (await prisma.$queryRawUnsafe(recentArticlesQuery)) as any[];
+    const recentResult = (await prisma.$queryRawUnsafe(
+      recentArticlesQuery
+    )) as any[];
 
     // تنسيق البيانات
     const formattedStats = {
@@ -59,44 +61,50 @@ export async function GET(request: NextRequest) {
       averageReadingTime: Number(stats.avg_reading_time) || 0,
       uniqueAuthors: Number(stats.unique_authors) || 0,
       recentArticles: Number(recentResult[0]?.recent_articles_count) || 0,
-      
+
       // إحصائيات مفيدة
-      averageViewsPerArticle: stats.published_articles > 0 
-        ? Math.round(Number(stats.total_views) / Number(stats.published_articles)) 
-        : 0,
-      averageArticlesPerAngle: stats.published_angles > 0 
-        ? Math.round(Number(stats.published_articles) / Number(stats.published_angles)) 
-        : 0,
+      averageViewsPerArticle:
+        stats.published_articles > 0
+          ? Math.round(
+              Number(stats.total_views) / Number(stats.published_articles)
+            )
+          : 0,
+      averageArticlesPerAngle:
+        stats.published_angles > 0
+          ? Math.round(
+              Number(stats.published_articles) / Number(stats.published_angles)
+            )
+          : 0,
 
       // معلومات إضافية للعرض
       displayViews: {
         raw: Number(stats.total_views) || 0,
-        formatted: Number(stats.total_views) >= 1000 
-          ? `${(Number(stats.total_views) / 1000).toFixed(1)}K`
-          : String(Number(stats.total_views) || 0)
-      }
+        formatted:
+          Number(stats.total_views) >= 1000
+            ? `${(Number(stats.total_views) / 1000).toFixed(1)}K`
+            : String(Number(stats.total_views) || 0),
+      },
     };
 
     console.log("✅ [Muqtarab Stats] الإحصائيات:", {
       زوايا: formattedStats.publishedAngles,
       مقالات: formattedStats.publishedArticles,
       مشاهدات: formattedStats.totalViews,
-      مؤلفون: formattedStats.uniqueAuthors
+      مؤلفون: formattedStats.uniqueAuthors,
     });
 
     return NextResponse.json({
       success: true,
       stats: formattedStats,
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
     });
-
   } catch (error) {
     console.error("❌ [Muqtarab Stats] خطأ في جلب الإحصائيات:", error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: "فشل في جلب الإحصائيات",
-        details: error instanceof Error ? error.message : "خطأ غير معروف"
+        details: error instanceof Error ? error.message : "خطأ غير معروف",
       },
       { status: 500 }
     );
