@@ -220,7 +220,7 @@ export default function CategoryFormModal({
             <div className="mt-2 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center">
               {watchCoverImage ? (
                 <div className="relative group w-full h-48">
-                  <Image src={watchCoverImage} alt="معاينة" layout="fill" className="rounded-md object-cover" />
+                                      <Image src={watchCoverImage} alt="معاينة" fill={true} className="rounded-md object-cover" sizes="100vw" priority={false} />
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-md">
                     <button type="button" onClick={() => setValue('cover_image', '', { shouldDirty: true })} className="text-white text-sm flex items-center gap-2 bg-red-600/80 px-4 py-2 rounded-lg">
                       <Trash2 className="w-4 h-4" /> إزالة الصورة

@@ -128,7 +128,7 @@ const CategoryEditModal: React.FC<Props> = ({ isOpen, initialData, onClose, onSa
             <div className="border-dashed border-2 border-gray-300 mt-2 p-4 text-center rounded-lg">
               {cover ? (
                 <div className="relative group w-full h-40">
-                  <Image src={cover} alt="cover" fill className="object-cover rounded-lg" />
+                                        <Image src={cover} alt="cover" fill={true} className="object-cover rounded-lg" sizes="100vw" priority={false} />
                   <button type="button" onClick={()=>setValue('cover_image','',{shouldDirty:true})} className="absolute top-2 right-2 bg-red-600 text-white p-1 rounded"><Trash2 className="w-4 h-4"/></button>
                 </div>
               ): (

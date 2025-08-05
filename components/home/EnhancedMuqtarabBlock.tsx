@@ -266,9 +266,10 @@ export default function EnhancedMuqtarabBlock({
             <Image
               src={article.coverImage || "/images/default-article.jpg"}
               alt={article.title}
-              fill
+              fill={true}
               className="object-cover transition-transform duration-500 group-hover:scale-110"
               sizes="50vw"
+              priority={false}
             />
 
             {/* تدرج للنص */}
@@ -372,9 +373,10 @@ export default function EnhancedMuqtarabBlock({
             <Image
               src={article.coverImage || "/images/default-article.jpg"}
               alt={article.title}
-              fill
+              fill={true}
               className="object-cover transition-transform duration-300 group-hover:scale-105"
               sizes="100vw"
+              priority={false}
             />
 
             {/* شارات الحالة */}
@@ -484,9 +486,10 @@ export default function EnhancedMuqtarabBlock({
           <Image
             src={article.coverImage || "/images/default-article.jpg"}
             alt={article.title}
-            fill
+            fill={true}
             className="object-cover transition-transform duration-300 group-hover:scale-105"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            priority={false}
           />
 
           {/* شارات الحالة */}

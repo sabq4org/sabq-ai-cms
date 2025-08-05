@@ -69,8 +69,10 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
                 <Image
                   src={heroArticle.coverImage}
                   alt={heroArticle.title}
-                  fill
+                  fill={true}
                   className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  priority={false}
                 />
               ) : (
                 <div
@@ -173,8 +175,10 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
                 <Image
                   src={heroArticle.coverImage}
                   alt={heroArticle.title}
-                  fill
+                  fill={true}
                   className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  sizes="50vw"
+                  priority={false}
                 />
               ) : (
                 <div
