@@ -9,13 +9,15 @@ interface ComponentValidatorProps {
 }
 
 // مكون للتحقق من صحة المكونات قبل الrender
-export function ComponentValidator({ 
-  children, 
+export function ComponentValidator({
+  children,
   componentName = "Component",
-  fallback 
+  fallback,
 }: ComponentValidatorProps) {
   const [isValid, setIsValid] = React.useState(true);
-  const [validationError, setValidationError] = React.useState<string | null>(null);
+  const [validationError, setValidationError] = React.useState<string | null>(
+    null
+  );
 
   React.useEffect(() => {
     // التحقق من صحة المكون
@@ -29,25 +31,31 @@ export function ComponentValidator({
       React.Children.forEach(children, (child) => {
         if (React.isValidElement(child)) {
           // فحص نوع العنصر
-          if (typeof child.type === 'string') {
+          if (typeof child.type === "string") {
             // HTML element - صالح
             return;
-          } else if (typeof child.type === 'function') {
+          } else if (typeof child.type === "function") {
             // React component - صالح
             return;
           } else if (child.type === undefined || child.type === null) {
-            throw new Error(`Invalid element type in ${componentName}: ${child.type}`);
+            throw new Error(
+              `Invalid element type in ${componentName}: ${child.type}`
+            );
           }
         }
       });
 
       setIsValid(true);
       setValidationError(null);
-      
     } catch (error) {
-      console.error(`🔍 Component Validation Error in ${componentName}:`, error);
+      console.error(
+        `🔍 Component Validation Error in ${componentName}:`,
+        error
+      );
       setIsValid(false);
-      setValidationError(error instanceof Error ? error.message : "Unknown validation error");
+      setValidationError(
+        error instanceof Error ? error.message : "Unknown validation error"
+      );
     }
   }, [children, componentName]);
 
@@ -88,11 +96,13 @@ export function useComponentValidation(value: any, componentName: string) {
         throw new Error(`${componentName} received undefined value`);
       }
 
-      if (typeof value === 'object' && value !== null) {
+      if (typeof value === "object" && value !== null) {
         // فحص إذا كان object صالح
         if (React.isValidElement(value)) {
           if (!value.type) {
-            throw new Error(`${componentName} received element with invalid type`);
+            throw new Error(
+              `${componentName} received element with invalid type`
+            );
           }
         }
       }
@@ -110,11 +120,11 @@ export function useComponentValidation(value: any, componentName: string) {
 }
 
 // Wrapper للمكونات الديناميكية
-export function SafeComponent({ 
-  component: Component, 
-  props = {}, 
+export function SafeComponent({
+  component: Component,
+  props = {},
   componentName = "DynamicComponent",
-  fallback 
+  fallback,
 }: {
   component: React.ComponentType<any>;
   props?: any;
@@ -134,7 +144,7 @@ export function SafeComponent({
       throw new Error(`${componentName} is null or undefined`);
     }
 
-    if (typeof Component !== 'function') {
+    if (typeof Component !== "function") {
       throw new Error(`${componentName} is not a valid React component`);
     }
 
@@ -144,10 +154,9 @@ export function SafeComponent({
         <Component {...props} />
       </ComponentValidator>
     );
-    
   } catch (error) {
     console.error(`🚨 SafeComponent Error in ${componentName}:`, error);
-    
+
     if (fallback) {
       return <>{fallback}</>;
     }

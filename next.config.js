@@ -7,7 +7,7 @@ const nextConfig = {
 
   // Note: api config moved to individual route handlers
 
-  experimental: {
+    experimental: {
     // Experimental support for optimizing stylesheets
     optimizeCss: {
       files: ["styles/globals.css", "styles/ArabicStyles.css"],
@@ -150,13 +150,15 @@ const nextConfig = {
       };
     }
 
-    // إضافة معالجة أفضل للأخطاء
-    if (dev) {
-      config.devtool = "eval-cheap-module-source-map";
-    }
+    // إزالة devtool customization لتجنب التحذيرات
+    // if (dev) {
+    //   config.devtool = "eval-cheap-module-source-map";
+    // }
 
     return config;
   },
+  
+  // نقل serverComponentsExternalPackages خارج experimental
   serverExternalPackages: ["sharp"],
 
   // تحسينات الأداء لحل مشاكل Build Timeouts

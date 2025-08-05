@@ -3,7 +3,11 @@
 import React from "react";
 
 // مكون استرداد متقدم لأخطاء React #130
-export function ReactErrorRecovery({ children }: { children: React.ReactNode }) {
+export function ReactErrorRecovery({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [hasError, setHasError] = React.useState(false);
   const [errorCount, setErrorCount] = React.useState(0);
   const maxRetries = 3;
@@ -11,34 +15,35 @@ export function ReactErrorRecovery({ children }: { children: React.ReactNode }) 
   React.useEffect(() => {
     // معالجة أخطاء React العامة
     const originalError = console.error;
-    
-    console.error = function(...args) {
+
+    console.error = function (...args) {
       const errorMessage = args[0]?.toString() || "";
-      
+
       // اكتشاف React Error #130
-      if (errorMessage.includes("Minified React error #130") || 
-          errorMessage.includes("Element type is invalid")) {
-        
+      if (
+        errorMessage.includes("Minified React error #130") ||
+        errorMessage.includes("Element type is invalid")
+      ) {
         console.warn("🔧 React Error #130 detected - attempting recovery");
-        
-        setErrorCount(prev => {
+
+        setErrorCount((prev) => {
           const newCount = prev + 1;
-          
+
           if (newCount <= maxRetries) {
             console.log(`🔄 Recovery attempt ${newCount}/${maxRetries}`);
-            
+
             // محاولة إعادة الrender بعد تأخير قصير
             setTimeout(() => {
               setHasError(false);
-              
+
               // إعادة تحميل المكونات المتأثرة
               if (typeof window !== "undefined") {
                 // تنظيف React fiber tree
-                const reactRoot = document.getElementById('__next');
+                const reactRoot = document.getElementById("__next");
                 if (reactRoot) {
-                  reactRoot.style.display = 'none';
+                  reactRoot.style.display = "none";
                   setTimeout(() => {
-                    reactRoot.style.display = 'block';
+                    reactRoot.style.display = "block";
                   }, 100);
                 }
               }
@@ -47,13 +52,13 @@ export function ReactErrorRecovery({ children }: { children: React.ReactNode }) 
             console.error("❌ Maximum recovery attempts reached");
             setHasError(true);
           }
-          
+
           return newCount;
         });
-        
+
         return; // منع عرض الخطأ في console
       }
-      
+
       // عرض الأخطاء الأخرى كالمعتاد
       originalError.apply(console, args);
     };
@@ -99,9 +104,9 @@ export function ReactErrorRecovery({ children }: { children: React.ReactNode }) 
 // Hook للمكونات Function
 export function useReactErrorRecovery() {
   const [retryCount, setRetryCount] = React.useState(0);
-  
+
   const retry = React.useCallback(() => {
-    setRetryCount(prev => prev + 1);
+    setRetryCount((prev) => prev + 1);
   }, []);
 
   const reset = React.useCallback(() => {
@@ -112,10 +117,10 @@ export function useReactErrorRecovery() {
 }
 
 // مكون Wrapper سريع للاستخدام
-export function WithErrorRecovery({ 
-  children, 
-  fallback 
-}: { 
+export function WithErrorRecovery({
+  children,
+  fallback,
+}: {
   children: React.ReactNode;
   fallback?: React.ReactNode;
 }) {

@@ -2,7 +2,7 @@
 
 /**
  * 🔬 Advanced React Error #130 Diagnostic Tool
- * 
+ *
  * تشخيص متقدم لمشاكل "Element type is invalid"
  * يفحص المكونات، الاستيرادات، والأخطاء الخفية
  */
@@ -16,12 +16,12 @@ console.log("🔬 بدء التشخيص المتقدم لـ React Error #130...\
 // مسارات المكونات الحرجة
 const criticalComponents = [
   "app/page.tsx",
-  "app/page-client.tsx", 
+  "app/page-client.tsx",
   "app/layout.tsx",
   "components/ErrorBoundary/EnhancedErrorBoundary.tsx",
   "components/SafeComponentLoader.tsx",
   "components/ui/skeleton.tsx",
-  "components/ui/optimized-image.tsx"
+  "components/ui/optimized-image.tsx",
 ];
 
 // فحص مفصل للمكونات
@@ -38,11 +38,12 @@ function analyzeComponent(filePath) {
 
   const content = fs.readFileSync(filePath, "utf8");
   const componentName = path.basename(filePath, path.extname(filePath));
-  
+
   console.log(`\n📁 فحص: ${filePath}`);
-  
+
   // 1. فحص use client directive
-  const hasUseClient = content.startsWith('"use client"') || content.startsWith("'use client'");
+  const hasUseClient =
+    content.startsWith('"use client"') || content.startsWith("'use client'");
   if (!hasUseClient && filePath.includes("components/")) {
     console.log("⚠️  تحذير: مفقود 'use client' directive");
     issues.push(`Missing 'use client' in ${filePath}`);
@@ -52,12 +53,13 @@ function analyzeComponent(filePath) {
 
   // 2. فحص React import
   const hasReactImport = content.includes("import React");
-  const needsReact = content.includes("React.") || 
-                    content.includes("useState") || 
-                    content.includes("useEffect") ||
-                    content.includes("Component") ||
-                    content.includes("ReactNode");
-  
+  const needsReact =
+    content.includes("React.") ||
+    content.includes("useState") ||
+    content.includes("useEffect") ||
+    content.includes("Component") ||
+    content.includes("ReactNode");
+
   if (needsReact && !hasReactImport) {
     console.log("❌ مطلوب React import ولكنه مفقود");
     issues.push(`Missing React import in ${filePath}`);
@@ -67,8 +69,11 @@ function analyzeComponent(filePath) {
 
   // 3. فحص exports
   const hasDefaultExport = content.includes("export default");
-  const hasNamedExports = content.includes("export {") || content.includes("export function") || content.includes("export const");
-  
+  const hasNamedExports =
+    content.includes("export {") ||
+    content.includes("export function") ||
+    content.includes("export const");
+
   if (!hasDefaultExport && !hasNamedExports) {
     console.log("❌ لا توجد exports");
     issues.push(`No exports found in ${filePath}`);
@@ -81,10 +86,10 @@ function analyzeComponent(filePath) {
     "undefined",
     "null",
     "__barrel_optimize__",
-    ".default.default"
+    ".default.default",
   ];
-  
-  suspiciousImports.forEach(suspicious => {
+
+  suspiciousImports.forEach((suspicious) => {
     if (content.includes(suspicious)) {
       console.log(`⚠️  استيراد مشبوه: ${suspicious}`);
       issues.push(`Suspicious import "${suspicious}" in ${filePath}`);
@@ -92,11 +97,16 @@ function analyzeComponent(filePath) {
   });
 
   // 5. فحص dynamic imports
-  const dynamicImportMatches = content.match(/dynamic\s*\(\s*\(\)\s*=>\s*import\s*\([^)]+\)/g);
+  const dynamicImportMatches = content.match(
+    /dynamic\s*\(\s*\(\)\s*=>\s*import\s*\([^)]+\)/g
+  );
   if (dynamicImportMatches) {
     console.log(`🔄 Found ${dynamicImportMatches.length} dynamic imports`);
     dynamicImportMatches.forEach((match, index) => {
-      if (!match.includes("loading:") && !match.includes("SafeDynamicComponent")) {
+      if (
+        !match.includes("loading:") &&
+        !match.includes("SafeDynamicComponent")
+      ) {
         console.log(`⚠️  Dynamic import ${index + 1} بدون loading fallback`);
         issues.push(`Dynamic import without fallback in ${filePath}`);
       }
@@ -106,7 +116,7 @@ function analyzeComponent(filePath) {
   // 6. فحص circular imports
   const importMatches = content.match(/import\s+.*from\s+['"]([^'"]+)['"]/g);
   if (importMatches) {
-    importMatches.forEach(importLine => {
+    importMatches.forEach((importLine) => {
       const pathMatch = importLine.match(/from\s+['"]([^'"]+)['"]/);
       if (pathMatch && pathMatch[1].includes(componentName)) {
         console.log("⚠️  إمكانية وجود circular import");
@@ -142,8 +152,8 @@ if (reactVersion !== reactDomVersion) {
 }
 
 // فحص dependencies مشبوهة
-const suspiciousDeps = Object.keys(packageJson.dependencies || {}).filter(dep => 
-  dep.includes("react") && !["react", "react-dom"].includes(dep)
+const suspiciousDeps = Object.keys(packageJson.dependencies || {}).filter(
+  (dep) => dep.includes("react") && !["react", "react-dom"].includes(dep)
 );
 
 if (suspiciousDeps.length > 0) {
@@ -156,15 +166,15 @@ console.log("=====================");
 
 if (fs.existsSync("next.config.js")) {
   const nextConfig = fs.readFileSync("next.config.js", "utf8");
-  
+
   if (nextConfig.includes("experimental")) {
     console.log("⚠️  إعدادات تجريبية موجودة");
   }
-  
+
   if (nextConfig.includes("swcMinify")) {
     console.log("✅ SWC minify مفعل");
   }
-  
+
   console.log("✅ next.config.js موجود");
 } else {
   console.log("⚠️  next.config.js مفقود");
@@ -176,12 +186,12 @@ console.log("==========================");
 
 if (fs.existsSync("tsconfig.json")) {
   const tsConfig = JSON.parse(fs.readFileSync("tsconfig.json", "utf8"));
-  
+
   if (tsConfig.compilerOptions?.jsx !== "preserve") {
     console.log("⚠️  JSX config قد يسبب مشاكل");
     issues.push("JSX config issue in tsconfig.json");
   }
-  
+
   console.log("✅ tsconfig.json موجود");
 } else {
   console.log("⚠️  tsconfig.json مفقود");
@@ -195,24 +205,24 @@ try {
   // البحث عن ملفات vendor الجديدة
   const staticDir = "_next/static/chunks";
   if (fs.existsSync(staticDir)) {
-    const chunks = fs.readdirSync(staticDir).filter(file => 
-      file.startsWith("vendor-") && file.endsWith(".js")
-    );
-    
+    const chunks = fs
+      .readdirSync(staticDir)
+      .filter((file) => file.startsWith("vendor-") && file.endsWith(".js"));
+
     if (chunks.length > 0) {
       console.log(`📊 Found ${chunks.length} vendor chunks`);
       const latestChunk = chunks.sort().pop();
       console.log(`🎯 Latest chunk: ${latestChunk}`);
-      
+
       // فحص محتوى الـ chunk للمشاكل
       const chunkPath = path.join(staticDir, latestChunk);
       if (fs.existsSync(chunkPath)) {
         const chunkContent = fs.readFileSync(chunkPath, "utf8");
-        
+
         if (chunkContent.includes("undefined")) {
           console.log("⚠️  Chunk يحتوي على undefined values");
         }
-        
+
         if (chunkContent.includes("Element type is invalid")) {
           console.log("❌ تأكيد وجود React Error #130 في البناء");
         }

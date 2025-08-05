@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans_Arabic } from "next/font/google";
+import "./globals.css";
 import AnalyticsProvider from "../components/Analytics/AnalyticsProvider";
 import ConditionalHeader from "../components/ConditionalHeader";
 import ErrorBoundary from "../components/ErrorBoundary";
-import ReactErrorBoundary from "../components/ErrorBoundary/ReactErrorBoundary";
 import EnhancedErrorBoundary from "../components/ErrorBoundary/EnhancedErrorBoundary";
-import ReactErrorRecovery from "../components/ReactErrorRecovery";
+import ReactErrorBoundary from "../components/ErrorBoundary/ReactErrorBoundary";
 import GlobalErrorHandler from "../components/GlobalErrorHandler";
+import ReactErrorRecovery from "../components/ReactErrorRecovery";
 import StructuredData from "../components/StructuredData";
 import ContentWrapper from "../components/layout/ContentWrapper";
 import "../styles/compact-stats.css";
@@ -168,7 +169,7 @@ export default function RootLayout({
           href="https://sabq-cms-content.s3.us-east-1.amazonaws.com"
         />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
-        
+
         {/* React Error #130 Fix Script */}
         <script src="/react-130-fix.js" async></script>
       </head>

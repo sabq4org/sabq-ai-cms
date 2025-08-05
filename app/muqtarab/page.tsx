@@ -7,6 +7,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { PageLoadingSkeleton } from "@/components/ui/skeleton";
 import { Angle } from "@/types/muqtarab";
+import WithMuqtarabErrorBoundary from "@/components/muqtarab/MuqtarabErrorBoundary";
+import React from "react";
 import {
   BookOpen,
   Calendar,
@@ -81,7 +83,7 @@ interface MuqtarabStats {
   };
 }
 
-export default function MuqtaribPage() {
+function MuqtaribPageContent() {
   const [angles, setAngles] = useState<Angle[]>([]);
   const [filteredAngles, setFilteredAngles] = useState<Angle[]>([]);
   const [heroArticle, setHeroArticle] = useState<HeroArticle | null>(null);
@@ -1057,5 +1059,13 @@ function MuqtarabFooter({ stats }: { stats: MuqtarabStats | null }) {
         </div>
       </div>
     </footer>
+  );
+}
+
+export default function MuqtaribPage() {
+  return (
+    <WithMuqtarabErrorBoundary>
+      <MuqtaribPageContent />
+    </WithMuqtarabErrorBoundary>
   );
 }
