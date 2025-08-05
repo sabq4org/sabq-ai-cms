@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { IBM_Plex_Sans_Arabic } from "next/font/google";
 import AnalyticsProvider from "../components/Analytics/AnalyticsProvider";
 import ConditionalHeader from "../components/ConditionalHeader";
+import CriticalErrorBoundary from "../components/CriticalErrorBoundary";
 import ErrorBoundary from "../components/ErrorBoundary";
 import EnhancedErrorBoundary from "../components/ErrorBoundary/EnhancedErrorBoundary";
 import ReactErrorBoundary from "../components/ErrorBoundary/ReactErrorBoundary";
@@ -173,6 +174,20 @@ export default function RootLayout({
         {/* React Error #130 Fix Script */}
         <script src="/react-130-fix.js" async></script>
 
+        {/* Emergency React Fix - Critical - Load immediately */}
+        <script 
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                var script = document.createElement('script');
+                script.src = '/emergency-react-fix.js';
+                script.async = false;
+                document.head.appendChild(script);
+              })();
+            `
+          }}
+        />
+
         {/* Production Error Fixes */}
         <script src="/production-error-fixes.js" async></script>
       </head>
@@ -180,21 +195,23 @@ export default function RootLayout({
         className={`${ibmPlexArabic.variable} font-arabic`}
         suppressHydrationWarning
       >
-        <ReactErrorRecovery>
-          <EnhancedErrorBoundary>
-            <ReactErrorBoundary>
-              <ErrorBoundary>
-                <AnalyticsProvider>
-                  <Providers>
-                    <GlobalErrorHandler />
-                    <ConditionalHeader />
-                    <ContentWrapper>{children}</ContentWrapper>
-                  </Providers>
-                </AnalyticsProvider>
-              </ErrorBoundary>
-            </ReactErrorBoundary>
-          </EnhancedErrorBoundary>
-        </ReactErrorRecovery>
+        <CriticalErrorBoundary>
+          <ReactErrorRecovery>
+            <EnhancedErrorBoundary>
+              <ReactErrorBoundary>
+                <ErrorBoundary>
+                  <AnalyticsProvider>
+                    <Providers>
+                      <GlobalErrorHandler />
+                      <ConditionalHeader />
+                      <ContentWrapper>{children}</ContentWrapper>
+                    </Providers>
+                  </AnalyticsProvider>
+                </ErrorBoundary>
+              </ReactErrorBoundary>
+            </EnhancedErrorBoundary>
+          </ReactErrorRecovery>
+        </CriticalErrorBoundary>
         <StructuredData pageType="home" />
       </body>
     </html>
