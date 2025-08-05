@@ -453,18 +453,18 @@ function AngleFilterBar({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pr-10 pl-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:border-transparent transition-all"
-              style={
-                {
-                  "--tw-ring-color": angle.themeColor,
-                } as React.CSSProperties
-              }
+              style={{
+                "--tw-ring-color": angle.themeColor,
+              } as React.CSSProperties}
               onFocus={(e) => {
-                e.target.style.borderColor = angle.themeColor;
-                e.target.style.boxShadow = `0 0 0 2px ${angle.themeColor}20`;
+                const target = e.target as HTMLInputElement;
+                target.style.borderColor = angle.themeColor;
+                target.style.boxShadow = `0 0 0 2px ${angle.themeColor}20`;
               }}
               onBlur={(e) => {
-                e.target.style.borderColor = "#e5e7eb";
-                e.target.style.boxShadow = "none";
+                const target = e.target as HTMLInputElement;
+                target.style.borderColor = "#e5e7eb";
+                target.style.boxShadow = "none";
               }}
             />
           </div>
