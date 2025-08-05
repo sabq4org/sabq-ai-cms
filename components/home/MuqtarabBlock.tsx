@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 import {
   ArrowLeft,
   BookOpen,
-  Brain,
   Clock,
   Eye,
   Lightbulb,
@@ -421,7 +420,7 @@ export default function MuqtarabBlock({ className }: MuqtarabBlockProps) {
           articles.length === 0 && (
             <div className="text-center py-12">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-gray-100 to-blue-100 dark:from-gray-800 dark:to-blue-900/20 flex items-center justify-center">
-                <Brain className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                <div className="text-3xl">🧠</div>
               </div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                 لا توجد مقالات إبداعية حالياً
@@ -484,10 +483,12 @@ function AngleArticleCard({ angleArticle }: { angleArticle: AngleArticle }) {
             }20, ${angleArticle.angle.themeColor || "#8B5CF6"}40)`,
           }}
         >
-          <Brain
-            className="w-8 h-8"
+          <div 
+            className="text-4xl"
             style={{ color: angleArticle.angle.themeColor || "#8B5CF6" }}
-          />
+          >
+            {angleArticle.angle.icon || "💡"}
+          </div>
         </div>
 
         {/* ليبل اسم الزاوية - نفس شكل HeroCard */}
@@ -507,16 +508,16 @@ function AngleArticleCard({ angleArticle }: { angleArticle: AngleArticle }) {
       </div>
 
       {/* الثلثين السفليين - المحتوى */}
-      <div className="h-2/3 p-3 flex flex-col">
+      <div className="h-2/3 p-2 flex flex-col">
         {/* العنوان فقط */}
-        <div className="mb-2">
+        <div className="flex-1 flex items-center">
           <h3 className="font-bold text-sm text-gray-900 dark:text-white line-clamp-3 leading-tight">
             {angleArticle.title}
           </h3>
         </div>
 
         {/* الأيقونات وزر القراءة */}
-        <div className="space-y-2 mt-auto">
+        <div className="space-y-1">
           {/* معلومات صغيرة */}
           <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
             <div className="flex items-center gap-1">
