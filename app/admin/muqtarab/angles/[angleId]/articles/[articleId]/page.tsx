@@ -139,12 +139,7 @@ const ImageUploader = ({
     }
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      handleFileUpload(file);
-    }
-  };
+
 
   return (
     <div className="space-y-3">
@@ -168,7 +163,7 @@ const ImageUploader = ({
       )}
 
       <div
-        className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+        className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
           dragOver
             ? "border-blue-500 bg-blue-50"
             : "border-gray-300 hover:border-gray-400"
@@ -194,12 +189,26 @@ const ImageUploader = ({
               </p>
               <p className="text-xs text-gray-500">PNG، JPG، GIF حتى 5MB</p>
             </div>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileSelect}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            />
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-3"
+              onClick={() => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.onchange = (e) => {
+                  const file = (e.target as HTMLInputElement).files?.[0];
+                  if (file) {
+                    handleFileUpload(file);
+                  }
+                };
+                input.click();
+              }}
+            >
+              <Upload className="w-4 h-4 ml-2" />
+              اختيار صورة
+            </Button>
           </>
         )}
       </div>
