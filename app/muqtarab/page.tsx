@@ -14,6 +14,7 @@ import {
   Search,
   Sparkles,
   TrendingUp,
+  Users,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -268,54 +269,66 @@ export default function MuqtaribPage() {
           <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full blur-3xl bg-blue-200/30 dark:bg-blue-900/20" />
           <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full blur-3xl bg-purple-200/30 dark:bg-purple-900/20" />
         </div>
-        
+
         <div className="relative max-w-7xl mx-auto px-4 md:px-6">
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-20 h-20 mb-6 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-2xl">
               <BookOpen className="w-10 h-10 text-white" />
             </div>
-            
+
             <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 dark:text-white">
               مُقترب
             </h1>
-            
+
             <p className="text-xl text-gray-600 dark:text-gray-300 mb-2">
               زوايا فكرية متخصصة في مختلف المجالات
             </p>
-            
+
             {/* إحصائيات مقترب */}
             {stats && (
               <div className="mt-6 inline-flex flex-wrap justify-center items-center gap-4 md:gap-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl px-4 md:px-6 py-3 shadow-lg">
                 <div className="text-center px-2">
                   <div className="flex items-center gap-2">
                     <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                    <div className="text-2xl font-bold text-gray-900 dark:text-white">{stats.publishedAngles}</div>
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {stats.publishedAngles}
+                    </div>
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">زاوية</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    زاوية
+                  </div>
                 </div>
-                
+
                 <div className="w-px h-10 bg-gray-300 dark:bg-gray-600 hidden md:block"></div>
-                
+
                 <div className="text-center px-2">
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-5 h-5 text-green-600 dark:text-green-400" />
-                    <div className="text-2xl font-bold text-gray-900 dark:text-white">{stats.publishedArticles}</div>
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {stats.publishedArticles}
+                    </div>
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">مقال</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    مقال
+                  </div>
                 </div>
-                
+
                 <div className="w-px h-10 bg-gray-300 dark:bg-gray-600 hidden md:block"></div>
-                
+
                 <div className="text-center px-2">
                   <div className="flex items-center gap-2">
                     <Eye className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                    <div className="text-2xl font-bold text-gray-900 dark:text-white">{stats.displayViews.formatted}</div>
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {stats.displayViews.formatted}
+                    </div>
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">قراءة</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    قراءة
+                  </div>
                 </div>
               </div>
             )}
-            
+
             {/* Loading indicator for stats */}
             {!stats && (
               <div className="mt-6 inline-flex items-center gap-2 text-gray-500 dark:text-gray-400">
