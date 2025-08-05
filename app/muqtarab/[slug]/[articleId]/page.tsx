@@ -906,51 +906,113 @@ function AIAnalysisSection({
 
   const aiScore = calculateAIScore(article.content || "", article.title);
 
-  const getScoreDescription = (score: number) => {
+  const getScoreDescription = (score: number, angleColor: string) => {
+    // تحويل hex color إلى RGB للحصول على التدرجات
+    const hexToRgb = (hex: string) => {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result
+        ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16),
+          }
+        : { r: 59, g: 130, b: 246 }; // blue fallback
+    };
+
+    const rgb = hexToRgb(angleColor);
+
     if (score >= 85)
       return {
         text: "إبداعي ومبتكر",
         emoji: "🎯",
-        color: "text-purple-700",
-        bg: "bg-gradient-to-br from-purple-50 to-pink-50",
-        border: "border-purple-200",
-        gradient: "from-purple-500 to-pink-500",
+        color: `rgb(${Math.max(0, rgb.r - 50)} ${Math.max(
+          0,
+          rgb.g - 50
+        )} ${Math.max(0, rgb.b - 50)})`,
+        bgStyle: {
+          background: `linear-gradient(135deg, rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.1) 0%, rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.05) 100%)`,
+        },
+        borderStyle: {
+          borderColor: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.3)`,
+        },
+        gradientStyle: {
+          background: `linear-gradient(135deg, rgba(${rgb.r}, ${rgb.g}, ${
+            rgb.b
+          }, 0.9) 0%, rgba(${Math.min(255, rgb.r + 30)}, ${Math.min(
+            255,
+            rgb.g + 30
+          )}, ${Math.min(255, rgb.b + 30)}, 0.9) 100%)`,
+        },
       };
     if (score >= 70)
       return {
         text: "مثير للتفكير",
         emoji: "💡",
-        color: "text-blue-700",
-        bg: "bg-gradient-to-br from-blue-50 to-cyan-50",
-        border: "border-blue-200",
-        gradient: "from-blue-500 to-cyan-500",
+        color: `rgb(${Math.max(0, rgb.r - 30)} ${Math.max(
+          0,
+          rgb.g - 30
+        )} ${Math.max(0, rgb.b - 30)})`,
+        bgStyle: {
+          background: `linear-gradient(135deg, rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.08) 0%, rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.03) 100%)`,
+        },
+        borderStyle: {
+          borderColor: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.25)`,
+        },
+        gradientStyle: {
+          background: `linear-gradient(135deg, rgba(${rgb.r}, ${rgb.g}, ${
+            rgb.b
+          }, 0.8) 0%, rgba(${Math.min(255, rgb.r + 20)}, ${Math.min(
+            255,
+            rgb.g + 20
+          )}, ${Math.min(255, rgb.b + 20)}, 0.8) 100%)`,
+        },
       };
     return {
       text: "تحليل معمق",
       emoji: "🧠",
-      color: "text-emerald-700",
-      bg: "bg-gradient-to-br from-emerald-50 to-teal-50",
-      border: "border-emerald-200",
-      gradient: "from-emerald-500 to-teal-500",
+      color: `rgb(${Math.max(0, rgb.r - 20)} ${Math.max(
+        0,
+        rgb.g - 20
+      )} ${Math.max(0, rgb.b - 20)})`,
+      bgStyle: {
+        background: `linear-gradient(135deg, rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.06) 0%, rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.02) 100%)`,
+      },
+      borderStyle: {
+        borderColor: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.2)`,
+      },
+      gradientStyle: {
+        background: `linear-gradient(135deg, rgba(${rgb.r}, ${rgb.g}, ${
+          rgb.b
+        }, 0.7) 0%, rgba(${Math.min(255, rgb.r + 15)}, ${Math.min(
+          255,
+          rgb.g + 15
+        )}, ${Math.min(255, rgb.b + 15)}, 0.7) 100%)`,
+      },
     };
   };
 
-  const scoreDesc = getScoreDescription(aiScore);
+  const scoreDesc = getScoreDescription(aiScore, angle.themeColor);
 
   return (
     <div
-      className={`${scoreDesc.bg} ${scoreDesc.border} border-2 rounded-2xl p-6 md:p-8 mb-6 md:mb-10 shadow-lg hover:shadow-xl transition-all duration-300 group`}
+      className="border-2 rounded-2xl p-6 md:p-8 mb-6 md:mb-10 shadow-lg hover:shadow-xl transition-all duration-300 group"
+      style={{
+        ...scoreDesc.bgStyle,
+        ...scoreDesc.borderStyle,
+      }}
     >
       {/* Header مع أيقونة AI محسنة */}
       <div className="flex items-center gap-3 mb-6">
         <div
-          className={`w-12 h-12 md:w-14 md:h-14 bg-gradient-to-r ${scoreDesc.gradient} rounded-full flex items-center justify-center text-white text-xl md:text-2xl shadow-lg group-hover:scale-110 transition-transform duration-300`}
+          className="w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center text-white text-xl md:text-2xl shadow-lg group-hover:scale-110 transition-transform duration-300"
+          style={scoreDesc.gradientStyle}
         >
           🤖
         </div>
         <div>
           <h3
-            className={`font-bold ${scoreDesc.color} text-lg md:text-xl mb-1`}
+            className="font-bold text-lg md:text-xl mb-1"
+            style={{ color: scoreDesc.color }}
           >
             تحليل الذكاء الاصطناعي
           </h3>
@@ -963,7 +1025,10 @@ function AIAnalysisSection({
         <div className="flex items-center gap-3 mb-3">
           <span className="text-2xl">{scoreDesc.emoji}</span>
           <div>
-            <p className={`${scoreDesc.color} text-lg md:text-xl font-bold`}>
+            <p
+              className="text-lg md:text-xl font-bold"
+              style={{ color: scoreDesc.color }}
+            >
               {aiScore}% - {scoreDesc.text}
             </p>
           </div>
@@ -986,9 +1051,10 @@ function AIAnalysisSection({
         <div className="relative">
           <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden shadow-inner">
             <div
-              className={`h-full rounded-full bg-gradient-to-r ${scoreDesc.gradient} transition-all duration-1000 ease-out shadow-sm`}
+              className="h-full rounded-full transition-all duration-1000 ease-out shadow-sm"
               style={{
                 width: `${aiScore}%`,
+                ...scoreDesc.gradientStyle,
               }}
             />
           </div>
