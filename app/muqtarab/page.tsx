@@ -225,87 +225,99 @@ export default function MuqtaribPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section - محسن للموبايل */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative max-w-7xl mx-auto px-4 py-8 md:py-20">
-          <div className="text-center">
-            {/* شارة سبق - أصغر للموبايل */}
-            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 mb-4 md:mb-6">
-              <Sparkles className="w-4 h-4 md:w-5 md:h-5" />
-              <span className="text-xs md:text-sm font-medium">
-                منصة سبق الذكية
-              </span>
+    <div className="min-h-screen bg-background">
+      {/* Header Section - متناسق مع باقي النظام */}
+      <section className="bg-background border-b py-6 md:py-8 px-4 md:px-10">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            {/* معلومات الزاوية */}
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+                  <BookOpen className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+                    مُقترب
+                  </h1>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Badge variant="secondary" className="text-xs">
+                      <Sparkles className="w-3 h-3 mr-1" />
+                      زوايا فكرية
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+              
+              <p className="text-muted-foreground text-sm md:text-base max-w-2xl leading-relaxed">
+                زوايا فكرية متخصصة تقدم محتوى عميق ومتنوع في مختلف المجالات، 
+                من التقنية والثقافة إلى الفكر المعاصر والتحليل العميق.
+              </p>
             </div>
 
-            {/* العنوان - متجاوب */}
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-3 md:mb-6">
-              مُقتَرب
-            </h1>
+            {/* الإحصائيات والأزرار */}
+            <div className="flex flex-col sm:flex-row items-center gap-4 md:gap-6">
+              {/* إحصائيات مباشرة */}
+              <div className="flex items-center gap-4 md:gap-6 text-center">
+                <div className="text-center">
+                  <p className="font-bold text-foreground text-lg md:text-xl">
+                    {filteredAngles.length}
+                  </p>
+                  <p className="text-muted-foreground text-xs md:text-sm">زاوية</p>
+                </div>
+                <div className="text-center">
+                  <p className="font-bold text-foreground text-lg md:text-xl">
+                    {featuredArticles.length + (heroArticle ? 1 : 0)}
+                  </p>
+                  <p className="text-muted-foreground text-xs md:text-sm">مقال</p>
+                </div>
+                <div className="text-center">
+                  <p className="font-bold text-foreground text-lg md:text-xl">
+                    {heroArticle ? (heroArticle.views / 1000).toFixed(1) : '0'}K
+                  </p>
+                  <p className="text-muted-foreground text-xs md:text-sm">قراءة</p>
+                </div>
+              </div>
 
-            {/* الوصف - مختصر للموبايل */}
-            <p className="text-sm md:text-xl lg:text-2xl mb-6 md:mb-8 max-w-3xl mx-auto leading-relaxed px-2">
-              <span className="md:hidden">
-                زوايا فكرية متخصصة في مختلف المجالات والثقافة والتقنية
-              </span>
-              <span className="hidden md:block">
-                زوايا فكرية متخصصة تقدم محتوى عميق ومتميز في مختلف المجالات،
-                <br />
-                من التقنية إلى الثقافة والفكر المعاصر
-              </span>
-            </p>
-
-            {/* الأزرار - محسنة للموبايل */}
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link href="/admin/muqtarab/angles/new">
+              {/* أزرار العمل */}
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Link href="/admin/muqtarab/angles/new">
+                  <Button
+                    size="sm"
+                    className="w-full sm:w-auto"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    <span className="sm:hidden">إضافة</span>
+                    <span className="hidden sm:inline">زاوية جديدة</span>
+                  </Button>
+                </Link>
                 <Button
                   size="sm"
-                  className="bg-white text-blue-600 hover:bg-gray-100 w-full sm:w-auto"
+                  variant="outline"
+                  className="w-full sm:w-auto"
                 >
-                  <Plus className="w-4 h-4 ml-2" />
-                  <span className="md:hidden">زاوية جديدة</span>
-                  <span className="hidden md:inline">اقتراح زاوية جديدة</span>
+                  <Users className="w-4 h-4 mr-2" />
+                  <span className="sm:hidden">الكتاب</span>
+                  <span className="hidden sm:inline">كتاب مقترب</span>
                 </Button>
-              </Link>
-              <Button
-                size="sm"
-                variant="outline"
-                className="border-white text-white hover:bg-white/10 w-full sm:w-auto"
-              >
-                <BookOpen className="w-4 h-4 ml-2" />
-                <span className="md:hidden">استكشاف</span>
-                <span className="hidden md:inline">استكشف الزوايا</span>
-              </Button>
+              </div>
             </div>
           </div>
         </div>
+      </section>
 
-        {/* موجات زخرفية - أصغر للموبايل */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg
-            viewBox="0 0 1200 120"
-            preserveAspectRatio="none"
-            className="relative block w-full h-6 md:h-12"
-          >
-            <path
-              d="M0,0V60c0,0,200,50,600,0s600,50,600,0V0"
-              className="fill-current text-gray-50"
-            ></path>
-          </svg>
-        </div>
-      </div>
-
-      {/* المقال المميز (Hero Article) - محسن للموبايل */}
+      {/* المقال المميز */}
       {heroArticle && (
         <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
-          {/* عنوان مختصر للموبايل */}
-          <div className="text-center mb-4 md:mb-6">
-            <h2 className="text-xl md:text-3xl font-bold text-gray-900 mb-1 md:mb-2">
-              <span className="md:hidden">المقال المميز</span>
-              <span className="hidden md:inline">المقال المميز</span>
-            </h2>
-            <p className="text-sm md:text-base text-gray-600 hidden md:block">
+          {/* عنوان بسيط */}
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-1 h-6 bg-blue-600 rounded-full"></div>
+              <h2 className="text-xl md:text-2xl font-bold text-foreground">
+                المقال المميز
+              </h2>
+            </div>
+            <p className="text-muted-foreground text-sm md:text-base">
               اكتشف أحدث المقالات المميزة في زوايا مُقترب
             </p>
           </div>
@@ -320,15 +332,17 @@ export default function MuqtaribPage() {
         </div>
       )}
 
-      {/* المقالات المختارة من الزوايا - محسن للموبايل */}
+      {/* المقالات المختارة من الزوايا */}
       {featuredArticles.length > 0 && (
         <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
-          <div className="text-center mb-4 md:mb-6">
-            <h2 className="text-xl md:text-3xl font-bold text-gray-900 mb-1 md:mb-2 flex items-center justify-center gap-2 md:gap-3">
-              <BookOpen className="w-5 h-5 md:w-8 md:h-8 text-blue-600" />
-              مقالات مختارة من الزوايا
-            </h2>
-            <p className="text-sm md:text-base text-gray-600 hidden md:block">
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-1 h-6 bg-green-600 rounded-full"></div>
+              <h2 className="text-xl md:text-2xl font-bold text-foreground">
+                مقالات مختارة
+              </h2>
+            </div>
+            <p className="text-muted-foreground text-sm md:text-base">
               اكتشف أحدث المقالات من مختلف الزوايا الفكرية
             </p>
           </div>
@@ -342,22 +356,22 @@ export default function MuqtaribPage() {
         </div>
       )}
 
-      {/* البحث والفلاتر - محسن للموبايل */}
-      <div className="max-w-7xl mx-auto px-4 py-4 md:py-8">
-        <div className="bg-white rounded-xl md:rounded-2xl shadow-md md:shadow-lg p-4 md:p-6 mb-6 md:mb-8">
-          <div className="flex flex-col gap-3 md:gap-4">
-            {/* شريط البحث - محسن للموبايل */}
+      {/* البحث والفلاتر */}
+      <div className="max-w-7xl mx-auto px-4 py-4 md:py-6">
+        <div className="bg-card rounded-lg border p-4 md:p-6 mb-6">
+          <div className="flex flex-col gap-4">
+            {/* شريط البحث */}
             <div className="relative">
-              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400" />
+              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="ابحث في الزوايا..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pr-10 h-10 md:h-12 text-sm md:text-lg rounded-lg md:rounded-xl border-gray-200 focus:ring-2 focus:ring-blue-500"
+                className="pr-10"
               />
             </div>
 
-            {/* فلاتر التصنيف - محسنة للموبايل */}
+            {/* فلاتر التصنيف */}
             <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
               {filters.map((filter) => {
                 const Icon = filter.icon;
@@ -369,9 +383,9 @@ export default function MuqtaribPage() {
                       selectedFilter === filter.id ? "default" : "outline"
                     }
                     onClick={() => setSelectedFilter(filter.id)}
-                    className="whitespace-nowrap rounded-lg md:rounded-xl text-xs md:text-sm"
+                    className="whitespace-nowrap"
                   >
-                    <Icon className="w-3 h-3 md:w-4 md:h-4 ml-1 md:ml-2" />
+                    <Icon className="w-4 h-4 mr-2" />
                     {filter.label}
                   </Button>
                 );
@@ -380,13 +394,15 @@ export default function MuqtaribPage() {
           </div>
         </div>
 
-        {/* الزوايا المميزة - محسنة للموبايل */}
+        {/* الزوايا المميزة */}
         {selectedFilter === "all" && (
-          <div className="mb-8 md:mb-12">
-            <h2 className="text-lg md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
-              <Sparkles className="w-5 h-5 md:w-8 md:h-8 text-yellow-500" />
-              الزوايا المميزة
-            </h2>
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-1 h-6 bg-yellow-500 rounded-full"></div>
+              <h2 className="text-xl md:text-2xl font-bold text-foreground">
+                الزوايا المميزة
+              </h2>
+            </div>
 
             {/* عرض مختلف للموبايل والديسكتوب */}
             <div className="md:hidden">
