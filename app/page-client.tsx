@@ -42,10 +42,13 @@ const SmartAudioBlock = dynamic(
   }
 );
 
-const MuqtarabBlock = dynamic(() => import("@/components/home/MuqtarabBlock"), {
-  ssr: true,
-  loading: () => <Skeleton className="w-full h-96 rounded-lg" />,
-});
+const MuqtarabBlock = dynamic(
+  () => import("@/components/home/EnhancedMuqtarabBlock"),
+  {
+    ssr: true,
+    loading: () => <Skeleton className="w-full h-96 rounded-lg" />,
+  }
+);
 
 // تم حذف SmartDoseBlock
 

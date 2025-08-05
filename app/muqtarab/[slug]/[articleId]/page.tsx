@@ -1,5 +1,6 @@
 "use client";
 
+import ArticleAudioPlayer from "@/components/muqtarab/ArticleAudioPlayer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,14 +13,11 @@ import {
   Clock,
   Cpu,
   Eye,
-  Headphones,
   Heart,
   MessageCircle,
-  Play,
   Share2,
   Tag,
   User,
-  Volume2,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -420,134 +418,18 @@ function ArticleHeader({
       {/* اقتباس افتتاحي ذكي */}
       <OpeningQuote article={article} angle={angle} />
 
-      {/* مشغل الصوت */}
-      <AudioPlayer article={article} angle={angle} />
+      {/* مشغل الصوت للمقال */}
+      <ArticleAudioPlayer
+        articleId={article.id}
+        title={article.title}
+        content={article.content || ""}
+        className="mt-6"
+      />
     </div>
   );
 }
 
-// مكون مشغل الصوت المحسن
-function AudioPlayer({
-  article,
-  angle,
-}: {
-  article: AngleArticle;
-  angle: Angle;
-}) {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const hasAudio = article.audioUrl && article.audioUrl.length > 0;
-
-  if (!hasAudio) {
-    // عرض رسالة للصوت غير المتوفر بألوان الزاوية
-    return (
-      <div
-        className="mt-6 p-4 rounded-xl border border-gray-200"
-        style={{ backgroundColor: angle.themeColor + "10" }}
-      >
-        <div className="flex items-center gap-3">
-          <div
-            className="w-12 h-12 rounded-full flex items-center justify-center"
-            style={{ backgroundColor: angle.themeColor + "20" }}
-          >
-            <Headphones
-              className="w-5 h-5"
-              style={{ color: angle.themeColor }}
-            />
-          </div>
-          <div>
-            <p className="font-medium text-gray-900">
-              التسجيل الصوتي غير متوفر
-            </p>
-            <p className="text-sm text-gray-600">
-              سيتم إضافة النسخة الصوتية قريباً
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div
-      className="mt-6 p-4 rounded-xl border"
-      style={{
-        backgroundColor: angle.themeColor + "10",
-        borderColor: angle.themeColor + "30",
-      }}
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div
-            className="w-12 h-12 rounded-full flex items-center justify-center cursor-pointer transition-all hover:scale-105 shadow-lg"
-            style={{
-              backgroundColor: isPlaying ? angle.themeColor : "white",
-              color: isPlaying ? "white" : angle.themeColor,
-              border: `2px solid ${angle.themeColor}30`,
-            }}
-            onClick={() => setIsPlaying(!isPlaying)}
-          >
-            {isPlaying ? (
-              <div className="w-3 h-3 bg-white rounded-sm"></div>
-            ) : (
-              <Play className="w-5 h-5 mr-0.5" />
-            )}
-          </div>
-
-          <div>
-            <p className="font-medium text-gray-900">استمع للمقال</p>
-            <p className="text-sm text-gray-600">
-              صوت ذكاء اصطناعي عربي • {angle.title}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <div
-            className="px-3 py-1 text-xs rounded-full font-medium text-white"
-            style={{ backgroundColor: angle.themeColor }}
-          >
-            AI Voice
-          </div>
-          <Volume2 className="w-5 h-5" style={{ color: angle.themeColor }} />
-        </div>
-      </div>
-
-      {isPlaying && (
-        <div className="mt-4 space-y-3">
-          <div className="flex items-center gap-3">
-            <div
-              className="flex-1 h-2 rounded-full overflow-hidden"
-              style={{ backgroundColor: angle.themeColor + "30" }}
-            >
-              <div
-                className="h-full rounded-full w-1/3 transition-all duration-1000"
-                style={{ backgroundColor: angle.themeColor }}
-              ></div>
-            </div>
-            <span className="text-xs text-gray-500 font-mono">
-              01:23 / 04:57
-            </span>
-          </div>
-
-          {/* مؤشرات الصوت المتحركة */}
-          <div className="flex items-center gap-1 justify-center">
-            {[...Array(5)].map((_, i) => (
-              <div
-                key={i}
-                className="w-1 rounded-full animate-pulse"
-                style={{
-                  backgroundColor: angle.themeColor + "80",
-                  height: `${Math.random() * 20 + 10}px`,
-                  animationDelay: `${i * 0.1}s`,
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
+// تم نقل مشغل الصوت إلى مكون منفصل ArticleAudioPlayer
 
 // مكون التفاعل
 function ArticleInteractions({ article }: { article: AngleArticle }) {

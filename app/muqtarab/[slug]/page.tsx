@@ -1,29 +1,30 @@
 "use client";
 
+// import AngleAudioPlayer from "@/components/muqtarab/AngleAudioPlayer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Angle, AngleArticle } from "@/types/muqtarab";
 import {
-    ArrowLeft,
-    BookOpen,
-    Brain,
-    Calendar,
-    Clock,
-    Cpu,
-    Eye,
-    Filter,
-    Heart,
-    MessageCircle,
-    Rocket,
-    Search,
-    Share2,
-    Sparkles,
-    Target,
-    TrendingUp,
-    User,
-    Zap
+  ArrowLeft,
+  BookOpen,
+  Brain,
+  Calendar,
+  Clock,
+  Cpu,
+  Eye,
+  Filter,
+  Heart,
+  MessageCircle,
+  Rocket,
+  Search,
+  Share2,
+  Sparkles,
+  Target,
+  TrendingUp,
+  User,
+  Zap,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -284,76 +285,78 @@ function AngleHeader({ angle }: { angle: Angle }) {
             {/* معلومات الزاوية */}
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
-              <h1
-                className="text-2xl md:text-3xl font-bold"
-                style={{ color: angle.themeColor }}
-              >
-                {angle.title}
-              </h1>
-              {angle.isFeatured && (
-                <Badge
-                  className="text-xs"
+                <h1
+                  className="text-2xl md:text-3xl font-bold"
+                  style={{ color: angle.themeColor }}
+                >
+                  {angle.title}
+                </h1>
+                {angle.isFeatured && (
+                  <Badge
+                    className="text-xs"
+                    style={{
+                      backgroundColor: angle.themeColor + "20",
+                      color: angle.themeColor,
+                    }}
+                  >
+                    <Sparkles className="w-3 h-3 ml-1" />
+                    مميزة
+                  </Badge>
+                )}
+              </div>
+
+              {/* وصف الزاوية مع الحفاظ على التنسيق الأصلي */}
+              {angle.description && (
+                <div className="text-gray-600 text-base leading-relaxed mb-4 max-w-2xl whitespace-pre-line">
+                  {angle.description}
+                </div>
+              )}
+
+              {/* مشغل الصوت للزاوية - تم نقله لصفحة المقال */}
+
+              {/* إحصائيات مبسطة */}
+              <div className="flex items-center gap-6 text-sm text-gray-500 mb-4">
+                <div className="flex items-center gap-1">
+                  <BookOpen className="w-4 h-4" />
+                  <span>{angle.articlesCount || 0} مقالة</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <User className="w-4 h-4" />
+                  <span>{angle.author?.name}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Calendar className="w-4 h-4" />
+                  <span>
+                    {new Date(
+                      angle.updatedAt || angle.createdAt
+                    ).toLocaleDateString("ar-SA")}
+                  </span>
+                </div>
+              </div>
+
+              {/* أزرار بسيطة */}
+              <div className="flex items-center gap-3">
+                <Button
+                  size="sm"
+                  className="text-white shadow-sm"
+                  style={{ backgroundColor: angle.themeColor }}
+                >
+                  <Heart className="w-4 h-4 ml-2" />
+                  متابعة
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant="outline"
                   style={{
-                    backgroundColor: angle.themeColor + "20",
+                    borderColor: angle.themeColor + "40",
                     color: angle.themeColor,
                   }}
                 >
-                  <Sparkles className="w-3 h-3 ml-1" />
-                  مميزة
-                </Badge>
-              )}
-            </div>
-
-            {/* وصف الزاوية مع الحفاظ على التنسيق الأصلي */}
-            {angle.description && (
-              <div className="text-gray-600 text-base leading-relaxed mb-4 max-w-2xl whitespace-pre-line">
-                {angle.description}
+                  <Share2 className="w-4 h-4 ml-2" />
+                  مشاركة
+                </Button>
               </div>
-            )}
-
-            {/* إحصائيات مبسطة */}
-            <div className="flex items-center gap-6 text-sm text-gray-500 mb-4">
-              <div className="flex items-center gap-1">
-                <BookOpen className="w-4 h-4" />
-                <span>{angle.articlesCount || 0} مقالة</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <User className="w-4 h-4" />
-                <span>{angle.author?.name}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Calendar className="w-4 h-4" />
-                <span>
-                  {new Date(
-                    angle.updatedAt || angle.createdAt
-                  ).toLocaleDateString("ar-SA")}
-                </span>
-              </div>
-            </div>
-
-            {/* أزرار بسيطة */}
-            <div className="flex items-center gap-3">
-              <Button
-                size="sm"
-                className="text-white shadow-sm"
-                style={{ backgroundColor: angle.themeColor }}
-              >
-                <Heart className="w-4 h-4 ml-2" />
-                متابعة
-              </Button>
-
-              <Button
-                size="sm"
-                variant="outline"
-                style={{
-                  borderColor: angle.themeColor + "40",
-                  color: angle.themeColor,
-                }}
-              >
-                <Share2 className="w-4 h-4 ml-2" />
-                مشاركة
-              </Button>
-            </div>
             </div>
           </div>
 
@@ -454,9 +457,11 @@ function AngleFilterBar({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pr-10 pl-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:border-transparent transition-all"
-              style={{
-                "--tw-ring-color": angle.themeColor,
-              } as React.CSSProperties}
+              style={
+                {
+                  "--tw-ring-color": angle.themeColor,
+                } as React.CSSProperties
+              }
               onFocus={(e) => {
                 const target = e.target as HTMLInputElement;
                 target.style.borderColor = angle.themeColor;

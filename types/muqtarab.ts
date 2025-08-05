@@ -27,6 +27,7 @@ export interface Angle {
     avatar?: string;
   };
   coverImage?: string;
+  audio_summary_url?: string; // رابط الصوت للزاوية
   isFeatured: boolean;
   isPublished: boolean;
   articlesCount?: number;

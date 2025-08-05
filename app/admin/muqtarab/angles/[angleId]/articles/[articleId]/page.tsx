@@ -376,7 +376,7 @@ const ImageUploader = ({
           onImageUpload(data.imageUrl);
           toast.success("تم رفع الصورة بنجاح");
           if (data.fallback) {
-            toast("تم استخدام حفظ محلي للصورة", { icon: "⚠️" });
+            toast("✅ تم حفظ الصورة محلياً - تعمل بشكل طبيعي", { icon: "💾", duration: 4000 });
           }
         } else {
           toast.error(data.error || "فشل في رفع الصورة");
@@ -697,7 +697,7 @@ export default function EditAngleArticlePage() {
           setFormData((prev) => ({ ...prev, coverImage: data.imageUrl }));
           toast.success("تم رفع الصورة بنجاح");
           if (data.fallback) {
-            toast("تم استخدام حفظ محلي للصورة", { icon: "⚠️" });
+            toast("✅ تم حفظ الصورة محلياً - تعمل بشكل طبيعي", { icon: "💾", duration: 4000 });
           }
         } else {
           toast.error(data.error || "فشل في رفع الصورة");
