@@ -76,7 +76,7 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
             )}
           </div>
 
-          {/* شارة "مقال مميز" - الزاوية العلوية اليسرى */}
+          {/* ليبل "مميز" - الزاوية العلوية اليسرى */}
           <div className="absolute top-3 left-3">
             <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 shadow-lg backdrop-blur-sm">
               <span className="mr-1">⭐</span>
@@ -84,9 +84,26 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
             </Badge>
           </div>
 
-          {/* مؤشر AI Score - الزاوية العلوية اليمنى */}
-          <div className="absolute top-3 right-3">
-            <AIInsightTag score={heroArticle.aiScore} />
+          {/* ليبل "إبداعي" + اسم الزاوية - الزاوية العلوية اليمنى */}
+          <div className="absolute top-3 right-3 flex flex-col gap-2">
+            <Badge className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white border-0 shadow-lg backdrop-blur-sm">
+              <span className="mr-1">✨</span>
+              إبداعي
+            </Badge>
+            <div 
+              className="flex items-center gap-1 px-3 py-1 rounded-full backdrop-blur-sm shadow-lg"
+              style={{
+                backgroundColor: heroArticle.angle.themeColor ? `${heroArticle.angle.themeColor}E6` : 'rgba(59, 130, 246, 0.9)',
+                color: 'white'
+              }}
+            >
+              <span className="text-sm">
+                {heroArticle.angle.icon || "🧠"}
+              </span>
+              <span className="text-sm font-bold">
+                {heroArticle.angle.title}
+              </span>
+            </div>
           </div>
 
           {/* الطبقة الشفافة التدريجية */}
@@ -95,48 +112,30 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
           {/* المحتوى النصي في الأسفل */}
           <div className="absolute bottom-0 w-full p-4 md:p-6 text-white">
             {/* العنوان */}
-            <h2 className="text-lg md:text-xl lg:text-2xl font-bold leading-tight mb-3 line-clamp-2">
+            <h2 className="text-lg md:text-xl lg:text-2xl font-bold leading-tight mb-4 line-clamp-2">
               {heroArticle.title}
             </h2>
 
-            {/* المعلومات السفلية */}
-            <div className="flex items-center justify-between">
-              {/* تصنيف المقال */}
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-1 rounded-full">
-                  <span className="text-sm">
-                    {heroArticle.angle.icon || "🧠"}
-                  </span>
-                  <span className="text-xs md:text-sm font-medium text-gray-200">
-                    {heroArticle.angle.title}
-                  </span>
-                </div>
+            {/* بيانات تحت العنوان: الاسم ووقت القراءة والمشاهدة */}
+            <div className="flex items-center justify-between text-sm">
+              {/* معلومات المؤلف */}
+              <div className="flex items-center gap-1 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                <User className="w-4 h-4" />
+                <span className="font-medium">
+                  {heroArticle.author.name}
+                </span>
               </div>
 
-              {/* معلومات إضافية */}
-              <div className="flex items-center gap-3 text-xs text-gray-300">
+              {/* وقت القراءة والمشاهدات */}
+              <div className="flex items-center gap-4 text-white/90">
                 <div className="flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  <span>{heroArticle.readingTime}د</span>
+                  <Clock className="w-4 h-4" />
+                  <span>{heroArticle.readingTime} دقائق</span>
                 </div>
-
                 <div className="flex items-center gap-1">
-                  <User className="w-3 h-3" />
-                  <span className="hidden sm:inline">
-                    {heroArticle.author.name}
-                  </span>
-                  <span className="sm:hidden">
-                    {heroArticle.author.name.split(" ")[0]}
-                  </span>
+                  <span>👁</span>
+                  <span>{heroArticle.views}</span>
                 </div>
-              </div>
-            </div>
-
-            {/* مؤشر المشاهدات - صغير ومتميز */}
-            <div className="absolute bottom-2 left-4">
-              <div className="flex items-center gap-1 text-xs text-gray-300">
-                <span>👁</span>
-                <span>{heroArticle.views}</span>
               </div>
             </div>
           </div>
