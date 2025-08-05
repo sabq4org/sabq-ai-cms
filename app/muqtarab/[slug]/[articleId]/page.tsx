@@ -151,6 +151,9 @@ export default function AngleArticlePage() {
           </div>
         )}
 
+        {/* بيانات الكاتب */}
+        <AuthorSection article={article} angle={angle} />
+
         {/* محتوى المقال */}
         <ArticleContent article={article} />
 
@@ -345,6 +348,18 @@ function ArticleHeader({
 }) {
   return (
     <div className="mb-4 md:mb-8">
+      {/* اسم الزاوية للموبايل فقط */}
+      <div className="block md:hidden mb-2">
+        <Link href={`/muqtarab/${angle.slug}`}>
+          <h2
+            className="text-lg font-bold hover:underline transition-colors"
+            style={{ color: angle.themeColor }}
+          >
+            {angle.title}
+          </h2>
+        </Link>
+      </div>
+
       {/* شارات وتصنيفات */}
       <div className="flex flex-wrap items-center gap-1 md:gap-2 mb-3 md:mb-4">
         <Link href={`/muqtarab/${angle.slug}`}>
@@ -361,23 +376,6 @@ function ArticleHeader({
             <span className="sm:hidden">الزاوية</span>
           </Badge>
         </Link>
-
-        {article.tags && article.tags.length > 0 && (
-          <>
-            {article.tags.slice(0, 3).map((tag, index) => (
-              <Badge
-                key={index}
-                variant="outline"
-                className={`text-xs ${
-                  index >= 2 ? "hidden sm:inline-flex" : ""
-                }`}
-              >
-                <Tag className="w-3 h-3 ml-1" />
-                {tag}
-              </Badge>
-            ))}
-          </>
-        )}
 
         {article.sentiment && (
           <Badge
@@ -404,6 +402,21 @@ function ArticleHeader({
         {article.title}
       </h1>
 
+      {/* فراغ */}
+      <div className="mb-4"></div>
+
+      {/* الكلمات المفتاحية */}
+      {article.tags && article.tags.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2 mb-6">
+          {article.tags.slice(0, 5).map((tag, index) => (
+            <Badge key={index} variant="outline" className="text-xs">
+              <Tag className="w-3 h-3 ml-1" />
+              {tag}
+            </Badge>
+          ))}
+        </div>
+      )}
+
       {/* مقدمة المقال */}
       {article.excerpt && (
         <p className="text-base md:text-xl text-gray-700 mb-4 md:mb-8 leading-relaxed">
@@ -414,81 +427,45 @@ function ArticleHeader({
       {/* اقتباس افتتاحي ذكي */}
       <OpeningQuote article={article} angle={angle} />
 
-      {/* معلومات المؤلف والنشر */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 md:gap-4 p-4 md:p-6 bg-white rounded-lg md:rounded-xl border">
-        <div className="flex items-center gap-3 md:gap-4">
-          {article.author?.image ? (
-            <Image
-              src={article.author.image}
-              alt={article.author.name}
-              width={40}
-              height={40}
-              className="rounded-full md:w-12 md:h-12"
-            />
-          ) : (
-            <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-100 rounded-full flex items-center justify-center">
-              <User className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
-            </div>
-          )}
-
-          <div>
-            <p className="font-semibold text-gray-900 text-sm md:text-base">
-              {article.author?.name}
-            </p>
-            <p className="text-xs md:text-sm text-gray-500">
-              كاتب في {angle.title}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3 md:gap-6 text-xs md:text-sm text-gray-500 w-full sm:w-auto">
-          <div className="flex items-center gap-1">
-            <Calendar className="w-3 h-3 md:w-4 md:h-4" />
-            <span className="hidden sm:inline">
-              {new Date(
-                article.publishDate || article.createdAt
-              ).toLocaleDateString("ar-SA")}
-            </span>
-            <span className="sm:hidden">
-              {new Date(
-                article.publishDate || article.createdAt
-              ).toLocaleDateString("ar-SA", { month: "short", day: "numeric" })}
-            </span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Clock className="w-3 h-3 md:w-4 md:h-4" />
-            <span>{article.readingTime || 5} د</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Eye className="w-3 h-3 md:w-4 md:h-4" />
-            <span className="hidden md:inline">1,234 مشاهدة</span>
-            <span className="md:hidden">1.2k</span>
-          </div>
-        </div>
-      </div>
-
       {/* مشغل الصوت */}
-      <AudioPlayer article={article} />
+      <AudioPlayer article={article} angle={angle} />
     </div>
   );
 }
 
 // مكون مشغل الصوت المحسن
-function AudioPlayer({ article }: { article: AngleArticle }) {
+function AudioPlayer({
+  article,
+  angle,
+}: {
+  article: AngleArticle;
+  angle: Angle;
+}) {
   const [isPlaying, setIsPlaying] = useState(false);
   const hasAudio = article.audioUrl && article.audioUrl.length > 0;
 
   if (!hasAudio) {
-    // عرض رسالة للصوت غير المتوفر
+    // عرض رسالة للصوت غير المتوفر بألوان الزاوية
     return (
-      <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+      <div
+        className="mt-6 p-4 rounded-xl border border-gray-200"
+        style={{ backgroundColor: angle.themeColor + "10" }}
+      >
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
-            <Headphones className="w-5 h-5 text-gray-400" />
+          <div
+            className="w-12 h-12 rounded-full flex items-center justify-center"
+            style={{ backgroundColor: angle.themeColor + "20" }}
+          >
+            <Headphones
+              className="w-5 h-5"
+              style={{ color: angle.themeColor }}
+            />
           </div>
           <div>
-            <p className="font-medium text-gray-600">الصوت غير متوفر حالياً</p>
-            <p className="text-sm text-gray-500">
+            <p className="font-medium text-gray-900">
+              التسجيل الصوتي غير متوفر
+            </p>
+            <p className="text-sm text-gray-600">
               سيتم إضافة النسخة الصوتية قريباً
             </p>
           </div>
@@ -498,15 +475,22 @@ function AudioPlayer({ article }: { article: AngleArticle }) {
   }
 
   return (
-    <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+    <div
+      className="mt-6 p-4 rounded-xl border"
+      style={{
+        backgroundColor: angle.themeColor + "10",
+        borderColor: angle.themeColor + "30",
+      }}
+    >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div
-            className={`w-12 h-12 rounded-full flex items-center justify-center cursor-pointer transition-all hover:scale-105 ${
-              isPlaying
-                ? "bg-blue-600 text-white shadow-lg"
-                : "bg-white text-blue-600 border-2 border-blue-200 hover:border-blue-300"
-            }`}
+            className="w-12 h-12 rounded-full flex items-center justify-center cursor-pointer transition-all hover:scale-105 shadow-lg"
+            style={{
+              backgroundColor: isPlaying ? angle.themeColor : "white",
+              color: isPlaying ? "white" : angle.themeColor,
+              border: `2px solid ${angle.themeColor}30`,
+            }}
             onClick={() => setIsPlaying(!isPlaying)}
           >
             {isPlaying ? (
@@ -519,24 +503,33 @@ function AudioPlayer({ article }: { article: AngleArticle }) {
           <div>
             <p className="font-medium text-gray-900">استمع للمقال</p>
             <p className="text-sm text-gray-600">
-              صوت ذكاء اصطناعي عربي • ElevenLabs
+              صوت ذكاء اصطناعي عربي • {angle.title}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
+          <div
+            className="px-3 py-1 text-xs rounded-full font-medium text-white"
+            style={{ backgroundColor: angle.themeColor }}
+          >
             AI Voice
           </div>
-          <Volume2 className="w-5 h-5 text-blue-600" />
+          <Volume2 className="w-5 h-5" style={{ color: angle.themeColor }} />
         </div>
       </div>
 
       {isPlaying && (
         <div className="mt-4 space-y-3">
           <div className="flex items-center gap-3">
-            <div className="flex-1 h-2 bg-blue-200 rounded-full overflow-hidden">
-              <div className="h-full bg-blue-600 rounded-full w-1/3 transition-all duration-1000"></div>
+            <div
+              className="flex-1 h-2 rounded-full overflow-hidden"
+              style={{ backgroundColor: angle.themeColor + "30" }}
+            >
+              <div
+                className="h-full rounded-full w-1/3 transition-all duration-1000"
+                style={{ backgroundColor: angle.themeColor }}
+              ></div>
             </div>
             <span className="text-xs text-gray-500 font-mono">
               01:23 / 04:57
@@ -548,8 +541,9 @@ function AudioPlayer({ article }: { article: AngleArticle }) {
             {[...Array(5)].map((_, i) => (
               <div
                 key={i}
-                className="w-1 bg-blue-400 rounded-full animate-pulse"
+                className="w-1 rounded-full animate-pulse"
                 style={{
+                  backgroundColor: angle.themeColor + "80",
                   height: `${Math.random() * 20 + 10}px`,
                   animationDelay: `${i * 0.1}s`,
                 }}
@@ -561,8 +555,6 @@ function AudioPlayer({ article }: { article: AngleArticle }) {
     </div>
   );
 }
-
-
 
 // مكون التفاعل
 function ArticleInteractions({ article }: { article: AngleArticle }) {
@@ -752,7 +744,9 @@ function SmartRecommendations({
                 </span>
               </div>
 
-              <Link href={`/muqtarab/${angle.slug}/${article.slug || article.id}`}>
+              <Link
+                href={`/muqtarab/${angle.slug}/${article.slug || article.id}`}
+              >
                 <Button
                   variant="ghost"
                   size="sm"
@@ -773,7 +767,7 @@ function SmartRecommendations({
 
 // مكون عرض محتوى المقال مع تنسيق Markdown
 function ArticleContent({ article }: { article: AngleArticle }) {
-  // تحويل Markdown إلى HTML
+  // تحويل Markdown إلى HTML مع تحسينات للموبايل
   const renderMarkdownContent = (content: string) => {
     if (!content) return "";
 
@@ -784,19 +778,19 @@ function ArticleContent({ article }: { article: AngleArticle }) {
       .replace(/~~(.*?)~~/g, "<del>$1</del>")
       .replace(
         /^### (.*$)/gm,
-        '<h3 class="text-xl font-bold text-gray-900 mt-6 mb-4">$1</h3>'
+        '<h3 class="text-lg md:text-xl font-bold text-gray-900 mt-4 md:mt-6 mb-2 md:mb-4">$1</h3>'
       )
       .replace(
         /^## (.*$)/gm,
-        '<h2 class="text-2xl font-bold text-gray-900 mt-8 mb-4">$1</h2>'
+        '<h2 class="text-xl md:text-2xl font-bold text-gray-900 mt-5 md:mt-8 mb-3 md:mb-4">$1</h2>'
       )
       .replace(
         /^# (.*$)/gm,
-        '<h1 class="text-3xl font-bold text-gray-900 mt-8 mb-6">$1</h1>'
+        '<h1 class="text-2xl md:text-3xl font-bold text-gray-900 mt-6 md:mt-8 mb-4 md:mb-6">$1</h1>'
       )
       .replace(
         /^> (.*$)/gm,
-        '<blockquote class="border-r-4 border-blue-400 pr-4 mr-4 text-gray-600 italic my-4">$1</blockquote>'
+        '<blockquote class="border-r-4 border-blue-400 pr-3 md:pr-4 mr-2 md:mr-4 text-gray-600 italic my-3 md:my-4">$1</blockquote>'
       )
       .replace(/^- (.*$)/gm, '<li class="mb-1">$1</li>')
       .replace(/^1\. (.*$)/gm, '<li class="mb-1">$1</li>')
@@ -810,24 +804,24 @@ function ArticleContent({ article }: { article: AngleArticle }) {
       )
       .replace(
         /```([\s\S]*?)```/g,
-        '<pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto my-4"><code class="text-sm">$1</code></pre>'
+        '<pre class="bg-gray-100 p-3 md:p-4 rounded-lg overflow-x-auto my-3 md:my-4"><code class="text-sm">$1</code></pre>'
       )
-      .replace(/---/g, '<hr class="my-6 border-gray-300">')
-      .replace(/\n\n/g, '</p><p class="mb-4">')
-      .replace(/^\s*(.+)/gm, '<p class="mb-4">$1</p>');
+      .replace(/---/g, '<hr class="my-4 md:my-6 border-gray-300">')
+      .replace(/\n\n/g, '</p><p class="mb-3 md:mb-4">')
+      .replace(/^\s*(.+)/gm, '<p class="mb-3 md:mb-4">$1</p>');
   };
 
   return (
-    <div className="mb-8">
+    <div className="mb-6 md:mb-8">
       <div
-        className="prose prose-lg dark:prose-invert max-w-none leading-relaxed text-gray-800"
+        className="prose prose-base md:prose-lg dark:prose-invert max-w-none leading-relaxed text-gray-800"
         dangerouslySetInnerHTML={{
           __html: renderMarkdownContent(article.content || ""),
         }}
         style={{
           whiteSpace: "pre-line",
-          lineHeight: "1.8",
-          fontSize: "1.1rem",
+          lineHeight: "1.7",
+          fontSize: "1rem",
         }}
       />
     </div>
@@ -966,6 +960,74 @@ function AIAnalysisSection({
               {aiScore}/100
             </span>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+// مكون بيانات الكاتب
+function AuthorSection({
+  article,
+  angle,
+}: {
+  article: AngleArticle;
+  angle: Angle;
+}) {
+  return (
+    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 md:gap-4 p-4 md:p-6 bg-white rounded-lg md:rounded-xl border mb-4 md:mb-8">
+      <div className="flex items-center gap-3 md:gap-4">
+        {article.author?.image ? (
+          <Image
+            src={article.author.image}
+            alt={article.author.name}
+            width={40}
+            height={40}
+            className="rounded-full md:w-12 md:h-12"
+          />
+        ) : (
+          <div
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center"
+            style={{ backgroundColor: angle.themeColor + "20" }}
+          >
+            <User
+              className="w-5 h-5 md:w-6 md:h-6"
+              style={{ color: angle.themeColor }}
+            />
+          </div>
+        )}
+
+        <div>
+          <p className="font-semibold text-gray-900 text-sm md:text-base">
+            {article.author?.name}
+          </p>
+          <p className="text-xs md:text-sm text-gray-500">
+            كاتب في {angle.title}
+          </p>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3 md:gap-6 text-xs md:text-sm text-gray-500 w-full sm:w-auto">
+        <div className="flex items-center gap-1">
+          <Calendar className="w-3 h-3 md:w-4 md:h-4" />
+          <span className="hidden sm:inline">
+            {new Date(
+              article.publishDate || article.createdAt
+            ).toLocaleDateString("ar-SA")}
+          </span>
+          <span className="sm:hidden">
+            {new Date(
+              article.publishDate || article.createdAt
+            ).toLocaleDateString("ar-SA", { month: "short", day: "numeric" })}
+          </span>
+        </div>
+        <div className="flex items-center gap-1">
+          <Clock className="w-3 h-3 md:w-4 md:h-4" />
+          <span>{article.readingTime || 5} د</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <Eye className="w-3 h-3 md:w-4 md:h-4" />
+          <span className="hidden md:inline">1,234 مشاهدة</span>
+          <span className="md:hidden">1.2k</span>
         </div>
       </div>
     </div>
