@@ -314,28 +314,28 @@ export default function DeepAnalysisBlock({
       {/* البطاقات - محدودة العرض مثل باقي المحتوى */}
       <div className="relative z-10 max-w-7xl mx-auto px-4">
 
-        {/* البطاقات - صف أفقي قابل للتمرير */}
-        {isMobile ? (
-          // عرض الموبايل - قائمة عمودية
-          <div className="space-y-4 mb-6">
-            {displayInsights.slice(0, maxItems).map((item) => (
-              <MobileDeepAnalysisCard 
-                key={item.id} 
-                insight={{
-                  ...item,
-                  article_id: item.article_id || '',
-                  ai_summary: item.ai_summary || item.summary || '',
-                  key_topics: item.key_topics || [],
-                  sentiment: item.sentiment || 'neutral',
-                  readability_score: item.readability_score || 0,
-                  engagement_score: item.engagement_score || 0,
-                  updated_at: item.updated_at || item.analyzed_at
-                }} 
-                darkMode={darkMode} 
-              />
-            ))}
-          </div>
-        ) : (
+        {/* البطاقات - تصميم جديد موحد للموبايل والديسكتوب */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-6">
+          {displayInsights.slice(0, maxItems).map((item) => (
+            <MobileDeepAnalysisCard 
+              key={item.id} 
+              insight={{
+                ...item,
+                article_id: item.article_id || '',
+                ai_summary: item.ai_summary || item.summary || '',
+                key_topics: item.key_topics || [],
+                sentiment: item.sentiment || 'neutral',
+                readability_score: item.readability_score || 0,
+                engagement_score: item.engagement_score || 0,
+                updated_at: item.updated_at || item.analyzed_at
+              }} 
+              darkMode={darkMode} 
+            />
+          ))}
+        </div>
+
+        {/* عرض الديسكتوب القديم - محفوظ للتوافق */}
+        {!isMobile && false && (
         <div className="relative mb-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
             {loading ? (

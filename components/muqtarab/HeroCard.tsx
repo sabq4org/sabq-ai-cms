@@ -1,7 +1,6 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import { Clock, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -49,7 +48,6 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
       <Link href={`/muqtarab/${heroArticle.angle.slug}/${heroArticle.slug}`}>
         {/* الحاوي الرئيسي - التصميم الجديد */}
         <div className="relative w-full h-[240px] md:h-[280px] rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300">
-          
           {/* الصورة الخلفية */}
           <div className="absolute inset-0">
             {heroArticle.coverImage ? (
@@ -60,12 +58,12 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
               />
             ) : (
-              <div 
+              <div
                 className="w-full h-full bg-gradient-to-br from-blue-500 via-purple-600 to-indigo-700 flex items-center justify-center"
                 style={{
-                  background: heroArticle.angle.themeColor 
+                  background: heroArticle.angle.themeColor
                     ? `linear-gradient(135deg, ${heroArticle.angle.themeColor}90, ${heroArticle.angle.themeColor})`
-                    : 'linear-gradient(135deg, #3B82F6, #8B5CF6, #6366F1)'
+                    : "linear-gradient(135deg, #3B82F6, #8B5CF6, #6366F1)",
                 }}
               >
                 <div className="text-white text-center">
@@ -96,7 +94,6 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
 
           {/* المحتوى النصي في الأسفل */}
           <div className="absolute bottom-0 w-full p-4 md:p-6 text-white">
-            
             {/* العنوان */}
             <h2 className="text-lg md:text-xl lg:text-2xl font-bold leading-tight mb-3 line-clamp-2">
               {heroArticle.title}
@@ -104,11 +101,12 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
 
             {/* المعلومات السفلية */}
             <div className="flex items-center justify-between">
-              
               {/* تصنيف المقال */}
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-1 rounded-full">
-                  <span className="text-sm">{heroArticle.angle.icon || '🧠'}</span>
+                  <span className="text-sm">
+                    {heroArticle.angle.icon || "🧠"}
+                  </span>
                   <span className="text-xs md:text-sm font-medium text-gray-200">
                     {heroArticle.angle.title}
                   </span>
@@ -121,11 +119,15 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
                   <Clock className="w-3 h-3" />
                   <span>{heroArticle.readingTime}د</span>
                 </div>
-                
+
                 <div className="flex items-center gap-1">
                   <User className="w-3 h-3" />
-                  <span className="hidden sm:inline">{heroArticle.author.name}</span>
-                  <span className="sm:hidden">{heroArticle.author.name.split(' ')[0]}</span>
+                  <span className="hidden sm:inline">
+                    {heroArticle.author.name}
+                  </span>
+                  <span className="sm:hidden">
+                    {heroArticle.author.name.split(" ")[0]}
+                  </span>
                 </div>
               </div>
             </div>
