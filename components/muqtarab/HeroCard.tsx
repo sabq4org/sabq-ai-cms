@@ -122,7 +122,7 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
             {/* بيانات النشر على الصورة يمين */}
-            <div className="absolute bottom-3 right-3 flex items-center gap-3 text-xs text-white backdrop-blur-sm bg-black/40 px-3 py-2 rounded-lg">
+            <div className="absolute bottom-2 right-3 flex items-center gap-3 text-xs text-white backdrop-blur-sm bg-black/40 px-3 py-2 rounded-lg">
               {/* أيقونة الكاتب واسمه كاملاً */}
               <div className="flex items-center gap-1">
                 <User className="w-3 h-3" />
@@ -143,7 +143,7 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
             </div>
 
             {/* المحتوى النصي في الأسفل */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 text-white" style={{ bottom: '60px' }}>
+            <div className="absolute bottom-0 left-0 right-0 p-4 text-white" style={{ bottom: '45px' }}>
               {/* العنوان */}
               <h2 className="text-lg font-bold leading-tight line-clamp-2">
                 {heroArticle.title}
