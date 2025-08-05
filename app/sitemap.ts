@@ -7,7 +7,7 @@ async function getArticles() {
     const response = await fetch(
       `${baseUrl}/api/articles?limit=1000&published=true`,
       {
-        cache: "no-store",
+        next: { revalidate: 3600 }, // إعادة التحقق كل ساعة
       }
     );
 
@@ -28,7 +28,7 @@ async function getCategories() {
   try {
     const baseUrl = process.env.NEXTAUTH_URL || "https://sabq.me";
     const response = await fetch(`${baseUrl}/api/categories`, {
-      cache: "no-store",
+      next: { revalidate: 3600 }, // إعادة التحقق كل ساعة
     });
 
     if (!response.ok) {

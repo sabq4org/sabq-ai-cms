@@ -160,23 +160,39 @@ export default function AngleArticlePage() {
         {/* التفاعل والمشاركة */}
         <div className="flex flex-wrap items-center justify-between gap-3 md:gap-4 p-4 md:p-6 bg-white rounded-lg md:rounded-xl border">
           <div className="flex items-center gap-2 md:gap-4">
-            <Button size="sm" variant="ghost" className="h-8 md:h-9 px-2 md:px-3">
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-8 md:h-9 px-2 md:px-3"
+            >
               <Heart className="w-4 h-4 ml-1" />
               <span className="hidden sm:inline">إعجاب</span>
               <span className="text-xs text-gray-500 ml-1">142</span>
             </Button>
-            <Button size="sm" variant="ghost" className="h-8 md:h-9 px-2 md:px-3">
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-8 md:h-9 px-2 md:px-3"
+            >
               <MessageCircle className="w-4 h-4 ml-1" />
               <span className="hidden sm:inline">تعليق</span>
               <span className="text-xs text-gray-500 ml-1">23</span>
             </Button>
-            <Button size="sm" variant="ghost" className="h-8 md:h-9 px-2 md:px-3">
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-8 md:h-9 px-2 md:px-3"
+            >
               <Bookmark className="w-4 h-4 ml-1" />
               <span className="hidden sm:inline">حفظ</span>
             </Button>
           </div>
           <div className="flex items-center gap-2">
-            <Button size="sm" variant="outline" className="h-8 md:h-9 px-2 md:px-3">
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-8 md:h-9 px-2 md:px-3"
+            >
               <Share2 className="w-4 h-4 ml-1" />
               <span className="hidden sm:inline">مشاركة</span>
             </Button>
@@ -188,16 +204,18 @@ export default function AngleArticlePage() {
         {/* العودة إلى الزاوية */}
         <div className="text-center py-4 md:py-6">
           <Link href={`/muqtarab/${angle.slug}`}>
-            <Button 
-              size="lg" 
+            <Button
+              size="lg"
               className="px-6 md:px-8"
-              style={{ 
+              style={{
                 backgroundColor: angle.themeColor,
-                borderColor: angle.themeColor 
+                borderColor: angle.themeColor,
               }}
             >
               <ArrowLeft className="w-4 h-4 ml-2" />
-              <span className="hidden sm:inline">العودة إلى زاوية {angle.title}</span>
+              <span className="hidden sm:inline">
+                العودة إلى زاوية {angle.title}
+              </span>
               <span className="sm:hidden">العودة للزاوية</span>
             </Button>
           </Link>
@@ -259,18 +277,29 @@ function StickyHeader({
               <span className="sm:hidden">الزاوية</span>
             </Badge>
           </Link>
-          <Separator orientation="vertical" className="h-3 md:h-4 hidden sm:block" />
+          <Separator
+            orientation="vertical"
+            className="h-3 md:h-4 hidden sm:block"
+          />
           <span className="text-xs md:text-sm text-gray-600 truncate max-w-[120px] sm:max-w-md">
             {article.title}
           </span>
         </div>
 
         <div className="flex items-center gap-1 md:gap-2">
-          <Button size="sm" variant="ghost" className="h-8 w-8 md:h-9 md:w-auto md:px-3">
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-8 w-8 md:h-9 md:w-auto md:px-3"
+          >
             <Bookmark className="w-3 h-3 md:w-4 md:h-4" />
             <span className="hidden md:inline ml-1">حفظ</span>
           </Button>
-          <Button size="sm" variant="ghost" className="h-8 w-8 md:h-9 md:w-auto md:px-3">
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-8 w-8 md:h-9 md:w-auto md:px-3"
+          >
             <Share2 className="w-3 h-3 md:w-4 md:h-4" />
             <span className="hidden md:inline ml-1">مشاركة</span>
           </Button>
@@ -336,7 +365,13 @@ function ArticleHeader({
         {article.tags && article.tags.length > 0 && (
           <>
             {article.tags.slice(0, 3).map((tag, index) => (
-              <Badge key={index} variant="outline" className={`text-xs ${index >= 2 ? 'hidden sm:inline-flex' : ''}`}>
+              <Badge
+                key={index}
+                variant="outline"
+                className={`text-xs ${
+                  index >= 2 ? "hidden sm:inline-flex" : ""
+                }`}
+              >
                 <Tag className="w-3 h-3 ml-1" />
                 {tag}
               </Badge>
@@ -400,7 +435,9 @@ function ArticleHeader({
             <p className="font-semibold text-gray-900 text-sm md:text-base">
               {article.author?.name}
             </p>
-            <p className="text-xs md:text-sm text-gray-500">كاتب في {angle.title}</p>
+            <p className="text-xs md:text-sm text-gray-500">
+              كاتب في {angle.title}
+            </p>
           </div>
         </div>
 
@@ -671,7 +708,9 @@ function SmartRecommendations({
   return (
     <div>
       <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
-        <h2 className="text-lg md:text-2xl font-bold text-gray-900">مقالات مقترحة لك</h2>
+        <h2 className="text-lg md:text-2xl font-bold text-gray-900">
+          مقالات مقترحة لك
+        </h2>
         <div
           className="px-2 py-1 md:px-3 rounded-full text-xs font-medium text-white"
           style={{ backgroundColor: angle.themeColor }}
@@ -736,7 +775,9 @@ function SmartRecommendations({
                   />
                 </div>
                 <span className="text-xs text-gray-400">
-                  <span className="hidden sm:inline">{70 + index * 10}% تشابه</span>
+                  <span className="hidden sm:inline">
+                    {70 + index * 10}% تشابه
+                  </span>
                   <span className="sm:hidden">{70 + index * 10}%</span>
                 </span>
               </div>
@@ -862,7 +903,9 @@ function AIAnalysisSection({
       <div className="flex items-start gap-3 md:gap-4">
         <div className="text-xl md:text-2xl">{scoreDesc.emoji}</div>
         <div className="flex-1">
-          <h3 className={`font-bold ${scoreDesc.color} text-base md:text-lg mb-2`}>
+          <h3
+            className={`font-bold ${scoreDesc.color} text-base md:text-lg mb-2`}
+          >
             تحليل الذكاء الاصطناعي
           </h3>
           <p className={`${scoreDesc.color} mb-3`}>
