@@ -184,6 +184,17 @@ export default function MuqtarabBlock({ className }: MuqtarabBlockProps) {
                 "✅ [MuqtarabBlock] تم جلب مقال فكر رقمي:",
                 latestArticle.title
               );
+              console.log("🖼️ [MuqtarabBlock] معلومات الصورة:", {
+                hasImage: !!latestArticle.coverImage,
+                imageType: latestArticle.coverImage?.startsWith("data:")
+                  ? "Base64"
+                  : latestArticle.coverImage?.startsWith("http")
+                  ? "URL"
+                  : "Local",
+                imageLength: latestArticle.coverImage?.length,
+                imagePreview: latestArticle.coverImage?.substring(0, 50),
+              });
+
               setAngleArticle({
                 id: latestArticle.id,
                 title: latestArticle.title,
@@ -428,27 +439,42 @@ function AngleArticleCard({ angleArticle }: { angleArticle: AngleArticle }) {
     <div className="relative bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 aspect-square">
       {/* الثلث العلوي - الصورة */}
       <div className="relative h-1/3 overflow-hidden">
-        {angleArticle.coverImage &&
-        !angleArticle.coverImage.startsWith("data:") ? (
+        {angleArticle.coverImage ? (
           <img
             src={angleArticle.coverImage}
             alt={angleArticle.title}
             className="w-full h-full object-cover"
-          />
-        ) : (
-          <div 
-            className="w-full h-full flex items-center justify-center"
-            style={{
-              background: `linear-gradient(135deg, ${angleArticle.angle.themeColor || '#8B5CF6'}20, ${angleArticle.angle.themeColor || '#8B5CF6'}40)`
+            onError={(e) => {
+              // في حالة فشل تحميل الصورة، إخفاءها وإظهار البديل
+              e.currentTarget.style.display = "none";
+              const parent = e.currentTarget.parentElement;
+              if (parent) {
+                const fallback = parent.querySelector(".fallback-bg");
+                if (fallback) {
+                  (fallback as HTMLElement).style.display = "flex";
+                }
+              }
             }}
-          >
-            <Brain 
-              className="w-8 h-8"
-              style={{ color: angleArticle.angle.themeColor || '#8B5CF6' }}
-            />
-          </div>
-        )}
-        
+          />
+        ) : null}
+
+        {/* خلفية بديلة - تظهر إذا لم توجد صورة أو فشل تحميلها */}
+        <div
+          className={`fallback-bg w-full h-full flex items-center justify-center ${
+            !angleArticle.coverImage ? "flex" : "hidden"
+          }`}
+          style={{
+            background: `linear-gradient(135deg, ${
+              angleArticle.angle.themeColor || "#8B5CF6"
+            }20, ${angleArticle.angle.themeColor || "#8B5CF6"}40)`,
+          }}
+        >
+          <Brain
+            className="w-8 h-8"
+            style={{ color: angleArticle.angle.themeColor || "#8B5CF6" }}
+          />
+        </div>
+
         {/* شارة الزاوية - مطلقة في الزاوية العلوية */}
         <div className="absolute top-2 right-2">
           <div
@@ -482,7 +508,9 @@ function AngleArticleCard({ angleArticle }: { angleArticle: AngleArticle }) {
           <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
             <div className="flex items-center gap-1">
               <User className="w-3 h-3" />
-              <span className="truncate max-w-16">{angleArticle.author.name}</span>
+              <span className="truncate max-w-16">
+                {angleArticle.author.name}
+              </span>
             </div>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1">
