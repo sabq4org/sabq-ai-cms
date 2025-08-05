@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans_Arabic } from "next/font/google";
-import "./globals.css";
 import AnalyticsProvider from "../components/Analytics/AnalyticsProvider";
 import ConditionalHeader from "../components/ConditionalHeader";
 import ErrorBoundary from "../components/ErrorBoundary";
@@ -31,6 +30,7 @@ import "../styles/scrollbar-hide.css";
 import "../styles/smart-recommendations.css";
 import "../styles/tailwind-overrides.css";
 import "../styles/theme-manager.css";
+import "./globals.css";
 import { Providers } from "./providers";
 
 const ibmPlexArabic = IBM_Plex_Sans_Arabic({
@@ -172,7 +172,7 @@ export default function RootLayout({
 
         {/* React Error #130 Fix Script */}
         <script src="/react-130-fix.js" async></script>
-        
+
         {/* Production Error Fixes */}
         <script src="/production-error-fixes.js" async></script>
       </head>

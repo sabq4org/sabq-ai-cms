@@ -18,6 +18,7 @@ interface OptimizedImageProps {
   blurDataURL?: string;
   onLoad?: () => void;
   onError?: () => void;
+  loading?: "lazy" | "eager";
 }
 
 export function OptimizedImage({
@@ -222,3 +223,6 @@ export function AvatarImage({
     />
   );
 }
+
+// إضافة default export للتوافق مع imports
+export default OptimizedImage;

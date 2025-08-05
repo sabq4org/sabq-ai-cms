@@ -128,21 +128,21 @@ export default function ArticleClientComponent({
       const fetchArticle = async () => {
         try {
           setLoading(true);
-          
+
           // محاولة جلب المقال مع timeout
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 ثواني
-          
+
           const response = await fetch(`/api/articles/${articleId}`, {
             signal: controller.signal,
             headers: {
-              'Cache-Control': 'no-cache',
-              'Pragma': 'no-cache'
-            }
+              "Cache-Control": "no-cache",
+              Pragma: "no-cache",
+            },
           });
-          
+
           clearTimeout(timeoutId);
-          
+
           if (response.ok) {
             const data = await response.json();
             setArticle(processArticle(data));
@@ -156,7 +156,7 @@ export default function ArticleClientComponent({
             );
           }
         } catch (error: any) {
-          if (error.name === 'AbortError') {
+          if (error.name === "AbortError") {
             console.warn("تحذير: انتهت مهلة تحميل المقال");
           } else {
             console.warn(

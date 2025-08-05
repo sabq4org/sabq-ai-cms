@@ -1,7 +1,7 @@
 /**
  * 🧠 نظام التوصيات الذكي - سبق الذكية
  * AI Personalized Content Generator
- * 
+ *
  * 🎯 الهدف: توليد روابط مقالات مخصصة بناءً على سلوك المستخدم الفعلي
  * 🔍 المصادر: سلوك القراءة + التفاعلات + الكلمات المفتاحية + الاتجاهات الشائعة
  */
@@ -62,11 +62,11 @@ export async function generatePersonalizedRecommendations({
   try {
     // 1. جلب سلوك المستخدم (إذا لم يتم تمريره)
     const behavior = userBehavior || (await getUserBehaviorData(userId));
-    
+
     // 2. جلب المقالات المرشحة من مصادر متعددة
     const [
       behaviorBasedArticles,
-      categoryBasedArticles, 
+      categoryBasedArticles,
       trendingArticles,
       semanticSimilarArticles,
       mixedContentArticles,
@@ -89,7 +89,7 @@ export async function generatePersonalizedRecommendations({
 
     // 4. إزالة التكرار وترتيب حسب الصلة
     const uniqueRecommendations = removeDuplicatesAndScore(
-      allRecommendations, 
+      allRecommendations,
       behavior,
       currentArticleId
     );
@@ -106,7 +106,7 @@ export async function generatePersonalizedRecommendations({
       .slice(0, limit);
   } catch (error) {
     console.error("❌ خطأ في توليد التوصيات الذكية:", error);
-    
+
     // فولباك: توصيات أساسية
     return await getFallbackRecommendations(
       currentCategory,
@@ -132,13 +132,13 @@ async function getUserBehaviorData(userId?: string): Promise<UserBehavior> {
         "Content-Type": "application/json",
       },
     });
-    
+
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: فشل جلب بيانات المستخدم`);
     }
-    
+
     const data = await response.json();
-    
+
     if (data.success && data.data) {
       console.log("✅ تم جلب سلوك المستخدم:", data.data);
       return data.data;
@@ -179,7 +179,7 @@ function getAnonymousUserBehavior(): UserBehavior {
  * 🎯 توصيات بناءً على سلوك المستخدم
  */
 async function getBehaviorBasedRecommendations(
-  behavior: UserBehavior, 
+  behavior: UserBehavior,
   currentArticleId: string
 ): Promise<RecommendedArticle[]> {
   const recommendations: RecommendedArticle[] = [];
@@ -188,10 +188,10 @@ async function getBehaviorBasedRecommendations(
     // بناءً على التصنيفات المفضلة
     if (behavior.favoriteCategories.length > 0) {
       const categoryArticles = await fetchArticlesByCategories(
-        behavior.favoriteCategories, 
+        behavior.favoriteCategories,
         currentArticleId
       );
-      
+
       categoryArticles.forEach((article) => {
         recommendations.push({
           ...article,
@@ -208,7 +208,7 @@ async function getBehaviorBasedRecommendations(
         behavior.interactions.liked,
         currentArticleId
       );
-      
+
       similarToLiked.forEach((article) => {
         recommendations.push({
           ...article,
@@ -230,7 +230,7 @@ async function getBehaviorBasedRecommendations(
  * 📂 توصيات بناءً على نفس التصنيف
  */
 async function getCategoryBasedRecommendations(
-  category: string, 
+  category: string,
   currentArticleId: string
 ): Promise<RecommendedArticle[]> {
   if (!category) return [];
@@ -240,7 +240,7 @@ async function getCategoryBasedRecommendations(
       category,
       currentArticleId
     );
-    
+
     return similarArticles.slice(0, 1).map((article) => ({
       ...article,
       reason: `من نفس قسم ${category}`,
@@ -261,7 +261,7 @@ async function getTrendingRecommendations(
 ): Promise<RecommendedArticle[]> {
   try {
     const trendingArticles = await fetchTrendingArticles(tags);
-    
+
     return trendingArticles.slice(0, 1).map((article) => ({
       ...article,
       reason: `يتفاعل معها ${article.viewsCount.toLocaleString()} قارئ`,
@@ -286,7 +286,7 @@ async function getSemanticSimilarArticles(
       articleId,
       tags
     );
-    
+
     return similarArticles.slice(0, 1).map((article) => ({
       ...article,
       reason: "محتوى مشابه قد يهمك",
@@ -314,10 +314,10 @@ function removeDuplicatesAndScore(
   articles.forEach((article) => {
     if (!seen.has(article.id)) {
       seen.add(article.id);
-      
+
       // تعديل درجة الثقة بناءً على عوامل إضافية
       let adjustedConfidence = article.confidence;
-      
+
       // زيادة الثقة للمقالات الحديثة
       const daysSincePublished = Math.floor(
         (Date.now() - new Date(article.publishedAt).getTime()) /
@@ -325,11 +325,11 @@ function removeDuplicatesAndScore(
       );
       if (daysSincePublished <= 1) adjustedConfidence += 10;
       else if (daysSincePublished <= 7) adjustedConfidence += 5;
-      
+
       // زيادة الثقة للمقالات عالية التفاعل
       if (article.engagement > 0.1) adjustedConfidence += 5;
       if (article.engagement > 0.2) adjustedConfidence += 10;
-      
+
       unique.push({
         ...article,
         confidence: Math.min(100, adjustedConfidence),
@@ -345,7 +345,7 @@ function removeDuplicatesAndScore(
  */
 function determineArticleType(article: any): RecommendedArticle["type"] {
   const title = article.title.toLowerCase();
-  
+
   if (title.includes("تحليل") || title.includes("دراسة")) return "تحليل";
   if (title.includes("رأي") || title.includes("وجهة نظر")) return "رأي";
   if (title.includes("ملخص") || title.includes("خلاصة")) return "ملخص";
@@ -386,10 +386,10 @@ async function getFallbackRecommendations(
       .filter((article) => article && article.id && article.title)
       .slice(0, limit)
       .map((article, index) => ({
-      ...article,
+        ...article,
         reason: article.reason || "محتوى مختار بعناية لك",
         confidence: Math.max(article.confidence - 5, 45), // تقليل الثقة قليلاً فقط
-    }));
+      }));
 
     console.log(`✅ تم توفير ${validRecommendations.length} توصية احتياطية`);
     return validRecommendations;
@@ -463,7 +463,7 @@ async function getSmartMixedContent(
   currentArticleId: string
 ): Promise<RecommendedArticle[]> {
   const mixedContent: RecommendedArticle[] = [];
-  
+
   try {
     console.log("🎯 جلب كوكتيل المحتوى المتنوع...");
 
@@ -481,7 +481,7 @@ async function getSmartMixedContent(
         type: article.type || "مقالة",
       });
     });
-    
+
     // 2. محتوى عميق (تحليلات وتقارير)
     const deepContent = await fetchArticlesByType(
       ["تحليل", "تقرير"],
@@ -496,7 +496,7 @@ async function getSmartMixedContent(
         type: article.type || "تحليل",
       });
     });
-    
+
     // 3. محتوى رأي (وجهات نظر)
     const opinionContent = await fetchArticlesByType(
       ["رأي"],
@@ -511,7 +511,7 @@ async function getSmartMixedContent(
         type: article.type || "رأي",
       });
     });
-    
+
     // 4. محتوى ملخص (قراءة سريعة)
     const summaryContent = await fetchArticlesByType(
       ["ملخص"],
@@ -527,7 +527,7 @@ async function getSmartMixedContent(
       });
     });
     console.log(`🎯 تم جلب ${mixedContent.length} مقال في الكوكتيل المتنوع`);
-    
+
     // 5. إذا لم نحصل على ما يكفي، اجلب المزيد من الأخبار العامة
     if (mixedContent.length < 6) {
       console.log("🔄 جلب المزيد من المحتوى لضمان التنوع...");
@@ -537,9 +537,9 @@ async function getSmartMixedContent(
         8 - mixedContent.length
       );
       additionalNews.forEach((article, index) => {
-        if (!mixedContent.find(existing => existing.id === article.id)) {
-      mixedContent.push({
-        ...article,
+        if (!mixedContent.find((existing) => existing.id === article.id)) {
+          mixedContent.push({
+            ...article,
             reason: "مقال إضافي قد يهمك",
             confidence: 65 + index * 2,
             type: article.type || "مقالة",
@@ -547,10 +547,9 @@ async function getSmartMixedContent(
         }
       });
     }
-    
   } catch (error) {
     console.error("⚠️ خطأ في توليد الكوكتيل الذكي:", error);
-    
+
     // Fallback: جلب أي مقالات متاحة
     try {
       console.log("🆘 fallback: جلب أي مقالات متاحة...");
@@ -571,7 +570,7 @@ async function getSmartMixedContent(
       console.error("❌ فشل في fallback أيضاً:", fallbackError);
     }
   }
-  
+
   console.log(`✅ إجمالي المحتوى المتنوع: ${mixedContent.length} مقال`);
   return mixedContent;
 }
@@ -628,7 +627,7 @@ function ensureContentDiversity(
 ): RecommendedArticle[] {
   const typeGroups: { [key: string]: RecommendedArticle[] } = {};
   const diversified: RecommendedArticle[] = [];
-  
+
   // تجميع حسب النوع
   recommendations.forEach((article) => {
     const type = article.type || "مقالة";
@@ -637,11 +636,11 @@ function ensureContentDiversity(
     }
     typeGroups[type].push(article);
   });
-  
+
   // أخذ عينة متنوعة من كل نوع
   const typePriority = ["عاجل", "تحليل", "رأي", "تقرير", "ملخص", "مقالة"];
   let addedCount = 0;
-  
+
   // جولة أولى: أخذ مقال واحد من كل نوع
   for (const type of typePriority) {
     if (
@@ -653,14 +652,14 @@ function ensureContentDiversity(
       addedCount++;
     }
   }
-  
+
   // جولة ثانية: ملء الباقي حسب الثقة
   const remaining = recommendations
     .filter((r) => !diversified.includes(r))
     .sort((a, b) => b.confidence - a.confidence);
-  
+
   diversified.push(...remaining.slice(0, targetCount - addedCount));
-  
+
   return diversified;
 }
 
@@ -675,19 +674,21 @@ async function fetchArticlesByType(
   try {
     // تحويل الأنواع العربية إلى الإنجليزية المستخدمة في قاعدة البيانات
     const typeMapping: { [key: string]: string } = {
-      "تحليل": "analysis",
-      "رأي": "opinion", 
-      "مقالة": "opinion",
-      "ملخص": "news",
-      "عاجل": "news",
-      "تقرير": "analysis"
+      تحليل: "analysis",
+      رأي: "opinion",
+      مقالة: "opinion",
+      ملخص: "news",
+      عاجل: "news",
+      تقرير: "analysis",
     };
 
     // تحويل الأنواع وإزالة التكرار
-    const dbTypes = [...new Set(types.map(type => typeMapping[type] || "news"))];
-    
+    const dbTypes = [
+      ...new Set(types.map((type) => typeMapping[type] || "news")),
+    ];
+
     // إنشاء الـ query string للأنواع
-    const typesQuery = dbTypes.length > 0 ? `&types=${dbTypes.join(',')}` : '';
+    const typesQuery = dbTypes.length > 0 ? `&types=${dbTypes.join(",")}` : "";
 
     // جلب المقالات المنشورة مع تصفية محسنة
     const response = await fetch(
@@ -700,9 +701,9 @@ async function fetchArticlesByType(
       console.warn("⚠️ فشل جلب المقالات من API");
       return [];
     }
-    
+
     const data = await response.json();
-    
+
     if (!data.success || !data.articles || !Array.isArray(data.articles)) {
       console.warn("⚠️ استجابة غير صالحة من API المقالات");
       return [];
@@ -719,11 +720,14 @@ async function fetchArticlesByType(
         !article.title.includes("placeholder") &&
         !article.title.includes("test") &&
         // الصورة المميزة اختيارية - يمكن أن تكون null أو فارغة
-        (article.featured_image === null || 
-         article.featured_image === "" || 
-         (article.featured_image && !article.featured_image.includes("placeholder"))) &&
+        (article.featured_image === null ||
+          article.featured_image === "" ||
+          (article.featured_image &&
+            !article.featured_image.includes("placeholder"))) &&
         // التصنيف مطلوب
-        (article.category_name || article.categories?.name || article.category?.name)
+        (article.category_name ||
+          article.categories?.name ||
+          article.category?.name)
       );
     });
 
@@ -739,8 +743,8 @@ async function fetchArticlesByType(
         const articleType = determineArticleTypeFromContent(article);
         return {
           id: article.id.toString(),
-        title: article.title,
-        url: `/article/${article.id}`,
+          title: article.title,
+          url: `/article/${article.id}`,
           type: articleType,
           reason: getSmartReasonByType(articleType, article.category_name),
           confidence: calculateConfidenceScore(article),
@@ -750,7 +754,7 @@ async function fetchArticlesByType(
           readingTime:
             article.reading_time ||
             Math.ceil((article.content?.length || 1000) / 200),
-        viewsCount: article.views || 0,
+          viewsCount: article.views || 0,
           engagement: article.engagement_score || (article.views || 0) / 1000,
         };
       });
@@ -1040,12 +1044,12 @@ function determineArticleTypeFromContent(
   // أولاً: استخدام نوع المقال من قاعدة البيانات إذا كان موجوداً
   if (article.article_type) {
     const dbTypeMapping: { [key: string]: RecommendedArticle["type"] } = {
-      "analysis": "تحليل",
-      "opinion": "رأي",
-      "news": article.breaking || article.is_breaking ? "عاجل" : "مقالة",
-      "interview": "تقرير"
+      analysis: "تحليل",
+      opinion: "رأي",
+      news: article.breaking || article.is_breaking ? "عاجل" : "مقالة",
+      interview: "تقرير",
     };
-    
+
     const mappedType = dbTypeMapping[article.article_type];
     if (mappedType) {
       return mappedType;
