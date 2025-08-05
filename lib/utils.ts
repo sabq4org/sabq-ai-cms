@@ -174,14 +174,16 @@ export function getOptimizedImageUrl(
 }
 
 /**
- * 🔷 دالة مركزية لتحديد المسار المناسب للمقال
+ * 🔷 دالة مركزية لتحديد المسار المناسب للمقال - تم تحديثها لحل مشاكل React #130
  *
  * منطق صارم وحصري لتوزيع المسارات:
  * • المقالات العادية (أخبار، تقارير، تغطيات) → /article/[id]
  * • مقالات الرأي (كتّاب، زوايا رأي) → /opinion/[id]
  *
+ * تم إزالة دعم الروابط العربية لحل مشاكل React #130 في الإنتاج
+ *
  * @param article - المقال المراد تحديد مساره
- * @returns المسار المناسب للمقال
+ * @returns المسار المناسب للمقال (ID فقط)
  */
 export function getArticleLink(article: any): string {
   // 🛡️ Guard Clause: التحقق من وجود المقال
@@ -193,7 +195,7 @@ export function getArticleLink(article: any): string {
     return "/"; // إرجاع رابط احتياطي آمن
   }
 
-  // استخدام ID فقط - لا روابط عربية
+  // استخدام ID فقط - منع مشاكل React #130 من الروابط العربية
   const identifier = getArticleIdentifier(article);
 
   if (!identifier) {
@@ -245,8 +247,8 @@ export function getArticleLink(article: any): string {
 }
 
 /**
- * إنشاء رابط المقال الذكي (Smart Article Link)
- * يوجه المقالات للتصميم الجديد مع ميزات AI
+ * إنشاء رابط المقال الذكي (Smart Article Link) - محدث لحل مشاكل React #130
+ * يوجه المقالات للتصميم الجديد مع ميزات AI - باستخدام ID فقط
  */
 export function getSmartArticleLink(article: any): string {
   // 🛡️ Guard Clause: التحقق من وجود المقال
@@ -258,7 +260,7 @@ export function getSmartArticleLink(article: any): string {
     return "/";
   }
 
-  // استخدام ID فقط
+  // استخدام ID فقط - منع مشاكل React #130 من الروابط العربية
   const identifier = getArticleIdentifier(article);
 
   if (!identifier) {
@@ -278,13 +280,13 @@ export function getSmartArticleLink(article: any): string {
     article.article_type === "opinion" ||
     article.is_opinion === true;
 
-  // إرجاع المسار الذكي المناسب
+  // إرجاع المسار الذكي المناسب - استخدام ID فقط
   if (isOpinionArticle) {
     return `/opinion/${identifier}`;
   }
 
-  // جميع المقالات الأخرى تذهب للتصميم الذكي الجديد
-  return `/article/${identifier}/smart-page`;
+  // جميع المقالات الأخرى تذهب للتصميم العادي (إزالة smart-page مؤقتاً لحل المشاكل)
+  return `/article/${identifier}`;
 }
 
 // Force rebuild - 2025-01-04

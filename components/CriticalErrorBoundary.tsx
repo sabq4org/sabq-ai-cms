@@ -19,7 +19,10 @@ export class CriticalErrorBoundary extends React.Component<
   private maxErrors = 3;
   private errorTimer: NodeJS.Timeout | null = null;
 
-  constructor(props: { children: React.ReactNode; fallback?: React.ReactNode }) {
+  constructor(props: {
+    children: React.ReactNode;
+    fallback?: React.ReactNode;
+  }) {
     super(props);
     this.state = {
       hasError: false,
@@ -28,13 +31,15 @@ export class CriticalErrorBoundary extends React.Component<
     };
   }
 
-  static getDerivedStateFromError(error: Error): Partial<CriticalErrorBoundaryState> {
+  static getDerivedStateFromError(
+    error: Error
+  ): Partial<CriticalErrorBoundaryState> {
     console.warn("🚨 Critical Error Boundary triggered:", error.message);
-    
+
     // معالجة خاصة لخطأ React #130
     if (error.message.includes("Minified React error #130")) {
       console.warn("🔧 React #130 detected in Critical Boundary");
-      
+
       // محاولة التعافي التلقائي
       setTimeout(() => {
         try {
@@ -44,7 +49,7 @@ export class CriticalErrorBoundary extends React.Component<
         }
       }, 50);
     }
-    
+
     return {
       hasError: true,
       lastError: error,
@@ -58,7 +63,7 @@ export class CriticalErrorBoundary extends React.Component<
       componentStack: errorInfo.componentStack,
     });
 
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       errorCount: prevState.errorCount + 1,
     }));
 
@@ -131,7 +136,7 @@ export class CriticalErrorBoundary extends React.Component<
                 إعادة تحميل الصفحة
               </button>
               <button
-                onClick={() => window.location.href = "/"}
+                onClick={() => (window.location.href = "/")}
                 className="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors"
               >
                 الذهاب للصفحة الرئيسية
@@ -158,28 +163,33 @@ export function useReact130Monitor() {
   useEffect(() => {
     const handleCriticalRecovery = () => {
       console.log("🔄 Critical recovery event received");
-      setErrorCount(prev => Math.max(0, prev - 1));
+      setErrorCount((prev) => Math.max(0, prev - 1));
     };
 
     window.addEventListener("react-critical-recovery", handleCriticalRecovery);
-    
+
     return () => {
-      window.removeEventListener("react-critical-recovery", handleCriticalRecovery);
+      window.removeEventListener(
+        "react-critical-recovery",
+        handleCriticalRecovery
+      );
     };
   }, []);
 
   useEffect(() => {
     // مراقب إضافي للكشف عن أخطاء React #130
     const originalError = console.error;
-    
-    console.error = function(...args) {
-      const errorString = args[0] && args[0].toString ? args[0].toString() : '';
-      
-      if (errorString.includes('Minified React error #130')) {
-        setErrorCount(prev => prev + 1);
-        console.warn(`🔧 React #130 detected via monitor (count: ${errorCount + 1})`);
+
+    console.error = function (...args) {
+      const errorString = args[0] && args[0].toString ? args[0].toString() : "";
+
+      if (errorString.includes("Minified React error #130")) {
+        setErrorCount((prev) => prev + 1);
+        console.warn(
+          `🔧 React #130 detected via monitor (count: ${errorCount + 1})`
+        );
       }
-      
+
       originalError.apply(console, args);
     };
 

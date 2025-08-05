@@ -175,7 +175,7 @@ export default function RootLayout({
         <script src="/react-130-fix.js" async></script>
 
         {/* Emergency React Fix - Critical - Load immediately */}
-        <script 
+        <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
@@ -184,7 +184,7 @@ export default function RootLayout({
                 script.async = false;
                 document.head.appendChild(script);
               })();
-            `
+            `,
           }}
         />
 

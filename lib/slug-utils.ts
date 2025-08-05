@@ -57,11 +57,11 @@ export function generateUniqueId(prefix: string = 'art'): string {
 }
 
 /**
- * تحويل معرف المقال إلى رابط
- * يفضل استخدام المعرف الفريد UUID بدلاً من slug العربي
+ * تحويل معرف المقال إلى رابط - تجنب الروابط العربية لحل مشاكل React #130
+ * يستخدم ID فقط لضمان الاستقرار والتوافق
  */
 export function getArticleIdentifier(article: { id?: string; slug?: string; title?: string }): string {
-  // أولوية للـ UUID دائماً - أكثر استقراراً من الروابط العربية
+  // أولوية للـ UUID دائماً - أكثر استقراراً ومنع مشاكل React #130
   if (article.id && article.id.length === 36 && article.id.includes('-')) {
     return article.id;
   }
@@ -71,17 +71,15 @@ export function getArticleIdentifier(article: { id?: string; slug?: string; titl
     return article.id;
   }
   
-  // ثانياً: التحقق من وجود معرف فريد في slug
-  if (article.slug && /^art-\d{6}-[a-z0-9]{7}$/.test(article.slug)) {
-    return article.slug;
+  // إذا كان هناك ID رقمي، استخدمه
+  if (article.id && /^\d+$/.test(article.id)) {
+    return article.id;
   }
   
-  // إذا كان المقال له slug إنجليزي صحيح (بدون عربي)، استخدمه
-  if (article.slug && /^[a-z0-9-]+$/.test(article.slug) && !/[\u0600-\u06FF]/.test(article.slug)) {
-    return article.slug;
-  }
+  // تجنب الـ slugs العربية تماماً - تسبب مشاكل في الـ routing وReact errors
+  // استخدام ID فقط لضمان عدم تعارض الأحرف العربية مع React rendering
   
-  // خلاف ذلك، ولّد معرف جديد
+  // إذا لم يكن هناك ID صحيح، ولّد معرف جديد
   return generateUniqueId();
 }
 
