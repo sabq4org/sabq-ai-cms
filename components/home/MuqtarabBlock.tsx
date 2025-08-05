@@ -483,7 +483,7 @@ function AngleArticleCard({ angleArticle }: { angleArticle: AngleArticle }) {
             }20, ${angleArticle.angle.themeColor || "#8B5CF6"}40)`,
           }}
         >
-          <div 
+          <div
             className="text-4xl"
             style={{ color: angleArticle.angle.themeColor || "#8B5CF6" }}
           >
