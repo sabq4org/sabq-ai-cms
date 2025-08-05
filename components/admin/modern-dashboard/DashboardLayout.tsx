@@ -14,14 +14,14 @@ import React, { useEffect, useState } from "react";
 // تحميل المكونات بشكل ديناميكي لتحسين الأداء
 const ModernSidebar = dynamic(() => import("./ModernSidebar"), {
   loading: () => <LoadingSpinner size="sm" text="تحميل القائمة..." />,
-  ssr: false,
+  ssr: true,
 });
 
 const ModernHeader = dynamic(() => import("./ModernHeader"), {
   loading: () => (
     <div className="h-16 bg-white dark:bg-gray-800 border-b animate-pulse" />
   ),
-  ssr: false,
+  ssr: true,
 });
 
 interface DashboardLayoutProps {
