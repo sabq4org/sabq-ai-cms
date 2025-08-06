@@ -1,6 +1,7 @@
 "use client";
 
-import OptimizedImage from "@/components/ui/optimized-image";
+import Image from "next/image";
+import { OptimizedImage } from "../ui/optimized-image";
 import { IMAGE_CONFIG } from "./ImageDisplayConfig";
 
 interface ArticleFeaturedImageProps {
@@ -28,6 +29,8 @@ export default function ArticleFeaturedImage({
             <OptimizedImage
               src={imageUrl}
               alt={title}
+              width={1024}
+              height={500}
               className="w-full object-cover max-h-[250px] sm:max-h-[400px] lg:max-h-[500px]"
               priority={true}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1024px"
@@ -40,11 +43,13 @@ export default function ArticleFeaturedImage({
       return (
         <div className="article-featured-image relative h-[400px] sm:h-[500px] lg:h-[600px] w-full overflow-hidden bg-gray-900 dark:bg-black">
           {/* صورة الخلفية المموهة */}
-          <img
+          <Image
             src={imageUrl}
             alt=""
+            width={800}
+            height={600}
             className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 opacity-60"
-            loading="lazy"
+            priority={false}
           />
 
           {/* الطبقة الداكنة فوق الخلفية المموهة */}
@@ -56,8 +61,9 @@ export default function ArticleFeaturedImage({
               <OptimizedImage
                 src={imageUrl}
                 alt={title}
+                width={800}
+                height={600}
                 className="max-w-full max-h-full shadow-2xl transition-all duration-500 hover:scale-[1.02]"
-                aspectRatio="auto"
                 priority={true}
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
               />
@@ -91,12 +97,12 @@ export default function ArticleFeaturedImage({
               <OptimizedImage
                 src={imageUrl}
                 alt={title}
-                className="w-full"
-                aspectRatio={IMAGE_CONFIG.ASPECT_RATIO as any}
+                width={800}
+                height={600}
+                className="w-full h-auto object-cover transition-all duration-500 hover:scale-[1.02]"
                 priority={true}
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
-              />
-
+              />{" "}
               {/* تراكب التصنيف */}
               {category && (
                 <div className="absolute bottom-4 left-4">
@@ -122,6 +128,8 @@ export default function ArticleFeaturedImage({
           <OptimizedImage
             src={imageUrl}
             alt={title}
+            width={1920}
+            height={1080}
             className="w-full h-full object-cover"
             priority={true}
             sizes="100vw"

@@ -222,3 +222,6 @@ export function AvatarImage({
     />
   );
 }
+
+// Default export للتوافق مع الكود الموجود
+export default OptimizedImage;
