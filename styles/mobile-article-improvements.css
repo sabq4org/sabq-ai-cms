@@ -246,3 +246,49 @@
 .mobile-featured-image-container {
   contain: size layout style paint;
 }
+
+/* 🔧 حاوي الصورة الجديد - عرض كامل بدون تقطيع */
+.mobile-featured-image-container-fixed {
+  /* أبعاد محسنة للموبايل */
+  max-width: 92%;
+  margin: 0 auto;
+  
+  /* ظل خفيف */
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  
+  /* إزالة أي خلفيات */
+  background: transparent;
+  
+  /* تحسين الأداء */
+  contain: layout style paint;
+}
+
+/* 📱 الصورة المحسنة - عرض كامل بدون اقتصاص */
+.mobile-featured-image-responsive {
+  /* ارتفاع محدود للموبايل */
+  max-height: 280px !important;
+  
+  /* عرض كامل للصورة بدون تقطيع */
+  object-fit: contain !important;
+  object-position: center center;
+  
+  /* خلفية شفافة */
+  background: transparent;
+  
+  /* انتقال سلس */
+  transition: transform 0.3s ease;
+}
+
+/* تحسينات responsive للشاشات المختلفة */
+@media (min-width: 640px) {
+  .mobile-featured-image-responsive {
+    max-height: 350px !important;
+  }
+}
+
+/* Dark Mode للحاوي الجديد */
+@media (prefers-color-scheme: dark) {
+  .mobile-featured-image-container-fixed {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  }
+}
