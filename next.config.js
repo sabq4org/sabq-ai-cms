@@ -93,6 +93,21 @@ const nextConfig = {
         hostname: "*.cloudinary.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "cdn.sabq.org",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "sabq-prod.imgix.net",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "sabq-storage.s3.amazonaws.com",
+        pathname: "/**",
+      },
     ],
   },
 

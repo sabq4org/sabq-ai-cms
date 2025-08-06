@@ -34,6 +34,9 @@ import "../styles/theme-manager.css";
 import "./globals.css";
 import { Providers } from "./providers";
 
+// لا نستخدم هنا dynamic import لأنها تسبب مشكلة في Next.js 15.4.1
+// لاحظ: أي مكون يستخدم hooks يجب أن يكون client component
+
 const ibmPlexArabic = IBM_Plex_Sans_Arabic({
   subsets: ["arabic"],
   weight: ["300", "400", "500", "600", "700"],
@@ -257,6 +260,7 @@ export default function RootLayout({
                     <Providers>
                       <GlobalErrorHandler />
                       <ConditionalHeader />
+                      {/* تم تعطيل مراقب قاعدة البيانات مؤقتًا لإصلاح المشكلة */}
                       <ContentWrapper>{children}</ContentWrapper>
                     </Providers>
                   </AnalyticsProvider>

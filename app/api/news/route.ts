@@ -124,6 +124,7 @@ export async function GET(request: NextRequest) {
         title: article.title,
         content: article.content,
         summary: article.summary,
+        image: article.featured_image,
         image_url: article.featured_image,
         status: article.status,
         article_type: article.article_type,

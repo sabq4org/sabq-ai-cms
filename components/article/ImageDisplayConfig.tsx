@@ -18,7 +18,7 @@ export const IMAGE_CONFIG = {
   // aspect-ratio: صورة بنسبة عرض ثابتة
   // fullwidth: صورة بعرض كامل
   // content-width: صورة بعرض المحتوى بدون خلفية متدرجة
-  DISPLAY_MODE: "content-width" as ImageDisplayMode,
+  DISPLAY_MODE: "aspect-ratio" as ImageDisplayMode,
 
   // نسبة العرض للوضع aspect-ratio
   ASPECT_RATIO: "16:9", // يمكن تغييرها إلى '4:3' أو '1:1'

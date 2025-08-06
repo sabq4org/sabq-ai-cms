@@ -1,14 +1,20 @@
 "use client";
 
+import { isEmergencyArticleSupported } from "@/app/emergency-articles";
 import Footer from "@/components/Footer";
 import ReporterLink from "@/components/ReporterLink";
 import ArticleFeaturedImage from "@/components/article/ArticleFeaturedImage";
 import OpinionArticleLayout from "@/components/article/OpinionArticleLayout";
 import SafeDateDisplay from "@/components/article/SafeDateDisplay";
+import DbConnectionError from "@/components/db-connection-error";
 import MobileOpinionLayout from "@/components/mobile/MobileOpinionLayout";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { ArticleData } from "@/lib/article-api";
+import {
+  handlePrismaError,
+  isPrismaConnectionError,
+} from "@/lib/prisma-error-handler";
 import "@/styles/mobile-article-layout.css";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -122,68 +128,48 @@ export default function ArticleClientComponent({
     }
   };
 
-  // جلب المقال إذا لم يتم تمريره - مع حل طارئ لمشكلة React #130
+  // جلب المقال إذا لم يتم تمريره - مع حل طارئ محسن لمشكلة الاتصال بقاعدة البيانات
   useEffect(() => {
     if (!initialArticle) {
       const fetchArticle = async () => {
         try {
           setLoading(true);
 
-          // حل طارئ مؤقت لمشكلة Prisma Engine not connected
-          if (articleId === "article_1754419941517_d75ingopj") {
-            console.log("🚨 EMERGENCY MODE: استخدام بيانات مؤقتة للمقال");
-            const emergencyArticle = {
-              id: "article_1754419941517_d75ingopj",
-              title: "ابتكار جديد في المملكة العربية السعودية",
-              slug: "article_1754419941517_d75ingopj",
-              content: `<div class="article-content">
-                <h1>ابتكار جديد في المملكة العربية السعودية</h1>
-                <p>تشهد المملكة العربية السعودية نهضة تكنولوجية واسعة في إطار رؤية 2030...</p>
-                <p>يهدف هذا المحتوى المؤقت إلى حل مشكلة React #130 التي تواجه المقال.</p>
-                <p>سيتم استعادة المحتوى الأصلي قريباً بعد حل مشكلة قاعدة البيانات.</p>
-              </div>`,
-              excerpt:
-                "ابتكار جديد في المملكة العربية السعودية - محتوى مؤقت لحل مشكلة عرض المقال",
-              featured_image: "/placeholder-image.jpg",
-              status: "published",
-              published_at: new Date("2025-01-28").toISOString(),
-              created_at: new Date("2025-01-28").toISOString(),
-              updated_at: new Date("2025-01-28").toISOString(),
-              views: 1,
-              category_id: 1,
-              author_name: "فريق التحرير",
-              author_title: "محرر",
-              author_avatar: null,
-              author_slug: null,
-              category: {
-                id: 1,
-                name: "أخبار",
-                slug: "news",
-                description: "أخبار عامة",
-              },
-              author: {
-                id: 1,
-                name: "فريق التحرير",
-                email: "editor@sabq.io",
-                avatar: null,
-                reporter: null,
-              },
-              article_author: null,
-              categories: null,
-              metadata: {
-                emergency_mode: true,
-                original_error:
-                  "Prisma Engine not connected - تم حل المشكلة مؤقتاً",
-                timestamp: new Date().toISOString(),
-              },
-            };
+          // التحقق مما إذا كان المقال مدعومًا في وضع الطوارئ
+          if (isEmergencyArticleSupported(articleId)) {
+            console.log(
+              "🚨 EMERGENCY MODE: استخدام بيانات مؤقتة للمقال",
+              articleId
+            );
 
-            setArticle(processArticle(emergencyArticle));
-            setLoading(false);
-            return;
+            // استخدام مسار الطوارئ المباشر
+            try {
+              const emergencyResponse = await fetch(
+                `/api/articles/${articleId}/emergency`,
+                {
+                  cache: "no-store",
+                }
+              );
+
+              if (emergencyResponse.ok) {
+                const emergencyData = await emergencyResponse.json();
+                if (emergencyData.success) {
+                  setArticle(processArticle(emergencyData));
+                  setLoading(false);
+                  return;
+                }
+              }
+            } catch (emergencyError) {
+              console.warn(
+                "⚠️ فشل في جلب المقال من مسار الطوارئ:",
+                emergencyError
+              );
+              handlePrismaError(emergencyError, "طوارئ المقال");
+              // يتابع للمحاولة العادية في حالة فشل مسار الطوارئ
+            }
           }
 
-          // محاولة جلب المقال مع timeout للمقالات الأخرى
+          // محاولة جلب المقال العادية مع timeout
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 ثواني
 
@@ -203,15 +189,51 @@ export default function ArticleClientComponent({
           } else if (response.status === 404) {
             console.warn("تحذير: المقال غير موجود");
             // يمكن إضافة معالجة خاصة للمقالات المفقودة
+            router.push("/404");
           } else {
-            console.warn(
-              "تحذير: فشل في تحميل المقال، كود الاستجابة:",
-              response.status
-            );
+            // محاولة الكشف عن خطأ قاعدة البيانات
+            try {
+              const errorData = await response.json();
+
+              // فحص متقدم لأخطاء قاعدة البيانات باستخدام الأداة المساعدة
+              if (
+                errorData?.error &&
+                errorData?.details &&
+                isPrismaConnectionError({ message: errorData.details })
+              ) {
+                console.error(
+                  "خطأ في اتصال قاعدة البيانات:",
+                  errorData.details
+                );
+                handlePrismaError({ message: errorData.details }, "جلب المقال");
+                setDbConnectionError(errorData.details);
+
+                // المحاولة بالوضع الطارئ في حالة عدم المحاولة سابقًا
+                if (!isEmergencyArticleSupported(articleId)) {
+                  console.log("⚠️ محاولة عرض المقال في الوضع العام");
+                  // توجيه المستخدم لصفحة الطوارئ العامة
+                }
+              } else {
+                console.warn(
+                  "تحذير: فشل في تحميل المقال، كود الاستجابة:",
+                  response.status,
+                  errorData?.error || ""
+                );
+              }
+            } catch (jsonError) {
+              console.warn(
+                "تحذير: فشل في تحميل المقال، كود الاستجابة:",
+                response.status
+              );
+            }
           }
         } catch (error: any) {
           if (error.name === "AbortError") {
             console.warn("تحذير: انتهت مهلة تحميل المقال");
+          } else if (isPrismaConnectionError(error)) {
+            console.error("خطأ في اتصال قاعدة البيانات:", error.message);
+            handlePrismaError(error, "جلب المقال في catch");
+            setDbConnectionError(error.message);
           } else {
             console.warn(
               "تحذير: خطأ في شبكة أثناء تحميل المقال:",
@@ -225,7 +247,7 @@ export default function ArticleClientComponent({
 
       fetchArticle();
     }
-  }, [initialArticle, articleId]);
+  }, [initialArticle, articleId, router]);
 
   // معالجة المحتوى إلى HTML
   useEffect(() => {
@@ -245,7 +267,22 @@ export default function ArticleClientComponent({
     }
   }, [article?.content]);
 
+  // التحقق من وجود خطأ محدد في اتصال قاعدة البيانات
+  const [dbConnectionError, setDbConnectionError] = useState<string | null>(
+    null
+  );
+
   // إذا لا يوجد مقال وجاري التحميل
+  if (dbConnectionError) {
+    return (
+      <DbConnectionError
+        articleId={articleId}
+        errorDetail={dbConnectionError}
+        showAdminLink={true}
+      />
+    );
+  }
+
   if (loading || !article) {
     return (
       <div
@@ -564,20 +601,23 @@ export default function ArticleClientComponent({
           </article>
         </div>
 
-        {/* صورة المقال - خارج الحاوية المحدودة لتأخذ العرض الكامل */}
-        {(article.image_url || article.featured_image) && (
-          <div className="w-full">
-            <ArticleFeaturedImage
-              imageUrl={(article.image_url || article.featured_image) as string}
-              title={article.title}
-              category={article.category}
-            />
-          </div>
-        )}
-
         {/* منطقة المحتوى */}
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 lg:p-8">
+            {/* صورة المقال - داخل الحاوية مع تحسينات لتجنب مشاكل الهيدرو */}
+            {article.featured_image &&
+              typeof article.featured_image === "string" &&
+              article.featured_image.length > 0 &&
+              !article.metadata?.emergency_mode && ( // تجنب عرض الصورة في وضع الطوارئ
+                <div className="w-full mb-4">
+                  <ArticleFeaturedImage
+                    imageUrl={article.featured_image}
+                    title={article.title}
+                    category={article.category}
+                  />
+                </div>
+              )}
+
             {/* الملخص الذكي مع التحويل الصوتي */}
             <div className="mb-6 sm:mb-8">
               <ArticleAISummary

@@ -18,7 +18,6 @@ interface OptimizedImageProps {
   blurDataURL?: string;
   onLoad?: () => void;
   onError?: () => void;
-  loading?: "lazy" | "eager";
 }
 
 export function OptimizedImage({
@@ -79,66 +78,37 @@ export function OptimizedImage({
     );
   }
 
-  // إذا كانت fill مفعلة، لا نستخدم div wrapper
-  if (fill) {
-    return (
-      <>
-        {isLoading && (
-          <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse z-10" />
-        )}
-        <Image
-          src={src}
-          alt={alt}
-          fill={true}
-          priority={priority}
-          quality={quality}
-          sizes={
-            sizes || "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          }
-          placeholder={placeholder}
-          blurDataURL={blurDataURL}
-          onLoad={handleLoad}
-          onError={handleError}
-          className={cn(
-            "transition-opacity duration-300 object-cover",
-            isLoading ? "opacity-0" : "opacity-100",
-            className
-          )}
-          style={{ width: "100%", height: "100%" }}
-          {...props}
-        />
-      </>
-    );
-  }
-
-  // للصور ذات الأبعاد المحددة
   return (
-    <div
-      className={cn("relative overflow-hidden", className)}
-      style={{ width, height }}
-    >
+    <div className={cn("relative overflow-hidden", className)}>
+      {/* Loading skeleton */}
       {isLoading && (
-        <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse" />
+        <div
+          className={cn(
+            "absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse",
+            fill ? "w-full h-full" : ""
+          )}
+          style={!fill ? { width, height } : undefined}
+        />
       )}
+
       <Image
         src={src}
         alt={alt}
-        width={width}
-        height={height}
+        width={fill ? undefined : width}
+        height={fill ? undefined : height}
+        fill={fill}
         priority={priority}
         quality={quality}
-        sizes={
-          sizes || "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-        }
+        sizes={sizes}
         placeholder={placeholder}
         blurDataURL={blurDataURL}
         onLoad={handleLoad}
         onError={handleError}
         className={cn(
-          "transition-opacity duration-300 w-full h-full object-cover",
-          isLoading ? "opacity-0" : "opacity-100"
+          "transition-opacity duration-300",
+          isLoading ? "opacity-0" : "opacity-100",
+          fill ? "object-cover" : ""
         )}
-        style={{ objectFit: "cover" }}
         {...props}
       />
     </div>
@@ -157,7 +127,6 @@ export function LazyImage({
       src={src}
       alt={alt}
       className={className}
-      loading="lazy"
       placeholder="blur"
       blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
       {...props}
@@ -253,5 +222,5 @@ export function AvatarImage({
   );
 }
 
-// إضافة default export للتوافق مع imports
+// Default export للتوافق مع الكود الموجود
 export default OptimizedImage;

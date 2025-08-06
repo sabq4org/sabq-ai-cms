@@ -217,6 +217,9 @@ export async function GET(
 
     const formattedArticle = {
       ...article,
+      // ✅ إضافة image للتوافق مع المكونات
+      image: article.featured_image,
+      image_url: article.featured_image,
       category: categoryInfo,
       // إعطاء أولوية لكاتب المقال الحقيقي من article_authors
       author_name: authorName,
@@ -242,6 +245,19 @@ export async function GET(
       },
       success: true,
     };
+
+    // 🔍 تتبع الصورة للتشخيص
+    console.log("🖼️ [ARTICLE API] تتبع الصورة:", {
+      articleId: article.id,
+      title: article.title?.substring(0, 50) + "...",
+      featured_image: article.featured_image,
+      imageExists: !!article.featured_image,
+      imageType: article.featured_image?.includes("cloudinary")
+        ? "cloudinary"
+        : article.featured_image?.includes("placeholder")
+        ? "placeholder"
+        : "other",
+    });
 
     // إرجاع البيانات مع معلومات الكاتب المحسنة
     return NextResponse.json(formattedArticle);

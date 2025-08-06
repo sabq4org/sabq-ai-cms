@@ -32,6 +32,7 @@ interface SmartArticleHeroProps {
     excerpt?: string;
     featured_image?: string;
     image_url?: string;
+    image?: string;
     published_at: string;
     reading_time?: number;
     views_count: number;
@@ -117,6 +118,7 @@ export default function SmartArticleHero({ article }: SmartArticleHeroProps) {
         <Image
           src={
             article.image_url ||
+            article.image ||
             article.featured_image ||
             "/images/default-article.jpg"
           }

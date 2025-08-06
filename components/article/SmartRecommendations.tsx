@@ -29,6 +29,7 @@ interface SmartRecommendationsProps {
       excerpt: string;
       featured_image?: string;
       image_url?: string;
+      image?: string;
       author_name?: string;
       published_at: string;
       reading_time?: number;
@@ -50,6 +51,7 @@ interface SmartRecommendationsProps {
       excerpt: string;
       featured_image?: string;
       image_url?: string;
+      image?: string;
       author_name?: string;
       published_at: string;
       reading_time?: number;
@@ -63,6 +65,7 @@ interface SmartRecommendationsProps {
       excerpt: string;
       featured_image?: string;
       image_url?: string;
+      image?: string;
       author_name?: string;
       published_at: string;
       reading_time?: number;
@@ -159,6 +162,7 @@ export default function SmartRecommendations({
             <Image
               src={
                 article.image_url ||
+                article.image ||
                 article.featured_image ||
                 "/images/default-article.jpg"
               }

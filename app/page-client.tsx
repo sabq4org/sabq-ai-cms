@@ -291,7 +291,7 @@ function NewspaperHomePage({
           {/* صورة المقال */}
           <div className="relative h-40 sm:h-48 overflow-hidden">
             <CloudImage
-              src={news?.featured_image || null}
+              src={news?.image || null}
               alt={news?.title || "صورة المقال"}
               fill
               className="w-full h-full object-cover transition-transform duration-500"
@@ -880,7 +880,7 @@ function NewspaperHomePage({
                                 {/* صورة المقال */}
                                 <div className="relative h-40 sm:h-48 overflow-hidden">
                                   <CloudImage
-                                    src={article?.featured_image || null}
+                                    src={article?.image || null}
                                     alt={article?.title || "صورة المقال"}
                                     fill
                                     className="w-full h-full object-cover transition-transform duration-500"
@@ -1504,6 +1504,20 @@ export default function PageClient({
   },
   initialDeepAnalyses = [],
 }: PageClientProps) {
+  // 🔍 Debug: فحص البيانات الواردة
+  console.log("🎯 [DEBUG] PageClient received data:", {
+    articlesCount: initialArticles.length,
+    firstArticle: initialArticles[0]
+      ? {
+          title: initialArticles[0].title?.substring(0, 30) + "...",
+          hasImage: !!initialArticles[0].image,
+          hasImageUrl: !!initialArticles[0].image_url,
+          hasFeaturedImage: !!initialArticles[0].featured_image,
+          imageValue: initialArticles[0].image?.substring(0, 50) + "...",
+        }
+      : "No articles",
+  });
+
   const [stats, setStats] = useState(initialStats);
 
   // استخدام الإحصائيات الأولية
