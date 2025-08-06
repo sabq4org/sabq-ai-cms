@@ -568,13 +568,11 @@ export default function ArticleClientComponent({
         <article className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
           {/* صورة المقال - فوق الملخص الذكي */}
           {article.featured_image && (
-            <div className="mb-6 sm:mb-8">
-              <ArticleFeaturedImage
-                imageUrl={article.featured_image}
-                title={article.title}
-                category={article.category}
-              />
-            </div>
+            <ArticleFeaturedImage
+              imageUrl={article.featured_image}
+              title={article.title}
+              category={article.category}
+            />
           )}
 
           {/* الملخص الذكي مع التحويل الصوتي */}
