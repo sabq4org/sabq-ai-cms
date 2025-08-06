@@ -38,11 +38,14 @@ export default function CloudImage({
   // الحصول على رابط الصورة المحسن مع معالجة أفضل للأخطاء
   const imageUrl = React.useMemo(() => {
     try {
-      // تحديد بيئة التشغيل
+      // تحديد بيئة التشغيل - استخدام تحديد أكثر دقة للإنتاج
       const isProduction =
         process.env.NODE_ENV === "production" ||
         (typeof window !== "undefined" &&
-          window.location.hostname !== "localhost");
+          window.location.hostname !== "localhost" &&
+          window.location.hostname !== "127.0.0.1" &&
+          !window.location.hostname.includes("192.168.") &&
+          !window.location.hostname.includes("dev-"));
 
       // استخدام معالج الإنتاج في بيئة الإنتاج
       if (isProduction) {
@@ -67,7 +70,10 @@ export default function CloudImage({
       const isProduction =
         process.env.NODE_ENV === "production" ||
         (typeof window !== "undefined" &&
-          window.location.hostname !== "localhost");
+          window.location.hostname !== "localhost" &&
+          window.location.hostname !== "127.0.0.1" &&
+          !window.location.hostname.includes("192.168.") &&
+          !window.location.hostname.includes("dev-"));
 
       if (isProduction) {
         return getProductionImageUrl(null, { fallbackType });

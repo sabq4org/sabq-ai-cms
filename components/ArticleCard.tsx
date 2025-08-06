@@ -79,7 +79,11 @@ export default function ArticleCard({
   // استخدام معالج الإنتاج في بيئة الإنتاج - استخدام تحديد أكثر موثوقية للإنتاج
   const isProduction =
     process.env.NODE_ENV === "production" ||
-    (typeof window !== "undefined" && window.location.hostname !== "localhost");
+    (typeof window !== "undefined" &&
+      window.location.hostname !== "localhost" &&
+      window.location.hostname !== "127.0.0.1" &&
+      !window.location.hostname.includes("192.168.") &&
+      !window.location.hostname.includes("dev-"));
 
   const imageUrl = rawImageUrl
     ? isProduction
