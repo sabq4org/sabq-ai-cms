@@ -90,7 +90,7 @@ export default function CloudImage({
   // للصور التي تملأ الحاوية
   if (fill) {
     return (
-      <div className={`relative overflow-hidden ${className}`}>
+      <>
         {isLoading && (
           <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse" />
         )}
@@ -98,17 +98,19 @@ export default function CloudImage({
           src={imageUrl}
           alt={alt}
           fill={true}
-          sizes={sizes || "100vw"}
+          sizes={
+            sizes || "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          }
           quality={quality}
           priority={priority}
-          className={`object-cover ${
+          className={`${className} object-cover ${
             isLoading ? "opacity-0" : "opacity-100"
           } transition-opacity duration-300`}
           onError={handleError}
           onLoad={handleLoad}
-          style={{ objectFit: "cover" }}
+          style={{ objectFit: "cover", width: "100%", height: "100%" }}
         />
-      </div>
+      </>
     );
   }
 
@@ -131,12 +133,15 @@ export default function CloudImage({
         height={validHeight}
         quality={quality}
         priority={priority}
+        sizes={
+          sizes || "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+        }
         className={`object-cover w-full h-full ${
           isLoading ? "opacity-0" : "opacity-100"
         } transition-opacity duration-300`}
         onError={handleError}
         onLoad={handleLoad}
-        style={{ objectFit: "cover" }}
+        style={{ objectFit: "cover", width: "100%", height: "100%" }}
       />
     </div>
   );

@@ -79,37 +79,66 @@ export function OptimizedImage({
     );
   }
 
-  return (
-    <div className={cn("relative overflow-hidden", className)}>
-      {/* Loading skeleton */}
-      {isLoading && (
-        <div
+  // إذا كانت fill مفعلة، لا نستخدم div wrapper
+  if (fill) {
+    return (
+      <>
+        {isLoading && (
+          <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse z-10" />
+        )}
+        <Image
+          src={src}
+          alt={alt}
+          fill={true}
+          priority={priority}
+          quality={quality}
+          sizes={
+            sizes || "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          }
+          placeholder={placeholder}
+          blurDataURL={blurDataURL}
+          onLoad={handleLoad}
+          onError={handleError}
           className={cn(
-            "absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse",
-            fill ? "w-full h-full" : ""
+            "transition-opacity duration-300 object-cover",
+            isLoading ? "opacity-0" : "opacity-100",
+            className
           )}
-          style={!fill ? { width, height } : undefined}
+          style={{ width: "100%", height: "100%" }}
+          {...props}
         />
-      )}
+      </>
+    );
+  }
 
+  // للصور ذات الأبعاد المحددة
+  return (
+    <div
+      className={cn("relative overflow-hidden", className)}
+      style={{ width, height }}
+    >
+      {isLoading && (
+        <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse" />
+      )}
       <Image
         src={src}
         alt={alt}
-        width={fill ? undefined : width}
-        height={fill ? undefined : height}
-        fill={fill}
+        width={width}
+        height={height}
         priority={priority}
         quality={quality}
-        sizes={sizes}
+        sizes={
+          sizes || "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+        }
         placeholder={placeholder}
         blurDataURL={blurDataURL}
         onLoad={handleLoad}
         onError={handleError}
         className={cn(
-          "transition-opacity duration-300",
-          isLoading ? "opacity-0" : "opacity-100",
-          fill ? "object-cover" : ""
+          "transition-opacity duration-300 w-full h-full object-cover",
+          isLoading ? "opacity-0" : "opacity-100"
         )}
+        style={{ objectFit: "cover" }}
         {...props}
       />
     </div>

@@ -24,16 +24,17 @@ export default function ArticleFeaturedImage({
       return (
         <div className="relative w-full">
           {/* الصورة الرئيسية بدون إطار أو ظل */}
-          <div className="relative overflow-hidden rounded-xl shadow-lg">
+          <div className="relative overflow-hidden rounded-xl shadow-lg h-[350px] sm:h-[500px] md:h-[600px] lg:h-[700px]">
             <OptimizedImage
               src={imageUrl}
               alt={title}
-              className="w-full object-cover h-[350px] sm:h-[500px] md:h-[600px] lg:h-[700px]"
+              fill={true}
+              className="w-full h-full object-cover"
               priority={true}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
             />
             {/* تدرج خفيف في الأسفل */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none z-10" />
 
             {/* عرض التصنيف على الصورة إن وجد */}
             {category && (
@@ -70,13 +71,11 @@ export default function ArticleFeaturedImage({
           {/* حاوي الصورة الرئيسية */}
           <div className="relative z-10 h-full flex items-center justify-center p-4 sm:p-8">
             <div className="max-w-4xl w-full h-full flex items-center justify-center">
-              <OptimizedImage
+              <img
                 src={imageUrl}
                 alt={title}
-                className="max-w-full max-h-full shadow-2xl transition-all duration-500 hover:scale-[1.02]"
-                aspectRatio="auto"
-                priority={true}
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
+                className="max-w-full max-h-full object-contain shadow-2xl transition-all duration-500 hover:scale-[1.02] rounded-lg"
+                loading="eager"
               />
             </div>
           </div>
@@ -104,12 +103,15 @@ export default function ArticleFeaturedImage({
       return (
         <div className="article-featured-image w-full bg-gray-100 dark:bg-gray-800">
           <div className="w-full">
-            <div className="relative overflow-hidden shadow-xl">
+            <div
+              className="relative overflow-hidden shadow-xl"
+              style={{ aspectRatio: IMAGE_CONFIG.ASPECT_RATIO }}
+            >
               <OptimizedImage
                 src={imageUrl}
                 alt={title}
-                className="w-full"
-                aspectRatio={IMAGE_CONFIG.ASPECT_RATIO as any}
+                fill={true}
+                className="w-full h-full object-cover"
                 priority={true}
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
               />
@@ -139,6 +141,7 @@ export default function ArticleFeaturedImage({
           <OptimizedImage
             src={imageUrl}
             alt={title}
+            fill={true}
             className="w-full h-full object-cover"
             priority={true}
             sizes="100vw"
@@ -169,11 +172,12 @@ export default function ArticleFeaturedImage({
         <div className="article-featured-image w-full">
           {/* حاوي بعرض كامل للهواتف، وبعرض المحتوى للشاشات الكبيرة */}
           <div className="w-full max-w-5xl mx-auto">
-            <div className="relative overflow-hidden sm:rounded-xl">
+            <div className="relative overflow-hidden sm:rounded-xl h-[450px] sm:h-[520px] md:h-[600px] lg:h-[700px]">
               <OptimizedImage
                 src={imageUrl}
                 alt={title}
-                className="w-full object-cover h-[450px] sm:h-[520px] md:h-[600px] lg:h-[700px]"
+                fill={true}
+                className="w-full h-full object-cover"
                 priority={true}
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) calc(100vw - 3rem), 1152px"
               />

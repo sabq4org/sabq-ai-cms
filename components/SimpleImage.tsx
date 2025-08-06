@@ -31,17 +31,24 @@ export default function SimpleImage({
       <img
         src={src}
         alt={alt}
-        className={`${className} w-full h-full object-cover`}
+        className={`${className} object-cover`}
         style={
           fill
             ? {
                 position: "absolute",
                 top: 0,
                 left: 0,
+                right: 0,
+                bottom: 0,
                 width: "100%",
                 height: "100%",
+                objectFit: "cover",
               }
-            : {}
+            : {
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }
         }
         onLoad={() => console.log("✅ HTML img loaded:", src)}
         onError={(e) => {
@@ -66,11 +73,13 @@ export default function SimpleImage({
         fill={true}
         className={className}
         priority={priority}
-        sizes={sizes || "100vw"}
+        sizes={
+          sizes || "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+        }
         unoptimized={true}
         onLoad={() => console.log("✅ Next.js Image loaded:", src)}
         onError={() => console.error("❌ Next.js Image failed:", src)}
-        style={{ objectFit: "cover" }}
+        style={{ objectFit: "cover", width: "100%", height: "100%" }}
       />
     );
   }
@@ -83,11 +92,13 @@ export default function SimpleImage({
       height={validHeight}
       className={className}
       priority={priority}
-      sizes={sizes}
+      sizes={
+        sizes || "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+      }
       unoptimized={true}
       onLoad={() => console.log("✅ Next.js Image loaded:", src)}
       onError={() => console.error("❌ Next.js Image failed:", src)}
-      style={{ objectFit: "cover" }}
+      style={{ objectFit: "cover", width: "100%", height: "100%" }}
     />
   );
 }
