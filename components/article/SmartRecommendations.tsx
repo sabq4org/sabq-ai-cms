@@ -28,6 +28,7 @@ interface SmartRecommendationsProps {
       title: string;
       excerpt: string;
       featured_image?: string;
+      image_url?: string;
       author_name?: string;
       published_at: string;
       reading_time?: number;
@@ -48,6 +49,7 @@ interface SmartRecommendationsProps {
       title: string;
       excerpt: string;
       featured_image?: string;
+      image_url?: string;
       author_name?: string;
       published_at: string;
       reading_time?: number;
@@ -60,6 +62,7 @@ interface SmartRecommendationsProps {
       title: string;
       excerpt: string;
       featured_image?: string;
+      image_url?: string;
       author_name?: string;
       published_at: string;
       reading_time?: number;
@@ -154,7 +157,11 @@ export default function SmartRecommendations({
           {/* Image */}
           <div className="relative h-48 overflow-hidden">
             <Image
-              src={article.featured_image || "/images/default-article.jpg"}
+              src={
+                article.image_url ||
+                article.featured_image ||
+                "/images/default-article.jpg"
+              }
               alt={article.title}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-110"

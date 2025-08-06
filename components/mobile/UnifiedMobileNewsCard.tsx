@@ -26,6 +26,7 @@ interface UnifiedNewsData {
   excerpt?: string;
   summary?: string;
   featured_image?: string;
+  image_url?: string;
   author?: {
     id: string;
     name: string;
@@ -89,7 +90,7 @@ export default function UnifiedMobileNewsCard({
       title: article.title || "",
       slug: article.slug || article.id?.toString() || "",
       excerpt: article.excerpt || article.summary || "",
-      featured_image: article.featured_image || "",
+      featured_image: article.image_url || article.featured_image || "",
       author_name: article.author?.name || article.author_name || "",
       category_name: article.category?.name || article.category_name || "",
       category_color:

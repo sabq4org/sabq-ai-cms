@@ -12,6 +12,7 @@ interface Article {
   title: string;
   excerpt?: string;
   featured_image?: string;
+  image_url?: string;
   published_at: string;
   views?: number;
   reading_time?: number;
@@ -158,11 +159,11 @@ export default function AuthorLatestArticles({
             >
               <div className="flex gap-3">
                 {/* صورة المقال */}
-                {article.featured_image && (
+                {(article.image_url || article.featured_image) && (
                   <div className="flex-shrink-0">
                     <div className="w-16 h-16 rounded-lg overflow-hidden">
                       <Image
-                        src={article.featured_image}
+                        src={article.image_url || article.featured_image || ""}
                         alt={article.title}
                         width={64}
                         height={64}

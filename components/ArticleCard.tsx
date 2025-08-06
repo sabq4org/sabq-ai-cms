@@ -1,115 +1,128 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import SafeImage from '@/components/ui/SafeImage';
-import ArticleViews from '@/components/ui/ArticleViews';
-import { Calendar, Clock, Eye, MessageSquare, Zap, Newspaper, TrendingUp, Sparkles, Target } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
-import { getImageUrl } from '@/lib/image-utils';
-import { getProductionImageUrl } from '@/lib/production-image-fix';
-import { formatDateGregorian, formatRelativeDate } from '@/lib/date-utils';
-import OptimizedImage from '@/components/OptimizedImage';
+import ArticleViews from "@/components/ui/ArticleViews";
+import { Badge } from "@/components/ui/badge";
+import SafeImage from "@/components/ui/SafeImage";
+import { formatDateGregorian } from "@/lib/date-utils";
+import { getImageUrl } from "@/lib/image-utils";
+import { getProductionImageUrl } from "@/lib/production-image-fix";
+import { cn } from "@/lib/utils";
+import {
+  Calendar,
+  Clock,
+  MessageSquare,
+  Sparkles,
+  TrendingUp,
+  Zap,
+} from "lucide-react";
+import Link from "next/link";
 
 interface ArticleCardProps {
   article: any;
-  viewMode?: 'grid' | 'list';
+  viewMode?: "grid" | "list";
 }
 
-
-
-
-
-export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardProps) {
+export default function ArticleCard({
+  article,
+  viewMode = "grid",
+}: ArticleCardProps) {
   // Get article metadata
   const metadata = article.metadata || {};
-  const isBreaking = article.breaking || metadata.isBreakingNews || metadata.breaking || false;
-  const category = article.categories || article.category || metadata.category || { name: 'عام', slug: 'general' };
-  
+  const isBreaking =
+    article.breaking || metadata.isBreakingNews || metadata.breaking || false;
+  const category = article.categories ||
+    article.category ||
+    metadata.category || { name: "عام", slug: "general" };
+
   // 🤖 AI-powered features
-  const personalizedScore = article.ai_compatibility_score || Math.floor(Math.random() * 100);
+  const personalizedScore =
+    article.ai_compatibility_score || Math.floor(Math.random() * 100);
   const isPersonalized = article.is_personalized || personalizedScore > 75;
   const isTrending = article.views > 1000 && article.engagement_rate > 0.8;
-  const interactionCount = (article.views || 0) + (article.likes || 0) + (article.shares || 0);
-  
+  const interactionCount =
+    (article.views || 0) + (article.likes || 0) + (article.shares || 0);
+
   // 🎨 Enhanced category colors and icons
   const getCategoryStyle = (cat: any) => {
-    const categoryMap: Record<string, {emoji: string, color: string}> = {
-      'تحليل': {emoji: '🧠', color: 'purple'},
-      'اقتصاد': {emoji: '📊', color: 'green'}, 
-      'رياضة': {emoji: '⚽', color: 'blue'},
-      'تقنية': {emoji: '💻', color: 'indigo'},
-      'سياسة': {emoji: '🏛️', color: 'red'},
-      'ثقافة': {emoji: '🎭', color: 'pink'},
-      'علوم': {emoji: '🔬', color: 'cyan'},
-      'صحة': {emoji: '⚕️', color: 'emerald'},
-      'سفر': {emoji: '✈️', color: 'amber'},
-      'طعام': {emoji: '🍽️', color: 'orange'},
-      'عام': {emoji: '📰', color: 'gray'}
+    const categoryMap: Record<string, { emoji: string; color: string }> = {
+      تحليل: { emoji: "🧠", color: "purple" },
+      اقتصاد: { emoji: "📊", color: "green" },
+      رياضة: { emoji: "⚽", color: "blue" },
+      تقنية: { emoji: "💻", color: "indigo" },
+      سياسة: { emoji: "🏛️", color: "red" },
+      ثقافة: { emoji: "🎭", color: "pink" },
+      علوم: { emoji: "🔬", color: "cyan" },
+      صحة: { emoji: "⚕️", color: "emerald" },
+      سفر: { emoji: "✈️", color: "amber" },
+      طعام: { emoji: "🍽️", color: "orange" },
+      عام: { emoji: "📰", color: "gray" },
     };
-    
-    const categoryInfo = categoryMap[cat?.name] || categoryMap['عام'];
+
+    const categoryInfo = categoryMap[cat?.name] || categoryMap["عام"];
     return {
       ...categoryInfo,
       bgClass: `bg-${categoryInfo.color}-100 dark:bg-${categoryInfo.color}-900/30`,
       textClass: `text-${categoryInfo.color}-800 dark:text-${categoryInfo.color}-300`,
-      borderClass: `border-${categoryInfo.color}-200 dark:border-${categoryInfo.color}-700`
+      borderClass: `border-${categoryInfo.color}-200 dark:border-${categoryInfo.color}-700`,
     };
   };
-  
+
   const categoryStyle = getCategoryStyle(category);
-  
-  // تحسين رابط الصورة
-  const rawImageUrl = article.featured_image || article.image || metadata.image;
-  
-  // استخدام معالج الإنتاج في بيئة الإنتاج
-  const isProduction = process.env.NODE_ENV === 'production' || 
-                      (typeof window !== 'undefined' && window.location.hostname !== 'localhost');
-  
-  const imageUrl = rawImageUrl ? (
-    isProduction ? 
-      getProductionImageUrl(rawImageUrl, {
-        width: viewMode === 'list' ? 400 : 800,
-        height: viewMode === 'list' ? 300 : 600,
-        quality: 85,
-        fallbackType: 'article'
-      }) :
-      getImageUrl(rawImageUrl, {
-        width: viewMode === 'list' ? 400 : 800,
-        height: viewMode === 'list' ? 300 : 600,
-        quality: 85,
-        format: 'webp',
-        fallbackType: 'article'
-      })
-  ) : null;
+
+  // تحسين رابط الصورة - دعم جميع أشكال الصور
+  const rawImageUrl =
+    article.image_url ||
+    article.featured_image ||
+    article.image ||
+    metadata.image;
+
+  // استخدام معالج الإنتاج في بيئة الإنتاج - استخدام process.env فقط لتجنب hydration mismatch
+  const isProduction = process.env.NODE_ENV === "production";
+
+  const imageUrl = rawImageUrl
+    ? isProduction
+      ? getProductionImageUrl(rawImageUrl, {
+          width: viewMode === "list" ? 400 : 800,
+          height: viewMode === "list" ? 300 : 600,
+          quality: 85,
+          fallbackType: "article",
+        })
+      : getImageUrl(rawImageUrl, {
+          width: viewMode === "list" ? 400 : 800,
+          height: viewMode === "list" ? 300 : 600,
+          quality: 85,
+          format: "webp",
+          fallbackType: "article",
+        })
+    : null;
 
   // Article link
   const getArticleLink = (article: any) => {
     if (article.slug) return `/article/${article.slug}`;
     if (article.id) return `/article/${article.id}`;
-    return '#';
+    return "#";
   };
 
   // Publish date
   const publishDate = article.published_at || article.created_at;
 
-
-  if (viewMode === 'list') {
+  if (viewMode === "list") {
     // List View - مطابق لتصميم صفحة التصنيف
     return (
       <Link href={getArticleLink(article)} className="group block">
-        <article className={cn(
-          "rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 flex gap-6",
-          isBreaking 
-            ? "bg-red-50 dark:bg-red-950/20 border-2 border-red-200 dark:border-red-800" 
-            : "bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
-        )}>
+        <article
+          className={cn(
+            "rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 flex gap-6",
+            isBreaking
+              ? "bg-red-50 dark:bg-red-950/20 border-2 border-red-200 dark:border-red-800"
+              : "bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+          )}
+        >
           {/* Image محسنة للأداء */}
           <div className="relative w-48 h-32 rounded-2xl overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-700">
             <SafeImage
-              src={imageUrl || ''}
-              alt={article.title || 'صورة المقال'}
+              src={imageUrl || ""}
+              alt={article.title || "صورة المقال"}
               fill
               className="object-cover group-hover:scale-110 transition-transform duration-500"
               fallbackType="article"
@@ -122,8 +135,8 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
             {/* Enhanced Category & AI Badges */}
             <div className="flex items-center gap-2 mb-3 flex-wrap">
               {category && (
-                <Badge 
-                  variant="secondary" 
+                <Badge
+                  variant="secondary"
                   className={cn(
                     "text-xs font-bold px-3 py-1 rounded-full border",
                     categoryStyle.bgClass,
@@ -136,7 +149,10 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
                 </Badge>
               )}
               {isBreaking && (
-                <Badge variant="destructive" className="text-xs font-bold animate-pulse">
+                <Badge
+                  variant="destructive"
+                  className="text-xs font-bold animate-pulse"
+                >
                   <Zap className="w-3 h-3 ml-1" />
                   عاجل
                 </Badge>
@@ -176,9 +192,13 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
                 </span>
                 <span className="flex items-center gap-1">
                   <Clock className="w-3 h-3" />
-                  {article.reading_time || Math.ceil((article.content?.length || 0) / 1000)} دقائق
+                  {article.reading_time ||
+                    Math.ceil((article.content?.length || 0) / 1000)}{" "}
+                  دقائق
                 </span>
-                <ArticleViews count={article.views || article.views_count || 0} />
+                <ArticleViews
+                  count={article.views || article.views_count || 0}
+                />
                 {article.comments_count > 0 && (
                   <span className="flex items-center gap-1">
                     <MessageSquare className="w-3 h-3" />
@@ -186,8 +206,6 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
                   </span>
                 )}
               </div>
-              
-
             </div>
           </div>
         </article>
@@ -198,27 +216,32 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
   // Grid View - البطاقة الافتراضية
   return (
     <Link href={getArticleLink(article)} className="group block h-full">
-      <article className={cn(
-        "rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden h-full flex flex-col",
-        isBreaking 
-          ? "bg-red-50 dark:bg-red-950/20 ring-2 ring-red-500 ring-opacity-50 border-2 border-red-200 dark:border-red-800" 
-          : "bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
-      )}>
+      <article
+        className={cn(
+          "rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden h-full flex flex-col",
+          isBreaking
+            ? "bg-red-50 dark:bg-red-950/20 ring-2 ring-red-500 ring-opacity-50 border-2 border-red-200 dark:border-red-800"
+            : "bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+        )}
+      >
         {/* Image Container */}
         <div className="relative h-48 bg-gray-100 dark:bg-gray-700 overflow-hidden">
           <SafeImage
-            src={imageUrl || ''}
-            alt={article.title || 'صورة المقال'}
+            src={imageUrl || ""}
+            alt={article.title || "صورة المقال"}
             fill
             className="object-cover group-hover:scale-110 transition-transform duration-500"
             fallbackType="article"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
-          
+
           {/* Breaking Badge Overlay */}
           {isBreaking && (
             <div className="absolute top-3 right-3">
-              <Badge variant="destructive" className="text-xs font-bold animate-pulse shadow-lg">
+              <Badge
+                variant="destructive"
+                className="text-xs font-bold animate-pulse shadow-lg"
+              >
                 <Zap className="w-3 h-3 ml-1" />
                 عاجل
               </Badge>
@@ -231,8 +254,8 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
           {/* Enhanced Category & AI Badges */}
           <div className="flex items-center gap-2 mb-3 flex-wrap">
             {category && (
-              <Badge 
-                variant="secondary" 
+              <Badge
+                variant="secondary"
                 className={cn(
                   "text-xs font-bold px-3 py-1 rounded-full border",
                   categoryStyle.bgClass,
@@ -278,7 +301,9 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
                 {formatDateGregorian(publishDate)}
               </span>
               <div className="flex items-center gap-3">
-                <ArticleViews count={article.views || article.views_count || 0} />
+                <ArticleViews
+                  count={article.views || article.views_count || 0}
+                />
                 {article.comments_count > 0 && (
                   <span className="flex items-center gap-1">
                     <MessageSquare className="w-3 h-3" />
@@ -287,8 +312,6 @@ export default function ArticleCard({ article, viewMode = 'grid' }: ArticleCardP
                 )}
               </div>
             </div>
-            
-
           </div>
         </div>
       </article>

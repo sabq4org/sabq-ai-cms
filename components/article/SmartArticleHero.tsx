@@ -31,6 +31,7 @@ interface SmartArticleHeroProps {
     title: string;
     excerpt?: string;
     featured_image?: string;
+    image_url?: string;
     published_at: string;
     reading_time?: number;
     views_count: number;
@@ -114,7 +115,11 @@ export default function SmartArticleHero({ article }: SmartArticleHeroProps) {
       {/* صورة الغلاف البانورامية */}
       <div className="relative h-[50vh] sm:h-[60vh] lg:h-[70vh] overflow-hidden">
         <Image
-          src={article.featured_image || "/images/default-article.jpg"}
+          src={
+            article.image_url ||
+            article.featured_image ||
+            "/images/default-article.jpg"
+          }
           alt={article.title}
           fill
           className="object-cover"

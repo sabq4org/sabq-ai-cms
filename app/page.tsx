@@ -69,8 +69,8 @@ async function getArticles(limit = 16) {
         return [];
       }
 
-      // API الجديد يستخدم json.data
-      const articles = json.data ?? [];
+      // API يرجع البيانات في json.articles
+      const articles = json.articles ?? [];
 
       if (!Array.isArray(articles)) {
         console.warn("⚠️ البيانات المستلمة ليست مصفوفة");

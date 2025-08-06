@@ -16,117 +16,82 @@ import type { RecommendedArticle } from "@/lib/ai-recommendations";
 import { generatePersonalizedRecommendations } from "@/lib/ai-recommendations";
 import { SafeDate } from "@/lib/safe-date";
 import { getArticleLink } from "@/lib/utils";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
 
-import { SafeDynamicComponent } from "@/components/SafeComponentLoader";
 import SafeHydration from "@/components/SafeHydration";
 import ArticleViews from "@/components/ui/ArticleViews";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 
-// Safe Dynamic imports with ULTRA protection for production
+// Safe Dynamic imports with Next.js dynamic and SSR disabled to prevent hydration issues
 const EmptyComponent = () => null;
 
-// Wrapped components with multiple fallback layers
-const TodayOpinionsSection = typeof window !== 'undefined' 
-  ? SafeDynamicComponent.withSkeleton(
-      () => import("@/components/TodayOpinionsSection")
-        .then(module => {
-          if (!module || !module.default) {
-            throw new Error('Module not found');
-          }
-          return module;
-        })
-        .catch((err) => {
-          console.warn("⚠️ TodayOpinionsSection load failed:", err);
-          return { 
-            default: EmptyComponent,
-            __esModule: true 
-          };
-        }),
-      { className: "w-full h-96 rounded-lg" }
-    )
-  : EmptyComponent;
+// Wrapped components with Next.js dynamic imports
+const TodayOpinionsSection = dynamic(
+  () =>
+    import("@/components/TodayOpinionsSection").catch(() => ({
+      default: EmptyComponent,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-96 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />
+    ),
+  }
+);
 
-const SmartAudioBlock = typeof window !== 'undefined'
-  ? SafeDynamicComponent.withSkeleton(
-      () => import("@/components/home/SmartAudioBlock")
-        .then(module => {
-          if (!module || !module.default) {
-            throw new Error('Module not found');
-          }
-          return module;
-        })
-        .catch((err) => {
-          console.warn("⚠️ SmartAudioBlock load failed:", err);
-          return { 
-            default: EmptyComponent,
-            __esModule: true 
-          };
-        }),
-      { className: "w-full h-40 rounded-lg" }
-    )
-  : EmptyComponent;
+const SmartAudioBlock = dynamic(
+  () =>
+    import("@/components/home/SmartAudioBlock").catch(() => ({
+      default: EmptyComponent,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-40 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />
+    ),
+  }
+);
 
-const MuqtarabBlock = typeof window !== 'undefined'
-  ? SafeDynamicComponent.withSkeleton(
-      () => import("@/components/home/EnhancedMuqtarabBlock")
-        .then(module => {
-          if (!module || !module.default) {
-            throw new Error('Module not found');
-          }
-          return module;
-        })
-        .catch((err) => {
-          console.warn("⚠️ MuqtarabBlock load failed:", err);
-          return { 
-            default: EmptyComponent,
-            __esModule: true 
-          };
-        }),
-      { className: "w-full h-96 rounded-lg" }
-    )
-  : EmptyComponent;
+const MuqtarabBlock = dynamic(
+  () =>
+    import("@/components/home/EnhancedMuqtarabBlock").catch(() => ({
+      default: EmptyComponent,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-96 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />
+    ),
+  }
+);
 
-const FeaturedNewsCarousel = typeof window !== 'undefined'
-  ? SafeDynamicComponent.withSkeleton(
-      () => import("@/components/FeaturedNewsCarousel")
-        .then(module => {
-          if (!module || !module.default) {
-            throw new Error('Module not found');
-          }
-          return module;
-        })
-        .catch((err) => {
-          console.warn("⚠️ FeaturedNewsCarousel load failed:", err);
-          return { 
-            default: EmptyComponent,
-            __esModule: true 
-          };
-        }),
-      { className: "w-full h-80 rounded-lg" }
-    )
-  : EmptyComponent;
+const FeaturedNewsCarousel = dynamic(
+  () =>
+    import("@/components/FeaturedNewsCarousel").catch(() => ({
+      default: EmptyComponent,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-80 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />
+    ),
+  }
+);
 
-const BreakingNewsBar = typeof window !== 'undefined'
-  ? SafeDynamicComponent.withCustomFallback(
-      () => import("@/components/BreakingNewsBar")
-        .then(module => {
-          if (!module || !module.default) {
-            throw new Error('Module not found');
-          }
-          return module;
-        })
-        .catch((err) => {
-          console.warn("⚠️ BreakingNewsBar load failed:", err);
-          return { 
-            default: EmptyComponent,
-            __esModule: true 
-          };
-        }),
-      <div className="w-full h-24 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse mx-4 mb-6" />
-    )
-  : EmptyComponent;
+const BreakingNewsBar = dynamic(
+  () =>
+    import("@/components/BreakingNewsBar").catch(() => ({
+      default: EmptyComponent,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-16 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />
+    ),
+  }
+);
 
 import { DeepAnalysis } from "@/types/deep-analysis";
 import {
@@ -196,9 +161,6 @@ function NewspaperHomePage({
   // فحص نوع الجهاز
   useEffect(() => {
     const checkDevice = () => {
-      if (typeof window === "undefined" || typeof navigator === "undefined")
-        return;
-
       try {
         const userAgent = navigator.userAgent || "";
         const isMobileDevice =

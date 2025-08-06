@@ -17,13 +17,13 @@ import { useEffect, useRef, useState } from "react";
 import { SmartInteractionButtons } from "@/components/article/SmartInteractionButtons";
 import { useViewTracking } from "@/hooks/useViewTracking";
 import {
-    Award,
-    BookOpen,
-    Calendar,
-    CheckCircle,
-    Clock,
-    Hash,
-    Star,
+  Award,
+  BookOpen,
+  Calendar,
+  CheckCircle,
+  Clock,
+  Hash,
+  Star,
 } from "lucide-react";
 // import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
 import ArticleAISummary from "@/components/article/ArticleAISummary";
@@ -565,10 +565,10 @@ export default function ArticleClientComponent({
         </div>
 
         {/* صورة المقال - خارج الحاوية المحدودة لتأخذ العرض الكامل */}
-        {article.featured_image && (
+        {(article.image_url || article.featured_image) && (
           <div className="w-full">
             <ArticleFeaturedImage
-              imageUrl={article.featured_image}
+              imageUrl={(article.image_url || article.featured_image) as string}
               title={article.title}
               category={article.category}
             />
@@ -585,10 +585,7 @@ export default function ArticleClientComponent({
                 title={article.title || "مقال بدون عنوان"}
                 content={article.content || ""}
                 existingSummary={
-                  article.ai_summary ||
-                  article.summary ||
-                  article.excerpt ||
-                  ""
+                  article.ai_summary || article.summary || article.excerpt || ""
                 }
                 className="shadow-lg"
               />
@@ -667,32 +664,32 @@ export default function ArticleClientComponent({
 
             {/* إصلاح التوجه العربي للمحتوى */}
             <style jsx>{`
-                .arabic-article-content p {
-                  text-align: right !important;
-                  direction: rtl !important;
-                }
+              .arabic-article-content p {
+                text-align: right !important;
+                direction: rtl !important;
+              }
 
-                .arabic-article-content * {
-                  text-align: right !important;
-                  direction: rtl !important;
-                }
+              .arabic-article-content * {
+                text-align: right !important;
+                direction: rtl !important;
+              }
 
-                .arabic-article-content h1,
-                .arabic-article-content h2,
-                .arabic-article-content h3,
-                .arabic-article-content h4,
-                .arabic-article-content h5,
-                .arabic-article-content h6 {
-                  text-align: right !important;
-                  direction: rtl !important;
-                }
+              .arabic-article-content h1,
+              .arabic-article-content h2,
+              .arabic-article-content h3,
+              .arabic-article-content h4,
+              .arabic-article-content h5,
+              .arabic-article-content h6 {
+                text-align: right !important;
+                direction: rtl !important;
+              }
 
-                .arabic-article-content blockquote {
-                  text-align: right !important;
-                  direction: rtl !important;
-                  border-right: 4px solid #3b82f6 !important;
-                  border-left: none !important;
-                }
+              .arabic-article-content blockquote {
+                text-align: right !important;
+                direction: rtl !important;
+                border-right: 4px solid #3b82f6 !important;
+                border-left: none !important;
+              }
             `}</style>
           </div>
 
