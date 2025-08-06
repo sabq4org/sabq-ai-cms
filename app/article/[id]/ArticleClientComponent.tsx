@@ -566,7 +566,7 @@ export default function ArticleClientComponent({
 
         {/* صورة المقال - عرض كامل بدون حاوية */}
         {article.featured_image && (
-          <div className="w-full mb-6 sm:mb-8">
+          <div className="w-full mb-3 sm:mb-4">
             <ArticleFeaturedImage
               imageUrl={article.featured_image}
               title={article.title}
