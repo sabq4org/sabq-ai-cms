@@ -4,12 +4,11 @@ import Footer from "@/components/Footer";
 import ReporterLink from "@/components/ReporterLink";
 import ArticleFeaturedImage from "@/components/article/ArticleFeaturedImage";
 import OpinionArticleLayout from "@/components/article/OpinionArticleLayout";
+import SafeDateDisplay from "@/components/article/SafeDateDisplay";
 import MobileOpinionLayout from "@/components/mobile/MobileOpinionLayout";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { ArticleData } from "@/lib/article-api";
-import { formatFullDate, formatRelativeDate } from "@/lib/date-utils";
-import SafeDateDisplay from "@/components/article/SafeDateDisplay";
 import "@/styles/mobile-article-layout.css";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -499,17 +498,6 @@ export default function ArticleClientComponent({
                   </div>
                 )}
 
-                {/* صورة المقال - مدمجة مع العنوان للموبايل */}
-                {article.featured_image && (
-                  <div className="mt-4 mb-4">
-                    <ArticleFeaturedImage
-                      imageUrl={article.featured_image}
-                      title={article.title}
-                      category={article.category}
-                    />
-                  </div>
-                )}
-
                 {/* حاوي للتصنيف ومعلومات النشر - تخطيط محسن */}
                 <div className="flex items-start justify-between px-1 gap-3 mobile-article-meta">
                   {/* التصنيف في اليمين (RTL friendly) */}
@@ -550,7 +538,9 @@ export default function ArticleClientComponent({
                         <Calendar className="w-3 h-3 flex-shrink-0 mobile-article-icon" />
                         <span>
                           <SafeDateDisplay
-                            date={article.published_at || article.created_at || ""}
+                            date={
+                              article.published_at || article.created_at || ""
+                            }
                             format="relative"
                           />
                         </span>
@@ -583,6 +573,17 @@ export default function ArticleClientComponent({
               </div>
             </header>
           </article>
+        </div>
+
+        {/* صورة المقال للنسخة المحمولة - منفصلة */}
+        <div className="sm:hidden px-4 mb-6">
+          {article.featured_image && (
+            <ArticleFeaturedImage
+              imageUrl={article.featured_image}
+              title={article.title}
+              category={article.category}
+            />
+          )}
         </div>
 
         {/* منطقة المحتوى */}
