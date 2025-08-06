@@ -135,7 +135,7 @@ export default function ArticleFeaturedImage({
 
     case "fullwidth":
       return (
-        <div className="article-featured-image relative min-h-[55vh] sm:min-h-[60vh] md:min-h-[65vh] lg:h-[75vh] w-full -mx-4 sm:-mx-6 lg:-mx-8 bg-gray-200 dark:bg-gray-800">
+        <div className="article-featured-image relative h-[30vh] sm:h-[40vh] md:h-[50vh] lg:h-[60vh] w-full bg-gray-200 dark:bg-gray-800">
           <OptimizedImage
             src={imageUrl}
             alt={title}

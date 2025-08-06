@@ -17,13 +17,13 @@ import { useEffect, useRef, useState } from "react";
 import { SmartInteractionButtons } from "@/components/article/SmartInteractionButtons";
 import { useViewTracking } from "@/hooks/useViewTracking";
 import {
-  Award,
-  BookOpen,
-  Calendar,
-  CheckCircle,
-  Clock,
-  Hash,
-  Star,
+    Award,
+    BookOpen,
+    Calendar,
+    CheckCircle,
+    Clock,
+    Hash,
+    Star,
 } from "lucide-react";
 // import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
 import ArticleAISummary from "@/components/article/ArticleAISummary";
@@ -392,9 +392,9 @@ export default function ArticleClientComponent({
             className="max-w-5xl mx-auto py-4 sm:py-6 lg:py-8"
           >
             {/* رأس المقال محسن للموبايل */}
-            <header className="mb-8 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl relative z-10">
+            <header className="mb-4 sm:mb-6">
               {/* Desktop Header */}
-              <div className="hidden sm:block px-6 lg:px-8 py-6 lg:py-8">
+              <div className="hidden sm:block px-6 lg:px-8 py-6 lg:py-8 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl">
                 {/* التصنيف - محاذاة لليمين */}
                 {article.category && (
                   <div className="flex justify-end mb-4">
@@ -561,133 +561,134 @@ export default function ArticleClientComponent({
                 </div>
               </div>
             </header>
-          </article>
-        </div>
 
-        {/* منطقة المحتوى */}
-        <article className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
-          {/* صورة المقال - فوق الملخص الذكي */}
-          {article.featured_image && (
-            <ArticleFeaturedImage
-              imageUrl={article.featured_image}
-              title={article.title}
-              category={article.category}
-            />
-          )}
-
-          {/* الملخص الذكي مع التحويل الصوتي */}
-          <div className="mb-6 sm:mb-8">
-            <ArticleAISummary
-              articleId={article.id}
-              title={article.title || "مقال بدون عنوان"}
-              content={article.content || ""}
-              existingSummary={
-                article.ai_summary || article.summary || article.excerpt || ""
-              }
-              className="shadow-lg"
-            />
-          </div>
-
-          {/* شريط التفاعل الذكي */}
-          <div className="mb-6 sm:mb-8">
-            <SmartInteractionButtons
-              articleId={article.id}
-              initialStats={{
-                likes: article.likes || article.stats?.likes || 0,
-                saves: article.saves || article.stats?.saves || 0,
-                shares: article.shares || article.stats?.shares || 0,
-                comments: article.comments_count || 0,
-              }}
-              onComment={() => {
-                // تم إزالة قسم التعليقات
-                console.log("تم النقر على التعليقات");
-              }}
-            />
-          </div>
-
-          {/* الكلمات المفتاحية */}
-          {keywords.length > 0 && (
-            <div className="mb-6 sm:mb-8">
-              <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                {keywords.map((keyword, index) => (
-                  <Link
-                    key={index}
-                    href={`/tags/${encodeURIComponent(keyword)}`}
-                    className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-medium rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-all hover:scale-105 hover:shadow-sm"
-                  >
-                    <Hash className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                    <span>{keyword}</span>
-                  </Link>
-                ))}
+            {/* صورة المقال - تم وضعها داخل حاوية المحتوى الرئيسية */}
+            {article.featured_image && (
+              <div className="mb-6 sm:mb-8">
+                <ArticleFeaturedImage
+                  imageUrl={article.featured_image}
+                  title={article.title}
+                  category={article.category}
+                />
               </div>
+            )}
+
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 lg:p-8">
+              {/* الملخص الذكي مع التحويل الصوتي */}
+              <div className="mb-6 sm:mb-8">
+                <ArticleAISummary
+                  articleId={article.id}
+                  title={article.title || "مقال بدون عنوان"}
+                  content={article.content || ""}
+                  existingSummary={
+                    article.ai_summary || article.summary || article.excerpt || ""
+                  }
+                  className="shadow-lg"
+                />
+              </div>
+
+              {/* شريط التفاعل الذكي */}
+              <div className="mb-6 sm:mb-8">
+                <SmartInteractionButtons
+                  articleId={article.id}
+                  initialStats={{
+                    likes: article.likes || article.stats?.likes || 0,
+                    saves: article.saves || article.stats?.saves || 0,
+                    shares: article.shares || article.stats?.shares || 0,
+                    comments: article.comments_count || 0,
+                  }}
+                  onComment={() => {
+                    // تم إزالة قسم التعليقات
+                    console.log("تم النقر على التعليقات");
+                  }}
+                />
+              </div>
+
+              {/* الكلمات المفتاحية */}
+              {keywords.length > 0 && (
+                <div className="mb-6 sm:mb-8">
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                    {keywords.map((keyword, index) => (
+                      <Link
+                        key={index}
+                        href={`/tags/${encodeURIComponent(keyword)}`}
+                        className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-medium rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-all hover:scale-105 hover:shadow-sm"
+                      >
+                        <Hash className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                        <span>{keyword}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* زر وضع القراءة */}
+              <div className="mb-6 sm:mb-8 flex justify-end">
+                <button
+                  onClick={() => setIsReading(!isReading)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                    isReading
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+                  } hover:opacity-90`}
+                >
+                  <BookOpen className="w-4 h-4" />
+                  <span className="text-sm font-medium">
+                    {isReading ? "إيقاف وضع القراءة" : "وضع القراءة"}
+                  </span>
+                </button>
+              </div>
+
+              {/* محتوى المقال */}
+              <div className="mb-12">
+                <div
+                  className={`prose max-w-none dark:prose-invert arabic-article-content
+                    prose-headings:text-gray-900 dark:prose-headings:text-white
+                    prose-p:text-gray-700 dark:prose-p:text-gray-300
+                    prose-p:leading-relaxed
+                    prose-img:rounded-xl prose-img:shadow-xl
+                    prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
+                    prose-strong:text-gray-900 dark:prose-strong:text-white
+                    prose-blockquote:border-blue-500 dark:prose-blockquote:border-blue-400
+                    prose-blockquote:bg-blue-50 dark:prose-blockquote:bg-blue-900/20
+                    prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-lg
+                    ${isReading ? "prose-xl" : "prose-lg"}
+                  `}
+                  dangerouslySetInnerHTML={{ __html: contentHtml }}
+                />
+              </div>
+
+              {/* إصلاح التوجه العربي للمحتوى */}
+              <style jsx>{`
+                .arabic-article-content p {
+                  text-align: right !important;
+                  direction: rtl !important;
+                }
+
+                .arabic-article-content * {
+                  text-align: right !important;
+                  direction: rtl !important;
+                }
+
+                .arabic-article-content h1,
+                .arabic-article-content h2,
+                .arabic-article-content h3,
+                .arabic-article-content h4,
+                .arabic-article-content h5,
+                .arabic-article-content h6 {
+                  text-align: right !important;
+                  direction: rtl !important;
+                }
+
+                .arabic-article-content blockquote {
+                  text-align: right !important;
+                  direction: rtl !important;
+                  border-right: 4px solid #3b82f6 !important;
+                  border-left: none !important;
+                }
+              `}</style>
             </div>
-          )}
-
-          {/* زر وضع القراءة */}
-          <div className="mb-6 sm:mb-8 flex justify-end">
-            <button
-              onClick={() => setIsReading(!isReading)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                isReading
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
-              } hover:opacity-90`}
-            >
-              <BookOpen className="w-4 h-4" />
-              <span className="text-sm font-medium">
-                {isReading ? "إيقاف وضع القراءة" : "وضع القراءة"}
-              </span>
-            </button>
           </div>
-
-          {/* محتوى المقال */}
-          <div className="mb-12">
-            <div
-              className={`prose max-w-none dark:prose-invert arabic-article-content
-                prose-headings:text-gray-900 dark:prose-headings:text-white
-                prose-p:text-gray-700 dark:prose-p:text-gray-300
-                prose-p:leading-relaxed
-                prose-img:rounded-xl prose-img:shadow-xl
-                prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
-                prose-strong:text-gray-900 dark:prose-strong:text-white
-                prose-blockquote:border-blue-500 dark:prose-blockquote:border-blue-400
-                prose-blockquote:bg-blue-50 dark:prose-blockquote:bg-blue-900/20
-                prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-lg
-                ${isReading ? "prose-xl" : "prose-lg"}
-              `}
-              dangerouslySetInnerHTML={{ __html: contentHtml }}
-            />
-          </div>
-
-          {/* إصلاح التوجه العربي للمحتوى */}
-          <style jsx>{`
-            .arabic-article-content p {
-              text-align: right !important;
-              direction: rtl !important;
-            }
-
-            .arabic-article-content * {
-              text-align: right !important;
-              direction: rtl !important;
-            }
-
-            .arabic-article-content h1,
-            .arabic-article-content h2,
-            .arabic-article-content h3,
-            .arabic-article-content h4,
-            .arabic-article-content h5,
-            .arabic-article-content h6 {
-              text-align: right !important;
-              direction: rtl !important;
-            }
-
-            .arabic-article-content blockquote {
-              text-align: right !important;
-              direction: rtl !important;
-              border-right: 4px solid #3b82f6 !important;
-              border-left: none !important;
-            }
-          `}</style>
 
           {/* إحصائيات المقال */}
           <div className="mt-8 sm:mt-12">
