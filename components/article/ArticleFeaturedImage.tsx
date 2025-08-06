@@ -177,21 +177,6 @@ export default function ArticleFeaturedImage({
                 priority={true}
                 sizes="(max-width: 640px) calc(100vw - 2rem), (max-width: 1024px) calc(100vw - 3rem), 1152px"
               />
-
-              {/* عرض التصنيف على الصورة (اختياري) */}
-              {category && (
-                <div className="absolute bottom-4 right-4">
-                  <span
-                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium text-white backdrop-blur-sm"
-                    style={{
-                      backgroundColor: `${category.color || "#1a73e8"}CC`,
-                    }}
-                  >
-                    {category.icon && <span>{category.icon}</span>}
-                    {category.name}
-                  </span>
-                </div>
-              )}
             </div>
           </div>
         </div>
