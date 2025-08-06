@@ -487,17 +487,6 @@ export default function ArticleClientComponent({
                   </div>
                 )}
 
-                {/* صورة المقال - مدمجة مع العنوان للموبايل */}
-                {article.featured_image && (
-                  <div className="mt-4 mb-4">
-                    <ArticleFeaturedImage
-                      imageUrl={article.featured_image}
-                      title={article.title}
-                      category={article.category}
-                    />
-                  </div>
-                )}
-
                 {/* حاوي للتصنيف ومعلومات النشر - تخطيط محسن */}
                 <div className="flex items-start justify-between px-1 gap-3 mobile-article-meta">
                   {/* التصنيف في اليمين (RTL friendly) */}
@@ -577,17 +566,6 @@ export default function ArticleClientComponent({
 
         {/* منطقة المحتوى */}
         <article className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
-          {/* صورة المقال - متكاملة مع المحتوى */}
-          {article.featured_image && (
-            <div className="mb-6 sm:mb-8">
-              <ArticleFeaturedImage
-                imageUrl={article.featured_image}
-                title={article.title}
-                category={article.category}
-              />
-            </div>
-          )}
-
           {/* الملخص الذكي مع التحويل الصوتي */}
           <div className="mb-6 sm:mb-8">
             <ArticleAISummary
