@@ -4,11 +4,12 @@ import Footer from "@/components/Footer";
 import ReporterLink from "@/components/ReporterLink";
 import ArticleFeaturedImage from "@/components/article/ArticleFeaturedImage";
 import OpinionArticleLayout from "@/components/article/OpinionArticleLayout";
-import SafeDateDisplay from "@/components/article/SafeDateDisplay";
 import MobileOpinionLayout from "@/components/mobile/MobileOpinionLayout";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { ArticleData } from "@/lib/article-api";
+import { formatFullDate, formatRelativeDate } from "@/lib/date-utils";
+import SafeDateDisplay from "@/components/article/SafeDateDisplay";
 import "@/styles/mobile-article-layout.css";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -488,9 +489,9 @@ export default function ArticleClientComponent({
                 )}
 
                 {/* حاوي للتصنيف ومعلومات النشر - تخطيط محسن */}
-                <div className="flex items-start justify-end px-1 gap-3 mobile-article-meta">
+                <div className="flex items-start justify-between px-1 gap-3 mobile-article-meta">
                   {/* التصنيف في اليمين (RTL friendly) */}
-                  <div className="flex-shrink-0">
+                  <div className="flex-shrink-0 order-2">
                     {article.category && (
                       <Link
                         href={`/categories/${article.category.slug}`}
@@ -507,7 +508,7 @@ export default function ArticleClientComponent({
                   </div>
 
                   {/* معلومات النشر في اليسار - محاذاة مع الصورة */}
-                  <div className="flex flex-col items-start gap-1.5 text-xs text-gray-500 dark:text-gray-400 flex-1 max-w-[160px] mobile-article-metadata">
+                  <div className="flex flex-col items-start gap-1.5 text-xs text-gray-500 dark:text-gray-400 order-1 flex-1 max-w-[160px] mobile-article-metadata">
                     {/* المراسل في سطر منفصل */}
                     {article.author && (
                       <div className="flex items-center gap-1.5">
@@ -527,9 +528,7 @@ export default function ArticleClientComponent({
                         <Calendar className="w-3 h-3 flex-shrink-0 mobile-article-icon" />
                         <span>
                           <SafeDateDisplay
-                            date={
-                              article.published_at || article.created_at || ""
-                            }
+                            date={article.published_at || article.created_at || ""}
                             format="relative"
                           />
                         </span>
@@ -564,19 +563,19 @@ export default function ArticleClientComponent({
           </article>
         </div>
 
-        {/* صورة المقال - عرض كامل بدون حاوية */}
-        {article.featured_image && (
-          <div className="w-full mb-3 sm:mb-4">
-            <ArticleFeaturedImage
-              imageUrl={article.featured_image}
-              title={article.title}
-              category={article.category}
-            />
-          </div>
-        )}
-
         {/* منطقة المحتوى */}
-        <article className="max-w-5xl mx-auto px-6 lg:px-8 pb-8">
+        <article className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+          {/* صورة المقال */}
+          {article.featured_image && (
+            <div className="mb-6 sm:mb-8">
+              <ArticleFeaturedImage
+                imageUrl={article.featured_image}
+                title={article.title}
+                category={article.category}
+              />
+            </div>
+          )}
+
           {/* الملخص الذكي مع التحويل الصوتي */}
           <div className="mb-6 sm:mb-8">
             <ArticleAISummary
