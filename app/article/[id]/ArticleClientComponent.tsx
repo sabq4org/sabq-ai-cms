@@ -17,13 +17,13 @@ import { useEffect, useRef, useState } from "react";
 import { SmartInteractionButtons } from "@/components/article/SmartInteractionButtons";
 import { useViewTracking } from "@/hooks/useViewTracking";
 import {
-    Award,
-    BookOpen,
-    Calendar,
-    CheckCircle,
-    Clock,
-    Hash,
-    Star,
+  Award,
+  BookOpen,
+  Calendar,
+  CheckCircle,
+  Clock,
+  Hash,
+  Star,
 } from "lucide-react";
 // import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
 import ArticleAISummary from "@/components/article/ArticleAISummary";
@@ -561,19 +561,23 @@ export default function ArticleClientComponent({
                 </div>
               </div>
             </header>
+          </article>
+        </div>
 
-            {/* صورة المقال - تم وضعها داخل حاوية المحتوى الرئيسية */}
-            {article.featured_image && (
-              <div className="mb-6 sm:mb-8">
-                <ArticleFeaturedImage
-                  imageUrl={article.featured_image}
-                  title={article.title}
-                  category={article.category}
-                />
-              </div>
-            )}
+        {/* صورة المقال - خارج الحاوية المحدودة لتأخذ العرض الكامل */}
+        {article.featured_image && (
+          <div className="w-full">
+            <ArticleFeaturedImage
+              imageUrl={article.featured_image}
+              title={article.title}
+              category={article.category}
+            />
+          </div>
+        )}
 
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 lg:p-8">
+        {/* منطقة المحتوى */}
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 lg:p-8">
               {/* الملخص الذكي مع التحويل الصوتي */}
               <div className="mb-6 sm:mb-8">
                 <ArticleAISummary
@@ -581,7 +585,10 @@ export default function ArticleClientComponent({
                   title={article.title || "مقال بدون عنوان"}
                   content={article.content || ""}
                   existingSummary={
-                    article.ai_summary || article.summary || article.excerpt || ""
+                    article.ai_summary ||
+                    article.summary ||
+                    article.excerpt ||
+                    ""
                   }
                   className="shadow-lg"
                 />
@@ -686,40 +693,40 @@ export default function ArticleClientComponent({
                   border-right: 4px solid #3b82f6 !important;
                   border-left: none !important;
                 }
-              `}</style>
+                            `}</style>
             </div>
-          </article>
-          
-          {/* إحصائيات المقال */}
-          <div className="mt-8 sm:mt-12">
-            <ArticleStatsBlock
-              views={article.views || 0}
-              likes={article.likes || article.stats?.likes || 0}
-              saves={article.saves || article.stats?.saves || 0}
-              shares={article.shares || article.stats?.shares || 0}
-              category={
-                article.category
-                  ? {
-                      name: article.category.name,
-                      color: article.category.color,
-                      icon: article.category.icon,
-                    }
-                  : undefined
-              }
-              growthRate={Math.floor(Math.random() * 60)} // نسبة نمو عشوائية للعرض
-            />
-          </div>
+            
+            {/* إحصائيات المقال */}
+            <div className="mt-8 sm:mt-12">
+              <ArticleStatsBlock
+                views={article.views || 0}
+                likes={article.likes || article.stats?.likes || 0}
+                saves={article.saves || article.stats?.saves || 0}
+                shares={article.shares || article.stats?.shares || 0}
+                category={
+                  article.category
+                    ? {
+                        name: article.category.name,
+                        color: article.category.color,
+                        icon: article.category.icon,
+                      }
+                    : undefined
+                }
+                growthRate={Math.floor(Math.random() * 60)} // نسبة نمو عشوائية للعرض
+              />
+            </div>
 
-          {/* المحتوى المخصص بذكاء - نظام التوصيات الشخصي */}
-          <div className="mt-6 sm:mt-8">
-            <SmartPersonalizedContent
-              articleId={article.id}
-              categoryId={article.category_id}
-              categoryName={article.category?.name}
-              tags={article.keywords || []}
-              darkMode={darkMode}
-              userId={undefined} // يمكن تمرير معرف المستخدم عند التسجيل
-            />
+            {/* المحتوى المخصص بذكاء - نظام التوصيات الشخصي */}
+            <div className="mt-6 sm:mt-8">
+              <SmartPersonalizedContent
+                articleId={article.id}
+                categoryId={article.category_id}
+                categoryName={article.category?.name}
+                tags={article.keywords || []}
+                darkMode={darkMode}
+                userId={undefined} // يمكن تمرير معرف المستخدم عند التسجيل
+              />
+            </div>
           </div>
         </div>
       </main>
