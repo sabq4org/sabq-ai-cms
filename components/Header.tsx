@@ -123,7 +123,7 @@ export default function Header() {
           : "bg-blue-50/95 border-blue-200"
       } border-b shadow-sm`}
     >
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-full relative">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-full relative">
         <div className="flex items-center justify-between h-full">
           {/* الشعار الرسمي - محاذاة لليمين مع تحسينات المظهر */}
           <Link
