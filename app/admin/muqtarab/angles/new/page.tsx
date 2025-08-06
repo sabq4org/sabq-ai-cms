@@ -18,6 +18,7 @@ import {
   Sparkles,
   Upload,
 } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -118,11 +119,22 @@ const AnglePreview = ({ formData }: { formData: CreateAngleForm }) => {
         {/* معاينة الغلاف */}
         <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden">
           {formData.coverImage ? (
-            <img
-              src={formData.coverImage}
-              alt="غلاف الزاوية"
-              className="w-full h-full object-cover"
-            />
+            <div className="w-full h-full relative">
+              <Image
+                src={formData.coverImage}
+                alt="غلاف الزاوية"
+                fill={true}
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
+                onError={() => {
+                  console.error("خطأ في تحميل صورة المعاينة");
+                  setFormData((prev) => ({
+                    ...prev,
+                    coverImage: "/images/placeholder-angle.jpg",
+                  }));
+                }}
+              />
+            </div>
           ) : (
             <div className="flex items-center justify-center h-full text-gray-400">
               <ImageIcon className="w-12 h-12" />
@@ -279,26 +291,37 @@ export default function CreateAnglePage() {
       return;
     }
 
+    // إظهار toast للتحميل
+    const loadingToast = toast.loading("جاري رفع الصورة...");
+
     try {
       const formDataUpload = new FormData();
       formDataUpload.append("file", file);
       formDataUpload.append("type", "angle-cover");
 
-      const response = await fetch("/api/upload", {
+      // استخدام نقطة نهاية مخصصة لمقترب
+      const response = await fetch("/api/upload/muqtarab", {
         method: "POST",
         body: formDataUpload,
       });
 
-      if (response.ok) {
-        const data = await response.json();
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast.dismiss(loadingToast);
         setFormData((prev) => ({ ...prev, coverImage: data.url }));
         toast.success("تم رفع الصورة بنجاح");
+        console.log("✅ تم رفع الصورة بنجاح:", data.url);
       } else {
-        toast.error("فشل في رفع الصورة");
+        toast.dismiss(loadingToast);
+        const errorMessage = data.error || "فشل في رفع الصورة";
+        console.error("❌ خطأ في رفع الصورة:", data);
+        toast.error(errorMessage);
       }
-    } catch (error) {
-      console.error("خطأ في رفع الصورة:", error);
-      toast.error("حدث خطأ في رفع الصورة");
+    } catch (error: any) {
+      toast.dismiss(loadingToast);
+      console.error("❌ استثناء في رفع الصورة:", error);
+      toast.error(error?.message || "حدث خطأ غير متوقع في رفع الصورة");
     }
   };
 
@@ -425,24 +448,52 @@ export default function CreateAnglePage() {
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                       {formData.coverImage ? (
                         <div className="space-y-4">
-                          <img
-                            src={formData.coverImage}
-                            alt="غلاف الزاوية"
-                            className="mx-auto max-h-32 rounded-lg"
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              setFormData((prev) => ({
-                                ...prev,
-                                coverImage: undefined,
-                              }))
-                            }
-                          >
-                            إزالة الصورة
-                          </Button>
+                          {/* استخدام next/image بدلاً من img المعتاد */}
+                          <div className="relative mx-auto h-32 w-64 rounded-lg overflow-hidden">
+                            <Image
+                              src={formData.coverImage}
+                              alt="غلاف الزاوية"
+                              fill={true}
+                              sizes="256px"
+                              className="object-cover rounded-lg"
+                              onError={() => {
+                                console.error("خطأ في تحميل الصورة");
+                                // تعيين صورة بديلة
+                                setFormData((prev: CreateAngleForm) => ({
+                                  ...prev,
+                                  coverImage: "/images/placeholder-angle.jpg",
+                                }));
+                              }}
+                            />
+                          </div>
+                          <div className="flex gap-2 justify-center">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() =>
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  coverImage: undefined,
+                                }))
+                              }
+                            >
+                              إزالة الصورة
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                const input = document.getElementById(
+                                  "cover-upload"
+                                ) as HTMLInputElement;
+                                if (input) input.click();
+                              }}
+                            >
+                              تغيير الصورة
+                            </Button>
+                          </div>
                         </div>
                       ) : (
                         <div className="space-y-4">
@@ -460,7 +511,7 @@ export default function CreateAnglePage() {
                             <input
                               id="cover-upload"
                               type="file"
-                              accept="image/*"
+                              accept="image/jpeg,image/png,image/gif,image/webp"
                               onChange={handleImageUpload}
                               className="hidden"
                             />

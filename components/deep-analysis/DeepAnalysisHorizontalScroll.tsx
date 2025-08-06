@@ -1,16 +1,39 @@
-'use client';
+"use client";
 
-import React, { useRef, useState } from 'react';
-import DeepAnalysisCard from './DeepAnalysisCard';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useRef, useState } from "react";
+import DeepAnalysisCard from "./DeepAnalysisCard";
+
+interface AnalysisData {
+  id: string;
+  title: string;
+  slug?: string;
+  summary?: string;
+  categories?: string[];
+  tags?: string[];
+  authorName?: string;
+  sourceType?: string;
+  analysisType?: string;
+  readingTime?: number;
+  views?: number;
+  likes?: number;
+  qualityScore?: number;
+  status?: string;
+  createdAt?: string;
+  publishedAt?: string;
+  featuredImage?: string;
+}
 
 interface DeepAnalysisHorizontalScrollProps {
-  analyses: any[];
+  analyses: AnalysisData[];
   title?: string;
 }
 
-export default function DeepAnalysisHorizontalScroll({ analyses, title = "التحليلات العميقة" }: DeepAnalysisHorizontalScrollProps) {
+export default function DeepAnalysisHorizontalScroll({
+  analyses,
+  title = "التحليلات العميقة",
+}: DeepAnalysisHorizontalScrollProps) {
   const { darkMode } = useDarkModeContext();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showLeftButton, setShowLeftButton] = useState(false);
@@ -18,23 +41,25 @@ export default function DeepAnalysisHorizontalScroll({ analyses, title = "الت
 
   const handleScroll = () => {
     if (scrollContainerRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      const { scrollLeft, scrollWidth, clientWidth } =
+        scrollContainerRef.current;
       setShowLeftButton(scrollLeft > 0);
       setShowRightButton(scrollLeft < scrollWidth - clientWidth - 10);
     }
   };
 
-  const scrollTo = (direction: 'left' | 'right') => {
+  const scrollTo = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
       const scrollAmount = 320; // عرض البطاقة تقريباً
       const currentScroll = scrollContainerRef.current.scrollLeft;
-      const newScroll = direction === 'left' 
-        ? currentScroll - scrollAmount 
-        : currentScroll + scrollAmount;
-      
+      const newScroll =
+        direction === "left"
+          ? currentScroll - scrollAmount
+          : currentScroll + scrollAmount;
+
       scrollContainerRef.current.scrollTo({
         left: newScroll,
-        behavior: 'smooth'
+        behavior: "smooth",
       });
     }
   };
@@ -43,7 +68,11 @@ export default function DeepAnalysisHorizontalScroll({ analyses, title = "الت
     <div className="relative">
       {/* العنوان */}
       {title && (
-        <h2 className={`text-2xl font-bold mb-6 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+        <h2
+          className={`text-2xl font-bold mb-6 ${
+            darkMode ? "text-white" : "text-gray-900"
+          }`}
+        >
           {title}
         </h2>
       )}
@@ -53,14 +82,15 @@ export default function DeepAnalysisHorizontalScroll({ analyses, title = "الت
         {/* زر التمرير الأيسر */}
         {showLeftButton && (
           <button
-            onClick={() => scrollTo('left')}
+            onClick={() => scrollTo("left")}
             className={`
               absolute right-0 top-1/2 -translate-y-1/2 z-10
               p-3 rounded-full shadow-lg backdrop-blur-sm
               opacity-0 group-hover:opacity-100 transition-opacity duration-300
-              ${darkMode 
-                ? 'bg-gray-800/90 hover:bg-gray-700 text-white' 
-                : 'bg-white/90 hover:bg-gray-100 text-gray-800'
+              ${
+                darkMode
+                  ? "bg-gray-800/90 hover:bg-gray-700 text-white"
+                  : "bg-white/90 hover:bg-gray-100 text-gray-800"
               }
               lg:hidden
             `}
@@ -73,14 +103,15 @@ export default function DeepAnalysisHorizontalScroll({ analyses, title = "الت
         {/* زر التمرير الأيمن */}
         {showRightButton && (
           <button
-            onClick={() => scrollTo('right')}
+            onClick={() => scrollTo("right")}
             className={`
               absolute left-0 top-1/2 -translate-y-1/2 z-10
               p-3 rounded-full shadow-lg backdrop-blur-sm
               opacity-0 group-hover:opacity-100 transition-opacity duration-300
-              ${darkMode 
-                ? 'bg-gray-800/90 hover:bg-gray-700 text-white' 
-                : 'bg-white/90 hover:bg-gray-100 text-gray-800'
+              ${
+                darkMode
+                  ? "bg-gray-800/90 hover:bg-gray-700 text-white"
+                  : "bg-white/90 hover:bg-gray-100 text-gray-800"
               }
               lg:hidden
             `}
@@ -91,7 +122,7 @@ export default function DeepAnalysisHorizontalScroll({ analyses, title = "الت
         )}
 
         {/* البطاقات */}
-        <div 
+        <div
           ref={scrollContainerRef}
           onScroll={handleScroll}
           className={`
@@ -101,8 +132,8 @@ export default function DeepAnalysisHorizontalScroll({ analyses, title = "الت
           `}
         >
           {analyses.map((analysis, index) => (
-            <div 
-              key={analysis.id} 
+            <div
+              key={analysis.id}
               className="flex-shrink-0 w-80 snap-center lg:w-auto"
             >
               <DeepAnalysisCard analysis={analysis} viewMode="grid" />
@@ -121,15 +152,16 @@ export default function DeepAnalysisHorizontalScroll({ analyses, title = "الت
                 const cardWidth = 320;
                 scrollContainerRef.current.scrollTo({
                   left: index * (cardWidth + 16), // 16px gap
-                  behavior: 'smooth'
+                  behavior: "smooth",
                 });
               }
             }}
             className={`
               w-2 h-2 rounded-full transition-all duration-300
-              ${darkMode 
-                ? 'bg-gray-600 hover:bg-gray-500' 
-                : 'bg-gray-300 hover:bg-gray-400'
+              ${
+                darkMode
+                  ? "bg-gray-600 hover:bg-gray-500"
+                  : "bg-gray-300 hover:bg-gray-400"
               }
             `}
             aria-label={`الذهاب إلى البطاقة ${index + 1}`}
@@ -148,4 +180,4 @@ export default function DeepAnalysisHorizontalScroll({ analyses, title = "الت
       `}</style>
     </div>
   );
-} 
+}

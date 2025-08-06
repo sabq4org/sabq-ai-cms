@@ -233,7 +233,7 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
         )}
 
         {/* محتوى الإشعار المتحرك */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 flex items-center h-full">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentNotification.id}
@@ -241,7 +241,7 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.5, ease: "easeInOut" }}
-              className="flex items-center justify-start gap-2 min-h-[32px]"
+              className="flex items-center justify-start gap-2 min-h-[32px] h-full"
             >
               {/* أيقونة النوع - مخفية في الموبايل الصغير */}
               {!isMobile && (
@@ -256,11 +256,15 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
                 onClick={() => recordClick(currentNotification.id)}
                 className={cn(
                   "font-medium truncate hover:underline transition-colors duration-200 flex items-center justify-center min-h-[24px]",
-                  isMobile ? "text-xs sm:text-sm leading-tight" : "text-sm leading-normal",
+                  isMobile
+                    ? "text-xs sm:text-sm leading-tight"
+                    : "text-sm leading-normal",
                   getTypeColor(currentNotification.type)
                 )}
               >
-                <span className="py-1">{currentNotification.title}</span>
+                <span className="flex items-center justify-center h-full py-1">
+                  {currentNotification.title}
+                </span>
               </Link>
             </motion.div>
           </AnimatePresence>

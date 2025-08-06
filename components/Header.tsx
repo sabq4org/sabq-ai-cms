@@ -123,12 +123,12 @@ export default function Header() {
           : "bg-blue-50/95 border-blue-200"
       } border-b shadow-sm`}
     >
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-full relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full relative">
         <div className="flex items-center justify-between h-full">
           {/* الشعار الرسمي - محاذاة لليمين مع تحسينات المظهر */}
           <Link
             href="/"
-            className="flex-shrink-0 relative z-50 hover:scale-105 transition-transform duration-200 header-logo-wrapper"
+            className="flex-shrink-0 relative z-50 hover:scale-105 transition-transform duration-200 header-logo-wrapper ml-auto"
           >
             {settingsLoading ? (
               <div className="h-8 sm:h-10 w-28 sm:w-36 animate-pulse"></div>
