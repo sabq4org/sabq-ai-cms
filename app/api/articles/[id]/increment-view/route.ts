@@ -5,10 +5,10 @@ const prisma = new PrismaClient();
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     if (!id) {
       return NextResponse.json(
@@ -38,14 +38,14 @@ export async function PATCH(
     const updatedArticle = await prisma.articles.update({
       where: { id: existingArticle.id },
       data: {
-        views_count: {
+        views: {
           increment: 1
         },
         updated_at: new Date()
       },
       select: {
         id: true,
-        views_count: true
+        views: true
       }
     });
 
@@ -64,7 +64,7 @@ export async function PATCH(
 
     return NextResponse.json({
       success: true,
-      views_count: updatedArticle.views_count,
+      views_count: updatedArticle.views,
       message: 'تم تحديث عدد المشاهدات بنجاح'
     });
 
@@ -96,7 +96,7 @@ export async function GET(
       },
       select: {
         id: true,
-        views_count: true
+        views: true
       }
     });
 
@@ -108,7 +108,7 @@ export async function GET(
     }
 
     return NextResponse.json({
-      views_count: article.views_count || 0
+      views_count: article.views || 0
     });
 
   } catch (error) {

@@ -70,19 +70,26 @@ export default function ArticleClientComponent({
     processArticle(initialArticle) || null
   );
 
+  // جميع الـ state hooks يجب أن تكون في أعلى المكون
+  const [loading, setLoading] = useState(!initialArticle);
+  const [isReading, setIsReading] = useState(false);
+  const [showAudioPlayer, setShowAudioPlayer] = useState(false);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
+  const [contentHtml, setContentHtml] = useState("");
+  
+  // جميع الـ ref hooks
+  const audioRef = useRef<HTMLAudioElement>(null);
+
   // تحديد ما إذا كان المقال مقال رأي
   const isOpinionArticle =
     article &&
-    (article.article_type === "opinion" ||
-      article.article_type === "analysis" ||
-      article.article_type === "editorial" ||
-      article.article_type === "commentary" ||
-      article.article_type === "column" ||
-      article.category?.slug === "opinion" ||
+    (article.category?.slug === "opinion" ||
       article.category?.name?.includes("رأي") ||
-      article.category?.name?.includes("تحليل"));
-  const [loading, setLoading] = useState(!initialArticle);
-  const [isReading, setIsReading] = useState(false);
+      article.category?.name?.includes("تحليل") ||
+      article.category?.name?.includes("تحليل") ||
+      article.category?.name?.includes("تعليق"));
 
   // جلب بروفايل المراسل
   const {
@@ -139,6 +146,36 @@ export default function ArticleClientComponent({
     }
   }, [initialArticle, articleId]);
 
+  // معالجة المحتوى وتحويله إلى HTML
+  useEffect(() => {
+    // تحويل المحتوى إلى HTML مع معالجة أفضل للحالات الخاصة
+    const processContent = async () => {
+      // التعامل مع المحتوى الفارغ
+      if (!article?.content) {
+        console.log("⚠️ محتوى المقال فارغ، عرض رسالة افتراضية");
+        setContentHtml("<p>المحتوى غير متوفر حالياً.</p>");
+        return;
+      }
+
+      // استخدام المحتوى كما هو إذا كان HTML
+      if (
+        article.content.includes("<p>") ||
+        article.content.includes("<div>")
+      ) {
+        setContentHtml(article.content);
+      } else {
+        // تحويل النص العادي إلى HTML بسيط
+        const paragraphs = article.content.split("\n\n");
+        const html = paragraphs.map((p) => `<p>${p}</p>`).join("");
+        setContentHtml(html || "<p>المحتوى غير متوفر بشكل كامل.</p>");
+      }
+    };
+
+    if (article) {
+      processContent();
+    }
+  }, [article?.content]);
+
   // إذا لا يوجد مقال وجاري التحميل
   if (loading || !article) {
     return (
@@ -169,44 +206,9 @@ export default function ArticleClientComponent({
       </div>
     );
   }
-  const [showAudioPlayer, setShowAudioPlayer] = useState(false);
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
 
   // نظام تتبع التفاعل الذكي - معطل مؤقتاً لتجنب خطأ AuthProvider
   // const interactionTracking = useUserInteractionTracking(articleId);
-
-  // إصلاح مشكلة استخدام marked
-  const [contentHtml, setContentHtml] = useState("");
-
-  useEffect(() => {
-    // تحويل المحتوى إلى HTML مع معالجة أفضل للحالات الخاصة
-    const processContent = async () => {
-      // التعامل مع المحتوى الفارغ
-      if (!article.content) {
-        console.log("⚠️ محتوى المقال فارغ، عرض رسالة افتراضية");
-        setContentHtml("<p>المحتوى غير متوفر حالياً.</p>");
-        return;
-      }
-
-      // استخدام المحتوى كما هو إذا كان HTML
-      if (
-        article.content.includes("<p>") ||
-        article.content.includes("<div>")
-      ) {
-        setContentHtml(article.content);
-      } else {
-        // تحويل النص العادي إلى HTML بسيط
-        const paragraphs = article.content.split("\n\n");
-        const html = paragraphs.map((p) => `<p>${p}</p>`).join("");
-        setContentHtml(html || "<p>المحتوى غير متوفر بشكل كامل.</p>");
-      }
-    };
-
-    processContent();
-  }, [article.content]);
 
   // معالجة الإعجاب
   const handleLike = async () => {
@@ -259,8 +261,7 @@ export default function ArticleClientComponent({
   const getSubtitle = () => {
     // أولوية للعنوان الفرعي المحدد صراحة
     if (article.subtitle) return article.subtitle;
-    if (article.metadata?.subtitle) return article.metadata.subtitle;
-    if (article.description) return article.description;
+    if (article.excerpt) return article.excerpt;
 
     // إذا لم يوجد، استخراج من بداية المحتوى
     if (article.content) {

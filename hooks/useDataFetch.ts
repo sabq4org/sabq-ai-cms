@@ -158,7 +158,7 @@ export function useDataFetch<T>({
         abortControllerRef.current.abort();
       }
     };
-  }, [endpoint, cacheKey, retryAttempts, retryDelay, ...dependencies]);
+  }, [fetchData]);
 
   return {
     data,

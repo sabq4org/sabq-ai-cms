@@ -154,11 +154,11 @@ function generateKeywords(article: Article): string[] {
 export async function generateMetadata({
   params,
 }: {
-  params: ArticleParams;
+  params: Promise<ArticleParams>;
 }): Promise<Metadata> {
   // تجنب API calls في generateMetadata وإعطاء metadata أساسية
   // سيتم تحديث metadata ديناميكياً من العميل
-  const articleId = params.id;
+  const { id: articleId } = await params;
 
   return {
     title: "مقال - سبق الذكية",

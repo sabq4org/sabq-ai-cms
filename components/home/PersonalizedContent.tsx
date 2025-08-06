@@ -1,26 +1,26 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import { getValidImageUrl, generatePlaceholderImage } from '@/lib/cloudinary';
+import { generatePlaceholderImage, getValidImageUrl } from '@/lib/cloudinary';
 import { getSmartArticleLink } from '@/lib/utils';
+import Image from 'next/image';
+import Link from 'next/link';
+import React, { useCallback, useEffect, useState } from 'react';
 
-import { 
-  User, 
-  Heart, 
-  Target, 
-  TrendingUp, 
-  Clock, 
-  Eye,
-  Filter,
-  Settings,
-  BarChart3,
-  Zap,
-  CheckCircle,
-  AlertCircle,
-  Bookmark
+import {
+    AlertCircle,
+    BarChart3,
+    Bookmark,
+    CheckCircle,
+    Clock,
+    Eye,
+    Filter,
+    Heart,
+    Settings,
+    Target,
+    TrendingUp,
+    User,
+    Zap
 } from 'lucide-react';
 
 
@@ -81,7 +81,7 @@ export default function PersonalizedContent() {
     if (storedUserId && storedUserId !== 'anonymous') {
       setUserId(storedUserId);
     }
-    
+
     // جلب التصنيفات
     fetchCategories();
   }, []);
@@ -116,7 +116,7 @@ export default function PersonalizedContent() {
       // جلب تفضيلات المستخدم من الملف
       const response = await fetch(`/api/user/preferences?userId=${userId}`);
       const data = await response.json();
-      
+
       if (data.success && data.data) {
         setUserPreferences(data.data);
       }
@@ -129,14 +129,14 @@ export default function PersonalizedContent() {
     try {
       setLoading(true);
       setError(null);
-      
+
       let userInterests: string[] = [];
       let categoryIds: number[] = [];
-      
+
       if (userId && userPreferences.length > 0) {
         // استخدام تفضيلات المستخدم الفعلية
         categoryIds = userPreferences.map(pref => pref.category_id);
-        
+
         // تحويل معرفات التصنيفات إلى أسماء
         userInterests = categoryIds.map(id => {
           const category = categories.find(cat => cat.id === id);
@@ -149,20 +149,20 @@ export default function PersonalizedContent() {
           .filter(cat => userInterests.includes(cat.name) || userInterests.includes(cat.name_ar))
           .map(cat => cat.id);
       }
-      
+
       if (userInterests.length === 0) {
         setError('لم يتم تحديد أي اهتمامات. يرجى تخصيص اهتماماتك أولاً.');
         setArticles([]);
         setLoading(false);
         return;
       }
-      
+
       // جلب المقالات المخصصة
       if (userId) {
         // للمستخدمين المسجلين - استخدام API المخصص
         const response = await fetch(`/api/content/personalized?user_id=${userId}&limit=50`);
         const data = await response.json();
-        
+
         if (data.success && data.data) {
           const personalizedArticles = data.data.articles || [];
           processArticles(personalizedArticles, userInterests, categoryIds);
@@ -173,16 +173,16 @@ export default function PersonalizedContent() {
         // للزوار - جلب وتصفية المقالات يدوياً
         const response = await fetch('/api/articles?status=published&limit=100&article_type=news');
         const data = await response.json();
-        
+
         if (data.success && data.articles) {
           const allArticles = data.articles || data.data || [];
-          
+
           // تصفية المقالات حسب التصنيفات المحددة فقط
           const filteredArticles = allArticles.filter((article: any) => {
             const articleCategoryId = article.category_id;
             return categoryIds.includes(articleCategoryId);
           });
-          
+
           processArticles(filteredArticles, userInterests, categoryIds);
         } else {
           throw new Error('فشل في جلب المقالات');
@@ -200,18 +200,18 @@ export default function PersonalizedContent() {
   const processArticles = (articles: any[], userInterests: string[], categoryIds: number[]) => {
     // تجميع المقالات حسب التصنيف
     const articlesByCategory: Record<string, Article[]> = {};
-    
+
     articles.forEach((article: any) => {
       const categoryId = article.category_id;
       const category = categories.find(cat => cat.id === categoryId);
       const categoryName = category?.name || category?.name_ar || 'غير مصنف';
-      
+
       // التحقق من أن المقال ينتمي لأحد التصنيفات المحددة
       if (categoryIds.includes(categoryId)) {
         if (!articlesByCategory[categoryName]) {
           articlesByCategory[categoryName] = [];
         }
-        
+
         // تنسيق المقال
         const formattedArticle: Article = {
           id: article.id,
@@ -234,15 +234,15 @@ export default function PersonalizedContent() {
           recommendation_reason: article.recommendation_reason,
           category_weight: article.category_weight
         };
-        
+
         articlesByCategory[categoryName].push(formattedArticle);
       }
     });
-    
+
     // حساب الإحصائيات
     const personalizedCount = Object.values(articlesByCategory).reduce((sum, arr) => sum + arr.length, 0);
     const relevancePercentage = personalizedCount > 0 ? 100 : 0; // 100% لأن جميع المقالات مفلترة
-    
+
     setArticles(articles.filter(article => categoryIds.includes(article.category_id)));
     setStats({
       totalArticles: personalizedCount,
@@ -257,7 +257,7 @@ export default function PersonalizedContent() {
     const date = new Date(dateString);
     const now = new Date();
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
+
     if (diffInHours < 1) return 'منذ أقل من ساعة';
     if (diffInHours < 24) return `منذ ${diffInHours} ساعة`;
     const diffInDays = Math.floor(diffInHours / 24);
@@ -275,7 +275,7 @@ export default function PersonalizedContent() {
   const handleLike = async (articleId: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (!userId) {
       // إذا لم يكن المستخدم مسجل، توجيه إلى صفحة تسجيل الدخول
       window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
@@ -313,7 +313,7 @@ export default function PersonalizedContent() {
   const handleSave = async (articleId: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (!userId) {
       // إذا لم يكن المستخدم مسجل، توجيه إلى صفحة تسجيل الدخول
       window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
@@ -542,21 +542,21 @@ export default function PersonalizedContent() {
               <div className="p-4 space-y-4">
                 {categoryArticles.slice(0, 16).map((article) => (
                   <div key={article.id} className="relative group">
-                    <Link 
+                    <Link
                       href={getSmartArticleLink(article)}
                       className="block"
                     >
                       <div className={`p-4 rounded-lg border transition-all duration-200 ${
-                        darkMode 
-                          ? 'border-gray-600 hover:border-blue-500 hover:bg-gray-700/50' 
+                        darkMode
+                          ? 'border-gray-600 hover:border-blue-500 hover:bg-gray-700/50'
                           : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
                       }`}>
                         <div className="flex items-start space-x-4 space-x-reverse">
                           {/* صورة المقال */}
                           <div className="flex-shrink-0">
                             {article.featured_image ? (
-                              <Image 
-                                src={getValidImageUrl(article.featured_image, article.title, 'article')} 
+                              <Image
+                                src={getValidImageUrl(article.featured_image, article.title, 'article')}
                                 alt={article.title}
                                 width={64}
                                 height={64}
@@ -582,7 +582,7 @@ export default function PersonalizedContent() {
                             }`}>
                               {String(article.title || '')}
                             </h4>
-                            
+
                             <p className={`text-sm mb-3 line-clamp-2 ${
                               darkMode ? 'text-gray-300' : 'text-gray-600'
                             }`}>
@@ -598,7 +598,7 @@ export default function PersonalizedContent() {
                                   <User className="w-3 h-3" />
                                   <span>{String(article.author_name || article.author || 'غير محدد')}</span>
                                 </span>
-                                
+
                                 <span className={`flex items-center space-x-1 space-x-reverse ${
                                   darkMode ? 'text-gray-400' : 'text-gray-500'
                                 }`}>
@@ -614,7 +614,7 @@ export default function PersonalizedContent() {
                                   <Eye className="w-3 h-3" />
                                   <span>{String(formatNumber(article.views_count || article.views) || '0')}</span>
                                 </span>
-                                
+
                                 <span className={`flex items-center space-x-1 space-x-reverse ${
                                   darkMode ? 'text-gray-400' : 'text-gray-500'
                                 }`}>
@@ -630,21 +630,21 @@ export default function PersonalizedContent() {
 
                     {/* أزرار التفاعل */}
                     <div className="absolute top-2 left-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button 
+                      <button
                         onClick={(e) => handleLike(article.id, e)}
                         className={`w-6 h-6 rounded-full shadow-md flex items-center justify-center transition-all ${
-                          interactions[article.id]?.liked 
-                            ? 'bg-red-500 text-white' 
+                          interactions[article.id]?.liked
+                            ? 'bg-red-500 text-white'
                             : 'bg-white/90 dark:bg-gray-800/90 text-gray-600 dark:text-gray-400 hover:bg-red-500 hover:text-white'
                         }`}
                       >
                         <Heart className={`w-3 h-3 ${interactions[article.id]?.liked ? 'fill-current' : ''}`} />
                       </button>
-                      <button 
+                      <button
                         onClick={(e) => handleSave(article.id, e)}
                         className={`w-6 h-6 rounded-full shadow-md flex items-center justify-center transition-all ${
-                          interactions[article.id]?.saved 
-                            ? 'bg-blue-500 text-white' 
+                          interactions[article.id]?.saved
+                            ? 'bg-blue-500 text-white'
                             : 'bg-white/90 dark:bg-gray-800/90 text-gray-600 dark:text-gray-400 hover:bg-blue-500 hover:text-white'
                         }`}
                       >
@@ -657,11 +657,11 @@ export default function PersonalizedContent() {
                 {/* رابط عرض المزيد */}
                 {categoryArticles.length > 12 && (
                   <div className="text-center pt-2">
-                    <Link 
+                    <Link
                       href={`/categories/${category}`}
                       className={`inline-flex items-center space-x-2 space-x-reverse px-4 py-2 rounded-lg font-medium transition-colors ${
-                        darkMode 
-                          ? 'text-blue-400 hover:bg-blue-900/20' 
+                        darkMode
+                          ? 'text-blue-400 hover:bg-blue-900/20'
                           : 'text-blue-600 hover:bg-blue-50'
                       }`}
                     >
@@ -686,20 +686,20 @@ export default function PersonalizedContent() {
               darkMode ? 'text-gray-400' : 'text-gray-500'
             }`} />
           </div>
-          
+
           <h3 className={`text-lg font-semibold mb-2 ${
             darkMode ? 'text-white' : 'text-gray-900'
           }`}>
             لا توجد تحليلات جديدة في اهتماماتك الآن
           </h3>
-          
+
           <p className={`text-sm mb-4 ${
             darkMode ? 'text-gray-300' : 'text-gray-600'
           }`}>
             نحدث الوجبة المعرفية يومياً... تحقق لاحقاً أو قم بتوسيع اهتماماتك
           </p>
-          
-          <Link 
+
+          <Link
             href="/welcome/preferences"
             className="inline-flex items-center space-x-2 space-x-reverse px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
