@@ -576,7 +576,7 @@ export default function ArticleClientComponent({
         )}
 
         {/* منطقة المحتوى */}
-        <article className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+        <article className="max-w-5xl mx-auto px-6 lg:px-8 pb-8">
           {/* الملخص الذكي مع التحويل الصوتي */}
           <div className="mb-6 sm:mb-8">
             <ArticleAISummary
