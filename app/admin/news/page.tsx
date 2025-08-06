@@ -267,17 +267,21 @@ function AdminNewsPageContent() {
               // إذا كان هناك تصنيف_id ولكن لا توجد معلومات التصنيف الكاملة
               if (!article.category) {
                 // محاولة العثور على التصنيف المناسب من مصفوفة التصنيفات المحلية
-                const matchedCategory = categories.find(cat => cat.id === article.category_id);
+                const matchedCategory = categories.find(
+                  (cat) => cat.id === article.category_id
+                );
                 if (matchedCategory) {
                   enhancedArticle.category = {
                     id: article.category_id,
-                    name: matchedCategory.name
+                    name: matchedCategory.name,
                   };
-                  console.log(`🔄 إضافة معلومات التصنيف للمقال ${article.id}: ${matchedCategory.name}`);
+                  console.log(
+                    `🔄 إضافة معلومات التصنيف للمقال ${article.id}: ${matchedCategory.name}`
+                  );
                 }
               }
             }
-            
+
             return enhancedArticle;
           })
           .filter((article: any) => {
@@ -362,25 +366,30 @@ function AdminNewsPageContent() {
           "Content-Type": "application/json",
         },
       });
-      
+
       if (!response.ok) {
-        throw new Error(`فشل في جلب التصنيفات: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `فشل في جلب التصنيفات: ${response.status} ${response.statusText}`
+        );
       }
-      
+
       const data = await response.json();
-      
+
       if (data.categories && Array.isArray(data.categories)) {
         console.log(`✅ تم جلب ${data.categories.length} تصنيف بنجاح`);
         setCategories(data.categories);
-        
+
         // للتشخيص فقط - طباعة أول 5 تصنيفات
         if (data.categories.length > 0) {
-          console.log("🔍 عينة من التصنيفات:", data.categories.slice(0, 5).map((cat: any) => ({
-            id: cat.id,
-            name: cat.name
-          })));
+          console.log(
+            "🔍 عينة من التصنيفات:",
+            data.categories.slice(0, 5).map((cat: any) => ({
+              id: cat.id,
+              name: cat.name,
+            }))
+          );
         }
-        
+
         return data.categories; // إرجاع التصنيفات للاستخدام خارج الوظيفة إذا لزم الأمر
       } else {
         console.warn("⚠️ تم استلام استجابة، لكن لا توجد تصنيفات:", data);
@@ -504,19 +513,19 @@ function AdminNewsPageContent() {
       location: window.location.href,
       userAgent: navigator.userAgent.substring(0, 50),
     });
-    
+
     // تنفيذ العمليات بشكل متسلسل لضمان أن التصنيفات تكون جاهزة قبل استرجاع المقالات
     const initializeData = async () => {
       // 1. جلب التصنيفات أولاً
       await fetchCategories();
-      
+
       // 2. جلب المقالات بعد أن أصبحت التصنيفات متاحة
       await fetchArticles();
-      
+
       // 3. حساب الإحصائيات بعد جلب البيانات
       calculateStatsFromAll();
     };
-    
+
     initializeData();
   }, []);
 
@@ -525,7 +534,7 @@ function AdminNewsPageContent() {
     console.log(
       `🔄 تغيير الفلتر إلى: ${filterStatus}, التصنيف: ${selectedCategory}`
     );
-    
+
     // التأكد من أن لدينا تصنيفات قبل تحميل المقالات
     if (categories.length === 0) {
       // إذا لم تكن التصنيفات محملة بعد، جلب التصنيفات أولاً ثم المقالات
@@ -711,12 +720,12 @@ function AdminNewsPageContent() {
     if (article.category?.id) {
       return article.category.id;
     }
-    
+
     // 2. من الخاصية المباشرة
     if (article.category_id) {
       return article.category_id;
     }
-    
+
     // 3. لا يوجد تصنيف
     return null;
   };
@@ -727,7 +736,7 @@ function AdminNewsPageContent() {
     if (article.category?.name) {
       return article.category.name;
     }
-    
+
     // 2. البحث عن التصنيف باستخدام معرف التصنيف إذا كان متاحًا
     const categoryId = getCategoryId(article);
     if (categoryId && categories.length > 0) {
@@ -736,12 +745,16 @@ function AdminNewsPageContent() {
         return cat.name;
       }
     }
-    
+
     // 3. تسجيل معلومات التشخيص للمقالات غير المصنفة
     if (article.id && !article.category?.name && !categoryId) {
-      console.log(`ℹ️ مقال غير مصنف: ${article.id} - ${article.title?.substring(0, 30) || 'بلا عنوان'}...`);
+      console.log(
+        `ℹ️ مقال غير مصنف: ${article.id} - ${
+          article.title?.substring(0, 30) || "بلا عنوان"
+        }...`
+      );
     }
-    
+
     return "غير مصنف";
   };
 

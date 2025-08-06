@@ -1,9 +1,45 @@
 /**
  * API للأخبار - يستخدم جدول articles مع فلتر نوع الأخبار
- * /api/news - جلب الأخبار فقط
- */
-
-import { NextRequest, NextResponse } from 'next/server';
+ * /api/news - جلب الأخ    // جلب الأخبار والعدد الإجمالي من جدول articles
+    const [news, totalCount] = await Promise.all([
+      prisma.articles.findMany({
+        where,
+        include: {
+          categories: {
+            select: { id: true, name: true, slug: true, color: true }
+          },
+          author: {
+            select: { id: true, name: true, email: true }
+          },
+          // إضافة جلب بيانات المؤلف الجديد إذا كان متاحًا
+          article_author: {
+            select: { id: true, full_name: true, email: true }
+          }
+        },
+        orderBy,
+        skip,
+        take: limit
+      }),
+      prisma.articles.count({ where })
+    ]);
+    
+    console.log(`✅ News API: تم جلب ${news.length} خبر من أصل ${totalCount}`);
+    
+    // طباعة عينة من البيانات للتشخيص
+    if (news.length > 0) {
+      const sampleArticle = news[0];
+      console.log('🔍 عينة من بيانات الخبر:', {
+        id: sampleArticle.id,
+        title: sampleArticle.title?.substring(0, 50),
+        category_id: sampleArticle.category_id,
+        categories: sampleArticle.categories,
+        author_id: sampleArticle.author_id,
+        author: sampleArticle.author,
+        article_author_id: sampleArticle.article_author_id,
+        article_author: sampleArticle.article_author,
+        article_type: sampleArticle.article_type
+      });
+    }{ NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -93,6 +129,10 @@ export async function GET(request: NextRequest) {
           },
           author: {
             select: { id: true, name: true, email: true }
+          },
+          // إضافة جلب بيانات المؤلف الجديد إذا كان متاحًا
+          article_author: {
+            select: { id: true, full_name: true, email: true }
           }
         },
         orderBy,
@@ -108,30 +148,74 @@ export async function GET(request: NextRequest) {
     
     console.log(`✅ News API: تم جلب ${news.length} خبر من أصل ${totalCount}`);
     
+    // طباعة عينة من البيانات للتشخيص
+    if (news.length > 0) {
+      const sampleArticle = news[0];
+      console.log('🔍 عينة من بيانات الخبر:', {
+        id: sampleArticle.id,
+        title: sampleArticle.title?.substring(0, 50),
+        category_id: sampleArticle.category_id,
+        categories: sampleArticle.categories,
+        author_id: sampleArticle.author_id,
+        author: sampleArticle.author,
+        article_author_id: sampleArticle.article_author_id,
+        article_author: sampleArticle.article_author,
+        article_type: sampleArticle.article_type
+      });
+    }
+    
     // تحويل البيانات لتوافق واجهة NewsArticle
-    const formattedNews = news.map(article => ({
-      id: article.id,
-      title: article.title,
-      slug: article.slug,
-      excerpt: article.excerpt,
-      status: article.status,
-      published_at: article.published_at,
-      breaking: article.breaking || false,
-      featured: article.featured || false,
-      urgent: false, // لا يوجد في جدول articles القديم
-      source: null, // لا يوجد في جدول articles القديم
-      location: null, // لا يوجد في جدول articles القديم
-      featured_image: article.featured_image,
-      views: article.views || 0,
-      likes: article.likes || 0,
-      shares: article.shares || 0,
-      reading_time: article.reading_time,
-      allow_comments: article.allow_comments !== false,
-      created_at: article.created_at,
-      article_type: article.article_type, // 🔧 إضافة حقل article_type المفقود
-      categories: article.categories,
-      author: article.author || { id: '', name: 'غير محدد', email: '' }
-    }));
+    const formattedNews = news.map(article => {
+      // تحديد المؤلف المناسب (النظام الجديد أو القديم)
+      let authorInfo = null;
+      if (article.article_author) {
+        // استخدام النظام الجديد
+        authorInfo = {
+          id: article.article_author.id,
+          name: article.article_author.full_name,
+          email: article.article_author.email
+        };
+      } else if (article.author) {
+        // استخدام النظام القديم
+        authorInfo = {
+          id: article.author.id,
+          name: article.author.name,
+          email: article.author.email
+        };
+      } else {
+        // افتراضي
+        authorInfo = { id: '', name: 'غير محدد', email: '' };
+      }
+      
+      return {
+        id: article.id,
+        title: article.title,
+        slug: article.slug,
+        excerpt: article.excerpt,
+        status: article.status,
+        published_at: article.published_at,
+        breaking: article.breaking || false,
+        featured: article.featured || false,
+        urgent: false, // لا يوجد في جدول articles القديم
+        source: null, // لا يوجد في جدول articles القديم
+        location: null, // لا يوجد في جدول articles القديم
+        featured_image: article.featured_image,
+        views: article.views || 0,
+        likes: article.likes || 0,
+        shares: article.shares || 0,
+        reading_time: article.reading_time,
+        allow_comments: article.allow_comments !== false,
+        created_at: article.created_at,
+        article_type: article.article_type,
+        // إضافة معلومات التصنيف والمؤلف المحسنة
+        category_id: article.category_id,
+        category: article.categories, // معلومات التصنيف الكاملة
+        categories: article.categories, // للتوافق العكسي
+        author_id: article.author_id,
+        author: authorInfo, // معلومات المؤلف المحسنة
+        author_name: authorInfo.name // للتوافق العكسي
+      };
+    });
 
     // إنشاء الاستجابة مع headers صريحة
     const response = NextResponse.json({
