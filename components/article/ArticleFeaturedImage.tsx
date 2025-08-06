@@ -173,7 +173,7 @@ export default function ArticleFeaturedImage({
               <OptimizedImage
                 src={imageUrl}
                 alt={title}
-                className="w-full object-cover h-[400px] sm:h-[450px] md:h-[550px] lg:h-[650px]"
+                className="w-full object-cover h-[450px] sm:h-[520px] md:h-[600px] lg:h-[700px]"
                 priority={true}
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) calc(100vw - 3rem), 1152px"
               />
