@@ -48,7 +48,13 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { Component, ReactNode, useEffect, useState } from "react";
+import React, {
+  Component,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import toast from "react-hot-toast";
 
 // دالة تنسيق الأرقام (محدثة للأرقام الغربية)
@@ -172,15 +178,15 @@ function AdminNewsPageContent() {
   });
 
   // جلب الأخبار
-  const fetchArticles = async () => {
+  const fetchArticles = useCallback(async () => {
     setLoading(true);
-    console.log("🚀 بدء جلب الأخبار...", {
+    console.log("🚀 [fetchArticles] بدء جلب الأخبار...", {
       filterStatus,
       selectedCategory,
       timestamp: new Date().toISOString(),
     });
     try {
-      console.log(`🔍 جلب الأخبار مع الفلتر: ${filterStatus}`);
+      console.log(`🔍 [fetchArticles] جلب الأخبار مع الفلتر: ${filterStatus}`);
 
       const params = new URLSearchParams({
         status: filterStatus, // استخدام الفلتر مباشرة بدلاً من تحويله لـ "all"
@@ -232,8 +238,10 @@ function AdminNewsPageContent() {
       console.log(`📦 بيانات مُستلمة:`, {
         success: data.success,
         total: data.pagination?.total || data.total,
-        articlesCount: data.data?.length || 0,
+        articlesCount: data.articles?.length || 0,
         error: data.error || null,
+        hasArticles: !!data.articles,
+        hasData: !!data.data, // للتشخيص
       });
 
       // التحقق من نجاح الاستجابة (API الجديد يستخدم data.success)
@@ -244,16 +252,16 @@ function AdminNewsPageContent() {
         return;
       }
 
-      // API الجديد يستخدم data.data بدلاً من data.articles
-      if (data.data) {
+      // API الجديد يستخدم data.articles
+      if (data.articles) {
         console.log("📦 معالجة البيانات...", {
           total: data.pagination?.total || data.total,
-          articlesReceived: data.data.length,
-          firstArticleTitle: data.data[0]?.title?.substring(0, 50),
+          articlesReceived: data.articles.length,
+          firstArticleTitle: data.articles[0]?.title?.substring(0, 50),
         });
 
         // تنظيف البيانات وإضافة معالجة آمنة
-        const cleanArticles = data.data
+        const cleanArticles = data.articles
           .map((article: any) => {
             // إضافة معالجة لبيانات التصنيف إذا كانت متاحة
             let enhancedArticle = {
@@ -312,7 +320,7 @@ function AdminNewsPageContent() {
         });
 
         console.log("✅ تم معالجة البيانات بنجاح:", {
-          originalCount: data.data?.length || 0,
+          originalCount: data.articles?.length || 0,
           filteredCount: cleanArticles.length,
           finalCount: sortedArticles.length,
           status: filterStatus,
@@ -320,7 +328,7 @@ function AdminNewsPageContent() {
 
         setArticles(sortedArticles);
         console.log(`🧹 بعد الفلترة:`, {
-          originalCount: data.data?.length || 0,
+          originalCount: data.articles?.length || 0,
           filteredCount: cleanArticles.length,
           finalCount: sortedArticles.length,
           status: filterStatus,
@@ -354,10 +362,10 @@ function AdminNewsPageContent() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filterStatus, selectedCategory, categories]);
 
   // جلب التصنيفات
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       console.log("🗂️ جلب التصنيفات...");
       const response = await fetch("/api/categories", {
@@ -399,7 +407,7 @@ function AdminNewsPageContent() {
       console.error("❌ خطأ في جلب التصنيفات:", error);
       return [];
     }
-  };
+  }, []);
 
   // حساب الإحصائيات الثابتة من الأخبار فقط
   const calculateStatsFromAll = async () => {
@@ -516,14 +524,25 @@ function AdminNewsPageContent() {
 
     // تنفيذ العمليات بشكل متسلسل لضمان أن التصنيفات تكون جاهزة قبل استرجاع المقالات
     const initializeData = async () => {
-      // 1. جلب التصنيفات أولاً
-      await fetchCategories();
+      console.log("🔄 [InitializeData] بدء تسلسل تحميل البيانات...");
 
-      // 2. جلب المقالات بعد أن أصبحت التصنيفات متاحة
-      await fetchArticles();
+      try {
+        // 1. جلب التصنيفات أولاً
+        console.log("🔄 [InitializeData] خطوة 1: جلب التصنيفات...");
+        await fetchCategories();
 
-      // 3. حساب الإحصائيات بعد جلب البيانات
-      calculateStatsFromAll();
+        // 2. جلب المقالات بعد أن أصبحت التصنيفات متاحة
+        console.log("🔄 [InitializeData] خطوة 2: جلب المقالات...");
+        await fetchArticles();
+
+        // 3. حساب الإحصائيات بعد جلب البيانات
+        console.log("🔄 [InitializeData] خطوة 3: حساب الإحصائيات...");
+        calculateStatsFromAll();
+
+        console.log("✅ [InitializeData] تم الانتهاء من تحميل جميع البيانات");
+      } catch (error) {
+        console.error("❌ [InitializeData] خطأ في تحميل البيانات:", error);
+      }
     };
 
     initializeData();
@@ -547,7 +566,13 @@ function AdminNewsPageContent() {
       // التصنيفات موجودة، يمكن مباشرة تحميل المقالات
       fetchArticles();
     }
-  }, [filterStatus, selectedCategory]);
+  }, [
+    filterStatus,
+    selectedCategory,
+    categories,
+    fetchCategories,
+    fetchArticles,
+  ]);
 
   // تبديل حالة الخبر العاجل
   const toggleBreakingNews = async (
