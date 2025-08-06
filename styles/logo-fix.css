@@ -1,0 +1,38 @@
+/* إصلاح مشكلة حجم اللوجو */
+
+.logo-container {
+  max-width: 128px !important;
+  max-height: 32px !important;
+  width: auto !important;
+  height: auto !important;
+  overflow: hidden !important;
+}
+
+.logo-container img {
+  max-width: 100% !important;
+  max-height: 100% !important;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain !important;
+}
+
+/* للشاشات الصغيرة */
+@media (max-width: 640px) {
+  .logo-container {
+    max-width: 96px !important;
+    max-height: 24px !important;
+  }
+}
+
+/* منع اللوجو من الكبر الزائد */
+.header-logo-wrapper {
+  flex-shrink: 0 !important;
+  max-width: 128px !important;
+  overflow: hidden !important;
+}
+
+@media (max-width: 640px) {
+  .header-logo-wrapper {
+    max-width: 96px !important;
+  }
+}

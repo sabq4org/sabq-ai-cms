@@ -63,20 +63,15 @@ async function getArticles(limit = 16) {
 
       const json = await res.json();
 
-      // التحقق من نجاح الاستجابة (API الجديد)
-      if (!json.success) {
-        console.warn("⚠️ فشل API في إرجاع البيانات:", json.error);
-        return [];
-      }
-
-      // API الجديد يستخدم json.data
-      const articles = json.data ?? [];
+      // API يرجع { articles: [...], pagination: {...} }
+      const articles = json.articles ?? json.data ?? [];
 
       if (!Array.isArray(articles)) {
         console.warn("⚠️ البيانات المستلمة ليست مصفوفة");
         return [];
       }
 
+      console.log("✅ [Server] تم جلب المقالات:", articles.length);
       return articles;
     } catch (fetchError) {
       clearTimeout(timeoutId);

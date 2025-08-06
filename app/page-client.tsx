@@ -28,105 +28,115 @@ import { useDarkModeContext } from "@/contexts/DarkModeContext";
 const EmptyComponent = () => null;
 
 // Wrapped components with multiple fallback layers
-const TodayOpinionsSection = typeof window !== 'undefined' 
-  ? SafeDynamicComponent.withSkeleton(
-      () => import("@/components/TodayOpinionsSection")
-        .then(module => {
-          if (!module || !module.default) {
-            throw new Error('Module not found');
-          }
-          return module;
-        })
-        .catch((err) => {
-          console.warn("⚠️ TodayOpinionsSection load failed:", err);
-          return { 
-            default: EmptyComponent,
-            __esModule: true 
-          };
-        }),
-      { className: "w-full h-96 rounded-lg" }
-    )
-  : EmptyComponent;
+const TodayOpinionsSection =
+  typeof window !== "undefined"
+    ? SafeDynamicComponent.withSkeleton(
+        () =>
+          import("@/components/TodayOpinionsSection")
+            .then((module) => {
+              if (!module || !module.default) {
+                throw new Error("Module not found");
+              }
+              return module;
+            })
+            .catch((err) => {
+              console.warn("⚠️ TodayOpinionsSection load failed:", err);
+              return {
+                default: EmptyComponent,
+                __esModule: true,
+              };
+            }),
+        { className: "w-full h-96 rounded-lg" }
+      )
+    : EmptyComponent;
 
-const SmartAudioBlock = typeof window !== 'undefined'
-  ? SafeDynamicComponent.withSkeleton(
-      () => import("@/components/home/SmartAudioBlock")
-        .then(module => {
-          if (!module || !module.default) {
-            throw new Error('Module not found');
-          }
-          return module;
-        })
-        .catch((err) => {
-          console.warn("⚠️ SmartAudioBlock load failed:", err);
-          return { 
-            default: EmptyComponent,
-            __esModule: true 
-          };
-        }),
-      { className: "w-full h-40 rounded-lg" }
-    )
-  : EmptyComponent;
+const SmartAudioBlock =
+  typeof window !== "undefined"
+    ? SafeDynamicComponent.withSkeleton(
+        () =>
+          import("@/components/home/SmartAudioBlock")
+            .then((module) => {
+              if (!module || !module.default) {
+                throw new Error("Module not found");
+              }
+              return module;
+            })
+            .catch((err) => {
+              console.warn("⚠️ SmartAudioBlock load failed:", err);
+              return {
+                default: EmptyComponent,
+                __esModule: true,
+              };
+            }),
+        { className: "w-full h-40 rounded-lg" }
+      )
+    : EmptyComponent;
 
-const MuqtarabBlock = typeof window !== 'undefined'
-  ? SafeDynamicComponent.withSkeleton(
-      () => import("@/components/home/EnhancedMuqtarabBlock")
-        .then(module => {
-          if (!module || !module.default) {
-            throw new Error('Module not found');
-          }
-          return module;
-        })
-        .catch((err) => {
-          console.warn("⚠️ MuqtarabBlock load failed:", err);
-          return { 
-            default: EmptyComponent,
-            __esModule: true 
-          };
-        }),
-      { className: "w-full h-96 rounded-lg" }
-    )
-  : EmptyComponent;
+const MuqtarabBlock =
+  typeof window !== "undefined"
+    ? SafeDynamicComponent.withSkeleton(
+        () =>
+          import("@/components/home/EnhancedMuqtarabBlock")
+            .then((module) => {
+              if (!module || !module.default) {
+                throw new Error("Module not found");
+              }
+              return module;
+            })
+            .catch((err) => {
+              console.warn("⚠️ MuqtarabBlock load failed:", err);
+              return {
+                default: EmptyComponent,
+                __esModule: true,
+              };
+            }),
+        { className: "w-full h-96 rounded-lg" }
+      )
+    : EmptyComponent;
 
-const FeaturedNewsCarousel = typeof window !== 'undefined'
-  ? SafeDynamicComponent.withSkeleton(
-      () => import("@/components/FeaturedNewsCarousel")
-        .then(module => {
-          if (!module || !module.default) {
-            throw new Error('Module not found');
-          }
-          return module;
-        })
-        .catch((err) => {
-          console.warn("⚠️ FeaturedNewsCarousel load failed:", err);
-          return { 
-            default: EmptyComponent,
-            __esModule: true 
-          };
-        }),
-      { className: "w-full h-80 rounded-lg" }
-    )
-  : EmptyComponent;
+const FeaturedNewsCarousel =
+  typeof window !== "undefined"
+    ? SafeDynamicComponent.withSkeleton(
+        () =>
+          import("@/components/FeaturedNewsCarousel")
+            .then((module) => {
+              if (!module || !module.default) {
+                throw new Error("Module not found");
+              }
+              return module;
+            })
+            .catch((err) => {
+              console.warn("⚠️ FeaturedNewsCarousel load failed:", err);
+              return {
+                default: EmptyComponent,
+                __esModule: true,
+              };
+            }),
+        { className: "w-full h-80 rounded-lg" }
+      )
+    : EmptyComponent;
 
-const BreakingNewsBar = typeof window !== 'undefined'
-  ? SafeDynamicComponent.withCustomFallback(
-      () => import("@/components/BreakingNewsBar")
-        .then(module => {
-          if (!module || !module.default) {
-            throw new Error('Module not found');
-          }
-          return module;
-        })
-        .catch((err) => {
-          console.warn("⚠️ BreakingNewsBar load failed:", err);
-          return { 
-            default: EmptyComponent,
-            __esModule: true 
-          };
-        }),
-      <div className="w-full h-24 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse mx-4 mb-6" />
-    )
-  : EmptyComponent;
+const BreakingNewsBar =
+  typeof window !== "undefined"
+    ? SafeDynamicComponent.withCustomFallback(
+        () =>
+          import("@/components/BreakingNewsBar")
+            .then((module) => {
+              if (!module || !module.default) {
+                throw new Error("Module not found");
+              }
+              return module;
+            })
+            .catch((err) => {
+              console.warn("⚠️ BreakingNewsBar load failed:", err);
+              return {
+                default: EmptyComponent,
+                __esModule: true,
+              };
+            }),
+        <div className="w-full h-24 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse mx-4 mb-6" />
+      )
+    : EmptyComponent;
 
 import { DeepAnalysis } from "@/types/deep-analysis";
 import {
@@ -480,10 +490,11 @@ function NewspaperHomePage({
           "/api/news?status=published&limit=20&sort=published_at&order=desc"
         );
         const json = await res.json();
-        // 💡 API الجديد يرجع { success: true, data: [...] }
-        const list = json.success ? json.data || [] : [];
+        // 💡 API يرجع { articles: [...], pagination: {...} }
+        const list = json.articles || json.data || [];
         // تعيين المقالات للعرض في بلوك "محتوى مخصص لك"
         setArticles(list);
+        console.log("📰 [Home] تم جلب المقالات:", list.length);
         if (list.length === 0) {
           console.warn("No articles were fetched from the API.");
         }
