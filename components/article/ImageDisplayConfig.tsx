@@ -30,6 +30,29 @@ export const IMAGE_CONFIG = {
       LARGE: 2400
     }
   },
+
+  // إعدادات الارتفاعات المتجاوبة
+  RESPONSIVE_HEIGHTS: {
+    MOBILE: '280px',
+    TABLET: '500px', 
+    DESKTOP: '600px'
+  },
+
+  // إعدادات التفاعل والأداء
+  INTERACTION: {
+    HOVER_SCALE: 1.02,
+    TRANSITION_DURATION: 300,
+    LAZY_LOADING_THRESHOLD: 0.1,
+    PRIORITY_LOADING: true
+  },
+
+  // إعدادات الموبايل المحسنة
+  MOBILE_OPTIMIZATIONS: {
+    TOUCH_FRIENDLY: true,
+    COMPRESS_QUALITY: 75,
+    PROGRESSIVE_LOADING: true,
+    CACHE_STRATEGY: 'aggressive'
+  },
   
   // متطلبات الصور للمحررين
   REQUIREMENTS: {
