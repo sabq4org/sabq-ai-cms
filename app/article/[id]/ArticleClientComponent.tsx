@@ -488,9 +488,9 @@ export default function ArticleClientComponent({
                 )}
 
                 {/* حاوي للتصنيف ومعلومات النشر - تخطيط محسن */}
-                <div className="flex items-start justify-between px-1 gap-3 mobile-article-meta">
+                <div className="flex items-start justify-end px-1 gap-3 mobile-article-meta">
                   {/* التصنيف في اليمين (RTL friendly) */}
-                  <div className="flex-shrink-0 order-2">
+                  <div className="flex-shrink-0">
                     {article.category && (
                       <Link
                         href={`/categories/${article.category.slug}`}
@@ -507,7 +507,7 @@ export default function ArticleClientComponent({
                   </div>
 
                   {/* معلومات النشر في اليسار - محاذاة مع الصورة */}
-                  <div className="flex flex-col items-start gap-1.5 text-xs text-gray-500 dark:text-gray-400 order-1 flex-1 max-w-[160px] mobile-article-metadata">
+                  <div className="flex flex-col items-start gap-1.5 text-xs text-gray-500 dark:text-gray-400 flex-1 max-w-[160px] mobile-article-metadata">
                     {/* المراسل في سطر منفصل */}
                     {article.author && (
                       <div className="flex items-center gap-1.5">
