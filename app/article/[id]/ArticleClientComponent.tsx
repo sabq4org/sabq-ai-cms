@@ -17,13 +17,13 @@ import { useEffect, useRef, useState } from "react";
 import { SmartInteractionButtons } from "@/components/article/SmartInteractionButtons";
 import { useViewTracking } from "@/hooks/useViewTracking";
 import {
-  Award,
-  BookOpen,
-  Calendar,
-  CheckCircle,
-  Clock,
-  Hash,
-  Star,
+    Award,
+    BookOpen,
+    Calendar,
+    CheckCircle,
+    Clock,
+    Hash,
+    Star,
 } from "lucide-react";
 // import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
 import ArticleAISummary from "@/components/article/ArticleAISummary";
@@ -695,8 +695,9 @@ export default function ArticleClientComponent({
                 }
                             `}</style>
             </div>
-            
-            {/* إحصائيات المقال */}
+          </div>
+
+          {/* إحصائيات المقال */}
             <div className="mt-8 sm:mt-12">
               <ArticleStatsBlock
                 views={article.views || 0}
