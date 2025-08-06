@@ -76,8 +76,10 @@ export default function ArticleCard({
     article.image ||
     metadata.image;
 
-  // استخدام معالج الإنتاج في بيئة الإنتاج - استخدام process.env فقط لتجنب hydration mismatch
-  const isProduction = process.env.NODE_ENV === "production";
+  // استخدام معالج الإنتاج في بيئة الإنتاج - استخدام تحديد أكثر موثوقية للإنتاج
+  const isProduction =
+    process.env.NODE_ENV === "production" ||
+    (typeof window !== "undefined" && window.location.hostname !== "localhost");
 
   const imageUrl = rawImageUrl
     ? isProduction

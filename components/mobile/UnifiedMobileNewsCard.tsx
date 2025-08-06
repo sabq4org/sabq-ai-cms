@@ -1,6 +1,7 @@
 "use client";
 
 import ArticleViews from "@/components/ui/ArticleViews";
+import CloudImage from "@/components/ui/CloudImage";
 import { formatDateGregorian, formatRelativeDate } from "@/lib/date-utils";
 import { formatCommentsCount } from "@/lib/format-utils";
 import { getArticleLink } from "@/lib/utils";
@@ -15,7 +16,6 @@ import {
   TrendingUp,
   Zap,
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 
 // واجهة موحدة للبيانات
@@ -194,21 +194,16 @@ export default function UnifiedMobileNewsCard({
         >
           {/* الصورة الرئيسية */}
           <div className="relative h-48 w-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
-            <Image
-              src={data.featured_image || generatePlaceholderImage(data.title)}
+            <CloudImage
+              src={data.featured_image || ""}
               alt={data.title}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
               sizes="(max-width: 768px) 100vw, 400px"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = generatePlaceholderImage(data.title);
-              }}
-            />
-
+              fallbackType="article"
+            />{" "}
             {/* تدرج للخلفية */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-
             {/* شارات الحالة المحسنة مع AI */}
             <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
               {data.breaking && (
@@ -236,7 +231,6 @@ export default function UnifiedMobileNewsCard({
                 </span>
               )}
             </div>
-
             {/* التصنيف المحسن */}
             {data.category_name &&
               (() => {
@@ -403,16 +397,13 @@ export default function UnifiedMobileNewsCard({
         >
           {/* الصورة المصغرة */}
           <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-700">
-            <Image
-              src={data.featured_image || generatePlaceholderImage(data.title)}
+            <CloudImage
+              src={data.featured_image || ""}
               alt={data.title}
               fill
               className="object-cover"
               sizes="80px"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = generatePlaceholderImage(data.title);
-              }}
+              fallbackType="article"
             />
           </div>
 
@@ -506,16 +497,13 @@ export default function UnifiedMobileNewsCard({
       >
         {/* الصورة */}
         <div className="relative h-40 w-full bg-gray-200 dark:bg-gray-700">
-          <Image
-            src={data.featured_image || generatePlaceholderImage(data.title)}
+          <CloudImage
+            src={data.featured_image || ""}
             alt={data.title}
             fill
             className="object-cover"
             sizes="(max-width: 768px) 100vw, 400px"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = generatePlaceholderImage(data.title);
-            }}
+            fallbackType="article"
           />
         </div>
 
@@ -590,12 +578,13 @@ export default function UnifiedMobileNewsCard({
               {/* صورة الكاتب */}
               {article.author.avatar ? (
                 <div className="w-8 h-8 rounded-full overflow-hidden">
-                  <Image
-                    src={article.author.avatar}
+                  <CloudImage
+                    src={article.author.avatar || ""}
                     alt={article.author.name}
                     width={32}
                     height={32}
                     className="object-cover w-full h-full"
+                    fallbackType="author"
                   />
                 </div>
               ) : (

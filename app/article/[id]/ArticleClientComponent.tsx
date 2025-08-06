@@ -430,14 +430,14 @@ export default function ArticleClientComponent({
           >
             {/* رأس المقال محسن للموبايل */}
             <header className="mb-4 sm:mb-6">
-              {/* Desktop Header */}
+              {/* Desktop Header - تحسين توازن العناصر */}
               <div className="hidden sm:block px-6 lg:px-8 py-6 lg:py-8 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl">
-                {/* التصنيف - محاذاة لليمين */}
+                {/* التصنيف - محاذاة لليمين مع تحسين الهامش */}
                 {article.category && (
-                  <div className="flex justify-end mb-4">
+                  <div className="flex justify-end mb-5">
                     <Link
                       href={`/categories/${article.category.slug}`}
-                      className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50 hover:shadow-md hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-800/30 dark:hover:to-indigo-800/30 transition-all hover:scale-105"
+                      className="inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50 hover:shadow-md hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-800/30 dark:hover:to-indigo-800/30 transition-all hover:scale-105"
                     >
                       {article.category.icon && (
                         <span className="text-sm sm:text-base">
@@ -449,20 +449,20 @@ export default function ArticleClientComponent({
                   </div>
                 )}
 
-                {/* العنوان */}
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 text-gray-900 dark:text-white leading-tight text-right">
+                {/* العنوان - تحسين المسافات والهوامش */}
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-5 text-gray-900 dark:text-white leading-tight text-right tracking-tight">
                   {article.title}
                 </h1>
 
-                {/* العنوان الفرعي */}
+                {/* العنوان الفرعي - تحسين المظهر */}
                 {getSubtitle() && (
-                  <h2 className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-400 mb-6 text-right">
+                  <h2 className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-400 mb-8 text-right leading-relaxed">
                     {getSubtitle()}
                   </h2>
                 )}
 
-                {/* المعلومات الأساسية - Desktop */}
-                <div className="flex flex-wrap items-center justify-start gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 text-right">
+                {/* المعلومات الأساسية - Desktop مع تحسين المحاذاة والمسافات */}
+                <div className="flex flex-wrap items-center justify-end gap-3 sm:gap-5 text-xs sm:text-sm text-gray-500 dark:text-gray-400 border-t border-gray-100 dark:border-gray-700/50 pt-4 mt-2">
                   {article.author && (
                     <div className="flex items-center gap-1.5 sm:gap-2">
                       <ReporterLink
