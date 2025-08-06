@@ -170,17 +170,23 @@ export default function ArticleFeaturedImage({
     case "content-width":
       return (
         <div className="article-featured-image w-full">
-          {/* حاوي بعرض كامل للهواتف، وبعرض المحتوى للشاشات الكبيرة */}
-          <div className="w-full max-w-5xl mx-auto">
-            <div className="relative overflow-hidden sm:rounded-xl w-full aspect-[2/1] sm:aspect-[2.35/1]">
+          {/* حاوي بعرض محسن للموبايل */}
+          <div className="w-full px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+            <div className="relative overflow-hidden rounded-xl w-full mobile-featured-image-container">
               <OptimizedImage
                 src={imageUrl}
                 alt={title}
                 fill={true}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover mobile-featured-image"
                 priority={true}
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) calc(100vw - 3rem), 1152px"
+                sizes="(max-width: 640px) calc(100vw - 2rem), (max-width: 1024px) calc(100vw - 3rem), 1152px"
               />
+              
+              {/* إزالة أي تراكبات أو ظلال غير مرغوبة */}
+              <div className="sr-only">
+                {/* محتوى للقراء الصوتيين فقط */}
+                صورة المقال: {title}
+              </div>
             </div>
           </div>
         </div>

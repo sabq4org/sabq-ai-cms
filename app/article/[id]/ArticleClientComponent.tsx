@@ -34,6 +34,7 @@ import ArticleViews from "@/components/ui/ArticleViews";
 import { useReporterProfile } from "@/lib/hooks/useReporterProfile";
 import "@/styles/image-optimizations.css";
 import "@/styles/mobile-article.css";
+import "@/styles/mobile-article-improvements.css";
 import "./article-styles.css";
 
 interface ArticleClientComponentProps {
@@ -470,103 +471,98 @@ export default function ArticleClientComponent({
               </div>
 
               {/* Mobile Header محسن */}
-              <div className="sm:hidden px-2 py-4 mobile-article-header">
-                {/* العنوان الرئيسي - عرض أكبر مع هوامش أقل */}
-                <div className="px-1 mb-3">
-                  <h1 className="text-2xl xs:text-[26px] font-bold leading-tight text-gray-900 dark:text-white mobile-article-title">
+              <div className="sm:hidden px-4 py-4 mobile-article-header mobile-content-layout">
+                {/* العنوان الرئيسي - توسيط مع هوامش محسنة */}
+                <div className="mb-3">
+                  <h1 className="text-2xl xs:text-[26px] font-bold leading-tight text-gray-900 dark:text-white mobile-article-title text-right">
                     {article.title}
                   </h1>
                 </div>
 
-                {/* العنوان الفرعي - تصميم محسن */}
+                {/* العنوان الفرعي/الموجز - تصميم محسن */}
                 {getSubtitle() && (
-                  <div className="px-1 mb-4">
-                    <h2 className="text-sm leading-relaxed text-gray-900 dark:text-gray-100 font-normal mobile-article-subtitle">
+                  <div className="mb-4">
+                    <h2 className="text-sm leading-relaxed mobile-article-subtitle text-right">
                       {getSubtitle()}
                     </h2>
                   </div>
                 )}
 
-                {/* حاوي للتصنيف ومعلومات النشر - تخطيط محسن */}
-                <div className="flex items-start justify-between px-1 gap-3 mobile-article-meta">
-                  {/* التصنيف في اليمين (RTL friendly) */}
-                  <div className="flex-shrink-0 order-2">
-                    {article.category && (
-                      <Link
-                        href={`/categories/${article.category.slug}`}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/50 hover:shadow-sm transition-all mobile-article-category"
-                      >
-                        {article.category.icon && (
-                          <span className="text-sm">
-                            {article.category.icon}
-                          </span>
-                        )}
-                        <span>{article.category.name}</span>
-                      </Link>
-                    )}
+                {/* بيانات النشر محسنة - صف أفقي صغير */}
+                <div className="mobile-publish-data text-right mb-4">
+                  {/* الكاتب */}
+                  {article.author && (
+                    <>
+                      <ReporterLink
+                        author={article.author as any}
+                        size="sm"
+                        showIcon={true}
+                        showVerification={true}
+                        className="truncate max-w-[100px] text-xs"
+                      />
+                      <div className="separator"></div>
+                    </>
+                  )}
+                  
+                  {/* التاريخ */}
+                  <div className="flex items-center gap-1">
+                    <Calendar className="icon" />
+                    <span>
+                      <SafeDateDisplay
+                        date={article.published_at || article.created_at || ""}
+                        format="relative"
+                      />
+                    </span>
                   </div>
-
-                  {/* معلومات النشر في اليسار - محاذاة مع الصورة */}
-                  <div className="flex flex-col items-start gap-1.5 text-xs text-gray-500 dark:text-gray-400 order-1 flex-1 max-w-[160px] mobile-article-metadata">
-                    {/* المراسل في سطر منفصل */}
-                    {article.author && (
-                      <div className="flex items-center gap-1.5">
-                        <ReporterLink
-                          author={article.author as any}
-                          size="sm"
-                          showIcon={true}
-                          showVerification={true}
-                          className="truncate max-w-[120px] text-xs"
-                        />
-                      </div>
-                    )}
-
-                    {/* التاريخ ووقت القراءة والمشاهدات في سطر واحد */}
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3 flex-shrink-0 mobile-article-icon" />
-                        <span>
-                          <SafeDateDisplay
-                            date={
-                              article.published_at || article.created_at || ""
-                            }
-                            format="relative"
-                          />
-                        </span>
-                      </div>
-                      <span className="text-gray-300 dark:text-gray-600">
-                        •
-                      </span>
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-3 h-3 flex-shrink-0 mobile-article-icon" />
-                        <span>
-                          {article.reading_time ||
-                            calculateReadingTime(article.content || "")}{" "}
-                          د
-                        </span>
-                      </div>
-                      {article.views !== undefined && (
-                        <>
-                          <span className="text-gray-300 dark:text-gray-600">
-                            •
-                          </span>
-                          <ArticleViews
-                            count={article.views}
-                            className="text-xs"
-                          />
-                        </>
-                      )}
-                    </div>
+                  
+                  <div className="separator"></div>
+                  
+                  {/* وقت القراءة */}
+                  <div className="flex items-center gap-1">
+                    <Clock className="icon" />
+                    <span>
+                      {article.reading_time ||
+                        calculateReadingTime(article.content || "")}{" "}
+                      د
+                    </span>
                   </div>
+                  
+                  {/* المشاهدات */}
+                  {article.views !== undefined && (
+                    <>
+                      <div className="separator"></div>
+                      <ArticleViews
+                        count={article.views}
+                        className="text-xs"
+                      />
+                    </>
+                  )}
                 </div>
+
+                {/* التصنيف - موضع محسن */}
+                {article.category && (
+                  <div className="flex justify-end">
+                    <Link
+                      href={`/categories/${article.category.slug}`}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/50 hover:shadow-sm transition-all mobile-article-category"
+                    >
+                      {article.category.icon && (
+                        <span className="text-sm">
+                          {article.category.icon}
+                        </span>
+                      )}
+                      <span>{article.category.name}</span>
+                    </Link>
+                  </div>
+                )}
               </div>
             </header>
           </article>
         </div>
 
-        {/* صورة المقال - خارج الحاوية المحدودة لتأخذ العرض الكامل */}
+        {/* صورة المقال - محسنة للموبايل */}
         {article.featured_image && (
-          <div className="w-full">
+          <div className="w-full mobile-article-image-spacing">
             <ArticleFeaturedImage
               imageUrl={article.featured_image}
               title={article.title}
@@ -575,11 +571,11 @@ export default function ArticleClientComponent({
           </div>
         )}
 
-        {/* منطقة المحتوى */}
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* منطقة المحتوى - محسنة للموبايل */}
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 lg:p-8">
-            {/* الملخص الذكي مع التحويل الصوتي */}
-            <div className="mb-6 sm:mb-8">
+            {/* الملخص الذكي مع التحويل الصوتي - أسفل الصورة مباشرة */}
+            <div className="mb-4 sm:mb-6">
               <ArticleAISummary
                 articleId={article.id}
                 title={article.title || "مقال بدون عنوان"}

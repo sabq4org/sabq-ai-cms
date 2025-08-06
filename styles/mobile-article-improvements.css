@@ -1,0 +1,248 @@
+/* 📱 تحسينات تصميم صفحة تفاصيل الخبر - نسخة الموبايل */
+/* تطبيق معايير UX/UI الخاصة بمشروع سبق الذكية */
+
+/* 🎨 التصميم العام للصورة المميزة */
+@media (max-width: 768px) {
+  .mobile-article-image-spacing {
+    /* توسيط الصورة وعدم عرضها بالعرض الكامل */
+    padding: 0 16px;
+    margin: 20px 0 24px 0;
+  }
+
+  .mobile-featured-image-container {
+    /* الصورة داخل حدود العنوان والنص */
+    max-width: 92%;
+    margin: 0 auto;
+    
+    /* زيادة ارتفاع الصورة قليلاً للتوازن البصري */
+    aspect-ratio: 16/10;
+    min-height: 200px;
+    
+    /* إزالة الامتداد الزائد يميناً ويساراً */
+    padding: 0;
+    overflow: hidden;
+    border-radius: 12px;
+    
+    /* ظل خفيف ومتوازن */
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    
+    /* إزالة أي حاويات رمادية */
+    background: transparent;
+  }
+
+  /* تحسين عرض الصورة نفسها */
+  .mobile-featured-image {
+    object-fit: cover;
+    object-position: center center;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* إزالة أي خلفيات رمادية تحت الصورة */
+  .article-featured-image {
+    background: transparent !important;
+    margin: 0;
+    padding: 0;
+  }
+
+  .article-featured-image::before,
+  .article-featured-image::after {
+    display: none !important;
+  }
+
+  /* إزالة أي div وسطية قد تضيف خلفيات */
+  .article-featured-image > div {
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* التأكد من عدم وجود تدرجات أو ظلال غير مرغوبة */
+  .mobile-featured-image-container::before,
+  .mobile-featured-image-container::after {
+    display: none !important;
+  }
+}
+
+/* 🧱 توزيع المحتوى المحسن */
+@media (max-width: 768px) {
+  /* العنوان - محاذى لليمين مع padding خارجي */
+  .mobile-article-title {
+    text-align: right !important;
+    direction: rtl;
+    padding: 0 16px;
+    margin-bottom: 12px;
+    font-size: 26px;
+    line-height: 1.3;
+    font-weight: 700;
+    color: rgb(17 24 39); /* gray-900 */
+  }
+
+  /* النبذة التمهيدية/موجز الخبر */
+  .mobile-article-subtitle {
+    text-align: right !important;
+    direction: rtl;
+    padding: 0 16px;
+    margin-bottom: 16px;
+    font-size: 15px;
+    line-height: 1.5;
+    font-weight: 400 !important;
+    color: rgb(75 85 99) !important; /* gray-600 - أفتح من العنوان */
+  }
+
+  /* بيانات النشر في صف أفقي صغير */
+  .mobile-publish-data {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end; /* محاذاة لليمين */
+    gap: 8px;
+    padding: 0 16px;
+    margin-bottom: 16px;
+    font-size: 12px;
+    color: rgb(107 114 128); /* gray-500 */
+    direction: rtl;
+    text-align: right;
+  }
+
+  /* الأيقونات مصغرة قليلاً */
+  .mobile-publish-data .icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    opacity: 0.7;
+  }
+
+  /* المسافة بين العناصر متساوية */
+  .mobile-publish-data .separator {
+    width: 3px;
+    height: 3px;
+    background-color: currentColor;
+    border-radius: 50%;
+    opacity: 0.4;
+    margin: 0 2px;
+  }
+
+  /* تحسين عرض المراسل */
+  .mobile-publish-data .reporter-link {
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* 📱 ملاحظات تقنية محققة */
+@media (max-width: 768px) {
+  /* max-width: 92% للصورة و margin: auto للتوسيط */
+  .mobile-featured-image-container {
+    max-width: 92%;
+    margin: auto;
+  }
+
+  /* image-container يحتوي overflow: hidden و border-radius: 12px */
+  .mobile-featured-image-container {
+    overflow: hidden;
+    border-radius: 12px;
+  }
+
+  /* التأكد من عدم وجود padding داخلي في حاوي الصورة */
+  .mobile-article-image-spacing .article-featured-image > div {
+    padding: 0 !important;
+  }
+}
+
+/* ✅ الشكل النهائي المتوقع */
+@media (max-width: 768px) {
+  /* موجز الصوت (إن وُجد) أسفل الصورة مباشرة بدون فراغ زائد */
+  .mobile-article-image-spacing + div[class*="audio"],
+  .mobile-article-image-spacing + .ai-summary,
+  .mobile-featured-image-container + .audio-summary {
+    margin-top: 16px !important;
+    margin-bottom: 0;
+  }
+
+  /* انسيابية بصرية محسنة */
+  .mobile-content-layout {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  /* تحسين التوزيع العام */
+  .mobile-article-header {
+    margin-bottom: 8px;
+  }
+
+  /* إزالة أي فراغات زائدة */
+  .mobile-article-header > div {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  /* تحسين المسافة بين الصورة والمحتوى */
+  .mobile-article-image-spacing + .max-w-5xl {
+    padding-top: 0 !important;
+  }
+
+  /* تحسين عرض الملخص الذكي */
+  .mobile-article-image-spacing ~ div .ai-summary,
+  .mobile-article-image-spacing ~ div [class*="summary"] {
+    margin-top: 8px !important;
+  }
+}
+
+/* 🌙 Dark Mode للتحسينات الجديدة */
+@media (max-width: 768px) and (prefers-color-scheme: dark) {
+  .mobile-article-title {
+    color: rgb(243 244 246) !important; /* gray-100 */
+  }
+
+  .mobile-article-subtitle {
+    color: rgb(156 163 175) !important; /* gray-400 */
+  }
+
+  .mobile-publish-data {
+    color: rgb(156 163 175) !important; /* gray-400 */
+  }
+
+  .mobile-featured-image-container {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* 🔧 تحسينات دقيقة إضافية */
+@media (max-width: 480px) {
+  .mobile-featured-image-container {
+    max-width: 94%;
+    aspect-ratio: 4/3;
+    min-height: 180px;
+  }
+
+  .mobile-article-title {
+    font-size: 24px;
+    padding: 0 12px;
+  }
+
+  .mobile-article-subtitle {
+    font-size: 14px;
+    padding: 0 12px;
+  }
+
+  .mobile-publish-data {
+    padding: 0 12px;
+    font-size: 11px;
+  }
+}
+
+/* تحسين الأداء */
+.mobile-featured-image-container,
+.mobile-article-title,
+.mobile-article-subtitle,
+.mobile-publish-data {
+  contain: layout style paint;
+  will-change: transform;
+}
+
+/* منع layout shift */
+.mobile-featured-image-container {
+  contain: size layout style paint;
+}
