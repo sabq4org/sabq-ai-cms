@@ -688,8 +688,40 @@ export default function ArticleClientComponent({
                 }
               `}</style>
             </div>
+          </article>
+          
+          {/* إحصائيات المقال */}
+          <div className="mt-8 sm:mt-12">
+            <ArticleStatsBlock
+              views={article.views || 0}
+              likes={article.likes || article.stats?.likes || 0}
+              saves={article.saves || article.stats?.saves || 0}
+              shares={article.shares || article.stats?.shares || 0}
+              category={
+                article.category
+                  ? {
+                      name: article.category.name,
+                      color: article.category.color,
+                      icon: article.category.icon,
+                    }
+                  : undefined
+              }
+              growthRate={Math.floor(Math.random() * 60)} // نسبة نمو عشوائية للعرض
+            />
           </div>
-        </article>
+
+          {/* المحتوى المخصص بذكاء - نظام التوصيات الشخصي */}
+          <div className="mt-6 sm:mt-8">
+            <SmartPersonalizedContent
+              articleId={article.id}
+              categoryId={article.category_id}
+              categoryName={article.category?.name}
+              tags={article.keywords || []}
+              darkMode={darkMode}
+              userId={undefined} // يمكن تمرير معرف المستخدم عند التسجيل
+            />
+          </div>
+        </div>
       </main>
       <Footer />
     </>
