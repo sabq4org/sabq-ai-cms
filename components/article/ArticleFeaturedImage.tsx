@@ -167,15 +167,15 @@ export default function ArticleFeaturedImage({
     case "content-width":
       return (
         <div className="article-featured-image w-full">
-          {/* حاوي بعرض المحتوى مطابق لعرض النص */}
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="relative overflow-hidden rounded-xl">
+          {/* حاوي بعرض كامل للهواتف، وبعرض المحتوى للشاشات الكبيرة */}
+          <div className="sm:max-w-5xl sm:mx-auto sm:px-6 lg:px-8">
+            <div className="relative overflow-hidden sm:rounded-xl">
               <OptimizedImage
                 src={imageUrl}
                 alt={title}
                 className="w-full object-cover h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px]"
                 priority={true}
-                sizes="(max-width: 640px) calc(100vw - 2rem), (max-width: 1024px) calc(100vw - 3rem), 1152px"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) calc(100vw - 3rem), 1152px"
               />
             </div>
           </div>
