@@ -425,6 +425,17 @@ export default function ArticleClientComponent({
                   </h2>
                 )}
 
+                {/* صورة المقال - مدمجة مع العنوان */}
+                {article.featured_image && (
+                  <div className="mt-6 mb-6">
+                    <ArticleFeaturedImage
+                      imageUrl={article.featured_image}
+                      title={article.title}
+                      category={article.category}
+                    />
+                  </div>
+                )}
+
                 {/* المعلومات الأساسية - Desktop */}
                 <div className="flex flex-wrap items-center justify-start gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 text-right">
                   {article.author && (
@@ -485,6 +496,17 @@ export default function ArticleClientComponent({
                     <h2 className="text-sm leading-relaxed text-gray-900 dark:text-gray-100 font-normal mobile-article-subtitle">
                       {getSubtitle()}
                     </h2>
+                  </div>
+                )}
+
+                {/* صورة المقال - مدمجة مع العنوان للموبايل */}
+                {article.featured_image && (
+                  <div className="mt-4 mb-4">
+                    <ArticleFeaturedImage
+                      imageUrl={article.featured_image}
+                      title={article.title}
+                      category={article.category}
+                    />
                   </div>
                 )}
 
@@ -565,17 +587,6 @@ export default function ArticleClientComponent({
 
         {/* منطقة المحتوى */}
         <article className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
-          {/* صورة المقال */}
-          {article.featured_image && (
-            <div className="mb-6 sm:mb-8">
-              <ArticleFeaturedImage
-                imageUrl={article.featured_image}
-                title={article.title}
-                category={article.category}
-              />
-            </div>
-          )}
-
           {/* الملخص الذكي مع التحويل الصوتي */}
           <div className="mb-6 sm:mb-8">
             <ArticleAISummary
