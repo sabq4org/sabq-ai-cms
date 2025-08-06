@@ -578,95 +578,95 @@ export default function ArticleClientComponent({
         {/* منطقة المحتوى */}
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 lg:p-8">
-              {/* الملخص الذكي مع التحويل الصوتي */}
-              <div className="mb-6 sm:mb-8">
-                <ArticleAISummary
-                  articleId={article.id}
-                  title={article.title || "مقال بدون عنوان"}
-                  content={article.content || ""}
-                  existingSummary={
-                    article.ai_summary ||
-                    article.summary ||
-                    article.excerpt ||
-                    ""
-                  }
-                  className="shadow-lg"
-                />
-              </div>
+            {/* الملخص الذكي مع التحويل الصوتي */}
+            <div className="mb-6 sm:mb-8">
+              <ArticleAISummary
+                articleId={article.id}
+                title={article.title || "مقال بدون عنوان"}
+                content={article.content || ""}
+                existingSummary={
+                  article.ai_summary ||
+                  article.summary ||
+                  article.excerpt ||
+                  ""
+                }
+                className="shadow-lg"
+              />
+            </div>
 
-              {/* شريط التفاعل الذكي */}
-              <div className="mb-6 sm:mb-8">
-                <SmartInteractionButtons
-                  articleId={article.id}
-                  initialStats={{
-                    likes: article.likes || article.stats?.likes || 0,
-                    saves: article.saves || article.stats?.saves || 0,
-                    shares: article.shares || article.stats?.shares || 0,
-                    comments: article.comments_count || 0,
-                  }}
-                  onComment={() => {
-                    // تم إزالة قسم التعليقات
-                    console.log("تم النقر على التعليقات");
-                  }}
-                />
-              </div>
+            {/* شريط التفاعل الذكي */}
+            <div className="mb-6 sm:mb-8">
+              <SmartInteractionButtons
+                articleId={article.id}
+                initialStats={{
+                  likes: article.likes || article.stats?.likes || 0,
+                  saves: article.saves || article.stats?.saves || 0,
+                  shares: article.shares || article.stats?.shares || 0,
+                  comments: article.comments_count || 0,
+                }}
+                onComment={() => {
+                  // تم إزالة قسم التعليقات
+                  console.log("تم النقر على التعليقات");
+                }}
+              />
+            </div>
 
-              {/* الكلمات المفتاحية */}
-              {keywords.length > 0 && (
-                <div className="mb-6 sm:mb-8">
-                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                    {keywords.map((keyword, index) => (
-                      <Link
-                        key={index}
-                        href={`/tags/${encodeURIComponent(keyword)}`}
-                        className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-medium rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-all hover:scale-105 hover:shadow-sm"
-                      >
-                        <Hash className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                        <span>{keyword}</span>
-                      </Link>
-                    ))}
-                  </div>
+            {/* الكلمات المفتاحية */}
+            {keywords.length > 0 && (
+              <div className="mb-6 sm:mb-8">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                  {keywords.map((keyword, index) => (
+                    <Link
+                      key={index}
+                      href={`/tags/${encodeURIComponent(keyword)}`}
+                      className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-medium rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-all hover:scale-105 hover:shadow-sm"
+                    >
+                      <Hash className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                      <span>{keyword}</span>
+                    </Link>
+                  ))}
                 </div>
-              )}
-
-              {/* زر وضع القراءة */}
-              <div className="mb-6 sm:mb-8 flex justify-end">
-                <button
-                  onClick={() => setIsReading(!isReading)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                    isReading
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
-                  } hover:opacity-90`}
-                >
-                  <BookOpen className="w-4 h-4" />
-                  <span className="text-sm font-medium">
-                    {isReading ? "إيقاف وضع القراءة" : "وضع القراءة"}
-                  </span>
-                </button>
               </div>
+            )}
 
-              {/* محتوى المقال */}
-              <div className="mb-12">
-                <div
-                  className={`prose max-w-none dark:prose-invert arabic-article-content
-                    prose-headings:text-gray-900 dark:prose-headings:text-white
-                    prose-p:text-gray-700 dark:prose-p:text-gray-300
-                    prose-p:leading-relaxed
-                    prose-img:rounded-xl prose-img:shadow-xl
-                    prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
-                    prose-strong:text-gray-900 dark:prose-strong:text-white
-                    prose-blockquote:border-blue-500 dark:prose-blockquote:border-blue-400
-                    prose-blockquote:bg-blue-50 dark:prose-blockquote:bg-blue-900/20
-                    prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-lg
-                    ${isReading ? "prose-xl" : "prose-lg"}
-                  `}
-                  dangerouslySetInnerHTML={{ __html: contentHtml }}
-                />
-              </div>
+            {/* زر وضع القراءة */}
+            <div className="mb-6 sm:mb-8 flex justify-end">
+              <button
+                onClick={() => setIsReading(!isReading)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                  isReading
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+                } hover:opacity-90`}
+              >
+                <BookOpen className="w-4 h-4" />
+                <span className="text-sm font-medium">
+                  {isReading ? "إيقاف وضع القراءة" : "وضع القراءة"}
+                </span>
+              </button>
+            </div>
 
-              {/* إصلاح التوجه العربي للمحتوى */}
-              <style jsx>{`
+            {/* محتوى المقال */}
+            <div className="mb-12">
+              <div
+                className={`prose max-w-none dark:prose-invert arabic-article-content
+                  prose-headings:text-gray-900 dark:prose-headings:text-white
+                  prose-p:text-gray-700 dark:prose-p:text-gray-300
+                  prose-p:leading-relaxed
+                  prose-img:rounded-xl prose-img:shadow-xl
+                  prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
+                  prose-strong:text-gray-900 dark:prose-strong:text-white
+                  prose-blockquote:border-blue-500 dark:prose-blockquote:border-blue-400
+                  prose-blockquote:bg-blue-50 dark:prose-blockquote:bg-blue-900/20
+                  prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-lg
+                  ${isReading ? "prose-xl" : "prose-lg"}
+                `}
+                dangerouslySetInnerHTML={{ __html: contentHtml }}
+              />
+            </div>
+
+            {/* إصلاح التوجه العربي للمحتوى */}
+            <style jsx>{`
                 .arabic-article-content p {
                   text-align: right !important;
                   direction: rtl !important;
@@ -693,41 +693,39 @@ export default function ArticleClientComponent({
                   border-right: 4px solid #3b82f6 !important;
                   border-left: none !important;
                 }
-                            `}</style>
-            </div>
+            `}</style>
           </div>
 
           {/* إحصائيات المقال */}
-            <div className="mt-8 sm:mt-12">
-              <ArticleStatsBlock
-                views={article.views || 0}
-                likes={article.likes || article.stats?.likes || 0}
-                saves={article.saves || article.stats?.saves || 0}
-                shares={article.shares || article.stats?.shares || 0}
-                category={
-                  article.category
-                    ? {
-                        name: article.category.name,
-                        color: article.category.color,
-                        icon: article.category.icon,
-                      }
-                    : undefined
-                }
-                growthRate={Math.floor(Math.random() * 60)} // نسبة نمو عشوائية للعرض
-              />
-            </div>
+          <div className="mt-8 sm:mt-12">
+            <ArticleStatsBlock
+              views={article.views || 0}
+              likes={article.likes || article.stats?.likes || 0}
+              saves={article.saves || article.stats?.saves || 0}
+              shares={article.shares || article.stats?.shares || 0}
+              category={
+                article.category
+                  ? {
+                      name: article.category.name,
+                      color: article.category.color,
+                      icon: article.category.icon,
+                    }
+                  : undefined
+              }
+              growthRate={Math.floor(Math.random() * 60)} // نسبة نمو عشوائية للعرض
+            />
+          </div>
 
-            {/* المحتوى المخصص بذكاء - نظام التوصيات الشخصي */}
-            <div className="mt-6 sm:mt-8">
-              <SmartPersonalizedContent
-                articleId={article.id}
-                categoryId={article.category_id}
-                categoryName={article.category?.name}
-                tags={article.keywords || []}
-                darkMode={darkMode}
-                userId={undefined} // يمكن تمرير معرف المستخدم عند التسجيل
-              />
-            </div>
+          {/* المحتوى المخصص بذكاء - نظام التوصيات الشخصي */}
+          <div className="mt-6 sm:mt-8">
+            <SmartPersonalizedContent
+              articleId={article.id}
+              categoryId={article.category_id}
+              categoryName={article.category?.name}
+              tags={article.keywords || []}
+              darkMode={darkMode}
+              userId={undefined} // يمكن تمرير معرف المستخدم عند التسجيل
+            />
           </div>
         </div>
       </main>
