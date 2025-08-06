@@ -168,7 +168,7 @@ export default function ArticleFeaturedImage({
       return (
         <div className="article-featured-image w-full">
           {/* حاوي بعرض كامل للهواتف، وبعرض المحتوى للشاشات الكبيرة */}
-          <div className="sm:max-w-5xl sm:mx-auto sm:px-6 lg:px-8">
+          <div className="w-full max-w-5xl mx-auto">
             <div className="relative overflow-hidden sm:rounded-xl">
               <OptimizedImage
                 src={imageUrl}
