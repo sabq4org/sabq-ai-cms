@@ -188,6 +188,7 @@ function AdminNewsPageContent() {
         sort: "published_at",
         order: "desc",
         article_type: "news", // 🔥 فلتر الأخبار فقط - استبعاد المقالات
+        include_categories: "true", // 🔄 تضمين معلومات التصنيف مع المقالات
       });
 
       if (selectedCategory !== "all") {
@@ -253,11 +254,32 @@ function AdminNewsPageContent() {
 
         // تنظيف البيانات وإضافة معالجة آمنة
         const cleanArticles = data.data
-          .map((article: any) => ({
-            ...article,
-            published_at: article.published_at || article.created_at,
-            status: article.status || "draft",
-          }))
+          .map((article: any) => {
+            // إضافة معالجة لبيانات التصنيف إذا كانت متاحة
+            let enhancedArticle = {
+              ...article,
+              published_at: article.published_at || article.created_at,
+              status: article.status || "draft",
+            };
+
+            // معالجة بيانات التصنيف بطريقة أكثر متانة
+            if (article.category_id) {
+              // إذا كان هناك تصنيف_id ولكن لا توجد معلومات التصنيف الكاملة
+              if (!article.category) {
+                // محاولة العثور على التصنيف المناسب من مصفوفة التصنيفات المحلية
+                const matchedCategory = categories.find(cat => cat.id === article.category_id);
+                if (matchedCategory) {
+                  enhancedArticle.category = {
+                    id: article.category_id,
+                    name: matchedCategory.name
+                  };
+                  console.log(`🔄 إضافة معلومات التصنيف للمقال ${article.id}: ${matchedCategory.name}`);
+                }
+              }
+            }
+            
+            return enhancedArticle;
+          })
           .filter((article: any) => {
             const title = article.title?.toLowerCase() || "";
             const isTestArticle =
@@ -333,13 +355,40 @@ function AdminNewsPageContent() {
   // جلب التصنيفات
   const fetchCategories = async () => {
     try {
-      const response = await fetch("/api/categories");
+      console.log("🗂️ جلب التصنيفات...");
+      const response = await fetch("/api/categories", {
+        headers: {
+          "Cache-Control": "no-cache", // منع التخزين المؤقت للحصول على أحدث البيانات
+          "Content-Type": "application/json",
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`فشل في جلب التصنيفات: ${response.status} ${response.statusText}`);
+      }
+      
       const data = await response.json();
-      if (data.categories) {
+      
+      if (data.categories && Array.isArray(data.categories)) {
+        console.log(`✅ تم جلب ${data.categories.length} تصنيف بنجاح`);
         setCategories(data.categories);
+        
+        // للتشخيص فقط - طباعة أول 5 تصنيفات
+        if (data.categories.length > 0) {
+          console.log("🔍 عينة من التصنيفات:", data.categories.slice(0, 5).map((cat: any) => ({
+            id: cat.id,
+            name: cat.name
+          })));
+        }
+        
+        return data.categories; // إرجاع التصنيفات للاستخدام خارج الوظيفة إذا لزم الأمر
+      } else {
+        console.warn("⚠️ تم استلام استجابة، لكن لا توجد تصنيفات:", data);
+        return [];
       }
     } catch (error) {
-      console.error("خطأ في جلب التصنيفات:", error);
+      console.error("❌ خطأ في جلب التصنيفات:", error);
+      return [];
     }
   };
 
@@ -455,9 +504,20 @@ function AdminNewsPageContent() {
       location: window.location.href,
       userAgent: navigator.userAgent.substring(0, 50),
     });
-    fetchCategories();
-    fetchArticles();
-    calculateStatsFromAll();
+    
+    // تنفيذ العمليات بشكل متسلسل لضمان أن التصنيفات تكون جاهزة قبل استرجاع المقالات
+    const initializeData = async () => {
+      // 1. جلب التصنيفات أولاً
+      await fetchCategories();
+      
+      // 2. جلب المقالات بعد أن أصبحت التصنيفات متاحة
+      await fetchArticles();
+      
+      // 3. حساب الإحصائيات بعد جلب البيانات
+      calculateStatsFromAll();
+    };
+    
+    initializeData();
   }, []);
 
   // تحميل المقالات عند تغيير الفلتر أو التصنيف
@@ -465,7 +525,19 @@ function AdminNewsPageContent() {
     console.log(
       `🔄 تغيير الفلتر إلى: ${filterStatus}, التصنيف: ${selectedCategory}`
     );
-    fetchArticles();
+    
+    // التأكد من أن لدينا تصنيفات قبل تحميل المقالات
+    if (categories.length === 0) {
+      // إذا لم تكن التصنيفات محملة بعد، جلب التصنيفات أولاً ثم المقالات
+      const loadDataSequentially = async () => {
+        await fetchCategories();
+        fetchArticles();
+      };
+      loadDataSequentially();
+    } else {
+      // التصنيفات موجودة، يمكن مباشرة تحميل المقالات
+      fetchArticles();
+    }
   }, [filterStatus, selectedCategory]);
 
   // تبديل حالة الخبر العاجل
@@ -633,13 +705,43 @@ function AdminNewsPageContent() {
     selectedCategory,
   });
 
+  // الحصول على معرف التصنيف بطريقة آمنة
+  const getCategoryId = (article: Article): string | null => {
+    // 1. من الكائن المضمن
+    if (article.category?.id) {
+      return article.category.id;
+    }
+    
+    // 2. من الخاصية المباشرة
+    if (article.category_id) {
+      return article.category_id;
+    }
+    
+    // 3. لا يوجد تصنيف
+    return null;
+  };
+
   // الحصول على التصنيف الحقيقي
   const getCategoryName = (article: Article) => {
-    if (article.category?.name) return article.category.name;
-    if (article.category_id) {
-      const cat = categories.find((c) => c.id === article.category_id);
-      return cat?.name || "غير مصنف";
+    // 1. التحقق مباشرة من الكائن المضمن في المقال
+    if (article.category?.name) {
+      return article.category.name;
     }
+    
+    // 2. البحث عن التصنيف باستخدام معرف التصنيف إذا كان متاحًا
+    const categoryId = getCategoryId(article);
+    if (categoryId && categories.length > 0) {
+      const cat = categories.find((c) => c.id === categoryId);
+      if (cat?.name) {
+        return cat.name;
+      }
+    }
+    
+    // 3. تسجيل معلومات التشخيص للمقالات غير المصنفة
+    if (article.id && !article.category?.name && !categoryId) {
+      console.log(`ℹ️ مقال غير مصنف: ${article.id} - ${article.title?.substring(0, 30) || 'بلا عنوان'}...`);
+    }
+    
     return "غير مصنف";
   };
 
