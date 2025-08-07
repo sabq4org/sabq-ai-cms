@@ -1,3 +1,4 @@
+import { cache as redisCache } from "@/lib/redis-improved";
 import { MuqtaribArticleForm } from "@/types/muqtarab";
 import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
@@ -61,7 +62,7 @@ export async function POST(
 
     const article = result[0];
 
-    return NextResponse.json({
+    const json = {
       success: true,
       message: body.isPublished
         ? "تم نشر المقال بنجاح"
@@ -83,7 +84,19 @@ export async function POST(
         createdAt: article.created_at,
         updatedAt: article.updated_at,
       },
-    });
+    };
+
+    // تفريغ كاش الزاوية واللائحة ذات الصلة
+    try {
+      await redisCache.clearPattern(`muktarib:articles:*` as any);
+      if (angleId) {
+        await redisCache.del(`muktarib:angle:${angleId}` as any);
+      }
+    } catch (e) {
+      console.warn("⚠️ فشل تفريغ كاش Redis بعد إنشاء/تحديث مقال الزاوية");
+    }
+
+    return NextResponse.json(json);
   } catch (error) {
     console.error("خطأ في إنشاء المقال:", error);
     return NextResponse.json(

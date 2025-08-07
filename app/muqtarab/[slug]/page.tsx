@@ -56,10 +56,7 @@ export default function AnglePage() {
 
         // جلب بيانات الزاوية بالـ slug
         const angleResponse = await fetch(
-          `/api/muqtarab/angles/by-slug/${slug}`,
-          {
-            cache: "no-store",
-          }
+          `/api/muqtarab/angles/by-slug/${slug}`
         );
 
         if (!angleResponse.ok) {
@@ -76,10 +73,7 @@ export default function AnglePage() {
         // جلب مقالات الزاوية
         setArticlesLoading(true);
         const articlesResponse = await fetch(
-          `/api/muqtarab/angles/${angleData.angle.id}/articles?limit=50`,
-          {
-            cache: "no-store",
-          }
+          `/api/muqtarab/angles/${angleData.angle.id}/articles?limit=50`
         );
 
         if (articlesResponse.ok) {

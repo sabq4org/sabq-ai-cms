@@ -1,4 +1,5 @@
 import { createCacheKey, withCache } from "@/lib/cache";
+import { cache as redisCache } from "@/lib/redis-improved";
 import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -17,17 +18,39 @@ export async function GET(
       return NextResponse.json({ error: "slug مطلوب" }, { status: 400 });
     }
 
-    // إنشاء cache key
+    // إنشاء مفاتيح الكاش (Redis + Memory)
     const cacheKey = createCacheKey("angle:by-slug", { slug });
-    const cacheManager = withCache(cacheKey, 15, true); // 15 دقيقة cache
+    const redisKey = `muktarib:angle:${slug}`;
+    const cacheManager = withCache(cacheKey, 15, true); // 15 دقيقة Memory cache
 
-    // التحقق من الـ cache
+    // 1) فحص Redis أولاً
+    try {
+      const redisHit = await redisCache.get<any>(redisKey);
+      if (redisHit) {
+        console.log("⚡ [Redis HIT] Angle by slug:", slug);
+        const res = NextResponse.json(redisHit);
+        res.headers.set(
+          "Cache-Control",
+          "public, s-maxage=300, stale-while-revalidate=600"
+        );
+        res.headers.set("X-Cache-Status", "REDIS-HIT");
+        return res;
+      }
+    } catch (e) {
+      console.warn("⚠️ تجاوز Redis مؤقتاً (Angle by slug)", e?.message);
+    }
+
+    // 2) فحص Cache الذاكرة
     const cachedData = cacheManager.get();
     if (cachedData) {
-      console.log("⚡ [Cache HIT] Angle by slug:", slug);
-      return NextResponse.json(cachedData, {
-        headers: cacheManager.getCacheHeaders(),
-      });
+      console.log("⚡ [Memory HIT] Angle by slug:", slug);
+      const res = NextResponse.json(cachedData);
+      res.headers.set(
+        "Cache-Control",
+        "public, s-maxage=300, stale-while-revalidate=600"
+      );
+      res.headers.set("X-Cache-Status", "MEM-HIT");
+      return res;
     }
 
     // استعلام محسّن باستخدام الفهارس الجديدة
@@ -97,14 +120,23 @@ export async function GET(
       cached: false,
     };
 
-    // حفظ في الـ cache
+    // 3) حفظ في الذاكرة + Redis
     cacheManager.set(responseData);
+    try {
+      await redisCache.set(redisKey, responseData, 600); // 10 دقائق في Redis
+    } catch (e) {
+      console.warn("⚠️ فشل حفظ الزاوية في Redis", e?.message);
+    }
 
     console.log("✅ تم تحويل بيانات الزاوية:", angle.title);
 
-    return NextResponse.json(responseData, {
-      headers: cacheManager.getCacheHeaders(),
-    });
+    const res = NextResponse.json(responseData);
+    res.headers.set(
+      "Cache-Control",
+      "public, s-maxage=300, stale-while-revalidate=600"
+    );
+    res.headers.set("X-Cache-Status", "MISS");
+    return res;
   } catch (error) {
     console.error("❌ خطأ في جلب الزاوية بالـ slug:", error);
 

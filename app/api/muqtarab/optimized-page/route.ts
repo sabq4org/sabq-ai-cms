@@ -1,4 +1,5 @@
 import { createCacheKey, withCache } from "@/lib/cache";
+import { cache as redisCache } from "@/lib/redis-improved";
 import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -12,17 +13,39 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const filter = searchParams.get("filter") || "all";
 
-    // إنشاء cache key
+    // إنشاء cache key (Memory + Redis)
     const cacheKey = createCacheKey("muqtarab:page", { filter });
-    const cacheManager = withCache(cacheKey, 10, true); // 10 دقائق cache
+    const redisKey = `muktarib:page:${filter}`;
+    const cacheManager = withCache(cacheKey, 10, true);
 
-    // التحقق من الـ cache
+    // 1) فحص Redis
+    try {
+      const redisHit = await redisCache.get<any>(redisKey);
+      if (redisHit) {
+        console.log("⚡ [Redis HIT] Muqtarab Page:", redisKey);
+        const res = NextResponse.json(redisHit);
+        res.headers.set(
+          "Cache-Control",
+          "public, s-maxage=300, stale-while-revalidate=600"
+        );
+        res.headers.set("X-Cache-Status", "REDIS-HIT");
+        return res;
+      }
+    } catch (e) {
+      console.warn("⚠️ تجاوز Redis مؤقتاً (Muqtarab Page)");
+    }
+
+    // 2) فحص Cache الذاكرة
     const cachedData = cacheManager.get();
     if (cachedData) {
-      console.log("⚡ [Cache HIT] Muqtarab Page:", cacheKey);
-      return NextResponse.json(cachedData, {
-        headers: cacheManager.getCacheHeaders(),
-      });
+      console.log("⚡ [Memory HIT] Muqtarab Page:", cacheKey);
+      const res = NextResponse.json(cachedData);
+      res.headers.set(
+        "Cache-Control",
+        "public, s-maxage=300, stale-while-revalidate=600"
+      );
+      res.headers.set("X-Cache-Status", "MEM-HIT");
+      return res;
     }
 
     console.log("🔍 [Muqtarab Page] جلب البيانات بشكل محسّن...");
@@ -221,8 +244,13 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString(),
     };
 
-    // حفظ في الـ cache
+    // حفظ في الـ cache (Memory + Redis)
     cacheManager.set(responseData);
+    try {
+      await redisCache.set(redisKey, responseData, 600);
+    } catch (e) {
+      console.warn("⚠️ فشل حفظ Muqtarab Page في Redis");
+    }
 
     const duration = Date.now() - startTime;
 
@@ -234,9 +262,13 @@ export async function GET(request: NextRequest) {
       cached: true,
     });
 
-    return NextResponse.json(responseData, {
-      headers: cacheManager.getCacheHeaders(),
-    });
+    const res = NextResponse.json(responseData);
+    res.headers.set(
+      "Cache-Control",
+      "public, s-maxage=300, stale-while-revalidate=600"
+    );
+    res.headers.set("X-Cache-Status", "MISS");
+    return res;
   } catch (error) {
     console.error("❌ [Muqtarab Page] خطأ في جلب البيانات:", error);
 

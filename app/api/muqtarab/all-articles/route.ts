@@ -1,4 +1,5 @@
 import { createCacheKey, performanceLogger, withCache } from "@/lib/cache";
+import { cache as redisCache } from "@/lib/redis-improved";
 import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -19,7 +20,7 @@ export async function GET(request: NextRequest) {
 
     const offset = (page - 1) * limit;
 
-    // إنشاء cache key ديناميكي
+    // إنشاء cache key ديناميكي (Memory + Redis)
     const cacheKey = createCacheKey("muqtarab:articles", {
       page,
       limit,
@@ -28,15 +29,40 @@ export async function GET(request: NextRequest) {
       featured,
     });
 
-    // التحقق من الـ cache
+    // مفاتيح Redis
+    const redisKey = `muktarib:articles:${page}:${limit}:${sortBy}:${
+      category || "all"
+    }:${featured}`;
+
+    // 1) فحص Redis أولاً
+    try {
+      const redisHit = await redisCache.get<any>(redisKey);
+      if (redisHit) {
+        console.log("⚡ [Redis HIT] Muqtarab Articles:", redisKey);
+        const res = NextResponse.json(redisHit);
+        res.headers.set(
+          "Cache-Control",
+          "public, s-maxage=300, stale-while-revalidate=600"
+        );
+        res.headers.set("X-Cache-Status", "REDIS-HIT");
+        return res;
+      }
+    } catch (e) {
+      console.warn("⚠️ تجاوز Redis مؤقتاً (Muqtarab Articles)", e?.message);
+    }
+
+    // 2) فحص Cache الذاكرة
     const cacheManager = withCache(cacheKey, 5, true); // 5 دقائق cache
     const cachedData = cacheManager.get();
-
     if (cachedData) {
-      console.log("⚡ [Cache HIT] Muqtarab Articles:", cacheKey);
-      return NextResponse.json(cachedData, {
-        headers: cacheManager.getCacheHeaders(),
-      });
+      console.log("⚡ [Memory HIT] Muqtarab Articles:", cacheKey);
+      const res = NextResponse.json(cachedData);
+      res.headers.set(
+        "Cache-Control",
+        "public, s-maxage=300, stale-while-revalidate=600"
+      );
+      res.headers.set("X-Cache-Status", "MEM-HIT");
+      return res;
     }
 
     console.log("🔍 [All Muqtarab Articles] المعاملات:", {
@@ -216,8 +242,13 @@ export async function GET(request: NextRequest) {
       },
     };
 
-    // حفظ البيانات في الـ cache
+    // حفظ البيانات في الـ cache (Memory + Redis)
     cacheManager.set(responseData);
+    try {
+      await redisCache.set(redisKey, responseData, 600);
+    } catch (e) {
+      console.warn("⚠️ فشل حفظ Muqtarab Articles في Redis", e?.message);
+    }
 
     // تسجيل الأداء
     const duration = timer.end(formattedArticles.length);
@@ -232,9 +263,13 @@ export async function GET(request: NextRequest) {
       cached: true,
     });
 
-    return NextResponse.json(responseData, {
-      headers: cacheManager.getCacheHeaders(),
-    });
+    const res = NextResponse.json(responseData);
+    res.headers.set(
+      "Cache-Control",
+      "public, s-maxage=300, stale-while-revalidate=600"
+    );
+    res.headers.set("X-Cache-Status", "MISS");
+    return res;
   } catch (error) {
     console.error("❌ [All Muqtarab Articles] خطأ في جلب المقالات:", error);
 
