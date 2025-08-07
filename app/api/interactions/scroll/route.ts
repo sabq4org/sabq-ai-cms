@@ -42,7 +42,6 @@ export async function POST(request: NextRequest) {
       },
       data: {
         scroll_depth: scrollDepth,
-        last_active: new Date(),
         is_completed: scrollDepth > 0.9,
       },
     });
