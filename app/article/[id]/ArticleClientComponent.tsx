@@ -461,37 +461,37 @@ export default function ArticleClientComponent({
                   </h2>
                 )}
 
-                {/* المعلومات الأساسية - Desktop مع تحسين المحاذاة والمسافات */}
-                <div className="flex flex-wrap items-center justify-end gap-3 sm:gap-5 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-6">
+                {/* المعلومات الأساسية - Desktop مع محاذاة يمين كاملة */}
+                <div className="flex flex-wrap items-center justify-end gap-3 sm:gap-5 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-6 text-right">
                   {article.author && (
-                    <div className="flex items-center gap-1.5 sm:gap-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2 justify-end">
                       <ReporterLink
                         author={article.author as any}
                         size="sm"
                         showIcon={true}
                         showVerification={true}
-                        className="truncate max-w-[120px] sm:max-w-none text-xs sm:text-sm"
+                        className="truncate max-w-[120px] sm:max-w-none text-xs sm:text-sm text-right"
                       />
                     </div>
                   )}
-                  <div className="flex items-center gap-1.5 sm:gap-2">
+                  <div className="flex items-center gap-1.5 sm:gap-2 justify-end text-right">
                     <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                    <span className="hidden sm:inline">
+                    <span className="hidden sm:inline text-right">
                       <SafeDateDisplay
                         date={article.published_at || article.created_at || ""}
                         format="full"
                       />
                     </span>
-                    <span className="sm:hidden">
+                    <span className="sm:hidden text-right">
                       <SafeDateDisplay
                         date={article.published_at || article.created_at || ""}
                         format="relative"
                       />
                     </span>
                   </div>
-                  <div className="flex items-center gap-1.5 sm:gap-2">
+                  <div className="flex items-center gap-1.5 sm:gap-2 justify-end text-right">
                     <Clock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                    <span>
+                    <span className="text-right">
                       {article.reading_time ||
                         calculateReadingTime(article.content || "")}{" "}
                       د
@@ -500,7 +500,7 @@ export default function ArticleClientComponent({
                   {article.views !== undefined && (
                     <ArticleViews
                       count={article.views}
-                      className="text-xs sm:text-sm"
+                      className="text-xs sm:text-sm text-right"
                     />
                   )}
                 </div>
@@ -604,12 +604,12 @@ export default function ArticleClientComponent({
         {/* منطقة المحتوى */}
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
           <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 lg:p-8">
-            {/* صورة المقال - مع تقليل المسافات وتحسين العرض */}
+            {/* صورة المقال - رفع الصورة قليلاً مع تحسين المسافات */}
             {article.featured_image &&
               typeof article.featured_image === "string" &&
               article.featured_image.length > 0 &&
               !article.metadata?.emergency_mode && ( // تجنب عرض الصورة في وضع الطوارئ
-                <div className="w-full mb-6 mt-2">
+                <div className="w-full mb-4 mt-4">
                   <ArticleFeaturedImage
                     imageUrl={article.featured_image}
                     title={article.title}
