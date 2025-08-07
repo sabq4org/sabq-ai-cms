@@ -22,6 +22,7 @@ import { useEffect, useRef, useState } from "react";
 
 import AdBanner from "@/components/ads/AdBanner";
 import { SmartInteractionButtons } from "@/components/article/SmartInteractionButtons";
+import SocialSharingButtons from "@/components/article/SocialSharingButtons";
 import { useViewTracking } from "@/hooks/useViewTracking";
 import {
   Award,
@@ -268,21 +269,93 @@ export default function ArticleClientComponent({
     }
   }, [article?.content]);
 
-  // تحديث عنوان التبويب ديناميكياً
+  // تحديث عنوان التبويب ديناميكياً وتحسين Open Graph meta tags
   useEffect(() => {
     if (article?.title) {
       // تنسيق العنوان ليكون مناسباً لتبويب المتصفح
       const tabTitle = `${article.title} - صحيفة سبق الإلكترونية`;
       document.title = tabTitle;
 
-      // تحديث meta description أيضاً إذا أمكن
-      const metaDescription = document.querySelector('meta[name="description"]') as HTMLMetaElement;
-      if (metaDescription) {
-        const description = article.excerpt || 
-                          article.summary || 
-                          article.description ||
-                          `اقرأ: ${article.title} - في صحيفة سبق الإلكترونية`;
-        metaDescription.setAttribute('content', description.substring(0, 160));
+      // تحديث Open Graph meta tags ديناميكياً للمشاركة الاجتماعية
+      const updateMetaTag = (property: string, content: string) => {
+        let metaTag = document.querySelector(
+          `meta[property="${property}"]`
+        ) as HTMLMetaElement;
+        if (!metaTag) {
+          metaTag = document.createElement("meta");
+          metaTag.setAttribute("property", property);
+          document.head.appendChild(metaTag);
+        }
+        metaTag.setAttribute("content", content);
+      };
+
+      const updateNameMetaTag = (name: string, content: string) => {
+        let metaTag = document.querySelector(
+          `meta[name="${name}"]`
+        ) as HTMLMetaElement;
+        if (!metaTag) {
+          metaTag = document.createElement("meta");
+          metaTag.setAttribute("name", name);
+          document.head.appendChild(metaTag);
+        }
+        metaTag.setAttribute("content", content);
+      };
+
+      // تحديث Open Graph tags
+      updateMetaTag("og:title", tabTitle);
+      updateMetaTag("og:type", "article");
+      updateMetaTag("og:site_name", "صحيفة سبق الإلكترونية");
+      updateMetaTag("og:locale", "ar_SA");
+
+      // تحديث صورة المقال للمشاركة
+      if (article.featured_image) {
+        updateMetaTag("og:image", article.featured_image);
+        updateMetaTag("og:image:width", "1200");
+        updateMetaTag("og:image:height", "630");
+        updateMetaTag("og:image:alt", article.title);
+      }
+
+      // تحديث URL المقال
+      const currentUrl = window.location.href;
+      updateMetaTag("og:url", currentUrl);
+
+      // تحديث Twitter Card meta tags
+      updateNameMetaTag("twitter:card", "summary_large_image");
+      updateNameMetaTag("twitter:title", tabTitle);
+      if (article.featured_image) {
+        updateNameMetaTag("twitter:image", article.featured_image);
+      }
+
+      // تحديث meta description للمشاركة
+      const description =
+        article.excerpt ||
+        article.summary ||
+        article.description ||
+        `اقرأ: ${article.title} - في صحيفة سبق الإلكترونية`;
+
+      const shortDescription = description.substring(0, 160);
+      updateNameMetaTag("description", shortDescription);
+      updateMetaTag("og:description", shortDescription);
+      updateNameMetaTag("twitter:description", shortDescription);
+
+      // تحديث معلومات المقال إضافية
+      if (article.author?.name) {
+        updateMetaTag("article:author", article.author.name);
+      }
+
+      if (article.category?.name) {
+        updateMetaTag("article:section", article.category.name);
+      }
+
+      if (article.published_at) {
+        updateMetaTag(
+          "article:published_time",
+          new Date(article.published_at).toISOString()
+        );
+      }
+
+      if (article.keywords && Array.isArray(article.keywords)) {
+        updateMetaTag("article:tag", article.keywords.join(", "));
       }
     } else if (loading) {
       // إظهار نص تحميل أثناء جلب البيانات
@@ -295,7 +368,18 @@ export default function ArticleClientComponent({
         document.title = "صحيفة سبق الإلكترونية";
       }
     };
-  }, [article?.title, article?.excerpt, article?.summary, article?.description, loading]);
+  }, [
+    article?.title,
+    article?.excerpt,
+    article?.summary,
+    article?.description,
+    article?.featured_image,
+    article?.author?.name,
+    article?.category?.name,
+    article?.published_at,
+    article?.keywords,
+    loading,
+  ]);
 
   // التحقق من وجود خطأ محدد في اتصال قاعدة البيانات
   const [dbConnectionError, setDbConnectionError] = useState<string | null>(
@@ -652,15 +736,15 @@ export default function ArticleClientComponent({
           </article>
         </div>
 
-        {/* منطقة المحتوى */}
-        <div className="px-4 sm:px-6 lg:px-8 py-2">
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 lg:p-8">
-            {/* صورة المقال - محاذاة مع عرض العنوان والمحتوى */}
+        {/* منطقة المحتوى - نفس عرض العنوان تماماً */}
+        <div className="px-6 lg:px-8 py-2">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 lg:p-8">
+            {/* صورة المقال - محاذاة تماماً مع عرض العنوان والمحتوى */}
             {article.featured_image &&
               typeof article.featured_image === "string" &&
               article.featured_image.length > 0 &&
               !article.metadata?.emergency_mode && ( // تجنب عرض الصورة في وضع الطوارئ
-                <div className="w-full mb-4 mt-4">
+                <div className="w-full mb-6 mt-0">
                   <ArticleFeaturedImage
                     imageUrl={article.featured_image}
                     title={article.title}
@@ -696,6 +780,17 @@ export default function ArticleClientComponent({
                   // تم إزالة قسم التعليقات
                   console.log("تم النقر على التعليقات");
                 }}
+              />
+            </div>
+
+            {/* أزرار المشاركة الاجتماعية */}
+            <div className="mb-6 sm:mb-8">
+              <SocialSharingButtons
+                article={{
+                  id: article.id,
+                  title: article.title,
+                }}
+                className="justify-center sm:justify-end"
               />
             </div>
 

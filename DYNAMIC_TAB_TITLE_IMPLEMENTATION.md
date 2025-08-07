@@ -21,8 +21,8 @@ useEffect(() => {
     // تحديث meta description أيضاً إذا أمكن
     const metaDescription = document.querySelector('meta[name="description"]') as HTMLMetaElement;
     if (metaDescription) {
-      const description = article.excerpt || 
-                        article.summary || 
+      const description = article.excerpt ||
+                        article.summary ||
                         article.description ||
                         `اقرأ: ${article.title} - في صحيفة سبق الإلكترونية`;
       metaDescription.setAttribute('content', description.substring(0, 160));
@@ -144,12 +144,12 @@ function generateTitle(article: Article): string {
 
 ### معايير الويب:
 - SEO best practices
-- Accessibility guidelines  
+- Accessibility guidelines
 - Performance optimization
 - Browser compatibility
 
 ---
 
-*تاريخ التنفيذ: ${new Date().toLocaleString('ar-SA')}*  
-*المطور: GitHub Copilot*  
+*تاريخ التنفيذ: ${new Date().toLocaleString('ar-SA')}*
+*المطور: GitHub Copilot*
 *حالة التطبيق: ✅ مُفعل ويعمل*
