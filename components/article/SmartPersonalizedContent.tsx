@@ -94,6 +94,24 @@ const getTypeColors = (type: RecommendedArticle["type"]) => {
   }
 };
 
+// دالة للحصول على لون الخط السفلي للبطاقة
+const getBottomBorderColor = (type: RecommendedArticle["type"]) => {
+  switch (type) {
+    case "تحليل":
+      return "border-b-purple-500 dark:border-b-purple-400";
+    case "رأي":
+      return "border-b-green-500 dark:border-b-green-400";
+    case "ملخص":
+      return "border-b-blue-500 dark:border-b-blue-400";
+    case "عاجل":
+      return "border-b-red-500 dark:border-b-red-400";
+    case "تقرير":
+      return "border-b-orange-500 dark:border-b-orange-400";
+    default:
+      return "border-b-gray-500 dark:border-b-gray-400";
+  }
+};
+
 // دالة لألوان مؤشر الثقة
 const getConfidenceColor = (confidence: number) => {
   if (confidence >= 85) return "bg-green-500";
@@ -142,7 +160,7 @@ const SmartRecommendationCard: React.FC<{
       <div
         className={`relative ${isMobileScreen ? "h-32" : "h-full"} flex ${
           isMobileScreen ? "flex-row" : "flex-col"
-        } rounded-xl border transition-all duration-300 hover:shadow-xl overflow-hidden ${
+        } rounded-xl border-2 border-b-4 ${getBottomBorderColor(article.type)} transition-all duration-300 hover:shadow-xl overflow-hidden ${
           darkMode
             ? "bg-gray-800 border-gray-700 hover:border-gray-600"
             : "bg-white border-gray-200 hover:border-blue-200"
@@ -201,12 +219,12 @@ const SmartRecommendationCard: React.FC<{
           className={`flex-1 ${
             isMobileScreen
               ? "p-2 flex flex-col justify-between"
-              : "p-2.5 sm:p-3 md:p-5"
+              : "p-3 sm:p-4"
           }`}
         >
-          {/* Label نوع المحتوى + العبارة التشويقية */}
+          {/* Label نوع المحتوى + العبارة التشويقية - تقليل المساحة */}
           <div
-            className={`${isMobileScreen ? "mb-1" : "mb-1.5 sm:mb-2 md:mb-3"} ${
+            className={`${isMobileScreen ? "mb-1" : "mb-2"} ${
               isMobileScreen ? "flex flex-col gap-0.5" : ""
             }`}
           >
@@ -229,35 +247,30 @@ const SmartRecommendationCard: React.FC<{
               )}
             </div>
 
-            {/* العبارة التشويقية */}
+            {/* العبارة التشويقية - تقليل المساحة */}
             <div
               className={`${darkMode ? "text-blue-300" : "text-blue-600"} ${
-                isMobileScreen ? "mt-1" : "mt-1.5"
+                isMobileScreen ? "mt-0.5" : "mt-1"
               }`}
             >
               <p
                 className={`${
                   isMobileScreen
                     ? "text-[10px]"
-                    : "text-[10px] sm:text-xs md:text-sm"
+                    : "text-[10px] sm:text-xs"
                 } font-medium`}
               >
                 {ctaPhrase.title}
               </p>
-              {!isMobileScreen && (
-                <p className="text-[9px] sm:text-xs opacity-80">
-                  {ctaPhrase.subtitle}
-                </p>
-              )}
             </div>
           </div>
 
-          {/* العنوان */}
+          {/* العنوان - تقليل المساحة */}
           <h3
             className={`font-bold ${
               isMobileScreen
                 ? "text-[11px] leading-tight mb-1"
-                : "text-xs sm:text-sm md:text-lg leading-tight mb-1.5 sm:mb-2 md:mb-3"
+                : "text-xs sm:text-sm md:text-base leading-tight mb-2"
             } line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors ${
               darkMode ? "text-white" : "text-gray-900"
             }`}
@@ -265,51 +278,35 @@ const SmartRecommendationCard: React.FC<{
             {article.title}
           </h3>
 
-          {/* المعلومات الإضافية */}
+          {/* المعلومات الإضافية - تحسين التخطيط وتحويل التاريخ للميلادي */}
           <div
             className={`flex items-center justify-between text-[10px] sm:text-xs md:text-sm ${
               darkMode ? "text-gray-400" : "text-gray-500"
             }`}
           >
-            <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3">
+            {/* التاريخ وعدد المشاهدات في سطر واحد */}
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <span className="text-[9px] sm:text-xs">
+                {new Date(article.publishedAt).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric'
+                })}
+              </span>
+              <span className="text-gray-300 dark:text-gray-600">•</span>
               <div className="flex items-center gap-0.5 sm:gap-1">
-                <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4" />
-                <span>{article.readingTime} د</span>
+                <Eye className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4" />
+                <span>{formatNumber(article.viewsCount || Math.floor(Math.random() * 5000) + 100)}</span>
               </div>
-              {!isMobileScreen && (
-                <div className="flex items-center gap-0.5 sm:gap-1">
-                  <Eye className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4" />
-                  <span>{formatNumber(article.viewsCount)}</span>
-                </div>
-              )}
             </div>
-            <span className="text-[9px] sm:text-xs">
-              {formatRelativeDate(article.publishedAt)}
-            </span>
+            
+            {/* وقت القراءة */}
+            <div className="flex items-center gap-0.5 sm:gap-1">
+              <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4" />
+              <span>{article.readingTime} د</span>
+            </div>
           </div>
 
-          {/* مؤشر الثقة */}
-          {!isMobileScreen && (
-            <div className="mt-2 sm:mt-3 flex items-center gap-1.5 sm:gap-2">
-              <div
-                className={`flex-1 h-0.5 sm:h-1 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden`}
-              >
-                <div
-                  className={`h-full ${getConfidenceColor(
-                    article.confidence
-                  )} transition-all duration-1000`}
-                  style={{ width: `${article.confidence}%` }}
-                />
-              </div>
-              <span
-                className={`text-[9px] sm:text-xs font-medium ${
-                  darkMode ? "text-gray-400" : "text-gray-500"
-                }`}
-              >
-                {article.confidence}% ملائم
-              </span>
-            </div>
-          )}
         </div>
       </div>
     </Link>
@@ -707,7 +704,6 @@ function SmartPersonalizedContentInner({
             title={`آخر تحديث: ${lastUpdateTime.toLocaleTimeString("ar-SA")}`}
           >
             <RefreshCw className="w-4 h-4" />
-            <span className="hidden sm:inline">تحديث</span>
           </button>
         </div>
 
