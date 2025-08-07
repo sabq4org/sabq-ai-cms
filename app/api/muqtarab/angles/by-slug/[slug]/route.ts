@@ -29,9 +29,12 @@ export async function GET(
       if (redisHit) {
         console.log("⚡ [Redis HIT] Angle by slug:", slug);
         const res = NextResponse.json(redisHit);
+        // إعدادات كاش متعددة الطبقات (متصفح/أي CDN/Vercel Edge)
+        res.headers.set("Cache-Control", "max-age=10");
+        res.headers.set("CDN-Cache-Control", "s-maxage=60");
         res.headers.set(
-          "Cache-Control",
-          "public, s-maxage=300, stale-while-revalidate=600"
+          "Vercel-CDN-Cache-Control",
+          "s-maxage=3600, stale-while-revalidate=60"
         );
         res.headers.set("X-Cache-Status", "REDIS-HIT");
         return res;
@@ -45,9 +48,11 @@ export async function GET(
     if (cachedData) {
       console.log("⚡ [Memory HIT] Angle by slug:", slug);
       const res = NextResponse.json(cachedData);
+      res.headers.set("Cache-Control", "max-age=10");
+      res.headers.set("CDN-Cache-Control", "s-maxage=60");
       res.headers.set(
-        "Cache-Control",
-        "public, s-maxage=300, stale-while-revalidate=600"
+        "Vercel-CDN-Cache-Control",
+        "s-maxage=3600, stale-while-revalidate=60"
       );
       res.headers.set("X-Cache-Status", "MEM-HIT");
       return res;
@@ -131,9 +136,11 @@ export async function GET(
     console.log("✅ تم تحويل بيانات الزاوية:", angle.title);
 
     const res = NextResponse.json(responseData);
+    res.headers.set("Cache-Control", "max-age=10");
+    res.headers.set("CDN-Cache-Control", "s-maxage=60");
     res.headers.set(
-      "Cache-Control",
-      "public, s-maxage=300, stale-while-revalidate=600"
+      "Vercel-CDN-Cache-Control",
+      "s-maxage=3600, stale-while-revalidate=60"
     );
     res.headers.set("X-Cache-Status", "MISS");
     return res;

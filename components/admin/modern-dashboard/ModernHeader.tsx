@@ -87,6 +87,11 @@ export default function ModernHeader({
     return "نهاري";
   };
 
+  // منع تكرار العبارات (الوصف يختفي إذا طابق العنوان)
+  const showDescription = Boolean(
+    pageDescription && pageDescription.trim() !== pageTitle?.trim()
+  );
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 h-[var(--dashboard-header-height)] transition-colors duration-300">
       <div className="px-4 lg:px-6 h-full flex items-center justify-between py-2">
@@ -104,31 +109,20 @@ export default function ModernHeader({
             </Button>
           )}
 
-          {/* عنوان الصفحة مع شعار سبق */}
-          <div className="flex items-center gap-2">
-            {/* شعار سبق للوحة التحكم */}
-            <div className="flex items-center gap-2 mr-4">
-              <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">س</span>
-              </div>
-              <div className="hidden sm:block">
-                <span className="text-sm font-semibold text-red-600 dark:text-red-400">
-                  سبق
-                </span>
-                <span className="text-xs text-gray-500 dark:text-gray-400 block">
-                  لوحة التحكم
-                </span>
-              </div>
+          {/* عنوان الصفحة + شارة علامة تجارية مبسطة */}
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-600 to-rose-600 text-white flex items-center justify-center shadow-sm">
+              <span className="text-[13px] font-extrabold">س</span>
             </div>
-
-            {/* عنوان الصفحة */}
             <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white leading-tight">
                 {pageTitle}
               </h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                {pageDescription}
-              </p>
+              {showDescription && (
+                <p className="text-sm text-gray-500 dark:text-gray-400 leading-snug">
+                  {pageDescription}
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -139,7 +133,7 @@ export default function ModernHeader({
             <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               type="search"
-              placeholder="البحث في لوحة التحكم..."
+              placeholder="ابحث بسرعة (⌘/Ctrl + K)"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-4 pr-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 focus:bg-white dark:focus:bg-gray-600 transition-colors duration-200"
@@ -214,11 +208,8 @@ export default function ModernHeader({
           {/* تبديل المظهر */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="gap-2">
+              <Button variant="ghost" size="sm" aria-label="تبديل المظهر">
                 {getThemeIcon()}
-                <span className="hidden md:inline text-sm">
-                  {getThemeName()}
-                </span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
