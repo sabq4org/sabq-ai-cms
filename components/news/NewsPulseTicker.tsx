@@ -126,7 +126,12 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
   // تسجيل مشاهدة الإشعار
   const recordView = useCallback(async (notificationId: string) => {
     try {
-      await fetch(`/api/pulse/active?id=${encodeURIComponent(notificationId)}&action=view`, { method: "PATCH" });
+      await fetch(
+        `/api/pulse/active?id=${encodeURIComponent(
+          notificationId
+        )}&action=view`,
+        { method: "PATCH" }
+      );
     } catch (error) {
       console.error("❌ خطأ في تسجيل المشاهدة:", error);
     }
@@ -135,7 +140,12 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
   // تسجيل النقر على الإشعار
   const recordClick = useCallback(async (notificationId: string) => {
     try {
-      await fetch(`/api/pulse/active?id=${encodeURIComponent(notificationId)}&action=click`, { method: "PATCH" });
+      await fetch(
+        `/api/pulse/active?id=${encodeURIComponent(
+          notificationId
+        )}&action=click`,
+        { method: "PATCH" }
+      );
     } catch (error) {
       console.error("❌ خطأ في تسجيل النقر:", error);
     }

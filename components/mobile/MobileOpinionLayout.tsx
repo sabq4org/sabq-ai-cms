@@ -4,7 +4,7 @@ import ReporterLink from "@/components/ReporterLink";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useViewTracking } from "@/hooks/useViewTracking";
 import { ArticleData } from "@/lib/article-api";
-import { formatRelativeDate } from "@/lib/date-utils";
+import { formatDateNumeric, formatRelativeDate } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
 import {
   Award,
@@ -81,6 +81,32 @@ export default function MobileOpinionLayout({
     return types[type as keyof typeof types] || "رأي";
   };
 
+  // تعيين التصنيف للّون
+  const categoryName = article?.category?.name || article?.category_name || "عام";
+  const rawCategorySlug = categoryName?.toLowerCase?.() || article?.category?.slug || "عام";
+  const categoryMap: Record<string, string> = {
+    world: "world",
+    sports: "sports",
+    tech: "tech",
+    technology: "tech",
+    business: "business",
+    economy: "business",
+    local: "local",
+    news: "local",
+    opinion: "opinions",
+    // عربية
+    العالم: "world",
+    سياسة: "world",
+    الرياضة: "sports",
+    رياضة: "sports",
+    تقنية: "tech",
+    اقتصاد: "business",
+    محليات: "local",
+    عام: "local",
+    عامة: "local",
+  };
+  const mappedCategory = categoryMap[rawCategorySlug] || rawCategorySlug;
+
   return (
     <>
       {/* شريط تقدم القراءة - محسن للموبايل */}
@@ -95,12 +121,13 @@ export default function MobileOpinionLayout({
         />
       </div>
 
-      <main
-        className={`min-h-screen ${
-          darkMode ? "bg-gray-900" : "bg-gray-50"
-        } pt-0`}
-      >
-        <article ref={viewTrackingRef} className="relative">
+      <main className={`min-h-screen ${darkMode ? "bg-gray-900" : "bg-gray-50"} pt-0`}>
+        <article
+          ref={viewTrackingRef}
+          dir="rtl"
+          data-category={mappedCategory}
+          className="relative"
+        >
           {/* رأس المقال المحمول */}
           <header className="px-4 py-6 relative">
             {/* خلفية متدرجة */}
@@ -113,31 +140,9 @@ export default function MobileOpinionLayout({
             />
 
             <div className="relative z-10">
-              {/* الشارات */}
-              <div className="flex items-center gap-2 mb-4">
-                <span
-                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                    darkMode
-                      ? "bg-purple-900/30 text-purple-300 border border-purple-700/50"
-                      : "bg-purple-50 text-purple-700 border border-purple-200"
-                  }`}
-                >
-                  <Quote className="w-3 h-3 mr-1" />
-                  {getArticleTypeArabic(article.article_type || "opinion")}
-                </span>
-
-                {article.featured && (
-                  <span
-                    className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                      darkMode
-                        ? "bg-yellow-900/30 text-yellow-300 border border-yellow-700/50"
-                        : "bg-yellow-50 text-yellow-700 border border-yellow-200"
-                    }`}
-                  >
-                    <Star className="w-3 h-3 mr-1" />
-                    مميز
-                  </span>
-                )}
+              {/* لابل التصنيف */}
+              <div className="mb-3">
+                <span className="category-pill">{article.category?.name || categoryName}</span>
               </div>
 
               {/* العنوان */}
@@ -159,6 +164,30 @@ export default function MobileOpinionLayout({
                   {article.excerpt}
                 </h2>
               )}
+
+              {/* سطر ميتاداتا موحد */}
+              <div
+                className={`flex items-center gap-2 text-sm ${darkMode ? "text-gray-400" : "text-gray-600"} mb-4`}
+              >
+                <span className="inline-flex items-center gap-1">
+                  <Calendar className="w-4 h-4" />
+                  {formatDateNumeric(article.published_at as any)}
+                </span>
+                <span className="mx-1">•</span>
+                <span className="inline-flex items-center gap-1">
+                  <Clock className="w-4 h-4" /> {article.reading_time || 5} دقائق
+                </span>
+                <span className="mx-1">•</span>
+                <span className="inline-flex items-center gap-1">
+                  <Eye className="w-4 h-4" />
+                  {new Intl.NumberFormat("ar", { notation: "compact" }).format(article.views || 0)}
+                </span>
+                {article.featured && (
+                  <span className="ml-auto inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-yellow-500/10 text-yellow-700 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-800">
+                    <Star className="w-3 h-3" /> مميز
+                  </span>
+                )}
+              </div>
 
               {/* معلومات الكاتب - تصميم موبايل محسن */}
               <div
@@ -231,10 +260,7 @@ export default function MobileOpinionLayout({
                         darkMode ? "text-gray-400" : "text-gray-500"
                       }`}
                     >
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {formatRelativeDate(new Date(article.published_at))}
-                      </span>
+                      {/* تم نقل التاريخ لسطر الميتاداتا العلوي */}
                       <span className="flex items-center gap-1">
                         <Clock className="w-3 h-3" />
                         {article.reading_time || 5} دقائق
@@ -247,6 +273,8 @@ export default function MobileOpinionLayout({
                   </div>
                 </div>
               </div>
+              {/* خط سفلي بلون التصنيف */}
+              <div className="category-underline" aria-hidden />
             </div>
           </header>
 

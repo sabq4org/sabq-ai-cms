@@ -4,7 +4,7 @@ import ReporterLink from "@/components/ReporterLink";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useViewTracking } from "@/hooks/useViewTracking";
 import { ArticleData } from "@/lib/article-api";
-import { formatFullDate } from "@/lib/date-utils";
+import { formatDateNumeric, formatFullDate } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
 import {
   Award,
@@ -67,6 +67,40 @@ export default function OpinionArticleLayout({
     return types[type as keyof typeof types] || "مقال رأي";
   };
 
+  // تعيين التصنيف للهوية اللونية
+  const categoryName =
+    article?.category?.name || article?.category_name || "عام";
+  const rawCategorySlug =
+    categoryName?.toLowerCase?.() || article?.category?.slug || "عام";
+  const categoryMap: Record<string, string> = {
+    world: "world",
+    sports: "sports",
+    tech: "tech",
+    technology: "tech",
+    business: "business",
+    economy: "business",
+    local: "local",
+    news: "local",
+    politics: "world",
+    travel: "world",
+    cars: "tech",
+    media: "tech",
+    opinion: "opinions",
+    // عربية
+    العالم: "world",
+    سياسة: "world",
+    الرياضة: "sports",
+    رياضة: "sports",
+    تقنية: "tech",
+    تكنولوجيا: "tech",
+    اقتصاد: "business",
+    أعمال: "business",
+    محليات: "local",
+    عام: "local",
+    عامة: "local",
+  };
+  const mappedCategory = categoryMap[rawCategorySlug] || rawCategorySlug;
+
   return (
     <>
       {/* شريط تقدم القراءة */}
@@ -78,85 +112,83 @@ export default function OpinionArticleLayout({
       </div>
 
       <main
-        className={`min-h-screen ${
-          darkMode ? "bg-gray-900" : "bg-gray-50"
-        } pt-0 sm:pt-[64px]`}
+        className={`min-h-screen ${darkMode ? "bg-gray-900" : "bg-gray-50"} pt-0 sm:pt-[64px]`}
       >
         <div className="relative">
           <div className="max-w-7xl mx-auto py-6 sm:py-8 lg:py-12">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               {/* المحتوى الرئيسي */}
-              <article ref={viewTrackingRef} className="lg:col-span-8">
-                {/* رأس المقال - محسن للمحمول */}
+              <article
+                ref={viewTrackingRef}
+                dir="rtl"
+                data-category={mappedCategory}
+                className="lg:col-span-8 relative"
+              >
+                {/* رأس المقال */}
                 <header className="mb-8 px-4 sm:px-6 lg:px-8">
-                  {/* التصنيف والشارات */}
-                  <div className="flex flex-wrap items-center gap-2 mb-4">
-                    <span
-                      className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                        darkMode
-                          ? "bg-purple-900/20 text-purple-300 border border-purple-700"
-                          : "bg-purple-50 text-purple-700 border border-purple-200"
-                      }`}
-                    >
-                      <Quote className="w-4 h-4 mr-2" />
-                      {getArticleTypeArabic(article.article_type || "opinion")}
+                  {/* لابل التصنيف */}
+                  <div className="mb-3">
+                    <span className="category-pill">
+                      {article.category?.name || categoryName}
                     </span>
-
-                    {article.featured && (
-                      <span
-                        className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                          darkMode
-                            ? "bg-yellow-900/20 text-yellow-300 border border-yellow-700"
-                            : "bg-yellow-50 text-yellow-700 border border-yellow-200"
-                        }`}
-                      >
-                        <Star className="w-4 h-4 mr-2" />
-                        مميز
-                      </span>
-                    )}
-
-                    {article.category && (
-                      <Link
-                        href={`/categories/${article.category.slug}`}
-                        className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                          darkMode
-                            ? "bg-gray-800 text-gray-300 border border-gray-700 hover:bg-gray-700"
-                            : "bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200"
-                        }`}
-                      >
-                        {article.category.icon && (
-                          <span className="mr-2">{article.category.icon}</span>
-                        )}
-                        {article.category.name}
-                      </Link>
-                    )}
                   </div>
 
                   {/* العنوان الرئيسي */}
                   <h1
-                    className={`text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight mb-6 ${
+                    className={`text-3xl lg:text-4xl font-extrabold leading-snug mb-3 ${
                       darkMode ? "text-white" : "text-gray-900"
                     } text-right`}
                   >
                     {article.title}
                   </h1>
 
+                  {/* سطر ميتاداتا موحد */}
+                  <div
+                    className={`flex items-center gap-3 text-sm ${
+                      darkMode ? "text-gray-400" : "text-gray-600"
+                    }`}
+                  >
+                    <span className="inline-flex items-center gap-1">
+                      <Calendar className="w-4 h-4" />
+                      {formatDateNumeric(article.published_at as any)}
+                    </span>
+                    <span className="mx-1">•</span>
+                    <span className="inline-flex items-center gap-1">
+                      <Clock className="w-4 h-4" />
+                      {article.reading_time || 5} دقائق
+                    </span>
+                    <span className="mx-1">•</span>
+                    <span className="inline-flex items-center gap-1">
+                      <Eye className="w-4 h-4" />
+                      {new Intl.NumberFormat("ar", { notation: "compact" }).format(
+                        article.views || 0
+                      )}
+                    </span>
+                    {article.featured && (
+                      <span className="ml-auto inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-yellow-500/10 text-yellow-700 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-800">
+                        <Star className="w-3 h-3" /> مميز
+                      </span>
+                    )}
+                  </div>
+
                   {/* العنوان الفرعي */}
                   {article.excerpt && (
-                    <h2
-                      className={`text-lg sm:text-xl leading-relaxed mb-8 ${
-                        darkMode ? "text-gray-300" : "text-gray-600"
-                      } text-right`}
+                    <p
+                      className={`mt-4 text-lg leading-relaxed ${
+                        darkMode ? "text-gray-300" : "text-gray-700"
+                      }`}
                     >
                       {article.excerpt}
-                    </h2>
+                    </p>
                   )}
 
-                  {/* معلومات الكاتب - المنطقة الأهم */}
+                  {/* معلومات الكاتب */}
                   <div
-                    className={`bg-gradient-to-r from-white/80 to-blue-50/80 dark:from-gray-800/80 dark:to-blue-900/20 backdrop-blur-sm rounded-2xl p-8 border shadow-lg ${
-                      darkMode ? "border-gray-700" : "border-gray-200"
-                    } mb-8`}
+                    className={`rounded-2xl p-6 border mt-6 ${
+                      darkMode
+                        ? "bg-gray-800/40 border-gray-700"
+                        : "bg-white border-gray-200"
+                    }`}
                   >
                     {/* Desktop Author Section */}
                     <div className="hidden sm:flex items-center gap-6">
@@ -245,12 +277,10 @@ export default function OpinionArticleLayout({
                             }`}
                           >
                             <Eye className="w-4 h-4" />
-                            {article.author?.reporter?.total_views
-                              ? `${(
-                                  article.author.reporter.total_views / 1000
-                                ).toFixed(0)}K`
-                              : "عدة آلاف"}{" "}
-                            قارئ
+                            {new Intl.NumberFormat("ar", {
+                              notation: "compact",
+                            }).format(article.author?.reporter?.total_views || 0)}
+                            
                           </span>
                         </div>
                       </div>
@@ -261,23 +291,20 @@ export default function OpinionArticleLayout({
                           darkMode ? "text-gray-400" : "text-gray-600"
                         }`}
                       >
-                        <div className="flex items-center gap-2 mb-2">
-                          <Calendar className="w-4 h-4" />
-                          <span className="text-sm">
-                            {formatFullDate(new Date(article.published_at))}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <Clock className="w-4 h-4" />
-                          <span className="text-sm">
-                            {article.reading_time || 5} دقائق قراءة
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Eye className="w-4 h-4" />
-                          <span className="text-sm">
-                            {article.views?.toLocaleString() || 0} مشاهدة
-                          </span>
+                        <div className="flex flex-col gap-2 text-sm">
+                          <div className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4" />
+                            {formatDateNumeric(article.published_at as any)}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Clock className="w-4 h-4" /> {article.reading_time || 5} دقائق
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Eye className="w-4 h-4" />
+                            {new Intl.NumberFormat("ar", { notation: "compact" }).format(
+                              article.views || 0
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -354,6 +381,8 @@ export default function OpinionArticleLayout({
                       </div>
                     </div>
                   </div>
+                  {/* خط سفلي بلون التصنيف */}
+                  <div className="category-underline" aria-hidden />
                 </header>
 
                 {/* المحتوى الرئيسي */}
@@ -361,7 +390,7 @@ export default function OpinionArticleLayout({
                   {/* محتوى المقال */}
                   <div
                     className={cn(
-                      "prose prose-lg max-w-none mb-8 text-right",
+                      "prose prose-lg max-w-3xl mx-auto mb-8 text-right",
                       darkMode ? "prose-invert" : ""
                     )}
                   >

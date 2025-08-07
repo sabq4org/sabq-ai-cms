@@ -70,16 +70,24 @@ async function generateRealTimeNotifications() {
     console.log(`📊 عثر على ${deepAnalyses.length} تحليل عميق`);
 
     // جلب المقالات المرتبطة بالتحليلات وترتيبها حسب المشاهدات
-    const analysisArticleIds = deepAnalyses.map((a) => a.article_id).filter(Boolean);
+    const analysisArticleIds = deepAnalyses
+      .map((a) => a.article_id)
+      .filter(Boolean);
     const analysisArticlesRows = analysisArticleIds.length
       ? await prisma.articles.findMany({
-          where: { id: { in: analysisArticleIds as string[] }, status: "published", published_at: { not: null } },
+          where: {
+            id: { in: analysisArticleIds as string[] },
+            status: "published",
+            published_at: { not: null },
+          },
           include: { categories: true },
         })
       : [];
     const analysisArticles = deepAnalyses
       .map((analysis) => {
-        const article = analysisArticlesRows.find((a) => a.id === analysis.article_id);
+        const article = analysisArticlesRows.find(
+          (a) => a.id === analysis.article_id
+        );
         if (!article) return null;
         return { analysis, article, views: article.views || 0 };
       })
