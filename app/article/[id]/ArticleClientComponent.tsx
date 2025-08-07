@@ -268,6 +268,35 @@ export default function ArticleClientComponent({
     }
   }, [article?.content]);
 
+  // تحديث عنوان التبويب ديناميكياً
+  useEffect(() => {
+    if (article?.title) {
+      // تنسيق العنوان ليكون مناسباً لتبويب المتصفح
+      const tabTitle = `${article.title} - صحيفة سبق الإلكترونية`;
+      document.title = tabTitle;
+
+      // تحديث meta description أيضاً إذا أمكن
+      const metaDescription = document.querySelector('meta[name="description"]') as HTMLMetaElement;
+      if (metaDescription) {
+        const description = article.excerpt || 
+                          article.summary || 
+                          article.description ||
+                          `اقرأ: ${article.title} - في صحيفة سبق الإلكترونية`;
+        metaDescription.setAttribute('content', description.substring(0, 160));
+      }
+    } else if (loading) {
+      // إظهار نص تحميل أثناء جلب البيانات
+      document.title = "تحميل الخبر... - صحيفة سبق الإلكترونية";
+    }
+
+    // إعادة تعيين العنوان الافتراضي عند مغادرة الصفحة
+    return () => {
+      if (!article?.title) {
+        document.title = "صحيفة سبق الإلكترونية";
+      }
+    };
+  }, [article?.title, article?.excerpt, article?.summary, article?.description, loading]);
+
   // التحقق من وجود خطأ محدد في اتصال قاعدة البيانات
   const [dbConnectionError, setDbConnectionError] = useState<string | null>(
     null
