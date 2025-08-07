@@ -511,9 +511,7 @@ function MobileHeroCard({ heroArticle }: { heroArticle: HeroArticle }) {
             <span>{heroArticle.readingTime} د</span>
           </div>
           <Link
-            href={`/muqtarab/${heroArticle.angle.slug}/${
-              heroArticle.slug || heroArticle.id
-            }`}
+            href={`/muqtarab/${heroArticle.angle.slug}/${heroArticle.id}`}
           >
             <Button size="sm" className="text-xs px-3 py-1 h-7">
               قراءة
@@ -731,7 +729,7 @@ function FeaturedArticleCard({ article }: { article: FeaturedArticle }) {
 
         <div className="flex items-center justify-between pt-2">
           <div className="text-xs text-gray-500">{article.author.name}</div>
-          <Link href={`/muqtarab/${article.angle.slug}/${article.slug}`}>
+          <Link href={`/muqtarab/${article.angle.slug}/${article.id}`}>
             <Button
               size="sm"
               className="text-xs px-3 py-1 h-7"

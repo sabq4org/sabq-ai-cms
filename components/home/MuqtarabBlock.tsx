@@ -556,7 +556,7 @@ function AngleArticleCard({ angleArticle }: { angleArticle: AngleArticle }) {
 
           {/* زر القراءة */}
           <Link
-            href={`/muqtarab/${angleArticle.angle.slug}/${angleArticle.slug}`}
+            href={`/muqtarab/${angleArticle.angle.slug}/${angleArticle.id}`}
             className="block"
           >
             <Button

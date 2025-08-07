@@ -25,17 +25,41 @@ export async function GET(
       );
     }
 
-    // جلب المقال مع تفاصيل المؤلف (البحث بالـ id فقط)
-    const articles = (await prisma.$queryRaw`
-      SELECT
-        aa.*,
-        u.name as author_name,
-        u.avatar as author_avatar
-      FROM angle_articles aa
-      LEFT JOIN users u ON aa.author_id = u.id
-      WHERE aa.angle_id = ${angleId}::uuid
-        AND aa.id = ${articleId}::uuid
-    `) as any[];
+    // جلب المقال مع تفاصيل المؤلف (البحث بالـ id أو slug)
+    let articles = [];
+    
+    try {
+      // أولاً: محاولة البحث بـ UUID
+      articles = (await prisma.$queryRaw`
+        SELECT
+          aa.*,
+          u.name as author_name,
+          u.avatar as author_avatar
+        FROM angle_articles aa
+        LEFT JOIN users u ON aa.author_id = u.id
+        WHERE aa.angle_id = ${angleId}::uuid
+          AND aa.id = ${articleId}::uuid
+      `) as any[];
+    } catch (uuidError) {
+      console.log("🔍 [GET Article] البحث بـ UUID فشل، محاولة البحث بـ slug...");
+      
+      // ثانياً: محاولة البحث بـ slug (إذا فشل البحث بـ UUID)
+      try {
+        articles = (await prisma.$queryRaw`
+          SELECT
+            aa.*,
+            u.name as author_name,
+            u.avatar as author_avatar
+          FROM angle_articles aa
+          LEFT JOIN users u ON aa.author_id = u.id
+          WHERE aa.angle_id = ${angleId}::uuid
+            AND (aa.slug = ${articleId} OR aa.id::text = ${articleId})
+        `) as any[];
+      } catch (slugError) {
+        console.error("❌ [GET Article] فشل البحث بـ slug أيضاً:", slugError);
+        articles = [];
+      }
+    }
 
     if (!articles || articles.length === 0) {
       return NextResponse.json(
@@ -87,7 +111,7 @@ export async function GET(
         success: false,
         error: "حدث خطأ في جلب المقال",
         details:
-          process.env.NODE_ENV === "development" ? error?.message : undefined,
+          process.env.NODE_ENV === "development" ? (error as Error)?.message : undefined,
       },
       { status: 500 }
     );
@@ -203,7 +227,7 @@ export async function PUT(
         success: false,
         error: "حدث خطأ في تحديث المقال",
         details:
-          process.env.NODE_ENV === "development" ? error?.message : undefined,
+          process.env.NODE_ENV === "development" ? (error as Error)?.message : undefined,
       },
       { status: 500 }
     );
@@ -254,7 +278,7 @@ export async function DELETE(
         success: false,
         error: "حدث خطأ في حذف المقال",
         details:
-          process.env.NODE_ENV === "development" ? error?.message : undefined,
+          process.env.NODE_ENV === "development" ? (error as Error)?.message : undefined,
       },
       { status: 500 }
     );

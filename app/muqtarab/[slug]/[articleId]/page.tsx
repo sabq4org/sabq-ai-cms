@@ -46,9 +46,13 @@ export default function AngleArticlePage() {
 
         // جلب بيانات الزاوية
         const angleResponse = await fetch(
-          `/api/muqtarab/angles/by-slug/${slug}`
+          `/api/muqtarab/angles/by-slug/${slug}`,
+          {
+            cache: "no-store",
+          }
         );
         if (!angleResponse.ok) {
+          console.error("❌ الزاوية غير موجودة:", slug);
           toast.error("الزاوية غير موجودة");
           router.push("/muqtarab");
           return;
@@ -58,14 +62,20 @@ export default function AngleArticlePage() {
         console.log("✅ تم جلب بيانات الزاوية:", angleData.angle.title);
         setAngle(angleData.angle);
 
-        // جلب بيانات المقال
+        // جلب بيانات المقال مع معالجة أفضل للأخطاء
         const articleResponse = await fetch(
-          `/api/muqtarab/angles/${angleData.angle.id}/articles/${articleId}`
+          `/api/muqtarab/angles/${angleData.angle.id}/articles/${articleId}`,
+          {
+            cache: "no-store",
+          }
         );
 
         if (!articleResponse.ok) {
-          toast.error("المقال غير موجود");
-          router.push(`/muqtarab/${slug}`);
+          console.error("❌ المقال غير موجود:", articleId, "في الزاوية:", slug);
+          
+          // لا نعرض toast هنا، بل نعيد التوجيه مباشرة إلى الزاوية
+          console.log("🔄 إعادة التوجيه إلى صفحة الزاوية...");
+          router.replace(`/muqtarab/${slug}`);
           return;
         }
 
@@ -620,7 +630,7 @@ function SmartRecommendations({
               </div>
 
               <Link
-                href={`/muqtarab/${angle.slug}/${article.slug || article.id}`}
+                href={`/muqtarab/${angle.slug}/${article.id}`}
               >
                 <Button
                   variant="ghost"
