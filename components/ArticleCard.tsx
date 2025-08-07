@@ -213,7 +213,7 @@ export default function ArticleCard({
               <span className="inline-flex items-center gap-1">
                 <Eye className="w-4 h-4" />
                 {new Intl.NumberFormat("ar", { notation: "compact" }).format(
-                  article.views || article.views_count || 0
+                  article.views ?? article.views_count ?? 0
                 )}
               </span>
             </div>
@@ -292,7 +292,7 @@ export default function ArticleCard({
               <span className="inline-flex items-center gap-1">
                 <Eye className="w-4 h-4" />
                 {new Intl.NumberFormat("ar", { notation: "compact" }).format(
-                  article.views || article.views_count || 0
+                  article.views ?? article.views_count ?? 0
                 )}
               </span>
             </div>

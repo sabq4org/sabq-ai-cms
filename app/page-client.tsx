@@ -428,7 +428,7 @@ function NewspaperHomePage({
               <span className="inline-flex items-center gap-1">
                 👁️{" "}
                 {new Intl.NumberFormat("ar", { notation: "compact" }).format(
-                  news.views_count || news.views || 0
+                  news.views ?? news.views_count ?? 0
                 )}
               </span>
             </div>

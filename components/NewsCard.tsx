@@ -201,7 +201,7 @@ export default function NewsCard({ news, viewMode = "grid" }: NewsCardProps) {
               <span className="inline-flex items-center gap-1">
                 <Eye className="w-4 h-4" />
                 {new Intl.NumberFormat("ar", { notation: "compact" }).format(
-                  news.views || news.views_count || 0
+                  news.views ?? news.views_count ?? 0
                 )}
               </span>
             </div>
@@ -276,7 +276,7 @@ export default function NewsCard({ news, viewMode = "grid" }: NewsCardProps) {
               <span className="inline-flex items-center gap-1">
                 <Eye className="w-4 h-4" />
                 {new Intl.NumberFormat("ar", { notation: "compact" }).format(
-                  news.views || news.views_count || 0
+                  news.views ?? news.views_count ?? 0
                 )}
               </span>
             </div>

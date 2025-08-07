@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import AuthorLatestArticles from "./AuthorLatestArticles";
 import { SmartInteractionButtons } from "./SmartInteractionButtons";
 import TrendingArticles from "./TrendingArticles";
@@ -31,11 +31,10 @@ export default function OpinionArticleLayout({
   article,
 }: OpinionArticleLayoutProps) {
   const { darkMode } = useDarkModeContext();
-  const viewTrackingRef = useRef<HTMLDivElement>(null);
+  const { elementRef } = useViewTracking({ articleId: article.id });
   const [readingProgress, setReadingProgress] = useState(0);
 
-  // تتبع المشاهدات
-  useViewTracking(viewTrackingRef, article.id);
+  // تتبع المشاهدات عبر elementRef القادم من الهوك
 
   // تتبع تقدم القراءة
   useEffect(() => {
@@ -112,14 +111,16 @@ export default function OpinionArticleLayout({
       </div>
 
       <main
-        className={`min-h-screen ${darkMode ? "bg-gray-900" : "bg-gray-50"} pt-0 sm:pt-[64px]`}
+        className={`min-h-screen ${
+          darkMode ? "bg-gray-900" : "bg-gray-50"
+        } pt-0 sm:pt-[64px]`}
       >
         <div className="relative">
           <div className="max-w-7xl mx-auto py-6 sm:py-8 lg:py-12">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               {/* المحتوى الرئيسي */}
               <article
-                ref={viewTrackingRef}
+                ref={elementRef as any}
                 dir="rtl"
                 data-category={mappedCategory}
                 className="lg:col-span-8 relative"
@@ -160,9 +161,9 @@ export default function OpinionArticleLayout({
                     <span className="mx-1">•</span>
                     <span className="inline-flex items-center gap-1">
                       <Eye className="w-4 h-4" />
-                      {new Intl.NumberFormat("ar", { notation: "compact" }).format(
-                        article.views || 0
-                      )}
+                      {new Intl.NumberFormat("ar", {
+                        notation: "compact",
+                      }).format(article.views || 0)}
                     </span>
                     {article.featured && (
                       <span className="ml-auto inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-yellow-500/10 text-yellow-700 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-800">
@@ -279,8 +280,9 @@ export default function OpinionArticleLayout({
                             <Eye className="w-4 h-4" />
                             {new Intl.NumberFormat("ar", {
                               notation: "compact",
-                            }).format(article.author?.reporter?.total_views || 0)}
-                            
+                            }).format(
+                              article.author?.reporter?.total_views || 0
+                            )}
                           </span>
                         </div>
                       </div>
@@ -297,13 +299,14 @@ export default function OpinionArticleLayout({
                             {formatDateNumeric(article.published_at as any)}
                           </div>
                           <div className="flex items-center gap-2">
-                            <Clock className="w-4 h-4" /> {article.reading_time || 5} دقائق
+                            <Clock className="w-4 h-4" />{" "}
+                            {article.reading_time || 5} دقائق
                           </div>
                           <div className="flex items-center gap-2">
                             <Eye className="w-4 h-4" />
-                            {new Intl.NumberFormat("ar", { notation: "compact" }).format(
-                              article.views || 0
-                            )}
+                            {new Intl.NumberFormat("ar", {
+                              notation: "compact",
+                            }).format(article.views || 0)}
                           </div>
                         </div>
                       </div>

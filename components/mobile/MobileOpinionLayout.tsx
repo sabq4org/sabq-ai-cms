@@ -4,7 +4,7 @@ import ReporterLink from "@/components/ReporterLink";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useViewTracking } from "@/hooks/useViewTracking";
 import { ArticleData } from "@/lib/article-api";
-import { formatDateNumeric, formatRelativeDate } from "@/lib/date-utils";
+import { formatDateNumeric } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
 import {
   Award,
@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { SmartInteractionButtons } from "../article/SmartInteractionButtons";
 
 interface MobileOpinionLayoutProps {
@@ -31,12 +31,11 @@ export default function MobileOpinionLayout({
   article,
 }: MobileOpinionLayoutProps) {
   const { darkMode } = useDarkModeContext();
-  const viewTrackingRef = useRef<HTMLDivElement>(null);
+  const { elementRef } = useViewTracking({ articleId: article.id });
   const [readingProgress, setReadingProgress] = useState(0);
   const [isScrolling, setIsScrolling] = useState(false);
 
-  // تتبع المشاهدات
-  useViewTracking(viewTrackingRef, article.id);
+  // تتبع المشاهدات عبر elementRef
 
   // تتبع تقدم القراءة مع تحسين للموبايل
   useEffect(() => {
@@ -82,8 +81,10 @@ export default function MobileOpinionLayout({
   };
 
   // تعيين التصنيف للّون
-  const categoryName = article?.category?.name || article?.category_name || "عام";
-  const rawCategorySlug = categoryName?.toLowerCase?.() || article?.category?.slug || "عام";
+  const categoryName =
+    article?.category?.name || article?.category_name || "عام";
+  const rawCategorySlug =
+    categoryName?.toLowerCase?.() || article?.category?.slug || "عام";
   const categoryMap: Record<string, string> = {
     world: "world",
     sports: "sports",
@@ -121,9 +122,13 @@ export default function MobileOpinionLayout({
         />
       </div>
 
-      <main className={`min-h-screen ${darkMode ? "bg-gray-900" : "bg-gray-50"} pt-0`}>
+      <main
+        className={`min-h-screen ${
+          darkMode ? "bg-gray-900" : "bg-gray-50"
+        } pt-0`}
+      >
         <article
-          ref={viewTrackingRef}
+          ref={elementRef as any}
           dir="rtl"
           data-category={mappedCategory}
           className="relative"
@@ -142,7 +147,9 @@ export default function MobileOpinionLayout({
             <div className="relative z-10">
               {/* لابل التصنيف */}
               <div className="mb-3">
-                <span className="category-pill">{article.category?.name || categoryName}</span>
+                <span className="category-pill">
+                  {article.category?.name || categoryName}
+                </span>
               </div>
 
               {/* العنوان */}
@@ -167,7 +174,9 @@ export default function MobileOpinionLayout({
 
               {/* سطر ميتاداتا موحد */}
               <div
-                className={`flex items-center gap-2 text-sm ${darkMode ? "text-gray-400" : "text-gray-600"} mb-4`}
+                className={`flex items-center gap-2 text-sm ${
+                  darkMode ? "text-gray-400" : "text-gray-600"
+                } mb-4`}
               >
                 <span className="inline-flex items-center gap-1">
                   <Calendar className="w-4 h-4" />
@@ -175,12 +184,15 @@ export default function MobileOpinionLayout({
                 </span>
                 <span className="mx-1">•</span>
                 <span className="inline-flex items-center gap-1">
-                  <Clock className="w-4 h-4" /> {article.reading_time || 5} دقائق
+                  <Clock className="w-4 h-4" /> {article.reading_time || 5}{" "}
+                  دقائق
                 </span>
                 <span className="mx-1">•</span>
                 <span className="inline-flex items-center gap-1">
                   <Eye className="w-4 h-4" />
-                  {new Intl.NumberFormat("ar", { notation: "compact" }).format(article.views || 0)}
+                  {new Intl.NumberFormat("ar", { notation: "compact" }).format(
+                    article.views || 0
+                  )}
                 </span>
                 {article.featured && (
                   <span className="ml-auto inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-yellow-500/10 text-yellow-700 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-800">
