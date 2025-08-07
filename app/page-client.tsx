@@ -15,6 +15,7 @@ import CloudImage from "@/components/ui/CloudImage";
 import { useAuth } from "@/hooks/useAuth";
 import type { RecommendedArticle } from "@/lib/ai-recommendations";
 import { generatePersonalizedRecommendations } from "@/lib/ai-recommendations";
+import { formatDateGregorian } from "@/lib/date-utils";
 import { SafeDate } from "@/lib/safe-date";
 import { getArticleLink } from "@/lib/utils";
 import dynamic from "next/dynamic";
@@ -25,6 +26,7 @@ import SafeHydration from "@/components/SafeHydration";
 import ArticleViews from "@/components/ui/ArticleViews";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import "@/styles/pulse-ticker-fixes.css";
+import { Clock, User } from "lucide-react";
 
 // Safe Dynamic imports with Next.js dynamic and SSR disabled to prevent hydration issues
 const EmptyComponent = () => null;
@@ -103,7 +105,6 @@ import {
   Brain,
   Briefcase,
   Building2,
-  Clock,
   CloudRain,
   Eye,
   Heart,
@@ -114,7 +115,6 @@ import {
   Sparkles,
   Tag,
   Trophy,
-  User,
   X,
 } from "lucide-react";
 
@@ -273,6 +273,39 @@ function NewspaperHomePage({
   const handleTogglePersonalized = () => {
     setShowPersonalized((prev) => !prev);
   };
+
+  // دالة للحصول على ألوان التصنيفات الفاتحة
+  const getCategoryColors = (categoryName: string) => {
+    const categoryColors: Record<string, string> = {
+      تحليل:
+        "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-400 dark:border-purple-800",
+      اقتصاد:
+        "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800",
+      رياضة:
+        "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800",
+      تقنية:
+        "bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-400 dark:border-indigo-800",
+      سياسة:
+        "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800",
+      ثقافة:
+        "bg-pink-100 text-pink-700 border-pink-200 dark:bg-pink-900/20 dark:text-pink-400 dark:border-pink-800",
+      علوم: "bg-cyan-100 text-cyan-700 border-cyan-200 dark:bg-cyan-900/20 dark:text-cyan-400 dark:border-cyan-800",
+      صحة: "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800",
+      سفر: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800",
+      طعام: "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-800",
+      رأي: "bg-violet-100 text-violet-700 border-violet-200 dark:bg-violet-900/20 dark:text-violet-400 dark:border-violet-800",
+      ملخص: "bg-sky-100 text-sky-700 border-sky-200 dark:bg-sky-900/20 dark:text-sky-400 dark:border-sky-800",
+      عاجل: "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800",
+      تقرير:
+        "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-800",
+    };
+
+    return (
+      categoryColors[categoryName] ||
+      "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-900/20 dark:text-gray-400 dark:border-gray-700"
+    );
+  };
+
   // مكون بطاقة الأخبار
   const NewsCard = ({ news }: { news: any }) => {
     const [imageLoading, setImageLoading] = useState(true);
@@ -311,6 +344,24 @@ function NewspaperHomePage({
           </div>
           {/* محتوى البطاقة */}
           <div className="p-4 sm:p-5">
+            {/* التصنيف */}
+            {(news.category || news.categories) && (
+              <div className="mb-3">
+                <span
+                  className={`inline-block px-3 py-1 text-xs font-medium rounded-full border ${getCategoryColors(
+                    news.category?.name ||
+                      news.categories?.name ||
+                      news.category ||
+                      news.categories
+                  )}`}
+                >
+                  {news.category?.name ||
+                    news.categories?.name ||
+                    news.category ||
+                    news.categories}
+                </span>
+              </div>
+            )}
             {/* العنوان - محدود بثلاث أسطر */}
             <h4
               className={`font-semibold text-base sm:text-lg mb-3 line-clamp-3 ${
@@ -323,7 +374,7 @@ function NewspaperHomePage({
             {/* الملخص */}
             {news.summary && (
               <p
-                className={`text-sm mb-4 line-clamp-2 transition-colors duration-300 text-gray-600 dark:text-gray-400 dark:text-gray-500`}
+                className={`text-sm mb-4 line-clamp-2 transition-colors duration-300 text-gray-600 dark:text-gray-400`}
               >
                 {news.summary}
               </p>
@@ -338,18 +389,18 @@ function NewspaperHomePage({
             >
               {/* المعلومات */}
               <div className="flex flex-col gap-1">
-                {/* التاريخ والوقت */}
+                {/* التاريخ بالتقويم الميلادي */}
                 <div className="flex items-center gap-2 sm:gap-3 text-xs">
                   <div className="text-sm text-gray-500 flex items-center gap-2">
                     <Clock className="w-4 h-4" />
-                    <SafeDate date={news.published_at || news.created_at} />
+                    {formatDateGregorian(news.published_at || news.created_at)}
                   </div>
                   {news.reading_time && (
                     <span
                       className={`flex items-center gap-1 ${
                         darkMode
-                          ? "text-gray-400 dark:text-gray-500"
-                          : "text-gray-500 dark:text-gray-400 dark:text-gray-500"
+                          ? "text-gray-400"
+                          : "text-gray-500 dark:text-gray-400"
                       }`}
                     >
                       <Clock className="w-3 h-3" />
@@ -363,8 +414,8 @@ function NewspaperHomePage({
                     <span
                       className={`flex items-center gap-1 ${
                         darkMode
-                          ? "text-gray-400 dark:text-gray-500"
-                          : "text-gray-500 dark:text-gray-400 dark:text-gray-500"
+                          ? "text-gray-400"
+                          : "text-gray-500 dark:text-gray-400"
                       }`}
                     >
                       <User className="w-3 h-3" />
@@ -375,23 +426,11 @@ function NewspaperHomePage({
                     count={news.views_count || news.views || 0}
                     className={
                       darkMode
-                        ? "text-gray-400 dark:text-gray-500"
+                        ? "text-gray-400"
                         : "text-gray-500 dark:text-gray-400"
                     }
                   />
                 </div>
-              </div>
-              {/* زر القراءة */}
-              <div
-                className={`p-2 rounded-xl transition-all ${
-                  darkMode ? "bg-blue-900/20" : "bg-blue-50 dark:bg-blue-900/20"
-                }`}
-              >
-                <ArrowLeft
-                  className={`w-4 h-4 transition-transform ${
-                    darkMode ? "text-blue-400" : "text-blue-600"
-                  }`}
-                />
               </div>
             </div>
           </div>

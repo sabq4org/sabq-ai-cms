@@ -17,30 +17,27 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-interface ArticleCardProps {
-  article: any;
+interface NewsCardProps {
+  news: any;
   viewMode?: "grid" | "list";
 }
 
-export default function ArticleCard({
-  article,
-  viewMode = "grid",
-}: ArticleCardProps) {
+export default function NewsCard({ news, viewMode = "grid" }: NewsCardProps) {
   // Get article metadata
-  const metadata = article.metadata || {};
+  const metadata = news.metadata || {};
   const isBreaking =
-    article.breaking || metadata.isBreakingNews || metadata.breaking || false;
-  const category = article.categories ||
-    article.category ||
+    news.breaking || metadata.isBreakingNews || metadata.breaking || false;
+  const category = news.categories ||
+    news.category ||
     metadata.category || { name: "عام", slug: "general" };
 
   // 🤖 AI-powered features
   const personalizedScore =
-    article.ai_compatibility_score || Math.floor(Math.random() * 100);
-  const isPersonalized = article.is_personalized || personalizedScore > 75;
-  const isTrending = article.views > 1000 && article.engagement_rate > 0.8;
+    news.ai_compatibility_score || Math.floor(Math.random() * 100);
+  const isPersonalized = news.is_personalized || personalizedScore > 75;
+  const isTrending = news.views > 1000 && news.engagement_rate > 0.8;
   const interactionCount =
-    (article.views || 0) + (article.likes || 0) + (article.shares || 0);
+    (news.views || 0) + (news.likes || 0) + (news.shares || 0);
 
   // 🎨 Enhanced category colors and icons
   const getCategoryStyle = (cat: any) => {
@@ -71,10 +68,7 @@ export default function ArticleCard({
 
   // تحسين رابط الصورة - دعم جميع أشكال الصور
   const rawImageUrl =
-    article.image_url ||
-    article.featured_image ||
-    article.image ||
-    metadata.image;
+    news.image_url || news.featured_image || news.image || metadata.image;
 
   // استخدام معالج الإنتاج في بيئة الإنتاج - استخدام تحديد أكثر موثوقية للإنتاج
   const isProduction =
@@ -103,19 +97,19 @@ export default function ArticleCard({
     : null;
 
   // Article link
-  const getArticleLink = (article: any) => {
-    if (article.slug) return `/article/${article.slug}`;
-    if (article.id) return `/article/${article.id}`;
+  const getArticleLink = (news: any) => {
+    if (news.slug) return `/article/${news.slug}`;
+    if (news.id) return `/article/${news.id}`;
     return "#";
   };
 
   // Publish date
-  const publishDate = article.published_at || article.created_at;
+  const publishDate = news.published_at || news.created_at;
 
   if (viewMode === "list") {
     // List View - مطابق لتصميم صفحة التصنيف
     return (
-      <Link href={getArticleLink(article)} className="group block">
+      <Link href={getArticleLink(news)} className="group block">
         <article
           className={cn(
             "rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 flex gap-6",
@@ -128,7 +122,7 @@ export default function ArticleCard({
           <div className="relative w-48 h-32 rounded-2xl overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-700">
             <SafeImage
               src={imageUrl || ""}
-              alt={article.title || "صورة المقال"}
+              alt={news.title || "صورة المقال"}
               fill
               className="object-cover group-hover:scale-110 transition-transform duration-500"
               fallbackType="article"
@@ -179,13 +173,13 @@ export default function ArticleCard({
 
             {/* Title */}
             <h3 className="text-xl font-bold text-gray-900 dark:text-white line-clamp-2 mb-2 group-hover:text-primary transition-colors">
-              {article.title}
+              {news.title}
             </h3>
 
             {/* Excerpt */}
-            {article.excerpt && (
+            {news.excerpt && (
               <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2 mb-3">
-                {article.excerpt}
+                {news.excerpt}
               </p>
             )}
 
@@ -198,17 +192,15 @@ export default function ArticleCard({
                 </span>
                 <span className="flex items-center gap-1">
                   <Clock className="w-3 h-3" />
-                  {article.reading_time ||
-                    Math.ceil((article.content?.length || 0) / 1000)}{" "}
+                  {news.reading_time ||
+                    Math.ceil((news.content?.length || 0) / 1000)}{" "}
                   دقائق
                 </span>
-                <ArticleViews
-                  count={article.views || article.views_count || 0}
-                />
-                {article.comments_count > 0 && (
+                <ArticleViews count={news.views || news.views_count || 0} />
+                {news.comments_count > 0 && (
                   <span className="flex items-center gap-1">
                     <MessageSquare className="w-3 h-3" />
-                    {article.comments_count}
+                    {news.comments_count}
                   </span>
                 )}
               </div>
@@ -221,7 +213,7 @@ export default function ArticleCard({
 
   // Grid View - البطاقة الافتراضية
   return (
-    <Link href={getArticleLink(article)} className="group block h-full">
+    <Link href={getArticleLink(news)} className="group block h-full">
       <article
         className={cn(
           "rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden h-full flex flex-col",
@@ -234,7 +226,7 @@ export default function ArticleCard({
         <div className="relative h-48 bg-gray-100 dark:bg-gray-700 overflow-hidden">
           <SafeImage
             src={imageUrl || ""}
-            alt={article.title || "صورة المقال"}
+            alt={news.title || "صورة المقال"}
             fill
             className="object-cover group-hover:scale-110 transition-transform duration-500"
             fallbackType="article"
@@ -289,13 +281,13 @@ export default function ArticleCard({
 
           {/* Title */}
           <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-2 mb-2 group-hover:text-primary transition-colors">
-            {article.title}
+            {news.title}
           </h3>
 
           {/* Excerpt */}
-          {article.excerpt && (
+          {news.excerpt && (
             <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-3 mb-3 flex-1">
-              {article.excerpt}
+              {news.excerpt}
             </p>
           )}
 
@@ -307,13 +299,11 @@ export default function ArticleCard({
                 {formatDateGregorian(publishDate)}
               </span>
               <div className="flex items-center gap-3">
-                <ArticleViews
-                  count={article.views || article.views_count || 0}
-                />
-                {article.comments_count > 0 && (
+                <ArticleViews count={news.views || news.views_count || 0} />
+                {news.comments_count > 0 && (
                   <span className="flex items-center gap-1">
                     <MessageSquare className="w-3 h-3" />
-                    {article.comments_count}
+                    {news.comments_count}
                   </span>
                 )}
               </div>
