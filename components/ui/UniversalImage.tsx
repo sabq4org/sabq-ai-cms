@@ -9,8 +9,9 @@ import { ImageOff, Loader2 } from "lucide-react";
 import Image, { ImageProps } from "next/image";
 import { useState } from "react";
 
-interface UniversalImageProps extends Partial<ImageProps> {
+interface UniversalImageProps {
   src?: string | null;
+  article?: any; // إضافة دعم كامل للمقال
   alt?: string;
   width?: number;
   height?: number;
@@ -21,6 +22,10 @@ interface UniversalImageProps extends Partial<ImageProps> {
   responsiveType?: "hero" | "card" | "thumbnail" | "full";
   onError?: (error: any) => void;
   onLoad?: () => void;
+  priority?: boolean;
+  quality?: number;
+  placeholder?: "blur" | "empty" | `data:image/${string}`;
+  blurDataURL?: string;
 }
 
 /**

@@ -4,7 +4,9 @@ import Image, { ImageProps } from 'next/image';
 import { useState, useEffect } from 'react';
 import { logError } from '@/lib/services/error-logger';
 
-interface SmartImageProps extends Omit<ImageProps, 'onError'> {
+interface SmartImageProps extends Omit<ImageProps, 'onError' | 'src'> {
+  article?: any; // إضافة دعم للمقال الكامل
+  src?: string | null; // src منفصل للتحكم الكامل
   fallbackSrc?: string;
   fallbackType?: 'avatar' | 'article' | 'general';
   retryCount?: number;
@@ -26,8 +28,50 @@ const PROBLEMATIC_DOMAINS = [
   'res.cloudinary.com',
 ];
 
+// استخراج رابط الصورة من جميع المصادر المحتملة في المقال
+const extractImageFromArticle = (article: any): string | null => {
+  if (!article) return null;
+
+  // قائمة شاملة بجميع المسارات المحتملة للصور
+  const imagePaths = [
+    article.featured_image,
+    article.image_url,
+    article.image,
+    article.thumbnail,
+    article.cover,
+    article.media?.[0]?.url,
+    article.meta?.image,
+    article.metadata?.image,
+    article.images?.[0],
+    article.attachments?.[0]?.url,
+    // مسارات إضافية للأخبار المخصصة
+    article.customFields?.image,
+    article.seo?.image,
+    article.openGraph?.image,
+  ];
+
+  // البحث عن أول رابط صورة صالح
+  for (const path of imagePaths) {
+    if (path && typeof path === "string" && path.length > 5) {
+      // تجنب القيم الفارغة أو غير الصالحة
+      if (
+        path !== "undefined" &&
+        path !== "null" &&
+        !path.includes("undefined") &&
+        !path.includes("null") &&
+        path !== "/api/placeholder"
+      ) {
+        return path;
+      }
+    }
+  }
+
+  return null;
+};
+
 export default function SmartImage({
   src,
+  article, // إضافة المقال
   alt,
   fallbackSrc,
   fallbackType = 'general',
@@ -35,20 +79,25 @@ export default function SmartImage({
   silentFail = true,
   ...props
 }: SmartImageProps) {
-  const [imgSrc, setImgSrc] = useState(src);
+  // استخراج الصورة من المقال إذا لم يتم تمرير src
+  const extractedSrc = src || extractImageFromArticle(article);
+  const [imgSrc, setImgSrc] = useState(extractedSrc);
   const [retries, setRetries] = useState(0);
   const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
-    // إعادة تعيين عند تغيير المصدر
-    if (src !== imgSrc && !hasError) {
-      setImgSrc(src);
+    // إعادة تعيين عند تغيير المصدر أو المقال
+    const newSrc = src || extractImageFromArticle(article);
+    if (newSrc !== imgSrc && !hasError) {
+      setImgSrc(newSrc);
       setRetries(0);
       setHasError(false);
     }
-  }, [src]);
+  }, [src, article]);
 
   const handleError = () => {
+    if (!imgSrc) return;
+    
     const currentSrc = imgSrc.toString();
     
     // تحقق من النطاق
