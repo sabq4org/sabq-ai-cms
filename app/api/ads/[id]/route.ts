@@ -1,5 +1,5 @@
 import { getUserFromCookie } from "@/lib/auth-utils";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 // جلب إعلان محدد
@@ -76,12 +76,23 @@ export async function PUT(
     }
 
     // التحقق من أن المستخدم محرر أو أدمين
-    const userRecord = await prisma.users.findUnique({
-      where: { id: user.id },
-    });
+    // للمستخدم التجريبي، استخدم البيانات من الكوكيز
+    if (user.id === "dev-user-id") {
+      if (!user.is_admin && user.role !== "admin" && user.role !== "editor") {
+        return NextResponse.json({ error: "غير مخول للوصول" }, { status: 403 });
+      }
+    } else {
+      // للمستخدمين العاديين، تحقق من قاعدة البيانات
+      const userRecord = await prisma.users.findUnique({
+        where: { id: user.id },
+      });
 
-    if (!userRecord || (!userRecord.is_admin && userRecord.role !== "editor")) {
-      return NextResponse.json({ error: "غير مخول للوصول" }, { status: 403 });
+      if (
+        !userRecord ||
+        (!userRecord.is_admin && userRecord.role !== "editor")
+      ) {
+        return NextResponse.json({ error: "غير مخول للوصول" }, { status: 403 });
+      }
     }
 
     const body = await request.json();
@@ -154,15 +165,26 @@ export async function DELETE(
     }
 
     // التحقق من أن المستخدم أدمين
-    const userRecord = await prisma.users.findUnique({
-      where: { id: user.id },
-    });
+    // للمستخدم التجريبي، استخدم البيانات من الكوكيز
+    if (user.id === "dev-user-id") {
+      if (!user.is_admin) {
+        return NextResponse.json(
+          { error: "غير مخول للوصول - مطلوب صلاحيات أدمين" },
+          { status: 403 }
+        );
+      }
+    } else {
+      // للمستخدمين العاديين، تحقق من قاعدة البيانات
+      const userRecord = await prisma.users.findUnique({
+        where: { id: user.id },
+      });
 
-    if (!userRecord || !userRecord.is_admin) {
-      return NextResponse.json(
-        { error: "غير مخول للوصول - مطلوب صلاحيات أدمين" },
-        { status: 403 }
-      );
+      if (!userRecord || !userRecord.is_admin) {
+        return NextResponse.json(
+          { error: "غير مخول للوصول - مطلوب صلاحيات أدمين" },
+          { status: 403 }
+        );
+      }
     }
 
     // التحقق من وجود الإعلان

@@ -6,6 +6,7 @@ export interface User {
   email: string;
   role?: string;
   avatar_url?: string;
+  is_admin?: boolean;
 }
 
 // حفظ بيانات المستخدم في الكوكيز
@@ -30,7 +31,8 @@ export async function getUserFromCookie(): Promise<User | null> {
       id: "dev-user-id",
       name: "مطور المحتوى",
       email: "dev@sabq.org",
-      role: "editor",
+      role: "admin",
+      is_admin: true,
     };
   }
 

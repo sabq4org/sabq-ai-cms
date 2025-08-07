@@ -8,7 +8,8 @@ export async function POST() {
       id: "dev-user-id",
       name: "مطور المحتوى",
       email: "dev@sabq.org",
-      role: "editor",
+      role: "admin",
+      is_admin: true,
     };
 
     // إنشاء استجابة مع تعيين الكوكيز

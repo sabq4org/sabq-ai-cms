@@ -32,7 +32,10 @@ export async function POST(request: NextRequest) {
 
     // التحقق من أن المستخدم محرر أو أدمين
     // للتطوير: قبول المستخدمين التجريبيين
-    if (user.id === "dev-user-id" && user.role === "editor") {
+    if (
+      user.id === "dev-user-id" &&
+      (user.role === "editor" || user.role === "admin")
+    ) {
       // مستخدم تجريبي مُوافق عليه
     } else {
       const userRecord = await prisma.users.findUnique({
@@ -117,7 +120,10 @@ export async function GET(request: NextRequest) {
 
     // التحقق من أن المستخدم محرر أو أدمين
     // للتطوير: قبول المستخدمين التجريبيين
-    if (user.id === "dev-user-id" && user.role === "editor") {
+    if (
+      user.id === "dev-user-id" &&
+      (user.role === "editor" || user.role === "admin")
+    ) {
       // مستخدم تجريبي مُوافق عليه
     } else {
       const userRecord = await prisma.users.findUnique({
