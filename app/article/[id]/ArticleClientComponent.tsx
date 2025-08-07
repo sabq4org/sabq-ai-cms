@@ -32,6 +32,11 @@ import {
   Clock,
   Hash,
   Star,
+  Eye,
+  Heart,
+  Bookmark,
+  Share,
+  MessageSquare,
 } from "lucide-react";
 // import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
 import ArticleAISummary from "@/components/article/ArticleAISummary";
@@ -99,6 +104,7 @@ export default function ArticleClientComponent({
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const [contentHtml, setContentHtml] = useState("");
+  const [showComments, setShowComments] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   // جلب بروفايل المراسل
@@ -885,25 +891,45 @@ export default function ArticleClientComponent({
               />
             </div>
 
-            {/* محفّز التعليقات: قبل إحصائيات المقال مباشرة */}
+            {/* شريط إحصائيات قابل للطي لإظهار التعليقات */}
             <div className="mt-4 sm:mt-6">
-              <CommentsTrigger
-                count={article.comments_count ?? 0}
-                onClick={async () => {
-                  // تحميل lazy لقسم التعليقات عند الحاجة ثم التمرير إليه
-                  const commentsEl = document.getElementById("comments");
-                  if (commentsEl) {
-                    commentsEl.scrollIntoView({ behavior: "smooth", block: "start" });
-                  } else {
-                    // إدخال section ديناميكيًا عبر تبديل state بسيط (باستخدام hash)
-                    location.hash = "comments";
-                    requestAnimationFrame(() => {
-                      const el = document.getElementById("comments");
-                      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-                    });
-                  }
+              <button
+                type="button"
+                dir="rtl"
+                aria-expanded={showComments}
+                onClick={() => {
+                  const next = !showComments;
+                  setShowComments(next);
+                  if (!next) return;
+                  setTimeout(() => {
+                    const el = document.getElementById("comments");
+                    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }, 50);
                 }}
-              />
+                className="w-full rounded-xl border px-4 py-3 bg-gray-50 hover:bg-gray-100 text-gray-800 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-100 transition-colors"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-4 text-sm sm:text-base">
+                    <span className="inline-flex items-center gap-1 text-gray-600 dark:text-gray-300">
+                      <Eye className="w-4 h-4" /> {new Intl.NumberFormat("ar").format(article.views || 0)}
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-gray-600 dark:text-gray-300">
+                      <Heart className="w-4 h-4" /> {new Intl.NumberFormat("ar").format(article.likes || article.stats?.likes || 0)}
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-gray-600 dark:text-gray-300">
+                      <Bookmark className="w-4 h-4" /> {new Intl.NumberFormat("ar").format(article.saves || article.stats?.saves || 0)}
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-gray-600 dark:text-gray-300">
+                      <Share className="w-4 h-4" /> {new Intl.NumberFormat("ar").format(article.shares || article.stats?.shares || 0)}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm sm:text-base">
+                    <MessageSquare className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                    <span className="font-medium">التعليقات</span>
+                    <span className="text-gray-600 dark:text-gray-300">({new Intl.NumberFormat("ar").format(article.comments_count || 0)})</span>
+                  </div>
+                </div>
+              </button>
             </div>
 
             {/* إصلاح التوجه العربي للمحتوى */}
@@ -937,28 +963,8 @@ export default function ArticleClientComponent({
             `}</style>
           </div>
 
-          {/* إحصائيات المقال */}
-          <div className="mt-8 sm:mt-12">
-            <ArticleStatsBlock
-              views={article.views || 0}
-              likes={article.likes || article.stats?.likes || 0}
-              saves={article.saves || article.stats?.saves || 0}
-              shares={article.shares || article.stats?.shares || 0}
-              category={
-                article.category
-                  ? {
-                      name: article.category.name,
-                      color: article.category.color,
-                      icon: article.category.icon,
-                    }
-                  : undefined
-              }
-              growthRate={Math.floor(Math.random() * 60)} // نسبة نمو عشوائية للعرض
-            />
-          </div>
-
-          {/* قسم التعليقات (Lazy via dynamic import داخل CommentsSection) */}
-          <CommentsSection articleId={article.id} />
+          {/* قسم التعليقات (Lazy) يظهر عند الضغط على الشريط */}
+          {showComments && <CommentsSection articleId={article.id} />}
 
           {/* المحتوى المخصص بذكاء - نظام التوصيات الشخصي */}
           <div className="mt-6 sm:mt-8">
