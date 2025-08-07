@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 import {
   SOCIAL_SHARING_CONFIG,
   formatSocialMetadata,
@@ -16,10 +16,10 @@ export async function generateMetadata({
     const { id } = await params;
 
     // محاولة جلب المقال من قاعدة البيانات
-    const article = await prisma.article.findUnique({
+    const article = await prisma.articles.findUnique({
       where: { id },
       include: {
-        category: true,
+        categories: true,
         author: true,
       },
     });
@@ -34,14 +34,14 @@ export async function generateMetadata({
     // تنسيق بيانات المقال للمشاركة الاجتماعية
     const socialData = formatSocialMetadata({
       title: article.title,
-      description: article.description,
+      description: article.seo_description,
       excerpt: article.excerpt,
-      summary: article.summary,
+      summary: article.excerpt,
       featured_image: article.featured_image,
       author: article.author,
-      category: article.category,
+      category: article.categories,
       published_at: article.published_at || article.created_at,
-      keywords: article.keywords as string[],
+      keywords: article.seo_keywords?.split(",") || [],
       id: article.id,
     });
 

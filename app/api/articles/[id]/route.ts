@@ -32,27 +32,12 @@ export async function GET(
     const url = new URL(request.url);
     const includeAll = url.searchParams.get("all") === "true";
 
-    // محاولة الاتصال بقاعدة البيانات بطريقة قوية
+    // محاولة الاتصال بقاعدة البيانات بطريقة بسيطة
     let article;
     try {
       console.log("🔗 محاولة الاتصال بقاعدة البيانات - المرحلة 4");
 
-      // فصل واتصال جديد لحل مشكلة Engine not connected
-      try {
-        await prisma.$disconnect();
-        await new Promise((resolve) => setTimeout(resolve, 500));
-      } catch (disconnectError) {
-        console.log("⚠️ خطأ في قطع الاتصال (متوقع):", disconnectError);
-      }
-
-      await prisma.$connect();
-      console.log("✅ اتصال Prisma نجح - المرحلة 5");
-
-      // تأكد من الاتصال قبل الاستعلام
-      await prisma.$queryRaw`SELECT 1 as test`;
-      console.log("✅ اختبار قاعدة البيانات نجح - المرحلة 5.5");
-
-      // استعلام مباشر
+      // استعلام مباشر بدون تعقيد
       console.log("🔍 تنفيذ استعلام قاعدة البيانات - المرحلة 6");
       article = await prisma.articles.findFirst({
         where: {
@@ -87,50 +72,7 @@ export async function GET(
       );
     } catch (dbError: any) {
       console.error("❌ خطأ في الاتصال بقاعدة البيانات - المرحلة 8:", dbError);
-
-      // إذا كان الخطأ متعلق بعدم الاتصال، حاول مرة أخرى
-      if (dbError.message?.includes("Engine is not yet connected")) {
-        console.log("🔄 محاولة إعادة الاتصال...");
-        try {
-          await prisma.$disconnect();
-          await new Promise((resolve) => setTimeout(resolve, 2000)); // زيادة الوقت
-          await prisma.$connect();
-
-          // محاولة أخرى مباشرة بدون مدير الاتصالات
-          article = await prisma.articles.findFirst({
-            where: {
-              OR: [{ id: id }, { slug: id }],
-              ...(includeAll ? {} : { status: "published" }),
-            },
-            include: {
-              categories: true,
-              author: {
-                select: {
-                  id: true,
-                  name: true,
-                  email: true,
-                  avatar: true,
-                },
-              },
-              article_author: {
-                select: {
-                  id: true,
-                  full_name: true,
-                  slug: true,
-                  title: true,
-                  avatar_url: true,
-                  specializations: true,
-                },
-              },
-            },
-          });
-        } catch (retryError) {
-          console.error("❌ فشلت محاولة إعادة الاتصال:", retryError);
-          throw dbError;
-        }
-      } else {
-        throw dbError;
-      }
+      throw dbError;
     }
 
     if (!article) {

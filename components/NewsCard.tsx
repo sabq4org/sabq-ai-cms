@@ -1,20 +1,14 @@
 "use client";
 
 import ArticleViews from "@/components/ui/ArticleViews";
-import { Badge } from "@/components/ui/badge";
 import SafeImage from "@/components/ui/SafeImage";
+import { Badge } from "@/components/ui/badge";
+import { UIUtils } from "@/lib/ai/classifier-utils";
 import { formatDateGregorian } from "@/lib/date-utils";
 import { getImageUrl } from "@/lib/image-utils";
 import { getProductionImageUrl } from "@/lib/production-image-fix";
 import { cn } from "@/lib/utils";
-import {
-  Calendar,
-  Clock,
-  MessageSquare,
-  Sparkles,
-  TrendingUp,
-  Zap,
-} from "lucide-react";
+import { Calendar, Sparkles, TrendingUp, Zap } from "lucide-react";
 import Link from "next/link";
 
 interface NewsCardProps {
@@ -22,10 +16,7 @@ interface NewsCardProps {
   viewMode?: "grid" | "list";
 }
 
-export default function NewsCard({
-  news,
-  viewMode = "grid",
-}: NewsCardProps) {
+export default function NewsCard({ news, viewMode = "grid" }: NewsCardProps) {
   // Get article metadata
   const metadata = news.metadata || {};
   const isBreaking =
@@ -71,10 +62,7 @@ export default function NewsCard({
 
   // تحسين رابط الصورة - دعم جميع أشكال الصور
   const rawImageUrl =
-    news.image_url ||
-    news.featured_image ||
-    news.image ||
-    metadata.image;
+    news.image_url || news.featured_image || news.image || metadata.image;
 
   // استخدام معالج الإنتاج في بيئة الإنتاج - استخدام تحديد أكثر موثوقية للإنتاج
   const isProduction =
@@ -115,14 +103,19 @@ export default function NewsCard({
   if (viewMode === "list") {
     // List View - مطابق لتصميم صفحة التصنيف
     return (
-      <Link href={getArticleLink(news)} className="group block">
+      <Link href={getArticleLink(news)} className="block">
         <article
           className={cn(
-            "rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 flex gap-6",
+            "rounded-3xl shadow-lg transition-all duration-300 p-6 flex gap-6 border-b-4",
             isBreaking
-              ? "bg-red-50 dark:bg-red-950/20 border-2 border-red-200 dark:border-red-800"
-              : "bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+              ? "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800"
+              : "bg-gray-50 dark:bg-gray-800 dark:border-gray-700"
           )}
+          style={{
+            borderBottomColor: UIUtils.getCategoryColor(
+              category?.name || category || "عام"
+            ),
+          }}
         >
           {/* Image محسنة للأداء */}
           <div className="relative w-48 h-32 rounded-2xl overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-700">
@@ -130,7 +123,7 @@ export default function NewsCard({
               src={imageUrl || ""}
               alt={news.title || "صورة المقال"}
               fill
-              className="object-cover group-hover:scale-110 transition-transform duration-500"
+              className="object-cover transition-transform duration-500"
               fallbackType="article"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
@@ -178,7 +171,7 @@ export default function NewsCard({
             </div>
 
             {/* Title */}
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white line-clamp-2 mb-2 group-hover:text-primary transition-colors">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white line-clamp-2 mb-2">
               {news.title}
             </h3>
 
@@ -196,21 +189,7 @@ export default function NewsCard({
                   <Calendar className="w-3 h-3" />
                   {formatDateGregorian(publishDate)}
                 </span>
-                <span className="flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  {news.reading_time ||
-                    Math.ceil((news.content?.length || 0) / 1000)}{" "}
-                  دقائق
-                </span>
-                <ArticleViews
-                  count={news.views || news.views_count || 0}
-                />
-                {news.comments_count > 0 && (
-                  <span className="flex items-center gap-1">
-                    <MessageSquare className="w-3 h-3" />
-                    {news.comments_count}
-                  </span>
-                )}
+                <ArticleViews count={news.views || news.views_count || 0} />
               </div>
             </div>
           </div>
@@ -221,14 +200,19 @@ export default function NewsCard({
 
   // Grid View - البطاقة الافتراضية
   return (
-    <Link href={getArticleLink(news)} className="group block h-full">
+    <Link href={getArticleLink(news)} className="block h-full">
       <article
         className={cn(
-          "rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden h-full flex flex-col",
+          "rounded-2xl shadow-md transition-all duration-300 overflow-hidden h-full flex flex-col border-b-4",
           isBreaking
-            ? "bg-red-50 dark:bg-red-950/20 ring-2 ring-red-500 ring-opacity-50 border-2 border-red-200 dark:border-red-800"
-            : "bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+            ? "bg-red-50 dark:bg-red-950/20 ring-2 ring-red-500 ring-opacity-50 border-red-200 dark:border-red-800"
+            : "bg-gray-50 dark:bg-gray-800 dark:border-gray-700"
         )}
+        style={{
+          borderBottomColor: UIUtils.getCategoryColor(
+            category?.name || category || "عام"
+          ),
+        }}
       >
         {/* Image Container */}
         <div className="relative h-48 bg-gray-100 dark:bg-gray-700 overflow-hidden">
@@ -236,7 +220,7 @@ export default function NewsCard({
             src={imageUrl || ""}
             alt={news.title || "صورة المقال"}
             fill
-            className="object-cover group-hover:scale-110 transition-transform duration-500"
+            className="object-cover transition-transform duration-500"
             fallbackType="article"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
@@ -288,7 +272,7 @@ export default function NewsCard({
           </div>
 
           {/* Title */}
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-2 mb-2 group-hover:text-primary transition-colors">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-2 mb-2">
             {news.title}
           </h3>
 
@@ -301,22 +285,12 @@ export default function NewsCard({
 
           {/* Enhanced Meta Info with AI insights */}
           <div className="space-y-2 mt-auto">
-            <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+            <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
               <span className="flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
                 {formatDateGregorian(publishDate)}
               </span>
-              <div className="flex items-center gap-3">
-                <ArticleViews
-                  count={news.views || news.views_count || 0}
-                />
-                {news.comments_count > 0 && (
-                  <span className="flex items-center gap-1">
-                    <MessageSquare className="w-3 h-3" />
-                    {news.comments_count}
-                  </span>
-                )}
-              </div>
+              <ArticleViews count={news.views || news.views_count || 0} />
             </div>
           </div>
         </div>

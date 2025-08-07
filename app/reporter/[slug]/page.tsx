@@ -1378,19 +1378,33 @@ const ReporterProfilePage: React.FC = () => {
                 {/* صورة شخصية دائرية */}
                 <div className="relative">
                   <div className="w-24 h-24 lg:w-32 lg:h-32 rounded-full overflow-hidden ring-4 ring-blue-200 dark:ring-slate-600 shadow-lg">
-                    <CloudImage
-                      src={
-                        reporter.avatar_url ||
-                        `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                          reporter.full_name
-                        )}&background=3b82f6&color=fff&size=200&rounded=true&bold=true`
-                      }
-                      alt={reporter.full_name}
-                      width={128}
-                      height={128}
-                      className="w-full h-full object-cover"
-                      fallbackType="author"
-                    />
+                    {reporter.avatar_url ? (
+                      <CloudImage
+                        src={reporter.avatar_url}
+                        alt={reporter.full_name}
+                        width={128}
+                        height={128}
+                        className="w-full h-full object-cover"
+                        fallbackType="author"
+                      />
+                    ) : (
+                      // استخدام تدرج مع الأحرف الأولى كـ fallback محلي
+                      <div
+                        className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center"
+                        style={{
+                          background:
+                            "linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)",
+                        }}
+                      >
+                        <span className="text-white font-bold text-xl lg:text-2xl drop-shadow-sm">
+                          {reporter.full_name
+                            .split(" ")
+                            .map((word) => word.charAt(0))
+                            .slice(0, 2)
+                            .join("")}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* شارة التحقق */}
