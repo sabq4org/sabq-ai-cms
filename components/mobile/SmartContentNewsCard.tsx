@@ -4,12 +4,12 @@ import ArticleViews from "@/components/ui/ArticleViews";
 import CloudImage from "@/components/ui/CloudImage";
 import type { RecommendedArticle } from "@/lib/ai-recommendations";
 import { UIUtils } from "@/lib/ai/classifier-utils";
-import { formatDateShort } from "@/lib/date-utils";
+import { formatDateNumeric } from "@/lib/date-utils";
 import {
-  ArrowLeft,
   BarChart3,
   Brain,
   Clock,
+  Eye,
   MessageSquare,
   Sparkles,
   TrendingUp,
@@ -127,6 +127,55 @@ export default function SmartContentNewsCard({
   variant = "full",
   position = 0,
 }: SmartContentNewsCardProps) {
+  // Category mapping for consistent styling (same as ArticleCard)
+  const categoryMap: Record<string, string> = {
+    // إنجليزية أساسية
+    world: "world",
+    sports: "sports",
+    tech: "tech",
+    technology: "tech",
+    business: "business",
+    economy: "business",
+    local: "local",
+    news: "local",
+    politics: "world",
+    travel: "world",
+    cars: "tech",
+    media: "tech",
+    opinion: "opinions",
+    // تطابقات عربية
+    العالم: "world",
+    "أخبار-العالم": "world",
+    "أخبار العالم": "world",
+    رياضة: "sports",
+    الرياضة: "sports",
+    رياضي: "sports",
+    تقنية: "tech",
+    التقنية: "tech",
+    تكنولوجيا: "tech",
+    التكنولوجيا: "tech",
+    اقتصاد: "business",
+    الاقتصاد: "business",
+    أعمال: "business",
+    الأعمال: "business",
+    محليات: "local",
+    المحليات: "local",
+    محلي: "local",
+    محطات: "local",
+    المحطات: "local",
+    حياتنا: "local",
+    حياة: "local",
+    سياسة: "world",
+    السياسة: "world",
+    سياحة: "world",
+    السياحة: "world",
+    سيارات: "tech",
+    السيارات: "tech",
+    ميديا: "tech",
+    الميديا: "tech",
+    عام: "local",
+    عامة: "local",
+  };
   const articleType = article.type || article.metadata?.type || "article";
   const typeData = typeIcons[articleType] || typeIcons.article;
   const { icon: IconComponent, color, bgColor } = typeData;
@@ -153,22 +202,30 @@ export default function SmartContentNewsCard({
             (article as any).category_name ||
             (article as any).category ||
             "عام";
+
+          // Map category for consistent styling
+          const rawCategorySlug =
+            categoryName?.toLowerCase?.() || categoryName || "عام";
+          const mappedCategory =
+            categoryMap[rawCategorySlug] || rawCategorySlug;
+
           const categoryColor = UIUtils.getCategoryColor(categoryName);
           const viewsForDisplay =
             (article as any).views ?? (article as any).viewsCount ?? 0;
           const published = (article as any).publishedAt;
           return (
             <article
+              dir="rtl"
+              data-category={mappedCategory}
               className={`
-          h-full rounded-2xl overflow-hidden shadow-lg transition-all duration-300
+          h-full rounded-2xl overflow-hidden shadow-sm transition-all duration-300 flex flex-col
           ${
             darkMode
-              ? "bg-gradient-to-br from-gray-800 via-gray-800/95 to-gray-800 border border-gray-700"
-              : "bg-gradient-to-br from-white via-gray-50/50 to-white border border-gray-200"
+              ? "bg-white/5 border border-gray-700"
+              : "bg-white border border-gray-200"
           }
-          relative border-b-4
+          relative
         `}
-              style={{ borderBottomColor: categoryColor as string }}
             >
               {/* صورة المقال */}
               <div className="relative h-32 sm:h-40 overflow-hidden">
@@ -197,99 +254,48 @@ export default function SmartContentNewsCard({
               </div>
 
               {/* محتوى البطاقة */}
-              <div className="p-3 sm:p-4">
-                {/* نوع المحتوى والسبب */}
-                <div className="flex items-center gap-2 mb-2 flex-wrap">
-                  <div
-                    className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs ${
-                      darkMode
-                        ? "bg-gray-700/50 text-gray-300"
-                        : "bg-gray-100 text-gray-600"
-                    }`}
-                  >
-                    <IconComponent className={`w-3 h-3 ${color}`} />
-                    <span className="font-medium">{phrase}</span>
-                  </div>
-                  {article.reason && (
-                    <span
-                      className={`text-xs ${
-                        darkMode ? "text-gray-400" : "text-gray-500"
-                      }`}
-                    >
-                      • {article.reason}
-                    </span>
-                  )}
+              <div className="p-4 flex-1 flex flex-col">
+                {/* لابل التصنيف */}
+                <div className="mb-2">
+                  <span className="category-pill">{categoryName}</span>
                 </div>
 
                 {/* العنوان */}
-                <h4
-                  className={`font-semibold text-base sm:text-lg mb-2 line-clamp-2 ${
-                    darkMode ? "text-white" : "text-gray-900"
-                  }`}
-                >
+                <h4 className="font-semibold text-lg mb-3 line-clamp-4 leading-snug flex-1">
                   {article.title}
                 </h4>
 
-                {/* الملخص - فقط للنسخة الكاملة */}
-                {article.excerpt && (
-                  <p
-                    className={`text-sm mb-3 line-clamp-2 ${
-                      darkMode ? "text-gray-400" : "text-gray-600"
-                    }`}
-                  >
-                    {article.excerpt}
-                  </p>
-                )}
-
-                {/* التفاصيل السفلية */}
-                <div
-                  className={`pt-2 sm:pt-3 border-t ${
-                    darkMode ? "border-gray-700" : "border-gray-100"
-                  }`}
-                >
-                  {/* عبارة مخصص لك بذكاء */}
-                  <div
-                    className={`text-xs text-center mb-2 ${
-                      darkMode ? "text-purple-400" : "text-purple-600"
-                    }`}
-                  >
-                    <Sparkles className="inline-block w-3 h-3 mr-1" />
-                    محتوى مختار لك بناءً على اهتماماتك
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 text-xs">
-                      {published && (
-                        <span
-                          className={`flex items-center gap-1 ${
-                            darkMode ? "text-gray-300" : "text-gray-600"
-                          }`}
-                        >
-                          <Clock className="w-3 h-3" />
-                          {formatDateShort(published)}
-                        </span>
-                      )}
-                      <ArticleViews
-                        count={viewsForDisplay}
-                        className="text-xs"
-                      />
-                    </div>
-
-                    {/* زر القراءة */}
-                    <div
-                      className={`p-2 rounded-xl transition-all ${
-                        darkMode ? "bg-purple-900/20" : "bg-purple-50"
-                      }`}
+                {/* سطر واحد: التاريخ + المشاهدات */}
+                <div className="flex items-center gap-2 text-sm text-muted-foreground mt-auto">
+                  {published && (
+                    <time
+                      dateTime={published}
+                      className="inline-flex items-center gap-1"
                     >
-                      <ArrowLeft
-                        className={`w-4 h-4 transition-transform ${
-                          darkMode ? "text-purple-400" : "text-purple-600"
-                        }`}
-                      />
-                    </div>
+                      <Clock className="w-4 h-4" />
+                      {formatDateNumeric(published)}
+                    </time>
+                  )}
+                  <span className="mx-1">•</span>
+                  <span className="inline-flex items-center gap-1">
+                    <Eye className="w-4 h-4" />
+                    {new Intl.NumberFormat("ar", {
+                      notation: "compact",
+                    }).format(viewsForDisplay)}
+                  </span>
+
+                  {/* شارة مخصص */}
+                  <div className="mr-auto">
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-purple-600 dark:text-purple-400 text-xs font-medium rounded-full">
+                      <Sparkles className="w-3 h-3" />
+                      مخصص
+                    </span>
                   </div>
                 </div>
               </div>
+
+              {/* خط سفلي بلون التصنيف */}
+              <div className="category-underline" aria-hidden />
             </article>
           );
         })()}

@@ -86,6 +86,56 @@ export default function UniversalNewsCard({
   // تاريخ النشر
   const publishDate = article.published_at || article.created_at;
 
+  // تصنيف موحّد للفئات إلى رموز ألوان للبطاقات المكتبية
+  const rawCategorySlug: string = (category?.slug || category?.name || "عام")
+    .toString()
+    .toLowerCase();
+  const colorCategoryMap: Record<string, string> = {
+    world: "world",
+    sports: "sports",
+    sport: "sports",
+    tech: "tech",
+    technology: "tech",
+    business: "business",
+    economy: "business",
+    local: "local",
+    opinions: "opinions",
+    opinion: "opinions",
+    // تطابقات عربية
+    العالم: "world",
+    "أخبار-العالم": "world",
+    "أخبار العالم": "world",
+    رياضة: "sports",
+    الرياضة: "sports",
+    رياضي: "sports",
+    تقنية: "tech",
+    التقنية: "tech",
+    تكنولوجيا: "tech",
+    التكنولوجيا: "tech",
+    اقتصاد: "business",
+    الاقتصاد: "business",
+    أعمال: "business",
+    الأعمال: "business",
+    محليات: "local",
+    المحليات: "local",
+    محلي: "local",
+    محطات: "local",
+    المحطات: "local",
+    حياتنا: "local",
+    حياة: "local",
+    سياسة: "world",
+    السياسة: "world",
+    سياحة: "world",
+    السياحة: "world",
+    سيارات: "tech",
+    السيارات: "tech",
+    ميديا: "tech",
+    الميديا: "tech",
+    عام: "local",
+    عامة: "local",
+  };
+  const mappedCategory = colorCategoryMap[rawCategorySlug] || rawCategorySlug;
+
   // حساب وقت القراءة
   const calculateReadingTime = (content: string | null) => {
     if (!content) return 1;

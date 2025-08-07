@@ -326,3 +326,34 @@ export function formatTime(
     return "وقت غير صحيح";
   }
 }
+
+/**
+ * تنسيق التاريخ بالشكل الرقمي dd/mm/yyyy
+ * Format date in numeric format dd/mm/yyyy
+ */
+export function formatDateNumeric(dateString: string): string {
+  try {
+    const date =
+      typeof dateString === "string"
+        ? parseISO(dateString)
+        : new Date(dateString);
+
+    if (!isValid(date)) {
+      return "تاريخ غير صحيح";
+    }
+
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear();
+
+    // استخدام الأرقام الغربية
+    const formattedDay = formatNumber(parseInt(day));
+    const formattedMonth = formatNumber(parseInt(month));
+    const formattedYear = formatNumber(year);
+
+    return `${formattedDay}/${formattedMonth}/${formattedYear}`;
+  } catch (error) {
+    console.error("خطأ في تنسيق التاريخ الرقمي:", error);
+    return "تاريخ غير صحيح";
+  }
+}

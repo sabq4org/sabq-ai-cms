@@ -15,7 +15,7 @@ import CloudImage from "@/components/ui/CloudImage";
 import { useAuth } from "@/hooks/useAuth";
 import type { RecommendedArticle } from "@/lib/ai-recommendations";
 import { generatePersonalizedRecommendations } from "@/lib/ai-recommendations";
-import { formatDateGregorian } from "@/lib/date-utils";
+import { formatDateNumeric } from "@/lib/date-utils";
 import { SafeDate } from "@/lib/safe-date";
 import { getArticleLink } from "@/lib/utils";
 import dynamic from "next/dynamic";
@@ -23,7 +23,6 @@ import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
 
 import SafeHydration from "@/components/SafeHydration";
-import ArticleViews from "@/components/ui/ArticleViews";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import "@/styles/pulse-ticker-fixes.css";
 import { Clock, User } from "lucide-react";
@@ -310,18 +309,80 @@ function NewspaperHomePage({
   const NewsCard = ({ news }: { news: any }) => {
     const [imageLoading, setImageLoading] = useState(true);
 
+    // Category mapping for consistent styling
+    const categoryMap: Record<string, string> = {
+      // إنجليزية أساسية
+      world: "world",
+      sports: "sports",
+      tech: "tech",
+      technology: "tech",
+      business: "business",
+      economy: "business",
+      local: "local",
+      news: "local",
+      politics: "world",
+      travel: "world",
+      cars: "tech",
+      media: "tech",
+      opinion: "opinions",
+      // تطابقات عربية
+      العالم: "world",
+      "أخبار-العالم": "world",
+      "أخبار العالم": "world",
+      رياضة: "sports",
+      الرياضة: "sports",
+      رياضي: "sports",
+      تقنية: "tech",
+      التقنية: "tech",
+      تكنولوجيا: "tech",
+      التكنولوجيا: "tech",
+      اقتصاد: "business",
+      الاقتصاد: "business",
+      أعمال: "business",
+      الأعمال: "business",
+      محليات: "local",
+      المحليات: "local",
+      محلي: "local",
+      محطات: "local",
+      المحطات: "local",
+      حياتنا: "local",
+      حياة: "local",
+      سياسة: "world",
+      السياسة: "world",
+      سياحة: "world",
+      السياحة: "world",
+      سيارات: "tech",
+      السيارات: "tech",
+      ميديا: "tech",
+      الميديا: "tech",
+      عام: "local",
+      عامة: "local",
+    };
+
+    const categoryName =
+      news.category?.name ||
+      news.categories?.name ||
+      news.category ||
+      news.categories ||
+      "عام";
+    const rawCategorySlug =
+      categoryName?.toLowerCase?.() || categoryName || "عام";
+    const mappedCategory = categoryMap[rawCategorySlug] || rawCategorySlug;
+
     return (
       <Link href={getArticleLink(news)} className="group block">
         <article
-          className={`h-full rounded-3xl overflow-hidden shadow-xl dark:shadow-gray-900/50 transition-all duration-300 transform ${
+          dir="rtl"
+          data-category={mappedCategory}
+          className={`h-full rounded-2xl overflow-hidden shadow-sm transition-all duration-300 flex flex-col news-card-css-loaded ${
             news.breaking || news.is_breaking
               ? darkMode
-                ? "bg-red-950/30 border-2 border-red-800/70"
-                : "bg-red-50 border-2 border-red-200"
+                ? "bg-red-950/30 border border-red-800/70"
+                : "bg-red-50 border border-red-200"
               : darkMode
               ? "bg-gray-800 border border-gray-700"
-              : "bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700"
-          } group-hover:scale-[1.02] group-hover:shadow-2xl`}
+              : "bg-white border border-gray-200"
+          }`}
         >
           {/* صورة المقال */}
           <div className="relative h-40 sm:h-48 overflow-hidden">
@@ -343,97 +404,41 @@ function NewspaperHomePage({
             )}
           </div>
           {/* محتوى البطاقة */}
-          <div className="p-4 sm:p-5">
-            {/* التصنيف */}
-            {(news.category || news.categories) && (
-              <div className="mb-3">
-                <span
-                  className={`inline-block px-3 py-1 text-xs font-medium rounded-full border ${getCategoryColors(
-                    news.category?.name ||
-                      news.categories?.name ||
-                      news.category ||
-                      news.categories
-                  )}`}
-                >
-                  {news.category?.name ||
-                    news.categories?.name ||
-                    news.category ||
-                    news.categories}
-                </span>
-              </div>
-            )}
-            {/* العنوان - محدود بثلاث أسطر */}
-            <h4
-              className={`font-semibold text-base sm:text-lg mb-3 line-clamp-3 ${
-                darkMode ? "text-white" : "text-gray-900 dark:text-white"
-              } transition-colors`}
-              title={news.title}
-            >
+          <div className="p-4 flex-1 flex flex-col">
+            {/* لابل التصنيف */}
+            <div className="mb-2">
+              <span className="category-pill">{categoryName}</span>
+            </div>
+
+            {/* العنوان */}
+            <h4 className="font-semibold text-lg mb-3 line-clamp-4 leading-snug flex-1">
               {news.title}
             </h4>
-            {/* الملخص */}
-            {news.summary && (
-              <p
-                className={`text-sm mb-4 line-clamp-2 transition-colors duration-300 text-gray-600 dark:text-gray-400`}
+
+            {/* سطر واحد: التاريخ + المشاهدات */}
+            <div className="flex items-center gap-2 text-sm text-muted-foreground mt-auto">
+              <time
+                dateTime={news.published_at || news.created_at}
+                className="inline-flex items-center gap-1"
               >
-                {news.summary}
-              </p>
-            )}
-            {/* التفاصيل السفلية */}
-            <div
-              className={`flex items-center justify-between pt-3 sm:pt-4 border-t ${
-                darkMode
-                  ? "border-gray-700"
-                  : "border-gray-100 dark:border-gray-700"
-              }`}
-            >
-              {/* المعلومات */}
-              <div className="flex flex-col gap-1">
-                {/* التاريخ بالتقويم الميلادي */}
-                <div className="flex items-center gap-2 sm:gap-3 text-xs">
-                  <div className="text-sm text-gray-500 flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    {formatDateGregorian(news.published_at || news.created_at)}
-                  </div>
-                  {news.reading_time && (
-                    <span
-                      className={`flex items-center gap-1 ${
-                        darkMode
-                          ? "text-gray-400"
-                          : "text-gray-500 dark:text-gray-400"
-                      }`}
-                    >
-                      <Clock className="w-3 h-3" />
-                      {news.reading_time} د
-                    </span>
-                  )}
-                </div>
-                {/* الكاتب والمشاهدات */}
-                <div className="flex items-center gap-2 sm:gap-3 text-xs">
-                  {news.author_name && (
-                    <span
-                      className={`flex items-center gap-1 ${
-                        darkMode
-                          ? "text-gray-400"
-                          : "text-gray-500 dark:text-gray-400"
-                      }`}
-                    >
-                      <User className="w-3 h-3" />
-                      {news.author_name}
-                    </span>
-                  )}
-                  <ArticleViews
-                    count={news.views_count || news.views || 0}
-                    className={
-                      darkMode
-                        ? "text-gray-400"
-                        : "text-gray-500 dark:text-gray-400"
-                    }
-                  />
-                </div>
-              </div>
+                <Clock className="w-4 h-4" />
+                {formatDateNumeric(news.published_at || news.created_at)}
+              </time>
+              <span className="mx-1">•</span>
+              <span className="inline-flex items-center gap-1">
+                👁️{" "}
+                {new Intl.NumberFormat("ar", { notation: "compact" }).format(
+                  news.views_count || news.views || 0
+                )}
+              </span>
             </div>
           </div>
+
+          {/* خط سفلي بلون التصنيف */}
+          <div
+            className="category-underline category-underline-test"
+            aria-hidden
+          />
         </article>
       </Link>
     );
@@ -910,7 +915,7 @@ function NewspaperHomePage({
                     ) : categoryArticles.length > 0 ? (
                       <>
                         {/* Grid Layout for Cards */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 content-start">
                           {categoryArticles.map((article: any) => (
                             <Link
                               key={article.id}

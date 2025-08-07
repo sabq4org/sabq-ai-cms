@@ -2,9 +2,9 @@
 
 import ArticleCard from "@/components/ArticleCard";
 import Footer from "@/components/Footer";
-import "@/components/mobile/mobile-news.css";
 import SmartContentNewsCard from "@/components/mobile/SmartContentNewsCard";
 import UnifiedMobileNewsCard from "@/components/mobile/UnifiedMobileNewsCard";
+import "@/components/mobile/mobile-news.css";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import type { RecommendedArticle } from "@/lib/ai-recommendations";
 import { generatePersonalizedRecommendations } from "@/lib/ai-recommendations";
@@ -772,7 +772,7 @@ export default function NewsPage() {
                 <div
                   className={
                     viewMode === "grid"
-                      ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
+                      ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 content-start"
                       : "space-y-4"
                   }
                 >

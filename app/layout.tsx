@@ -21,6 +21,7 @@ import "../styles/mobile-internal-pages-fix.css";
 import "../styles/mobile-news.css";
 import "../styles/mobile.css";
 import "../styles/muqtarab-animations.css";
+import "../styles/news-card-desktop.css";
 import "../styles/news-pulse-positioning.css";
 import "../styles/no-focus-outline.css";
 import "../styles/profile-mobile.css";

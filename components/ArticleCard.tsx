@@ -1,20 +1,12 @@
 "use client";
 
-import ArticleViews from "@/components/ui/ArticleViews";
 import { Badge } from "@/components/ui/badge";
 import SafeImage from "@/components/ui/SafeImage";
-import { formatDateGregorian } from "@/lib/date-utils";
+import { formatDateNumeric } from "@/lib/date-utils";
 import { getImageUrl } from "@/lib/image-utils";
 import { getProductionImageUrl } from "@/lib/production-image-fix";
 import { cn } from "@/lib/utils";
-import {
-  Calendar,
-  Clock,
-  MessageSquare,
-  Sparkles,
-  TrendingUp,
-  Zap,
-} from "lucide-react";
+import { Calendar, Eye, Zap } from "lucide-react";
 import Link from "next/link";
 
 interface ArticleCardProps {
@@ -112,17 +104,71 @@ export default function ArticleCard({
   // Publish date
   const publishDate = article.published_at || article.created_at;
 
+  // تصنيف موحّد للفئات إلى رموز ألوان
+  const rawCategorySlug: string = (category?.slug || category?.name || "عام")
+    .toString()
+    .toLowerCase();
+  const categoryMap: Record<string, string> = {
+    world: "world",
+    sports: "sports",
+    sport: "sports",
+    tech: "tech",
+    technology: "tech",
+    business: "business",
+    economy: "business",
+    local: "local",
+    opinions: "opinions",
+    opinion: "opinions",
+    // تطابقات عربية
+    العالم: "world",
+    "أخبار-العالم": "world",
+    "أخبار العالم": "world",
+    رياضة: "sports",
+    الرياضة: "sports",
+    رياضي: "sports",
+    تقنية: "tech",
+    التقنية: "tech",
+    تكنولوجيا: "tech",
+    التكنولوجيا: "tech",
+    اقتصاد: "business",
+    الاقتصاد: "business",
+    أعمال: "business",
+    الأعمال: "business",
+    محليات: "local",
+    المحليات: "local",
+    محلي: "local",
+    محطات: "local",
+    المحطات: "local",
+    حياتنا: "local",
+    حياة: "local",
+    سياسة: "world",
+    السياسة: "world",
+    سياحة: "world",
+    السياحة: "world",
+    سيارات: "tech",
+    السيارات: "tech",
+    ميديا: "tech",
+    الميديا: "tech",
+    عام: "local",
+    عامة: "local",
+  };
+  const mappedCategory = categoryMap[rawCategorySlug] || rawCategorySlug;
+  // تطبيق التصميم الجديد على جميع البطاقات
+  const showNewsCategory = true;
+
   if (viewMode === "list") {
     // List View - مطابق لتصميم صفحة التصنيف
     return (
-      <Link href={getArticleLink(article)} className="group block">
+      <Link href={getArticleLink(article)} className="block">
         <article
           className={cn(
-            "rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 flex gap-6",
+            "relative rounded-3xl shadow-lg p-6 flex gap-6",
             isBreaking
               ? "bg-red-50 dark:bg-red-950/20 border-2 border-red-200 dark:border-red-800"
               : "bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
           )}
+          dir="rtl"
+          data-category={mappedCategory}
         >
           {/* Image محسنة للأداء */}
           <div className="relative w-48 h-32 rounded-2xl overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-700">
@@ -130,7 +176,7 @@ export default function ArticleCard({
               src={imageUrl || ""}
               alt={article.title || "صورة المقال"}
               fill
-              className="object-cover group-hover:scale-110 transition-transform duration-500"
+              className="object-cover"
               fallbackType="article"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
@@ -138,82 +184,41 @@ export default function ArticleCard({
 
           {/* Content */}
           <div className="flex-1 min-w-0">
-            {/* Enhanced Category & AI Badges */}
-            <div className="flex items-center gap-2 mb-3 flex-wrap">
+            {/* لابل التصنيف */}
+            <div className="mb-2">
               {category && (
-                <Badge
-                  variant="secondary"
-                  className={cn(
-                    "text-xs font-bold px-3 py-1 rounded-full border",
-                    categoryStyle.bgClass,
-                    categoryStyle.textClass,
-                    categoryStyle.borderClass
-                  )}
-                >
-                  <span className="ml-1">{categoryStyle.emoji}</span>
-                  {category.name}
-                </Badge>
-              )}
-              {isBreaking && (
-                <Badge
-                  variant="destructive"
-                  className="text-xs font-bold animate-pulse"
-                >
-                  <Zap className="w-3 h-3 ml-1" />
-                  عاجل
-                </Badge>
-              )}
-              {isPersonalized && (
-                <Badge className="text-xs font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white inline-flex items-center gap-1">
-                  <Sparkles className="w-3 h-3 ml-1" />
-                  مخصص | {personalizedScore}%
-                </Badge>
-              )}
-              {isTrending && (
-                <Badge className="text-xs font-bold bg-gradient-to-r from-orange-500 to-red-500 text-white">
-                  <TrendingUp className="w-3 h-3 ml-1" />
-                  رائج
-                </Badge>
+                <span className="category-pill">{category.name}</span>
               )}
             </div>
 
+            {/* الشارات - مخفية في التصميم الجديد */}
+
             {/* Title */}
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white line-clamp-2 mb-2 group-hover:text-primary transition-colors">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white line-clamp-4 mb-2 flex-1">
               {article.title}
             </h3>
 
-            {/* Excerpt */}
-            {article.excerpt && (
-              <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2 mb-3">
-                {article.excerpt}
-              </p>
-            )}
+            {/* Excerpt - مخفي في التصميم الجديد */}
 
-            {/* Enhanced Meta Info with AI insights */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-                <span className="flex items-center gap-1">
-                  <Calendar className="w-3 h-3" />
-                  {formatDateGregorian(publishDate)}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  {article.reading_time ||
-                    Math.ceil((article.content?.length || 0) / 1000)}{" "}
-                  دقائق
-                </span>
-                <ArticleViews
-                  count={article.views || article.views_count || 0}
-                />
-                {article.comments_count > 0 && (
-                  <span className="flex items-center gap-1">
-                    <MessageSquare className="w-3 h-3" />
-                    {article.comments_count}
-                  </span>
+            {/* سطر واحد: التاريخ + المشاهدات */}
+            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+              <time
+                dateTime={publishDate}
+                className="inline-flex items-center gap-1"
+              >
+                <Calendar className="w-4 h-4" />
+                {formatDateNumeric(publishDate)}
+              </time>
+              <span className="mx-1">•</span>
+              <span className="inline-flex items-center gap-1">
+                <Eye className="w-4 h-4" />
+                {new Intl.NumberFormat("ar", { notation: "compact" }).format(
+                  article.views || article.views_count || 0
                 )}
-              </div>
+              </span>
             </div>
           </div>
+          <div className="category-underline" aria-hidden />
         </article>
       </Link>
     );
@@ -221,14 +226,16 @@ export default function ArticleCard({
 
   // Grid View - البطاقة الافتراضية
   return (
-    <Link href={getArticleLink(article)} className="group block h-full">
+    <Link href={getArticleLink(article)} className="block h-full">
       <article
         className={cn(
-          "rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden h-full flex flex-col",
+          "relative rounded-2xl shadow-md overflow-hidden h-full flex flex-col",
           isBreaking
             ? "bg-red-50 dark:bg-red-950/20 ring-2 ring-red-500 ring-opacity-50 border-2 border-red-200 dark:border-red-800"
             : "bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
         )}
+        dir="rtl"
+        data-category={mappedCategory}
       >
         {/* Image Container */}
         <div className="relative h-48 bg-gray-100 dark:bg-gray-700 overflow-hidden">
@@ -236,7 +243,7 @@ export default function ArticleCard({
             src={imageUrl || ""}
             alt={article.title || "صورة المقال"}
             fill
-            className="object-cover group-hover:scale-110 transition-transform duration-500"
+            className="object-cover"
             fallbackType="article"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
@@ -257,69 +264,41 @@ export default function ArticleCard({
 
         {/* Content */}
         <div className="p-4 flex-1 flex flex-col">
-          {/* Enhanced Category & AI Badges */}
-          <div className="flex items-center gap-2 mb-3 flex-wrap">
-            {category && (
-              <Badge
-                variant="secondary"
-                className={cn(
-                  "text-xs font-bold px-3 py-1 rounded-full border",
-                  categoryStyle.bgClass,
-                  categoryStyle.textClass,
-                  categoryStyle.borderClass
-                )}
-              >
-                <span className="ml-1">{categoryStyle.emoji}</span>
-                {category.name}
-              </Badge>
-            )}
-            {isPersonalized && (
-              <Badge className="text-xs font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white inline-flex items-center gap-1">
-                <Sparkles className="w-3 h-3 ml-1" />
-                مخصص | {personalizedScore}%
-              </Badge>
-            )}
-            {isTrending && (
-              <Badge className="text-xs font-bold bg-gradient-to-r from-orange-500 to-red-500 text-white">
-                <TrendingUp className="w-3 h-3 ml-1" />
-                رائج
-              </Badge>
-            )}
+          {/* لابل التصنيف */}
+          <div className="mb-2">
+            {category && <span className="category-pill">{category.name}</span>}
           </div>
 
+          {/* الشارات الأخرى - مخفية في التصميم الجديد */}
+
           {/* Title */}
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-2 mb-2 group-hover:text-primary transition-colors">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-4 mb-3 leading-snug">
             {article.title}
           </h3>
 
-          {/* Excerpt */}
-          {article.excerpt && (
-            <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-3 mb-3 flex-1">
-              {article.excerpt}
-            </p>
-          )}
+          {/* Excerpt - مخفي في التصميم الجديد */}
 
-          {/* Enhanced Meta Info with AI insights */}
-          <div className="space-y-2 mt-auto">
-            <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-              <span className="flex items-center gap-1">
-                <Calendar className="w-3 h-3" />
-                {formatDateGregorian(publishDate)}
-              </span>
-              <div className="flex items-center gap-3">
-                <ArticleViews
-                  count={article.views || article.views_count || 0}
-                />
-                {article.comments_count > 0 && (
-                  <span className="flex items-center gap-1">
-                    <MessageSquare className="w-3 h-3" />
-                    {article.comments_count}
-                  </span>
+          {/* سطر واحد: التاريخ + المشاهدات */}
+          <div className="mt-auto">
+            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+              <time
+                dateTime={publishDate}
+                className="inline-flex items-center gap-1"
+              >
+                <Calendar className="w-4 h-4" />
+                {formatDateNumeric(publishDate)}
+              </time>
+              <span className="mx-1">•</span>
+              <span className="inline-flex items-center gap-1">
+                <Eye className="w-4 h-4" />
+                {new Intl.NumberFormat("ar", { notation: "compact" }).format(
+                  article.views || article.views_count || 0
                 )}
-              </div>
+              </span>
             </div>
           </div>
         </div>
+        <div className="category-underline" aria-hidden />
       </article>
     </Link>
   );
