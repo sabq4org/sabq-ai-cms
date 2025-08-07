@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
 import { getUserFromCookie } from "@/lib/auth-utils";
 import prisma from "@/lib/prisma";
+import { NextRequest, NextResponse } from "next/server";
 
 // جلب تقارير الإعلانات
 export async function GET(request: NextRequest) {
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     // حساب التاريخ بناءً على الفترة
     const now = new Date();
     let startDate = new Date();
-    
+
     switch (period) {
       case "week":
         startDate.setDate(now.getDate() - 7);
@@ -39,8 +39,8 @@ export async function GET(request: NextRequest) {
         where: {
           is_active: true,
           start_date: { lte: now },
-          end_date: { gte: now }
-        }
+          end_date: { gte: now },
+        },
       });
 
       // إحصائيات النقرات والمشاهدات (إذا كان هناك جدول للإحصائيات)
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
           total_views: 0,
           total_clicks: 0,
           click_through_rate: 0,
-          revenue: 0
+          revenue: 0,
         },
         top_performing_ads: [],
         placement_performance: {
@@ -61,17 +61,17 @@ export async function GET(request: NextRequest) {
           article_detail_header: { views: 0, clicks: 0 },
           sidebar_top: { views: 0, clicks: 0 },
           sidebar_bottom: { views: 0, clicks: 0 },
-          footer_banner: { views: 0, clicks: 0 }
-        }
+          footer_banner: { views: 0, clicks: 0 },
+        },
       };
 
       return NextResponse.json({
         success: true,
-        data: report
+        data: report,
       });
     } catch (dbError) {
       console.error("خطأ في قاعدة البيانات:", dbError);
-      
+
       // إرجاع بيانات افتراضية في حالة خطأ قاعدة البيانات
       const fallbackReport = {
         period,
@@ -82,16 +82,16 @@ export async function GET(request: NextRequest) {
           total_views: 0,
           total_clicks: 0,
           click_through_rate: 0,
-          revenue: 0
+          revenue: 0,
         },
         top_performing_ads: [],
-        placement_performance: {}
+        placement_performance: {},
       };
 
       return NextResponse.json({
         success: true,
         data: fallbackReport,
-        note: "تم استخدام بيانات افتراضية بسبب مشكلة في قاعدة البيانات"
+        note: "تم استخدام بيانات افتراضية بسبب مشكلة في قاعدة البيانات",
       });
     }
   } catch (error) {

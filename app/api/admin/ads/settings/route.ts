@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
 import { getUserFromCookie } from "@/lib/auth-utils";
+import { NextRequest, NextResponse } from "next/server";
 
 // جلب إعدادات الإعلانات
 export async function GET(request: NextRequest) {
@@ -15,7 +15,12 @@ export async function GET(request: NextRequest) {
       ad_rotation_enabled: true,
       auto_approval: false,
       default_duration_days: 30,
-      allowed_file_types: ["image/jpeg", "image/png", "image/webp", "image/gif"],
+      allowed_file_types: [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "image/gif",
+      ],
       max_file_size_mb: 5,
       placement_options: [
         { value: "below_featured", label: "أسفل المقال المميز" },
@@ -23,13 +28,13 @@ export async function GET(request: NextRequest) {
         { value: "article_detail_header", label: "رأس صفحة المقال" },
         { value: "sidebar_top", label: "أعلى الشريط الجانبي" },
         { value: "sidebar_bottom", label: "أسفل الشريط الجانبي" },
-        { value: "footer_banner", label: "بانر أسفل الصفحة" }
-      ]
+        { value: "footer_banner", label: "بانر أسفل الصفحة" },
+      ],
     };
 
     return NextResponse.json({
       success: true,
-      data: settings
+      data: settings,
     });
   } catch (error) {
     console.error("خطأ في جلب إعدادات الإعلانات:", error);
@@ -37,7 +42,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// تحديث إعدادات الإعلانات  
+// تحديث إعدادات الإعلانات
 export async function POST(request: NextRequest) {
   try {
     const user = await getUserFromCookie();
@@ -46,14 +51,14 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    
+
     // هنا يمكن حفظ الإعدادات في قاعدة البيانات
     // حالياً سنعيد رسالة نجاح فقط
-    
+
     return NextResponse.json({
       success: true,
       message: "تم تحديث الإعدادات بنجاح",
-      data: body
+      data: body,
     });
   } catch (error) {
     console.error("خطأ في تحديث إعدادات الإعلانات:", error);
