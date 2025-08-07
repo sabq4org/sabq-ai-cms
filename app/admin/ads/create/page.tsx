@@ -75,7 +75,7 @@ export default function CreateAdPage() {
 
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("upload_preset", "sabq_uploads"); // تحديث حسب إعدادات Cloudinary
+      formData.append("type", "general"); // تحديد نوع الرفع للإعلانات
 
       const response = await fetch(`/api/upload`, {
         method: "POST",
@@ -88,11 +88,12 @@ export default function CreateAdPage() {
         handleInputChange("image_url", data.url);
         setPreviewImage(data.url);
       } else {
-        alert("فشل في رفع الصورة");
+        console.error("فشل في رفع الصورة:", data);
+        alert(`فشل في رفع الصورة: ${data.error || "خطأ غير معروف"}`);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("خطأ في رفع الصورة:", error);
-      alert("خطأ في رفع الصورة");
+      alert(`خطأ في رفع الصورة: ${error?.message || error}`);
     } finally {
       setUploadingImage(false);
     }

@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
   try {
     const now = new Date();
     const { searchParams } = new URL(request.url);
-    const placement = searchParams.get('placement');
+    const placement = searchParams.get("placement");
 
     if (!placement) {
       return NextResponse.json(
