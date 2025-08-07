@@ -2,13 +2,18 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 // جلب الإعلانات الفعالة لموضع معين (للعرض العام)
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { placement: string } }
-) {
+export async function GET(request: NextRequest) {
   try {
     const now = new Date();
-    const { placement } = params;
+    const { searchParams } = new URL(request.url);
+    const placement = searchParams.get('placement');
+
+    if (!placement) {
+      return NextResponse.json(
+        { error: "موضع الإعلان مطلوب" },
+        { status: 400 }
+      );
+    }
 
     // التحقق من صحة الموضع
     const validPlacements = [

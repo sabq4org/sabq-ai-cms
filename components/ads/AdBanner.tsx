@@ -31,7 +31,7 @@ const AdBanner: React.FC<AdBannerProps> = ({ placement, className = "" }) => {
   useEffect(() => {
     const fetchAd = async () => {
       try {
-        const response = await fetch(`/api/ads/${placement}/active`);
+        const response = await fetch(`/api/ads/placement/active?placement=${placement}`);
         const data = await response.json();
 
         if (data.success && data.data) {
