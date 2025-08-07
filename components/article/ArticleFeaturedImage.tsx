@@ -66,7 +66,7 @@ export default function ArticleFeaturedImage({
               alt={title || "صورة المقال"}
               width={1024}
               height={500}
-              className="w-full object-cover max-h-[250px] sm:max-h-[400px] lg:max-h-[500px]"
+              className="w-full object-cover min-h-[220px] max-h-[280px] sm:min-h-[300px] sm:max-h-[400px] lg:min-h-[400px] lg:max-h-[500px]"
               priority={true}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1024px"
               onError={() => setImageError(true)}
@@ -185,7 +185,7 @@ export default function ArticleFeaturedImage({
               alt={title || "صورة المقال"}
               width={1024}
               height={576}
-              className="w-full h-auto object-cover"
+              className="w-full h-auto object-cover min-h-[220px] sm:min-h-[300px] md:min-h-[350px] lg:min-h-[400px]"
               priority={true}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1024px"
               onError={() => setImageError(true)}

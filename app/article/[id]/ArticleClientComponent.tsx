@@ -733,18 +733,32 @@ export default function ArticleClientComponent({
 
             {/* إعلان أسفل هيدر المقال */}
             <AdBanner placement="article_detail_header" className="mb-6" />
+
+            {/* صورة المقال - بنفس عرض العنوان تماماً */}
+            {article.featured_image &&
+              typeof article.featured_image === "string" &&
+              article.featured_image.length > 0 &&
+              !article.metadata?.emergency_mode && ( // تجنب عرض الصورة في وضع الطوارئ
+                <div className="hidden sm:block px-6 lg:px-8 mb-6">
+                  <ArticleFeaturedImage
+                    imageUrl={article.featured_image}
+                    title={article.title}
+                    category={article.category}
+                  />
+                </div>
+              )}
           </article>
         </div>
 
         {/* منطقة المحتوى - نفس عرض العنوان تماماً */}
         <div className="px-6 lg:px-8 py-2">
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 lg:p-8">
-            {/* صورة المقال - محاذاة تماماً مع عرض العنوان والمحتوى */}
+            {/* صورة المقال للموبايل - داخل منطقة المحتوى */}
             {article.featured_image &&
               typeof article.featured_image === "string" &&
               article.featured_image.length > 0 &&
               !article.metadata?.emergency_mode && ( // تجنب عرض الصورة في وضع الطوارئ
-                <div className="w-full mb-6 mt-0">
+                <div className="sm:hidden w-full mb-6 mt-0">
                   <ArticleFeaturedImage
                     imageUrl={article.featured_image}
                     title={article.title}
