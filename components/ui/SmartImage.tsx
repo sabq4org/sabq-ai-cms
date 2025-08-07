@@ -1,31 +1,31 @@
-'use client';
+"use client";
 
-import Image, { ImageProps } from 'next/image';
-import { useState, useEffect } from 'react';
-import { logError } from '@/lib/services/error-logger';
+import { logError } from "@/lib/services/error-logger";
+import Image, { ImageProps } from "next/image";
+import { useEffect, useState } from "react";
 
-interface SmartImageProps extends Omit<ImageProps, 'onError' | 'src'> {
+interface SmartImageProps extends Omit<ImageProps, "onError" | "src"> {
   article?: any; // إضافة دعم للمقال الكامل
   src?: string | null; // src منفصل للتحكم الكامل
   fallbackSrc?: string;
-  fallbackType?: 'avatar' | 'article' | 'general';
+  fallbackType?: "avatar" | "article" | "general";
   retryCount?: number;
   silentFail?: boolean;
 }
 
 // صور الفولباك حسب النوع
 const FALLBACK_IMAGES = {
-  avatar: '/default-avatar.png',
-  article: '/images/placeholder-featured.jpg',
-  general: '/images/placeholder.jpg',
+  avatar: "/default-avatar.png",
+  article: "/images/placeholder-featured.jpg",
+  general: "/images/placeholder.jpg",
 };
 
 // قائمة النطاقات المعروفة بالمشاكل
 const PROBLEMATIC_DOMAINS = [
-  'unsplash.com',
-  'cloudinary.com',
-  'images.unsplash.com',
-  'res.cloudinary.com',
+  "unsplash.com",
+  "cloudinary.com",
+  "images.unsplash.com",
+  "res.cloudinary.com",
 ];
 
 // استخراج رابط الصورة من جميع المصادر المحتملة في المقال
@@ -74,7 +74,7 @@ export default function SmartImage({
   article, // إضافة المقال
   alt,
   fallbackSrc,
-  fallbackType = 'general',
+  fallbackType = "general",
   retryCount = 1,
   silentFail = true,
   ...props
@@ -97,25 +97,28 @@ export default function SmartImage({
 
   const handleError = () => {
     if (!imgSrc) return;
-    
+
     const currentSrc = imgSrc.toString();
-    
+
     // تحقق من النطاق
-    const isProblematicDomain = PROBLEMATIC_DOMAINS.some(domain => 
+    const isProblematicDomain = PROBLEMATIC_DOMAINS.some((domain) =>
       currentSrc.includes(domain)
     );
 
     // تحقق إذا كانت الصورة تأتي من AWS S3
-    const isS3Image = currentSrc.includes('amazonaws.com');
+    const isS3Image = currentSrc.includes("amazonaws.com");
 
     // سجل الخطأ بصمت إذا كان من نطاق معروف
-    if ((isProblematicDomain || isS3Image) && process.env.NODE_ENV === 'development') {
+    if (
+      (isProblematicDomain || isS3Image) &&
+      process.env.NODE_ENV === "development"
+    ) {
       logError(new Error(`Image failed to load: ${currentSrc}`), {
         ignored: true,
-        type: 'image_404',
+        type: "image_404",
         url: currentSrc,
         fallbackUsed: true,
-        source: isS3Image ? 'S3' : 'Other'
+        source: isS3Image ? "S3" : "Other",
       });
     }
 
@@ -123,21 +126,23 @@ export default function SmartImage({
     if (isS3Image && !hasError) {
       try {
         // محاولة تحويل رابط S3 إلى API داخلية
-        const apiUrl = `/api/images/optimize?url=${encodeURIComponent(currentSrc)}&w=800&h=600&f=webp&q=80`;
+        const apiUrl = `/api/images/optimize?url=${encodeURIComponent(
+          currentSrc
+        )}&w=800&h=600&f=webp&q=80`;
         setImgSrc(apiUrl);
         setRetries(retryCount); // لا نرغب في محاولات أخرى
         return;
       } catch (e) {
-        console.warn('فشل تحويل رابط S3:', e);
+        console.warn("فشل تحويل رابط S3:", e);
         // استمر في معالجة الخطأ العادية
       }
     }
 
     // محاولة إعادة التحميل
     if (retries < retryCount && !hasError) {
-      setRetries(prev => prev + 1);
+      setRetries((prev) => prev + 1);
       // أضف timestamp لإجبار إعادة التحميل
-      const separator = currentSrc.includes('?') ? '&' : '?';
+      const separator = currentSrc.includes("?") ? "&" : "?";
       setImgSrc(`${currentSrc}${separator}retry=${Date.now()}`);
       return;
     }
@@ -149,20 +154,16 @@ export default function SmartImage({
 
     // لا تعرض رسالة خطأ للمستخدم إذا كان silentFail
     if (!silentFail && !isProblematicDomain) {
-      console.warn(`Failed to load image: ${currentSrc}, using fallback: ${fallback}`);
+      console.warn(
+        `Failed to load image: ${currentSrc}, using fallback: ${fallback}`
+      );
     }
   };
 
   // لا تحاول تحميل الصور الفارغة
-  if (!imgSrc || imgSrc === '') {
+  if (!imgSrc || imgSrc === "") {
     const fallback = fallbackSrc || FALLBACK_IMAGES[fallbackType];
-    return (
-      <Image
-        {...props}
-        src={fallback}
-        alt={alt || 'صورة افتراضية'}
-      />
-    );
+    return <Image {...props} src={fallback} alt={alt || "صورة افتراضية"} />;
   }
 
   return (
@@ -174,4 +175,4 @@ export default function SmartImage({
       unoptimized={hasError} // تجنب optimization للصور الفولباك
     />
   );
-} 
+}

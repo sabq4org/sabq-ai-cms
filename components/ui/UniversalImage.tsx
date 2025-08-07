@@ -6,7 +6,7 @@ import {
   getSafeImageProps,
 } from "@/lib/safe-image-props";
 import { ImageOff, Loader2 } from "lucide-react";
-import Image, { ImageProps } from "next/image";
+import Image from "next/image";
 import { useState } from "react";
 
 interface UniversalImageProps {

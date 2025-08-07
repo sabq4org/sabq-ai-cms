@@ -179,15 +179,15 @@ export default function ArticleFeaturedImage({
     case "content-width":
       return (
         <div className="article-featured-image w-full">
-          <div className="relative overflow-hidden rounded-lg shadow-sm">
+          <div className="relative overflow-hidden rounded-lg">
             <Image
               src={imageUrl}
               alt={title || "صورة المقال"}
               width={1024}
               height={576}
-              className="w-full h-auto object-cover min-h-[200px] sm:min-h-[300px] md:min-h-[350px] lg:min-h-[400px] rounded-lg"
+              className="w-full h-auto object-cover min-h-[220px] sm:min-h-[300px] md:min-h-[350px] lg:min-h-[400px]"
               priority={true}
-              sizes="(max-width: 640px) 90vw, (max-width: 1024px) 80vw, 1024px"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1024px"
               onError={() => setImageError(true)}
             />
           </div>

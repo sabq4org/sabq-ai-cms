@@ -1,10 +1,9 @@
 "use client";
 
-import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
-import ArticleViews from "@/components/ui/ArticleViews";
-import SmartImage from "@/components/ui/SmartImage";
 import SafeDateDisplay from "@/components/article/SafeDateDisplay";
+import ArticleViews from "@/components/ui/ArticleViews";
+import { Badge } from "@/components/ui/badge";
+import SmartImage from "@/components/ui/SmartImage";
 import { formatDateGregorian } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
 import {
@@ -15,6 +14,7 @@ import {
   TrendingUp,
   Zap,
 } from "lucide-react";
+import Link from "next/link";
 
 interface UniversalNewsCardProps {
   article: any; // يقبل أي نوع مقال/خبر
@@ -155,12 +155,9 @@ export default function UniversalNewsCard({
             <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
               <div className="flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
-                <SafeDateDisplay
-                  date={publishDate || ""}
-                  format="relative"
-                />
+                <SafeDateDisplay date={publishDate || ""} format="relative" />
               </div>
-              
+
               {article.views !== undefined && (
                 <>
                   <span>•</span>
@@ -258,10 +255,12 @@ export default function UniversalNewsCard({
                 <Calendar className="w-4 h-4" />
                 {formatDateGregorian(publishDate)}
               </div>
-              
+
               <div className="flex items-center gap-1.5">
                 <Clock className="w-4 h-4" />
-                {article.reading_time || calculateReadingTime(article.content || "")} د
+                {article.reading_time ||
+                  calculateReadingTime(article.content || "")}{" "}
+                د
               </div>
 
               {article.views !== undefined && (
@@ -304,7 +303,7 @@ export default function UniversalNewsCard({
             fallbackType="article"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
-          
+
           {/* شارات على الصورة */}
           <div className="absolute top-3 right-3 flex gap-2">
             {isBreaking && (
@@ -366,15 +365,14 @@ export default function UniversalNewsCard({
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1">
                 <Calendar className="w-4 h-4" />
-                <SafeDateDisplay
-                  date={publishDate || ""}
-                  format="relative"
-                />
+                <SafeDateDisplay date={publishDate || ""} format="relative" />
               </div>
-              
+
               <div className="flex items-center gap-1">
                 <Clock className="w-4 h-4" />
-                {article.reading_time || calculateReadingTime(article.content || "")} د
+                {article.reading_time ||
+                  calculateReadingTime(article.content || "")}{" "}
+                د
               </div>
             </div>
 
