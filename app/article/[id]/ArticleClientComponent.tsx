@@ -636,10 +636,10 @@ export default function ArticleClientComponent({
                 </div>
               </div>
 
-              {/* Mobile Header محسن - بدون حاوية إضافية للتوافق مع الوضع الليلي */}
-              <div className="sm:hidden px-3 py-4">
+              {/* Mobile Header محسن - شفاف تماماً للوضع الليلي */}
+              <div className="sm:hidden px-4 py-6 bg-transparent dark:bg-transparent transition-colors duration-300">
                 {/* العنوان الرئيسي */}
-                <h1 className="text-2xl xs:text-[26px] font-bold leading-tight text-gray-900 dark:text-white mb-3">
+                <h1 className="text-xl md:text-2xl lg:text-3xl font-bold leading-tight text-gray-900 dark:text-white mb-3">
                   {article.title}
                 </h1>
 
@@ -674,10 +674,11 @@ export default function ArticleClientComponent({
                     {/* المراسل */}
                     {article.author && (
                       <div className="flex items-center gap-1.5">
+                        <span>👤</span>
                         <ReporterLink
                           author={article.author as any}
                           size="sm"
-                          showIcon={true}
+                          showIcon={false}
                           showVerification={true}
                           className="truncate max-w-[120px] text-xs"
                         />
@@ -687,7 +688,7 @@ export default function ArticleClientComponent({
                     {/* التاريخ ووقت القراءة والمشاهدات */}
                     <div className="flex items-center gap-2 flex-wrap">
                       <div className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3 flex-shrink-0" />
+                        <span>🗓️</span>
                         <span>
                           <SafeDateDisplay
                             date={
@@ -713,10 +714,13 @@ export default function ArticleClientComponent({
                           <span className="text-gray-300 dark:text-gray-600">
                             •
                           </span>
-                          <ArticleViews
-                            count={article.views}
-                            className="text-xs"
-                          />
+                          <div className="flex items-center gap-1">
+                            <span>👁️</span>
+                            <ArticleViews
+                              count={article.views}
+                              className="text-xs"
+                            />
+                          </div>
                         </>
                       )}
                     </div>

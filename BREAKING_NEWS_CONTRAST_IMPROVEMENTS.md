@@ -63,8 +63,8 @@ className={`${
 
 // شارة خبر عاجل
 className={`${
-  darkMode 
-    ? "bg-white/25 border-white/30 text-white" 
+  darkMode
+    ? "bg-white/25 border-white/30 text-white"
     : "bg-red-600/90 border-red-500/50 text-white"
 }`}
 
@@ -76,7 +76,7 @@ className={`${
 
 ## اختبار التباين 🧪
 - **WebAIM Contrast Checker**: ✅ PASS
-- **WAVE Web Accessibility Evaluation**: ✅ PASS  
+- **WAVE Web Accessibility Evaluation**: ✅ PASS
 - **Chrome DevTools Accessibility**: ✅ PASS
 
 ## تاريخ التطبيق

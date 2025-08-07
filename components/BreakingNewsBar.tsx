@@ -149,9 +149,11 @@ const BreakingNewsBar: React.FC<BreakingNewsBarProps> = ({
             </div>
 
             {/* إطار مضيء */}
-            <div className={`absolute inset-0 border-2 rounded-3xl animate-pulse ${
-              darkMode ? "border-red-400/30" : "border-red-300/40"
-            }`}></div>
+            <div
+              className={`absolute inset-0 border-2 rounded-3xl animate-pulse ${
+                darkMode ? "border-red-400/30" : "border-red-300/40"
+              }`}
+            ></div>
 
             <div className="relative z-10 p-8">
               <Link href={getArticleLink()} className="block group">
@@ -160,22 +162,30 @@ const BreakingNewsBar: React.FC<BreakingNewsBarProps> = ({
                   <div className="flex-shrink-0">
                     <div className="flex items-center gap-4 mb-4">
                       <div className="relative">
-                        <div className={`flex items-center gap-3 backdrop-blur-md px-6 py-3 rounded-full border shadow-lg ${
-                          darkMode 
-                            ? "bg-white/25 border-white/30" 
-                            : "bg-red-600/90 border-red-500/50"
-                        }`}>
+                        <div
+                          className={`flex items-center gap-3 backdrop-blur-md px-6 py-3 rounded-full border shadow-lg ${
+                            darkMode
+                              ? "bg-white/25 border-white/30"
+                              : "bg-red-600/90 border-red-500/50"
+                          }`}
+                        >
                           <div className="relative">
-                            <AlertTriangle className={`w-6 h-6 animate-bounce ${
-                              darkMode ? "text-white" : "text-white"
-                            }`} />
-                            <div className={`absolute inset-0 rounded-full blur-md opacity-60 animate-ping ${
-                              darkMode ? "bg-yellow-400" : "bg-yellow-300"
-                            }`}></div>
+                            <AlertTriangle
+                              className={`w-6 h-6 animate-bounce ${
+                                darkMode ? "text-white" : "text-white"
+                              }`}
+                            />
+                            <div
+                              className={`absolute inset-0 rounded-full blur-md opacity-60 animate-ping ${
+                                darkMode ? "bg-yellow-400" : "bg-yellow-300"
+                              }`}
+                            ></div>
                           </div>
-                          <span className={`font-bold text-lg tracking-wide drop-shadow-sm ${
-                            darkMode ? "text-white" : "text-white"
-                          }`}>
+                          <span
+                            className={`font-bold text-lg tracking-wide drop-shadow-sm ${
+                              darkMode ? "text-white" : "text-white"
+                            }`}
+                          >
                             خبر عاجل
                           </span>
                         </div>
@@ -214,31 +224,41 @@ const BreakingNewsBar: React.FC<BreakingNewsBarProps> = ({
 
                   {/* المحتوى المحسن */}
                   <div className="flex-1 min-w-0">
-                    <h2 className={`font-bold text-3xl lg:text-4xl leading-tight mb-4 line-clamp-2 drop-shadow-lg group-hover:scale-[1.02] transition-transform duration-300 ${
-                      darkMode ? "text-white" : "text-gray-900"
-                    }`}>
+                    <h2
+                      className={`font-bold text-3xl lg:text-4xl leading-tight mb-4 line-clamp-2 drop-shadow-lg group-hover:scale-[1.02] transition-transform duration-300 ${
+                        darkMode ? "text-white" : "text-gray-900"
+                      }`}
+                    >
                       {breakingNews.title}
                     </h2>
 
                     {/* معلومات تفصيلية محسنة */}
                     <div className="flex items-center gap-6 text-sm">
-                      <div className={`flex items-center gap-2 backdrop-blur-sm px-3 py-2 rounded-full border ${
-                        darkMode 
-                          ? "bg-white/20 border-white/30 text-white" 
-                          : "bg-red-500/80 border-red-400/50 text-white"
-                      }`}>
-                        <Clock className={`w-4 h-4 ${darkMode ? "text-white" : "text-white"}`} />
+                      <div
+                        className={`flex items-center gap-2 backdrop-blur-sm px-3 py-2 rounded-full border ${
+                          darkMode
+                            ? "bg-white/20 border-white/30 text-white"
+                            : "bg-red-500/80 border-red-400/50 text-white"
+                        }`}
+                      >
+                        <Clock
+                          className={`w-4 h-4 ${
+                            darkMode ? "text-white" : "text-white"
+                          }`}
+                        />
                         <span className="font-medium">
                           {formatDateGregorian(breakingNews.published_at)}
                         </span>
                       </div>
 
                       {breakingNews.reading_time && (
-                        <div className={`flex items-center gap-2 backdrop-blur-sm px-3 py-2 rounded-full border ${
-                          darkMode 
-                            ? "bg-white/20 border-white/30 text-white" 
-                            : "bg-red-500/80 border-red-400/50 text-white"
-                        }`}>
+                        <div
+                          className={`flex items-center gap-2 backdrop-blur-sm px-3 py-2 rounded-full border ${
+                            darkMode
+                              ? "bg-white/20 border-white/30 text-white"
+                              : "bg-red-500/80 border-red-400/50 text-white"
+                          }`}
+                        >
                           <span className="font-medium">
                             وقت القراءة: {breakingNews.reading_time} دقيقة
                           </span>
@@ -246,22 +266,26 @@ const BreakingNewsBar: React.FC<BreakingNewsBarProps> = ({
                       )}
 
                       {breakingNews.category && (
-                        <div className={`backdrop-blur-sm px-4 py-2 rounded-full border font-medium shadow-lg ${
-                          darkMode 
-                            ? "bg-white/25 border-white/30 text-white" 
-                            : "bg-red-600/90 border-red-500/50 text-white"
-                        }`}>
+                        <div
+                          className={`backdrop-blur-sm px-4 py-2 rounded-full border font-medium shadow-lg ${
+                            darkMode
+                              ? "bg-white/25 border-white/30 text-white"
+                              : "bg-red-600/90 border-red-500/50 text-white"
+                          }`}
+                        >
                           {breakingNews.category.name}
                         </div>
                       )}
                     </div>
 
                     {/* شريط "اقرأ المزيد" */}
-                    <div className={`mt-4 inline-flex items-center gap-2 backdrop-blur-sm px-4 py-2 rounded-full border font-semibold transition-all duration-300 ${
-                      darkMode
-                        ? "bg-white/30 border-white/40 text-white hover:bg-white/40"
-                        : "bg-red-600/90 border-red-500/50 text-white hover:bg-red-700/95"
-                    }`}>
+                    <div
+                      className={`mt-4 inline-flex items-center gap-2 backdrop-blur-sm px-4 py-2 rounded-full border font-semibold transition-all duration-300 ${
+                        darkMode
+                          ? "bg-white/30 border-white/40 text-white hover:bg-white/40"
+                          : "bg-red-600/90 border-red-500/50 text-white hover:bg-red-700/95"
+                      }`}
+                    >
                       <span>اقرأ الخبر كاملاً</span>
                       <svg
                         className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300"
