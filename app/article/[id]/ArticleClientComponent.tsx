@@ -575,17 +575,17 @@ export default function ArticleClientComponent({
                   </h2>
                 )}
 
-                {/* المعلومات الأساسية - Desktop مع ترتيب محدث: إسم المراسل - التاريخ والوقت - وقت القراءة - عدد المشاهدات */}
-                <div className="flex flex-wrap items-center justify-end gap-3 sm:gap-5 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-6 text-right border-0 article-meta-info">
+                {/* المعلومات الأساسية - Desktop مع ترتيب من اليسار: إسم المراسل - التاريخ - مدة القراءة - عدد المشاهدات */}
+                <div className="flex flex-wrap items-center justify-start gap-3 sm:gap-5 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-6 text-left border-0 article-meta-info">
                   {/* 1. إسم المراسل - الأولوية الأولى */}
                   {article.author && (
-                    <div className="flex items-center gap-1.5 sm:gap-2 justify-end">
+                    <div className="flex items-center gap-1.5 sm:gap-2 justify-start">
                       <ReporterLink
                         author={article.author as any}
                         size="sm"
                         showIcon={true}
                         showVerification={true}
-                        className="truncate max-w-[120px] sm:max-w-none text-xs sm:text-sm text-right"
+                        className="truncate max-w-[120px] sm:max-w-none text-xs sm:text-sm text-left"
                       />
                     </div>
                   )}
@@ -594,15 +594,15 @@ export default function ArticleClientComponent({
                   {article.author && (
                     <span className="text-gray-300 dark:text-gray-600">•</span>
                   )}
-                  <div className="flex items-center gap-1.5 sm:gap-2 justify-end text-right">
+                  <div className="flex items-center gap-1.5 sm:gap-2 justify-start text-left">
                     <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                    <span className="hidden sm:inline text-right">
+                    <span className="hidden sm:inline text-left">
                       <SafeDateDisplay
                         date={article.published_at || article.created_at || ""}
                         format="full"
                       />
                     </span>
-                    <span className="sm:hidden text-right">
+                    <span className="sm:hidden text-left">
                       <SafeDateDisplay
                         date={article.published_at || article.created_at || ""}
                         format="relative"
@@ -612,9 +612,9 @@ export default function ArticleClientComponent({
 
                   {/* 3. وقت القراءة - الأولوية الثالثة */}
                   <span className="text-gray-300 dark:text-gray-600">•</span>
-                  <div className="flex items-center gap-1.5 sm:gap-2 justify-end text-right">
+                  <div className="flex items-center gap-1.5 sm:gap-2 justify-start text-left">
                     <Clock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                    <span className="text-right">
+                    <span className="text-left">
                       {article.reading_time ||
                         calculateReadingTime(article.content || "")}{" "}
                       د
@@ -629,7 +629,7 @@ export default function ArticleClientComponent({
                       </span>
                       <ArticleViews
                         count={article.views}
-                        className="text-xs sm:text-sm text-right"
+                        className="text-xs sm:text-sm text-left"
                       />
                     </>
                   )}
