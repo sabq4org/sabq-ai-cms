@@ -429,7 +429,7 @@ export default function ArticleClientComponent({
             className="max-w-5xl mx-auto py-4 sm:py-6 lg:py-8"
           >
             {/* رأس المقال محسن للموبايل */}
-            <header className="mb-4 sm:mb-6">
+            <header className="mb-2 sm:mb-4">
               {/* Desktop Header - تحسين توازن العناصر */}
               <div className="hidden sm:block px-6 lg:px-8 py-6 lg:py-8 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl">
                 {/* التصنيف - محاذاة لليمين مع تحسين الهامش */}
@@ -456,13 +456,13 @@ export default function ArticleClientComponent({
 
                 {/* العنوان الفرعي - تحسين المظهر */}
                 {getSubtitle() && (
-                  <h2 className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-400 mb-8 text-right leading-relaxed">
+                  <h2 className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-400 mb-6 text-right leading-relaxed">
                     {getSubtitle()}
                   </h2>
                 )}
 
                 {/* المعلومات الأساسية - Desktop مع تحسين المحاذاة والمسافات */}
-                <div className="flex flex-wrap items-center justify-end gap-3 sm:gap-5 text-xs sm:text-sm text-gray-500 dark:text-gray-400 border-t border-gray-100 dark:border-gray-700/50 pt-4 mt-2">
+                <div className="flex flex-wrap items-center justify-end gap-3 sm:gap-5 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-6">
                   {article.author && (
                     <div className="flex items-center gap-1.5 sm:gap-2">
                       <ReporterLink
@@ -602,14 +602,14 @@ export default function ArticleClientComponent({
         </div>
 
         {/* منطقة المحتوى */}
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
           <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 lg:p-8">
-            {/* صورة المقال - داخل الحاوية مع تحسينات لتجنب مشاكل الهيدرو */}
+            {/* صورة المقال - مع تقليل المسافات وتحسين العرض */}
             {article.featured_image &&
               typeof article.featured_image === "string" &&
               article.featured_image.length > 0 &&
               !article.metadata?.emergency_mode && ( // تجنب عرض الصورة في وضع الطوارئ
-                <div className="w-full mb-4">
+                <div className="w-full mb-6 mt-2">
                   <ArticleFeaturedImage
                     imageUrl={article.featured_image}
                     title={article.title}
