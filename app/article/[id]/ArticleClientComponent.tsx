@@ -36,6 +36,8 @@ import {
 // import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
 import ArticleAISummary from "@/components/article/ArticleAISummary";
 import ArticleStatsBlock from "@/components/article/ArticleStatsBlock";
+import CommentsTrigger from "@/components/article/CommentsTrigger";
+import CommentsSection from "@/components/article/CommentsSection";
 import { ReadingProgressBar } from "@/components/article/ReadingProgressBar";
 import SmartPersonalizedContent from "@/components/article/SmartPersonalizedContent";
 import ArticleViews from "@/components/ui/ArticleViews";
@@ -883,6 +885,27 @@ export default function ArticleClientComponent({
               />
             </div>
 
+            {/* محفّز التعليقات: قبل إحصائيات المقال مباشرة */}
+            <div className="mt-4 sm:mt-6">
+              <CommentsTrigger
+                count={article.comments_count ?? 0}
+                onClick={async () => {
+                  // تحميل lazy لقسم التعليقات عند الحاجة ثم التمرير إليه
+                  const commentsEl = document.getElementById("comments");
+                  if (commentsEl) {
+                    commentsEl.scrollIntoView({ behavior: "smooth", block: "start" });
+                  } else {
+                    // إدخال section ديناميكيًا عبر تبديل state بسيط (باستخدام hash)
+                    location.hash = "comments";
+                    requestAnimationFrame(() => {
+                      const el = document.getElementById("comments");
+                      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                    });
+                  }
+                }}
+              />
+            </div>
+
             {/* إصلاح التوجه العربي للمحتوى */}
             <style jsx>{`
               .arabic-article-content p {
@@ -933,6 +956,9 @@ export default function ArticleClientComponent({
               growthRate={Math.floor(Math.random() * 60)} // نسبة نمو عشوائية للعرض
             />
           </div>
+
+          {/* قسم التعليقات (Lazy via dynamic import داخل CommentsSection) */}
+          <CommentsSection articleId={article.id} />
 
           {/* المحتوى المخصص بذكاء - نظام التوصيات الشخصي */}
           <div className="mt-6 sm:mt-8">
