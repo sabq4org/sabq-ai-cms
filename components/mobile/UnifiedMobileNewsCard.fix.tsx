@@ -1,7 +1,7 @@
 "use client";
 
 import ArticleViews from "@/components/ui/ArticleViews";
-import CloudImage from "@/components/ui/CloudImage";
+import SafeImage from "@/components/ui/SafeImage";
 import { formatDateGregorian, formatRelativeDate } from "@/lib/date-utils";
 import { formatCommentsCount } from "@/lib/format-utils";
 import { getArticleLink } from "@/lib/utils";
@@ -162,19 +162,6 @@ export default function UnifiedMobileNewsCard({
     return num.toString();
   };
 
-  const generatePlaceholderImage = (title: string) => {
-    const colors = ["#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6"];
-    const color = colors[title.length % colors.length];
-    return `data:image/svg+xml,${encodeURIComponent(`
-      <svg width="400" height="225" xmlns="http://www.w3.org/2000/svg">
-        <rect width="100%" height="100%" fill="${color}"/>
-        <text x="50%" y="50%" font-family="Arial" font-size="16" fill="white" text-anchor="middle" dy=".3em">
-          ${title.slice(0, 50)}...
-        </text>
-      </svg>
-    `)}`;
-  };
-
   // بطاقة بتنسيق "بلوك المحتوى الذكي المخصص للاهتمامات"
   if (variant === "smart-block") {
     return (
@@ -195,14 +182,14 @@ export default function UnifiedMobileNewsCard({
         >
           {/* الصورة الرئيسية - تظهر دائمًا إذا كانت متوفرة */}
           <div className="relative h-48 w-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
-            <CloudImage
+            <SafeImage
               src={data.featured_image || ""}
               alt={data.title}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
               sizes="(max-width: 768px) 100vw, 400px"
               fallbackType="article"
-            />{" "}
+            />
             {/* تدرج للخلفية */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
             {/* شارات الحالة المحسنة مع AI */}
@@ -396,9 +383,9 @@ export default function UnifiedMobileNewsCard({
           }
         `}
         >
-          {/* الصورة المصغرة */}
+          {/* الصورة المصغرة - تظهر دائمًا إذا كانت متوفرة */}
           <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-700">
-            <CloudImage
+            <SafeImage
               src={data.featured_image || ""}
               alt={data.title}
               fill
@@ -496,9 +483,9 @@ export default function UnifiedMobileNewsCard({
         }
       `}
       >
-        {/* الصورة */}
+        {/* الصورة - تظهر دائمًا إذا كانت متوفرة */}
         <div className="relative h-40 w-full bg-gray-200 dark:bg-gray-700">
-          <CloudImage
+          <SafeImage
             src={data.featured_image || ""}
             alt={data.title}
             fill
@@ -579,7 +566,7 @@ export default function UnifiedMobileNewsCard({
               {/* صورة الكاتب */}
               {article.author.avatar ? (
                 <div className="w-8 h-8 rounded-full overflow-hidden">
-                  <CloudImage
+                  <SafeImage
                     src={article.author.avatar || ""}
                     alt={article.author.name}
                     width={32}

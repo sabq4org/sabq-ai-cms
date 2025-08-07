@@ -316,7 +316,7 @@ const SmartRecommendationCard: React.FC<{
   );
 };
 
-// المكون الأساسي
+// المكون الأساسي محاط بمكون ErrorBoundary
 function SmartPersonalizedContentInner({
   articleId,
   categoryId,
@@ -329,23 +329,21 @@ function SmartPersonalizedContentInner({
   const [recommendations, setRecommendations] = useState<
     ExtendedRecommendedArticle[]
   >([]);
-
+  
   // حالات الواجهة
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdateTime, setLastUpdateTime] = useState<Date>(new Date());
-
+  
   // متتبع حالة المكون
-  const [componentStatus, setComponentStatus] = useState<
-    "idle" | "loading" | "success" | "error"
-  >("idle");
+  const [componentStatus, setComponentStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
   // دالة لتحديث التوصيات - ترجع Promise للاستخدام في useEffect
   const fetchPersonalizedRecommendations = async (): Promise<void> => {
     try {
       setLoading(true);
       setError(null);
-
+      
       // التحقق من وجود معرف المقال
       if (!articleId) {
         console.error("❌ معرف المقال غير موجود");
@@ -355,42 +353,35 @@ function SmartPersonalizedContentInner({
       }
 
       console.log("🧠 توليد التوصيات الذكية للمقال:", articleId);
-
+      
       // وقت للتشخيص
       const startTime = Date.now();
 
       // توليد التوصيات المخصصة مع زيادة العدد إلى 6
       let personalizedRecommendations = [];
-
+      
       try {
-        personalizedRecommendations = await generatePersonalizedRecommendations(
-          {
-            userId,
-            currentArticleId: articleId,
-            currentTags: tags,
-            currentCategory: categoryName || "",
-            limit: 6, // زيادة من 4 إلى 6
-          }
-        );
-
+        personalizedRecommendations = await generatePersonalizedRecommendations({
+          userId,
+          currentArticleId: articleId,
+          currentTags: tags,
+          currentCategory: categoryName || "",
+          limit: 6, // زيادة من 4 إلى 6
+        });
+        
         console.log(`⏱️ تم توليد التوصيات في ${Date.now() - startTime}ms`);
       } catch (error) {
         const apiError = error as Error;
         console.error("❌ خطأ في استدعاء واجهة التوصيات:", apiError);
-        throw new Error(
-          `فشل في استدعاء API التوصيات: ${apiError.message || "خطأ غير معروف"}`
-        );
+        throw new Error(`فشل في استدعاء API التوصيات: ${apiError.message || "خطأ غير معروف"}`);
       }
 
       // التحقق من صلاحية البيانات المستلمة
-      if (
-        !personalizedRecommendations ||
-        !Array.isArray(personalizedRecommendations)
-      ) {
+      if (!personalizedRecommendations || !Array.isArray(personalizedRecommendations)) {
         console.error("⚠️ توصيات غير صالحة: ليست مصفوفة أو null");
         throw new Error("توصيات غير صالحة تم استلامها");
       }
-
+      
       // التحقق من عدد التوصيات المستلمة
       if (personalizedRecommendations.length === 0) {
         console.warn("⚠️ لم يتم استلام أي توصيات من API");
@@ -398,116 +389,87 @@ function SmartPersonalizedContentInner({
       }
 
       console.log("✅ تم توليد التوصيات:", personalizedRecommendations);
-      console.log(
-        "🧪 الاستجابة الأصلية:",
-        JSON.stringify(personalizedRecommendations)
-      );
+      console.log("🧪 الاستجابة الأصلية:", JSON.stringify(personalizedRecommendations));
 
       // المعالجة بطريقة أكثر أمانًا - مع مزيد من الحماية من الأخطاء
-      const enhancedRecommendations = personalizedRecommendations.map(
-        (rec, index) => {
-          // التعامل مع rec بحذر في حالة قيم null أو undefined
-          if (!rec) {
-            console.error(`⚠️ توصية فارغة/null تم استلامها في الموضع ${index}`);
-            // إنشاء توصية افتراضية
-            return {
-              id: `rec-fallback-${Date.now()}-${Math.random()
-                .toString(36)
-                .substring(2)}`,
-              title: "توصية بدون عنوان",
-              url: "#",
-              type: "مقالة",
-              reason: "محتوى مقترح",
-              confidence: 0,
-              thumbnail:
-                "https://res.cloudinary.com/sabq/image/upload/v1649152578/defaults/article.jpg",
-              featured_image:
-                "https://res.cloudinary.com/sabq/image/upload/v1649152578/defaults/article.jpg",
-              publishedAt: new Date().toISOString(),
-              category: "",
-              readingTime: 1,
-              viewsCount: 0,
-              engagement: 0,
-            } as ExtendedRecommendedArticle;
-          }
-
-          try {
-            // أول عملية تنقيح: فحص وإصلاح روابط الصور والبيانات
-            const safeRec = { ...rec };
-            const recTitle = safeRec.title || `توصية ${index + 1}`;
-            let thumbnail = safeRec.thumbnail || "";
-
-            // سجل للتشخيص
-            console.log(`🔍 تشخيص صورة للتوصية ${index + 1}: ${recTitle}`);
-            console.log(`   - الصورة الأصلية: ${thumbnail}`);
-
-            // التحقق من وجود صورة صالحة
-            if (
-              !thumbnail ||
-              thumbnail === "null" ||
-              thumbnail === "undefined" ||
-              !thumbnail.startsWith("http")
-            ) {
-              console.log("   ⚠️ صورة غير صالحة - استخدام صورة افتراضية");
-
-              // استخدام صورة افتراضية حسب نوع المحتوى
-              const contentType = safeRec.type || "مقالة";
-              thumbnail =
-                "https://res.cloudinary.com/sabq/image/upload/v1649152578/defaults/article.jpg";
-              console.log(`   ✅ تم تعيين صورة بديلة: ${thumbnail}`);
-            }
-
-            // إرجاع التوصية المحسنة مع تعريف جميع الخصائص المطلوبة والتأكد من وجود قيم افتراضية
-            return {
-              id:
-                safeRec.id ||
-                `rec-${Date.now()}-${index}-${Math.random()
-                  .toString(36)
-                  .substring(2)}`,
-              title: recTitle,
-              url: safeRec.url || "#",
-              type: safeRec.type || "مقالة",
-              reason: safeRec.reason || "محتوى مقترح لك",
-              confidence:
-                typeof safeRec.confidence === "number"
-                  ? safeRec.confidence
-                  : 50,
-              thumbnail: thumbnail,
-              featured_image: thumbnail,
-              publishedAt: safeRec.publishedAt || new Date().toISOString(),
-              category: safeRec.category || "",
-              readingTime:
-                typeof safeRec.readingTime === "number"
-                  ? safeRec.readingTime
-                  : 1,
-              viewsCount:
-                typeof safeRec.viewsCount === "number" ? safeRec.viewsCount : 0,
-              engagement:
-                typeof safeRec.engagement === "number" ? safeRec.engagement : 0,
-            } as ExtendedRecommendedArticle;
-          } catch (recError) {
-            // في حالة وجود أي خطأ عند معالجة توصية معينة، نرجع توصية افتراضية
-            console.error(`❌ خطأ في معالجة التوصية ${index}:`, recError);
-            return {
-              id: `rec-error-${Date.now()}-${index}`,
-              title: `توصية ${index + 1}`,
-              url: "#",
-              type: "مقالة",
-              reason: "محتوى إضافي",
-              confidence: 50,
-              thumbnail:
-                "https://res.cloudinary.com/sabq/image/upload/v1649152578/defaults/article.jpg",
-              featured_image:
-                "https://res.cloudinary.com/sabq/image/upload/v1649152578/defaults/article.jpg",
-              publishedAt: new Date().toISOString(),
-              category: "",
-              readingTime: 1,
-              viewsCount: 0,
-              engagement: 0,
-            } as ExtendedRecommendedArticle;
-          }
+      const enhancedRecommendations = personalizedRecommendations.map((rec, index) => {
+        // التعامل مع rec بحذر في حالة قيم null أو undefined
+        if (!rec) {
+          console.error(`⚠️ توصية فارغة/null تم استلامها في الموضع ${index}`);
+          // إنشاء توصية افتراضية
+          return {
+            id: `rec-fallback-${Date.now()}-${Math.random().toString(36).substring(2)}`,
+            title: "توصية بدون عنوان",
+            url: "#",
+            type: "مقالة",
+            reason: "محتوى مقترح",
+            confidence: 0,
+            thumbnail: "https://res.cloudinary.com/sabq/image/upload/v1649152578/defaults/article.jpg",
+            featured_image: "https://res.cloudinary.com/sabq/image/upload/v1649152578/defaults/article.jpg",
+            publishedAt: new Date().toISOString(),
+            category: "",
+            readingTime: 1,
+            viewsCount: 0,
+            engagement: 0
+          } as ExtendedRecommendedArticle;
         }
-      );
+        
+        try {
+          // أول عملية تنقيح: فحص وإصلاح روابط الصور والبيانات
+          const safeRec = { ...rec };
+          const recTitle = safeRec.title || `توصية ${index + 1}`;
+          let thumbnail = safeRec.thumbnail || "";
+          
+          // سجل للتشخيص
+          console.log(`🔍 تشخيص صورة للتوصية ${index + 1}: ${recTitle}`);
+          console.log(`   - الصورة الأصلية: ${thumbnail}`);
+          
+          // التحقق من وجود صورة صالحة
+          if (!thumbnail || thumbnail === "null" || thumbnail === "undefined" || !thumbnail.startsWith("http")) {
+            console.log("   ⚠️ صورة غير صالحة - استخدام صورة افتراضية");
+            
+            // استخدام صورة افتراضية حسب نوع المحتوى
+            const contentType = safeRec.type || "مقالة";
+            thumbnail = "https://res.cloudinary.com/sabq/image/upload/v1649152578/defaults/article.jpg";
+            console.log(`   ✅ تم تعيين صورة بديلة: ${thumbnail}`);
+          }
+          
+          // إرجاع التوصية المحسنة مع تعريف جميع الخصائص المطلوبة والتأكد من وجود قيم افتراضية
+          return {
+            id: safeRec.id || `rec-${Date.now()}-${index}-${Math.random().toString(36).substring(2)}`,
+            title: recTitle,
+            url: safeRec.url || "#",
+            type: safeRec.type || "مقالة",
+            reason: safeRec.reason || "محتوى مقترح لك",
+            confidence: typeof safeRec.confidence === 'number' ? safeRec.confidence : 50,
+            thumbnail: thumbnail,
+            featured_image: thumbnail,
+            publishedAt: safeRec.publishedAt || new Date().toISOString(),
+            category: safeRec.category || "",
+            readingTime: typeof safeRec.readingTime === 'number' ? safeRec.readingTime : 1,
+            viewsCount: typeof safeRec.viewsCount === 'number' ? safeRec.viewsCount : 0,
+            engagement: typeof safeRec.engagement === 'number' ? safeRec.engagement : 0
+          } as ExtendedRecommendedArticle;
+        } catch (recError) {
+          // في حالة وجود أي خطأ عند معالجة توصية معينة، نرجع توصية افتراضية
+          console.error(`❌ خطأ في معالجة التوصية ${index}:`, recError);
+          return {
+            id: `rec-error-${Date.now()}-${index}`,
+            title: `توصية ${index + 1}`,
+            url: "#",
+            type: "مقالة",
+            reason: "محتوى إضافي",
+            confidence: 50,
+            thumbnail: "https://res.cloudinary.com/sabq/image/upload/v1649152578/defaults/article.jpg",
+            featured_image: "https://res.cloudinary.com/sabq/image/upload/v1649152578/defaults/article.jpg",
+            publishedAt: new Date().toISOString(),
+            category: "",
+            readingTime: 1,
+            viewsCount: 0,
+            engagement: 0
+          } as ExtendedRecommendedArticle;
+        }
+      });
 
       // سجل تشخيصي للتأكد من التوصيات
       enhancedRecommendations.forEach((rec, index) => {
@@ -526,6 +488,7 @@ function SmartPersonalizedContentInner({
       setRecommendations(enhancedRecommendations);
       setLastUpdateTime(new Date());
       console.log(`✅ تم تحديث ${enhancedRecommendations.length} توصية بنجاح`);
+      
     } catch (err) {
       console.error("❌ خطأ في توليد التوصيات الذكية:", err);
       setError("يتم التحضير لمحتوى يناسبك...");
@@ -539,28 +502,28 @@ function SmartPersonalizedContentInner({
 
   useEffect(() => {
     // تعيين الحالة إلى loading عند بدء الطلب
-    setComponentStatus("loading");
+    setComponentStatus('loading');
     setLoading(true);
-
+    
     // محاولة جلب التوصيات
     fetchPersonalizedRecommendations()
       .then(() => {
         // تم بنجاح
-        setComponentStatus("success");
+        setComponentStatus('success');
       })
       .catch((error) => {
         // فشل مع وجود خطأ
         console.error("❌ خطأ غير معالج في استدعاء التوصيات:", error);
-        setComponentStatus("error");
+        setComponentStatus('error');
       });
 
     // تحديث التوصيات كل 12 ساعة
     const updateInterval = setInterval(() => {
       console.log("🔄 تحديث التوصيات الذكية تلقائياً...");
-      setComponentStatus("loading");
+      setComponentStatus('loading');
       fetchPersonalizedRecommendations()
-        .then(() => setComponentStatus("success"))
-        .catch(() => setComponentStatus("error"));
+        .then(() => setComponentStatus('success'))
+        .catch(() => setComponentStatus('error'));
     }, 12 * 60 * 60 * 1000); // 12 ساعة
 
     // تنظيف interval عند إزالة المكون
@@ -657,10 +620,65 @@ function SmartPersonalizedContentInner({
 
   // إخفاء القسم في حالة عدم وجود توصيات وعدم وجود خطأ
   if (!recommendations.length && !error) {
-    return null;
-  }
+  return null;
+}
+
+// مكون خارجي مع ErrorBoundary
+function SmartPersonalizedContentWrapper(props: SmartPersonalizedContentProps) {
+  // واجهة الخطأ المخصصة
+  const errorFallback = (
+    <section
+      className={`w-full py-6 md:py-8 px-3 md:px-4 ${
+        props.darkMode ? "bg-gray-800" : "bg-gray-50"
+      }`}
+    >
+      <div className="max-w-4xl mx-auto">
+        <div
+          className={`text-center py-8 px-6 rounded-2xl border-2 border-dashed ${
+            props.darkMode
+              ? "border-gray-600 bg-gray-700/30"
+              : "border-gray-300 bg-white/50"
+          }`}
+        >
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-12 h-12 text-red-500 dark:text-red-400">⚠️</div>
+            <div>
+              <h3
+                className={`text-lg font-bold mb-2 ${
+                  props.darkMode ? "text-white" : "text-gray-900"
+                }`}
+              >
+                حدث خطأ في نظام التوصيات
+              </h3>
+              <p
+                className={`text-sm ${
+                  props.darkMode ? "text-gray-400" : "text-gray-600"
+                }`}
+              >
+                نعتذر، حدث خطأ أثناء تحميل التوصيات المخصصة. سنعمل على حل المشكلة قريبًا.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+
+  // معالجة الأخطاء وإرسالها إلى نظام التتبع
+  const handleError = (error: Error) => {
+    // يمكن إضافة كود لتتبع الأخطاء هنا في المستقبل
+    console.error("🔴 خطأ في نظام التوصيات الذكية:", error);
+  };
 
   return (
+    <ErrorBoundary fallback={errorFallback} onError={handleError}>
+      <SmartPersonalizedContentInner {...props} />
+    </ErrorBoundary>
+  );
+}
+
+// تصدير المكون الرئيسي المغلف بمعالج الأخطاء
+export default SmartPersonalizedContentWrapper;
     <section
       className={`w-full py-6 md:py-8 px-3 md:px-4 ${
         darkMode ? "bg-gray-800" : "bg-gray-50"
@@ -698,7 +716,7 @@ function SmartPersonalizedContentInner({
 
           {/* زر التحديث اليدوي */}
           <button
-            onClick={() => fetchPersonalizedRecommendations()}
+            onClick={fetchPersonalizedRecommendations}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               darkMode
                 ? "bg-gray-700 hover:bg-gray-600 text-gray-300"
@@ -849,61 +867,3 @@ function SmartPersonalizedContentInner({
     </section>
   );
 }
-
-// مكون خارجي مع ErrorBoundary
-function SmartPersonalizedContentWrapper(props: SmartPersonalizedContentProps) {
-  // واجهة الخطأ المخصصة
-  const errorFallback = (
-    <section
-      className={`w-full py-6 md:py-8 px-3 md:px-4 ${
-        props.darkMode ? "bg-gray-800" : "bg-gray-50"
-      }`}
-    >
-      <div className="max-w-4xl mx-auto">
-        <div
-          className={`text-center py-8 px-6 rounded-2xl border-2 border-dashed ${
-            props.darkMode
-              ? "border-gray-600 bg-gray-700/30"
-              : "border-gray-300 bg-white/50"
-          }`}
-        >
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-12 h-12 text-red-500 dark:text-red-400">⚠️</div>
-            <div>
-              <h3
-                className={`text-lg font-bold mb-2 ${
-                  props.darkMode ? "text-white" : "text-gray-900"
-                }`}
-              >
-                حدث خطأ في نظام التوصيات
-              </h3>
-              <p
-                className={`text-sm ${
-                  props.darkMode ? "text-gray-400" : "text-gray-600"
-                }`}
-              >
-                نعتذر، حدث خطأ أثناء تحميل التوصيات المخصصة. سنعمل على حل
-                المشكلة قريبًا.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-
-  // معالجة الأخطاء وإرسالها إلى نظام التتبع
-  const handleError = (error: Error) => {
-    // يمكن إضافة كود لتتبع الأخطاء هنا في المستقبل
-    console.error("🔴 خطأ في نظام التوصيات الذكية:", error);
-  };
-
-  return (
-    <ErrorBoundary fallback={errorFallback} onError={handleError}>
-      <SmartPersonalizedContentInner {...props} />
-    </ErrorBoundary>
-  );
-}
-
-// تصدير المكون الرئيسي
-export default SmartPersonalizedContentWrapper;

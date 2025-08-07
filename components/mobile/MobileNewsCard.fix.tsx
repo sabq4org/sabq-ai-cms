@@ -2,10 +2,10 @@
 
 import ReporterLink from "@/components/ReporterLink";
 import ArticleViews from "@/components/ui/ArticleViews";
+import SafeImage from "@/components/ui/SafeImage";
 import { formatRelativeDate } from "@/lib/date-utils";
 import { getArticleLink } from "@/lib/utils";
 import { Calendar, Clock, Star, Zap } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 
 interface Article {
@@ -70,6 +70,9 @@ export default function MobileNewsCard({
   const displayDate = published_at || created_at;
   const displayExcerpt = excerpt || summary || "";
 
+  // Get image from article regardless of whether it's featured or not
+  const imageUrl = featured_image || null;
+
   return (
     <Link
       href={getArticleLink(article)}
@@ -103,18 +106,16 @@ export default function MobileNewsCard({
         {/* العنوان والمحتوى */}
         <div className="flex gap-3">
           {/* الصورة المصغرة - تظهر دائمًا إذا كانت متوفرة (بدون اشتراط featured) */}
-          {featured_image && (
+          {imageUrl && (
             <div className="flex-shrink-0">
               <div className="relative w-20 h-20 rounded-lg overflow-hidden">
-                <Image
-                  src={featured_image}
+                <SafeImage
+                  src={imageUrl}
                   alt={title}
                   fill
                   className="object-cover"
                   sizes="80px"
-                  onError={(e) => {
-                    e.currentTarget.style.display = "none";
-                  }}
+                  fallbackType="article"
                 />
               </div>
             </div>

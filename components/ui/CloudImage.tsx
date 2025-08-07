@@ -87,6 +87,18 @@ export default function CloudImage({
     setHasError(true);
     setIsLoading(false);
     onError?.();
+
+    // إضافة سجل تشخيصي مفصل للجوال
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+    if (isMobile) {
+      console.log(`📱 MOBILE DEBUG - فشل تحميل صورة على الجوال:
+      - المصدر: ${src}
+      - نوع البديل: ${fallbackType}
+      - العرض: ${width}
+      - الارتفاع: ${height}
+      - URL الناتج: ${imageUrl}
+      `);
+    }
   };
 
   const handleLoad = () => {

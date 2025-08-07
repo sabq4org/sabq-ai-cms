@@ -371,7 +371,7 @@ export default function EnhancedMobileNewsCard({
             : "bg-white shadow-md hover:shadow-lg"
         }`}
       >
-        {/* الصورة مع نسبة 16:9 */}
+        {/* الصورة مع نسبة 16:9 - تظهر دائمًا إذا كانت متوفرة بغض النظر عن نوع المقال */}
         <div className="relative h-48 w-full bg-gray-200 dark:bg-gray-700">
           <SafeImage
             src={news.featured_image}
