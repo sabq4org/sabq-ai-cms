@@ -9,7 +9,6 @@ import {
   BookOpen,
   Clock,
   Eye,
-  Lightbulb,
   RefreshCw,
   Sparkles,
   User,

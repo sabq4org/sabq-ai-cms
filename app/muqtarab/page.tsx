@@ -510,9 +510,7 @@ function MobileHeroCard({ heroArticle }: { heroArticle: HeroArticle }) {
             <Calendar className="w-3 h-3" />
             <span>{heroArticle.readingTime} د</span>
           </div>
-          <Link
-            href={`/muqtarab/${heroArticle.angle.slug}/${heroArticle.id}`}
-          >
+          <Link href={`/muqtarab/${heroArticle.angle.slug}/${heroArticle.id}`}>
             <Button size="sm" className="text-xs px-3 py-1 h-7">
               قراءة
             </Button>

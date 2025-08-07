@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Angle, AngleArticle } from "@/types/muqtarab";
-import React from "react";
 import {
   ArrowLeft,
   Bookmark,
@@ -72,7 +71,7 @@ export default function AngleArticlePage() {
 
         if (!articleResponse.ok) {
           console.error("❌ المقال غير موجود:", articleId, "في الزاوية:", slug);
-          
+
           // لا نعرض toast هنا، بل نعيد التوجيه مباشرة إلى الزاوية
           console.log("🔄 إعادة التوجيه إلى صفحة الزاوية...");
           router.replace(`/muqtarab/${slug}`);
@@ -629,9 +628,7 @@ function SmartRecommendations({
                 </span>
               </div>
 
-              <Link
-                href={`/muqtarab/${angle.slug}/${article.id}`}
-              >
+              <Link href={`/muqtarab/${angle.slug}/${article.id}`}>
                 <Button
                   variant="ghost"
                   size="sm"

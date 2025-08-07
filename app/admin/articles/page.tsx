@@ -47,6 +47,8 @@ interface Article {
   ai_quotes: string[];
   ai_score?: number;
   is_opinion_leader?: boolean;
+  featured?: boolean;
+  breaking?: boolean;
 }
 
 interface ArticleStats {
@@ -57,6 +59,8 @@ interface ArticleStats {
   thisWeek: number;
   totalViews: number;
   avgScore: number;
+  featured: number;
+  breaking: number;
 }
 
 const ArticlesAdminPage = () => {
@@ -72,7 +76,9 @@ const ArticlesAdminPage = () => {
     archived: 0,
     thisWeek: 0,
     totalViews: 0,
-    avgScore: 0
+    avgScore: 0,
+    featured: 0,
+    breaking: 0
   });
   
   const [loading, setLoading] = useState(true);
@@ -80,10 +86,11 @@ const ArticlesAdminPage = () => {
   const [filterStatus, setFilterStatus] = useState<'all' | 'published' | 'draft' | 'archived'>('all');
   const [filterAuthor, setFilterAuthor] = useState<string>('all');
   const [filterType, setFilterType] = useState<string>('all');
-  const [sortBy, setSortBy] = useState<'created_at' | 'published_at' | 'views' | 'ai_score'>('created_at');
+  const [sortBy, setSortBy] = useState<'created_at' | 'published_at' | 'views' | 'ai_score' | 'featured' | 'breaking'>('created_at');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [currentOpinionLeader, setCurrentOpinionLeader] = useState<string | null>(null);
   const [settingOpinionLeader, setSettingOpinionLeader] = useState<string | null>(null);
+  const [updatingFeatured, setUpdatingFeatured] = useState<string | null>(null);
 
   // Load data
   useEffect(() => {
@@ -105,6 +112,8 @@ const ArticlesAdminPage = () => {
         const published = data.articles?.filter((a: Article) => a.status === 'published').length || 0;
         const draft = data.articles?.filter((a: Article) => a.status === 'draft').length || 0;
         const archived = data.articles?.filter((a: Article) => a.status === 'archived').length || 0;
+        const featured = data.articles?.filter((a: Article) => a.featured).length || 0;
+        const breaking = data.articles?.filter((a: Article) => a.breaking).length || 0;
         const totalViews = data.articles?.reduce((sum: number, a: Article) => sum + (a.views || 0), 0) || 0;
         const avgScore = data.articles?.filter((a: Article) => a.ai_score).reduce((sum: number, a: Article) => sum + (a.ai_score || 0), 0) / data.articles?.filter((a: Article) => a.ai_score).length || 0;
         
@@ -113,6 +122,8 @@ const ArticlesAdminPage = () => {
           published,
           draft,
           archived,
+          featured,
+          breaking,
           thisWeek: 0,
           totalViews,
           avgScore: Math.round(avgScore * 100) / 100
@@ -189,6 +200,50 @@ const ArticlesAdminPage = () => {
     }
   };
 
+  const toggleFeaturedStatus = async (articleId: string, currentStatus: boolean) => {
+    try {
+      setUpdatingFeatured(articleId);
+      
+      const response = await fetch(`/api/articles/${articleId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          featured: !currentStatus,
+          breaking: !currentStatus && true // إذا كان مميز، فهو عاجل أيضاً
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          // Update the articles list
+          setArticles(prev => prev.map(article => 
+            article.id === articleId 
+              ? { 
+                  ...article, 
+                  featured: !currentStatus,
+                  breaking: !currentStatus 
+                }
+              : article
+          ));
+          
+          toast.success(!currentStatus ? '✨ تم تمييز المقال كخبر عاجل!' : 'تم إلغاء تمييز المقال');
+        } else {
+          toast.error(data.error || 'فشل في تحديث حالة المقال');
+        }
+      } else {
+        toast.error('فشل في تحديث حالة المقال');
+      }
+    } catch (error) {
+      console.error('Error updating featured status:', error);
+      toast.error('حدث خطأ في تحديث حالة المقال');
+    } finally {
+      setUpdatingFeatured(null);
+    }
+  };
+
   // Filter articles
   const filteredArticles = useMemo(() => {
     let filtered = articles;
@@ -214,6 +269,24 @@ const ArticlesAdminPage = () => {
 
     // Sort
     filtered.sort((a, b) => {
+      // Handle special sorting for featured and breaking news
+      if (sortBy === 'featured') {
+        if (a.featured !== b.featured) {
+          return b.featured ? 1 : -1; // Featured articles first
+        }
+        // If both have same featured status, sort by date
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
+      
+      if (sortBy === 'breaking') {
+        if (a.breaking !== b.breaking) {
+          return b.breaking ? 1 : -1; // Breaking news first
+        }
+        // If both have same breaking status, sort by date
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
+      
+      // Default sorting logic for other fields
       const aValue = a[sortBy] || 0;
       const bValue = b[sortBy] || 0;
       
@@ -268,11 +341,13 @@ const ArticlesAdminPage = () => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-7 gap-6 mb-8">
           {[
             { label: 'إجمالي المقالات', value: stats.total.toString(), icon: FileText, color: 'blue' },
             { label: 'المنشورة', value: stats.published.toString(), icon: Eye, color: 'green' },
             { label: 'المسودات', value: stats.draft.toString(), icon: Clock, color: 'yellow' },
+            { label: 'المميزة', value: stats.featured.toString(), icon: TrendingUp, color: 'red' },
+            { label: 'العاجلة', value: stats.breaking.toString(), icon: Crown, color: 'orange' },
             { label: 'المشاهدات', value: stats.totalViews.toLocaleString(), icon: TrendingUp, color: 'purple' },
             { 
               label: 'قائد رأي اليوم', 
@@ -302,8 +377,11 @@ const ArticlesAdminPage = () => {
                   stat.color === 'blue' ? 'text-blue-500' :
                   stat.color === 'green' ? 'text-green-500' :
                   stat.color === 'yellow' ? 'text-yellow-500' :
+                  stat.color === 'red' ? 'text-red-500' :
+                  stat.color === 'orange' ? 'text-orange-500' :
+                  stat.color === 'purple' ? 'text-purple-500' :
                   stat.color === 'gold' ? (currentOpinionLeader ? 'text-yellow-500' : 'text-gray-400') :
-                  'text-purple-500'
+                  'text-gray-500'
                 )} />
               </div>
             </div>
@@ -389,6 +467,8 @@ const ArticlesAdminPage = () => {
               <option value="published_at-desc">آخر نشر</option>
               <option value="views-desc">الأكثر مشاهدة</option>
               <option value="ai_score-desc">أعلى تقييم</option>
+              <option value="featured-desc">المميزة أولاً</option>
+              <option value="breaking-desc">العاجلة أولاً</option>
             </select>
           </div>
         </div>
@@ -443,6 +523,14 @@ const ArticlesAdminPage = () => {
                         </span>
                       )}
                       
+                      {/* شارة المقال المميز والعاجل */}
+                      {article.featured && (
+                        <span className="flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-full bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-lg">
+                          <span className="animate-pulse">🔥</span>
+                          خبر عاجل
+                        </span>
+                      )}
+                      
                       <span className={cn(
                         'px-2 py-1 text-xs rounded-full',
                         article.status === 'published' ? 'bg-green-100 text-green-800' :
@@ -491,6 +579,35 @@ const ArticlesAdminPage = () => {
                   </div>
 
                   <div className="flex items-center gap-2">
+                    {/* زر الخبر العاجل/المميز */}
+                    {article.status === 'published' && (
+                      <button
+                        onClick={() => toggleFeaturedStatus(article.id, article.featured || false)}
+                        disabled={updatingFeatured === article.id}
+                        className={cn(
+                          'flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-all relative shadow-lg',
+                          article.featured
+                            ? 'bg-gradient-to-r from-red-500 to-orange-500 text-white hover:from-red-600 hover:to-orange-600 scale-105 shadow-red-200'
+                            : 'bg-gradient-to-r from-gray-400 to-gray-500 text-white hover:from-blue-500 hover:to-purple-500',
+                          updatingFeatured === article.id && 'opacity-50 cursor-not-allowed'
+                        )}
+                        title={article.featured ? 'إلغاء تمييز كخبر عاجل' : 'تمييز كخبر عاجل'}
+                      >
+                        {article.featured ? (
+                          <>
+                            <span className="animate-pulse">🔥</span>
+                            <span>عاجل</span>
+                            <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-600 rounded-full animate-pulse"></span>
+                          </>
+                        ) : (
+                          <>
+                            <span>⭐</span>
+                            <span>تمييز</span>
+                          </>
+                        )}
+                      </button>
+                    )}
+                    
                     {/* زر قائد الرأي اليوم */}
                     {article.status === 'published' && article.article_type === 'opinion' && (
                       <button

@@ -27,7 +27,7 @@ export async function GET(
 
     // جلب المقال مع تفاصيل المؤلف (البحث بالـ id أو slug)
     let articles = [];
-    
+
     try {
       // أولاً: محاولة البحث بـ UUID
       articles = (await prisma.$queryRaw`
@@ -41,8 +41,10 @@ export async function GET(
           AND aa.id = ${articleId}::uuid
       `) as any[];
     } catch (uuidError) {
-      console.log("🔍 [GET Article] البحث بـ UUID فشل، محاولة البحث بـ slug...");
-      
+      console.log(
+        "🔍 [GET Article] البحث بـ UUID فشل، محاولة البحث بـ slug..."
+      );
+
       // ثانياً: محاولة البحث بـ slug (إذا فشل البحث بـ UUID)
       try {
         articles = (await prisma.$queryRaw`
@@ -111,7 +113,9 @@ export async function GET(
         success: false,
         error: "حدث خطأ في جلب المقال",
         details:
-          process.env.NODE_ENV === "development" ? (error as Error)?.message : undefined,
+          process.env.NODE_ENV === "development"
+            ? (error as Error)?.message
+            : undefined,
       },
       { status: 500 }
     );
@@ -227,7 +231,9 @@ export async function PUT(
         success: false,
         error: "حدث خطأ في تحديث المقال",
         details:
-          process.env.NODE_ENV === "development" ? (error as Error)?.message : undefined,
+          process.env.NODE_ENV === "development"
+            ? (error as Error)?.message
+            : undefined,
       },
       { status: 500 }
     );
@@ -278,7 +284,9 @@ export async function DELETE(
         success: false,
         error: "حدث خطأ في حذف المقال",
         details:
-          process.env.NODE_ENV === "development" ? (error as Error)?.message : undefined,
+          process.env.NODE_ENV === "development"
+            ? (error as Error)?.message
+            : undefined,
       },
       { status: 500 }
     );
