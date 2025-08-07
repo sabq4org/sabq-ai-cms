@@ -13,6 +13,7 @@ import ContentWrapper from "../components/layout/ContentWrapper";
 import "../styles/compact-stats.css";
 import "../styles/enhanced-dark-mode-mobile.css";
 import "../styles/enhanced-mobile-stats.css";
+import "../styles/enhanced-news-bar.css";
 import "../styles/featured-mobile-card.css";
 import "../styles/globals.css";
 import "../styles/minimal-fix.css";

@@ -206,63 +206,80 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
   return (
     <div
       className={cn(
-        "w-full bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20",
+        "w-full relative overflow-hidden flex items-center justify-center",
         isMobile
-          ? "py-3 pulse-ticker-mobile min-h-[44px]"
-          : "py-4 pulse-ticker-desktop min-h-[56px]",
-        "overflow-hidden relative flex items-center justify-center",
+          ? "py-3 pulse-ticker-mobile min-h-[44px] bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20"
+          : "py-5 pulse-ticker-desktop min-h-[64px] bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 dark:from-indigo-900 dark:via-blue-900 dark:to-purple-900 shadow-lg",
         className
       )}
     >
+      {/* خلفية متحركة للديسكتوب */}
+      {!isMobile && (
+        <>
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse"></div>
+          <div className="absolute inset-0 opacity-20">
+            <div className="w-full h-full bg-repeat bg-[length:40px_40px]" 
+                 style={{
+                   backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M0 40L40 0H0v40zm40 0V0H0l40 40z'/%3E%3C/g%3E%3C/svg%3E")`
+                 }}>
+            </div>
+          </div>
+        </>
+      )}
+
       <div
         className={cn(
-          "flex items-center gap-2 w-full",
+          "flex items-center gap-2 w-full relative z-10",
           isMobile
             ? "gap-2 px-4"
-            : "gap-3 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+            : "gap-4 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
         )}
       >
-        {/* عبارة "نبض الأخبار" للديسكتوب فقط */}
+        {/* عبارة "نبض الأخبار" المحسنة للديسكتوب */}
         {!isMobile && (
-          <div className="flex-shrink-0 mr-4">
-            <span className="text-sm font-bold text-blue-700 dark:text-blue-300 flex items-center gap-2">
-              <Zap className="w-4 h-4" />
-              نبض الأخبار
+          <div className="flex-shrink-0 mr-4 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 border border-white/30">
+            <span className="text-sm font-bold text-white flex items-center gap-2">
+              <div className="relative">
+                <Zap className="w-5 h-5 animate-pulse" />
+                <div className="absolute inset-0 bg-yellow-400 rounded-full blur-sm opacity-60 animate-ping"></div>
+              </div>
+              <span className="tracking-wide">نبض الأخبار</span>
             </span>
           </div>
         )}
 
-        {/* محتوى الإشعار المتحرك */}
+        {/* محتوى الإشعار المتحرك المحسن */}
         <div className="flex-1 min-w-0 flex items-center h-full">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentNotification.id}
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              transition={{ duration: 0.5, ease: "easeInOut" }}
-              className="flex items-center justify-start gap-2 min-h-[32px] h-full"
+              initial={{ opacity: 0, x: isMobile ? 0 : 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: isMobile ? 0 : -50 }}
+              transition={{ duration: 0.6, ease: "easeInOut" }}
+              className="flex items-center justify-start gap-3 min-h-[32px] h-full w-full"
             >
-              {/* أيقونة النوع - مخفية في الموبايل الصغير */}
+              {/* أيقونة النوع المحسنة للديسكتوب */}
               {!isMobile && (
-                <div className="flex-shrink-0">
+                <div className="flex-shrink-0 bg-white/20 p-2 rounded-full backdrop-blur-sm border border-white/30">
                   {getTypeIcon(currentNotification.type)}
                 </div>
               )}
 
-              {/* النص */}
+              {/* النص المحسن */}
               <Link
                 href={currentNotification.target_url}
                 onClick={() => recordClick(currentNotification.id)}
-                className={cn(
-                  "font-medium truncate hover:underline transition-colors duration-200 flex items-center justify-center min-h-[24px]",
+                className={
                   isMobile
-                    ? "text-xs sm:text-sm leading-tight"
-                    : "text-sm leading-normal",
-                  getTypeColor(currentNotification.type)
-                )}
+                    ? "text-xs sm:text-sm font-medium text-blue-700 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200 hover:underline transition-all duration-300 flex items-center justify-center min-h-[24px]"
+                    : "text-base font-medium text-white hover:text-yellow-200 hover:scale-[1.02] drop-shadow-sm hover:underline transition-all duration-300 flex items-center justify-center min-h-[24px] group"
+                }
               >
-                <span className="flex items-center justify-center h-full py-1">
+                <span className={cn(
+                  "flex items-center justify-center h-full py-1 transition-all duration-300",
+                  !isMobile && "group-hover:drop-shadow-lg"
+                )}>
                   {currentNotification.title}
                 </span>
               </Link>
@@ -270,11 +287,11 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
           </AnimatePresence>
         </div>
 
-        {/* مؤشر التقدم */}
+        {/* مؤشر التقدم المحسن */}
         {notifications.length > 1 && (
           <div
             className={cn(
-              "flex items-center gap-1 flex-shrink-0",
+              "flex items-center gap-2 flex-shrink-0",
               isMobile && "hidden xs:flex"
             )}
           >
@@ -282,14 +299,29 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
               <div
                 key={index}
                 className={cn(
-                  "rounded-full transition-all duration-300",
-                  isMobile ? "w-1.5 h-1.5" : "w-2 h-2",
+                  "rounded-full transition-all duration-500 cursor-pointer hover:scale-125",
+                  isMobile ? "w-1.5 h-1.5" : "w-3 h-3 border border-white/50",
                   index === currentIndex
-                    ? "bg-blue-500 scale-110"
-                    : "bg-blue-200 dark:bg-blue-700"
+                    ? isMobile 
+                      ? "bg-blue-500 scale-110" 
+                      : "bg-white scale-125 shadow-lg shadow-white/30"
+                    : isMobile 
+                      ? "bg-blue-200 dark:bg-blue-700" 
+                      : "bg-white/40 hover:bg-white/60"
                 )}
+                onClick={() => setCurrentIndex(index)}
               />
             ))}
+          </div>
+        )}
+
+        {/* عداد الوقت المتبقي للديسكتوب */}
+        {!isMobile && notifications.length > 1 && (
+          <div className="flex-shrink-0 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 border border-white/30">
+            <span className="text-xs font-medium text-white/90 flex items-center gap-1">
+              <Clock className="w-3 h-3" />
+              {Math.ceil((displayDuration - (Date.now() % displayDuration)) / 1000)}s
+            </span>
           </div>
         )}
       </div>
