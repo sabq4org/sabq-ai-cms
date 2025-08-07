@@ -747,12 +747,12 @@ export default function ArticleClientComponent({
         {/* منطقة المحتوى - نفس عرض الصورة والعنوان تماماً للديسكتوب، عرض كامل للموبايل */}
         <div className="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-2">
           <div className="bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-6 lg:p-8">
-            {/* صورة المقال للموبايل - عرض أوسع */}
+            {/* صورة المقال للموبايل - عرض أوسع مع توسيط */}
             {article.featured_image &&
               typeof article.featured_image === "string" &&
               article.featured_image.length > 0 &&
               !article.metadata?.emergency_mode && ( // تجنب عرض الصورة في وضع الطوارئ
-                <div className="sm:hidden w-full mb-6 mt-0 -mx-3">
+                <div className="sm:hidden w-full mb-6 mt-0 -mx-3 flex justify-center">
                   <ArticleFeaturedImage
                     imageUrl={article.featured_image}
                     title={article.title}
