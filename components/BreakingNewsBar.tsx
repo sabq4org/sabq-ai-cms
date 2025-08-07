@@ -134,7 +134,7 @@ const BreakingNewsBar: React.FC<BreakingNewsBarProps> = ({
             className={`relative overflow-hidden rounded-3xl shadow-2xl backdrop-blur-sm ${
               darkMode
                 ? "bg-gradient-to-r from-red-950/95 via-red-900/95 to-orange-950/95 border border-red-700/50"
-                : "bg-gradient-to-r from-red-600/95 via-red-500/95 to-orange-500/95 border border-red-300/50"
+                : "bg-gradient-to-r from-red-50 via-red-100 to-orange-50 border border-red-200/50"
             }`}
           >
             {/* خلفية متحركة محسنة */}
@@ -149,7 +149,9 @@ const BreakingNewsBar: React.FC<BreakingNewsBarProps> = ({
             </div>
 
             {/* إطار مضيء */}
-            <div className="absolute inset-0 border-2 border-red-400/30 rounded-3xl animate-pulse"></div>
+            <div className={`absolute inset-0 border-2 rounded-3xl animate-pulse ${
+              darkMode ? "border-red-400/30" : "border-red-300/40"
+            }`}></div>
 
             <div className="relative z-10 p-8">
               <Link href={getArticleLink()} className="block group">
@@ -158,12 +160,22 @@ const BreakingNewsBar: React.FC<BreakingNewsBarProps> = ({
                   <div className="flex-shrink-0">
                     <div className="flex items-center gap-4 mb-4">
                       <div className="relative">
-                        <div className="flex items-center gap-3 bg-white/25 backdrop-blur-md px-6 py-3 rounded-full border border-white/30 shadow-lg">
+                        <div className={`flex items-center gap-3 backdrop-blur-md px-6 py-3 rounded-full border shadow-lg ${
+                          darkMode 
+                            ? "bg-white/25 border-white/30" 
+                            : "bg-red-600/90 border-red-500/50"
+                        }`}>
                           <div className="relative">
-                            <AlertTriangle className="w-6 h-6 text-white animate-bounce" />
-                            <div className="absolute inset-0 bg-yellow-400 rounded-full blur-md opacity-60 animate-ping"></div>
+                            <AlertTriangle className={`w-6 h-6 animate-bounce ${
+                              darkMode ? "text-white" : "text-white"
+                            }`} />
+                            <div className={`absolute inset-0 rounded-full blur-md opacity-60 animate-ping ${
+                              darkMode ? "bg-yellow-400" : "bg-yellow-300"
+                            }`}></div>
                           </div>
-                          <span className="text-white font-bold text-lg tracking-wide drop-shadow-sm">
+                          <span className={`font-bold text-lg tracking-wide drop-shadow-sm ${
+                            darkMode ? "text-white" : "text-white"
+                          }`}>
                             خبر عاجل
                           </span>
                         </div>
@@ -176,7 +188,11 @@ const BreakingNewsBar: React.FC<BreakingNewsBarProps> = ({
                           e.preventDefault();
                           handleDismiss();
                         }}
-                        className="p-3 rounded-full transition-all duration-300 bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30 hover:scale-110 text-white hover:text-red-100 shadow-lg"
+                        className={`p-3 rounded-full transition-all duration-300 backdrop-blur-sm border shadow-lg ${
+                          darkMode
+                            ? "bg-white/20 border-white/30 hover:bg-white/30 text-white hover:text-red-100"
+                            : "bg-red-600/80 border-red-500/50 hover:bg-red-700/90 text-white hover:text-red-50"
+                        } hover:scale-110`}
                       >
                         <X className="w-5 h-5" />
                       </button>
@@ -198,36 +214,54 @@ const BreakingNewsBar: React.FC<BreakingNewsBarProps> = ({
 
                   {/* المحتوى المحسن */}
                   <div className="flex-1 min-w-0">
-                    <h2 className="font-bold text-3xl lg:text-4xl text-white leading-tight mb-4 line-clamp-2 drop-shadow-lg group-hover:scale-[1.02] transition-transform duration-300">
+                    <h2 className={`font-bold text-3xl lg:text-4xl leading-tight mb-4 line-clamp-2 drop-shadow-lg group-hover:scale-[1.02] transition-transform duration-300 ${
+                      darkMode ? "text-white" : "text-gray-900"
+                    }`}>
                       {breakingNews.title}
                     </h2>
 
                     {/* معلومات تفصيلية محسنة */}
                     <div className="flex items-center gap-6 text-sm">
-                      <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-2 rounded-full border border-white/30">
-                        <Clock className="w-4 h-4 text-white" />
-                        <span className="text-white font-medium">
+                      <div className={`flex items-center gap-2 backdrop-blur-sm px-3 py-2 rounded-full border ${
+                        darkMode 
+                          ? "bg-white/20 border-white/30 text-white" 
+                          : "bg-red-500/80 border-red-400/50 text-white"
+                      }`}>
+                        <Clock className={`w-4 h-4 ${darkMode ? "text-white" : "text-white"}`} />
+                        <span className="font-medium">
                           {formatDateGregorian(breakingNews.published_at)}
                         </span>
                       </div>
 
                       {breakingNews.reading_time && (
-                        <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-2 rounded-full border border-white/30">
-                          <span className="text-white font-medium">
+                        <div className={`flex items-center gap-2 backdrop-blur-sm px-3 py-2 rounded-full border ${
+                          darkMode 
+                            ? "bg-white/20 border-white/30 text-white" 
+                            : "bg-red-500/80 border-red-400/50 text-white"
+                        }`}>
+                          <span className="font-medium">
                             وقت القراءة: {breakingNews.reading_time} دقيقة
                           </span>
                         </div>
                       )}
 
                       {breakingNews.category && (
-                        <div className="bg-white/25 backdrop-blur-sm text-white px-4 py-2 rounded-full border border-white/30 font-medium shadow-lg">
+                        <div className={`backdrop-blur-sm px-4 py-2 rounded-full border font-medium shadow-lg ${
+                          darkMode 
+                            ? "bg-white/25 border-white/30 text-white" 
+                            : "bg-red-600/90 border-red-500/50 text-white"
+                        }`}>
                           {breakingNews.category.name}
                         </div>
                       )}
                     </div>
 
                     {/* شريط "اقرأ المزيد" */}
-                    <div className="mt-4 inline-flex items-center gap-2 bg-white/30 backdrop-blur-sm px-4 py-2 rounded-full border border-white/40 text-white font-semibold group-hover:bg-white/40 transition-all duration-300">
+                    <div className={`mt-4 inline-flex items-center gap-2 backdrop-blur-sm px-4 py-2 rounded-full border font-semibold transition-all duration-300 ${
+                      darkMode
+                        ? "bg-white/30 border-white/40 text-white hover:bg-white/40"
+                        : "bg-red-600/90 border-red-500/50 text-white hover:bg-red-700/95"
+                    }`}>
                       <span>اقرأ الخبر كاملاً</span>
                       <svg
                         className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300"
