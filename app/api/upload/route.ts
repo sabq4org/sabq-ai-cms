@@ -72,10 +72,10 @@ export async function POST(request: NextRequest) {
       'avatar': 'avatar',          // ✅ إضافة مجلد avatar
       'featured-image': 'featured',
       'featured': 'featured',      // ✅ إضافة دعم featured
-      'general': 'uploads'
+      'general': 'general'         // ✅ إصلاح مسار general
     };
     
-    const folder = folderMap[type] || 'uploads';
+    const folder = folderMap[type] || 'general';
     console.log(`📁 نوع الرفع: ${type}, مجلد الحفظ: ${folder}`);
     
     try {
