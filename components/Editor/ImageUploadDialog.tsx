@@ -79,15 +79,23 @@ export default function ImageUploadDialog({
       formData.append("file", file);
       formData.append("type", "article"); // نوع الرفع للمقالات
 
-      // رفع الصورة
-      let response = await fetch("/api/upload-image", {
+      // رفع الصورة باستخدام واجهة المحرر الجديدة
+      let response = await fetch("/api/upload-editor", {
         method: "POST",
         body: formData,
       });
 
-      // تجربة API بديل إذا فشل الأول
+      // تجربة واجهات بديلة إذا فشل الأول
       if (!response.ok) {
         console.log("⚠️ فشل API الأول، تجربة API بديل...");
+        response = await fetch("/api/upload-image", {
+          method: "POST",
+          body: formData,
+        });
+      }
+
+      if (!response.ok) {
+        console.log("⚠️ فشل API الثاني، تجربة API الثالث...");
         response = await fetch("/api/upload", {
           method: "POST",
           body: formData,
