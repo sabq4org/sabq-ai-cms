@@ -18,6 +18,8 @@ const createAdSchema = z.object({
   ]),
   start_date: z.string().datetime(),
   end_date: z.string().datetime(),
+  is_always_on: z.boolean().default(false), // ✅ إعلان دائم
+  max_views: z.number().positive().optional(), // ✅ حد أقصى للمشاهدات
 });
 
 // إنشاء إعلان جديد
@@ -30,14 +32,17 @@ export async function POST(request: NextRequest) {
 
     // التحقق من أن المستخدم محرر أو أدمين
     // للتطوير: قبول المستخدمين التجريبيين
-    if (user.id === 'dev-user-id' && user.role === 'editor') {
+    if (user.id === "dev-user-id" && user.role === "editor") {
       // مستخدم تجريبي مُوافق عليه
     } else {
       const userRecord = await prisma.users.findUnique({
         where: { id: user.id },
       });
 
-      if (!userRecord || (!userRecord.is_admin && userRecord.role !== "editor")) {
+      if (
+        !userRecord ||
+        (!userRecord.is_admin && userRecord.role !== "editor")
+      ) {
         return NextResponse.json({ error: "غير مخول للوصول" }, { status: 403 });
       }
     }
@@ -55,14 +60,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { title, image_url, target_url, placement, start_date, end_date } =
-      validationResult.data;
+    const {
+      title,
+      image_url,
+      target_url,
+      placement,
+      start_date,
+      end_date,
+      is_always_on,
+      max_views,
+    } = validationResult.data;
 
-    // التحقق من صحة التواريخ
+    // التحقق من صحة التواريخ (فقط إذا لم يكن دائماً)
     const startDate = new Date(start_date);
     const endDate = new Date(end_date);
 
-    if (startDate >= endDate) {
+    if (!is_always_on && startDate >= endDate) {
       return NextResponse.json(
         { error: "تاريخ البداية يجب أن يكون قبل تاريخ النهاية" },
         { status: 400 }
@@ -77,7 +90,9 @@ export async function POST(request: NextRequest) {
         placement,
         start_date: startDate,
         end_date: endDate,
-        created_by: user.id === 'dev-user-id' ? null : user.id,
+        is_always_on: is_always_on || false, // ✅ إعلان دائم
+        max_views: max_views || null, // ✅ حد أقصى للمشاهدات
+        created_by: user.id === "dev-user-id" ? null : user.id,
       },
     });
 
@@ -102,14 +117,17 @@ export async function GET(request: NextRequest) {
 
     // التحقق من أن المستخدم محرر أو أدمين
     // للتطوير: قبول المستخدمين التجريبيين
-    if (user.id === 'dev-user-id' && user.role === 'editor') {
+    if (user.id === "dev-user-id" && user.role === "editor") {
       // مستخدم تجريبي مُوافق عليه
     } else {
       const userRecord = await prisma.users.findUnique({
         where: { id: user.id },
       });
 
-      if (!userRecord || (!userRecord.is_admin && userRecord.role !== "editor")) {
+      if (
+        !userRecord ||
+        (!userRecord.is_admin && userRecord.role !== "editor")
+      ) {
         return NextResponse.json({ error: "غير مخول للوصول" }, { status: 403 });
       }
     }
@@ -191,7 +209,14 @@ export async function GET(request: NextRequest) {
             clicks: clicksCount,
             ctr: Number(ctr.toFixed(2)),
           },
-          status: getAdStatus(ad.start_date, ad.end_date, ad.is_active),
+          status: getAdStatus(
+            ad.start_date,
+            ad.end_date,
+            ad.is_active,
+            ad.is_always_on,
+            ad.max_views,
+            ad.views_count
+          ),
         };
       })
     );
@@ -216,11 +241,25 @@ export async function GET(request: NextRequest) {
 function getAdStatus(
   startDate: Date,
   endDate: Date,
-  isActive: boolean
+  isActive: boolean,
+  isAlwaysOn: boolean = false,
+  maxViews: number | null = null,
+  viewsCount: number = 0
 ): string {
-  const now = new Date();
-
   if (!isActive) return "disabled";
+
+  // التحقق من استنفاد المشاهدات
+  if (maxViews !== null && viewsCount >= maxViews) {
+    return "exhausted";
+  }
+
+  // للإعلانات الدائمة
+  if (isAlwaysOn) {
+    return "active";
+  }
+
+  // للإعلانات المحدودة بالوقت
+  const now = new Date();
   if (now < startDate) return "upcoming";
   if (now > endDate) return "expired";
   return "active";

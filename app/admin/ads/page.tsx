@@ -99,7 +99,9 @@ export default function AdsPage() {
         ...(filters.status && { status: filters.status }),
       });
 
-      const response = await fetch(`/api/ads?${params}`);
+      const response = await fetch(`/api/ads?${params}`, {
+        credentials: "include",
+      });
       const data: ApiResponse = await response.json();
 
       if (data.success) {
@@ -139,6 +141,7 @@ export default function AdsPage() {
     try {
       const response = await fetch(`/api/ads/${id}`, {
         method: "DELETE",
+        credentials: "include",
       });
 
       if (response.ok) {
@@ -159,6 +162,7 @@ export default function AdsPage() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({
           is_active: !currentStatus,
         }),

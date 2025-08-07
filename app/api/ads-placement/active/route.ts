@@ -1,10 +1,10 @@
+import { shouldDisplayAd } from "@/lib/ad-utils";
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 // جلب الإعلانات الفعالة لموضع معين (للعرض العام)
 export async function GET(request: NextRequest) {
   try {
-    const now = new Date();
     const { searchParams } = new URL(request.url);
     const placement = searchParams.get("placement");
 
@@ -32,19 +32,28 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // جلب الإعلانات الفعالة لهذا الموضع
+    // جلب جميع الإعلانات النشطة لهذا الموضع
     const ads = await prisma.ads.findMany({
       where: {
         placement: placement as any,
         is_active: true,
-        start_date: { lte: now },
-        end_date: { gte: now },
       },
       orderBy: { created_at: "desc" },
-      take: 1, // إعلان واحد فقط لكل موضع
     });
 
-    if (ads.length === 0) {
+    // تطبيق المنطق الجديد لفلترة الإعلانات
+    const validAds = ads.filter((ad) =>
+      shouldDisplayAd({
+        is_always_on: ad.is_always_on,
+        start_date: ad.start_date,
+        end_date: ad.end_date,
+        max_views: ad.max_views,
+        views_count: ad.views_count,
+        is_active: ad.is_active,
+      })
+    );
+
+    if (validAds.length === 0) {
       return NextResponse.json({
         success: true,
         data: null,
@@ -52,7 +61,8 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const ad = ads[0];
+    // أخذ أول إعلان صالح
+    const ad = validAds[0];
 
     return NextResponse.json({
       success: true,
@@ -62,6 +72,9 @@ export async function GET(request: NextRequest) {
         image_url: ad.image_url,
         target_url: ad.target_url,
         placement: ad.placement,
+        is_always_on: ad.is_always_on,
+        max_views: ad.max_views,
+        views_count: ad.views_count,
       },
     });
   } catch (error) {

@@ -1,31 +1,40 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { setUserCookie, getDefaultUser } from '@/lib/auth-utils';
+import { NextResponse } from "next/server";
 
 // تسجيل دخول تجريبي للتطوير
 export async function POST() {
   try {
     // إنشاء مستخدم افتراضي
     const user = {
-      id: 'dev-user-id',
-      name: 'مطور المحتوى',
-      email: 'dev@sabq.org',
-      role: 'editor'
+      id: "dev-user-id",
+      name: "مطور المحتوى",
+      email: "dev@sabq.org",
+      role: "editor",
     };
-    
-    // حفظ المستخدم في الكوكيز
-    await setUserCookie(user);
-    
-    return NextResponse.json({
+
+    // إنشاء استجابة مع تعيين الكوكيز
+    const response = NextResponse.json({
       success: true,
-      message: 'تم تسجيل الدخول بنجاح',
-      user
+      message: "تم تسجيل الدخول بنجاح",
+      user,
     });
-    
+
+    // تعيين كوكيز المصادقة
+    response.cookies.set("auth-token", "dev-session-token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 7, // أسبوع واحد
+    });
+
+    return response;
   } catch (error) {
-    console.error('خطأ في تسجيل الدخول:', error);
-    return NextResponse.json({
-      error: 'خطأ في تسجيل الدخول'
-    }, { status: 500 });
+    console.error("خطأ في تسجيل الدخول:", error);
+    return NextResponse.json(
+      {
+        error: "خطأ في تسجيل الدخول",
+      },
+      { status: 500 }
+    );
   }
 }
 
@@ -33,7 +42,7 @@ export async function POST() {
 export async function GET() {
   return NextResponse.json({
     success: true,
-    message: 'يمكنك استخدام POST لتسجيل دخول تجريبي',
-    note: 'هذا للتطوير فقط'
+    message: "يمكنك استخدام POST لتسجيل دخول تجريبي",
+    note: "هذا للتطوير فقط",
   });
 }

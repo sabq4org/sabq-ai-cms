@@ -60,7 +60,7 @@ export async function POST() {
     email: 'dev@sabq.org',
     role: 'editor'
   };
-  
+
   await setUserCookie(user);
   return NextResponse.json({ success: true, user });
 }
@@ -147,7 +147,7 @@ curl -X POST "http://localhost:3001/api/dev-login"
 ```json
 {
   "إنشاء_إعلان": "✅ نجح",
-  "رفع_صورة": "✅ نجح", 
+  "رفع_صورة": "✅ نجح",
   "حفظ_قاعدة_البيانات": "✅ نجح",
   "المصادقة": "✅ تعمل",
   "الحالة": "🚀 جاهز للإنتاج"
@@ -165,6 +165,6 @@ curl -X POST "http://localhost:3001/api/dev-login"
 
 ---
 
-*تم إنشاء هذا التقرير في: 7 أغسطس 2025*  
-*المطور: GitHub Copilot AI Assistant*  
+*تم إنشاء هذا التقرير في: 7 أغسطس 2025*
+*المطور: GitHub Copilot AI Assistant*
 *الحالة: مكتمل ✅*

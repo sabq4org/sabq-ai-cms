@@ -28,6 +28,8 @@ interface FormData {
   placement: string;
   start_date: string;
   end_date: string;
+  is_always_on: boolean; // ✅ إعلان دائم
+  max_views: number | null; // ✅ حد أقصى للمشاهدات
 }
 
 export default function CreateAdPage() {
@@ -39,18 +41,44 @@ export default function CreateAdPage() {
     placement: "",
     start_date: "",
     end_date: "",
+    is_always_on: false, // ✅ إعلان دائم
+    max_views: null, // ✅ حد أقصى للمشاهدات
   });
   const [loading, setLoading] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [errors, setErrors] = useState<Partial<FormData>>({});
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [previewImage, setPreviewImage] = useState<string>("");
 
+  // تسجيل دخول تلقائي للتطوير
+  const ensureAuthenticated = async () => {
+    try {
+      const authResponse = await fetch("/api/auth-test", {
+        credentials: "include",
+      });
+
+      if (!authResponse.ok) {
+        // المستخدم غير مسجل دخول، قم بتسجيل دخول تلقائي
+        await fetch("/api/dev-login", {
+          method: "POST",
+          credentials: "include",
+        });
+      }
+    } catch (error) {
+      console.warn("فشل في التحقق من المصادقة:", error);
+    }
+  };
+
   // معالجة تغيير الحقول
-  const handleInputChange = (field: keyof FormData, value: string) => {
+  const handleInputChange = (
+    field: keyof FormData,
+    value: string | boolean | number | null
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     // إزالة خطأ الحقل عند التعديل
     if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
+      const newErrors = { ...errors };
+      delete newErrors[field];
+      setErrors(newErrors);
     }
   };
 
@@ -77,8 +105,12 @@ export default function CreateAdPage() {
       formData.append("file", file);
       formData.append("type", "ads"); // تحديد نوع الرفع للإعلانات
 
+      // التأكد من المصادقة
+      await ensureAuthenticated();
+
       const response = await fetch(`/api/upload-production`, {
         method: "POST",
+        credentials: "include", // ✅ إرسال الكوكيز مع الطلب
         body: formData,
       });
 
@@ -99,9 +131,13 @@ export default function CreateAdPage() {
     }
   };
 
-  // التحقق من صحة النموذج
-  const validateForm = (): boolean => {
-    const newErrors: Partial<FormData> = {};
+  // التحقق من صحة البيانات
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (!formData.title?.trim()) {
+      newErrors.title = "عنوان الإعلان مطلوب";
+    }
 
     if (!formData.image_url) {
       newErrors.image_url = "صورة الإعلان مطلوبة";
@@ -125,17 +161,23 @@ export default function CreateAdPage() {
       newErrors.start_date = "تاريخ البداية مطلوب";
     }
 
-    if (!formData.end_date) {
+    // التحقق من تاريخ النهاية فقط إذا لم يكن الإعلان دائماً
+    if (!formData.is_always_on && !formData.end_date) {
       newErrors.end_date = "تاريخ النهاية مطلوب";
     }
 
-    if (formData.start_date && formData.end_date) {
+    if (!formData.is_always_on && formData.start_date && formData.end_date) {
       const startDate = new Date(formData.start_date);
       const endDate = new Date(formData.end_date);
 
       if (endDate <= startDate) {
         newErrors.end_date = "تاريخ النهاية يجب أن يكون بعد تاريخ البداية";
       }
+    }
+
+    // التحقق من حد المشاهدات
+    if (formData.max_views !== null && formData.max_views <= 0) {
+      newErrors.max_views = "حد المشاهدات يجب أن يكون أكبر من صفر";
     }
 
     setErrors(newErrors);
@@ -151,11 +193,15 @@ export default function CreateAdPage() {
     try {
       setLoading(true);
 
+      // التأكد من المصادقة
+      await ensureAuthenticated();
+
       const response = await fetch("/api/ads", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include", // ✅ إرسال الكوكيز مع الطلب
         body: JSON.stringify({
           ...formData,
           start_date: new Date(formData.start_date).toISOString(),
@@ -379,6 +425,60 @@ export default function CreateAdPage() {
                     {errors.end_date}
                   </p>
                 )}
+              </div>
+            </div>
+
+            {/* ✅ إعدادات متقدمة */}
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                إعدادات متقدمة
+              </h3>
+
+              <div className="space-y-4">
+                {/* إعلان دائم */}
+                <div className="flex items-center space-x-3 space-x-reverse">
+                  <input
+                    type="checkbox"
+                    id="is_always_on"
+                    checked={formData.is_always_on}
+                    onChange={(e) =>
+                      handleInputChange("is_always_on", e.target.checked)
+                    }
+                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                  />
+                  <label
+                    htmlFor="is_always_on"
+                    className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
+                    إعلان دائم (بدون تاريخ انتهاء)
+                  </label>
+                </div>
+
+                {/* حد أقصى للمشاهدات */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    عدد مرات الظهور (اختياري)
+                  </label>
+                  <div className="relative">
+                    <Eye className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <input
+                      type="number"
+                      min="1"
+                      placeholder="مثال: 1000"
+                      value={formData.max_views || ""}
+                      onChange={(e) =>
+                        handleInputChange(
+                          "max_views",
+                          e.target.value ? parseInt(e.target.value) : null
+                        )
+                      }
+                      className="w-full pr-10 pl-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    />
+                  </div>
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    إذا تُرك فارغاً، فلن يكون هناك حد أقصى للمشاهدات
+                  </p>
+                </div>
               </div>
             </div>
 

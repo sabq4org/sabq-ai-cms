@@ -1999,6 +1999,8 @@ model ads {
   placement    ads_placement
   start_date   DateTime
   end_date     DateTime
+  is_always_on Boolean            @default(false)  // ✅ إعلان دائم
+  max_views    Int?               // ✅ حد أقصى للمشاهدات
   views_count  Int                @default(0)
   clicks_count Int                @default(0)
   is_active    Boolean            @default(true)
