@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import MobileNewsManagement from '@/components/mobile/MobileNewsManagement';
+import NewsBarTest from '@/components/NewsBarTest';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -127,10 +128,6 @@ export default function NewsManagementPageEnhanced() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  if (isMobile) {
-    return <MobileNewsManagement />;
-  }
-
   // دالة لتحويل الوقت النسبي
   const getRelativeTime = (dateString: string) => {
     const date = new Date(dateString);
@@ -155,7 +152,14 @@ export default function NewsManagementPageEnhanced() {
         const startTime = Date.now();
         
         // جلب البيانات مع الترتيب من الأحدث
-        const response = await fetch('/api/articles?status=all&limit=100&sort=created_at&order=desc');
+        const response = await fetch('/api/articles?status=all&limit=100&sort=created_at&order=desc', {
+          cache: 'no-store', // تجنب التخزين المؤقت
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          }
+        });
+        
         if (!response.ok) {
           throw new Error('فشل في تحميل البيانات');
         }
@@ -205,15 +209,20 @@ export default function NewsManagementPageEnhanced() {
         
         console.log(`📊 تم تحويل وترتيب ${sortedData.length} مقال`);
         setNewsData(sortedData);
+        
+        // إظهار إشعار نجاح
+        toast.success(`تم تحديث ${sortedData.length} مقال بنجاح`);
+        
       } catch (err) {
         console.error('❌ خطأ في جلب البيانات:', err);
         setError(err instanceof Error ? err.message : 'حدث خطأ في تحميل البيانات');
+        toast.error('فشل في تحميل البيانات');
       } finally {
         setLoading(false);
       }
     };
     fetchNewsData();
-  }, []);
+  }, []); // إزالة dependency لجعل التحديث يدوي
 
   // جلب التصنيفات
   useEffect(() => {
@@ -233,6 +242,10 @@ export default function NewsManagementPageEnhanced() {
     
     fetchCategories();
   }, []);
+
+  if (isMobile) {
+    return <MobileNewsManagement />;
+  }
 
   // دوال المساعدة للأزرار
   const handleDelete = async (id: string) => {
@@ -450,6 +463,9 @@ export default function NewsManagementPageEnhanced() {
 
         {/* المحتوى الرئيسي */}
         <div className="space-y-6">
+          {/* مكون اختبار الشريط الإخباري */}
+          <NewsBarTest />
+
           {/* إحصائيات سريعة */}
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
             <div className={`rounded-xl p-4 border ${
@@ -634,13 +650,17 @@ export default function NewsManagementPageEnhanced() {
                 </DropdownMenu>
 
                 <Button
-                  onClick={() => window.location.reload()}
+                  onClick={() => {
+                    // إعادة تحميل البيانات يدوياً
+                    setLoading(true);
+                    window.location.reload();
+                  }}
                   variant="outline"
                   className="flex items-center gap-2"
                   disabled={loading}
                 >
                   <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-                  تحديث
+                  تحديث فوري
                 </Button>
               </div>
             </div>

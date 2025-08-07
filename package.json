@@ -18,6 +18,8 @@
     "prisma:studio": "prisma studio",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
+    "check-empty-categories": "node scripts/manage-empty-categories.js check",
+    "delete-empty-categories": "node scripts/manage-empty-categories.js delete",
     "clean": "rm -rf .next && rm -rf node_modules/.cache",
     "check-roles": "node scripts/check-roles.js",
     "seed-roles": "node scripts/seed-roles.js",

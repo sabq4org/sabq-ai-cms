@@ -23,6 +23,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import SafeHydration from "@/components/SafeHydration";
 import ArticleViews from "@/components/ui/ArticleViews";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
+import "@/styles/pulse-ticker-fixes.css";
 
 // Safe Dynamic imports with Next.js dynamic and SSR disabled to prevent hydration issues
 const EmptyComponent = () => null;
