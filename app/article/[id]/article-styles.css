@@ -1,6 +1,13 @@
 /* 📰 أنماط صفحة المقال */
 .article-page {
-  font-family: var(--font-family-base, 'IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', system-ui, sans-serif) !important;
+  font-family: var(
+    --font-family-base,
+    "IBM Plex Sans Arabic",
+    "Tajawal",
+    "Noto Sans Arabic",
+    system-ui,
+    sans-serif
+  ) !important;
 }
 
 .article-container {
@@ -10,7 +17,14 @@
 }
 
 .article-title {
-  font-family: var(--font-family-heading, 'IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', system-ui, sans-serif) !important;
+  font-family: var(
+    --font-family-heading,
+    "IBM Plex Sans Arabic",
+    "Tajawal",
+    "Noto Sans Arabic",
+    system-ui,
+    sans-serif
+  ) !important;
   font-size: 2.5rem;
   font-weight: 700;
   line-height: 1.2;
@@ -19,7 +33,14 @@
 }
 
 .article-content {
-  font-family: var(--font-family-content, 'IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', system-ui, sans-serif) !important;
+  font-family: var(
+    --font-family-content,
+    "IBM Plex Sans Arabic",
+    "Tajawal",
+    "Noto Sans Arabic",
+    system-ui,
+    sans-serif
+  ) !important;
   line-height: 1.8;
   font-size: 1.125rem; /* 18px */
   color: #374151;
@@ -72,7 +93,14 @@ hr.article-separator {
 .article-content h4,
 .article-content h5,
 .article-content h6 {
-  font-family: var(--font-family-heading, 'IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', system-ui, sans-serif) !important;
+  font-family: var(
+    --font-family-heading,
+    "IBM Plex Sans Arabic",
+    "Tajawal",
+    "Noto Sans Arabic",
+    system-ui,
+    sans-serif
+  ) !important;
   font-weight: 600;
   margin: 2rem 0 1rem 0;
   line-height: 1.3;
@@ -95,15 +123,15 @@ hr.article-separator {
   .article-container {
     padding: 1rem;
   }
-  
+
   .article-title {
     font-size: 1.75rem;
   }
-  
+
   .article-content {
     font-size: 1rem; /* 16px */
   }
-  
+
   .article-content.reading-mode {
     font-size: 1.125rem; /* 18px */
   }
@@ -111,7 +139,7 @@ hr.article-separator {
 
 @media print {
   .article-content {
-    font-family: 'Times New Roman', serif;
+    font-family: "Times New Roman", serif;
     color: black;
   }
 }
