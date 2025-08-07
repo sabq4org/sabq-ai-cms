@@ -10,6 +10,8 @@ import {
   formatViewsCount,
 } from "@/lib/format-utils";
 import { cn, getArticleLink } from "@/lib/utils";
+import "@/styles/reporter-avatar-enhanced.css";
+import "@/styles/reporter-mobile-fix.css";
 import {
   Activity,
   ArrowLeft,
@@ -1374,29 +1376,27 @@ const ReporterProfilePage: React.FC = () => {
                   : "bg-gradient-to-r from-slate-50 to-blue-50 border-slate-200"
               }`}
             >
-              <div className="flex flex-col lg:flex-row items-center lg:items-start gap-6">
-                {/* صورة شخصية دائرية */}
+              <div className="flex flex-col lg:flex-row items-center lg:items-start gap-6 reporter-hero-mobile">
+                {/* صورة شخصية دائرية محسّنة للمحمول */}
                 <div className="relative">
-                  <div className="w-24 h-24 lg:w-32 lg:h-32 rounded-full overflow-hidden ring-4 ring-blue-200 dark:ring-slate-600 shadow-lg">
+                  <div className="reporter-avatar-container reporter-avatar-container-enhanced rounded-full overflow-hidden reporter-avatar-ring reporter-avatar-shadow">
                     {reporter.avatar_url ? (
-                      <CloudImage
-                        src={reporter.avatar_url}
-                        alt={reporter.full_name}
-                        width={128}
-                        height={128}
-                        className="w-full h-full object-cover"
-                        fallbackType="author"
-                      />
+                      <div className="reporter-avatar-inner">
+                        <CloudImage
+                          src={reporter.avatar_url}
+                          alt={reporter.full_name}
+                          width={160}
+                          height={160}
+                          className="reporter-avatar-image reporter-avatar-smart-crop reporter-avatar-enhance"
+                          fallbackType="author"
+                          priority={true}
+                          sizes="(max-width: 640px) 100px, (max-width: 768px) 110px, (max-width: 1024px) 128px, 160px"
+                        />
+                      </div>
                     ) : (
-                      // استخدام تدرج مع الأحرف الأولى كـ fallback محلي
-                      <div
-                        className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center"
-                        style={{
-                          background:
-                            "linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)",
-                        }}
-                      >
-                        <span className="text-white font-bold text-xl lg:text-2xl drop-shadow-sm">
+                      // استخدام تدرج مع الأحرف الأولى كـ fallback محسن
+                      <div className="reporter-avatar-fallback w-full h-full">
+                        <span>
                           {reporter.full_name
                             .split(" ")
                             .map((word) => word.charAt(0))
@@ -1407,9 +1407,9 @@ const ReporterProfilePage: React.FC = () => {
                     )}
                   </div>
 
-                  {/* شارة التحقق */}
+                  {/* شارة التحقق محسّنة */}
                   {reporter.is_verified && (
-                    <div className="absolute -bottom-1 -right-1">
+                    <div className="reporter-verification-badge">
                       <div
                         className={`flex items-center gap-1 px-2 py-1 rounded-full shadow-md ${
                           darkMode
@@ -1425,8 +1425,8 @@ const ReporterProfilePage: React.FC = () => {
                     </div>
                   )}
 
-                  {/* مؤشر AI */}
-                  <div className="absolute -top-1 -left-1">
+                  {/* مؤشر AI محسّن */}
+                  <div className="reporter-ai-badge">
                     <div
                       className={`flex items-center gap-1 px-2 py-1 rounded-full shadow-md animate-pulse ${
                         darkMode
@@ -1442,8 +1442,8 @@ const ReporterProfilePage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* معلومات أساسية */}
-                <div className="flex-1 text-center lg:text-right">
+                {/* معلومات أساسية محسّنة للمحمول */}
+                <div className="flex-1 text-center lg:text-right reporter-info-mobile">
                   <h1
                     className={`text-2xl md:text-3xl font-medium tracking-tight leading-snug mb-2 ${
                       darkMode ? "text-white" : "text-gray-900"

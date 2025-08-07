@@ -875,6 +875,14 @@ export default function ArticleClientComponent({
               </div>
             </div>
 
+            {/* أزرار المشاركة الاجتماعية */}
+            <div className="mt-6 mb-8 px-3 sm:px-0">
+              <SocialSharingButtons
+                article={{ id: article.id, title: article.title }}
+                className="justify-center sm:justify-start"
+              />
+            </div>
+
             {/* إصلاح التوجه العربي للمحتوى */}
             <style jsx>{`
               .arabic-article-content p {
@@ -939,6 +947,7 @@ export default function ArticleClientComponent({
           </div>
         </div>
       </main>
+
       <Footer />
     </>
   );
