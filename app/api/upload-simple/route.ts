@@ -76,10 +76,10 @@ export async function POST(request: NextRequest) {
         'featured': 'featured',
         'article-image': 'articles',
         'avatar': 'avatar',
-        'general': 'uploads'
+        'general': 'general'    // ✅ إصلاح مسار general
       };
       
-      const folder = folderMap[type] || 'uploads';
+      const folder = folderMap[type] || 'general';
       console.log(`📁 نوع الرفع: ${type}, مجلد الحفظ: ${folder}`);
       
       // إنشاء مسار الحفظ
@@ -127,11 +127,9 @@ export async function POST(request: NextRequest) {
       
       // تشخيص إضافي
       const diagnostics = {
-        uploadsDir: uploadsDir,
-        fileName: fileName,
-        fileExists: existsSync(uploadsDir),
         processWorkingDir: process.cwd(),
-        nodeVersion: process.version
+        nodeVersion: process.version,
+        errorMessage: fileError.message
       };
       
       console.error('📊 [SIMPLE UPLOAD] تشخيص إضافي:', diagnostics);
