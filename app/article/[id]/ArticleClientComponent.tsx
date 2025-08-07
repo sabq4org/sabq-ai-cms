@@ -462,19 +462,27 @@ export default function ArticleClientComponent({
                   </h2>
                 )}
 
-                {/* المعلومات الأساسية - Desktop مع محاذاة يمين كاملة وإزالة الحدود */}
+                {/* المعلومات الأساسية - Desktop مع ترتيب محدث: إسم المراسل - التاريخ والوقت - وقت القراءة - عدد المشاهدات */}
                 <div className="flex flex-wrap items-center justify-end gap-3 sm:gap-5 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-6 text-right border-0 article-meta-info">
+                  {/* 1. إسم المراسل - الأولوية الأولى */}
                   {article.author && (
-                    <div className="flex items-center gap-1.5 sm:gap-2 justify-end">
-                      <ReporterLink
-                        author={article.author as any}
-                        size="sm"
-                        showIcon={true}
-                        showVerification={true}
-                        className="truncate max-w-[120px] sm:max-w-none text-xs sm:text-sm text-right"
-                      />
-                    </div>
+                    <>
+                      <div className="flex items-center gap-1.5 sm:gap-2 justify-end">
+                        <ReporterLink
+                          author={article.author as any}
+                          size="sm"
+                          showIcon={true}
+                          showVerification={true}
+                          className="truncate max-w-[120px] sm:max-w-none text-xs sm:text-sm text-right"
+                        />
+                      </div>
+                      <span className="text-gray-300 dark:text-gray-600">
+                        •
+                      </span>
+                    </>
                   )}
+
+                  {/* 2. التاريخ والوقت - الأولوية الثانية */}
                   <div className="flex items-center gap-1.5 sm:gap-2 justify-end text-right">
                     <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                     <span className="hidden sm:inline text-right">
@@ -490,6 +498,9 @@ export default function ArticleClientComponent({
                       />
                     </span>
                   </div>
+                  <span className="text-gray-300 dark:text-gray-600">•</span>
+
+                  {/* 3. وقت القراءة - الأولوية الثالثة */}
                   <div className="flex items-center gap-1.5 sm:gap-2 justify-end text-right">
                     <Clock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                     <span className="text-right">
@@ -498,11 +509,18 @@ export default function ArticleClientComponent({
                       د
                     </span>
                   </div>
+
+                  {/* 4. عدد المشاهدات - الأولوية الرابعة */}
                   {article.views !== undefined && (
-                    <ArticleViews
-                      count={article.views}
-                      className="text-xs sm:text-sm text-right"
-                    />
+                    <>
+                      <span className="text-gray-300 dark:text-gray-600">
+                        •
+                      </span>
+                      <ArticleViews
+                        count={article.views}
+                        className="text-xs sm:text-sm text-right"
+                      />
+                    </>
                   )}
                 </div>
               </div>
