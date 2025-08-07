@@ -73,14 +73,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "ar_SA",
-    url: "https://sabq.me",
+    url: (process.env.NEXT_PUBLIC_SITE_URL || "https://sabq.io"),
     siteName: "سبق الذكية",
     title: "سبق الذكية - منصة الأخبار الذكية",
     description:
       "تابع أحدث الأخبار والتحليلات العميقة عبر منصة سبق الذكية المدعومة بالذكاء الاصطناعي.",
     images: [
       {
-        url: "https://sabq.me/og-image.jpg",
+        url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://sabq.io"}/og-image.jpg`,
         width: 1200,
         height: 630,
         alt: "سبق الذكية - منصة الأخبار الذكية",
@@ -96,7 +96,7 @@ export const metadata: Metadata = {
     description:
       "تابع أحدث الأخبار والتحليلات العميقة عبر منصة سبق الذكية المدعومة بالذكاء الاصطناعي.",
     images: {
-      url: "https://sabq.me/og-image.jpg",
+      url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://sabq.io"}/og-image.jpg`,
       alt: "سبق الذكية",
     },
   },
@@ -132,10 +132,10 @@ export const metadata: Metadata = {
     startupImage: "/apple-touch-icon.png",
   },
   alternates: {
-    canonical: "https://sabq.me",
+    canonical: (process.env.NEXT_PUBLIC_SITE_URL || "https://sabq.io"),
     languages: {
-      "ar-SA": "https://sabq.me",
-      ar: "https://sabq.me",
+      "ar-SA": (process.env.NEXT_PUBLIC_SITE_URL || "https://sabq.io"),
+      ar: (process.env.NEXT_PUBLIC_SITE_URL || "https://sabq.io"),
     },
   },
   category: "news",

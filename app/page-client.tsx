@@ -374,7 +374,7 @@ function NewspaperHomePage({
         <article
           dir="rtl"
           data-category={mappedCategory}
-          className={`h-full rounded-2xl overflow-hidden shadow-sm transition-all duration-300 flex flex-col news-card-css-loaded ${
+          className={`h-full rounded-2xl overflow-hidden shadow-sm transition-all duration-300 flex flex-col ${
             news.breaking || news.is_breaking
               ? darkMode
                 ? "bg-red-950/30 border border-red-800/70"
@@ -435,10 +435,7 @@ function NewspaperHomePage({
           </div>
 
           {/* خط سفلي بلون التصنيف */}
-          <div
-            className="category-underline category-underline-test"
-            aria-hidden
-          />
+          <div className="category-underline" aria-hidden />
         </article>
       </Link>
     );

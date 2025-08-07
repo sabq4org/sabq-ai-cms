@@ -99,21 +99,7 @@ article {
   --cat: #06b6d4;
 }
 
-/* Test class للتأكد من تحميل CSS */
-.news-card-css-loaded {
-  border-bottom: 2px solid red !important;
-}
-
-/* Test للخط السفلي */
-.category-underline-test {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 6px;
-  background: red !important;
-  z-index: 10;
-}
+/* تم إزالة كلاسات الاختبار */
 
 /* Line clamp backup إذا لم يعمل Tailwind */
 .line-clamp-4 {

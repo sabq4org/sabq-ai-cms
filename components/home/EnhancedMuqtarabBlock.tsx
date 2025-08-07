@@ -152,13 +152,7 @@ export default function EnhancedMuqtarabBlock({
         });
 
         const response = await fetch(
-          `/api/muqtarab/all-articles?${params.toString()}`,
-          {
-            cache: "no-store",
-            headers: {
-              "Cache-Control": "no-cache",
-            },
-          }
+          `/api/muqtarab/all-articles?${params.toString()}`
         );
 
         if (response.ok) {

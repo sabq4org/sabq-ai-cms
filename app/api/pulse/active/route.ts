@@ -63,27 +63,27 @@ async function generateRealTimeNotifications() {
     // 2. جلب أفضل التحليلات العميقة بناءً على مشاهدات المقالات المرتبطة
     const deepAnalyses = await prisma.deep_analyses.findMany({
       orderBy: { analyzed_at: "desc" },
-      take: 5, // نأخذ أكثر للفلترة
+      take: 5,
+      select: { id: true, article_id: true, analyzed_at: true },
     });
 
     console.log(`📊 عثر على ${deepAnalyses.length} تحليل عميق`);
 
     // جلب المقالات المرتبطة بالتحليلات وترتيبها حسب المشاهدات
-    const analysisArticles = [];
-    for (const analysis of deepAnalyses) {
-      const article = await prisma.articles.findUnique({
-        where: { id: analysis.article_id },
-        include: { categories: true },
-      });
-
-      if (article && article.status === "published") {
-        analysisArticles.push({
-          analysis,
-          article,
-          views: article.views || 0,
-        });
-      }
-    }
+    const analysisArticleIds = deepAnalyses.map((a) => a.article_id).filter(Boolean);
+    const analysisArticlesRows = analysisArticleIds.length
+      ? await prisma.articles.findMany({
+          where: { id: { in: analysisArticleIds as string[] }, status: "published", published_at: { not: null } },
+          include: { categories: true },
+        })
+      : [];
+    const analysisArticles = deepAnalyses
+      .map((analysis) => {
+        const article = analysisArticlesRows.find((a) => a.id === analysis.article_id);
+        if (!article) return null;
+        return { analysis, article, views: article.views || 0 };
+      })
+      .filter(Boolean) as Array<{ analysis: any; article: any; views: number }>;
 
     // ترتيب التحليلات حسب مشاهدات المقالات المرتبطة
     analysisArticles.sort((a, b) => b.views - a.views);
