@@ -91,13 +91,17 @@ const BreakingNewsBar: React.FC<BreakingNewsBarProps> = ({
   if (loading) {
     return (
       <div className="breaking-news-container">
-        <div className={`w-full py-4 ${
-          darkMode 
-            ? 'bg-gray-800 border-gray-700' 
-            : 'bg-gray-100 border-gray-200'
-        } rounded-xl border animate-pulse`}>
+        <div
+          className={`w-full py-4 ${
+            darkMode
+              ? "bg-gray-800 border-gray-700"
+              : "bg-gray-100 border-gray-200"
+          } rounded-xl border animate-pulse`}
+        >
           <div className="flex items-center justify-center">
-            <div className="text-sm text-gray-500">جاري البحث عن الأخبار العاجلة...</div>
+            <div className="text-sm text-gray-500">
+              جاري البحث عن الأخبار العاجلة...
+            </div>
           </div>
         </div>
       </div>

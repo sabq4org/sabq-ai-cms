@@ -252,10 +252,10 @@ export default function UnifiedMobileNewsCard({
 
           {/* المحتوى */}
           <div className="p-5 space-y-4">
-            {/* العنوان */}
+            {/* العنوان مع إصلاح القص */}
             <h3
               className={`
-              text-lg font-bold leading-tight line-clamp-2 group-hover:text-blue-600
+              featured-news-title text-lg font-bold leading-tight line-clamp-3 group-hover:text-blue-600
               transition-colors duration-200
               ${
                 darkMode
@@ -267,11 +267,11 @@ export default function UnifiedMobileNewsCard({
               {data.title}
             </h3>
 
-            {/* الملخص */}
+            {/* الملخص مع تحسين المسافة */}
             {data.excerpt && (
               <p
                 className={`
-                text-sm leading-relaxed line-clamp-2
+                news-excerpt text-sm leading-relaxed line-clamp-2
                 ${darkMode ? "text-gray-300" : "text-gray-600"}
               `}
               >
@@ -445,10 +445,10 @@ export default function UnifiedMobileNewsCard({
                 })()}
             </div>
 
-            {/* العنوان */}
+            {/* العنوان مع إصلاح القص */}
             <h3
               className={`
-              font-bold text-sm leading-tight line-clamp-2
+              featured-news-title font-bold text-sm leading-tight line-clamp-3
               ${darkMode ? "text-white" : "text-gray-900"}
             `}
             >
@@ -551,21 +551,21 @@ export default function UnifiedMobileNewsCard({
               })()}
           </div>
 
-          {/* العنوان */}
+          {/* العنوان مع إصلاح القص */}
           <h3
             className={`
-            font-bold text-base leading-tight line-clamp-2
+            featured-news-title font-bold text-base leading-tight line-clamp-3
             ${darkMode ? "text-white" : "text-gray-900"}
           `}
           >
             {data.title}
           </h3>
 
-          {/* الملخص */}
+          {/* الملخص مع تحسين المسافة */}
           {data.excerpt && (
             <p
               className={`
-              text-sm leading-relaxed line-clamp-2
+              news-excerpt text-sm leading-relaxed line-clamp-2
               ${darkMode ? "text-gray-300" : "text-gray-600"}
             `}
             >

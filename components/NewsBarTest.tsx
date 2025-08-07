@@ -20,26 +20,26 @@ export default function NewsBarTest({ className = "" }: NewsBarTestProps) {
   const addTestNotification = async () => {
     try {
       setIsAdding(true);
-      
+
       const testNotifications = [
         {
           type: "breaking_news",
           title: "🔴 عاجل: إعلان تجريبي للاختبار",
           target_url: "/",
-          priority: 5
+          priority: 5,
         },
         {
           type: "smart_dose",
           title: "📰 محتوى تجريبي لاختبار الشريط الإخباري",
           target_url: "/",
-          priority: 3
+          priority: 3,
         },
         {
           type: "deep_analysis",
           title: "📊 تحليل تجريبي لضمان عمل النظام",
           target_url: "/",
-          priority: 4
-        }
+          priority: 4,
+        },
       ];
 
       for (const notification of testNotifications) {
@@ -57,12 +57,11 @@ export default function NewsBarTest({ className = "" }: NewsBarTestProps) {
       }
 
       toast.success("تم إضافة بيانات تجريبية للشريط الإخباري");
-      
+
       // إعادة تحميل الصفحة لإظهار الشريط
       setTimeout(() => {
         window.location.reload();
       }, 1000);
-      
     } catch (error) {
       console.error("خطأ في إضافة البيانات التجريبية:", error);
       toast.error("فشل في إضافة البيانات التجريبية");
@@ -75,9 +74,11 @@ export default function NewsBarTest({ className = "" }: NewsBarTestProps) {
     try {
       const response = await fetch("/api/pulse/active");
       const data = await response.json();
-      
+
       if (data.success) {
-        toast.success(`الشريط الإخباري يعمل - ${data.notifications?.length || 0} إشعار`);
+        toast.success(
+          `الشريط الإخباري يعمل - ${data.notifications?.length || 0} إشعار`
+        );
       } else {
         toast.error("مشكلة في API الشريط الإخباري");
       }
@@ -87,7 +88,9 @@ export default function NewsBarTest({ className = "" }: NewsBarTestProps) {
   };
 
   return (
-    <div className={`bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 ${className}`}>
+    <div
+      className={`bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 ${className}`}
+    >
       <div className="flex items-start gap-3">
         <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mt-0.5" />
         <div className="flex-1">

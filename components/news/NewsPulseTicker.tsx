@@ -208,38 +208,42 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
         created_at: new Date().toISOString(),
         priority: 5,
         views_count: 0,
-        clicks_count: 0
+        clicks_count: 0,
       },
       {
-        id: "demo-2", 
+        id: "demo-2",
         type: "smart_dose",
         title: "📰 تابع أحدث الأخبار والتحليلات",
         target_url: "/",
         created_at: new Date().toISOString(),
         priority: 3,
         views_count: 0,
-        clicks_count: 0
-      }
+        clicks_count: 0,
+      },
     ];
-    
+
     // استخدام البيانات التجريبية لضمان ظهور الشريط
     if (notifications.length === 0) {
       setNotifications(fallbackData);
       setCurrentIndex(0);
     }
-    
+
     // إذا كان هناك خطأ، اعرض رسالة خطأ مع إبقاء الشريط مرئياً
     if (error && notifications.length === 0) {
       return (
-        <div className={cn(
-          "w-full relative overflow-hidden flex items-center justify-center",
-          isMobile
-            ? "py-3 pulse-ticker-mobile min-h-[44px] bg-gradient-to-r from-red-100 to-orange-100 dark:from-red-950/30 dark:to-orange-950/30"
-            : "py-5 pulse-ticker-desktop min-h-[64px] bg-gradient-to-r from-red-500 via-orange-500 to-red-500 dark:from-red-800 dark:via-orange-800 dark:to-red-800 shadow-lg",
-          className
-        )}>
+        <div
+          className={cn(
+            "w-full relative overflow-hidden flex items-center justify-center",
+            isMobile
+              ? "py-3 pulse-ticker-mobile min-h-[44px] bg-gradient-to-r from-red-100 to-orange-100 dark:from-red-950/30 dark:to-orange-950/30"
+              : "py-5 pulse-ticker-desktop min-h-[64px] bg-gradient-to-r from-red-500 via-orange-500 to-red-500 dark:from-red-800 dark:via-orange-800 dark:to-red-800 shadow-lg",
+            className
+          )}
+        >
           <div className="text-center text-white">
-            <span className="text-sm font-medium">⚠️ جاري تحميل الأخبار...</span>
+            <span className="text-sm font-medium">
+              ⚠️ جاري تحميل الأخبار...
+            </span>
           </div>
         </div>
       );
