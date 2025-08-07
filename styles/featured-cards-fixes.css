@@ -1,7 +1,7 @@
 /**
  * إصلاحات بطاقة الأخبار المميزة
  * Featured News Cards Fixes
- * 
+ *
  * إصلاح مشكلة قص العنوان في السطر الثالث
  * وتحسين موضع نبذة الخبر
  */
@@ -13,11 +13,11 @@
   -webkit-box-orient: vertical !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
-  
+
   /* إضافة مساحة إضافية للسطر الثالث */
   line-height: 1.4 !important; /* تقليل line-height لتوفير مساحة أكثر */
   max-height: calc(1.4em * 3) !important; /* ضبط الارتفاع الأقصى بدقة */
-  
+
   /* ضمان عدم قص النص */
   padding-bottom: 2px !important; /* مساحة إضافية في الأسفل */
   margin-bottom: 0.75rem !important; /* تقليل المسافة السفلية */
@@ -138,7 +138,7 @@
     max-height: calc(1.35em * 3 + 2px) !important;
     font-size: 0.95em !important; /* تقليل حجم الخط قليلاً للموبايل */
   }
-  
+
   .news-excerpt {
     margin-top: 0.25rem !important;
     margin-bottom: 0.5rem !important;
@@ -160,7 +160,7 @@
     line-height: 1.45 !important;
     max-height: calc(1.45em * 3) !important;
   }
-  
+
   .featured-news-title.line-clamp-3 {
     line-height: 1.35 !important;
     max-height: calc(1.35em * 3 + 3px) !important;

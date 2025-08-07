@@ -20,6 +20,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
+import AdBanner from "@/components/ads/AdBanner";
 import { SmartInteractionButtons } from "@/components/article/SmartInteractionButtons";
 import { useViewTracking } from "@/hooks/useViewTracking";
 import {
@@ -598,6 +599,9 @@ export default function ArticleClientComponent({
                 </div>
               </div>
             </header>
+
+            {/* إعلان أسفل هيدر المقال */}
+            <AdBanner placement="article_detail_header" className="mb-6" />
           </article>
         </div>
 

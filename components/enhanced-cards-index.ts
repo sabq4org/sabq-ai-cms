@@ -4,9 +4,13 @@
  */
 
 // المكونات الرئيسية
-export { default as FeaturedNewsCard, HeroNewsCard, CompactNewsCard } from "./FeaturedNewsCardEnhanced";
-export { default as UnifiedMobileNewsCard } from "./mobile/UnifiedMobileNewsCard";
 export { default as FeaturedCardsTestPage } from "./FeaturedCardsTestPage";
+export {
+  CompactNewsCard,
+  default as FeaturedNewsCard,
+  HeroNewsCard,
+} from "./FeaturedNewsCardEnhanced";
+export { default as UnifiedMobileNewsCard } from "./mobile/UnifiedMobileNewsCard";
 
 // CSS المطلوب للاستيراد
 // import "@/styles/featured-cards-fixes.css";

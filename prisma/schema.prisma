@@ -867,6 +867,7 @@ model users {
   dose_feedback            smart_dose_feedback[]     @relation("DoseFeedbackUser")
   dose_templates           smart_dose_templates[]    @relation("DoseTemplateCreator")
   user_interests           user_interests[]
+  created_ads              ads[]                     @relation("AdCreator")
 
   @@index([email], map: "idx_users_email")
   @@index([role], map: "idx_users_role")
@@ -1988,4 +1989,57 @@ enum DoseReaction {
   neutral
   shared
   saved
+}
+
+model ads {
+  id           String             @id @default(cuid())
+  title        String?            @db.VarChar(255)
+  image_url    String
+  target_url   String
+  placement    ads_placement
+  start_date   DateTime
+  end_date     DateTime
+  views_count  Int                @default(0)
+  clicks_count Int                @default(0)
+  is_active    Boolean            @default(true)
+  created_at   DateTime           @default(now())
+  updated_at   DateTime           @updatedAt
+  created_by   String?
+  metadata     Json?
+
+  creator      users?             @relation("AdCreator", fields: [created_by], references: [id])
+  analytics    ad_analytics[]
+
+  @@index([placement, is_active])
+  @@index([start_date, end_date])
+  @@index([created_by])
+}
+
+model ad_analytics {
+  id            String   @id @default(cuid())
+  ad_id         String
+  event_type    String   // "view" or "click"
+  user_id       String?
+  session_id    String?
+  ip_hash       String?
+  user_agent    String?
+  referrer      String?
+  device_type   String?
+  browser_type  String?
+  country_code  String?
+  created_at    DateTime @default(now())
+
+  ad            ads      @relation(fields: [ad_id], references: [id], onDelete: Cascade)
+
+  @@index([ad_id, event_type])
+  @@index([created_at])
+}
+
+enum ads_placement {
+  below_featured
+  below_custom_block
+  article_detail_header
+  sidebar_top
+  sidebar_bottom
+  footer_banner
 }

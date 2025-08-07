@@ -9,6 +9,7 @@ import CompactStatsBar from "@/components/mobile/CompactStatsBar";
 import EnhancedMobileNewsCard from "@/components/mobile/EnhancedMobileNewsCard";
 import SmartContentNewsCard from "@/components/mobile/SmartContentNewsCard";
 
+import AdBanner from "@/components/ads/AdBanner";
 import NewsPulseTicker from "@/components/news/NewsPulseTicker";
 import CloudImage from "@/components/ui/CloudImage";
 import { useAuth } from "@/hooks/useAuth";
@@ -686,6 +687,12 @@ function NewspaperHomePage({
             <FeaturedNewsCarousel articles={featuredArticle} />
           </div>
         )}
+
+        {/* إعلان أسفل الأخبار المميزة */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <AdBanner placement="below_featured" />
+        </div>
+
         {/* تم حذف الجرعات الذكية */}
         {/* 4. النشرة الصوتية (Audio Briefing) 🎧 */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -1063,6 +1070,12 @@ function NewspaperHomePage({
             )}
           </div>
         </section>
+
+        {/* إعلان أسفل بلوك التصنيفات */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <AdBanner placement="below_custom_block" />
+        </div>
+
         {/* 6. بطاقات الأخبار المخصصة (Featured Cards) 📰 */}
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
@@ -1421,6 +1434,14 @@ function NewspaperHomePage({
                     <p className="text-sm">
                       تحقق لاحقاً للحصول على آخر الأخبار والمقالات
                     </p>
+                  </div>
+                )}
+
+                {/* إعلان أسفل المحتوى */}
+                {((showPersonalized && personalizedArticles.length > 0) ||
+                  articles.length > 0) && (
+                  <div className="flex justify-center mt-8 mb-4">
+                    <AdBanner placement="footer_banner" />
                   </div>
                 )}
 

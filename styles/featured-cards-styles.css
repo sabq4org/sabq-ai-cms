@@ -25,8 +25,15 @@
 }
 
 @keyframes pulse-breaking {
-  0%, 100% { transform: scale(1); box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
-  50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(239, 68, 68, 0.8); }
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.8);
+  }
 }
 
 /* شارة مميز */
@@ -56,11 +63,11 @@
   letter-spacing: -0.01em;
   word-break: break-word;
   hyphens: auto;
-  
+
   /* ضبط الارتفاع بدقة */
   max-height: calc(1.4em * 3 + 2px) !important;
   padding-bottom: 2px !important;
-  
+
   /* تحسين المسافات */
   margin-bottom: 0.5rem !important;
 }
@@ -115,17 +122,17 @@
     line-height: 1.35 !important;
     max-height: calc(1.35em * 3 + 2px) !important;
   }
-  
+
   .hero-news-title {
     font-size: 1.25rem !important;
     line-height: 1.25 !important;
   }
-  
+
   .news-excerpt {
     font-size: 0.875rem !important;
     margin-top: 0.25rem !important;
   }
-  
+
   .featured-badge,
   .compact-badge {
     font-size: 0.625rem !important;
@@ -138,7 +145,7 @@
     font-size: 1.125rem !important;
     line-height: 1.4 !important;
   }
-  
+
   .hero-news-title {
     font-size: 1.5rem !important;
   }
@@ -150,12 +157,12 @@
     line-height: 1.45 !important;
     max-height: calc(1.45em * 3 + 3px) !important;
   }
-  
+
   .hero-news-title {
     font-size: 2rem !important;
     line-height: 1.2 !important;
   }
-  
+
   .news-excerpt {
     font-size: 1rem !important;
   }
@@ -181,7 +188,7 @@
     overflow: visible !important;
     page-break-inside: avoid;
   }
-  
+
   .featured-badge,
   .hero-badge,
   .compact-badge {
@@ -204,7 +211,7 @@
 
 /* تأثيرات إضافية للبطاقات المميزة */
 .featured-news-card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
