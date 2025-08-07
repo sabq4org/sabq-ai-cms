@@ -97,13 +97,19 @@ const BreakingNewsBar: React.FC<BreakingNewsBarProps> = ({
   };
 
   return (
-    <div className={`breaking-news-container ${className}`} style={{ marginTop: 0, paddingTop: 0 }}>
+    <div
+      className={`breaking-news-container ${className}`}
+      style={{ marginTop: 0, paddingTop: 0 }}
+    >
       {/* الخبر العاجل - نسخة الموبايل محذوفة حسب الطلب */}
       {/* تم إزالة نسخة الموبايل من شريط الأخبار العاجلة */}
 
       {/* الخبر العاجل - نسخة الديسكتوب المحسنة */}
       <div className="hidden lg:block">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6" style={{ marginTop: 0 }}>
+        <div
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6"
+          style={{ marginTop: 0 }}
+        >
           <div
             className={`relative overflow-hidden rounded-3xl shadow-2xl backdrop-blur-sm ${
               darkMode
@@ -114,11 +120,12 @@ const BreakingNewsBar: React.FC<BreakingNewsBarProps> = ({
             {/* خلفية متحركة محسنة */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse"></div>
             <div className="absolute inset-0 opacity-10">
-              <div className="w-full h-full bg-repeat bg-[length:60px_60px]" 
-                   style={{
-                     backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M0 60L60 0H0v60zm60 0V0H0l60 60z'/%3E%3C/g%3E%3C/svg%3E")`
-                   }}>
-              </div>
+              <div
+                className="w-full h-full bg-repeat bg-[length:60px_60px]"
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M0 60L60 0H0v60zm60 0V0H0l60 60z'/%3E%3C/g%3E%3C/svg%3E")`,
+                }}
+              ></div>
             </div>
 
             {/* إطار مضيء */}
@@ -136,7 +143,9 @@ const BreakingNewsBar: React.FC<BreakingNewsBarProps> = ({
                             <AlertTriangle className="w-6 h-6 text-white animate-bounce" />
                             <div className="absolute inset-0 bg-yellow-400 rounded-full blur-md opacity-60 animate-ping"></div>
                           </div>
-                          <span className="text-white font-bold text-lg tracking-wide drop-shadow-sm">خبر عاجل</span>
+                          <span className="text-white font-bold text-lg tracking-wide drop-shadow-sm">
+                            خبر عاجل
+                          </span>
                         </div>
                         {/* نبضة حول الشارة */}
                         <div className="absolute inset-0 bg-red-400/30 rounded-full blur-lg animate-pulse scale-110"></div>
@@ -200,8 +209,18 @@ const BreakingNewsBar: React.FC<BreakingNewsBarProps> = ({
                     {/* شريط "اقرأ المزيد" */}
                     <div className="mt-4 inline-flex items-center gap-2 bg-white/30 backdrop-blur-sm px-4 py-2 rounded-full border border-white/40 text-white font-semibold group-hover:bg-white/40 transition-all duration-300">
                       <span>اقرأ الخبر كاملاً</span>
-                      <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      <svg
+                        className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 19l-7-7 7-7"
+                        />
                       </svg>
                     </div>
                   </div>

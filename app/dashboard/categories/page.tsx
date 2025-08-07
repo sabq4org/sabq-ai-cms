@@ -179,17 +179,38 @@ export default function CategoriesPage() {
     const category = categories.find(cat => cat.id === categoryId) || 
                      categories.find(cat => cat.children?.some(child => child.id === categoryId));
     const articleCount = category?.articles_count || category?.article_count || 0;
-    if (category && !category.can_delete && articleCount > 0) {
+    
+    // منع حذف التصنيفات التي تحتوي على مقالات
+    if (category && articleCount > 0) {
       setNotification({
         type: 'warning',
-        message: 'لا يمكن حذف تصنيف يحتوي على مقالات. يرجى نقل المقالات أولاً.'
+        message: `لا يمكن حذف تصنيف "${category.name_ar || category.name}" لأنه يحتوي على ${articleCount} مقال. يرجى نقل المقالات أولاً.`
       });
       setTimeout(() => setNotification(null), 5000);
       return;
     }
-    if (window.confirm('هل أنت متأكد من حذف هذا التصنيف؟ هذا الإجراء لا يمكن التراجع عنه.')) {
-      try {
-        // TODO: إضافة API call لحذف التصنيف
+
+    // تأكيد الحذف
+    const confirmMessage = `هل أنت متأكد من حذف التصنيف "${category?.name_ar || category?.name}"؟\n\nهذا الإجراء لا يمكن التراجع عنه.`;
+    if (!window.confirm(confirmMessage)) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      
+      // إرسال طلب الحذف إلى API
+      const response = await fetch(`/api/categories/${categoryId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        // إزالة التصنيف من القائمة المحلية
         setCategories(prev => 
           prev.filter(cat => cat.id !== categoryId)
             .map(cat => ({
@@ -197,17 +218,115 @@ export default function CategoriesPage() {
               children: cat.children?.filter(child => child.id !== categoryId)
             }))
         );
+        
         setNotification({
           type: 'success',
-          message: 'تم حذف التصنيف بنجاح'
+          message: `تم حذف التصنيف "${category?.name_ar || category?.name}" بنجاح`
         });
         setTimeout(() => setNotification(null), 3000);
-      } catch (error) {
+        
+        // إعادة جلب البيانات لضمان التحديث
+        await fetchCategories();
+        
+      } else {
+        throw new Error(result.error || 'فشل في حذف التصنيف');
+      }
+      
+    } catch (error) {
+      console.error('خطأ في حذف التصنيف:', error);
+      setNotification({
+        type: 'error',
+        message: error instanceof Error ? error.message : 'حدث خطأ في حذف التصنيف'
+      });
+      setTimeout(() => setNotification(null), 5000);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // دالة جديدة لحذف التصنيفات الفارغة
+  const handleDeleteEmptyCategories = async () => {
+    // العثور على التصنيفات الفارغة
+    const emptyCategories = categories.filter(cat => (cat.articles_count || cat.article_count || 0) === 0);
+    
+    if (emptyCategories.length === 0) {
+      setNotification({
+        type: 'info',
+        message: 'لا توجد تصنيفات فارغة للحذف'
+      });
+      setTimeout(() => setNotification(null), 3000);
+      return;
+    }
+
+    const confirmMessage = `تم العثور على ${emptyCategories.length} تصنيف فارغ:\n\n${emptyCategories.map(cat => `• ${cat.name_ar || cat.name}`).join('\n')}\n\nهل تريد حذف جميع التصنيفات الفارغة؟\n\nهذا الإجراء لا يمكن التراجع عنه.`;
+    
+    if (!window.confirm(confirmMessage)) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      let deletedCount = 0;
+      let failedCount = 0;
+      const failedCategories: string[] = [];
+
+      // حذف التصنيفات الفارغة واحداً تلو الآخر
+      for (const category of emptyCategories) {
+        try {
+          const response = await fetch(`/api/categories/${category.id}`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+
+          const result = await response.json();
+
+          if (response.ok && result.success) {
+            deletedCount++;
+          } else {
+            failedCount++;
+            failedCategories.push(category.name_ar || category.name || category.id);
+          }
+        } catch (error) {
+          failedCount++;
+          failedCategories.push(category.name_ar || category.name || category.id);
+          console.error(`فشل في حذف التصنيف ${category.name_ar || category.name}:`, error);
+        }
+      }
+
+      // عرض النتائج
+      if (deletedCount > 0 && failedCount === 0) {
+        setNotification({
+          type: 'success',
+          message: `تم حذف ${deletedCount} تصنيف فارغ بنجاح`
+        });
+      } else if (deletedCount > 0 && failedCount > 0) {
+        setNotification({
+          type: 'warning',
+          message: `تم حذف ${deletedCount} تصنيف، فشل في حذف ${failedCount} تصنيف: ${failedCategories.join(', ')}`
+        });
+      } else {
         setNotification({
           type: 'error',
-          message: 'حدث خطأ في حذف التصنيف'
+          message: `فشل في حذف جميع التصنيفات: ${failedCategories.join(', ')}`
         });
       }
+
+      setTimeout(() => setNotification(null), 5000);
+      
+      // إعادة جلب البيانات لضمان التحديث
+      await fetchCategories();
+
+    } catch (error) {
+      console.error('خطأ في حذف التصنيفات الفارغة:', error);
+      setNotification({
+        type: 'error',
+        message: 'حدث خطأ عام في حذف التصنيفات الفارغة'
+      });
+      setTimeout(() => setNotification(null), 5000);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -303,7 +422,7 @@ export default function CategoriesPage() {
                                 <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
                                   <Image
                                     src={category.cover_image}
-                                    alt={category.name_ar}
+                                    alt={category.name_ar || category.name || 'صورة التصنيف'}
                                     fill
                                     className="object-cover"
                                     sizes="48px"
@@ -524,6 +643,13 @@ export default function CategoriesPage() {
           <div className="flex items-center gap-3">
             <Button onClick={handleExport} variant="outline"><Download className="ml-2 h-4 w-4" />تصدير</Button>
             <Button onClick={handleImportClick} variant="outline"><Upload className="ml-2 h-4 w-4" />استيراد</Button>
+            <Button 
+              onClick={handleDeleteEmptyCategories}
+              variant="outline"
+              className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+            >
+              <Trash2 className="ml-2 h-4 w-4" />حذف التصنيفات الفارغة
+            </Button>
             <input type="file" ref={fileInputRef} className="hidden" onChange={handleImport} accept=".json" />
             <Button onClick={() => setShowAddModal(true)}><PlusCircle className="ml-2 h-4 w-4" />إضافة تصنيف جديد</Button>
           </div>

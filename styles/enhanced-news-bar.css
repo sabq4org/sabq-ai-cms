@@ -4,26 +4,33 @@
 .pulse-ticker-desktop {
   position: relative;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  box-shadow: 
-    0 10px 30px rgba(102, 126, 234, 0.3),
-    0 4px 15px rgba(118, 75, 162, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3),
+    0 4px 15px rgba(118, 75, 162, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .pulse-ticker-desktop::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
   animation: shimmer 3s infinite;
 }
 
 @keyframes shimmer {
-  0% { left: -100%; }
-  100% { left: 100%; }
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
 }
 
 /* تحسينات شريط الأخبار العاجلة */
@@ -38,15 +45,11 @@
 
 @keyframes breaking-pulse {
   0% {
-    box-shadow: 
-      0 0 20px rgba(220, 38, 38, 0.5),
-      0 0 40px rgba(220, 38, 38, 0.3),
+    box-shadow: 0 0 20px rgba(220, 38, 38, 0.5), 0 0 40px rgba(220, 38, 38, 0.3),
       0 0 60px rgba(220, 38, 38, 0.1);
   }
   100% {
-    box-shadow: 
-      0 0 30px rgba(220, 38, 38, 0.7),
-      0 0 60px rgba(220, 38, 38, 0.5),
+    box-shadow: 0 0 30px rgba(220, 38, 38, 0.7), 0 0 60px rgba(220, 38, 38, 0.5),
       0 0 90px rgba(220, 38, 38, 0.3);
   }
 }
@@ -59,13 +62,18 @@
 }
 
 .news-link-enhanced::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
   transition: left 0.5s ease;
 }
 
@@ -77,16 +85,15 @@
 @media (prefers-color-scheme: dark) {
   .pulse-ticker-desktop {
     background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
-    box-shadow: 
-      0 10px 30px rgba(30, 41, 59, 0.5),
-      0 4px 15px rgba(51, 65, 85, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(30, 41, 59, 0.5),
+      0 4px 15px rgba(51, 65, 85, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   }
 }
 
 /* تأثيرات النبض المتقدمة */
 @keyframes advanced-pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     opacity: 1;
   }
@@ -123,6 +130,10 @@
 }
 
 @keyframes loading {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }

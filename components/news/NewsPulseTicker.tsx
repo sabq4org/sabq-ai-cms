@@ -218,11 +218,12 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
         <>
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse"></div>
           <div className="absolute inset-0 opacity-20">
-            <div className="w-full h-full bg-repeat bg-[length:40px_40px]" 
-                 style={{
-                   backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M0 40L40 0H0v40zm40 0V0H0l40 40z'/%3E%3C/g%3E%3C/svg%3E")`
-                 }}>
-            </div>
+            <div
+              className="w-full h-full bg-repeat bg-[length:40px_40px]"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M0 40L40 0H0v40zm40 0V0H0l40 40z'/%3E%3C/g%3E%3C/svg%3E")`,
+              }}
+            ></div>
           </div>
         </>
       )}
@@ -276,10 +277,12 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
                     : "text-base font-medium text-white hover:text-yellow-200 hover:scale-[1.02] drop-shadow-sm hover:underline transition-all duration-300 flex items-center justify-center min-h-[24px] group"
                 }
               >
-                <span className={cn(
-                  "flex items-center justify-center h-full py-1 transition-all duration-300",
-                  !isMobile && "group-hover:drop-shadow-lg"
-                )}>
+                <span
+                  className={cn(
+                    "flex items-center justify-center h-full py-1 transition-all duration-300",
+                    !isMobile && "group-hover:drop-shadow-lg"
+                  )}
+                >
                   {currentNotification.title}
                 </span>
               </Link>
@@ -302,12 +305,12 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
                   "rounded-full transition-all duration-500 cursor-pointer hover:scale-125",
                   isMobile ? "w-1.5 h-1.5" : "w-3 h-3 border border-white/50",
                   index === currentIndex
-                    ? isMobile 
-                      ? "bg-blue-500 scale-110" 
+                    ? isMobile
+                      ? "bg-blue-500 scale-110"
                       : "bg-white scale-125 shadow-lg shadow-white/30"
-                    : isMobile 
-                      ? "bg-blue-200 dark:bg-blue-700" 
-                      : "bg-white/40 hover:bg-white/60"
+                    : isMobile
+                    ? "bg-blue-200 dark:bg-blue-700"
+                    : "bg-white/40 hover:bg-white/60"
                 )}
                 onClick={() => setCurrentIndex(index)}
               />
@@ -320,7 +323,10 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
           <div className="flex-shrink-0 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 border border-white/30">
             <span className="text-xs font-medium text-white/90 flex items-center gap-1">
               <Clock className="w-3 h-3" />
-              {Math.ceil((displayDuration - (Date.now() % displayDuration)) / 1000)}s
+              {Math.ceil(
+                (displayDuration - (Date.now() % displayDuration)) / 1000
+              )}
+              s
             </span>
           </div>
         )}
