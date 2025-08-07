@@ -75,9 +75,9 @@ export default function CreateAdPage() {
 
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("type", "general"); // تحديد نوع الرفع للإعلانات
+      formData.append("type", "ads"); // تحديد نوع الرفع للإعلانات
 
-      const response = await fetch(`/api/upload`, {
+      const response = await fetch(`/api/upload-production`, {
         method: "POST",
         body: formData,
       });
