@@ -579,23 +579,21 @@ export default function ArticleClientComponent({
                 <div className="flex flex-wrap items-center justify-end gap-3 sm:gap-5 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-6 text-right border-0 article-meta-info">
                   {/* 1. إسم المراسل - الأولوية الأولى */}
                   {article.author && (
-                    <>
-                      <div className="flex items-center gap-1.5 sm:gap-2 justify-end">
-                        <ReporterLink
-                          author={article.author as any}
-                          size="sm"
-                          showIcon={true}
-                          showVerification={true}
-                          className="truncate max-w-[120px] sm:max-w-none text-xs sm:text-sm text-right"
-                        />
-                      </div>
-                      <span className="text-gray-300 dark:text-gray-600">
-                        •
-                      </span>
-                    </>
+                    <div className="flex items-center gap-1.5 sm:gap-2 justify-end">
+                      <ReporterLink
+                        author={article.author as any}
+                        size="sm"
+                        showIcon={true}
+                        showVerification={true}
+                        className="truncate max-w-[120px] sm:max-w-none text-xs sm:text-sm text-right"
+                      />
+                    </div>
                   )}
 
                   {/* 2. التاريخ والوقت - الأولوية الثانية */}
+                  {article.author && (
+                    <span className="text-gray-300 dark:text-gray-600">•</span>
+                  )}
                   <div className="flex items-center gap-1.5 sm:gap-2 justify-end text-right">
                     <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                     <span className="hidden sm:inline text-right">
@@ -611,9 +609,9 @@ export default function ArticleClientComponent({
                       />
                     </span>
                   </div>
-                  <span className="text-gray-300 dark:text-gray-600">•</span>
 
                   {/* 3. وقت القراءة - الأولوية الثالثة */}
+                  <span className="text-gray-300 dark:text-gray-600">•</span>
                   <div className="flex items-center gap-1.5 sm:gap-2 justify-end text-right">
                     <Clock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                     <span className="text-right">
@@ -750,8 +748,8 @@ export default function ArticleClientComponent({
           </article>
         </div>
 
-        {/* منطقة المحتوى - نفس عرض العنوان تماماً */}
-        <div className="px-6 lg:px-8 py-2">
+        {/* منطقة المحتوى - نفس عرض الصورة والعنوان تماماً */}
+        <div className="max-w-4xl mx-auto px-6 lg:px-8 py-2">
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 lg:p-8">
             {/* صورة المقال للموبايل - داخل منطقة المحتوى */}
             {article.featured_image &&

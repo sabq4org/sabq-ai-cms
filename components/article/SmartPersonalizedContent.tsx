@@ -6,7 +6,6 @@ import {
   type RecommendedArticle,
 } from "@/lib/ai-recommendations";
 import { formatNumber } from "@/lib/config/localization";
-import { formatRelativeDate } from "@/lib/date-utils";
 import { Brain, Clock, Eye, RefreshCw, Sparkles, Star } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
@@ -160,7 +159,9 @@ const SmartRecommendationCard: React.FC<{
       <div
         className={`relative ${isMobileScreen ? "h-32" : "h-full"} flex ${
           isMobileScreen ? "flex-row" : "flex-col"
-        } rounded-xl border-2 border-b-4 ${getBottomBorderColor(article.type)} transition-all duration-300 hover:shadow-xl overflow-hidden ${
+        } rounded-xl border-2 border-b-4 ${getBottomBorderColor(
+          article.type
+        )} transition-all duration-300 hover:shadow-xl overflow-hidden ${
           darkMode
             ? "bg-gray-800 border-gray-700 hover:border-gray-600"
             : "bg-white border-gray-200 hover:border-blue-200"
@@ -217,9 +218,7 @@ const SmartRecommendationCard: React.FC<{
         {/* المحتوى */}
         <div
           className={`flex-1 ${
-            isMobileScreen
-              ? "p-2 flex flex-col justify-between"
-              : "p-3 sm:p-4"
+            isMobileScreen ? "p-2 flex flex-col justify-between" : "p-3 sm:p-4"
           }`}
         >
           {/* Label نوع المحتوى + العبارة التشويقية - تقليل المساحة */}
@@ -255,9 +254,7 @@ const SmartRecommendationCard: React.FC<{
             >
               <p
                 className={`${
-                  isMobileScreen
-                    ? "text-[10px]"
-                    : "text-[10px] sm:text-xs"
+                  isMobileScreen ? "text-[10px]" : "text-[10px] sm:text-xs"
                 } font-medium`}
               >
                 {ctaPhrase.title}
@@ -287,26 +284,29 @@ const SmartRecommendationCard: React.FC<{
             {/* التاريخ وعدد المشاهدات في سطر واحد */}
             <div className="flex items-center gap-1.5 sm:gap-2">
               <span className="text-[9px] sm:text-xs">
-                {new Date(article.publishedAt).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric'
+                {new Date(article.publishedAt).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
                 })}
               </span>
               <span className="text-gray-300 dark:text-gray-600">•</span>
               <div className="flex items-center gap-0.5 sm:gap-1">
                 <Eye className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4" />
-                <span>{formatNumber(article.viewsCount || Math.floor(Math.random() * 5000) + 100)}</span>
+                <span>
+                  {formatNumber(
+                    article.viewsCount || Math.floor(Math.random() * 5000) + 100
+                  )}
+                </span>
               </div>
             </div>
-            
+
             {/* وقت القراءة */}
             <div className="flex items-center gap-0.5 sm:gap-1">
               <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4" />
               <span>{article.readingTime} د</span>
             </div>
           </div>
-
         </div>
       </div>
     </Link>
