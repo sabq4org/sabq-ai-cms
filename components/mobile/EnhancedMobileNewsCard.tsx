@@ -95,7 +95,7 @@ export default function EnhancedMobileNewsCard({
           {/* الصورة بارتفاع أكبر */}
           <div className="relative h-56 w-full bg-gray-200 dark:bg-gray-700">
             <SafeImage
-              src={news.featured_image}
+              src={news.featured_image || news.image_url || news.image}
               alt={news.title || "صورة المقال"}
               fill
               className="object-cover"
@@ -249,7 +249,7 @@ export default function EnhancedMobileNewsCard({
             {/* الصورة - مربعة مع زوايا دائرية */}
             <div className="relative w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden bg-gray-200 dark:bg-gray-700">
               <SafeImage
-                src={news.featured_image}
+                src={news.featured_image || news.image_url || news.image}
                 alt={news.title || "صورة المقال"}
                 fill
                 className="object-cover"
@@ -374,7 +374,7 @@ export default function EnhancedMobileNewsCard({
         {/* الصورة مع نسبة 16:9 - تظهر دائمًا إذا كانت متوفرة بغض النظر عن نوع المقال */}
         <div className="relative h-48 w-full bg-gray-200 dark:bg-gray-700">
           <SafeImage
-            src={news.featured_image}
+            src={news.featured_image || news.image_url || news.image}
             alt={news.title || "صورة المقال"}
             fill
             className="object-cover"
