@@ -456,7 +456,7 @@ export default function ArticleClientComponent({
         <div className="relative">
           <article
             ref={viewTrackingRef}
-            className="max-w-5xl mx-auto py-4 sm:py-6 lg:py-8"
+            className="max-w-4xl mx-auto py-4 sm:py-6 lg:py-8"
           >
             {/* رأس المقال محسن للموبايل */}
             <header className="mb-2 sm:mb-4">
@@ -653,9 +653,9 @@ export default function ArticleClientComponent({
         </div>
 
         {/* منطقة المحتوى */}
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+        <div className="px-4 sm:px-6 lg:px-8 py-2">
           <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 lg:p-8">
-            {/* صورة المقال - رفع الصورة قليلاً مع تحسين المسافات */}
+            {/* صورة المقال - محاذاة مع عرض العنوان والمحتوى */}
             {article.featured_image &&
               typeof article.featured_image === "string" &&
               article.featured_image.length > 0 &&

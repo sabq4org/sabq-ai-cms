@@ -176,6 +176,24 @@ export default function ArticleFeaturedImage({
         </div>
       );
 
+    case "content-width":
+      return (
+        <div className="article-featured-image w-full">
+          <div className="relative overflow-hidden rounded-lg">
+            <Image
+              src={imageUrl}
+              alt={title || "صورة المقال"}
+              width={1024}
+              height={576}
+              className="w-full h-auto object-cover"
+              priority={true}
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1024px"
+              onError={() => setImageError(true)}
+            />
+          </div>
+        </div>
+      );
+
     default:
       return null;
   }
