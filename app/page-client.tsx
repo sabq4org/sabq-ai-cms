@@ -620,7 +620,7 @@ function NewspaperHomePage({
     try {
       console.log(`🔍 جلب مقالات التصنيف ID: ${categoryId}`);
       const res = await fetch(
-        `/api/news?status=published&category_id=${categoryId}&limit=20&sort=published_at&order=desc`
+        `/api/news?status=published&category=${categoryId}&limit=20&sort=published_at&order=desc`
       );
       const json = await res.json();
 
