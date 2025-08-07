@@ -431,8 +431,8 @@ export default function ArticleClientComponent({
           >
             {/* رأس المقال محسن للموبايل */}
             <header className="mb-2 sm:mb-4">
-              {/* Desktop Header - تحسين توازن العناصر */}
-              <div className="hidden sm:block px-6 lg:px-8 py-6 lg:py-8 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl">
+              {/* Desktop Header - تحسين توازن العناصر وإزالة الحدود */}
+              <div className="hidden sm:block px-6 lg:px-8 py-6 lg:py-8 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl border-0">
                 {/* التصنيف - محاذاة لليمين مع تحسين الهامش */}
                 {article.category && (
                   <div className="flex justify-end mb-5">
@@ -462,8 +462,8 @@ export default function ArticleClientComponent({
                   </h2>
                 )}
 
-                {/* المعلومات الأساسية - Desktop مع محاذاة يمين كاملة */}
-                <div className="flex flex-wrap items-center justify-end gap-3 sm:gap-5 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-6 text-right">
+                {/* المعلومات الأساسية - Desktop مع محاذاة يمين كاملة وإزالة الحدود */}
+                <div className="flex flex-wrap items-center justify-end gap-3 sm:gap-5 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-6 text-right border-0 article-meta-info">
                   {article.author && (
                     <div className="flex items-center gap-1.5 sm:gap-2 justify-end">
                       <ReporterLink

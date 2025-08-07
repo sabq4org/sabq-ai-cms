@@ -25,6 +25,41 @@
   color: #374151;
 }
 
+/* تحسينات تصميم هيدر المقال - إزالة الخطوط والحدود */
+.article-header {
+  border: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
+.article-meta {
+  border: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
+/* تحسين محاذاة معلومات النشر لليمين */
+.article-meta-info {
+  text-align: right !important;
+  justify-content: flex-end !important;
+  direction: rtl !important;
+  flex-direction: row-reverse !important;
+}
+
+.article-meta-info > * {
+  text-align: right !important;
+  direction: rtl !important;
+}
+
+/* إزالة أي خطوط فاصلة */
+.article-divider {
+  display: none !important;
+}
+
+hr.article-separator {
+  display: none !important;
+}
+
 /* وضع القراءة المحسن */
 .article-content.reading-mode {
   font-size: 1.25rem; /* 20px */
