@@ -93,21 +93,21 @@ const getTypeColors = (type: RecommendedArticle["type"]) => {
   }
 };
 
-// دالة للحصول على لون الخط السفلي للبطاقة
+// دالة للحصول على لون الخط السفلي الخفيف للبطاقة
 const getBottomBorderColor = (type: RecommendedArticle["type"]) => {
   switch (type) {
     case "تحليل":
-      return "border-b-purple-500 dark:border-b-purple-400";
+      return "border-b-purple-200 dark:border-b-purple-800";
     case "رأي":
-      return "border-b-green-500 dark:border-b-green-400";
+      return "border-b-green-200 dark:border-b-green-800";
     case "ملخص":
-      return "border-b-blue-500 dark:border-b-blue-400";
+      return "border-b-blue-200 dark:border-b-blue-800";
     case "عاجل":
-      return "border-b-red-500 dark:border-b-red-400";
+      return "border-b-red-200 dark:border-b-red-800";
     case "تقرير":
-      return "border-b-orange-500 dark:border-b-orange-400";
+      return "border-b-orange-200 dark:border-b-orange-800";
     default:
-      return "border-b-gray-500 dark:border-b-gray-400";
+      return "border-b-gray-200 dark:border-b-gray-800";
   }
 };
 
@@ -281,7 +281,7 @@ const SmartRecommendationCard: React.FC<{
               darkMode ? "text-gray-400" : "text-gray-500"
             }`}
           >
-            {/* التاريخ وعدد المشاهدات في سطر واحد */}
+            {/* التاريخ الميلادي وعدد المشاهدات الحقيقي في سطر واحد */}
             <div className="flex items-center gap-1.5 sm:gap-2">
               <span className="text-[9px] sm:text-xs">
                 {new Date(article.publishedAt).toLocaleDateString("en-US", {
@@ -293,11 +293,7 @@ const SmartRecommendationCard: React.FC<{
               <span className="text-gray-300 dark:text-gray-600">•</span>
               <div className="flex items-center gap-0.5 sm:gap-1">
                 <Eye className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4" />
-                <span>
-                  {formatNumber(
-                    article.viewsCount || Math.floor(Math.random() * 5000) + 100
-                  )}
-                </span>
+                <span>{formatNumber(article.viewsCount || 0)}</span>
               </div>
             </div>
 
