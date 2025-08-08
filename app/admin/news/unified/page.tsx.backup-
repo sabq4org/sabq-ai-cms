@@ -13,7 +13,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import dynamic from 'next/dynamic';
-import FeaturedImageUpload from '@/components/FeaturedImageUpload'; // تم إضافة هذا الاستيراد
+import FeaturedImageUpload from '@/components/FeaturedImageUpload';
 import { 
   Save, Send, Eye, Clock, Image as ImageIcon, Upload, X, 
   Tag, User, Calendar, AlertCircle, CheckCircle, Loader2,
@@ -22,8 +22,7 @@ import {
   Star, CheckSquare, Wand2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Switch } from '@/components/ui/switch';
-
+// تم إزالة DashboardLayout - تستخدم الصفحة layout.tsx الأساسي
 // تحميل المحرر بشكل ديناميكي
 const Editor = dynamic(() => import('@/components/Editor/Editor'), { ssr: false });
 
@@ -39,8 +38,12 @@ interface Reporter {
   id: string;
   name: string;
   email?: string;
-  avatar?: string;
+  avatar?: string | null;
   role?: string;
+  title?: string;
+  slug?: string;
+  is_verified?: boolean;
+  verification_badge?: string | null;
 }
 
 export default function UnifiedNewsCreatePageUltraEnhanced() {
@@ -90,7 +93,11 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
     content: '',
     authorId: '',
     categoryId: '',
+    type: 'local' as 'local' | 'external',
     featuredImage: '',
+    featuredImageCaption: '',
+    gallery: [] as string[],
+    externalLink: '',
     keywords: [] as string[],
     seoTitle: '',
     seoDescription: '',
@@ -340,7 +347,7 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
         // تحميل التصنيفات والمراسلين بشكل متوازي
         const [categoriesResponse, reportersResponse] = await Promise.all([
           fetch('/api/categories'),
-          fetch('/api/team-members')
+          fetch('/api/admin/article-authors?active_only=true')
         ]);
         
         console.log('📡 استجابات API:', {
@@ -372,23 +379,46 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
           toast.error('فشل في تحميل التصنيفات');
         }
         
-        // معالجة المراسلين
+        // معالجة المؤلفين من API الجديد
         if (reportersResponse.ok) {
-          const reportersData = await reportersResponse.json();
-          console.log('📦 بيانات المراسلين المستلمة:', reportersData);
-          loadedReporters = reportersData.data || reportersData || [];
-          setReporters(loadedReporters);
-          console.log(`👥 تم جلب ${loadedReporters.length} مراسل`, loadedReporters);
+          const authorsData = await reportersResponse.json();
+          console.log('📦 بيانات المؤلفين المستلمة:', authorsData);
           
-          if (loadedReporters.length > 0) {
-            defaultReporterId = loadedReporters[0].id;
-            console.log(`👤 مراسل افتراضي: ${loadedReporters[0].name} (${defaultReporterId})`);
+          if (authorsData.success && authorsData.authors) {
+            // استخدام بيانات المؤلفين من جدول article_authors
+            const authorsArray = authorsData.authors;
+            
+            // تحويل البيانات لتتوافق مع النموذج المطلوب
+            const convertedReporters = authorsArray.map((author: any) => ({
+              id: author.id,
+              name: author.full_name || author.name,
+              email: author.email || '',
+              role: 'reporter',
+              avatar: author.avatar_url || author.avatar,
+              title: author.title,
+              slug: author.slug,
+              is_verified: false,
+              verification_badge: null
+            }));
+            
+            setReporters(convertedReporters);
+            console.log(`👥 تم جلب ${convertedReporters.length} مؤلف من article_authors`, convertedReporters);
+            
+            if (convertedReporters.length > 0) {
+              defaultReporterId = convertedReporters[0].id;
+              console.log(`👤 مؤلف افتراضي: ${convertedReporters[0].name} (${defaultReporterId})`);
+            }
+          } else {
+            console.log('⚠️ لا توجد مؤلفين في قاعدة البيانات');
+            setReporters([]);
+            toast.error('لا يوجد مؤلفين متاحين');
           }
         } else {
-          console.log('❌ فشل في تحميل المراسلين:', reportersResponse.status);
+          console.log('❌ فشل في تحميل المؤلفين:', reportersResponse.status);
           const errorText = await reportersResponse.text();
           console.error('رسالة الخطأ:', errorText);
-          toast.error('فشل في تحميل المراسلين');
+          setReporters([]);
+          toast.error('فشل في تحميل المراسلين - يرجى المحاولة لاحقاً');
         }
         
         // تعيين القيم الافتراضية دفعة واحدة باستخدام البيانات المحملة
@@ -429,6 +459,16 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
               }
               
               if (article) {
+                // تحليل metadata إذا كانت string
+                if (article.metadata && typeof article.metadata === 'string') {
+                  try {
+                    article.metadata = JSON.parse(article.metadata);
+                  } catch (e) {
+                    console.error('❌ خطأ في تحليل metadata:', e);
+                    article.metadata = {};
+                  }
+                }
+                
                 console.log('📋 الكلمات المفتاحية المستلمة:', {
                   'article.keywords': article.keywords,
                   'article.metadata': article.metadata,
@@ -439,18 +479,18 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                 // تحديث بيانات النموذج
                 setFormData({
                   title: article.title || '',
-                  subtitle: article.subtitle || '',
+                  subtitle: article.metadata?.subtitle || '',
                   excerpt: article.excerpt || '',
                   content: article.content || '',
                   authorId: article.author_id || defaultReporterId || '',
                   categoryId: article.category_id || defaultCategoryId || '',
-                  type: article.type || 'local',
-                  isBreaking: article.metadata?.is_breaking || article.is_breaking || false,
-                  isFeatured: article.metadata?.is_featured || article.is_featured || false,
+                  type: article.metadata?.type || 'local',
+                  isBreaking: article.metadata?.is_breaking || article.breaking || false,
+                  isFeatured: article.metadata?.is_featured || article.featured || false,
                   featuredImage: article.featured_image || '',
-                  featuredImageCaption: article.image_caption || '',
-                  gallery: article.metadata?.gallery || article.gallery || [],
-                  externalLink: article.external_link || '',
+                  featuredImageCaption: article.metadata?.image_caption || '',
+                  gallery: article.metadata?.gallery || [],
+                  externalLink: article.metadata?.external_link || '',
                   publishType: 'now',
                   scheduledDate: '',
                   keywords: (() => {
@@ -582,24 +622,27 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
       
       const articleData = {
         title: formData.title,
-        subtitle: formData.subtitle,
         excerpt: formData.excerpt,
         content: editorContent, // HTML من المحرر
         featured_image: formData.featuredImage || null,
-        image_caption: formData.featuredImageCaption,
         category_id: formData.categoryId,
         author_id: formData.authorId,
         status,
-        type: formData.type,
-        external_link: formData.externalLink,
-        // metadata كـ JSON
+        // الحقول الرئيسية
+        featured: formData.isFeatured || false,
+        breaking: formData.isBreaking || false,
+        // حقول SEO مباشرة
+        seo_title: formData.seoTitle || null,
+        seo_description: formData.seoDescription || null,
+        seo_keywords: formData.keywords.length > 0 ? formData.keywords.join(', ') : null,
+        // metadata كـ JSON للحقول الإضافية
         metadata: {
+          subtitle: formData.subtitle || null,
+          type: formData.type || 'local',
+          image_caption: formData.featuredImageCaption || null,
           keywords: formData.keywords,
-          seo_title: formData.seoTitle,
-          seo_description: formData.seoDescription,
-          is_featured: formData.isFeatured,
-          is_breaking: formData.isBreaking,
-          gallery: formData.gallery || []
+          gallery: formData.gallery || [],
+          external_link: formData.externalLink || null
         },
         ...(status === 'published' && formData.publishType === 'scheduled' && formData.scheduledDate && {
           scheduled_for: formData.scheduledDate
@@ -645,7 +688,10 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
         
         response = await fetch(url, {
           method: method,
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-Debug-Mode': 'true' // تفعيل وضع التصحيح
+          },
           body: JSON.stringify(articleData)
         });
       } catch (fetchError) {
@@ -693,27 +739,61 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
         let errorMessage = 'فشل في الحفظ';
         if (response) {
           try {
-            const errorData = await response.json();
-            console.error('❌ خطأ من الخادم:', errorData);
-          
-            // معالجة أفضل للأخطاء
-            if (errorData.error) {
-              errorMessage = errorData.error;
-            } else if (errorData.details) {
-              errorMessage = errorData.details;
-            } else if (errorData.message) {
-              errorMessage = errorData.message;
-            } else if (response.status === 404) {
-              errorMessage = 'الصفحة المطلوبة غير موجودة';
-            } else if (response.status === 500) {
-              errorMessage = 'خطأ في الخادم';
+            // تحقق من نوع المحتوى أولاً
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+              const errorData = await response.json();
+              console.error('❌ خطأ من الخادم (JSON):', errorData);
+            
+              // معالجة أفضل للأخطاء
+              if (errorData.error) {
+                errorMessage = errorData.error;
+                // إذا كان هناك تفاصيل إضافية للتصحيح
+                if (errorData.debug) {
+                  console.error('🔍 تفاصيل التصحيح:', errorData.debug);
+                }
+              } else if (errorData.details) {
+                errorMessage = errorData.details;
+              } else if (errorData.message) {
+                errorMessage = errorData.message;
+              } else {
+                errorMessage = `خطأ: ${response.status} ${response.statusText}`;
+              }
             } else {
-              errorMessage = `خطأ: ${response.status} ${response.statusText}`;
+              // المحتوى ليس JSON (مثل HTML error page)
+              const errorText = await response.text();
+              console.error('❌ خطأ من الخادم (غير JSON):', {
+                status: response.status,
+                statusText: response.statusText,
+                contentType: contentType,
+                responseText: errorText.substring(0, 200) + '...'
+              });
+              
+              // رسائل خطأ محددة حسب رمز الاستجابة
+              if (response.status === 404) {
+                errorMessage = 'الصفحة المطلوبة غير موجودة';
+              } else if (response.status === 500) {
+                errorMessage = 'خطأ في الخادم - يرجى المحاولة مرة أخرى لاحقاً';
+              } else if (response.status === 503) {
+                errorMessage = 'الخادم غير متاح حالياً - يرجى المحاولة لاحقاً';
+              } else {
+                errorMessage = `خطأ HTTP: ${response.status} - ${response.statusText}`;
+              }
             }
-          } catch (e) {
-            console.error('❌ خطأ في قراءة رسالة الخطأ:', e);
-            errorMessage = `خطأ HTTP: ${response.status} ${response.statusText}`;
+          } catch (parseError) {
+            console.error('❌ خطأ في تحليل رسالة الخطأ:', parseError);
+            console.error('📄 معلومات الاستجابة:', {
+              status: response.status,
+              statusText: response.statusText,
+              url: response.url,
+              headers: Object.fromEntries(response.headers.entries())
+            });
+            
+            // رسالة خطأ عامة مع معلومات أساسية
+            errorMessage = `خطأ HTTP ${response.status}: فشل في الاتصال بالخادم`;
           }
+        } else {
+          errorMessage = 'فشل في الاتصال بالخادم';
         }
         throw new Error(errorMessage);
       }
@@ -1189,29 +1269,26 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-700">
-        <div className="text-center space-y-4">
-          <Loader2 className="w-10 h-10 animate-spin mx-auto text-blue-600" />
-          <p className="text-slate-600 dark:text-slate-400">جاري تحميل البيانات...</p>
+          <div className="text-center space-y-4">
+            <Loader2 className="w-10 h-10 animate-spin mx-auto text-blue-600" />
+            <p className="text-slate-600 dark:text-slate-400">جاري تحميل البيانات...</p>
+          </div>
         </div>
-      </div>
     );
   }
   
   return (
-    <div className={cn(
-      "min-h-screen transition-all duration-300",
-      darkMode 
-        ? "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700" 
-        : "bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100"
-    )}>
-      <div className="p-4 md:p-6">
+    <div className="min-h-screen"
+    >
+      <div className={cn(
+        "min-h-screen transition-all duration-300",
+        darkMode 
+          ? "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700" 
+          : "bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100"
+      )}>
+        <div className="p-4 md:p-6">
         {/* رأس الصفحة */}
-        <div
-          className={cn(
-            "mb-6 flex items-center justify-between sticky top-0 z-20 backdrop-blur border-b px-3 py-2 rounded-b-xl",
-            darkMode ? "bg-slate-900/60 border-slate-800" : "bg-white/60 border-slate-200"
-          )}
-        >
+        <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
@@ -1282,8 +1359,8 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
           <div className="lg:col-span-3 space-y-6">
             {/* العنوان والموجز */}
             <Card className={cn(
-              "shadow-md border backdrop-blur-sm",
-              darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 border-slate-200'
+              "shadow-lg border-0 backdrop-blur-sm",
+              darkMode ? 'bg-slate-800/90' : 'bg-white/90'
             )}>
               <CardContent className="p-6 space-y-6">
                 <div>
@@ -1333,7 +1410,7 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                           عناوين مقترحة تلقائياً:
                         </span>
                       </div>
-                      {aiAutoSuggestions.titleSuggestions.map((suggestion, index) => (
+                      {aiAutoSuggestions.titleSuggestions && Array.isArray(aiAutoSuggestions.titleSuggestions) && aiAutoSuggestions.titleSuggestions.map((suggestion, index) => (
                         <div 
                           key={index}
                           className={cn(
@@ -1446,8 +1523,8 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
             
             {/* محرر المحتوى */}
             <Card className={cn(
-              "shadow-md border backdrop-blur-sm",
-              darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 border-slate-200'
+              "shadow-lg border-0 backdrop-blur-sm",
+              darkMode ? 'bg-slate-800/90' : 'bg-white/90'
             )}>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1514,8 +1591,8 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
           <div className="space-y-6">
             {/* نوع الخبر */}
             <Card className={cn(
-              "shadow-md border backdrop-blur-sm",
-              darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 border-slate-200'
+              "shadow-lg border-0 backdrop-blur-sm",
+              darkMode ? 'bg-red-900/20 border-red-800' : 'bg-red-50/90 border-red-200'
             )}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
@@ -1524,40 +1601,51 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <div className={cn(
-                    "flex items-center justify-between p-3 rounded-lg border",
-                    darkMode ? "bg-slate-700 border-slate-600" : "bg-white border-slate-200"
+                <div className="space-y-3">
+                  <label className={cn(
+                    "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all shadow-sm",
+                    formData.isBreaking
+                      ? darkMode ? "bg-red-800/50 border-2 border-red-500" : "bg-red-100 border-2 border-red-500"
+                      : darkMode ? "bg-slate-700 hover:bg-slate-600 border-2 border-transparent" : "bg-white hover:bg-slate-50 border-2 border-slate-200"
                   )}>
-                    <div className="flex items-center gap-2">
-                      <Zap className={cn("w-5 h-5", formData.isBreaking ? "text-red-600" : "text-slate-400")} />
-                      <span className="font-medium">عاجل</span>
-                    </div>
-                    <Switch
+                    <input
+                      type="checkbox"
                       checked={formData.isBreaking}
-                      onCheckedChange={(val) => setFormData((prev) => ({ ...prev, isBreaking: Boolean(val) }))}
+                      onChange={(e) => setFormData(prev => ({ ...prev, isBreaking: e.target.checked }))}
+                      className="text-red-600"
                     />
-                  </div>
-                  <div className={cn(
-                    "flex items-center justify-between p-3 rounded-lg border",
-                    darkMode ? "bg-slate-700 border-slate-600" : "bg-white border-slate-200"
+                    <Zap className={cn(
+                      "w-5 h-5",
+                      formData.isBreaking ? "text-red-600" : "text-slate-400"
+                    )} />
+                    <span className="font-medium text-red-600">عاجل</span>
+                  </label>
+                  
+                  <label className={cn(
+                    "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all shadow-sm",
+                    formData.isFeatured
+                      ? darkMode ? "bg-yellow-800/50 border-2 border-yellow-500" : "bg-yellow-100 border-2 border-yellow-500"
+                      : darkMode ? "bg-slate-700 hover:bg-slate-600 border-2 border-transparent" : "bg-white hover:bg-slate-50 border-2 border-slate-200"
                   )}>
-                    <div className="flex items-center gap-2">
-                      <Star className={cn("w-5 h-5", formData.isFeatured ? "text-yellow-600" : "text-slate-400")} />
-                      <span className="font-medium">مميز</span>
-                    </div>
-                    <Switch
+                    <input
+                      type="checkbox"
                       checked={formData.isFeatured}
-                      onCheckedChange={(val) => setFormData((prev) => ({ ...prev, isFeatured: Boolean(val) }))}
+                      onChange={(e) => setFormData(prev => ({ ...prev, isFeatured: e.target.checked }))}
+                      className="text-yellow-600"
                     />
-                  </div>
+                    <Star className={cn(
+                      "w-5 h-5",
+                      formData.isFeatured ? "text-yellow-600" : "text-slate-400"
+                    )} />
+                    <span className="font-medium text-yellow-600">مميز</span>
+                  </label>
                 </div>
               </CardContent>
             </Card>
             
             {/* المؤلف والتصنيف */}
             <Card className={cn(
-              "shadow-md border backdrop-blur-sm",
+              "shadow-lg border-0 backdrop-blur-sm",
               darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-slate-50/90 border-slate-200'
             )}>
               <CardHeader className="pb-3">
@@ -1585,12 +1673,14 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                     {loading && (
                       <option disabled>جاري التحميل...</option>
                     )}
-                    {!loading && reporters.length === 0 && (
+                    {!loading && (!reporters || reporters.length === 0) && (
                       <option disabled>لا يوجد مراسلين متاحين</option>
                     )}
-                    {reporters.map((reporter) => (
+                    {reporters && Array.isArray(reporters) && reporters.map((reporter) => (
                       <option key={reporter.id} value={reporter.id}>
-                        {reporter.name || reporter.email}
+                        {reporter.name}
+                        {reporter.title && ` - ${reporter.title}`}
+                        {reporter.is_verified && ' ✓ معتمد'}
                       </option>
                     ))}
                   </select>
@@ -1614,10 +1704,10 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                     {loading && (
                       <option disabled>جاري التحميل...</option>
                     )}
-                    {!loading && categories.length === 0 && (
+                    {!loading && (!categories || categories.length === 0) && (
                       <option disabled>لا يوجد تصنيفات متاحة</option>
                     )}
-                    {categories.map((category) => (
+                    {categories && Array.isArray(categories) && categories.map((category) => (
                       <option key={category.id} value={category.id} style={{ color: category.color || undefined }}>
                         {category.name_ar || category.name}
                       </option>
@@ -1629,8 +1719,8 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
             
             {/* طريقة النشر - محسنة ومميزة */}
             <Card className={cn(
-              "shadow-md border backdrop-blur-sm",
-              darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 border-slate-200'
+              "shadow-lg border-0 backdrop-blur-sm ring-2 ring-blue-200/50",
+              darkMode ? 'bg-blue-900/20 border-blue-800' : 'bg-blue-50/90 border-blue-200'
             )}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
@@ -1721,8 +1811,8 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
             
             {/* الصورة المميزة */}
             <Card className={cn(
-              "shadow-md border backdrop-blur-sm",
-              darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 border-slate-200'
+              "shadow-lg border-0 backdrop-blur-sm",
+              darkMode ? 'bg-purple-900/20 border-purple-800' : 'bg-purple-50/90 border-purple-200'
             )}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
@@ -1741,8 +1831,8 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
             
             {/* الكلمات المفتاحية */}
             <Card className={cn(
-              "shadow-md border backdrop-blur-sm",
-              darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 border-slate-200'
+              "shadow-lg border-0 backdrop-blur-sm",
+              darkMode ? 'bg-orange-900/20 border-orange-800' : 'bg-orange-50/90 border-orange-200'
             )}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
@@ -1785,7 +1875,7 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                       </Button>
                     </div>
                     <div className="flex flex-wrap gap-1">
-                      {aiAutoSuggestions.keywordSuggestions.map((keyword, index) => (
+                      {aiAutoSuggestions.keywordSuggestions && Array.isArray(aiAutoSuggestions.keywordSuggestions) && aiAutoSuggestions.keywordSuggestions.map((keyword, index) => (
                         <button
                           key={index}
                           className={cn(
@@ -1847,7 +1937,7 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                   </div>
                   
                   <div className="flex flex-wrap gap-2">
-                    {formData.keywords.map((keyword, index) => (
+                    {formData.keywords && Array.isArray(formData.keywords) && formData.keywords.map((keyword, index) => (
                       <Badge
                         key={index}
                         variant="secondary"
@@ -1873,37 +1963,28 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
           </div>
         </div>
         
-        {/* شريط إجراءات لاصق في الأسفل */}
-        <div
-          className={cn(
-            "sticky bottom-0 z-20 border-t backdrop-blur px-4 py-3",
-            darkMode ? "bg-slate-900/60 border-slate-800" : "bg-white/70 border-slate-200"
-          )}
-        >
-          <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
-            <div className="hidden sm:block">
-              <Badge variant="secondary" className={cn(
-                completionScore >= 60 ? "text-emerald-700 bg-emerald-50" : "text-orange-700 bg-orange-50",
-                darkMode && (completionScore >= 60 ? "bg-emerald-900/20 text-emerald-200" : "bg-orange-900/20 text-orange-200")
-              )}>
-                اكتمال {completionScore}%
-              </Badge>
-            </div>
+        {/* أزرار النشر أسفل الصفحة */}
+        <div className="mt-8 flex justify-center">
+          <div className={cn(
+            "p-4 rounded-xl shadow-lg backdrop-blur-sm",
+            darkMode ? "bg-slate-800/90" : "bg-white/90"
+          )}>
             <PublishButtons position="bottom" />
           </div>
         </div>
       </div>
       
-      <Toaster 
-        position="top-center"
-        toastOptions={{
-          duration: 3000,
-          style: {
-            background: darkMode ? '#1e293b' : '#ffffff',
-            color: darkMode ? '#ffffff' : '#1e293b',
-          },
-        }}
-      />
+        <Toaster 
+          position="top-center"
+          toastOptions={{
+            duration: 3000,
+            style: {
+              background: darkMode ? '#1e293b' : '#ffffff',
+              color: darkMode ? '#ffffff' : '#1e293b',
+            },
+          }}
+        />
+      </div>
     </div>
   );
 }

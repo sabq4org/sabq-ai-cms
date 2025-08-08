@@ -22,6 +22,7 @@ import {
   Star, CheckSquare, Wand2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Switch } from '@/components/ui/switch';
 // تم إزالة DashboardLayout - تستخدم الصفحة layout.tsx الأساسي
 // تحميل المحرر بشكل ديناميكي
 const Editor = dynamic(() => import('@/components/Editor/Editor'), { ssr: false });
@@ -1288,7 +1289,12 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
       )}>
         <div className="p-4 md:p-6">
         {/* رأس الصفحة */}
-        <div className="mb-6 flex items-center justify-between">
+        <div
+          className={cn(
+            "mb-6 flex items-center justify-between sticky top-0 z-20 backdrop-blur border-b px-3 py-2 rounded-b-xl",
+            darkMode ? "bg-slate-900/60 border-slate-800" : "bg-white/60 border-slate-200"
+          )}
+        >
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
@@ -1359,8 +1365,8 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
           <div className="lg:col-span-3 space-y-6">
             {/* العنوان والموجز */}
             <Card className={cn(
-              "shadow-lg border-0 backdrop-blur-sm",
-              darkMode ? 'bg-slate-800/90' : 'bg-white/90'
+              "shadow-md border backdrop-blur-sm",
+              darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 border-slate-200'
             )}>
               <CardContent className="p-6 space-y-6">
                 <div>
@@ -1523,8 +1529,8 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
             
             {/* محرر المحتوى */}
             <Card className={cn(
-              "shadow-lg border-0 backdrop-blur-sm",
-              darkMode ? 'bg-slate-800/90' : 'bg-white/90'
+              "shadow-md border backdrop-blur-sm",
+              darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 border-slate-200'
             )}>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1591,8 +1597,8 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
           <div className="space-y-6">
             {/* نوع الخبر */}
             <Card className={cn(
-              "shadow-lg border-0 backdrop-blur-sm",
-              darkMode ? 'bg-red-900/20 border-red-800' : 'bg-red-50/90 border-red-200'
+              "shadow-md border backdrop-blur-sm",
+              darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 border-slate-200'
             )}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
@@ -1601,51 +1607,40 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  <label className={cn(
-                    "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all shadow-sm",
-                    formData.isBreaking
-                      ? darkMode ? "bg-red-800/50 border-2 border-red-500" : "bg-red-100 border-2 border-red-500"
-                      : darkMode ? "bg-slate-700 hover:bg-slate-600 border-2 border-transparent" : "bg-white hover:bg-slate-50 border-2 border-slate-200"
+                <div className="space-y-4">
+                  <div className={cn(
+                    "flex items-center justify-between p-3 rounded-lg border",
+                    darkMode ? "bg-slate-700 border-slate-600" : "bg-white border-slate-200"
                   )}>
-                    <input
-                      type="checkbox"
+                    <div className="flex items-center gap-2">
+                      <Zap className={cn("w-5 h-5", formData.isBreaking ? "text-red-600" : "text-slate-400")} />
+                      <span className="font-medium">عاجل</span>
+                    </div>
+                    <Switch
                       checked={formData.isBreaking}
-                      onChange={(e) => setFormData(prev => ({ ...prev, isBreaking: e.target.checked }))}
-                      className="text-red-600"
+                      onCheckedChange={(val) => setFormData((prev) => ({ ...prev, isBreaking: Boolean(val) }))}
                     />
-                    <Zap className={cn(
-                      "w-5 h-5",
-                      formData.isBreaking ? "text-red-600" : "text-slate-400"
-                    )} />
-                    <span className="font-medium text-red-600">عاجل</span>
-                  </label>
-                  
-                  <label className={cn(
-                    "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all shadow-sm",
-                    formData.isFeatured
-                      ? darkMode ? "bg-yellow-800/50 border-2 border-yellow-500" : "bg-yellow-100 border-2 border-yellow-500"
-                      : darkMode ? "bg-slate-700 hover:bg-slate-600 border-2 border-transparent" : "bg-white hover:bg-slate-50 border-2 border-slate-200"
+                  </div>
+                  <div className={cn(
+                    "flex items-center justify-between p-3 rounded-lg border",
+                    darkMode ? "bg-slate-700 border-slate-600" : "bg-white border-slate-200"
                   )}>
-                    <input
-                      type="checkbox"
+                    <div className="flex items-center gap-2">
+                      <Star className={cn("w-5 h-5", formData.isFeatured ? "text-yellow-600" : "text-slate-400")} />
+                      <span className="font-medium">مميز</span>
+                    </div>
+                    <Switch
                       checked={formData.isFeatured}
-                      onChange={(e) => setFormData(prev => ({ ...prev, isFeatured: e.target.checked }))}
-                      className="text-yellow-600"
+                      onCheckedChange={(val) => setFormData((prev) => ({ ...prev, isFeatured: Boolean(val) }))}
                     />
-                    <Star className={cn(
-                      "w-5 h-5",
-                      formData.isFeatured ? "text-yellow-600" : "text-slate-400"
-                    )} />
-                    <span className="font-medium text-yellow-600">مميز</span>
-                  </label>
+                  </div>
                 </div>
               </CardContent>
             </Card>
             
             {/* المؤلف والتصنيف */}
             <Card className={cn(
-              "shadow-lg border-0 backdrop-blur-sm",
+              "shadow-md border backdrop-blur-sm",
               darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-slate-50/90 border-slate-200'
             )}>
               <CardHeader className="pb-3">
@@ -1719,8 +1714,8 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
             
             {/* طريقة النشر - محسنة ومميزة */}
             <Card className={cn(
-              "shadow-lg border-0 backdrop-blur-sm ring-2 ring-blue-200/50",
-              darkMode ? 'bg-blue-900/20 border-blue-800' : 'bg-blue-50/90 border-blue-200'
+              "shadow-md border backdrop-blur-sm",
+              darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 border-slate-200'
             )}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
@@ -1811,8 +1806,8 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
             
             {/* الصورة المميزة */}
             <Card className={cn(
-              "shadow-lg border-0 backdrop-blur-sm",
-              darkMode ? 'bg-purple-900/20 border-purple-800' : 'bg-purple-50/90 border-purple-200'
+              "shadow-md border backdrop-blur-sm",
+              darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 border-slate-200'
             )}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
@@ -1831,8 +1826,8 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
             
             {/* الكلمات المفتاحية */}
             <Card className={cn(
-              "shadow-lg border-0 backdrop-blur-sm",
-              darkMode ? 'bg-orange-900/20 border-orange-800' : 'bg-orange-50/90 border-orange-200'
+              "shadow-md border backdrop-blur-sm",
+              darkMode ? 'bg-slate-800/90 border-slate-700' : 'bg-white/90 border-slate-200'
             )}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
@@ -1963,12 +1958,22 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
           </div>
         </div>
         
-        {/* أزرار النشر أسفل الصفحة */}
-        <div className="mt-8 flex justify-center">
-          <div className={cn(
-            "p-4 rounded-xl shadow-lg backdrop-blur-sm",
-            darkMode ? "bg-slate-800/90" : "bg-white/90"
-          )}>
+        {/* شريط إجراءات لاصق في الأسفل */}
+        <div
+          className={cn(
+            "sticky bottom-0 z-20 border-t backdrop-blur px-4 py-3",
+            darkMode ? "bg-slate-900/60 border-slate-800" : "bg-white/70 border-slate-200"
+          )}
+        >
+          <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
+            <div className="hidden sm:block">
+              <Badge variant="secondary" className={cn(
+                completionScore >= 60 ? "text-emerald-700 bg-emerald-50" : "text-orange-700 bg-orange-50",
+                darkMode && (completionScore >= 60 ? "bg-emerald-900/20 text-emerald-200" : "bg-orange-900/20 text-orange-200")
+              )}>
+                اكتمال {completionScore}%
+              </Badge>
+            </div>
             <PublishButtons position="bottom" />
           </div>
         </div>
