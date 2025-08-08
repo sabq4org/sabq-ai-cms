@@ -36,6 +36,28 @@ interface Category {
 
 // سيتم جلب التصنيفات فعليًا من /api/categories
 
+// أدوات مساعدة للألوان
+function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+  const sanitized = hex?.replace(/^#/, "");
+  if (!sanitized || !/^([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})$/.test(sanitized)) return null;
+  const full = sanitized.length === 3
+    ? sanitized.split("").map((c) => c + c).join("")
+    : sanitized;
+  const num = parseInt(full, 16);
+  return {
+    r: (num >> 16) & 255,
+    g: (num >> 8) & 255,
+    b: num & 255,
+  };
+}
+
+function getContrastColor(hex: string): string {
+  const rgb = hexToRgb(hex);
+  if (!rgb) return "#ffffff";
+  const luminance = (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b) / 255;
+  return luminance > 0.6 ? "#111827" : "#ffffff"; // أسود داكن أو أبيض
+}
+
 const CategoriesPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
@@ -58,7 +80,7 @@ const CategoriesPage = () => {
           articleCount: Number(c.articles_count ?? c.articleCount ?? 0),
           createdAt: c.created_at || c.createdAt || new Date().toISOString(),
           status: c.is_active === false ? "inactive" : "active",
-          color: c.color || "blue",
+          color: c.color || c?.metadata?.color_hex || "#3B82F6",
         }));
         setCategories(mapped);
       } catch (e) {
@@ -289,33 +311,14 @@ const CategoriesPage = () => {
                   <div className="flex items-center gap-3">
                     <div
                       className={cn(
-                        "w-10 h-10 rounded-lg flex items-center justify-center",
-                        category.color === "red" &&
-                          "bg-red-100 dark:bg-red-900/30",
-                        category.color === "blue" &&
-                          "bg-blue-100 dark:bg-blue-900/30",
-                        category.color === "purple" &&
-                          "bg-purple-100 dark:bg-purple-900/30",
-                        category.color === "green" &&
-                          "bg-green-100 dark:bg-green-900/30",
-                        category.color === "orange" &&
-                          "bg-orange-100 dark:bg-orange-900/30"
+                        "w-10 h-10 rounded-lg flex items-center justify-center border",
+                        "border-gray-200 dark:border-gray-700"
                       )}
+                      style={{ backgroundColor: category.color }}
                     >
                       <Hash
-                        className={cn(
-                          "w-5 h-5",
-                          category.color === "red" &&
-                            "text-red-600 dark:text-red-400",
-                          category.color === "blue" &&
-                            "text-blue-600 dark:text-blue-400",
-                          category.color === "purple" &&
-                            "text-purple-600 dark:text-purple-400",
-                          category.color === "green" &&
-                            "text-green-600 dark:text-green-400",
-                          category.color === "orange" &&
-                            "text-orange-600 dark:text-orange-400"
-                        )}
+                        className="w-5 h-5"
+                        style={{ color: getContrastColor(category.color) }}
                       />
                     </div>
                     <div>
