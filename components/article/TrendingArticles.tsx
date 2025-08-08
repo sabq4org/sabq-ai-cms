@@ -6,6 +6,7 @@ import { Calendar, Eye, TrendingUp, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Article {
   id: string;
@@ -26,24 +27,32 @@ interface Article {
 interface TrendingArticlesProps {
   currentArticleId?: string;
   limit?: number;
-  timeframe?: "week" | "month" | "all";
+  timeframe?: "24h" | "day" | "week" | "month" | "all";
+  title?: string;
+  sticky?: boolean;
+  refreshMs?: number;
 }
 
 export default function TrendingArticles({
   currentArticleId,
   limit = 5,
-  timeframe = "week",
+  timeframe = "24h",
+  title = "الأكثر قراءة",
+  sticky = false,
+  refreshMs = 60000,
 }: TrendingArticlesProps) {
   const { darkMode } = useDarkModeContext();
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let timer: NodeJS.Timeout | null = null;
     const fetchTrendingArticles = async () => {
       try {
         setLoading(true);
         const response = await fetch(
-          `/api/articles/trending?limit=${limit}&timeframe=${timeframe}&exclude=${currentArticleId}`
+          `/api/articles/trending?limit=${limit}&timeframe=${timeframe}&exclude=${currentArticleId}`,
+          { cache: "no-store" }
         );
         if (response.ok) {
           const data = await response.json();
@@ -57,6 +66,11 @@ export default function TrendingArticles({
     };
 
     fetchTrendingArticles();
+    // تحديث دوري كـ real-time بسيط
+    timer = setInterval(fetchTrendingArticles, Math.max(15000, refreshMs));
+    return () => {
+      if (timer) clearInterval(timer);
+    };
   }, [currentArticleId, limit, timeframe]);
 
   const formatDate = (dateString: string) => {
@@ -79,10 +93,11 @@ export default function TrendingArticles({
   return (
     <div
       className={cn(
-        "sticky top-[600px] p-6 rounded-2xl border",
+        "p-6 rounded-2xl border",
+        sticky && "sticky top-24",
         darkMode
-          ? "bg-gray-800/50 border-gray-700 backdrop-blur-sm"
-          : "bg-white/70 border-gray-200 backdrop-blur-sm"
+          ? "bg-gray-800 border-gray-700"
+          : "bg-white border-gray-200"
       )}
     >
       {/* عنوان القسم */}
@@ -107,7 +122,7 @@ export default function TrendingArticles({
               darkMode ? "text-white" : "text-gray-900"
             )}
           >
-            الأكثر قراءة
+            {title}
           </h3>
           <p
             className={cn(
@@ -115,7 +130,9 @@ export default function TrendingArticles({
               darkMode ? "text-gray-400" : "text-gray-600"
             )}
           >
-            {timeframe === "week"
+            {timeframe === "24h" || timeframe === "day"
+              ? "آخر 24 ساعة"
+              : timeframe === "week"
               ? "هذا الأسبوع"
               : timeframe === "month"
               ? "هذا الشهر"
@@ -155,15 +172,16 @@ export default function TrendingArticles({
         </p>
       ) : (
         <div className="space-y-4">
+          <AnimatePresence initial={false}>
           {articles.map((article, index) => (
+            <motion.div key={article.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
             <Link
-              key={article.id}
               href={`/article/${article.id}`}
               className={cn(
-                "block p-4 rounded-xl transition-all duration-200 hover:shadow-md relative",
+                "block p-4 rounded-xl transition-all duration-200 hover:shadow-md relative border",
                 darkMode
-                  ? "hover:bg-gray-700/50 border border-gray-700/50"
-                  : "hover:bg-gray-50 border border-gray-200/50"
+                  ? "hover:bg-gray-700/50 border-gray-700/50"
+                  : "hover:bg-gray-50 border-gray-200/50"
               )}
             >
               {/* رقم الترتيب */}
@@ -172,11 +190,11 @@ export default function TrendingArticles({
                   className={cn(
                     "inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold",
                     index === 0
-                      ? "bg-gradient-to-r from-yellow-400 to-yellow-600 text-white"
+                      ? "bg-yellow-500 text-white"
                       : index === 1
-                      ? "bg-gradient-to-r from-gray-300 to-gray-500 text-white"
+                      ? "bg-gray-500 text-white"
                       : index === 2
-                      ? "bg-gradient-to-r from-amber-600 to-amber-800 text-white"
+                      ? "bg-amber-700 text-white"
                       : darkMode
                       ? "bg-gray-700 text-gray-300"
                       : "bg-gray-200 text-gray-600"
@@ -286,7 +304,9 @@ export default function TrendingArticles({
                 </div>
               </div>
             </Link>
+            </motion.div>
           ))}
+          </AnimatePresence>
         </div>
       )}
 

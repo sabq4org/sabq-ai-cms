@@ -11,6 +11,7 @@ import {
   Loader2, AlertCircle, Filter, ChevronRight, Search, Grid, List, Sparkles, TrendingUp,
   Trophy, Building2, Heart, Leaf, Globe, Activity, Code, Palette, Users, BookOpen, Layers, Grid3X3, ArrowLeft, Tag
 } from 'lucide-react';
+import TrendingArticles from '@/components/article/TrendingArticles';
 
 interface Category {
   id: string | number;
@@ -684,8 +685,8 @@ export default function CategoriesPage() {
           </div>
         </div>
 
-        {/* Content Section */}
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
+          {/* Content Section */}
+          <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
           {/* Results Count */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 mb-6">
             <div className="flex items-center gap-2">
@@ -715,7 +716,7 @@ export default function CategoriesPage() {
           )}
 
           {/* Loading State */}
-          {loading ? (
+            {loading ? (
             <div className="flex flex-col items-center justify-center py-20">
               <Loader2 className="w-12 h-12 text-indigo-600 dark:text-indigo-400 animate-spin mb-4" />
               <p className="text-gray-600 dark:text-gray-400">جاري تحميل الأقسام...</p>
@@ -731,11 +732,14 @@ export default function CategoriesPage() {
                 {searchTerm ? 'لا توجد أقسام تطابق البحث' : 'لا توجد أقسام متاحة حالياً'}
               </p>
             </div>
-          ) : (
+            ) : (
             <>
-              {/* Categories Grid/List */}
-              {viewMode === 'grid' ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {/* Explore by Categories + Trending (2/3 + 1/3) */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2">
+                  {/* Categories Grid/List */}
+                  {viewMode === 'grid' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                   {filteredCategories.map((category) => {
                     const categoryName = category.name_ar || category.metadata?.name_ar || category.name || '';
                     const categorySlug = category.slug || (categoryName ? String(categoryName).toLowerCase().replace(/\s+/g, '-') : '');
@@ -803,9 +807,9 @@ export default function CategoriesPage() {
                     );
                   })}
                 </div>
-              ) : (
-                // List View
-                <div className="space-y-4">
+                  ) : (
+                  // List View
+                  <div className="space-y-4">
                   {filteredCategories.map((category) => {
                     const categoryName = category.name_ar || category.metadata?.name_ar || category.name || '';
                     const categorySlug = category.slug || categoryName.toLowerCase().replace(/\s+/g, '-');
@@ -865,8 +869,16 @@ export default function CategoriesPage() {
                       </Link>
                     );
                   })}
+                  </div>
+                  )}
                 </div>
-              )}
+                {/* Trending / Sabq Trend */}
+                <div className="lg:col-span-1">
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-0">
+                    <TrendingArticles title="ترند سبق" timeframe="24h" limit={5} sticky={true} />
+                  </div>
+                </div>
+              </div>
             </>
           )}
         </div>
