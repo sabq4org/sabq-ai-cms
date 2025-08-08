@@ -10,7 +10,6 @@ import EnhancedMobileNewsCard from "@/components/mobile/EnhancedMobileNewsCard";
 import SmartContentNewsCard from "@/components/mobile/SmartContentNewsCard";
 
 import AdBanner from "@/components/ads/AdBanner";
-import TrendingArticles from "@/components/article/TrendingArticles";
 import NewsPulseTicker from "@/components/news/NewsPulseTicker";
 import CloudImage from "@/components/ui/CloudImage";
 import { useAuth } from "@/hooks/useAuth";
@@ -748,11 +747,7 @@ function NewspaperHomePage({
           <AdBanner placement="below_featured" />
         </div>
 
-        {/* تم حذف الجرعات الذكية */}
-        {/* 4. النشرة الصوتية (Audio Briefing) 🎧 */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <SmartAudioBlock />
-        </div>
+        {/* تم نقل النشرة الصوتية إلى العمود الجانبي بجوار التصنيفات */}
         {/* 5. بلوك التصنيفات (Categories Block) 🏷️ + ترند سبق */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 mb-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
@@ -1150,7 +1145,7 @@ function NewspaperHomePage({
                 )}
               </div>
             </div>
-            {/* 1/3: ترند سبق */}
+            {/* 1/3: النشرة الصوتية */}
             <aside className="lg:col-span-1">
               <div
                 className={`h-full rounded-3xl p-4 sm:p-5 transition-all duration-500 shadow-lg dark:shadow-gray-900/50 ${
@@ -1165,13 +1160,7 @@ function NewspaperHomePage({
                     : "linear-gradient(135deg, rgba(219, 234, 254, 0.5) 0%, rgba(191, 219, 254, 0.3) 100%)",
                 }}
               >
-                <TrendingArticles
-                  title="ترند سبق"
-                  timeframe="24h"
-                  limit={5}
-                  sticky={false}
-                  className="h-full"
-                />
+                <SmartAudioBlock />
               </div>
             </aside>
           </div>
