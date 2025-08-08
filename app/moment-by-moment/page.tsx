@@ -490,12 +490,52 @@ export default function MomentByMomentPage() {
                           <div className="flex-1 bg-white shadow-sm hover:shadow-md transition-all rounded-xl p-6 border border-gray-200 dark:border-gray-700 dark:bg-gray-800">
                             {/* Header: التصنيف والوقت */}
                             <div className="flex items-center justify-between mb-3">
-                              {/* التصنيف الموحد */}
-                              <span className="text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
-                                {isBreaking
-                                  ? "عاجل"
-                                  : item.category?.name || item.label}
-                              </span>
+                              {/* التصنيف الملون + النص المرافق */}
+                              <div className="flex items-center gap-2">
+                                {isBreaking ? (
+                                  <span className="text-sm font-medium px-2 py-1 rounded bg-red-600 text-white">
+                                    عاجل
+                                  </span>
+                                ) : (
+                                  (() => {
+                                    const isOpinion =
+                                      item.type === "article" &&
+                                      ((item.category?.slug || "").includes("opinion") ||
+                                        (item.category?.name || "").includes("رأي"));
+                                    const pillText =
+                                      item.type === "angle-article"
+                                        ? item.angle?.title || item.label || "مُقترب"
+                                        : item.category?.name || item.label;
+                                    const pillColor =
+                                      item.type === "angle-article"
+                                        ? item.angle?.themeColor || item.color || undefined
+                                        : item.category?.color || item.color || undefined;
+                                    let extra: string | null = null;
+                                    if (item.type === "news") extra = "خبر";
+                                    else if (item.type === "angle-article") extra = "مقترب";
+                                    else if (isOpinion) extra = "رأي";
+
+                                    return (
+                                      <>
+                                        <span
+                                          className="text-sm font-medium px-2 py-1 rounded"
+                                          style={{
+                                            backgroundColor: pillColor || "#f3f4f6",
+                                            color: pillColor ? "#fff" : undefined,
+                                          }}
+                                        >
+                                          {pillText}
+                                        </span>
+                                        {extra && (
+                                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                                            {extra}
+                                          </span>
+                                        )}
+                                      </>
+                                    );
+                                  })()
+                                )}
+                              </div>
 
                               {/* الوقت في اليمين */}
                               <span className="text-xs text-gray-400 dark:text-gray-500">
@@ -608,11 +648,51 @@ export default function MomentByMomentPage() {
                       >
                         {/* Header: التصنيف والوقت */}
                         <div className="flex items-center justify-between mb-3">
-                          <span className="text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
-                            {isBreaking
-                              ? "عاجل"
-                              : item.category?.name || item.label}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            {isBreaking ? (
+                              <span className="text-sm font-medium px-2 py-1 rounded bg-red-600 text-white">
+                                عاجل
+                              </span>
+                            ) : (
+                              (() => {
+                                const isOpinion =
+                                  item.type === "article" &&
+                                  ((item.category?.slug || "").includes("opinion") ||
+                                    (item.category?.name || "").includes("رأي"));
+                                const pillText =
+                                  item.type === "angle-article"
+                                    ? item.angle?.title || item.label || "مُقترب"
+                                    : item.category?.name || item.label;
+                                const pillColor =
+                                  item.type === "angle-article"
+                                    ? item.angle?.themeColor || item.color || undefined
+                                    : item.category?.color || item.color || undefined;
+                                let extra: string | null = null;
+                                if (item.type === "news") extra = "خبر";
+                                else if (item.type === "angle-article") extra = "مقترب";
+                                else if (isOpinion) extra = "رأي";
+
+                                return (
+                                  <>
+                                    <span
+                                      className="text-sm font-medium px-2 py-1 rounded"
+                                      style={{
+                                        backgroundColor: pillColor || "#f3f4f6",
+                                        color: pillColor ? "#fff" : undefined,
+                                      }}
+                                    >
+                                      {pillText}
+                                    </span>
+                                    {extra && (
+                                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                                        {extra}
+                                      </span>
+                                    )}
+                                  </>
+                                );
+                              })()
+                            )}
+                          </div>
                           <span className="text-xs text-gray-400 dark:text-gray-500">
                             {timeAgo}
                           </span>
