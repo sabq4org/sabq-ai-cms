@@ -22,7 +22,7 @@ import {
   Target,
   Trash2,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface Category {
   id: string;
@@ -34,56 +34,42 @@ interface Category {
   color: string;
 }
 
-const categories: Category[] = [
-  {
-    id: "1",
-    name: "الأخبار العاجلة",
-    description: "آخر الأخبار والتطورات المهمة",
-    articleCount: 245,
-    createdAt: "2024-01-15",
-    status: "active",
-    color: "red",
-  },
-  {
-    id: "2",
-    name: "الاقتصاد",
-    description: "أخبار الاقتصاد والأعمال والاستثمار",
-    articleCount: 189,
-    createdAt: "2024-01-10",
-    status: "active",
-    color: "blue",
-  },
-  {
-    id: "3",
-    name: "التقنية",
-    description: "آخر أخبار التقنية والابتكار",
-    articleCount: 156,
-    createdAt: "2024-01-08",
-    status: "active",
-    color: "purple",
-  },
-  {
-    id: "4",
-    name: "الرياضة",
-    description: "أخبار الرياضة المحلية والعالمية",
-    articleCount: 134,
-    createdAt: "2024-01-05",
-    status: "active",
-    color: "green",
-  },
-  {
-    id: "5",
-    name: "الثقافة",
-    description: "الأخبار الثقافية والفنية",
-    articleCount: 87,
-    createdAt: "2024-01-03",
-    status: "inactive",
-    color: "orange",
-  },
-];
+// سيتم جلب التصنيفات فعليًا من /api/categories
 
 const CategoriesPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await fetch("/api/categories", { cache: "no-store" });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+        const raw = data.categories || data.data || [];
+        const mapped: Category[] = (raw as any[]).map((c) => ({
+          id: String(c.id),
+          name: c.name_ar || c.name || "",
+          description: c.description || "",
+          articleCount: Number(c.articles_count ?? c.articleCount ?? 0),
+          createdAt: c.created_at || c.createdAt || new Date().toISOString(),
+          status: c.is_active === false ? "inactive" : "active",
+          color: c.color || "blue",
+        }));
+        setCategories(mapped);
+      } catch (e) {
+        setError("تعذر جلب التصنيفات");
+        setCategories([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
 
   const formatNumber = (num: number) => {
     if (num >= 1000) return `${(num / 1000).toFixed(1)}ك`;
@@ -149,6 +135,16 @@ const CategoriesPage = () => {
   return (
     <>
       <div className="space-y-8">
+        {loading && (
+          <DesignComponents.StandardCard className="p-6">
+            <div className="text-sm text-gray-600 dark:text-gray-300">جاري التحميل...</div>
+          </DesignComponents.StandardCard>
+        )}
+        {error && (
+          <DesignComponents.StandardCard className="p-6">
+            <div className="text-sm text-red-600 dark:text-red-400">{error}</div>
+          </DesignComponents.StandardCard>
+        )}
         {/* رسالة الترحيب الاحترافية */}
         <DesignComponents.StandardCard className="p-6 bg-gradient-to-l from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border-blue-200 dark:border-blue-800">
           <div className="flex items-start gap-4">
@@ -283,7 +279,7 @@ const CategoriesPage = () => {
             }
           />
 
-          <DesignComponents.DynamicGrid minItemWidth="350px">
+           <DesignComponents.DynamicGrid minItemWidth="350px">
             {categories.map((category) => (
               <DesignComponents.StandardCard
                 key={category.id}
@@ -356,14 +352,14 @@ const CategoriesPage = () => {
                         {formatDashboardStat(category.articleCount)} مقال
                       </span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4 text-gray-400" />
-                      <span className="text-gray-600 dark:text-gray-400">
-                        {new Date(category.createdAt).toLocaleDateString(
-                          "ar-SA"
-                        )}
-                      </span>
-                    </div>
+                    {category.createdAt && (
+                      <div className="flex items-center gap-1">
+                        <Calendar className="w-4 h-4 text-gray-400" />
+                        <span className="text-gray-600 dark:text-gray-400">
+                          {new Date(category.createdAt).toLocaleDateString("ar-SA")}
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <Button variant="ghost" size="sm">
                     <Eye className="w-4 h-4" />
