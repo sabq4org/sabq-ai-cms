@@ -1,9 +1,10 @@
 "use client";
 
 import CommentsSection from "@/components/article/CommentsSection";
+import CommentsClient from "@/components/article/CommentsClient";
 import { cn } from "@/lib/utils";
 import { MessageCircle } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface CommentsPanelProps {
   articleId: string;
@@ -17,7 +18,24 @@ export default function CommentsPanel({
   className,
 }: CommentsPanelProps) {
   const [open, setOpen] = useState(false);
-  const [count] = useState<number>(initialCount);
+  const [open, setOpen] = useState(false);
+  const [count, setCount] = useState<number>(initialCount);
+
+  // استماع لتحديث العداد من CommentsClient
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (typeof detail === "number") setCount(detail);
+    };
+    if (typeof window !== "undefined") {
+      window.addEventListener("comments:count", handler as any);
+    }
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("comments:count", handler as any);
+      }
+    };
+  }, []);
 
   return (
     <div className={cn("w-full", className)} dir="rtl">
@@ -39,8 +57,10 @@ export default function CommentsPanel({
 
       {open && (
         <div className="mt-3 space-y-4">
-          {/* إظهار قسم التعليقات عند الفتح (Lazy داخل CommentsSection) */}
-          <CommentsSection articleId={articleId} />
+          {/* ترتيب: قائمة التعليقات أولاً ثم نموذج الإضافة */}
+          <section id="comments" dir="rtl">
+            <CommentsClient articleId={articleId} />
+          </section>
         </div>
       )}
     </div>

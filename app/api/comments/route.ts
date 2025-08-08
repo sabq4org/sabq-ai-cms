@@ -318,7 +318,7 @@ export async function POST(request: NextRequest) {
       commentStatus = "approved";
     } else {
       // تحديد نوع التحليل المطلوب
-      const useOpenAI = process.env.OPENAI_API_KEY && aiSettings?.enabled;
+      const useOpenAI = !!process.env.OPENAI_API_KEY && aiSettings.enabled;
 
       let analysisResult;
       const startTime = Date.now();
@@ -413,22 +413,23 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // جلب إعدادات الذكاء الاصطناعي
-      if (aiSettings?.enabled) {
-        // تحويل النتيجة إلى 0..100 إذا كانت 0..1
-        const score100 = aiScore <= 1 ? Math.round(aiScore * 100) : aiScore;
-        const pass = score100 >= (aiSettings.autoApproveThreshold || 80);
-        if (aiSettings.mode === "ai_only") {
-          commentStatus = pass ? "approved" : "rejected";
-        } else if (aiSettings.mode === "human") {
+      // تطبيق وضع المراجعة المحدد حتى في حال غياب OpenAI
+      const score100 = aiScore <= 1 ? Math.round(aiScore * 100) : aiScore;
+      const pass = score100 >= (aiSettings.autoApproveThreshold || 80);
+      switch (aiSettings.mode) {
+        case "human":
           commentStatus = "pending";
-        } else {
-          // hybrid
-          commentStatus = pass ? "approved" : "pending";
-        }
-        if (commentStatus === "pending") {
           requiresModeration = true;
-        }
+          break;
+        case "ai_only":
+          commentStatus = pass ? "approved" : "rejected";
+          requiresModeration = !pass;
+          break;
+        case "hybrid":
+        default:
+          commentStatus = pass ? "approved" : "pending";
+          requiresModeration = !pass;
+          break;
       }
 
       if (commentStatus === "pending" && !requiresModeration) {

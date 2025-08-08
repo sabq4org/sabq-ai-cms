@@ -46,6 +46,9 @@ export default function CommentsClient({ articleId }: CommentsClientProps) {
       }));
       setComments((prev) => (append ? [...prev, ...items] : items));
       setHasMore(pageNum < (data.pagination?.totalPages || 1));
+      // تحديث العداد في اللوحة (إن وجد مستمع أعلى)
+      const evt = new CustomEvent("comments:count", { detail: items.length });
+      window.dispatchEvent(evt);
     } catch (e: any) {
       setError(e.message || "خطأ غير معروف");
     } finally {
