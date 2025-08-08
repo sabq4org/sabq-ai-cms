@@ -500,19 +500,30 @@ export default function MomentByMomentPage() {
                                   (() => {
                                     const isOpinion =
                                       item.type === "article" &&
-                                      ((item.category?.slug || "").includes("opinion") ||
-                                        (item.category?.name || "").includes("رأي"));
+                                      ((item.category?.slug || "").includes(
+                                        "opinion"
+                                      ) ||
+                                        (item.category?.name || "").includes(
+                                          "رأي"
+                                        ));
                                     const pillText =
                                       item.type === "angle-article"
-                                        ? item.angle?.title || item.label || "مُقترب"
+                                        ? item.angle?.title ||
+                                          item.label ||
+                                          "مُقترب"
                                         : item.category?.name || item.label;
                                     const pillColor =
                                       item.type === "angle-article"
-                                        ? item.angle?.themeColor || item.color || undefined
-                                        : item.category?.color || item.color || undefined;
+                                        ? item.angle?.themeColor ||
+                                          item.color ||
+                                          undefined
+                                        : item.category?.color ||
+                                          item.color ||
+                                          undefined;
                                     let extra: string | null = null;
                                     if (item.type === "news") extra = "خبر";
-                                    else if (item.type === "angle-article") extra = "مقترب";
+                                    else if (item.type === "angle-article")
+                                      extra = "مقترب";
                                     else if (isOpinion) extra = "رأي";
 
                                     // شارة خفيفة ومعتمدة أسلوبياً
@@ -665,19 +676,30 @@ export default function MomentByMomentPage() {
                               (() => {
                                 const isOpinion =
                                   item.type === "article" &&
-                                  ((item.category?.slug || "").includes("opinion") ||
-                                    (item.category?.name || "").includes("رأي"));
+                                  ((item.category?.slug || "").includes(
+                                    "opinion"
+                                  ) ||
+                                    (item.category?.name || "").includes(
+                                      "رأي"
+                                    ));
                                 const pillText =
                                   item.type === "angle-article"
-                                    ? item.angle?.title || item.label || "مُقترب"
+                                    ? item.angle?.title ||
+                                      item.label ||
+                                      "مُقترب"
                                     : item.category?.name || item.label;
                                 const pillColor =
                                   item.type === "angle-article"
-                                    ? item.angle?.themeColor || item.color || undefined
-                                    : item.category?.color || item.color || undefined;
+                                    ? item.angle?.themeColor ||
+                                      item.color ||
+                                      undefined
+                                    : item.category?.color ||
+                                      item.color ||
+                                      undefined;
                                 let extra: string | null = null;
                                 if (item.type === "news") extra = "خبر";
-                                else if (item.type === "angle-article") extra = "مقترب";
+                                else if (item.type === "angle-article")
+                                  extra = "مقترب";
                                 else if (isOpinion) extra = "رأي";
 
                                 return (
