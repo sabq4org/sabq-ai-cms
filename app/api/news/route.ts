@@ -112,6 +112,24 @@ export async function GET(request: NextRequest) {
 
     console.log(`✅ [News API] تم جلب ${articles.length} مقال`);
 
+    // جلب عدد التعليقات الموافق عليها بشكل مجمّع
+    const articleIds = articles.map((a) => a.id).filter(Boolean) as string[];
+    let commentsCountsMap = new Map<string, number>();
+    if (articleIds.length > 0) {
+      try {
+        const grouped = await prisma.comments.groupBy({
+          by: ["article_id"],
+          where: { article_id: { in: articleIds }, status: "approved" },
+          _count: { _all: true },
+        });
+        commentsCountsMap = new Map(
+          grouped.map((g: any) => [g.article_id, g._count?._all || 0])
+        );
+      } catch (e) {
+        console.error("⚠️ فشل جلب عدد التعليقات المجمّع:", e);
+      }
+    }
+
     // تحويل البيانات للتنسيق المطلوب
     const formattedArticles = articles.map((article) => {
       // منطق اختيار المؤلف (النظام الجديد له الأولوية)
@@ -133,7 +151,10 @@ export async function GET(request: NextRequest) {
         published_at: article.published_at,
         created_at: article.created_at,
         updated_at: article.updated_at,
-        view_count: article.views,
+        // توحيد التسمية للمشاهدات
+        views: article.views || 0,
+        views_count: article.views || 0,
+        comments_count: commentsCountsMap.get(article.id) || 0,
         reading_time: article.reading_time,
 
         // معلومات التصنيف

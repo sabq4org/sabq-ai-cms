@@ -75,7 +75,8 @@ export default function Footer() {
           {/* Logo and description */}
           <div className="md:col-span-2 lg:col-span-1 flex flex-col items-start">
             <div className="mb-1">
-              <SabqLogo width={96} height={30} />
+              {/* مطابقة مقاسات الهيدر (Desktop) */}
+              <SabqLogo width={144} height={40} />
             </div>
             <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mt-1">
               صحيفة إلكترونية سعودية شاملة، نعمل على مدار الساعة لننقل لكم
@@ -134,7 +135,8 @@ export default function Footer() {
         {/* الشعار والوصف */}
         <div className="text-center mb-6">
           <div className="flex flex-col items-center justify-center mb-1">
-            <SabqLogo width={88} height={28} />
+            {/* مطابقة مقاسات الهيدر (Mobile) */}
+            <SabqLogo width={112} height={32} />
           </div>
           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
             صحيفة إلكترونية سعودية شاملة

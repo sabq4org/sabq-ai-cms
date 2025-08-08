@@ -6,7 +6,7 @@ import { formatDateNumeric } from "@/lib/date-utils";
 import { getImageUrl } from "@/lib/image-utils";
 import { getProductionImageUrl } from "@/lib/production-image-fix";
 import { cn } from "@/lib/utils";
-import { Calendar, Eye, Zap } from "lucide-react";
+import { Calendar, Eye, MessageSquare, Zap } from "lucide-react";
 import Link from "next/link";
 
 interface ArticleCardProps {
@@ -164,8 +164,8 @@ export default function ArticleCard({
           className={cn(
             "relative rounded-3xl shadow-lg p-6 flex gap-6",
             isBreaking
-              ? "bg-red-50 dark:bg-red-950/20 border-2 border-red-200 dark:border-red-800"
-              : "bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+              ? "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800 border"
+              : "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 border"
           )}
           dir="rtl"
           data-category={mappedCategory}
@@ -200,7 +200,7 @@ export default function ArticleCard({
 
             {/* Excerpt - مخفي في التصميم الجديد */}
 
-            {/* سطر واحد: التاريخ + المشاهدات */}
+            {/* سطر واحد: التاريخ + المشاهدات + التعليقات */}
             <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
               <time
                 dateTime={publishDate}
@@ -216,6 +216,17 @@ export default function ArticleCard({
                   article.views ?? article.views_count ?? 0
                 )}
               </span>
+              {typeof article.comments_count === "number" && (
+                <>
+                  <span className="mx-1">•</span>
+                  <span className="inline-flex items-center gap-1">
+                    <MessageSquare className="w-4 h-4" />
+                    {new Intl.NumberFormat("ar", {
+                      notation: "compact",
+                    }).format(article.comments_count || 0)}
+                  </span>
+                </>
+              )}
             </div>
           </div>
           <div className="category-underline" aria-hidden />
@@ -231,8 +242,8 @@ export default function ArticleCard({
         className={cn(
           "relative rounded-2xl shadow-md overflow-hidden h-full flex flex-col",
           isBreaking
-            ? "bg-red-50 dark:bg-red-950/20 ring-2 ring-red-500 ring-opacity-50 border-2 border-red-200 dark:border-red-800"
-            : "bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+            ? "bg-red-50 dark:bg-red-950/20 ring-2 ring-red-500 ring-opacity-50 border-red-200 dark:border-red-800 border"
+            : "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 border"
         )}
         dir="rtl"
         data-category={mappedCategory}
@@ -278,7 +289,7 @@ export default function ArticleCard({
 
           {/* Excerpt - مخفي في التصميم الجديد */}
 
-          {/* سطر واحد: التاريخ + المشاهدات */}
+          {/* سطر واحد: التاريخ + المشاهدات + التعليقات */}
           <div className="mt-auto">
             <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
               <time
@@ -295,6 +306,17 @@ export default function ArticleCard({
                   article.views ?? article.views_count ?? 0
                 )}
               </span>
+              {typeof article.comments_count === "number" && (
+                <>
+                  <span className="mx-1">•</span>
+                  <span className="inline-flex items-center gap-1">
+                    <MessageSquare className="w-4 h-4" />
+                    {new Intl.NumberFormat("ar", {
+                      notation: "compact",
+                    }).format(article.comments_count || 0)}
+                  </span>
+                </>
+              )}
             </div>
           </div>
         </div>

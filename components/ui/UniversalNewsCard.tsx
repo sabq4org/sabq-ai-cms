@@ -208,10 +208,14 @@ export default function UniversalNewsCard({
                 <SafeDateDisplay date={publishDate || ""} format="relative" />
               </div>
 
-              {article.views !== undefined && (
+              {(article.views !== undefined ||
+                article.views_count !== undefined) && (
                 <>
                   <span>•</span>
-                  <ArticleViews count={article.views} className="text-xs" />
+                  <ArticleViews
+                    count={article.views ?? article.views_count ?? 0}
+                    className="text-xs"
+                  />
                 </>
               )}
             </div>
@@ -229,8 +233,8 @@ export default function UniversalNewsCard({
           className={cn(
             "rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 flex gap-6",
             isBreaking
-              ? "bg-red-50 dark:bg-red-950/20 border-2 border-red-200 dark:border-red-800"
-              : "bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700",
+              ? "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800 border"
+              : "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 border",
             className
           )}
         >
@@ -313,8 +317,12 @@ export default function UniversalNewsCard({
                 د
               </div>
 
-              {article.views !== undefined && (
-                <ArticleViews count={article.views} className="text-sm" />
+              {(article.views !== undefined ||
+                article.views_count !== undefined) && (
+                <ArticleViews
+                  count={article.views ?? article.views_count ?? 0}
+                  className="text-sm"
+                />
               )}
 
               {article.comments_count !== undefined && (
@@ -337,8 +345,8 @@ export default function UniversalNewsCard({
         className={cn(
           "rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden h-full flex flex-col",
           isBreaking
-            ? "bg-red-50 dark:bg-red-950/20 border-2 border-red-200 dark:border-red-800"
-            : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700",
+            ? "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800 border"
+            : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 border",
           className
         )}
       >
@@ -426,8 +434,12 @@ export default function UniversalNewsCard({
               </div>
             </div>
 
-            {article.views !== undefined && (
-              <ArticleViews count={article.views} className="text-sm" />
+            {(article.views !== undefined ||
+              article.views_count !== undefined) && (
+              <ArticleViews
+                count={article.views ?? article.views_count ?? 0}
+                className="text-sm"
+              />
             )}
           </div>
         </div>
