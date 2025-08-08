@@ -59,14 +59,13 @@ export default function ArticleFeaturedImage({
     case "default":
       return (
         <div className="relative w-full">
-          {/* الصورة الرئيسية بدون إطار أو ظل */}
-          <div className="relative overflow-hidden rounded-lg">
+          {/* إطار موحّد: 300-350px للبطاقات على الشاشات الصغيرة، و500-600px للتفاصيل على الديسكتوب */}
+          <div className="relative overflow-hidden rounded-lg h-[300px] sm:h-[360px] lg:h-[560px]">
             <Image
               src={imageUrl}
               alt={title || "صورة المقال"}
-              width={1024}
-              height={500}
-              className="w-full object-cover min-h-[220px] max-h-[280px] sm:min-h-[300px] sm:max-h-[400px] lg:min-h-[400px] lg:max-h-[500px] object-center"
+              fill
+              className="object-cover object-center w-full h-full"
               priority={true}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1024px"
               onError={() => setImageError(true)}

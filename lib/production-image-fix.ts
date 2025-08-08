@@ -65,7 +65,7 @@ export function getProductionImageUrl(
     // إضافة transformations للصور بدونها
     const parts = imageUrl.split("/upload/");
     if (parts.length === 2) {
-      const transformations = `c_fill,w_${width},h_${height},q_${quality},f_auto`;
+      const transformations = `c_fill,g_auto,w_${width},h_${height},q_${quality},f_auto`;
       return `${parts[0]}/upload/${transformations}/${parts[1]}`;
     }
 

@@ -99,7 +99,7 @@ const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({ article }) => {
                   src={article.featured_image}
                   alt={article.title}
                   fill
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover object-center rounded-xl transition-transform duration-700 group-hover:scale-105"
                   fallbackType="article"
                   priority={true}
                 />

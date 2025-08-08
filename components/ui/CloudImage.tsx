@@ -121,7 +121,7 @@ export default function CloudImage({
           }
           quality={quality}
           priority={priority}
-          className={`${className} object-cover ${
+          className={`${className} object-cover object-center rounded-xl ${
             isLoading ? "opacity-0" : "opacity-100"
           } transition-opacity duration-300`}
           onError={handleError}
@@ -154,7 +154,7 @@ export default function CloudImage({
         sizes={
           sizes || "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         }
-        className={`object-cover w-full h-full ${
+        className={`object-cover object-center rounded-xl w-full h-full ${
           isLoading ? "opacity-0" : "opacity-100"
         } transition-opacity duration-300`}
         onError={handleError}
