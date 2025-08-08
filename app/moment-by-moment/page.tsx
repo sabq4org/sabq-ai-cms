@@ -515,13 +515,21 @@ export default function MomentByMomentPage() {
                                     else if (item.type === "angle-article") extra = "مقترب";
                                     else if (isOpinion) extra = "رأي";
 
+                                    // شارة خفيفة ومعتمدة أسلوبياً
                                     return (
                                       <>
                                         <span
-                                          className="text-sm font-medium px-2 py-1 rounded"
+                                          className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium border"
                                           style={{
-                                            backgroundColor: pillColor || "#f3f4f6",
-                                            color: pillColor ? "#fff" : undefined,
+                                            backgroundColor: pillColor
+                                              ? `color-mix(in oklab, ${pillColor} 14%, transparent)`
+                                              : "rgba(59, 130, 246, 0.08)",
+                                            color: pillColor
+                                              ? `color-mix(in oklab, ${pillColor} 75%, currentColor)`
+                                              : "rgba(59, 130, 246, 0.75)",
+                                            borderColor: pillColor
+                                              ? `color-mix(in oklab, ${pillColor} 28%, transparent)`
+                                              : "rgba(59, 130, 246, 0.25)",
                                           }}
                                         >
                                           {pillText}
@@ -675,10 +683,17 @@ export default function MomentByMomentPage() {
                                 return (
                                   <>
                                     <span
-                                      className="text-sm font-medium px-2 py-1 rounded"
+                                      className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium border"
                                       style={{
-                                        backgroundColor: pillColor || "#f3f4f6",
-                                        color: pillColor ? "#fff" : undefined,
+                                        backgroundColor: pillColor
+                                          ? `color-mix(in oklab, ${pillColor} 14%, transparent)`
+                                          : "rgba(59, 130, 246, 0.08)",
+                                        color: pillColor
+                                          ? `color-mix(in oklab, ${pillColor} 75%, currentColor)`
+                                          : "rgba(59, 130, 246, 0.75)",
+                                        borderColor: pillColor
+                                          ? `color-mix(in oklab, ${pillColor} 28%, transparent)`
+                                          : "rgba(59, 130, 246, 0.25)",
                                       }}
                                     >
                                       {pillText}
