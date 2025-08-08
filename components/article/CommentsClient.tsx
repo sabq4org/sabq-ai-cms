@@ -30,7 +30,8 @@ export default function CommentsClient({ articleId }: CommentsClientProps) {
       const res = await fetch(
         `/api/comments?article_id=${encodeURIComponent(
           articleId
-        )}&page=${pageNum}&limit=10`
+        )}&page=${pageNum}&limit=10`,
+        { cache: "no-store" }
       );
       const data = await res.json();
       if (!res.ok || data.success === false) {
@@ -85,6 +86,8 @@ export default function CommentsClient({ articleId }: CommentsClientProps) {
         user: data.comment?.user || { name: "أنت" },
       };
       setComments((prev) => [newItem, ...prev]);
+      // إعادة الجلب بعد 500ms لضمان تزامن الحالة بعد الموافقة من لوحة التحكم
+      setTimeout(() => fetchComments(1, false), 500);
     } catch (e: any) {
       setError(e.message || "فشل في إضافة التعليق");
     } finally {

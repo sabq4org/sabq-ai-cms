@@ -1,6 +1,10 @@
 import { getCurrentUser } from "@/app/lib/auth";
 import prisma from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 async function getUserRole(userId: string): Promise<string> {
   const user = await prisma.users.findUnique({
@@ -95,7 +99,21 @@ export async function PATCH(
       console.error("Failed to adjust article comment count", e);
     }
 
-    return NextResponse.json({ success: true, comment: updated });
+    try {
+      revalidatePath(`/article/${existing.article_id}`);
+    } catch {}
+    return NextResponse.json(
+      { success: true, comment: updated },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+          Pragma: "no-cache",
+          Expires: "0",
+          "Vercel-CDN-Cache-Control": "private, no-store",
+          "CDN-Cache-Control": "private, no-store",
+        },
+      }
+    );
   } catch (error) {
     console.error("PATCH /api/comments/[id] error:", error);
     return NextResponse.json(

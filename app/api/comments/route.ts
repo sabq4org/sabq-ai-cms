@@ -3,7 +3,20 @@ import { quickLocalAnalysis } from "@/lib/comment-moderation";
 import prisma from "@/lib/prisma";
 import { cache as redis } from "@/lib/redis-improved";
 import { classifyCommentWithAI } from "@/lib/services/ai-comment-classifier";
+import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const runtime = "nodejs";
+
+const noStoreHeaders = {
+  "Cache-Control": "no-store, no-cache, must-revalidate",
+  Pragma: "no-cache",
+  Expires: "0",
+  "Vercel-CDN-Cache-Control": "private, no-store",
+  "CDN-Cache-Control": "private, no-store",
+};
 
 // دالة مساعدة للتحقق من دور المستخدم
 async function getUserRole(userId: string): Promise<string> {
@@ -138,23 +151,26 @@ export async function GET(request: NextRequest) {
             },
       }));
 
-      return NextResponse.json({
-        success: true,
-        comments: enriched,
-        pagination: {
-          total,
-          page,
-          limit,
-          totalPages: Math.ceil(total / limit),
+      return NextResponse.json(
+        {
+          success: true,
+          comments: enriched,
+          pagination: {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+          },
+          stats: {
+            total,
+            pending: pendingCount,
+            approved: approvedCount,
+            rejected: rejectedCount,
+            spam: spamCount,
+          },
         },
-        stats: {
-          total,
-          pending: pendingCount,
-          approved: approvedCount,
-          rejected: rejectedCount,
-          spam: spamCount,
-        },
-      });
+        { headers: noStoreHeaders }
+      );
     }
 
     // جلب التعليقات الرئيسية مع الردود
@@ -191,16 +207,19 @@ export async function GET(request: NextRequest) {
     // تنسيق البيانات
     const formattedComments = comments.map(formatComment);
 
-    return NextResponse.json({
-      success: true,
-      comments: formattedComments,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
+    return NextResponse.json(
+      {
+        success: true,
+        comments: formattedComments,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+        },
       },
-    });
+      { headers: noStoreHeaders }
+    );
   } catch (error: any) {
     console.error("Error fetching comments:", error);
     return NextResponse.json(
@@ -498,29 +517,37 @@ export async function POST(request: NextRequest) {
         });
     }
 
-    return NextResponse.json({
-      success: true,
-      comment: {
-        ...formatComment(comment),
-        user: userData,
-      },
-      message:
-        commentStatus === "pending"
-          ? "تم إرسال تعليقك وسيتم نشره بعد المراجعة"
-          : "تم نشر تعليقك بنجاح",
-      // إضافة معلومات التحليل إذا كان التعليق مشبوهاً
-      ...(aiScore < 80 && {
-        aiWarning: {
-          score: aiScore,
-          classification: aiClassification,
-          message:
-            aiScore < 50
-              ? "تحذير: قد يحتوي تعليقك على محتوى مشبوه وسيتم مراجعته قبل النشر"
-              : "ملاحظة: سيتم مراجعة تعليقك قبل النشر",
-          flaggedWords: aiAnalysis?.flagged_words || [],
+    // إعادة توليد صفحة المقال لضمان تحديث العدادات إن كانت تعتمد SSG
+    try {
+      revalidatePath(`/article/${articleId}`);
+    } catch {}
+
+    return NextResponse.json(
+      {
+        success: true,
+        comment: {
+          ...formatComment(comment),
+          user: userData,
         },
-      }),
-    });
+        message:
+          commentStatus === "pending"
+            ? "تم إرسال تعليقك وسيتم نشره بعد المراجعة"
+            : "تم نشر تعليقك بنجاح",
+        // إضافة معلومات التحليل إذا كان التعليق مشبوهاً
+        ...(aiScore < 80 && {
+          aiWarning: {
+            score: aiScore,
+            classification: aiClassification,
+            message:
+              aiScore < 50
+                ? "تحذير: قد يحتوي تعليقك على محتوى مشبوه وسيتم مراجعته قبل النشر"
+                : "ملاحظة: سيتم مراجعة تعليقك قبل النشر",
+            flaggedWords: aiAnalysis?.flagged_words || [],
+          },
+        }),
+      },
+      { headers: noStoreHeaders }
+    );
   } catch (error: any) {
     console.error("Error creating comment:", error);
     return NextResponse.json(
