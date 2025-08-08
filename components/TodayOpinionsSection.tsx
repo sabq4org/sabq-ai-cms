@@ -267,26 +267,26 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
               </span>
               <Zap className="w-5 h-5 text-red-600" />
             </div>
-            <h2 className={`text-4xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+            <h2 className={`text-2xl sm:text-4xl font-bold mb-3 sm:mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
               🔥 قادة الرأي اليوم
             </h2>
-            <p className={`text-lg max-w-3xl mx-auto ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+            <p className={`text-sm sm:text-lg max-w-3xl mx-auto ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
               آراء مميزة من نخبة الكتاب والمفكرين السعوديين حول أبرز القضايا المعاصرة
             </p>
           </div>
 
           {/* شريط الكتاب المتحرك */}
           {featuredWriters.length > 0 && (
-            <div className={`relative overflow-hidden rounded-2xl p-6 mb-8 ${
+            <div className={`relative overflow-hidden rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8 ${
               darkMode 
                 ? 'bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 border border-gray-600' 
                 : 'bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 border border-blue-100'
             }`}>
               <div className="flex items-center justify-between">
                 {/* معلومات الكاتب الحالي */}
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3 sm:gap-4">
                   <div className="relative">
-                    <div className="w-[120px] h-[120px] rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700">
+                    <div className="w-[72px] h-[72px] sm:w-[120px] sm:h-[120px] rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700">
                       <Image 
                         src={featuredWriters[currentWriterIndex]?.author_avatar || '/default-avatar.png'} 
                         alt={featuredWriters[currentWriterIndex]?.author_name || ''} 
@@ -295,25 +295,25 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <div className={`absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-gradient-to-r ${
+                    <div className={`absolute -bottom-1 -right-1 w-5 h-5 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r ${
                       writerClubColors[featuredWriters[currentWriterIndex]?.author_club || 'default']
                     } flex items-center justify-center border-2 border-white dark:border-gray-800 shadow-lg`}>
-                      <Star className="w-4 h-4 text-white" />
+                      <Star className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                     </div>
                   </div>
                   
                   <div>
-                    <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                    <h3 className={`text-base sm:text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
                       {featuredWriters[currentWriterIndex]?.author_name}
                     </h3>
-                    <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                    <p className={`text-xs sm:text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                       {featuredWriters[currentWriterIndex]?.author_specialization}
                     </p>
-                    <div className="flex items-center gap-4 mt-2">
-                      <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <div className="flex items-center gap-3 sm:gap-4 mt-1 sm:mt-2">
+                      <span className={`text-[11px] sm:text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                         📖 {featuredWriters[currentWriterIndex]?.reading_time} دقائق قراءة
                       </span>
-                      <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      <span className={`text-[11px] sm:text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                         👁️ {featuredWriters[currentWriterIndex]?.views_count.toLocaleString()} مشاهدة
                       </span>
                     </div>
@@ -333,7 +333,7 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
                     } shadow-lg`}
                   >
                     <Heart className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium`}>
+                    <span className={`${isMobile ? 'text-[11px]' : 'text-sm'} font-medium`}>
                       {featuredWriters[currentWriterIndex]?.likes_count}
                     </span>
                   </button>
@@ -349,7 +349,7 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
                     } shadow-lg`}
                   >
                     <Share2 className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span className={`${isMobile ? 'text-xs hidden' : 'text-sm'} font-medium`}>مشاركة</span>
+                    <span className={`${isMobile ? 'text-[11px] hidden' : 'text-sm'} font-medium`}>مشاركة</span>
                   </button>
                   
                   <button 
@@ -372,7 +372,7 @@ export default function TodayOpinionsSection({ darkMode = false }: TodayOpinions
                     ) : (
                       <Headphones className="w-3 h-3 sm:w-4 sm:h-4" />
                     )}
-                    <span className={`${isMobile ? 'text-xs hidden' : 'text-sm'} font-medium`}>استمع</span>
+                    <span className={`${isMobile ? 'text-[11px] hidden' : 'text-sm'} font-medium`}>استمع</span>
                   </button>
                 </div>
               </div>
