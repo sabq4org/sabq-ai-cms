@@ -803,18 +803,17 @@ export default function ArticleClientComponent({
               </div>
             </div>
 
-            {/* أزرار المشاركة الاجتماعية - عرض أوسع للموبايل */}
-            <div className="mb-6 sm:mb-8 -mx-3 sm:mx-0">
-              <div className="px-3 sm:px-0">
-                <SocialSharingButtons
-                  article={{
-                    id: article.id,
-                    title: article.title,
-                  }}
-                  className="justify-center sm:justify-end"
-                />
+            {/* أزرار المشاركة الاجتماعية - إظهار فقط خارج الشاشات الصغيرة */}
+            {!isMobile && (
+              <div className="mb-6 sm:mb-8 -mx-3 sm:mx-0">
+                <div className="px-3 sm:px-0">
+                  <SocialSharingButtons
+                    article={{ id: article.id, title: article.title }}
+                    className="justify-center sm:justify-end"
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             {/* الكلمات المفتاحية - عرض أوسع للموبايل */}
             {keywords.length > 0 && (
@@ -876,13 +875,15 @@ export default function ArticleClientComponent({
               </div>
             </div>
 
-            {/* أزرار المشاركة الاجتماعية */}
-            <div className="mt-6 mb-8 px-3 sm:px-0">
-              <SocialSharingButtons
-                article={{ id: article.id, title: article.title }}
-                className="justify-center sm:justify-start"
-              />
-            </div>
+            {/* أزرار المشاركة الاجتماعية - إظهار فقط خارج الشاشات الصغيرة */}
+            {!isMobile && (
+              <div className="mt-6 mb-8 px-3 sm:px-0">
+                <SocialSharingButtons
+                  article={{ id: article.id, title: article.title }}
+                  className="justify-center sm:justify-start"
+                />
+              </div>
+            )}
 
             {/* Comments Panel: يوضع قبل بلوك الإحصائيات كما هو مطلوب */}
             <div className="mt-4 sm:mt-6">
