@@ -42,25 +42,33 @@ export default function CommentsPanel({
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
         className={cn(
-          "w-full rounded-xl border border-border/60 bg-background/60 hover:bg-background/80 px-4 py-3",
-          "flex items-center justify-between shadow-sm transition-colors"
+          "inline-flex items-center gap-2 rounded-full px-3 py-1.5",
+          "bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700",
+          "border border-slate-200 dark:border-slate-700 shadow-sm"
         )}
       >
-        <span className="inline-flex items-center gap-2 font-medium">
-          <MessageCircle className="w-5 h-5" />
-          التعليقات
+        <span className="inline-flex items-center gap-2 font-medium text-sm">
+          <MessageCircle className="w-4 h-4" />
+          <span>التعليقات</span>
         </span>
-        <span className="text-muted-foreground text-sm">({count})</span>
+        <span className="text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded-full">
+          {count}
+        </span>
+        <span className="text-sm">{open ? "▴" : "▾"}</span>
       </button>
 
-      {open && (
-        <div className="mt-3 space-y-4">
-          {/* ترتيب: قائمة التعليقات أولاً ثم نموذج الإضافة */}
-          <section id="comments" dir="rtl">
+      <div
+        className={cn(
+          "transition-all duration-200 ease-out overflow-hidden",
+          open ? "max-h-[9999px] mt-4" : "max-h-0"
+        )}
+      >
+        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-gray-800 shadow-lg">
+          <section id="comments" dir="rtl" className="p-3 sm:p-4 lg:p-6">
             <CommentsClient articleId={articleId} />
           </section>
         </div>
-      )}
+      </div>
     </div>
   );
 }

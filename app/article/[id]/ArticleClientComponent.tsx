@@ -35,8 +35,8 @@ import {
 } from "lucide-react";
 // import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
 import ArticleAISummary from "@/components/article/ArticleAISummary";
-import CommentsPanel from "@/components/article/CommentsPanel";
 import ArticleStatsBlock from "@/components/article/ArticleStatsBlock";
+import CommentsPanel from "@/components/article/CommentsPanel";
 import { ReadingProgressBar } from "@/components/article/ReadingProgressBar";
 import SmartPersonalizedContent from "@/components/article/SmartPersonalizedContent";
 import ArticleViews from "@/components/ui/ArticleViews";
