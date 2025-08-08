@@ -113,6 +113,11 @@ export async function getCurrentUser(): Promise<User | null> {
             });
             await prisma.$disconnect();
             if (!user) return null;
+            const superAdmins = (process.env.SUPER_ADMIN_EMAILS || "admin@sabq.ai")
+              .split(",")
+              .map((s) => s.trim().toLowerCase())
+              .filter(Boolean);
+            const isSuper = !!user.email && superAdmins.includes(user.email.toLowerCase());
             return {
               id: user.id,
               email: user.email,
@@ -121,7 +126,7 @@ export async function getCurrentUser(): Promise<User | null> {
               status: "active",
               avatar_url: user.avatar || undefined,
               role: user.role,
-              isAdmin: user.is_admin,
+              isAdmin: user.is_admin || isSuper,
             } as User & { role: string };
           }
         } catch (e) {
@@ -151,7 +156,11 @@ export async function getCurrentUser(): Promise<User | null> {
     await prisma.$disconnect();
 
     if (!user) return null;
-
+    const superAdmins = (process.env.SUPER_ADMIN_EMAILS || "admin@sabq.ai")
+      .split(",")
+      .map((s) => s.trim().toLowerCase())
+      .filter(Boolean);
+    const isSuper = !!user.email && superAdmins.includes(user.email.toLowerCase());
     return {
       id: user.id,
       email: user.email,
@@ -161,7 +170,7 @@ export async function getCurrentUser(): Promise<User | null> {
       avatar_url: user.avatar || undefined,
       // إضافة role للتحقق في API
       role: user.role,
-      isAdmin: user.is_admin,
+      isAdmin: user.is_admin || isSuper,
     } as User & { role: string };
   } catch (error) {
     console.error("Error getting current user:", error);

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { getCurrentUser } from '@/app/lib/auth';
+import { getCurrentUser, getEffectiveUserRoleById } from '@/app/lib/auth';
 
 
 
@@ -51,7 +51,7 @@ export async function PUT(
     }
 
     // التحقق من الصلاحيات
-    const userRole = await getUserRole(user.id);
+    const userRole = await getEffectiveUserRoleById(user.id);
     if (!['admin', 'moderator'].includes(userRole)) {
       return NextResponse.json(
         { success: false, error: 'ليس لديك صلاحية للوصول' },

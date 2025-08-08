@@ -1,5 +1,6 @@
 import { getCurrentUser } from "@/app/lib/auth";
 import prisma from "@/lib/prisma";
+import { getEffectiveUserRoleById } from "@/app/lib/auth";
 import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -45,7 +46,7 @@ export async function PATCH(
         { status: 401 }
       );
     }
-    const role = await getUserRole(user.id);
+    const role = await getEffectiveUserRoleById(user.id);
     if (!["admin", "moderator"].includes(role)) {
       return NextResponse.json(
         { success: false, error: "صلاحيات غير كافية" },
