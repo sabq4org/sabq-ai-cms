@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma'
+import dbConnectionManager from '@/lib/db-connection-manager'
 
 /**
  * تنفيذ عملية قاعدة البيانات مع إعادة المحاولة
@@ -12,11 +13,11 @@ export async function withRetry<T>(
   
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      // تأكد من الاتصال قبل العملية
-      await prisma.$connect()
+      // تأكد من الاتصال قبل العملية (مع مدير الاتصال)
+      try { await prisma.$connect() } catch {}
       
       // تنفيذ العملية
-      const result = await operation()
+      const result = await dbConnectionManager.executeWithConnection(operation)
       
       return result
     } catch (error) {
