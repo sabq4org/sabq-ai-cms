@@ -58,25 +58,29 @@ const ModernCommentsNew: React.FC = () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (filterStatus) params.set("status", filterStatus);
-      if (searchTerm) params.set("q", searchTerm);
+      if (filterStatus && filterStatus !== "all") params.set("status", filterStatus);
+      if (searchTerm.trim()) params.set("q", searchTerm.trim());
       params.set("page", String(page));
       params.set("limit", String(pageSize));
-      const res = await fetch(`/api/comments?${params.toString()}`);
-      const json = await res.json();
-      if (json.success) {
-        setComments(json.comments || []);
-        setStats(
-          json.stats || {
-            total: 0,
-            pending: 0,
-            approved: 0,
-            rejected: 0,
-            spam: 0,
-          }
-        );
+      const res = await fetch(`/api/comments?${params.toString()}`, { cache: "no-store" });
+      const json = await res.json().catch(() => ({}));
+      if (res.ok && json && json.success) {
+        const list = json.comments || json.data || [];
+        setComments(list);
+        if (json.stats) {
+          setStats(json.stats);
+        } else {
+          // احتساب محلي عند غياب stats من الاستجابة
+          calculateStats(list as any);
+        }
         setTotalPages(json.pagination?.totalPages || 1);
+      } else {
+        // عند الفشل، اظهر فراغ ولكن لا تعلّق الواجهة
+        setComments([]);
       }
+    } catch (e) {
+      console.error("تعذر جلب التعليقات:", e);
+      setComments([]);
     } finally {
       setLoading(false);
     }

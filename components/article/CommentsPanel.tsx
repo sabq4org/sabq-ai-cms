@@ -1,6 +1,5 @@
 "use client";
 
-import CommentsSection from "@/components/article/CommentsSection";
 import CommentsClient from "@/components/article/CommentsClient";
 import { cn } from "@/lib/utils";
 import { MessageCircle } from "lucide-react";
