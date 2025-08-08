@@ -251,6 +251,10 @@ export default function ArticleClientComponent({
       };
 
       fetchArticle();
+    } else {
+      // إذا وصل المقال من السيرفر، عيّنه مباشرة دون انتظار
+      setArticle(processArticle(initialArticle));
+      setLoading(false);
     }
   }, [initialArticle, articleId, router]);
 
@@ -412,19 +416,17 @@ export default function ArticleClientComponent({
           justifyContent: "center",
         }}
       >
-        <div>
-          <div
-            style={{
-              width: "50px",
-              height: "50px",
-              border: "3px solid #e5e7eb",
-              borderTop: "3px solid #2563eb",
-              borderRadius: "50%",
-              animation: "spin 1s linear infinite",
-              margin: "0 auto 1rem",
-            }}
-          ></div>
-          <p style={{ color: "#6b7280" }}>جاري تحميل المقال...</p>
+        <div className="w-full max-w-4xl">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded w-3/4"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-1/2"></div>
+            <div className="h-64 bg-gray-200 dark:bg-gray-800 rounded"></div>
+            <div className="space-y-2">
+              <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-5/6"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-4/6"></div>
+            </div>
+          </div>
         </div>
       </div>
     );
