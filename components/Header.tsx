@@ -4,7 +4,6 @@ import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import {
-  Activity,
   Brain,
   ChevronDown,
   Edit,
@@ -37,21 +36,10 @@ export default function Header() {
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [liveEventCount, setLiveEventCount] = useState(3);
-  const [clientMounted, setClientMounted] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
   // التأكد من التحميل على العميل لتجنب hydration errors
   useEffect(() => {
-    setClientMounted(true);
-
-    // تحديث عداد الأحداث المباشرة فقط بعد التحميل
-    const updateEventCount = () => {
-      setLiveEventCount(Math.floor(Math.random() * 10) + 1);
-    };
-
-    const interval = setInterval(updateEventCount, 30000);
-    return () => clearInterval(interval);
+    // لا حاجة لشريط نبض الأخبار
   }, []);
 
   // عناصر المينيو الرئيسية
@@ -67,14 +55,6 @@ export default function Header() {
     { url: "/categories", label: "الأقسام", icon: Folder, highlight: false },
     { url: "/muqtarab", label: "مُقترب", icon: Target, highlight: false },
     { url: "/insights/deep", label: "عمق", icon: Brain, highlight: false },
-    {
-      url: "/moment-by-moment",
-      label: "",
-      icon: Activity,
-      highlight: true,
-      showBadge: clientMounted,
-      badgeCount: liveEventCount,
-    },
   ];
 
   const handleLogout = async () => {
@@ -157,11 +137,7 @@ export default function Header() {
               >
                 <item.icon className="w-4 h-4" />
                 {item.label && <span>{item.label}</span>}
-                {item.showBadge && item.badgeCount && item.badgeCount > 0 && (
-                  <span className="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] h-5 flex items-center justify-center">
-                    {item.badgeCount}
-                  </span>
-                )}
+                {/* شريط نبض الأخبار محذوف - لا شارة */}
               </Link>
             ))}
           </nav>
@@ -296,13 +272,7 @@ export default function Header() {
                   >
                     <item.icon className="w-4 h-4" />
                     {item.label && <span>{item.label}</span>}
-                    {item.showBadge &&
-                      item.badgeCount &&
-                      item.badgeCount > 0 && (
-                        <span className="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] h-5 flex items-center justify-center">
-                          {item.badgeCount}
-                        </span>
-                      )}
+                    {/* شريط نبض الأخبار محذوف - لا شارة */}
                   </Link>
                 ))}
 
