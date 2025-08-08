@@ -63,7 +63,7 @@ export default function CommentsPanel({
           open ? "max-h-[9999px] mt-4" : "max-h-0"
         )}
       >
-        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-gray-800 shadow-lg">
+        <div className="rounded-xl border bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 shadow-sm">
           <section id="comments" dir="rtl" className="p-3 sm:p-4 lg:p-6">
             <CommentsClient articleId={articleId} />
           </section>

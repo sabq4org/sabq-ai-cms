@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
-import { Loader2, ThumbsUp, Flag, ChevronDown, ChevronUp, ShieldCheck, User } from "lucide-react";
+import { Flag, ShieldCheck, ThumbsUp } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface CommentItem {
   id: string;
@@ -17,6 +18,7 @@ interface CommentsClientProps {
 }
 
 export default function CommentsClient({ articleId }: CommentsClientProps) {
+  const { isLoggedIn } = useAuth();
   const [comments, setComments] = useState<CommentItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -26,8 +28,6 @@ export default function CommentsClient({ articleId }: CommentsClientProps) {
   const [hasMore, setHasMore] = useState(true);
   const [sort, setSort] = useState<"new" | "old" | "top">("new");
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
-  const [guestName, setGuestName] = useState("");
-  const [guestEmail, setGuestEmail] = useState("");
 
   const fetchComments = async (pageNum = 1, append = false) => {
     try {
@@ -89,15 +89,16 @@ export default function CommentsClient({ articleId }: CommentsClientProps) {
       const res = await fetch("/api/comments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ articleId, content: content.trim(), guestName: guestName || undefined, guestEmail: guestEmail || undefined }),
+        body: JSON.stringify({
+          articleId,
+          content: content.trim(),
+        }),
       });
       const data = await res.json();
       if (!res.ok || data.success === false) {
         throw new Error(data?.error || "فشل في إنشاء التعليق");
       }
       setContent("");
-      setGuestName("");
-      setGuestEmail("");
       // تحديث تفاؤلي بسيط
       const newItem: CommentItem = {
         id: data.comment?.id || `temp-${Date.now()}`,
@@ -164,49 +165,47 @@ export default function CommentsClient({ articleId }: CommentsClientProps) {
           comments.map((c, idx) => {
             const isLong = c.content.length > 160;
             const isOpen = !!expanded[c.id];
-            const displayText = isLong && !isOpen ? c.content.slice(0, 160) + "…" : c.content;
+            const displayText =
+              isLong && !isOpen ? c.content.slice(0, 160) + "…" : c.content;
             return (
-              <div key={c.id} className="border rounded-lg p-3 bg-white/60 dark:bg-gray-900/30">
-                <div className="flex items-start gap-3">
-                  {/* الرتبة */}
-                  <div className="text-xs text-slate-500 mt-1">#{(page - 1) * 10 + (idx + 1)}</div>
-                  {/* أفاتار */}
-                  <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">
-                    {c.user?.avatar ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={c.user.avatar as any} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
-                        {(c.user?.name || "زائر").slice(0, 2)}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-medium text-sm">{c.user?.name || "زائر"}</span>
-                      {/* موثّق اختياري */}
-                      {false && (
-                        <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 border border-emerald-200">
-                          <ShieldCheck className="w-3 h-3" /> موثّق
+              <div key={c.id} className="border rounded-lg p-3 bg-white dark:bg-white">
+                <div className="flex gap-3">
+                  {/* عمود الصورة والاسم والتاريخ */}
+                  <div className="flex flex-col items-center w-16">
+                    <div className="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden">
+                      {c.user?.avatar ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={c.user.avatar as any} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-sm font-semibold text-slate-600">
+                          {(c.user?.name || "زائر").slice(0, 2)}
                         </span>
                       )}
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(c.createdAt).toLocaleString("ar-SA", { hour: "2-digit", minute: "2-digit" })}
-                      </span>
                     </div>
-                    <div className="mt-1 text-sm text-slate-800 dark:text-slate-200 leading-relaxed">
+                    <div className="mt-1 text-[11px] text-slate-700 text-center max-w-[3.5rem] truncate">
+                      {c.user?.name || "زائر"}
+                    </div>
+                    <div className="text-[10px] text-slate-400">
+                      {new Date(c.createdAt).toLocaleDateString("ar-SA")}
+                    </div>
+                  </div>
+                  {/* محتوى التعليق */}
+                  <div className="flex-1">
+                    {/* الترتيب في الزاوية */}
+                    <div className="text-[11px] text-slate-400">#{(page - 1) * 10 + (idx + 1)}</div>
+                    <div className="mt-1 text-sm text-slate-900 leading-relaxed">
                       {displayText}
                       {isLong && (
                         <button
                           onClick={() => setExpanded((prev) => ({ ...prev, [c.id]: !isOpen }))}
-                          className="ml-2 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                          className="ml-2 text-xs text-blue-600 hover:underline"
                         >
                           {isOpen ? "إظهار أقل" : "عرض المزيد"}
                         </button>
                       )}
                     </div>
                     <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
-                      <button className="inline-flex items-center gap-1 hover:text-slate-900 dark:hover:text-slate-100">
+                      <button className="inline-flex items-center gap-1 hover:text-slate-900">
                         <ThumbsUp className="w-3.5 h-3.5" /> إعجاب
                       </button>
                       <button className="inline-flex items-center gap-1 hover:text-red-600">
@@ -245,44 +244,38 @@ export default function CommentsClient({ articleId }: CommentsClientProps) {
         )}
       >
         <div className="mb-2 font-medium">✍️ أضف تعليقك</div>
-        <textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          minLength={5}
-          required
-          className="w-full bg-transparent outline-none min-h-[100px] resize-vertical"
-          placeholder="اكتب تعليقك هنا..."
-        />
-        <div className="mt-2 text-xs text-muted-foreground">{content.length}/500</div>
-        <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <input
-            type="text"
-            value={guestName}
-            onChange={(e) => setGuestName(e.target.value)}
-            placeholder="اسمك"
-            className="rounded-md border border-slate-300 dark:border-slate-700 bg-transparent px-3 py-2 text-sm"
-          />
-          <input
-            type="email"
-            value={guestEmail}
-            onChange={(e) => setGuestEmail(e.target.value)}
-            placeholder="بريدك (اختياري)"
-            className="rounded-md border border-slate-300 dark:border-slate-700 bg-transparent px-3 py-2 text-sm"
-          />
-          <button
-            onClick={submitComment}
-            disabled={!canSubmit}
-            className="px-4 py-2 rounded-lg bg-blue-600 text-white disabled:opacity-50"
-          >
-            {submitting ? "جارٍ الإرسال..." : "إضافة تعليق"}
-          </button>
-        </div>
-        <p className="text-xs text-muted-foreground mt-2">
-          قد يخضع تعليقك للمراجعة قبل الظهور.
-        </p>
-        {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
+        {!isLoggedIn ? (
+          <div className="text-sm text-slate-600">
+            للمشاركة، يرجى
+            <a href="/login" className="mx-1 text-blue-600 hover:underline">تسجيل الدخول</a>.
+          </div>
+        ) : (
+          <>
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              minLength={5}
+              required
+              className="w-full bg-transparent outline-none min-h-[100px] resize-vertical"
+              placeholder="اكتب تعليقك هنا..."
+            />
+            <div className="mt-2 text-xs text-muted-foreground">{content.length}/500</div>
+            <div className="mt-3">
+              <button
+                onClick={submitComment}
+                disabled={!canSubmit}
+                className="px-4 py-2 rounded-lg bg-blue-600 text-white disabled:opacity-50"
+              >
+                {submitting ? "جارٍ الإرسال..." : "إضافة تعليق"}
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              قد يخضع تعليقك للمراجعة قبل الظهور.
+            </p>
+            {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
+          </>
+        )}
       </div>
     </div>
   );
 }
-

@@ -22,6 +22,7 @@ import { useEffect, useRef, useState } from "react";
 
 import AdBanner from "@/components/ads/AdBanner";
 import { SmartInteractionButtons } from "@/components/article/SmartInteractionButtons";
+// إزالة المشاركة أعلى التعليقات حسب الطلب
 import SocialSharingButtons from "@/components/article/SocialSharingButtons";
 import { useViewTracking } from "@/hooks/useViewTracking";
 import {
@@ -804,17 +805,7 @@ export default function ArticleClientComponent({
               </div>
             </div>
 
-            {/* أزرار المشاركة الاجتماعية - إظهار فقط خارج الشاشات الصغيرة */}
-            {!isMobile && (
-              <div className="mb-6 sm:mb-8 -mx-3 sm:mx-0">
-                <div className="px-3 sm:px-0">
-                  <SocialSharingButtons
-                    article={{ id: article.id, title: article.title }}
-                    className="justify-center sm:justify-end"
-                  />
-                </div>
-              </div>
-            )}
+            {/* تمت إزالة أزرار المشاركة هنا بناء على التوجيه */}
 
             {/* الكلمات المفتاحية - عرض أوسع للموبايل */}
             {keywords.length > 0 && (
@@ -876,15 +867,7 @@ export default function ArticleClientComponent({
               </div>
             </div>
 
-            {/* أزرار المشاركة الاجتماعية - إظهار فقط خارج الشاشات الصغيرة */}
-            {!isMobile && (
-              <div className="mt-6 mb-8 px-3 sm:px-0">
-                <SocialSharingButtons
-                  article={{ id: article.id, title: article.title }}
-                  className="justify-center sm:justify-start"
-                />
-              </div>
-            )}
+            {/* يمكن إبقاء المشاركة أسفل المقال إن رغبت لاحقاً؛ حُذفت حالياً */}
 
             {/* Comments Panel: يوضع قبل بلوك الإحصائيات كما هو مطلوب */}
             <div className="mt-4 sm:mt-6">
