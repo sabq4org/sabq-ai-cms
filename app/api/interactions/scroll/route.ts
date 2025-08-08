@@ -38,11 +38,11 @@ export async function POST(request: NextRequest) {
     // تحديث جلسة القراءة
     const updatedSession = await prisma.user_reading_sessions.update({
       where: {
-        session_id: sessionId,
+        id: sessionId,
       },
       data: {
         scroll_depth: scrollDepth,
-        is_completed: scrollDepth > 0.9,
+        // تم إزالة الحقول غير الموجودة من المخطط (is_completed, last_active)
       },
     });
 

@@ -436,6 +436,7 @@ export default function SettingsPage() {
     { id: "seo", name: "SEO", icon: Search },
     { id: "social", name: "المشاركة", icon: Share2 },
     { id: "ai", name: "الذكاء الاصطناعي", icon: Brain },
+    { id: "comments", name: "التعليقات", icon: MessageCircle },
     { id: "system", name: "النظام", icon: Type },
     { id: "security", name: "الأمان", icon: Shield },
     { id: "backup", name: "النسخ الاحتياطي", icon: Database },
@@ -1728,6 +1729,10 @@ export default function SettingsPage() {
                 </button>
               </div>
             )}
+            {/* 💬 تبويب التعليقات (موديريشن) */}
+            {activeTab === "comments" && (
+              <CommentsModerationPanel darkMode={darkMode} />
+            )}
             {/* 🔐 تبويب الأمان والإدارة */}
             {activeTab === "security" && (
               <div className="space-y-6">
@@ -2286,5 +2291,113 @@ export default function SettingsPage() {
         </div>
       </div>
     </>
+  );
+}
+
+function CommentsModerationPanel({ darkMode }: { darkMode: boolean }) {
+  const [mode, setMode] = React.useState<"ai_only" | "human" | "hybrid">(
+    "hybrid"
+  );
+  const [threshold, setThreshold] = React.useState<number>(0.75);
+  const [loading, setLoading] = React.useState<boolean>(true);
+  const [saving, setSaving] = React.useState<boolean>(false);
+
+  React.useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/settings/comments-moderation");
+        const json = await res.json();
+        if (json.success && json.data) {
+          setMode(json.data.mode);
+          setThreshold(
+            typeof json.data.aiThreshold === "number"
+              ? json.data.aiThreshold
+              : 0.75
+          );
+        }
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      await fetch("/api/settings/comments-moderation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode, aiThreshold: threshold }),
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading)
+    return <div className="text-sm text-gray-500">جاري التحميل…</div>;
+
+  return (
+    <div
+      className={`p-6 rounded-xl border transition-colors duration-300 ${
+        darkMode ? "bg-gray-700 border-gray-600" : "bg-gray-50 border-gray-200"
+      }`}
+    >
+      <div className="space-y-4">
+        <div className="grid gap-3 sm:grid-cols-3">
+          <label className="flex items-center gap-2">
+            <input
+              type="radio"
+              name="mode"
+              value="ai_only"
+              checked={mode === "ai_only"}
+              onChange={() => setMode("ai_only")}
+            />
+            <span>ذكاء اصطناعي فقط</span>
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="radio"
+              name="mode"
+              value="human"
+              checked={mode === "human"}
+              onChange={() => setMode("human")}
+            />
+            <span>مراجعة بشرية</span>
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="radio"
+              name="mode"
+              value="hybrid"
+              checked={mode === "hybrid"}
+              onChange={() => setMode("hybrid")}
+            />
+            <span>هجين</span>
+          </label>
+        </div>
+        <div className="space-y-1">
+          <label className="text-sm">
+            عتبة قبول AI: {Math.round(threshold * 100)}%
+          </label>
+          <input
+            type="range"
+            min={0}
+            max={1}
+            step={0.05}
+            value={threshold}
+            onChange={(e) => setThreshold(parseFloat(e.target.value))}
+            className="w-full"
+          />
+        </div>
+        <button
+          onClick={save}
+          disabled={saving}
+          className="px-4 py-2 rounded-lg bg-blue-600 text-white disabled:opacity-50"
+        >
+          {saving ? "جاري الحفظ…" : "حفظ"}
+        </button>
+      </div>
+    </div>
   );
 }

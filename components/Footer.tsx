@@ -1,53 +1,70 @@
-import Image from 'next/image';
-import React from 'react';
-import Link from 'next/link';
-import { Facebook, Twitter, Instagram, Youtube, Heart, Globe, ChevronDown } from 'lucide-react';
-
-
-
-
-
+import {
+  ChevronDown,
+  Facebook,
+  Instagram,
+  Twitter,
+  Youtube,
+} from "lucide-react";
+import Link from "next/link";
+import React from "react";
+import SabqLogo from "./SabqLogo";
 
 export default function Footer() {
   const footerSections = [
     {
-      title: 'أقسام سبق',
+      title: "أقسام سبق",
       links: [
-        { label: 'الأخبار', url: '/news' },
-        { label: 'رياضة', url: '/category/sports' },
-        { label: 'اقتصاد', url: '/category/economy' },
-        { label: 'تقنية', url: '/category/tech' },
-        { label: 'سيارات', url: '/category/cars' },
+        { label: "الأخبار", url: "/news" },
+        { label: "رياضة", url: "/category/sports" },
+        { label: "اقتصاد", url: "/category/economy" },
+        { label: "تقنية", url: "/category/tech" },
+        { label: "سيارات", url: "/category/cars" },
       ],
     },
     {
-      title: 'عن سبق',
+      title: "عن سبق",
       links: [
-        { label: 'من نحن', url: '/about' },
-        { label: 'سياسة الخصوصية', url: '/privacy-policy' },
-        { label: 'شروط الاستخدام', url: '/terms-of-use' },
-        { label: 'دليل المستخدم', url: '/user-guide' },
-        { label: 'اتصل بنا', url: '/contact' },
+        { label: "من نحن", url: "/about" },
+        { label: "سياسة الخصوصية", url: "/privacy-policy" },
+        { label: "شروط الاستخدام", url: "/terms-of-use" },
+        { label: "دليل المستخدم", url: "/user-guide" },
+        { label: "اتصل بنا", url: "/contact" },
       ],
     },
     {
-      title: 'خدماتنا',
+      title: "خدماتنا",
       links: [
-        { label: '🔁 نظام الولاء', url: '/loyalty-program' },
-        { label: '📻 النشرات الصوتية', url: '/audio-archive' },
-        { label: 'إعلانات تجارية', url: '/ads' },
-        { label: 'الاشتراكات', url: '/subscriptions' },
-        { label: 'النشرة البريدية', url: '/newsletter' },
-        { label: 'الأرشيف', url: '/archive' },
+        { label: "🔁 نظام الولاء", url: "/loyalty-program" },
+        { label: "📻 النشرات الصوتية", url: "/audio-archive" },
+        { label: "إعلانات تجارية", url: "/ads" },
+        { label: "الاشتراكات", url: "/subscriptions" },
+        { label: "النشرة البريدية", url: "/newsletter" },
+        { label: "الأرشيف", url: "/archive" },
       ],
     },
   ];
 
   const socialLinks = [
-    { icon: <Facebook className="w-5 h-5"/>, url: 'https://facebook.com/sabqorg', name: 'Facebook' },
-    { icon: <Twitter className="w-5 h-5"/>, url: 'https://twitter.com/sabqorg', name: 'Twitter' },
-    { icon: <Instagram className="w-5 h-5"/>, url: 'https://instagram.com/sabqorg', name: 'Instagram' },
-    { icon: <Youtube className="w-5 h-5"/>, url: 'https://youtube.com/sabqorg', name: 'Youtube' },
+    {
+      icon: <Facebook className="w-5 h-5" />,
+      url: "https://facebook.com/sabqorg",
+      name: "Facebook",
+    },
+    {
+      icon: <Twitter className="w-5 h-5" />,
+      url: "https://twitter.com/sabqorg",
+      name: "Twitter",
+    },
+    {
+      icon: <Instagram className="w-5 h-5" />,
+      url: "https://instagram.com/sabqorg",
+      name: "Instagram",
+    },
+    {
+      icon: <Youtube className="w-5 h-5" />,
+      url: "https://youtube.com/sabqorg",
+      name: "Youtube",
+    },
   ];
 
   return (
@@ -57,22 +74,23 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Logo and description */}
           <div className="md:col-span-2 lg:col-span-1">
-             <div className="mb-4">
-                 <Image 
-                   src="/logo.png" 
-                   alt="سبق" 
-                   width={120} 
-                   height={48} 
-                   className="h-12 w-auto object-contain"
-                   priority
-                 />
-             </div>
+            <div className="mb-3">
+              <SabqLogo width={112} height={36} />
+            </div>
             <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
-             صحيفة إلكترونية سعودية شاملة، نعمل على مدار الساعة لننقل لكم الحقيقة كما هي، ونغطي كافة الأحداث المحلية والعالمية بمصداقية واحترافية.
+              صحيفة إلكترونية سعودية شاملة، نعمل على مدار الساعة لننقل لكم
+              الحقيقة كما هي، ونغطي كافة الأحداث المحلية والعالمية بمصداقية
+              واحترافية.
             </p>
             <div className="mt-6 flex gap-3">
               {socialLinks.map((social) => (
-                <a key={social.name} href={social.url} target="_blank" rel="noopener noreferrer" className="p-2 bg-gray-100 dark:bg-gray-800 rounded-full text-gray-500 dark:text-gray-400 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-900/50 dark:hover:text-blue-400 transition-colors">
+                <a
+                  key={social.name}
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 bg-gray-100 dark:bg-gray-800 rounded-full text-gray-500 dark:text-gray-400 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-900/50 dark:hover:text-blue-400 transition-colors"
+                >
                   {social.icon}
                 </a>
               ))}
@@ -81,11 +99,16 @@ export default function Footer() {
           {/* Links */}
           {footerSections.map((section) => (
             <div key={section.title}>
-              <h3 className="font-bold text-gray-800 dark:text-white mb-4">{section.title}</h3>
+              <h3 className="font-bold text-gray-800 dark:text-white mb-4">
+                {section.title}
+              </h3>
               <ul className="space-y-3">
                 {section.links.map((link) => (
                   <li key={link.url}>
-                    <Link href={link.url} className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                    <Link
+                      href={link.url}
+                      className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    >
                       {link.label}
                     </Link>
                   </li>
@@ -98,9 +121,11 @@ export default function Footer() {
           <p className="text-sm text-gray-500 dark:text-gray-400">
             &copy; {new Date().getFullYear()} صحيفة سبق. جميع الحقوق محفوظة.
           </p>
-                         <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-                <span className="font-bold">🤖 مدعوم بالذكاء… مصنوع بالحب في 🇸🇦</span>
-              </div>
+          <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
+            <span className="font-bold">
+              🤖 مدعوم بالذكاء… مصنوع بالحب في 🇸🇦
+            </span>
+          </div>
         </div>
       </div>
 
@@ -108,19 +133,12 @@ export default function Footer() {
       <div className="lg:hidden px-4 py-6">
         {/* الشعار والوصف */}
         <div className="text-center mb-6">
-          <div className="flex justify-center mb-2">
-            <Image 
-              src="/logo.png" 
-              alt="سبق" 
-              width={100} 
-              height={40} 
-              className="h-10 w-auto object-contain"
-              priority
-            />
+          <div className="flex flex-col items-center justify-center mb-2">
+            <SabqLogo width={96} height={32} />
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+              صحيفة إلكترونية سعودية شاملة
+            </p>
           </div>
-          <p className="text-xs text-gray-600 dark:text-gray-400">
-            صحيفة إلكترونية سعودية شاملة
-          </p>
         </div>
 
         {/* الأقسام بتصميم Accordion */}
@@ -128,13 +146,15 @@ export default function Footer() {
           {footerSections.map((section) => (
             <details key={section.title} className="group">
               <summary className="flex items-center justify-between p-3 bg-gray-100 dark:bg-gray-800 rounded-lg cursor-pointer">
-                <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{section.title}</span>
+                <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                  {section.title}
+                </span>
                 <ChevronDown className="w-4 h-4 text-gray-500 group-open:rotate-180 transition-transform" />
               </summary>
               <div className="mt-2 grid grid-cols-2 gap-2 px-3">
                 {section.links.map((link) => (
-                  <Link 
-                    key={link.url} 
+                  <Link
+                    key={link.url}
                     href={link.url}
                     className="text-xs text-gray-600 dark:text-gray-400 hover:text-blue-600 py-1"
                   >
@@ -149,11 +169,11 @@ export default function Footer() {
         {/* التواصل الاجتماعي */}
         <div className="flex justify-center gap-3 mb-6">
           {socialLinks.map((social) => (
-            <a 
-              key={social.name} 
-              href={social.url} 
-              target="_blank" 
-              rel="noopener noreferrer" 
+            <a
+              key={social.name}
+              href={social.url}
+              target="_blank"
+              rel="noopener noreferrer"
               className="p-2 bg-gray-100 dark:bg-gray-800 rounded-full text-gray-500 dark:text-gray-400 hover:bg-blue-100 hover:text-blue-600 transition-colors"
             >
               {React.cloneElement(social.icon, { className: "w-4 h-4" })}
@@ -163,8 +183,8 @@ export default function Footer() {
 
         {/* رابط نظام الولاء للموبايل */}
         <div className="mb-4 px-3">
-          <Link 
-            href="/loyalty-program" 
+          <Link
+            href="/loyalty-program"
             className="block w-full p-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-colors"
           >
             🔁 اكتشف نظام الولاء الجديد
@@ -177,7 +197,9 @@ export default function Footer() {
             © {new Date().getFullYear()} صحيفة سبق. جميع الحقوق محفوظة
           </p>
           <div className="flex items-center justify-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-            <span className="font-bold">🤖 مدعوم بالذكاء… مصنوع بالحب في 🇸🇦</span>
+            <span className="font-bold">
+              🤖 مدعوم بالذكاء… مصنوع بالحب في 🇸🇦
+            </span>
           </div>
         </div>
       </div>
@@ -185,4 +207,4 @@ export default function Footer() {
   );
 }
 
-// Force rebuild - 2025-01-04 
+// Force rebuild - 2025-01-04

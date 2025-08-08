@@ -141,7 +141,7 @@ export default function Header() {
                     fill
                     className="object-contain drop-shadow-sm hover:drop-shadow-md transition-all duration-200 logo-fix"
                     priority
-                    unoptimized={logoUrl.includes("cloudinary")}
+                    unoptimized={logoUrl.startsWith("http")}
                   />
                 </div>
               )

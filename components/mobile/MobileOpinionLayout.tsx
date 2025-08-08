@@ -1,6 +1,7 @@
 "use client";
 
 import ReporterLink from "@/components/ReporterLink";
+import CommentsSection from "@/components/article/CommentsSection";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useViewTracking } from "@/hooks/useViewTracking";
 import { ArticleData } from "@/lib/article-api";
@@ -21,7 +22,6 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import CommentsSection from "@/components/article/CommentsSection";
 import { SmartInteractionButtons } from "../article/SmartInteractionButtons";
 
 interface MobileOpinionLayoutProps {
@@ -138,13 +138,7 @@ export default function MobileOpinionLayout({
           {/* رأس المقال المحمول */}
           <header className="px-4 py-6 relative">
             {/* خلفية متدرجة */}
-            <div
-              className={`absolute inset-0 ${
-                darkMode
-                  ? "bg-gradient-to-b from-gray-800/80 to-gray-900"
-                  : "bg-gradient-to-b from-white/90 to-gray-50"
-              }`}
-            />
+            <div className="absolute inset-0 bg-gradient-to-b from-white/90 to-gray-50 dark:from-gray-900/80 dark:to-gray-900" />
 
             <div className="relative z-10">
               {/* لابل التصنيف */}
@@ -215,7 +209,11 @@ export default function MobileOpinionLayout({
                     if (!next) return;
                     setTimeout(() => {
                       const el = document.getElementById("comments");
-                      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                      if (el)
+                        el.scrollIntoView({
+                          behavior: "smooth",
+                          block: "start",
+                        });
                     }, 50);
                   }}
                   className={`w-full rounded-xl border px-4 py-3 ${
@@ -237,14 +235,22 @@ export default function MobileOpinionLayout({
                       {typeof article.shares === "number" && (
                         <span className="inline-flex items-center gap-1">
                           <Share2 className="w-4 h-4" />
-                          {new Intl.NumberFormat("ar").format(article.shares || 0)}
+                          {new Intl.NumberFormat("ar").format(
+                            article.shares || 0
+                          )}
                         </span>
                       )}
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <MessageCircle className="w-5 h-5" />
                       <span className="font-medium">التعليقات</span>
-                      <span>({new Intl.NumberFormat("ar").format(article.comments_count || 0)})</span>
+                      <span>
+                        (
+                        {new Intl.NumberFormat("ar").format(
+                          article.comments_count || 0
+                        )}
+                        )
+                      </span>
                     </div>
                   </div>
                 </button>
@@ -521,7 +527,8 @@ export default function MobileOpinionLayout({
                   setShowComments(true);
                   setTimeout(() => {
                     const el = document.getElementById("comments");
-                    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                    if (el)
+                      el.scrollIntoView({ behavior: "smooth", block: "start" });
                   }, 50);
                 }}
                 className={`flex items-center justify-center w-12 h-12 rounded-full transition-colors ${

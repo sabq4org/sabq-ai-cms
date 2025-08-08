@@ -32,17 +32,10 @@ import {
   Clock,
   Hash,
   Star,
-  Eye,
-  Heart,
-  Bookmark,
-  Share,
-  MessageSquare,
 } from "lucide-react";
 // import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
 import ArticleAISummary from "@/components/article/ArticleAISummary";
-import ArticleStatsBlock from "@/components/article/ArticleStatsBlock";
-import CommentsTrigger from "@/components/article/CommentsTrigger";
-import CommentsSection from "@/components/article/CommentsSection";
+import CommentsPanel from "@/components/article/CommentsPanel";
 import { ReadingProgressBar } from "@/components/article/ReadingProgressBar";
 import SmartPersonalizedContent from "@/components/article/SmartPersonalizedContent";
 import ArticleViews from "@/components/ui/ArticleViews";
@@ -104,7 +97,7 @@ export default function ArticleClientComponent({
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const [contentHtml, setContentHtml] = useState("");
-  const [showComments, setShowComments] = useState(false);
+  // لم نعد نستخدم الحالة المحلية للتبديل هنا بعد إضافة CommentsPanel
   const audioRef = useRef<HTMLAudioElement>(null);
 
   // جلب بروفايل المراسل
@@ -645,7 +638,7 @@ export default function ArticleClientComponent({
               </div>
 
               {/* Mobile Header محسن - شفاف تماماً للوضع الليلي */}
-              <div className="sm:hidden px-4 py-6 bg-transparent dark:bg-transparent transition-colors duration-300">
+              <div className="sm:hidden px-4 py-6 bg-white dark:bg-gray-900 transition-colors duration-300">
                 {/* العنوان الرئيسي */}
                 <h1 className="text-xl md:text-2xl lg:text-3xl font-bold leading-tight text-gray-900 dark:text-white mb-3">
                   {article.title}
@@ -665,7 +658,7 @@ export default function ArticleClientComponent({
                     {article.category && (
                       <Link
                         href={`/categories/${article.category.slug}`}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/50 hover:shadow-sm transition-all"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-800 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-gray-700 hover:shadow-sm transition-all"
                       >
                         {article.category.icon && (
                           <span className="text-sm">
@@ -678,7 +671,7 @@ export default function ArticleClientComponent({
                   </div>
 
                   {/* معلومات النشر في اليسار */}
-                  <div className="flex flex-col items-start gap-1.5 text-xs text-gray-500 dark:text-gray-400 order-1 flex-1 max-w-[160px]">
+                  <div className="flex flex-col items-start gap-1.5 text-xs text-gray-600 dark:text-gray-300 order-1 flex-1 max-w-[220px]">
                     {/* المراسل */}
                     {article.author && (
                       <div className="flex items-center gap-1.5">
@@ -891,45 +884,12 @@ export default function ArticleClientComponent({
               />
             </div>
 
-            {/* شريط إحصائيات قابل للطي لإظهار التعليقات */}
+            {/* Comments Panel: يوضع قبل بلوك الإحصائيات كما هو مطلوب */}
             <div className="mt-4 sm:mt-6">
-              <button
-                type="button"
-                dir="rtl"
-                aria-expanded={showComments}
-                onClick={() => {
-                  const next = !showComments;
-                  setShowComments(next);
-                  if (!next) return;
-                  setTimeout(() => {
-                    const el = document.getElementById("comments");
-                    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-                  }, 50);
-                }}
-                className="w-full rounded-xl border px-4 py-3 bg-gray-50 hover:bg-gray-100 text-gray-800 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-100 transition-colors"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-4 text-sm sm:text-base">
-                    <span className="inline-flex items-center gap-1 text-gray-600 dark:text-gray-300">
-                      <Eye className="w-4 h-4" /> {new Intl.NumberFormat("ar").format(article.views || 0)}
-                    </span>
-                    <span className="inline-flex items-center gap-1 text-gray-600 dark:text-gray-300">
-                      <Heart className="w-4 h-4" /> {new Intl.NumberFormat("ar").format(article.likes || article.stats?.likes || 0)}
-                    </span>
-                    <span className="inline-flex items-center gap-1 text-gray-600 dark:text-gray-300">
-                      <Bookmark className="w-4 h-4" /> {new Intl.NumberFormat("ar").format(article.saves || article.stats?.saves || 0)}
-                    </span>
-                    <span className="inline-flex items-center gap-1 text-gray-600 dark:text-gray-300">
-                      <Share className="w-4 h-4" /> {new Intl.NumberFormat("ar").format(article.shares || article.stats?.shares || 0)}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm sm:text-base">
-                    <MessageSquare className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-                    <span className="font-medium">التعليقات</span>
-                    <span className="text-gray-600 dark:text-gray-300">({new Intl.NumberFormat("ar").format(article.comments_count || 0)})</span>
-                  </div>
-                </div>
-              </button>
+              <CommentsPanel
+                articleId={article.id}
+                initialCount={article.comments_count || 0}
+              />
             </div>
 
             {/* إصلاح التوجه العربي للمحتوى */}
@@ -963,8 +923,7 @@ export default function ArticleClientComponent({
             `}</style>
           </div>
 
-          {/* قسم التعليقات (Lazy) يظهر عند الضغط على الشريط */}
-          {showComments && <CommentsSection articleId={article.id} />}
+          {/* لم نعد نظهر التعليقات هنا؛ صارت ضمن CommentsPanel */}
 
           {/* المحتوى المخصص بذكاء - نظام التوصيات الشخصي */}
           <div className="mt-6 sm:mt-8">

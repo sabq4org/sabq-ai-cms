@@ -66,7 +66,7 @@ export default function ArticleFeaturedImage({
               alt={title || "صورة المقال"}
               width={1024}
               height={500}
-              className="w-full object-cover min-h-[220px] max-h-[280px] sm:min-h-[300px] sm:max-h-[400px] lg:min-h-[400px] lg:max-h-[500px]"
+              className="w-full object-cover min-h-[220px] max-h-[280px] sm:min-h-[300px] sm:max-h-[400px] lg:min-h-[400px] lg:max-h-[500px] object-center"
               priority={true}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1024px"
               onError={() => setImageError(true)}

@@ -52,86 +52,43 @@ const ModernCommentsNew: React.FC = () => {
     rejected: 0,
     spam: 0,
   });
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const pageSize = 20;
 
-  // بيانات تجريبية للتعليقات
-  const sampleComments: Comment[] = [
-    {
-      id: "1",
-      content: "مقال رائع ومفيد جداً، شكراً لكم على هذا المحتوى القيم",
-      author: {
-        name: "أحمد محمد",
-        email: "ahmed@example.com",
-        avatar: "/api/placeholder/40/40",
-      },
-      article: {
-        id: "1",
-        title: "آخر التطورات في التكنولوجيا",
-      },
-      status: "approved",
-      created_at: "2025-01-28T10:30:00Z",
-      likes: 15,
-      replies: 3,
-      reported: false,
-    },
-    {
-      id: "2",
-      content: "هل يمكن توضيح النقطة الثالثة أكثر؟ لم أفهمها بوضوح",
-      author: {
-        name: "فاطمة علي",
-        email: "fatima@example.com",
-      },
-      article: {
-        id: "2",
-        title: "دليل شامل للاستثمار",
-      },
-      status: "pending",
-      created_at: "2025-01-28T09:15:00Z",
-      likes: 8,
-      replies: 1,
-    },
-    {
-      id: "3",
-      content: "المعلومات غير دقيقة، أرجو المراجعة",
-      author: {
-        name: "سعد الغامدي",
-        email: "saad@example.com",
-      },
-      article: {
-        id: "3",
-        title: "تحليل السوق المالي",
-      },
-      status: "pending",
-      created_at: "2025-01-28T08:45:00Z",
-      likes: 2,
-      replies: 0,
-      reported: true,
-    },
-    {
-      id: "4",
-      content: "محتوى ممتاز، أتطلع للمزيد من هذه المقالات",
-      author: {
-        name: "نورا أحمد",
-        email: "nora@example.com",
-      },
-      article: {
-        id: "4",
-        title: "مستقبل الطاقة المتجددة",
-      },
-      status: "approved",
-      created_at: "2025-01-28T07:20:00Z",
-      likes: 12,
-      replies: 2,
-    },
-  ];
+  // تحميل فعلي من API
+  const fetchComments = async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (filterStatus) params.set("status", filterStatus);
+      if (searchTerm) params.set("q", searchTerm);
+      params.set("page", String(page));
+      params.set("limit", String(pageSize));
+      const res = await fetch(`/api/comments?${params.toString()}`);
+      const json = await res.json();
+      if (json.success) {
+        setComments(json.comments || []);
+        setStats(
+          json.stats || {
+            total: 0,
+            pending: 0,
+            approved: 0,
+            rejected: 0,
+            spam: 0,
+          }
+        );
+        setTotalPages(json.pagination?.totalPages || 1);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // محاكاة جلب البيانات
-    setTimeout(() => {
-      setComments(sampleComments);
-      calculateStats(sampleComments);
-      setLoading(false);
-    }, 1000);
-  }, []);
+    fetchComments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterStatus, searchTerm, page]);
 
   const calculateStats = (comments: Comment[]) => {
     const stats = {
@@ -145,46 +102,41 @@ const ModernCommentsNew: React.FC = () => {
   };
 
   const handleApprove = (commentId: string) => {
-    setComments((prev) =>
-      prev.map((comment) =>
-        comment.id === commentId
-          ? { ...comment, status: "approved" as const }
-          : comment
-      )
-    );
+    updateStatus(commentId, "approved");
   };
 
   const handleReject = (commentId: string) => {
-    setComments((prev) =>
-      prev.map((comment) =>
-        comment.id === commentId
-          ? { ...comment, status: "rejected" as const }
-          : comment
-      )
-    );
+    updateStatus(commentId, "rejected");
   };
 
   const handleMarkAsSpam = (commentId: string) => {
-    setComments((prev) =>
-      prev.map((comment) =>
-        comment.id === commentId
-          ? { ...comment, status: "spam" as const }
-          : comment
-      )
-    );
+    updateStatus(commentId, "spam");
   };
 
-  const filteredComments = comments.filter((comment) => {
-    const matchesSearch =
-      comment.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      comment.author.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      comment.article.title.toLowerCase().includes(searchTerm.toLowerCase());
+  const updateStatus = async (id: string, status: Comment["status"]) => {
+    // تفاؤليًا
+    const prev = comments;
+    setComments((list) =>
+      list.map((c) => (c.id === id ? { ...c, status } : c))
+    );
+    try {
+      const res = await fetch(`/api/comments/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error || "فشل التحديث");
+      // إعادة التحميل لتحديث الإحصائيات والبيانات
+      fetchComments();
+    } catch (e) {
+      // تراجع
+      setComments(prev);
+      console.error(e);
+    }
+  };
 
-    const matchesFilter =
-      filterStatus === "all" || comment.status === filterStatus;
-
-    return matchesSearch && matchesFilter;
-  });
+  const filteredComments = comments; // التصفية تتم عبر API
 
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
@@ -503,6 +455,27 @@ const ModernCommentsNew: React.FC = () => {
               </div>
             </DesignComponents.StandardCard>
           ))}
+        </div>
+
+        {/* ترقيم الصفحات */}
+        <div className="flex items-center justify-center gap-2 mt-6">
+          <button
+            disabled={page <= 1}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            className="px-3 py-1 rounded-lg border disabled:opacity-50"
+          >
+            السابق
+          </button>
+          <span className="text-sm text-gray-600">
+            صفحة {page} من {totalPages}
+          </span>
+          <button
+            disabled={page >= totalPages}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            className="px-3 py-1 rounded-lg border disabled:opacity-50"
+          >
+            التالي
+          </button>
         </div>
 
         {/* رسالة عدم وجود نتائج */}
