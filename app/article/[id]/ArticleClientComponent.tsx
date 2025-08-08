@@ -36,6 +36,7 @@ import {
 // import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
 import ArticleAISummary from "@/components/article/ArticleAISummary";
 import CommentsPanel from "@/components/article/CommentsPanel";
+import ArticleStatsBlock from "@/components/article/ArticleStatsBlock";
 import { ReadingProgressBar } from "@/components/article/ReadingProgressBar";
 import SmartPersonalizedContent from "@/components/article/SmartPersonalizedContent";
 import ArticleViews from "@/components/ui/ArticleViews";
@@ -893,7 +894,24 @@ export default function ArticleClientComponent({
               />
             </div>
 
-            {/* تم الإبقاء على شريط التفاعل السابق فقط */}
+            {/* بلوك إحصائيات المقال (التصميم القديم) */}
+            <div className="mt-6">
+              <ArticleStatsBlock
+                views={article.views || 0}
+                likes={article.likes || 0}
+                saves={article.saves || 0}
+                shares={article.shares || 0}
+                category={
+                  article.category
+                    ? {
+                        name: article.category.name,
+                        color: (article.category as any).color,
+                        icon: (article.category as any).icon,
+                      }
+                    : undefined
+                }
+              />
+            </div>
 
             {/* إصلاح التوجه العربي للمحتوى */}
             <style jsx>{`
