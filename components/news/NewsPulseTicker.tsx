@@ -259,16 +259,16 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
       className={cn(
         "w-full relative overflow-hidden flex items-center justify-center",
         isMobile
-          ? "py-3 pulse-ticker-mobile min-h-[44px] bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20"
-          : "py-5 pulse-ticker-desktop min-h-[64px] bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 dark:from-indigo-900 dark:via-blue-900 dark:to-purple-900 shadow-lg",
+          ? "py-3 pulse-ticker-mobile min-h-[44px]"
+          : "py-5 pulse-ticker-desktop min-h-[64px]",
         className
       )}
     >
       {/* خلفية متحركة للديسكتوب */}
       {!isMobile && (
         <>
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse"></div>
-          <div className="absolute inset-0 opacity-20">
+          <div className="absolute inset-0 bg-white/5 dark:bg-white/5"></div>
+          <div className="absolute inset-0 opacity-10">
             <div
               className="w-full h-full bg-repeat bg-[length:40px_40px]"
               style={{
@@ -289,12 +289,9 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
       >
         {/* عبارة "نبض الأخبار" المحسنة للديسكتوب */}
         {!isMobile && (
-          <div className="flex-shrink-0 mr-4 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 border border-white/30">
-            <span className="text-sm font-bold text-white flex items-center gap-2">
-              <div className="relative">
-                <Zap className="w-5 h-5 animate-pulse" />
-                <div className="absolute inset-0 bg-yellow-400 rounded-full blur-sm opacity-60 animate-ping"></div>
-              </div>
+          <div className="flex-shrink-0 mr-4 rounded-full px-3 py-1.5 border bg-white/70 border-slate-200 text-slate-700 dark:bg-white/10 dark:border-white/10 dark:text-white/90">
+            <span className="text-xs font-semibold flex items-center gap-2">
+              <Zap className="w-4 h-4 text-amber-500" />
               <span className="tracking-wide">نبض الأخبار</span>
             </span>
           </div>
@@ -325,13 +322,12 @@ const NewsPulseTicker: React.FC<NewsPulseTickerProps> = ({
                 className={
                   isMobile
                     ? "text-xs sm:text-sm font-medium text-blue-700 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200 hover:underline transition-all duration-300 flex items-center justify-center min-h-[24px]"
-                    : "text-base font-medium text-white hover:text-yellow-200 hover:scale-[1.02] drop-shadow-sm hover:underline transition-all duration-300 flex items-center justify-center min-h-[24px] group"
+                    : "text-base font-medium text-slate-900 dark:text-white hover:text-slate-700 dark:hover:text-blue-200 transition-colors duration-200 flex items-center justify-center min-h-[24px] group"
                 }
               >
                 <span
                   className={cn(
-                    "flex items-center justify-center h-full py-1 transition-all duration-300",
-                    !isMobile && "group-hover:drop-shadow-lg"
+                    "flex items-center justify-center h-full py-0.5 transition-all duration-200"
                   )}
                 >
                   {currentNotification.title}

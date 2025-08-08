@@ -16,42 +16,48 @@
 .pulse-ticker-desktop {
   background: linear-gradient(
     135deg,
-    #3b82f6 0%,
-    #6366f1 50%,
-    #8b5cf6 100%
+    rgba(219, 234, 254, 0.55) 0%,
+    rgba(199, 210, 254, 0.45) 50%,
+    rgba(221, 214, 254, 0.45) 100%
   ) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
 }
 
 /* تحسين ألوان الخلفية للموبايل */
 .pulse-ticker-mobile {
-  background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%) !important;
-  border-bottom: 1px solid #e5e7eb;
+  background: linear-gradient(
+    135deg,
+    rgba(219, 234, 254, 0.45) 0%,
+    rgba(224, 231, 255, 0.4) 100%
+  ) !important;
+  border-bottom: 1px solid rgba(203, 213, 225, 0.6) !important;
 }
 
 /* الوضع المظلم للديسكتوب */
 .dark .pulse-ticker-desktop {
   background: linear-gradient(
     135deg,
-    #1e3a8a 0%,
-    #3730a3 50%,
-    #581c87 100%
+    rgba(30, 41, 59, 0.8) 0%,
+    rgba(17, 24, 39, 0.8) 100%
   ) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(71, 85, 105, 0.6) !important;
 }
 
 /* الوضع المظلم للموبايل */
 .dark .pulse-ticker-mobile {
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
-  border-bottom: 1px solid #374151;
+  background: linear-gradient(
+    135deg,
+    rgba(2, 6, 23, 0.7) 0%,
+    rgba(15, 23, 42, 0.65) 100%
+  ) !important;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.7) !important;
 }
 
 /* ضمان رؤية النص */
 .pulse-ticker-desktop .news-link-text {
-  color: white !important;
-  font-weight: 500 !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  color: #0f172a !important;
+  font-weight: 600 !important;
 }
 
 .pulse-ticker-mobile .news-link-text {
