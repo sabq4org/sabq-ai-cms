@@ -18,7 +18,6 @@ export default function CommentsPanel({
   className,
 }: CommentsPanelProps) {
   const [open, setOpen] = useState(false);
-  const [open, setOpen] = useState(false);
   const [count, setCount] = useState<number>(initialCount);
 
   // استماع لتحديث العداد من CommentsClient

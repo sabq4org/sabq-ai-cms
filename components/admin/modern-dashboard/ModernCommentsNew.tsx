@@ -10,12 +10,9 @@ import {
   Calendar,
   Check,
   Clock,
-  Filter,
   Flag,
-  Heart,
   MessageCircle,
   MessageSquare,
-  MoreHorizontal,
   Search,
   X,
 } from "lucide-react";
@@ -289,7 +286,9 @@ const ModernCommentsNew: React.FC = () => {
             </p>
           </div>
           <div className="text-right">
-            <div className="text-sm text-gray-500 dark:text-gray-400">إجمالي</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">
+              إجمالي
+            </div>
             <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               {stats.total}
             </div>
@@ -326,36 +325,47 @@ const ModernCommentsNew: React.FC = () => {
 
       {/* شبكة الإحصاءات على نمط الرئيسية */}
       <div className="w-full max-w-none grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-        {[{
-          label: "إجمالي التعليقات",
-          value: stats.total,
-          color: "text-blue-600",
-          Icon: MessageSquare,
-        }, {
-          label: "في الانتظار",
-          value: stats.pending,
-          color: "text-yellow-600",
-          Icon: Clock,
-        }, {
-          label: "المعتمدة",
-          value: stats.approved,
-          color: "text-green-600",
-          Icon: Check,
-        }, {
-          label: "المرفوضة",
-          value: stats.rejected,
-          color: "text-red-600",
-          Icon: X,
-        }, {
-          label: "سبام",
-          value: stats.spam,
-          color: "text-gray-600",
-          Icon: Flag,
-        }].map((s, i) => (
-          <DesignComponents.StandardCard key={i} className="w-full max-w-none p-6 hover:shadow-lg transition-shadow">
+        {[
+          {
+            label: "إجمالي التعليقات",
+            value: stats.total,
+            color: "text-blue-600",
+            Icon: MessageSquare,
+          },
+          {
+            label: "في الانتظار",
+            value: stats.pending,
+            color: "text-yellow-600",
+            Icon: Clock,
+          },
+          {
+            label: "المعتمدة",
+            value: stats.approved,
+            color: "text-green-600",
+            Icon: Check,
+          },
+          {
+            label: "المرفوضة",
+            value: stats.rejected,
+            color: "text-red-600",
+            Icon: X,
+          },
+          {
+            label: "سبام",
+            value: stats.spam,
+            color: "text-gray-600",
+            Icon: Flag,
+          },
+        ].map((s, i) => (
+          <DesignComponents.StandardCard
+            key={i}
+            className="w-full max-w-none p-6 hover:shadow-lg transition-shadow"
+          >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{s.label}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {s.label}
+                </p>
                 <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
               </div>
               <div className="w-12 h-12 bg-gray-50 dark:bg-gray-800/40 rounded-lg flex items-center justify-center">
@@ -374,7 +384,10 @@ const ModernCommentsNew: React.FC = () => {
       {/* شبكة بطاقات التعليقات على نمط الرئيسية */}
       <div className="w-full max-w-none grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
         {filteredComments.map((comment) => (
-          <DesignComponents.StandardCard key={comment.id} className="w-full max-w-none p-6">
+          <DesignComponents.StandardCard
+            key={comment.id}
+            className="w-full max-w-none p-6"
+          >
             <div className="flex items-start justify-between gap-4">
               {/* رأس البطاقة */}
               <div className="flex items-start gap-3">
@@ -383,8 +396,14 @@ const ModernCommentsNew: React.FC = () => {
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-gray-900 dark:text-gray-100">{comment.author.name}</span>
-                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(comment.status)}`}>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">
+                      {comment.author.name}
+                    </span>
+                    <span
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
+                        comment.status
+                      )}`}
+                    >
                       {getStatusIcon(comment.status)}
                       {getStatusText(comment.status)}
                     </span>
@@ -399,15 +418,24 @@ const ModernCommentsNew: React.FC = () => {
               <div className="flex items-center gap-2">
                 {comment.status === "pending" && (
                   <>
-                    <button onClick={() => handleApprove(comment.id)} className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors text-sm">
+                    <button
+                      onClick={() => handleApprove(comment.id)}
+                      className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors text-sm"
+                    >
                       <Check className="w-3 h-3" /> موافقة
                     </button>
-                    <button onClick={() => handleReject(comment.id)} className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm">
+                    <button
+                      onClick={() => handleReject(comment.id)}
+                      className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm"
+                    >
                       <X className="w-3 h-3" /> رفض
                     </button>
                   </>
                 )}
-                <button onClick={() => handleMarkAsSpam(comment.id)} className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm">
+                <button
+                  onClick={() => handleMarkAsSpam(comment.id)}
+                  className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+                >
                   <Flag className="w-3 h-3" /> سبام
                 </button>
               </div>
@@ -415,7 +443,9 @@ const ModernCommentsNew: React.FC = () => {
 
             {/* المحتوى */}
             <div className="mt-4">
-              <p className="text-gray-700 dark:text-gray-200 leading-relaxed">{comment.content}</p>
+              <p className="text-gray-700 dark:text-gray-200 leading-relaxed">
+                {comment.content}
+              </p>
             </div>
 
             {/* المقال */}
@@ -423,7 +453,9 @@ const ModernCommentsNew: React.FC = () => {
               <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                 <MessageSquare className="w-4 h-4" />
                 <span>تعليق على:</span>
-                <span className="font-medium text-gray-900 dark:text-gray-100">{comment.article.title}</span>
+                <span className="font-medium text-gray-900 dark:text-gray-100">
+                  {comment.article.title}
+                </span>
               </div>
             </div>
           </DesignComponents.StandardCard>
@@ -439,7 +471,9 @@ const ModernCommentsNew: React.FC = () => {
         >
           السابق
         </button>
-        <span className="text-sm text-gray-600">صفحة {page} من {totalPages}</span>
+        <span className="text-sm text-gray-600">
+          صفحة {page} من {totalPages}
+        </span>
         <button
           disabled={page >= totalPages}
           onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
@@ -454,8 +488,12 @@ const ModernCommentsNew: React.FC = () => {
         <DesignComponents.StandardCard>
           <div className="p-12 text-center">
             <MessageCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">لا توجد تعليقات</h3>
-            <p className="text-gray-500">لم يتم العثور على تعليقات تطابق معايير البحث المحددة</p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              لا توجد تعليقات
+            </h3>
+            <p className="text-gray-500">
+              لم يتم العثور على تعليقات تطابق معايير البحث المحددة
+            </p>
           </div>
         </DesignComponents.StandardCard>
       )}
