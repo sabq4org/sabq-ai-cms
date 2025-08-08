@@ -143,12 +143,26 @@ export default function OpinionArticleLayout({
                     {article.title}
                   </h1>
 
-                  {/* سطر ميتاداتا موحد */}
+                  {/* سطر ميتاداتا موحّد: اسم المراسل • التاريخ • مدة القراءة • عدد المشاهدة */}
                   <div
                     className={`flex items-center gap-3 text-sm ${
                       darkMode ? "text-gray-400" : "text-gray-600"
                     }`}
                   >
+                    {article.author && (
+                      <>
+                        <span className="inline-flex items-center gap-1">
+                          <ReporterLink
+                            author={article.author as any}
+                            size="sm"
+                            showIcon={false}
+                            showVerification={true}
+                            className={`${darkMode ? "text-gray-300" : "text-gray-700"}`}
+                          />
+                        </span>
+                        <span className="mx-1">•</span>
+                      </>
+                    )}
                     <span className="inline-flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
                       {formatDateNumeric(article.published_at as any)}
