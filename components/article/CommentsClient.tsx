@@ -1,9 +1,9 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import { Flag, ShieldCheck, ThumbsUp } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { cn } from "@/lib/utils";
+import { Flag, ThumbsUp } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 
 interface CommentItem {
   id: string;
@@ -168,14 +168,21 @@ export default function CommentsClient({ articleId }: CommentsClientProps) {
             const displayText =
               isLong && !isOpen ? c.content.slice(0, 160) + "…" : c.content;
             return (
-              <div key={c.id} className="border rounded-lg p-3 bg-white dark:bg-white">
+              <div
+                key={c.id}
+                className="border rounded-lg p-3 bg-white dark:bg-white"
+              >
                 <div className="flex gap-3">
                   {/* عمود الصورة والاسم والتاريخ */}
                   <div className="flex flex-col items-center w-16">
                     <div className="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden">
                       {c.user?.avatar ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={c.user.avatar as any} alt="" className="w-full h-full object-cover" />
+                        <img
+                          src={c.user.avatar as any}
+                          alt=""
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
                         <span className="text-sm font-semibold text-slate-600">
                           {(c.user?.name || "زائر").slice(0, 2)}
@@ -192,12 +199,19 @@ export default function CommentsClient({ articleId }: CommentsClientProps) {
                   {/* محتوى التعليق */}
                   <div className="flex-1">
                     {/* الترتيب في الزاوية */}
-                    <div className="text-[11px] text-slate-400">#{(page - 1) * 10 + (idx + 1)}</div>
+                    <div className="text-[11px] text-slate-400">
+                      #{(page - 1) * 10 + (idx + 1)}
+                    </div>
                     <div className="mt-1 text-sm text-slate-900 leading-relaxed">
                       {displayText}
                       {isLong && (
                         <button
-                          onClick={() => setExpanded((prev) => ({ ...prev, [c.id]: !isOpen }))}
+                          onClick={() =>
+                            setExpanded((prev) => ({
+                              ...prev,
+                              [c.id]: !isOpen,
+                            }))
+                          }
                           className="ml-2 text-xs text-blue-600 hover:underline"
                         >
                           {isOpen ? "إظهار أقل" : "عرض المزيد"}
@@ -247,7 +261,10 @@ export default function CommentsClient({ articleId }: CommentsClientProps) {
         {!isLoggedIn ? (
           <div className="text-sm text-slate-600">
             للمشاركة، يرجى
-            <a href="/login" className="mx-1 text-blue-600 hover:underline">تسجيل الدخول</a>.
+            <a href="/login" className="mx-1 text-blue-600 hover:underline">
+              تسجيل الدخول
+            </a>
+            .
           </div>
         ) : (
           <>
@@ -259,7 +276,9 @@ export default function CommentsClient({ articleId }: CommentsClientProps) {
               className="w-full bg-transparent outline-none min-h-[100px] resize-vertical"
               placeholder="اكتب تعليقك هنا..."
             />
-            <div className="mt-2 text-xs text-muted-foreground">{content.length}/500</div>
+            <div className="mt-2 text-xs text-muted-foreground">
+              {content.length}/500
+            </div>
             <div className="mt-3">
               <button
                 onClick={submitComment}

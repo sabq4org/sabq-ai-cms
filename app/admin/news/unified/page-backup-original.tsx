@@ -39,7 +39,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Toaster, toast } from "react-hot-toast";
 // تم إزالة DashboardLayout - تستخدم الصفحة layout.tsx الأساسي
 // تحميل المحرر بشكل ديناميكي
-import "@/styles/admin-enhanced.css";
 const Editor = dynamic(() => import("@/components/Editor/Editor"), {
   ssr: false,
 });
@@ -1308,16 +1307,13 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
     }
   };
 
-  // مكون أزرار النشر المحسّن
+  // مكون أزرار النشر القابل لإعادة الاستخدام
   const PublishButtons = ({
     position = "top",
   }: {
     position?: "top" | "bottom";
   }) => (
-    <div className={cn(
-      "flex gap-4 transition-all duration-300",
-      position === "bottom" ? "flex-col sm:flex-row" : "flex-row"
-    )}>
+    <div className="flex gap-3">
       <Button
         onClick={() => {
           console.log("🖱️ تم الضغط على زر حفظ مسودة!");
@@ -1327,35 +1323,23 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
         variant="outline"
         size={position === "bottom" ? "lg" : "sm"}
         className={cn(
-          "group relative overflow-hidden transition-all duration-300 hover:scale-105 border-2",
-          "backdrop-blur-sm shadow-lg hover:shadow-2xl",
-          position === "bottom" ? "py-4 px-8 text-base font-semibold" : "gap-2",
+          "gap-2 shadow-md hover:shadow-lg transition-all",
           darkMode
-            ? "bg-slate-700/70 hover:bg-slate-600/80 text-white border-slate-500 hover:border-slate-400"
-            : "bg-white/80 hover:bg-slate-50 border-slate-300 hover:border-slate-400 text-slate-700"
+            ? "bg-slate-700 hover:bg-slate-600 text-white border-slate-600"
+            : "bg-white hover:bg-slate-50 border-slate-300"
         )}
       >
-        {/* Button shine effect */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-        <div className="relative flex items-center gap-2">
-          {saving ? (
-            <>
-              <Loader2 className={cn(
-                "animate-spin",
-                position === "bottom" ? "w-5 h-5" : "w-4 h-4"
-              )} />
-              <span>جاري الحفظ...</span>
-            </>
-          ) : (
-            <>
-              <Save className={cn(
-                "transition-transform group-hover:scale-110",
-                position === "bottom" ? "w-5 h-5" : "w-4 h-4"
-              )} />
-              <span>حفظ مسودة</span>
-            </>
-          )}
-        </div>
+        {saving ? (
+          <>
+            <Loader2 className="w-4 h-4 animate-spin" />
+            جاري الحفظ...
+          </>
+        ) : (
+          <>
+            <Save className="w-4 h-4" />
+            حفظ مسودة
+          </>
+        )}
       </Button>
 
       <Button
@@ -1367,22 +1351,14 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
         variant="outline"
         size={position === "bottom" ? "lg" : "sm"}
         className={cn(
-          "group relative overflow-hidden transition-all duration-300 hover:scale-105 border-2",
-          "backdrop-blur-sm shadow-lg hover:shadow-2xl",
-          position === "bottom" ? "py-4 px-8 text-base font-semibold" : "gap-2",
+          "gap-2 shadow-md hover:shadow-lg transition-all",
           darkMode
-            ? "bg-blue-700/70 hover:bg-blue-600/80 text-white border-blue-600 hover:border-blue-500"
-            : "bg-blue-50/80 hover:bg-blue-100 text-blue-700 border-blue-300 hover:border-blue-400"
+            ? "bg-blue-700 hover:bg-blue-600 text-white border-blue-600"
+            : "bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-300"
         )}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-        <div className="relative flex items-center gap-2">
-          <CheckSquare className={cn(
-            "transition-transform group-hover:scale-110",
-            position === "bottom" ? "w-5 h-5" : "w-4 h-4"
-          )} />
-          <span>طلب مراجعة</span>
-        </div>
+        <CheckSquare className="w-4 h-4" />
+        طلب مراجعة
       </Button>
 
       <Button
@@ -1410,13 +1386,12 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
         disabled={saving || loading}
         size={position === "bottom" ? "lg" : "sm"}
         className={cn(
-          "group relative overflow-hidden transition-all duration-500 hover:scale-110 border-2",
-          "bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-600",
-          "hover:from-emerald-700 hover:via-green-700 hover:to-emerald-700",
-          "text-white font-bold shadow-xl hover:shadow-2xl",
-          "animate-glow border-emerald-400",
-          position === "bottom" ? "py-5 px-10 text-lg" : "gap-2",
-          (saving || loading) && "opacity-50 cursor-not-allowed transform-none animate-none"
+          "gap-2 shadow-md hover:shadow-lg transition-all relative",
+          darkMode
+            ? "bg-emerald-700 hover:bg-emerald-600"
+            : "bg-emerald-600 hover:bg-emerald-700",
+          "text-white",
+          (saving || loading) && "opacity-50 cursor-not-allowed"
         )}
       >
         {saving ? (
@@ -1463,144 +1438,70 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
 
   return (
     <div className="min-h-screen">
-      {/* Background with modern animated gradient */}
       <div
         className={cn(
-          "min-h-screen transition-all duration-500 relative overflow-hidden",
+          "min-h-screen transition-all duration-300",
           darkMode
             ? "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700"
-            : "bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50"
+            : "bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100"
         )}
       >
-        {/* Animated Background Elements */}
-        <div className="fixed inset-0 z-0 pointer-events-none">
-          <div className={cn(
-            "absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-20 animate-pulse",
-            darkMode ? "bg-blue-600" : "bg-blue-400"
-          )}></div>
-          <div className={cn(
-            "absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl opacity-20 animate-pulse",
-            darkMode ? "bg-purple-600" : "bg-purple-400"
-          )} style={{ animationDelay: "2s" }}></div>
-          <div className={cn(
-            "absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full blur-3xl opacity-10 animate-pulse",
-            darkMode ? "bg-emerald-600" : "bg-emerald-400"
-          )} style={{ animationDelay: "4s" }}></div>
-        </div>
-
-        {/* Main Content Container */}
-        <div className="relative z-10">
-        <div className="p-4 md:p-8">
-          {/* Enhanced Header with Glass Morphism */}
-          <div className={cn(
-            "mb-8 p-6 rounded-2xl backdrop-blur-xl border shadow-2xl animate-fade-in",
-            darkMode 
-              ? "bg-white/5 border-white/10 shadow-black/20" 
-              : "bg-white/60 border-white/20 shadow-black/10"
-          )}>
-            <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
+        <div className="p-4 md:p-6">
+          {/* رأس الصفحة */}
+          <div className="mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
-                size="lg"
+                size="sm"
                 onClick={() => router.push("/admin/news")}
                 className={cn(
-                  "group gap-3 px-6 py-3 rounded-xl transition-all duration-300 hover:scale-105",
+                  "gap-2 shadow-sm hover:shadow-md transition-all",
                   darkMode
-                    ? "bg-slate-800/50 hover:bg-slate-700/70 text-white border border-slate-600/50"
-                    : "bg-white/80 hover:bg-white text-slate-700 border border-slate-200/50 shadow-lg hover:shadow-xl"
+                    ? "bg-slate-800 hover:bg-slate-700"
+                    : "bg-white/70 hover:bg-white"
                 )}
               >
-                <Home className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
-                <span className="font-medium">العودة للأخبار</span>
+                <Home className="w-4 h-4" />
+                العودة للأخبار
               </Button>
-              
-              <div className="flex items-center gap-3">
-                <div className={cn(
-                  "w-2 h-2 rounded-full animate-pulse",
-                  isEditMode ? "bg-orange-500" : "bg-emerald-500"
-                )}></div>
-                <ChevronRight className="w-5 h-5 text-slate-400" />
-                <div>
-                  <h1 className={cn(
-                    "text-3xl font-bold bg-gradient-to-r bg-clip-text text-transparent",
-                    darkMode 
-                      ? "from-white to-slate-300" 
-                      : "from-slate-800 to-slate-600"
-                  )}>
-                    {isEditMode ? "تعديل الخبر" : "خبر جديد"}
-                  </h1>
-                  <p className={cn(
-                    "text-sm mt-1",
-                    darkMode ? "text-slate-400" : "text-slate-500"
-                  )}>
-                    {isEditMode ? "تحديث وتعديل المحتوى" : "إنشاء محتوى جديد بالذكاء الاصطناعي"}
-                  </p>
-                </div>
-              </div>
+              <ChevronRight className="w-4 h-4 text-slate-400" />
+              <h1
+                className={cn(
+                  "text-2xl font-bold",
+                  darkMode ? "text-white" : "text-slate-800"
+                )}
+              >
+                {isEditMode ? "تعديل الخبر" : "خبر جديد"}
+              </h1>
             </div>
 
-            <div className="flex items-center gap-6">
-              {/* Enhanced Progress Indicator */}
-              <div className={cn(
-                "relative p-4 rounded-xl backdrop-blur-sm border transition-all duration-300",
-                darkMode 
-                  ? "bg-slate-800/30 border-slate-600/30" 
-                  : "bg-white/40 border-white/40"
-              )}>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className={cn(
-                    "w-3 h-3 rounded-full transition-all duration-300",
-                    completionScore >= 60 ? "bg-emerald-500 shadow-lg shadow-emerald-500/50" : "bg-orange-500 shadow-lg shadow-orange-500/50"
-                  )}></div>
-                  <span className={cn(
-                    "text-sm font-bold",
-                    darkMode ? "text-white" : "text-slate-700"
-                  )}>
-                    نسبة الاكتمال
-                  </span>
-                </div>
-                
-                <div className="relative w-48 h-3 rounded-full overflow-hidden">
-                  <div className={cn(
-                    "absolute inset-0 rounded-full",
-                    darkMode ? "bg-slate-700" : "bg-slate-200"
-                  )}></div>
-                  <div 
-                    className={cn(
-                      "absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out",
-                      completionScore >= 60
-                        ? "bg-gradient-to-r from-emerald-500 to-emerald-400 shadow-lg"
-                        : "bg-gradient-to-r from-orange-500 to-orange-400 shadow-lg"
-                    )}
-                    style={{ width: `${completionScore}%` }}
-                  ></div>
-                  <div className={cn(
-                    "absolute inset-0 rounded-full animate-pulse",
+            <div className="flex items-center gap-4">
+              <div className="w-40">
+                <Progress
+                  value={completionScore}
+                  className={cn(
+                    "h-2 transition-all",
                     completionScore >= 60
-                      ? "bg-gradient-to-r from-emerald-500/20 to-transparent"
-                      : "bg-gradient-to-r from-orange-500/20 to-transparent"
-                  )}></div>
-                </div>
-                
-                <div className="flex items-center justify-between mt-2">
-                  <span className={cn(
-                    "text-xs font-medium",
-                    completionScore >= 60 ? "text-emerald-600" : "text-orange-600"
-                  )}>
-                    {completionScore}% مكتمل
-                  </span>
-                  {completionScore < 60 && (
-                    <span className="text-xs text-slate-500">
-                      يجب {60 - completionScore}% إضافية
-                    </span>
+                      ? "[&>div]:bg-emerald-500"
+                      : "[&>div]:bg-orange-500"
                   )}
-                </div>
+                />
+                <p
+                  className={cn(
+                    "text-xs mt-1 font-medium",
+                    completionScore >= 60
+                      ? "text-emerald-600"
+                      : "text-orange-600"
+                  )}
+                >
+                  {completionScore}% مكتمل
+                  {completionScore < 60 &&
+                    ` (يجب ${60 - completionScore}% إضافية للنشر)`}
+                </p>
               </div>
 
               <PublishButtons position="top" />
             </div>
-          </div>
           </div>
 
           {/* رسالة النجاح أو الخطأ */}
@@ -1631,36 +1532,24 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
             </Alert>
           )}
 
-          {/* Enhanced Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-            {/* Enhanced Main Section (75%) */}
-            <div className="lg:col-span-3 space-y-8">
-              {/* Enhanced Title and Summary Card */}
-              <Card className={cn(
-                "group relative overflow-hidden transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl border-0",
-                "backdrop-blur-xl shadow-xl animate-slide-in-right",
-                darkMode 
-                  ? "bg-gradient-to-br from-slate-800/90 to-slate-700/90 shadow-black/20" 
-                  : "bg-gradient-to-br from-white/90 to-slate-50/90 shadow-slate-900/10"
-              )}>
-                {/* Decorative border animation */}
-                <div className={cn(
-                  "absolute inset-0 bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity duration-500",
-                  "from-blue-500/10 via-purple-500/10 to-emerald-500/10"
-                )}></div>
-                <CardContent className="relative p-8 space-y-8">
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className={cn(
-                        "w-1 h-8 rounded-full bg-gradient-to-b",
-                        darkMode ? "from-blue-400 to-purple-500" : "from-blue-500 to-purple-600"
-                      )}></div>
-                      <Label htmlFor="title" className={cn(
-                        "text-lg font-bold flex items-center gap-3",
-                        darkMode ? "text-white" : "text-slate-800"
-                      )}>
-                        <FileText className="w-5 h-5" />
-                        العنوان الرئيسي *
+          {/* المحتوى الرئيسي */}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* القسم الرئيسي (75%) */}
+            <div className="lg:col-span-3 space-y-6">
+              {/* العنوان والموجز */}
+              <Card
+                className={cn(
+                  "shadow-lg border-0 backdrop-blur-sm",
+                  darkMode ? "bg-slate-800/90" : "bg-white/90"
+                )}
+              >
+                <CardContent className="p-6 space-y-6">
+                  <div>
+                    <Label
+                      htmlFor="title"
+                      className="text-sm font-medium mb-2 flex items-center gap-2"
+                    >
+                      العنوان الرئيسي *
                       <Button
                         size="sm"
                         variant="ghost"
@@ -1707,11 +1596,10 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                       }
                       placeholder="أدخل عنوان الخبر..."
                       className={cn(
-                        "text-lg font-semibold h-14 px-4 transition-all duration-300 border-2",
-                        "focus:scale-[1.02] focus:shadow-lg backdrop-blur-sm",
+                        "text-lg font-semibold shadow-sm",
                         darkMode
-                          ? "bg-slate-700/50 border-slate-600 focus:border-blue-400 focus:bg-slate-600/70"
-                          : "bg-white/70 border-slate-200 focus:border-blue-400 focus:bg-white"
+                          ? "bg-slate-700 border-slate-600"
+                          : "bg-white border-slate-200"
                       )}
                     />
 
@@ -1777,11 +1665,10 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                       }
                       placeholder="عنوان فرعي اختياري..."
                       className={cn(
-                        "h-12 px-4 transition-all duration-300 border-2 backdrop-blur-sm",
-                        "focus:scale-[1.01] focus:shadow-md",
+                        "shadow-sm",
                         darkMode
-                          ? "bg-slate-700/50 border-slate-600 focus:border-purple-400 focus:bg-slate-600/70"
-                          : "bg-white/70 border-slate-200 focus:border-purple-400 focus:bg-white"
+                          ? "bg-slate-700 border-slate-600"
+                          : "bg-white border-slate-200"
                       )}
                     />
                   </div>
@@ -1826,13 +1713,12 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                         }))
                       }
                       placeholder="اكتب موجزاً مختصراً للخبر..."
-                      rows={4}
+                      rows={3}
                       className={cn(
-                        "px-4 py-3 transition-all duration-300 border-2 backdrop-blur-sm resize-none",
-                        "focus:scale-[1.01] focus:shadow-md",
+                        "shadow-sm",
                         darkMode
-                          ? "bg-slate-700/50 border-slate-600 focus:border-emerald-400 focus:bg-slate-600/70"
-                          : "bg-white/70 border-slate-200 focus:border-emerald-400 focus:bg-white"
+                          ? "bg-slate-700 border-slate-600"
+                          : "bg-white border-slate-200"
                       )}
                     />
 
@@ -1878,205 +1764,96 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                 </CardContent>
               </Card>
 
-              {/* Enhanced Content Editor */}
-              <Card className={cn(
-                "group relative overflow-hidden transition-all duration-500 hover:shadow-2xl border-0",
-                "backdrop-blur-xl shadow-xl animate-slide-in-left",
-                darkMode 
-                  ? "bg-gradient-to-br from-slate-800/90 to-slate-700/90 shadow-black/20" 
-                  : "bg-gradient-to-br from-white/90 to-slate-50/90 shadow-slate-900/10"
-              )}>
-                {/* Decorative Elements */}
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-emerald-500 opacity-60"></div>
-                <CardHeader className="relative p-8">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className={cn(
-                        "w-2 h-12 rounded-full bg-gradient-to-b",
-                        darkMode ? "from-emerald-400 to-blue-500" : "from-emerald-500 to-blue-600"
-                      )}></div>
-                      <div>
-                        <CardTitle className={cn(
-                          "text-2xl font-bold flex items-center gap-3",
-                          darkMode ? "text-white" : "text-slate-800"
-                        )}>
-                          <FileText className="w-6 h-6" />
-                          محتوى الخبر *
-                        </CardTitle>
-                        <p className={cn(
-                          "text-sm mt-1",
-                          darkMode ? "text-slate-400" : "text-slate-500"
-                        )}>
-                          اكتب محتوى الخبر واستخدم الذكاء الاصطناعي للتوليد التلقائي
-                        </p>
-                      </div>
-                    </div>
-                    {/* Enhanced AI Generation Button */}
+              {/* محرر المحتوى */}
+              <Card
+                className={cn(
+                  "shadow-lg border-0 backdrop-blur-sm",
+                  darkMode ? "bg-slate-800/90" : "bg-white/90"
+                )}
+              >
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <FileText className="w-5 h-5" />
+                    محتوى الخبر *{/* زر التوليد التلقائي */}
                     <Button
                       onClick={() => {
                         console.log("🔔 تم الضغط على زر التوليد التلقائي");
                         generateFromContent();
                       }}
                       disabled={isAILoading}
-                      size="lg"
+                      size="sm"
                       className={cn(
-                        "group relative px-8 py-4 rounded-xl transition-all duration-300 hover:scale-105",
-                        "bg-gradient-to-r from-purple-600 via-blue-600 to-emerald-600",
-                        "hover:from-purple-700 hover:via-blue-700 hover:to-emerald-700",
-                        "text-white font-bold shadow-xl hover:shadow-2xl",
-                        "disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                        "gap-2 ml-auto shadow-md hover:shadow-lg transition-all",
+                        darkMode
+                          ? "bg-purple-700 hover:bg-purple-600 text-white border-purple-600"
+                          : "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
                       )}
                     >
-                      {/* Animated Background */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 via-blue-600/20 to-emerald-600/20 rounded-xl animate-pulse"></div>
-                      
-                      <div className="relative flex items-center gap-3">
-                        {isAILoading ? (
-                          <>
-                            <Loader2 className="w-5 h-5 animate-spin" />
-                            <span>جاري التوليد...</span>
-                          </>
-                        ) : (
-                          <>
-                            <Wand2 className="w-5 h-5 transition-transform group-hover:rotate-12" />
-                            <Sparkles className="w-4 h-4 animate-pulse" />
-                            <span>🤖 توليد تلقائي ذكي</span>
-                          </>
-                        )}
-                      </div>
+                      {isAILoading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          جاري التوليد...
+                        </>
+                      ) : (
+                        <>
+                          <Wand2 className="w-4 h-4" />
+                          🤖 توليد تلقائي
+                        </>
+                      )}
                     </Button>
-                  </div>
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="relative p-8">
-                  {/* Enhanced AI Tips Alert */}
-                  <Alert className={cn(
-                    "mb-6 border-2 backdrop-blur-sm relative overflow-hidden",
-                    darkMode
-                      ? "bg-gradient-to-r from-purple-900/30 to-blue-900/30 border-purple-500/30 text-purple-200"
-                      : "bg-gradient-to-r from-purple-50 to-blue-50 border-purple-300/50 text-purple-800"
-                  )}>
-                    {/* Animated background pattern */}
-                    <div className={cn(
-                      "absolute inset-0 opacity-10",
-                      "bg-gradient-to-r from-purple-500/20 via-blue-500/20 to-emerald-500/20 animate-pulse"
-                    )}></div>
-                    
-                    <div className="relative flex items-start gap-4">
-                      <div className={cn(
-                        "p-2 rounded-full",
-                        darkMode ? "bg-purple-600/20" : "bg-purple-100"
-                      )}>
-                        <Sparkles className="h-5 w-5 animate-pulse" />
-                      </div>
-                      <div className="flex-1">
-                        <AlertDescription className="text-sm leading-relaxed">
-                          <strong className="text-base">💡 نصيحة ذكية:</strong>
-                          <br />
-                          اكتب محتوى الخبر (أكثر من 50 حرف) ثم اضغط على زر "🤖 توليد تلقائي ذكي" لإنشاء:
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-3">
-                            <div className={cn(
-                              "p-2 rounded-lg text-xs",
-                              darkMode ? "bg-blue-900/30" : "bg-blue-100"
-                            )}>
-                              ✨ عناوين جذابة
-                            </div>
-                            <div className={cn(
-                              "p-2 rounded-lg text-xs",
-                              darkMode ? "bg-emerald-900/30" : "bg-emerald-100"
-                            )}>
-                              📝 موجز مختصر
-                            </div>
-                            <div className={cn(
-                              "p-2 rounded-lg text-xs",
-                              darkMode ? "bg-purple-900/30" : "bg-purple-100"
-                            )}>
-                              🏷️ كلمات مفتاحية
-                            </div>
-                          </div>
-                        </AlertDescription>
-                      </div>
-                    </div>
+                <CardContent>
+                  {/* رسالة توضيحية للتوليد التلقائي */}
+                  <Alert
+                    className={cn(
+                      "mb-4 border-0 shadow-sm",
+                      darkMode
+                        ? "bg-purple-900/20 text-purple-200"
+                        : "bg-purple-50 text-purple-800"
+                    )}
+                  >
+                    <Sparkles className="h-4 w-4" />
+                    <AlertDescription className="text-sm">
+                      💡 <strong>نصيحة:</strong> اكتب محتوى الخبر (50+ حرف) ثم
+                      اضغط "🤖 توليد تلقائي" لإنشاء العنوان والموجز والكلمات
+                      المفتاحية تلقائياً
+                    </AlertDescription>
                   </Alert>
 
-                  {/* Enhanced Editor Container */}
-                  <div className={cn(
-                    "relative min-h-[500px] rounded-2xl border-2 transition-all duration-300",
-                    "backdrop-blur-sm overflow-hidden group",
-                    darkMode 
-                      ? "bg-slate-700/50 border-slate-600/50 hover:border-slate-500" 
-                      : "bg-slate-50/70 border-slate-200/70 hover:border-slate-300"
-                  )}>
-                    {/* Animated border effect */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
-                    
-                    {/* Editor content */}
-                    <div className="relative z-10 p-4 h-full">
-                      <Editor
-                        ref={editorRef}
-                        content={formData.content}
-                        onChange={handleContentChange}
-                        placeholder="✨ ابدأ في كتابة محتوى الخبر هنا...
-
-💡 نصيحة: اكتب على الأقل 50 حرفاً لتفعيل التوليد التلقائي بالذكاء الاصطناعي"
-                      />
-                    </div>
-                    
-                    {/* Character counter */}
-                    <div className={cn(
-                      "absolute bottom-4 right-4 px-3 py-1 rounded-full text-xs transition-all duration-300",
-                      darkMode 
-                        ? "bg-slate-800/70 text-slate-300" 
-                        : "bg-white/70 text-slate-600",
-                      formData.content && formData.content.length >= 50 
-                        ? "border-2 border-emerald-500/30 bg-emerald-50/20" 
-                        : "border border-slate-300/30"
-                    )}>
-                      {formData.content ? formData.content.length : 0} / 50+ حرف
-                      {formData.content && formData.content.length >= 50 && (
-                        <span className="ml-1 text-emerald-500">✓</span>
-                      )}
-                    </div>
+                  <div
+                    className={cn(
+                      "min-h-[400px] rounded-lg",
+                      darkMode ? "bg-slate-700" : "bg-slate-50"
+                    )}
+                  >
+                    <Editor
+                      ref={editorRef}
+                      content={formData.content}
+                      onChange={handleContentChange}
+                      placeholder="اكتب محتوى الخبر هنا... (يجب أن يكون 50 حرف على الأقل لاستخدام التوليد التلقائي)"
+                    />
                   </div>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Enhanced Sidebar (25%) */}
-            <div className="space-y-8 animate-slide-in-left" style={{ animationDelay: "0.4s" }}>
-              {/* Enhanced News Type Card */}
-              <Card className={cn(
-                "group relative overflow-hidden transition-all duration-500 hover:scale-105 hover:shadow-2xl border-0",
-                "backdrop-blur-xl shadow-xl",
-                darkMode
-                  ? "bg-gradient-to-br from-red-900/30 to-orange-900/30 shadow-red-900/20"
-                  : "bg-gradient-to-br from-red-50/90 to-orange-50/90 shadow-red-900/10"
-              )}>
-                {/* Animated glow effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 via-orange-500/10 to-yellow-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 to-orange-500 opacity-60"></div>
-                <CardHeader className="relative pb-4">
-                  <div className="flex items-center gap-3">
-                    <div className={cn(
-                      "p-2 rounded-full",
-                      darkMode ? "bg-red-600/20" : "bg-red-100"
-                    )}>
-                      <Zap className="w-5 h-5 text-red-500" />
-                    </div>
-                    <div>
-                      <CardTitle className={cn(
-                        "text-lg font-bold",
-                        darkMode ? "text-white" : "text-slate-800"
-                      )}>
-                        نوع الخبر
-                      </CardTitle>
-                      <p className={cn(
-                        "text-xs mt-1",
-                        darkMode ? "text-slate-400" : "text-slate-500"
-                      )}>
-                        حدد طبيعة وأهمية الخبر
-                      </p>
-                    </div>
-                  </div>
+            {/* الشريط الجانبي (25%) */}
+            <div className="space-y-6">
+              {/* نوع الخبر */}
+              <Card
+                className={cn(
+                  "shadow-lg border-0 backdrop-blur-sm",
+                  darkMode
+                    ? "bg-red-900/20 border-red-800"
+                    : "bg-red-50/90 border-red-200"
+                )}
+              >
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Zap className="w-4 h-4" />
+                    نوع الخبر
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
@@ -2580,36 +2357,15 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
             </div>
           </div>
 
-          {/* Enhanced Bottom Action Bar */}
-          <div className="mt-12 flex justify-center animate-fade-in-up" style={{ animationDelay: "0.8s" }}>
-            <div className={cn(
-              "relative p-8 rounded-2xl backdrop-blur-xl border shadow-2xl transition-all duration-500 hover:scale-105",
-              "before:absolute before:inset-0 before:bg-gradient-to-r before:from-blue-500/10 before:via-purple-500/10 before:to-emerald-500/10",
-              "before:rounded-2xl before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500",
-              darkMode 
-                ? "bg-slate-800/90 border-slate-600/30 shadow-black/20" 
-                : "bg-white/90 border-white/30 shadow-slate-900/10"
-            )}>
-              {/* Glowing border effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-emerald-500 rounded-2xl opacity-20 blur-lg animate-pulse"></div>
-              
-              <div className="relative">
-                <div className="text-center mb-6">
-                  <h3 className={cn(
-                    "text-xl font-bold mb-2",
-                    darkMode ? "text-white" : "text-slate-800"
-                  )}>
-                    جاهز للنشر?
-                  </h3>
-                  <p className={cn(
-                    "text-sm",
-                    darkMode ? "text-slate-400" : "text-slate-500"
-                  )}>
-                    اختر العملية المناسبة لمقالك
-                  </p>
-                </div>
-                <PublishButtons position="bottom" />
-              </div>
+          {/* أزرار النشر أسفل الصفحة */}
+          <div className="mt-8 flex justify-center">
+            <div
+              className={cn(
+                "p-4 rounded-xl shadow-lg backdrop-blur-sm",
+                darkMode ? "bg-slate-800/90" : "bg-white/90"
+              )}
+            >
+              <PublishButtons position="bottom" />
             </div>
           </div>
         </div>
