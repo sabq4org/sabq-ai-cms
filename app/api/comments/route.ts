@@ -62,16 +62,22 @@ export async function GET(request: NextRequest) {
 
     // إذا لم يكن هناك article_id، فهذا يعني أننا في لوحة التحكم
     if (!articleId) {
+      // في لوحة التحكم الافتراضي "الكل" بدل approved
+      const adminStatus = searchParams.get("status") || "all";
       // جلب جميع التعليقات للوحة التحكم
       const where: any = {};
+      // تطبيق فلتر الحالة دائماً إن كان محدداً
+      if (adminStatus !== "all") {
+        where.status = adminStatus;
+      }
+      // تطبيق البحث النصي دون إلغاء فلتر الحالة
       if (q) {
         where.content = { contains: q, mode: "insensitive" } as any;
       }
+      // تطبيق فلتر aiScore (لا يُلغي الحالة)
       const aiScoreLt = searchParams.get("aiScore[lt]");
       if (aiScoreLt) {
         where.aiScore = { lt: parseInt(aiScoreLt) } as any;
-      } else if (status !== "all") {
-        where.status = status;
       }
 
       const [

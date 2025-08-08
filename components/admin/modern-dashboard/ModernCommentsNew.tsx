@@ -58,7 +58,7 @@ const ModernCommentsNew: React.FC = () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (filterStatus && filterStatus !== "all") params.set("status", filterStatus);
+      params.set("status", filterStatus || "all");
       if (searchTerm.trim()) params.set("q", searchTerm.trim());
       params.set("page", String(page));
       params.set("limit", String(pageSize));
