@@ -759,12 +759,14 @@ export default function ArticleClientComponent({
               typeof article.featured_image === "string" &&
               article.featured_image.length > 0 &&
               !article.metadata?.emergency_mode && ( // تجنب عرض الصورة في وضع الطوارئ
-                <div className="sm:hidden w-full mb-6 mt-0 -mx-3 flex justify-center">
-                  <ArticleFeaturedImage
-                    imageUrl={article.featured_image}
-                    title={article.title}
-                    category={article.category}
-                  />
+                <div className="sm:hidden w-full mb-6 mt-0 -mx-3">
+                  <div className="px-3 sm:px-0">
+                    <ArticleFeaturedImage
+                      imageUrl={article.featured_image}
+                      title={article.title}
+                      category={article.category}
+                    />
+                  </div>
                 </div>
               )}
 
