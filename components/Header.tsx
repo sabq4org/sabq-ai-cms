@@ -1,7 +1,7 @@
 "use client";
 
-import { useAuth as useAuthContext } from "@/contexts/AuthContext";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
+import { useAuth } from "@/hooks/useAuth";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import {
   Activity,
@@ -32,17 +32,8 @@ export default function Header() {
   const { darkMode, mounted, toggleDarkMode } = useDarkModeContext();
   const { logoUrl, siteName, loading: settingsLoading } = useSiteSettings();
 
-  // Safe auth hook usage
-  let user = null;
-  let logout = () => {};
-  try {
-    const authContext = useAuthContext();
-    user = authContext.user;
-    logout = authContext.logout;
-  } catch (error) {
-    // AuthProvider not ready yet, use defaults
-    console.warn("AuthProvider not ready:", error);
-  }
+  // Auth state
+  const { user, logout } = useAuth();
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -212,10 +203,10 @@ export default function Header() {
                       : "text-gray-700 hover:text-gray-900 hover:bg-blue-600/20"
                   }`}
                 >
-                  {user.avatar ? (
+                  {user?.avatar ? (
                     <Image
-                      src={user.avatar}
-                      alt={user.name}
+                      src={user.avatar as string}
+                      alt={(user?.name as string) || "user"}
                       width={32}
                       height={32}
                       className="user-avatar"
@@ -224,14 +215,20 @@ export default function Header() {
                     <User className="w-5 h-5" />
                   )}
                   <span className="hidden sm:inline text-sm font-medium">
-                    {user.name || user.email?.split("@")[0] || "مستخدم"}
+                    {user?.name || user?.email?.split("@")[0] || "مستخدم"}
                   </span>
                   <ChevronDown className="w-4 h-4" />
                 </button>
 
-                {isDropdownOpen && (
+                {isDropdownOpen && user && (
                   <UserDropdown
-                    user={user}
+                    user={{
+                      id: user.id,
+                      name: user.name || user.email?.split("@")[0] || "مستخدم",
+                      email: user.email,
+                      avatar: user.avatar,
+                      role: user.role,
+                    }}
                     onLogout={handleLogout}
                     onClose={handleDropdownClose}
                   />

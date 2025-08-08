@@ -1,35 +1,27 @@
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
-import { getCurrentUser, getEffectiveUserRoleById } from '@/app/lib/auth';
-
-
-
-
-
-
-
-
-
-
-
+import { getCurrentUser, getEffectiveUserRoleById } from "@/app/lib/auth";
+import prisma from "@/lib/prisma";
+import { NextRequest, NextResponse } from "next/server";
 
 // دالة مساعدة للتحقق من دور المستخدم
 async function getUserRole(userId: string): Promise<string> {
   const user = await prisma.users.findUnique({
     where: { id: userId },
-    select: { role: true }
+    select: { role: true },
   });
-  return user?.role || 'user';
+  return user?.role || "user";
 }
 
 // دالة مساعدة للتحقق من صلاحيات الإدارة
 async function checkAdminPermission(userId: string): Promise<boolean> {
   const user = await prisma.users.findUnique({
     where: { id: userId },
-    select: { role: true, is_admin: true }
+    select: { role: true, is_admin: true },
   });
-  
-  return !!(user && (user.is_admin || ['admin', 'moderator'].includes(user.role)));
+
+  return !!(
+    user &&
+    (user.is_admin || ["admin", "moderator"].includes(user.role))
+  );
 }
 
 export async function PUT(
@@ -37,31 +29,32 @@ export async function PUT(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await context.params
-    const body = await request.json()
-    const { status, reason } = body
+    const { id } = await context.params;
+    const body = await request.json();
+    const { status, reason } = body;
 
     // التحقق من المستخدم
     const user = await getCurrentUser();
     if (!user || !user.isAdmin) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // التحقق من الصلاحيات
     const userRole = await getEffectiveUserRoleById(user.id);
-    if (!['admin', 'moderator'].includes(userRole)) {
+    if (!["admin", "moderator"].includes(userRole)) {
       return NextResponse.json(
-        { success: false, error: 'ليس لديك صلاحية للوصول' },
+        { success: false, error: "ليس لديك صلاحية للوصول" },
         { status: 403 }
       );
     }
 
-    if (!['pending', 'approved', 'rejected', 'reported', 'archived'].includes(status)) {
+    if (
+      !["pending", "approved", "rejected", "reported", "archived"].includes(
+        status
+      )
+    ) {
       return NextResponse.json(
-        { success: false, error: 'حالة غير صالحة' },
+        { success: false, error: "حالة غير صالحة" },
         { status: 400 }
       );
     }
@@ -71,13 +64,13 @@ export async function PUT(
       where: { id: id },
       select: {
         status: true,
-        article_id: true
-      }
+        article_id: true,
+      },
     });
 
     if (!comment) {
       return NextResponse.json(
-        { success: false, error: 'التعليق غير موجود' },
+        { success: false, error: "التعليق غير موجود" },
         { status: 404 }
       );
     }
@@ -85,26 +78,26 @@ export async function PUT(
     // تحديث حالة التعليق
     const updatedComment = await prisma.comments.update({
       where: { id: id },
-      data: { status }
+      data: { status },
     });
 
     // تسجيل الإجراء
     // DISABLED: Comment moderation log
-      // await prisma.commentModerationLog.create({ ... });
+    // await prisma.commentModerationLog.create({ ... });
 
     // تحديث عدد التعليقات في المقال
-    if (comment.status !== 'approved' && status === 'approved') {
+    if (comment.status !== "approved" && status === "approved") {
       // التعليق تم اعتماده
       await prisma.$executeRaw`
-        UPDATE articles 
+        UPDATE articles
         SET comments_count = comments_count + 1,
             last_comment_at = NOW()
         WHERE id = ${comment.article_id}
       `;
-    } else if (comment.status === 'approved' && status !== 'approved') {
+    } else if (comment.status === "approved" && status !== "approved") {
       // التعليق تم إلغاء اعتماده
       await prisma.$executeRaw`
-        UPDATE articles 
+        UPDATE articles
         SET comments_count = GREATEST(comments_count - 1, 0)
         WHERE id = ${comment.article_id}
       `;
@@ -112,13 +105,13 @@ export async function PUT(
 
     return NextResponse.json({
       success: true,
-      comment: updatedComment
+      comment: updatedComment,
     });
   } catch (error) {
-    console.error('Error updating comment status:', error);
+    console.error("Error updating comment status:", error);
     return NextResponse.json(
-      { success: false, error: 'فشل في تحديث حالة التعليق' },
+      { success: false, error: "فشل في تحديث حالة التعليق" },
       { status: 500 }
     );
   }
-} 
+}

@@ -17,6 +17,8 @@ export async function POST(request: NextRequest) {
     // حذف جميع الكوكيز المتعلقة بالمصادقة
     response.cookies.delete('user');
     response.cookies.delete('auth-token');
+    response.cookies.delete('token');
+    response.cookies.delete('jwt');
     
     // حذف أي كوكيز أخرى متعلقة بالجلسة
     response.cookies.set('user', '', {
