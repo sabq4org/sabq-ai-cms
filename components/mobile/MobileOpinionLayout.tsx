@@ -21,6 +21,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import CommentsSection from "@/components/article/CommentsSection";
 import { SmartInteractionButtons } from "../article/SmartInteractionButtons";
 
 interface MobileOpinionLayoutProps {
@@ -34,6 +35,7 @@ export default function MobileOpinionLayout({
   const { elementRef } = useViewTracking({ articleId: article.id });
   const [readingProgress, setReadingProgress] = useState(0);
   const [isScrolling, setIsScrolling] = useState(false);
+  const [showComments, setShowComments] = useState(false);
 
   // تتبع المشاهدات عبر elementRef
 
@@ -199,6 +201,53 @@ export default function MobileOpinionLayout({
                     <Star className="w-3 h-3" /> مميز
                   </span>
                 )}
+              </div>
+
+              {/* شريط قابل للطي لإظهار التعليقات (موبايل) */}
+              <div className="mb-5">
+                <button
+                  type="button"
+                  dir="rtl"
+                  aria-expanded={showComments}
+                  onClick={() => {
+                    const next = !showComments;
+                    setShowComments(next);
+                    if (!next) return;
+                    setTimeout(() => {
+                      const el = document.getElementById("comments");
+                      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }, 50);
+                  }}
+                  className={`w-full rounded-xl border px-4 py-3 ${
+                    darkMode
+                      ? "bg-gray-800 hover:bg-gray-700 text-gray-100 border-gray-700"
+                      : "bg-gray-50 hover:bg-gray-100 text-gray-800 border-gray-200"
+                  } transition-colors`}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-4 text-sm">
+                      <span className="inline-flex items-center gap-1">
+                        <Eye className="w-4 h-4" />
+                        {new Intl.NumberFormat("ar").format(article.views || 0)}
+                      </span>
+                      <span className="inline-flex items-center gap-1">
+                        <Heart className="w-4 h-4" />
+                        {new Intl.NumberFormat("ar").format(article.likes || 0)}
+                      </span>
+                      {typeof article.shares === "number" && (
+                        <span className="inline-flex items-center gap-1">
+                          <Share2 className="w-4 h-4" />
+                          {new Intl.NumberFormat("ar").format(article.shares || 0)}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <MessageCircle className="w-5 h-5" />
+                      <span className="font-medium">التعليقات</span>
+                      <span>({new Intl.NumberFormat("ar").format(article.comments_count || 0)})</span>
+                    </div>
+                  </div>
+                </button>
               </div>
 
               {/* معلومات الكاتب - تصميم موبايل محسن */}
@@ -446,6 +495,9 @@ export default function MobileOpinionLayout({
             )}
           </div>
 
+          {/* قسم التعليقات يظهر أسفل الشريط عند التفعيل */}
+          {showComments && <CommentsSection articleId={article.id} />}
+
           {/* شريط ثابت في الأسفل للإجراءات السريعة */}
           <div
             className={`fixed bottom-0 left-0 right-0 p-4 backdrop-blur-sm border-t ${
@@ -465,6 +517,13 @@ export default function MobileOpinionLayout({
                 <Heart className="w-5 h-5" />
               </button>
               <button
+                onClick={() => {
+                  setShowComments(true);
+                  setTimeout(() => {
+                    const el = document.getElementById("comments");
+                    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }, 50);
+                }}
                 className={`flex items-center justify-center w-12 h-12 rounded-full transition-colors ${
                   darkMode
                     ? "bg-gray-800 hover:bg-gray-700 text-gray-300"
