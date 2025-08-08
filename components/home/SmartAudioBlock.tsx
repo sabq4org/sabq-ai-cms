@@ -167,39 +167,39 @@ function CompactPodcastSection({
     return (
       <div className="py-2 px-2">
         {/* رأس بصري في الوسط */}
-        <div className="flex flex-col items-center text-center mb-4">
+        <div className="flex flex-col items-center text-center mb-3 sm:mb-4">
           <div
             className={cn(
-              "w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center shadow-xl mb-3",
+              "w-12 h-12 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shadow-xl mb-2 sm:mb-3",
               darkMode
                 ? "bg-gradient-to-br from-blue-600 to-blue-800"
                 : "bg-gradient-to-br from-blue-500 to-blue-700"
             )}
           >
-            <Mic className="w-9 h-9 sm:w-10 sm:h-10 text-white" />
+            <Mic className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
           </div>
-          <h3 className={cn("text-lg font-bold", darkMode ? "text-white" : "text-gray-900")}>
+          <h3 className={cn("text-base sm:text-lg font-bold", darkMode ? "text-white" : "text-gray-900")}>
             النشرة الصوتية
           </h3>
           <div
             className={cn(
-              "text-xs mt-1 flex items-center gap-1",
+              "text-[11px] sm:text-xs mt-1 flex items-center gap-1",
               darkMode ? "text-blue-200/80" : "text-blue-700/80"
             )}
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             تأتيكم من سبق AI
           </div>
         </div>
 
         {/* المشغل */}
-        <div className="flex flex-col items-center gap-3">
-          <div className="flex items-center gap-3 w-full">
+        <div className="flex flex-col items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 w-full">
             <Button
               onClick={togglePlayPause}
               size="sm"
               className={cn(
-                "rounded-full w-12 h-12 flex-shrink-0 shadow-lg",
+                "rounded-full w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 shadow-lg",
                 isPlaying
                   ? "bg-gray-800 hover:bg-gray-700 text-white"
                   : "bg-blue-600 hover:bg-blue-700 text-white"
@@ -207,19 +207,19 @@ function CompactPodcastSection({
               aria-label={isPlaying ? "إيقاف" : "تشغيل"}
             >
               {isPlaying ? (
-                <Pause className="w-5 h-5" />
+                <Pause className="w-4 h-4 sm:w-5 sm:h-5" />
               ) : (
-                <Play className="w-5 h-5 ml-0.5" />
+                <Play className="w-4 h-4 sm:w-5 sm:h-5 ml-0.5" />
               )}
             </Button>
             <div className="flex-1">
-              <div className="flex items-center justify-between text-xs mb-1 text-gray-500 dark:text-gray-400">
+              <div className="flex items-center justify-between text-[11px] sm:text-xs mb-1 text-gray-500 dark:text-gray-400">
                 <span>{formatTime(currentTime)}</span>
                 <span>{formatTime(duration)}</span>
               </div>
               <div
                 className={cn(
-                  "h-2 rounded-full overflow-hidden",
+                  "h-1.5 sm:h-2 rounded-full overflow-hidden",
                   darkMode ? "bg-gray-700" : "bg-gray-300"
                 )}
               >
@@ -232,10 +232,10 @@ function CompactPodcastSection({
           </div>
 
           {/* العنوان */}
-          <div className="w-full mt-2">
+          <div className="w-full mt-1 sm:mt-2">
             <h4
               className={cn(
-                "text-sm font-semibold line-clamp-2 text-center",
+                "text-[13px] sm:text-sm font-semibold line-clamp-2 text-center",
                 darkMode ? "text-white" : "text-gray-800"
               )}
             >
@@ -244,48 +244,48 @@ function CompactPodcastSection({
           </div>
 
           {/* المؤشرات */}
-          <div className="grid grid-cols-3 gap-3 w-full mt-2">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 w-full mt-1.5 sm:mt-2">
             <div
               className={cn(
-                "rounded-xl p-2 text-center border",
+                "rounded-xl p-1.5 sm:p-2 text-center border",
                 darkMode
                   ? "bg-gray-800/40 border-gray-700 text-gray-200"
                   : "bg-white/70 border-gray-200 text-gray-700"
               )}
             >
-              <div className="flex items-center justify-center gap-1 text-xs">
-                <Clock className="w-3.5 h-3.5" />
+              <div className="flex items-center justify-center gap-1 text-[11px] sm:text-xs">
+                <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 <span>المدة</span>
               </div>
-              <div className="text-sm font-bold mt-0.5">{formatTime(duration)}</div>
+              <div className="text-[12px] sm:text-sm font-bold mt-0.5">{formatTime(duration)}</div>
             </div>
             <div
               className={cn(
-                "rounded-xl p-2 text-center border",
+                "rounded-xl p-1.5 sm:p-2 text-center border",
                 darkMode
                   ? "bg-gray-800/40 border-gray-700 text-gray-200"
                   : "bg-white/70 border-gray-200 text-gray-700"
               )}
             >
-              <div className="flex items-center justify-center gap-1 text-xs">
-                <Headphones className="w-3.5 h-3.5" />
+              <div className="flex items-center justify-center gap-1 text-[11px] sm:text-xs">
+                <Headphones className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 <span>استماع</span>
               </div>
-              <div className="text-sm font-bold mt-0.5">{newsletter.play_count}</div>
+              <div className="text-[12px] sm:text-sm font-bold mt-0.5">{newsletter.play_count}</div>
             </div>
             <div
               className={cn(
-                "rounded-xl p-2 text-center border",
+                "rounded-xl p-1.5 sm:p-2 text-center border",
                 darkMode
                   ? "bg-gray-800/40 border-gray-700 text-gray-200"
                   : "bg-white/70 border-gray-200 text-gray-700"
               )}
             >
-              <div className="flex items-center justify-center gap-1 text-xs">
-                <Mic className="w-3.5 h-3.5" />
+              <div className="flex items-center justify-center gap-1 text-[11px] sm:text-xs">
+                <Mic className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 <span>الصوت</span>
               </div>
-              <div className="text-xs font-semibold mt-0.5 line-clamp-1">
+              <div className="text-[11px] sm:text-xs font-semibold mt-0.5 line-clamp-1">
                 {newsletter.voice_name}
               </div>
             </div>

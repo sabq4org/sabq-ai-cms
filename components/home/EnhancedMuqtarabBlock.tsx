@@ -363,12 +363,12 @@ export default function EnhancedMuqtarabBlock({
         {/* تصميم الهواتف - تصميم موحد مع البطاقات العادية */}
         <div className="block md:hidden">
           {/* صورة المقال */}
-          <div className="relative h-48 overflow-hidden">
+          <div className="relative h-36 sm:h-48 overflow-hidden rounded-xl">
             <Image
               src={article.coverImage || "/images/default-article.jpg"}
               alt={article.title}
               fill={true}
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              className="object-cover object-center transition-transform duration-300 group-hover:scale-105"
               sizes="100vw"
               priority={false}
             />
@@ -476,12 +476,12 @@ export default function EnhancedMuqtarabBlock({
         ></div>
 
         {/* صورة المقال */}
-        <div className="relative h-48 overflow-hidden">
+        <div className="relative h-36 sm:h-48 overflow-hidden rounded-xl">
           <Image
             src={article.coverImage || "/images/default-article.jpg"}
             alt={article.title}
             fill={true}
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            className="object-cover object-center transition-transform duration-300 group-hover:scale-105"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             priority={false}
           />
