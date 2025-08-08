@@ -40,17 +40,25 @@ export default function AudioArchivePage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
+  const [currentTimeSec, setCurrentTimeSec] = useState<number>(0);
+  const [totalDurationSec, setTotalDurationSec] = useState<number>(0);
+  const [audioLoading, setAudioLoading] = useState<boolean>(false);
 
   useEffect(() => {
     fetchNewsletters();
   }, []);
 
   useEffect(() => {
-    // تنظيف الصوت عند تغيير المشغل
+    // تنظيف الصوت عند تغيير المشغل أو عند التفكيك
     return () => {
       if (currentAudio) {
-        currentAudio.pause();
-        currentAudio.src = '';
+        try {
+          currentAudio.onended = null;
+          currentAudio.ontimeupdate = null;
+          currentAudio.onloadedmetadata = null;
+          currentAudio.pause();
+          currentAudio.src = '';
+        } catch (_) {}
       }
     };
   }, [currentAudio]);
@@ -78,20 +86,46 @@ export default function AudioArchivePage() {
       if (currentAudio) {
         currentAudio.pause();
         setPlayingId(null);
+        setAudioLoading(false);
       }
-    } else {
-      // تشغيل جديد
-      if (currentAudio) {
-        currentAudio.pause();
-      }
-      
-      const audio = new Audio(newsletter.audioUrl);
-      audio.play();
-      audio.onended = () => setPlayingId(null);
-      
-      setCurrentAudio(audio);
-      setPlayingId(newsletter.id);
+      return;
     }
+
+    // تشغيل جديد
+    if (currentAudio) {
+      try {
+        currentAudio.onended = null;
+        currentAudio.ontimeupdate = null;
+        currentAudio.onloadedmetadata = null;
+        currentAudio.pause();
+        currentAudio.src = '';
+      } catch (_) {}
+    }
+
+    const audio = new Audio(newsletter.audioUrl);
+    setAudioLoading(true);
+    setCurrentTimeSec(0);
+
+    audio.onloadedmetadata = () => {
+      const total = Math.floor(
+        Number.isFinite(audio.duration) && audio.duration > 0
+          ? audio.duration
+          : newsletter.duration || 0
+      );
+      setTotalDurationSec(total);
+      setAudioLoading(false);
+    };
+    audio.ontimeupdate = () => {
+      setCurrentTimeSec(Math.floor(audio.currentTime || 0));
+    };
+    audio.onended = () => {
+      setPlayingId(null);
+      setCurrentTimeSec(0);
+    };
+
+    audio.play();
+    setCurrentAudio(audio);
+    setPlayingId(newsletter.id);
   };
 
   const formatTime = (seconds: number) => {
@@ -170,93 +204,86 @@ export default function AudioArchivePage() {
             </p>
           </div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {filteredNewsletters.map((newsletter) => (
               <Card
                 key={newsletter.id}
                 className={cn(
-                  'overflow-hidden transition-all duration-300 hover:shadow-lg',
-                  darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200',
+                  'overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 rounded-2xl',
+                  darkMode ? 'bg-gray-850 bg-gray-800 border-gray-700' : 'bg-white border-gray-200',
                   newsletter.is_main_page && 'ring-2 ring-blue-500'
                 )}
               >
-                <div className="p-4 sm:p-5">
-                  {/* رأس البطاقة */}
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className={cn(
-                      'p-2 rounded-lg flex-shrink-0',
-                      darkMode ? 'bg-blue-900/30' : 'bg-blue-100'
-                    )}>
-                      <Mic className="w-5 h-5 text-blue-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className={cn(
-                        'font-bold text-base line-clamp-2 mb-1',
-                        darkMode ? 'text-gray-100' : 'text-gray-900'
-                      )}>
-                        {newsletter.title}
-                      </h3>
-                      <div className="flex flex-wrap items-center gap-2 text-xs">
-                        {newsletter.is_main_page && (
-                          <Badge variant="default" className="bg-blue-600">
-                            نشرة رئيسية
-                          </Badge>
+                {/* هيدر متدرّج ناعم */}
+                <div
+                  className={cn(
+                    'px-4 sm:px-5 py-4 border-b',
+                    darkMode
+                      ? 'bg-gradient-to-r from-blue-900/20 to-indigo-900/20 border-gray-700'
+                      : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-100'
+                  )}
+                >
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div
+                        className={cn(
+                          'w-10 h-10 rounded-xl flex items-center justify-center shadow-inner',
+                          darkMode ? 'bg-blue-600/30 text-blue-200' : 'bg-blue-600/10 text-blue-700'
                         )}
-                        <span className={cn(
-                          'flex items-center gap-1',
-                          darkMode ? 'text-gray-400' : 'text-gray-600'
-                        )}>
-                          <Calendar className="w-3 h-3" />
-                          {new Date(newsletter.created_at).toLocaleDateString('ar-SA', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric'
-                          })}
-                        </span>
+                      >
+                        <Mic className="w-5 h-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className={cn('font-bold text-base truncate', darkMode ? 'text-gray-100' : 'text-gray-900')}>
+                          {newsletter.title}
+                        </h3>
+                        <div className={cn('flex flex-wrap items-center gap-2 text-xs', darkMode ? 'text-gray-400' : 'text-gray-600')}>
+                          <span className="inline-flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {new Date(newsletter.created_at).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' })}
+                          </span>
+                          <span className={cn('mx-1', darkMode ? 'text-gray-600' : 'text-gray-300')}>•</span>
+                          <span className="inline-flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {formatTime(newsletter.duration)}
+                          </span>
+                          <span className={cn('mx-1', darkMode ? 'text-gray-600' : 'text-gray-300')}>•</span>
+                          <span className="inline-flex items-center gap-1">
+                            <Play className="w-3 h-3" />
+                            {newsletter.play_count} استماع
+                          </span>
+                        </div>
                       </div>
                     </div>
+                    {newsletter.is_main_page && (
+                      <Badge variant="default" className="bg-blue-600">نشرة رئيسية</Badge>
+                    )}
                   </div>
+                </div>
 
+                {/* جسم البطاقة */}
+                <div className="p-4 sm:p-5">
                   {/* وصف مختصر */}
-                  <p className={cn(
-                    'text-sm mb-3 line-clamp-2',
-                    darkMode ? 'text-gray-300' : 'text-gray-700'
-                  )}>
+                  <p className={cn('text-sm mb-4 line-clamp-3', darkMode ? 'text-gray-300' : 'text-gray-700')}>
                     {newsletter.content}
                   </p>
 
-                  {/* معلومات إضافية */}
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3 text-xs">
-                      <span className={cn(
-                        'flex items-center gap-1',
-                        darkMode ? 'text-gray-400' : 'text-gray-600'
-                      )}>
-                        <Clock className="w-3 h-3" />
-                        {formatTime(newsletter.duration)}
-                      </span>
-                      <span className={cn(
-                        'flex items-center gap-1',
-                        darkMode ? 'text-gray-400' : 'text-gray-600'
-                      )}>
-                        <Play className="w-3 h-3" />
-                        {newsletter.play_count} استماع
-                      </span>
-                    </div>
-                  </div>
-
                   {/* أزرار التحكم */}
-                  <div className="flex gap-2">
+                  <div className="flex items-center gap-2 mb-3">
                     <Button
+                      aria-label={playingId === newsletter.id ? 'إيقاف' : 'تشغيل'}
                       onClick={() => togglePlay(newsletter)}
                       className={cn(
                         'flex-1 text-sm',
-                        playingId === newsletter.id
-                          ? 'bg-red-600 hover:bg-red-700'
-                          : 'bg-blue-600 hover:bg-blue-700'
+                        playingId === newsletter.id ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'
                       )}
                     >
-                      {playingId === newsletter.id ? (
+                      {audioLoading && playingId === newsletter.id ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 ml-1 animate-spin" />
+                          جارٍ التحميل
+                        </>
+                      ) : playingId === newsletter.id ? (
                         <>
                           <Pause className="w-3.5 h-3.5 ml-1" />
                           إيقاف
@@ -269,6 +296,7 @@ export default function AudioArchivePage() {
                       )}
                     </Button>
                     <Button
+                      aria-label="تحميل الملف الصوتي"
                       variant="outline"
                       size="sm"
                       onClick={() => window.open(newsletter.audioUrl, '_blank')}
@@ -276,6 +304,29 @@ export default function AudioArchivePage() {
                     >
                       <Download className="w-3.5 h-3.5" />
                     </Button>
+                  </div>
+
+                  {/* شريط التقدم والتوقيت */}
+                  <div>
+                    <div className={cn('w-full h-1.5 rounded-full overflow-hidden', darkMode ? 'bg-gray-700' : 'bg-gray-200')}>
+                      <div
+                        className={cn('h-full rounded-full transition-all', darkMode ? 'bg-gradient-to-r from-blue-500 to-purple-500' : 'bg-gradient-to-r from-blue-600 to-indigo-600')}
+                        style={{
+                          width:
+                            playingId === newsletter.id
+                              ? `${Math.min(
+                                  100,
+                                  (currentTimeSec /
+                                    (totalDurationSec || newsletter.duration || 1)) * 100
+                                ).toFixed(2)}%`
+                              : '0%'
+                        }}
+                      />
+                    </div>
+                    <div className={cn('mt-1.5 flex items-center justify-between text-[11px]', darkMode ? 'text-gray-400' : 'text-gray-500')}>
+                      <span>{playingId === newsletter.id ? formatTime(currentTimeSec) : '0:00'}</span>
+                      <span>{formatTime(Math.floor(totalDurationSec || newsletter.duration || 0))}</span>
+                    </div>
                   </div>
                 </div>
               </Card>
