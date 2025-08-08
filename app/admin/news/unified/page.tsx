@@ -39,7 +39,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Toaster, toast } from "react-hot-toast";
 // تم إزالة DashboardLayout - تستخدم الصفحة layout.tsx الأساسي
 // تحميل المحرر بشكل ديناميكي
-import "@/styles/admin-enhanced.css";
 const Editor = dynamic(() => import("@/components/Editor/Editor"), {
   ssr: false,
 });
@@ -1439,33 +1438,14 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
 
   return (
     <div className="min-h-screen">
-      {/* Background with modern animated gradient */}
       <div
         className={cn(
-          "min-h-screen transition-all duration-500 relative overflow-hidden",
+          "min-h-screen transition-all duration-300",
           darkMode
             ? "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700"
-            : "bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50"
+            : "bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100"
         )}
       >
-        {/* Animated Background Elements */}
-        <div className="fixed inset-0 z-0 pointer-events-none">
-          <div className={cn(
-            "absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-20 animate-pulse",
-            darkMode ? "bg-blue-600" : "bg-blue-400"
-          )}></div>
-          <div className={cn(
-            "absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl opacity-20 animate-pulse",
-            darkMode ? "bg-purple-600" : "bg-purple-400"
-          )} style={{ animationDelay: "2s" }}></div>
-          <div className={cn(
-            "absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full blur-3xl opacity-10 animate-pulse",
-            darkMode ? "bg-emerald-600" : "bg-emerald-400"
-          )} style={{ animationDelay: "4s" }}></div>
-        </div>
-
-        {/* Main Content Container */}
-        <div className="relative z-10">
         <div className="p-4 md:p-6">
           {/* رأس الصفحة */}
           <div className="mb-6 flex items-center justify-between">
