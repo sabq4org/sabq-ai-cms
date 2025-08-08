@@ -46,6 +46,18 @@ export default function CommentsClient({ articleId }: CommentsClientProps) {
       }));
       setComments((prev) => (append ? [...prev, ...items] : items));
       setHasMore(pageNum < (data.pagination?.totalPages || 1));
+      // تحديث العداد بالعدد الإجمالي من الاستجابة حال توفره
+      if (typeof data.pagination?.total === "number") {
+        const evt = new CustomEvent("comments:count", {
+          detail: data.pagination.total,
+        });
+        window.dispatchEvent(evt);
+      } else {
+        const evt = new CustomEvent("comments:count", {
+          detail: append ? comments.length + items.length : items.length,
+        });
+        window.dispatchEvent(evt);
+      }
       // تحديث العداد في اللوحة (إن وجد مستمع أعلى)
       const evt = new CustomEvent("comments:count", { detail: items.length });
       window.dispatchEvent(evt);
@@ -89,8 +101,8 @@ export default function CommentsClient({ articleId }: CommentsClientProps) {
         user: data.comment?.user || { name: "أنت" },
       };
       setComments((prev) => [newItem, ...prev]);
-      // إعادة الجلب بعد 500ms لضمان تزامن الحالة بعد الموافقة من لوحة التحكم
-      setTimeout(() => fetchComments(1, false), 500);
+      // إعادة الجلب بعد 300ms لضمان تزامن الحالة بعد الموافقة من لوحة التحكم
+      setTimeout(() => fetchComments(1, false), 300);
     } catch (e: any) {
       setError(e.message || "فشل في إضافة التعليق");
     } finally {

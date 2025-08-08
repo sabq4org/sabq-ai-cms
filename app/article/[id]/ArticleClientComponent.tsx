@@ -36,6 +36,7 @@ import {
 // import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
 import ArticleAISummary from "@/components/article/ArticleAISummary";
 import CommentsPanel from "@/components/article/CommentsPanel";
+import ArticleStats from "@/components/article/ArticleStats";
 import { ReadingProgressBar } from "@/components/article/ReadingProgressBar";
 import SmartPersonalizedContent from "@/components/article/SmartPersonalizedContent";
 import ArticleViews from "@/components/ui/ArticleViews";
@@ -892,6 +893,19 @@ export default function ArticleClientComponent({
                 initialCount={article.comments_count || 0}
               />
             </div>
+
+            {/* بلوك إحصائيات الخبر */}
+            <ArticleStats
+              articleId={article.id}
+              initialStats={{
+                views: article.views || 0,
+                likes: article.likes || 0,
+                saves: article.saves || 0,
+                shares: article.shares || 0,
+                comments: article.comments_count || 0,
+                category: article.category?.name || "",
+              }}
+            />
 
             {/* إصلاح التوجه العربي للمحتوى */}
             <style jsx>{`

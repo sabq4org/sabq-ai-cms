@@ -267,14 +267,27 @@ export async function POST(request: NextRequest) {
     ];
 
     // إعدادات الذكاء الاصطناعي الافتراضية
-    // قراءة إعدادات الموديريشن من التخزين (Redis)
-    const moderationSettings = (await redis.get<{
+    // قراءة إعدادات الموديريشن من التخزين (Redis) ثم قاعدة البيانات كاحتياطي
+    let moderationSettings = await redis.get<{
       mode: "ai_only" | "human" | "hybrid";
       aiThreshold: number;
-    }>("settings:comments:moderation")) || {
-      mode: "hybrid",
-      aiThreshold: 0.75,
-    };
+    }>("settings:comments:moderation");
+    if (!moderationSettings) {
+      try {
+        const dbSetting = await prisma.site_settings.findFirst({
+          where: { section: "comments_moderation" },
+        });
+        const data: any = dbSetting?.data;
+        if (data?.mode && typeof data.aiThreshold === "number") {
+          moderationSettings = {
+            mode: data.mode,
+            aiThreshold: data.aiThreshold,
+          };
+        }
+      } catch {}
+    }
+    moderationSettings =
+      moderationSettings || ({ mode: "hybrid", aiThreshold: 0.75 } as const);
 
     const aiSettings = {
       enabled: !!process.env.OPENAI_API_KEY,
