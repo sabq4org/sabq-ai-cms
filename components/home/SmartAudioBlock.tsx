@@ -7,6 +7,7 @@ import {
   Brain,
   Globe,
   Headphones,
+  Clock,
   Lightbulb,
   MessageSquare,
   Mic,
@@ -28,8 +29,12 @@ interface AudioNewsletter {
   play_count: number;
 }
 
-// مكون النشرة الصوتية المضغوطة
-function CompactPodcastSection() {
+// مكون النشرة الصوتية (يدعم تخطيطين: مضغوط وعمود جانبي)
+function CompactPodcastSection({
+  layout = "compact",
+}: {
+  layout?: "compact" | "sidebar";
+}) {
   const { darkMode } = useDarkModeContext();
   const [newsletter, setNewsletter] = useState<AudioNewsletter | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -108,14 +113,16 @@ function CompactPodcastSection() {
   if (isLoading) {
     return (
       <div
-        className={`h-[160px] border-2 border-dashed flex items-center justify-center ${
+        className={cn(
+          "flex items-center justify-center text-center rounded-2xl",
+          layout === "sidebar" ? "h-64" : "h-[160px]",
           darkMode
-            ? "bg-gray-800/50 border-gray-600 text-gray-300"
-            : "bg-blue-50/50 border-blue-200 text-gray-600"
-        }`}
+            ? "bg-gray-800/50 border-2 border-dashed border-gray-600 text-gray-300"
+            : "bg-blue-50/50 border-2 border-dashed border-blue-200 text-gray-600"
+        )}
       >
         <div className="flex items-center gap-3">
-          <div className="animate-spin w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+          <div className="animate-spin w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full"></div>
           <span className="text-sm font-medium">جاري التحميل...</span>
         </div>
       </div>
@@ -126,26 +133,29 @@ function CompactPodcastSection() {
   if (error || !newsletter) {
     return (
       <div
-        className={`h-[160px] border-2 border-dashed flex flex-col items-center justify-center text-center p-4 ${
+        className={cn(
+          "flex flex-col items-center justify-center text-center p-4 rounded-2xl",
+          layout === "sidebar" ? "h-64" : "h-[160px]",
           darkMode
-            ? "bg-gray-800/50 border-gray-600 text-gray-300"
-            : "bg-amber-50/50 border-amber-200 text-gray-600"
-        }`}
+            ? "bg-gray-800/50 border-2 border-dashed border-gray-600 text-gray-300"
+            : "bg-amber-50/50 border-2 border-dashed border-amber-200 text-gray-600"
+        )}
       >
         <div className="flex items-center gap-2 mb-2">
-          <Mic className="w-5 h-5 text-blue-600" />
-          <h3 className="text-sm font-bold">النشرة الصوتية</h3>
+          <Mic className="w-6 h-6 text-blue-600" />
+          <h3 className="text-base font-bold">النشرة الصوتية</h3>
         </div>
         <p className="text-xs opacity-75 mb-2">
           {error ? "خطأ في التحميل" : "لا توجد نشرة حالياً"}
         </p>
         <button
           onClick={fetchMainNewsletter}
-          className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
+          className={cn(
+            "px-3 py-1 rounded-lg text-xs font-medium transition-colors",
             darkMode
               ? "bg-gray-700 hover:bg-gray-600 text-gray-200"
               : "bg-amber-100 hover:bg-amber-200 text-amber-700"
-          }`}
+          )}
         >
           🔄 تحديث
         </button>
@@ -153,6 +163,151 @@ function CompactPodcastSection() {
     );
   }
 
+  if (layout === "sidebar") {
+    return (
+      <div className="py-2 px-2">
+        {/* رأس بصري في الوسط */}
+        <div className="flex flex-col items-center text-center mb-4">
+          <div
+            className={cn(
+              "w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center shadow-xl mb-3",
+              darkMode
+                ? "bg-gradient-to-br from-blue-600 to-blue-800"
+                : "bg-gradient-to-br from-blue-500 to-blue-700"
+            )}
+          >
+            <Mic className="w-9 h-9 sm:w-10 sm:h-10 text-white" />
+          </div>
+          <h3 className={cn("text-lg font-bold", darkMode ? "text-white" : "text-gray-900")}>
+            النشرة الصوتية
+          </h3>
+          <div
+            className={cn(
+              "text-xs mt-1 flex items-center gap-1",
+              darkMode ? "text-blue-200/80" : "text-blue-700/80"
+            )}
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            تأتيكم من سبق AI
+          </div>
+        </div>
+
+        {/* المشغل */}
+        <div className="flex flex-col items-center gap-3">
+          <div className="flex items-center gap-3 w-full">
+            <Button
+              onClick={togglePlayPause}
+              size="sm"
+              className={cn(
+                "rounded-full w-12 h-12 flex-shrink-0 shadow-lg",
+                isPlaying
+                  ? "bg-gray-800 hover:bg-gray-700 text-white"
+                  : "bg-blue-600 hover:bg-blue-700 text-white"
+              )}
+              aria-label={isPlaying ? "إيقاف" : "تشغيل"}
+            >
+              {isPlaying ? (
+                <Pause className="w-5 h-5" />
+              ) : (
+                <Play className="w-5 h-5 ml-0.5" />
+              )}
+            </Button>
+            <div className="flex-1">
+              <div className="flex items-center justify-between text-xs mb-1 text-gray-500 dark:text-gray-400">
+                <span>{formatTime(currentTime)}</span>
+                <span>{formatTime(duration)}</span>
+              </div>
+              <div
+                className={cn(
+                  "h-2 rounded-full overflow-hidden",
+                  darkMode ? "bg-gray-700" : "bg-gray-300"
+                )}
+              >
+                <div
+                  className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-300"
+                  style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* العنوان */}
+          <div className="w-full mt-2">
+            <h4
+              className={cn(
+                "text-sm font-semibold line-clamp-2 text-center",
+                darkMode ? "text-white" : "text-gray-800"
+              )}
+            >
+              {newsletter.title}
+            </h4>
+          </div>
+
+          {/* المؤشرات */}
+          <div className="grid grid-cols-3 gap-3 w-full mt-2">
+            <div
+              className={cn(
+                "rounded-xl p-2 text-center border",
+                darkMode
+                  ? "bg-gray-800/40 border-gray-700 text-gray-200"
+                  : "bg-white/70 border-gray-200 text-gray-700"
+              )}
+            >
+              <div className="flex items-center justify-center gap-1 text-xs">
+                <Clock className="w-3.5 h-3.5" />
+                <span>المدة</span>
+              </div>
+              <div className="text-sm font-bold mt-0.5">{formatTime(duration)}</div>
+            </div>
+            <div
+              className={cn(
+                "rounded-xl p-2 text-center border",
+                darkMode
+                  ? "bg-gray-800/40 border-gray-700 text-gray-200"
+                  : "bg-white/70 border-gray-200 text-gray-700"
+              )}
+            >
+              <div className="flex items-center justify-center gap-1 text-xs">
+                <Headphones className="w-3.5 h-3.5" />
+                <span>استماع</span>
+              </div>
+              <div className="text-sm font-bold mt-0.5">{newsletter.play_count}</div>
+            </div>
+            <div
+              className={cn(
+                "rounded-xl p-2 text-center border",
+                darkMode
+                  ? "bg-gray-800/40 border-gray-700 text-gray-200"
+                  : "bg-white/70 border-gray-200 text-gray-700"
+              )}
+            >
+              <div className="flex items-center justify-center gap-1 text-xs">
+                <Mic className="w-3.5 h-3.5" />
+                <span>الصوت</span>
+              </div>
+              <div className="text-xs font-semibold mt-0.5 line-clamp-1">
+                {newsletter.voice_name}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* عنصر الصوت */}
+        <audio
+          ref={audioRef}
+          src={newsletter.audioUrl}
+          onTimeUpdate={handleTimeUpdate}
+          onEnded={handleEnded}
+          onLoadedMetadata={(e) => {
+            const audio = e.target as HTMLAudioElement;
+            setDuration(audio.duration);
+          }}
+        />
+      </div>
+    );
+  }
+
+  // التخطيط المضغوط الافتراضي
   return (
     <div
       className={cn(
@@ -492,14 +647,27 @@ function SmartModule() {
 }
 
 // المكون الرئيسي
-export default function SmartAudioBlock() {
+interface SmartAudioBlockProps {
+  variant?: "default" | "sidebar";
+  className?: string;
+}
+
+export default function SmartAudioBlock({
+  variant = "default",
+  className,
+}: SmartAudioBlockProps) {
   const { darkMode } = useDarkModeContext();
 
   return (
-    <div className="w-full mb-6 px-2 sm:px-0">
+    <div
+      className={cn(
+        "w-full",
+        variant === "default" ? "mb-6 px-2 sm:px-0" : "p-0",
+        className
+      )}
+    >
       <div>
-        {/* النشرة الصوتية المضغوطة - يسار */}
-        <CompactPodcastSection />
+        <CompactPodcastSection layout={variant === "sidebar" ? "sidebar" : "compact"} />
       </div>
     </div>
   );

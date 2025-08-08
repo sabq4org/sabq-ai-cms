@@ -1160,7 +1160,7 @@ function NewspaperHomePage({
                     : "linear-gradient(135deg, rgba(219, 234, 254, 0.5) 0%, rgba(191, 219, 254, 0.3) 100%)",
                 }}
               >
-                <SmartAudioBlock />
+                <SmartAudioBlock variant="sidebar" />
               </div>
             </aside>
           </div>
