@@ -5,9 +5,9 @@ import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { cn } from "@/lib/utils";
 import {
   Brain,
+  Clock,
   Globe,
   Headphones,
-  Clock,
   Lightbulb,
   MessageSquare,
   Mic,
@@ -178,7 +178,12 @@ function CompactPodcastSection({
           >
             <Mic className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
           </div>
-          <h3 className={cn("text-base sm:text-lg font-bold", darkMode ? "text-white" : "text-gray-900")}>
+          <h3
+            className={cn(
+              "text-base sm:text-lg font-bold",
+              darkMode ? "text-white" : "text-gray-900"
+            )}
+          >
             النشرة الصوتية
           </h3>
           <div
@@ -225,7 +230,9 @@ function CompactPodcastSection({
               >
                 <div
                   className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-300"
-                  style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
+                  style={{
+                    width: `${duration ? (currentTime / duration) * 100 : 0}%`,
+                  }}
                 />
               </div>
             </div>
@@ -257,7 +264,9 @@ function CompactPodcastSection({
                 <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 <span>المدة</span>
               </div>
-              <div className="text-[12px] sm:text-sm font-bold mt-0.5">{formatTime(duration)}</div>
+              <div className="text-[12px] sm:text-sm font-bold mt-0.5">
+                {formatTime(duration)}
+              </div>
             </div>
             <div
               className={cn(
@@ -271,7 +280,9 @@ function CompactPodcastSection({
                 <Headphones className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 <span>استماع</span>
               </div>
-              <div className="text-[12px] sm:text-sm font-bold mt-0.5">{newsletter.play_count}</div>
+              <div className="text-[12px] sm:text-sm font-bold mt-0.5">
+                {newsletter.play_count}
+              </div>
             </div>
             <div
               className={cn(
@@ -667,7 +678,9 @@ export default function SmartAudioBlock({
       )}
     >
       <div>
-        <CompactPodcastSection layout={variant === "sidebar" ? "sidebar" : "compact"} />
+        <CompactPodcastSection
+          layout={variant === "sidebar" ? "sidebar" : "compact"}
+        />
       </div>
     </div>
   );
