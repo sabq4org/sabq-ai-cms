@@ -74,11 +74,11 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Logo and description */}
           <div className="md:col-span-2 lg:col-span-1 flex flex-col items-start">
-            <div className="mb-1">
+            <div className="mb-3">
               {/* مطابقة مقاسات الهيدر (Desktop) */}
               <SabqLogo width={144} height={40} />
             </div>
-            <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mt-1">
+            <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mt-2">
               صحيفة إلكترونية سعودية شاملة، نعمل على مدار الساعة لننقل لكم
               الحقيقة كما هي، ونغطي كافة الأحداث المحلية والعالمية بمصداقية
               واحترافية.
@@ -134,11 +134,11 @@ export default function Footer() {
       <div className="lg:hidden px-4 py-6">
         {/* الشعار والوصف */}
         <div className="text-center mb-6">
-          <div className="flex flex-col items-center justify-center mb-1">
+          <div className="flex flex-col items-center justify-center mb-2">
             {/* مطابقة مقاسات الهيدر (Mobile) */}
             <SabqLogo width={112} height={32} />
           </div>
-          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
             صحيفة إلكترونية سعودية شاملة
           </p>
         </div>
