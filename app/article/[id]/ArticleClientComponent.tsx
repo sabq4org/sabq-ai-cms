@@ -23,7 +23,6 @@ import { useEffect, useRef, useState } from "react";
 import AdBanner from "@/components/ads/AdBanner";
 import { SmartInteractionButtons } from "@/components/article/SmartInteractionButtons";
 // إزالة المشاركة أعلى التعليقات حسب الطلب
-import SocialSharingButtons from "@/components/article/SocialSharingButtons";
 import { useViewTracking } from "@/hooks/useViewTracking";
 import {
   Award,
@@ -43,6 +42,7 @@ import SmartPersonalizedContent from "@/components/article/SmartPersonalizedCont
 import ArticleViews from "@/components/ui/ArticleViews";
 import { useReporterProfile } from "@/lib/hooks/useReporterProfile";
 import "@/styles/image-optimizations.css";
+import "@/styles/mobile-article-layout.css";
 import "@/styles/mobile-article.css";
 import "./article-styles.css";
 
@@ -754,25 +754,23 @@ export default function ArticleClientComponent({
         {/* منطقة المحتوى - نفس عرض الصورة والعنوان تماماً للديسكتوب، عرض كامل للموبايل */}
         <div className="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-2">
           <div className="bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-6 lg:p-8">
-            {/* صورة المقال للموبايل - عرض أوسع مع توسيط */}
+            {/* صورة المقال على الجوال - منفصلة */}
             {article.featured_image &&
               typeof article.featured_image === "string" &&
               article.featured_image.length > 0 &&
-              !article.metadata?.emergency_mode && ( // تجنب عرض الصورة في وضع الطوارئ
-                <div className="sm:hidden w-full mb-6 mt-0 -mx-3">
-                  <div className="px-3 sm:px-0">
-                    <ArticleFeaturedImage
-                      imageUrl={article.featured_image}
-                      title={article.title}
-                      category={article.category}
-                    />
-                  </div>
+              !article.metadata?.emergency_mode && (
+                <div className="sm:hidden mb-6 -mx-3">
+                  <ArticleFeaturedImage
+                    imageUrl={article.featured_image}
+                    title={article.title}
+                    category={article.category}
+                  />
                 </div>
               )}
 
-            {/* الملخص الذكي مع التحويل الصوتي - عرض أوسع للموبايل */}
-            <div className="mb-6 sm:mb-8 -mx-3 sm:mx-0">
-              <div className="px-3 sm:px-0">
+            {/* الموجز الذكي منفصل للجوال */}
+            <div className="sm:hidden mb-6 -mx-3">
+              <div className="px-3">
                 <ArticleAISummary
                   articleId={article.id}
                   title={article.title || "مقال بدون عنوان"}
@@ -786,6 +784,19 @@ export default function ArticleClientComponent({
                   className="shadow-lg"
                 />
               </div>
+            </div>
+
+            {/* الموجز الذكي للديسكتوب - منفصل دائماً */}
+            <div className="hidden sm:block mb-6 sm:mb-8">
+              <ArticleAISummary
+                articleId={article.id}
+                title={article.title || "مقال بدون عنوان"}
+                content={article.content || ""}
+                existingSummary={
+                  article.ai_summary || article.summary || article.excerpt || ""
+                }
+                className="shadow-lg"
+              />
             </div>
 
             {/* شريط التفاعل الذكي - عرض أوسع للموبايل */}

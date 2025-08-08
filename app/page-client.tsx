@@ -107,6 +107,7 @@ import {
   CloudRain,
   Eye,
   Heart,
+  MessageSquare,
   Newspaper,
   Palette,
   Plane,
@@ -431,6 +432,18 @@ function NewspaperHomePage({
                   news.views ?? news.views_count ?? 0
                 )}
               </span>
+              {typeof news.comments_count === "number" &&
+                news.comments_count > 0 && (
+                  <>
+                    <span className="mx-1">•</span>
+                    <span className="inline-flex items-center gap-1">
+                      <MessageSquare className="w-4 h-4" />
+                      {new Intl.NumberFormat("ar", {
+                        notation: "compact",
+                      }).format(news.comments_count)}
+                    </span>
+                  </>
+                )}
             </div>
           </div>
 
@@ -1034,6 +1047,22 @@ function NewspaperHomePage({
                                           <Eye className="w-3 h-3" />
                                           {article.views_count || 0}
                                         </span>
+                                        {typeof article.comments_count ===
+                                          "number" &&
+                                          article.comments_count > 0 && (
+                                            <span
+                                              className={`flex items-center gap-1 ${
+                                                darkMode
+                                                  ? "text-gray-400 dark:text-gray-500"
+                                                  : "text-gray-500 dark:text-gray-400 dark:text-gray-500"
+                                              }`}
+                                            >
+                                              <MessageSquare className="w-3 h-3" />
+                                              {new Intl.NumberFormat("ar", {
+                                                notation: "compact",
+                                              }).format(article.comments_count)}
+                                            </span>
+                                          )}
                                       </div>
                                     </div>
                                     {/* زر القراءة */}
