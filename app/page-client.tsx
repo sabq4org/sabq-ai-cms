@@ -21,6 +21,7 @@ import { getArticleLink } from "@/lib/utils";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
+import TrendingArticles from "@/components/article/TrendingArticles";
 
 import SafeHydration from "@/components/SafeHydration";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
@@ -752,304 +753,297 @@ function NewspaperHomePage({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <SmartAudioBlock />
         </div>
-        {/* 5. بلوك التصنيفات (Categories Block) 🏷️ */}
+        {/* 5. بلوك التصنيفات (Categories Block) 🏷️ + ترند سبق */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 mb-8">
-          <div
-            className={`rounded-3xl p-4 sm:p-6 lg:p-8 transition-all duration-500 shadow-lg dark:shadow-gray-900/50 ${
-              darkMode
-                ? "bg-blue-900/10 border border-blue-800/30"
-                : "bg-blue-50 dark:bg-blue-900/20/50 border border-blue-200/50"
-            }`}
-            style={{
-              backdropFilter: "blur(10px)",
-              background: darkMode
-                ? "linear-gradient(135deg, rgba(30, 64, 175, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)"
-                : "linear-gradient(135deg, rgba(219, 234, 254, 0.5) 0%, rgba(191, 219, 254, 0.3) 100%)",
-            }}
-          >
-            <div className="text-center mb-6 sm:mb-8">
-              {/* أيقونة كبيرة وواضحة */}
-              <div className="mb-4">
-                <div
-                  className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-2xl flex items-center justify-center shadow-xl ${
-                    darkMode
-                      ? "bg-gradient-to-br from-blue-600 to-blue-800"
-                      : "bg-gradient-to-br from-blue-500 to-blue-700"
-                  }`}
-                >
-                  <Tag className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-                </div>
-              </div>
-              {/* العنوان */}
-              <h2
-                className={`text-xl sm:text-2xl font-bold mb-3 transition-colors duration-300 ${
-                  darkMode ? "text-white" : "text-gray-800 dark:text-gray-100"
-                }`}
-              >
-                {isLoggedIn ? "استكشف بحسب اهتماماتك" : "استكشف بحسب التصنيفات"}
-              </h2>
-              {/* الوصف */}
-              <p
-                className={`text-sm transition-colors duration-300 ${
-                  darkMode ? "text-gray-400" : "text-gray-600"
-                }`}
-              >
-                {isLoggedIn
-                  ? "التصنيفات المختارة لك بناءً على تفضيلاتك وتفاعلاتك"
-                  : "اختر التصنيف الذي يهمك لتصفح الأخبار المتخصصة"}
-              </p>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* 2/3: التصنيفات */}
+            <div className="lg:col-span-2">
               <div
-                className={`text-xs mt-2 transition-colors duration-300 ${
-                  darkMode ? "text-gray-500" : "text-gray-500"
+                className={`rounded-3xl p-4 sm:p-6 lg:p-8 transition-all duration-500 shadow-lg dark:shadow-gray-900/50 ${
+                  darkMode
+                    ? "bg-blue-900/10 border border-blue-800/30"
+                    : "bg-blue-50 dark:bg-blue-900/20/50 border border-blue-200/50"
                 }`}
+                style={{
+                  backdropFilter: "blur(10px)",
+                  background: darkMode
+                    ? "linear-gradient(135deg, rgba(30, 64, 175, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)"
+                    : "linear-gradient(135deg, rgba(219, 234, 254, 0.5) 0%, rgba(191, 219, 254, 0.3) 100%)",
+                }}
               >
-                {isLoggedIn ? (
-                  <div className="flex items-center gap-1 justify-center">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="opacity-75">
-                      مخصص لك بناءً على تفضيلاتك
-                    </span>
-                  </div>
-                ) : (
-                  <span className="opacity-75">
-                    التصنيفات مرتبطة بنظام إدارة المحتوى
-                  </span>
-                )}
-              </div>
-            </div>
-            {categoriesLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-              </div>
-            ) : categories.length > 0 ? (
-              <>
-                <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
-                  {categories.map((category: any) => (
-                    <button
-                      key={category.id}
-                      onClick={() => handleCategoryClick(category.id)}
-                      className={`group px-3 py-2 sm:px-4 md:px-6 sm:py-3 rounded-xl font-medium text-xs sm:text-sm transition-all duration-300 transform hover:scale-105 relative ${
-                        selectedCategory === category.id
-                          ? darkMode
-                            ? "bg-blue-600 text-white border-2 border-blue-500 shadow-lg dark:shadow-gray-900/50"
-                            : "bg-blue-500 text-white border-2 border-blue-400 shadow-lg dark:shadow-gray-900/50"
-                          : darkMode
-                          ? "bg-blue-800/20 hover:bg-blue-700/30 text-blue-100 hover:text-blue-50 border border-blue-700/30 hover:border-blue-600/50"
-                          : "bg-white dark:bg-gray-800/80 hover:bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:text-blue-600 border border-blue-200/50 hover:border-blue-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-lg dark:shadow-gray-900/50 backdrop-blur-sm"
+                <div className="text-center mb-6 sm:mb-8">
+                  {/* أيقونة كبيرة وواضحة */}
+                  <div className="mb-4">
+                    <div
+                      className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-2xl flex items-center justify-center shadow-xl ${
+                        darkMode
+                          ? "bg-gradient-to-br from-blue-600 to-blue-800"
+                          : "bg-gradient-to-br from-blue-500 to-blue-700"
                       }`}
                     >
-                      {/* شارة "مخصص" للتصنيفات المخصصة */}
-                      {isLoggedIn && category.is_personalized && (
-                        <div className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-800 animate-pulse"></div>
-                      )}
-                      <div className="flex items-center gap-1 sm:gap-2">
-                        {(() => {
-                          const IconComponent =
-                            categoryIcons[category.name_ar] ||
-                            categoryIcons["default"];
-                          return category.icon ? (
-                            <span className="text-sm sm:text-lg group-hover:scale-110 transition-transform duration-300">
-                              {category.icon}
-                            </span>
-                          ) : (
-                            <IconComponent className="w-3 h-3 sm:w-4 sm:h-4 group-hover:scale-110 transition-transform duration-300" />
-                          );
-                        })()}
-                        <span className="whitespace-nowrap">
-                          {category.name_ar || category.name}
-                        </span>
-                        <span
-                          className={`text-xs ${
-                            selectedCategory === category.id
-                              ? "text-white/90"
-                              : darkMode
-                              ? "text-blue-200 opacity-60"
-                              : "text-gray-500 dark:text-gray-400 dark:text-gray-500 opacity-60"
-                          }`}
-                        >
-                          ({category.articles_count || 0})
-                        </span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-                {/* عرض المقالات المرتبطة بالتصنيف المختار */}
-                {selectedCategory && (
-                  <div
-                    className={`mt-8 p-6 rounded-3xl shadow-lg dark:shadow-gray-900/50 ${
+                      <Tag className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+                    </div>
+                  </div>
+                  {/* العنوان */}
+                  <h2
+                    className={`text-xl sm:text-2xl font-bold mb-3 transition-colors duration-300 ${
                       darkMode
-                        ? "bg-gray-800/50"
-                        : "bg-white dark:bg-gray-800/70"
-                    } backdrop-blur-sm border ${
-                      darkMode
-                        ? "border-gray-700"
-                        : "border-gray-200 dark:border-gray-700"
+                        ? "text-white"
+                        : "text-gray-800 dark:text-gray-100"
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-4">
-                      <h3
-                        className={`text-lg font-bold ${
-                          darkMode ? "text-white" : "text-gray-800"
-                        }`}
-                      >
-                        مقالات{" "}
-                        {
-                          categories.find((c) => c.id === selectedCategory)
-                            ?.name_ar
-                        }
-                      </h3>
-                      <button
-                        onClick={() => {
-                          setSelectedCategory(null);
-                          setCategoryArticles([]);
-                        }}
-                        className={`p-2 rounded-lg transition-colors ${
-                          darkMode
-                            ? "hover:bg-gray-700"
-                            : "hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800"
-                        }`}
-                      >
-                        <X
-                          className={`w-5 h-5 ${
-                            darkMode
-                              ? "text-gray-400 dark:text-gray-500"
-                              : "text-gray-600 dark:text-gray-400 dark:text-gray-500"
-                          }`}
-                        />
-                      </button>
-                    </div>
-                    {categoryArticlesLoading ? (
-                      <div className="flex items-center justify-center py-8">
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                    {isLoggedIn
+                      ? "استكشف بحسب اهتماماتك"
+                      : "استكشف بحسب التصنيفات"}
+                  </h2>
+                  {/* الوصف */}
+                  <p
+                    className={`text-sm transition-colors duration-300 ${
+                      darkMode ? "text-gray-400" : "text-gray-600"
+                    }`}
+                  >
+                    {isLoggedIn
+                      ? "التصنيفات المختارة لك بناءً على تفضيلاتك وتفاعلاتك"
+                      : "اختر التصنيف الذي يهمك لتصفح الأخبار المتخصصة"}
+                  </p>
+                  <div
+                    className={`text-xs mt-2 transition-colors duration-300 ${
+                      darkMode ? "text-gray-500" : "text-gray-500"
+                    }`}
+                  >
+                    {isLoggedIn ? (
+                      <div className="flex items-center gap-1 justify-center">
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <span className="opacity-75">
+                          مخصص لك بناءً على تفضيلاتك
+                        </span>
                       </div>
-                    ) : categoryArticles.length > 0 ? (
-                      <>
-                        {/* Grid Layout for Cards */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 content-start">
-                          {categoryArticles.map((article: any) => (
-                            <Link
-                              key={article.id}
-                              href={getArticleLink(article)}
-                              className="group"
+                    ) : (
+                      <span className="opacity-75">
+                        التصنيفات مرتبطة بنظام إدارة المحتوى
+                      </span>
+                    )}
+                  </div>
+                </div>
+                {categoriesLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                  </div>
+                ) : categories.length > 0 ? (
+                  <>
+                    <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+                      {categories.map((category: any) => (
+                        <button
+                          key={category.id}
+                          onClick={() => handleCategoryClick(category.id)}
+                          className={`group px-3 py-2 sm:px-4 md:px-6 sm:py-3 rounded-xl font-medium text-xs sm:text-sm transition-all duration-300 transform hover:scale-105 relative ${
+                            selectedCategory === category.id
+                              ? darkMode
+                                ? "bg-blue-600 text-white border-2 border-blue-500 shadow-lg dark:shadow-gray-900/50"
+                                : "bg-blue-500 text-white border-2 border-blue-400 shadow-lg dark:shadow-gray-900/50"
+                              : darkMode
+                              ? "bg-blue-800/20 hover:bg-blue-700/30 text-blue-100 hover:text-blue-50 border border-blue-700/30 hover:border-blue-600/50"
+                              : "bg-white dark:bg-gray-800/80 hover:bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:text-blue-600 border border-blue-200/50 hover:border-blue-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-lg dark:shadow-gray-900/50 backdrop-blur-sm"
+                          }`}
+                        >
+                          {/* شارة "مخصص" للتصنيفات المخصصة */}
+                          {isLoggedIn && category.is_personalized && (
+                            <div className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-800 animate-pulse"></div>
+                          )}
+                          <div className="flex items-center gap-1 sm:gap-2">
+                            {(() => {
+                              const IconComponent =
+                                categoryIcons[category.name_ar] ||
+                                categoryIcons["default"];
+                              return category.icon ? (
+                                <span className="text-sm sm:text-lg group-hover:scale-110 transition-transform duration-300">
+                                  {category.icon}
+                                </span>
+                              ) : (
+                                <IconComponent className="w-3 h-3 sm:w-4 sm:h-4 group-hover:scale-110 transition-transform duration-300" />
+                              );
+                            })()}
+                            <span className="whitespace-nowrap">
+                              {category.name_ar || category.name}
+                            </span>
+                            <span
+                              className={`text-xs ${
+                                selectedCategory === category.id
+                                  ? "text-white/90"
+                                  : darkMode
+                                  ? "text-blue-200 opacity-60"
+                                  : "text-gray-500 dark:text-gray-400 dark:text-gray-500 opacity-60"
+                              }`}
                             >
-                              <article
-                                className={`h-full rounded-3xl overflow-hidden shadow-xl dark:shadow-gray-900/50 transition-all duration-300 transform ${
-                                  darkMode
-                                    ? "bg-gray-800 border border-gray-700"
-                                    : "bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700"
-                                }`}
-                              >
-                                {/* صورة المقال */}
-                                <div className="relative h-40 sm:h-48 overflow-hidden">
-                                  <CloudImage
-                                    src={article?.image || null}
-                                    alt={article?.title || "صورة المقال"}
-                                    fill
-                                    className="w-full h-full object-cover transition-transform duration-500"
-                                    fallbackType="article"
-                                    priority={false}
-                                  />
-                                  {/* تم حذف طبقة التدرج فوق الصورة */}
-                                  {/* Category Badge */}
-                                  <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
-                                    <span
-                                      className={`inline-flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-bold ${
-                                        darkMode
-                                          ? "bg-blue-900/80 text-blue-200 backdrop-blur-sm"
-                                          : "bg-blue-500/90 text-white backdrop-blur-sm"
-                                      }`}
-                                    >
-                                      <Tag className="w-2 h-2 sm:w-3 sm:h-3" />
-                                      {
-                                        categories.find(
-                                          (c) => c.id === selectedCategory
-                                        )?.name_ar
-                                      }
-                                    </span>
-                                  </div>
-                                </div>
-                                {/* محتوى البطاقة */}
-                                <div className="p-4 sm:p-5">
-                                  {/* العنوان */}
-                                  <h4
-                                    className={`font-bold text-base sm:text-lg mb-3 line-clamp-2 ${
+                              ({category.articles_count || 0})
+                            </span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                    {/* عرض المقالات المرتبطة بالتصنيف المختار */}
+                    {selectedCategory && (
+                      <div
+                        className={`mt-8 p-6 rounded-3xl shadow-lg dark:shadow-gray-900/50 ${
+                          darkMode
+                            ? "bg-gray-800/50"
+                            : "bg-white dark:bg-gray-800/70"
+                        } backdrop-blur-sm border ${
+                          darkMode
+                            ? "border-gray-700"
+                            : "border-gray-200 dark:border-gray-700"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-4">
+                          <h3
+                            className={`text-lg font-bold ${
+                              darkMode ? "text-white" : "text-gray-800"
+                            }`}
+                          >
+                            مقالات{" "}
+                            {
+                              categories.find((c) => c.id === selectedCategory)
+                                ?.name_ar
+                            }
+                          </h3>
+                          <button
+                            onClick={() => {
+                              setSelectedCategory(null);
+                              setCategoryArticles([]);
+                            }}
+                            className={`p-2 rounded-lg transition-colors ${
+                              darkMode
+                                ? "hover:bg-gray-700"
+                                : "hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800"
+                            }`}
+                          >
+                            <X
+                              className={`w-5 h-5 ${
+                                darkMode
+                                  ? "text-gray-400 dark:text-gray-500"
+                                  : "text-gray-600 dark:text-gray-400 dark:text-gray-500"
+                              }`}
+                            />
+                          </button>
+                        </div>
+                        {categoryArticlesLoading ? (
+                          <div className="flex items-center justify-center py-8">
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                          </div>
+                        ) : categoryArticles.length > 0 ? (
+                          <>
+                            {/* Grid Layout for Cards */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 content-start">
+                              {categoryArticles.map((article: any) => (
+                                <Link
+                                  key={article.id}
+                                  href={getArticleLink(article)}
+                                  className="group"
+                                >
+                                  <article
+                                    className={`h-full rounded-3xl overflow-hidden shadow-xl dark:shadow-gray-900/50 transition-all duration-300 transform ${
                                       darkMode
-                                        ? "text-white"
-                                        : "text-gray-900 dark:text-white"
-                                    } transition-colors`}
-                                    title={article.title}
-                                  >
-                                    {article.title}
-                                  </h4>
-                                  {/* الملخص */}
-                                  {article.summary && (
-                                    <p
-                                      className={`text-sm mb-4 line-clamp-2 transition-colors duration-300 text-gray-600 dark:text-gray-400 dark:text-gray-500`}
-                                    >
-                                      {article.summary}
-                                    </p>
-                                  )}
-                                  {/* التفاصيل السفلية */}
-                                  <div
-                                    className={`flex items-center justify-between pt-3 sm:pt-4 border-t ${
-                                      darkMode
-                                        ? "border-gray-700"
-                                        : "border-gray-100 dark:border-gray-700"
+                                        ? "bg-gray-800 border border-gray-700"
+                                        : "bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700"
                                     }`}
                                   >
-                                    {/* المعلومات */}
-                                    <div className="flex flex-col gap-1">
-                                      {/* التاريخ والوقت */}
-                                      <div className="flex items-center gap-2 sm:gap-3 text-xs">
-                                        <div className="text-sm text-gray-500 flex items-center gap-2">
-                                          <Clock className="w-4 h-4" />
-                                          <SafeDate
-                                            date={
-                                              article.published_at ||
-                                              article.created_at
-                                            }
-                                          />
-                                        </div>
-                                        {article.reading_time && (
-                                          <span
-                                            className={`flex items-center gap-1 ${
-                                              darkMode
-                                                ? "text-gray-400 dark:text-gray-500"
-                                                : "text-gray-500 dark:text-gray-400 dark:text-gray-500"
-                                            }`}
-                                          >
-                                            <Clock className="w-3 h-3" />
-                                            {article.reading_time} د
-                                          </span>
-                                        )}
-                                      </div>
-                                      {/* الكاتب والمشاهدات */}
-                                      <div className="flex items-center gap-2 sm:gap-3 text-xs">
-                                        {article.author_name && (
-                                          <span
-                                            className={`flex items-center gap-1 ${
-                                              darkMode
-                                                ? "text-gray-400 dark:text-gray-500"
-                                                : "text-gray-500 dark:text-gray-400 dark:text-gray-500"
-                                            }`}
-                                          >
-                                            <User className="w-3 h-3" />
-                                            {article.author_name}
-                                          </span>
-                                        )}
+                                    {/* صورة المقال */}
+                                    <div className="relative h-40 sm:h-48 overflow-hidden">
+                                      <CloudImage
+                                        src={article?.image || null}
+                                        alt={article?.title || "صورة المقال"}
+                                        fill
+                                        className="w-full h-full object-cover transition-transform duration-500"
+                                        fallbackType="article"
+                                        priority={false}
+                                      />
+                                      {/* Category Badge */}
+                                      <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
                                         <span
-                                          className={`flex items-center gap-1 ${
+                                          className={`inline-flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-bold ${
                                             darkMode
-                                              ? "text-gray-400 dark:text-gray-500"
-                                              : "text-gray-500 dark:text-gray-400 dark:text-gray-500"
+                                              ? "bg-blue-900/80 text-blue-200 backdrop-blur-sm"
+                                              : "bg-blue-500/90 text-white backdrop-blur-sm"
                                           }`}
                                         >
-                                          <Eye className="w-3 h-3" />
-                                          {article.views_count || 0}
+                                          <Tag className="w-2 h-2 sm:w-3 sm:h-3" />
+                                          {
+                                            categories.find(
+                                              (c) => c.id === selectedCategory
+                                            )?.name_ar
+                                          }
                                         </span>
-                                        {typeof article.comments_count ===
-                                          "number" &&
-                                          article.comments_count > 0 && (
+                                      </div>
+                                    </div>
+                                    {/* محتوى البطاقة */}
+                                    <div className="p-4 sm:p-5">
+                                      {/* العنوان */}
+                                      <h4
+                                        className={`font-bold text-base sm:text-lg mb-3 line-clamp-2 ${
+                                          darkMode
+                                            ? "text-white"
+                                            : "text-gray-900 dark:text-white"
+                                        } transition-colors`}
+                                        title={article.title}
+                                      >
+                                        {article.title}
+                                      </h4>
+                                      {/* الملخص */}
+                                      {article.summary && (
+                                        <p
+                                          className={`text-sm mb-4 line-clamp-2 transition-colors duration-300 text-gray-600 dark:text-gray-400 dark:text-gray-500`}
+                                        >
+                                          {article.summary}
+                                        </p>
+                                      )}
+                                      {/* التفاصيل السفلية */}
+                                      <div
+                                        className={`flex items-center justify-between pt-3 sm:pt-4 border-t ${
+                                          darkMode
+                                            ? "border-gray-700"
+                                            : "border-gray-100 dark:border-gray-700"
+                                        }`}
+                                      >
+                                        {/* المعلومات */}
+                                        <div className="flex flex-col gap-1">
+                                          {/* التاريخ والوقت */}
+                                          <div className="flex items-center gap-2 sm:gap-3 text-xs">
+                                            <div className="text-sm text-gray-500 flex items-center gap-2">
+                                              <Clock className="w-4 h-4" />
+                                              <SafeDate
+                                                date={
+                                                  article.published_at ||
+                                                  article.created_at
+                                                }
+                                              />
+                                            </div>
+                                            {article.reading_time && (
+                                              <span
+                                                className={`flex items-center gap-1 ${
+                                                  darkMode
+                                                    ? "text-gray-400 dark:text-gray-500"
+                                                    : "text-gray-500 dark:text-gray-400 dark:text-gray-500"
+                                                }`}
+                                              >
+                                                <Clock className="w-3 h-3" />
+                                                {article.reading_time} د
+                                              </span>
+                                            )}
+                                          </div>
+                                          {/* الكاتب والمشاهدات */}
+                                          <div className="flex items-center gap-2 sm:gap-3 text-xs">
+                                            {article.author_name && (
+                                              <span
+                                                className={`flex items-center gap-1 ${
+                                                  darkMode
+                                                    ? "text-gray-400 dark:text-gray-500"
+                                                    : "text-gray-500 dark:text-gray-400 dark:text-gray-500"
+                                                }`}
+                                              >
+                                                <User className="w-3 h-3" />
+                                                {article.author_name}
+                                              </span>
+                                            )}
                                             <span
                                               className={`flex items-center gap-1 ${
                                                 darkMode
@@ -1057,87 +1051,123 @@ function NewspaperHomePage({
                                                   : "text-gray-500 dark:text-gray-400 dark:text-gray-500"
                                               }`}
                                             >
-                                              <MessageSquare className="w-3 h-3" />
-                                              {new Intl.NumberFormat("ar", {
-                                                notation: "compact",
-                                              }).format(article.comments_count)}
+                                              <Eye className="w-3 h-3" />
+                                              {article.views_count || 0}
                                             </span>
-                                          )}
+                                            {typeof article.comments_count ===
+                                              "number" &&
+                                              article.comments_count > 0 && (
+                                                <span
+                                                  className={`flex items-center gap-1 ${
+                                                    darkMode
+                                                      ? "text-gray-400 dark:text-gray-500"
+                                                      : "text-gray-500 dark:text-gray-400 dark:text-gray-500"
+                                                  }`}
+                                                >
+                                                  <MessageSquare className="w-3 h-3" />
+                                                  {new Intl.NumberFormat("ar", {
+                                                    notation: "compact",
+                                                  }).format(
+                                                    article.comments_count
+                                                  )}
+                                                </span>
+                                              )}
+                                          </div>
+                                        </div>
+                                        {/* زر القراءة */}
+                                        <div
+                                          className={`p-2 rounded-xl transition-all ${
+                                            darkMode
+                                              ? "bg-blue-900/20"
+                                              : "bg-blue-50 dark:bg-blue-900/20"
+                                          }`}
+                                        >
+                                          <ArrowLeft
+                                            className={`w-4 h-4 transition-transform ${
+                                              darkMode
+                                                ? "text-blue-400"
+                                                : "text-blue-600"
+                                            }`}
+                                          />
+                                        </div>
                                       </div>
                                     </div>
-                                    {/* زر القراءة */}
-                                    <div
-                                      className={`p-2 rounded-xl transition-all ${
-                                        darkMode
-                                          ? "bg-blue-900/20"
-                                          : "bg-blue-50 dark:bg-blue-900/20"
-                                      }`}
-                                    >
-                                      <ArrowLeft
-                                        className={`w-4 h-4 transition-transform ${
-                                          darkMode
-                                            ? "text-blue-400"
-                                            : "text-blue-600"
-                                        }`}
-                                      />
-                                    </div>
-                                  </div>
-                                </div>
-                              </article>
-                            </Link>
-                          ))}
-                        </div>
-                        {/* زر عرض جميع المقالات */}
-                        <div className="text-center mt-8">
-                          <Link
-                            href={`/categories/${
-                              categories.find((c) => c.id === selectedCategory)
-                                ?.slug || "general"
-                            }`}
-                            className={`group inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold text-base transition-all duration-300 transform hover:scale-105 shadow-lg dark:shadow-gray-900/50 hover:shadow-xl dark:shadow-gray-900/50 ${
+                                  </article>
+                                </Link>
+                              ))}
+                            </div>
+                            {/* زر عرض جميع المقالات */}
+                            <div className="text-center mt-8">
+                              <Link
+                                href={`/categories/${
+                                  categories.find(
+                                    (c) => c.id === selectedCategory
+                                  )?.slug || "general"
+                                }`}
+                                className={`group inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold text-base transition-all duration-300 transform hover:scale-105 shadow-lg dark:shadow-gray-900/50 hover:shadow-xl dark:shadow-gray-900/50 ${
+                                  darkMode
+                                    ? "bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white"
+                                    : "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white"
+                                }`}
+                              >
+                                <span>
+                                  عرض جميع مقالات{" "}
+                                  {
+                                    categories.find(
+                                      (c) => c.id === selectedCategory
+                                    )?.name_ar
+                                  }
+                                </span>
+                                <ArrowLeft className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                              </Link>
+                            </div>
+                          </>
+                        ) : (
+                          <div
+                            className={`text-center py-8 ${
                               darkMode
-                                ? "bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white"
-                                : "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white"
+                                ? "text-gray-400 dark:text-gray-500"
+                                : "text-gray-500 dark:text-gray-400 dark:text-gray-500"
                             }`}
                           >
-                            <span>
-                              عرض جميع مقالات{" "}
-                              {
-                                categories.find(
-                                  (c) => c.id === selectedCategory
-                                )?.name_ar
-                              }
-                            </span>
-                            <ArrowLeft className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                          </Link>
-                        </div>
-                      </>
-                    ) : (
-                      <div
-                        className={`text-center py-8 ${
-                          darkMode
-                            ? "text-gray-400 dark:text-gray-500"
-                            : "text-gray-500 dark:text-gray-400 dark:text-gray-500"
-                        }`}
-                      >
-                        <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                        <p>لا توجد مقالات منشورة في هذا التصنيف حالياً</p>
+                            <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                            <p>لا توجد مقالات منشورة في هذا التصنيف حالياً</p>
+                          </div>
+                        )}
                       </div>
                     )}
+                  </>
+                ) : (
+                  <div
+                    className={`text-center py-8 ${
+                      darkMode
+                        ? "text-gray-400 dark:text-gray-500"
+                        : "text-gray-500 dark:text-gray-400 dark:text-gray-500"
+                    }`}
+                  >
+                    <p className="text-sm">لا توجد تصنيفات متاحة حالياً</p>
                   </div>
                 )}
-              </>
-            ) : (
-              <div
-                className={`text-center py-8 ${
-                  darkMode
-                    ? "text-gray-400 dark:text-gray-500"
-                    : "text-gray-500 dark:text-gray-400 dark:text-gray-500"
-                }`}
-              >
-                <p className="text-sm">لا توجد تصنيفات متاحة حالياً</p>
               </div>
-            )}
+            </div>
+            {/* 1/3: ترند سبق */}
+            <aside className="lg:col-span-1">
+              <div
+                className={`rounded-3xl p-4 sm:p-5 transition-all duration-500 shadow-lg dark:shadow-gray-900/50 ${
+                  darkMode
+                    ? "bg-blue-900/10 border border-blue-800/30"
+                    : "bg-blue-50 dark:bg-blue-900/20/50 border border-blue-200/50"
+                }`}
+                style={{
+                  backdropFilter: "blur(10px)",
+                  background: darkMode
+                    ? "linear-gradient(135deg, rgba(30, 64, 175, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)"
+                    : "linear-gradient(135deg, rgba(219, 234, 254, 0.5) 0%, rgba(191, 219, 254, 0.3) 100%)",
+                }}
+              >
+                <TrendingArticles title="ترند سبق" timeframe="24h" limit={5} sticky={false} />
+              </div>
+            </aside>
           </div>
         </section>
 
