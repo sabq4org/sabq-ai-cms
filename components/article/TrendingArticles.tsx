@@ -31,6 +31,7 @@ interface TrendingArticlesProps {
   title?: string;
   sticky?: boolean;
   refreshMs?: number;
+  className?: string;
 }
 
 export default function TrendingArticles({
@@ -40,6 +41,7 @@ export default function TrendingArticles({
   title = "الأكثر قراءة",
   sticky = false,
   refreshMs = 60000,
+  className,
 }: TrendingArticlesProps) {
   const { darkMode } = useDarkModeContext();
   const [articles, setArticles] = useState<Article[]>([]);
@@ -93,11 +95,12 @@ export default function TrendingArticles({
   return (
     <div
       className={cn(
-        "p-6 rounded-2xl border",
+        "p-6 rounded-2xl border h-full flex flex-col",
         sticky && "sticky top-24",
         darkMode
           ? "bg-gray-800 border-gray-700"
-          : "bg-white border-gray-200"
+          : "bg-white border-gray-200",
+        className
       )}
     >
       {/* عنوان القسم */}
@@ -171,7 +174,7 @@ export default function TrendingArticles({
           لا توجد مقالات متاحة
         </p>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-4 flex-1">
           <AnimatePresence initial={false}>
           {articles.map((article, index) => (
             <motion.div key={article.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>

@@ -10,6 +10,7 @@ import EnhancedMobileNewsCard from "@/components/mobile/EnhancedMobileNewsCard";
 import SmartContentNewsCard from "@/components/mobile/SmartContentNewsCard";
 
 import AdBanner from "@/components/ads/AdBanner";
+import TrendingArticles from "@/components/article/TrendingArticles";
 import NewsPulseTicker from "@/components/news/NewsPulseTicker";
 import CloudImage from "@/components/ui/CloudImage";
 import { useAuth } from "@/hooks/useAuth";
@@ -21,7 +22,6 @@ import { getArticleLink } from "@/lib/utils";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
-import TrendingArticles from "@/components/article/TrendingArticles";
 
 import SafeHydration from "@/components/SafeHydration";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
@@ -755,7 +755,7 @@ function NewspaperHomePage({
         </div>
         {/* 5. بلوك التصنيفات (Categories Block) 🏷️ + ترند سبق */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 mb-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
             {/* 2/3: التصنيفات */}
             <div className="lg:col-span-2">
               <div
@@ -1153,7 +1153,7 @@ function NewspaperHomePage({
             {/* 1/3: ترند سبق */}
             <aside className="lg:col-span-1">
               <div
-                className={`rounded-3xl p-4 sm:p-5 transition-all duration-500 shadow-lg dark:shadow-gray-900/50 ${
+                className={`h-full rounded-3xl p-4 sm:p-5 transition-all duration-500 shadow-lg dark:shadow-gray-900/50 ${
                   darkMode
                     ? "bg-blue-900/10 border border-blue-800/30"
                     : "bg-blue-50 dark:bg-blue-900/20/50 border border-blue-200/50"
@@ -1165,7 +1165,13 @@ function NewspaperHomePage({
                     : "linear-gradient(135deg, rgba(219, 234, 254, 0.5) 0%, rgba(191, 219, 254, 0.3) 100%)",
                 }}
               >
-                <TrendingArticles title="ترند سبق" timeframe="24h" limit={5} sticky={false} />
+                <TrendingArticles
+                  title="ترند سبق"
+                  timeframe="24h"
+                  limit={5}
+                  sticky={false}
+                  className="h-full"
+                />
               </div>
             </aside>
           </div>
