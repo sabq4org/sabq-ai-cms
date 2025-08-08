@@ -62,7 +62,10 @@ const ModernCommentsNew: React.FC = () => {
       if (searchTerm.trim()) params.set("q", searchTerm.trim());
       params.set("page", String(page));
       params.set("limit", String(pageSize));
-      const res = await fetch(`/api/comments?${params.toString()}`, { cache: "no-store" });
+      const res = await fetch(`/api/comments?${params.toString()}`, {
+        cache: "no-store",
+        credentials: "include",
+      });
       const json = await res.json().catch(() => ({}));
       if (res.ok && json && json.success) {
         const list = json.comments || json.data || [];
@@ -124,6 +127,7 @@ const ModernCommentsNew: React.FC = () => {
       const res = await fetch(`/api/comments/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ status }),
       });
       const json = await res.json();

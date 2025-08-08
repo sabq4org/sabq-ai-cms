@@ -157,7 +157,9 @@ export default function OpinionArticleLayout({
                             size="sm"
                             showIcon={false}
                             showVerification={true}
-                            className={`${darkMode ? "text-gray-300" : "text-gray-700"}`}
+                            className={`${
+                              darkMode ? "text-gray-300" : "text-gray-700"
+                            }`}
                           />
                         </span>
                         <span className="mx-1">•</span>

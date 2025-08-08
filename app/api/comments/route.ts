@@ -94,11 +94,8 @@ export async function GET(request: NextRequest) {
           skip,
           take: limit,
         }),
-        prisma.comments.count({
-          where: q
-            ? { content: { contains: q, mode: "insensitive" } as any }
-            : {},
-        }),
+        // يجب أن يطابق العدّاد نفس where المستخدم في الاستعلام الرئيسي
+        prisma.comments.count({ where }),
         prisma.comments.count({ where: { status: "pending" } }),
         prisma.comments.count({ where: { status: "approved" } }),
         prisma.comments.count({ where: { status: "rejected" } }),
