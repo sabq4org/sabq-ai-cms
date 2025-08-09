@@ -1,15 +1,19 @@
 import { PrismaClient } from "@prisma/client";
+import slug from 'slug';
+
+slug.set('defaults', {
+  mode: 'rfc3986',
+  charmap: slug.charmap,
+  multicharmap: slug.multicharmap,
+});
 
 export function slugify(input: string): string {
   if (!input) return "";
-  return input
-    .trim()
-    .toLowerCase()
-    .replace(/[\u0610-\u061A\u064B-\u065F\u06D6-\u06ED]/g, "")
-    .replace(/[^a-z0-9\u0600-\u06FF\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-+|-+$/g, "");
+  return slug(input, {
+    lower: true,
+    replacement: '-',
+    remove: /[*+~.()'"!:@]/g,
+  });
 }
 
 export async function ensureUniqueSlug(
