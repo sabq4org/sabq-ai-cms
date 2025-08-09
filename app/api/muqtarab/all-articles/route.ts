@@ -120,6 +120,7 @@ export async function GET(request: NextRequest) {
       SELECT
         aa.id,
         aa.title,
+        aa.slug, -- Ensure slug is selected
         aa.excerpt,
         aa.cover_image,
         aa.reading_time,
@@ -169,7 +170,7 @@ export async function GET(request: NextRequest) {
       id: article.id,
       title: article.title,
       excerpt: article.excerpt || "",
-      slug: article.id, // استخدام ID كـ slug للتوافق
+      slug: article.slug, // Use the actual slug
       coverImage: article.cover_image,
       readingTime: Number(article.reading_time) || 3,
       publishDate: article.publish_date,
@@ -201,7 +202,7 @@ export async function GET(request: NextRequest) {
       isRecent:
         new Date(article.publish_date) >
         new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // آخر أسبوع
-      link: `/muqtarab/${article.angle_slug}/${article.id}`,
+      link: `/muqtarab/articles/${article.slug}`,
     }));
 
     // إحصائيات إضافية
