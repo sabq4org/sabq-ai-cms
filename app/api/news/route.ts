@@ -237,13 +237,20 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("❌ [News API] خطأ في جلب الأخبار:", error);
 
-    return NextResponse.json(
-      {
-        success: false,
-        error: "فشل في جلب الأخبار",
-        details: error instanceof Error ? error.message : "خطأ غير معروف",
+    // عدم كسر الواجهة الأمامية: نعيد 200 مع success=false وقائمة فارغة
+    return NextResponse.json({
+      success: false,
+      error: "فشل في جلب الأخبار",
+      details: error instanceof Error ? error.message : "خطأ غير معروف",
+      articles: [],
+      pagination: {
+        current_page: 1,
+        total_pages: 0,
+        total_count: 0,
+        per_page: 0,
+        has_next: false,
+        has_prev: false,
       },
-      { status: 500 }
-    );
+    });
   }
 }
