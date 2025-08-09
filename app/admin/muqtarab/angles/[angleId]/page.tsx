@@ -16,8 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Angle, AngleArticle } from "@/types/muqtarab";
-import {
-  ArrowLeft,
+import { ArrowLeft,
   BarChart3,
   BookOpen,
   Calendar,
@@ -35,6 +34,7 @@ import {
   Users,
   X,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -116,9 +116,11 @@ const AngleImageUploader = ({
     <div className="space-y-3">
       {currentImage && (
         <div className="relative">
-          <img
+          <Image
             src={currentImage}
             alt="صورة الزاوية"
+            width={400}
+            height={128}
             className="w-full h-32 object-cover rounded-lg"
           />
           <Button
@@ -218,9 +220,11 @@ const StatCard = ({
 const ArticlesList = ({
   articles,
   loading,
+  onDeleteArticle,
 }: {
   articles: AngleArticle[];
   loading: boolean;
+  onDeleteArticle: (article: AngleArticle) => void;
 }) => {
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString("ar-SA", {
@@ -296,9 +300,11 @@ const ArticlesList = ({
             <CardContent className="p-4">
               <div className="flex items-start gap-4">
                 {article.coverImage && (
-                  <img
+                  <Image
                     src={article.coverImage}
                     alt={article.title}
+                    width={64}
+                    height={64}
                     className="w-16 h-16 rounded-lg object-cover"
                   />
                 )}
@@ -376,8 +382,8 @@ const ArticlesList = ({
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => handleDeleteArticleClick(article)}
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50 cursor-pointer"
+                    onClick={() => onDeleteArticle(article)}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -435,7 +441,7 @@ const RecentActivity = ({ activities }: { activities: any[] }) => {
 export default function AngleDashboardPage() {
   const router = useRouter();
   const params = useParams();
-  const angleId = params.angleId as string;
+  const angleId = params?.angleId as string;
 
   const [angle, setAngle] = useState<Angle | null>(null);
   const [articles, setArticles] = useState<AngleArticle[]>([]);
@@ -462,62 +468,10 @@ export default function AngleDashboardPage() {
   );
   const [deletingArticle, setDeletingArticle] = useState(false);
 
-  // دالة بدء حذف المقال
-  const handleDeleteArticleClick = (article: AngleArticle) => {
-    console.log("🗑️ طلب حذف المقال:", article.title);
-    setArticleToDelete(article);
-    setDeleteArticleModalOpen(true);
-  };
-
-  // دالة تأكيد حذف المقال
-  const handleDeleteArticleConfirm = async () => {
-    if (!articleToDelete || !angle) {
-      console.error("❌ لا توجد بيانات للحذف");
-      return;
-    }
-
-    try {
-      setDeletingArticle(true);
-      console.log("🗑️ جاري حذف المقال:", articleToDelete.title);
-
-      const response = await fetch(
-        `/api/muqtarab/articles/${articleToDelete.slug}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          cache: "no-store",
-        }
-      );
-
-      if (response.ok) {
-        console.log("✅ تم حذف المقال بنجاح");
-        toast.success("تم حذف المقال بنجاح");
-
-        // تحديث قائمة المقالات
-        setArticles((prevArticles) =>
-          prevArticles.filter((article) => article.id !== articleToDelete.id)
-        );
-
-        // إغلاق Modal
-        setDeleteArticleModalOpen(false);
-        setArticleToDelete(null);
-      } else {
-        const errorData = await response.json();
-        console.error("❌ خطأ في حذف المقال:", errorData);
-        toast.error(errorData.error || "حدث خطأ أثناء حذف المقال");
-      }
-    } catch (error) {
-      console.error("خطأ في حذف المقال:", error);
-      toast.error("حدث خطأ أثناء حذف المقال");
-    } finally {
-      setDeletingArticle(false);
-    }
-  };
-
   // جلب بيانات الزاوية والمقالات
   useEffect(() => {
+    if (!angleId) return;
+    
     let isMounted = true;
 
     const fetchData = async () => {
@@ -612,17 +566,186 @@ export default function AngleDashboardPage() {
       }
     };
 
-    if (angleId) {
-      console.log("🚀 بدء تحميل الصفحة مع angleId:", angleId);
-      fetchData();
-    } else {
-      console.error("❌ angleId غير موجود");
-    }
+    console.log("🚀 بدء تحميل الصفحة مع angleId:", angleId);
+    fetchData();
 
     return () => {
       isMounted = false;
     };
   }, [angleId, router]);
+
+  // دالة بدء حذف المقال
+  const handleDeleteArticleClick = (article: AngleArticle) => {
+    console.log("🗑️ طلب حذف المقال:", article.title);
+    setArticleToDelete(article);
+    setDeleteArticleModalOpen(true);
+  };
+
+  // دالة تأكيد حذف المقال
+  const handleDeleteArticleConfirm = async () => {
+    if (!articleToDelete || !angle) {
+      console.error("❌ لا توجد بيانات للحذف");
+      return;
+    }
+
+    try {
+      setDeletingArticle(true);
+      console.log("🗑️ جاري حذف المقال:", articleToDelete.title);
+
+      const response = await fetch(
+        `/api/muqtarab/articles/${articleToDelete.slug}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          cache: "no-store",
+        }
+      );
+
+      if (response.ok) {
+        console.log("✅ تم حذف المقال بنجاح");
+        toast.success("تم حذف المقال بنجاح");
+
+        // تحديث قائمة المقالات
+        setArticles((prevArticles) =>
+          prevArticles.filter((article) => article.id !== articleToDelete.id)
+        );
+
+        // إغلاق Modal
+        setDeleteArticleModalOpen(false);
+        setArticleToDelete(null);
+      } else {
+        const errorData = await response.json();
+        console.error("❌ خطأ في حذف المقال:", errorData);
+        toast.error(errorData.error || "حدث خطأ أثناء حذف المقال");
+      }
+    } catch (error) {
+      console.error("خطأ في حذف المقال:", error);
+      toast.error("حدث خطأ أثناء حذف المقال");
+    } finally {
+      setDeletingArticle(false);
+    }
+  };
+
+  // جلب بيانات الزاوية والمقالات
+  useEffect(() => {
+    if (!angleId) return;
+    
+    let isMounted = true;
+
+    const fetchData = async () => {
+      try {
+        if (!isMounted) return;
+        setLoading(true);
+
+        // جلب بيانات الزاوية
+        console.log("🔍 جاري جلب بيانات الزاوية:", angleId);
+        const angleResponse = await fetch(`/api/muqtarab/angles/${angleId}`, {
+          cache: "no-store",
+          headers: {
+            "Cache-Control": "no-cache",
+          },
+        });
+        console.log(
+          "📡 استجابة API الزاوية:",
+          angleResponse.status,
+          angleResponse.ok
+        );
+
+        if (angleResponse.ok) {
+          const angleData = await angleResponse.json();
+          console.log("✅ تم جلب بيانات الزاوية:", angleData.angle?.title);
+          setAngle(angleData.angle);
+
+          // تحديث form data للتعديل
+          if (angleData.angle) {
+            setEditFormData({
+              title: angleData.angle.title || "",
+              slug: angleData.angle.slug || "",
+              description: angleData.angle.description || "",
+              themeColor: angleData.angle.themeColor || "#3B82F6",
+              isFeatured: angleData.angle.isFeatured || false,
+              isPublished: angleData.angle.isPublished || false,
+              coverImage: angleData.angle.coverImage || "",
+            });
+          }
+        } else {
+          console.error(
+            "❌ خطأ في جلب الزاوية:",
+            angleResponse.status,
+            angleResponse.statusText
+          );
+          const errorText = await angleResponse.text();
+          console.error("📄 محتوى خطأ الزاوية:", errorText);
+          toast.error("الزاوية غير موجودة");
+          router.push("/admin/muqtarab");
+          return;
+        }
+
+        // جلب المقالات (منشورة ومسودات)
+        setArticlesLoading(true);
+        console.log("🔍 جاري جلب مقالات الزاوية:", angleId);
+        const articlesResponse = await fetch(
+          `/api/muqtarab/angles/${angleId}/articles?limit=10`,
+          {
+            cache: "no-store",
+            headers: {
+              "Cache-Control": "no-cache",
+            },
+          }
+        );
+        console.log(
+          "📡 استجابة API المقالات:",
+          articlesResponse.status,
+          articlesResponse.ok
+        );
+
+        if (articlesResponse.ok) {
+          const articlesData = await articlesResponse.json();
+          console.log(
+            "✅ تم جلب المقالات:",
+            articlesData.articles?.length || 0
+          );
+          setArticles(articlesData.articles || []);
+        } else {
+          console.error("❌ خطأ في جلب المقالات:", articlesResponse.status);
+          const errorText = await articlesResponse.text();
+          console.error("📄 محتوى خطأ المقالات:", errorText);
+        }
+      } catch (error) {
+        if (isMounted) {
+          console.error("خطأ في جلب البيانات:", error);
+          toast.error("حدث خطأ في تحميل البيانات");
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+          setArticlesLoading(false);
+        }
+      }
+    };
+
+    console.log("🚀 بدء تحميل الصفحة مع angleId:", angleId);
+    fetchData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [angleId, router]);
+
+  if (!angleId) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600">معرف الزاوية غير صحيح</p>
+          <Button onClick={() => router.push("/admin/muqtarab")} className="mt-4">
+            العودة لمُقترب
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   // وظائف التعديل
   const handleEditFormChange = (field: string, value: any) => {
@@ -744,9 +867,11 @@ export default function AngleDashboardPage() {
             <CardContent className="p-6">
               <div className="flex items-start gap-6">
                 {angle.coverImage ? (
-                  <img
+                  <Image
                     src={angle.coverImage}
                     alt={angle.title}
+                    width={96}
+                    height={96}
                     className="w-24 h-24 rounded-2xl object-cover"
                   />
                 ) : (
@@ -808,7 +933,7 @@ export default function AngleDashboardPage() {
 
             <StatCard
               title="متوسط وقت القراءة"
-              value={`${Math.round(angle.avgReadingTime || 0)} دقيقة`}
+              value={`${Math.round((angle as any).avgReadingTime || 5)} دقيقة`}
               icon={Clock}
               color="bg-purple-500"
             />
@@ -838,7 +963,11 @@ export default function AngleDashboardPage() {
                 </Link>
               </div>
 
-              <ArticlesList articles={articles} loading={articlesLoading} />
+              <ArticlesList 
+                articles={articles} 
+                loading={articlesLoading} 
+                onDeleteArticle={handleDeleteArticleClick}
+              />
             </div>
 
             {/* الشريط الجانبي */}
@@ -846,7 +975,7 @@ export default function AngleDashboardPage() {
               {/* النشاط الحديث */}
               <RecentActivity
                 activities={
-                  angle.recentArticles?.map((article) => ({
+                  articles?.slice(0, 5).map((article: AngleArticle) => ({
                     title: `تم ${article.isPublished ? "نشر" : "حفظ"} "${
                       article.title
                     }"`,
