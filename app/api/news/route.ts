@@ -1,7 +1,7 @@
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-const prisma = new PrismaClient();
+export const runtime = "nodejs";
 
 export async function GET(request: NextRequest) {
   try {
@@ -58,8 +58,8 @@ export async function GET(request: NextRequest) {
 
     if (categorySlug) {
       where.categories = {
-        slug: categorySlug,
-      };
+        is: { slug: categorySlug },
+      } as any;
     }
 
     // تصفية حسب المؤلف (نظام مزدوج)

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import prisma from '@/lib/prisma';
 
-const prisma = new PrismaClient();
+export const runtime = 'nodejs';
 
 // GET: جلب الأخبار (للإدارة)
 export async function GET(request: NextRequest) {
@@ -111,7 +111,5 @@ export async function GET(request: NextRequest) {
     errorResponse.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     
     return errorResponse;
-  } finally {
-    await prisma.$disconnect();
-  }
+  } finally {}
 }

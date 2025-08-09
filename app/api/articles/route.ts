@@ -1,8 +1,7 @@
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import { ensureUniqueSlug, resolveContentType, slugify } from "@/lib/slug";
 import { NextRequest, NextResponse } from "next/server";
-
-const prisma = new PrismaClient();
+export const runtime = "nodejs";
 
 // Cache في الذاكرة
 const articleCache = new Map<string, { data: any; timestamp: number }>();
