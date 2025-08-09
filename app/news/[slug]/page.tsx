@@ -2,8 +2,10 @@ import ArticleClientComponent from "@/app/article/[id]/ArticleClientComponent";
 import prisma from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 
-export const revalidate = 0;
-export const dynamic = "force-dynamic";
+// تفعيل ISR مع إعادة التحقق كل دقيقة
+export const revalidate = 60;
+// السماح بالتخزين المؤقت والعرض الثابت
+export const dynamic = "error";
 export const runtime = "nodejs";
 
 export default async function NewsPage({

@@ -512,12 +512,14 @@ function NewspaperHomePage({
     const fetchFeaturedArticle = async () => {
       try {
         setFeaturedLoading(true);
-        // إضافة timestamp لكسر التخزين المؤقت
-        const timestamp = new Date().getTime();
+        // استخدام tags بدلاً من timestamp لإدارة الكاش
         const response = await fetch(
-          `/api/featured-news-carousel?t=${timestamp}`,
+          `/api/featured-news-carousel`,
           {
-            next: { revalidate: 20 },
+            next: { 
+              revalidate: 60,
+              tags: ['featured-news']
+            },
           }
         );
 
