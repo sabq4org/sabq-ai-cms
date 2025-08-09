@@ -58,12 +58,12 @@ export async function GET(request: NextRequest) {
           cover_image: true,
           theme_color: true,
           is_featured: true,
-          _count: { select: { articles: true } }
+          _count: { select: { articles: true } },
         },
         orderBy: { created_at: "desc" },
         take: 12, // حد أقصى للزوايا
       }),
-      
+
       // جلب المقال المميز
       prisma.muqtarabArticle.findFirst({
         where: { is_featured: true, status: "published" },
@@ -84,18 +84,18 @@ export async function GET(request: NextRequest) {
               id: true,
               name: true,
               slug: true,
-              theme_color: true
-            }
+              theme_color: true,
+            },
           },
           creator: {
             select: {
               name: true,
-              avatar: true
-            }
-          }
-        }
+              avatar: true,
+            },
+          },
+        },
       }),
-      
+
       // جلب المقالات الحديثة
       prisma.muqtarabArticle.findMany({
         where: { status: "published" },
@@ -117,25 +117,27 @@ export async function GET(request: NextRequest) {
               id: true,
               name: true,
               slug: true,
-              theme_color: true
-            }
+              theme_color: true,
+            },
           },
           creator: {
             select: {
               name: true,
-              avatar: true
-            }
-          }
-        }
+              avatar: true,
+            },
+          },
+        },
       }),
-      
+
       // إحصائيات مبسطة - تم تحسينها
-      prisma.muqtarabArticle.count({
-        where: { status: "published" }
-      }).then(totalCount => ({
-        totalArticles: totalCount,
-        totalViews: 0 // سيتم حسابها بشكل منفصل في background job
-      }))
+      prisma.muqtarabArticle
+        .count({
+          where: { status: "published" },
+        })
+        .then((totalCount) => ({
+          totalArticles: totalCount,
+          totalViews: 0, // سيتم حسابها بشكل منفصل في background job
+        })),
     ]);
 
     const res = NextResponse.json({
@@ -146,20 +148,20 @@ export async function GET(request: NextRequest) {
       stats: stats,
       cached: true,
     });
-    
+
     // كاش محسن مع أوقات أطول
     res.headers.set("Cache-Control", "public, max-age=300"); // 5 دقائق
     res.headers.set("CDN-Cache-Control", "public, s-maxage=21600"); // 6 ساعات
     res.headers.set(
-      "Vercel-CDN-Cache-Control", 
+      "Vercel-CDN-Cache-Control",
       "s-maxage=86400, stale-while-revalidate=21600" // يوم كامل مع إعادة التحقق بعد 6 ساعات
     );
     res.headers.set("X-Optimized", "true");
-    
+
     return res;
   } catch (error: any) {
     console.error("❌ [Optimized Muqtarab Page V2] Error:", error);
-    
+
     // إرجاع بيانات افتراضية عند الخطأ
     return NextResponse.json(
       {
@@ -170,11 +172,11 @@ export async function GET(request: NextRequest) {
         stats: { totalArticles: 0, totalViews: 0 },
         error: "حدث خطأ في جلب البيانات",
       },
-      { 
+      {
         status: 500,
         headers: {
-          "Cache-Control": "no-cache"
-        }
+          "Cache-Control": "no-cache",
+        },
       }
     );
   }

@@ -94,9 +94,9 @@ redis = new Redis({
 // Dynamic imports للمكونات الثقيلة
 const ArticleEditor = dynamic(
   () => import('@/components/Editor/ArticleEditor'),
-  { 
+  {
     loading: () => <EditorSkeleton />,
-    ssr: false 
+    ssr: false
   }
 );
 
@@ -129,9 +129,9 @@ const CommentsPanel = dynamic(
 ### مراقبة أداء قاعدة البيانات:
 ```sql
 -- عرض الاستعلامات البطيئة
-SELECT query, mean_exec_time, calls 
-FROM pg_stat_statements 
-ORDER BY mean_exec_time DESC 
+SELECT query, mean_exec_time, calls
+FROM pg_stat_statements
+ORDER BY mean_exec_time DESC
 LIMIT 10;
 
 -- فحص استخدام الفهارس

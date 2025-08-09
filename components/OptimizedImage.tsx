@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface OptimizedImageProps {
   src: string;
@@ -30,7 +30,7 @@ export default function OptimizedImage({
   fill = false,
   style,
   onLoad,
-  fallbackSrc = "/images/placeholder.jpg"
+  fallbackSrc = "/images/placeholder.jpg",
 }: OptimizedImageProps) {
   const [imageSrc, setImageSrc] = useState(src);
   const [isLoading, setIsLoading] = useState(true);
@@ -55,8 +55,8 @@ export default function OptimizedImage({
       },
       {
         // تحميل الصور قبل 200px من الظهور
-        rootMargin: '200px',
-        threshold: 0.01
+        rootMargin: "200px",
+        threshold: 0.01,
       }
     );
 
@@ -87,39 +87,39 @@ export default function OptimizedImage({
 
   // عنصر placeholder أثناء التحميل
   const placeholder = (
-    <div 
+    <div
       className={`bg-gray-200 dark:bg-gray-700 animate-pulse ${className}`}
       style={{
-        width: fill ? '100%' : width,
-        height: fill ? '100%' : height,
-        ...style
+        width: fill ? "100%" : width,
+        height: fill ? "100%" : height,
+        ...style,
       }}
     />
   );
 
   // إذا لم تكن الصورة في مجال الرؤية بعد
   if (!isInView) {
-    return (
-      <div ref={imageRef}>
-        {placeholder}
-      </div>
-    );
+    return <div ref={imageRef}>{placeholder}</div>;
   }
 
   return (
     <div ref={imageRef} className="relative">
       {isLoading && placeholder}
-      
+
       <Image
         src={imageSrc}
         alt={alt}
         width={!fill ? width : undefined}
         height={!fill ? height : undefined}
         fill={fill}
-        className={`${className} ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
+        className={`${className} ${
+          isLoading ? "opacity-0" : "opacity-100"
+        } transition-opacity duration-300`}
         priority={priority}
         quality={quality}
-        sizes={sizes || "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"}
+        sizes={
+          sizes || "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+        }
         style={style}
         onLoad={handleLoad}
         onError={handleError}
@@ -131,13 +131,13 @@ export default function OptimizedImage({
 }
 
 // مكون محسن لصور المقالات
-export function ArticleImage({ 
-  src, 
-  alt, 
-  caption 
-}: { 
-  src: string; 
-  alt: string; 
+export function ArticleImage({
+  src,
+  alt,
+  caption,
+}: {
+  src: string;
+  alt: string;
   caption?: string;
 }) {
   return (
@@ -161,12 +161,12 @@ export function ArticleImage({
 }
 
 // مكون محسن لصور البطاقات
-export function CardImage({ 
-  src, 
+export function CardImage({
+  src,
   alt,
-  className = ""
-}: { 
-  src: string; 
+  className = "",
+}: {
+  src: string;
   alt: string;
   className?: string;
 }) {
@@ -183,12 +183,12 @@ export function CardImage({
 }
 
 // مكون محسن لصور الـ Hero
-export function HeroImage({ 
-  src, 
+export function HeroImage({
+  src,
   alt,
-  priority = true
-}: { 
-  src: string; 
+  priority = true,
+}: {
+  src: string;
   alt: string;
   priority?: boolean;
 }) {

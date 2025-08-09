@@ -115,7 +115,7 @@ function MuqtaribPageContent() {
         console.log("🔍 جاري جلب بيانات مُقترب...");
 
         // استخدام endpoint محسّن واحد بدلاً من عدة calls
-        const optimizedResponse = await fetch("/api/muqtarab/optimized-page", {
+        const optimizedResponse = await fetch("/api/muqtarab/optimized-page/v2", {
           // إزالة no-cache للسماح بـ browser caching
           headers: {
             Accept: "application/json",

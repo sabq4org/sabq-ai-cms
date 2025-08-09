@@ -122,7 +122,7 @@ export async function GET(req: NextRequest) {
     res.headers.set("Cache-Control", "public, max-age=60");
     res.headers.set("CDN-Cache-Control", "public, s-maxage=3600"); // ساعة كاملة
     res.headers.set(
-      "Vercel-CDN-Cache-Control", 
+      "Vercel-CDN-Cache-Control",
       "s-maxage=86400, stale-while-revalidate=3600" // يوم كامل مع إعادة التحقق بعد ساعة
     );
     return res;
