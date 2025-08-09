@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from "react";
 
 interface UseViewTrackingOptions {
   articleId: string;
@@ -11,7 +11,7 @@ export function useViewTracking({
   articleId,
   threshold = 0.5,
   minTime = 5000, // 5 ثواني
-  enabled = true
+  enabled = true,
 }: UseViewTrackingOptions) {
   const [hasViewed, setHasViewed] = useState(false);
   const [isInView, setIsInView] = useState(false);
@@ -26,21 +26,24 @@ export function useViewTracking({
     if (hasViewed || !enabled || !articleId) return;
 
     try {
-      const response = await fetch(`/api/articles/${articleId}/increment-view`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await fetch(
+        `/api/articles/${articleId}/increment-view`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.ok) {
         setHasViewed(true);
-        console.log('تم تحديث عدد المشاهدات لمقال:', articleId);
+        console.log("تم تحديث عدد المشاهدات لمقال:", articleId);
       } else {
-        console.warn('فشل في تحديث المشاهدات:', response.statusText);
+        console.warn("فشل في تحديث المشاهدات:", response.statusText);
       }
     } catch (error) {
-      console.error('خطأ في تحديث المشاهدات:', error);
+      console.error("خطأ في تحديث المشاهدات:", error);
     }
   };
 
@@ -51,35 +54,35 @@ export function useViewTracking({
     const observer = new IntersectionObserver(
       (entries) => {
         const [entry] = entries;
-        
+
         if (entry.isIntersecting && entry.intersectionRatio >= threshold) {
           setIsInView(true);
           startTimeRef.current = Date.now();
-          
+
           // بدء العد التنازلي
           timerRef.current = setTimeout(() => {
             incrementView();
           }, minTime);
         } else {
           setIsInView(false);
-          
+
           // إيقاف العد التنازلي إذا خرج المقال من العرض
           if (timerRef.current) {
             clearTimeout(timerRef.current);
             timerRef.current = null;
           }
-          
+
           // حساب الوقت المنقضي
           if (startTimeRef.current) {
             const elapsed = Date.now() - startTimeRef.current;
-            setViewTime(prev => prev + elapsed);
+            setViewTime((prev) => prev + elapsed);
             startTimeRef.current = null;
           }
         }
       },
       {
         threshold: threshold,
-        rootMargin: '0px'
+        rootMargin: "0px",
       }
     );
 
@@ -109,6 +112,6 @@ export function useViewTracking({
     viewTime: Math.floor(viewTime / 1000), // بالثواني
     incrementView: () => {
       if (!hasViewed) incrementView();
-    }
+    },
   };
 }

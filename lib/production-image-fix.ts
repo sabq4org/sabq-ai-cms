@@ -3,8 +3,6 @@
  * يحل مشاكل عرض الصور في بيئة الإنتاج
  */
 
-import { CLOUDINARY_BASE } from '@/lib/config/cloudinary';
-
 export const PLACEHOLDER_IMAGES = {
   article: `/images/placeholder-news.svg`,
   analysis: `/images/deep-analysis-default.svg`,
@@ -66,10 +64,10 @@ export function getProductionImageUrl(
   }
 
   // إذا كان الرابط يبدأ بـ data:image (base64)
-  if (imageUrl.startsWith('data:image')) {
+  if (imageUrl.startsWith("data:image")) {
     return imageUrl;
   }
-  
+
   // معالجة الروابط الخارجية
   if (imageUrl.startsWith("http")) {
     // في بيئة الإنتاج، استخدم الدومين الكامل
