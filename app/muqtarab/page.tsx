@@ -134,11 +134,17 @@ function MuqtaribPageContent() {
             setHeroArticle(data.heroArticle);
             setStats(data.stats);
             // تنظيف البيانات للتأكد من سلامة البنية
-            const cleanedFeaturedArticles = (data.featuredArticles || []).map((article: any) => ({
-              ...article,
-              angle: article.angle || { title: "عام", slug: "general", themeColor: "#3B82F6" },
-              author: article.author || { name: "مؤلف" }
-            }));
+            const cleanedFeaturedArticles = (data.featuredArticles || []).map(
+              (article: any) => ({
+                ...article,
+                angle: article.angle || {
+                  title: "عام",
+                  slug: "general",
+                  themeColor: "#3B82F6",
+                },
+                author: article.author || { name: "مؤلف" },
+              })
+            );
             setFeaturedArticles(cleanedFeaturedArticles);
 
             return; // نجح التحميل المُحسّن
@@ -515,7 +521,7 @@ function MobileHeroCard({ heroArticle }: { heroArticle: HeroArticle }) {
             <span>{heroArticle.readingTime} د</span>
           </div>
           <Link
-            href={`/muqtarab/${heroArticle.angle?.slug || 'general'}/${
+            href={`/muqtarab/${heroArticle.angle?.slug || "general"}/${
               heroArticle.slug || heroArticle.id
             }`}
           >
@@ -688,11 +694,15 @@ function FeaturedArticleCard({ article }: { article: FeaturedArticle }) {
   // تعيين قيم افتراضية آمنة
   const safeArticle = {
     ...article,
-    angle: article.angle || { title: "عام", slug: "general", themeColor: "#3B82F6" },
+    angle: article.angle || {
+      title: "عام",
+      slug: "general",
+      themeColor: "#3B82F6",
+    },
     author: article.author || { name: "مؤلف" },
     excerpt: article.excerpt || "",
     readingTime: article.readingTime || 5,
-    views: article.views || 0
+    views: article.views || 0,
   };
 
   return (
@@ -750,7 +760,11 @@ function FeaturedArticleCard({ article }: { article: FeaturedArticle }) {
 
         <div className="flex items-center justify-between pt-2">
           <div className="text-xs text-gray-500">{safeArticle.author.name}</div>
-          <Link href={`/muqtarab/${safeArticle.angle.slug}/${safeArticle.slug || safeArticle.id}`}>
+          <Link
+            href={`/muqtarab/${safeArticle.angle.slug}/${
+              safeArticle.slug || safeArticle.id
+            }`}
+          >
             <Button
               size="sm"
               className="text-xs px-3 py-1 h-7"
