@@ -4,6 +4,7 @@ import { UIUtils } from "@/lib/ai/classifier-utils";
 import { formatDateShort } from "@/lib/date-utils";
 import { Clock, Coffee, Eye } from "lucide-react";
 import Link from "next/link";
+import { linkTo } from "@/lib/link-utils";
 
 interface CardGridBlockProps {
   block: any;
@@ -43,32 +44,42 @@ export function CardGridBlock({ block, articles }: CardGridBlockProps) {
         </div>
 
         {/* محتوى المقال */}
-        <Link href={`/article/${article.id}`} className="block group">
-          <div className="space-y-3">
-            <h3 className="text-lg font-medium leading-snug line-clamp-3 text-gray-900 dark:text-white">
-              {article.title}
-            </h3>
+        <Link href={linkTo({ slug: article.slug, contentType: article.content_type || 'NEWS' })} className="block group">
+          <div className="flex flex-col md:flex-row gap-5">
+            {/* الصورة */}
+            <div className="relative w-full md:w-48 h-40 flex-shrink-0">
+              <img
+                src={article.image_url || article.image}
+                alt={article.title}
+                className="w-full h-full object-cover rounded-lg"
+              />
+            </div>
+            <div className="space-y-3">
+              <h3 className="text-lg font-medium leading-snug line-clamp-3 text-gray-900 dark:text-white">
+                {article.title}
+              </h3>
 
-            {article.excerpt && (
-              <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 leading-relaxed">
-                {article.excerpt}
-              </p>
-            )}
+              {article.excerpt && (
+                <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 leading-relaxed">
+                  {article.excerpt}
+                </p>
+              )}
 
-            {/* معلومات إضافية (سطر موحد: التاريخ + المشاهدات) */}
-            <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-              <span className="flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5" />
-                {formatDate(
-                  article.publishedAt ||
-                    article.published_at ||
-                    article.created_at
-                )}
-              </span>
-              <span className="flex items-center gap-1">
-                <Eye className="w-3.5 h-3.5" />
-                {article.views || 0} مشاهدة
-              </span>
+              {/* معلومات إضافية (سطر موحد: التاريخ + المشاهدات) */}
+              <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                <span className="flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5" />
+                  {formatDate(
+                    article.publishedAt ||
+                      article.published_at ||
+                      article.created_at
+                  )}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Eye className="w-3.5 h-3.5" />
+                  {article.views || 0} مشاهدة
+                </span>
+              </div>
             </div>
           </div>
         </Link>
