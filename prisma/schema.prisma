@@ -153,6 +153,8 @@ model articles {
   ai_quotes          String[]
   article_author_id  String?
   article_type       String              @default("opinion")
+  /// نوع المحتوى المعياري: NEWS أو OPINION (مكمّل لحقل article_type لأغراض التوافق)
+  content_type       ContentType         @default(NEWS)
   summary            String?
   tags               String[]
   is_opinion_leader  Boolean             @default(false)
@@ -166,6 +168,7 @@ model articles {
 
   @@index([article_author_id])
   @@index([article_type])
+  @@index([content_type])
   @@index([tags])
 }
 
@@ -1982,6 +1985,12 @@ enum SentimentLabel {
   neutral
   positive
   very_positive
+}
+
+/// نوع المحتوى الأساسي للفصل بين الأخبار ومقالات الرأي
+enum ContentType {
+  NEWS
+  OPINION
 }
 
 enum NotificationType {

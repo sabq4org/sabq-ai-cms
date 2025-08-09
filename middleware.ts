@@ -1,8 +1,10 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
-async function getContentTypeBySlug(slug: string): Promise<"NEWS"|"OPINION"|null> {
+async function getContentTypeBySlug(
+  slug: string
+): Promise<"NEWS" | "OPINION" | null> {
   try {
     const art = await prisma.articles.findFirst({
       where: { slug },
@@ -45,14 +47,8 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    "/article/:path*",
-    "/news/:path*",
-  ],
+  matcher: ["/article/:path*", "/news/:path*"],
 };
-
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
 
 // قاموس لتحويل الأسماء العربية إلى slugs صحيحة
 const reporterNameMappings: { [key: string]: string } = {

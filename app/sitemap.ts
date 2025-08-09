@@ -115,7 +115,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // جلب المقالات والأخبار
   const articles = await getArticles();
   const articlePages: MetadataRoute.Sitemap = articles.map((article: any) => ({
-    url: `${baseUrl}${(article.article_type === 'news') ? '/news' : '/article'}/${article.slug || article.id}`,
+    url: `${baseUrl}${article.article_type === "news" ? "/news" : "/article"}/${
+      article.slug || article.id
+    }`,
     lastModified: new Date(
       article.published_at || article.updated_at || article.created_at
     ),

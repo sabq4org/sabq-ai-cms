@@ -24,8 +24,13 @@ export function buildPath({
   return `/article/${slug}`;
 }
 
-export function linkTo(item: { slug: string; contentType: ContentType }): string {
-  return item.contentType === "NEWS" ? `/news/${item.slug}` : `/article/${item.slug}`;
+export function linkTo(item: {
+  slug: string;
+  contentType: ContentType;
+}): string {
+  return item.contentType === "NEWS"
+    ? `/news/${item.slug}`
+    : `/article/${item.slug}`;
 }
 
 export function getSiteUrl(): string {
@@ -33,5 +38,3 @@ export function getSiteUrl(): string {
   const base = envUrl || "https://sabq.io";
   return base.replace(/\/$/, "");
 }
-
-
