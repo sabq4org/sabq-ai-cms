@@ -134,28 +134,48 @@ export async function GET(request: NextRequest) {
       orderBy[sort] = order;
     }
 
-    // جلب المقالات أولاً
+    // جلب المقالات أولاً (بدون content_type لتوافق قاعدة البيانات الحالية)
     const articles = await prisma.articles.findMany({
       where,
       skip,
       take: limit,
       orderBy,
-      include: {
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        content: true,
+        excerpt: true,
+        author_id: true,
+        article_author_id: true,
+        category_id: true,
+        status: true,
+        featured: true,
+        breaking: true,
+        featured_image: true,
+        seo_title: true,
+        seo_description: true,
+        seo_keywords: true,
+        created_at: true,
+        updated_at: true,
+        published_at: true,
+        metadata: true,
+        article_type: true,
+        views: true,
+        reading_time: true,
+        summary: true,
+        likes: true,
+        saves: true,
+        shares: true,
+        allow_comments: true,
+        social_image: true,
+        audio_summary_url: true,
         categories: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-          },
+          select: { id: true, name: true, slug: true, color: true }
         },
         author: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            avatar: true,
-          },
-        },
+          select: { id: true, name: true, email: true, avatar: true }
+        }
       },
     });
 
