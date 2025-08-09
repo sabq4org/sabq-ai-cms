@@ -8,8 +8,7 @@ export const PRODUCTION_CONFIG = {
     'TodayOpinionsSection',
     'SmartAudioBlock',
     'MuqtarabBlock',
-    'FeaturedNewsCarousel',
-    'BreakingNewsBar'
+    'FeaturedNewsCarousel'
   ],
   
   // استخدام نسخ مبسطة في الإنتاج

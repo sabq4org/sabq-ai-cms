@@ -105,7 +105,6 @@ const componentsToCheck = [
   "components/home/SmartAudioBlock.tsx",
   "components/home/EnhancedMuqtarabBlock.tsx",
   "components/FeaturedNewsCarousel.tsx",
-  "components/BreakingNewsBar.tsx",
 ];
 
 componentsToCheck.forEach((file) => {

@@ -1,5 +1,4 @@
 import Footer from "@/components/Footer";
-import NewsPulseTicker from "@/components/news/NewsPulseTicker";
 import CloudImage from "@/components/ui/CloudImage";
 import { getArticleLink } from "@/lib/utils";
 import { ArrowLeft, Calendar, Clock, Eye, MessageSquare } from "lucide-react";
@@ -167,14 +166,6 @@ export default async function HomeV2() {
           </div>
         </div>
       </header>
-
-      {/* News Pulse Ticker */}
-      <section className="border-b border-gray-200 dark:border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 py-2 text-sm">
-          {/* استخدام المكوّن القائم إن وجد */}
-          <NewsPulseTicker className="" isMobile={false} />
-        </div>
-      </section>
 
       {/* Hero + Side rail */}
       <section className="max-w-7xl mx-auto grid grid-cols-1 gap-6 px-4 py-6 lg:grid-cols-12">

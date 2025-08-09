@@ -10,7 +10,6 @@ import EnhancedMobileNewsCard from "@/components/mobile/EnhancedMobileNewsCard";
 import SmartContentNewsCard from "@/components/mobile/SmartContentNewsCard";
 
 import AdBanner from "@/components/ads/AdBanner";
-import NewsPulseTicker from "@/components/news/NewsPulseTicker";
 import CloudImage from "@/components/ui/CloudImage";
 import { useAuth } from "@/hooks/useAuth";
 import type { RecommendedArticle } from "@/lib/ai-recommendations";
@@ -24,7 +23,6 @@ import React, { useCallback, useEffect, useState } from "react";
 
 import SafeHydration from "@/components/SafeHydration";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
-import "@/styles/pulse-ticker-fixes.css";
 import { Clock, User } from "lucide-react";
 
 // Safe Dynamic imports with Next.js dynamic and SSR disabled to prevent hydration issues
@@ -79,19 +77,6 @@ const FeaturedNewsCarousel = dynamic(
     ssr: false,
     loading: () => (
       <div className="w-full h-80 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />
-    ),
-  }
-);
-
-const BreakingNewsBar = dynamic(
-  () =>
-    import("@/components/BreakingNewsBar").catch(() => ({
-      default: EmptyComponent,
-    })),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="w-full h-16 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />
     ),
   }
 );
@@ -720,20 +705,6 @@ function NewspaperHomePage({
         </SafeHydration>
         {/* 🔥 الترتيب الجديد المحدث للواجهة الرئيسية */}
         {/* 1. الهيدر ⬆️ - تم تأكيده أنه في المقدمة عبر Layout */}
-
-        {/* 1.1. شريط النبض الإخباري للديسكتوب 📡 - متلاصق مع الهيدر وبعرض الصفحة */}
-        <SafeHydration>
-          {!isMobileView && (
-            <div className="w-full">
-              <NewsPulseTicker className="" isMobile={false} />
-            </div>
-          )}
-        </SafeHydration>
-
-        {/* 1.5. الخبر العاجل (Breaking News) 🔴 - بعد شريط النبض */}
-        <div style={{ marginTop: "2rem" }}>
-          <BreakingNewsBar />
-        </div>
 
         {/* 2. الأخبار المميزة (Featured Articles) 🌟 */}
         {!featuredLoading && featuredArticle.length > 0 && (
