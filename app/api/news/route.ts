@@ -161,12 +161,12 @@ export async function GET(request: NextRequest) {
         image_url: article.featured_image,
         status: article.status,
         article_type: article.article_type,
+        content_type: article.content_type, // Ensure content_type is always returned
         is_featured: article.featured,
         is_breaking: article.breaking,
         published_at: article.published_at,
         created_at: article.created_at,
         updated_at: article.updated_at,
-        content_type: article.content_type,
         // توحيد التسمية للمشاهدات
         views: article.views || 0,
         views_count: article.views || 0,
