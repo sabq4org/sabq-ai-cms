@@ -208,138 +208,22 @@ export default function CategoryDetailPage({ params }: PageProps) {
   const fetchCategoryData = async (slug: string) => {
     try {
       setLoading(true);
-      setError(null); // إعادة تعيين الخطأ
+      setError(null);
       
-      console.log('🔍 جلب بيانات التصنيف:', slug);
-      
-      // جلب بيانات التصنيف مع معالجة أخطاء
-      let categoriesResponse;
-      try {
-        categoriesResponse = await fetch('/api/categories', {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        
-        if (!categoriesResponse.ok) {
-          throw new Error(`فشل في جلب التصنيفات: ${categoriesResponse.status} ${categoriesResponse.statusText}`);
-        }
-      } catch (fetchError) {
-        console.error('❌ خطأ في fetch التصنيفات:', fetchError);
-        setError('فشل في الاتصال بالخادم لجلب التصنيفات');
-        return;
+      const categoryResponse = await fetch(`/api/categories/by-slug/${slug}`);
+      if (!categoryResponse.ok) {
+        throw new Error('Category not found');
       }
+      const categoryData = await categoryResponse.json();
+      setCategory(categoryData.category);
 
-      const categoriesData = await categoriesResponse.json();
-      const categories = categoriesData.categories || categoriesData.data || [];
-      
-      if (!Array.isArray(categories) || categories.length === 0) {
-        console.error('❌ لا توجد تصنيفات متاحة');
-        setError('لا توجد تصنيفات متاحة');
-        return;
+      const articlesResponse = await fetch(`/api/articles?category_id=${categoryData.category.id}&status=published&article_type=news`);
+      if (articlesResponse.ok) {
+        const articlesData = await articlesResponse.json();
+        setArticles(articlesData.articles || []);
       }
-
-      console.log('✅ تم جلب', categories.length, 'تصنيف');
-      
-      const foundCategory = categories.find((cat: Category) => {
-        if (cat.slug === slug) return true;
-        
-        // استخدام name بدلاً من name_ar لأنه غير موجود في قاعدة البيانات
-        const categoryName = cat.metadata?.name_ar || cat.name || cat.name_en || '';
-        if (categoryName && typeof categoryName === 'string') {
-          return categoryName.toLowerCase().replace(/\s+/g, '-') === slug;
-        }
-        
-        return false;
-      });
-      
-      if (!foundCategory) {
-        console.error('❌ التصنيف غير موجود:', slug);
-        setError(`التصنيف "${slug}" غير موجود`);
-        // بدلاً من إعادة التوجيه المباشر، نعرض رسالة خطأ
-        return;
-      }
-      
-      setCategory(foundCategory);
-      console.log('✅ تم جلب التصنيف:', foundCategory.name);
-      
-      // جلب الإحصائيات الحقيقية للتصنيف
-      try {
-        const statsResponse = await fetch(`/api/categories/${foundCategory.id}/stats`);
-        if (statsResponse.ok) {
-          const statsData = await statsResponse.json();
-          if (statsData.success) {
-            setCategoryStats(statsData.data);
-            console.log('📊 تم جلب إحصائيات التصنيف:', statsData.data);
-          }
-        }
-      } catch (statsError) {
-        console.warn('⚠️ فشل في جلب إحصائيات التصنيف:', statsError);
-      }
-      
-      // جلب المقالات الخاصة بالتصنيف مع معالجة أخطاء
-      let articlesResponse;
-      try {
-        articlesResponse = await fetch(`/api/articles?category_id=${foundCategory.id}&status=published&article_type=news`, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        
-        if (!articlesResponse.ok) {
-          // إذا فشل جلب المقالات، نعرض التصنيف بدون مقالات
-          console.warn('⚠️ فشل في جلب المقالات، سيتم عرض التصنيف بدون مقالات');
-          setArticles([]);
-          return;
-        }
-      } catch (articlesError) {
-        console.warn('⚠️ خطأ في fetch المقالات:', articlesError);
-        setArticles([]);
-        return;
-      }
-
-      const articlesData = await articlesResponse.json();
-      console.log('📊 البيانات المستلمة:', articlesData.data?.length || 0, 'مقال');
-      
-      // التحقق من صحة بيانات المقالات
-      const rawArticles = articlesData.data || articlesData.articles || [];
-      if (!Array.isArray(rawArticles)) {
-        console.warn('⚠️ بيانات المقالات ليست مصفوفة');
-        setArticles([]);
-        return;
-      }
-
-      // تحويل البيانات لتطابق الواجهة مع معالجة آمنة
-      const transformedArticles = rawArticles
-        .filter((article: any) => article && article.id && article.title) // فلترة المقالات غير الصالحة
-        .map((article: any) => {
-          try {
-            return {
-              ...article,
-              views_count: parseInt(article.views_count || article.views || 0, 10) || 0,
-              likes_count: parseInt(article.likes_count || 0, 10) || 0,
-              category_name: article.category_name || article.category?.name || foundCategory.name || 'غير محدد',
-              author_name: article.author_name || article.author?.name || 'غير محدد',
-              published_at: article.published_at || article.created_at || new Date().toISOString(),
-              is_featured: Boolean(article.featured || article.is_featured),
-              is_breaking: Boolean(article.breaking || article.is_breaking),
-              excerpt: article.excerpt || article.summary || '',
-              reading_time: parseInt(article.reading_time || 5, 10) || 5
-            };
-          } catch (transformError) {
-            console.warn('⚠️ خطأ في تحويل مقال:', article.id, transformError);
-            return null;
-          }
-        })
-        .filter(Boolean); // إزالة المقالات التي فشل تحويلها
-
-      setArticles(transformedArticles);
-      console.log('✅ تم تحويل المقالات:', transformedArticles.length);
-      
-    } catch (error) {
-      console.error('❌ خطأ عام في fetchCategoryData:', error);
-      const errorMessage = error instanceof Error ? error.message : 'حدث خطأ غير متوقع';
-      setError(errorMessage);
+    } catch (error: any) {
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -526,7 +410,7 @@ export default function CategoryDetailPage({ params }: PageProps) {
           onError={(e) => {
             // إذا فشل تحميل الصورة، استخدم صورة افتراضية
             const target = e.target as HTMLImageElement;
-            target.src = 'https://images.unsplash.com/photo-1585776245991-cf89dd7fc73a?auto=format&fit=crop&w=1200&q=80';
+            target.src = '/images/placeholder.jpg';
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />

@@ -25,8 +25,10 @@ export default function MuqtarabCornerPage() {
         const cornerData = await cornerRes.json();
         setCorner(cornerData.corner);
 
-        const articlesRes = await fetch(`/api/muqtarab/corners/${slug}/articles`);
-        if (!articlesRes.ok) throw new Error('Could not fetch articles');
+        const articlesRes = await fetch(
+          `/api/muqtarab/corners/${slug}/articles`
+        );
+        if (!articlesRes.ok) throw new Error("Could not fetch articles");
         const articlesData = await articlesRes.json();
         setArticles(articlesData.articles);
       } catch (error) {

@@ -1,7 +1,7 @@
-import prisma from '@/lib/prisma';
-import { NextRequest, NextResponse } from 'next/server';
+import prisma from "@/lib/prisma";
+import { NextRequest, NextResponse } from "next/server";
 
-export const runtime = 'nodejs';
+export const runtime = "nodejs";
 
 export async function GET(
   request: NextRequest,
@@ -16,16 +16,26 @@ export async function GET(
     });
 
     if (!corner) {
-      return NextResponse.json({ success: false, error: 'Corner not found' }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: "Corner not found" },
+        { status: 404 }
+      );
     }
 
     const articles = await prisma.muqtarabArticle.findMany({
       where: { corner_id: corner.id },
-      orderBy: { publish_at: 'desc' },
+      orderBy: { publish_at: "desc" },
     });
 
     return NextResponse.json({ success: true, articles });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: 'Failed to fetch articles', details: error.message }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Failed to fetch articles",
+        details: error.message,
+      },
+      { status: 500 }
+    );
   }
 }
