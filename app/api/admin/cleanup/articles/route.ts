@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
         // Fallback: حذف جماعي
         await prisma.comments.deleteMany({});
         await prisma.interactions.deleteMany({});
-        await prisma.article_quotes.deleteMany({}).catch(() => {} as any);
+        await prisma.article_quotes.deleteMany({}).catch(() => undefined);
         await prisma.articles.deleteMany({});
       }
 
@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
         await prisma.$executeRawUnsafe("TRUNCATE TABLE opinion_articles CASCADE");
       } catch (e) {
         console.error("TRUNCATE opinion_articles CASCADE failed:", e);
-        await prisma.opinion_articles.deleteMany({}).catch(() => {} as any);
+        await prisma.opinion_articles.deleteMany({}).catch(() => undefined);
       }
     } else {
       // حذف منطقي — أسلم إن أردنا الإبقاء على السجلات لأغراض التدقيق
@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
       });
       await prisma.opinion_articles
         .updateMany({ data: { isActive: false, status: "archived" as any } })
-        .catch(() => {} as any);
+        .catch(() => undefined);
     }
 
     return NextResponse.json({
