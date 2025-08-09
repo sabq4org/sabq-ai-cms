@@ -157,17 +157,12 @@ export async function GET(
     const authorAvatar =
       article.article_author?.avatar_url || article.author?.avatar || null;
 
-    // تطبيع التصنيف: في بعض الأحيان تكون العلاقة مصفوفة، نأخذ أول عنصر كمصدر واحد متوافق مع الواجهات
-    const normalizedCategory = Array.isArray(categoryInfo)
-      ? categoryInfo[0] || null
-      : categoryInfo || null;
-
     const formattedArticle = {
       ...article,
       // ✅ إضافة image للتوافق مع المكونات
       image: article.featured_image,
       image_url: article.featured_image,
-      category: normalizedCategory,
+      category: categoryInfo,
       // إعطاء أولوية لكاتب المقال الحقيقي من article_authors
       author_name: authorName,
       author_title: article.article_author?.title || null,
