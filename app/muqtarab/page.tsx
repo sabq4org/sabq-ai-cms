@@ -510,7 +510,7 @@ function MobileHeroCard({ heroArticle }: { heroArticle: HeroArticle }) {
             <Calendar className="w-3 h-3" />
             <span>{heroArticle.readingTime} د</span>
           </div>
-          <Link href={`/muqtarab/articles/${heroArticle.slug || heroArticle.id}`}>
+          <Link href={`/muqtarab/${heroArticle.angle.slug}/${heroArticle.id}`}>
             <Button size="sm" className="text-xs px-3 py-1 h-7">
               قراءة
             </Button>
@@ -695,10 +695,10 @@ function FeaturedArticleCard({ article }: { article: FeaturedArticle }) {
           <Badge
             className="text-xs border-0 text-white shadow-lg"
             style={{
-              backgroundColor: article.angle?.themeColor || "#3B82F6",
+              backgroundColor: article.angle.themeColor || "#3B82F6",
             }}
           >
-            {article.angle?.title}
+            {article.angle.title}
           </Badge>
         </div>
       </div>
@@ -726,13 +726,13 @@ function FeaturedArticleCard({ article }: { article: FeaturedArticle }) {
         </div>
 
         <div className="flex items-center justify-between pt-2">
-          <div className="text-xs text-gray-500">{article.author?.name || "—"}</div>
-          <Link href={`/muqtarab/articles/${article.slug || article.id}`}>
+          <div className="text-xs text-gray-500">{article.author.name}</div>
+          <Link href={`/muqtarab/${article.angle.slug}/${article.id}`}>
             <Button
               size="sm"
               className="text-xs px-3 py-1 h-7"
               style={{
-                backgroundColor: article.angle?.themeColor || "#3B82F6",
+                backgroundColor: article.angle.themeColor || "#3B82F6",
               }}
             >
               قراءة
