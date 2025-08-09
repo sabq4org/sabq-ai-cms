@@ -127,7 +127,7 @@ export default function MobileOpinionLayout({
       <main
         className={`min-h-screen ${
           darkMode ? "bg-gray-900" : "bg-gray-50"
-        } pt-0`}
+        } pt-14`}
       >
         <article
           ref={elementRef as any}

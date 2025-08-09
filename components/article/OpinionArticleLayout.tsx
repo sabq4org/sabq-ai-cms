@@ -113,7 +113,7 @@ export default function OpinionArticleLayout({
       <main
         className={`min-h-screen ${
           darkMode ? "bg-gray-900" : "bg-gray-50"
-        } pt-0 sm:pt-[64px]`}
+        } pt-14 sm:pt-16`}
       >
         <div className="relative">
           <div className="max-w-7xl mx-auto py-6 sm:py-8 lg:py-12">
