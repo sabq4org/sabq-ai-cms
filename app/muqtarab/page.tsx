@@ -510,7 +510,7 @@ function MobileHeroCard({ heroArticle }: { heroArticle: HeroArticle }) {
             <Calendar className="w-3 h-3" />
             <span>{heroArticle.readingTime} د</span>
           </div>
-          <Link href={`/muqtarab/${heroArticle.angle.slug}/${heroArticle.id}`}>
+          <Link href={`/muqtarab/articles/${heroArticle.slug || heroArticle.id}`}>
             <Button size="sm" className="text-xs px-3 py-1 h-7">
               قراءة
             </Button>
@@ -672,6 +672,7 @@ function AngleCard({ angle }: { angle: Angle }) {
 
 // مكون بطاقة المقال المختار
 function FeaturedArticleCard({ article }: { article: FeaturedArticle }) {
+  const themeColor = article.angle?.themeColor || "#3B82F6"; // Added optional chaining
   return (
     <Card className="group rounded-xl overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
       <div className="relative h-40 md:h-48 w-full overflow-hidden">
@@ -695,10 +696,10 @@ function FeaturedArticleCard({ article }: { article: FeaturedArticle }) {
           <Badge
             className="text-xs border-0 text-white shadow-lg"
             style={{
-              backgroundColor: article.angle.themeColor || "#3B82F6",
+              backgroundColor: themeColor,
             }}
           >
-            {article.angle.title}
+            {article.angle?.title} {/* Added optional chaining */}
           </Badge>
         </div>
       </div>
@@ -727,12 +728,12 @@ function FeaturedArticleCard({ article }: { article: FeaturedArticle }) {
 
         <div className="flex items-center justify-between pt-2">
           <div className="text-xs text-gray-500">{article.author?.name}</div>
-          <Link href={`/muqtarab/${article.angle.slug}/${article.id}`}>
+          <Link href={`/muqtarab/articles/${article.slug}`}>
             <Button
               size="sm"
               className="text-xs px-3 py-1 h-7"
               style={{
-                backgroundColor: article.angle.themeColor || "#3B82F6",
+                backgroundColor: themeColor,
               }}
             >
               قراءة

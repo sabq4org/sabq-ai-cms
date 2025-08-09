@@ -1,7 +1,17 @@
+import { transformArticleData } from "@/lib/utils/transform-article-data";
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
+
+const transformArticle = (article: any) => {
+  if (!article) return null;
+  const { corner, ...rest } = article;
+  return {
+    ...rest,
+    angle: corner,
+  };
+};
 
 export async function GET(req: NextRequest) {
   try {
@@ -49,15 +59,6 @@ export async function GET(req: NextRequest) {
             ? `${(totalViews / 1000).toFixed(1)}k`
             : totalViews.toString(),
       },
-    };
-
-    const transformArticle = (article: any) => {
-      if (!article) return null;
-      const { corner, ...rest } = article;
-      return {
-        ...rest,
-        angle: corner,
-      };
     };
 
     return NextResponse.json({
