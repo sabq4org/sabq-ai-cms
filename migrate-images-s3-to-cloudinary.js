@@ -126,7 +126,7 @@ class ImageMigrationTool {
       form.append('folder', folder);
       form.append('quality', 'auto');
       form.append('format', 'auto');
-      form.append('upload_preset', 'sabq_preset');
+      // إزالة upload_preset واستخدام signed upload
 
       // رفع إلى Cloudinary
       const response = await fetch(

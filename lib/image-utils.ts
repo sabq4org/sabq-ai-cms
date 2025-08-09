@@ -210,31 +210,28 @@ export function getImageUrl(
   }
 }
 
-// رفع صورة إلى Cloudinary
+// رفع صورة إلى Cloudinary (client-side)
 export async function uploadToCloudinary(file: File): Promise<string> {
   const formData = new FormData();
   formData.append("file", file);
-  formData.append(
-    "upload_preset",
-    process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "sabq_preset"
-  );
-  formData.append("cloud_name", CLOUDINARY_CLOUD_NAME);
 
   try {
-    const response = await fetch(
-      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
+    const response = await fetch("/api/upload/cloudinary", {
+      method: "POST",
+      body: formData,
+    });
 
     if (!response.ok) {
-      throw new Error("فشل رفع الصورة");
+      const errorData = await response.json();
+      throw new Error(errorData.error || "فشل رفع الصورة");
     }
 
     const data = await response.json();
-    return data.secure_url;
+    if (!data.success) {
+      throw new Error(data.error || "فشل رفع الصورة");
+    }
+    
+    return data.url;
   } catch (error) {
     console.error("Error uploading to Cloudinary:", error);
     throw error;

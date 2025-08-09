@@ -27,9 +27,11 @@ export async function POST(request: NextRequest) {
     const uploadResult: any = await new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
-          upload_preset:
-            process.env.CLOUDINARY_UPLOAD_PRESET || "sabq_cms_preset",
           folder: "sabq-cms/general",
+          resource_type: "auto",
+          public_id: `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`,
+          overwrite: false,
+          tags: ["sabq-cms", "upload"]
         },
         (error, result) => {
           if (error) return reject(error);
