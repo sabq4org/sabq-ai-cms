@@ -1,12 +1,8 @@
-import { NextResponse } from "next/server";
+"use client";
+
 import Link from "next/link";
 
-export const revalidate = 0;
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
-
-export default async function NewsIndexPage() {
-  // صفحة بسيطة تعرض قائمة مختصرة وروابط أساسية، وتعتمد على عميل الإدارة لجلب كامل المحتوى
+export default function NewsIndexPage() {
   return (
     <main className="container mx-auto px-4 py-12">
       <h1 className="text-2xl font-bold mb-4">الأخبار</h1>
