@@ -16,7 +16,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Angle, AngleArticle } from "@/types/muqtarab";
-import { ArrowLeft,
+import {
+  ArrowLeft,
   BarChart3,
   BookOpen,
   Calendar,
@@ -79,7 +80,10 @@ const AngleImageUploader = ({
           onImageUpload(data.imageUrl);
           toast.success("تم رفع الصورة بنجاح");
           if (data.fallback) {
-            toast("✅ تم حفظ الصورة محلياً - تعمل بشكل طبيعي", { icon: "💾", duration: 4000 });
+            toast("✅ تم حفظ الصورة محلياً - تعمل بشكل طبيعي", {
+              icon: "💾",
+              duration: 4000,
+            });
           }
         } else {
           toast.error(data.error || "فشل في رفع الصورة");
@@ -371,9 +375,7 @@ const ArticlesList = ({
                     </Button>
                   </Link>
 
-                  <Link
-                    href={`/admin/muqtarab/articles/${article.slug}/edit`}
-                  >
+                  <Link href={`/admin/muqtarab/articles/${article.slug}/edit`}>
                     <Button size="sm" variant="outline">
                       <Edit className="w-4 h-4" />
                     </Button>
@@ -471,7 +473,7 @@ export default function AngleDashboardPage() {
   // جلب بيانات الزاوية والمقالات
   useEffect(() => {
     if (!angleId) return;
-    
+
     let isMounted = true;
 
     const fetchData = async () => {
@@ -631,7 +633,7 @@ export default function AngleDashboardPage() {
   // جلب بيانات الزاوية والمقالات
   useEffect(() => {
     if (!angleId) return;
-    
+
     let isMounted = true;
 
     const fetchData = async () => {
@@ -739,7 +741,10 @@ export default function AngleDashboardPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600">معرف الزاوية غير صحيح</p>
-          <Button onClick={() => router.push("/admin/muqtarab")} className="mt-4">
+          <Button
+            onClick={() => router.push("/admin/muqtarab")}
+            className="mt-4"
+          >
             العودة لمُقترب
           </Button>
         </div>
@@ -963,9 +968,9 @@ export default function AngleDashboardPage() {
                 </Link>
               </div>
 
-              <ArticlesList 
-                articles={articles} 
-                loading={articlesLoading} 
+              <ArticlesList
+                articles={articles}
+                loading={articlesLoading}
                 onDeleteArticle={handleDeleteArticleClick}
               />
             </div>

@@ -25,6 +25,7 @@ import {
   User,
   X,
 } from "lucide-react";
+import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
@@ -376,7 +377,10 @@ const ImageUploader = ({
           onImageUpload(data.imageUrl);
           toast.success("تم رفع الصورة بنجاح");
           if (data.fallback) {
-            toast("✅ تم حفظ الصورة محلياً - تعمل بشكل طبيعي", { icon: "💾", duration: 4000 });
+            toast("✅ تم حفظ الصورة محلياً - تعمل بشكل طبيعي", {
+              icon: "💾",
+              duration: 4000,
+            });
           }
         } else {
           toast.error(data.error || "فشل في رفع الصورة");
@@ -406,9 +410,11 @@ const ImageUploader = ({
     <div className="space-y-3">
       {currentImage && (
         <div className="relative">
-          <img
+          <Image
             src={currentImage}
             alt="صورة الغلاف"
+            width={400}
+            height={200}
             className="w-full h-48 object-cover rounded-lg"
           />
           <Button
@@ -480,8 +486,8 @@ const ImageUploader = ({
 export default function EditAngleArticlePage() {
   const router = useRouter();
   const params = useParams();
-  const angleId = params.angleId as string;
-  const articleId = params.articleId as string;
+  const angleId = params?.angleId as string;
+  const articleSlug = params?.slug as string;
 
   // حالات البيانات
   const [angle, setAngle] = useState<Angle | null>(null);
@@ -503,7 +509,7 @@ export default function EditAngleArticlePage() {
     sentiment: "neutral",
     coverImage: "",
     isPublished: false,
-    publishDate: null,
+    publishDate: undefined,
   });
 
   const [newTag, setNewTag] = useState("");
@@ -559,9 +565,9 @@ export default function EditAngleArticlePage() {
         }
 
         // جلب بيانات المقال
-        console.log("🔍 جاري جلب بيانات المقال:", articleId);
+        console.log("🔍 جاري جلب بيانات المقال:", articleSlug);
         const articleResponse = await fetch(
-          `/api/muqtarab/angles/${angleId}/articles/${articleId}`
+          `/api/muqtarab/articles/${articleSlug}`
         );
 
         if (articleResponse.ok) {
@@ -610,7 +616,7 @@ export default function EditAngleArticlePage() {
     };
 
     fetchData();
-  }, [angleId, articleId, router]);
+  }, [angleId, articleSlug, router]);
 
   // حساب وقت القراءة تلقائياً
   useEffect(() => {
@@ -697,7 +703,10 @@ export default function EditAngleArticlePage() {
           setFormData((prev) => ({ ...prev, coverImage: data.imageUrl }));
           toast.success("تم رفع الصورة بنجاح");
           if (data.fallback) {
-            toast("✅ تم حفظ الصورة محلياً - تعمل بشكل طبيعي", { icon: "💾", duration: 4000 });
+            toast("✅ تم حفظ الصورة محلياً - تعمل بشكل طبيعي", {
+              icon: "💾",
+              duration: 4000,
+            });
           }
         } else {
           toast.error(data.error || "فشل في رفع الصورة");
@@ -714,10 +723,10 @@ export default function EditAngleArticlePage() {
 
   // إضافة كلمة مفتاحية
   const handleAddTag = () => {
-    if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
+    if (newTag.trim() && !(formData.tags || []).includes(newTag.trim())) {
       setFormData((prev) => ({
         ...prev,
-        tags: [...prev.tags, newTag.trim()],
+        tags: [...(prev.tags || []), newTag.trim()],
       }));
       setNewTag("");
     }
@@ -727,7 +736,7 @@ export default function EditAngleArticlePage() {
   const handleRemoveTag = (tagToRemove: string) => {
     setFormData((prev) => ({
       ...prev,
-      tags: prev.tags.filter((tag) => tag !== tagToRemove),
+      tags: (prev.tags || []).filter((tag) => tag !== tagToRemove),
     }));
   };
 
@@ -754,16 +763,13 @@ export default function EditAngleArticlePage() {
 
       console.log("📤 إرسال تعديلات المقال:", payload);
 
-      const response = await fetch(
-        `/api/muqtarab/angles/${angleId}/articles/${articleId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      const response = await fetch(`/api/muqtarab/articles/${articleSlug}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
       console.log("📡 استجابة تحديث المقال:", response.status);
 
@@ -994,7 +1000,7 @@ export default function EditAngleArticlePage() {
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                  {formData.tags.map((tag, index) => (
+                  {(formData.tags || []).map((tag, index) => (
                     <Badge
                       key={index}
                       variant="secondary"
@@ -1074,7 +1080,8 @@ export default function EditAngleArticlePage() {
                     {formData.content.split(" ").filter((w) => w.trim()).length}
                   </div>
                   <div>
-                    <strong>الكلمات المفتاحية:</strong> {formData.tags.length}
+                    <strong>الكلمات المفتاحية:</strong>{" "}
+                    {(formData.tags || []).length}
                   </div>
                   <div>
                     <strong>الحالة:</strong>{" "}

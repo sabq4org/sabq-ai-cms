@@ -1,4 +1,3 @@
-import { transformArticleData } from "@/lib/utils/transform-article-data";
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -6,10 +5,59 @@ export const runtime = "nodejs";
 
 const transformArticle = (article: any) => {
   if (!article) return null;
-  const { corner, ...rest } = article;
+  const { corner, creator, ...rest } = article;
   return {
-    ...rest,
-    angle: corner,
+    id: rest.id,
+    title: rest.title,
+    slug: rest.slug,
+    excerpt: rest.excerpt,
+    content: rest.content,
+    coverImage: rest.cover_image,
+    readingTime: rest.read_time || 5,
+    publishDate: rest.publish_at,
+    views: rest.view_count || 0,
+    tags: rest.tags || [],
+    aiScore: rest.ai_compatibility_score || 70,
+    isPublished: rest.status === "published",
+    createdAt: rest.created_at,
+    angle: corner
+      ? {
+          id: corner.id,
+          title: corner.name,
+          slug: corner.slug,
+          themeColor: corner.theme_color || "#3B82F6",
+        }
+      : null,
+    author: creator
+      ? {
+          id: creator.id,
+          name: creator.name,
+          avatar: creator.avatar,
+        }
+      : {
+          name: rest.author_name || "مؤلف",
+          avatar: rest.author_avatar,
+        },
+  };
+};
+
+const transformCorner = (corner: any) => {
+  if (!corner) return null;
+  return {
+    id: corner.id,
+    title: corner.name,
+    slug: corner.slug,
+    description: corner.description,
+    coverImage: corner.cover_image,
+    themeColor: corner.theme_color || "#3B82F6",
+    isFeatured: corner.is_featured || false,
+    isPublished: corner.is_active || false,
+    articlesCount: corner._count?.articles || 0,
+    createdAt: corner.created_at,
+    author: {
+      name: corner.author_name || "مؤلف",
+      bio: corner.author_bio,
+    },
   };
 };
 
@@ -63,7 +111,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      angles: corners.map((c) => ({ ...c, articlesCount: c._count.articles })),
+      angles: corners.map(transformCorner),
       heroArticle: transformArticle(heroArticle),
       featuredArticles: featuredArticles.map(transformArticle),
       stats: stats,
