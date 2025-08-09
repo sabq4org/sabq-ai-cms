@@ -749,5 +749,77 @@ function SmartArticleHeader({ article }: { article: Article }) {
   );
 }
 
+// مكون بيانات الكاتب المحسن
+function SmartAuthorSection({ article }: { article: Article }) {
+  const themeColor = article.angle?.themeColor || "#3B82F6";
+  const authorName = article.author?.name || article.creator?.name || "";
+  const authorImage = article.author?.image || article.creator?.image || "";
+
+  return (
+    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 md:gap-4 p-4 md:p-6 bg-white rounded-lg md:rounded-xl border">
+      <div className="flex items-center gap-3 md:gap-4">
+        {authorImage ? (
+          <Image
+            src={authorImage}
+            alt={authorName}
+            width={48}
+            height={48}
+            className="rounded-full md:w-12 md:h-12"
+          />
+        ) : (
+          <div
+            className="w-12 h-12 md:w-12 md:h-12 rounded-full flex items-center justify-center"
+            style={{ backgroundColor: themeColor + "20" }}
+          >
+            <span className="text-sm" style={{ color: themeColor }}>
+              👤
+            </span>
+          </div>
+        )}
+
+        <div>
+          <p className="font-semibold text-gray-900 text-sm md:text-base">
+            {authorName}
+          </p>
+          <p className="text-xs md:text-sm text-gray-500">
+            {article.angle?.title ? `كاتب في ${article.angle.title}` : "كاتب"}
+          </p>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3 md:gap-6 text-xs md:text-sm text-gray-500 w-full sm:w-auto">
+        <div className="flex items-center gap-1">
+          <span>🗓️</span>
+          <span className="hidden sm:inline">
+            {new Date(
+              article.publishDate || article.createdAt
+            ).toLocaleDateString("ar-SA")}
+          </span>
+          <span className="sm:hidden">
+            {new Date(
+              article.publishDate || article.createdAt
+            ).toLocaleDateString("ar-SA", { month: "short", day: "numeric" })}
+          </span>
+        </div>
+        <div className="flex items-center gap-1">
+          <span>⏱️</span>
+          <span>{article.readingTime || 5} د</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <span>👁️</span>
+          <span className="hidden md:inline">
+            {(article.views || 0).toLocaleString()} مشاهدة
+          </span>
+          <span className="md:hidden">
+            {(article.views || 0) > 1000
+              ? ((article.views || 0) / 1000).toFixed(1) + "k"
+              : (article.views || 0).toString()}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // سأكمل باقي المكونات...
 // [تم الوصول لحد الطول، سأكمل في الرسالة التالية]
