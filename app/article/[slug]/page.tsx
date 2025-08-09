@@ -12,26 +12,19 @@ export default async function OpinionArticlePage({
   params: { slug: string };
 }) {
   try {
+    const decodedSlug = decodeURIComponent(params.slug);
     const item = await prisma.articles.findFirst({
-      where: { slug: params.slug },
-      select: { id: true, article_type: true, content_type: true },
+      where: { slug: decodedSlug },
+      select: { id: true, content_type: true, article_type: true }, // Select article_type for fallback
     });
     if (!item) return notFound();
-    const contentType = (item as any).content_type;
-    const articleType = (item as any).article_type;
-    const isOpinionLegacy = [
-      "opinion",
-      "analysis",
-      "interview",
-      "editorial",
-      "commentary",
-    ].includes((articleType || "").toLowerCase());
-    const isOpinion = contentType === "OPINION" || isOpinionLegacy;
-    if (!isOpinion) {
-      return redirect(`/news/${params.slug}`);
+    const effectiveContentType = item.content_type || (item.article_type === "news" ? "NEWS" : "OPINION");
+
+    if (effectiveContentType !== "OPINION") {
+      return redirect(`/news/${decodedSlug}`);
     }
     return <ArticleClientComponent articleId={item.id} initialArticle={null} />;
-  } catch (e) {
+  } catch (error) {
     return notFound();
   }
 }
