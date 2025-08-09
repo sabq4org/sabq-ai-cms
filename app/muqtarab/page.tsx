@@ -727,7 +727,7 @@ function FeaturedArticleCard({ article }: { article: FeaturedArticle }) {
 
         <div className="flex items-center justify-between pt-2">
           <div className="text-xs text-gray-500">{article.author.name}</div>
-          <Link href={`/muqtarab/${article.angle.slug}/${article.id}`}>
+          <Link href={`/muqtarab/${article.slug}`}>
             <Button
               size="sm"
               className="text-xs px-3 py-1 h-7"

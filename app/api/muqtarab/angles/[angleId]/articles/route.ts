@@ -2,8 +2,21 @@ import { cache as redisCache } from "@/lib/redis-improved";
 import { MuqtaribArticleForm } from "@/types/muqtarab";
 import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
+import { nanoid } from 'nanoid';
 
 const prisma = new PrismaClient();
+
+// Helper to generate a unique short slug for Muqtarab articles
+async function generateUniqueMuqtarabSlug(): Promise<string> {
+  let slug = nanoid(8);
+  while (true) {
+    const exists = await prisma.muqtarabArticle.findUnique({ where: { slug } });
+    if (!exists) {
+      return slug;
+    }
+    slug = nanoid(8);
+  }
+}
 
 // إنشاء مقال جديد في الزاوية
 export async function POST(
@@ -34,33 +47,27 @@ export async function POST(
       );
     }
 
-    // إنشاء المقال
-    const result = (await prisma.$queryRawUnsafe(
-      `
-      INSERT INTO angle_articles (
-        angle_id, title, content, excerpt, author_id,
-        sentiment, tags, cover_image, is_published,
-        publish_date, reading_time
-      ) VALUES (
-        $1::uuid, $2, $3, $4, $5,
-        $6, $7, $8, $9,
-        $10, $11
-      ) RETURNING *
-    `,
-      angleId,
-      body.title,
-      body.content,
-      body.excerpt || null,
-      body.authorId,
-      body.sentiment || "neutral",
-      body.tags || [],
-      body.coverImage || null,
-      body.isPublished,
-      body.publishDate ? new Date(body.publishDate) : null,
-      body.readingTime || 0
-    )) as any[];
+    // Generate a unique short slug
+    const slug = await generateUniqueMuqtarabSlug();
 
-    const article = result[0];
+    // إنشاء المقال using Prisma's ORM capabilities for better type safety and maintainability
+    const newArticle = await prisma.muqtarabArticle.create({
+      data: {
+        corner_id: angleId,
+        title: body.title,
+        slug: slug, // Use the new short slug
+        content: body.content,
+        excerpt: body.excerpt || null,
+        created_by: body.authorId,
+        tags: body.tags || [],
+        cover_image: body.coverImage || null,
+        status: body.isPublished ? 'published' : 'draft',
+        publish_at: body.isPublished ? (body.publishDate ? new Date(body.publishDate) : new Date()) : null,
+        read_time: body.readingTime || 0,
+        // AI fields can be added here if available in the form
+        ai_sentiment: body.sentiment || 'neutral',
+      }
+    });
 
     const json = {
       success: true,
@@ -68,21 +75,22 @@ export async function POST(
         ? "تم نشر المقال بنجاح"
         : "تم حفظ المقال كمسودة",
       article: {
-        id: article.id,
-        angleId: article.angle_id,
-        title: article.title,
-        content: article.content,
-        excerpt: article.excerpt,
-        authorId: article.author_id,
-        sentiment: article.sentiment,
-        tags: Array.isArray(article.tags) ? article.tags : [],
-        coverImage: article.cover_image,
-        isPublished: article.is_published,
-        publishDate: article.publish_date,
-        readingTime: article.reading_time,
-        views: article.views,
-        createdAt: article.created_at,
-        updatedAt: article.updated_at,
+        id: newArticle.id,
+        angleId: newArticle.corner_id,
+        title: newArticle.title,
+        slug: newArticle.slug, // Return the new slug
+        content: newArticle.content,
+        excerpt: newArticle.excerpt,
+        authorId: newArticle.created_by,
+        sentiment: newArticle.ai_sentiment,
+        tags: newArticle.tags,
+        coverImage: newArticle.cover_image,
+        isPublished: newArticle.status === 'published',
+        publishDate: newArticle.publish_at,
+        readingTime: newArticle.read_time,
+        views: newArticle.view_count,
+        createdAt: newArticle.created_at,
+        updatedAt: newArticle.updated_at,
       },
     };
 
