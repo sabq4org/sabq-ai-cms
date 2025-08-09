@@ -53,12 +53,12 @@ export async function POST(
     // إنشاء المقال using Prisma's ORM capabilities for better type safety and maintainability
     const newArticle = await prisma.muqtarabArticle.create({
       data: {
-        corner_id: angleId,
+        corner: { connect: { id: angleId } },
         title: body.title,
         slug: slug, // Use the new short slug
         content: body.content,
         excerpt: body.excerpt || null,
-        created_by: body.authorId,
+        creator: { connect: { id: body.authorId } },
         tags: body.tags || [],
         cover_image: body.coverImage || null,
         status: body.isPublished ? 'published' : 'draft',

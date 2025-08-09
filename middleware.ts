@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 const reporterNameMappings: { [key: string]: string } = {
   "علي-الحازمي": "ali-alhazmi-389657",
   "علي الحازمي": "ali-alhazmi-389657",
-  "علي_الحازمي": "ali-alhazmi-389657",
+  علي_الحازمي: "ali-alhazmi-389657",
 };
 
 async function getContentTypeBySlug(
@@ -80,7 +80,9 @@ export async function middleware(req: NextRequest) {
   }
 
   // دعم الروابط المؤرخة: /news/yyyy/mm/dd/slug → /news/slug
-  const datedNewsMatch = pathname.match(/^\/news\/(\d{4})\/(\d{2})\/(\d{2})\/([^\/]+)\/?$/);
+  const datedNewsMatch = pathname.match(
+    /^\/news\/(\d{4})\/(\d{2})\/(\d{2})\/([^\/]+)\/?$/
+  );
   if (datedNewsMatch) {
     const slug = datedNewsMatch[4];
     const url = nextUrl.clone();
@@ -92,9 +94,9 @@ export async function middleware(req: NextRequest) {
   const muqtarabMatch = pathname.match(/^\/muqtarab\/[^\/]+\/([a-zA-Z0-9-]+)$/);
   if (muqtarabMatch) {
     const articleId = muqtarabMatch[1];
-    const lookupUrl = new URL('/api/lookup/muqtarab-slug', req.url);
-    lookupUrl.searchParams.set('id', articleId);
-    
+    const lookupUrl = new URL("/api/lookup/muqtarab-slug", req.url);
+    lookupUrl.searchParams.set("id", articleId);
+
     try {
       const res = await fetch(lookupUrl);
       if (res.ok) {
@@ -106,7 +108,7 @@ export async function middleware(req: NextRequest) {
         }
       }
     } catch (error) {
-      console.error('Muqtarab redirect failed:', error);
+      console.error("Muqtarab redirect failed:", error);
     }
   }
 
@@ -151,7 +153,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|public/).*)",
-  ],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|public/).*)"],
 };
