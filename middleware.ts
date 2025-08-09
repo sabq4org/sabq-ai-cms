@@ -1,3 +1,56 @@
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import prisma from "@/lib/prisma";
+
+async function getContentTypeBySlug(slug: string): Promise<"NEWS"|"OPINION"|null> {
+  try {
+    const art = await prisma.articles.findFirst({
+      where: { slug },
+      select: { article_type: true },
+    });
+    if (!art) return null;
+    // موائمة: article_type="news" أو "opinion"
+    if ((art as any).article_type === "news") return "NEWS";
+    return "OPINION";
+  } catch {
+    return null;
+  }
+}
+
+export async function middleware(req: NextRequest) {
+  const url = new URL(req.url);
+  const path = url.pathname;
+
+  const articleMatch = path.match(/^\/article\/([^\/]+)\/?$/);
+  if (articleMatch) {
+    const slug = articleMatch[1];
+    const type = await getContentTypeBySlug(slug);
+    if (type === "NEWS") {
+      url.pathname = `/news/${slug}`;
+      return NextResponse.redirect(url, 301);
+    }
+  }
+
+  const newsMatch = path.match(/^\/news\/([^\/]+)\/?$/);
+  if (newsMatch) {
+    const slug = newsMatch[1];
+    const type = await getContentTypeBySlug(slug);
+    if (type === "OPINION") {
+      url.pathname = `/article/${slug}`;
+      return NextResponse.redirect(url, 301);
+    }
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: [
+    "/article/:path*",
+    "/news/:path*",
+  ],
+};
+
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
