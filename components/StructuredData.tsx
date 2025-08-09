@@ -6,7 +6,7 @@ const websiteSchema = {
   "@type": "NewsMediaOrganization",
   name: "سبق الذكية",
   alternateName: "Sabq AI",
-  url: "https://sabq.me",
+  url: (process.env.NEXT_PUBLIC_SITE_URL || "https://sabq.io").replace(/\/$/, ""),
   logo: {
     "@type": "ImageObject",
     url: "https://sabq.me/logo.png",
@@ -47,7 +47,7 @@ const websiteGeneralSchema = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: "سبق الذكية",
-  url: "https://sabq.me",
+  url: (process.env.NEXT_PUBLIC_SITE_URL || "https://sabq.io").replace(/\/$/, ""),
   description:
     "منصة إعلامية مدعومة بالذكاء الاصطناعي تقدم تحليلات ومقالات وأخبار دقيقة وعميقة",
   inLanguage: "ar",
@@ -72,7 +72,7 @@ const localBusinessSchema = {
   "@type": "Organization",
   name: "سبق الذكية",
   url: "https://sabq.me",
-  logo: "https://sabq.me/logo.png",
+  logo: `${(process.env.NEXT_PUBLIC_SITE_URL || "https://sabq.io").replace(/\/$/, "")}/logo.png`,
   description: "منصة إعلامية مدعومة بالذكاء الاصطناعي",
   address: {
     "@type": "PostalAddress",
@@ -121,7 +121,7 @@ export default function StructuredData({
       },
       mainEntityOfPage: {
         "@type": "WebPage",
-        "@id": `https://sabq.me/article/${pageData.id}`,
+        "@id": `${(process.env.NEXT_PUBLIC_SITE_URL || "https://sabq.io").replace(/\/$/, "")}/article/${pageData.id}`,
       },
       articleSection: pageData.category_name || "أخبار",
       keywords: pageData.tags?.join(", ") || "أخبار, سبق الذكية",

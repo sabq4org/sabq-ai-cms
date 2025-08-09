@@ -386,6 +386,14 @@ export async function PATCH(
       );
     }
 
+    // ضبط content_type عند التحديث بما يتوافق مع article_type
+    if (data.article_type !== undefined) {
+      const type = (data.article_type || "").toString().toLowerCase();
+      updateData.content_type = ["opinion", "analysis", "interview"].includes(type)
+        ? ("OPINION" as any)
+        : ("NEWS" as any);
+    }
+
     // معالجة excerpt/summary
     if (data.excerpt !== undefined || data.summary !== undefined) {
       updateData.excerpt = data.excerpt || data.summary;

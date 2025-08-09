@@ -58,7 +58,7 @@ async function getCategories() {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://sabq.me";
+  const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://sabq.io").replace(/\/$/, "");
 
   // الصفحات الثابتة
   const staticPages: MetadataRoute.Sitemap = [

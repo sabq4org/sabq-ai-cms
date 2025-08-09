@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { ensureUniqueSlug, resolveContentType, slugify } from "@/lib/slug";
 import { NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
@@ -318,19 +319,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // توليد slug من العنوان
-    const generateSlug = (title: string): string => {
-      return (
-        title
-          .trim()
-          .toLowerCase()
-          .replace(/[^\w\s\u0600-\u06FF-]/g, "") // إزالة الأحرف الخاصة مع الحفاظ على العربية
-          .replace(/\s+/g, "-") // استبدال المسافات بـ -
-          .replace(/-+/g, "-") // إزالة - المتكررة
-          .replace(/^-+|-+$/g, "") || // إزالة - من البداية والنهاية
-        `article-${Date.now()}`
-      ); // fallback إذا كان العنوان فارغ
-    };
+    // توليد slug من العنوان وضمان uniqueness
+    const baseSlug = slugify(data.slug || data.title || "");
+    const uniqueSlug = await ensureUniqueSlug(prisma as any, baseSlug);
 
     // معالجة الحقل المميز بأسمائه المختلفة
     const isFeatured =
@@ -342,7 +333,7 @@ export async function POST(request: NextRequest) {
     let articleData = {
       id: data.id || generateId(),
       title: data.title,
-      slug: data.slug || generateSlug(data.title),
+      slug: uniqueSlug,
       content: data.content,
       excerpt: data.excerpt || data.summary || null,
       category_id: categoryId, // استخدام المتغير الموحد
@@ -357,8 +348,9 @@ export async function POST(request: NextRequest) {
       updated_at: new Date(),
       published_at: data.status === "published" ? new Date() : null,
       metadata: data.metadata || {},
-      // 🔧 إصلاح مهم: تعيين article_type صحيح
-      article_type: data.article_type || "news", // الافتراضي "news" بدلاً من "opinion"
+      // تعيين article_type والتوافق مع content_type
+      article_type: data.article_type || "news",
+      content_type: resolveContentType(data.article_type) as any,
     };
 
     console.log("📝 بيانات المقال المنقاة:", articleData);

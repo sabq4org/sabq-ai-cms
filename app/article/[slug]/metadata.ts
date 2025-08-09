@@ -1,16 +1,27 @@
 import prisma from "@/lib/prisma";
-import { Metadata } from "next";
 import { getSiteUrl } from "@/lib/url-builder";
+import { Metadata } from "next";
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
   const { slug } = await params;
   const item = await prisma.articles.findFirst({
     where: { slug },
-    select: { title: true, seo_description: true, featured_image: true, content_type: true },
+    select: {
+      title: true,
+      seo_description: true,
+      featured_image: true,
+      content_type: true,
+    },
   });
   if (!item) return {};
   const base = getSiteUrl();
-  const url = `${base}${item.content_type === "NEWS" ? "/news" : "/article"}/${slug}`;
+  const url = `${base}${
+    item.content_type === "NEWS" ? "/news" : "/article"
+  }/${slug}`;
   return {
     title: item.title,
     description: item.seo_description || undefined,
@@ -19,5 +30,3 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     twitter: { card: "summary_large_image" },
   };
 }
-
-
