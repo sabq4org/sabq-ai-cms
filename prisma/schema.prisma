@@ -1761,6 +1761,7 @@ model angle_articles {
   id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   angle_id          String?   @db.Uuid
   title             String
+  slug              String    @unique
   content           String
   excerpt           String?
   author_id         String?

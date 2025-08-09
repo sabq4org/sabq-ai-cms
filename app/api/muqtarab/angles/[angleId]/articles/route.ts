@@ -47,8 +47,7 @@ export async function POST(
       );
     }
 
-    // Generate a unique short slug
-    const slug = await generateUniqueMuqtarabSlug();
+    const slug = nanoid(8); // Generate a short random slug
 
     // إنشاء المقال using Prisma's ORM capabilities for better type safety and maintainability
     const newArticle = await prisma.muqtarabArticle.create({
