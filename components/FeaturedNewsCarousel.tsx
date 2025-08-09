@@ -92,8 +92,9 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
     }
   };
 
+  // استخدام الروابط القصيرة المعتمدة (NEWS → /news/[slug]) مع fallback للـ id
   const getArticleLink = (article: FeaturedArticle) => {
-    return `/article/${article.id}`;
+    return article.slug ? `/news/${article.slug}` : `/news/${article.id}`;
   };
 
   const handlePrevious = () => {
