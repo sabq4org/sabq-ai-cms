@@ -337,19 +337,19 @@ export default function MuqtarabArticlePage() {
 
 // مكون تحليل الذكاء الاصطناعي المتطور مع الألوان الديناميكية
 function AIAnalysisSection({ article, corner }: { article: any; corner: any }) {
-  
   // حساب درجة تحليل الذكاء الاصطناعي
   const calculateAIScore = (content: string, title: string): number => {
     if (!content || !title) return 60;
-    
+
     const factors = {
       length: Math.min(content.length / 50, 20),
       complexity: (content.match(/[،؛:.!?]/g) || []).length * 0.5,
       titleRelevance: title.length > 10 ? 15 : 10,
       structure: (content.match(/\n\n/g) || []).length * 2,
-      keywordsAI: (content.match(/ذكاء|تقنية|AI|تحليل|ابتكار/g) || []).length * 3,
+      keywordsAI:
+        (content.match(/ذكاء|تقنية|AI|تحليل|ابتكار/g) || []).length * 3,
     };
-    
+
     const total = Object.values(factors).reduce((sum, val) => sum + val, 0);
     return Math.min(Math.round(total), 95);
   };
@@ -487,19 +487,45 @@ function AIAnalysisSection({ article, corner }: { article: any; corner: any }) {
         {/* التفاصيل التحليلية */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div className="text-center p-3 bg-white/60 rounded-lg">
-            <Target className="w-5 h-5 mx-auto mb-1" style={{ color: scoreDesc.color }} />
+            <Target
+              className="w-5 h-5 mx-auto mb-1"
+              style={{ color: scoreDesc.color }}
+            />
             <div className="text-sm font-medium text-gray-700">دقة المحتوى</div>
-            <div className="text-lg font-bold" style={{ color: scoreDesc.color }}>{Math.round(aiScore * 0.9)}%</div>
+            <div
+              className="text-lg font-bold"
+              style={{ color: scoreDesc.color }}
+            >
+              {Math.round(aiScore * 0.9)}%
+            </div>
           </div>
           <div className="text-center p-3 bg-white/60 rounded-lg">
-            <Brain className="w-5 h-5 mx-auto mb-1" style={{ color: scoreDesc.color }} />
+            <Brain
+              className="w-5 h-5 mx-auto mb-1"
+              style={{ color: scoreDesc.color }}
+            />
             <div className="text-sm font-medium text-gray-700">عمق التحليل</div>
-            <div className="text-lg font-bold" style={{ color: scoreDesc.color }}>{Math.round(aiScore * 0.95)}%</div>
+            <div
+              className="text-lg font-bold"
+              style={{ color: scoreDesc.color }}
+            >
+              {Math.round(aiScore * 0.95)}%
+            </div>
           </div>
           <div className="text-center p-3 bg-white/60 rounded-lg">
-            <TrendingUp className="w-5 h-5 mx-auto mb-1" style={{ color: scoreDesc.color }} />
-            <div className="text-sm font-medium text-gray-700">القيمة المضافة</div>
-            <div className="text-lg font-bold" style={{ color: scoreDesc.color }}>{Math.round(aiScore * 1.05)}%</div>
+            <TrendingUp
+              className="w-5 h-5 mx-auto mb-1"
+              style={{ color: scoreDesc.color }}
+            />
+            <div className="text-sm font-medium text-gray-700">
+              القيمة المضافة
+            </div>
+            <div
+              className="text-lg font-bold"
+              style={{ color: scoreDesc.color }}
+            >
+              {Math.round(aiScore * 1.05)}%
+            </div>
           </div>
         </div>
 
@@ -514,8 +540,13 @@ function AIAnalysisSection({ article, corner }: { article: any; corner: any }) {
               }}
             />
           </div>
-          <div className="absolute -top-8 left-0 text-xs text-gray-500 transform transition-all duration-1000"
-               style={{ left: `${Math.max(5, Math.min(95, aiScore))}%`, transform: 'translateX(-50%)' }}>
+          <div
+            className="absolute -top-8 left-0 text-xs text-gray-500 transform transition-all duration-1000"
+            style={{
+              left: `${Math.max(5, Math.min(95, aiScore))}%`,
+              transform: "translateX(-50%)",
+            }}
+          >
             {aiScore}%
           </div>
         </div>
@@ -528,16 +559,10 @@ function AIAnalysisSection({ article, corner }: { article: any; corner: any }) {
           توصيات التحسين
         </h4>
         <ul className="text-sm text-gray-700 space-y-1">
-          {aiScore < 70 && (
-            <li>• إضافة المزيد من التفاصيل والأمثلة العملية</li>
-          )}
-          {aiScore < 85 && (
-            <li>• تحسين البنية والتنظيم العام للمحتوى</li>
-          )}
+          {aiScore < 70 && <li>• إضافة المزيد من التفاصيل والأمثلة العملية</li>}
+          {aiScore < 85 && <li>• تحسين البنية والتنظيم العام للمحتوى</li>}
           <li>• الاستفادة من البيانات والإحصائيات الحديثة</li>
-          {aiScore >= 85 && (
-            <li>• المحتوى يحقق معايير الجودة العالية! 🎉</li>
-          )}
+          {aiScore >= 85 && <li>• المحتوى يحقق معايير الجودة العالية! 🎉</li>}
         </ul>
       </div>
     </div>
