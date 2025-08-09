@@ -5,12 +5,22 @@ export const runtime = 'nodejs';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { cornerId: string } }
+  { params }: { params: { slug: string } }
 ) {
   try {
-    const { cornerId } = params;
+    const { slug } = params;
+
+    const corner = await prisma.muqtarabCorner.findUnique({
+      where: { slug },
+      select: { id: true },
+    });
+
+    if (!corner) {
+      return NextResponse.json({ success: false, error: 'Corner not found' }, { status: 404 });
+    }
+
     const articles = await prisma.muqtarabArticle.findMany({
-      where: { corner_id: cornerId },
+      where: { corner_id: corner.id },
       orderBy: { publish_at: 'desc' },
     });
 

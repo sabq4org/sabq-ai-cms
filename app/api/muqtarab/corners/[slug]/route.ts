@@ -1,7 +1,7 @@
-import prisma from '@/lib/prisma';
-import { NextRequest, NextResponse } from 'next/server';
+import prisma from "@/lib/prisma";
+import { NextRequest, NextResponse } from "next/server";
 
-export const runtime = 'nodejs';
+export const runtime = "nodejs";
 
 export async function GET(
   request: NextRequest,
@@ -14,11 +14,21 @@ export async function GET(
     });
 
     if (!corner) {
-      return NextResponse.json({ success: false, error: 'Corner not found' }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: "Corner not found" },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json({ success: true, corner });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: 'Failed to fetch corner', details: error.message }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Failed to fetch corner",
+        details: error.message,
+      },
+      { status: 500 }
+    );
   }
 }

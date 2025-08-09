@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Angle, AngleArticle } from '@/types/muqtarab';
+import { Angle, AngleArticle } from "@/types/muqtarab";
+import Image from "next/image";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function MuqtarabCornerPage() {
   const params = useParams();
@@ -21,17 +21,17 @@ export default function MuqtarabCornerPage() {
       try {
         setLoading(true);
         const cornerRes = await fetch(`/api/muqtarab/corners/${slug}`);
-        if (!cornerRes.ok) throw new Error('Corner not found');
+        if (!cornerRes.ok) throw new Error("Corner not found");
         const cornerData = await cornerRes.json();
         setCorner(cornerData.corner);
 
-        const articlesRes = await fetch(`/api/muqtarab/corners/${cornerData.corner.id}/articles`);
+        const articlesRes = await fetch(`/api/muqtarab/corners/${slug}/articles`);
         if (!articlesRes.ok) throw new Error('Could not fetch articles');
         const articlesData = await articlesRes.json();
         setArticles(articlesData.articles);
       } catch (error) {
-        console.error('Failed to fetch corner data:', error);
-        router.push('/muqtarab');
+        console.error("Failed to fetch corner data:", error);
+        router.push("/muqtarab");
       } finally {
         setLoading(false);
       }
@@ -50,16 +50,30 @@ export default function MuqtarabCornerPage() {
       </header>
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
         {articles.map((article) => (
-          <Link key={article.id} href={`/muqtarab/articles/${article.slug}`} className="block group">
+          <Link
+            key={article.id}
+            href={`/muqtarab/articles/${article.slug}`}
+            className="block group"
+          >
             <div className="rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
               {article.coverImage && (
                 <div className="relative h-48 w-full">
-                  <Image src={article.coverImage} alt={article.title} layout="fill" objectFit="cover" className="transition-transform duration-300 group-hover:scale-105" />
+                  <Image
+                    src={article.coverImage}
+                    alt={article.title}
+                    layout="fill"
+                    objectFit="cover"
+                    className="transition-transform duration-300 group-hover:scale-105"
+                  />
                 </div>
               )}
               <div className="p-6">
-                <h2 className="text-xl font-semibold mb-2 line-clamp-2">{article.title}</h2>
-                <p className="text-gray-700 text-sm line-clamp-3">{article.excerpt}</p>
+                <h2 className="text-xl font-semibold mb-2 line-clamp-2">
+                  {article.title}
+                </h2>
+                <p className="text-gray-700 text-sm line-clamp-3">
+                  {article.excerpt}
+                </p>
               </div>
             </div>
           </Link>
