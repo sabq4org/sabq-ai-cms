@@ -397,7 +397,8 @@ function MuqtaribPageContent() {
               })}
             </div>
           </div>
-        </div>{" "}
+        </div>
+
         {/* الزوايا المميزة */}
         {selectedFilter === "all" && (
           <div className="mb-8">
@@ -430,15 +431,16 @@ function MuqtaribPageContent() {
             </div>
           </div>
         )}
+
         {/* شبكة الزوايا - محسنة للموبايل */}
         <div className="mb-6 md:mb-8">
           <div className="flex items-center justify-between mb-4 md:mb-6">
-            <h2 className="text-lg md:text-3xl font-bold text-gray-900 dark:text-white">
+            <h2 className="text-lg md:text-3xl font-bold text-gray-900">
               {selectedFilter === "all"
                 ? "جميع الزوايا"
                 : filters.find((f) => f.id === selectedFilter)?.label}
             </h2>
-            <div className="text-xs md:text-sm text-gray-500 dark:text-gray-400">
+            <div className="text-xs md:text-sm text-gray-500">
               {filteredAngles.length} زاوية
             </div>
           </div>
@@ -448,10 +450,10 @@ function MuqtaribPageContent() {
               <div className="w-16 h-16 md:w-24 md:h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
                 <Search className="w-8 h-8 md:w-12 md:h-12 text-gray-400" />
               </div>
-              <h3 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white mb-2">
+              <h3 className="text-lg md:text-xl font-semibold text-gray-900 mb-2">
                 لا توجد زوايا
               </h3>
-              <p className="text-sm md:text-base text-gray-500 dark:text-gray-400">
+              <p className="text-sm md:text-base text-gray-500">
                 جرب تغيير معايير البحث أو الفلتر
               </p>
             </div>
@@ -508,9 +510,7 @@ function MobileHeroCard({ heroArticle }: { heroArticle: HeroArticle }) {
             <Calendar className="w-3 h-3" />
             <span>{heroArticle.readingTime} د</span>
           </div>
-          <Link
-            href={`/muqtarab/articles/${heroArticle.slug || heroArticle.id}`}
-          >
+          <Link href={`/muqtarab/articles/${heroArticle.slug || heroArticle.id}`}>
             <Button size="sm" className="text-xs px-3 py-1 h-7">
               قراءة
             </Button>
@@ -672,7 +672,6 @@ function AngleCard({ angle }: { angle: Angle }) {
 
 // مكون بطاقة المقال المختار
 function FeaturedArticleCard({ article }: { article: FeaturedArticle }) {
-  const themeColor = article.angle?.themeColor || "#3B82F6";
   return (
     <Card className="group rounded-xl overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
       <div className="relative h-40 md:h-48 w-full overflow-hidden">
@@ -696,7 +695,7 @@ function FeaturedArticleCard({ article }: { article: FeaturedArticle }) {
           <Badge
             className="text-xs border-0 text-white shadow-lg"
             style={{
-              backgroundColor: themeColor,
+              backgroundColor: article.angle?.themeColor || "#3B82F6",
             }}
           >
             {article.angle?.title}
@@ -728,12 +727,12 @@ function FeaturedArticleCard({ article }: { article: FeaturedArticle }) {
 
         <div className="flex items-center justify-between pt-2">
           <div className="text-xs text-gray-500">{article.author.name}</div>
-          <Link href={`/muqtarab/articles/${article.slug}`}>
+          <Link href={`/muqtarab/articles/${article.slug || article.id}`}>
             <Button
               size="sm"
               className="text-xs px-3 py-1 h-7"
               style={{
-                backgroundColor: themeColor,
+                backgroundColor: article.angle?.themeColor || "#3B82F6",
               }}
             >
               قراءة
