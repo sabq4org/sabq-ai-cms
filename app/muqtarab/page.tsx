@@ -19,10 +19,30 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
+import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+
+// Metadata للصفحة
+export const metadata: Metadata = {
+  title: "مُقترب - زوايا فكرية متخصصة | سبق الذكية",
+  description: "اكتشف زوايا فكرية متخصصة في مختلف المجالات من التقنية والثقافة إلى الفكر المعاصر والتحليل العميق.",
+  keywords: ["مقترب", "زوايا فكرية", "تحليل عميق", "مقالات متخصصة", "فكر معاصر"],
+  openGraph: {
+    title: "مُقترب - زوايا فكرية متخصصة",
+    description: "منصة رائدة تقدم محتوى فكري عميق ومتنوع في مختلف المجالات",
+    url: "https://sabq.io/muqtarab",
+    siteName: "سبق الذكية",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "مُقترب - زوايا فكرية متخصصة",
+    description: "اكتشف زوايا فكرية متخصصة في مختلف المجالات",
+  },
+};
 
 interface HeroArticle {
   id: string;
