@@ -625,7 +625,7 @@ export async function POST(request: NextRequest) {
       { status: statusCode }
     );
   } finally {
-    await prisma.$disconnect();
+    // لا نقوم بإغلاق اتصال Prisma في بيئة سيرفرلس/Nodejs المشتركة
   }
 }
 

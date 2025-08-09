@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
+export const runtime = 'nodejs';
 
 // معرفات افتراضية للاختبار
 const DEFAULT_ADMIN_ID = "user-1750236579398-3h4rt6gu7"; // علي عبده
@@ -122,9 +121,7 @@ export async function POST(request: NextRequest) {
       details: error.message || 'خطأ غير معروف',
       code: error.code
     }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
-  }
+  } finally {}
 }
 
 // تحديث مقال - مبسط
@@ -197,7 +194,5 @@ export async function PUT(request: NextRequest) {
       error: 'فشل في تحديث المقال',
       details: error.message || 'خطأ غير معروف'
     }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
-  }
+  } finally {}
 }

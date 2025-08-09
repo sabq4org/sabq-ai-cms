@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+export const runtime = 'nodejs';
 
 // تعطيل التخزين المؤقت بالكامل لضمان التحديث الفوري
 export const revalidate = 0;
