@@ -116,7 +116,8 @@ export async function GET(request: NextRequest) {
     if (sortBy === "latest" || sort === "published_at") {
       orderBy.published_at = order;
     } else if (sort === "views") {
-      orderBy.views_count = order;
+      // الحقل الصحيح في الجدول هو "views" وليس "views_count"
+      orderBy.views = order;
     } else {
       orderBy[sort] = order;
     }

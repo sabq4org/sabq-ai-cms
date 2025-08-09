@@ -8,15 +8,27 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ type: null }, { status: 400 });
   }
   try {
-    const art = await prisma.articles.findFirst({
-      where: { slug },
-      select: { article_type: true, content_type: true },
-    });
-    if (!art) return NextResponse.json({ type: null }, { status: 200 });
-    const type = (art as any).content_type
-      ? (art as any).content_type
-      : ((art as any).article_type === "news" ? "NEWS" : "OPINION");
-    return NextResponse.json({ type });
+    // محاولة أولى: قراءة content_type إن كان العمود موجوداً
+    try {
+      const art = await prisma.articles.findFirst({
+        where: { slug },
+        select: { content_type: true, article_type: true },
+      });
+      if (!art) return NextResponse.json({ type: null }, { status: 200 });
+      const t = (art as any).content_type
+        ? (art as any).content_type
+        : ((art as any).article_type === "news" ? "NEWS" : "OPINION");
+      return NextResponse.json({ type: t });
+    } catch {
+      // توافق خلفي قبل الهجرة: الاعتماد على article_type فقط
+      const art = await prisma.articles.findFirst({
+        where: { slug },
+        select: { article_type: true },
+      });
+      if (!art) return NextResponse.json({ type: null }, { status: 200 });
+      const t = (art as any).article_type === "news" ? "NEWS" : "OPINION";
+      return NextResponse.json({ type: t });
+    }
   } catch (e) {
     return NextResponse.json({ type: null }, { status: 200 });
   }
