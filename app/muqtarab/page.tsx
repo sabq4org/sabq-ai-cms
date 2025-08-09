@@ -548,7 +548,7 @@ function MobileFeaturedAngleCard({ angle }: { angle: Angle }) {
       <div className="text-xs text-gray-500 mb-2">
         {angle.articlesCount || 0} مقالة
       </div>
-      <Link href={`/muqtarab/${angle.slug}`}>
+      <Link href={`/muqtarab/corners/${angle.slug}`}>
         <Button size="sm" variant="outline" className="text-xs w-full">
           استكشاف
         </Button>
@@ -797,7 +797,7 @@ function FeaturedAngleCard({ angle }: { angle: Angle }) {
               </div>
             </div>
 
-            <Link href={`/muqtarab/${angle.slug}`}>
+            <Link href={`/muqtarab/corners/${angle.slug}`}>
               <Button className="w-full bg-blue-600 hover:bg-blue-700">
                 <Eye className="w-4 h-4 ml-2" />
                 استكشاف الزاوية
