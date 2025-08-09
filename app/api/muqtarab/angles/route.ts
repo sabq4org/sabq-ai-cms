@@ -1,7 +1,46 @@
 import prisma from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
+import { nanoid } from 'nanoid';
 
 export const runtime = 'nodejs';
+
+async function generateUniqueCornerSlug(base: string): Promise<string> {
+  let slug = base.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-');
+  while (true) {
+    const exists = await prisma.muqtarabCorner.findUnique({ where: { slug } });
+    if (!exists) return slug;
+    slug = `${base}-${nanoid(3)}`;
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    if (!body.title || !body.description) {
+      return NextResponse.json({ error: 'Title and description are required' }, { status: 400 });
+    }
+
+    const slug = await generateUniqueCornerSlug(body.slug || body.title);
+
+    const newCorner = await prisma.muqtarabCorner.create({
+      data: {
+        name: body.title,
+        slug: slug,
+        description: body.description,
+        author_name: 'فريق التحرير', // Placeholder
+        cover_image: body.coverImage || null,
+        theme_color: body.themeColor || '#3B82F6',
+        is_featured: body.isFeatured || false,
+        is_active: body.isPublished || false,
+        creator: body.authorId ? { connect: { id: body.authorId } } : undefined,
+      },
+    });
+
+    return NextResponse.json({ success: true, corner: newCorner });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: 'Failed to create corner', details: error.message }, { status: 500 });
+  }
+}
 
 export async function GET(request: NextRequest) {
   try {
