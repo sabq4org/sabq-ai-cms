@@ -295,19 +295,18 @@ export default function CreateAnglePage() {
     const loadingToast = toast.loading("جاري رفع الصورة...");
 
     try {
-      const formDataUpload = new FormData();
-      formDataUpload.append("file", file);
-      formDataUpload.append("type", "angle-cover");
+      setLoading(true);
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("type", "muqtarab-cover"); // Use a specific type for Muqtarab covers
 
-      // استخدام نقطة نهاية مخصصة لمقترب
-      const response = await fetch("/api/upload/muqtarab", {
+      const response = await fetch("/api/upload/cloudinary", {
         method: "POST",
-        body: formDataUpload,
+        body: formData,
       });
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
+      if (response.ok) {
+        const data = await response.json();
         toast.dismiss(loadingToast);
         setFormData((prev) => ({ ...prev, coverImage: data.url }));
         toast.success("تم رفع الصورة بنجاح");
@@ -322,6 +321,8 @@ export default function CreateAnglePage() {
       toast.dismiss(loadingToast);
       console.error("❌ استثناء في رفع الصورة:", error);
       toast.error(error?.message || "حدث خطأ غير متوقع في رفع الصورة");
+    } finally {
+      setLoading(false);
     }
   };
 
