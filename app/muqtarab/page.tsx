@@ -115,7 +115,7 @@ function MuqtaribPageContent() {
         console.log("🔍 جاري جلب بيانات مُقترب...");
 
         // استخدام endpoint محسّن واحد بدلاً من عدة calls
-          const optimizedResponse = await fetch("/api/muqtarab/optimized-page", {
+        const optimizedResponse = await fetch("/api/muqtarab/optimized-page", {
           // إزالة no-cache للسماح بـ browser caching
           headers: {
             Accept: "application/json",
@@ -148,13 +148,15 @@ function MuqtaribPageContent() {
             setStats(data.stats);
             // إزالة تكرار المقالات المميزة بحسب slug/id
             const seenFa = new Set<string>();
-            const uniqueFeatured = (data.featuredArticles || []).filter((art: any) => {
-              const key = (art.slug || art.id || "").toString().toLowerCase();
-              if (!key) return true;
-              if (seenFa.has(key)) return false;
-              seenFa.add(key);
-              return true;
-            });
+            const uniqueFeatured = (data.featuredArticles || []).filter(
+              (art: any) => {
+                const key = (art.slug || art.id || "").toString().toLowerCase();
+                if (!key) return true;
+                if (seenFa.has(key)) return false;
+                seenFa.add(key);
+                return true;
+              }
+            );
             setFeaturedArticles(uniqueFeatured);
 
             return; // نجح التحميل المُحسّن
@@ -165,7 +167,9 @@ function MuqtaribPageContent() {
         console.log("⚠️ استخدام fallback للتحميل التقليدي...");
 
         // جلب الزوايا بشكل منفصل
-        const anglesResponse = await fetch("/api/muqtarab/angles");
+        const anglesResponse = await fetch("/api/muqtarab/angles", {
+          next: { revalidate: 30 },
+        });
         if (anglesResponse.ok) {
           const anglesData = await anglesResponse.json();
           setAngles(anglesData.angles || []);
@@ -174,7 +178,9 @@ function MuqtaribPageContent() {
 
         // جلب المقال المميز (اختياري)
         try {
-          const heroResponse = await fetch("/api/muqtarab/hero-article");
+          const heroResponse = await fetch("/api/muqtarab/hero-article", {
+            cache: "no-store",
+          });
           if (heroResponse.ok) {
             const heroData = await heroResponse.json();
             if (heroData.success && heroData.heroArticle) {
@@ -187,7 +193,9 @@ function MuqtaribPageContent() {
 
         // جلب الإحصائيات (اختياري)
         try {
-          const statsResponse = await fetch("/api/muqtarab/stats");
+          const statsResponse = await fetch("/api/muqtarab/stats", {
+            next: { revalidate: 60 },
+          });
           if (statsResponse.ok) {
             const statsData = await statsResponse.json();
             if (statsData.success && statsData.stats) {

@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
       link: `/muqtarab/articles/${article.slug}`,
     }));
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       success: true,
       articles: formattedArticles,
       pagination: {
@@ -92,6 +92,14 @@ export async function GET(request: NextRequest) {
         totalViews: totalViews._sum.view_count || 0,
       },
     });
+    // تمكين كاش CDN قصير للمحتوى العام
+    res.headers.set("Cache-Control", "public, max-age=15");
+    res.headers.set("CDN-Cache-Control", "public, s-maxage=120");
+    res.headers.set(
+      "Vercel-CDN-Cache-Control",
+      "s-maxage=180, stale-while-revalidate=600"
+    );
+    return res;
   } catch (error: any) {
     console.error("❌ [All Muqtarab Articles] خطأ في جلب المقالات:", error);
     return NextResponse.json(

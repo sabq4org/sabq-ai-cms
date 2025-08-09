@@ -109,14 +109,22 @@ export async function GET(req: NextRequest) {
       },
     };
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       success: true,
       angles: corners.map(transformCorner),
       heroArticle: transformArticle(heroArticle),
       featuredArticles: featuredArticles.map(transformArticle),
       stats: stats,
-      cached: false,
+      cached: true,
     });
+    // تمكين الكاش على مستوى CDN والمتصفح (يمكن ضبط القيم لاحقاً)
+    res.headers.set("Cache-Control", "public, max-age=30");
+    res.headers.set("CDN-Cache-Control", "public, s-maxage=180");
+    res.headers.set(
+      "Vercel-CDN-Cache-Control",
+      "s-maxage=300, stale-while-revalidate=600"
+    );
+    return res;
   } catch (error: any) {
     console.error("❌ [Optimized Muqtarab Page] Error fetching data:", error);
     // Return a default structure on error to prevent client-side crashes
