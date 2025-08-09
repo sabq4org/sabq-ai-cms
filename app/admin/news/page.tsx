@@ -85,6 +85,8 @@ interface Article {
   image?: string;
   featured_image?: string;
   reactions?: { like?: number; share?: number };
+  slug?: string; // Added slug for article type
+  content_type?: string; // Added content_type for article type
 }
 
 // ErrorBoundary مخصص باستخدام React Class Component
@@ -1270,7 +1272,9 @@ function AdminNewsPageContent() {
                                 >
                                   <DropdownMenuItem
                                     onClick={() => {
-                                      const path = `/news/${article.slug || article.id}`;
+                                      const path = article.content_type === 'OPINION'
+                                        ? `/article/${article.slug || article.id}`
+                                        : `/news/${article.slug || article.id}`;
                                       router.push(path);
                                     }}
                                     className="py-3 hover:bg-gray-50 dark:hover:bg-gray-700"
