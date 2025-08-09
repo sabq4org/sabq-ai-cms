@@ -24,25 +24,33 @@ export async function GET(request: NextRequest) {
       },
     };
 
-    const [articles, totalCount] = await prisma.$transaction([
-      prisma.muqtarabArticle.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy,
-        include: {
-          corner: true,
-          creator: {
-            select: {
-              id: true,
-              name: true,
-              avatar: true,
+    const [articles, totalCount, featuredCount, totalViews] =
+      await prisma.$transaction([
+        prisma.muqtarabArticle.findMany({
+          where,
+          skip,
+          take: limit,
+          orderBy,
+          include: {
+            corner: true,
+            creator: {
+              select: {
+                id: true,
+                name: true,
+                avatar: true,
+              },
             },
           },
-        },
-      }),
-      prisma.muqtarabArticle.count({ where }),
-    ]);
+        }),
+        prisma.muqtarabArticle.count({ where }),
+        prisma.muqtarabArticle.count({
+          where: { ...where, is_featured: true },
+        }),
+        prisma.muqtarabArticle.aggregate({
+          where,
+          _sum: { view_count: true },
+        }),
+      ]);
 
     const formattedArticles = articles.map((article) => ({
       id: article.id,
@@ -76,6 +84,12 @@ export async function GET(request: NextRequest) {
         totalPages: Math.ceil(totalCount / limit),
         totalCount,
         limit,
+      },
+      stats: {
+        totalArticles: totalCount,
+        featuredCount: featuredCount,
+        recentCount: articles.length,
+        totalViews: totalViews._sum.view_count || 0,
       },
     });
   } catch (error: any) {

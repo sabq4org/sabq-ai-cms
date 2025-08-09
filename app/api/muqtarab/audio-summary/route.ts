@@ -92,15 +92,13 @@ export async function GET(request: NextRequest) {
     console.log(`🎙️ [Angle Audio] طلب توليد صوت للزاوية: ${angleId}`);
 
     // 1. جلب بيانات الزاوية
-    const angle = await prisma.angles.findUnique({
+    const angle = await prisma.muqtarabCorner.findUnique({
       where: { id: angleId },
       select: {
         id: true,
-        title: true,
+        name: true,
         description: true,
-        audio_summary_url: true,
         theme_color: true,
-        icon: true,
       },
     });
 
@@ -112,17 +110,19 @@ export async function GET(request: NextRequest) {
     }
 
     // 2. إذا كان الصوت موجود، إرجاعه (إلا في حالة إعادة التوليد)
+    // تم إلغاء هذه الميزة مؤقتاً
+    /*
     if (angle.audio_summary_url && !forceRegenerate) {
       console.log(
-        `✅ [Angle Audio] إرجاع صوت محفوظ مسبقاً للزاوية: ${angle.title}`
+        `✅ [Angle Audio] إرجاع صوت محفوظ مسبقاً للزاوية: ${angle.name}`
       );
       return NextResponse.json({
         success: true,
+        message: "تم جلب الصوت المحفوظ مسبقاً",
         audioUrl: angle.audio_summary_url,
-        cached: true,
-        message: "تم استرجاع الصوت المحفوظ مسبقاً",
       });
     }
+    */
 
     // 3. التحقق من وجود وصف للزاوية
     if (!angle.description) {
@@ -143,7 +143,7 @@ export async function GET(request: NextRequest) {
     }
 
     // 5. تحضير النص للقراءة
-    const textToSpeak = `${angle.title}. ${angle.description}`;
+    const textToSpeak = `${angle.name}. ${angle.description}`;
     const optimizedText = optimizeTextForArabicTTS(textToSpeak);
 
     console.log(
@@ -151,7 +151,7 @@ export async function GET(request: NextRequest) {
     );
 
     // 6. اختيار الصوت المناسب
-    const selectedVoice = selectVoiceForContent(angle.title, angle.description);
+    const selectedVoice = selectVoiceForContent(angle.name, angle.description);
     console.log(`🎭 [Angle Audio] الصوت المختار: ${selectedVoice}`);
 
     // 7. توليد الصوت باستخدام ElevenLabs
@@ -193,9 +193,7 @@ export async function GET(request: NextRequest) {
     const base64Audio = Buffer.from(audioBuffer).toString("base64");
     const audioDataUrl = `data:audio/mpeg;base64,${base64Audio}`;
 
-    console.log(
-      `✅ [Angle Audio] تم توليد الصوت بنجاح للزاوية: ${angle.title}`
-    );
+    console.log(`✅ [Angle Audio] تم توليد الصوت بنجاح للزاوية: ${angle.name}`);
     console.log(
       `📊 [Angle Audio] حجم الصوت: ${(audioBuffer.byteLength / 1024).toFixed(
         2
@@ -203,11 +201,14 @@ export async function GET(request: NextRequest) {
     );
 
     // 9. حفظ رابط الصوت في قاعدة البيانات
+    // تم إلغاء هذه الميزة مؤقتاً - لا يوجد حقل audio_summary_url في muqtarab_corners
     try {
-      await prisma.angles.update({
+      /*
+      await prisma.muqtarabCorner.update({
         where: { id: angleId },
         data: { audio_summary_url: audioDataUrl },
       });
+      */
       console.log(`💾 [Angle Audio] تم حفظ رابط الصوت في قاعدة البيانات`);
     } catch (dbError) {
       console.error(`⚠️ [Angle Audio] خطأ في حفظ رابط الصوت:`, dbError);
@@ -218,7 +219,7 @@ export async function GET(request: NextRequest) {
       success: true,
       audioUrl: audioDataUrl,
       generated: true,
-      angleTitle: angle.title,
+      angleTitle: angle.name,
       textLength: optimizedText.length,
       voiceUsed: selectedVoice,
       message: "تم توليد الصوت بنجاح",

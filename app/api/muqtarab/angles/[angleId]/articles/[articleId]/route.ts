@@ -139,7 +139,7 @@ export async function PUT(
 
     // التحقق من وجود الزاوية
     const angleExists = await prisma.$queryRaw`
-      SELECT id FROM angles WHERE id = ${angleId}::uuid
+      SELECT id FROM muqtarab_corners WHERE id = ${angleId}::uuid
     `;
 
     if (!Array.isArray(angleExists) || angleExists.length === 0) {

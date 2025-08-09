@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 export async function GET(request: NextRequest) {
   try {
     // جلب مقالات مختارة من زوايا مختلفة (بما في ذلك فكر رقمي)
-    const featuredArticles = await prisma.$queryRaw`
+    const featuredArticles = (await prisma.$queryRaw`
       SELECT DISTINCT ON (aa.angle_id)
         aa.id,
         aa.title,
@@ -18,20 +18,20 @@ export async function GET(request: NextRequest) {
         aa.tags,
         aa.created_at,
         a.id as angle_id,
-        a.title as angle_title,
+        a.name as angle_title,
         a.slug as angle_slug,
         a.icon as angle_icon,
         a.theme_color as angle_theme_color,
         u.name as author_name,
         u.avatar as author_avatar
-      FROM angle_articles aa
-      LEFT JOIN angles a ON aa.angle_id = a.id
-      LEFT JOIN users u ON aa.author_id = u.id
-      WHERE aa.is_published = true
-        AND a.is_published = true
-      ORDER BY aa.angle_id, aa.publish_date DESC, aa.created_at DESC
+      FROM muqtarab_articles aa
+      LEFT JOIN muqtarab_corners a ON aa.corner_id = a.id
+      LEFT JOIN users u ON aa.created_by = u.id
+      WHERE aa.status = 'published'
+        AND a.is_active = true
+      ORDER BY aa.corner_id, aa.publish_at DESC, aa.created_at DESC
       LIMIT 6
-    ` as any[];
+    `) as any[];
 
     // تنسيق البيانات
     const formattedArticles = featuredArticles.map((article) => ({
