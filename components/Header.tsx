@@ -37,6 +37,7 @@ export default function Header() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const headerElRef = useRef<HTMLElement>(null);
   // التأكد من التحميل على العميل لتجنب hydration errors
   useEffect(() => {
     // لا حاجة لشريط نبض الأخبار
@@ -81,19 +82,38 @@ export default function Header() {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  // ضبط متغير ارتفاع الهيدر لإضافة مسافة أعلى المحتوى
+  useEffect(() => {
+    const updateHeaderHeight = () => {
+      const h = headerElRef.current?.offsetHeight || 64;
+      if (typeof document !== "undefined") {
+        document.documentElement.style.setProperty(
+          "--header-height",
+          `${h}px`
+        );
+      }
+    };
+
+    updateHeaderHeight();
+    window.addEventListener("resize", updateHeaderHeight);
+    return () => window.removeEventListener("resize", updateHeaderHeight);
+  }, []);
+
   // عدم عرض أي شيء حتى يتم تحميل الثيم
   if (!mounted) {
     return null;
   }
 
   return (
-    <header
+    <>
+      <header
+        ref={headerElRef}
       className={`fixed-header transition-all duration-300 relative z-40 ${
         darkMode
           ? "bg-gray-900/95 border-gray-800"
           : "bg-blue-50/95 border-blue-200"
       } border-b shadow-sm`}
-    >
+      >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full relative">
         <div className="flex items-center justify-between h-full">
           {/* الشعار الرسمي - محاذاة لليمين مع تحسينات المظهر */}
@@ -320,6 +340,9 @@ export default function Header() {
           </>
         )}
       </div>
-    </header>
+      </header>
+      {/* مباعد أسفل الهيدر لضمان مسافة فارغة قبل المحتوى */}
+      <div aria-hidden="true" style={{ height: "var(--header-height, 64px)" }} />
+    </>
   );
 }
