@@ -39,7 +39,7 @@ export async function GET(
         res.headers.set("X-Cache-Status", "REDIS-HIT");
         return res;
       }
-    } catch (e) {
+    } catch (e: any) {
       console.warn("⚠️ تجاوز Redis مؤقتاً (Angle by slug)", e?.message);
     }
 
@@ -61,27 +61,29 @@ export async function GET(
     // استعلام محسّن باستخدام الفهارس الجديدة
     const result = await prisma.$queryRaw`
       SELECT
-        a.id,
-        a.title,
-        a.slug,
-        a.description,
-        a.icon,
-        a.theme_color,
-        a.cover_image,
-        a.is_featured,
-        a.is_published,
-        a.created_at,
-        a.updated_at,
-        a.author_id,
-        u.name as author_name,
+        mc.id,
+        mc.name as title,
+        mc.slug,
+        mc.description,
+        null as icon,
+        mc.theme_color,
+        mc.cover_image,
+        mc.is_featured,
+        mc.is_active as is_published,
+        mc.created_at,
+        mc.updated_at,
+        mc.created_by as author_id,
+        mc.author_name,
         u.email as author_email,
         u.avatar as author_image,
-        COUNT(aa.id)::int as articles_count
-      FROM angles a
-      LEFT JOIN users u ON a.author_id = u.id
-      LEFT JOIN angle_articles aa ON a.id = aa.angle_id AND aa.is_published = true
-      WHERE a.slug = ${slug} AND a.is_published = true
-      GROUP BY a.id, u.name, u.email, u.avatar
+        COUNT(ma.id)::int as articles_count
+      FROM muqtarab_corners mc
+      LEFT JOIN users u ON mc.created_by = u.id
+      LEFT JOIN muqtarab_articles ma ON mc.id = ma.corner_id AND ma.status = 'published'
+      WHERE mc.slug = ${slug} AND mc.is_active = true
+      GROUP BY mc.id, mc.name, mc.slug, mc.description, mc.theme_color, mc.cover_image,
+               mc.is_featured, mc.is_active, mc.created_at, mc.updated_at,
+               mc.created_by, mc.author_name, u.email, u.avatar
     `;
 
     if (!Array.isArray(result) || result.length === 0) {
@@ -129,7 +131,7 @@ export async function GET(
     cacheManager.set(responseData);
     try {
       await redisCache.set(redisKey, responseData, 600); // 10 دقائق في Redis
-    } catch (e) {
+    } catch (e: any) {
       console.warn("⚠️ فشل حفظ الزاوية في Redis", e?.message);
     }
 

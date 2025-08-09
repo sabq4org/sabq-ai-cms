@@ -26,23 +26,23 @@ export async function GET(request: NextRequest) {
     // جلب مقالات من زوايا أخرى (مستثنياً الزاوية الحالية)
     const articlesQuery = `
       SELECT
-        aa.*,
-        a.title as angle_title,
-        a.slug as angle_slug,
-        a.icon as angle_icon,
-        a.theme_color as angle_theme_color,
+        ma.*,
+        mc.name as angle_title,
+        mc.slug as angle_slug,
+        null as angle_icon,
+        mc.theme_color as angle_theme_color,
         u.name as author_name,
         u.avatar as author_avatar
-      FROM angle_articles aa
-      JOIN angles a ON aa.angle_id = a.id
-      LEFT JOIN users u ON aa.author_id = u.id
-      WHERE a.is_published = true
-        AND aa.is_published = true
-        AND a.id != $1::uuid
-        ${currentArticleId ? "AND aa.id != $2::uuid" : ""}
+      FROM muqtarab_articles ma
+      JOIN muqtarab_corners mc ON ma.corner_id = mc.id
+      LEFT JOIN users u ON ma.created_by = u.id
+      WHERE mc.is_active = true
+        AND ma.status = 'published'
+        AND mc.id != $1
+        ${currentArticleId ? "AND ma.id != $2" : ""}
       ORDER BY
-        aa.views DESC,
-        aa.created_at DESC
+        ma.view_count DESC,
+        ma.created_at DESC
       LIMIT $${currentArticleId ? "3" : "2"}
     `;
 
@@ -67,35 +67,31 @@ export async function GET(request: NextRequest) {
     // تنسيق البيانات
     const formattedArticles = articles.map((article) => ({
       id: article.id,
-      angleId: article.angle_id,
+      angleId: article.corner_id,
       title: article.title,
-      slug: article.id, // استخدام ID كـ slug
+      slug: article.slug,
       content: article.content,
       excerpt: article.excerpt,
-      authorId: article.author_id,
+      authorId: article.created_by,
       author: {
-        id: article.author_id,
+        id: article.created_by,
         name: article.author_name,
         avatar: article.author_avatar,
       },
       angle: {
-        id: article.angle_id,
+        id: article.corner_id,
         title: article.angle_title,
         slug: article.angle_slug,
         icon: article.angle_icon,
         themeColor: article.angle_theme_color,
       },
-      sentiment: article.sentiment,
-      tags: Array.isArray(article.tags)
-        ? article.tags
-        : typeof article.tags === "string"
-        ? JSON.parse(article.tags || "[]")
-        : [],
+      sentiment: article.ai_sentiment,
+      tags: article.tags || [],
       coverImage: article.cover_image,
-      isPublished: article.is_published,
-      publishDate: article.publish_date,
-      readingTime: Number(article.reading_time) || 0,
-      views: Number(article.views) || 0,
+      isPublished: article.status === "published",
+      publishDate: article.publish_at,
+      readingTime: Number(article.read_time) || 0,
+      views: Number(article.view_count) || 0,
       createdAt: article.created_at,
       updatedAt: article.updated_at,
     }));
@@ -105,7 +101,7 @@ export async function GET(request: NextRequest) {
       articles: formattedArticles,
       totalFound: formattedArticles.length,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error(
       "❌ [Cross-Angle Recommendations] خطأ في جلب المقالات:",
       error

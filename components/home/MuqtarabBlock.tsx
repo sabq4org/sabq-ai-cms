@@ -554,10 +554,7 @@ function AngleArticleCard({ angleArticle }: { angleArticle: AngleArticle }) {
           </div>
 
           {/* زر القراءة */}
-          <Link
-            href={`/muqtarab/${angleArticle.angle.slug}/${angleArticle.id}`}
-            className="block"
-          >
+          <Link href={`/muqtarab/${angleArticle.slug}`} className="block">
             <Button
               size="sm"
               className="w-full text-xs py-2 rounded-lg font-medium transition-all duration-200 hover:scale-105"

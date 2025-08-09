@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 export default function MuqtarabCornerPage() {
   const params = useParams();
   const router = useRouter();
-  const slug = params.slug as string;
+  const slug = params?.slug as string;
 
   const [corner, setCorner] = useState<Angle | null>(null);
   const [articles, setArticles] = useState<AngleArticle[]>([]);
@@ -54,7 +54,7 @@ export default function MuqtarabCornerPage() {
         {articles.map((article) => (
           <Link
             key={article.id}
-            href={`/muqtarab/articles/${article.slug}`}
+            href={`/muqtarab/${article.slug}`}
             className="block group"
           >
             <div className="rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">

@@ -574,9 +574,7 @@ export default function MomentByMomentPage() {
                             ) : item.type === "angle-article" &&
                               item.angle &&
                               item.slug ? (
-                              <Link
-                                href={`/muqtarab/${item.angle.slug}/${item.slug}`}
-                              >
+                              <Link href={`/muqtarab/${item.slug}`}>
                                 <h3 className="text-md md:text-lg font-semibold text-gray-900 dark:text-white mb-3 hover:text-indigo-600 dark:hover:text-indigo-400 cursor-pointer transition-colors line-clamp-2">
                                   {item.title}
                                 </h3>
@@ -623,9 +621,7 @@ export default function MomentByMomentPage() {
                               {item.type === "angle-article" &&
                                 item.angle &&
                                 item.slug && (
-                                  <Link
-                                    href={`/muqtarab/${item.angle.slug}/${item.slug}`}
-                                  >
+                                  <Link href={`/muqtarab/${item.slug}`}>
                                     <button className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 text-sm font-medium px-3 py-1 rounded-lg transition-colors hover:bg-indigo-50 dark:hover:bg-indigo-900/20 ml-auto">
                                       قراءة في مُقترب →
                                     </button>
@@ -746,9 +742,7 @@ export default function MomentByMomentPage() {
                         ) : item.type === "angle-article" &&
                           item.angle &&
                           item.slug ? (
-                          <Link
-                            href={`/muqtarab/${item.angle.slug}/${item.slug}`}
-                          >
+                          <Link href={`/muqtarab/${item.slug}`}>
                             <h3 className="text-md md:text-lg font-semibold text-gray-900 dark:text-white mb-3 hover:text-indigo-600 dark:hover:text-indigo-400 cursor-pointer transition-colors line-clamp-2">
                               {item.title}
                             </h3>
@@ -794,9 +788,7 @@ export default function MomentByMomentPage() {
                           {item.type === "angle-article" &&
                             item.angle &&
                             item.slug && (
-                              <Link
-                                href={`/muqtarab/${item.angle.slug}/${item.slug}`}
-                              >
+                              <Link href={`/muqtarab/${item.slug}`}>
                                 <button className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 text-sm font-medium px-3 py-1 rounded-lg transition-colors hover:bg-indigo-50 dark:hover:bg-indigo-900/20 ml-auto">
                                   قراءة في مُقترب →
                                 </button>

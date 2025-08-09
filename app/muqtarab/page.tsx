@@ -510,7 +510,7 @@ function MobileHeroCard({ heroArticle }: { heroArticle: HeroArticle }) {
             <Calendar className="w-3 h-3" />
             <span>{heroArticle.readingTime} د</span>
           </div>
-          <Link href={`/muqtarab/articles/${heroArticle.slug}`}>
+          <Link href={`/muqtarab/${heroArticle.slug}`}>
             <Button size="sm" className="text-xs px-3 py-1 h-7">
               قراءة
             </Button>
@@ -727,7 +727,7 @@ function FeaturedArticleCard({ article }: { article: FeaturedArticle }) {
 
         <div className="flex items-center justify-between pt-2">
           <div className="text-xs text-gray-500">{article.author.name}</div>
-          <Link href={`/muqtarab/articles/${article.slug}`}>
+          <Link href={`/muqtarab/${article.slug}`}>
             <Button
               size="sm"
               className="text-xs px-3 py-1 h-7"

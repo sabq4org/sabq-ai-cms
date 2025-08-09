@@ -29,9 +29,12 @@ export async function POST(request: NextRequest) {
         {
           folder: "sabq-cms/general",
           resource_type: "auto",
-          public_id: `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`,
+          public_id: `${Date.now()}_${file.name.replace(
+            /[^a-zA-Z0-9.-]/g,
+            "_"
+          )}`,
           overwrite: false,
-          tags: ["sabq-cms", "upload"]
+          tags: ["sabq-cms", "upload"],
         },
         (error, result) => {
           if (error) return reject(error);

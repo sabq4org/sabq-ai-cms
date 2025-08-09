@@ -230,7 +230,7 @@ export async function uploadToCloudinary(file: File): Promise<string> {
     if (!data.success) {
       throw new Error(data.error || "فشل رفع الصورة");
     }
-    
+
     return data.url;
   } catch (error) {
     console.error("Error uploading to Cloudinary:", error);

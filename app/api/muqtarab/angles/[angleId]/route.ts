@@ -11,87 +11,78 @@ export async function GET(
   try {
     const { angleId } = await params;
 
-    // جلب بيانات الزاوية مع إحصائيات
-    const angleQuery = `
+    // Get corner with detailed analytics and article count
+    const cornerData = await prisma.$queryRaw<any[]>`
       SELECT
-        a.*,
-        u.name as author_name,
-        u.avatar as author_avatar,
-        COUNT(CASE WHEN aa.is_published = true THEN 1 END) as published_articles_count,
-        COUNT(aa.id) as total_articles_count,
-        SUM(CASE WHEN aa.is_published = true THEN aa.views ELSE 0 END) as total_views,
-        AVG(CASE WHEN aa.is_published = true THEN aa.reading_time ELSE NULL END) as avg_reading_time
-      FROM angles a
-      LEFT JOIN users u ON a.author_id = u.id
-      LEFT JOIN angle_articles aa ON a.id = aa.angle_id
-      WHERE a.id = $1::uuid
-      GROUP BY a.id, u.name, u.avatar
+        mc.*,
+        COUNT(ma.id) as article_count,
+        AVG(ma.view_count) as avg_views,
+        SUM(ma.like_count) as total_likes,
+        SUM(ma.comment_count) as total_comments,
+        MAX(ma.created_at) as last_article_date
+      FROM muqtarab_corners mc
+      LEFT JOIN muqtarab_articles ma ON mc.id = ma.corner_id AND ma.status = 'published'
+      WHERE mc.id = ${angleId}
+      GROUP BY mc.id
     `;
 
-    const angleResult = (await prisma.$queryRawUnsafe(
-      angleQuery,
-      angleId
-    )) as any[];
-
-    if (angleResult.length === 0) {
+    if (cornerData.length === 0) {
       return NextResponse.json(
         { error: "الزاوية غير موجودة" },
         { status: 404 }
       );
     }
 
-    const angle = angleResult[0];
+    const corner = cornerData[0];
 
     // جلب أحدث المقالات (آخر 5)
-    const recentArticlesQuery = `
-      SELECT
-        aa.id,
-        aa.title,
-        aa.excerpt,
-        aa.is_published,
-        aa.views,
-        aa.created_at,
-        u.name as author_name
-      FROM angle_articles aa
-      LEFT JOIN users u ON aa.author_id = u.id
-      WHERE aa.angle_id = $1::uuid
-      ORDER BY aa.created_at DESC
-      LIMIT 5
-    `;
-
-    const recentArticles = (await prisma.$queryRawUnsafe(
-      recentArticlesQuery,
-      angleId
-    )) as any[];
+    const recentArticles = await prisma.muqtarabArticle.findMany({
+      where: {
+        corner_id: angleId,
+        status: "published",
+      },
+      select: {
+        id: true,
+        title: true,
+        excerpt: true,
+        view_count: true,
+        created_at: true,
+        author_name: true,
+      },
+      orderBy: {
+        created_at: "desc",
+      },
+      take: 5,
+    });
 
     // تنسيق البيانات
     const formattedAngle = {
-      id: angle.id,
-      title: angle.title,
-      slug: angle.slug,
-      description: angle.description,
-      icon: angle.icon,
-      themeColor: angle.theme_color,
-      authorId: angle.author_id,
+      id: corner.id,
+      title: corner.name,
+      slug: corner.slug,
+      description: corner.description,
+      icon: null, // Not in schema
+      themeColor: corner.theme_color,
+      authorId: corner.created_by,
       author: {
-        id: angle.author_id,
-        name: angle.author_name,
-        avatar: angle.author_avatar,
+        id: corner.created_by,
+        name: corner.author_name,
+        avatar: null, // Not in schema
       },
-      coverImage: angle.cover_image,
-      isFeatured: angle.is_featured,
-      isPublished: angle.is_published,
-      articlesCount: Number(angle.published_articles_count) || 0,
-      totalViews: Number(angle.total_views) || 0,
-      avgReadingTime: Number(angle.avg_reading_time) || 0,
-      createdAt: angle.created_at,
-      updatedAt: angle.updated_at,
+      coverImage: corner.cover_image,
+      isFeatured: corner.is_featured,
+      isPublished: corner.is_active,
+      articlesCount: Number(corner.article_count) || 0,
+      totalViews: Number(corner.avg_views) || 0,
+      totalLikes: Number(corner.total_likes) || 0,
+      totalComments: Number(corner.total_comments) || 0,
+      createdAt: corner.created_at,
+      updatedAt: corner.updated_at,
       recentArticles: recentArticles.map((article) => ({
         id: article.id,
         title: article.title,
         excerpt: article.excerpt,
-        isPublished: article.is_published,
-        views: Number(article.views) || 0,
+        views: Number(article.view_count) || 0,
         authorName: article.author_name,
         createdAt: article.created_at,
       })),
@@ -107,133 +98,97 @@ export async function GET(
       { error: "حدث خطأ في جلب بيانات الزاوية" },
       { status: 500 }
     );
-  } finally {
-    // إزالة $disconnect لتجنب مشاكل Concurrent Requests
   }
 }
 
 // تحديث بيانات الزاوية
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { angleId: string } }
+  { params }: { params: Promise<{ angleId: string }> }
 ) {
   try {
-    const { angleId } = params;
+    const { angleId } = await params;
     const body = await request.json();
 
-    // التحقق من وجود الزاوية
-    const existingAngle = (await prisma.$queryRaw`
-      SELECT id FROM angles WHERE id = ${angleId}::uuid
-    `) as { id: string }[];
-
-    if (existingAngle.length === 0) {
-      return NextResponse.json(
-        { error: "الزاوية غير موجودة" },
-        { status: 404 }
-      );
-    }
-
-    // تحديث الزاوية
-    const updateQuery = `
-      UPDATE angles SET
-        title = $1,
-        slug = $2,
-        description = $3,
-        icon = $4,
-        theme_color = $5,
-        cover_image = $6,
-        is_featured = $7,
-        is_published = $8,
-        updated_at = CURRENT_TIMESTAMP
-      WHERE id = $9::uuid
-      RETURNING *
-    `;
-
-    const result = (await prisma.$queryRawUnsafe(
-      updateQuery,
-      body.title,
-      body.slug,
-      body.description,
-      body.icon || null,
-      body.themeColor,
-      body.coverImage || null,
-      body.isFeatured,
-      body.isPublished,
-      angleId
-    )) as any[];
-
-    const updatedAngle = result[0];
+    // التحقق من وجود الزاوية وتحديثها
+    const updatedCorner = await prisma.muqtarabCorner.update({
+      where: {
+        id: angleId,
+      },
+      data: {
+        name: body.title,
+        slug: body.slug,
+        description: body.description,
+        theme_color: body.themeColor,
+        cover_image: body.coverImage || null,
+        is_featured: body.isFeatured,
+        is_active: body.isPublished,
+        updated_at: new Date(),
+      },
+    });
 
     return NextResponse.json({
       success: true,
       message: "تم تحديث الزاوية بنجاح",
       angle: {
-        id: updatedAngle.id,
-        title: updatedAngle.title,
-        slug: updatedAngle.slug,
-        description: updatedAngle.description,
-        icon: updatedAngle.icon,
-        themeColor: updatedAngle.theme_color,
-        authorId: updatedAngle.author_id,
-        coverImage: updatedAngle.cover_image,
-        isFeatured: updatedAngle.is_featured,
-        isPublished: updatedAngle.is_published,
-        createdAt: updatedAngle.created_at,
-        updatedAt: updatedAngle.updated_at,
+        id: updatedCorner.id,
+        title: updatedCorner.name,
+        slug: updatedCorner.slug,
+        description: updatedCorner.description,
+        themeColor: updatedCorner.theme_color,
+        authorId: updatedCorner.created_by,
+        coverImage: updatedCorner.cover_image,
+        isFeatured: updatedCorner.is_featured,
+        isPublished: updatedCorner.is_active,
+        createdAt: updatedCorner.created_at,
+        updatedAt: updatedCorner.updated_at,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("خطأ في تحديث الزاوية:", error);
+    if (error.code === "P2025") {
+      return NextResponse.json(
+        { error: "الزاوية غير موجودة" },
+        { status: 404 }
+      );
+    }
     return NextResponse.json(
       { error: "حدث خطأ في تحديث الزاوية" },
       { status: 500 }
     );
-  } finally {
-    // إزالة $disconnect لتجنب مشاكل Concurrent Requests
   }
 }
 
 // حذف الزاوية
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { angleId: string } }
+  { params }: { params: Promise<{ angleId: string }> }
 ) {
   try {
-    const { angleId } = params;
+    const { angleId } = await params;
 
-    // التحقق من وجود الزاوية
-    const existingAngle = (await prisma.$queryRaw`
-      SELECT id FROM angles WHERE id = ${angleId}::uuid
-    `) as { id: string }[];
-
-    if (existingAngle.length === 0) {
-      return NextResponse.json(
-        { error: "الزاوية غير موجودة" },
-        { status: 404 }
-      );
-    }
-
-    // حذف المقالات المرتبطة أولاً
-    await prisma.$queryRaw`
-      DELETE FROM angle_articles WHERE angle_id = ${angleId}::uuid
-    `;
-
-    // حذف الزاوية
-    await prisma.$queryRaw`
-      DELETE FROM angles WHERE id = ${angleId}::uuid
-    `;
+    // حذف الزاوية (المقالات ستحذف تلقائياً بسبب onDelete: Cascade)
+    await prisma.muqtarabCorner.delete({
+      where: {
+        id: angleId,
+      },
+    });
 
     return NextResponse.json({
       success: true,
       message: "تم حذف الزاوية بنجاح",
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("خطأ في حذف الزاوية:", error);
+    if (error.code === "P2025") {
+      return NextResponse.json(
+        { error: "الزاوية غير موجودة" },
+        { status: 404 }
+      );
+    }
     return NextResponse.json(
       { error: "حدث خطأ في حذف الزاوية" },
       { status: 500 }
     );
-  } finally {
-    // إزالة $disconnect لتجنب مشاكل Concurrent Requests
   }
 }

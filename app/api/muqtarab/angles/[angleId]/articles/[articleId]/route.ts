@@ -13,86 +13,83 @@ export async function GET(
 
     console.log("🔍 [GET Article] angleId:", angleId, "articleId:", articleId);
 
-    // التحقق من وجود الزاوية
-    const angleExists = await prisma.$queryRaw`
-      SELECT id FROM angles WHERE id = ${angleId}::uuid
-    `;
+    // جلب المقال مع التحقق من انتمائه للزاوية
+    const article = await prisma.muqtarabArticle.findFirst({
+      where: {
+        id: articleId,
+        corner_id: angleId,
+      },
+      include: {
+        creator: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true,
+          },
+        },
+        corner: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            theme_color: true,
+            author_name: true,
+            description: true,
+          },
+        },
+      },
+    });
 
-    if (!Array.isArray(angleExists) || angleExists.length === 0) {
-      return NextResponse.json(
-        { success: false, error: "الزاوية غير موجودة" },
-        { status: 404 }
-      );
-    }
-
-    // جلب المقال مع تفاصيل المؤلف (البحث بالـ id أو slug)
-    let articles = [];
-
-    try {
-      // أولاً: محاولة البحث بـ UUID
-      articles = (await prisma.$queryRaw`
-        SELECT
-          aa.*,
-          u.name as author_name,
-          u.avatar as author_avatar
-        FROM angle_articles aa
-        LEFT JOIN users u ON aa.author_id = u.id
-        WHERE aa.angle_id = ${angleId}::uuid
-          AND aa.id = ${articleId}::uuid
-      `) as any[];
-    } catch (uuidError) {
-      console.log(
-        "🔍 [GET Article] البحث بـ UUID فشل، محاولة البحث بـ slug..."
-      );
-
-      // ثانياً: محاولة البحث بـ slug (إذا فشل البحث بـ UUID)
-      try {
-        articles = (await prisma.$queryRaw`
-          SELECT
-            aa.*,
-            u.name as author_name,
-            u.avatar as author_avatar
-          FROM angle_articles aa
-          LEFT JOIN users u ON aa.author_id = u.id
-          WHERE aa.angle_id = ${angleId}::uuid
-            AND (aa.slug = ${articleId} OR aa.id::text = ${articleId})
-        `) as any[];
-      } catch (slugError) {
-        console.error("❌ [GET Article] فشل البحث بـ slug أيضاً:", slugError);
-        articles = [];
-      }
-    }
-
-    if (!articles || articles.length === 0) {
+    if (!article) {
       return NextResponse.json(
         { success: false, error: "المقال غير موجود" },
         { status: 404 }
       );
     }
 
-    const article = articles[0];
+    // تحديث عدد المشاهدات
+    await prisma.muqtarabArticle.update({
+      where: { id: articleId },
+      data: { view_count: { increment: 1 } },
+    });
 
     // تنسيق البيانات
     const formattedArticle = {
       id: article.id,
-      angleId: article.angle_id,
+      angleId: article.corner_id,
       title: article.title,
-      slug: article.id, // استخدام ID كـ slug لأن العمود slug غير موجود
+      slug: article.slug,
       content: article.content,
       excerpt: article.excerpt,
-      authorId: article.author_id,
-      author: {
-        id: article.author_id,
-        name: article.author_name,
-        avatar: article.author_avatar,
-      },
-      sentiment: article.sentiment,
-      tags: Array.isArray(article.tags) ? article.tags : [],
       coverImage: article.cover_image,
-      isPublished: article.is_published,
-      publishDate: article.publish_date,
-      readingTime: Number(article.reading_time) || 0,
-      views: Number(article.views) || 0,
+      authorId: article.created_by,
+      author: article.creator
+        ? {
+            id: article.creator.id,
+            name: article.creator.name,
+            email: article.creator.email,
+            avatar: article.creator.avatar,
+          }
+        : null,
+      corner: {
+        id: article.corner.id,
+        title: article.corner.name,
+        slug: article.corner.slug,
+        themeColor: article.corner.theme_color,
+        author: {
+          name: article.corner.author_name,
+        },
+        description: article.corner.description,
+      },
+      tags: article.tags,
+      sentiment: article.ai_sentiment,
+      isPublished: article.status === "published",
+      publishDate: article.publish_at,
+      readingTime: article.read_time,
+      views: article.view_count,
+      likes: article.like_count,
+      comments: article.comment_count,
       createdAt: article.created_at,
       updatedAt: article.updated_at,
     };
@@ -106,16 +103,14 @@ export async function GET(
       success: true,
       article: formattedArticle,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("❌ [GET Article] خطأ في جلب المقال:", error);
     return NextResponse.json(
       {
         success: false,
         error: "حدث خطأ في جلب المقال",
         details:
-          process.env.NODE_ENV === "development"
-            ? (error as Error)?.message
-            : undefined,
+          process.env.NODE_ENV === "development" ? error?.message : undefined,
       },
       { status: 500 }
     );

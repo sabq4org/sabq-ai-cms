@@ -8,10 +8,16 @@ export async function GET(
   { params }: { params: { slug: string } }
 ) {
   try {
-    const { slug } = params;
+    const { slug } = await params;
 
-    const article = await prisma.muqtarabArticle.findUnique({
-      where: { slug },
+    // Try to find by ID first, then by slug
+    const article = await prisma.muqtarabArticle.findFirst({
+      where: {
+        OR: [
+          { id: slug }, // If the slug parameter is actually an ID
+          { slug: slug }, // If it's a traditional slug
+        ],
+      },
       include: {
         creator: {
           select: {
@@ -19,6 +25,13 @@ export async function GET(
             name: true,
             email: true,
             avatar: true,
+          },
+        },
+        corner: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
           },
         },
       },
@@ -30,6 +43,12 @@ export async function GET(
         { status: 404 }
       );
     }
+
+    // Update view count
+    await prisma.muqtarabArticle.update({
+      where: { id: article.id },
+      data: { view_count: { increment: 1 } },
+    });
 
     const formattedArticle = {
       id: article.id,
@@ -43,11 +62,18 @@ export async function GET(
             name: article.creator.name,
           }
         : null,
+      corner: article.corner
+        ? {
+            id: article.corner.id,
+            name: article.corner.name,
+            slug: article.corner.slug,
+          }
+        : null,
       coverImage: article.cover_image,
       isPublished: article.status === "published",
       publishDate: article.publish_at,
       readingTime: article.read_time,
-      views: article.view_count,
+      views: article.view_count + 1,
       likes: article.like_count,
       comments: article.comment_count,
       createdAt: article.created_at,
@@ -71,12 +97,37 @@ export async function DELETE(
   { params }: { params: { slug: string } }
 ) {
   try {
-    const { slug } = params;
-    await prisma.muqtarabArticle.delete({
-      where: { slug },
+    const { slug } = await params;
+
+    // Find the article first to get its ID
+    const article = await prisma.muqtarabArticle.findFirst({
+      where: {
+        OR: [{ id: slug }, { slug: slug }],
+      },
     });
-    return NextResponse.json({ success: true, message: 'Article deleted successfully.' });
+
+    if (!article) {
+      return NextResponse.json(
+        { success: false, error: "Article not found" },
+        { status: 404 }
+      );
+    }
+
+    await prisma.muqtarabArticle.delete({
+      where: { id: article.id },
+    });
+    return NextResponse.json({
+      success: true,
+      message: "Article deleted successfully.",
+    });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: 'Failed to delete article', details: error.message }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Failed to delete article",
+        details: error.message,
+      },
+      { status: 500 }
+    );
   }
 }

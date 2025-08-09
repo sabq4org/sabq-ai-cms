@@ -1,8 +1,8 @@
 import { cache as redisCache } from "@/lib/redis-improved";
-import { MuqtaribArticleForm } from "@/types/muqtarab";
+import { MuqtarabArticleForm } from "@/types/muqtarab";
 import { PrismaClient } from "@prisma/client";
+import { nanoid } from "nanoid";
 import { NextRequest, NextResponse } from "next/server";
-import { nanoid } from 'nanoid';
 
 const prisma = new PrismaClient();
 
@@ -25,22 +25,22 @@ export async function POST(
 ) {
   try {
     const { angleId } = await params;
-    const body: MuqtaribArticleForm = await request.json();
+    const body: MuqtarabArticleForm = await request.json();
 
     // التحقق من البيانات المطلوبة
-    if (!body.title?.trim() || !body.content?.trim() || !body.authorId) {
+    if (!body.title?.trim() || !body.content?.trim()) {
       return NextResponse.json(
-        { error: "العنوان والمحتوى ومعرف المؤلف مطلوبة" },
+        { error: "العنوان والمحتوى مطلوبة" },
         { status: 400 }
       );
     }
 
     // التحقق من وجود الزاوية
-    const angleExists = (await prisma.$queryRaw`
-      SELECT id FROM angles WHERE id = ${angleId}::uuid
-    `) as { id: string }[];
+    const angleExists = await prisma.muqtarabCorner.findUnique({
+      where: { id: angleId },
+    });
 
-    if (angleExists.length === 0) {
+    if (!angleExists) {
       return NextResponse.json(
         { error: "الزاوية غير موجودة" },
         { status: 404 }
@@ -57,15 +57,19 @@ export async function POST(
         slug: slug, // Use the new short slug
         content: body.content,
         excerpt: body.excerpt || null,
-        creator: { connect: { id: body.authorId } },
+        ...(body.authorId && { creator: { connect: { id: body.authorId } } }),
         tags: body.tags || [],
         cover_image: body.coverImage || null,
-        status: body.isPublished ? 'published' : 'draft',
-        publish_at: body.isPublished ? (body.publishDate ? new Date(body.publishDate) : new Date()) : null,
+        status: body.isPublished ? "published" : "draft",
+        publish_at: body.isPublished
+          ? body.publishDate
+            ? new Date(body.publishDate)
+            : new Date()
+          : null,
         read_time: body.readingTime || 0,
         // AI fields can be added here if available in the form
-        ai_sentiment: body.sentiment || 'neutral',
-      }
+        ai_sentiment: body.sentiment || "neutral",
+      },
     });
 
     const json = {
@@ -84,7 +88,7 @@ export async function POST(
         sentiment: newArticle.ai_sentiment,
         tags: newArticle.tags,
         coverImage: newArticle.cover_image,
-        isPublished: newArticle.status === 'published',
+        isPublished: newArticle.status === "published",
         publishDate: newArticle.publish_at,
         readingTime: newArticle.read_time,
         views: newArticle.view_count,
@@ -140,24 +144,20 @@ export async function GET(
     const offset = (page - 1) * limit;
 
     // بناء شروط الفلترة
-    let whereClause = `WHERE aa.angle_id = $1::uuid`;
+    let whereClause = `WHERE ma.corner_id = $1`;
     const queryParams: any[] = [angleId];
     let paramIndex = 2;
 
     // تطبيق فلتر النشر فقط إذا تم تحديده صراحة
     if (publishedParam === "true") {
-      whereClause += ` AND aa.is_published = $${paramIndex}`;
-      queryParams.push(true);
-      paramIndex++;
+      whereClause += ` AND ma.status = 'published'`;
     } else if (publishedParam === "false") {
-      whereClause += ` AND aa.is_published = $${paramIndex}`;
-      queryParams.push(false);
-      paramIndex++;
+      whereClause += ` AND ma.status = 'draft'`;
     }
     // إذا لم يتم تحديد published، جلب كل المقالات (منشورة ومسودات)
 
     if (sentiment) {
-      whereClause += ` AND aa.sentiment = $${paramIndex}`;
+      whereClause += ` AND ma.ai_sentiment = $${paramIndex}`;
       queryParams.push(sentiment);
       paramIndex++;
     }
@@ -165,9 +165,9 @@ export async function GET(
     // فلترة حسب الوقت
     if (timeRange !== "all") {
       const timeConditions = {
-        week: "aa.created_at >= NOW() - INTERVAL '7 days'",
-        month: "aa.created_at >= NOW() - INTERVAL '30 days'",
-        year: "aa.created_at >= NOW() - INTERVAL '365 days'",
+        week: "ma.created_at >= NOW() - INTERVAL '7 days'",
+        month: "ma.created_at >= NOW() - INTERVAL '30 days'",
+        year: "ma.created_at >= NOW() - INTERVAL '365 days'",
       };
 
       if (timeConditions[timeRange as keyof typeof timeConditions]) {
@@ -181,26 +181,26 @@ export async function GET(
     let orderClause = "";
     switch (sortBy) {
       case "popular":
-        orderClause = "ORDER BY aa.views DESC, aa.created_at DESC";
+        orderClause = "ORDER BY ma.view_count DESC, ma.created_at DESC";
         break;
       case "trending":
         // ترتيب حسب التفاعل الأخير (views في آخر أسبوع)
-        orderClause = "ORDER BY aa.views DESC, aa.created_at DESC";
+        orderClause = "ORDER BY ma.view_count DESC, ma.created_at DESC";
         break;
       case "newest":
       default:
-        orderClause = "ORDER BY aa.created_at DESC";
+        orderClause = "ORDER BY ma.created_at DESC";
         break;
     }
 
     // جلب المقالات
     const articlesQuery = `
       SELECT
-        aa.*,
+        ma.*,
         u.name as author_name,
         u.avatar as author_avatar
-      FROM angle_articles aa
-      LEFT JOIN users u ON aa.author_id = u.id
+      FROM muqtarab_articles ma
+      LEFT JOIN users u ON ma.created_by = u.id
       ${whereClause}
       ${orderClause}
       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
@@ -221,7 +221,7 @@ export async function GET(
     // جلب العدد الإجمالي
     const countQuery = `
       SELECT COUNT(*) as total
-      FROM angle_articles aa
+      FROM muqtarab_articles ma
       ${whereClause}
     `;
 
@@ -235,27 +235,24 @@ export async function GET(
     // تنسيق البيانات
     const formattedArticles = articles.map((article) => ({
       id: article.id,
-      angleId: article.angle_id,
+      angleId: article.corner_id,
       title: article.title,
-      slug: article.id, // استخدام ID كـ slug لأن العمود slug غير موجود
+      slug: article.slug,
       content: article.content,
       excerpt: article.excerpt,
-      authorId: article.author_id,
+      authorId: article.created_by,
       author: {
-        id: article.author_id,
+        id: article.created_by,
         name: article.author_name,
         avatar: article.author_avatar,
       },
-      sentiment: article.sentiment,
-      tags:
-        typeof article.tags === "string"
-          ? JSON.parse(article.tags)
-          : article.tags,
+      sentiment: article.ai_sentiment,
+      tags: article.tags,
       coverImage: article.cover_image,
-      isPublished: article.is_published,
-      publishDate: article.publish_date,
-      readingTime: Number(article.reading_time) || 0,
-      views: Number(article.views) || 0,
+      isPublished: article.status === "published",
+      publishDate: article.publish_at,
+      readingTime: Number(article.read_time) || 0,
+      views: Number(article.view_count) || 0,
       createdAt: article.created_at,
       updatedAt: article.updated_at,
     }));
@@ -272,7 +269,7 @@ export async function GET(
         hasPrev: page > 1,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("❌ [GET Articles] خطأ في جلب مقالات الزاوية:", error);
     console.error("❌ [GET Articles] Error details:", error?.message || error);
 

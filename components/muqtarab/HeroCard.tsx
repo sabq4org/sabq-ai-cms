@@ -60,7 +60,7 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
   if (isMobile) {
     return (
       <div className={`relative w-full group ${className}`}>
-        <Link href={`/muqtarab/${heroArticle.angle.slug}/${heroArticle.id}`}>
+        <Link href={`/muqtarab/${heroArticle.slug}`}>
           {/* التصميم الجديد للموبايل - overlay */}
           <div className="relative w-full h-[240px] rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300">
             {/* الصورة الخلفية */}
@@ -165,7 +165,7 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
   // تصميم الديسكتوب الأصلي (تخطيط جانبي - صورة يسار + محتوى يمين)
   return (
     <div className={`relative w-full group ${className}`}>
-      <Link href={`/muqtarab/${heroArticle.angle.slug}/${heroArticle.id}`}>
+      <Link href={`/muqtarab/${heroArticle.slug}`}>
         {/* التصميم الأصلي للديسكتوب - تخطيط جانبي */}
         <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
           <div className="flex">

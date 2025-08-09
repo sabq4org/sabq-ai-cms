@@ -90,26 +90,14 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(url, 301);
   }
 
-  // Redirect old Muqtarab article URLs
+  // Redirect old Muqtarab article URLs to new simplified format
   const muqtarabMatch = pathname.match(/^\/muqtarab\/[^\/]+\/([a-zA-Z0-9-]+)$/);
   if (muqtarabMatch) {
-    const articleId = muqtarabMatch[1];
-    const lookupUrl = new URL("/api/lookup/muqtarab-slug", req.url);
-    lookupUrl.searchParams.set("id", articleId);
-
-    try {
-      const res = await fetch(lookupUrl);
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success && data.slug) {
-          const newUrl = nextUrl.clone();
-          newUrl.pathname = `/muqtarab/${data.slug}`;
-          return NextResponse.redirect(newUrl, 301);
-        }
-      }
-    } catch (error) {
-      console.error("Muqtarab redirect failed:", error);
-    }
+    const articleSlug = muqtarabMatch[1];
+    // Redirect to simplified format: /muqtarab/[slug]
+    const newUrl = nextUrl.clone();
+    newUrl.pathname = `/muqtarab/${articleSlug}`;
+    return NextResponse.redirect(newUrl, 301);
   }
 
   // إضافة cache & security headers

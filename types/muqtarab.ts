@@ -55,6 +55,7 @@ export interface AngleArticle {
   angleId: string;
   angle?: Angle;
   title: string;
+  slug: string;
   content: string;
   excerpt?: string;
   authorId: string;
