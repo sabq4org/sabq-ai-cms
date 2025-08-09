@@ -161,7 +161,7 @@ const AngleCard = ({ angle, handleDeleteClick }: { angle: Angle; handleDeleteCli
             </div>
 
             <div className="flex gap-2">
-              <Link href={`/admin/muqtarab/angles/${angle.slug}`}>
+              <Link href={`/admin/muqtarab/angles/${angle.id}`}>
                 <Button
                   size="sm"
                   className="bg-blue-600 hover:bg-blue-700 text-white"
