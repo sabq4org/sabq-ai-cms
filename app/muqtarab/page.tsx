@@ -399,82 +399,101 @@ function MuqtaribPageContent() {
           </div>
         </div>
 
-        {/* الزوايا المميزة */}
-        {selectedFilter === "all" && (
-          <div className="mb-8">
-            <div className="flex items-center gap-2 mb-6">
-              <div className="w-1 h-6 bg-yellow-500 rounded-full"></div>
-              <h2 className="text-xl md:text-2xl font-bold text-foreground">
-                الزوايا المميزة
-              </h2>
-            </div>
+        {/* الزوايا المميزة - عرض فقط إذا كانت هناك زوايا مميزة */}
+        {selectedFilter === "all" &&
+          angles.some((angle) => angle.isFeatured) && (
+            <div className="mb-8">
+              <div className="flex items-center gap-2 mb-6">
+                <div className="w-1 h-6 bg-yellow-500 rounded-full"></div>
+                <h2 className="text-xl md:text-2xl font-bold text-foreground">
+                  الزوايا المميزة
+                </h2>
+                <Badge variant="secondary" className="text-xs">
+                  {angles.filter((angle) => angle.isFeatured).length} زاوية
+                </Badge>
+              </div>
 
-            {/* عرض مختلف للموبايل والديسكتوب */}
-            <div className="md:hidden">
-              {/* شبكة صغيرة للموبايل */}
-              <div className="grid grid-cols-2 gap-3">
+              {/* عرض مختلف للموبايل والديسكتوب */}
+              <div className="md:hidden">
+                {/* شبكة صغيرة للموبايل */}
+                <div className="grid grid-cols-2 gap-3">
+                  {angles
+                    .filter((angle) => angle.isFeatured)
+                    .slice(0, 4)
+                    .map((angle) => (
+                      <MobileFeaturedAngleCard key={angle.id} angle={angle} />
+                    ))}
+                </div>
+              </div>
+              <div className="hidden md:grid lg:grid-cols-2 gap-6">
                 {angles
                   .filter((angle) => angle.isFeatured)
-                  .slice(0, 4)
+                  .slice(0, 2)
                   .map((angle) => (
-                    <MobileFeaturedAngleCard key={angle.id} angle={angle} />
+                    <FeaturedAngleCard key={angle.id} angle={angle} />
                   ))}
               </div>
             </div>
-            <div className="hidden md:grid lg:grid-cols-2 gap-6">
-              {angles
-                .filter((angle) => angle.isFeatured)
-                .slice(0, 2)
-                .map((angle) => (
-                  <FeaturedAngleCard key={angle.id} angle={angle} />
-                ))}
-            </div>
-          </div>
-        )}
+          )}
 
         {/* شبكة الزوايا - محسنة للموبايل */}
         <div className="mb-6 md:mb-8">
           <div className="flex items-center justify-between mb-4 md:mb-6">
             <h2 className="text-lg md:text-3xl font-bold text-gray-900">
               {selectedFilter === "all"
-                ? "جميع الزوايا"
+                ? "باقي الزوايا"
                 : filters.find((f) => f.id === selectedFilter)?.label}
             </h2>
             <div className="text-xs md:text-sm text-gray-500">
-              {filteredAngles.length} زاوية
+              {/* عدد الزوايا بعد استبعاد المميزة في حالة الفلتر "all" */}
+              {selectedFilter === "all"
+                ? filteredAngles.filter((angle) => !angle.isFeatured).length
+                : filteredAngles.length}{" "}
+              زاوية
             </div>
           </div>
 
-          {filteredAngles.length === 0 ? (
-            <div className="text-center py-12 md:py-16">
-              <div className="w-16 h-16 md:w-24 md:h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
-                <Search className="w-8 h-8 md:w-12 md:h-12 text-gray-400" />
+          {/* تصفية الزوايا لاستبعاد المميزة عند عرض "جميع الزوايا" لتجنب التكرار */}
+          {(() => {
+            // في حالة الفلتر "all"، نستبعد الزوايا المميزة لأنها معروضة في القسم أعلاه
+            const displayAngles =
+              selectedFilter === "all"
+                ? filteredAngles.filter((angle) => !angle.isFeatured)
+                : filteredAngles;
+
+            return displayAngles.length === 0 ? (
+              <div className="text-center py-12 md:py-16">
+                <div className="w-16 h-16 md:w-24 md:h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
+                  <Search className="w-8 h-8 md:w-12 md:h-12 text-gray-400" />
+                </div>
+                <h3 className="text-lg md:text-xl font-semibold text-gray-900 mb-2">
+                  لا توجد زوايا
+                </h3>
+                <p className="text-sm md:text-base text-gray-500">
+                  {selectedFilter === "all"
+                    ? "لا توجد زوايا إضافية غير المميزة"
+                    : "جرب تغيير معايير البحث أو الفلتر"}
+                </p>
               </div>
-              <h3 className="text-lg md:text-xl font-semibold text-gray-900 mb-2">
-                لا توجد زوايا
-              </h3>
-              <p className="text-sm md:text-base text-gray-500">
-                جرب تغيير معايير البحث أو الفلتر
-              </p>
-            </div>
-          ) : (
-            <>
-              {/* عرض مختلف للموبايل والديسكتوب */}
-              <div className="md:hidden">
-                {/* قائمة مبسطة للموبايل */}
-                <div className="space-y-3">
-                  {filteredAngles.map((angle) => (
-                    <MobileAngleCard key={angle.id} angle={angle} />
+            ) : (
+              <>
+                {/* عرض مختلف للموبايل والديسكتوب */}
+                <div className="md:hidden">
+                  {/* قائمة مبسطة للموبايل */}
+                  <div className="space-y-3">
+                    {displayAngles.map((angle) => (
+                      <MobileAngleCard key={angle.id} angle={angle} />
+                    ))}
+                  </div>
+                </div>
+                <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {displayAngles.map((angle) => (
+                    <AngleCard key={angle.id} angle={angle} />
                   ))}
                 </div>
-              </div>
-              <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredAngles.map((angle) => (
-                  <AngleCard key={angle.id} angle={angle} />
-                ))}
-              </div>
-            </>
-          )}
+              </>
+            );
+          })()}
         </div>
       </div>
 
@@ -510,7 +529,9 @@ function MobileHeroCard({ heroArticle }: { heroArticle: HeroArticle }) {
             <Calendar className="w-3 h-3" />
             <span>{heroArticle.readingTime} د</span>
           </div>
-          <Link href={`/muqtarab/articles/${heroArticle.slug || heroArticle.id}`}>
+          <Link
+            href={`/muqtarab/articles/${heroArticle.slug || heroArticle.id}`}
+          >
             <Button size="sm" className="text-xs px-3 py-1 h-7">
               قراءة
             </Button>
