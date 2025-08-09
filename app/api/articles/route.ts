@@ -344,11 +344,9 @@ export async function POST(request: NextRequest) {
     }
 
     const contentType = resolveContentType(data.article_type);
-    const isShortSlug = contentType === 'NEWS';
 
-    // توليد slug من العنوان وضمان uniqueness
-    const baseSlug = isShortSlug ? '' : slugify(data.slug || data.title || "");
-    const uniqueSlug = await ensureUniqueSlug(prisma as any, baseSlug, isShortSlug);
+    // توليد slug فريد قصير
+    const uniqueSlug = await ensureUniqueSlug(prisma as any);
 
     // معالجة الحقل المميز بأسمائه المختلفة
     const isFeatured =

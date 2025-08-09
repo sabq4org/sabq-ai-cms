@@ -80,29 +80,20 @@ export function generateShortSlug(): string {
 }
 
 export async function ensureUniqueSlug(
-  prisma: PrismaClient,
-  baseSlug: string,
-  isShort: boolean = false
+  prisma: PrismaClient
 ): Promise<string> {
-  if (isShort) {
-    let slug = generateShortSlug();
-    while (true) {
-      const exists = await prisma.articles.findFirst({ where: { slug }, select: { id: true } });
-      if (!exists) return slug;
-      slug = generateShortSlug(); // Generate a new one if collision happens
-    }
-  }
-
-  if (!baseSlug) baseSlug = `article-${Date.now()}`;
-  let slug = baseSlug;
-  let counter = 2;
+  let slug = generateShortSlug();
+  // Loop to ensure the generated slug is truly unique
   while (true) {
     const exists = await prisma.articles.findFirst({
       where: { slug },
       select: { id: true },
     });
-    if (!exists) return slug;
-    slug = `${baseSlug}-${counter++}`;
+    if (!exists) {
+      return slug;
+    }
+    // If it exists, generate a new one and try again
+    slug = generateShortSlug();
   }
 }
 
