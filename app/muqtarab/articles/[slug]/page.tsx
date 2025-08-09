@@ -11,6 +11,9 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
+// استيراد لتحويل Markdown (افترض أنه مثبت، أو أضفه إذا لزم)
+import { marked } from "marked";
+
 interface Article {
   id: string;
   title: string;
@@ -392,7 +395,7 @@ export default function SmartArticleDetailPage() {
             />
 
             {/* الاقتباس الافتتاحي الذكي */}
-            {article.angle && (
+        {article.angle && (
               <SmartOpeningQuote article={article} angle={article.angle} />
             )}
 
@@ -406,9 +409,9 @@ export default function SmartArticleDetailPage() {
                 article={article}
                 angle={article.angle}
               />
-            )}
+        )}
 
-            {/* التفاعل والمشاركة */}
+        {/* التفاعل والمشاركة */}
             <SmartInteractionBar
               article={article}
               isLiked={isLiked}
@@ -570,41 +573,41 @@ function SmartStickyHeader({
 
           <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3 flex-1 min-w-0">
-              <Link href={`/muqtarab/${angle.slug}`}>
+          <Link href={`/muqtarab/${angle.slug}`}>
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="flex items-center gap-2 cursor-pointer"
                 >
-                  <Badge
+            <Badge
                     className="text-sm font-medium text-white shadow-lg"
                     style={{ backgroundColor: angle.themeColor }}
                   >
                     {angle.icon && <span className="ml-1">{angle.icon}</span>}
                     <ArrowRight className="w-4 h-4 ml-1" />
                     {angle.title || angle.name}
-                  </Badge>
+            </Badge>
                 </motion.div>
-              </Link>
+          </Link>
               <Separator orientation="vertical" className="h-4" />
               <span className="text-sm text-gray-600 truncate max-w-md">
-                {article.title}
-              </span>
-            </div>
+            {article.title}
+          </span>
+        </div>
 
             <div className="flex items-center gap-2">
               <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                 <Button size="sm" variant="ghost" className="h-9 w-9">
                   <Bookmark className="w-4 h-4" />
-                </Button>
+          </Button>
               </motion.div>
               <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                 <Button size="sm" variant="ghost" className="h-9 w-9">
                   <Share2 className="w-4 h-4" />
-                </Button>
+          </Button>
               </motion.div>
-            </div>
-          </div>
+        </div>
+      </div>
         </motion.div>
       )}
     </AnimatePresence>
@@ -672,8 +675,8 @@ function SmartArticleHeader({ article }: { article: Article }) {
         {article.angle && (
           <Link href={`/muqtarab/${article.angle.slug}`}>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Badge
-                variant="secondary"
+            <Badge
+              variant="secondary"
                 className="text-sm font-medium cursor-pointer shadow-lg border-0 text-white px-4 py-2"
                 style={{ backgroundColor: article.angle.themeColor }}
               >
@@ -682,7 +685,7 @@ function SmartArticleHeader({ article }: { article: Article }) {
                 )}
                 <Cpu className="w-4 h-4 ml-2" />
                 {article.angle.title || article.angle.name}
-              </Badge>
+            </Badge>
             </motion.div>
           </Link>
         )}
@@ -693,22 +696,22 @@ function SmartArticleHeader({ article }: { article: Article }) {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.3 }}
           >
-            <Badge
-              variant="outline"
+          <Badge
+            variant="outline"
               className={`text-sm border-2 ${
-                article.sentiment === "positive"
+              article.sentiment === "positive"
                   ? "text-green-700 border-green-300 bg-green-50"
-                  : article.sentiment === "negative"
+                : article.sentiment === "negative"
                   ? "text-red-700 border-red-300 bg-red-50"
                   : "text-gray-700 border-gray-300 bg-gray-50"
-              }`}
-            >
-              {article.sentiment === "positive"
-                ? "😊 إيجابي"
-                : article.sentiment === "negative"
-                ? "😞 سلبي"
-                : "😐 محايد"}
-            </Badge>
+            }`}
+          >
+            {article.sentiment === "positive"
+              ? "😊 إيجابي"
+              : article.sentiment === "negative"
+              ? "😞 سلبي"
+              : "😐 محايد"}
+          </Badge>
           </motion.div>
         )}
 
@@ -821,5 +824,406 @@ function SmartAuthorSection({ article }: { article: Article }) {
   );
 }
 
-// سأكمل باقي المكونات...
-// [تم الوصول لحد الطول، سأكمل في الرسالة التالية]
+// مكون مشغل الصوت الذكي
+function SmartAudioPlayer({
+  article,
+  audioPlaying,
+  audioProgress,
+  audioDuration,
+  audioCurrentTime,
+  onToggleAudio,
+}: {
+  article: Article;
+  audioPlaying: boolean;
+  audioProgress: number;
+  audioDuration: number;
+  audioCurrentTime: number;
+  onToggleAudio: () => void;
+}) {
+  const themeColor = article.angle?.themeColor || "#3B82F6";
+
+  if (!article.hasAudio) {
+  return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        className="p-4 bg-gray-50 rounded-lg text-center text-gray-500 text-sm"
+      >
+        الصوت غير متوفر حالياً. جاري التوليد...
+      </motion.div>
+    );
+  }
+
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.3 }}
+      className="p-4 bg-white rounded-lg shadow-md flex items-center gap-4"
+    >
+                <Button
+        onClick={onToggleAudio}
+        className="rounded-full w-10 h-10 p-0"
+        style={{ backgroundColor: themeColor }}
+      >
+        {audioPlaying ? "⏸️" : "▶️"}
+                </Button>
+
+      <div className="flex-1">
+        <div className="w-full bg-gray-200 rounded-full h-2">
+          <div
+            className="h-2 rounded-full transition-all duration-300"
+        style={{
+              width: `${audioProgress}%`,
+              backgroundColor: themeColor,
+              }}
+            />
+          </div>
+        <div className="flex justify-between text-xs text-gray-500 mt-1">
+          <span>{formatTime(audioCurrentTime)}</span>
+          <span>{formatTime(audioDuration)}</span>
+        </div>
+    </div>
+
+      <span className="text-sm text-gray-500">صوت AI عربي</span>
+    </motion.div>
+  );
+}
+
+// مكون الاقتباس الافتتاحي الذكي
+function SmartOpeningQuote({
+  article,
+  angle,
+}: {
+  article: Article;
+  angle: {
+    themeColor: string;
+  };
+}) {
+  const quote = article.excerpt
+    ? article.excerpt.slice(0, 150) + "..."
+    : "اقتباس افتتاحي ذكي يلخص جوهر المقال بطريقة إبداعية";
+
+  return (
+    <motion.blockquote
+      initial={{ opacity: 0, x: 50 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.8, delay: 0.4 }}
+      className="italic text-gray-700 text-lg md:text-xl border-r-4 pr-6 py-4 my-8 leading-relaxed relative"
+      style={{ borderColor: angle.themeColor }}
+    >
+      <span className="absolute top-0 right-0 text-6xl text-gray-200 opacity-50 font-serif">“</span>
+      {quote}
+      <span className="absolute bottom-0 left-0 text-6xl text-gray-200 opacity-50 font-serif">”</span>
+    </motion.blockquote>
+  );
+}
+
+// مكون محتوى المقال الذكي
+function SmartArticleContent({ article }: { article: Article }) {
+  const renderedContent = marked(article.content || "");
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, delay: 0.6 }}
+      className="prose prose-lg dark:prose-invert max-w-none leading-relaxed text-gray-800"
+      dangerouslySetInnerHTML={{ __html: renderedContent }}
+    />
+  );
+}
+
+// مكون تحليل AI المتقدم
+function AdvancedAIAnalysis({
+  analysis,
+  article,
+  angle,
+}: {
+  analysis: AIAnalysis;
+  article: Article;
+  angle: {
+    themeColor: string;
+  };
+}) {
+  const getColor = (value: number) => {
+    if (value > 80) return "bg-green-500";
+    if (value > 60) return "bg-yellow-500";
+    return "bg-red-500";
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, delay: 0.8 }}
+      className="mt-12 p-6 bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl shadow-lg"
+    >
+      <div className="flex items-center gap-3 mb-6">
+        <Cpu className="w-6 h-6" style={{ color: angle.themeColor }} />
+        <h3 className="text-xl font-bold text-gray-900">تحليل AI للمقال</h3>
+        <Badge className="text-lg" style={{ backgroundColor: angle.themeColor }}>
+          {analysis.score}%
+        </Badge>
+      </div>
+
+      <p className="text-gray-700 mb-6">{analysis.summary}</p>
+
+      {/* شرائط التقدم */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        {[
+          { label: "الإبداع", value: analysis.creativity },
+          { label: "العمق", value: analysis.depth },
+          { label: "الابتكار", value: analysis.innovation },
+          { label: "القابلية للقراءة", value: analysis.readability },
+          { label: "الخبرة", value: analysis.expertise },
+        ].map((metric) => (
+          <div key={metric.label}>
+            <div className="flex justify-between mb-1">
+              <span className="text-sm font-medium">{metric.label}</span>
+              <span className="text-sm">{metric.value}%</span>
+      </div>
+            <div className="h-2 bg-gray-200 rounded-full">
+              <div
+                className={`h-2 rounded-full ${getColor(metric.value)}`}
+                style={{ width: `${metric.value}%` }}
+            />
+          </div>
+          </div>
+        ))}
+        </div>
+
+      {/* الرؤى الرئيسية */}
+      <div className="mb-6">
+        <h4 className="font-semibold mb-2">الرؤى الرئيسية:</h4>
+        <ul className="list-disc pr-4 space-y-1 text-gray-700">
+          {analysis.keyInsights.map((insight, index) => (
+            <li key={index}>{insight}</li>
+          ))}
+        </ul>
+      </div>
+
+      {/* التوصيات */}
+      <div>
+        <h4 className="font-semibold mb-2">التوصيات:</h4>
+        <ul className="list-disc pr-4 space-y-1 text-gray-700">
+          {analysis.recommendations.map((rec, index) => (
+            <li key={index}>{rec}</li>
+          ))}
+        </ul>
+            </div>
+    </motion.div>
+  );
+}
+
+// مكون شريط التفاعل الذكي
+function SmartInteractionBar({
+  article,
+  isLiked,
+  setIsLiked,
+  isBookmarked,
+  setIsBookmarked,
+  likesCount,
+  commentsCount,
+}: {
+  article: Article;
+  isLiked: boolean;
+  setIsLiked: (value: boolean) => void;
+  isBookmarked: boolean;
+  setIsBookmarked: (value: boolean) => void;
+  likesCount: number;
+  commentsCount: number;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 1 }}
+      className="flex items-center justify-between p-4 bg-white rounded-lg shadow-md mt-8"
+    >
+      <div className="flex items-center gap-4">
+        <Button
+          variant="ghost"
+          onClick={() => setIsLiked(!isLiked)}
+          className={`gap-2 ${isLiked ? "text-red-500" : "text-gray-500"}`}
+        >
+          <span>❤️</span>
+          <span>{likesCount}</span>
+        </Button>
+                <Button
+                  variant="ghost"
+          onClick={() => setIsBookmarked(!isBookmarked)}
+          className={`gap-2 ${isBookmarked ? "text-blue-500" : "text-gray-500"}`}
+                >
+          <Bookmark className="w-5 h-5" />
+                </Button>
+        <Button variant="ghost" className="gap-2 text-gray-500">
+          <span>💬</span>
+          <span>{commentsCount}</span>
+        </Button>
+      </div>
+      <Button variant="ghost" className="gap-2 text-gray-500">
+        <Share2 className="w-5 h-5" />
+        مشاركة
+      </Button>
+    </motion.div>
+  );
+}
+
+// مكون الشريط الجانبي الذكي
+function SmartSidebar({
+  article,
+  aiAnalysis,
+}: {
+  article: Article;
+  aiAnalysis: AIAnalysis | null;
+}) {
+  return (
+    <div className="sticky top-24 space-y-6">
+      {/* إحصائيات سريعة */}
+      <div className="p-4 bg-white rounded-lg shadow-md">
+        <h4 className="font-semibold mb-4">إحصائيات المقال</h4>
+        <ul className="space-y-2 text-sm text-gray-600">
+          <li className="flex justify-between">
+            <span>المشاهدات:</span>
+            <span>{article.views?.toLocaleString() || 0}</span>
+          </li>
+          <li className="flex justify-between">
+            <span>وقت القراءة:</span>
+            <span>{article.readingTime || 5} دقائق</span>
+          </li>
+          {aiAnalysis && (
+            <li className="flex justify-between">
+              <span>تقييم AI:</span>
+              <span className="font-medium">{aiAnalysis.score}%</span>
+            </li>
+          )}
+        </ul>
+      </div>
+
+      {/* العلامات */}
+      {article.tags && article.tags.length > 0 && (
+        <div className="p-4 bg-white rounded-lg shadow-md">
+          <h4 className="font-semibold mb-4">العلامات</h4>
+          <div className="flex flex-wrap gap-2">
+            {article.tags.map((tag) => (
+              <Badge key={tag} variant="outline">
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* مشاركة اجتماعية */}
+      <div className="p-4 bg-white rounded-lg shadow-md">
+        <h4 className="font-semibold mb-4">مشاركة المقال</h4>
+        <div className="flex gap-3">
+          <Button variant="outline" size="sm">تويتر</Button>
+          <Button variant="outline" size="sm">فيسبوك</Button>
+          <Button variant="outline" size="sm">لينكدإن</Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// مكون العودة إلى الزاوية الذكية
+function SmartBackToAngle({ angle }: { angle: { slug: string; title: string; themeColor: string } }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="text-center my-12"
+    >
+      <Link href={`/muqtarab/${angle.slug}`}>
+        <Button
+          size="lg"
+          className="rounded-full px-8 py-3 text-lg font-medium shadow-lg hover:shadow-xl transition-all"
+          style={{ backgroundColor: angle.themeColor }}
+        >
+          <ArrowRight className="w-5 h-5 ml-2" />
+          العودة إلى {angle.title}
+        </Button>
+      </Link>
+    </motion.div>
+  );
+}
+
+// مكون التوصيات الذكية
+function SmartRecommendations({
+  articles,
+  angle,
+  currentArticle,
+}: {
+  articles: Article[];
+  angle: { themeColor: string };
+  currentArticle: Article;
+}) {
+  return (
+    <div className="mt-16">
+      <h3 className="text-2xl font-bold mb-6">مقالات مقترحة لك</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {articles.map((recArticle) => (
+          <Link key={recArticle.id} href={`/muqtarab/articles/${recArticle.slug || recArticle.id}`}>
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              className="p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow"
+            >
+              {recArticle.coverImage && (
+                <Image
+                  src={recArticle.coverImage}
+                  alt={recArticle.title}
+                  width={300}
+                  height={200}
+                  className="rounded-md mb-4"
+                />
+              )}
+              <h4 className="font-semibold mb-2">{recArticle.title}</h4>
+              <p className="text-sm text-gray-600 line-clamp-2">{recArticle.excerpt}</p>
+            </motion.div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// مكون مقالات من زوايا أخرى
+function CrossAngleRecommendations({ articles }: { articles: Article[] }) {
+  return (
+    <div className="mt-16">
+      <h3 className="text-2xl font-bold mb-6">مقالات من زوايا أخرى</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {articles.map((recArticle) => (
+          <Link key={recArticle.id} href={`/muqtarab/articles/${recArticle.slug || recArticle.id}`}>
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              className="p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow"
+            >
+              {recArticle.coverImage && (
+                <Image
+                  src={recArticle.coverImage}
+                  alt={recArticle.title}
+                  width={300}
+                  height={200}
+                  className="rounded-md mb-4"
+                />
+              )}
+              <h4 className="font-semibold mb-2">{recArticle.title}</h4>
+              <p className="text-sm text-gray-600 line-clamp-2">{recArticle.excerpt}</p>
+            </motion.div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
