@@ -40,6 +40,9 @@ interface Comment {
 const ModernCommentsNew: React.FC = () => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [processingComments, setProcessingComments] = useState<Set<string>>(
+    new Set()
+  );
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [stats, setStats] = useState({
@@ -53,6 +56,37 @@ const ModernCommentsNew: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 20;
 
+  // التحقق من المصادقة
+  const checkAuth = async () => {
+    try {
+      const res = await fetch("/api/user/me", {
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          alert("انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى.");
+          window.location.href = "/admin-login";
+          return false;
+        }
+      }
+
+      const user = await res.json();
+      if (!user?.isAdmin && !["admin", "moderator"].includes(user?.role)) {
+        alert("ليس لديك صلاحية للوصول إلى هذه الصفحة.");
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      console.error("خطأ في التحقق من المصادقة:", e);
+      return false;
+    }
+  };
+
   // تحميل فعلي من API
   const fetchComments = async () => {
     setLoading(true);
@@ -62,12 +96,30 @@ const ModernCommentsNew: React.FC = () => {
       if (searchTerm.trim()) params.set("q", searchTerm.trim());
       params.set("page", String(page));
       params.set("limit", String(pageSize));
+
       const res = await fetch(`/api/comments?${params.toString()}`, {
         cache: "no-store",
         credentials: "include",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
       });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          alert("انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى.");
+          window.location.href = "/admin-login";
+          return;
+        } else if (res.status === 403) {
+          alert("ليس لديك صلاحية للوصول إلى هذه الصفحة.");
+          return;
+        }
+        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+      }
+
       const json = await res.json().catch(() => ({}));
-      if (res.ok && json && json.success) {
+      if (json && json.success) {
         const list = json.comments || json.data || [];
         setComments(list);
         if (json.stats) {
@@ -78,11 +130,21 @@ const ModernCommentsNew: React.FC = () => {
         }
         setTotalPages(json.pagination?.totalPages || 1);
       } else {
-        // عند الفشل، اظهر فراغ ولكن لا تعلّق الواجهة
+        console.warn(
+          "فشل في جلب التعليقات:",
+          json.error || "استجابة غير صالحة"
+        );
         setComments([]);
       }
     } catch (e) {
       console.error("تعذر جلب التعليقات:", e);
+      const errorMessage = e instanceof Error ? e.message : "خطأ غير معروف";
+      if (
+        !errorMessage.includes("HTTP 401") &&
+        !errorMessage.includes("HTTP 403")
+      ) {
+        alert(`فشل في تحميل التعليقات: ${errorMessage}`);
+      }
       setComments([]);
     } finally {
       setLoading(false);
@@ -90,7 +152,14 @@ const ModernCommentsNew: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchComments();
+    const initPage = async () => {
+      const isAuthenticated = await checkAuth();
+      if (isAuthenticated) {
+        await fetchComments();
+      }
+    };
+
+    initPage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterStatus, searchTerm, page]);
 
@@ -118,26 +187,66 @@ const ModernCommentsNew: React.FC = () => {
   };
 
   const updateStatus = async (id: string, status: Comment["status"]) => {
+    // إضافة التعليق للقائمة المعالجة
+    setProcessingComments((prev) => new Set([...prev, id]));
+
     // تفاؤليًا
     const prev = comments;
     setComments((list) =>
       list.map((c) => (c.id === id ? { ...c, status } : c))
     );
+
     try {
       const res = await fetch(`/api/comments/${id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         credentials: "include",
         body: JSON.stringify({ status }),
       });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        let errorMessage = "فشل التحديث";
+
+        try {
+          const json = JSON.parse(errorText);
+          errorMessage = json.error || errorMessage;
+        } catch {
+          if (res.status === 401) {
+            errorMessage = "غير مصرح - يرجى تسجيل الدخول مرة أخرى";
+          } else if (res.status === 403) {
+            errorMessage = "ليس لديك صلاحية للوصول";
+          } else {
+            errorMessage = `خطأ ${res.status}: ${errorText}`;
+          }
+        }
+
+        throw new Error(errorMessage);
+      }
+
       const json = await res.json();
-      if (!json.success) throw new Error(json.error || "فشل التحديث");
+      if (!json.success) {
+        throw new Error(json.error || "فشل التحديث");
+      }
+
       // إعادة التحميل لتحديث الإحصائيات والبيانات
-      fetchComments();
+      await fetchComments();
     } catch (e) {
       // تراجع
       setComments(prev);
-      console.error(e);
+      const errorMessage = e instanceof Error ? e.message : "حدث خطأ غير متوقع";
+      console.error("خطأ في تحديث التعليق:", e);
+      alert(`حدث خطأ في تحديث التعليق: ${errorMessage}`);
+    } finally {
+      // إزالة التعليق من القائمة المعالجة
+      setProcessingComments((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(id);
+        return newSet;
+      });
     }
   };
 
@@ -395,6 +504,7 @@ const ModernCommentsNew: React.FC = () => {
           <DesignComponents.StandardCard
             key={comment.id}
             className="w-full max-w-none p-6"
+            data-comment-id={comment.id}
           >
             <div className="flex items-start justify-between gap-4">
               {/* رأس البطاقة */}
@@ -428,24 +538,44 @@ const ModernCommentsNew: React.FC = () => {
                   <>
                     <button
                       onClick={() => handleApprove(comment.id)}
-                      className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors text-sm"
+                      disabled={processingComments.has(comment.id)}
+                      className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm font-medium"
                     >
-                      <Check className="w-3 h-3" /> موافقة
+                      {processingComments.has(comment.id) ? (
+                        <div className="w-3 h-3 border border-green-600 border-t-transparent rounded-full animate-spin"></div>
+                      ) : (
+                        <Check className="w-3 h-3" />
+                      )}{" "}
+                      موافقة
                     </button>
                     <button
                       onClick={() => handleReject(comment.id)}
-                      className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm"
+                      disabled={processingComments.has(comment.id)}
+                      className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm font-medium"
                     >
-                      <X className="w-3 h-3" /> رفض
+                      {processingComments.has(comment.id) ? (
+                        <div className="w-3 h-3 border border-red-600 border-t-transparent rounded-full animate-spin"></div>
+                      ) : (
+                        <X className="w-3 h-3" />
+                      )}{" "}
+                      رفض
                     </button>
                   </>
                 )}
-                <button
-                  onClick={() => handleMarkAsSpam(comment.id)}
-                  className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm"
-                >
-                  <Flag className="w-3 h-3" /> سبام
-                </button>
+                {comment.status !== "spam" && (
+                  <button
+                    onClick={() => handleMarkAsSpam(comment.id)}
+                    disabled={processingComments.has(comment.id)}
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm font-medium"
+                  >
+                    {processingComments.has(comment.id) ? (
+                      <div className="w-3 h-3 border border-gray-600 border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
+                      <Flag className="w-3 h-3" />
+                    )}{" "}
+                    سبام
+                  </button>
+                )}
               </div>
             </div>
 

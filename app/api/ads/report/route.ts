@@ -1,5 +1,5 @@
 import { getUserFromCookie } from "@/lib/auth-utils";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 // تقرير شامل عن الإعلانات

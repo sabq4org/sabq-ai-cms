@@ -113,11 +113,14 @@ export async function getCurrentUser(): Promise<User | null> {
             });
             await prisma.$disconnect();
             if (!user) return null;
-            const superAdmins = (process.env.SUPER_ADMIN_EMAILS || "admin@sabq.ai")
+            const superAdmins = (
+              process.env.SUPER_ADMIN_EMAILS || "admin@sabq.ai"
+            )
               .split(",")
               .map((s) => s.trim().toLowerCase())
               .filter(Boolean);
-            const isSuper = !!user.email && superAdmins.includes(user.email.toLowerCase());
+            const isSuper =
+              !!user.email && superAdmins.includes(user.email.toLowerCase());
             return {
               id: user.id,
               email: user.email,
@@ -160,7 +163,8 @@ export async function getCurrentUser(): Promise<User | null> {
       .split(",")
       .map((s) => s.trim().toLowerCase())
       .filter(Boolean);
-    const isSuper = !!user.email && superAdmins.includes(user.email.toLowerCase());
+    const isSuper =
+      !!user.email && superAdmins.includes(user.email.toLowerCase());
     return {
       id: user.id,
       email: user.email,
@@ -228,6 +232,47 @@ export function generateInviteToken(): string {
   return Buffer.from(
     Math.random().toString(36).substring(2) + Date.now()
   ).toString("base64");
+}
+
+// الحصول على دور المستخدم الفعلي بناءً على المعرف
+export async function getEffectiveUserRoleById(
+  userId: string
+): Promise<string> {
+  try {
+    const { PrismaClient } = await import("@prisma/client");
+    const prisma = new PrismaClient();
+
+    const user = await prisma.users.findUnique({
+      where: { id: userId },
+      select: {
+        role: true,
+        is_admin: true,
+        email: true,
+      },
+    });
+
+    await prisma.$disconnect();
+
+    if (!user) return "user";
+
+    // تحقق من Super Admin
+    const superAdmins = (process.env.SUPER_ADMIN_EMAILS || "admin@sabq.ai")
+      .split(",")
+      .map((s) => s.trim().toLowerCase())
+      .filter(Boolean);
+
+    const isSuper =
+      !!user.email && superAdmins.includes(user.email.toLowerCase());
+
+    if (isSuper || user.is_admin) return "admin";
+    if (user.role === "moderator") return "moderator";
+    if (user.role === "editor") return "editor";
+
+    return user.role || "user";
+  } catch (error) {
+    console.error("Error getting user role:", error);
+    return "user";
+  }
 }
 
 // تسجيل نشاط المستخدم
