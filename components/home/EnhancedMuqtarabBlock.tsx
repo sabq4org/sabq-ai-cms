@@ -165,7 +165,18 @@ export default function EnhancedMuqtarabBlock({
               recent: data.stats.recentCount,
             });
 
-            setArticles(data.articles);
+            // إزالة التكرارات حسب slug أو id مع الحفاظ على الترتيب الأول
+            const seenKeys = new Set<string>();
+            const deduped = data.articles.filter((article) => {
+              const baseKey = (article.slug || article.id || "").toString();
+              const key = baseKey.trim().toLowerCase();
+              if (!key) return true; // في حال عدم توفر المفتاح نسمح بالمرور
+              if (seenKeys.has(key)) return false;
+              seenKeys.add(key);
+              return true;
+            });
+
+            setArticles(deduped);
             setApiData(data);
           } else {
             console.warn("❌ [Enhanced Muqtarab] فشل في جلب المقالات");
