@@ -461,20 +461,32 @@ export async function POST(request: NextRequest) {
       category: category.name,
     });
 
-    // تحديد حقول المؤلف بناءً على مصدره
+            // تحديد حقول المؤلف بناءً على مصدره
     if (authorSource === "article_authors") {
       // استخدام النظام الجديد - article_authors
       articleData.article_author_id = author.id;
-      // author_id مطلوب في schema - نحتاج استخدام dummy user أو إصلاح schema
-      // مؤقتاً، سنستخدم ID المؤلف نفسه إذا وُجد في users
-      try {
-        const dummyUser = await prisma.users.findFirst({
-          select: { id: true },
-        });
-        articleData.author_id = dummyUser?.id || author.id; // fallback
-      } catch (error) {
-        articleData.author_id = author.id; // إذا فشل، استخدم نفس ID
-      }
+              // author_id مطلوب في schema — نحاول تعيين مستخدم نظامي ثابت لتفادي P2003
+              try {
+                const superAdmin = await prisma.users.findFirst({
+                  where: {
+                    OR: [
+                      { email: "admin@sabq.ai" },
+                      { is_admin: true },
+                      { role: { in: ["admin", "superadmin", "editor"] } },
+                    ],
+                  },
+                  select: { id: true },
+                });
+                if (superAdmin?.id) {
+                  articleData.author_id = superAdmin.id;
+                } else {
+                  const anyUser = await prisma.users.findFirst({ select: { id: true } });
+                  articleData.author_id = anyUser?.id || author.id; // fallback أخير
+                }
+              } catch (error) {
+                const anyUser = await prisma.users.findFirst({ select: { id: true } });
+                articleData.author_id = anyUser?.id || author.id;
+              }
       console.log("📝 استخدام النظام الجديد: article_author_id =", author.id);
     } else if (authorSource === "users") {
       // استخدام النظام القديم - users
