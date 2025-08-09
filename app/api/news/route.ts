@@ -33,9 +33,17 @@ export async function GET(request: NextRequest) {
       articleType,
     });
 
-    // بناء شروط البحث
+    // بناء فلتر نوع المحتوى: الأخبار = استبعاد الرأي والتحليل والمقابلات
+    const typeFilter =
+      articleType === "news"
+        ? { article_type: { notIn: ["opinion", "analysis", "interview"] } }
+        : articleType === "opinion"
+        ? { article_type: { in: ["opinion", "analysis", "interview"] } }
+        : { article_type: articleType };
+
+    // بناء شروط البحث الأساسية
     const where: any = {
-      article_type: articleType,
+      ...typeFilter,
     };
 
     // تصفية الحالة
@@ -61,10 +69,16 @@ export async function GET(request: NextRequest) {
 
     // البحث النصي
     if (search) {
-      where.OR = [
-        { title: { contains: search, mode: "insensitive" } },
-        { content: { contains: search, mode: "insensitive" } },
-        { summary: { contains: search, mode: "insensitive" } },
+      // إضافة البحث كنقطة AND مع الحفاظ على جميع الفلاتر السابقة
+      where.AND = [
+        ...(where.AND || []),
+        {
+          OR: [
+            { title: { contains: search, mode: "insensitive" } },
+            { content: { contains: search, mode: "insensitive" } },
+            { summary: { contains: search, mode: "insensitive" } },
+          ],
+        },
       ];
     }
 
