@@ -118,11 +118,12 @@ export async function GET(req: NextRequest) {
       cached: true,
     });
     // تمكين الكاش على مستوى CDN والمتصفح (يمكن ضبط القيم لاحقاً)
-    res.headers.set("Cache-Control", "public, max-age=30");
-    res.headers.set("CDN-Cache-Control", "public, s-maxage=180");
+    // تحسين أوقات الكاش لتقليل الضغط على قاعدة البيانات
+    res.headers.set("Cache-Control", "public, max-age=60");
+    res.headers.set("CDN-Cache-Control", "public, s-maxage=3600"); // ساعة كاملة
     res.headers.set(
-      "Vercel-CDN-Cache-Control",
-      "s-maxage=300, stale-while-revalidate=600"
+      "Vercel-CDN-Cache-Control", 
+      "s-maxage=86400, stale-while-revalidate=3600" // يوم كامل مع إعادة التحقق بعد ساعة
     );
     return res;
   } catch (error: any) {

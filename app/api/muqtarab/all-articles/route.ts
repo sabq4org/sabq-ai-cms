@@ -93,11 +93,12 @@ export async function GET(request: NextRequest) {
       },
     });
     // تمكين كاش CDN قصير للمحتوى العام
-    res.headers.set("Cache-Control", "public, max-age=15");
-    res.headers.set("CDN-Cache-Control", "public, s-maxage=120");
+    // رفع أوقات الكاش للمقالات لتقليل الطلبات المتكررة
+    res.headers.set("Cache-Control", "public, max-age=120"); // دقيقتين
+    res.headers.set("CDN-Cache-Control", "public, s-maxage=7200"); // ساعتين
     res.headers.set(
       "Vercel-CDN-Cache-Control",
-      "s-maxage=180, stale-while-revalidate=600"
+      "s-maxage=43200, stale-while-revalidate=7200" // 12 ساعة مع إعادة التحقق بعد ساعتين
     );
     return res;
   } catch (error: any) {

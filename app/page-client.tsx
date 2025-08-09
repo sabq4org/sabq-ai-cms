@@ -514,9 +514,12 @@ function NewspaperHomePage({
         setFeaturedLoading(true);
         // إضافة timestamp لكسر التخزين المؤقت
         const timestamp = new Date().getTime();
-        const response = await fetch(`/api/featured-news-carousel?t=${timestamp}`, {
-          next: { revalidate: 20 },
-        });
+        const response = await fetch(
+          `/api/featured-news-carousel?t=${timestamp}`,
+          {
+            next: { revalidate: 20 },
+          }
+        );
 
         if (response.ok) {
           const data = await response.json();

@@ -45,8 +45,8 @@ const nextConfig = {
     // تقليل التايم أوت
     loader: "default",
     loaderFile: undefined,
-    // تعطيل التحسين مؤقتًا لحل مشكلات رفع الصور
-    unoptimized: true,
+    // تفعيل تحسين الصور لتحسين الأداء
+    unoptimized: false,
     remotePatterns: [
       {
         protocol: "https",

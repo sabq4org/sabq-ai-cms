@@ -1,8 +1,7 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
-import { ImageService } from '@/lib/services/imageService';
+import Image from "next/image";
+import { useState, useEffect, useRef } from "react";
 
 interface OptimizedImageProps {
   src: string;
@@ -11,156 +10,197 @@ interface OptimizedImageProps {
   height?: number;
   className?: string;
   priority?: boolean;
-  fill?: boolean;
   quality?: number;
-  placeholder?: 'blur' | 'empty';
-  blurDataURL?: string;
-  onError?: () => void;
-  category?: string; // إضافة category للصور الاحتياطية المناسبة
+  sizes?: string;
+  fill?: boolean;
+  style?: React.CSSProperties;
+  onLoad?: () => void;
+  fallbackSrc?: string;
 }
-
-// توليد placeholder بسيط
-const generatePlaceholder = (width = 10, height = 10): string => {
-  const canvas = typeof document !== 'undefined' ? document.createElement('canvas') : null;
-  if (!canvas) return '';
-  
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return '';
-  
-  ctx.fillStyle = '#f3f4f6';
-  ctx.fillRect(0, 0, width, height);
-  
-  return canvas.toDataURL();
-};
 
 export default function OptimizedImage({
   src,
   alt,
-  width = 800,
-  height = 600,
-  className = '',
+  width,
+  height,
+  className = "",
   priority = false,
-  fill = false,
   quality = 85,
-  placeholder = 'blur',
-  blurDataURL,
-  onError,
-  category
+  sizes,
+  fill = false,
+  style,
+  onLoad,
+  fallbackSrc = "/images/placeholder.jpg"
 }: OptimizedImageProps) {
-  const [imgSrc, setImgSrc] = useState('');
+  const [imageSrc, setImageSrc] = useState(src);
   const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
-  
+  const [isInView, setIsInView] = useState(false);
+  const imageRef = useRef<HTMLDivElement>(null);
+
+  // Intersection Observer لـ lazy loading
   useEffect(() => {
-    if (!src) {
-      setImgSrc(ImageService.getFallbackImage(category));
+    if (priority) {
+      setIsInView(true);
       return;
     }
 
-    // معالجة روابط S3 بطريقة خاصة
-    if (src.includes('amazonaws.com')) {
-      try {
-        // استخدام API الصور الداخلية مباشرة
-        const apiUrl = `/api/images/optimize?url=${encodeURIComponent(src)}&w=${width}&h=${height}&f=webp&q=${quality}`;
-        setImgSrc(apiUrl);
-      } catch (error) {
-        console.warn('خطأ في معالجة صورة S3:', error);
-        // مواصلة المعالجة العادية
-        const optimizedUrl = ImageService.getOptimizedImageUrl(src, {
-          width,
-          height,
-          quality,
-          format: 'webp',
-          fit: 'cover'
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsInView(true);
+            observer.disconnect();
+          }
         });
-
-        setImgSrc(optimizedUrl);
+      },
+      {
+        // تحميل الصور قبل 200px من الظهور
+        rootMargin: '200px',
+        threshold: 0.01
       }
-      setHasError(false);
-      return;
+    );
+
+    if (imageRef.current) {
+      observer.observe(imageRef.current);
     }
 
-    // تحسين الصورة باستخدام الخدمة الجديدة
-    const optimizedUrl = ImageService.getOptimizedImageUrl(src, {
-      width,
-      height,
-      quality,
-      format: 'webp',
-      fit: 'cover'
-    });
+    return () => {
+      observer.disconnect();
+    };
+  }, [priority]);
 
-    setImgSrc(optimizedUrl);
-    setHasError(false);
-  }, [src, width, height, quality, category]);
-  
+  // معالجة أخطاء تحميل الصور
   const handleError = () => {
     console.warn(`فشل تحميل الصورة: ${src}`);
-    if (!hasError) {
-      setHasError(true);
-      setImgSrc(ImageService.getFallbackImage(category));
-      onError?.();
+    if (fallbackSrc && imageSrc !== fallbackSrc) {
+      setImageSrc(fallbackSrc);
     }
   };
-  
+
+  // معالجة اكتمال التحميل
   const handleLoad = () => {
     setIsLoading(false);
+    if (onLoad) {
+      onLoad();
+    }
   };
-  
-  // إنشاء blur placeholder إذا لم يتم توفيره
-  const placeholderData = blurDataURL || generatePlaceholder();
-  
-  // تحسين مسار الصورة
-  const optimizedSrc = imgSrc.startsWith('http') ? imgSrc : 
-    imgSrc.startsWith('/') ? imgSrc : `/${imgSrc}`;
-  
-  if (fill) {
+
+  // عنصر placeholder أثناء التحميل
+  const placeholder = (
+    <div 
+      className={`bg-gray-200 dark:bg-gray-700 animate-pulse ${className}`}
+      style={{
+        width: fill ? '100%' : width,
+        height: fill ? '100%' : height,
+        ...style
+      }}
+    />
+  );
+
+  // إذا لم تكن الصورة في مجال الرؤية بعد
+  if (!isInView) {
     return (
-      <div className={`relative ${className}`}>
-        {isLoading && placeholder === 'blur' && (
-          <div 
-            className="absolute inset-0 bg-gray-200 animate-pulse"
-            style={{ filter: 'blur(20px)' }}
-          />
-        )}
-        <Image
-          src={optimizedSrc}
-          alt={alt}
-          fill
-          quality={quality}
-          priority={priority}
-          className={`object-cover ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
-          onError={handleError}
-          onLoad={handleLoad}
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        />
+      <div ref={imageRef}>
+        {placeholder}
       </div>
     );
   }
-  
+
   return (
-    <div className={`relative ${className}`} style={{ width, height }}>
-      {isLoading && placeholder === 'blur' && (
-        <div 
-          className="absolute inset-0 bg-gray-200 animate-pulse"
-          style={{ filter: 'blur(20px)' }}
-        />
-      )}
+    <div ref={imageRef} className="relative">
+      {isLoading && placeholder}
+      
       <Image
-        src={optimizedSrc}
+        src={imageSrc}
         alt={alt}
-        width={width}
-        height={height}
-        quality={quality}
+        width={!fill ? width : undefined}
+        height={!fill ? height : undefined}
+        fill={fill}
+        className={`${className} ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
         priority={priority}
-        placeholder={placeholder}
-        blurDataURL={placeholderData}
-        className={`${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
-        onError={handleError}
+        quality={quality}
+        sizes={sizes || "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"}
+        style={style}
         onLoad={handleLoad}
-        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        onError={handleError}
+        loading={priority ? "eager" : "lazy"}
+        placeholder="empty" // لتجنب blur placeholder الافتراضي
       />
     </div>
+  );
+}
+
+// مكون محسن لصور المقالات
+export function ArticleImage({ 
+  src, 
+  alt, 
+  caption 
+}: { 
+  src: string; 
+  alt: string; 
+  caption?: string;
+}) {
+  return (
+    <figure className="my-6">
+      <OptimizedImage
+        src={src}
+        alt={alt}
+        width={800}
+        height={450}
+        className="rounded-lg shadow-lg w-full h-auto"
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 800px"
+        quality={90}
+      />
+      {caption && (
+        <figcaption className="text-center text-sm text-gray-500 dark:text-gray-400 mt-2">
+          {caption}
+        </figcaption>
+      )}
+    </figure>
+  );
+}
+
+// مكون محسن لصور البطاقات
+export function CardImage({ 
+  src, 
+  alt,
+  className = ""
+}: { 
+  src: string; 
+  alt: string;
+  className?: string;
+}) {
+  return (
+    <OptimizedImage
+      src={src}
+      alt={alt}
+      fill
+      className={`object-cover ${className}`}
+      sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
+      quality={75} // جودة أقل للبطاقات
+    />
+  );
+}
+
+// مكون محسن لصور الـ Hero
+export function HeroImage({ 
+  src, 
+  alt,
+  priority = true
+}: { 
+  src: string; 
+  alt: string;
+  priority?: boolean;
+}) {
+  return (
+    <OptimizedImage
+      src={src}
+      alt={alt}
+      fill
+      className="object-cover"
+      sizes="100vw"
+      quality={95}
+      priority={priority}
+    />
   );
 }

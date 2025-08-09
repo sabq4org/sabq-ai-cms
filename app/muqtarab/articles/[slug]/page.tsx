@@ -38,7 +38,12 @@ type FetchedArticle = {
   content: string;
   excerpt?: string;
   author?: { id: string; name: string; avatar?: string } | null;
-  corner: { id: string; name: string; slug: string; theme_color: string } | null;
+  corner: {
+    id: string;
+    name: string;
+    slug: string;
+    theme_color: string;
+  } | null;
   sentiment?: "neutral" | "positive" | "critical";
   tags?: string[];
   coverImage?: string | null;
@@ -72,16 +77,22 @@ export default function MuqtarabArticlePage() {
         if (!slug) return;
 
         // جلب بيانات المقال عبر الـ slug مباشرة
-        const res = await fetch(`/api/muqtarab/articles/${encodeURIComponent(slug)}`, {
-          cache: "no-store",
-        });
+        const res = await fetch(
+          `/api/muqtarab/articles/${encodeURIComponent(slug)}`,
+          {
+            cache: "no-store",
+          }
+        );
 
         if (!res.ok) {
           router.push("/muqtarab");
           return;
         }
 
-        const data = (await res.json()) as { success: boolean; article?: FetchedArticle };
+        const data = (await res.json()) as {
+          success: boolean;
+          article?: FetchedArticle;
+        };
         if (!data?.success || !data.article) {
           router.push("/muqtarab");
           return;
@@ -115,11 +126,17 @@ export default function MuqtarabArticlePage() {
           tags: fetched.tags,
           coverImage: fetched.coverImage || undefined,
           isPublished: fetched.isPublished,
-          publishDate: fetched.publishDate ? new Date(fetched.publishDate) : undefined,
+          publishDate: fetched.publishDate
+            ? new Date(fetched.publishDate)
+            : undefined,
           readingTime: fetched.readingTime || undefined,
           views: fetched.views || undefined,
-          createdAt: fetched.createdAt ? new Date(fetched.createdAt) : (new Date() as any),
-          updatedAt: fetched.updatedAt ? new Date(fetched.updatedAt) : (new Date() as any),
+          createdAt: fetched.createdAt
+            ? new Date(fetched.createdAt)
+            : (new Date() as any),
+          updatedAt: fetched.updatedAt
+            ? new Date(fetched.updatedAt)
+            : (new Date() as any),
         };
 
         setArticle(uiArticle);
@@ -133,7 +150,9 @@ export default function MuqtarabArticlePage() {
             const relatedJson = await related.json();
             const items = (relatedJson.articles || []) as AngleArticle[];
             // استبعاد المقال الحالي + أخذ 3 فقط
-            setRelatedArticles((items || []).filter((a) => a.slug !== uiArticle.slug).slice(0, 3));
+            setRelatedArticles(
+              (items || []).filter((a) => a.slug !== uiArticle.slug).slice(0, 3)
+            );
           }
 
           // جلب مقالات من زوايا أخرى
@@ -174,7 +193,9 @@ export default function MuqtarabArticlePage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">المقال غير موجود</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            المقال غير موجود
+          </h1>
           <p className="text-gray-600 mb-4">لم يتم العثور على المقال المطلوب</p>
           <Link href="/muqtarab">
             <Button>العودة إلى مُقترب</Button>
@@ -201,7 +222,12 @@ export default function MuqtarabArticlePage() {
         {/* صورة الغلاف */}
         {article.coverImage && (
           <div className="relative w-full h-48 md:h-80 lg:h-96 rounded-lg md:rounded-2xl overflow-hidden mb-4 md:mb-8 shadow-sm md:shadow-lg">
-            <Image src={article.coverImage} alt={article.title} fill className="object-cover" />
+            <Image
+              src={article.coverImage}
+              alt={article.title}
+              fill
+              className="object-cover"
+            />
           </div>
         )}
 
@@ -217,23 +243,39 @@ export default function MuqtarabArticlePage() {
         {/* التفاعل والمشاركة */}
         <div className="flex flex-wrap items-center justify-between gap-3 md:gap-4 p-4 md:p-6 bg-white rounded-lg md:rounded-xl border">
           <div className="flex items-center gap-2 md:gap-4">
-            <Button size="sm" variant="ghost" className="h-8 md:h-9 px-2 md:px-3">
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-8 md:h-9 px-2 md:px-3"
+            >
               <Heart className="w-4 h-4 ml-1" />
               <span className="hidden sm:inline">إعجاب</span>
               <span className="text-xs text-gray-500 ml-1">142</span>
             </Button>
-            <Button size="sm" variant="ghost" className="h-8 md:h-9 px-2 md:px-3">
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-8 md:h-9 px-2 md:px-3"
+            >
               <MessageCircle className="w-4 h-4 ml-1" />
               <span className="hidden sm:inline">تعليق</span>
               <span className="text-xs text-gray-500 ml-1">23</span>
             </Button>
-            <Button size="sm" variant="ghost" className="h-8 md:h-9 px-2 md:px-3">
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-8 md:h-9 px-2 md:px-3"
+            >
               <Bookmark className="w-4 h-4 ml-1" />
               <span className="hidden sm:inline">حفظ</span>
             </Button>
           </div>
           <div className="flex items-center gap-2">
-            <Button size="sm" variant="outline" className="h-8 md:h-9 px-2 md:px-3">
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-8 md:h-9 px-2 md:px-3"
+            >
               <Share2 className="w-4 h-4 ml-1" />
               <span className="hidden sm:inline">مشاركة</span>
             </Button>
@@ -251,7 +293,9 @@ export default function MuqtarabArticlePage() {
               style={{ backgroundColor: angleColor, borderColor: angleColor }}
             >
               <ArrowLeft className="w-4 h-4 ml-2" />
-              <span className="hidden sm:inline">العودة إلى زاوية {angle.title}</span>
+              <span className="hidden sm:inline">
+                العودة إلى زاوية {angle.title}
+              </span>
               <span className="sm:hidden">العودة للزاوية</span>
             </Button>
           </Link>
@@ -259,7 +303,11 @@ export default function MuqtarabArticlePage() {
 
         {/* مقالات ذات صلة */}
         {relatedArticles.length > 0 && (
-          <SmartRecommendations articles={relatedArticles} angle={angle} currentArticle={article} />
+          <SmartRecommendations
+            articles={relatedArticles}
+            angle={angle}
+            currentArticle={article}
+          />
         )}
 
         {/* مقالات من زوايا أخرى */}
@@ -271,7 +319,13 @@ export default function MuqtarabArticlePage() {
   );
 }
 
-function StickyHeader({ angle, article }: { angle: AngleSummary; article: AngleArticle }) {
+function StickyHeader({
+  angle,
+  article,
+}: {
+  angle: AngleSummary;
+  article: AngleArticle;
+}) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -284,7 +338,10 @@ function StickyHeader({ angle, article }: { angle: AngleSummary; article: AngleA
 
   return (
     <div className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-b z-50 transition-all duration-200">
-      <div className="h-1 w-full" style={{ backgroundColor: angle.themeColor }} />
+      <div
+        className="h-1 w-full"
+        style={{ backgroundColor: angle.themeColor }}
+      />
       <div className="max-w-7xl mx-auto px-3 md:px-4 py-2 md:py-3 flex items-center justify-between">
         <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
           <Link href={`/muqtarab/${angle.slug}`}>
@@ -301,18 +358,29 @@ function StickyHeader({ angle, article }: { angle: AngleSummary; article: AngleA
               <span className="sm:hidden">الزاوية</span>
             </Badge>
           </Link>
-          <Separator orientation="vertical" className="h-3 md:h-4 hidden sm:block" />
+          <Separator
+            orientation="vertical"
+            className="h-3 md:h-4 hidden sm:block"
+          />
           <span className="text-xs md:text-sm text-gray-600 truncate max-w-[120px] sm:max-w-md">
             {article.title}
           </span>
         </div>
 
         <div className="flex items-center gap-1 md:gap-2">
-          <Button size="sm" variant="ghost" className="h-8 w-8 md:h-9 md:w-auto md:px-3">
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-8 w-8 md:h-9 md:w-auto md:px-3"
+          >
             <Bookmark className="w-3 h-3 md:w-4 md:h-4" />
             <span className="hidden md:inline ml-1">حفظ</span>
           </Button>
-          <Button size="sm" variant="ghost" className="h-8 w-8 md:h-9 md:w-auto md:px-3">
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-8 w-8 md:h-9 md:w-auto md:px-3"
+          >
             <Share2 className="w-3 h-3 md:w-4 md:h-4" />
             <span className="hidden md:inline ml-1">مشاركة</span>
           </Button>
@@ -322,14 +390,23 @@ function StickyHeader({ angle, article }: { angle: AngleSummary; article: AngleA
   );
 }
 
-function Breadcrumbs({ angle, article }: { angle: AngleSummary; article: AngleArticle }) {
+function Breadcrumbs({
+  angle,
+  article,
+}: {
+  angle: AngleSummary;
+  article: AngleArticle;
+}) {
   return (
     <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
       <Link href="/muqtarab" className="hover:text-blue-600 transition-colors">
         مُقترب
       </Link>
       <span>/</span>
-      <Link href={`/muqtarab/${angle.slug}`} className="hover:text-blue-600 transition-colors">
+      <Link
+        href={`/muqtarab/${angle.slug}`}
+        className="hover:text-blue-600 transition-colors"
+      >
         {angle.title}
       </Link>
       <span>/</span>
@@ -338,7 +415,13 @@ function Breadcrumbs({ angle, article }: { angle: AngleSummary; article: AngleAr
   );
 }
 
-function ArticleHeader({ article, angle }: { article: AngleArticle; angle: AngleSummary }) {
+function ArticleHeader({
+  article,
+  angle,
+}: {
+  article: AngleArticle;
+  angle: AngleSummary;
+}) {
   return (
     <div className="mb-4 md:mb-8">
       <div className="flex flex-wrap items-center gap-1 md:gap-2 mb-3 md:mb-4">
@@ -346,7 +429,10 @@ function ArticleHeader({ article, angle }: { article: AngleArticle; angle: Angle
           <Badge
             variant="secondary"
             className="hover:bg-blue-100 transition-colors cursor-pointer text-xs md:text-sm"
-            style={{ backgroundColor: angle.themeColor + "20", color: angle.themeColor }}
+            style={{
+              backgroundColor: angle.themeColor + "20",
+              color: angle.themeColor,
+            }}
           >
             <Cpu className="w-3 h-3 ml-1" />
             {angle.title}
@@ -380,7 +466,9 @@ function ArticleHeader({ article, angle }: { article: AngleArticle; angle: Angle
       <div className="mb-4" />
 
       {article.excerpt && (
-        <p className="text-base md:text-xl text-gray-700 mb-4 md:mb-8 leading-relaxed">{article.excerpt}</p>
+        <p className="text-base md:text-xl text-gray-700 mb-4 md:mb-8 leading-relaxed">
+          {article.excerpt}
+        </p>
       )}
 
       <OpeningQuote article={article} angle={angle} />
@@ -404,34 +492,64 @@ function ArticleContent({ article }: { article: AngleArticle }) {
       .replace(/\*(.*?)\*/g, "<em>$1</em>")
       .replace(/<u>(.*?)<\/u>/g, "<u>$1</u>")
       .replace(/~~(.*?)~~/g, "<del>$1</del>")
-      .replace(/^### (.*$)/gm, '<h3 class="text-lg md:text-xl font-bold text-gray-900 mt-4 md:mt-6 mb-2 md:mb-4">$1<\/h3>')
-      .replace(/^## (.*$)/gm, '<h2 class="text-xl md:text-2xl font-bold text-gray-900 mt-5 md:mt-8 mb-3 md:mb-4">$1<\/h2>')
-      .replace(/^# (.*$)/gm, '<h1 class="text-2xl md:text-3xl font-bold text-gray-900 mt-6 md:mt-8 mb-4 md:mb-6">$1<\/h1>')
-      .replace(/^> (.*$)/gm, '<blockquote class="border-r-4 border-blue-400 pr-3 md:pr-4 mr-2 md:mr-4 text-gray-600 italic my-3 md:my-4">$1<\/blockquote>')
-      .replace(/^- (.*$)/gm, '<li class="mb-1">$1<\/li>')
-      .replace(/^1\. (.*$)/gm, '<li class="mb-1">$1<\/li>')
-      .replace(/`(.*?)`/g, '<code class="bg-gray-100 px-2 py-1 rounded text-sm font-mono">$1<\/code>')
-      .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" class="text-blue-600 hover:text-blue-800 underline">$1<\/a>')
-      .replace(/```([\s\S]*?)```/g, '<pre class="bg-gray-100 p-3 md:p-4 rounded-lg overflow-x-auto my-3 md:my-4"><code class="text-sm">$1<\/code><\/pre>')
+      .replace(
+        /^### (.*$)/gm,
+        '<h3 class="text-lg md:text-xl font-bold text-gray-900 mt-4 md:mt-6 mb-2 md:mb-4">$1</h3>'
+      )
+      .replace(
+        /^## (.*$)/gm,
+        '<h2 class="text-xl md:text-2xl font-bold text-gray-900 mt-5 md:mt-8 mb-3 md:mb-4">$1</h2>'
+      )
+      .replace(
+        /^# (.*$)/gm,
+        '<h1 class="text-2xl md:text-3xl font-bold text-gray-900 mt-6 md:mt-8 mb-4 md:mb-6">$1</h1>'
+      )
+      .replace(
+        /^> (.*$)/gm,
+        '<blockquote class="border-r-4 border-blue-400 pr-3 md:pr-4 mr-2 md:mr-4 text-gray-600 italic my-3 md:my-4">$1</blockquote>'
+      )
+      .replace(/^- (.*$)/gm, '<li class="mb-1">$1</li>')
+      .replace(/^1\. (.*$)/gm, '<li class="mb-1">$1</li>')
+      .replace(
+        /`(.*?)`/g,
+        '<code class="bg-gray-100 px-2 py-1 rounded text-sm font-mono">$1</code>'
+      )
+      .replace(
+        /\[(.*?)\]\((.*?)\)/g,
+        '<a href="$2" target="_blank" class="text-blue-600 hover:text-blue-800 underline">$1</a>'
+      )
+      .replace(
+        /```([\s\S]*?)```/g,
+        '<pre class="bg-gray-100 p-3 md:p-4 rounded-lg overflow-x-auto my-3 md:my-4"><code class="text-sm">$1</code></pre>'
+      )
       .replace(/---/g, '<hr class="my-4 md:my-6 border-gray-300">')
       .replace(/\n\n/g, '</p><p class="mb-3 md:mb-4">')
-      .replace(/^\s*(.+)/gm, '<p class="mb-3 md:mb-4">$1<\/p>');
+      .replace(/^\s*(.+)/gm, '<p class="mb-3 md:mb-4">$1</p>');
   };
 
   return (
     <div className="mb-6 md:mb-8">
       <div
         className="prose prose-base md:prose-lg dark:prose-invert max-w-none leading-relaxed text-gray-800"
-        dangerouslySetInnerHTML={{ __html: renderMarkdownContent(article.content || "") }}
+        dangerouslySetInnerHTML={{
+          __html: renderMarkdownContent(article.content || ""),
+        }}
         style={{ whiteSpace: "pre-line", lineHeight: "1.7", fontSize: "1rem" }}
       />
     </div>
   );
 }
 
-function OpeningQuote({ article, angle }: { article: AngleArticle; angle: AngleSummary }) {
+function OpeningQuote({
+  article,
+  angle,
+}: {
+  article: AngleArticle;
+  angle: AngleSummary;
+}) {
   const generateSmartQuote = (title: string, angleTitle: string) => {
-    if (title.includes("الخوارزمية")) return "في زمن الخوارزميات... من يوقّع القصيدة؟";
+    if (title.includes("الخوارزمية"))
+      return "في زمن الخوارزميات... من يوقّع القصيدة؟";
     if (title.includes("الذكاء الاصطناعي") || title.includes("AI"))
       return "عندما تصبح الآلة أذكى من الحلم، هل نحلم بآلات كهربائية؟";
     if (angleTitle.includes("تقنية"))
@@ -451,7 +569,13 @@ function OpeningQuote({ article, angle }: { article: AngleArticle; angle: AngleS
   );
 }
 
-function AIAnalysisSection({ article, angle }: { article: AngleArticle; angle: AngleSummary }) {
+function AIAnalysisSection({
+  article,
+  angle,
+}: {
+  article: AngleArticle;
+  angle: AngleSummary;
+}) {
   const calculateAIScore = (content: string, title: string) => {
     let score = 50;
     if (title.match(/(الخوارزمية|AI|ذكاء|اصطناعي)/)) score += 20;
@@ -467,7 +591,11 @@ function AIAnalysisSection({ article, angle }: { article: AngleArticle; angle: A
   const hexToRgb = (hex: string) => {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result
-      ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) }
+      ? {
+          r: parseInt(result[1], 16),
+          g: parseInt(result[2], 16),
+          b: parseInt(result[3], 16),
+        }
       : { r: 59, g: 130, b: 246 };
   };
 
@@ -476,48 +604,63 @@ function AIAnalysisSection({ article, angle }: { article: AngleArticle; angle: A
   const high = {
     text: "إبداعي ومبتكر",
     emoji: "🎯",
-    color: `rgb(${Math.max(0, rgb.r - 50)} ${Math.max(0, rgb.g - 50)} ${Math.max(0, rgb.b - 50)})`,
+    color: `rgb(${Math.max(0, rgb.r - 50)} ${Math.max(
+      0,
+      rgb.g - 50
+    )} ${Math.max(0, rgb.b - 50)})`,
     bgStyle: {
       background: `linear-gradient(135deg, rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.1) 0%, rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.05) 100%)`,
     },
     borderStyle: { borderColor: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.3)` },
     gradientStyle: {
-      background: `linear-gradient(135deg, rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.9) 0%, rgba(${Math.min(
+      background: `linear-gradient(135deg, rgba(${rgb.r}, ${rgb.g}, ${
+        rgb.b
+      }, 0.9) 0%, rgba(${Math.min(255, rgb.r + 30)}, ${Math.min(
         255,
-        rgb.r + 30
-      )}, ${Math.min(255, rgb.g + 30)}, ${Math.min(255, rgb.b + 30)}, 0.9) 100%)`,
+        rgb.g + 30
+      )}, ${Math.min(255, rgb.b + 30)}, 0.9) 100%)`,
     },
   } as const;
 
   const mid = {
     text: "مثير للتفكير",
     emoji: "💡",
-    color: `rgb(${Math.max(0, rgb.r - 30)} ${Math.max(0, rgb.g - 30)} ${Math.max(0, rgb.b - 30)})`,
+    color: `rgb(${Math.max(0, rgb.r - 30)} ${Math.max(
+      0,
+      rgb.g - 30
+    )} ${Math.max(0, rgb.b - 30)})`,
     bgStyle: {
       background: `linear-gradient(135deg, rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.08) 0%, rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.03) 100%)`,
     },
     borderStyle: { borderColor: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.25)` },
     gradientStyle: {
-      background: `linear-gradient(135deg, rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.8) 0%, rgba(${Math.min(
+      background: `linear-gradient(135deg, rgba(${rgb.r}, ${rgb.g}, ${
+        rgb.b
+      }, 0.8) 0%, rgba(${Math.min(255, rgb.r + 20)}, ${Math.min(
         255,
-        rgb.r + 20
-      )}, ${Math.min(255, rgb.g + 20)}, ${Math.min(255, rgb.b + 20)}, 0.8) 100%)`,
+        rgb.g + 20
+      )}, ${Math.min(255, rgb.b + 20)}, 0.8) 100%)`,
     },
   } as const;
 
   const low = {
     text: "تحليل معمق",
     emoji: "🧠",
-    color: `rgb(${Math.max(0, rgb.r - 20)} ${Math.max(0, rgb.g - 20)} ${Math.max(0, rgb.b - 20)})`,
+    color: `rgb(${Math.max(0, rgb.r - 20)} ${Math.max(
+      0,
+      rgb.g - 20
+    )} ${Math.max(0, rgb.b - 20)})`,
     bgStyle: {
       background: `linear-gradient(135deg, rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.06) 0%, rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.02) 100%)`,
     },
     borderStyle: { borderColor: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.2)` },
     gradientStyle: {
-      background: `linear-gradient(135deg, rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.7) 0%, rgba(${Math.min(
+      background: `linear-gradient(135deg, rgba(${rgb.r}, ${rgb.g}, ${
+        rgb.b
+      }, 0.7) 0%, rgba(${Math.min(255, rgb.r + 15)}, ${Math.min(
         255,
-        rgb.r + 15
-      )}, ${Math.min(255, rgb.g + 15)}, ${Math.min(255, rgb.b + 15)}, 0.7) 100%)`,
+        rgb.g + 15
+      )}, ${Math.min(255, rgb.b + 15)}, 0.7) 100%)`,
     },
   } as const;
 
@@ -536,7 +679,10 @@ function AIAnalysisSection({ article, angle }: { article: AngleArticle; angle: A
           🤖
         </div>
         <div>
-          <h3 className="font-bold text-lg md:text-xl mb-1" style={{ color: desc.color }}>
+          <h3
+            className="font-bold text-lg md:text-xl mb-1"
+            style={{ color: desc.color }}
+          >
             تحليل الذكاء الاصطناعي
           </h3>
           <p className="text-sm text-gray-600">تقييم ذكي لجودة وعمق المحتوى</p>
@@ -547,16 +693,19 @@ function AIAnalysisSection({ article, angle }: { article: AngleArticle; angle: A
         <div className="flex items-center gap-3 mb-3">
           <span className="text-2xl">{desc.emoji}</span>
           <div>
-            <p className="text-lg md:text-xl font-bold" style={{ color: desc.color }}>
+            <p
+              className="text-lg md:text-xl font-bold"
+              style={{ color: desc.color }}
+            >
               {aiScore}% - {desc.text}
             </p>
           </div>
         </div>
 
         <p className="text-sm md:text-base text-gray-700 leading-relaxed bg-white/50 p-4 rounded-lg">
-          يصنف هذا المقال كمحتوى <strong>{desc.text.toLowerCase()}</strong> بناءً على تحليل اللغة
-          المستخدمة، عمق الأفكار المطروحة، والاستشراف المستقبلي. تم التقييم باستخدام خوارزميات متقدمة
-          لفهم السياق والمعنى.
+          يصنف هذا المقال كمحتوى <strong>{desc.text.toLowerCase()}</strong>{" "}
+          بناءً على تحليل اللغة المستخدمة، عمق الأفكار المطروحة، والاستشراف
+          المستقبلي. تم التقييم باستخدام خوارزميات متقدمة لفهم السياق والمعنى.
         </p>
       </div>
 
@@ -568,7 +717,10 @@ function AIAnalysisSection({ article, angle }: { article: AngleArticle; angle: A
 
         <div className="relative">
           <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden shadow-inner">
-            <div className="h-full rounded-full transition-all duration-1000 ease-out shadow-sm" style={{ width: `${aiScore}%`, ...desc.gradientStyle }} />
+            <div
+              className="h-full rounded-full transition-all duration-1000 ease-out shadow-sm"
+              style={{ width: `${aiScore}%`, ...desc.gradientStyle }}
+            />
           </div>
           <div className="flex justify-between text-xs text-gray-400 mt-1">
             <span>ضعيف</span>
@@ -582,15 +734,37 @@ function AIAnalysisSection({ article, angle }: { article: AngleArticle; angle: A
         <details className="group/details">
           <summary className="cursor-pointer text-sm text-gray-600 hover:text-gray-800 transition-colors flex items-center gap-2">
             <span>📊 معايير التقييم</span>
-            <svg className="w-4 h-4 transition-transform group-open/details:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            <svg
+              className="w-4 h-4 transition-transform group-open/details:rotate-180"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
             </svg>
           </summary>
           <div className="mt-3 text-xs text-gray-600 space-y-2">
-            <div className="flex justify-between"><span>• تحليل العنوان والكلمات المفتاحية</span><span>20 نقطة</span></div>
-            <div className="flex justify-between"><span>• عمق المحتوى وطول النص</span><span>15 نقطة</span></div>
-            <div className="flex justify-between"><span>• اللغة التحليلية والاستشرافية</span><span>10 نقاط</span></div>
-            <div className="flex justify-between"><span>• التخصص التقني</span><span>5 نقاط</span></div>
+            <div className="flex justify-between">
+              <span>• تحليل العنوان والكلمات المفتاحية</span>
+              <span>20 نقطة</span>
+            </div>
+            <div className="flex justify-between">
+              <span>• عمق المحتوى وطول النص</span>
+              <span>15 نقطة</span>
+            </div>
+            <div className="flex justify-between">
+              <span>• اللغة التحليلية والاستشرافية</span>
+              <span>10 نقاط</span>
+            </div>
+            <div className="flex justify-between">
+              <span>• التخصص التقني</span>
+              <span>5 نقاط</span>
+            </div>
           </div>
         </details>
       </div>
@@ -598,29 +772,59 @@ function AIAnalysisSection({ article, angle }: { article: AngleArticle; angle: A
   );
 }
 
-function AuthorSection({ article, angle }: { article: AngleArticle; angle: AngleSummary }) {
+function AuthorSection({
+  article,
+  angle,
+}: {
+  article: AngleArticle;
+  angle: AngleSummary;
+}) {
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 md:gap-4 p-4 md:p-6 bg-white rounded-lg md:rounded-xl border mb-4 md:mb-8">
       <div className="flex items-center gap-3 md:gap-4">
         {article.author?.avatar ? (
-          <Image src={article.author.avatar} alt={article.author.name} width={40} height={40} className="rounded-full md:w-12 md:h-12" />
+          <Image
+            src={article.author.avatar}
+            alt={article.author.name}
+            width={40}
+            height={40}
+            className="rounded-full md:w-12 md:h-12"
+          />
         ) : (
-          <div className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: angle.themeColor + "20" }}>
-            <User className="w-5 h-5 md:w-6 md:h-6" style={{ color: angle.themeColor }} />
+          <div
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center"
+            style={{ backgroundColor: angle.themeColor + "20" }}
+          >
+            <User
+              className="w-5 h-5 md:w-6 md:h-6"
+              style={{ color: angle.themeColor }}
+            />
           </div>
         )}
 
         <div>
-          <p className="font-semibold text-gray-900 text-sm md:text-base">{article.author?.name}</p>
-          <p className="text-xs md:text-sm text-gray-500">كاتب في {angle.title}</p>
+          <p className="font-semibold text-gray-900 text-sm md:text-base">
+            {article.author?.name}
+          </p>
+          <p className="text-xs md:text-sm text-gray-500">
+            كاتب في {angle.title}
+          </p>
         </div>
       </div>
 
       <div className="flex items-center gap-3 md:gap-6 text-xs md:text-sm text-gray-500 w-full sm:w-auto">
         <div className="flex items-center gap-1">
           <Calendar className="w-3 h-3 md:w-4 md:h-4" />
-          <span className="hidden sm:inline">{new Date(article.publishDate || article.createdAt).toLocaleDateString("ar-SA")}</span>
-          <span className="sm:hidden">{new Date(article.publishDate || article.createdAt).toLocaleDateString("ar-SA", { month: "short", day: "numeric" })}</span>
+          <span className="hidden sm:inline">
+            {new Date(
+              article.publishDate || article.createdAt
+            ).toLocaleDateString("ar-SA")}
+          </span>
+          <span className="sm:hidden">
+            {new Date(
+              article.publishDate || article.createdAt
+            ).toLocaleDateString("ar-SA", { month: "short", day: "numeric" })}
+          </span>
         </div>
         <div className="flex items-center gap-1">
           <Clock className="w-3 h-3 md:w-4 md:h-4" />
@@ -628,15 +832,29 @@ function AuthorSection({ article, angle }: { article: AngleArticle; angle: Angle
         </div>
         <div className="flex items-center gap-1">
           <Eye className="w-3 h-3 md:w-4 md:h-4" />
-          <span className="hidden md:inline">{(article.views || 0).toLocaleString()} مشاهدة</span>
-          <span className="md:hidden">{(article.views || 0) > 1000 ? ((article.views || 0) / 1000).toFixed(1) + "k" : article.views || 0}</span>
+          <span className="hidden md:inline">
+            {(article.views || 0).toLocaleString()} مشاهدة
+          </span>
+          <span className="md:hidden">
+            {(article.views || 0) > 1000
+              ? ((article.views || 0) / 1000).toFixed(1) + "k"
+              : article.views || 0}
+          </span>
         </div>
       </div>
     </div>
   );
 }
 
-function SmartRecommendations({ articles, angle, currentArticle }: { articles: AngleArticle[]; angle: AngleSummary; currentArticle: AngleArticle }) {
+function SmartRecommendations({
+  articles,
+  angle,
+  currentArticle,
+}: {
+  articles: AngleArticle[];
+  angle: AngleSummary;
+  currentArticle: AngleArticle;
+}) {
   if (!articles.length) return null;
 
   const sorted = articles
@@ -649,8 +867,12 @@ function SmartRecommendations({ articles, angle, currentArticle }: { articles: A
       const tagsB = b.tags || [];
       scoreA += currentTags.filter((t) => tagsA.includes(t)).length * 10;
       scoreB += currentTags.filter((t) => tagsB.includes(t)).length * 10;
-      const daysOldA = Math.floor((Date.now() - new Date(a.createdAt).getTime()) / (1000 * 60 * 60 * 24));
-      const daysOldB = Math.floor((Date.now() - new Date(b.createdAt).getTime()) / (1000 * 60 * 60 * 24));
+      const daysOldA = Math.floor(
+        (Date.now() - new Date(a.createdAt).getTime()) / (1000 * 60 * 60 * 24)
+      );
+      const daysOldB = Math.floor(
+        (Date.now() - new Date(b.createdAt).getTime()) / (1000 * 60 * 60 * 24)
+      );
       scoreA += Math.max(0, 30 - daysOldA);
       scoreB += Math.max(0, 30 - daysOldB);
       const rt = currentArticle.readingTime || 5;
@@ -663,35 +885,63 @@ function SmartRecommendations({ articles, angle, currentArticle }: { articles: A
   return (
     <div>
       <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
-        <h2 className="text-lg md:text-2xl font-bold text-gray-900">مقالات أخرى من نفس الزاوية</h2>
-        <div className="px-2 py-1 md:px-3 rounded-full text-xs font-medium text-white" style={{ backgroundColor: angle.themeColor }}>
+        <h2 className="text-lg md:text-2xl font-bold text-gray-900">
+          مقالات أخرى من نفس الزاوية
+        </h2>
+        <div
+          className="px-2 py-1 md:px-3 rounded-full text-xs font-medium text-white"
+          style={{ backgroundColor: angle.themeColor }}
+        >
           ذكاء اصطناعي
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         {sorted.map((a, index) => (
-          <Card key={a.id} className="group rounded-lg md:rounded-xl overflow-hidden border-0 shadow-sm md:shadow-md hover:shadow-md md:hover:shadow-lg transition-all duration-200">
+          <Card
+            key={a.id}
+            className="group rounded-lg md:rounded-xl overflow-hidden border-0 shadow-sm md:shadow-md hover:shadow-md md:hover:shadow-lg transition-all duration-200"
+          >
             <div className="relative h-32 md:h-40 w-full overflow-hidden">
               {a.coverImage ? (
-                <Image src={a.coverImage} alt={a.title} fill className="object-cover group-hover:scale-105 transition-transform duration-200" />
+                <Image
+                  src={a.coverImage}
+                  alt={a.title}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-200"
+                />
               ) : (
-                <div className="w-full h-full opacity-20" style={{ background: `linear-gradient(135deg, ${angle.themeColor} 0%, #1f2937 100%)` }} />
+                <div
+                  className="w-full h-full opacity-20"
+                  style={{
+                    background: `linear-gradient(135deg, ${angle.themeColor} 0%, #1f2937 100%)`,
+                  }}
+                />
               )}
               <div className="absolute top-2 right-2">
-                <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold" style={{ backgroundColor: angle.themeColor }}>
+                <div
+                  className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                  style={{ backgroundColor: angle.themeColor }}
+                >
                   {index + 1}
                 </div>
               </div>
             </div>
             <CardContent className="p-3 md:p-4">
-              <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 leading-tight text-sm md:text-base">{a.title}</h3>
+              <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 leading-tight text-sm md:text-base">
+                {a.title}
+              </h3>
               <div className="flex items-center justify-between text-xs text-gray-500 mb-2 md:mb-3">
                 <span className="truncate">{a.author?.name}</span>
                 <span>{a.readingTime || 5} د</span>
               </div>
               <Link href={`/muqtarab/articles/${a.slug || a.id}`}>
-                <Button variant="ghost" size="sm" className="w-full justify-start p-0 h-6 text-xs md:text-sm" style={{ color: angle.themeColor }}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start p-0 h-6 text-xs md:text-sm"
+                  style={{ color: angle.themeColor }}
+                >
                   <span className="hidden sm:inline">قراءة المقال ←</span>
                   <span className="sm:hidden">قراءة ←</span>
                 </Button>
@@ -710,7 +960,9 @@ function CrossAngleRecommendations({ articles }: { articles: any[] }) {
   return (
     <div className="mt-8 md:mt-12">
       <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
-        <h2 className="text-lg md:text-2xl font-bold text-gray-900">مقالات من زوايا أخرى</h2>
+        <h2 className="text-lg md:text-2xl font-bold text-gray-900">
+          مقالات من زوايا أخرى
+        </h2>
         <div className="px-2 py-1 md:px-3 rounded-full text-xs font-medium bg-gradient-to-r from-purple-500 to-pink-500 text-white">
           استكشف
         </div>
@@ -718,15 +970,31 @@ function CrossAngleRecommendations({ articles }: { articles: any[] }) {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         {articles.map((a, index) => (
-          <Card key={a.id} className="group rounded-lg md:rounded-xl overflow-hidden border-0 shadow-sm md:shadow-md hover:shadow-md md:hover:shadow-lg transition-all duration-200">
+          <Card
+            key={a.id}
+            className="group rounded-lg md:rounded-xl overflow-hidden border-0 shadow-sm md:shadow-md hover:shadow-md md:hover:shadow-lg transition-all duration-200"
+          >
             <div className="relative h-32 md:h-40 w-full overflow-hidden">
               {a.coverImage ? (
-                <Image src={a.coverImage} alt={a.title} fill className="object-cover group-hover:scale-105 transition-transform duration-200" />
+                <Image
+                  src={a.coverImage}
+                  alt={a.title}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-200"
+                />
               ) : (
-                <div className="w-full h-full opacity-20" style={{ background: `linear-gradient(135deg, ${a.angle.themeColor} 0%, #1f2937 100%)` }} />
+                <div
+                  className="w-full h-full opacity-20"
+                  style={{
+                    background: `linear-gradient(135deg, ${a.angle.themeColor} 0%, #1f2937 100%)`,
+                  }}
+                />
               )}
               <div className="absolute top-2 right-2">
-                <Badge className="text-xs font-medium text-white shadow-lg" style={{ backgroundColor: a.angle.themeColor }}>
+                <Badge
+                  className="text-xs font-medium text-white shadow-lg"
+                  style={{ backgroundColor: a.angle.themeColor }}
+                >
                   {a.angle.title}
                 </Badge>
               </div>
@@ -737,7 +1005,11 @@ function CrossAngleRecommendations({ articles }: { articles: any[] }) {
                   {a.title}
                 </h3>
               </Link>
-              {a.excerpt && <p className="text-xs md:text-sm text-gray-600 line-clamp-2 mb-3">{a.excerpt}</p>}
+              {a.excerpt && (
+                <p className="text-xs md:text-sm text-gray-600 line-clamp-2 mb-3">
+                  {a.excerpt}
+                </p>
+              )}
               <div className="flex items-center justify-between text-xs text-gray-500">
                 <div className="flex items-center gap-1">
                   <Clock className="w-3 h-3" />
@@ -745,8 +1017,14 @@ function CrossAngleRecommendations({ articles }: { articles: any[] }) {
                 </div>
                 <div className="flex items-center gap-1">
                   <Eye className="w-3 h-3" />
-                  <span className="hidden md:inline">{(a.views || 0).toLocaleString()} مشاهدة</span>
-                  <span className="md:hidden">{(a.views || 0) > 1000 ? ((a.views || 0) / 1000).toFixed(1) + "k" : a.views || 0}</span>
+                  <span className="hidden md:inline">
+                    {(a.views || 0).toLocaleString()} مشاهدة
+                  </span>
+                  <span className="md:hidden">
+                    {(a.views || 0) > 1000
+                      ? ((a.views || 0) / 1000).toFixed(1) + "k"
+                      : a.views || 0}
+                  </span>
                 </div>
               </div>
             </div>
@@ -756,5 +1034,3 @@ function CrossAngleRecommendations({ articles }: { articles: any[] }) {
     </div>
   );
 }
-
-
