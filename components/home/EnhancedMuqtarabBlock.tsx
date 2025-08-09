@@ -243,7 +243,7 @@ export default function EnhancedMuqtarabBlock({
 
   // مكون البطاقة المميزة - تصميم مختلف للديسكتوب والهواتف
   const FeaturedArticleCard = ({ article }: { article: AngleArticle }) => {
-    const themeColor = article.angle.themeColor || "#6366f1";
+    const themeColor = article.angle?.themeColor || "#6366f1";
 
     return (
       <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-0 shadow-sm dark:bg-gray-800/50 dark:hover:bg-gray-800/80 relative">
@@ -465,7 +465,7 @@ export default function EnhancedMuqtarabBlock({
 
   // مكون بطاقة المقال العادية
   const ArticleCard = ({ article }: { article: AngleArticle }) => {
-    const themeColor = article.angle.themeColor || "#6366f1";
+    const themeColor = article.angle?.themeColor || "#6366f1";
 
     return (
       <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-0 shadow-sm dark:bg-gray-800/50 dark:hover:bg-gray-800/80 relative">

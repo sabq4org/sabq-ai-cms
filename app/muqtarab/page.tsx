@@ -133,19 +133,7 @@ function MuqtaribPageContent() {
             setFilteredAngles(data.angles || []);
             setHeroArticle(data.heroArticle);
             setStats(data.stats);
-            // تنظيف البيانات للتأكد من سلامة البنية
-            const cleanedFeaturedArticles = (data.featuredArticles || []).map(
-              (article: any) => ({
-                ...article,
-                angle: article.angle || {
-                  title: "عام",
-                  slug: "general",
-                  themeColor: "#3B82F6",
-                },
-                author: article.author || { name: "مؤلف" },
-              })
-            );
-            setFeaturedArticles(cleanedFeaturedArticles);
+            setFeaturedArticles(data.featuredArticles || []);
 
             return; // نجح التحميل المُحسّن
           }
@@ -521,9 +509,7 @@ function MobileHeroCard({ heroArticle }: { heroArticle: HeroArticle }) {
             <span>{heroArticle.readingTime} د</span>
           </div>
           <Link
-            href={`/muqtarab/${heroArticle.angle?.slug || "general"}/${
-              heroArticle.slug || heroArticle.id
-            }`}
+            href={`/muqtarab/articles/${heroArticle.slug || heroArticle.id}`}
           >
             <Button size="sm" className="text-xs px-3 py-1 h-7">
               قراءة
@@ -660,7 +646,7 @@ function AngleCard({ angle }: { angle: Angle }) {
           </div>
           <div className="flex items-center gap-1">
             <Users className="w-4 h-4" />
-            <span>{angle.author?.name || "مؤلف"}</span>
+            <span>{angle.author?.name}</span>
           </div>
         </div>
 
@@ -686,32 +672,14 @@ function AngleCard({ angle }: { angle: Angle }) {
 
 // مكون بطاقة المقال المختار
 function FeaturedArticleCard({ article }: { article: FeaturedArticle }) {
-  // التحقق من سلامة البيانات قبل العرض
-  if (!article || !article.title) {
-    return null;
-  }
-
-  // تعيين قيم افتراضية آمنة
-  const safeArticle = {
-    ...article,
-    angle: article.angle || {
-      title: "عام",
-      slug: "general",
-      themeColor: "#3B82F6",
-    },
-    author: article.author || { name: "مؤلف" },
-    excerpt: article.excerpt || "",
-    readingTime: article.readingTime || 5,
-    views: article.views || 0,
-  };
-
+  const themeColor = article.angle?.themeColor || "#3B82F6";
   return (
     <Card className="group rounded-xl overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
       <div className="relative h-40 md:h-48 w-full overflow-hidden">
-        {safeArticle.coverImage ? (
+        {article.coverImage ? (
           <Image
-            src={safeArticle.coverImage}
-            alt={safeArticle.title}
+            src={article.coverImage}
+            alt={article.title}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-300"
           />
@@ -728,48 +696,44 @@ function FeaturedArticleCard({ article }: { article: FeaturedArticle }) {
           <Badge
             className="text-xs border-0 text-white shadow-lg"
             style={{
-              backgroundColor: safeArticle.angle.themeColor,
+              backgroundColor: themeColor,
             }}
           >
-            {safeArticle.angle.title}
+            {article.angle?.title}
           </Badge>
         </div>
       </div>
 
       <CardContent className="p-3 md:p-4 space-y-2 md:space-y-3">
         <h3 className="font-bold text-sm md:text-lg text-gray-900 line-clamp-2 leading-tight">
-          {safeArticle.title}
+          {article.title}
         </h3>
 
-        {safeArticle.excerpt && (
+        {article.excerpt && (
           <p className="text-xs md:text-sm text-gray-600 line-clamp-2 leading-relaxed">
-            {safeArticle.excerpt}
+            {article.excerpt}
           </p>
         )}
 
         <div className="flex items-center justify-between text-xs text-gray-500">
           <div className="flex items-center gap-1">
             <Calendar className="w-3 h-3" />
-            <span>{safeArticle.readingTime} د</span>
+            <span>{article.readingTime} د</span>
           </div>
           <div className="flex items-center gap-1">
             <Eye className="w-3 h-3" />
-            <span>{safeArticle.views}</span>
+            <span>{article.views}</span>
           </div>
         </div>
 
         <div className="flex items-center justify-between pt-2">
-          <div className="text-xs text-gray-500">{safeArticle.author.name}</div>
-          <Link
-            href={`/muqtarab/${safeArticle.angle.slug}/${
-              safeArticle.slug || safeArticle.id
-            }`}
-          >
+          <div className="text-xs text-gray-500">{article.author.name}</div>
+          <Link href={`/muqtarab/articles/${article.slug}`}>
             <Button
               size="sm"
               className="text-xs px-3 py-1 h-7"
               style={{
-                backgroundColor: safeArticle.angle.themeColor,
+                backgroundColor: themeColor,
               }}
             >
               قراءة
@@ -830,7 +794,7 @@ function FeaturedAngleCard({ angle }: { angle: Angle }) {
               </div>
               <div className="flex items-center gap-1">
                 <Users className="w-4 h-4" />
-                <span>{angle.author?.name || "مؤلف"}</span>
+                <span>{angle.author?.name}</span>
               </div>
             </div>
 

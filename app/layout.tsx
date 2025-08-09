@@ -113,6 +113,7 @@ export const metadata: Metadata = {
     },
   },
   icons: {
+    // إزالة تعريف أيقونة من app/ لتفادي التعارض مع public/
     icon: [
       { url: "/favicon.ico" },
       { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },

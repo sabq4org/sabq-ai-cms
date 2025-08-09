@@ -449,77 +449,6 @@ function ArticleHeader({ article }: { article: Article }) {
   );
 }
 
-// مكون بيانات الكاتب
-function AuthorSection({ article }: { article: Article }) {
-  return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 md:gap-4 p-4 md:p-6 bg-white rounded-lg md:rounded-xl border mb-4 md:mb-8">
-      <div className="flex items-center gap-3 md:gap-4">
-        {article.author?.image || article.creator?.image ? (
-          <Image
-            src={article.author?.image || article.creator?.image || ""}
-            alt={article.author?.name || article.creator?.name || ""}
-            width={40}
-            height={40}
-            className="rounded-full md:w-12 md:h-12"
-          />
-        ) : (
-          <div
-            className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center"
-            style={{
-              backgroundColor: article.angle?.themeColor + "20" || "#3B82F620",
-            }}
-          >
-            <User
-              className="w-5 h-5 md:w-6 md:h-6"
-              style={{ color: article.angle?.themeColor || "#3B82F6" }}
-            />
-          </div>
-        )}
-
-        <div>
-          <p className="font-semibold text-gray-900 text-sm md:text-base">
-            {article.author?.name || article.creator?.name}
-          </p>
-          <p className="text-xs md:text-sm text-gray-500">
-            كاتب في {article.angle?.title || "مُقترب"}
-          </p>
-        </div>
-      </div>
-
-      <div className="flex items-center gap-3 md:gap-6 text-xs md:text-sm text-gray-500 w-full sm:w-auto">
-        <div className="flex items-center gap-1">
-          <Calendar className="w-3 h-3 md:w-4 md:h-4" />
-          <span className="hidden sm:inline">
-            {new Date(
-              article.publishDate || article.createdAt
-            ).toLocaleDateString("ar-SA")}
-          </span>
-          <span className="sm:hidden">
-            {new Date(
-              article.publishDate || article.createdAt
-            ).toLocaleDateString("ar-SA", { month: "short", day: "numeric" })}
-          </span>
-        </div>
-        <div className="flex items-center gap-1">
-          <Clock className="w-3 h-3 md:w-4 md:h-4" />
-          <span>{article.readingTime || 5} د</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <Eye className="w-3 h-3 md:w-4 md:h-4" />
-          <span className="hidden md:inline">
-            {article.views?.toLocaleString() || 0} مشاهدة
-          </span>
-          <span className="md:hidden">
-            {(article.views || 0) > 1000
-              ? ((article.views || 0) / 1000).toFixed(1) + "k"
-              : (article.views || 0).toString()}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // مكون عرض محتوى المقال مع تنسيق Markdown
 function ArticleContent({ article }: { article: Article }) {
   // تحويل Markdown إلى HTML مع تحسينات للموبايل
@@ -757,38 +686,38 @@ function AIAnalysisSection({
 
   return (
     <div
-      className="border-2 rounded-lg md:rounded-2xl p-4 md:p-6 mb-4 md:mb-8 shadow-sm md:shadow-lg hover:shadow-md md:hover:shadow-xl transition-all duration-300 group"
+      className="border-2 rounded-2xl p-6 md:p-8 mb-6 md:mb-10 shadow-lg hover:shadow-xl transition-all duration-300 group"
       style={{
         ...scoreDesc.bgStyle,
         ...scoreDesc.borderStyle,
       }}
     >
       {/* Header مع أيقونة AI محسنة */}
-      <div className="flex items-center gap-3 mb-4 md:mb-6">
+      <div className="flex items-center gap-3 mb-6">
         <div
-          className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-white text-lg md:text-xl shadow-md group-hover:scale-110 transition-transform duration-300"
+          className="w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center text-white text-xl md:text-2xl shadow-lg group-hover:scale-110 transition-transform duration-300"
           style={scoreDesc.gradientStyle}
         >
           🤖
         </div>
         <div>
           <h3
-            className="font-bold text-base md:text-lg mb-1"
+            className="font-bold text-lg md:text-xl mb-1"
             style={{ color: scoreDesc.color }}
           >
             تحليل الذكاء الاصطناعي
           </h3>
-          <p className="text-xs md:text-sm text-gray-600">تقييم ذكي لجودة وعمق المحتوى</p>
+          <p className="text-sm text-gray-600">تقييم ذكي لجودة وعمق المحتوى</p>
         </div>
       </div>
 
       {/* النتيجة والوصف */}
-      <div className="mb-4 md:mb-6">
+      <div className="mb-6">
         <div className="flex items-center gap-3 mb-3">
-          <span className="text-xl md:text-2xl">{scoreDesc.emoji}</span>
+          <span className="text-2xl">{scoreDesc.emoji}</span>
           <div>
             <p
-              className="text-base md:text-lg font-bold"
+              className="text-lg md:text-xl font-bold"
               style={{ color: scoreDesc.color }}
             >
               {aiScore}% - {scoreDesc.text}
@@ -796,7 +725,7 @@ function AIAnalysisSection({
           </div>
         </div>
 
-        <p className="text-xs md:text-sm text-gray-700 leading-relaxed bg-white/50 p-3 md:p-4 rounded-lg">
+        <p className="text-sm md:text-base text-gray-700 leading-relaxed bg-white/50 p-4 rounded-lg">
           يصنف هذا المقال كمحتوى <strong>{scoreDesc.text.toLowerCase()}</strong>{" "}
           بناءً على تحليل اللغة المستخدمة، عمق الأفكار المطروحة، والاستشراف
           المستقبلي. تم التقييم باستخدام خوارزميات متقدمة لفهم السياق والمعنى.
@@ -872,6 +801,77 @@ function AIAnalysisSection({
   );
 }
 
+// مكون بيانات الكاتب
+function AuthorSection({ article }: { article: Article }) {
+  return (
+    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 md:gap-4 p-4 md:p-6 bg-white rounded-lg md:rounded-xl border mb-4 md:mb-8">
+      <div className="flex items-center gap-3 md:gap-4">
+        {article.author?.image || article.creator?.image ? (
+          <Image
+            src={article.author?.image || article.creator?.image || ""}
+            alt={article.author?.name || article.creator?.name || ""}
+            width={40}
+            height={40}
+            className="rounded-full md:w-12 md:h-12"
+          />
+        ) : (
+          <div
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center"
+            style={{
+              backgroundColor: article.angle?.themeColor + "20" || "#3B82F620",
+            }}
+          >
+            <User
+              className="w-5 h-5 md:w-6 md:h-6"
+              style={{ color: article.angle?.themeColor || "#3B82F6" }}
+            />
+          </div>
+        )}
+
+        <div>
+          <p className="font-semibold text-gray-900 text-sm md:text-base">
+            {article.author?.name || article.creator?.name}
+          </p>
+          <p className="text-xs md:text-sm text-gray-500">
+            كاتب في {article.angle?.title || "مُقترب"}
+          </p>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3 md:gap-6 text-xs md:text-sm text-gray-500 w-full sm:w-auto">
+        <div className="flex items-center gap-1">
+          <Calendar className="w-3 h-3 md:w-4 md:h-4" />
+          <span className="hidden sm:inline">
+            {new Date(
+              article.publishDate || article.createdAt
+            ).toLocaleDateString("ar-SA")}
+          </span>
+          <span className="sm:hidden">
+            {new Date(
+              article.publishDate || article.createdAt
+            ).toLocaleDateString("ar-SA", { month: "short", day: "numeric" })}
+          </span>
+        </div>
+        <div className="flex items-center gap-1">
+          <Clock className="w-3 h-3 md:w-4 md:h-4" />
+          <span>{article.readingTime || 5} د</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <Eye className="w-3 h-3 md:w-4 md:h-4" />
+          <span className="hidden md:inline">
+            {article.views?.toLocaleString() || 0} مشاهدة
+          </span>
+          <span className="md:hidden">
+            {(article.views || 0) > 1000
+              ? ((article.views || 0) / 1000).toFixed(1) + "k"
+              : (article.views || 0).toString()}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // مكون التوصيات الذكية
 function SmartRecommendations({
   articles,
@@ -928,8 +928,8 @@ function SmartRecommendations({
 
   return (
     <div>
-      <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-6">
-        <h2 className="text-base md:text-2xl font-bold text-gray-900">
+      <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
+        <h2 className="text-lg md:text-2xl font-bold text-gray-900">
           مقالات أخرى من نفس الزاوية
         </h2>
         <div
@@ -940,13 +940,14 @@ function SmartRecommendations({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         {smartSortedArticles.map((article, index) => (
           <Card
             key={article.id}
             className="group rounded-lg md:rounded-xl overflow-hidden border-0 shadow-sm md:shadow-md hover:shadow-md md:hover:shadow-lg transition-all duration-200"
           >
-            <div className="relative h-32 md:h-40 w-full overflow-hidden">{article.coverImage ? (
+            <div className="relative h-32 md:h-40 w-full overflow-hidden">
+              {article.coverImage ? (
                 <Image
                   src={article.coverImage}
                   alt={article.title}
@@ -1028,9 +1029,9 @@ function CrossAngleRecommendations({ articles }: { articles: any[] }) {
   if (articles.length === 0) return null;
 
   return (
-    <div className="mt-6 md:mt-12">
-      <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-6">
-        <h2 className="text-base md:text-2xl font-bold text-gray-900">
+    <div className="mt-8 md:mt-12">
+      <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
+        <h2 className="text-lg md:text-2xl font-bold text-gray-900">
           مقالات من زوايا أخرى
         </h2>
         <div className="px-2 py-1 md:px-3 rounded-full text-xs font-medium bg-gradient-to-r from-purple-500 to-pink-500 text-white">
@@ -1038,7 +1039,8 @@ function CrossAngleRecommendations({ articles }: { articles: any[] }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6">{articles.map((article, index) => (
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+        {articles.map((article, index) => (
           <Card
             key={article.id}
             className="group rounded-lg md:rounded-xl overflow-hidden border-0 shadow-sm md:shadow-md hover:shadow-md md:hover:shadow-lg transition-all duration-200"
@@ -1081,7 +1083,7 @@ function CrossAngleRecommendations({ articles }: { articles: any[] }) {
               </Link>
 
               {article.excerpt && (
-                <p className="text-xs md:text-sm text-gray-600 line-clamp-2 mb-2 md:mb-3">
+                <p className="text-xs md:text-sm text-gray-600 line-clamp-2 mb-3">
                   {article.excerpt}
                 </p>
               )}

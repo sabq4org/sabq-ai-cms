@@ -51,11 +51,20 @@ export async function GET(req: NextRequest) {
       },
     };
 
+    const transformArticle = (article: any) => {
+      if (!article) return null;
+      const { corner, ...rest } = article;
+      return {
+        ...rest,
+        angle: corner,
+      };
+    };
+
     return NextResponse.json({
       success: true,
       angles: corners.map((c) => ({ ...c, articlesCount: c._count.articles })),
-      heroArticle,
-      featuredArticles,
+      heroArticle: transformArticle(heroArticle),
+      featuredArticles: featuredArticles.map(transformArticle),
       stats: stats,
       cached: false,
     });
