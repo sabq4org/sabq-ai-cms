@@ -222,14 +222,18 @@ export async function GET(request: NextRequest) {
   } catch (error: any) {
     console.error("❌ خطأ في جلب المقالات:", error);
 
-    return NextResponse.json(
-      {
-        success: false,
-        error: "حدث خطأ في جلب المقالات",
-        details: error.message || "خطأ غير معروف",
-      },
-      { status: 500 }
-    );
+    // عدم كسر الواجهة الأمامية مؤقتاً: نعيد 200 مع success=false وقائمة فارغة
+    return NextResponse.json({
+      success: false,
+      error: "حدث خطأ في جلب المقالات",
+      details: error.message || "خطأ غير معروف",
+      articles: [],
+      total: 0,
+      page: 1,
+      limit: 0,
+      totalPages: 0,
+      hasMore: false,
+    });
   }
 }
 

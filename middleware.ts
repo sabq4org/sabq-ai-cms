@@ -79,6 +79,15 @@ export async function middleware(req: NextRequest) {
     }
   }
 
+  // دعم الروابط المؤرخة: /news/yyyy/mm/dd/slug → /news/slug
+  const datedNewsMatch = pathname.match(/^\/news\/(\d{4})\/(\d{2})\/(\d{2})\/([^\/]+)\/?$/);
+  if (datedNewsMatch) {
+    const slug = datedNewsMatch[4];
+    const url = nextUrl.clone();
+    url.pathname = `/news/${slug}`;
+    return NextResponse.redirect(url, 301);
+  }
+
   // إضافة cache & security headers
   const response = NextResponse.next();
 

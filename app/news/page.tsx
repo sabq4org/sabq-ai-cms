@@ -1,3 +1,26 @@
+import { NextResponse } from "next/server";
+import Link from "next/link";
+
+export const revalidate = 0;
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
+export default async function NewsIndexPage() {
+  // صفحة بسيطة تعرض قائمة مختصرة وروابط أساسية، وتعتمد على عميل الإدارة لجلب كامل المحتوى
+  return (
+    <main className="container mx-auto px-4 py-12">
+      <h1 className="text-2xl font-bold mb-4">الأخبار</h1>
+      <p className="text-gray-600 mb-6">تصفح أحدث الأخبار على سبق.</p>
+      <Link
+        className="inline-flex items-center gap-2 px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+        href="/"
+      >
+        العودة للرئيسية
+      </Link>
+    </main>
+  );
+}
+
 "use client";
 
 import ArticleCard from "@/components/ArticleCard";

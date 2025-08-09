@@ -1269,9 +1269,10 @@ function AdminNewsPageContent() {
                                   className="w-56 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
                                 >
                                   <DropdownMenuItem
-                                    onClick={() =>
-                                      router.push(`/article/${article.id}`)
-                                    }
+                                    onClick={() => {
+                                      const path = `/news/${article.slug || article.id}`;
+                                      router.push(path);
+                                    }}
                                     className="py-3 hover:bg-gray-50 dark:hover:bg-gray-700"
                                   >
                                     <Eye className="w-4 h-4 ml-3 text-blue-600 dark:text-blue-400" />

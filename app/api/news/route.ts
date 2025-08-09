@@ -152,6 +152,7 @@ export async function GET(request: NextRequest) {
         article.article_author?.full_name || article.author?.name || "غير محدد";
 
       return {
+        slug: article.slug,
         id: article.id,
         title: article.title,
         content: article.content,
