@@ -74,7 +74,7 @@ const StatCard = ({
 };
 
 // مكون بطاقة الزاوية
-const AngleCard = ({ angle }: { angle: Angle }) => {
+const AngleCard = ({ angle, handleDeleteClick }: { angle: Angle; handleDeleteClick: (angle: Angle) => void }) => {
   return (
     <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-blue-200">
       <CardContent className="p-0">
@@ -161,7 +161,7 @@ const AngleCard = ({ angle }: { angle: Angle }) => {
             </div>
 
             <div className="flex gap-2">
-              <Link href={`/admin/muqtarab/angles/${angle.id}`}>
+              <Link href={`/admin/muqtarab/angles/${angle.slug}`}>
                 <Button
                   size="sm"
                   className="bg-blue-600 hover:bg-blue-700 text-white"
@@ -306,7 +306,7 @@ export default function MuqtaribDashboard() {
 
     setDeleting(true);
     try {
-      const response = await fetch(`/api/muqtarab/angles/${angleToDelete.id}`, {
+      const response = await fetch(`/api/muqtarab/corners/${angleToDelete.slug}`, {
         method: "DELETE",
       });
 
@@ -519,7 +519,7 @@ export default function MuqtaribDashboard() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredAngles.map((angle) => (
-                  <AngleCard key={angle.id} angle={angle} />
+                  <AngleCard key={angle.id} angle={angle} handleDeleteClick={handleDeleteClick} />
                 ))}
               </div>
             )}

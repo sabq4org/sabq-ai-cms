@@ -32,3 +32,27 @@ export async function GET(
     );
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { slug: string } }
+) {
+  try {
+    const { slug } = params;
+
+    // Delete related articles first to maintain referential integrity
+    const corner = await prisma.muqtarabCorner.findUnique({ where: { slug }, select: { id: true } });
+    if (corner) {
+      await prisma.muqtarabArticle.deleteMany({ where: { corner_id: corner.id } });
+    }
+
+    // Delete the corner
+    await prisma.muqtarabCorner.delete({
+      where: { slug },
+    });
+
+    return NextResponse.json({ success: true, message: 'Corner and its articles deleted successfully.' });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: 'Failed to delete corner', details: error.message }, { status: 500 });
+  }
+}

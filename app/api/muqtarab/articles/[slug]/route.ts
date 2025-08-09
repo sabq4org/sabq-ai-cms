@@ -65,3 +65,18 @@ export async function GET(
     );
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { slug: string } }
+) {
+  try {
+    const { slug } = params;
+    await prisma.muqtarabArticle.delete({
+      where: { slug },
+    });
+    return NextResponse.json({ success: true, message: 'Article deleted successfully.' });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: 'Failed to delete article', details: error.message }, { status: 500 });
+  }
+}

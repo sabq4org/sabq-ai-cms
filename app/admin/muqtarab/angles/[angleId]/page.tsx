@@ -359,14 +359,14 @@ const ArticlesList = ({
                 </div>
 
                 <div className="flex gap-2">
-                  <Link href={`/article/${article.id}`}>
+                  <Link href={`/muqtarab/articles/${article.slug}`}>
                     <Button size="sm" variant="outline">
                       <Eye className="w-4 h-4" />
                     </Button>
                   </Link>
 
                   <Link
-                    href={`/admin/muqtarab/angles/${article.angleId}/articles/${article.id}`}
+                    href={`/admin/muqtarab/articles/${article.slug}/edit`}
                   >
                     <Button size="sm" variant="outline">
                       <Edit className="w-4 h-4" />
@@ -481,7 +481,7 @@ export default function AngleDashboardPage() {
       console.log("🗑️ جاري حذف المقال:", articleToDelete.title);
 
       const response = await fetch(
-        `/api/muqtarab/angles/${angle.id}/articles/${articleToDelete.id}`,
+        `/api/muqtarab/articles/${articleToDelete.slug}`,
         {
           method: "DELETE",
           headers: {
