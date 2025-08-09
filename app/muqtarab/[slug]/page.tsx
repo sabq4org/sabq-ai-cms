@@ -1,6 +1,8 @@
 "use client";
 
 // import AngleAudioPlayer from "@/components/muqtarab/AngleAudioPlayer";
+import WithMuqtarabErrorBoundary from "@/components/muqtarab/MuqtarabErrorBoundary";
+import { SafeMuqtarabWrapper } from "@/components/muqtarab/SafeMuqtarabWrapper";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -31,8 +33,6 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import WithMuqtarabErrorBoundary from "@/components/muqtarab/MuqtarabErrorBoundary";
-import { SafeMuqtarabWrapper } from "@/components/muqtarab/SafeMuqtarabWrapper";
 
 type SortOption = "latest" | "popular" | "oldest";
 
@@ -63,8 +63,12 @@ export default function AnglePage() {
 
         if (!angleResponse.ok) {
           console.error("❌ فشل في جلب الزاوية:", angleResponse.status);
-          toast.error("الزاوية غير موجودة");
-          router.push("/muqtarab");
+          if (angleResponse.status === 404) {
+            // عرض واجهة "الزاوية غير موجودة" بدلاً من إعادة التوجيه
+            setAngle(null);
+          } else {
+            toast.error("حدث خطأ في تحميل الزاوية");
+          }
           return;
         }
 
@@ -93,7 +97,6 @@ export default function AnglePage() {
       } catch (error) {
         console.error("خطأ في تحميل الزاوية:", error);
         toast.error("حدث خطأ في التحميل");
-        router.push("/muqtarab");
       } finally {
         setLoading(false);
         setArticlesLoading(false);
@@ -193,7 +196,9 @@ export default function AnglePage() {
                     className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
                   >
                     <ArrowLeft className="w-4 h-4" />
-                    <span className="text-sm font-medium">العودة إلى مُقترب</span>
+                    <span className="text-sm font-medium">
+                      العودة إلى مُقترب
+                    </span>
                   </Link>
                   <span className="text-gray-300">|</span>
                   <span className="text-gray-600 text-sm">{angle.title}</span>
