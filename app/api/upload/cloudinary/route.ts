@@ -177,6 +177,7 @@ export async function POST(request: NextRequest) {
               overwrite: true,
               invalidate: true,
               transformation: transformations,
+              upload_preset: process.env.CLOUDINARY_UPLOAD_PRESET || 'sabq_cms_preset', // Add preset
               eager: generateThumbnail
                 ? [{ width: 200, height: 150, crop: "fill", quality: "auto" }]
                 : undefined,
