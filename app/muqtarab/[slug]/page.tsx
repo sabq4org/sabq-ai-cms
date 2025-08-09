@@ -56,7 +56,9 @@ export default function MuqtarabSimpleArticlePage() {
           if (relatedResponse.ok) {
             const relatedData = await relatedResponse.json();
             setRelatedArticles(
-              relatedData.articles.filter((a: any) => a.id !== articleData.article.id)
+              relatedData.articles.filter(
+                (a: any) => a.id !== articleData.article.id
+              )
             );
           }
         }
@@ -103,27 +105,17 @@ export default function MuqtarabSimpleArticlePage() {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-white min-h-screen">
       <div className="max-w-4xl mx-auto py-8 px-4">
-        {/* خيط التنقل */}
-        <nav className="mb-8">
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Link
-              href="/muqtarab"
-              className="hover:text-blue-600 transition-colors"
-            >
-              مُقترب
-            </Link>
-            <span>•</span>
-            <Link
-              href={`/muqtarab/corners/${corner.slug}`}
-              className="hover:text-blue-600 transition-colors"
-            >
-              {corner.name}
-            </Link>
-            <span>•</span>
-            <span className="text-gray-400">المقال</span>
-          </div>
+        {/* خيط التنقل المبسط */}
+        <nav className="mb-6">
+          <Link 
+            href="/muqtarab" 
+            className="text-blue-600 hover:underline flex items-center gap-2 text-sm"
+          >
+            <ArrowLeft size={16} />
+            العودة إلى مُقترب
+          </Link>
         </nav>
 
         {/* رأس المقال */}
@@ -132,14 +124,14 @@ export default function MuqtarabSimpleArticlePage() {
           <div className="mb-4">
             <Link
               href={`/muqtarab/corners/${corner.slug}`}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors"
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium transition-colors"
               style={{
-                backgroundColor: corner.theme_color + "20",
+                backgroundColor: corner.theme_color + "15",
                 color: corner.theme_color,
                 border: `1px solid ${corner.theme_color}30`,
               }}
             >
-              <Sparkles className="w-4 h-4" />
+              <Sparkles className="w-3 h-3" />
               {corner.name}
             </Link>
           </div>
@@ -157,13 +149,13 @@ export default function MuqtarabSimpleArticlePage() {
           {/* معلومات المقال */}
           <div className="flex flex-wrap items-center gap-6 text-sm text-gray-500 py-4 border-t border-b border-gray-200">
             <div className="flex items-center gap-2">
-              <User size={16} />
+              <User size={14} />
               <span>
                 {article.author?.name || corner.author?.name || "فريق التحرير"}
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <Calendar size={16} />
+              <Calendar size={14} />
               <span>
                 {new Date(
                   article.publishDate || article.createdAt
@@ -171,11 +163,11 @@ export default function MuqtarabSimpleArticlePage() {
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <Clock size={16} />
+              <Clock size={14} />
               <span>{article.readingTime || 5} دقائق قراءة</span>
             </div>
             <div className="flex items-center gap-2">
-              <Eye size={16} />
+              <Eye size={14} />
               <span>{article.views || 0} مشاهدة</span>
             </div>
           </div>
@@ -183,7 +175,7 @@ export default function MuqtarabSimpleArticlePage() {
 
         {/* صورة الغلاف */}
         {article.coverImage && (
-          <div className="relative h-96 w-full rounded-xl overflow-hidden mb-8 shadow-lg">
+          <div className="relative h-96 w-full rounded-xl overflow-hidden mb-8 shadow-sm">
             <Image
               src={article.coverImage}
               alt={article.title}
@@ -204,24 +196,22 @@ export default function MuqtarabSimpleArticlePage() {
         </div>
 
         {/* محتوى المقال */}
-        <article className="prose prose-lg max-w-none mb-12">
-          <div
-            className="text-gray-800 leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: article.content }}
-          />
-        </article>
+        <article 
+          className="prose prose-lg max-w-none mb-12"
+          dangerouslySetInnerHTML={{ __html: article.content }}
+        />
 
         {/* أسفل المقال */}
-        <footer className="mb-12">
+        <footer className="mb-12 pt-8 border-t">
           {/* التفاعلات */}
-          <div className="flex justify-between items-center p-6 bg-white rounded-xl shadow-sm border border-gray-200">
+          <div className="flex justify-between items-center mb-8">
             <div className="flex items-center gap-6 text-gray-500">
               <button className="flex items-center gap-2 hover:text-red-500 transition-colors">
-                <Heart size={18} />
+                <Heart size={16} />
                 <span>{article.likes || 0}</span>
               </button>
               <div className="flex items-center gap-2">
-                <MessageCircle size={18} />
+                <MessageCircle size={16} />
                 <span>{article.comments || 0}</span>
               </div>
             </div>
@@ -233,13 +223,13 @@ export default function MuqtarabSimpleArticlePage() {
 
           {/* الكاتب */}
           {(article.author || corner.author) && (
-            <div className="mt-8 p-6 bg-white rounded-xl shadow-sm border border-gray-200">
+            <div className="p-6 bg-gray-50 rounded-xl">
               <div className="flex items-start gap-4">
-                <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-                  <User size={24} className="text-gray-500" />
+                <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
+                  <User size={20} className="text-gray-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">
+                  <h3 className="font-semibold text-gray-900 mb-1">
                     {article.author?.name ||
                       corner.author?.name ||
                       "فريق التحرير"}
@@ -257,19 +247,19 @@ export default function MuqtarabSimpleArticlePage() {
 
         {/* المقالات ذات الصلة */}
         {relatedArticles.length > 0 && (
-          <section className="mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+          <section className="mb-8">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">
               مقالات أخرى في {corner.name}
             </h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              {relatedArticles.slice(0, 4).map((relatedArticle) => (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {relatedArticles.slice(0, 6).map((relatedArticle) => (
                 <Link
                   key={relatedArticle.id}
                   href={`/muqtarab/${relatedArticle.slug}`}
-                  className="group block bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
+                  className="group block bg-gray-50 rounded-lg overflow-hidden hover:bg-gray-100 transition-colors"
                 >
                   {relatedArticle.coverImage && (
-                    <div className="relative h-48 overflow-hidden">
+                    <div className="relative h-32 overflow-hidden">
                       <Image
                         src={relatedArticle.coverImage}
                         alt={relatedArticle.title}
@@ -278,22 +268,17 @@ export default function MuqtarabSimpleArticlePage() {
                       />
                     </div>
                   )}
-                  <div className="p-4">
-                    <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
+                  <div className="p-3">
+                    <h3 className="font-medium text-gray-900 mb-1 group-hover:text-blue-600 transition-colors line-clamp-2 text-sm">
                       {relatedArticle.title}
                     </h3>
-                    {relatedArticle.excerpt && (
-                      <p className="text-gray-600 text-sm line-clamp-2 mb-3">
-                        {relatedArticle.excerpt}
-                      </p>
-                    )}
-                    <div className="flex items-center gap-4 text-xs text-gray-500">
+                    <div className="flex items-center gap-3 text-xs text-gray-500">
                       <div className="flex items-center gap-1">
-                        <Clock size={12} />
+                        <Clock size={10} />
                         <span>{relatedArticle.readingTime || 5} د</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Eye size={12} />
+                        <Eye size={10} />
                         <span>{relatedArticle.views || 0}</span>
                       </div>
                     </div>
@@ -305,12 +290,12 @@ export default function MuqtarabSimpleArticlePage() {
         )}
 
         {/* زر العودة */}
-        <div className="text-center">
+        <div className="text-center pt-4 border-t">
           <Link
             href={`/muqtarab/corners/${corner.slug}`}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-blue-600 transition-colors"
           >
-            <ArrowLeft size={16} />
+            <ArrowLeft size={14} />
             العودة إلى {corner.name}
           </Link>
         </div>
