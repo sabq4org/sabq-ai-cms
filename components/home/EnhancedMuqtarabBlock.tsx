@@ -113,6 +113,12 @@ export default function EnhancedMuqtarabBlock({
   const [showFeaturedOnly, setShowFeaturedOnly] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "list">(initialViewMode);
 
+  // التحقق من صلاحية مسار الصورة
+  const isValidImageSrc = (src?: string) => {
+    if (!src) return false;
+    return /^(https?:\/\/|\/|data:)/.test(src);
+  };
+
   // خيارات الترتيب
   const sortOptions = [
     { value: "newest", label: "الأحدث", icon: Calendar },
@@ -255,6 +261,9 @@ export default function EnhancedMuqtarabBlock({
   // مكون البطاقة المميزة - تصميم مختلف للديسكتوب والهواتف
   const FeaturedArticleCard = ({ article }: { article: AngleArticle }) => {
     const themeColor = article.angle?.themeColor || "#6366f1";
+    const displaySrc = isValidImageSrc(article.coverImage)
+      ? (article.coverImage as string)
+      : "/images/default-article.jpg";
 
     return (
       <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-0 shadow-sm dark:bg-gray-800/50 dark:hover:bg-gray-800/80 relative">
@@ -269,7 +278,7 @@ export default function EnhancedMuqtarabBlock({
           {/* صورة المقال */}
           <div className="relative h-64 md:h-80 overflow-hidden">
             <Image
-              src={article.coverImage || "/images/default-article.jpg"}
+              src={displaySrc}
               alt={article.title}
               fill={true}
               className="object-cover transition-transform duration-500 group-hover:scale-110"
@@ -376,7 +385,7 @@ export default function EnhancedMuqtarabBlock({
           {/* صورة المقال */}
           <div className="relative h-36 sm:h-48 overflow-hidden rounded-xl">
             <Image
-              src={article.coverImage || "/images/default-article.jpg"}
+              src={displaySrc}
               alt={article.title}
               fill={true}
               className="object-cover object-center transition-transform duration-300 group-hover:scale-105"
@@ -477,6 +486,9 @@ export default function EnhancedMuqtarabBlock({
   // مكون بطاقة المقال العادية
   const ArticleCard = ({ article }: { article: AngleArticle }) => {
     const themeColor = article.angle?.themeColor || "#6366f1";
+    const displaySrc = isValidImageSrc(article.coverImage)
+      ? (article.coverImage as string)
+      : "/images/default-article.jpg";
 
     return (
       <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-0 shadow-sm dark:bg-gray-800/50 dark:hover:bg-gray-800/80 relative">
@@ -489,7 +501,7 @@ export default function EnhancedMuqtarabBlock({
         {/* صورة المقال */}
         <div className="relative h-36 sm:h-48 overflow-hidden rounded-xl">
           <Image
-            src={article.coverImage || "/images/default-article.jpg"}
+            src={displaySrc}
             alt={article.title}
             fill={true}
             className="object-cover object-center transition-transform duration-300 group-hover:scale-105"

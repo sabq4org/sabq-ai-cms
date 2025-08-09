@@ -56,6 +56,11 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
     });
   };
 
+  const isValidImageSrc = (src?: string) => {
+    if (!src) return false;
+    return /^(https?:\/\/|\/|data:)/.test(src);
+  };
+
   // تصميم الموبايل الجديد (مع overlay)
   if (isMobile) {
     return (
@@ -65,9 +70,9 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
           <div className="relative w-full h-[240px] rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300">
             {/* الصورة الخلفية */}
             <div className="absolute inset-0">
-              {heroArticle.coverImage ? (
+              {isValidImageSrc(heroArticle.coverImage) ? (
                 <Image
-                  src={heroArticle.coverImage}
+                  src={heroArticle.coverImage as string}
                   alt={heroArticle.title}
                   fill={true}
                   className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -171,9 +176,9 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
           <div className="flex">
             {/* الجانب الأيسر - قسم الصورة (نصف المساحة) */}
             <div className="relative w-1/2 h-64 flex-shrink-0 overflow-hidden">
-              {heroArticle.coverImage ? (
+              {isValidImageSrc(heroArticle.coverImage) ? (
                 <Image
-                  src={heroArticle.coverImage}
+                  src={heroArticle.coverImage as string}
                   alt={heroArticle.title}
                   fill={true}
                   className="object-cover transition-transform duration-300 group-hover:scale-105"

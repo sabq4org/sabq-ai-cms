@@ -115,7 +115,7 @@ function MuqtaribPageContent() {
         console.log("🔍 جاري جلب بيانات مُقترب...");
 
         // استخدام endpoint محسّن واحد بدلاً من عدة calls
-        const optimizedResponse = await fetch("/api/muqtarab/optimized-page", {
+          const optimizedResponse = await fetch("/api/muqtarab/optimized-page", {
           // إزالة no-cache للسماح بـ browser caching
           headers: {
             Accept: "application/json",
@@ -133,11 +133,29 @@ function MuqtaribPageContent() {
               cached: data.cached,
             });
 
-            setAngles(data.angles || []);
-            setFilteredAngles(data.angles || []);
+            // إزالة أي زوايا مكررة بحسب slug/id
+            const seen = new Set<string>();
+            const uniqueAngles = (data.angles || []).filter((a: any) => {
+              const key = (a.slug || a.id || "").toString().toLowerCase();
+              if (!key) return true;
+              if (seen.has(key)) return false;
+              seen.add(key);
+              return true;
+            });
+            setAngles(uniqueAngles);
+            setFilteredAngles(uniqueAngles);
             setHeroArticle(data.heroArticle);
             setStats(data.stats);
-            setFeaturedArticles(data.featuredArticles || []);
+            // إزالة تكرار المقالات المميزة بحسب slug/id
+            const seenFa = new Set<string>();
+            const uniqueFeatured = (data.featuredArticles || []).filter((art: any) => {
+              const key = (art.slug || art.id || "").toString().toLowerCase();
+              if (!key) return true;
+              if (seenFa.has(key)) return false;
+              seenFa.add(key);
+              return true;
+            });
+            setFeaturedArticles(uniqueFeatured);
 
             return; // نجح التحميل المُحسّن
           }
