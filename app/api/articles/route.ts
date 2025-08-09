@@ -148,6 +148,7 @@ export async function GET(request: NextRequest) {
         published_at: true,
         metadata: true,
         article_type: true,
+        content_type: true, // Ensure this field is always fetched
         views: true,
         reading_time: true,
         summary: true,
