@@ -19,6 +19,10 @@ import {
   User,
 } from "lucide-react";
 import Image from "next/image";
+import Breadcrumbs from "@/components/article/Breadcrumbs";
+import TableOfContents from "@/components/article/TableOfContents";
+import KeyTakeaways from "@/components/article/KeyTakeaways";
+import RelatedArticles from "@/components/article/RelatedArticles";
 import { useEffect, useState } from "react";
 
 interface EnhancedOpinionLayoutProps {
@@ -92,7 +96,9 @@ export default function EnhancedOpinionLayout({
         </div>
       )}
 
-      <main className="container mx-auto px-4 pt-16 sm:pt-20 lg:pt-24 pb-8 max-w-4xl">
+      <main className="container mx-auto px-4 pt-16 sm:pt-20 lg:pt-24 pb-8 max-w-5xl">
+        {/* فتات التنقل */}
+        <Breadcrumbs category={article.category as any} title={article.title} className="mb-4" />
         {/* رأس المقال المحسن */}
         <header
           className={cn(
@@ -205,6 +211,10 @@ export default function EnhancedOpinionLayout({
         <div className="grid lg:grid-cols-4 gap-8">
           {/* المحتوى الرئيسي */}
           <div className="lg:col-span-3">
+            {/* جدول المحتويات للديسكتوب */}
+            <div className="hidden lg:block mb-6">
+              <TableOfContents />
+            </div>
             {/* معلومات الكاتب */}
             {article.author && (
               <div
@@ -429,6 +439,12 @@ export default function EnhancedOpinionLayout({
                 )}
               </div>
             </div>
+
+            {/* نقاط رئيسية من metadata إن وجدت */}
+            <KeyTakeaways points={(article as any)?.metadata?.key_points || []} />
+
+            {/* مقالات ذات صلة */}
+            <RelatedArticles articleId={article.id} categoryId={article.category_id} />
 
             {/* الكلمات المفتاحية */}
             {article.keywords &&
