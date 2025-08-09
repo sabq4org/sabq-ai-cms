@@ -4,6 +4,10 @@ import { isEmergencyArticleSupported } from "@/app/emergency-articles";
 import Footer from "@/components/Footer";
 import ReporterLink from "@/components/ReporterLink";
 import ArticleFeaturedImage from "@/components/article/ArticleFeaturedImage";
+import Breadcrumbs from "@/components/article/Breadcrumbs";
+import TableOfContents from "@/components/article/TableOfContents";
+import KeyTakeaways from "@/components/article/KeyTakeaways";
+import RelatedArticles from "@/components/article/RelatedArticles";
 import SafeDateDisplay from "@/components/article/SafeDateDisplay";
 import DbConnectionError from "@/components/db-connection-error";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
@@ -749,8 +753,9 @@ export default function ArticleClientComponent({
         </div>
 
         {/* منطقة المحتوى - نفس عرض الصورة والعنوان تماماً للديسكتوب، عرض كامل للموبايل */}
-        <div className="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-2">
+        <div className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 py-2">
           <div className="bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-6 lg:p-8">
+            <Breadcrumbs category={article.category as any} title={article.title} className="mb-4" />
             {/* صورة المقال على الجوال - منفصلة */}
             {article.featured_image &&
               typeof article.featured_image === "string" &&
@@ -817,25 +822,60 @@ export default function ArticleClientComponent({
 
             {/* تمت إزالة أزرار المشاركة هنا بناء على التوجيه */}
 
-            {/* الكلمات المفتاحية - عرض أوسع للموبايل */}
-            {keywords.length > 0 && (
-              <div className="mb-6 sm:mb-8 -mx-3 sm:mx-0">
-                <div className="px-3 sm:px-0">
-                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                    {keywords.map((keyword, index) => (
-                      <Link
-                        key={index}
-                        href={`/tags/${encodeURIComponent(keyword)}`}
-                        className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-medium rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-all hover:scale-105 hover:shadow-sm"
-                      >
-                        <Hash className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                        <span>{keyword}</span>
-                      </Link>
-                    ))}
+            {/* تخطيط محتوى + شريط جانبي */}
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
+              <div className="lg:col-span-3">
+                {/* جدول المحتويات للديسكتوب */}
+                <div className="hidden lg:block mb-6">
+                  <TableOfContents />
+                </div>
+
+                {/* الكلمات المفتاحية - عرض أوسع للموبايل */}
+                {keywords.length > 0 && (
+                  <div className="mb-6 sm:mb-8 -mx-3 sm:mx-0">
+                    <div className="px-3 sm:px-0">
+                      <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                        {keywords.map((keyword, index) => (
+                          <Link
+                            key={index}
+                            href={`/tags/${encodeURIComponent(keyword)}`}
+                            className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-medium rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-all hover:scale-105 hover:shadow-sm"
+                          >
+                            <Hash className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                            <span>{keyword}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* محتوى المقال */}
+                <div className="mb-12 -mx-3 sm:mx-0">
+                  <div className="px-3 sm:px-0">
+                    <div
+                      className={`prose max-w-none dark:prose-invert arabic-article-content
+                        prose-headings:text-gray-900 dark:prose-headings:text-white
+                        prose-p:text-gray-700 dark:prose-p:text-gray-300
+                        prose-p:leading-relaxed
+                        prose-img:rounded-xl prose-img:shadow-xl
+                        prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
+                        prose-strong:text-gray-900 dark:prose-strong:text-white
+                        prose-blockquote:border-blue-500 dark:prose-blockquote:border-blue-400
+                        prose-blockquote:bg-blue-50 dark:prose-blockquote:bg-blue-900/20
+                        prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-lg
+                        ${isReading ? "prose-xl" : "prose-lg"}
+                      `}
+                      dangerouslySetInnerHTML={{ __html: contentHtml }}
+                    />
                   </div>
                 </div>
               </div>
-            )}
+              <aside className="lg:col-span-1 space-y-6">
+                <KeyTakeaways points={(article.metadata as any)?.key_points || []} />
+                <RelatedArticles articleId={article.id} categoryId={article.category_id} />
+              </aside>
+            </div>
 
             {/* زر وضع القراءة - عرض أوسع للموبايل */}
             <div className="mb-6 sm:mb-8 -mx-3 sm:mx-0">
