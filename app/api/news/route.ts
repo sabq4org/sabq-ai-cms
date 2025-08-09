@@ -166,6 +166,7 @@ export async function GET(request: NextRequest) {
         published_at: article.published_at,
         created_at: article.created_at,
         updated_at: article.updated_at,
+        content_type: article.content_type,
         // توحيد التسمية للمشاهدات
         views: article.views || 0,
         views_count: article.views || 0,
