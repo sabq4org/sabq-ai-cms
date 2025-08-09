@@ -16,12 +16,8 @@ export async function GET(request: NextRequest) {
     const order = searchParams.get("order") || "desc";
     const skip = (page - 1) * limit;
 
-    // بناء شروط البحث - فقط الأخبار (استبعاد مقالات الرأي)
-    const where: any = {
-      article_type: {
-        notIn: ["opinion", "analysis", "interview"],
-      },
-    };
+    // Start with an empty where clause
+    const where: any = {};
 
     if (status !== "all") {
       where.status = status;
@@ -33,7 +29,7 @@ export async function GET(request: NextRequest) {
 
     if (search) {
       where.AND = [
-        { article_type: { notIn: ["opinion", "analysis", "interview"] } }, // الحفاظ على تصفية نوع المحتوى
+        ...(where.AND || []),
         {
           OR: [
             { title: { contains: search, mode: "insensitive" } },
@@ -41,8 +37,6 @@ export async function GET(request: NextRequest) {
           ],
         },
       ];
-      // إزالة article_type الأصلية لتجنب التعارض
-      delete where.article_type;
     }
 
     // ترتيب النتائج
