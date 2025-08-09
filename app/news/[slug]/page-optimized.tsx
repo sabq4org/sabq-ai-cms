@@ -28,7 +28,7 @@ async function getArticleBySlug(slug: string) {
             name: true,
             avatar: true,
             email: true,
-          }
+          },
         },
         categories: {
           select: {
@@ -37,7 +37,7 @@ async function getArticleBySlug(slug: string) {
             slug: true,
             color: true,
             icon: true,
-          }
+          },
         },
         views: true,
         reading_time: true,
@@ -52,7 +52,7 @@ async function getArticleBySlug(slug: string) {
         ai_quotes: true,
         summary: true,
         tags: true,
-      }
+      },
     });
 
     return article;
@@ -62,9 +62,13 @@ async function getArticleBySlug(slug: string) {
   }
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}) {
   const article = await getArticleBySlug(params.slug);
-  
+
   if (!article) {
     return {
       title: "الخبر غير موجود",
@@ -99,14 +103,15 @@ export default async function NewsPage({
 }) {
   const decodedSlug = decodeURIComponent(params.slug);
   const article = await getArticleBySlug(decodedSlug);
-  
+
   if (!article) {
     return notFound();
   }
 
   // التحقق من نوع المحتوى
   const effectiveContentType =
-    article.content_type || (article.article_type === "news" ? "NEWS" : "OPINION");
+    article.content_type ||
+    (article.article_type === "news" ? "NEWS" : "OPINION");
 
   // إعادة توجيه إذا كان مقال رأي
   if (effectiveContentType !== "NEWS") {
@@ -115,8 +120,8 @@ export default async function NewsPage({
 
   // تمرير البيانات الأولية لتجنب جلب مكرر
   return (
-    <ArticleClientComponent 
-      articleId={article.id} 
+    <ArticleClientComponent
+      articleId={article.id}
       initialArticle={article as any}
     />
   );

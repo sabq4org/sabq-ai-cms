@@ -9,7 +9,10 @@ const reporterNameMappings: { [key: string]: string } = {
 };
 
 // كاش في الذاكرة لتجنب lookups متكررة
-const contentTypeCache = new Map<string, { type: "NEWS" | "OPINION"; timestamp: number }>();
+const contentTypeCache = new Map<
+  string,
+  { type: "NEWS" | "OPINION"; timestamp: number }
+>();
 const CACHE_DURATION = 3600000; // ساعة واحدة
 
 export async function middleware(req: NextRequest) {
@@ -58,7 +61,7 @@ export async function middleware(req: NextRequest) {
   // مسارات API لا تحتاج معالجة content type
   if (pathname.startsWith("/api/")) {
     const response = NextResponse.next();
-    
+
     // Cache headers للـ API
     if (!pathname.includes("/auth") && !pathname.includes("/admin/")) {
       response.headers.set(
@@ -71,7 +74,7 @@ export async function middleware(req: NextRequest) {
         "no-cache, no-store, must-revalidate"
       );
     }
-    
+
     return response;
   }
 
@@ -92,10 +95,10 @@ export async function middleware(req: NextRequest) {
     /^\/(images|fonts|_next|favicon)/,
     /\.(jpg|jpeg|png|gif|webp|svg|ico|css|js)$/i,
   ];
-  
-  if (skipPatterns.some(pattern => pattern.test(pathname))) {
+
+  if (skipPatterns.some((pattern) => pattern.test(pathname))) {
     const response = NextResponse.next();
-    
+
     // Cache headers للملفات الثابتة
     if (pathname.match(/\.(jpg|jpeg|png|gif|webp|svg|ico)$/i)) {
       response.headers.set(
@@ -103,21 +106,21 @@ export async function middleware(req: NextRequest) {
         "public, max-age=31536000, immutable"
       );
     }
-    
+
     if (pathname.match(/\.(css|js)$/i)) {
       response.headers.set(
         "Cache-Control",
         "public, max-age=31536000, immutable"
       );
     }
-    
+
     return response;
   }
 
   // تحسين: تأجيل content type lookups للصفحات نفسها
   // بدلاً من عملها في middleware
   console.log(`⏱️ Middleware execution: ${Date.now() - startTime}ms`);
-  
+
   return NextResponse.next();
 }
 

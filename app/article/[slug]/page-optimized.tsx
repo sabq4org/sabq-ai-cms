@@ -29,7 +29,7 @@ async function getArticleBySlug(slug: string) {
             avatar: true,
             email: true,
             bio: true,
-          }
+          },
         },
         article_author: {
           select: {
@@ -39,7 +39,7 @@ async function getArticleBySlug(slug: string) {
             bio: true,
             title: true,
             is_verified: true,
-          }
+          },
         },
         categories: {
           select: {
@@ -48,7 +48,7 @@ async function getArticleBySlug(slug: string) {
             slug: true,
             color: true,
             icon: true,
-          }
+          },
         },
         views: true,
         reading_time: true,
@@ -64,7 +64,7 @@ async function getArticleBySlug(slug: string) {
         summary: true,
         tags: true,
         is_opinion_leader: true,
-      }
+      },
     });
 
     return article;
@@ -74,9 +74,13 @@ async function getArticleBySlug(slug: string) {
   }
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}) {
   const article = await getArticleBySlug(params.slug);
-  
+
   if (!article) {
     return {
       title: "المقال غير موجود",
@@ -84,7 +88,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     };
   }
 
-  const authorName = article.article_author?.name || article.author?.name || "الكاتب";
+  const authorName =
+    article.article_author?.name || article.author?.name || "الكاتب";
 
   return {
     title: article.seo_title || `${article.title} - ${authorName}`,
@@ -116,14 +121,15 @@ export default async function OpinionArticlePage({
 }) {
   const decodedSlug = decodeURIComponent(params.slug);
   const article = await getArticleBySlug(decodedSlug);
-  
+
   if (!article) {
     return notFound();
   }
 
   // التحقق من نوع المحتوى
   const effectiveContentType =
-    article.content_type || (article.article_type === "news" ? "NEWS" : "OPINION");
+    article.content_type ||
+    (article.article_type === "news" ? "NEWS" : "OPINION");
 
   // إعادة توجيه إذا كان خبر
   if (effectiveContentType !== "OPINION") {
@@ -132,8 +138,8 @@ export default async function OpinionArticlePage({
 
   // تمرير البيانات الأولية لتجنب جلب مكرر
   return (
-    <ArticleClientComponent 
-      articleId={article.id} 
+    <ArticleClientComponent
+      articleId={article.id}
       initialArticle={article as any}
     />
   );

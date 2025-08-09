@@ -513,15 +513,12 @@ function NewspaperHomePage({
       try {
         setFeaturedLoading(true);
         // استخدام tags بدلاً من timestamp لإدارة الكاش
-        const response = await fetch(
-          `/api/featured-news-carousel`,
-          {
-            next: { 
-              revalidate: 60,
-              tags: ['featured-news']
-            },
-          }
-        );
+        const response = await fetch(`/api/featured-news-carousel`, {
+          next: {
+            revalidate: 60,
+            tags: ["featured-news"],
+          },
+        });
 
         if (response.ok) {
           const data = await response.json();
