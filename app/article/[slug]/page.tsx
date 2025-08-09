@@ -18,7 +18,8 @@ export default async function OpinionArticlePage({
       select: { id: true, content_type: true, article_type: true }, // Select article_type for fallback
     });
     if (!item) return notFound();
-    const effectiveContentType = item.content_type || (item.article_type === "news" ? "NEWS" : "OPINION");
+    const effectiveContentType =
+      item.content_type || (item.article_type === "news" ? "NEWS" : "OPINION");
 
     if (effectiveContentType !== "OPINION") {
       return redirect(`/news/${decodedSlug}`);

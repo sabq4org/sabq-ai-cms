@@ -270,7 +270,7 @@ export async function PATCH(
       async () => {
         return await prisma.articles.findUnique({
           where: { id },
-          select: { id: true, title: true, featured: true },
+          select: { id: true, title: true, featured: true, slug: true },
         });
       }
     );
@@ -327,6 +327,12 @@ export async function PATCH(
       // 'featured' تمت إزالته من هنا وسيتم معالجته بشكل خاص
       // الحقول غير الموجودة في schema: subtitle, type, image_caption, author_name, publish_at, external_link
     ];
+
+    // Prevent slug changes for short, random slugs
+    if (data.slug && existingArticle.slug.length <= 12 && existingArticle.slug !== data.slug) {
+        console.warn(`⚠️ Attempt to change a short slug was blocked. Old: "${existingArticle.slug}", New: "${data.slug}"`);
+        delete data.slug;
+    }
 
     console.log("📋 الحقول المستلمة:", Object.keys(data));
     console.log("📋 القيم المستلمة:", data);

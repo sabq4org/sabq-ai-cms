@@ -19,13 +19,14 @@ export default async function NewsPage({
     });
     if (!item) return notFound();
     // توافق خلفي: لو لم تتوفر content_type بعد الهجرة، استخدم article_type
-    const effectiveContentType = item.content_type || (item.article_type === "news" ? "NEWS" : "OPINION");
+    const effectiveContentType =
+      item.content_type || (item.article_type === "news" ? "NEWS" : "OPINION");
 
     if (effectiveContentType !== "NEWS") {
       return redirect(`/article/${decodedSlug}`);
     }
     return <ArticleClientComponent articleId={item.id} initialArticle={null} />;
-    } catch (error) {
+  } catch (error) {
     // في حال فشل استعلام السيرفر، لا نفشل RSC
     return notFound();
   }

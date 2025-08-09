@@ -1272,9 +1272,14 @@ function AdminNewsPageContent() {
                                 >
                                   <DropdownMenuItem
                                     onClick={() => {
-                                      const path = article.content_type === 'OPINION'
-                                        ? `/article/${article.slug || article.id}`
-                                        : `/news/${article.slug || article.id}`;
+                                      const path =
+                                        article.content_type === "OPINION"
+                                          ? `/article/${
+                                              article.slug || article.id
+                                            }`
+                                          : `/news/${
+                                              article.slug || article.id
+                                            }`;
                                       router.push(path);
                                     }}
                                     className="py-3 hover:bg-gray-50 dark:hover:bg-gray-700"
