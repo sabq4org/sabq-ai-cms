@@ -16,7 +16,7 @@ import {
 import "@/styles/mobile-article-layout.css";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import AdBanner from "@/components/ads/AdBanner";
 import { SmartInteractionButtons } from "@/components/article/SmartInteractionButtons";
@@ -97,7 +97,19 @@ export default function ArticleClientComponent({
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
-  const [contentHtml, setContentHtml] = useState("");
+  // توليد محتوى HTML بشكل متزامن لتجنب ومضة الفراغ بعد اختفاء شاشة التحميل
+  const contentHtml = useMemo(() => {
+    const raw = article?.content || null;
+    if (!raw) {
+      return "";
+    }
+    if (raw.includes("<p>") || raw.includes("<div>")) {
+      return raw;
+    }
+    const paragraphs = raw.split("\n\n");
+    const html = paragraphs.map((p) => `<p>${p}</p>`).join("");
+    return html || "<p>المحتوى غير متوفر حالياً.</p>";
+  }, [article?.content]);
   // لم نعد نستخدم الحالة المحلية للتبديل هنا بعد إضافة CommentsPanel
   const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -257,23 +269,7 @@ export default function ArticleClientComponent({
     }
   }, [initialArticle, articleId, router]);
 
-  // معالجة المحتوى إلى HTML
-  useEffect(() => {
-    if (!article?.content) {
-      setContentHtml("<p>المحتوى غير متوفر حالياً.</p>");
-      return;
-    }
-
-    // استخدام المحتوى كما هو إذا كان HTML
-    if (article.content.includes("<p>") || article.content.includes("<div>")) {
-      setContentHtml(article.content);
-    } else {
-      // تحويل النص العادي إلى HTML بسيط
-      const paragraphs = article.content.split("\n\n");
-      const html = paragraphs.map((p) => `<p>${p}</p>`).join("");
-      setContentHtml(html || "<p>المحتوى غير متوفر بشكل كامل.</p>");
-    }
-  }, [article?.content]);
+  // لم نعد بحاجة لتأثير منفصل لتوليد المحتوى
 
   // تحديث عنوان التبويب ديناميكياً وتحسين Open Graph meta tags
   useEffect(() => {
@@ -307,7 +303,7 @@ export default function ArticleClientComponent({
         metaTag.setAttribute("content", content);
       };
 
-      // تحديث Open Graph tags
+      // تحديث Open Graph tags (تأجيل بسيط لتفادي ومضة الفراغ بعد Skeleton)
       updateMetaTag("og:title", tabTitle);
       updateMetaTag("og:type", "article");
       updateMetaTag("og:site_name", "صحيفة سبق الإلكترونية");
@@ -323,7 +319,7 @@ export default function ArticleClientComponent({
 
       // تحديث URL المقال
       const currentUrl = window.location.href;
-      updateMetaTag("og:url", currentUrl);
+      setTimeout(() => updateMetaTag("og:url", currentUrl), 0);
 
       // تحديث Twitter Card meta tags
       updateNameMetaTag("twitter:card", "summary_large_image");
@@ -405,16 +401,7 @@ export default function ArticleClientComponent({
 
   if (loading || !article) {
     return (
-      <div
-        style={{
-          padding: "3rem",
-          textAlign: "center",
-          minHeight: "400px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
+      <div className="min-h-[60vh] flex items-center justify-center px-4">
         <div className="w-full max-w-4xl">
           <div className="animate-pulse space-y-4">
             <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded w-3/4"></div>
