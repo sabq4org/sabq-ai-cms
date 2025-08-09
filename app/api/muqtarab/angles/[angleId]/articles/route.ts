@@ -1,4 +1,5 @@
 import { cache as redisCache } from "@/lib/redis-improved";
+import { generateSlug } from "@/lib/slug-utils";
 import { MuqtarabArticleForm } from "@/types/muqtarab";
 import { PrismaClient } from "@prisma/client";
 import { nanoid } from "nanoid";
@@ -6,16 +7,42 @@ import { NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
-// Helper to generate a unique short slug for Muqtarab articles
-async function generateUniqueMuqtarabSlug(): Promise<string> {
-  let slug = nanoid(8);
+// Helper to generate a unique slug for Muqtarab articles - إنجليزي فقط
+async function generateUniqueMuqtarabSlug(title: string): Promise<string> {
+  // محاولة توليد slug إنجليزي من العنوان
+  let slug = generateSlug(title);
+
+  // إذا فشل في إنتاج slug إنجليزي صالح، استخدم nanoid
+  if (!slug || slug.length < 3) {
+    slug = `article-${nanoid(8)}`;
+    console.log(`📝 تم توليد slug عشوائي للمقال: ${slug} (العنوان: ${title})`);
+  } else {
+    console.log(`✅ تم توليد slug إنجليزي للمقال: ${slug} (العنوان: ${title})`);
+  }
+
+  // التحقق من الفرادة
+  let counter = 1;
+  const originalSlug = slug;
+
   while (true) {
     const exists = await prisma.muqtarabArticle.findUnique({ where: { slug } });
     if (!exists) {
+      console.log(`🎯 تأكيد فرادة الـ slug: ${slug}`);
       return slug;
     }
-    slug = nanoid(8);
+
+    // إضافة رقم للتمييز
+    slug = `${originalSlug}-${counter}`;
+    counter++;
+
+    // منع التكرار اللانهائي
+    if (counter > 100) {
+      slug = `article-${nanoid(8)}`;
+      break;
+    }
   }
+
+  return slug;
 }
 
 // إنشاء مقال جديد في الزاوية
@@ -47,14 +74,14 @@ export async function POST(
       );
     }
 
-    const slug = nanoid(8); // Generate a short random slug
+    const slug = await generateUniqueMuqtarabSlug(body.title); // Generate meaningful slug from title
 
     // إنشاء المقال using Prisma's ORM capabilities for better type safety and maintainability
     const newArticle = await prisma.muqtarabArticle.create({
       data: {
         corner: { connect: { id: angleId } },
         title: body.title,
-        slug: slug, // Use the new short slug
+        slug: slug, // Use the new meaningful slug
         content: body.content,
         excerpt: body.excerpt || null,
         ...(body.authorId && { creator: { connect: { id: body.authorId } } }),

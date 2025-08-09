@@ -90,9 +90,14 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(url, 301);
   }
 
+  // Allow direct access to article detail pages
+  if (pathname.startsWith("/muqtarab/articles/")) {
+    return NextResponse.next();
+  }
+
   // Redirect old Muqtarab article URLs to new simplified format
   const muqtarabMatch = pathname.match(/^\/muqtarab\/[^\/]+\/([a-zA-Z0-9-]+)$/);
-  if (muqtarabMatch) {
+  if (muqtarabMatch && !pathname.startsWith("/muqtarab/articles/")) {
     const articleSlug = muqtarabMatch[1];
     // Redirect to simplified format: /muqtarab/[slug]
     const newUrl = nextUrl.clone();
