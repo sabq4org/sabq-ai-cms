@@ -4,10 +4,8 @@ import { isEmergencyArticleSupported } from "@/app/emergency-articles";
 import Footer from "@/components/Footer";
 import ReporterLink from "@/components/ReporterLink";
 import ArticleFeaturedImage from "@/components/article/ArticleFeaturedImage";
-import OpinionArticleLayout from "@/components/article/OpinionArticleLayout";
 import SafeDateDisplay from "@/components/article/SafeDateDisplay";
 import DbConnectionError from "@/components/db-connection-error";
-import MobileOpinionLayout from "@/components/mobile/MobileOpinionLayout";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { ArticleData } from "@/lib/article-api";
@@ -37,6 +35,7 @@ import {
 import ArticleAISummary from "@/components/article/ArticleAISummary";
 import ArticleStatsBlock from "@/components/article/ArticleStatsBlock";
 import CommentsPanel from "@/components/article/CommentsPanel";
+import EnhancedOpinionLayout from "@/components/article/EnhancedOpinionLayout";
 import { ReadingProgressBar } from "@/components/article/ReadingProgressBar";
 import SmartPersonalizedContent from "@/components/article/SmartPersonalizedContent";
 import ArticleViews from "@/components/ui/ArticleViews";
@@ -526,13 +525,9 @@ export default function ArticleClientComponent({
 
   const keywords = getKeywords();
 
-  // إذا كان مقال رأي، استخدم التصميم المخصص
+  // إذا كان مقال رأي، استخدم التصميم المحسن الجديد
   if (isOpinionArticle) {
-    if (isMobile) {
-      return <MobileOpinionLayout article={article} />;
-    } else {
-      return <OpinionArticleLayout article={article} />;
-    }
+    return <EnhancedOpinionLayout article={article} />;
   }
 
   return (
