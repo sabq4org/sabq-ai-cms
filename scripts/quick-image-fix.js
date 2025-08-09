@@ -9,10 +9,10 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 // صور افتراضية من Cloudinary
-const DEFAULT_IMAGES = {
-  article: 'https://res.cloudinary.com/dlaibl7id/image/upload/v1753111461/defaults/article-placeholder.jpg',
-  category: 'https://res.cloudinary.com/dlaibl7id/image/upload/v1753111461/defaults/category-placeholder.jpg',
-  avatar: 'https://res.cloudinary.com/dlaibl7id/image/upload/v1753111461/defaults/avatar-placeholder.jpg'
+const CLOUDINARY_DEFAULTS = {
+  article: '/images/placeholder-news.svg',
+  category: '/images/category-default.jpg',
+  author: '/images/default-avatar.jpg',
 };
 
 async function quickFix() {
@@ -35,7 +35,7 @@ async function quickFix() {
     for (const article of articlesWithS3) {
       await prisma.articles.update({
         where: { id: article.id },
-        data: { featured_image: DEFAULT_IMAGES.article }
+        data: { featured_image: CLOUDINARY_DEFAULTS.article }
       });
     }
 
@@ -54,7 +54,7 @@ async function quickFix() {
 
     for (const category of categoriesWithS3) {
       const metadata = category.metadata || {};
-      metadata.image_url = DEFAULT_IMAGES.category;
+      metadata.image_url = CLOUDINARY_DEFAULTS.category;
       
       await prisma.categories.update({
         where: { id: category.id },

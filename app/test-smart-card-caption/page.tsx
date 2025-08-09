@@ -14,7 +14,7 @@ export default function TestSmartCardCaption() {
     type: 'تحليل' as const,
     reason: 'يتماشى مع اهتماماتك في التقنية',
     confidence: 95,
-    thumbnail: 'https://res.cloudinary.com/dlaibl7id/image/upload/v1753111461/defaults/article-placeholder.jpg',
+    thumbnail: '/images/placeholder-news.svg',
     publishedAt: new Date().toISOString(),
     category: 'تقنية',
     readingTime: 5,

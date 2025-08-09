@@ -3,19 +3,12 @@
  * يحل مشاكل عرض الصور في بيئة الإنتاج
  */
 
-// الدومين الرئيسي للإنتاج (قابل للتكوين عبر البيئة)
-const PRODUCTION_DOMAIN = process.env.NEXT_PUBLIC_SITE_URL || "https://sabq.io";
+import { CLOUDINARY_BASE } from '@/lib/config/cloudinary';
 
-// Cloudinary الافتراضي
-const DEFAULT_CLOUDINARY_CLOUD = "dybhezmvb";
-const CLOUDINARY_BASE = `https://res.cloudinary.com/${DEFAULT_CLOUDINARY_CLOUD}/image/upload`;
-
-// صور افتراضية مباشرة من Cloudinary
-const CLOUDINARY_DEFAULTS = {
-  article: `${CLOUDINARY_BASE}/v1753111461/defaults/article-placeholder.jpg`,
-  category: `${CLOUDINARY_BASE}/v1753111461/defaults/category-placeholder.jpg`,
-  author: `${CLOUDINARY_BASE}/v1753111461/defaults/default-avatar.png`,
-  default: `${CLOUDINARY_BASE}/v1753111461/defaults/article-placeholder.jpg`,
+export const PLACEHOLDER_IMAGES = {
+  article: `/images/placeholder-news.svg`,
+  analysis: `/images/deep-analysis-default.svg`,
+  default: `/images/placeholder-news.svg`,
 };
 
 /**
@@ -27,7 +20,7 @@ export function getProductionImageUrl(
     width?: number;
     height?: number;
     quality?: number;
-    fallbackType?: keyof typeof CLOUDINARY_DEFAULTS;
+    fallbackType?: keyof typeof PLACEHOLDER_IMAGES;
   } = {}
 ): string {
   const {
@@ -45,7 +38,7 @@ export function getProductionImageUrl(
     imageUrl === "undefined"
   ) {
     console.log(`🖼️ استخدام صورة Cloudinary الافتراضية: ${fallbackType}`);
-    return CLOUDINARY_DEFAULTS[fallbackType];
+    return PLACEHOLDER_IMAGES[fallbackType];
   }
 
   // تنظيف الرابط من المسافات
@@ -109,7 +102,7 @@ export function getProductionImageUrl(
       return url.toString();
     } catch {
       // في حالة فشل معالجة الرابط، استخدم صورة افتراضية
-      return CLOUDINARY_DEFAULTS[fallbackType];
+      return PLACEHOLDER_IMAGES[fallbackType];
     }
   }
 
@@ -121,13 +114,13 @@ export function getProductionImageUrl(
       return imageUrl;
     } catch {
       // رابط غير صالح
-      return CLOUDINARY_DEFAULTS[fallbackType];
+      return PLACEHOLDER_IMAGES[fallbackType];
     }
   }
 
   // إذا لم نتمكن من تحديد نوع الصورة، استخدم الافتراضية
   console.warn(`⚠️ نوع صورة غير معروف: ${imageUrl}`);
-  return CLOUDINARY_DEFAULTS[fallbackType];
+  return PLACEHOLDER_IMAGES[fallbackType];
 }
 
 /**
@@ -137,7 +130,7 @@ export function detectContentType(context: {
   isCategory?: boolean;
   isAuthor?: boolean;
   isArticle?: boolean;
-}): keyof typeof CLOUDINARY_DEFAULTS {
+}): keyof typeof PLACEHOLDER_IMAGES {
   if (context.isCategory) return "category";
   if (context.isAuthor) return "author";
   if (context.isArticle) return "article";

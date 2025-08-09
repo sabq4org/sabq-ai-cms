@@ -6,12 +6,15 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// Cloudinary defaults
-const CLOUDINARY_BASE = 'https://res.cloudinary.com/dlaibl7id/image/upload';
-const CLOUDINARY_DEFAULTS = {
-  article: `${CLOUDINARY_BASE}/v1753111461/defaults/article-placeholder.jpg`,
-  category: `${CLOUDINARY_BASE}/v1753111461/defaults/category-placeholder.jpg`,
-  author: `${CLOUDINARY_BASE}/v1753111461/defaults/default-avatar.png`
+const DEFAULT_CLOUDINARY_CLOUD = "dybhezmvb";
+const CLOUDINARY_BASE = `https://res.cloudinary.com/${DEFAULT_CLOUDINARY_CLOUD}/image/upload`;
+
+// صور افتراضية محلية
+const LOCAL_DEFAULTS = {
+  article: `/images/placeholder-news.svg`,
+  category: `/images/category-default.jpg`,
+  author: `/images/default-avatar.jpg`,
+  default: `/images/placeholder.svg`,
 };
 
 async function checkAndFixImages() {
@@ -43,7 +46,7 @@ async function checkAndFixImages() {
           article.featured_image.includes('/uploads/') ||
           article.featured_image.includes('s3.amazonaws.com')) {
         
-        updates.featured_image = CLOUDINARY_DEFAULTS.article;
+        updates.featured_image = LOCAL_DEFAULTS.article;
         needsUpdate = true;
         console.log(`  ⚠️  المقال "${article.title.substring(0, 50)}..." يحتاج لصورة جديدة`);
       }
@@ -84,7 +87,7 @@ async function checkAndFixImages() {
           category.image_url.includes('/uploads/') ||
           category.image_url.includes('s3.amazonaws.com')) {
         
-        updates.image_url = CLOUDINARY_DEFAULTS.category;
+        updates.image_url = LOCAL_DEFAULTS.category;
         needsUpdate = true;
         console.log(`  ⚠️  التصنيف "${category.name}" يحتاج لصورة جديدة`);
       }
@@ -98,7 +101,7 @@ async function checkAndFixImages() {
           
           updates.metadata = {
             ...metadata,
-            image_url: CLOUDINARY_DEFAULTS.category
+            image_url: LOCAL_DEFAULTS.category
           };
           needsUpdate = true;
         }
@@ -137,7 +140,7 @@ async function checkAndFixImages() {
         
         await prisma.authors.update({
           where: { id: author.id },
-          data: { avatar: CLOUDINARY_DEFAULTS.author }
+          data: { avatar: LOCAL_DEFAULTS.author }
         });
         authorsFixed++;
         console.log(`  ⚠️  المؤلف "${author.name}" تم تحديث صورته`);

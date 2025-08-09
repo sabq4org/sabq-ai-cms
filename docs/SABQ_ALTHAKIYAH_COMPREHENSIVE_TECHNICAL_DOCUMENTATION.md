@@ -1,4 +1,4 @@
-# 🚀 التوثيق الشامل والتقني لمشروع "سبق الذكية" 
+# 🚀 التوثيق الشامل والتقني لمشروع "سبق الذكية"
 ## Sabq Althakiyah - Smart News CMS Technical Documentation
 
 ---
@@ -9,9 +9,9 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-blue.svg)
 ![Production](https://img.shields.io/badge/status-production--ready-green.svg)
 
-**📅 تاريخ الإعداد:** يناير 2025  
-**👨‍💻 المطور الرئيسي:** علي الحازمي  
-**🏢 المؤسسة:** مؤسسة صحيفة سبق الإلكترونية  
+**📅 تاريخ الإعداد:** يناير 2025
+**👨‍💻 المطور الرئيسي:** علي الحازمي
+**🏢 المؤسسة:** مؤسسة صحيفة سبق الإلكترونية
 
 ---
 
@@ -122,45 +122,45 @@ graph TB
         U1[متصفح الويب]
         U2[أجهزة المحمول]
     end
-    
+
     subgraph "CDN & Edge"
         CDN[Vercel Edge Network]
     end
-    
+
     subgraph "الواجهة الأمامية"
         FE[Next.js 15 Frontend]
         SSR[Server-Side Rendering]
         CSR[Client-Side Rendering]
     end
-    
+
     subgraph "طبقة الأعمال"
         API[Next.js API Routes]
         MW[Middleware]
         AUTH[Authentication]
     end
-    
+
     subgraph "الذكاء الاصطناعي"
         OPENAI[OpenAI GPT-4]
         AI_MOD[Content Moderation]
         AI_REC[Smart Recommendations]
         AI_ANALYSIS[Deep Analysis]
     end
-    
+
     subgraph "قاعدة البيانات"
         DB[(PostgreSQL - Supabase)]
         CACHE[(Redis Cache)]
     end
-    
+
     subgraph "التخزين والملفات"
         CLOUD[Cloudinary]
         S3[AWS S3]
     end
-    
+
     subgraph "الخدمات الخارجية"
         EMAIL[AWS SES]
         ANALYTICS[Vercel Analytics]
     end
-    
+
     U1 --> CDN
     U2 --> CDN
     CDN --> FE
@@ -219,12 +219,12 @@ environments:
     url: "http://localhost:3002"
     database: "Development PostgreSQL"
     ai_features: "Enabled with API keys"
-    
+
   staging:
     url: "https://staging.sabq.io"
     database: "Staging PostgreSQL"
     ai_features: "Full testing environment"
-    
+
   production:
     url: "https://sabq.io"
     database: "Production PostgreSQL (Supabase)"
@@ -246,23 +246,23 @@ environments:
 
 ### 📊 الوحدات (Modules) والحالة
 
-| الوحدة | الحالة | الوصف | المسؤول |
-|--------|--------|--------|---------|
-| 🔐 نظام المصادقة | ✅ جاهزة | تسجيل دخول آمن مع JWT | API Routes |
-| 📰 إدارة المقالات | ✅ جاهزة | إنشاء وتحرير ونشر المقالات | CMS Dashboard |
-| 🏆 نظام الولاء | ✅ جاهزة | 4 مستويات مع نقاط ومكافآت | Loyalty System |
-| 🤖 التوصيات الذكية | ✅ جاهزة | توصيات مخصصة بالذكاء الاصطناعي | AI Engine |
-| 📚 التصنيفات | ✅ جاهزة | 10+ تصنيفات مع ألوان وأيقونات | Categories API |
-| ✨ الملخص الذكي | ✅ جاهزة | ملخصات تلقائية للمقالات | OpenAI Integration |
-| 🔊 تحويل النص لصوت | ✅ جاهزة | تشغيل صوتي للمقالات | TTS Service |
-| 👥 إدارة الفريق | ✅ جاهزة | إضافة وإدارة أعضاء الفريق | Team Management |
-| 📊 التحليلات | ✅ جاهزة | إحصائيات شاملة للمحتوى | Analytics API |
-| 💬 نظام التعليقات | ✅ جاهزة | تعليقات مع فلترة ذكية | Moderation AI |
-| 🔗 الروابط الذكية | ✅ جاهزة | تحليل وربط الكيانات | Smart Links |
-| 📱 التطبيق المحمول | 🟡 جزئية | واجهة متجاوبة محسنة | Mobile First |
-| 🔔 الإشعارات | 🟡 جزئية | إشعارات داخل التطبيق | Push Notifications |
-| 📧 النشرات البريدية | 🟡 قيد التنفيذ | نظام إرسال الإيميلات | Email Marketing |
-| 🌐 تعدد اللغات | 🔴 مخطط | دعم لغات إضافية | i18n System |
+| الوحدة             | الحالة        | الوصف                          | المسؤول            |
+| ------------------ | ------------- | ------------------------------ | ------------------ |
+| 🔐 نظام المصادقة    | ✅ جاهزة       | تسجيل دخول آمن مع JWT          | API Routes         |
+| 📰 إدارة المقالات   | ✅ جاهزة       | إنشاء وتحرير ونشر المقالات     | CMS Dashboard      |
+| 🏆 نظام الولاء      | ✅ جاهزة       | 4 مستويات مع نقاط ومكافآت      | Loyalty System     |
+| 🤖 التوصيات الذكية  | ✅ جاهزة       | توصيات مخصصة بالذكاء الاصطناعي | AI Engine          |
+| 📚 التصنيفات        | ✅ جاهزة       | 10+ تصنيفات مع ألوان وأيقونات  | Categories API     |
+| ✨ الملخص الذكي     | ✅ جاهزة       | ملخصات تلقائية للمقالات        | OpenAI Integration |
+| 🔊 تحويل النص لصوت  | ✅ جاهزة       | تشغيل صوتي للمقالات            | TTS Service        |
+| 👥 إدارة الفريق     | ✅ جاهزة       | إضافة وإدارة أعضاء الفريق      | Team Management    |
+| 📊 التحليلات        | ✅ جاهزة       | إحصائيات شاملة للمحتوى         | Analytics API      |
+| 💬 نظام التعليقات   | ✅ جاهزة       | تعليقات مع فلترة ذكية          | Moderation AI      |
+| 🔗 الروابط الذكية   | ✅ جاهزة       | تحليل وربط الكيانات            | Smart Links        |
+| 📱 التطبيق المحمول  | 🟡 جزئية       | واجهة متجاوبة محسنة            | Mobile First       |
+| 🔔 الإشعارات        | 🟡 جزئية       | إشعارات داخل التطبيق           | Push Notifications |
+| 📧 النشرات البريدية | 🟡 قيد التنفيذ | نظام إرسال الإيميلات           | Email Marketing    |
+| 🌐 تعدد اللغات      | 🔴 مخطط        | دعم لغات إضافية                | i18n System        |
 
 ### 🔧 الخدمات المرتبطة
 
@@ -274,19 +274,19 @@ interface AIServices {
     features: ["text analysis", "entity extraction", "sentiment analysis"];
     accuracy: "94.2%";
   };
-  
+
   contentModeration: {
     provider: "OpenAI + Custom Rules";
     features: ["toxicity detection", "spam filtering", "hate speech"];
     accuracy: "96.1%";
   };
-  
+
   smartRecommendations: {
     algorithm: "Machine Learning + User Behavior";
     features: ["personalized content", "trending analysis"];
     accuracy: "91.8%";
   };
-  
+
   deepAnalysis: {
     provider: "OpenAI GPT-4o";
     features: ["analytical reports", "data insights", "recommendations"];
@@ -301,20 +301,20 @@ infrastructure_services:
   database:
     provider: "Supabase PostgreSQL"
     features: ["Real-time subscriptions", "Row Level Security", "Auto-scaling"]
-    
+
   caching:
     provider: "Redis Cloud"
     features: ["Session storage", "API caching", "Real-time data"]
-    
+
   file_storage:
     primary: "Cloudinary"
     secondary: "AWS S3"
     features: ["Image optimization", "Video processing", "CDN delivery"]
-    
+
   email:
     provider: "AWS SES"
     features: ["Transactional emails", "Newsletter campaigns", "Verification"]
-    
+
   monitoring:
     providers: ["Vercel Analytics", "Speed Insights"]
     features: ["Performance monitoring", "User analytics", "Error tracking"]
@@ -334,7 +334,7 @@ infrastructure_services:
 ├── dashboard/              # لوحة القيادة الرئيسية
 ├── articles/              # إدارة المقالات
 ├── news/                  # إدارة الأخبار
-├── categories/            # إدارة التصنيفات  
+├── categories/            # إدارة التصنيفات
 ├── users/                 # إدارة المستخدمين
 ├── team-members/          # إدارة الفريق
 ├── reporters/             # إدارة المراسلين
@@ -376,16 +376,16 @@ interface RolePermissions {
       "content_management", "analytics_full"
     ];
   };
-  
+
   admin: {
     description: "إدارة المحتوى والمستخدمين";
     permissions: [
-      "content_management", "user_management", 
+      "content_management", "user_management",
       "analytics_view", "comment_moderation",
       "category_management", "team_management"
     ];
   };
-  
+
   editor: {
     description: "تحرير ونشر المحتوى";
     permissions: [
@@ -393,7 +393,7 @@ interface RolePermissions {
       "manage_categories", "moderate_comments", "upload_media"
     ];
   };
-  
+
   reporter: {
     description: "إنشاء المحتوى الإخباري";
     permissions: [
@@ -512,13 +512,13 @@ interface AIConfiguration {
 interface SmartEditorFeatures {
   actions: [
     "improve_text",           // تحسين النص
-    "generate_title",         // توليد العناوين  
+    "generate_title",         // توليد العناوين
     "create_summary",         // إنشاء الملخصات
     "expand_content",         // توسيع المحتوى
     "generate_full_article",  // توليد مقال كامل
     "analytical_report"       // تقرير تحليلي
   ];
-  
+
   accuracy: "92.3%";
   response_time: "3-8 seconds";
   language_support: ["Arabic", "English"];
@@ -531,13 +531,13 @@ interface SmartEditorFeatures {
 interface DeepAnalysisCapabilities {
   analysis_types: [
     "political_analysis",     // تحليل سياسي
-    "economic_analysis",      // تحليل اقتصادي  
+    "economic_analysis",      // تحليل اقتصادي
     "social_analysis",        // تحليل اجتماعي
     "technical_analysis",     // تحليل تقني
     "sports_analysis",        // تحليل رياضي
     "custom_analysis"         // تحليل مخصص
   ];
-  
+
   output_sections: [
     "executive_summary",      // ملخص تنفيذي
     "detailed_analysis",      // تحليل مفصل
@@ -545,7 +545,7 @@ interface DeepAnalysisCapabilities {
     "recommendations",       // توصيات
     "data_points"           // نقاط بيانات
   ];
-  
+
   word_count: "1500-3000 words";
   sections_count: "7+ sections";
 }
@@ -560,13 +560,13 @@ interface SmartLinksAI {
     accuracy: "94.2%";
     languages: ["Arabic"];
   };
-  
+
   context_analysis: {
     importance_scoring: "1-10 scale";
     relationship_mapping: boolean;
     knowledge_graph: boolean;
   };
-  
+
   personalization: {
     user_interests: boolean;
     reading_history: boolean;
@@ -582,20 +582,20 @@ interface ContentModerationAI {
   detection_categories: [
     "toxicity",              // السُمّية
     "harassment",            // التحرش
-    "hate_speech",           // خطاب الكراهية  
+    "hate_speech",           // خطاب الكراهية
     "spam",                  // البريد العشوائي
     "threats"                // التهديدات
   ];
-  
+
   scoring_system: {
     range: "0-100";
     thresholds: {
       safe: "80-100";
-      review: "40-79"; 
+      review: "40-79";
       reject: "0-39";
     };
   };
-  
+
   accuracy: "96.1%";
   false_positives: "<2%";
 }
@@ -610,7 +610,7 @@ interface RecommendationEngine {
     "content_based",           // مبني على المحتوى
     "hybrid_approach"          // نهج مختلط
   ];
-  
+
   factors: [
     "reading_history",         // تاريخ القراءة
     "user_interactions",       // تفاعلات المستخدم
@@ -618,7 +618,7 @@ interface RecommendationEngine {
     "similarity_scores",       // نقاط التشابه
     "time_patterns"           // أنماط الوقت
   ];
-  
+
   performance: {
     accuracy: "91.8%";
     update_frequency: "real-time";
@@ -629,13 +629,13 @@ interface RecommendationEngine {
 
 ### 📊 إحصائيات أداء الذكاء الاصطناعي
 
-| الميزة | دقة النتائج | وقت الاستجابة | معدل الاستخدام |
-|--------|-------------|---------------|----------------|
-| تحليل المشاعر | 94.2% | 2-4 ثواني | 87% من المحتوى |
-| التوصيات الذكية | 91.8% | فوري | 92% من المستخدمين |
-| فلترة التعليقات | 96.1% | 1-2 ثانية | 100% من التعليقات |
-| المحرر الذكي | 89.7% | 3-8 ثواني | 76% من المحررين |
-| التحليل العميق | 88.5% | 10-15 ثانية | 34% من المقالات |
+| الميزة          | دقة النتائج | وقت الاستجابة | معدل الاستخدام    |
+| --------------- | ----------- | ------------- | ----------------- |
+| تحليل المشاعر   | 94.2%       | 2-4 ثواني     | 87% من المحتوى    |
+| التوصيات الذكية | 91.8%       | فوري          | 92% من المستخدمين |
+| فلترة التعليقات | 96.1%       | 1-2 ثانية     | 100% من التعليقات |
+| المحرر الذكي    | 89.7%       | 3-8 ثواني     | 76% من المحررين   |
+| التحليل العميق  | 88.5%       | 10-15 ثانية   | 34% من المقالات   |
 
 ---
 
@@ -691,13 +691,13 @@ interface ArticleInteractions {
     analytics: "reading time, completion rate";
     bookmarking: "save for later";
   };
-  
+
   engagement: {
     likes: "heart-based system";
     shares: "social media integration";
     comments: "threaded discussions";
   };
-  
+
   personalization: {
     recommendations: "AI-powered suggestions";
     reading_history: "user-specific tracking";
@@ -714,13 +714,13 @@ interface AudioInteractions {
     languages: ["ar-SA", "en-US"];
     controls: ["play", "pause", "speed", "skip"];
   };
-  
+
   audio_articles: {
     format: "MP3";
     quality: "High (128kbps)";
     player: "Custom React Audio Player";
   };
-  
+
   podcasts: {
     streaming: "Progressive download";
     offline: "Service Worker caching";
@@ -737,13 +737,13 @@ interface SmartRecommendations {
     content_types: ["news", "analysis", "opinion"];
     refresh_rate: "every 6 hours";
   };
-  
+
   related_articles: {
     similarity_engine: "NLP + Content Analysis";
     factors: ["topic", "entities", "reading_history"];
     count: "3-5 articles per recommendation";
   };
-  
+
   trending_topics: {
     calculation: "Real-time + Historical data";
     update_frequency: "every 15 minutes";
@@ -760,12 +760,12 @@ interface SearchSystem {
     advanced: "filters + date ranges + categories";
     semantic: "AI-powered meaning search";
   };
-  
+
   filters: [
     "date_range", "categories", "authors",
     "content_type", "reading_time", "popularity"
   ];
-  
+
   results: {
     sorting: ["relevance", "date", "popularity"];
     pagination: "infinite scroll + traditional";
@@ -858,7 +858,7 @@ reporters {
 ```
 
 **2. المحتوى والمقالات**
-```sql  
+```sql
 -- جدول المقالات (27 مقال: 19 منشور، 8 محذوف)
 articles {
   id: String PRIMARY KEY
@@ -977,7 +977,7 @@ bookmarks {
   user_id: String REFERENCES users(id)
   article_id: String REFERENCES articles(id)
   created_at: TIMESTAMP DEFAULT NOW()
-  
+
   UNIQUE(user_id, article_id)
 }
 ```
@@ -1032,7 +1032,7 @@ articles.author_id → users.id         (Many-to-One)
 articles.category_id → categories.id   (Many-to-One)
 articles.id ← comments.article_id      (One-to-Many)
 
--- علاقات المستخدمين  
+-- علاقات المستخدمين
 users.id ← user_activities.user_id     (One-to-Many)
 users.id ← bookmarks.user_id           (One-to-Many)
 users.id ← user_interactions.user_id   (One-to-Many)
@@ -1062,27 +1062,27 @@ CREATE INDEX idx_analytics_event_time ON analytics_data(event_type, timestamp DE
 current_statistics:
   total_tables: 45
   total_records: ~2,500
-  
+
   content:
     users: 27 (3 admins, 6 reporters, 18 regular)
     articles: 27 (19 published, 8 deleted)
     categories: 12 (all active)
     comments: ~150 (85% approved)
-    
+
   team:
     team_members: 6 (all reporters)
     reporters: 6 (all with profiles)
-    
+
   engagement:
     user_interactions: ~800
     bookmarks: ~45
     user_activities: ~1,200
-    
+
   ai_data:
     smart_entities: ~200
     entity_types: 8
     smart_terms: ~150
-    
+
   performance:
     avg_query_time: "<50ms"
     database_size: "~500MB"
@@ -1103,15 +1103,15 @@ cloudinary_config:
   api_key: "environment_variable"
   features:
     - "Image optimization"
-    - "Video processing" 
+    - "Video processing"
     - "Auto-format delivery"
     - "CDN distribution"
     - "On-the-fly transformations"
-  
+
   storage_limits:
     free_tier: "25GB storage, 25GB bandwidth"
     current_usage: "~2.3GB"
-    
+
   supported_formats:
     images: ["JPEG", "PNG", "WebP", "AVIF", "SVG"]
     videos: ["MP4", "WebM", "MOV"]
@@ -1129,7 +1129,7 @@ aws_s3_config:
     - "Large file storage"
     - "Archive storage"
     - "Cross-region replication"
-  
+
   usage:
     primary_use: "Backup and archival"
     current_size: "~1.2GB"
@@ -1171,13 +1171,13 @@ interface ImageProcessing {
     compression: "Intelligent lossy/lossless";
     lazy_loading: "Progressive enhancement";
   };
-  
+
   responsive_images: {
     breakpoints: [320, 768, 1024, 1920];
     aspect_ratios: ["16:9", "4:3", "1:1", "original"];
     sizes: "auto-generated based on usage";
   };
-  
+
   transformations: {
     thumbnails: "c_fill,w_300,h_200,q_auto,f_auto";
     featured_images: "c_fill,w_800,h_450,q_auto,f_auto";
@@ -1207,14 +1207,14 @@ interface UploadFeatures {
     virus_scanning: "Cloudinary automatic";
     content_filtering: "AI-powered inappropriate content detection";
   };
-  
+
   processing: {
     auto_optimization: "Enabled";
     thumbnail_generation: "Automatic";
     metadata_extraction: "EXIF, duration, dimensions";
     duplicate_detection: "Hash-based";
   };
-  
+
   progress_tracking: {
     real_time: "WebSocket updates";
     chunked_upload: "Large files > 25MB";
@@ -1231,18 +1231,18 @@ interface UploadFeatures {
 cdn_configuration:
   primary_cdn: "Cloudinary CDN"
   edge_locations: "Global (200+ locations)"
-  cache_duration: 
+  cache_duration:
     images: "30 days"
-    videos: "7 days" 
+    videos: "7 days"
     documents: "1 day"
-    
+
   performance_optimizations:
     - "Auto-format delivery"
     - "Quality auto-adjustment"
     - "Bandwidth-based optimization"
     - "Device-specific delivery"
     - "WebP/AVIF support"
-    
+
   monitoring:
     bandwidth_usage: "Real-time tracking"
     cache_hit_ratio: "~95%"
@@ -1257,13 +1257,13 @@ interface LocalCaching {
     videos: "Cache-Control: public, max-age=604800";  // 7 days
     avatars: "Cache-Control: public, max-age=86400";  // 1 day
   };
-  
+
   service_worker: {
     offline_images: "Critical UI images cached";
     progressive_loading: "Background prefetching";
     fallback_images: "Placeholder system";
   };
-  
+
   next_js_caching: {
     static_images: "Automatic optimization";
     dynamic_imports: "Code splitting";
@@ -1288,20 +1288,20 @@ interface AuthenticationSecurity {
     secret_rotation: "Manual (recommended: monthly)";
     issuer: "sabq-ai-cms";
   };
-  
+
   password_security: {
     hashing: "bcryptjs with 12 salt rounds";
     min_length: 8;
     requirements: [
       "At least one uppercase letter",
-      "At least one lowercase letter", 
+      "At least one lowercase letter",
       "At least one number",
       "At least one special character"
     ];
     max_attempts: 5;
     lockout_duration: "15 minutes";
   };
-  
+
   session_management: {
     storage: "HTTP-only cookies + localStorage";
     secure_flag: true;
@@ -1320,14 +1320,14 @@ interface APISecurityMeasures {
     upload_endpoints: "10 requests/minute per user";
     ai_endpoints: "20 requests/minute per user";
   };
-  
+
   input_validation: {
     library: "Zod for TypeScript validation";
     sanitization: "HTML sanitization for user inputs";
     sql_injection: "Prisma ORM prevents SQL injection";
     xss_protection: "Content Security Policy headers";
   };
-  
+
   authorization: {
     role_based: "RBAC (Role-Based Access Control)";
     permission_checking: "Per-endpoint authorization";
@@ -1366,14 +1366,14 @@ interface EmailVerificationSystem {
     max_attempts: "3 verification emails per day";
     email_provider: "AWS SES";
   };
-  
+
   verification_features: {
     welcome_email: "Automated on successful registration";
     password_reset: "Secure token-based reset";
     email_change: "Verify both old and new email";
     suspicious_login: "Location-based alerts";
   };
-  
+
   template_security: {
     html_sanitization: "DOMPurify for email content";
     link_validation: "Signed URLs with expiration";
@@ -1394,14 +1394,14 @@ interface PasswordRecoverySystem {
     expiration_time: "1 hour";
     single_use: "Token invalidated after use";
   };
-  
+
   security_measures: {
     rate_limiting: "3 requests per hour per email";
     suspicious_activity: "IP-based monitoring";
     notification_system: "Email alerts for password changes";
     old_password_requirement: "For authenticated users";
   };
-  
+
   password_history: {
     prevention: "Last 5 passwords stored (hashed)";
     reuse_protection: "Cannot reuse recent passwords";
@@ -1424,14 +1424,14 @@ interface SecurityLogging {
     "failed_api_requests",     // طلبات API الفاشلة
     "suspicious_activities"     // الأنشطة المشبوهة
   ];
-  
+
   log_storage: {
     location: "PostgreSQL activity_logs table";
     retention: "90 days for regular logs, 1 year for security events";
     encryption: "At rest + in transit";
     access_control: "Admin and System Admin only";
   };
-  
+
   monitoring_alerts: {
     failed_logins: "5+ attempts in 10 minutes";
     admin_actions: "Real-time notifications";
@@ -1449,19 +1449,19 @@ infrastructure_security:
   hosting_platform: "Vercel (Serverless)"
   ssl_certificates: "Automatic (Let's Encrypt)"
   dns_security: "Cloudflare DNS with DDoS protection"
-  
+
   database_security:
     encryption: "AES-256 at rest + TLS 1.3 in transit"
     access_control: "VPC + Connection pooling"
     backup_encryption: "Automated encrypted backups"
     row_level_security: "Supabase RLS policies"
-    
+
   api_security:
     cors_policy: "Strict origin validation"
     request_size_limits: "10MB for uploads, 1MB for JSON"
     timeout_settings: "30 seconds for API routes"
     error_handling: "Sanitized error messages"
-    
+
   environment_variables:
     storage: "Vercel Environment Variables"
     encryption: "Platform-level encryption"
@@ -1483,13 +1483,13 @@ performance_issues:
     impact: "تأخير في تحميل لوحة التحكم"
     severity: "متوسط"
     solution: "تحسين الفهارس + Redis caching"
-    
+
   image_loading:
     problem: "تحميل الصور الكبيرة يؤثر على سرعة الصفحة"
     impact: "تجربة مستخدم بطيئة"
     severity: "منخفض"
     solution: "تحسين ضغط Cloudinary + lazy loading"
-    
+
   bundle_size:
     problem: "حجم JavaScript bundle كبير (~2.5MB)"
     impact: "بطء في التحميل الأولي"
@@ -1505,13 +1505,13 @@ database_issues:
     impact: "أخطاء 500 مؤقتة"
     severity: "عالي"
     solution: "زيادة pool size + connection optimization"
-    
+
   migration_conflicts:
     problem: "تعارضات في migrations عند النشر المتزامن"
     impact: "فشل في النشر أحياناً"
     severity: "متوسط"
     solution: "CI/CD pipeline improvement"
-    
+
   data_inconsistency:
     problem: "عدم تطابق أحياناً بين counts والبيانات الفعلية"
     impact: "إحصائيات غير دقيقة"
@@ -1527,13 +1527,13 @@ ai_issues:
     impact: "فشل في ميزات الذكاء الاصطناعي"
     severity: "عالي"
     solution: "Queueing system + fallback responses"
-    
+
   cost_management:
     problem: "تكلفة OpenAI مرتفعة مع زيادة الاستخدام"
     impact: "قيود على الميزانية"
     severity: "متوسط"
     solution: "Caching + usage optimization"
-    
+
   response_quality:
     problem: "جودة الاستجابات متغيرة في اللغة العربية"
     impact: "نتائج غير مثالية أحياناً"
@@ -1550,12 +1550,12 @@ security_weaknesses:
     issue: "عدم وجود logout من جميع الأجهزة"
     risk: "منخفض"
     solution: "Global session invalidation"
-    
+
   admin_access:
     issue: "لا توجد مصادقة ثنائية للمشرفين"
     risk: "متوسط"
     solution: "2FA implementation"
-    
+
   api_documentation:
     issue: "عدم وجود توثيق شامل للـ APIs"
     risk: "منخفض"
@@ -1569,12 +1569,12 @@ monitoring_gaps:
     issue: "عدم وجود نظام مراقبة أخطاء شامل"
     risk: "متوسط"
     solution: "Sentry integration"
-    
+
   performance_monitoring:
     issue: "قياس الأداء يعتمد على أدوات أساسية"
     risk: "منخفض"
     solution: "Advanced APM tools"
-    
+
   uptime_monitoring:
     issue: "لا توجد تنبيهات تلقائية عند توقف الخدمة"
     risk: "عالي"
@@ -1588,12 +1588,12 @@ scalability_concerns:
     issue: "قاعدة البيانات الحالية محدودة بخطة Supabase"
     risk: "متوسط"
     solution: "Migration to dedicated PostgreSQL"
-    
+
   file_storage:
     issue: "اعتماد كامل على Cloudinary للملفات"
     risk: "منخفض"
     solution: "Multi-provider storage strategy"
-    
+
   cdn_distribution:
     issue: "عدم وجود توزيع إقليمي محسن للمنطقة العربية"
     risk: "منخفض"
@@ -1644,9 +1644,9 @@ scalability_concerns:
 
 ---
 
-**📅 تاريخ آخر تحديث:** يناير 2025  
-**🔄 إصدار التوثيق:** 1.0.0  
-**✅ مراجعة:** مكتملة وجاهزة للاستخدام  
+**📅 تاريخ آخر تحديث:** يناير 2025
+**🔄 إصدار التوثيق:** 1.0.0
+**✅ مراجعة:** مكتملة وجاهزة للاستخدام
 
 ---
 
