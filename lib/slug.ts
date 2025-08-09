@@ -1,13 +1,5 @@
 import { PrismaClient } from "@prisma/client";
 import { nanoid } from 'nanoid';
-const slug = require("slug");
-
-slug.set("defaults", {
-  replacement: "-",
-  symbols: true,
-  remove: /[.]/g,
-  lower: true,
-});
 
 const ARABIC_TO_LATIN_MAP: { [key: string]: string } = {
   ء: "",
