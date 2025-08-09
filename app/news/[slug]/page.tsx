@@ -1,6 +1,6 @@
+import ArticleClientComponent from "@/app/article/[id]/ArticleClientComponent";
 import prisma from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
-import ArticleClientComponent from "@/app/article/[id]/ArticleClientComponent";
 
 export const revalidate = 0;
 export const dynamic = "force-dynamic";
@@ -20,5 +20,3 @@ export default async function NewsPage({
   }
   return <ArticleClientComponent articleId={item.id} initialArticle={null} />;
 }
-
-

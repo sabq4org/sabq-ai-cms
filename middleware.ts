@@ -1,92 +1,54 @@
-import prisma from "@/lib/prisma";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
+// قاموس لتحويل الأسماء العربية إلى slugs صحيحة
+const reporterNameMappings: { [key: string]: string } = {
+  "علي-الحازمي": "ali-alhazmi-389657",
+  "علي الحازمي": "ali-alhazmi-389657",
+  "علي_الحازمي": "ali-alhazmi-389657",
+};
+
 async function getContentTypeBySlug(
+  req: NextRequest,
   slug: string
 ): Promise<"NEWS" | "OPINION" | null> {
   try {
-    const art = await prisma.articles.findFirst({
-      where: { slug },
-      select: { article_type: true },
-    });
-    if (!art) return null;
-    // موائمة: article_type="news" أو "opinion"
-    if ((art as any).article_type === "news") return "NEWS";
-    return "OPINION";
+    const lookupUrl = new URL("/api/lookup/content-type", req.url);
+    lookupUrl.searchParams.set("slug", slug);
+    const res = await fetch(lookupUrl, { cache: "no-store" });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { type?: string | null };
+    return data.type === "NEWS" || data.type === "OPINION" ? data.type : null;
   } catch {
     return null;
   }
 }
 
 export async function middleware(req: NextRequest) {
-  const url = new URL(req.url);
-  const path = url.pathname;
-
-  const articleMatch = path.match(/^\/article\/([^\/]+)\/?$/);
-  if (articleMatch) {
-    const slug = articleMatch[1];
-    const type = await getContentTypeBySlug(slug);
-    if (type === "NEWS") {
-      url.pathname = `/news/${slug}`;
-      return NextResponse.redirect(url, 301);
-    }
-  }
-
-  const newsMatch = path.match(/^\/news\/([^\/]+)\/?$/);
-  if (newsMatch) {
-    const slug = newsMatch[1];
-    const type = await getContentTypeBySlug(slug);
-    if (type === "OPINION") {
-      url.pathname = `/article/${slug}`;
-      return NextResponse.redirect(url, 301);
-    }
-  }
-
-  return NextResponse.next();
-}
-
-export const config = {
-  matcher: ["/article/:path*", "/news/:path*"],
-};
-
-// قاموس لتحويل الأسماء العربية إلى slugs صحيحة
-const reporterNameMappings: { [key: string]: string } = {
-  "علي-الحازمي": "ali-alhazmi-389657",
-  "علي الحازمي": "ali-alhazmi-389657",
-  علي_الحازمي: "ali-alhazmi-389657",
-  // يمكن إضافة المزيد من المراسلين هنا
-};
-
-export async function middleware(req: NextRequest) {
-  const pathname = req.nextUrl.pathname;
+  const { nextUrl } = req;
+  const pathname = nextUrl.pathname;
 
   // معالجة روابط المراسلين العربية
   if (pathname.startsWith("/reporter/")) {
     const reporterSlug = pathname.replace("/reporter/", "");
     const decodedSlug = decodeURIComponent(reporterSlug);
-
-    // البحث في قاموس التحويل
     const correctSlug = reporterNameMappings[decodedSlug];
-
     if (correctSlug) {
-      const url = req.nextUrl.clone();
+      const url = nextUrl.clone();
       url.pathname = `/reporter/${correctSlug}`;
-      return NextResponse.redirect(url, 301); // permanent redirect
+      return NextResponse.redirect(url, 301);
     }
   }
 
   // إعادة توجيه من dashboard إلى admin
   if (pathname.startsWith("/dashboard/")) {
-    const url = req.nextUrl.clone();
-    // معالجة خاصة لصفحة unified
+    const url = nextUrl.clone();
     if (
       pathname === "/dashboard/news/unified" ||
       pathname.startsWith("/dashboard/news/unified?")
     ) {
       url.pathname = "/admin/news/unified";
     } else {
-      // التحويل العام
       url.pathname = pathname
         .replace("/dashboard/", "/admin/")
         .replace("/article/", "/articles/");
@@ -94,10 +56,32 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(url, 301);
   }
 
-  // إضافة cache headers للملفات الثابتة
+  // تحويلات 301 حسب نوع المحتوى
+  const articleMatch = pathname.match(/^\/article\/([^\/]+)\/?$/);
+  if (articleMatch) {
+    const slug = articleMatch[1];
+    const type = await getContentTypeBySlug(req, slug);
+    if (type === "NEWS") {
+      const url = nextUrl.clone();
+      url.pathname = `/news/${slug}`;
+      return NextResponse.redirect(url, 301);
+    }
+  }
+
+  const newsMatch = pathname.match(/^\/news\/([^\/]+)\/?$/);
+  if (newsMatch) {
+    const slug = newsMatch[1];
+    const type = await getContentTypeBySlug(req, slug);
+    if (type === "OPINION") {
+      const url = nextUrl.clone();
+      url.pathname = `/article/${slug}`;
+      return NextResponse.redirect(url, 301);
+    }
+  }
+
+  // إضافة cache & security headers
   const response = NextResponse.next();
 
-  // للصور الثابتة
   if (pathname.match(/\.(jpg|jpeg|png|gif|webp|svg|ico)$/i)) {
     response.headers.set(
       "Cache-Control",
@@ -105,7 +89,6 @@ export async function middleware(req: NextRequest) {
     );
   }
 
-  // للملفات CSS و JS
   if (pathname.match(/\.(css|js)$/i)) {
     response.headers.set(
       "Cache-Control",
@@ -113,16 +96,13 @@ export async function middleware(req: NextRequest) {
     );
   }
 
-  // للـ API endpoints - cache ديناميكي
   if (pathname.startsWith("/api/")) {
-    // لا نضع cache للـ auth endpoints أو admin endpoints
     if (!pathname.includes("/auth") && !pathname.includes("/admin/")) {
       response.headers.set(
         "Cache-Control",
         "public, s-maxage=60, stale-while-revalidate=300"
       );
     } else if (pathname.includes("/admin/")) {
-      // للـ admin APIs - no cache
       response.headers.set(
         "Cache-Control",
         "no-cache, no-store, must-revalidate"
@@ -131,12 +111,9 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  // Security headers
   response.headers.set("X-Frame-Options", "DENY");
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-
-  // Compression hint
   response.headers.set("Accept-Encoding", "gzip, deflate, br");
 
   return response;
@@ -144,13 +121,6 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     */
     "/((?!_next/static|_next/image|favicon.ico|public/).*)",
   ],
 };
