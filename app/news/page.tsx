@@ -13,10 +13,7 @@ import "@/styles/unified-mobile-news.css";
 import {
   AlertTriangle,
   ArrowLeft,
-  Bookmark,
-  Eye,
   Grid3X3,
-  Heart,
   List,
   Loader2,
   Newspaper,

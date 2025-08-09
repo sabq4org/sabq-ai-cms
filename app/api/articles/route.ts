@@ -343,9 +343,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const contentType = resolveContentType(data.article_type);
+    const isShortSlug = contentType === 'NEWS';
+
     // توليد slug من العنوان وضمان uniqueness
-    const baseSlug = slugify(data.slug || data.title || "");
-    const uniqueSlug = await ensureUniqueSlug(prisma as any, baseSlug);
+    const baseSlug = isShortSlug ? '' : slugify(data.slug || data.title || "");
+    const uniqueSlug = await ensureUniqueSlug(prisma as any, baseSlug, isShortSlug);
 
     // معالجة الحقل المميز بأسمائه المختلفة
     const isFeatured =
@@ -374,7 +377,7 @@ export async function POST(request: NextRequest) {
       metadata: data.metadata || {},
       // تعيين article_type والتوافق مع content_type
       article_type: data.article_type || "news",
-      content_type: resolveContentType(data.article_type) as any,
+      content_type: contentType as any,
     };
 
     console.log("📝 بيانات المقال المنقاة:", articleData);
