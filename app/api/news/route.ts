@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
+export const revalidate = 60; // تفعيل ISR لنتائج قائمة الأخبار
 
 export async function GET(request: NextRequest) {
   try {
