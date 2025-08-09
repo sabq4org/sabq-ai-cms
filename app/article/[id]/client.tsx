@@ -198,7 +198,7 @@ function ArticleClientPage({
       {/* شريط التقدم في القراءة */}
       <ReadingProgressBar />
 
-      <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-14 sm:pt-16 lg:pt-20">
         {/* صورة المقال - حل مبسط ومضمون */}
         {article.featured_image && (
           <div className="article-featured-image relative h-[300px] sm:h-[400px] md:h-[500px] lg:h-[60vh] w-full bg-gray-200 dark:bg-gray-800">

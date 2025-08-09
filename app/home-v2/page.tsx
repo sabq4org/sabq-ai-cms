@@ -104,11 +104,11 @@ export default async function HomeV2() {
   const numberFmt = new Intl.NumberFormat("ar", { notation: "compact" });
   return (
     <main
-      className="min-h-dvh bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+      className="min-h-dvh bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 pt-14"
       dir="rtl"
     >
       {/* Top Nav */}
-      <header className="sticky top-0 z-50 border-b border-gray-200/70 dark:border-gray-800/70 bg-white/80 dark:bg-gray-900/80 backdrop-blur">
+      <header className="fixed top-0 z-50 w-full border-b border-gray-200/70 dark:border-gray-800/70 bg-white/80 dark:bg-gray-900/80 backdrop-blur">
         <div className="max-w-7xl mx-auto flex h-14 items-center justify-between px-4">
           {/* Logo */}
           <div className="flex items-center gap-3">

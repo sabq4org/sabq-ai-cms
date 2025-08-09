@@ -686,7 +686,7 @@ function NewspaperHomePage({
       showPerformanceMonitor={process.env.NODE_ENV === "development"}
     >
       <div
-        className={`homepage-wrapper min-h-screen transition-colors duration-300 ${
+        className={`homepage-wrapper min-h-screen transition-colors duration-300 pt-14 sm:pt-16 lg:pt-20 ${
           darkMode ? "bg-gray-900" : "bg-gray-50"
         }`}
         style={{
