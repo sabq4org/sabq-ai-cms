@@ -2,9 +2,9 @@
 
 import { UIUtils } from "@/lib/ai/classifier-utils";
 import { formatDateShort } from "@/lib/date-utils";
+import { linkTo } from "@/lib/url-builder";
 import { Clock, Coffee, Eye } from "lucide-react";
 import Link from "next/link";
-import { linkTo } from "@/lib/link-utils";
 
 interface CardGridBlockProps {
   block: any;
@@ -44,7 +44,13 @@ export function CardGridBlock({ block, articles }: CardGridBlockProps) {
         </div>
 
         {/* محتوى المقال */}
-        <Link href={linkTo({ slug: article.slug, contentType: article.content_type || 'NEWS' })} className="block group">
+        <Link
+          href={linkTo({
+            slug: article.slug,
+            contentType: article.content_type || "NEWS",
+          })}
+          className="block group"
+        >
           <div className="flex flex-col md:flex-row gap-5">
             {/* الصورة */}
             <div className="relative w-full md:w-48 h-40 flex-shrink-0">
