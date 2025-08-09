@@ -7,6 +7,19 @@ export const runtime = "nodejs";
 const articleCache = new Map<string, { data: any; timestamp: number }>();
 const CACHE_DURATION = 60 * 1000; // دقيقة واحدة
 
+// دعم مرونة المخطط: التحقق من وجود عمود content_type
+let supportsContentTypeColumn: boolean | null = null;
+async function checkSupportsContentType(): Promise<boolean> {
+  if (supportsContentTypeColumn !== null) return supportsContentTypeColumn;
+  try {
+    const rows: any = await (prisma as any).$queryRaw`SELECT 1 FROM information_schema.columns WHERE table_name='articles' AND column_name='content_type' LIMIT 1`;
+    supportsContentTypeColumn = Array.isArray(rows) && rows.length > 0;
+  } catch {
+    supportsContentTypeColumn = false;
+  }
+  return supportsContentTypeColumn;
+}
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const cacheKey = searchParams.toString();
@@ -334,7 +347,9 @@ export async function POST(request: NextRequest) {
       data.breaking || data.is_breaking || data.isBreaking || false;
 
     // سيتم تحديد حقول المؤلف لاحقاً بعد التحقق من مصدر المؤلف
-    let articleData = {
+    const hasContentType = await checkSupportsContentType();
+
+    let articleData: any = {
       id: data.id || generateId(),
       title: data.title,
       slug: uniqueSlug,
@@ -354,8 +369,11 @@ export async function POST(request: NextRequest) {
       metadata: data.metadata || {},
       // تعيين article_type والتوافق مع content_type
       article_type: data.article_type || "news",
-      content_type: resolveContentType(data.article_type) as any,
     };
+
+    if (hasContentType) {
+      articleData.content_type = resolveContentType(data.article_type) as any;
+    }
 
     console.log("📝 بيانات المقال المنقاة:", articleData);
 

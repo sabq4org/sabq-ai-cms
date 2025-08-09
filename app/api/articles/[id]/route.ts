@@ -386,13 +386,17 @@ export async function PATCH(
       );
     }
 
-    // ضبط content_type عند التحديث بما يتوافق مع article_type
-    if (data.article_type !== undefined) {
-      const type = (data.article_type || "").toString().toLowerCase();
-      updateData.content_type = ["opinion", "analysis", "interview"].includes(type)
-        ? ("OPINION" as any)
-        : ("NEWS" as any);
-    }
+    // ضبط content_type عند التحديث بما يتوافق مع article_type (إن كان العمود موجوداً)
+    try {
+      const rows: any = await (prisma as any).$queryRaw`SELECT 1 FROM information_schema.columns WHERE table_name='articles' AND column_name='content_type' LIMIT 1`;
+      const hasContentType = Array.isArray(rows) && rows.length > 0;
+      if (hasContentType && data.article_type !== undefined) {
+        const type = (data.article_type || "").toString().toLowerCase();
+        updateData.content_type = ["opinion", "analysis", "interview"].includes(type)
+          ? ("OPINION" as any)
+          : ("NEWS" as any);
+      }
+    } catch {}
 
     // معالجة excerpt/summary
     if (data.excerpt !== undefined || data.summary !== undefined) {
