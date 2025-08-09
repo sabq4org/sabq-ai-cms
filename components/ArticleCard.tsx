@@ -1,14 +1,14 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import SafeImage from "@/components/ui/SafeImage";
+import { Badge } from "@/components/ui/badge";
 import { formatDateNumeric } from "@/lib/date-utils";
 import { getImageUrl } from "@/lib/image-utils";
 import { getProductionImageUrl } from "@/lib/production-image-fix";
+import { linkTo } from "@/lib/url-builder";
 import { cn } from "@/lib/utils";
 import { Calendar, Eye, MessageSquare, Zap } from "lucide-react";
 import Link from "next/link";
-import { linkTo } from "@/lib/url-builder";
 
 interface ArticleCardProps {
   article: any;
@@ -97,10 +97,15 @@ export default function ArticleCard({
 
   // Article link
   const getArticleLink = (article: any) => {
-    const contentType = (article.content_type || (article.article_type === "news" ? "NEWS" : "OPINION")).toUpperCase();
-    if (article.slug) return linkTo({ slug: article.slug, contentType });
-    if (article.id) return `/article/${article.id}`; // fallback قديمة على ID
-    return "#";
+    // Ensure contentType is correctly determined with a fallback
+    const contentType =
+      article.content_type ||
+      (["opinion", "analysis", "interview"].includes(
+        article.article_type?.toLowerCase()
+      )
+        ? "OPINION"
+        : "NEWS");
+    return linkTo({ slug: article.slug, contentType });
   };
 
   // Publish date

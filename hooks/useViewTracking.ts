@@ -19,6 +19,7 @@ export function useViewTracking({
   const elementRef = useRef<HTMLElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number | null>(null);
+  const hasBeenViewed = useRef(false);
 
   // دالة لإرسال تحديث المشاهدة
   const incrementView = async () => {

@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { ensureUniqueSlug, resolveContentType, slugify } from "@/lib/slug";
+import { ensureUniqueSlug, resolveContentType } from "@/lib/slug";
 import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 

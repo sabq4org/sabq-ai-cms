@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { linkTo } from "./url-builder";
 
 import { formatNumber } from "./config/localization";
 import { getArticleIdentifier } from "./slug-utils";
@@ -186,64 +187,42 @@ export function getOptimizedImageUrl(
  * @returns المسار المناسب للمقال (ID فقط)
  */
 export function getArticleLink(article: any): string {
-  // 🛡️ Guard Clause: التحقق من وجود المقال
   if (!article) {
     console.warn(
-      "getArticleLink: Article is missing. Returning fallback link.",
-      { article }
+      "getArticleLink: Article object is missing. Returning fallback link '#'."
     );
-    return "/"; // إرجاع رابط احتياطي آمن
+    return "#";
   }
 
-  // استخدام ID فقط - منع مشاكل React #130 من الروابط العربية
-  const identifier = getArticleIdentifier(article);
+  // Ensure contentType is correctly determined with a fallback
+  const contentType =
+    article.content_type ||
+    (["opinion", "analysis", "interview"].includes(
+      article.article_type?.toLowerCase()
+    )
+      ? "OPINION"
+      : "NEWS");
 
-  if (!identifier) {
+  if (article.slug) {
+    return linkTo({ slug: article.slug, contentType });
+  }
+
+  // Fallback for older articles that might not have a slug
+  if (article.id) {
     console.warn(
-      "getArticleLink: Could not generate identifier. Returning fallback link.",
-      { article }
+      `getArticleLink: Fallback to ID for article "${
+        article.title || article.id
+      }".`
     );
-    return "/"; // إرجاع رابط احتياطي آمن
+    // This assumes old articles are news, adjust if necessary
+    return linkTo({ slug: article.id, contentType: "NEWS" });
   }
 
-  // التحقق من نوع المقال بعدة طرق
-  const isOpinionArticle =
-    // 1. فحص category slug
-    article.category?.slug === "opinion" ||
-    article.category?.slug === "راي" ||
-    article.category?.slug === "رأي" ||
-    // 2. فحص category name
-    article.category?.name === "رأي" ||
-    article.category?.name === "راي" ||
-    article.category?.name === "Opinion" ||
-    article.category?.name_ar === "رأي" ||
-    article.category?.name_ar === "راي" ||
-    // 3. فحص category_name المرفقة مع المقال
-    article.category_name === "رأي" ||
-    article.category_name === "راي" ||
-    article.category_name === "Opinion" ||
-    // 4. فحص type field إذا كان موجود
-    article.type === "OPINION" ||
-    article.type === "opinion" ||
-    // 5. فحص metadata أو خصائص إضافية
-    article.metadata?.type === "opinion" ||
-    article.is_opinion === true ||
-    // 6. فحص category_id المعروف لمقالات الرأي (إذا كان هناك ID محدد)
-    article.category_id === "opinion" ||
-    // 7. فحص العنوان أو المحتوى للكلمات المفتاحية (احتياطي)
-    article.title?.includes("رأي") ||
-    article.title?.includes("وجهة نظر") ||
-    article.tags?.some((tag: string) =>
-      ["رأي", "راي", "opinion"].includes(tag?.toLowerCase())
-    );
-
-  // إرجاع المسار المناسب بناءً على النوع
-  if (isOpinionArticle) {
-    return `/opinion/${identifier}`;
-  }
-
-  // جميع المقالات الأخرى تذهب لمسار المقالات العادية
-  return `/article/${identifier}`;
+  console.error(
+    "getArticleLink: Article is missing both slug and id. Cannot generate link.",
+    article
+  );
+  return "#";
 }
 
 /**

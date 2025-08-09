@@ -65,8 +65,13 @@ export function getProductionImageUrl(
     return imageUrl;
   }
 
-  // إذا كانت الصورة محلية (تبدأ بـ /)
-  if (imageUrl.startsWith("/")) {
+  // إذا كان الرابط يبدأ بـ data:image (base64)
+  if (imageUrl.startsWith('data:image')) {
+    return imageUrl;
+  }
+  
+  // معالجة الروابط الخارجية
+  if (imageUrl.startsWith("http")) {
     // في بيئة الإنتاج، استخدم الدومين الكامل
     if (typeof window !== "undefined") {
       // Client-side
