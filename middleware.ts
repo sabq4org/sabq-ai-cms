@@ -100,6 +100,18 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(newUrl, 301);
   }
 
+  // Handle old Muqtarab article URLs with ID format
+  const muqtarabIdMatch = pathname.match(/^\/muqtarab\/([a-zA-Z0-9]+)$/);
+  if (muqtarabIdMatch) {
+    const articleId = muqtarabIdMatch[1];
+    // Check if this looks like an old ID format (like MQcDL9Nz)
+    if (articleId.length === 8 && /^[a-zA-Z0-9]+$/.test(articleId)) {
+      // This should work with the new slug-based system
+      // as the slug and ID are the same for most articles
+      return NextResponse.next();
+    }
+  }
+
   // إضافة cache & security headers
   const response = NextResponse.next();
 

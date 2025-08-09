@@ -32,6 +32,7 @@ export async function GET(
             id: true,
             name: true,
             slug: true,
+            theme_color: true,
           },
         },
       },
@@ -67,6 +68,7 @@ export async function GET(
             id: article.corner.id,
             name: article.corner.name,
             slug: article.corner.slug,
+            theme_color: article.corner.theme_color,
           }
         : null,
       coverImage: article.cover_image,

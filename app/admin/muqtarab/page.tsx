@@ -74,7 +74,13 @@ const StatCard = ({
 };
 
 // مكون بطاقة الزاوية
-const AngleCard = ({ angle, handleDeleteClick }: { angle: Angle; handleDeleteClick: (angle: Angle) => void }) => {
+const AngleCard = ({
+  angle,
+  handleDeleteClick,
+}: {
+  angle: Angle;
+  handleDeleteClick: (angle: Angle) => void;
+}) => {
   return (
     <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-blue-200">
       <CardContent className="p-0">
@@ -306,9 +312,12 @@ export default function MuqtaribDashboard() {
 
     setDeleting(true);
     try {
-      const response = await fetch(`/api/muqtarab/corners/${angleToDelete.slug}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `/api/muqtarab/corners/${angleToDelete.slug}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (response.ok) {
         // إزالة الزاوية من القائمة
@@ -519,7 +528,11 @@ export default function MuqtaribDashboard() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredAngles.map((angle) => (
-                  <AngleCard key={angle.id} angle={angle} handleDeleteClick={handleDeleteClick} />
+                  <AngleCard
+                    key={angle.id}
+                    angle={angle}
+                    handleDeleteClick={handleDeleteClick}
+                  />
                 ))}
               </div>
             )}

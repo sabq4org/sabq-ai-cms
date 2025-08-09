@@ -51,12 +51,12 @@ export default function MuqtarabSimpleArticlePage() {
         // جلب المقالات ذات الصلة من نفس الزاوية
         if (articleData.article.corner?.id) {
           const relatedResponse = await fetch(
-            `/api/muqtarab/angles/${articleData.article.corner.id}/articles?limit=4`
+            `/api/muqtarab/angles/${articleData.article.corner.id}/articles?limit=4&published=true`
           );
           if (relatedResponse.ok) {
             const relatedData = await relatedResponse.json();
             setRelatedArticles(
-              relatedData.articles.filter((a: any) => a.slug !== articleSlug)
+              relatedData.articles.filter((a: any) => a.id !== articleData.article.id)
             );
           }
         }
@@ -119,7 +119,7 @@ export default function MuqtarabSimpleArticlePage() {
               href={`/muqtarab/corners/${corner.slug}`}
               className="hover:text-blue-600 transition-colors"
             >
-              {corner.title}
+              {corner.name}
             </Link>
             <span>•</span>
             <span className="text-gray-400">المقال</span>
@@ -134,13 +134,13 @@ export default function MuqtarabSimpleArticlePage() {
               href={`/muqtarab/corners/${corner.slug}`}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors"
               style={{
-                backgroundColor: corner.themeColor + "20",
-                color: corner.themeColor,
-                border: `1px solid ${corner.themeColor}30`,
+                backgroundColor: corner.theme_color + "20",
+                color: corner.theme_color,
+                border: `1px solid ${corner.theme_color}30`,
               }}
             >
               <Sparkles className="w-4 h-4" />
-              {corner.title}
+              {corner.name}
             </Link>
           </div>
 
@@ -311,7 +311,7 @@ export default function MuqtarabSimpleArticlePage() {
             className="inline-flex items-center gap-2 px-6 py-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <ArrowLeft size={16} />
-            العودة إلى {corner.title}
+            العودة إلى {corner.name}
           </Link>
         </div>
       </div>
