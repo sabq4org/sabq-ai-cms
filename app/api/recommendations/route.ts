@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { NextRequest, NextResponse } from "next/server";
 
 // استخدام Node.js Runtime لدعم Prisma
 export const runtime = "nodejs";
@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
     return response;
   } catch (error) {
     console.error("Error fetching recommendations:", error);
-    
+
     // في حالة الخطأ، نرجع مقالات افتراضية
     return NextResponse.json({
       success: false,
