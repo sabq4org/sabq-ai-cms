@@ -12,58 +12,10 @@ export const config = {
 // تكوين runtime للدعم الأمثل
 export const runtime = 'nodejs';
 
-// دالة مساعدة لضغط الصور
+// ملاحظة: لا يمكن استخدام DOM APIs مثل Image/Canvas في بيئة السيرفر (Route Handler)
+// إذا احتجنا ضغط الصور على السيرفر، يجب استخدام مكتبة مثل sharp. حالياً نتخطى الضغط هنا.
 async function compressImage(file: File): Promise<File> {
-  // إذا كان الملف صغير، لا نحتاج لضغطه
-  if (file.size <= 2 * 1024 * 1024) { // 2MB
-    return file;
-  }
-
-  return new Promise((resolve) => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
-
-    img.onload = () => {
-      // تحديد الأبعاد الجديدة
-      const maxWidth = 1920;
-      const maxHeight = 1080;
-      let { width, height } = img;
-
-      if (width > height) {
-        if (width > maxWidth) {
-          height = height * (maxWidth / width);
-          width = maxWidth;
-        }
-      } else {
-        if (height > maxHeight) {
-          width = width * (maxHeight / height);
-          height = maxHeight;
-        }
-      }
-
-      canvas.width = width;
-      canvas.height = height;
-
-      // رسم الصورة
-      ctx?.drawImage(img, 0, 0, width, height);
-
-      // تحويل لـ blob
-      canvas.toBlob((blob) => {
-        if (blob) {
-          const compressedFile = new File([blob], file.name, {
-            type: 'image/jpeg',
-            lastModified: Date.now(),
-          });
-          resolve(compressedFile);
-        } else {
-          resolve(file);
-        }
-      }, 'image/jpeg', 0.8);
-    };
-
-    img.src = URL.createObjectURL(file);
-  });
+  return file;
 }
 
 export async function POST(request: NextRequest) {

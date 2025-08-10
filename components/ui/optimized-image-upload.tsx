@@ -48,7 +48,8 @@ const OptimizedImageUpload: React.FC<OptimizedImageUploadProps> = ({
     return new Promise((resolve) => {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-      const img = new Image();
+      // حماية من SSR: إنشاء Image فقط في المتصفح
+      const img = typeof window !== 'undefined' ? new window.Image() : ({} as HTMLImageElement);
 
       img.onload = () => {
         // تحديد الأبعاد الجديدة
@@ -88,7 +89,9 @@ const OptimizedImageUpload: React.FC<OptimizedImageUploadProps> = ({
         }, 'image/jpeg', quality);
       };
 
-      img.src = URL.createObjectURL(file);
+      if (typeof window !== 'undefined') {
+        img.src = URL.createObjectURL(file);
+      }
     });
   }, []);
 

@@ -37,7 +37,14 @@ export function useSmartImage(
     // تحقق من توفر الصورة إذا طُلب ذلك
     if (checkAvailability && src !== imageSrc) {
       setIsLoading(true);
-      const img = new Image();
+      // حماية من التنفيذ في بيئة السيرفر حيث Image غير معرف
+      if (typeof window === 'undefined') {
+        // في SSR نتخطى الفحص ونُرجع المصدر كما هو لتجنب كسر البناء
+        setImageSrc(src);
+        setIsLoading(false);
+        return;
+      }
+      const img = new window.Image();
       
       img.onload = () => {
         setImageSrc(src);
