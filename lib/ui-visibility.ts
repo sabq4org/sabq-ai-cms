@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
 import { getRedisClient } from "@/lib/redis-client";
 
-const REDIS_KEY = "ui:sidebar:visibility";
+const REDIS_KEY = "ui:sidebar:visibility:v2";
 const UI_KEY = "sidebar.visibility";
 
 export async function readSidebarVisibility() {
@@ -11,7 +11,7 @@ export async function readSidebarVisibility() {
     if (cached) return JSON.parse(cached as unknown as string);
 
     const setting = await prisma.uiSetting.findUnique({ where: { key: UI_KEY } });
-    const value = setting?.value ?? { version: 1, items: [] };
+    const value = setting?.value ?? { version: 2, items: [] };
     if (r) await r.setEx(REDIS_KEY, 600, JSON.stringify(value));
     return value;
   } catch {
