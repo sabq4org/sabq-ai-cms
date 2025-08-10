@@ -46,13 +46,15 @@ export default function ImageWithFallback({
   // تحديد نوع الصورة من السياق
   const getDefaultFallback = () => {
     if (fallbackSrc) return fallbackSrc;
-    
+
     const srcLower = src?.toLowerCase() || "";
     if (srcLower.includes("category")) return DEFAULT_FALLBACKS.category;
-    if (srcLower.includes("author") || srcLower.includes("avatar")) return DEFAULT_FALLBACKS.author;
+    if (srcLower.includes("author") || srcLower.includes("avatar"))
+      return DEFAULT_FALLBACKS.author;
     if (srcLower.includes("muqtarab")) return DEFAULT_FALLBACKS.muqtarab;
-    if (srcLower.includes("article") || srcLower.includes("featured")) return DEFAULT_FALLBACKS.article;
-    
+    if (srcLower.includes("article") || srcLower.includes("featured"))
+      return DEFAULT_FALLBACKS.article;
+
     return DEFAULT_FALLBACKS.default;
   };
 
@@ -61,13 +63,17 @@ export default function ImageWithFallback({
       console.warn(`Image failed to load: ${src}`);
       setHasError(true);
       const fallback = getDefaultFallback();
-      
+
       // إذا كان الفولباك هو SVG، نستخدمه مباشرة
-      if (fallback.endsWith('.svg')) {
+      if (fallback.endsWith(".svg")) {
         setImgSrc(fallback);
       } else {
         // محاولة تحميل صورة من placeholder service
-        setImgSrc(`https://via.placeholder.com/${width || 800}x${height || 600}?text=${encodeURIComponent(alt || 'صورة')}`);
+        setImgSrc(
+          `https://via.placeholder.com/${width || 800}x${
+            height || 600
+          }?text=${encodeURIComponent(alt || "صورة")}`
+        );
       }
     }
   };
@@ -75,13 +81,13 @@ export default function ImageWithFallback({
   // التحقق من صحة الـ URL
   const isValidSrc = (url: string) => {
     if (!url) return false;
-    
+
     // السماح بـ SVG files
-    if (url.endsWith('.svg')) return true;
-    
+    if (url.endsWith(".svg")) return true;
+
     // السماح بـ placeholder services
-    if (url.includes('placeholder.com')) return true;
-    
+    if (url.includes("placeholder.com")) return true;
+
     // السماح بالروابط النسبية والمطلقة
     return /^(https?:\/\/|\/|data:)/.test(url);
   };
@@ -90,7 +96,7 @@ export default function ImageWithFallback({
   if (!isValidSrc(imgSrc)) {
     const fallback = getDefaultFallback();
     return (
-      <div 
+      <div
         className={`bg-gray-200 dark:bg-gray-700 flex items-center justify-center ${className}`}
         style={{
           width: fill ? "100%" : width,
@@ -118,7 +124,7 @@ export default function ImageWithFallback({
       sizes={sizes}
       style={style}
       onError={handleError}
-      unoptimized={unoptimized || imgSrc.endsWith('.svg')}
+      unoptimized={unoptimized || imgSrc.endsWith(".svg")}
       placeholder="blur"
       blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAr/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
     />
