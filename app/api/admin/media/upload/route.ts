@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/require-admin";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 import { MediaType } from "@prisma/client";
 import { v2 as cloudinary } from "cloudinary";
 

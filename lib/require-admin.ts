@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { verify } from "jsonwebtoken";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 
 interface AdminCheckResult {
   authorized: boolean;

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/require-admin";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 import { z } from "zod";
 
 const updateFolderSchema = z.object({

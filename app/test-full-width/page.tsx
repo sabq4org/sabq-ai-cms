@@ -5,6 +5,7 @@
 
 'use client';
 
+import Image from 'next/image';
 import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
 import { SidebarPreferencesProvider } from '@/contexts/SidebarPreferencesContext';
 import { DesignComponents } from '@/components/design-system/DesignSystemGuide';
