@@ -146,20 +146,6 @@ export async function GET(req: NextRequest) {
       },
     };
 
-    const stats = {
-      totalAngles: corners.length,
-      publishedAngles: corners.length,
-      totalArticles: featuredArticles.length * 3, // تقدير سريع
-      publishedArticles: featuredArticles.length * 3,
-      totalViews:
-        featuredArticles.reduce((sum, art) => sum + (art.view_count || 0), 0) *
-        5, // تقدير
-      displayViews: {
-        raw: 25000, // قيمة ثابتة مؤقتة للسرعة
-        formatted: "25K",
-      },
-    };
-
     const res = NextResponse.json({
       success: true,
       angles: corners.map(transformCorner),
