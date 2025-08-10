@@ -435,7 +435,7 @@ const ModernSettingsNew: React.FC = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 p-6">
+      <div className="space-y-6 p-6 w-full max-w-none px-4 lg:px-6 xl:px-8 2xl:px-10">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-2xl p-8 text-white">
           <div className="flex items-center justify-between">
