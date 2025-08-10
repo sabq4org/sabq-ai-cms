@@ -1,6 +1,8 @@
 "use client";
 
 // import AngleAudioPlayer from "@/components/muqtarab/AngleAudioPlayer";
+import WithMuqtarabErrorBoundary from "@/components/muqtarab/MuqtarabErrorBoundary";
+import { SafeMuqtarabWrapper } from "@/components/muqtarab/SafeMuqtarabWrapper";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -30,9 +32,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import WithMuqtarabErrorBoundary from "@/components/muqtarab/MuqtarabErrorBoundary";
-import { SafeMuqtarabWrapper } from "@/components/muqtarab/SafeMuqtarabWrapper";
 
 type SortOption = "latest" | "popular" | "oldest";
 
@@ -56,43 +55,60 @@ export default function AnglePage() {
       try {
         console.log("🔍 جاري جلب بيانات الزاوية:", slug);
 
-        // جلب بيانات الزاوية بالـ slug
+        const startTime = performance.now();
+
+        // 🚀 جلب بيانات الزاوية بالـ slug - محسن
         const angleResponse = await fetch(
-          `/api/muqtarab/angles/by-slug/${slug}`
+          `/api/muqtarab/angles/by-slug/${slug}`,
+          {
+            cache: "force-cache", // استخدام cache المتصفح
+            next: { revalidate: 300 }, // 5 دقائق
+          }
         );
 
         if (!angleResponse.ok) {
           console.error("❌ فشل في جلب الزاوية:", angleResponse.status);
-          toast.error("الزاوية غير موجودة");
+          // لا نعرض toast للمستخدم - نوجه مباشرة
           router.push("/muqtarab");
           return;
         }
 
         const angleData = await angleResponse.json();
-        console.log("✅ تم جلب بيانات الزاوية:", angleData.angle.title);
-        setAngle(angleData.angle);
+        const angle = angleData.angle;
 
-        // جلب مقالات الزاوية
+        console.log("✅ تم جلب بيانات الزاوية:", angle.title);
+        setAngle(angle);
+
+        // 🚀 جلب مقالات الزاوية - محسن ومبسط
         setArticlesLoading(true);
         const articlesResponse = await fetch(
-          `/api/muqtarab/angles/${angleData.angle.id}/articles?limit=50`
+          `/api/muqtarab/angles/${angle.id}/articles?limit=30`, // حد أقصى معقول
+          {
+            cache: "force-cache",
+            next: { revalidate: 180 }, // 3 دقائق
+          }
         );
 
         if (articlesResponse.ok) {
           const articlesData = await articlesResponse.json();
-          console.log(
-            "✅ تم جلب المقالات:",
-            articlesData.articles?.length || 0
-          );
-          setArticles(articlesData.articles || []);
-          setFilteredArticles(articlesData.articles || []);
+          const articles = articlesData.articles || [];
+
+          const endTime = performance.now();
+          const loadTime = Math.round(endTime - startTime);
+
+          console.log("✅ تم جلب المقالات:", {
+            count: articles.length,
+            loadTime: `${loadTime}ms`,
+          });
+
+          setArticles(articles);
+          setFilteredArticles(articles);
         } else {
           console.error("❌ فشل في جلب المقالات:", articlesResponse.status);
-          toast.error("فشل في تحميل المقالات");
+          // لا نعرض toast - نترك القائمة فارغة
         }
       } catch (error) {
         console.error("خطأ في تحميل الزاوية:", error);
-        toast.error("حدث خطأ في التحميل");
         router.push("/muqtarab");
       } finally {
         setLoading(false);
@@ -193,7 +209,9 @@ export default function AnglePage() {
                     className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
                   >
                     <ArrowLeft className="w-4 h-4" />
-                    <span className="text-sm font-medium">العودة إلى مُقترب</span>
+                    <span className="text-sm font-medium">
+                      العودة إلى مُقترب
+                    </span>
                   </Link>
                   <span className="text-gray-300">|</span>
                   <span className="text-gray-600 text-sm">{angle.title}</span>
@@ -672,18 +690,18 @@ function AngleArticleCard({
             <div className="flex items-center gap-1">
               <Eye className="w-3 h-3" />
               <span>
-                {article.views > 1000
-                  ? (article.views / 1000).toFixed(1) + "k"
+                {(article.views || 0) > 1000
+                  ? ((article.views || 0) / 1000).toFixed(1) + "k"
                   : article.views || 0}
               </span>
             </div>
             <div className="flex items-center gap-1">
               <Heart className="w-3 h-3" />
-              <span>{article.likes || 0}</span>
+              <span>0</span>
             </div>
             <div className="flex items-center gap-1">
               <MessageCircle className="w-3 h-3" />
-              <span>{article.comments || 0}</span>
+              <span>0</span>
             </div>
           </div>
         </div>

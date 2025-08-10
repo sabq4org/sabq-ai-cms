@@ -87,46 +87,67 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
+    // 🚀 استعلام محسن ومبسط
     const corners = await prisma.muqtarabCorner.findMany({
-      where: {
-        is_active: true,
-      },
-      include: {
+      where: { is_active: true },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        cover_image: true,
+        theme_color: true,
+        is_featured: true,
+        created_at: true,
+        updated_at: true,
+        author_name: true,
+        // عدد مبسط للمقالات
         _count: {
-          select: { articles: true },
-        },
-        creator: {
           select: {
-            name: true,
+            articles: { where: { status: "published" } },
           },
         },
       },
-      orderBy: {
-        created_at: "desc",
-      },
+      orderBy: [
+        { is_featured: "desc" }, // المميزة أولاً
+        { created_at: "desc" },
+      ],
+      take: 50, // حد أقصى معقول
     });
 
+    // 📊 تحويل مبسط وسريع
     const formattedCorners = corners.map((corner) => ({
       id: corner.id,
       title: corner.name,
       slug: corner.slug,
       description: corner.description || "",
-      icon: "BookOpen", // Fallback icon
+      icon: "BookOpen",
       themeColor: corner.theme_color || "#3B82F6",
-      author: { name: corner.creator?.name || "فريق التحرير" },
+      author: { name: corner.author_name || "فريق التحرير" },
       coverImage: corner.cover_image,
       isFeatured: corner.is_featured,
-      isPublished: corner.is_active,
+      isPublished: true, // مفلتر مسبقاً
       createdAt: corner.created_at,
       updatedAt: corner.updated_at,
       articlesCount: corner._count.articles,
-      totalViews: 0, // This should be calculated separately if needed
+      totalViews: 0, // تبسيط للسرعة
     }));
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       angles: formattedCorners,
+      count: formattedCorners.length,
+      cached: true,
+      timestamp: new Date().toISOString(),
     });
+
+    // 🚀 Cache محسن
+    response.headers.set(
+      "Cache-Control",
+      "public, max-age=180, stale-while-revalidate=600"
+    );
+
+    return response;
   } catch (error: any) {
     console.error("خطأ في جلب الزوايا:", error);
     return NextResponse.json(

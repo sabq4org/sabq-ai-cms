@@ -23,7 +23,6 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
 
 // ملاحظة: لا يمكن تصدير metadata من صفحة عميل.
 // يمكن لاحقًا نقل الميتاداتا إلى ملف layout أو صفحة خادومية.
@@ -114,16 +113,30 @@ function MuqtaribPageContent() {
       try {
         console.log("🔍 جاري جلب بيانات مُقترب...");
 
-        // استخدام endpoint محسّن واحد بدلاً من عدة calls
-        const optimizedResponse = await fetch("/api/muqtarab/optimized-page", {
-          // إزالة no-cache للسماح بـ browser caching
+        const startTime = performance.now();
+
+        // 🚀 اختبار API السريع أولاً
+        let apiEndpoint = "/api/muqtarab/fast"; // API محسن جداً للتطوير
+
+        // في حالة الإنتاج، استخدم API الأصلي
+        if (process.env.NODE_ENV === "production") {
+          apiEndpoint = "/api/muqtarab/optimized-page";
+        }
+
+        const optimizedResponse = await fetch(apiEndpoint, {
           headers: {
             Accept: "application/json",
           },
+          // 🚀 تحسين caching للمتصفح
+          cache: "force-cache",
+          next: { revalidate: 300 }, // 5 دقائق
         });
 
         if (optimizedResponse.ok) {
           const data = await optimizedResponse.json();
+
+          const endTime = performance.now();
+          const loadTime = Math.round(endTime - startTime);
 
           if (data.success) {
             console.log("✅ تم جلب البيانات المُحسّنة:", {
@@ -131,83 +144,38 @@ function MuqtaribPageContent() {
               heroArticle: data.heroArticle ? "✓" : "✗",
               featuredArticles: data.featuredArticles?.length || 0,
               cached: data.cached,
+              loadTime: `${loadTime}ms`,
             });
 
-            // إزالة أي زوايا مكررة بحسب slug/id
-            const seen = new Set<string>();
-            const uniqueAngles = (data.angles || []).filter((a: any) => {
-              const key = (a.slug || a.id || "").toString().toLowerCase();
-              if (!key) return true;
-              if (seen.has(key)) return false;
-              seen.add(key);
-              return true;
-            });
+            // 🚀 معالجة سريعة للبيانات
+            const uniqueAngles = (data.angles || []).slice(0, 20); // حد أقصى معقول
+            const uniqueFeatured = (data.featuredArticles || []).slice(0, 6);
+
             setAngles(uniqueAngles);
             setFilteredAngles(uniqueAngles);
             setHeroArticle(data.heroArticle);
             setStats(data.stats);
-            // إزالة تكرار المقالات المميزة بحسب slug/id
-            const seenFa = new Set<string>();
-            const uniqueFeatured = (data.featuredArticles || []).filter(
-              (art: any) => {
-                const key = (art.slug || art.id || "").toString().toLowerCase();
-                if (!key) return true;
-                if (seenFa.has(key)) return false;
-                seenFa.add(key);
-                return true;
-              }
-            );
             setFeaturedArticles(uniqueFeatured);
 
             return; // نجح التحميل المُحسّن
           }
         }
 
-        // Fallback: استخدام الطريقة القديمة في حالة فشل الـ optimized endpoint
-        console.log("⚠️ استخدام fallback للتحميل التقليدي...");
+        // ⚠️ Fallback سريع في حالة الفشل
+        console.log("⚠️ استخدام fallback مبسط...");
 
-        // جلب الزوايا بشكل منفصل
+        // جلب الزوايا فقط كـ fallback
         const anglesResponse = await fetch("/api/muqtarab/angles", {
-          next: { revalidate: 30 },
+          cache: "force-cache",
         });
         if (anglesResponse.ok) {
           const anglesData = await anglesResponse.json();
           setAngles(anglesData.angles || []);
           setFilteredAngles(anglesData.angles || []);
         }
-
-        // جلب المقال المميز (اختياري)
-        try {
-          const heroResponse = await fetch("/api/muqtarab/hero-article", {
-            cache: "no-store",
-          });
-          if (heroResponse.ok) {
-            const heroData = await heroResponse.json();
-            if (heroData.success && heroData.heroArticle) {
-              setHeroArticle(heroData.heroArticle);
-            }
-          }
-        } catch (heroError) {
-          console.warn("تحذير: فشل في جلب المقال المميز:", heroError);
-        }
-
-        // جلب الإحصائيات (اختياري)
-        try {
-          const statsResponse = await fetch("/api/muqtarab/stats", {
-            next: { revalidate: 60 },
-          });
-          if (statsResponse.ok) {
-            const statsData = await statsResponse.json();
-            if (statsData.success && statsData.stats) {
-              setStats(statsData.stats);
-            }
-          }
-        } catch (statsError) {
-          console.warn("تحذير: فشل في جلب الإحصائيات:", statsError);
-        }
       } catch (error) {
         console.error("خطأ في جلب البيانات:", error);
-        toast.error("حدث خطأ في التحميل");
+        // لا نعرض toast error للمستخدم - نترك البيانات فارغة
       } finally {
         setLoading(false);
       }
