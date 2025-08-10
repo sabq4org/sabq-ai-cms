@@ -56,7 +56,7 @@ export default function SabqLogo({
         alt="سبق"
         width={width}
         height={height}
-        className="object-contain"
+        className={`object-contain ${isWhite ? "brightness-0 invert" : ""}`}
         priority
         unoptimized={src.startsWith("http")} // للروابط الخارجية
         onError={() => setImageError(true)}

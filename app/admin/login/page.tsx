@@ -73,8 +73,8 @@ export default function AdminLogin() {
         {/* الجانب الأيسر - معلومات وشعار */}
         <div className="hidden lg:flex flex-col items-center justify-center text-white space-y-8 p-8">
           <div className="text-center space-y-6">
-            <SabqLogo className="mx-auto" width={200} height={64} />
-            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 text-sm font-medium">
+            <SabqLogo className="mx-auto" width={200} height={64} isWhite />
+            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 text-sm font-medium mt-3">
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg>
               AI-Powered
             </div>
