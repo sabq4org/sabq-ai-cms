@@ -731,7 +731,7 @@ function AngleCard({ angle }: { angle: Angle }) {
             href={`/muqtarab/${angle.slug}`}
             className="block group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
           >
-
+          </Link>
           {angle.description && (
             <p className="text-gray-600 dark:text-gray-300 text-xs line-clamp-2 leading-relaxed">
               {angle.description}
