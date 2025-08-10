@@ -192,6 +192,15 @@ const sidebarItems: SidebarItem[] = [
     ],
   },
   {
+    id: "media-library",
+    title: "مكتبة الوسائط",
+    icon: Image,
+    href: "/admin/modern/media",
+    badge: "جديد",
+    badgeVariant: "secondary",
+    isNew: true,
+  },
+  {
     id: "audio-systems",
     title: "النظم الصوتية",
     icon: Globe,

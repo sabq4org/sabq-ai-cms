@@ -179,6 +179,7 @@ model articles {
   author             users               @relation("ArticleAuthor", fields: [author_id], references: [id])
   categories         categories?         @relation(fields: [category_id], references: [id])
   interactions       interactions[]
+  media_assets       MediaAsset[]        @relation("NewsArticleAssets")
 
   @@index([article_author_id])
   @@index([article_type])
@@ -884,6 +885,8 @@ model users {
   dose_templates           smart_dose_templates[]    @relation("DoseTemplateCreator")
   user_interests           user_interests[]
   ui_settings              UiSetting[]
+  MediaFolders             MediaFolder[]
+  MediaAssets              MediaAsset[]
 
   @@index([email], map: "idx_users_email")
   @@index([role], map: "idx_users_role")
@@ -1421,6 +1424,7 @@ model MuqtarabArticle {
   creator                users?                @relation(fields: [created_by], references: [id])
   comments               MuqtarabComment[]
   interactions           MuqtarabInteraction[]
+  media_assets           MediaAsset[]          @relation("MuqtarabArticleAssets")
 
   @@index([corner_id])
   @@index([slug])
@@ -1545,6 +1549,64 @@ model UiSetting {
   createdAt   DateTime @default(now())
 
   @@map("ui_settings")
+}
+
+model MediaFolder {
+  id           String         @id @default(cuid())
+  name         String
+  slug         String
+  parentId     String?
+  parent       MediaFolder?   @relation("FolderHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  subfolders   MediaFolder[]  @relation("FolderHierarchy")
+  assets       MediaAsset[]
+  path         String         // Full path like "/sports/football/2024"
+  createdById  String
+  createdBy    users          @relation(fields: [createdById], references: [id])
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@unique([parentId, slug])
+  @@index([path])
+  @@index([createdById])
+  @@map("media_folders")
+}
+
+model MediaAsset {
+  id            String       @id @default(cuid())
+  filename      String
+  originalName  String
+  mimeType      String
+  size          Int
+  width         Int?
+  height        Int?
+  duration      Int?         // For videos/audio in seconds
+  cloudinaryId  String       @unique
+  cloudinaryUrl String
+  thumbnailUrl  String?
+  type          MediaType
+  metadata      Json?        // Additional metadata like EXIF, dimensions, etc
+  folderId      String?
+  folder        MediaFolder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  uploadedById  String
+  uploadedBy    users        @relation(fields: [uploadedById], references: [id])
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  // Relations to content
+  newsArticles        articles[]      @relation("NewsArticleAssets")
+  muqtarabArticles    MuqtarabArticle[] @relation("MuqtarabArticleAssets")
+
+  @@index([type, folderId])
+  @@index([uploadedById])
+  @@index([createdAt])
+  @@map("media_assets")
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  AUDIO
+  DOCUMENT
 }
 
 model article_authors {
