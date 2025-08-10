@@ -74,16 +74,20 @@ export async function rateLimit(key: string, max: number, windowSec: number) {
   const now = Date.now();
   const bucket = Math.floor(now / (windowSec * 1000));
   const k = `rl:${key}:${bucket}`;
-  const r = getRedis();
-  if (r) {
-    const usage = await r.incr(k);
-    if (usage === 1) await r.expire(k, windowSec);
-    if (usage > max) {
-      const err: any = new Error("Too many requests");
-      err.status = 429;
-      throw err;
+  const r = getRedis() as any;
+  if (r && r.status === 'ready') {
+    try {
+      const usage = await r.incr(k);
+      if (usage === 1) await r.expire(k, windowSec);
+      if (usage > max) {
+        const err: any = new Error("Too many requests");
+        err.status = 429;
+        throw err;
+      }
+      return;
+    } catch {
+      // إذا فشل Redis أثناء التنفيذ، نعود للفول باك بالذاكرة
     }
-    return;
   }
   // in-memory fallback
   const entry = inMemoryCounters!.get(k);
