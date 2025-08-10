@@ -32,6 +32,8 @@ import {
   Zap,
 } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 
 interface ModernHeaderProps {
   pageTitle: string;
@@ -48,8 +50,9 @@ export default function ModernHeader({
 }: ModernHeaderProps) {
   const { theme, setTheme, resolvedTheme, mounted } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
+  const { logout } = useAuth();
+  const router = useRouter();
 
-  // بيانات وهمية للإشعارات
   const notifications = [
     { id: 1, title: "مقال جديد تم نشره", time: "منذ 5 دقائق", unread: true },
     {
@@ -63,7 +66,6 @@ export default function ModernHeader({
 
   const unreadCount = notifications.filter((n) => n.unread).length;
 
-  // دالة تبديل الثيم
   const handleThemeChange = (newTheme: "light" | "dark" | "system") => {
     setTheme(newTheme);
   };
@@ -87,10 +89,20 @@ export default function ModernHeader({
     return "نهاري";
   };
 
-  // منع تكرار العبارات (الوصف يختفي إذا طابق العنوان)
   const showDescription = Boolean(
     pageDescription && pageDescription.trim() !== pageTitle?.trim()
   );
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      // سيقوم AuthContext بإعادة التوجيه إلى "/"، وإن أردنا صفحة دخول الإدارة:
+      // router.replace("/admin/login");
+    } catch (e) {
+      // لا شيء؛ سجل فقط في وحدة التحكم
+      console.error("Logout failed", e);
+    }
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 h-[var(--dashboard-header-height)] transition-colors duration-300">
@@ -287,7 +299,7 @@ export default function ModernHeader({
             >
               <DropdownMenuLabel>
                 <div className="flex flex-col">
-                  <span className="font-medium text-gray-900 dark:text-white">
+                  <span className="font-medium text-gray-900 dark:text:white">
                     أبو محمد
                   </span>
                   <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -313,7 +325,10 @@ export default function ModernHeader({
                 المساعدة
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20">
+              <DropdownMenuItem
+                onClick={handleLogout}
+                className="text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 cursor-pointer"
+              >
                 <LogOut className="h-4 w-4 mr-2" />
                 تسجيل الخروج
               </DropdownMenuItem>
