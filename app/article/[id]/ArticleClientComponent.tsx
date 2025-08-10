@@ -641,10 +641,10 @@ export default function ArticleClientComponent({
                 )}
 
                 {/* التصنيف ومعلومات النشر */}
-                <div className="flex items-center justify-between gap-3">
-                  {/* معلومات النشر في اليسار */}
+                <div className="flex items-start justify-between gap-3">
+                  {/* معلومات النشر والتصنيف في اليسار */}
                   <div className="flex flex-col items-start gap-1.5 text-xs text-gray-600 dark:text-gray-300 flex-1">
-                    {/* المراسل */}
+                    {/* المراسل مع التوثيق */}
                     {article.author && (
                       <div className="flex items-center gap-1.5">
                         <span>👤</span>
@@ -697,24 +697,25 @@ export default function ArticleClientComponent({
                         </>
                       )}
                     </div>
-                  </div>
 
-                  {/* التصنيف في اليمين */}
-                  {article.category && (
-                    <div className="flex-shrink-0">
-                      <Link
-                        href={`/categories/${article.category.slug}`}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/50 hover:shadow-sm transition-all"
-                      >
-                        {article.category.icon && (
-                          <span className="text-xs">
-                            {article.category.icon}
-                          </span>
-                        )}
-                        <span>{article.category.name}</span>
-                      </Link>
-                    </div>
-                  )}
+                    {/* ليبل التصنيف */}
+                    {article.category && (
+                      <div className="mt-1">
+                        <Link
+                          href={`/categories/${article.category.slug}`}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/50 hover:shadow-sm transition-all"
+                        >
+                          <Hash className="w-3 h-3 flex-shrink-0" />
+                          {article.category.icon && (
+                            <span className="text-xs">
+                              {article.category.icon}
+                            </span>
+                          )}
+                          <span>{article.category.name}</span>
+                        </Link>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </header>

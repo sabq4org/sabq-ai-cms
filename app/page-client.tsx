@@ -89,7 +89,6 @@ import {
   BookOpen,
   Brain,
   Briefcase,
-  Building2,
   CloudRain,
   Eye,
   Heart,
@@ -112,7 +111,6 @@ const categoryIcons: { [key: string]: React.ElementType } = {
   سفر: Plane,
   صحة: Heart,
   علوم: Beaker,
-  سياسة: Building2,
   طقس: CloudRain,
   default: Tag,
 };
@@ -271,8 +269,6 @@ function NewspaperHomePage({
         "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800",
       تقنية:
         "bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-400 dark:border-indigo-800",
-      سياسة:
-        "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800",
       ثقافة:
         "bg-pink-100 text-pink-700 border-pink-200 dark:bg-pink-900/20 dark:text-pink-400 dark:border-pink-800",
       علوم: "bg-cyan-100 text-cyan-700 border-cyan-200 dark:bg-cyan-900/20 dark:text-cyan-400 dark:border-cyan-800",
@@ -334,8 +330,6 @@ function NewspaperHomePage({
       المحطات: "local",
       حياتنا: "local",
       حياة: "local",
-      سياسة: "world",
-      السياسة: "world",
       سياحة: "world",
       السياحة: "world",
       سيارات: "tech",
@@ -682,7 +676,7 @@ function NewspaperHomePage({
     >
       <div
         className={`homepage-wrapper min-h-screen transition-colors duration-300 ${
-          isMobileView ? "pt-14" : "pt-14 sm:pt-16 lg:pt-20"
+          isMobileView ? "pt-0" : "pt-14 sm:pt-16 lg:pt-20"
         } ${darkMode ? "bg-gray-900" : "bg-gray-50"}`}
         style={{
           direction: "rtl",
@@ -690,7 +684,7 @@ function NewspaperHomePage({
       >
         {/* شريط النبض الإخباري للموبايل - محذوف حسب الطلب */}
         {/* تم إزالة شريط النبض الإخباري من نسخة الموبايل فقط */}
-        {/* شريط الإحصائيات المحسن للموبايل */}
+        {/* شريط الإحصائيات المحسن للموبايل - متلاصق مع الهيدر */}
         <SafeHydration>
           {isMobileView && (
             <div className="sticky top-14 z-30 bg-white dark:bg-gray-900 shadow-sm">
@@ -703,7 +697,7 @@ function NewspaperHomePage({
 
         {/* 2. الأخبار المميزة (Featured Articles) 🌟 */}
         {!featuredLoading && featuredArticle.length > 0 && (
-          <div className="pt-4 pb-6">
+          <div className={`${isMobileView ? "pt-2 pb-4" : "pt-4 pb-6"}`}>
             <FeaturedNewsCarousel articles={featuredArticle} />
           </div>
         )}
@@ -715,7 +709,11 @@ function NewspaperHomePage({
 
         {/* تم نقل النشرة الصوتية إلى العمود الجانبي بجوار التصنيفات */}
         {/* 5. بلوك التصنيفات (Categories Block) 🏷️ + ترند سبق */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 mb-8">
+        <section
+          className={`max-w-7xl mx-auto px-4 sm:px-6 ${
+            isMobileView ? "mb-6" : "mb-8"
+          }`}
+        >
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
             {/* 2/3: التصنيفات */}
             <div className="lg:col-span-2">
@@ -1112,7 +1110,7 @@ function NewspaperHomePage({
               </div>
             </div>
             {/* 1/3: النشرة الصوتية */}
-            <aside className="lg:col-span-1">
+            <aside className={`lg:col-span-1 ${isMobileView ? "mt-0" : ""}`}>
               <div
                 className={`h-full rounded-3xl p-4 sm:p-5 transition-all duration-500 shadow-lg dark:shadow-gray-900/50 ${
                   darkMode
@@ -1139,7 +1137,11 @@ function NewspaperHomePage({
 
         {/* 6. بطاقات الأخبار المخصصة (Featured Cards) 📰 */}
         {/* Main Content */}
-        <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
+        <main
+          className={`max-w-7xl mx-auto px-3 sm:px-6 ${
+            isMobileView ? "py-2 sm:py-4" : "py-4 sm:py-6"
+          }`}
+        >
           {/* Enhanced News Section */}
           <section
             className={`${isMobileView ? "mb-8 sm:mb-12" : "mb-10 sm:mb-20"}`}
@@ -1524,7 +1526,11 @@ function NewspaperHomePage({
           </section>
         </main>
         {/* 7. مقترب (زاوية تحليلية) 📝 */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div
+          className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${
+            isMobileView ? "py-4" : "py-6"
+          }`}
+        >
           <MuqtarabBlock
             limit={4}
             showPagination={false}
@@ -1534,7 +1540,11 @@ function NewspaperHomePage({
         </div>
         {/* 8. التحليل العميق (Deep Analysis) 🧠 */}
         {/* Deep Analysis Block - بلوك التحليل العميق - خارج main للامتداد الكامل */}
-        <section className="relative w-full bg-[#1a365d] dark:bg-[#0d1b2a] py-16 mb-16">
+        <section
+          className={`relative w-full bg-[#1a365d] dark:bg-[#0d1b2a] ${
+            isMobileView ? "py-12 mb-12" : "py-16 mb-16"
+          }`}
+        >
           {/* خلفية متدرجة overlay تمتد بالكامل */}
           <div className="absolute inset-0 bg-gradient-to-r from-blue-900/95 via-indigo-900/90 to-purple-900/95 dark:from-gray-900/95 dark:via-blue-900/90 dark:to-indigo-900/95"></div>
 

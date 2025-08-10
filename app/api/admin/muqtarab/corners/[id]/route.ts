@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
+import { NextRequest, NextResponse } from "next/server";
 // import { getServerSession } from 'next-auth';
 
 const prisma = new PrismaClient();
@@ -11,9 +11,9 @@ export async function GET(
 ) {
   try {
     const { id } = params;
-    
+
     const corner = await prisma.$queryRaw`
-      SELECT 
+      SELECT
         mc.*,
         c.name as category_name,
         u.name as creator_name,
@@ -25,23 +25,22 @@ export async function GET(
       LEFT JOIN users u ON mc.created_by = u.id
       WHERE mc.id = ${id};
     `;
-    
+
     if (!(corner as any[]).length) {
       return NextResponse.json(
-        { success: false, error: 'الزاوية غير موجودة' },
+        { success: false, error: "الزاوية غير موجودة" },
         { status: 404 }
       );
     }
-    
+
     return NextResponse.json({
       success: true,
-      data: (corner as any[])[0]
+      data: (corner as any[])[0],
     });
-    
   } catch (error) {
-    console.error('خطأ في جلب الزاوية:', error);
+    console.error("خطأ في جلب الزاوية:", error);
     return NextResponse.json(
-      { success: false, error: 'خطأ في جلب الزاوية' },
+      { success: false, error: "خطأ في جلب الزاوية" },
       { status: 500 }
     );
   }
@@ -54,7 +53,7 @@ export async function PUT(
 ) {
   try {
     // TODO: إضافة نظام التحقق من الصلاحيات لاحقاً
-    
+
     const { id } = params;
     const body = await request.json();
     const {
@@ -67,38 +66,38 @@ export async function PUT(
       category_id,
       ai_enabled,
       is_active,
-      is_featured
+      is_featured,
     } = body;
-    
+
     // التحقق من وجود الزاوية
     const existingCorner = await prisma.$queryRaw`
       SELECT id FROM muqtarab_corners WHERE id = ${id};
     `;
-    
+
     if (!(existingCorner as any[]).length) {
       return NextResponse.json(
-        { success: false, error: 'الزاوية غير موجودة' },
+        { success: false, error: "الزاوية غير موجودة" },
         { status: 404 }
       );
     }
-    
+
     // التحقق من عدم تكرار الرابط (إذا تم تغييره)
     if (slug) {
       const duplicateSlug = await prisma.$queryRaw`
         SELECT id FROM muqtarab_corners WHERE slug = ${slug} AND id != ${id};
       `;
-      
+
       if ((duplicateSlug as any[]).length > 0) {
         return NextResponse.json(
-          { success: false, error: 'هذا الرابط مستخدم بالفعل' },
+          { success: false, error: "هذا الرابط مستخدم بالفعل" },
           { status: 400 }
         );
       }
     }
-    
+
     // تحديث الزاوية
     const updatedCorner = await prisma.$queryRaw`
-      UPDATE muqtarab_corners SET 
+      UPDATE muqtarab_corners SET
         name = COALESCE(${name}, name),
         slug = COALESCE(${slug}, slug),
         author_name = COALESCE(${author_name}, author_name),
@@ -113,63 +112,105 @@ export async function PUT(
       WHERE id = ${id}
       RETURNING *;
     `;
-    
+
     return NextResponse.json({
       success: true,
-      message: 'تم تحديث الزاوية بنجاح',
-      data: updatedCorner
+      message: "تم تحديث الزاوية بنجاح",
+      data: updatedCorner,
     });
-    
   } catch (error) {
-    console.error('خطأ في تحديث الزاوية:', error);
+    console.error("خطأ في تحديث الزاوية:", error);
     return NextResponse.json(
-      { success: false, error: 'خطأ في تحديث الزاوية' },
+      { success: false, error: "خطأ في تحديث الزاوية" },
       { status: 500 }
     );
   }
 }
 
-// DELETE: حذف زاوية
+// DELETE: حذف زاوية بالكامل مع جميع المقالات المرتبطة
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
     // TODO: إضافة نظام التحقق من الصلاحيات لاحقاً
-    
+
     const { id } = params;
-    
+
+    console.log(`🗑️ بدء حذف الزاوية: ${id}`);
+
+    // التحقق من وجود الزاوية أولاً
+    const cornerExists = await prisma.$queryRaw`
+      SELECT id, name FROM muqtarab_corners WHERE id = ${id};
+    `;
+
+    if (!(cornerExists as any[]).length) {
+      return NextResponse.json(
+        { success: false, error: "الزاوية غير موجودة" },
+        { status: 404 }
+      );
+    }
+
+    const cornerName = (cornerExists as any[])[0].name;
+
     // التحقق من وجود مقالات مرتبطة
     const relatedArticles = await prisma.$queryRaw`
       SELECT COUNT(*) as count FROM muqtarab_articles WHERE corner_id = ${id};
     `;
-    
+
     const articlesCount = Number((relatedArticles as any[])[0].count);
-    
+    console.log(`📊 عدد المقالات المرتبطة: ${articlesCount}`);
+
+    // حذف جميع المقالات المرتبطة أولاً (حذف فعلي كامل)
     if (articlesCount > 0) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: `لا يمكن حذف الزاوية لأنها تحتوي على ${articlesCount} مقال(ة). يرجى حذف أو نقل المقالات أولاً.` 
-        },
-        { status: 400 }
-      );
+      console.log(`🗑️ حذف ${articlesCount} مقال مرتبط بالزاوية...`);
+
+      await prisma.$queryRaw`
+        DELETE FROM muqtarab_articles WHERE corner_id = ${id};
+      `;
+
+      console.log(`✅ تم حذف ${articlesCount} مقال بنجاح`);
     }
-    
-    // حذف الزاوية
+
+    // حذف أي متابعين للزاوية
+    await prisma.$queryRaw`
+      DELETE FROM muqtarab_followers WHERE corner_id = ${id};
+    `;
+
+    // حذف أي بيانات إضافية مرتبطة بالزاوية
+    await prisma.$queryRaw`
+      DELETE FROM muqtarab_analytics WHERE corner_id = ${id};
+    `;
+
+    // أخيراً حذف الزاوية نفسها
     await prisma.$queryRaw`
       DELETE FROM muqtarab_corners WHERE id = ${id};
     `;
-    
+
+    console.log(
+      `✅ تم حذف الزاوية "${cornerName}" بالكامل مع جميع المقالات والبيانات المرتبطة`
+    );
+
     return NextResponse.json({
       success: true,
-      message: 'تم حذف الزاوية بنجاح'
+      message: `تم حذف الزاوية "${cornerName}" بالكامل مع ${articlesCount} مقال مرتبط`,
+      details: {
+        cornerName,
+        deletedArticles: articlesCount,
+        cornerId: id,
+      },
     });
-    
   } catch (error) {
-    console.error('خطأ في حذف الزاوية:', error);
+    console.error("❌ خطأ في حذف الزاوية:", error);
     return NextResponse.json(
-      { success: false, error: 'خطأ في حذف الزاوية' },
+      {
+        success: false,
+        error: "خطأ في حذف الزاوية",
+        details:
+          process.env.NODE_ENV === "development"
+            ? (error as Error).message
+            : undefined,
+      },
       { status: 500 }
     );
   }

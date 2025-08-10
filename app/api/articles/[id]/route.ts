@@ -329,9 +329,15 @@ export async function PATCH(
     ];
 
     // Prevent slug changes for short, random slugs
-    if (data.slug && existingArticle.slug.length <= 12 && existingArticle.slug !== data.slug) {
-        console.warn(`⚠️ Attempt to change a short slug was blocked. Old: "${existingArticle.slug}", New: "${data.slug}"`);
-        delete data.slug;
+    if (
+      data.slug &&
+      existingArticle.slug.length <= 12 &&
+      existingArticle.slug !== data.slug
+    ) {
+      console.warn(
+        `⚠️ Attempt to change a short slug was blocked. Old: "${existingArticle.slug}", New: "${data.slug}"`
+      );
+      delete data.slug;
     }
 
     console.log("📋 الحقول المستلمة:", Object.keys(data));
@@ -570,7 +576,7 @@ export async function PATCH(
   }
 }
 
-// حذف المقال
+// حذف المقال (حذف فعلي نهائي)
 export async function DELETE(
   request: Request,
   context: { params: Promise<{ id: string }> }
@@ -578,22 +584,121 @@ export async function DELETE(
   const { id } = await context.params;
 
   try {
-    const deletedArticle = await dbConnectionManager.executeWithConnection(
+    console.log(`🗑️ بدء حذف المقال: ${id}`);
+
+    // التحقق من وجود المقال أولاً
+    const existingArticle = await dbConnectionManager.executeWithConnection(
       async () => {
-        return await prisma.articles.update({
+        return await prisma.articles.findUnique({
           where: { id },
-          data: {
-            status: "deleted" as any,
-            updated_at: new Date(),
+          select: {
+            id: true,
+            title: true,
+            status: true,
+            featured: true,
+            category_id: true,
+            author_id: true,
+            article_author_id: true,
           },
         });
       }
     );
 
+    if (!existingArticle) {
+      console.log(`❌ المقال غير موجود: ${id}`);
+      return NextResponse.json(
+        {
+          success: false,
+          error: "المقال غير موجود",
+        },
+        { status: 404 }
+      );
+    }
+
+    console.log(
+      `📄 المقال الموجود: "${existingArticle.title}" - الحالة: ${existingArticle.status}`
+    );
+
+    // إذا كان المقال مميزاً، قم بإزالة تمييزه أولاً
+    if (existingArticle.featured) {
+      try {
+        await FeaturedArticleManager.unsetFeaturedArticle(id);
+        console.log(`✅ تم إلغاء تمييز المقال قبل الحذف`);
+      } catch (featuredError) {
+        console.warn(
+          `⚠️ فشل في إلغاء تمييز المقال، سيتم المتابعة:`,
+          featuredError
+        );
+      }
+    }
+
+    // حذف جميع البيانات المرتبطة بالمقال أولاً
+    await dbConnectionManager.executeWithConnection(async () => {
+      // حذف التعليقات
+      await prisma.comments.deleteMany({
+        where: { article_id: id },
+      });
+
+      // حذف الإعجابات
+      await prisma.likes.deleteMany({
+        where: { article_id: id },
+      });
+
+      // حذف المشاركات
+      await prisma.shares.deleteMany({
+        where: { article_id: id },
+      });
+
+      // حذف المقالات المحفوظة للمستخدمين
+      await prisma.saved_articles.deleteMany({
+        where: { article_id: id },
+      });
+
+      // حذف قراءات المقال
+      await prisma.article_reads.deleteMany({
+        where: { article_id: id },
+      });
+
+      // حذف أي بيانات تحليلات
+      await prisma.article_analytics.deleteMany({
+        where: { article_id: id },
+      });
+
+      console.log(`🧹 تم حذف جميع البيانات المرتبطة بالمقال`);
+    });
+
+    // أخيراً حذف المقال نفسه
+    const deletedArticle = await dbConnectionManager.executeWithConnection(
+      async () => {
+        return await prisma.articles.delete({
+          where: { id },
+        });
+      }
+    );
+
+    console.log(`✅ تم حذف المقال "${existingArticle.title}" بالكامل نهائياً`);
+
+    // إعادة تحقق صحة الصفحات ذات الصلة
+    try {
+      const { revalidatePath } = await import("next/cache");
+      revalidatePath("/");
+      revalidatePath("/admin/articles");
+      if (existingArticle.category_id) {
+        revalidatePath(`/categories/${existingArticle.category_id}`);
+      }
+      console.log(`🔄 تم إعادة تحقق صحة الصفحات ذات الصلة`);
+    } catch (revalidateError) {
+      console.warn(`⚠️ فشل في إعادة تحقق صحة الصفحات:`, revalidateError);
+    }
+
     return NextResponse.json({
       success: true,
-      message: "تم حذف المقال بنجاح",
-      article: deletedArticle,
+      message: `تم حذف المقال "${existingArticle.title}" نهائياً`,
+      details: {
+        id: existingArticle.id,
+        title: existingArticle.title,
+        deletedAt: new Date().toISOString(),
+      },
     });
   } catch (error: any) {
     console.error("❌ خطأ في حذف المقال:", error);
@@ -613,6 +718,15 @@ export async function DELETE(
         success: false,
         error: "فشل حذف المقال",
         details: error.message || "خطأ غير معروف",
+        debug:
+          process.env.NODE_ENV === "development"
+            ? {
+                errorCode: error.code,
+                errorType: error.constructor.name,
+                articleId: id,
+                timestamp: new Date().toISOString(),
+              }
+            : undefined,
       },
       { status: 500 }
     );

@@ -153,11 +153,11 @@ model articles {
   ai_quotes          String[]
   article_author_id  String?
   article_type       String              @default("opinion")
-  /// نوع المحتوى المعياري: NEWS أو OPINION (مكمّل لحقل article_type لأغراض التوافق)
-  content_type       ContentType         @default(NEWS)
   summary            String?
   tags               String[]
   is_opinion_leader  Boolean             @default(false)
+  /// نوع المحتوى المعياري: NEWS أو OPINION (مكمّل لحقل article_type لأغراض التوافق)
+  content_type       ContentType         @default(NEWS)
   ml_predictions     MLPredictions[]
   sentiment_analyses SentimentAnalysis[]
   article_quotes     article_quotes[]
@@ -1415,6 +1415,7 @@ model MuqtarabArticle {
   @@index([ai_sentiment])
   @@index([created_by])
   @@index([created_at])
+  @@index([slug], map: "idx_muqtarab_articles_slug")
   @@map("muqtarab_articles")
 }
 

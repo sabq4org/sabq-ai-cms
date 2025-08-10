@@ -14,6 +14,7 @@ import {
   Plus,
   RefreshCw,
   Search,
+  Trash2,
   TrendingUp,
   User,
 } from "lucide-react";
@@ -112,6 +113,9 @@ const ArticlesAdminPage = () => {
     string | null
   >(null);
   const [updatingFeatured, setUpdatingFeatured] = useState<string | null>(null);
+  const [deletingArticle, setDeletingArticle] = useState<string | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [articleToDelete, setArticleToDelete] = useState<Article | null>(null);
 
   // Load data
   useEffect(() => {
@@ -289,6 +293,62 @@ const ArticlesAdminPage = () => {
       toast.error("حدث خطأ في تحديث حالة المقال");
     } finally {
       setUpdatingFeatured(null);
+    }
+  };
+
+  const handleDeleteClick = (article: Article) => {
+    setArticleToDelete(article);
+    setDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!articleToDelete) return;
+
+    setDeletingArticle(articleToDelete.id);
+    try {
+      const response = await fetch(`/api/articles/${articleToDelete.id}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          // إزالة المقال من القائمة
+          setArticles((prev) =>
+            prev.filter((article) => article.id !== articleToDelete.id)
+          );
+
+          // تحديث الإحصائيات
+          setStats((prev) => ({
+            ...prev,
+            total: prev.total - 1,
+            [articleToDelete.status]: Math.max(
+              0,
+              prev[articleToDelete.status] - 1
+            ),
+            featured: articleToDelete.featured
+              ? Math.max(0, prev.featured - 1)
+              : prev.featured,
+            breaking: articleToDelete.breaking
+              ? Math.max(0, prev.breaking - 1)
+              : prev.breaking,
+          }));
+
+          toast.success(`تم حذف المقال "${articleToDelete.title}" نهائياً!`);
+          setDeleteModalOpen(false);
+          setArticleToDelete(null);
+        } else {
+          toast.error(data.error || "فشل في حذف المقال");
+        }
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.error || "فشل في حذف المقال");
+      }
+    } catch (error) {
+      console.error("Error deleting article:", error);
+      toast.error("حدث خطأ في حذف المقال");
+    } finally {
+      setDeletingArticle(null);
     }
   };
 
@@ -845,6 +905,22 @@ const ArticlesAdminPage = () => {
                   </Link>
 
                   <button
+                    onClick={() => handleDeleteClick(article)}
+                    disabled={deletingArticle === article.id}
+                    className={cn(
+                      "p-2 rounded-lg transition-colors",
+                      deletingArticle === article.id
+                        ? "opacity-50 cursor-not-allowed"
+                        : darkMode
+                        ? "hover:bg-red-900/20 text-red-400 hover:text-red-300"
+                        : "hover:bg-red-50 text-red-600 hover:text-red-700"
+                    )}
+                    title="حذف المقال نهائياً"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+
+                  <button
                     className={cn(
                       "p-2 rounded-lg transition-colors",
                       darkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
@@ -856,6 +932,120 @@ const ArticlesAdminPage = () => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Modal تأكيد الحذف */}
+      {deleteModalOpen && articleToDelete && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div
+            className={cn(
+              "max-w-md w-full mx-4 rounded-lg p-6",
+              darkMode ? "bg-gray-800" : "bg-white"
+            )}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 rounded-lg bg-red-100 dark:bg-red-900/20">
+                <Trash2 className="w-6 h-6 text-red-600" />
+              </div>
+              <div>
+                <h3
+                  className={cn(
+                    "text-lg font-bold",
+                    darkMode ? "text-white" : "text-gray-900"
+                  )}
+                >
+                  تأكيد حذف المقال
+                </h3>
+                <p
+                  className={cn(
+                    "text-sm",
+                    darkMode ? "text-gray-400" : "text-gray-600"
+                  )}
+                >
+                  هذا الإجراء لا يمكن التراجع عنه
+                </p>
+              </div>
+            </div>
+
+            <div
+              className={cn(
+                "p-4 rounded-lg mb-6",
+                darkMode
+                  ? "bg-red-900/10 border border-red-800"
+                  : "bg-red-50 border border-red-200"
+              )}
+            >
+              <p
+                className={cn(
+                  "text-sm mb-2",
+                  darkMode ? "text-red-200" : "text-red-800"
+                )}
+              >
+                <strong>سيتم حذف المقال التالي نهائياً:</strong>
+              </p>
+              <p
+                className={cn(
+                  "font-medium mb-3",
+                  darkMode ? "text-white" : "text-gray-900"
+                )}
+              >
+                "{articleToDelete.title}"
+              </p>
+              <ul
+                className={cn(
+                  "text-xs space-y-1",
+                  darkMode ? "text-red-300" : "text-red-700"
+                )}
+              >
+                <li>• سيتم حذف المقال والمحتوى نهائياً</li>
+                <li>• سيتم حذف جميع التعليقات والإعجابات</li>
+                <li>• سيتم إزالة المقال من قوائم المستخدمين المحفوظة</li>
+                <li>• لا يمكن استرداد هذه البيانات لاحقاً</li>
+              </ul>
+            </div>
+
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => {
+                  setDeleteModalOpen(false);
+                  setArticleToDelete(null);
+                }}
+                disabled={deletingArticle === articleToDelete.id}
+                className={cn(
+                  "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
+                  darkMode
+                    ? "bg-gray-700 hover:bg-gray-600 text-gray-300"
+                    : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                )}
+              >
+                إلغاء
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                disabled={deletingArticle === articleToDelete.id}
+                className={cn(
+                  "px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2",
+                  deletingArticle === articleToDelete.id
+                    ? "opacity-50 cursor-not-allowed bg-red-600"
+                    : "bg-red-600 hover:bg-red-700",
+                  "text-white"
+                )}
+              >
+                {deletingArticle === articleToDelete.id ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    جاري الحذف...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    حذف نهائي
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
