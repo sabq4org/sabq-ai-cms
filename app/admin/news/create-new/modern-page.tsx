@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
@@ -122,6 +122,24 @@ export default function ModernCreateNewsPage() {
 
   // Keyword input state
   const [keywordInput, setKeywordInput] = useState("");
+  const [authorQuery, setAuthorQuery] = useState("");
+  const [categoryQuery, setCategoryQuery] = useState("");
+
+  const filteredAuthors = useMemo(
+    () =>
+      authors.filter((a) =>
+        (a.name || "").toLowerCase().includes(authorQuery.toLowerCase())
+      ),
+    [authors, authorQuery]
+  );
+
+  const filteredCategories = useMemo(
+    () =>
+      categories.filter((c) =>
+        ((c.name_ar || c.name) || "").toLowerCase().includes(categoryQuery.toLowerCase())
+      ),
+    [categories, categoryQuery]
+  );
 
   // Collapsible sections state
   const [expandedSections, setExpandedSections] = useState({
@@ -372,7 +390,7 @@ export default function ModernCreateNewsPage() {
                         onChange={(e) =>
                           setFormData({ ...formData, slug: e.target.value })
                         }
-                        className="flex-1 h-7 text-sm border-0 px-2 bg-gray-100 dark:bg-gray-800"
+                        className="flex-1 h-8 text-sm bg-gray-100 dark:bg-gray-800 rounded-md focus-visible:ring-2 focus-visible:ring-blue-500 px-2"
                         dir="ltr"
                       />
                     </div>
@@ -384,7 +402,7 @@ export default function ModernCreateNewsPage() {
                         onChange={(e) =>
                           setFormData({ ...formData, subtitle: e.target.value })
                         }
-                        className="border-0 px-0 focus-visible:ring-0 placeholder:text-gray-400"
+                        className="border rounded-md focus-visible:ring-2 focus-visible:ring-blue-500 placeholder:text-gray-400"
                       />
                     </div>
                   </CardContent>
@@ -442,7 +460,7 @@ export default function ModernCreateNewsPage() {
                         setFormData({ ...formData, excerpt: e.target.value })
                       }
                       rows={3}
-                      className="resize-none"
+                      className="resize-none rounded-md focus-visible:ring-2 focus-visible:ring-blue-500"
                     />
                     <p className="text-xs text-gray-500 mt-2">
                       {formData.excerpt.length}/160 حرف
@@ -498,10 +516,10 @@ export default function ModernCreateNewsPage() {
                             setFormData({ ...formData, publishType: value })
                           }
                         >
-                          <SelectTrigger>
+                          <SelectTrigger className="rounded-md">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="z-50 shadow-md">
                             <SelectItem value="now">نشر فوري</SelectItem>
                             <SelectItem value="scheduled">جدولة</SelectItem>
                           </SelectContent>
@@ -560,17 +578,24 @@ export default function ModernCreateNewsPage() {
                     <CardContent className="space-y-4">
                       <div className="space-y-2">
                         <Label>المؤلف</Label>
+                        {/* حقل بحث للمؤلف */}
+                        <Input
+                          placeholder="ابحث عن مؤلف..."
+                          value={authorQuery}
+                          onChange={(e) => setAuthorQuery(e.target.value)}
+                          className="mb-2 rounded-md focus-visible:ring-2 focus-visible:ring-blue-500"
+                        />
                         <Select
                           value={formData.authorId}
                           onValueChange={(value) =>
                             setFormData({ ...formData, authorId: value })
                           }
                         >
-                          <SelectTrigger>
+                          <SelectTrigger className="rounded-md">
                             <SelectValue placeholder="اختر المؤلف" />
                           </SelectTrigger>
-                          <SelectContent>
-                            {authors.map((author) => (
+                          <SelectContent className="z-50 shadow-md">
+                            {filteredAuthors.map((author) => (
                               <SelectItem key={author.id} value={author.id}>
                                 <div className="flex items-center gap-2">
                                   <User className="w-3 h-3" />
@@ -584,17 +609,24 @@ export default function ModernCreateNewsPage() {
 
                       <div className="space-y-2">
                         <Label>التصنيف</Label>
+                        {/* حقل بحث للتصنيف */}
+                        <Input
+                          placeholder="ابحث عن تصنيف..."
+                          value={categoryQuery}
+                          onChange={(e) => setCategoryQuery(e.target.value)}
+                          className="mb-2 rounded-md focus-visible:ring-2 focus-visible:ring-blue-500"
+                        />
                         <Select
                           value={formData.categoryId}
                           onValueChange={(value) =>
                             setFormData({ ...formData, categoryId: value })
                           }
                         >
-                          <SelectTrigger>
+                          <SelectTrigger className="rounded-md">
                             <SelectValue placeholder="اختر التصنيف" />
                           </SelectTrigger>
-                          <SelectContent>
-                            {categories.map((category) => (
+                          <SelectContent className="z-50 shadow-md">
+                            {filteredCategories.map((category) => (
                               <SelectItem key={category.id} value={category.id}>
                                 <div className="flex items-center gap-2">
                                   <div
@@ -623,6 +655,7 @@ export default function ModernCreateNewsPage() {
                             onCheckedChange={(checked) =>
                               setFormData({ ...formData, isBreaking: checked })
                             }
+                            className="scale-110"
                           />
                         </div>
 
@@ -636,6 +669,7 @@ export default function ModernCreateNewsPage() {
                             onCheckedChange={(checked) =>
                               setFormData({ ...formData, isFeatured: checked })
                             }
+                            className="scale-110"
                           />
                         </div>
                       </div>
