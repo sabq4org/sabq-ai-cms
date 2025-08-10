@@ -1,36 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
+import bcrypt from "bcryptjs";
+import prisma from "@/lib/prisma";
+import { clearAuthCookies } from "@/lib/auth-cookies";
 
 export async function POST(request: NextRequest) {
   try {
-    // إنشاء response
-    const response = NextResponse.json({
-      success: true,
-      message: "تم تسجيل الخروج بنجاح",
-    });
+    // إبطال refresh token المطابق إن وجد
+    const cookieHeader = request.headers.get("cookie") || "";
+    const match = cookieHeader.match(/sabq_rt=([^;]+)/);
+    const rt = match?.[1];
+    if (rt) {
+      const candidates = await prisma.refreshToken.findMany({ where: { revokedAt: null } });
+      for (const c of candidates) {
+        if (await bcrypt.compare(rt, c.tokenHash)) {
+          await prisma.refreshToken.update({ where: { id: c.id }, data: { revokedAt: new Date() } });
+          break;
+        }
+      }
+    }
 
-    // حذف جميع الكوكيز المتعلقة بالمصادقة
-    response.cookies.delete("user");
-    response.cookies.delete("auth-token");
-    response.cookies.delete("token");
-    response.cookies.delete("jwt");
-
-    // حذف أي كوكيز أخرى متعلقة بالجلسة
-    response.cookies.set("user", "", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 0, // حذف فوري
-      path: "/",
-    });
-
-    response.cookies.set("auth-token", "", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 0, // حذف فوري
-      path: "/",
-    });
-
+    const response = NextResponse.json({ success: true, message: "تم تسجيل الخروج بنجاح" });
+    clearAuthCookies(response);
     return response;
   } catch (error) {
     console.error("خطأ في تسجيل الخروج:", error);

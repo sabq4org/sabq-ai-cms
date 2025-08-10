@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     console.log('JWT_SECRET is set:', !!process.env.JWT_SECRET);
 
     // محاولة الحصول على التوكن من الكوكيز أو من Authorization header
-    let token = request.cookies.get('auth-token')?.value;
+    let token = request.cookies.get('sabq_at')?.value || request.cookies.get('auth-token')?.value;
     
     // إذا لم يوجد في الكوكيز، جرب cookie بإسم 'user'
     if (!token) {
@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
     let decoded: any;
     try {
       // محاولة فك تشفير JWT أولاً
-      decoded = jwt.verify(token, JWT_SECRET);
+      decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET || JWT_SECRET);
     } catch (error) {
       // إذا فشل JWT، جرب تحليل JSON من user cookie
       try {

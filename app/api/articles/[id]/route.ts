@@ -362,7 +362,9 @@ export async function PATCH(
       updateData.article_author = {
         connect: { id: data.article_author_id },
       } as any;
-      console.log(`✅ تم ربط المراسل (article_authors): ${data.article_author_id}`);
+      console.log(
+        `✅ تم ربط المراسل (article_authors): ${data.article_author_id}`
+      );
     }
 
     if (data.category_id) {

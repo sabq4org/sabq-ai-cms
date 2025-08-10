@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { rateLimit } from '@/lib/rate-limit';
+import { setAuthCookies } from '@/lib/auth-cookies';
 
 
 
@@ -56,6 +58,8 @@ export async function POST(request: NextRequest) {
     }
 
     // البحث عن المستخدم في قاعدة البيانات
+    await rateLimit(`login:${email}`, 5, 60);
+
     const user = await prisma.users.findFirst({
       where: { email: email.toLowerCase() },
       select: {
@@ -114,52 +118,41 @@ export async function POST(request: NextRequest) {
       isAdmin: user.is_admin || false
     };
 
-    // إنشاء JWT token
-    const token = jwt.sign(
-      { 
-        id: user.id, 
-        email: user.email, 
-        roleId: user.role,
+    // إنشاء JWTs: access + refresh
+    const access = jwt.sign(
+      {
+        sub: user.id,
         role: user.role || 'user',
-        is_admin: responseUser.is_admin
       },
-      JWT_SECRET,
-      { expiresIn: '7d' } // صلاحية لمدة 7 أيام
+      process.env.JWT_ACCESS_SECRET || JWT_SECRET,
+      { expiresIn: `${process.env.JWT_ACCESS_TTL_MIN || 15}m`, issuer: 'sabq-ai-cms' }
     );
+    const refresh = jwt.sign(
+      { sub: user.id },
+      process.env.JWT_REFRESH_SECRET || JWT_SECRET,
+      { expiresIn: `${process.env.JWT_REFRESH_TTL_DAYS || 7}d`, issuer: 'sabq-ai-cms' }
+    );
+
+    await prisma.refreshToken.create({
+      data: {
+        userId: user.id,
+        tokenHash: await bcrypt.hash(refresh, 12),
+        userAgent: request.headers.get('user-agent') ?? undefined,
+        ipAddress: request.headers.get('x-forwarded-for') ?? undefined,
+        expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * Number(process.env.JWT_REFRESH_TTL_DAYS || 7)),
+      }
+    });
 
     // إنشاء response مع الكوكيز
     const response = NextResponse.json({
       success: true,
       message: 'تم تسجيل الدخول بنجاح',
       user: responseUser,
-      token: token // إضافة التوكن للاستجابة
+      token: access
     });
 
-    // إضافة الكوكيز الآمنة
-    const forwardedProto = request.headers.get('x-forwarded-proto');
-    const isHttps = forwardedProto === 'https';
-    const isProduction = process.env.NODE_ENV === 'production';
-    const secureFlag = isProduction ? isHttps : false;
-    
-    // كوكيز للمستخدم (بدون httpOnly ليمكن قراءته من JavaScript)
-    response.cookies.set('user', JSON.stringify(responseUser), {
-      httpOnly: false, // السماح بقراءته من JavaScript لدعم Safari
-      secure: secureFlag,
-      sameSite: secureFlag ? 'none' : 'lax',
-      maxAge: 60 * 60 * 24 * 7, // 7 أيام
-      path: '/',
-      domain: undefined // السماح للمتصفح بتحديد النطاق
-    });
-
-    // كوكيز للتوكن
-    response.cookies.set('auth-token', token, {
-      httpOnly: true,
-      secure: secureFlag,
-      sameSite: secureFlag ? 'none' : 'lax',
-      maxAge: 60 * 60 * 24 * 7, // 7 أيام
-      path: '/',
-      domain: undefined // السماح للمتصفح بتحديد النطاق
-    });
+    // تعيين كوكيز sabq_at & sabq_rt
+    setAuthCookies(response, access, refresh);
 
     return response;
     

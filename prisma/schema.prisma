@@ -71,6 +71,20 @@ model EmailTemplate {
   updated_at   DateTime
 }
 
+/// تخزين رموز التحديث (Refresh Tokens) وإبطالها
+model RefreshToken {
+  id         String   @id @default(cuid())
+  userId     String
+  tokenHash  String   // hash(refreshToken)
+  userAgent  String?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime
+  revokedAt  DateTime?
+
+  @@index([userId, expiresAt])
+}
+
 model Subscriber {
   id          String            @id
   email       String            @unique
