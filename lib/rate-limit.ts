@@ -2,6 +2,7 @@ import type { Redis as RedisType } from "ioredis";
 
 let redis: RedisType | null = null;
 let inMemoryCounters: Map<string, { count: number; expiresAt: number }> | null = null;
+let listenersAttached = false;
 
 function getRedis(): RedisType | null {
   if (redis !== null) return redis;
@@ -10,9 +11,32 @@ function getRedis(): RedisType | null {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { Redis } = require("ioredis");
     if (!process.env.REDIS_URL) throw new Error("NO_REDIS_URL");
-    redis = new Redis(process.env.REDIS_URL);
+
+    const url: string = process.env.REDIS_URL;
+    const useTls = url.startsWith("rediss://");
+
+    redis = useTls ? new Redis(url, { tls: {} }) : new Redis(url);
+
+    if (!listenersAttached && redis) {
+      listenersAttached = true;
+      redis.on("error", (err: any) => {
+        // التراجع إلى الذاكرة عند أخطاء TLS/شبكة لمنع Unhandled error event
+        try {
+          if (redis) {
+            // قطع الاتصال لتجنب إعادة المحاولات المستمرة التي تملأ السجلات
+            redis.disconnect();
+          }
+        } catch {}
+        redis = null;
+        if (!inMemoryCounters) inMemoryCounters = new Map();
+        // سجل مختصر فقط
+        // eslint-disable-next-line no-console
+        console.warn("⚠️ تعطيل Redis في rate-limit بسبب خطأ:", err?.message || err);
+      });
+    }
+
     return redis;
-  } catch {
+  } catch (e) {
     // fallback إلى ذاكرة مؤقتة داخل العملية
     if (!inMemoryCounters) inMemoryCounters = new Map();
     return null;
