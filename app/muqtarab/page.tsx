@@ -390,7 +390,7 @@ function MuqtaribPageContent() {
                 <MuqtarabCard
                   key={article.id}
                   article={cardData}
-                  variant="medium"
+                  variant="small"
                 />
               );
             })}
@@ -669,14 +669,14 @@ function MobileAngleCard({ angle }: { angle: Angle }) {
   );
 }
 
-// مكون بطاقة الزاوية العادية - نسخة طبق الأصل من MuqtarabBlock
+// مكون بطاقة الزاوية العادية
 function AngleCard({ angle }: { angle: Angle }) {
   const themeColor = angle.themeColor || "#8B5CF6";
 
   return (
-    <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-0 shadow-lg dark:bg-gray-800/50 dark:hover:bg-gray-800/80 relative h-full min-h-[24rem] bg-white dark:bg-gray-800">
-      {/* صورة الزاوية - نفس الحجم من MuqtarabBlock */}
-      <div className="relative h-48 overflow-hidden">
+    <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-0 shadow-sm dark:bg-gray-800/50 dark:hover:bg-gray-800/80 relative bg-white dark:bg-gray-800">
+      {/* صورة الزاوية */}
+      <div className="relative h-32 overflow-hidden">
         {angle.coverImage ? (
           <Image
             src={angle.coverImage}
@@ -693,31 +693,29 @@ function AngleCard({ angle }: { angle: Angle }) {
               background: `linear-gradient(135deg, ${themeColor} 0%, ${themeColor}80 100%)`,
             }}
           >
-            <div className="text-6xl opacity-90" style={{ color: "white" }}>
-              {angle.icon || "💡"}
-            </div>
+            <BookOpen className="w-10 h-10 text-white opacity-80" />
           </div>
         )}
 
         {/* تدرج للنص - نفس MuqtarabBlock */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
-        {/* ليبل الزاوية - أيقونة فقط */}
-        <div className="absolute top-3 right-3">
+        {/* ليبل اسم الزاوية */}
+        <div className="absolute top-2 right-2">
           <Badge
-            className="backdrop-blur-sm border-0 text-white font-medium px-3 py-1.5 text-2xl shadow-lg"
-            variant="outline"
+            className="text-xs px-2 py-1 font-medium shadow-sm"
             style={{
               backgroundColor: themeColor,
-              borderColor: themeColor,
+              color: "white",
+              border: "none"
             }}
           >
-            <span>{angle.icon || "💡"}</span>
+            {angle.title}
           </Badge>
         </div>
 
         {/* شارة عدد المقالات - يسار أعلى */}
-        <div className="absolute top-3 left-3">
+        <div className="absolute top-2 left-2">
           <Badge className="bg-white/20 backdrop-blur-sm text-white border-0 px-2 py-1 text-xs font-medium">
             <BookOpen className="w-3 h-3 mr-1" />
             {angle.articlesCount || 0} مقالة
@@ -725,28 +723,24 @@ function AngleCard({ angle }: { angle: Angle }) {
         </div>
       </div>
 
-      {/* محتوى البطاقة - نفس التصميم */}
-      <CardContent className="p-6 flex flex-col justify-between flex-1">
-        {/* العنوان والوصف */}
-        <div className="space-y-3">
+      {/* محتوى البطاقة */}
+      <CardContent className="p-4">
+        {/* الوصف */}
+        <div className="space-y-2">
           <Link
             href={`/muqtarab/${angle.slug}`}
             className="block group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
           >
-            <h3 className="font-bold text-xl leading-tight line-clamp-2 text-gray-900 dark:text-white mb-3">
-              {angle.title}
-            </h3>
-          </Link>
 
           {angle.description && (
-            <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-3 leading-relaxed">
+            <p className="text-gray-600 dark:text-gray-300 text-xs line-clamp-2 leading-relaxed">
               {angle.description}
             </p>
           )}
         </div>
 
         {/* أسفل البطاقة - معلومات ومؤلف */}
-        <div className="mt-auto space-y-3">
+        <div className="mt-3 space-y-2">
           {/* معلومات المؤلف والتاريخ */}
           <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
             <div className="flex items-center gap-2">
@@ -771,14 +765,14 @@ function AngleCard({ angle }: { angle: Angle }) {
           <Link href={`/muqtarab/${angle.slug}`} className="block">
             <Button
               size="sm"
-              className="w-full text-sm py-2.5 rounded-lg font-medium transition-all duration-200 hover:scale-105 shadow-sm"
+              className="w-full text-xs py-2 rounded-md font-medium transition-all duration-200 hover:scale-105 shadow-sm"
               style={{
                 backgroundColor: themeColor,
                 color: "white",
               }}
             >
-              <Eye className="w-4 h-4 ml-2" />
-              استكشاف الزاوية
+              <Eye className="w-3 h-3 ml-1" />
+              استكشاف
             </Button>
           </Link>
         </div>
