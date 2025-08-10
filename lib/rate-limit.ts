@@ -1,11 +1,20 @@
 import type { Redis as RedisType } from "ioredis";
 
 let redis: RedisType | null = null;
-let inMemoryCounters: Map<string, { count: number; expiresAt: number }> | null = null;
+let inMemoryCounters: Map<string, { count: number; expiresAt: number }> | null =
+  null;
 let listenersAttached = false;
 
 function getRedis(): RedisType | null {
   if (redis !== null) return redis;
+  // دعم تعطيل Redis تماماً عبر البيئة
+  if (
+    process.env.DISABLE_REDIS === "true" ||
+    process.env.REDIS_ENABLED === "false"
+  ) {
+    if (!inMemoryCounters) inMemoryCounters = new Map();
+    return null;
+  }
   try {
     // lazy require لتجنب مشاكل Edge/runtime
     // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -15,7 +24,17 @@ function getRedis(): RedisType | null {
     const url: string = process.env.REDIS_URL;
     const useTls = url.startsWith("rediss://");
 
-    redis = useTls ? new Redis(url, { tls: {} }) : new Redis(url);
+    const options: any = {
+      lazyConnect: true,
+      enableOfflineQueue: false,
+      maxRetriesPerRequest: 0,
+      connectTimeout: 5000,
+      commandTimeout: 2000,
+      retryStrategy: () => null,
+    };
+    if (useTls) options.tls = {};
+
+    redis = new Redis(url, options);
 
     if (!listenersAttached && redis) {
       listenersAttached = true;
@@ -31,9 +50,17 @@ function getRedis(): RedisType | null {
         if (!inMemoryCounters) inMemoryCounters = new Map();
         // سجل مختصر فقط
         // eslint-disable-next-line no-console
-        console.warn("⚠️ تعطيل Redis في rate-limit بسبب خطأ:", err?.message || err);
+        console.warn(
+          "⚠️ تعطيل Redis في rate-limit بسبب خطأ:",
+          err?.message || err
+        );
       });
     }
+
+    // محاولة الاتصال غير الحاجبة
+    try {
+      (redis as any).connect?.();
+    } catch {}
 
     return redis;
   } catch (e) {
@@ -71,5 +98,3 @@ export async function rateLimit(key: string, max: number, windowSec: number) {
     throw err;
   }
 }
-
-
