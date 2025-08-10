@@ -16,7 +16,7 @@ async function getCompleteArticle(slug: string) {
       where: {
         OR: [
           { slug: slug },
-          { id: slug } // دعم البحث بالـ ID أيضاً للتوافق
+          { id: slug }, // دعم البحث بالـ ID أيضاً للتوافق
         ],
         status: "published", // فقط المقالات المنشورة
       },

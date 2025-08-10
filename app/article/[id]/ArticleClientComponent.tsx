@@ -38,7 +38,7 @@ import ArticleStatsBlock from "@/components/article/ArticleStatsBlock";
 import CommentsPanel from "@/components/article/CommentsPanel";
 import EnhancedOpinionLayout from "@/components/article/EnhancedOpinionLayout";
 import { ReadingProgressBar } from "@/components/article/ReadingProgressBar";
-import SmartPersonalizedContent from "@/components/article/SmartPersonalizedContent";
+import OptimizedPersonalizedContent from "@/components/article/OptimizedPersonalizedContent";
 import ArticleViews from "@/components/ui/ArticleViews";
 import { useReporterProfile } from "@/lib/hooks/useReporterProfile";
 import "@/styles/image-optimizations.css";
@@ -931,7 +931,7 @@ export default function ArticleClientComponent({
 
           {/* المحتوى المخصص بذكاء - نظام التوصيات الشخصي */}
           <div className="mt-6 sm:mt-8">
-            <SmartPersonalizedContent
+            <OptimizedPersonalizedContent
               articleId={article.id}
               categoryId={article.category_id}
               categoryName={article.category?.name}

@@ -15,7 +15,7 @@ async function getCompleteArticle(slug: string) {
       where: {
         OR: [
           { slug: slug },
-          { id: slug } // دعم البحث بالـ ID أيضاً للتوافق
+          { id: slug }, // دعم البحث بالـ ID أيضاً للتوافق
         ],
         status: "published", // فقط المقالات المنشورة
       },
@@ -75,8 +75,7 @@ async function getCompleteArticle(slug: string) {
       author_name:
         article.article_author?.full_name || article.author?.name || null,
       author_title: article.article_author?.title || null,
-      author_bio:
-        article.article_author?.bio || null, // bio غير موجود في users
+      author_bio: article.article_author?.bio || null, // bio غير موجود في users
       author_avatar:
         article.article_author?.avatar_url || article.author?.avatar || null,
       author_slug: article.article_author?.slug || null,
