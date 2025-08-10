@@ -88,11 +88,10 @@ let redisAvailable = !isVercelBuild;
 if (!isVercelBuild) {
   redis.on('error', (err) => {
     console.error('❌ خطأ في Redis:', err);
-    // تعطيل Redis في حالة الأخطاء الحرجة
-    if (err.code === 'ERR_SSL_WRONG_VERSION_NUMBER' || err.code === 'ECONNREFUSED') {
-      redisAvailable = false;
-      console.warn('⚠️ تم تعطيل Redis بسبب مشكلة في الاتصال');
-    }
+    // تعطيل Redis عند أي خطأ لمنع Unhandled Rejection/Connection closed
+    redisAvailable = false;
+    try { redis.disconnect(); } catch {}
+    console.warn('⚠️ تم تعطيل Redis بسبب مشكلة في الاتصال');
   });
 
   redis.on('connect', () => {
