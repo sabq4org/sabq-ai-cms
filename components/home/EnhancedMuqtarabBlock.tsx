@@ -137,7 +137,7 @@ export default function EnhancedMuqtarabBlock({
       try {
         const params = new URLSearchParams();
         params.set("page", currentPage.toString());
-        params.set("limit", limit.toString());
+        params.set("limit", Math.min(limit * 2, 50).toString()); // زيادة عدد المقالات المجلوبة
         params.set("sortBy", sortBy);
 
         if (selectedAngle) {

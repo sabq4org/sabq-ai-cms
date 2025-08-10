@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "4");
+    const limit = parseInt(searchParams.get("limit") || "20"); // زيادة الحد الافتراضي إلى 20
     const sortBy = searchParams.get("sortBy") || "newest";
 
     const skip = (page - 1) * limit;

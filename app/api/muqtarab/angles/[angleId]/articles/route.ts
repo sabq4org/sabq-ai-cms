@@ -162,7 +162,7 @@ export async function GET(
     );
 
     const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "12");
+    const limit = parseInt(searchParams.get("limit") || "50"); // زيادة الحد الافتراضي إلى 50
     const sortBy = searchParams.get("sortBy") || "newest";
     const timeRange = searchParams.get("timeRange") || "all";
     const sentiment = searchParams.get("sentiment");

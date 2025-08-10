@@ -82,7 +82,7 @@ export default function AnglePage() {
         // 🚀 جلب مقالات الزاوية - محسن ومبسط
         setArticlesLoading(true);
         const articlesResponse = await fetch(
-          `/api/muqtarab/angles/${angle.id}/articles?limit=30`, // حد أقصى معقول
+          `/api/muqtarab/angles/${angle.id}/articles?limit=100`, // جلب جميع المقالات
           {
             cache: "force-cache",
             next: { revalidate: 180 }, // 3 دقائق

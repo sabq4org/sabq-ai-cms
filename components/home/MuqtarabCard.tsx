@@ -1,216 +1,421 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { cn } from '@/lib/utils';
-import { User, Brain, Heart, Sparkles, TrendingUp } from 'lucide-react';
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import { Clock, Eye, Star, User } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 interface MuqtarabCardProps {
   article: {
     id: string;
     title: string;
-    summary: string;
+    excerpt: string;
+    slug: string;
+    coverImage?: string;
+    readingTime: number;
+    publishDate: string;
+    views: number;
+    tags?: string[];
+    isFeatured?: boolean;
+    isRecent?: boolean;
+    link?: string;
+
+    angle: {
+      id?: string;
+      title: string;
+      slug: string;
+      icon?: string;
+      themeColor?: string;
+    };
+
     author: {
+      id?: string;
       name: string;
       avatar?: string;
-      emoji?: string;
     };
-    category: {
-      name: string;
-      color: string;
-      emoji: string;
-    };
-    compatibility: number; // نسبة الملاءمة (0-100)
-    sentiment: 'ساخر' | 'تأملي' | 'عاطفي' | 'تحليلي' | 'إلهامي';
-    readTime: number;
-    aiReason?: string; // سبب الاقتراح من الذكاء الاصطناعي
-    slug: string;
   };
-  variant?: 'large' | 'medium' | 'small';
+  variant?: "large" | "medium" | "small";
   className?: string;
 }
 
-const sentimentIcons = {
-  'ساخر': '😏',
-  'تأملي': '🤔',
-  'عاطفي': '💙',
-  'تحليلي': '🧠',
-  'إلهامي': '✨'
-};
+export default function MuqtarabCard({
+  article,
+  variant = "medium",
+  className,
+}: MuqtarabCardProps) {
+  const themeColor = article.angle?.themeColor || "#6366f1";
+  const articleLink = article.link || `/muqtarab/articles/${article.slug}`;
 
-const sentimentColors = {
-  'ساخر': 'text-orange-600 bg-orange-50 dark:text-orange-400 dark:bg-orange-900/20',
-  'تأملي': 'text-purple-600 bg-purple-50 dark:text-purple-400 dark:bg-purple-900/20',
-  'عاطفي': 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20',
-  'تحليلي': 'text-gray-600 bg-gray-50 dark:text-gray-400 dark:bg-gray-900/20',
-  'إلهامي': 'text-yellow-600 bg-yellow-50 dark:text-yellow-400 dark:bg-yellow-900/20'
-};
-
-export default function MuqtarabCard({ article, variant = 'medium', className }: MuqtarabCardProps) {
-  const getCompatibilityColor = (score: number) => {
-    if (score >= 80) return 'text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-900/20';
-    if (score >= 60) return 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20';
-    if (score >= 40) return 'text-yellow-600 bg-yellow-50 dark:text-yellow-400 dark:bg-yellow-900/20';
-    return 'text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-900/20';
+  const isValidImageSrc = (src?: string) => {
+    if (!src) return false;
+    return /^(https?:\/\/|\/|data:)/.test(src);
   };
 
-  const getCompatibilityIcon = (score: number) => {
-    if (score >= 80) return '🎯';
-    if (score >= 60) return '💡';
-    if (score >= 40) return '🌟';
-    return '🤷';
-  };
+  const displaySrc = isValidImageSrc(article.coverImage)
+    ? (article.coverImage as string)
+    : "/images/default-article.jpg";
 
-  // تحديد التخطيط حسب الحجم
-  const getLayoutStyles = () => {
+  // تحديد أحجام الصور حسب النوع
+  const getImageHeight = () => {
     switch (variant) {
-      case 'large':
-        return {
-          container: 'md:grid md:grid-cols-2 md:gap-6 md:min-h-[400px]',
-          imageSize: 'h-48 md:h-full',
-          titleSize: 'text-2xl lg:text-3xl',
-          showFullContent: true
-        };
-      case 'small':
-        return {
-          container: '',
-          imageSize: 'h-32',
-          titleSize: 'text-sm lg:text-base',
-          showFullContent: false
-        };
-      default: // medium
-        return {
-          container: '',
-          imageSize: 'h-48',
-          titleSize: 'text-lg lg:text-xl',
-          showFullContent: true
-        };
+      case "large":
+        return "h-64 md:h-80";
+      case "small":
+        return "h-32";
+      default:
+        return "h-36 sm:h-48";
     }
   };
 
-  const layout = getLayoutStyles();
+  // مكون بطاقة المقال المميز الكبير
+  if (variant === "large") {
+    return (
+      <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-0 shadow-sm dark:bg-gray-800/50 dark:hover:bg-gray-800/80 relative">
+        {/* خط ملامس بلون الزاوية في الأسفل */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-1 transition-all duration-300 group-hover:h-1.5"
+          style={{ backgroundColor: themeColor }}
+        />
 
-  return (
-    <Link href={`/article/${article.slug}`}>
-      <div className={cn(
-        'group relative overflow-hidden',
-        'bg-white dark:bg-gray-700/50 backdrop-blur-sm',
-        'rounded-xl border border-gray-300 dark:border-gray-600',
-        'shadow-md hover:shadow-xl transition-all duration-300',
-        'hover:scale-[1.01] hover:-translate-y-0.5',
-        'cursor-pointer min-h-0',
-        layout.container,
-        className
-      )}>
-        {/* صورة تعبيرية للبطاقة الكبيرة */}
-        {variant === 'large' && (
-          <div className={cn('bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white', layout.imageSize)}>
-            <div className="text-center">
-              <div className="text-6xl mb-2">{article.category.emoji}</div>
-              <div className="text-sm opacity-90">{article.category.name}</div>
+        {/* تصميم الديسكتوب - نصف صورة ونصف محتوى */}
+        <div className="hidden md:grid md:grid-cols-2 gap-0">
+          {/* صورة المقال */}
+          <div className="relative h-64 md:h-80 overflow-hidden">
+            <Image
+              src={displaySrc}
+              alt={article.title}
+              fill={true}
+              className="object-cover transition-transform duration-500 group-hover:scale-110"
+              sizes="50vw"
+              priority={false}
+            />
+
+            {/* تدرج للنص */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+
+            {/* شارة مميز كبيرة - يسار */}
+            {article.isFeatured && (
+              <div className="absolute top-4 left-4">
+                <Badge className="bg-gradient-to-r from-yellow-500 to-amber-600 text-white px-3 py-1.5 text-sm font-bold shadow-lg">
+                  <Star className="w-4 h-4 mr-1.5" />
+                  مقال مميز
+                </Badge>
+              </div>
+            )}
+
+            {/* ليبل الزاوية بلونها - فوق يمين */}
+            <div
+              className="absolute top-4 right-4 px-3 py-1.5 rounded-full text-white font-bold text-sm shadow-lg"
+              style={{
+                backgroundColor: themeColor,
+                boxShadow: `0 4px 15px ${themeColor}40`,
+              }}
+            >
+              {article.angle.icon && (
+                <span className="mr-1.5">{article.angle.icon}</span>
+              )}
+              {article.angle.title}
             </div>
           </div>
+
+          {/* محتوى البطاقة للديسكتوب */}
+          <div className="p-6 md:p-8 flex flex-col justify-center">
+            {/* عنوان المقال */}
+            <Link
+              href={articleLink}
+              className="block group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
+            >
+              <h3 className="font-bold text-2xl leading-tight line-clamp-2 mb-4">
+                {article.title}
+              </h3>
+            </Link>
+
+            {/* مقتطف المقال */}
+            <p className="text-gray-600 dark:text-gray-300 text-base line-clamp-3 mb-6 leading-relaxed">
+              {article.excerpt}
+            </p>
+
+            {/* معلومات إضافية */}
+            <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-4">
+              <div className="flex items-center gap-4">
+                <span className="flex items-center gap-1">
+                  <Clock className="w-4 h-4" />
+                  {article.readingTime} دقائق قراءة
+                </span>
+                <span className="flex items-center gap-1">
+                  <Eye className="w-4 h-4" />
+                  {article.views.toLocaleString()} مشاهدة
+                </span>
+              </div>
+
+              <time className="text-sm">
+                {new Date(article.publishDate).toLocaleDateString("ar-SA", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </time>
+            </div>
+
+            {/* معلومات المؤلف */}
+            <div className="flex items-center gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
+              <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                {article.author.avatar ? (
+                  <Image
+                    src={article.author.avatar}
+                    alt={article.author.name}
+                    width={40}
+                    height={40}
+                    className="rounded-full"
+                  />
+                ) : (
+                  <User className="w-5 h-5 text-gray-500" />
+                )}
+              </div>
+              <div>
+                <p className="text-sm font-medium">{article.author.name}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">كاتب</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* تصميم الهواتف - صورة كاملة مع overlay */}
+        <div className="md:hidden">
+          <div className="relative h-48 overflow-hidden">
+            <Image
+              src={displaySrc}
+              alt={article.title}
+              fill={true}
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              sizes="100vw"
+              priority={false}
+            />
+
+            {/* تدرج للنص */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+
+            {/* شارة مميز - يسار */}
+            {article.isFeatured && (
+              <div className="absolute top-3 left-3">
+                <Badge className="bg-gradient-to-r from-yellow-500 to-amber-600 text-white px-2 py-1 text-xs font-bold shadow-md">
+                  <Star className="w-3 h-3 mr-1" />
+                  مميز
+                </Badge>
+              </div>
+            )}
+
+            {/* ليبل الزاوية - يمين */}
+            <div
+              className="absolute top-3 right-3 px-2 py-1 rounded-full text-white text-xs font-medium shadow-md"
+              style={{
+                backgroundColor: themeColor,
+                boxShadow: `0 2px 8px ${themeColor}40`,
+              }}
+            >
+              {article.angle.icon && (
+                <span className="mr-1">{article.angle.icon}</span>
+              )}
+              {article.angle.title}
+            </div>
+          </div>
+
+          {/* محتوى البطاقة للهواتف */}
+          <CardContent className="p-4 space-y-3">
+            {/* عنوان المقال */}
+            <Link
+              href={articleLink}
+              className="block group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
+            >
+              <h3 className="font-bold text-lg leading-tight line-clamp-2 mb-2">
+                {article.title}
+              </h3>
+            </Link>
+
+            {/* مقتطف المقال */}
+            <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2 leading-relaxed">
+              {article.excerpt}
+            </p>
+
+            {/* معلومات إضافية */}
+            <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+              <div className="flex items-center gap-3">
+                <span className="flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  {article.readingTime} دقائق
+                </span>
+                <span className="flex items-center gap-1">
+                  <Eye className="w-3 h-3" />
+                  {article.views.toLocaleString()}
+                </span>
+              </div>
+
+              <time className="text-xs">
+                {new Date(article.publishDate).toLocaleDateString("ar-SA", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                })}
+              </time>
+            </div>
+
+            {/* معلومات المؤلف */}
+            <div className="flex items-center gap-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+              <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                {article.author.avatar ? (
+                  <Image
+                    src={article.author.avatar}
+                    alt={article.author.name}
+                    width={24}
+                    height={24}
+                    className="rounded-full"
+                  />
+                ) : (
+                  <User className="w-3 h-3 text-gray-500" />
+                )}
+              </div>
+              <span className="text-xs font-medium">{article.author.name}</span>
+            </div>
+          </CardContent>
+        </div>
+      </Card>
+    );
+  }
+
+  // مكون بطاقة المقال العادية (medium و small)
+  return (
+    <Card
+      className={cn(
+        "group overflow-hidden hover:shadow-xl transition-all duration-300 border-0 shadow-sm dark:bg-gray-800/50 dark:hover:bg-gray-800/80 relative",
+        className
+      )}
+    >
+      {/* خط ملامس بلون الزاوية في الأسفل */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-1 transition-all duration-300 group-hover:h-1.5"
+        style={{ backgroundColor: themeColor }}
+      />
+
+      {/* صورة المقال */}
+      <div
+        className={cn("relative overflow-hidden rounded-xl", getImageHeight())}
+      >
+        <Image
+          src={displaySrc}
+          alt={article.title}
+          fill={true}
+          className="object-cover object-center transition-transform duration-300 group-hover:scale-105"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          priority={false}
+        />
+
+        {/* شارات الحالة */}
+        <div className="absolute top-3 left-3 flex gap-2">
+          {article.isFeatured && (
+            <Badge className="bg-yellow-500/90 text-white text-xs px-2 py-1">
+              <Star className="w-3 h-3 mr-1" />
+              مميز
+            </Badge>
+          )}
+          {article.isRecent && (
+            <Badge className="bg-green-500/90 text-white text-xs px-2 py-1">
+              جديد
+            </Badge>
+          )}
+        </div>
+
+        {/* ليبل الزاوية بلونها */}
+        <div
+          className="absolute top-3 right-3 px-2 py-1 rounded-full text-white text-xs font-medium shadow-md"
+          style={{
+            backgroundColor: themeColor,
+            boxShadow: `0 2px 8px ${themeColor}40`,
+          }}
+        >
+          {article.angle.icon && (
+            <span className="mr-1">{article.angle.icon}</span>
+          )}
+          {article.angle.title}
+        </div>
+      </div>
+
+      {/* محتوى البطاقة */}
+      <CardContent
+        className={cn("p-4 space-y-3", variant === "small" && "p-3 space-y-2")}
+      >
+        {/* عنوان المقال */}
+        <Link
+          href={articleLink}
+          className="block group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
+        >
+          <h3
+            className={cn(
+              "font-bold leading-tight line-clamp-2 mb-2",
+              variant === "small" ? "text-sm" : "text-lg"
+            )}
+          >
+            {article.title}
+          </h3>
+        </Link>
+
+        {/* مقتطف المقال - فقط للأحجام المتوسطة */}
+        {variant !== "small" && (
+          <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2 leading-relaxed">
+            {article.excerpt}
+          </p>
         )}
 
-        {/* محتوى البطاقة */}
-        <div className={cn('p-4', variant === 'large' && 'flex flex-col justify-between h-full')}>
-          {/* رأس المحتوى */}
-          <div className="mb-4">
-            {/* معلومات أساسية */}
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                {/* أيقونة الكاتب للأحجام الصغيرة */}
-                {variant !== 'large' && (
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-sm">
-                    {article.author.emoji ? (
-                      <span>{article.author.emoji}</span>
-                    ) : (
-                      <User className="w-4 h-4" />
-                    )}
-                  </div>
-                )}
-                <div>
-                  <p className={cn('font-medium text-gray-900 dark:text-white', variant === 'small' ? 'text-xs' : 'text-sm')}>
-                    {article.author.name}
-                  </p>
-                  {variant !== 'small' && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {article.readTime} دقائق قراءة
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* نسبة الملاءمة */}
-              <div className={cn(
-                'flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium',
-                getCompatibilityColor(article.compatibility)
-              )}>
-                <span>{getCompatibilityIcon(article.compatibility)}</span>
-                <span>{article.compatibility}%</span>
-              </div>
-            </div>
-
-            {/* العنوان */}
-            <h3 className={cn(
-              'font-bold leading-tight mb-3 text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors',
-              layout.titleSize,
-              variant === 'small' ? 'line-clamp-2' : 'line-clamp-3'
-            )}>
-              {article.title}
-            </h3>
-
-            {/* الملخص - فقط للأحجام المتوسطة والكبيرة */}
-            {layout.showFullContent && (
-              <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-3 line-clamp-2">
-                {article.summary}
-              </p>
-            )}
+        {/* معلومات إضافية */}
+        <div
+          className={cn(
+            "flex items-center justify-between text-gray-500 dark:text-gray-400",
+            variant === "small" ? "text-xs" : "text-xs"
+          )}
+        >
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1">
+              <Clock className="w-3 h-3" />
+              {article.readingTime} دقائق
+            </span>
+            <span className="flex items-center gap-1">
+              <Eye className="w-3 h-3" />
+              {article.views.toLocaleString()}
+            </span>
           </div>
 
-          {/* أسفل البطاقة */}
-          <div className="mt-auto">
-            {/* التصنيفات */}
-            <div className="flex items-center gap-2 mb-3">
-              <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400">
-                <span>{article.category.emoji}</span>
-                <span>{article.category.name}</span>
-              </div>
-
-              <span className={cn(
-                'inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium',
-                sentimentColors[article.sentiment]
-              )}>
-                <span>{sentimentIcons[article.sentiment]}</span>
-                <span>{article.sentiment}</span>
-              </span>
-            </div>
-
-            {/* سبب الاقتراح - فقط للبطاقة الكبيرة */}
-            {variant === 'large' && article.aiReason && (
-              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
-                <div className="flex items-start gap-2">
-                  <Brain className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-                  <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
-                    <span className="font-medium text-blue-600 dark:text-blue-400">لماذا اقترحناه؟</span> {article.aiReason}
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
+          {variant !== "small" && (
+            <time className="text-xs">
+              {new Date(article.publishDate).toLocaleDateString("ar-SA", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              })}
+            </time>
+          )}
         </div>
 
-        {/* مؤشر التفاعل */}
-        <div className="absolute bottom-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <div className="flex items-center gap-1 bg-black/20 backdrop-blur-sm rounded-full px-2 py-1">
-            <Sparkles className="w-3 h-3 text-white" />
-            <span className="text-xs text-white font-medium">اقرأ الآن</span>
+        {/* معلومات المؤلف - فقط للأحجام المتوسطة */}
+        {variant !== "small" && (
+          <div className="flex items-center gap-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+            <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+              {article.author.avatar ? (
+                <Image
+                  src={article.author.avatar}
+                  alt={article.author.name}
+                  width={24}
+                  height={24}
+                  className="rounded-full"
+                />
+              ) : (
+                <User className="w-3 h-3 text-gray-500" />
+              )}
+            </div>
+            <span className="text-xs font-medium">{article.author.name}</span>
           </div>
-        </div>
-
-        {/* خلفية متدرجة للتأثير البصري */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-      </div>
-    </Link>
+        )}
+      </CardContent>
+    </Card>
   );
 }

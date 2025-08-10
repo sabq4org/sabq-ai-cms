@@ -20,22 +20,30 @@ import MuqtarabCard from "./MuqtarabCard";
 interface MuqtarabArticle {
   id: string;
   title: string;
-  summary: string;
+  excerpt: string;
+  slug: string;
+  coverImage?: string;
+  readingTime: number;
+  publishDate: string;
+  views: number;
+  tags?: string[];
+  isFeatured?: boolean;
+  isRecent?: boolean;
+  link?: string;
+
+  angle: {
+    id?: string;
+    title: string;
+    slug: string;
+    icon?: string;
+    themeColor?: string;
+  };
+
   author: {
+    id?: string;
     name: string;
     avatar?: string;
-    emoji?: string;
   };
-  category: {
-    name: string;
-    color: string;
-    emoji: string;
-  };
-  compatibility: number;
-  sentiment: "ساخر" | "تأملي" | "عاطفي" | "تحليلي" | "إلهامي";
-  readTime: number;
-  aiReason?: string;
-  slug: string;
 }
 
 interface HeroArticle {
@@ -92,22 +100,11 @@ export default function MuqtarabBlock({ className }: MuqtarabBlockProps) {
   const [articles, setArticles] = useState<MuqtarabArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
   const [heroArticle, setHeroArticle] = useState<HeroArticle | null>(null);
   const [heroLoading, setHeroLoading] = useState(true);
   const [angleArticle, setAngleArticle] = useState<AngleArticle | null>(null);
   const [angleLoading, setAngleLoading] = useState(true);
-
-  // فئات المحتوى الإبداعي
-  const categories = [
-    { name: "الكل", value: null, emoji: "🎭" },
-    { name: "رأي", value: "opinion", emoji: "💭" },
-    { name: "تجربة", value: "experience", emoji: "🌟" },
-    { name: "تقنية", value: "tech", emoji: "🤖" },
-    { name: "موضة", value: "fashion", emoji: "👗" },
-    { name: "فن", value: "art", emoji: "🎨" },
-    { name: "سفر", value: "travel", emoji: "✈️" },
-  ];
 
   // جلب البطاقة المميزة (Hero Article)
   const fetchHeroArticle = async () => {
@@ -235,18 +232,26 @@ export default function MuqtarabBlock({ className }: MuqtarabBlockProps) {
     if (refresh) setRefreshing(true);
 
     try {
-      const response = await fetch("/api/muqtarab/articles", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          category: selectedCategory,
-          limit: 6,
-        }),
-      });
+      const params = new URLSearchParams();
+      params.set("page", "1");
+      params.set("limit", "6");
+      params.set("sortBy", "newest");
+
+      const response = await fetch(
+        `/api/muqtarab/all-articles?${params.toString()}`,
+        {
+          cache: "no-store",
+          headers: {
+            "Cache-Control": "no-cache",
+          },
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
-        setArticles(data.articles || []);
+        if (data.success) {
+          setArticles(data.articles || []);
+        }
       }
     } catch (error) {
       console.error("خطأ في جلب مقالات مقترَب:", error);
@@ -258,7 +263,7 @@ export default function MuqtarabBlock({ className }: MuqtarabBlockProps) {
 
   useEffect(() => {
     fetchArticles();
-  }, [selectedCategory]);
+  }, []);
 
   useEffect(() => {
     fetchHeroArticle();

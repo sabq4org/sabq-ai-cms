@@ -127,7 +127,7 @@ export async function GET(req: NextRequest) {
           },
         },
         orderBy: { publish_at: "desc" },
-        take: 6,
+        take: 12, // زيادة عدد المقالات المميزة
       }),
     ]);
 
