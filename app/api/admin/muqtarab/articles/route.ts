@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { nanoid } from 'nanoid';
 // import { getServerSession } from 'next-auth';
 
 const prisma = new PrismaClient();
@@ -92,7 +93,7 @@ export async function POST(request: NextRequest) {
     const {
       corner_id,
       title,
-      slug,
+      // slug, // تجاهل أي slug يُرسل من العميل - سنولده داخلياً
       content,
       excerpt,
       cover_image,
@@ -112,9 +113,9 @@ export async function POST(request: NextRequest) {
     } = body;
     
     // التحقق من البيانات المطلوبة
-    if (!corner_id || !title || !slug || !content) {
+    if (!corner_id || !title || !content) {
       return NextResponse.json(
-        { success: false, error: 'البيانات الأساسية مطلوبة (الزاوية، العنوان، الرابط، المحتوى)' },
+        { success: false, error: 'البيانات الأساسية مطلوبة (الزاوية، العنوان، المحتوى)' },
         { status: 400 }
       );
     }
@@ -131,16 +132,12 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // التحقق من عدم تكرار الرابط
-    const existingArticle = await prisma.$queryRaw`
-      SELECT id FROM muqtarab_articles WHERE slug = ${slug};
-    `;
-    
-    if ((existingArticle as any[]).length > 0) {
-      return NextResponse.json(
-        { success: false, error: 'هذا الرابط مستخدم بالفعل' },
-        { status: 400 }
-      );
+    // توليد slug قصير وعشوائي، مع التأكد من الفرادة
+    let shortSlug = nanoid(8);
+    for (let i = 0; i < 5; i++) {
+      const exists = await prisma.$queryRaw`SELECT id FROM muqtarab_articles WHERE slug = ${shortSlug};`;
+      if (!(exists as any[]).length) break;
+      shortSlug = nanoid(9);
     }
     
     // حساب وقت القراءة تلقائياً إذا لم يتم تحديده
@@ -154,7 +151,7 @@ export async function POST(request: NextRequest) {
         read_time, publish_at, status, ai_sentiment, ai_compatibility_score,
         ai_summary, ai_keywords, ai_mood, created_by
       ) VALUES (
-        ${corner_id}, ${title}, ${slug}, ${content}, ${excerpt || null}, ${cover_image || null},
+        ${corner_id}, ${title}, ${shortSlug}, ${content}, ${excerpt || null}, ${cover_image || null},
         ${author_name || null}, ${author_bio || null}, ${author_avatar || null}, 
         ${JSON.stringify(tags)}, ${is_featured},         ${calculatedReadTime}, 
         ${publish_at || null}, ${status}, ${ai_sentiment || null}, ${ai_compatibility_score},

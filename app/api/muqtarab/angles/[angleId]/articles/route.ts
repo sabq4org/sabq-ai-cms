@@ -1,5 +1,4 @@
 import { cache as redisCache } from "@/lib/redis-improved";
-import { generateSlug } from "@/lib/slug-utils";
 import { MuqtarabArticleForm } from "@/types/muqtarab";
 import { PrismaClient } from "@prisma/client";
 import { nanoid } from "nanoid";
@@ -7,42 +6,15 @@ import { NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
-// Helper to generate a unique slug for Muqtarab articles - إنجليزي فقط
-async function generateUniqueMuqtarabSlug(title: string): Promise<string> {
-  // محاولة توليد slug إنجليزي من العنوان
-  let slug = generateSlug(title);
-
-  // إذا فشل في إنتاج slug إنجليزي صالح، استخدم nanoid
-  if (!slug || slug.length < 3) {
-    slug = `article-${nanoid(8)}`;
-    console.log(`📝 تم توليد slug عشوائي للمقال: ${slug} (العنوان: ${title})`);
-  } else {
-    console.log(`✅ تم توليد slug إنجليزي للمقال: ${slug} (العنوان: ${title})`);
-  }
-
-  // التحقق من الفرادة
-  let counter = 1;
-  const originalSlug = slug;
-
-  while (true) {
+// Helper: generate short unique slug (7-8 chars) for Muqtarab articles
+async function generateUniqueMuqtarabSlug(): Promise<string> {
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const slug = nanoid(8);
     const exists = await prisma.muqtarabArticle.findUnique({ where: { slug } });
-    if (!exists) {
-      console.log(`🎯 تأكيد فرادة الـ slug: ${slug}`);
-      return slug;
-    }
-
-    // إضافة رقم للتمييز
-    slug = `${originalSlug}-${counter}`;
-    counter++;
-
-    // منع التكرار اللانهائي
-    if (counter > 100) {
-      slug = `article-${nanoid(8)}`;
-      break;
-    }
+    if (!exists) return slug;
   }
-
-  return slug;
+  // fallback with longer id if collisions (very unlikely)
+  return nanoid(10);
 }
 
 // إنشاء مقال جديد في الزاوية
@@ -74,7 +46,7 @@ export async function POST(
       );
     }
 
-    const slug = await generateUniqueMuqtarabSlug(body.title); // Generate meaningful slug from title
+    const slug = await generateUniqueMuqtarabSlug(); // Always short random slug
 
     // إنشاء المقال using Prisma's ORM capabilities for better type safety and maintainability
     const newArticle = await prisma.muqtarabArticle.create({

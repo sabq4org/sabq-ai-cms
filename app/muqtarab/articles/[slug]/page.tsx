@@ -71,9 +71,11 @@ export default function MuqtarabArticlePage() {
       try {
         if (!slug) return;
 
+        const t0 = performance.now();
         // جلب بيانات المقال عبر الـ slug مباشرة
         const res = await fetch(`/api/muqtarab/articles/${encodeURIComponent(slug)}`, {
-          cache: "no-store",
+          cache: "force-cache",
+          next: { revalidate: 300 },
         });
 
         if (!res.ok) {
@@ -147,6 +149,8 @@ export default function MuqtarabArticlePage() {
             setCrossAngleArticles(crossJson.articles || []);
           }
         }
+        const t1 = performance.now();
+        console.log(`⏱️ تحميل مقال مُقترب استغرق ${(t1 - t0).toFixed(0)}ms`);
       } catch (error) {
         console.error("خطأ في تحميل المقال:", error);
         toast.error("حدث خطأ في التحميل");
