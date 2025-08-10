@@ -161,6 +161,18 @@ select:focus-visible {
   max-width: none !important;
 }
 
+/* فرض العرض الكامل داخل صفحات الإدارة بغض النظر عن container/max-w */
+.admin-dashboard-layout main .container,
+.admin-dashboard-layout main [class*="max-w-"] {
+  max-width: none !important;
+  width: 100% !important;
+}
+
+/* الجداول داخل صفحات الإدارة تمتد لعرض المحتوى كاملاً */
+.admin-dashboard-layout main table {
+  width: 100% !important;
+}
+
 /* تصحيح موضع الهيدر الثابت */
 .fixed-header {
   position: fixed;
