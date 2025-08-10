@@ -84,6 +84,66 @@ const sidebarItems: SidebarItem[] = [
         href: "/admin/categories",
       },
       { id: "tags", title: "العلامات", icon: Star, href: "/admin/tags" },
+
+      // نقل نظام مُقترب تحت إدارة الأخبار
+      {
+        id: "muqtarab-module",
+        title: "نظام مُقترب",
+        icon: PenTool,
+        href: "/admin/muqtarib",
+        badge: "جديد",
+        badgeVariant: "secondary" as const,
+        isNew: true,
+        children: [
+          {
+            id: "muqtarib-dashboard",
+            title: "إدارة الزوايا",
+            icon: BookOpen,
+            href: "/admin/muqtarab",
+          },
+          {
+            id: "muqtarib-angles-new",
+            title: "إنشاء زاوية جديدة",
+            icon: PenTool,
+            href: "/admin/muqtarab/angles/new",
+          },
+        ],
+      },
+
+      // نقل مكتبة الوسائط تحت إدارة الأخبار
+      {
+        id: "media-library",
+        title: "مكتبة الوسائط",
+        icon: Folder,
+        href: "/admin/modern/media",
+        badge: "جديد",
+        badgeVariant: "secondary" as const,
+        isNew: true,
+      },
+
+      // نقل النظم الصوتية تحت إدارة الأخبار
+      {
+        id: "audio-systems",
+        title: "النظم الصوتية",
+        icon: Globe,
+        href: "/admin/audio-programs",
+        badge: "مميز",
+        badgeVariant: "secondary" as const,
+        children: [
+          {
+            id: "audio-programs",
+            title: "البرامج الصوتية",
+            icon: Globe,
+            href: "/admin/audio-programs",
+          },
+          {
+            id: "audio-newsletters",
+            title: "النشرات الصوتية",
+            icon: Bell,
+            href: "/dashboard/audio-enhance",
+          },
+        ],
+      },
     ],
   },
   {
@@ -167,61 +227,7 @@ const sidebarItems: SidebarItem[] = [
       },
     ],
   },
-  // تمت إزالة قسم إدارة المحتوى حسب الطلب
-  {
-    id: "muqtarab-module",
-    title: "نظام مُقترب",
-    icon: PenTool,
-    href: "/admin/muqtarib",
-    badge: "جديد",
-    badgeVariant: "secondary",
-    isNew: true,
-    children: [
-      {
-        id: "muqtarib-dashboard",
-        title: "إدارة الزوايا",
-        icon: BookOpen,
-        href: "/admin/muqtarab",
-      },
-      {
-        id: "muqtarib-angles-new",
-        title: "إنشاء زاوية جديدة",
-        icon: PenTool,
-        href: "/admin/muqtarab/angles/new",
-      },
-    ],
-  },
-  {
-    id: "media-library",
-    title: "مكتبة الوسائط",
-    icon: Image,
-    href: "/admin/modern/media",
-    badge: "جديد",
-    badgeVariant: "secondary",
-    isNew: true,
-  },
-  {
-    id: "audio-systems",
-    title: "النظم الصوتية",
-    icon: Globe,
-    href: "/admin/audio-programs",
-    badge: "مميز",
-    badgeVariant: "secondary",
-    children: [
-      {
-        id: "audio-programs",
-        title: "البرامج الصوتية",
-        icon: Globe,
-        href: "/admin/audio-programs",
-      },
-      {
-        id: "audio-newsletters",
-        title: "النشرات الصوتية",
-        icon: Bell,
-        href: "/dashboard/audio-enhance",
-      },
-    ],
-  },
+  // تمت إزالة قسم إدارة المحتوى حسب الطلب ونقل الأقسام المطلوبة تحت إدارة الأخبار
   {
     id: "loyalty-program",
     title: "برنامج الولاء",
@@ -304,12 +310,7 @@ const sidebarItems: SidebarItem[] = [
       },
     ],
   },
-  {
-    id: "media",
-    title: "مكتبة الوسائط",
-    icon: Folder,
-    href: "/admin/modern/media",
-  },
+  
   {
     id: "comments",
     title: "التعليقات",
