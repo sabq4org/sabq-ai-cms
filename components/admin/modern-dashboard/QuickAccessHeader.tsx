@@ -173,7 +173,7 @@ export default function QuickAccessHeader({
               <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg backdrop-blur-0">
                 <DropdownMenuLabel>
                   <div className="flex flex-col">
-                    <span className="font-medium">{user?.name || "مستخدم"}</span>
+                    <span className="font-medium">{user?.name || "مدير النظام"}</span>
                     <span className="text-xs text-gray-500">{user?.email || "account"}</span>
                   </div>
                 </DropdownMenuLabel>
@@ -299,7 +299,7 @@ export default function QuickAccessHeader({
             <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg backdrop-blur-0">
               <DropdownMenuLabel>
                 <div className="flex flex-col">
-                  <span className="font-medium">{user?.name || "مستخدم"}</span>
+                  <span className="font-medium">{user?.name || "مدير النظام"}</span>
                   <span className="text-xs text-gray-500">{user?.email || "account"}</span>
                 </div>
               </DropdownMenuLabel>
