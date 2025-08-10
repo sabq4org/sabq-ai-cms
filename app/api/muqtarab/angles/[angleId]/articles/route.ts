@@ -1,4 +1,4 @@
-import { cache as redisCache } from "@/lib/redis-improved";
+import { cache as redisCache } from "@/lib/redis";
 import { MuqtarabArticleForm } from "@/types/muqtarab";
 import { PrismaClient } from "@prisma/client";
 import { nanoid } from "nanoid";

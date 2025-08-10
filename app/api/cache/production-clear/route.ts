@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cache } from '@/lib/redis-improved';
+import { cache } from "@/lib/redis";
 
 export async function POST(request: NextRequest) {
   try {

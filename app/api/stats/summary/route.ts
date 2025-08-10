@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { cache } from '@/lib/redis-improved';
+import { cache as redis } from "@/lib/redis";
 
 const CACHE_KEY = 'site:stats:summary';
 const CACHE_TTL = 300; // 5 دقائق
@@ -8,7 +8,7 @@ const CACHE_TTL = 300; // 5 دقائق
 export async function GET(request: NextRequest) {
   try {
     // محاولة جلب من الكاش أولاً
-    const cachedStats = await cache.get(CACHE_KEY);
+    const cachedStats = await redis.get(CACHE_KEY);
     if (cachedStats) {
       return NextResponse.json({
         success: true,
@@ -124,7 +124,7 @@ export async function GET(request: NextRequest) {
     };
 
     // حفظ في الكاش
-    await cache.set(CACHE_KEY, stats, CACHE_TTL);
+    await redis.set(CACHE_KEY, stats, CACHE_TTL);
 
     return NextResponse.json({
       success: true,

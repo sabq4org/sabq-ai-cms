@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { cache as redis } from "@/lib/redis-improved";
+import { cache as redisCache } from "@/lib/redis";
 import { NextRequest, NextResponse } from "next/server";
 
 type ModerationMode = "ai_only" | "human" | "hybrid";
@@ -16,7 +16,7 @@ let memorySettings: ModerationSettings | null = null;
 
 export async function GET() {
   try {
-    const stored = await redis.get<ModerationSettings>(REDIS_KEY);
+    const stored = await redisCache.get<ModerationSettings>(REDIS_KEY);
     let settings: ModerationSettings | null = stored ?? null;
 
     // fallback: قاعدة البيانات ثم الذاكرة
@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
 
     const settings: ModerationSettings = { mode, aiThreshold };
     try {
-      await redis.set(REDIS_KEY, settings, 60 * 60 * 24 * 30); // 30 يوم TTL
+      await redisCache.set(REDIS_KEY, settings, 60 * 60 * 24 * 30); // 30 يوم TTL
     } catch {
       // تجاهل خطأ Redis في التطوير
     }

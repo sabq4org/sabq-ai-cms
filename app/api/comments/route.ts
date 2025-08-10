@@ -1,7 +1,7 @@
 import { getCurrentUser } from "@/app/lib/auth";
 import { quickLocalAnalysis } from "@/lib/comment-moderation";
 import prisma from "@/lib/prisma";
-import { cache as redis } from "@/lib/redis-improved";
+import { cache as redis } from "@/lib/redis";
 import { classifyCommentWithAI } from "@/lib/services/ai-comment-classifier";
 import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";

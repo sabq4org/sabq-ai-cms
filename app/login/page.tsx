@@ -23,8 +23,8 @@ function LoginForm() {
     searchParams?.get("callbackUrl") ||
     searchParams?.get("redirectTo") ||
     searchParams?.get("returnTo") ||
-     searchParams?.get("redirect") ||
-     nextParam;
+    searchParams?.get("redirect") ||
+    nextParam;
 
   // إن كان طلب الدخول موجهاً للإدارة، حوِّل لصفحة دخول الإدارة الخالية من الهيدر
   useEffect(() => {

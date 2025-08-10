@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma, { ensureConnection  } from '@/lib/prisma';
-import { cache } from '@/lib/redis-improved'
+import { cache as redis } from "@/lib/redis";
 
 // Cache مُحسن لتفاصيل المقال
 async function getCachedArticle(id: string, fetcher: () => Promise<any>) {
@@ -8,7 +8,7 @@ async function getCachedArticle(id: string, fetcher: () => Promise<any>) {
   
   try {
     // محاولة جلب من cache أولاً
-    const cached = await cache.get(cacheKey);
+    const cached = await redis.get(cacheKey);
     if (cached && cached !== 'null') {
       console.log(`✅ تم جلب المقال ${id} من Redis cache - سرعة فائقة!`);
       return { data: cached, fromCache: true };
@@ -22,7 +22,7 @@ async function getCachedArticle(id: string, fetcher: () => Promise<any>) {
   
   // حفظ في cache لمدة 5 دقائق
   try {
-    await cache.set(cacheKey, data, 300);
+    await redis.set(cacheKey, data, 300);
   } catch (error) {
     console.warn('⚠️ فشل في حفظ المقال في cache:', error);
   }
@@ -194,7 +194,7 @@ export async function DELETE(
     const { id } = await params;
     const cacheKey = `article:${id}`;
     
-    await cache.del(cacheKey);
+    await redis.del(cacheKey);
     
     return NextResponse.json({
       success: true,

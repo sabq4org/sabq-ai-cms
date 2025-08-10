@@ -1,5 +1,5 @@
 import { createCacheKey, withCache } from "@/lib/cache";
-import { cache as redisCache } from "@/lib/redis-improved";
+import { cache } from "@/lib/redis";
 import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -25,7 +25,7 @@ export async function GET(
 
     // 1) فحص Redis أولاً
     try {
-      const redisHit = await redisCache.get<any>(redisKey);
+      const redisHit = await cache.get<any>(redisKey);
       if (redisHit) {
         console.log("⚡ [Redis HIT] Angle by slug:", slug);
         const res = NextResponse.json(redisHit);
@@ -130,7 +130,7 @@ export async function GET(
     // 3) حفظ في الذاكرة + Redis
     cacheManager.set(responseData);
     try {
-      await redisCache.set(redisKey, responseData, 600); // 10 دقائق في Redis
+      await cache.set(redisKey, responseData, 600); // 10 دقائق في Redis
     } catch (e: any) {
       console.warn("⚠️ فشل حفظ الزاوية في Redis", e?.message);
     }

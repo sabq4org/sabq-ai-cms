@@ -1,4 +1,4 @@
-import { cache, CACHE_KEYS, CACHE_TTL } from '@/lib/redis-improved'
+import { cache as redis } from "@/lib/redis";
 
 // مفاتيح cache محسنة
 export const ENHANCED_CACHE_KEYS = {
@@ -72,7 +72,7 @@ export async function getCachedData<T>(
 ): Promise<T> {
   try {
     // محاولة الحصول على البيانات من cache
-    const cached = await cache.get<string>(key)
+    const cached = await redis.get<string>(key)
     if (cached) {
       // إرجاع البيانات مباشرة إذا كانت موجودة
       return JSON.parse(cached) as T
@@ -87,7 +87,7 @@ export async function getCachedData<T>(
     
     // حفظ في cache (لا نتوقف في حالة فشل cache)
     try {
-      await cache.set(key, JSON.stringify(freshData), ttl)
+      await redis.set(key, JSON.stringify(freshData), ttl)
     } catch (cacheSetError) {
       console.warn('⚠️ خطأ في حفظ cache:', cacheSetError)
     }
@@ -119,8 +119,8 @@ export async function invalidateArticleCache(articleId?: string, categoryId?: st
     await Promise.all(
       keysToDelete.map(pattern => 
         pattern.includes('*') 
-          ? cache.clearPattern(pattern)
-          : cache.del(pattern)
+          ? redis.clearPattern(pattern)
+          : redis.del(pattern)
       )
     )
   } catch (error) {
@@ -138,7 +138,7 @@ export async function getCachedList<T>(
   const cacheKey = generateCacheKey(baseKey, params)
   
   try {
-    const cached = await cache.get<string>(cacheKey)
+    const cached = await redis.get<string>(cacheKey)
     if (cached) {
       const result = JSON.parse(cached)
       return { ...result, fromCache: true }
@@ -152,7 +152,7 @@ export async function getCachedList<T>(
     
     // حفظ في cache
     try {
-      await cache.set(cacheKey, JSON.stringify(result), ttl)
+      await redis.set(cacheKey, JSON.stringify(result), ttl)
     } catch (cacheError) {
       console.warn('⚠️ خطأ في حفظ cache للقائمة:', cacheError)
     }
