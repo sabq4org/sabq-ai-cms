@@ -568,35 +568,20 @@ export default function ModernSidebar({
 
   return (
     <div className="h-full flex flex-col bg-white dark:bg-gray-800">
-      {/* الترويسة */}
+      {/* ترويسة مبسطة بدون شعار/نص */}
       <div
         className={cn(
-          "p-4 pt-6 border-b border-gray-200 dark:border-gray-700",
-          "flex items-center justify-between"
+          "p-3 border-b border-gray-200 dark:border-gray-700",
+          "flex items-center justify-end"
         )}
       >
-        {!isCollapsed && (
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">س</span>
-            </div>
-            <div>
-              <h1 className="font-bold text-lg text-gray-900 dark:text-white">
-                سبق الذكية
-              </h1>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                لوحة التحكم
-              </p>
-            </div>
-          </div>
-        )}
-
         {!isMobile && (
           <Button
             variant="ghost"
             size="sm"
             onClick={onToggle}
             className="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-700"
+            aria-label={isCollapsed ? "توسيع الشريط الجانبي" : "طي الشريط الجانبي"}
           >
             {isCollapsed ? (
               <ChevronRight className="h-4 w-4" />

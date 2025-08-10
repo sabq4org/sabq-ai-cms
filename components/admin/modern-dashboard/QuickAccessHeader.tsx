@@ -23,6 +23,15 @@ import {
   User,
 } from "lucide-react";
 import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 
 interface QuickAccessHeaderProps {
   showMenuButton?: boolean;
@@ -38,6 +47,7 @@ export default function QuickAccessHeader({
   const router = useRouter();
   const [notifications] = useState(3);
   const searchRef = useRef<HTMLInputElement>(null);
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -94,7 +104,7 @@ export default function QuickAccessHeader({
 
           {/* اليسار: وصلات سريعة + إجراءات */}
           <div className="flex items-center gap-1 sm:gap-2">
-            <Link href="/admin/news/unified">
+            <Link href="/admin/news">
               <Button variant="ghost" size="sm" className="gap-1">
                 <Newspaper className="h-5 w-5" />
                 <span className="hidden lg:inline text-sm">الأخبار</span>
@@ -131,7 +141,7 @@ export default function QuickAccessHeader({
             <Button
               size="sm"
               className="bg-blue-600 hover:bg-blue-700 text-white"
-              onClick={() => router.push("/admin/news/unified?mode=create")}
+              onClick={() => router.push("/admin/news/create-new")}
               aria-label="إنشاء محتوى جديد"
             >
               <Plus className="h-5 w-5" />
@@ -150,12 +160,30 @@ export default function QuickAccessHeader({
               )}
             </Button>
 
-            {/* صورة الملف */}
-            <Button variant="ghost" size="sm" aria-label="الملف الشخصي">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-white flex items-center justify-center">
-                <User className="h-4 w-4" />
-              </div>
-            </Button>
+            {/* الملف الشخصي */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="gap-2" aria-label="الملف الشخصي">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-white flex items-center justify-center">
+                    <User className="h-4 w-4" />
+                  </div>
+                  <span className="hidden md:inline text-sm">{user?.name || "حسابي"}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>
+                  <div className="flex flex-col">
+                    <span className="font-medium">{user?.name || "مستخدم"}</span>
+                    <span className="text-xs text-gray-500">{user?.email || "account"}</span>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => router.push("/profile")}>الملف الشخصي</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push("/admin/modern/settings")}>الإعدادات</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={logout} className="text-red-600">تسجيل الخروج</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>
@@ -191,7 +219,7 @@ export default function QuickAccessHeader({
 
         {/* اليمين: وصلات سريعة + إجراءات */}
         <div className="flex items-center gap-1 sm:gap-2">
-          <Link href="/admin/news/unified">
+          <Link href="/admin/news">
             <Button variant="ghost" size="sm" className="gap-1">
               <Newspaper className="h-5 w-5" />
               <span className="hidden lg:inline text-sm">الأخبار</span>
@@ -228,7 +256,7 @@ export default function QuickAccessHeader({
           <Button
             size="sm"
             className="bg-blue-600 hover:bg-blue-700 text-white"
-            onClick={() => router.push("/admin/news/unified?mode=create")}
+            onClick={() => router.push("/admin/news/create-new")}
             aria-label="إنشاء محتوى جديد"
           >
             <Plus className="h-5 w-5" />
@@ -247,12 +275,30 @@ export default function QuickAccessHeader({
             )}
           </Button>
 
-          {/* صورة الملف */}
-          <Button variant="ghost" size="sm" aria-label="الملف الشخصي">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-white flex items-center justify-center">
-              <User className="h-4 w-4" />
-            </div>
-          </Button>
+          {/* الملف الشخصي */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="gap-2" aria-label="الملف الشخصي">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-white flex items-center justify-center">
+                  <User className="h-4 w-4" />
+                </div>
+                <span className="hidden md:inline text-sm">{user?.name || "حسابي"}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>
+                <div className="flex flex-col">
+                  <span className="font-medium">{user?.name || "مستخدم"}</span>
+                  <span className="text-xs text-gray-500">{user?.email || "account"}</span>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => router.push("/profile")}>الملف الشخصي</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/admin/modern/settings")}>الإعدادات</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={logout} className="text-red-600">تسجيل الخروج</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </div>
