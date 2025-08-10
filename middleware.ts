@@ -1,6 +1,6 @@
+import { jwtVerify } from "jose";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { jwtVerify } from "jose";
 
 // قاموس لتحويل الأسماء العربية إلى slugs صحيحة
 const reporterNameMappings: { [key: string]: string } = {
@@ -38,24 +38,30 @@ export async function middleware(req: NextRequest) {
     const at = req.cookies.get("sabq_at")?.value;
     if (!at) {
       const url = nextUrl.clone();
-      url.pathname = "/login";
+      url.pathname = "/admin/login";
       url.searchParams.set("next", pathname);
       return NextResponse.redirect(url);
     }
     try {
       const secret = new TextEncoder().encode(process.env.JWT_ACCESS_SECRET);
-      const { payload } = await jwtVerify(at, secret, { issuer: "sabq-ai-cms" });
+      const { payload } = await jwtVerify(at, secret, {
+        issuer: "sabq-ai-cms",
+      });
       const role = (payload as any).role as string | undefined;
-      const allowed = role === "system_admin" || role === "admin" || (payload as any).isAdmin === true;
+      const allowed =
+        role === "system_admin" ||
+        role === "super_admin" ||
+        role === "admin" ||
+        (payload as any).isAdmin === true;
       if (!allowed) {
         const url = nextUrl.clone();
-        url.pathname = "/login";
+        url.pathname = "/admin/login";
         url.searchParams.set("next", pathname);
         return NextResponse.redirect(url);
       }
     } catch {
       const url = nextUrl.clone();
-      url.pathname = "/login";
+      url.pathname = "/admin/login";
       url.searchParams.set("next", pathname);
       return NextResponse.redirect(url);
     }
