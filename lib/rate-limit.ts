@@ -75,7 +75,7 @@ export async function rateLimit(key: string, max: number, windowSec: number) {
   const bucket = Math.floor(now / (windowSec * 1000));
   const k = `rl:${key}:${bucket}`;
   const r = getRedis() as any;
-  if (r && r.status === 'ready') {
+  if (r && r.status === "ready") {
     try {
       const usage = await r.incr(k);
       if (usage === 1) await r.expire(k, windowSec);
@@ -90,6 +90,7 @@ export async function rateLimit(key: string, max: number, windowSec: number) {
     }
   }
   // in-memory fallback
+  if (!inMemoryCounters) inMemoryCounters = new Map();
   const entry = inMemoryCounters!.get(k);
   if (!entry || entry.expiresAt < now) {
     inMemoryCounters!.set(k, { count: 1, expiresAt: now + windowSec * 1000 });
