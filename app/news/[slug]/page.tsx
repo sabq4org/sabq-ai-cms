@@ -39,7 +39,7 @@ async function getCompleteArticle(slug: string) {
             title: true,
             avatar_url: true,
             specializations: true,
-            // is_verified: true, // حقل غير موجود في article_authors
+            // is_verified: true, // removed - field doesn't exist in article_authors model
           },
         },
         categories: {
@@ -149,6 +149,7 @@ export default async function NewsPage({
   params: { slug: string };
 }) {
   const decodedSlug = decodeURIComponent(params.slug);
+  console.log("🚀 [Build: 2025-01-10-v4] Prisma is_verified field removed");
 
   // جلب البيانات الكاملة من الخادم
   const article = await getCompleteArticle(decodedSlug);
