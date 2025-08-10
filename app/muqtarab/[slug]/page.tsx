@@ -1,14 +1,13 @@
 "use client";
 
 // import AngleAudioPlayer from "@/components/muqtarab/AngleAudioPlayer";
+import MuqtarabCard from "@/components/home/MuqtarabCard";
 import WithMuqtarabErrorBoundary from "@/components/muqtarab/MuqtarabErrorBoundary";
 import { SafeMuqtarabWrapper } from "@/components/muqtarab/SafeMuqtarabWrapper";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Angle, AngleArticle } from "@/types/muqtarab";
-import MuqtarabCard from "@/components/home/MuqtarabCard";
 import {
   ArrowLeft,
   BookOpen,
@@ -16,10 +15,8 @@ import {
   Calendar,
   Clock,
   Cpu,
-  Eye,
   Filter,
   Heart,
-  MessageCircle,
   Rocket,
   Search,
   Share2,
@@ -623,7 +620,7 @@ function AngleArticlesGrid({
               avatar: article.author?.avatar,
             },
           };
-          
+
           return (
             <MuqtarabCard
               key={article.id}
@@ -636,5 +633,3 @@ function AngleArticlesGrid({
     </div>
   );
 }
-
-

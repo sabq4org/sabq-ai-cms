@@ -384,7 +384,7 @@ function MuqtaribPageContent() {
                   avatar: article.author?.avatar,
                 },
               };
-              
+
               return (
                 <MuqtarabCard
                   key={article.id}
@@ -451,6 +451,8 @@ function MuqtaribPageContent() {
           {/* عرض جميع الزوايا بتصميم موحد */}
           {(() => {
             const displayAngles = filteredAngles;
+            const featuredAngles = displayAngles.filter(angle => angle.isFeatured);
+            const regularAngles = displayAngles.filter(angle => !angle.isFeatured);
 
             return displayAngles.length === 0 ? (
               <div className="text-center py-12 md:py-16">
@@ -468,20 +470,62 @@ function MuqtaribPageContent() {
               </div>
             ) : (
               <>
-                {/* عرض مختلف للموبايل والديسكتوب */}
-                <div className="md:hidden">
-                  {/* قائمة مبسطة للموبايل */}
-                  <div className="space-y-3">
-                    {displayAngles.map((angle) => (
-                      <MobileAngleCard key={angle.id} angle={angle} />
-                    ))}
+                {/* عرض الزوايا المميزة في قسم منفصل إذا وُجدت */}
+                {featuredAngles.length > 0 && (
+                  <div className="mb-8">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Sparkles className="w-5 h-5 text-yellow-500" />
+                      <h3 className="text-lg font-semibold text-gray-900">الزوايا المميزة</h3>
+                    </div>
+                    <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {featuredAngles.map((angle) => (
+                        <AngleCard key={angle.id} angle={angle} />
+                      ))}
+                    </div>
+                    <div className="md:hidden space-y-3">
+                      {featuredAngles.map((angle) => (
+                        <MobileAngleCard key={angle.id} angle={angle} />
+                      ))}
+                    </div>
                   </div>
-                </div>
-                <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {displayAngles.map((angle) => (
-                    <AngleCard key={angle.id} angle={angle} />
-                  ))}
-                </div>
+                )}
+
+                {/* عرض الزوايا العادية */}
+                {regularAngles.length > 0 && (
+                  <>
+                    {featuredAngles.length > 0 && (
+                      <div className="flex items-center gap-2 mb-4">
+                        <BookOpen className="w-5 h-5 text-blue-600" />
+                        <h3 className="text-lg font-semibold text-gray-900">جميع الزوايا</h3>
+                      </div>
+                    )}
+                    <div className="md:hidden">
+                      {/* قائمة مبسطة للموبايل */}
+                      <div className="space-y-3">
+                        {regularAngles.map((angle) => (
+                          <MobileAngleCard key={angle.id} angle={angle} />
+                        ))}
+                      </div>
+                    </div>
+                    <div className={`hidden md:grid gap-6 ${
+                      regularAngles.length === 5 
+                        ? 'grid-cols-2 lg:grid-cols-5' 
+                        : regularAngles.length === 4
+                        ? 'grid-cols-2 lg:grid-cols-4'
+                        : regularAngles.length === 3
+                        ? 'grid-cols-3'
+                        : regularAngles.length === 2
+                        ? 'grid-cols-2'
+                        : regularAngles.length === 1
+                        ? 'grid-cols-1 max-w-md mx-auto'
+                        : 'grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                    }`}>
+                      {regularAngles.map((angle) => (
+                        <AngleCard key={angle.id} angle={angle} />
+                      ))}
+                    </div>
+                  </>
+                )}
               </>
             );
           })()}
@@ -619,7 +663,7 @@ function AngleCard({ angle }: { angle: Angle }) {
   const themeColor = angle.themeColor || "#8B5CF6";
 
   return (
-    <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-0 shadow-lg dark:bg-gray-800/50 dark:hover:bg-gray-800/80 relative h-96 bg-white dark:bg-gray-800">
+    <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-0 shadow-lg dark:bg-gray-800/50 dark:hover:bg-gray-800/80 relative h-full min-h-[24rem] bg-white dark:bg-gray-800">
       {/* صورة الزاوية - نفس الحجم من MuqtarabBlock */}
       <div className="relative h-48 overflow-hidden">
         {angle.coverImage ? (
@@ -672,7 +716,7 @@ function AngleCard({ angle }: { angle: Angle }) {
       </div>
 
       {/* محتوى البطاقة - نفس التصميم */}
-      <CardContent className="p-6 flex flex-col justify-between h-48">
+      <CardContent className="p-6 flex flex-col justify-between flex-1">
         {/* العنوان والوصف */}
         <div className="space-y-3">
           <Link
