@@ -38,24 +38,8 @@ export default function AdminLogin() {
 
       const data = await res.json();
       if (res.ok && data?.success) {
-        // تحقق فوري من الجلسة قبل التوجيه
-        try {
-          const me = await fetch("/api/auth/me", {
-            headers: { "Cache-Control": "no-store" },
-            credentials: "include",
-          });
-          const meJson = await me.json().catch(() => ({} as any));
-          if (me.ok && meJson?.success && meJson?.user?.id) {
-            router.replace(next);
-          } else {
-            const msg =
-              meJson?.error ||
-              "تعذر إنشاء الجلسة بعد تسجيل الدخول. حاول مجدداً.";
-            alert(msg);
-          }
-        } catch (verErr: any) {
-          alert(`تعذر التحقق من الجلسة: ${verErr?.message || "خطأ غير معروف"}`);
-        }
+        // توجيه مباشر بعد نجاح تسجيل الدخول، والميدلوير سيحمي المسارات
+        router.replace(next);
       } else {
         alert(data?.error || "فشل تسجيل الدخول");
       }
@@ -74,14 +58,14 @@ export default function AdminLogin() {
         <div className="hidden lg:flex flex-col items-center justify-center text-white space-y-8 p-8">
           <div className="text-center space-y-6">
             <SabqLogo className="mx-auto" width={200} height={64} isWhite />
-            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 text-sm font-medium mt-3">
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg>
-              AI-Powered
-            </div>
-            <div className="space-y-4">
+            <div className="space-y-4 pt-2">
               <h2 className="text-3xl font-bold">حيث تلتقي التقنية بالمصداقية</h2>
               <p className="text-xl opacity-90">صحافة ذكية، مستقبل مشرق</p>
               <p className="text-lg opacity-80">انضم إلى ثورة الإعلام الرقمي المدعوم بالذكاء الاصطناعي</p>
+            </div>
+            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 text-sm font-medium mt-4">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg>
+              AI-Powered
             </div>
           </div>
         </div>
