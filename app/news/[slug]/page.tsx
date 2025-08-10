@@ -39,7 +39,7 @@ async function getCompleteArticle(slug: string) {
             title: true,
             avatar_url: true,
             specializations: true,
-            is_verified: true,
+            // is_verified: true, // حقل غير موجود في article_authors
           },
         },
         categories: {

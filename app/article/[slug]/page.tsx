@@ -27,7 +27,7 @@ async function getCompleteArticle(slug: string) {
             name: true,
             email: true,
             avatar: true,
-            bio: true,
+            // bio: true, // حقل غير موجود في users
             role: true,
           },
         },
@@ -40,8 +40,8 @@ async function getCompleteArticle(slug: string) {
             avatar_url: true,
             bio: true,
             specializations: true,
-            is_verified: true,
-            is_opinion_leader: true,
+            // is_verified: true, // حقل غير موجود في article_authors
+            // is_opinion_leader: true, // حقل غير موجود في article_authors
           },
         },
         categories: {
@@ -76,11 +76,11 @@ async function getCompleteArticle(slug: string) {
         article.article_author?.full_name || article.author?.name || null,
       author_title: article.article_author?.title || null,
       author_bio:
-        article.article_author?.bio || article.author?.bio || null,
+        article.article_author?.bio || null, // bio غير موجود في users
       author_avatar:
         article.article_author?.avatar_url || article.author?.avatar || null,
       author_slug: article.article_author?.slug || null,
-      is_opinion_leader: article.article_author?.is_opinion_leader || false,
+      is_opinion_leader: false, // is_opinion_leader غير موجود
 
       // إحصائيات التفاعل
       stats: {

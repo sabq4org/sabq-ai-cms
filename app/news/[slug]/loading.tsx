@@ -9,7 +9,7 @@ export default function Loading() {
             <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg w-3/4"></div>
             <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded-lg w-1/2"></div>
           </div>
-          
+
           {/* Skeleton للمحتوى */}
           <div className="space-y-3 animate-pulse">
             <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
@@ -18,7 +18,7 @@ export default function Loading() {
             <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
             <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
           </div>
-          
+
           {/* Skeleton لصورة */}
           <div className="mt-8 h-64 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
         </div>
