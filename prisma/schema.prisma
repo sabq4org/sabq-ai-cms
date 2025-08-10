@@ -1533,6 +1533,19 @@ model MuqtarabComment {
   @@map("muqtarab_comments")
 }
 
+/// إعدادات واجهة عامة (Global UI Settings)
+model UiSetting {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       Json
+  updatedById String?
+  updatedBy   users?   @relation(fields: [updatedById], references: [id])
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+
+  @@map("ui_settings")
+}
+
 model article_authors {
   id               String             @id
   full_name        String             @db.VarChar(255)

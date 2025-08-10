@@ -42,7 +42,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { readSidebarVisibility } from "@/lib/ui-visibility";
 
 interface SidebarItem {
   id: string;
@@ -413,12 +414,36 @@ export default function ModernSidebar({
   const { preferences, loading } = useSidebarPreferences();
 
   // ترتيب وفلترة العناصر حسب التفضيلات
+  const [globalVisibility, setGlobalVisibility] = useState<Record<string, boolean> | null>(null);
+
+  useEffect(() => {
+    // قراءة الإعداد العالمي من الخادم (يعمل في العميل عبر نداء API داخلي)
+    // في بيئة SSR يمكن نقله لمكوّن خادم لاحقاً
+    (async () => {
+      try {
+        const res = await fetch("/api/admin/ui/sidebar-visibility", { headers: { "x-internal": "1" } });
+        if (res.ok) {
+          const data = await res.json();
+          const map = new Map<string, boolean>((data.items ?? []).map((i: any) => [i.key, !!i.visible]));
+          const obj: Record<string, boolean> = {};
+          sidebarItems.forEach((it) => { obj[it.id] = map.get(it.id) ?? true; });
+          setGlobalVisibility(obj);
+        } else {
+          setGlobalVisibility(null);
+        }
+      } catch {
+        setGlobalVisibility(null);
+      }
+    })();
+  }, []);
+
   const customizedSidebarItems = useMemo(() => {
     if (loading || preferences.sidebar_order.length === 0) {
-      // إذا لم توجد تفضيلات، استخدم الترتيب الافتراضي مع فلترة المخفي فقط
-      return sidebarItems.filter(
-        (item) => !preferences.sidebar_hidden.includes(item.id)
-      );
+      let base = sidebarItems.filter((item) => !preferences.sidebar_hidden.includes(item.id));
+      if (globalVisibility) {
+        base = base.filter((it) => globalVisibility[it.id] !== false);
+      }
+      return base;
     }
 
     // ترتيب العناصر حسب التفضيلات
@@ -433,11 +458,12 @@ export default function ModernSidebar({
 
     const allItems = [...orderedItems, ...newItems];
 
-    // فلترة العناصر المخفية
-    return allItems.filter(
-      (item) => !preferences.sidebar_hidden.includes(item.id)
-    );
-  }, [preferences, loading]);
+    let filtered = allItems.filter((item) => !preferences.sidebar_hidden.includes(item.id));
+    if (globalVisibility) {
+      filtered = filtered.filter((it) => globalVisibility[it.id] !== false);
+    }
+    return filtered;
+  }, [preferences, loading, globalVisibility]);
 
   const toggleExpanded = (itemId: string) => {
     setExpandedItems((prev) =>
