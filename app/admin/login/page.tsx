@@ -53,19 +53,21 @@ export default function AdminLogin() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-400 via-blue-500 to-blue-600 flex items-center justify-center p-4" dir="rtl">
-      <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-8 items-start">
+      <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-8 items-stretch">
         {/* الجانب الأيسر - معلومات وشعار */}
-        <div className="hidden lg:flex flex-col items-center justify-start text-white space-y-8 p-8 pt-4">
-          <div className="text-center space-y-6">
-            <div className="mt-0">
-              <SabqLogo className="mx-auto" width={220} height={72} isWhite />
-            </div>
-            <div className="space-y-4 pt-10 max-w-xl mx-auto">
+        <div className="hidden lg:block relative text-white p-8 h-full">
+          {/* الشعار في الأعلى */}
+          <div className="flex items-start justify-center">
+            <SabqLogo className="mx-auto" width={220} height={72} isWhite />
+          </div>
+          {/* العبارات مثبتة أسفل العمود */}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center max-w-xl w-full px-4">
+            <div className="space-y-3">
               <h2 className="text-3xl font-bold">حيث تلتقي التقنية بالمصداقية</h2>
               <p className="text-xl opacity-90">صحافة ذكية، مستقبل مشرق</p>
               <p className="text-lg opacity-80">انضم إلى ثورة الإعلام الرقمي المدعوم بالذكاء الاصطناعي</p>
             </div>
-            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 text-sm font-medium mt-8">
+            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 text-sm font-medium mt-4">
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg>
               AI-Powered
             </div>
