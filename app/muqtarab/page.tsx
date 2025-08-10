@@ -1,5 +1,6 @@
 "use client";
 
+import Footer from "@/components/Footer";
 import { HeroCard } from "@/components/muqtarab/HeroCard";
 import WithMuqtarabErrorBoundary from "@/components/muqtarab/MuqtarabErrorBoundary";
 import { MuqtarabPageSkeleton } from "@/components/muqtarab/MuqtarabSkeletons";
@@ -100,11 +101,9 @@ function MuqtaribPageContent() {
 
   // فلاتر التصنيف
   const filters = [
-    { id: "all", label: "جميع الزوايا", icon: BookOpen },
-    { id: "featured", label: "مميزة", icon: Sparkles },
-    { id: "trending", label: "الأكثر تفاعلاً", icon: TrendingUp },
-    { id: "recent", label: "الأحدث", icon: Calendar },
-    { id: "tech", label: "تقنية", icon: Lightbulb },
+    { value: "all", label: "جميع الزوايا", icon: BookOpen },
+    { value: "trending", label: "الأكثر مشاهدة", icon: TrendingUp },
+    { value: "recent", label: "الأحدث", icon: Calendar },
   ];
 
   // جلب الزوايا والمقال المميز مُحسّن
@@ -199,9 +198,6 @@ function MuqtaribPageContent() {
 
     // فلترة بالتصنيف
     switch (selectedFilter) {
-      case "featured":
-        filtered = filtered.filter((angle) => angle.isFeatured);
-        break;
       case "recent":
         filtered = filtered.sort(
           (a, b) =>
@@ -209,9 +205,17 @@ function MuqtaribPageContent() {
         );
         break;
       case "trending":
-        // يمكن إضافة منطق ترتيب حسب التفاعل
+        // ترتيب حسب عدد المقالات والمشاهدات
         filtered = filtered.sort(
           (a, b) => (b.articlesCount || 0) - (a.articlesCount || 0)
+        );
+        break;
+      default:
+        // عرض الكل مرتب حسب آخر تحديث
+        filtered = filtered.sort(
+          (a, b) =>
+            new Date(b.updatedAt || b.createdAt).getTime() -
+            new Date(a.updatedAt || a.createdAt).getTime()
         );
         break;
     }
@@ -380,12 +384,12 @@ function MuqtaribPageContent() {
                 const Icon = filter.icon;
                 return (
                   <Button
-                    key={filter.id}
+                    key={filter.value}
                     size="sm"
                     variant={
-                      selectedFilter === filter.id ? "default" : "outline"
+                      selectedFilter === filter.value ? "default" : "outline"
                     }
-                    onClick={() => setSelectedFilter(filter.id)}
+                    onClick={() => setSelectedFilter(filter.value)}
                     className="whitespace-nowrap"
                   >
                     <Icon className="w-4 h-4 mr-2" />
@@ -397,67 +401,22 @@ function MuqtaribPageContent() {
           </div>
         </div>
 
-        {/* الزوايا المميزة - عرض فقط إذا كانت هناك زوايا مميزة */}
-        {selectedFilter === "all" &&
-          angles.some((angle) => angle.isFeatured) && (
-            <div className="mb-8">
-              <div className="flex items-center gap-2 mb-6">
-                <div className="w-1 h-6 bg-yellow-500 rounded-full"></div>
-                <h2 className="text-xl md:text-2xl font-bold text-foreground">
-                  الزوايا المميزة
-                </h2>
-                <Badge variant="secondary" className="text-xs">
-                  {angles.filter((angle) => angle.isFeatured).length} زاوية
-                </Badge>
-              </div>
-
-              {/* عرض مختلف للموبايل والديسكتوب */}
-              <div className="md:hidden">
-                {/* شبكة صغيرة للموبايل */}
-                <div className="grid grid-cols-2 gap-3">
-                  {angles
-                    .filter((angle) => angle.isFeatured)
-                    .slice(0, 4)
-                    .map((angle) => (
-                      <MobileFeaturedAngleCard key={angle.id} angle={angle} />
-                    ))}
-                </div>
-              </div>
-              <div className="hidden md:grid lg:grid-cols-2 gap-6">
-                {angles
-                  .filter((angle) => angle.isFeatured)
-                  .slice(0, 2)
-                  .map((angle) => (
-                    <FeaturedAngleCard key={angle.id} angle={angle} />
-                  ))}
-              </div>
-            </div>
-          )}
-
         {/* شبكة الزوايا - محسنة للموبايل */}
         <div className="mb-6 md:mb-8">
+          `
           <div className="flex items-center justify-between mb-4 md:mb-6">
             <h2 className="text-lg md:text-3xl font-bold text-gray-900">
               {selectedFilter === "all"
-                ? "باقي الزوايا"
-                : filters.find((f) => f.id === selectedFilter)?.label}
+                ? "زوايا مقترب"
+                : filters.find((f) => f.value === selectedFilter)?.label}
             </h2>
             <div className="text-xs md:text-sm text-gray-500">
-              {/* عدد الزوايا بعد استبعاد المميزة في حالة الفلتر "all" */}
-              {selectedFilter === "all"
-                ? filteredAngles.filter((angle) => !angle.isFeatured).length
-                : filteredAngles.length}{" "}
-              زاوية
+              {filteredAngles.length} زاوية
             </div>
           </div>
-
-          {/* تصفية الزوايا لاستبعاد المميزة عند عرض "جميع الزوايا" لتجنب التكرار */}
+          {/* عرض جميع الزوايا بتصميم موحد */}
           {(() => {
-            // في حالة الفلتر "all"، نستبعد الزوايا المميزة لأنها معروضة في القسم أعلاه
-            const displayAngles =
-              selectedFilter === "all"
-                ? filteredAngles.filter((angle) => !angle.isFeatured)
-                : filteredAngles;
+            const displayAngles = filteredAngles;
 
             return displayAngles.length === 0 ? (
               <div className="text-center py-12 md:py-16">
@@ -495,8 +454,8 @@ function MuqtaribPageContent() {
         </div>
       </div>
 
-      {/* فوتر مقترب الرسمي */}
-      <MuqtarabFooter stats={stats} />
+      {/* فوتر الموقع الرسمي */}
+      <Footer />
     </div>
   );
 }
@@ -621,139 +580,234 @@ function MobileAngleCard({ angle }: { angle: Angle }) {
   );
 }
 
-// مكون بطاقة الزاوية العادية
+// مكون بطاقة الزاوية العادية - تصميم موحد مع بلوك مقترب
 function AngleCard({ angle }: { angle: Angle }) {
+  const themeColor = angle.themeColor || "#6366f1";
+
   return (
-    <Card className="group rounded-2xl overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-      <div className="relative h-48 w-full overflow-hidden">
+    <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-0 shadow-sm dark:bg-gray-800/50 dark:hover:bg-gray-800/80 relative">
+      {/* خط ملامس بلون الزاوية في الأسفل */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-1 transition-all duration-300 group-hover:h-1.5"
+        style={{ backgroundColor: themeColor }}
+      ></div>
+
+      {/* صورة الزاوية */}
+      <div className="relative h-36 sm:h-48 overflow-hidden rounded-xl">
         {angle.coverImage ? (
           <Image
             src={angle.coverImage}
             alt={angle.title}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            fill={true}
+            className="object-cover object-center transition-transform duration-300 group-hover:scale-105"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            priority={false}
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center">
-            <BookOpen className="w-16 h-16 text-white/80" />
+          <div
+            className="w-full h-full flex items-center justify-center"
+            style={{
+              background: `linear-gradient(135deg, ${themeColor}15 0%, ${themeColor}25 100%)`,
+            }}
+          >
+            <BookOpen
+              className="w-12 h-12 text-gray-600"
+              style={{ color: themeColor }}
+            />
           </div>
         )}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
-
-        <div className="absolute bottom-4 left-4 right-4">
-          <h3 className="text-white font-bold text-lg line-clamp-2">
-            {angle.title}
-          </h3>
+        {/* ليبل الزاوية بلونها */}
+        <div
+          className="absolute top-3 right-3 px-2 py-1 rounded-full text-white text-xs font-medium shadow-md"
+          style={{
+            backgroundColor: themeColor,
+            boxShadow: `0 2px 8px ${themeColor}40`,
+          }}
+        >
+          {angle.icon && <span className="mr-1">{angle.icon}</span>}
+          زاوية تحليلية
         </div>
-
-        {angle.isFeatured && (
-          <div className="absolute top-3 right-3">
-            <Badge className="bg-yellow-500 text-yellow-900 border-0">
-              <Sparkles className="w-3 h-3 ml-1" />
-              مميزة
-            </Badge>
-          </div>
-        )}
       </div>
 
+      {/* محتوى البطاقة */}
       <CardContent className="p-4 space-y-3">
-        <div className="flex items-center gap-4 text-sm text-gray-500">
-          <div className="flex items-center gap-1">
-            <BookOpen className="w-4 h-4" />
-            <span>{angle.articlesCount || 0} مقالة</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Users className="w-4 h-4" />
-            <span>{angle.author?.name}</span>
-          </div>
-        </div>
+        {/* عنوان الزاوية */}
+        <Link
+          href={`/muqtarab/${angle.slug}`}
+          className="block group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
+        >
+          <h3 className="font-bold text-lg leading-tight line-clamp-2 mb-2">
+            {angle.title}
+          </h3>
+        </Link>
 
+        {/* وصف الزاوية */}
         {angle.description && (
-          <p className="text-gray-700 text-sm line-clamp-3 leading-relaxed">
+          <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2 leading-relaxed">
             {angle.description}
           </p>
         )}
 
-        <Link href={`/muqtarab/${angle.slug}`}>
-          <Button
-            variant="ghost"
-            className="w-full justify-start text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-0 h-8"
-          >
-            <Eye className="w-4 h-4 ml-2" />
-            استكشاف الزاوية
-          </Button>
-        </Link>
+        {/* معلومات إضافية */}
+        <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1">
+              <BookOpen className="w-3 h-3" />
+              {angle.articlesCount || 0} مقالة
+            </span>
+            {angle.author?.name && (
+              <span className="flex items-center gap-1">
+                <Users className="w-3 h-3" />
+                {angle.author.name}
+              </span>
+            )}
+          </div>
+
+          <time className="text-xs">
+            {angle.createdAt
+              ? new Date(angle.createdAt).toLocaleDateString("ar-SA", {
+                  year: "numeric",
+                  month: "short",
+                })
+              : ""}
+          </time>
+        </div>
+
+        {/* زر الاستكشاف */}
+        <div className="pt-2 border-t border-gray-100 dark:border-gray-700">
+          <Link href={`/muqtarab/${angle.slug}`}>
+            <Button
+              variant="ghost"
+              className="w-full justify-center text-sm font-medium transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20"
+              style={{ color: themeColor }}
+            >
+              <Eye className="w-4 h-4 ml-2" />
+              استكشاف الزاوية
+            </Button>
+          </Link>
+        </div>
       </CardContent>
     </Card>
   );
 }
 
-// مكون بطاقة المقال المختار
+// مكون بطاقة المقال المختار - تصميم موحد مع بلوك مقترب
 function FeaturedArticleCard({ article }: { article: FeaturedArticle }) {
-  const themeColor = article.angle?.themeColor || "#3B82F6"; // Added optional chaining
+  const themeColor = article.angle?.themeColor || "#6366f1";
+
   return (
-    <Card className="group rounded-xl overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-      <div className="relative h-40 md:h-48 w-full overflow-hidden">
+    <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-0 shadow-sm dark:bg-gray-800/50 dark:hover:bg-gray-800/80 relative">
+      {/* خط ملامس بلون الزاوية في الأسفل */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-1 transition-all duration-300 group-hover:h-1.5"
+        style={{ backgroundColor: themeColor }}
+      ></div>
+
+      {/* صورة المقال */}
+      <div className="relative h-36 sm:h-48 overflow-hidden rounded-xl">
         {article.coverImage ? (
           <Image
             src={article.coverImage}
             alt={article.title}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            fill={true}
+            className="object-cover object-center transition-transform duration-300 group-hover:scale-105"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            priority={false}
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center">
-            <BookOpen className="w-12 h-12 md:w-16 md:h-16 text-white/80" />
+          <div
+            className="w-full h-full flex items-center justify-center"
+            style={{
+              background: `linear-gradient(135deg, ${themeColor}15 0%, ${themeColor}25 100%)`,
+            }}
+          >
+            <BookOpen
+              className="w-12 h-12 text-gray-600"
+              style={{ color: themeColor }}
+            />
           </div>
         )}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
-
-        {/* شارة الزاوية */}
-        <div className="absolute top-3 right-3">
-          <Badge
-            className="text-xs border-0 text-white shadow-lg"
-            style={{
-              backgroundColor: themeColor,
-            }}
-          >
-            {article.angle?.title} {/* Added optional chaining */}
-          </Badge>
+        {/* ليبل الزاوية بلونها */}
+        <div
+          className="absolute top-3 right-3 px-2 py-1 rounded-full text-white text-xs font-medium shadow-md"
+          style={{
+            backgroundColor: themeColor,
+            boxShadow: `0 2px 8px ${themeColor}40`,
+          }}
+        >
+          {article.angle?.icon && (
+            <span className="mr-1">{article.angle.icon}</span>
+          )}
+          {article.angle?.title}
         </div>
       </div>
 
-      <CardContent className="p-3 md:p-4 space-y-2 md:space-y-3">
-        <h3 className="font-bold text-sm md:text-lg text-gray-900 line-clamp-2 leading-tight">
-          {article.title}
-        </h3>
+      {/* محتوى البطاقة */}
+      <CardContent className="p-4 space-y-3">
+        {/* عنوان المقال */}
+        <Link
+          href={`/muqtarab/articles/${article.slug}`}
+          className="block group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
+        >
+          <h3 className="font-bold text-lg leading-tight line-clamp-2 mb-2">
+            {article.title}
+          </h3>
+        </Link>
 
+        {/* مقتطف المقال */}
         {article.excerpt && (
-          <p className="text-xs md:text-sm text-gray-600 line-clamp-2 leading-relaxed">
+          <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2 leading-relaxed">
             {article.excerpt}
           </p>
         )}
 
-        <div className="flex items-center justify-between text-xs text-gray-500">
-          <div className="flex items-center gap-1">
-            <Calendar className="w-3 h-3" />
-            <span>{article.readingTime} د</span>
+        {/* معلومات إضافية */}
+        <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1">
+              <Calendar className="w-3 h-3" />
+              {article.readingTime} دقائق
+            </span>
+            <span className="flex items-center gap-1">
+              <Eye className="w-3 h-3" />
+              {article.views.toLocaleString()}
+            </span>
           </div>
-          <div className="flex items-center gap-1">
-            <Eye className="w-3 h-3" />
-            <span>{article.views}</span>
-          </div>
+
+          <time className="text-xs">
+            {new Date(article.publishDate).toLocaleDateString("ar-SA", {
+              year: "numeric",
+              month: "short",
+            })}
+          </time>
         </div>
 
-        <div className="flex items-center justify-between pt-2">
-          <div className="text-xs text-gray-500">{article.author?.name}</div>
+        {/* معلومات المؤلف */}
+        <div className="flex items-center gap-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+          <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+            {article.author?.avatar ? (
+              <Image
+                src={article.author.avatar}
+                alt={article.author.name}
+                width={24}
+                height={24}
+                className="rounded-full"
+              />
+            ) : (
+              <Users className="w-3 h-3 text-gray-500" />
+            )}
+          </div>
+          <span className="text-xs font-medium flex-1">
+            {article.author?.name}
+          </span>
+
           <Link href={`/muqtarab/articles/${article.slug}`}>
             <Button
               size="sm"
               className="text-xs px-3 py-1 h-7"
-              style={{
-                backgroundColor: themeColor,
-              }}
+              style={{ backgroundColor: themeColor }}
             >
               قراءة
             </Button>

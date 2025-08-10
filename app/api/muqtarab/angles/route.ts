@@ -87,9 +87,9 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    // 🚀 استعلام محسن ومبسط
+    // 🚀 استعلام محسن ومبسط - يجلب جميع الزوايا (نشطة وغير نشطة)
     const corners = await prisma.muqtarabCorner.findMany({
-      where: { is_active: true },
+      // إزالة فلتر is_active للتأكد من ظهور جميع الزوايا
       select: {
         id: true,
         name: true,
@@ -98,6 +98,7 @@ export async function GET(request: NextRequest) {
         cover_image: true,
         theme_color: true,
         is_featured: true,
+        is_active: true, // إضافة هذا للعرض في لوحة التحكم
         created_at: true,
         updated_at: true,
         author_name: true,
@@ -112,8 +113,10 @@ export async function GET(request: NextRequest) {
         { is_featured: "desc" }, // المميزة أولاً
         { created_at: "desc" },
       ],
-      take: 50, // حد أقصى معقول
+      take: 100, // حد أقصى أعلى للتأكد من عدم فقدان أي زاوية
     });
+
+    console.log(`📊 تم جلب ${corners.length} زاوية من قاعدة البيانات`);
 
     // 📊 تحويل مبسط وسريع
     const formattedCorners = corners.map((corner) => ({
@@ -126,7 +129,7 @@ export async function GET(request: NextRequest) {
       author: { name: corner.author_name || "فريق التحرير" },
       coverImage: corner.cover_image,
       isFeatured: corner.is_featured,
-      isPublished: true, // مفلتر مسبقاً
+      isPublished: corner.is_active, // استخدام حالة النشاط الفعلية
       createdAt: corner.created_at,
       updatedAt: corner.updated_at,
       articlesCount: corner._count.articles,
@@ -144,7 +147,7 @@ export async function GET(request: NextRequest) {
     // 🚀 Cache محسن
     response.headers.set(
       "Cache-Control",
-      "public, max-age=180, stale-while-revalidate=600"
+      "public, max-age=60, stale-while-revalidate=300"
     );
 
     return response;

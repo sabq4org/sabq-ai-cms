@@ -4,6 +4,7 @@ import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import {
+  Activity,
   Brain,
   ChevronDown,
   Edit,
@@ -36,11 +37,27 @@ export default function Header() {
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [newEventsCount, setNewEventsCount] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const headerElRef = useRef<HTMLElement>(null);
-  // التأكد من التحميل على العميل لتجنب hydration errors
+
+  // فحص الأحداث الجديدة
   useEffect(() => {
-    // لا حاجة لشريط نبض الأخبار
+    const checkEvents = async () => {
+      try {
+        const response = await fetch("/api/moment-by-moment/count");
+        if (response.ok) {
+          const data = await response.json();
+          setNewEventsCount(data.count || 0);
+        }
+      } catch (error) {
+        console.error("خطأ في جلب عدد الأحداث:", error);
+      }
+    };
+
+    checkEvents();
+    const interval = setInterval(checkEvents, 30000); // فحص كل 30 ثانية
+    return () => clearInterval(interval);
   }, []);
 
   // عناصر المينيو الرئيسية
@@ -161,6 +178,24 @@ export default function Header() {
 
             {/* أدوات الهيدر */}
             <div className="flex items-center space-x-2 md:space-x-4 rtl:space-x-reverse">
+              {/* أيقونة لحظة بلحظة */}
+              <Link
+                href="/moment-by-moment"
+                className={`relative p-2 rounded-lg transition-all duration-300 ${
+                  darkMode
+                    ? "text-red-400 hover:text-red-300 hover:bg-blue-800/40"
+                    : "text-red-600 hover:text-red-700 hover:bg-blue-600/20"
+                }`}
+                aria-label="لحظة بلحظة"
+              >
+                <Activity className="w-5 h-5" />
+                {newEventsCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center animate-pulse font-bold">
+                    {newEventsCount > 9 ? "9+" : newEventsCount}
+                  </span>
+                )}
+              </Link>
+
               {/* الوضع الليلي */}
               <ClientOnly
                 fallback={

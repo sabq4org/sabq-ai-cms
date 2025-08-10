@@ -740,7 +740,10 @@ export default function CreateAngleArticlePage() {
           setFormData((prev) => ({ ...prev, coverImage: data.imageUrl }));
           toast.success("تم رفع الصورة بنجاح");
           if (data.fallback) {
-            toast("✅ تم حفظ الصورة محلياً - تعمل بشكل طبيعي", { icon: "💾", duration: 4000 });
+            toast("✅ تم حفظ الصورة محلياً - تعمل بشكل طبيعي", {
+              icon: "💾",
+              duration: 4000,
+            });
           }
         } else {
           toast.error(data.error || "فشل في رفع الصورة");
@@ -788,9 +791,29 @@ export default function CreateAngleArticlePage() {
       if (response.ok) {
         const data = await response.json();
         console.log("✅ تم حفظ المقال:", data);
+
         toast.success(
           publish ? "تم نشر المقال بنجاح!" : "تم حفظ المقال كمسودة"
         );
+
+        // 🔔 تفعيل webhook للتحديث التلقائي
+        if (publish && data.article?.id) {
+          try {
+            await fetch("/api/muqtarab/webhook", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                articleId: data.article.id,
+                action: "article_published",
+              }),
+            });
+            console.log("🔔 تم تفعيل webhook للتحديث التلقائي");
+          } catch (webhookError) {
+            console.error("⚠️ خطأ في webhook:", webhookError);
+            // لا نوقف العملية بسبب خطأ في webhook
+          }
+        }
+
         router.push(`/admin/muqtarab/angles/${angleId}`);
       } else {
         const errorText = await response.text();
