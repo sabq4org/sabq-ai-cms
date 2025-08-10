@@ -489,7 +489,7 @@ export default function ModernSidebar({
           )}
         />
 
-        {!isCollapsed && (
+        {!isCollapsed ? (
           <>
             <span
               className={cn(
@@ -523,7 +523,7 @@ export default function ModernSidebar({
               />
             )}
           </>
-        )}
+        ) : null}
       </div>
     );
 
@@ -567,30 +567,28 @@ export default function ModernSidebar({
   };
 
   return (
-    <div className="h-full flex flex-col bg-white dark:bg-gray-800">
-      {/* ترويسة مبسطة بدون شعار/نص */}
-      <div
-        className={cn(
-          "p-3 border-b border-gray-200 dark:border-gray-700",
-          "flex items-center justify-end"
-        )}
-      >
-        {!isMobile && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onToggle}
-            className="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-700"
-            aria-label={isCollapsed ? "توسيع الشريط الجانبي" : "طي الشريط الجانبي"}
-          >
-            {isCollapsed ? (
-              <ChevronRight className="h-4 w-4" />
-            ) : (
-              <ChevronLeft className="h-4 w-4" />
-            )}
-          </Button>
-        )}
-      </div>
+    <div className="relative h-full flex flex-col bg-white dark:bg-gray-800">
+      {/* مقبض جانبي أنيق للتكبير/التصغير */}
+      {!isMobile && (
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-label={isCollapsed ? "توسيع الشريط الجانبي" : "طي الشريط الجانبي"}
+          className={cn(
+            "hidden lg:flex items-center justify-center",
+            "absolute top-1/2 -translate-y-1/2 left-0 -translate-x-1/2 z-50",
+            "h-12 w-3 rounded-full",
+            "bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600",
+            "shadow"
+          )}
+        >
+          {isCollapsed ? (
+            <ChevronRight className="h-3 w-3 text-gray-600 dark:text-gray-300" />
+          ) : (
+            <ChevronLeft className="h-3 w-3 text-gray-600 dark:text-gray-300" />
+          )}
+        </button>
+      )}
 
       {/* قائمة التنقل */}
       <nav className="flex-1 p-4 space-y-2 overflow-y-auto">

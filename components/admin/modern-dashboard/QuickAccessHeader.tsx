@@ -64,7 +64,7 @@ export default function QuickAccessHeader({
   if (fullReplace) {
     return (
       <header
-        className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 h-[var(--dashboard-header-height)] transition-colors duration-300"
+        className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 h-[var(--dashboard-header-height)] transition-colors duration-300"
         dir="rtl"
       >
         <div className="px-4 lg:px-6 h-full flex items-center justify-between py-2">
@@ -170,7 +170,7 @@ export default function QuickAccessHeader({
                   <span className="hidden md:inline text-sm">{user?.name || "حسابي"}</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg backdrop-blur-0">
                 <DropdownMenuLabel>
                   <div className="flex flex-col">
                     <span className="font-medium">{user?.name || "مستخدم"}</span>
@@ -181,7 +181,18 @@ export default function QuickAccessHeader({
                 <DropdownMenuItem onClick={() => router.push("/profile")}>الملف الشخصي</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => router.push("/admin/modern/settings")}>الإعدادات</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={logout} className="text-red-600">تسجيل الخروج</DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={async () => {
+                    try {
+                      await logout();
+                    } finally {
+                      window.location.href = "/admin/login";
+                    }
+                  }}
+                  className="text-red-600"
+                >
+                  تسجيل الخروج
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -285,7 +296,7 @@ export default function QuickAccessHeader({
                 <span className="hidden md:inline text-sm">{user?.name || "حسابي"}</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg backdrop-blur-0">
               <DropdownMenuLabel>
                 <div className="flex flex-col">
                   <span className="font-medium">{user?.name || "مستخدم"}</span>
@@ -296,7 +307,18 @@ export default function QuickAccessHeader({
               <DropdownMenuItem onClick={() => router.push("/profile")}>الملف الشخصي</DropdownMenuItem>
               <DropdownMenuItem onClick={() => router.push("/admin/modern/settings")}>الإعدادات</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={logout} className="text-red-600">تسجيل الخروج</DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={async () => {
+                  try {
+                    await logout();
+                  } finally {
+                    window.location.href = "/admin/login";
+                  }
+                }}
+                className="text-red-600"
+              >
+                تسجيل الخروج
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
