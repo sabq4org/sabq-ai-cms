@@ -167,53 +167,7 @@ const sidebarItems: SidebarItem[] = [
       },
     ],
   },
-  {
-    id: "content-management",
-    title: "إدارة المحتوى",
-    icon: Newspaper,
-    href: "/admin/news",
-    badge: "45",
-    children: [
-      {
-        id: "news-advanced",
-        title: "إدارة الأخبار المتقدمة",
-        icon: Newspaper,
-        href: "/dashboard/news",
-      },
-      {
-        id: "articles",
-        title: "إدارة المقالات",
-        icon: FileText,
-        href: "/admin/articles",
-      },
-
-      {
-        id: "news-unified",
-        title: "الأخبار الموحد",
-        icon: Newspaper,
-        href: "/dashboard/news/unified",
-      },
-      {
-        id: "news-mobile",
-        title: "أخبار الموبايل",
-        icon: Newspaper,
-        href: "/dashboard/news/mobile",
-      },
-      {
-        id: "was-news",
-        title: "أخبار واس",
-        icon: Globe,
-        href: "/admin/was-news",
-      },
-      {
-        id: "opinions",
-        title: "مقالات الرأي",
-        icon: MessageSquare,
-        href: "/admin/opinions",
-      },
-      // تم حذف الجرعات اليومية
-    ],
-  },
+  // تمت إزالة قسم إدارة المحتوى حسب الطلب
   {
     id: "muqtarab-module",
     title: "نظام مُقترب",
