@@ -37,7 +37,22 @@ export default function AdminLogin() {
 
       const data = await res.json();
       if (res.ok && data?.success) {
-        router.replace(next);
+        // تحقق فوري من الجلسة قبل التوجيه
+        try {
+          const me = await fetch("/api/auth/me", {
+            headers: { "Cache-Control": "no-store" },
+            credentials: "include",
+          });
+          const meJson = await me.json().catch(() => ({} as any));
+          if (me.ok && meJson?.success && meJson?.user?.id) {
+            router.replace(next);
+          } else {
+            const msg = meJson?.error || "تعذر إنشاء الجلسة بعد تسجيل الدخول. حاول مجدداً.";
+            alert(msg);
+          }
+        } catch (verErr: any) {
+          alert(`تعذر التحقق من الجلسة: ${verErr?.message || "خطأ غير معروف"}`);
+        }
       } else {
         alert(data?.error || "فشل تسجيل الدخول");
       }

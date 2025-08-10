@@ -43,7 +43,9 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(url);
     }
     try {
-      const secret = new TextEncoder().encode(process.env.JWT_ACCESS_SECRET);
+      const secretString =
+        process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET || "";
+      const secret = new TextEncoder().encode(secretString);
       const { payload } = await jwtVerify(at, secret, {
         issuer: "sabq-ai-cms",
       });
