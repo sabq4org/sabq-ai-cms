@@ -164,134 +164,73 @@ export default function MomentByMomentPage() {
           </div>
         </div>
 
-        {/* غلاف التايم لاين: سطر عمودي ثابت على يمين الصفوف */}
-        <div className="relative">
-          <div className={`hidden lg:block absolute top-0 bottom-0 right-3 w-1 bg-gradient-to-b ${timelineColor} rounded-full opacity-70`} />
-
-          <div className="space-y-6">
-            {items.map((item, idx) => {
-              const active = activeId === item.id;
-              return (
-                <div key={item.id} className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-                  {/* عمود البطاقات (2/3) */}
-                  <div className="lg:col-span-9">
-                    <motion.div
-                      layout
-                      initial={{ opacity: 0, x: 20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true, amount: 0.2 }}
-                      transition={{ duration: 0.35, delay: Math.min(idx * 0.02, 0.2) }}
-                      onMouseEnter={() => setActiveId(item.id)}
-                      onMouseLeave={() => setActiveId((prev) => (prev === item.id ? null : prev))}
-                      className="relative"
-                    >
-                      {/* خط توصيل من يمين البطاقة إلى العقدة */}
-                      <span
-                        className={`hidden lg:block absolute -right-10 top-8 h-px w-10 transition-colors ${
-                          active ? "bg-blue-500" : "bg-gray-300 dark:bg-gray-700"
-                        }`}
-                        aria-hidden
-                      />
-
-                      <DesignComponents.StandardCard
-                        className={`p-4 md:p-5 hover:shadow-lg transition-all ${
-                          active ? "ring-2 ring-blue-500/40" : ""
-                        }`}
-                      >
-                        <div className="flex items-start gap-4">
-                          {/* صورة/أيقونة */}
-                          <div className="flex-shrink-0">
-                            {item.image ? (
-                              <div className="relative w-20 h-20 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800">
-                                <Image
-                                  src={item.image}
-                                  alt={item.title}
-                                  fill
-                                  className="object-cover"
-                                />
-                              </div>
-                            ) : (
-                              <div className="w-16 h-16 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
-                                {renderIcon(item)}
-                              </div>
-                            )}
-                          </div>
-
-                          {/* محتوى */}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-2 flex-wrap">
-                              {renderLabel(item)}
-                              {item.breaking && (
-                                <span className="inline-flex items-center gap-1 text-xs font-semibold text-red-700 bg-red-50 px-2 py-0.5 rounded-full">
-                                  <Flame className="w-3 h-3" /> عاجل
-                                </span>
-                              )}
-                            </div>
-
-                            <Link href={resolveItemHref(item)} className="block group">
-                              <h3 className="text-lg font-bold group-hover:text-blue-600 line-clamp-2">
-                                {item.title}
-                              </h3>
-                            </Link>
-                            {item.excerpt && (
-                              <p className="mt-1 text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
-                                {item.excerpt}
-                              </p>
-                            )}
-
-                            <div className="mt-3 flex items-center gap-3 text-xs text-gray-500">
-                              {item.category?.name && (
-                                <span
-                                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border"
-                                  style={{
-                                    borderColor: item.category?.color || "#CBD5E1",
-                                    color: item.category?.color || undefined,
-                                  }}
-                                >
-                                  {item.category?.name}
-                                </span>
-                              )}
-                              <span>{formatRelative(item.timestamp)}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </DesignComponents.StandardCard>
-                    </motion.div>
+        {/* عرض كلاسيكي كما كان: قائمة بطاقات متتالية بدون خط زمني جانبي */}
+        <div className="space-y-6">
+          {items.map((item, idx) => (
+            <motion.div
+              key={item.id}
+              layout
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.25, delay: Math.min(idx * 0.02, 0.15) }}
+            >
+              <DesignComponents.StandardCard className="p-4 md:p-5 hover:shadow-lg transition-shadow">
+                <div className="flex items-start gap-4">
+                  {/* صورة/أيقونة */}
+                  <div className="flex-shrink-0">
+                    {item.image ? (
+                      <div className="relative w-20 h-20 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800">
+                        <Image src={item.image} alt={item.title} fill className="object-cover" />
+                      </div>
+                    ) : (
+                      <div className="w-16 h-16 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
+                        {renderIcon(item)}
+                      </div>
+                    )}
                   </div>
 
-                  {/* عمود الخط الزمني (1/3) - يمين */}
-                  <div className="lg:col-span-3 relative">
-                    {/* خط عمودي خاص بالصف على الشاشات الصغيرة */}
-                    <div className={`lg:hidden absolute top-0 bottom-0 right-3 w-1 bg-gradient-to-b ${timelineColor} rounded-full opacity-70`} />
+                  {/* محتوى */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
+                      {renderLabel(item)}
+                      {item.breaking && (
+                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-red-700 bg-red-50 px-2 py-0.5 rounded-full">
+                          <Flame className="w-3 h-3" /> عاجل
+                        </span>
+                      )}
+                    </div>
 
-                    {/* عقدة التايم لاين */}
-                    <div className="relative h-full">
-                      <div className="absolute top-8 right-3 -translate-y-1/2">
-                        {/* الدائرة */}
-                        <button
-                          onMouseEnter={() => setActiveId(item.id)}
-                          onMouseLeave={() => setActiveId((prev) => (prev === item.id ? null : prev))}
-                          className={`w-4 h-4 rounded-full ring-4 transition-all ${
-                            active
-                              ? "bg-blue-600 ring-blue-200"
-                              : "bg-white dark:bg-gray-900 ring-gray-200 dark:ring-gray-700"
-                          }`}
-                          aria-label="timeline-node"
-                        />
-                      </div>
+                    <Link href={resolveItemHref(item)} className="block group">
+                      <h3 className="text-lg font-bold group-hover:text-blue-600 line-clamp-2">{item.title}</h3>
+                    </Link>
+                    {item.excerpt && (
+                      <p className="mt-1 text-sm text-gray-600 dark:text-gray-300 line-clamp-2">{item.excerpt}</p>
+                    )}
+
+                    <div className="mt-3 flex items-center gap-3 text-xs text-gray-500">
+                      {item.category?.name && (
+                        <span
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border"
+                          style={{ borderColor: item.category?.color || "#CBD5E1", color: item.category?.color || undefined }}
+                        >
+                          {item.category?.name}
+                        </span>
+                      )}
+                      <span>{formatRelative(item.timestamp)}</span>
                     </div>
                   </div>
                 </div>
-              );
-            })}
+              </DesignComponents.StandardCard>
+            </motion.div>
+          ))}
 
-            {/* محمل لا نهائي */}
-            {hasMore && (
-              <div ref={loadMoreRef} className="py-8 text-center text-sm text-gray-500">
-                {loading ? "...جارٍ التحميل" : "تحميل المزيد"}
-              </div>
-            )}
-          </div>
+          {/* محمل لا نهائي */}
+          {hasMore && (
+            <div ref={loadMoreRef} className="py-8 text-center text-sm text-gray-500">
+              {loading ? "...جارٍ التحميل" : "تحميل المزيد"}
+            </div>
+          )}
         </div>
       </DesignComponents.ContentContainer>
     </main>
