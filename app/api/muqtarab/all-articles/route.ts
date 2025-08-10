@@ -31,6 +31,7 @@ export async function GET(request: NextRequest) {
           skip,
           take: limit,
           orderBy,
+          distinct: ["slug"], // إضافة distinct للتأكد من عدم التكرار
           include: {
             corner: true,
             creator: {
@@ -74,6 +75,8 @@ export async function GET(request: NextRequest) {
         avatar: article.creator?.avatar,
       },
       link: `/muqtarab/articles/${article.slug}`,
+      isFeatured: article.is_featured,
+      isRecent: article.publish_at > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // نشر في آخر 7 أيام
     }));
 
     const res = NextResponse.json({

@@ -171,14 +171,26 @@ export default function EnhancedMuqtarabBlock({
               recent: data.stats.recentCount,
             });
 
-            // إزالة التكرارات حسب slug أو id مع الحفاظ على الترتيب الأول
+            // إزالة التكرارات حسب slug أو id أو العنوان
             const seenKeys = new Set<string>();
+            const seenTitles = new Set<string>();
             const deduped = data.articles.filter((article) => {
+              // التحقق بناءً على المعرف
               const baseKey = (article.slug || article.id || "").toString();
               const key = baseKey.trim().toLowerCase();
-              if (!key) return true; // في حال عدم توفر المفتاح نسمح بالمرور
-              if (seenKeys.has(key)) return false;
-              seenKeys.add(key);
+              
+              // التحقق بناءً على العنوان
+              const titleKey = (article.title || "").trim().toLowerCase();
+              
+              // إذا كان المعرف أو العنوان موجود بالفعل
+              if ((key && seenKeys.has(key)) || (titleKey && seenTitles.has(titleKey))) {
+                return false;
+              }
+              
+              // إضافة المعرف والعنوان للمجموعة
+              if (key) seenKeys.add(key);
+              if (titleKey) seenTitles.add(titleKey);
+              
               return true;
             });
 
