@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import SabqLogo from "@/components/SabqLogo";
 
 export default function AdminLogin() {
   const router = useRouter();
@@ -47,7 +48,9 @@ export default function AdminLogin() {
           if (me.ok && meJson?.success && meJson?.user?.id) {
             router.replace(next);
           } else {
-            const msg = meJson?.error || "تعذر إنشاء الجلسة بعد تسجيل الدخول. حاول مجدداً.";
+            const msg =
+              meJson?.error ||
+              "تعذر إنشاء الجلسة بعد تسجيل الدخول. حاول مجدداً.";
             alert(msg);
           }
         } catch (verErr: any) {
@@ -65,50 +68,92 @@ export default function AdminLogin() {
   };
 
   return (
-    <div
-      className="min-h-screen bg-white flex items-center justify-center p-4"
-      dir="rtl"
-    >
-      <div className="w-full max-w-md">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">
-            تسجيل دخول الإدارة
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">الوصول مخصص للمشرفين فقط</p>
+    <div className="min-h-screen bg-gradient-to-br from-sky-400 via-blue-500 to-blue-600 flex items-center justify-center p-4" dir="rtl">
+      <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-8 items-center">
+        {/* الجانب الأيسر - معلومات وشعار */}
+        <div className="hidden lg:flex flex-col items-center justify-center text-white space-y-8 p-8">
+          <div className="text-center space-y-6">
+            <SabqLogo className="mx-auto" width={200} height={64} />
+            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 text-sm font-medium">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg>
+              AI-Powered
+            </div>
+            <div className="space-y-4">
+              <h2 className="text-3xl font-bold">حيث تلتقي التقنية بالمصداقية</h2>
+              <p className="text-xl opacity-90">صحافة ذكية، مستقبل مشرق</p>
+              <p className="text-lg opacity-80">انضم إلى ثورة الإعلام الرقمي المدعوم بالذكاء الاصطناعي</p>
+            </div>
+          </div>
         </div>
-        <form onSubmit={onSubmit} className="space-y-4">
+
+        {/* الجانب الأيمن - نموذج الدخول */}
+        <div className="w-full max-w-md mx-auto">
+          <div className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm rounded-xl p-6">
+            <div className="text-center space-y-2 pb-4">
+              <div className="lg:hidden mb-4">
+                <SabqLogo className="mx-auto" width={140} height={48} />
+              </div>
+              <h1 className="text-2xl font-bold text-gray-800">مرحباً بك في مستقبل الصحافة الذكية</h1>
+              <p className="text-gray-600">ادخل إلى لوحة التحكم المدعومة بالذكاء الاصطناعي</p>
+              <div className="lg:hidden inline-flex items-center gap-2 bg-blue-50 rounded-full px-3 py-1 text-sm font-medium text-blue-600 w-fit mx-auto">AI-Powered</div>
+            </div>
+
+            <form onSubmit={onSubmit} className="space-y-4">
           <div>
             <label className="block text-sm mb-1 text-gray-700">
               البريد الإلكتروني
             </label>
-            <input
-              type="email"
-              className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+                <div className="relative">
+                  <input
+                    type="email"
+                    className="w-full border rounded-lg pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
+                    placeholder="أدخل بريدك الإلكتروني"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">✉️</span>
+                </div>
           </div>
           <div>
             <label className="block text-sm mb-1 text-gray-700">
               كلمة المرور
             </label>
-            <input
-              type="password"
-              className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+                <div className="relative">
+                  <input
+                    type="password"
+                    className="w-full border rounded-lg pr-10 pl-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
+                    placeholder="أدخل كلمة المرور"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">👁️</button>
+                </div>
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:opacity-60"
+                className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium py-3 rounded-lg transition-all duration-200 disabled:opacity-60"
             disabled={loading}
           >
-            {loading ? "جارٍ الدخول..." : "دخول"}
+                {loading ? (
+                  <div className="flex items-center gap-2 justify-center"><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"/>جاري التحقق من البيانات...</div>
+                ) : (
+                  "دخول إلى لوحة التحكم"
+                )}
           </button>
-        </form>
+            </form>
+
+            <div className="flex items-center justify-center gap-2 text-sm text-gray-500 bg-gray-50 rounded-lg p-3 mt-4">
+              <span>🔒</span>
+              <span>بياناتك محمية بأحدث تقنيات التشفير</span>
+            </div>
+            <div className="text-center text-sm text-gray-500 mt-2">
+              <p>تحتاج مساعدة؟</p>
+              <a href="#" className="text-blue-600 hover:text-blue-800 transition-colors">تواصل مع فريق الدعم التقني</a>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
