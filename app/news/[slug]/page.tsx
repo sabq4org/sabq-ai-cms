@@ -6,13 +6,18 @@ import { notFound, redirect } from "next/navigation";
 export const revalidate = 60;
 // السماح بالتخزين المؤقت
 export const dynamic = "error";
+export const runtime = "nodejs";
 
 // جلب البيانات الكاملة من الخادم
 async function getCompleteArticle(slug: string) {
   try {
+    console.log(`🔍 جلب مقال: ${slug}`);
     const article = await prisma.articles.findFirst({
       where: {
-        slug,
+        OR: [
+          { slug: slug },
+          { id: slug } // دعم البحث بالـ ID أيضاً للتوافق
+        ],
         status: "published", // فقط المقالات المنشورة
       },
       include: {
@@ -149,6 +154,7 @@ export default async function NewsPage({
   const article = await getCompleteArticle(decodedSlug);
 
   if (!article) {
+    console.error(`❌ لم يتم العثور على المقال: ${decodedSlug}`);
     return notFound();
   }
 

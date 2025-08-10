@@ -6,13 +6,17 @@ import { notFound, redirect } from "next/navigation";
 export const revalidate = 300;
 // السماح بالتخزين المؤقت
 export const dynamic = "error";
+export const runtime = "nodejs";
 
 // جلب البيانات الكاملة من الخادم
 async function getCompleteArticle(slug: string) {
   try {
     const article = await prisma.articles.findFirst({
       where: {
-        slug,
+        OR: [
+          { slug: slug },
+          { id: slug } // دعم البحث بالـ ID أيضاً للتوافق
+        ],
         status: "published", // فقط المقالات المنشورة
       },
       include: {
