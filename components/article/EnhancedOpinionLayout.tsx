@@ -20,6 +20,8 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import ScrollToTopOnNav from "@/components/ScrollToTopOnNav";
+import ScrollToHashIfPresent from "@/components/ScrollToHashIfPresent";
 
 interface EnhancedOpinionLayoutProps {
   article: ArticleData;
@@ -59,14 +61,19 @@ export default function EnhancedOpinionLayout({
   const publishedDate = article.published_at || article.created_at || "";
 
   return (
-    <div
-      className={cn(
-        "min-h-screen transition-colors duration-300",
-        darkMode
-          ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
-          : "bg-gradient-to-br from-blue-50 via-white to-purple-50"
-      )}
-    >
+    <>
+      {/* مكونات التحكم في التمرير */}
+      <ScrollToTopOnNav />
+      <ScrollToHashIfPresent />
+      
+      <div
+        className={cn(
+          "min-h-screen transition-colors duration-300",
+          darkMode
+            ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
+            : "bg-gradient-to-br from-blue-50 via-white to-purple-50"
+        )}
+      >
       {/* شريط التقدم في القراءة */}
       <div className="fixed top-0 left-0 w-full h-1 bg-gray-200 dark:bg-gray-800 z-50">
         <div
@@ -520,5 +527,6 @@ export default function EnhancedOpinionLayout({
         }
       `}</style>
     </div>
+    </>
   );
 }

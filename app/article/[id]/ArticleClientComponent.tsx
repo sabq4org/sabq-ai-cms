@@ -44,6 +44,8 @@ import "@/styles/image-optimizations.css";
 import "@/styles/mobile-article-layout.css";
 import "@/styles/mobile-article.css";
 import "./article-styles.css";
+import ScrollToTopOnNav from "@/components/ScrollToTopOnNav";
+import ScrollToHashIfPresent from "@/components/ScrollToHashIfPresent";
 
 interface ArticleClientComponentProps {
   initialArticle: ArticleData | null;
@@ -519,6 +521,10 @@ export default function ArticleClientComponent({
 
   return (
     <>
+      {/* مكونات التحكم في التمرير */}
+      <ScrollToTopOnNav />
+      <ScrollToHashIfPresent />
+      
       {/* شريط التقدم في القراءة */}
       <ReadingProgressBar />
 
@@ -527,7 +533,7 @@ export default function ArticleClientComponent({
         <div className="relative">
           <article
             ref={viewTrackingRef}
-            className="max-w-4xl mx-auto py-4 sm:py-6 lg:py-8"
+            className="max-w-4xl mx-auto py-4 sm:py-6 lg:py-8 article-content"
           >
             {/* رأس المقال محسن للموبايل */}
             <header className="mb-2 sm:mb-4">
