@@ -350,12 +350,19 @@ export async function PATCH(
       }
     }
 
-    // معالجة خاصة للعلاقات (author و category)
+    // معالجة خاصة للعلاقات (author و category و article_author)
     if (data.author_id) {
       updateData.author = {
         connect: { id: data.author_id },
       };
-      console.log(`✅ تم ربط المؤلف: ${data.author_id}`);
+      console.log(`✅ تم ربط المؤلف (users.author): ${data.author_id}`);
+    }
+
+    if (data.article_author_id) {
+      updateData.article_author = {
+        connect: { id: data.article_author_id },
+      } as any;
+      console.log(`✅ تم ربط المراسل (article_authors): ${data.article_author_id}`);
     }
 
     if (data.category_id) {

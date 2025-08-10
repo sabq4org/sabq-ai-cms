@@ -561,7 +561,12 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                   subtitle: article.metadata?.subtitle || "",
                   excerpt: article.excerpt || "",
                   content: article.content || "",
-                  authorId: article.author_id || defaultReporterId || "",
+                  // تفضيل المراسل الحقيقي من جدول article_authors عند التعديل
+                  authorId:
+                    article.article_author_id ||
+                    article.author_id ||
+                    defaultReporterId ||
+                    "",
                   categoryId: article.category_id || defaultCategoryId || "",
                   type: article.metadata?.type || "local",
                   isBreaking:
@@ -716,13 +721,14 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
         contentLength: editorContent?.length || 0,
       });
 
-      const articleData = {
+      const articleData: any = {
         title: formData.title,
         excerpt: formData.excerpt,
         content: editorContent, // HTML من المحرر
         featured_image: formData.featuredImage || null,
         category_id: formData.categoryId,
-        author_id: formData.authorId,
+        // ربط المراسل من جدول article_authors
+        article_author_id: formData.authorId,
         status,
         // الحقول الرئيسية
         featured: formData.isFeatured || false,
