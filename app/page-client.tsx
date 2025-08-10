@@ -683,9 +683,7 @@ function NewspaperHomePage({
       <div
         className={`homepage-wrapper min-h-screen transition-colors duration-300 ${
           isMobileView ? "pt-14" : "pt-14 sm:pt-16 lg:pt-20"
-        } ${
-          darkMode ? "bg-gray-900" : "bg-gray-50"
-        }`}
+        } ${darkMode ? "bg-gray-900" : "bg-gray-50"}`}
         style={{
           direction: "rtl",
         }}
@@ -694,11 +692,11 @@ function NewspaperHomePage({
         {/* تم إزالة شريط النبض الإخباري من نسخة الموبايل فقط */}
         {/* شريط الإحصائيات المحسن للموبايل */}
         <SafeHydration>
-                  {isMobileView && (
-          <div className="sticky top-14 z-30 bg-white dark:bg-gray-900 shadow-sm">
-            <CompactStatsBar darkMode={darkMode} />
-          </div>
-        )}
+          {isMobileView && (
+            <div className="sticky top-14 z-30 bg-white dark:bg-gray-900 shadow-sm">
+              <CompactStatsBar darkMode={darkMode} />
+            </div>
+          )}
         </SafeHydration>
         {/* 🔥 الترتيب الجديد المحدث للواجهة الرئيسية */}
         {/* 1. الهيدر ⬆️ - تم تأكيده أنه في المقدمة عبر Layout */}
@@ -1527,7 +1525,12 @@ function NewspaperHomePage({
         </main>
         {/* 7. مقترب (زاوية تحليلية) 📝 */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <MuqtarabBlock />
+          <MuqtarabBlock
+            limit={4}
+            showPagination={false}
+            showFilters={false}
+            viewMode="grid"
+          />
         </div>
         {/* 8. التحليل العميق (Deep Analysis) 🧠 */}
         {/* Deep Analysis Block - بلوك التحليل العميق - خارج main للامتداد الكامل */}

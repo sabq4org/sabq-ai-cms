@@ -35,10 +35,12 @@ function getVerificationIcon(badge: string = "verified", size: string = "md") {
   const sizeClasses = {
     sm: "w-2.5 h-2.5",
     md: "w-3 h-3",
-    lg: "w-3.5 h-3.5"
+    lg: "w-3.5 h-3.5",
   };
-  
-  const iconClass = `${sizeClasses[size as keyof typeof sizeClasses] || sizeClasses.md} text-white`;
+
+  const iconClass = `${
+    sizeClasses[size as keyof typeof sizeClasses] || sizeClasses.md
+  } text-white`;
 
   switch (badge) {
     case "expert":
@@ -141,21 +143,32 @@ export default function ReporterLink({
           />
         )}
         <span className={`font-medium ${classes.text}`}>{displayName}</span>
-        {showVerification && (reporterData?.role === "senior" || reporterData?.role === "expert" || reporterData?.ai_score > 80) && (
-          <div className="flex items-center">
-            <div
-              className={`rounded-full p-0.5 ${
-                reporterData.role === "expert" || reporterData.ai_score >= 95
-                  ? "bg-yellow-500"
-                  : reporterData.role === "senior" || reporterData.ai_score >= 80
-                  ? "bg-purple-500"
-                  : "bg-green-500"
-              }`}
-            >
-              {getVerificationIcon(reporterData.role === "expert" ? "expert" : reporterData.role === "senior" ? "senior" : "verified", size)}
+        {showVerification &&
+          (reporterData?.role === "senior" ||
+            reporterData?.role === "expert" ||
+            reporterData?.ai_score > 80) && (
+            <div className="flex items-center">
+              <div
+                className={`rounded-full p-0.5 ${
+                  reporterData.role === "expert" || reporterData.ai_score >= 95
+                    ? "bg-yellow-500"
+                    : reporterData.role === "senior" ||
+                      reporterData.ai_score >= 80
+                    ? "bg-purple-500"
+                    : "bg-green-500"
+                }`}
+              >
+                {getVerificationIcon(
+                  reporterData.role === "expert"
+                    ? "expert"
+                    : reporterData.role === "senior"
+                    ? "senior"
+                    : "verified",
+                  size
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
       </Link>
     );
   }
@@ -165,21 +178,32 @@ export default function ReporterLink({
     <div className={`inline-flex items-center gap-1.5 ${className}`}>
       {showIcon && <User className={classes.icon} />}
       <span className={`font-medium ${classes.text}`}>{displayName}</span>
-      {showVerification && (reporterData?.role === "senior" || reporterData?.role === "expert" || reporterData?.ai_score > 80) && (
-        <div className="flex items-center">
-          <div
-            className={`rounded-full p-0.5 ${
-              reporterData.role === "expert" || reporterData.ai_score >= 95
-                ? "bg-yellow-500"
-                : reporterData.role === "senior" || reporterData.ai_score >= 80
-                ? "bg-purple-500"
-                : "bg-green-500"
-            }`}
-          >
-            {getVerificationIcon(reporterData.role === "expert" ? "expert" : reporterData.role === "senior" ? "senior" : "verified", size)}
+      {showVerification &&
+        (reporterData?.role === "senior" ||
+          reporterData?.role === "expert" ||
+          reporterData?.ai_score > 80) && (
+          <div className="flex items-center">
+            <div
+              className={`rounded-full p-0.5 ${
+                reporterData.role === "expert" || reporterData.ai_score >= 95
+                  ? "bg-yellow-500"
+                  : reporterData.role === "senior" ||
+                    reporterData.ai_score >= 80
+                  ? "bg-purple-500"
+                  : "bg-green-500"
+              }`}
+            >
+              {getVerificationIcon(
+                reporterData.role === "expert"
+                  ? "expert"
+                  : reporterData.role === "senior"
+                  ? "senior"
+                  : "verified",
+                size
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
     </div>
   );
 }

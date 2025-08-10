@@ -7,7 +7,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import {
   ArrowLeft,
-  ArrowRight,
   BookOpen,
   Calendar,
   Clock,
@@ -766,58 +765,12 @@ export default function EnhancedMuqtarabBlock({
         </div>
       ) : (
         <>
-          {/* البطاقة المميزة */}
-          {articles.length > 0 && articles[0].isFeatured && (
-            <div className="mb-8">
-              <FeaturedArticleCard article={articles[0]} />
-            </div>
-          )}
-
-          {/* باقي المقالات */}
-          {articles.length > 1 && (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {articles
-                .slice(articles[0]?.isFeatured ? 1 : 0)
-                .map((article) => (
-                  <ArticleCard key={article.id} article={article} />
-                ))}
-            </div>
-          )}
-
-          {/* إذا لم توجد مقالات مميزة، اعرض جميع المقالات عادية */}
-          {articles.length > 0 && !articles[0]?.isFeatured && (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {articles.map((article) => (
+          {/* 4 بطاقات عادية فقط */}
+          {articles.length > 0 && (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+              {articles.slice(0, 4).map((article) => (
                 <ArticleCard key={article.id} article={article} />
               ))}
-            </div>
-          )}
-
-          {/* التنقل بين الصفحات */}
-          {showPagination && apiData && apiData.pagination.totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-8">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={!apiData.pagination.hasPreviousPage}
-              >
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-
-              <span className="text-sm text-gray-600 dark:text-gray-300 px-4">
-                الصفحة {apiData.pagination.currentPage} من{" "}
-                {apiData.pagination.totalPages}
-              </span>
-
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={!apiData.pagination.hasNextPage}
-              >
-                <ArrowLeft className="w-4 h-4" />
-              </Button>
             </div>
           )}
         </>
