@@ -31,6 +31,10 @@ export async function middleware(req: NextRequest) {
 
   // حماية /admin/**
   if (pathname.startsWith("/admin")) {
+    // السماح بصفحة دخول الإدارة بدون توكن
+    if (pathname === "/admin/login") {
+      return NextResponse.next();
+    }
     const at = req.cookies.get("sabq_at")?.value;
     if (!at) {
       const url = nextUrl.clone();

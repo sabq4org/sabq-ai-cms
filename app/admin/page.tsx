@@ -6,6 +6,6 @@
 import { redirect } from 'next/navigation';
 
 export default function AdminDashboard() {
-  // إعادة توجيه إلى لوحة التحكم الحديثة
+  // إذا لا يوجد جلسة سيُعاد توجيهه من middleware إلى /admin/login
   redirect('/admin/modern');
 }
