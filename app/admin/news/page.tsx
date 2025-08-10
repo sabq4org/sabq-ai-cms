@@ -790,10 +790,10 @@ function AdminNewsPageContent() {
       <TooltipProvider>
         <div className="space-y-8">
           {/* رسالة الترحيب */}
-          <DesignComponents.StandardCard className="p-6 bg-gradient-to-l from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 border-green-200 dark:border-green-800">
+          <DesignComponents.StandardCard className="p-6 bg-gradient-to-l from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
             <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-12 h-12 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center">
-                <FileText className="w-6 h-6 text-green-600 dark:text-green-400" />
+              <div className="flex-shrink-0 w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
+                <FileText className="w-6 h-6 text-blue-600 dark:text-blue-400" />
               </div>
               <div className="flex-1">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
@@ -826,7 +826,7 @@ function AdminNewsPageContent() {
                 </Link>
                 <Link href="/admin/news/unified">
                   <Button
-                    className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600"
+                    className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600"
                     size="sm"
                   >
                     <Plus className="w-4 h-4 ml-2" />
@@ -861,7 +861,7 @@ function AdminNewsPageContent() {
               {/* بطاقة الأخبار المنشورة */}
               <DesignComponents.StandardCard
                 className={`p-6 hover:shadow-lg transition-shadow cursor-pointer ${
-                  filterStatus === "published" ? "ring-2 ring-green-500" : ""
+                  filterStatus === "published" ? "ring-2 ring-blue-500" : ""
                 }`}
                 onClick={() => setFilterStatus("published")}
               >
@@ -874,14 +874,14 @@ function AdminNewsPageContent() {
                       <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                         {formatNumber(stats?.published || 0)}
                       </p>
-                      <div className="flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-full text-green-700 bg-green-100 dark:bg-green-900/30 dark:text-green-400">
+                      <div className="flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-full text-blue-700 bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400">
                         <CheckCircle className="w-3 h-3" />
                         نشط
                       </div>
                     </div>
                   </div>
-                  <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-green-100 dark:bg-green-900/30">
-                    <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
+                  <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-blue-100 dark:bg-blue-900/30">
+                    <CheckCircle className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                   </div>
                 </div>
               </DesignComponents.StandardCard>
@@ -889,7 +889,7 @@ function AdminNewsPageContent() {
               {/* بطاقة المسودات */}
               <DesignComponents.StandardCard
                 className={`p-6 hover:shadow-lg transition-shadow cursor-pointer ${
-                  filterStatus === "draft" ? "ring-2 ring-yellow-500" : ""
+                  filterStatus === "draft" ? "ring-2 ring-blue-500" : ""
                 }`}
                 onClick={() => setFilterStatus("draft")}
               >
@@ -917,7 +917,7 @@ function AdminNewsPageContent() {
               {/* بطاقة الأرشيف */}
               <DesignComponents.StandardCard
                 className={`p-6 hover:shadow-lg transition-shadow cursor-pointer ${
-                  filterStatus === "archived" ? "ring-2 ring-orange-500" : ""
+                  filterStatus === "archived" ? "ring-2 ring-blue-500" : ""
                 }`}
                 onClick={() => setFilterStatus("archived")}
               >
@@ -945,7 +945,7 @@ function AdminNewsPageContent() {
               {/* بطاقة المحذوفة */}
               <DesignComponents.StandardCard
                 className={`p-6 hover:shadow-lg transition-shadow cursor-pointer ${
-                  filterStatus === "deleted" ? "ring-2 ring-red-500" : ""
+                  filterStatus === "deleted" ? "ring-2 ring-blue-500" : ""
                 }`}
                 onClick={() => setFilterStatus("deleted")}
               >
@@ -1103,7 +1103,7 @@ function AdminNewsPageContent() {
                         : "لا توجد أخبار في هذا القسم"}
                     </p>
                     <Link href="/admin/news/unified">
-                      <Button className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600">
+                      <Button className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600">
                         <Plus className="w-4 h-4 ml-2" />
                         إنشاء خبر جديد
                       </Button>
@@ -1323,8 +1323,8 @@ function AdminNewsPageContent() {
                                       onClick={() => publishArticle(article.id)}
                                       className="py-3 hover:bg-gray-50 dark:hover:bg-gray-700"
                                     >
-                                      <PlayCircle className="w-4 h-4 ml-3 text-green-600 dark:text-green-400" />
-                                      <span className="font-medium text-green-600 dark:text-green-400">
+                                  <PlayCircle className="w-4 h-4 ml-3 text-blue-600 dark:text-blue-400" />
+                                      <span className="font-medium text-blue-600 dark:text-blue-400">
                                         نشر الخبر
                                       </span>
                                     </DropdownMenuItem>
