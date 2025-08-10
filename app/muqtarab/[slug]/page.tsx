@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Angle, AngleArticle } from "@/types/muqtarab";
+import MuqtarabCard from "@/components/home/MuqtarabCard";
 import {
   ArrowLeft,
   BookOpen,
@@ -594,138 +595,46 @@ function AngleArticlesGrid({
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {articles.map((article) => (
-          <AngleArticleCard key={article.id} article={article} angle={angle} />
-        ))}
+        {articles.map((article) => {
+          // تحويل البيانات لتتوافق مع MuqtarabCard
+          const cardData = {
+            id: article.id,
+            title: article.title,
+            excerpt: article.excerpt || "",
+            slug: article.slug || article.id,
+            coverImage: article.coverImage,
+            readingTime: article.readingTime || 5,
+            publishDate: article.publishDate || article.createdAt,
+            views: article.views || 0,
+            tags: article.tags || [],
+            isFeatured: false,
+            isRecent: false,
+            link: `/muqtarab/articles/${article.slug || article.id}`,
+            angle: {
+              id: angle.id,
+              title: angle.title,
+              slug: angle.slug,
+              icon: angle.icon,
+              themeColor: angle.themeColor,
+            },
+            author: {
+              id: article.author?.id,
+              name: article.author?.name || "فريق التحرير",
+              avatar: article.author?.avatar,
+            },
+          };
+          
+          return (
+            <MuqtarabCard
+              key={article.id}
+              article={cardData}
+              variant="medium"
+            />
+          );
+        })}
       </div>
     </div>
   );
 }
 
-// مكون بطاقة المقال
-function AngleArticleCard({
-  article,
-  angle,
-}: {
-  article: AngleArticle;
-  angle: Angle;
-}) {
-  const isValidImageSrc = (src?: string) => {
-    if (!src) return false;
-    return /^(https?:\/\/|\/|data:)/.test(src);
-  };
-  return (
-    <Card className="group rounded-xl overflow-hidden border-0 shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1">
-      {/* صورة المقال */}
-      <div className="relative h-48 w-full overflow-hidden">
-        {isValidImageSrc(article.coverImage) ? (
-          <Image
-            src={article.coverImage as string}
-            alt={article.title}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-200"
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-            <BookOpen className="w-12 h-12 text-gray-400" />
-          </div>
-        )}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-
-        {/* شارة الحالة */}
-        <div className="absolute top-3 right-3">
-          {article.isPublished ? (
-            <Badge
-              className="border-0 text-white"
-              style={{ backgroundColor: angle.themeColor }}
-            >
-              منشور
-            </Badge>
-          ) : (
-            <Badge variant="secondary">مسودة</Badge>
-          )}
-        </div>
-
-        {/* شريط صغير بلون الزاوية */}
-        <div
-          className="absolute bottom-0 left-0 right-0 h-1"
-          style={{ backgroundColor: angle.themeColor }}
-        />
-      </div>
-
-      <CardContent className="p-5">
-        {/* عنوان المقال */}
-        <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-2 leading-tight">
-          {article.title}
-        </h3>
-
-        {/* مقدمة المقال */}
-        {article.excerpt && (
-          <p className="text-gray-600 text-sm mb-4 line-clamp-3 leading-relaxed">
-            {article.excerpt}
-          </p>
-        )}
-
-        {/* معلومات المقال */}
-        <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
-          <div className="flex items-center gap-2">
-            <User className="w-3 h-3" />
-            <span>{article.author?.name}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Clock className="w-3 h-3" />
-            <span>{article.readingTime || 5} دقائق</span>
-          </div>
-        </div>
-
-        {/* تاريخ النشر والتفاعل */}
-        <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
-          <span>
-            {new Date(
-              article.publishDate || article.createdAt
-            ).toLocaleDateString("ar-SA")}
-          </span>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1">
-              <Eye className="w-3 h-3" />
-              <span>
-                {(article.views || 0) > 1000
-                  ? ((article.views || 0) / 1000).toFixed(1) + "k"
-                  : article.views || 0}
-              </span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Heart className="w-3 h-3" />
-              <span>0</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <MessageCircle className="w-3 h-3" />
-              <span>0</span>
-            </div>
-          </div>
-        </div>
-
-        {/* زر القراءة */}
-        <Link href={`/muqtarab/articles/${article.slug || article.id}`}>
-          <Button
-            variant="ghost"
-            className="w-full justify-start p-0 h-8"
-            style={{
-              color: angle.themeColor,
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = `${angle.themeColor}10`;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "transparent";
-            }}
-          >
-            <BookOpen className="w-4 h-4 ml-2" />
-            قراءة المقال
-          </Button>
-        </Link>
-      </CardContent>
-    </Card>
-  );
-}

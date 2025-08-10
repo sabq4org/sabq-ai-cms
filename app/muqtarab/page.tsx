@@ -357,9 +357,42 @@ function MuqtaribPageContent() {
 
           {/* شبكة المقالات المختارة */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {featuredArticles.slice(0, 6).map((article) => (
-              <FeaturedArticleCard key={article.id} article={article} />
-            ))}
+            {featuredArticles.slice(0, 6).map((article) => {
+              // تحويل البيانات لتتوافق مع MuqtarabCard
+              const cardData = {
+                id: article.id,
+                title: article.title,
+                excerpt: article.excerpt || "",
+                slug: article.slug,
+                coverImage: article.coverImage,
+                readingTime: article.readingTime || 5,
+                publishDate: article.publishDate || article.createdAt,
+                views: article.views || 0,
+                tags: article.tags || [],
+                isFeatured: true,
+                isRecent: false,
+                link: `/muqtarab/articles/${article.slug}`,
+                angle: {
+                  id: article.angle?.id,
+                  title: article.angle?.title || "مُقترب",
+                  slug: article.angle?.slug || "muqtarab",
+                  icon: article.angle?.icon,
+                  themeColor: article.angle?.themeColor,
+                },
+                author: {
+                  name: article.author?.name || "فريق التحرير",
+                  avatar: article.author?.avatar,
+                },
+              };
+              
+              return (
+                <MuqtarabCard
+                  key={article.id}
+                  article={cardData}
+                  variant="medium"
+                />
+              );
+            })}
           </div>
         </div>
       )}
