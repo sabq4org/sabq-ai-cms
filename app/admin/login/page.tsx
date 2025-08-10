@@ -22,12 +22,28 @@ export default function AdminLogin() {
         credentials: "include",
         body: JSON.stringify({ email, password }),
       });
+
+      if (!res.ok) {
+        let errorMsg = `فشل تسجيل الدخول. رمز الحالة: ${res.status}`;
+        try {
+          const errorData = await res.json();
+          errorMsg = errorData.error || errorData.message || errorMsg;
+        } catch (e) {
+          // Response was not JSON
+        }
+        alert(errorMsg);
+        return;
+      }
+
       const data = await res.json();
       if (res.ok && data?.success) {
         router.replace(next);
       } else {
         alert(data?.error || "فشل تسجيل الدخول");
       }
+    } catch (error: any) {
+      console.error("An unexpected error occurred during login:", error);
+      alert(`حدث خطأ غير متوقع: ${error.message}`);
     } finally {
       setLoading(false);
     }

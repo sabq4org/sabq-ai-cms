@@ -45,9 +45,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // البحث عن المستخدم في قاعدة البيانات
-    await rateLimit(`login:${email}`, 5, 60);
+    try {
+      await rateLimit(`login:${email}`, 5, 60);
+    } catch (e: any) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "تم تجاوز عدد محاولات الدخول، يرجى المحاولة بعد دقيقة.",
+        },
+        { status: e.status || 429 }
+      );
+    }
 
+    // البحث عن المستخدم في قاعدة البيانات
     const user = await prisma.users.findFirst({
       where: { email: email.toLowerCase() },
       select: {
