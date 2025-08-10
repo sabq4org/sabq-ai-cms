@@ -9,6 +9,7 @@ import { LoadingSpinner } from "@/components/ui/loading";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import dynamic from "next/dynamic";
+import QuickAccessHeader from "./QuickAccessHeader";
 import React, { useEffect, useState } from "react";
 
 // تحميل المكونات بشكل ديناميكي لتحسين الأداء
@@ -85,6 +86,9 @@ export default function DashboardLayout({
 
   return (
     <div className="admin-dashboard-layout min-h-screen w-full bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+      {/* الهيدر الجديد (استبدال كامل) */}
+      <QuickAccessHeader fullReplace showMenuButton={isMobile} onMenuClick={toggleSidebar} />
+
       {/* الشريط الجانبي للشاشات الكبيرة */}
       {!isMobile && (
         <aside
@@ -123,14 +127,6 @@ export default function DashboardLayout({
           !isMobile && sidebarOpen ? "mr-64" : !isMobile ? "mr-16" : "mr-0"
         )}
       >
-        {/* الترويسة */}
-        <ModernHeader
-          pageTitle={pageTitle}
-          pageDescription={pageDescription}
-          onMenuClick={() => setSidebarOpen(!sidebarOpen)}
-          showMenuButton={isMobile}
-        />
-
         {/* محتوى الصفحة */}
         <main
           className={cn(
