@@ -88,21 +88,48 @@ export default function TodayOpinionsSection({
       try {
         setLoading(true);
 
-        // جلب مقال قائد الرأي اليوم الحقيقي
-        const opinionLeaderResponse = await fetch("/api/opinion/leaders");
-        const opinionLeaderData = await opinionLeaderResponse.json();
+        // جلب مقال قائد الرأي اليوم الحقيقي مع معالجة الأخطاء
+        let opinionLeaderData = { success: false, data: null };
+        try {
+          const opinionLeaderResponse = await fetch("/api/opinion/leaders");
+          if (opinionLeaderResponse.ok) {
+            opinionLeaderData = await opinionLeaderResponse.json();
+          } else {
+            console.warn("فشل جلب قائد الرأي:", opinionLeaderResponse.status);
+          }
+        } catch (err) {
+          console.warn("خطأ في جلب قائد الرأي:", err);
+        }
 
-        // جلب مقالات الرأي الحقيقية
-        const articlesResponse = await fetch(
-          "/api/opinion-articles?limit=3&status=published"
-        );
-        const articlesData = await articlesResponse.json();
+        // جلب مقالات الرأي الحقيقية مع معالجة الأخطاء
+        let articlesData = { success: false, articles: [] };
+        try {
+          const articlesResponse = await fetch(
+            "/api/opinion-articles?limit=3&status=published"
+          );
+          if (articlesResponse.ok) {
+            articlesData = await articlesResponse.json();
+          } else {
+            console.warn("فشل جلب مقالات الرأي:", articlesResponse.status);
+          }
+        } catch (err) {
+          console.warn("خطأ في جلب مقالات الرأي:", err);
+        }
 
-        // جلب كتاب الرأي المميزين
-        const authorsResponse = await fetch(
-          "/api/opinion-authors?isActive=true"
-        );
-        const authorsData = await authorsResponse.json();
+        // جلب كتاب الرأي المميزين مع معالجة الأخطاء
+        let authorsData = { success: false, authors: [] };
+        try {
+          const authorsResponse = await fetch(
+            "/api/opinion-authors?isActive=true"
+          );
+          if (authorsResponse.ok) {
+            authorsData = await authorsResponse.json();
+          } else {
+            console.warn("فشل جلب كتاب الرأي:", authorsResponse.status);
+          }
+        } catch (err) {
+          console.warn("خطأ في جلب كتاب الرأي:", err);
+        }
 
         // تحويل البيانات الحقيقية إلى الشكل المطلوب
         let allOpinionArticles: OpinionArticle[] = [];
@@ -289,6 +316,11 @@ export default function TodayOpinionsSection({
         </div>
       </section>
     );
+  }
+
+  // إذا لم تتوفر بيانات، عرض قسم فارغ بدلاً من خطأ
+  if (opinionArticles.length === 0) {
+    return null; // أو يمكن عرض رسالة "لا توجد مقالات رأي حالياً"
   }
 
   return (

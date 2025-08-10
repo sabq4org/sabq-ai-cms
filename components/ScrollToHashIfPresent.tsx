@@ -13,7 +13,8 @@ export default function ScrollToHashIfPresent() {
           // احتساب موقع العنصر مع تعويض الهيدر
           const headerOffset = 80; // يمكن تعديلها حسب ارتفاع الهيدر
           const elementPosition = element.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+          const offsetPosition =
+            elementPosition + window.pageYOffset - headerOffset;
 
           window.scrollTo({
             top: offsetPosition,

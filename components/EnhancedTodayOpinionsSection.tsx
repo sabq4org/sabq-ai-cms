@@ -373,18 +373,30 @@ export default function EnhancedTodayOpinionsSection({ darkMode = false }: Today
       setLoading(true)
       setError(null)
 
-      // جلب المقالات المميزة والعادية
-      const [articlesResponse, authorsResponse] = await Promise.all([
-        fetch('/api/articles?type=OPINION&status=published&limit=15&featured=true,false'),
-        fetch('/api/opinion-authors?featured=true&limit=8')
-      ])
+      // جلب المقالات المميزة والعادية مع معالجة أفضل للأخطاء
+      let articlesData = { articles: [] }
+      let authorsData = { authors: [] }
 
-      if (!articlesResponse.ok || !authorsResponse.ok) {
-        throw new Error('فشل في جلب البيانات')
+      try {
+        const [articlesResponse, authorsResponse] = await Promise.all([
+          fetch('/api/articles?type=OPINION&status=published&limit=15&featured=true,false'),
+          fetch('/api/opinion-authors?featured=true&limit=8')
+        ])
+
+        if (articlesResponse.ok) {
+          articlesData = await articlesResponse.json()
+        } else {
+          console.warn('فشل جلب المقالات:', articlesResponse.status)
+        }
+
+        if (authorsResponse.ok) {
+          authorsData = await authorsResponse.json()
+        } else {
+          console.warn('فشل جلب الكتاب:', authorsResponse.status)
+        }
+      } catch (fetchError) {
+        console.warn('خطأ في جلب البيانات:', fetchError)
       }
-
-      const articlesData = await articlesResponse.json()
-      const authorsData = await authorsResponse.json()
 
       // معالجة المقالات
       const articles = Array.isArray(articlesData) ? articlesData : articlesData.articles || []

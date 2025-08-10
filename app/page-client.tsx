@@ -31,9 +31,10 @@ const EmptyComponent = () => null;
 // Wrapped components with Next.js dynamic imports
 const TodayOpinionsSection = dynamic(
   () =>
-    import("@/components/TodayOpinionsSection").catch(() => ({
-      default: EmptyComponent,
-    })),
+    import("@/components/TodayOpinionsSection").catch((err) => {
+      console.warn("فشل تحميل قسم الرأي:", err);
+      return { default: EmptyComponent };
+    }),
   {
     ssr: false,
     loading: () => (

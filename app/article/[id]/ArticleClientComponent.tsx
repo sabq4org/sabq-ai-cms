@@ -32,6 +32,8 @@ import {
   Star,
 } from "lucide-react";
 // import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
+import ScrollToHashIfPresent from "@/components/ScrollToHashIfPresent";
+import ScrollToTopOnNav from "@/components/ScrollToTopOnNav";
 import ArticleAISummary from "@/components/article/ArticleAISummary";
 import ArticleStatsBlock from "@/components/article/ArticleStatsBlock";
 import CommentsPanel from "@/components/article/CommentsPanel";
@@ -44,8 +46,6 @@ import "@/styles/image-optimizations.css";
 import "@/styles/mobile-article-layout.css";
 import "@/styles/mobile-article.css";
 import "./article-styles.css";
-import ScrollToTopOnNav from "@/components/ScrollToTopOnNav";
-import ScrollToHashIfPresent from "@/components/ScrollToHashIfPresent";
 
 interface ArticleClientComponentProps {
   initialArticle: ArticleData | null;
@@ -524,7 +524,7 @@ export default function ArticleClientComponent({
       {/* مكونات التحكم في التمرير */}
       <ScrollToTopOnNav />
       <ScrollToHashIfPresent />
-      
+
       {/* شريط التقدم في القراءة */}
       <ReadingProgressBar />
 
