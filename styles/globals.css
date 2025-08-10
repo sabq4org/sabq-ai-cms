@@ -5,9 +5,9 @@
   --dashboard-header-height: 72px; /* ارتفاع هيدر لوحة التحكم */
 }
 
-/* تعويض التمرير للهيدر الثابت */
+/* تعويض التمرير للهيدر الثابت - CSS فقط بدون JavaScript */
 html {
-  scroll-behavior: smooth;
+  /* إزالة smooth scrolling لتحسين الأداء */
   scroll-padding-top: var(--header-height);
 }
 
@@ -15,6 +15,18 @@ html {
   html {
     scroll-padding-top: var(--mobile-header-height);
   }
+}
+
+/* استخدام وحدات العرض الحديثة للموبايل */
+.min-h-screen-safe {
+  min-height: 100vh;
+  min-height: 100svh; /* Small viewport height - أكثر استقرارا على الموبايل */
+}
+
+/* منع الـ overlays من حجب المحتوى */
+.loading-skeleton {
+  position: relative;
+  z-index: 1; /* أقل من الهيدر */
 }
 
 /* تعويض التمرير للعناوين داخل المقالات */

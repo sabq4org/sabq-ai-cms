@@ -32,8 +32,7 @@ import {
   Star,
 } from "lucide-react";
 // import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
-import ScrollToHashIfPresent from "@/components/ScrollToHashIfPresent";
-import ScrollToTopOnNav from "@/components/ScrollToTopOnNav";
+
 import ArticleAISummary from "@/components/article/ArticleAISummary";
 import ArticleStatsBlock from "@/components/article/ArticleStatsBlock";
 import CommentsPanel from "@/components/article/CommentsPanel";
@@ -403,16 +402,18 @@ export default function ArticleClientComponent({
 
   if (loading || !article) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center px-4">
-        <div className="w-full max-w-4xl">
-          <div className="animate-pulse space-y-4">
-            <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded w-3/4"></div>
-            <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-1/2"></div>
-            <div className="h-64 bg-gray-200 dark:bg-gray-800 rounded"></div>
-            <div className="space-y-2">
-              <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded"></div>
-              <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-5/6"></div>
-              <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-4/6"></div>
+      <div className="min-h-[100svh] bg-gray-50 dark:bg-gray-900">
+        <div className="pt-[var(--mobile-header-height)] sm:pt-[var(--header-height)] lg:pt-20">
+          <div className="max-w-4xl mx-auto px-4 py-4 sm:py-6 lg:py-8">
+            <div className="animate-pulse space-y-4 loading-skeleton">
+              <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg w-3/4"></div>
+              <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded-lg w-1/2"></div>
+              <div className="mt-8 h-64 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+              <div className="space-y-3 mt-6">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-4/6"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -521,14 +522,10 @@ export default function ArticleClientComponent({
 
   return (
     <>
-      {/* مكونات التحكم في التمرير */}
-      <ScrollToTopOnNav />
-      <ScrollToHashIfPresent />
-
       {/* شريط التقدم في القراءة */}
       <ReadingProgressBar />
 
-      <main className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-14 sm:pt-16 lg:pt-20">
+      <main className="min-h-[100svh] bg-gray-50 dark:bg-gray-900 pt-[var(--mobile-header-height)] sm:pt-[var(--header-height)] lg:pt-20">
         {/* منطقة المحتوى الرئيسية */}
         <div className="relative">
           <article

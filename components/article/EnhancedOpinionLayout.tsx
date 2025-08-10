@@ -1,7 +1,6 @@
 "use client";
 
-import ScrollToHashIfPresent from "@/components/ScrollToHashIfPresent";
-import ScrollToTopOnNav from "@/components/ScrollToTopOnNav";
+
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { ArticleData } from "@/lib/article-api";
 import { formatFullDate } from "@/lib/date-utils";
@@ -62,13 +61,9 @@ export default function EnhancedOpinionLayout({
 
   return (
     <>
-      {/* مكونات التحكم في التمرير */}
-      <ScrollToTopOnNav />
-      <ScrollToHashIfPresent />
-
       <div
         className={cn(
-          "min-h-screen transition-colors duration-300",
+          "min-h-[100svh] transition-colors duration-300",
           darkMode
             ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
             : "bg-gradient-to-br from-blue-50 via-white to-purple-50"
