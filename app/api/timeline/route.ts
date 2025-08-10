@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
 
   try {
     // جلب الأخبار العاجلة والمقالات الحديثة ومقالات الزوايا بالتوازي
-    const [breakingNews, recentArticles, categories, angleArticles] =
+    const [breakingNews, recentArticles, categories, muqtarabArticles] =
       await Promise.all([
         // الأخبار العاجلة (أخبار فقط، بدون مقالات الرأي)
         prisma.articles.findMany({
@@ -105,27 +105,26 @@ export async function GET(request: NextRequest) {
           take: 10,
         }),
 
-        // مقالات الزوايا من مقترب
-        prisma.$queryRawUnsafe(`
-        SELECT
-          aa.id,
-          aa.title,
-          aa.excerpt,
-          aa.cover_image,
-          aa.is_published,
-          aa.created_at,
-          aa.updated_at,
-          a.title as angle_title,
-          a.slug as angle_slug,
-          a.theme_color as angle_theme_color,
-          a.icon as angle_icon
-        FROM angle_articles aa
-        JOIN angles a ON aa.angle_id = a.id
-        WHERE aa.is_published = true
-          AND a.is_published = true
-        ORDER BY aa.created_at DESC
-        LIMIT ${Math.min(limit, 10)}
-      `),
+        // مقالات الزوايا من مُقترب (باستخدام Prisma والنماذج الحالية)
+        prisma.muqtarabArticle.findMany({
+          where: {
+            status: "published",
+            OR: [
+              { publish_at: { not: null } },
+              { created_at: { not: null } },
+            ],
+          },
+          include: {
+            corner: {
+              select: { name: true, slug: true, theme_color: true },
+            },
+          },
+          orderBy: [
+            { publish_at: "desc" },
+            { created_at: "desc" },
+          ],
+          take: Math.min(limit, 10),
+        }),
       ]);
 
     // دمج وترتيب العناصر
@@ -169,32 +168,32 @@ export async function GET(request: NextRequest) {
       });
     });
 
-    // إضافة مقالات الزوايا من مقترب
-    (angleArticles as any[]).forEach((angleArticle) => {
+    // إضافة مقالات الزوايا من مُقترب
+    (muqtarabArticles as any[]).forEach((ma) => {
       items.push({
-        id: `angle-${angleArticle.id}`,
+        id: `angle-${ma.id}`,
         type: "angle-article",
-        title: angleArticle.title,
-        slug: angleArticle.id, // استخدام ID كـ slug
-        excerpt: angleArticle.excerpt,
-        image: angleArticle.cover_image,
+        title: ma.title,
+        slug: ma.slug,
+        excerpt: ma.excerpt,
+        image: ma.cover_image,
         breaking: false,
         category: {
           id: "muqtarab",
           name: "مُقترب",
           slug: "muqtarab",
-          color: angleArticle.angle_theme_color || "#8b5cf6",
+          color: ma.corner?.theme_color || "#8b5cf6",
         },
         angle: {
-          title: angleArticle.angle_title,
-          slug: angleArticle.angle_slug,
-          themeColor: angleArticle.angle_theme_color,
-          icon: angleArticle.angle_icon,
+          title: ma.corner?.name,
+          slug: ma.corner?.slug,
+          themeColor: ma.corner?.theme_color,
+          icon: null,
         },
-        timestamp: angleArticle.created_at || new Date(),
-        tag: angleArticle.angle_title || "زاوية",
+        timestamp: ma.publish_at || ma.created_at || new Date(),
+        tag: ma.corner?.name || "زاوية",
         label: "مقال زاوية جديد",
-        color: angleArticle.angle_theme_color || "#8b5cf6",
+        color: ma.corner?.theme_color || "#8b5cf6",
       });
     });
 
@@ -246,7 +245,7 @@ export async function GET(request: NextRequest) {
         totalItems: items.length,
         breakingNews: breakingNews.length,
         articles: recentArticles.length,
-        angleArticles: (angleArticles as any[]).length,
+        angleArticles: (muqtarabArticles as any[]).length,
         categoryUpdates: items.filter((i) => i.type === "category").length,
       },
     };
