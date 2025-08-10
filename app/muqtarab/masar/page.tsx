@@ -1,22 +1,20 @@
 "use client";
 
+import MuqtarabCard from "@/components/home/MuqtarabCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import MuqtarabCard from "@/components/home/MuqtarabCard";
-import Image from "next/image";
-import Link from "next/link";
+import { Card } from "@/components/ui/card";
 import {
   Compass,
+  Eye,
   Home,
   Map,
-  Search,
-  User,
-  Filter,
-  Share2,
-  Eye,
   MessageCircle,
+  Search,
+  Share2,
+  User,
 } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 type SortOption = "latest" | "oldest";
@@ -90,12 +88,18 @@ export default function MasarPage() {
         params.set("limit", "12");
         params.set("sortBy", "newest");
         if (publishFilter !== "all") {
-          params.set("published", publishFilter === "published" ? "true" : "false");
+          params.set(
+            "published",
+            publishFilter === "published" ? "true" : "false"
+          );
         }
-        const r = await fetch(`/api/muqtarab/angles/${a.id}/articles?${params.toString()}`, {
-          cache: "force-cache",
-          next: { revalidate: 180 },
-        });
+        const r = await fetch(
+          `/api/muqtarab/angles/${a.id}/articles?${params.toString()}`,
+          {
+            cache: "force-cache",
+            next: { revalidate: 180 },
+          }
+        );
         if (!r.ok) {
           setLoading(false);
           return;
@@ -158,10 +162,13 @@ export default function MasarPage() {
     if (publishFilter !== "all") {
       params.set("published", publishFilter === "published" ? "true" : "false");
     }
-    const r = await fetch(`/api/muqtarab/angles/${angle.id}/articles?${params.toString()}`, {
-      cache: "force-cache",
-      next: { revalidate: 180 },
-    });
+    const r = await fetch(
+      `/api/muqtarab/angles/${angle.id}/articles?${params.toString()}`,
+      {
+        cache: "force-cache",
+        next: { revalidate: 180 },
+      }
+    );
     if (!r.ok) return;
     const j = await r.json();
     const list = (j.articles || []) as RawArticle[];
@@ -190,10 +197,16 @@ export default function MasarPage() {
               <span className="font-bold">مُقترب</span>
             </Link>
             <div className="hidden md:flex items-center gap-4 text-sm text-gray-600">
-              <Link href="/muqtarab" className="hover:text-blue-600 flex items-center gap-1">
+              <Link
+                href="/muqtarab"
+                className="hover:text-blue-600 flex items-center gap-1"
+              >
                 <Home className="w-4 h-4" /> الرئيسية
               </Link>
-              <Link href="/muqtarab/masar" className="text-blue-600 font-medium flex items-center gap-1">
+              <Link
+                href="/muqtarab/masar"
+                className="text-blue-600 font-medium flex items-center gap-1"
+              >
                 <Map className="w-4 h-4" /> مسار
               </Link>
             </div>
@@ -223,7 +236,10 @@ export default function MasarPage() {
           <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-indigo-200 rounded-full blur-3xl opacity-30" />
         </div>
         <div className="max-w-4xl mx-auto px-4 py-10 text-center">
-          <Badge className="px-3 py-1 text-white" style={{ backgroundColor: angle?.themeColor || theme.blue }}>
+          <Badge
+            className="px-3 py-1 text-white"
+            style={{ backgroundColor: angle?.themeColor || theme.blue }}
+          >
             مسار
           </Badge>
           <h1 className="text-3xl md:text-5xl font-black mt-4 leading-tight">
@@ -268,12 +284,24 @@ export default function MasarPage() {
                   const params = new URLSearchParams();
                   params.set("page", "1");
                   params.set("limit", "12");
-                  params.set("sortBy", sortBy === "latest" ? "newest" : "newest");
-                  if (v !== "all") params.set("published", v === "published" ? "true" : "false");
-                  const r = await fetch(`/api/muqtarab/angles/${angle.id}/articles?${params.toString()}`, {
-                    cache: "force-cache",
-                    next: { revalidate: 180 },
-                  });
+                  params.set(
+                    "sortBy",
+                    sortBy === "latest" ? "newest" : "newest"
+                  );
+                  if (v !== "all")
+                    params.set(
+                      "published",
+                      v === "published" ? "true" : "false"
+                    );
+                  const r = await fetch(
+                    `/api/muqtarab/angles/${
+                      angle.id
+                    }/articles?${params.toString()}`,
+                    {
+                      cache: "force-cache",
+                      next: { revalidate: 180 },
+                    }
+                  );
                   if (r.ok) {
                     const j = await r.json();
                     const list = (j.articles || []) as RawArticle[];
@@ -309,11 +337,16 @@ export default function MasarPage() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
-              <Card key={i} className="h-72 animate-pulse bg-gray-100 border-0" />
+              <Card
+                key={i}
+                className="h-72 animate-pulse bg-gray-100 border-0"
+              />
             ))}
           </div>
         ) : displayed.length === 0 ? (
-          <div className="text-center text-gray-600 py-16">لا توجد مقالات مطابقة</div>
+          <div className="text-center text-gray-600 py-16">
+            لا توجد مقالات مطابقة
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {displayed.map((article) => {
@@ -396,5 +429,3 @@ export default function MasarPage() {
     </div>
   );
 }
-
-
