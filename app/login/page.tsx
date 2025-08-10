@@ -1,28 +1,43 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import React, { useState, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
-import toast from 'react-hot-toast';
-import { 
-  Mail, Lock, Eye, EyeOff, 
-  LogIn, AlertCircle, Sparkles 
-} from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  AlertCircle,
+  Eye,
+  EyeOff,
+  Lock,
+  LogIn,
+  Mail,
+  Sparkles,
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import React, { Suspense, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams?.get('callbackUrl') || 
-                     searchParams?.get('redirectTo') || 
-                     searchParams?.get('returnTo') ||
-                     searchParams?.get('redirect');
+  const nextParam = searchParams?.get("next") || undefined;
+  const callbackUrl =
+    searchParams?.get("callbackUrl") ||
+    searchParams?.get("redirectTo") ||
+    searchParams?.get("returnTo") ||
+     searchParams?.get("redirect") ||
+     nextParam;
+
+  // إن كان طلب الدخول موجهاً للإدارة، حوِّل لصفحة دخول الإدارة الخالية من الهيدر
+  useEffect(() => {
+    if (nextParam && nextParam.startsWith("/admin")) {
+      const url = `/admin/login?next=${encodeURIComponent(nextParam)}`;
+      router.replace(url);
+    }
+  }, [nextParam, router]);
   const { login } = useAuth();
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    rememberMe: false
+    email: "",
+    password: "",
+    rememberMe: false,
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -31,12 +46,12 @@ function LoginForm() {
   const validateForm = () => {
     const newErrors: any = {};
     if (!formData.email.trim()) {
-      newErrors.email = 'البريد الإلكتروني مطلوب';
+      newErrors.email = "البريد الإلكتروني مطلوب";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'البريد الإلكتروني غير صحيح';
+      newErrors.email = "البريد الإلكتروني غير صحيح";
     }
     if (!formData.password) {
-      newErrors.password = 'كلمة المرور مطلوبة';
+      newErrors.password = "كلمة المرور مطلوبة";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -45,16 +60,16 @@ function LoginForm() {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           email: formData.email,
-          password: formData.password
+          password: formData.password,
         }),
-        credentials: 'include',
+        credentials: "include",
       });
       const data = await response.json();
       if (response.ok && data.success) {
@@ -62,35 +77,35 @@ function LoginForm() {
         if (data.token) {
           login(data.token);
         }
-        
-        toast.success(data.message || 'تم تسجيل الدخول بنجاح');
-        
+
+        toast.success(data.message || "تم تسجيل الدخول بنجاح");
+
         // تحديد مسار إعادة التوجيه
         // إعطاء الأولوية لـ callbackUrl إذا كان موجوداً
-        let redirectPath = '/';
-        
+        let redirectPath = "/";
+
         if (callbackUrl) {
           redirectPath = callbackUrl;
         } else if (data.user?.is_admin) {
-          redirectPath = '/admin';
+          redirectPath = "/admin";
         }
-        
+
         // استخدام router.push بدلاً من window.location للحفاظ على حالة التطبيق
         setTimeout(() => {
           router.push(redirectPath);
         }, 500);
       } else {
-        toast.error(data.error || 'حدث خطأ في تسجيل الدخول');
+        toast.error(data.error || "حدث خطأ في تسجيل الدخول");
       }
     } catch (error) {
-      console.error('Login error:', error);
-      toast.error('حدث خطأ في الاتصال بالخادم');
+      console.error("Login error:", error);
+      toast.error("حدث خطأ في الاتصال بالخادم");
     } finally {
       setLoading(false);
     }
   };
   return (
-  <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
       {/* خلفية ديناميكية */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-300 rounded-full blur-3xl opacity-30 animate-pulse"></div>
@@ -103,8 +118,12 @@ function LoginForm() {
           <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full shadow-lg mb-3 sm:mb-4">
             <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">مرحباً بعودتك</h1>
-          <p className="text-sm sm:text-base text-gray-600">سجل دخولك للاستمتاع بمحتوى مخصص لك</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
+            مرحباً بعودتك
+          </h1>
+          <p className="text-sm sm:text-base text-gray-600">
+            سجل دخولك للاستمتاع بمحتوى مخصص لك
+          </p>
         </div>
         {/* نموذج تسجيل الدخول */}
         <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl p-6 sm:p-8 border border-white/50">
@@ -119,9 +138,11 @@ function LoginForm() {
                 <input
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                   className={`w-full pr-9 sm:pr-10 pl-3 sm:pl-4 py-2.5 sm:py-3 text-sm sm:text-base border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                    errors.email ? 'border-red-500' : 'border-gray-300'
+                    errors.email ? "border-red-500" : "border-gray-300"
                   }`}
                   placeholder="example@email.com"
                   autoComplete="email"
@@ -142,11 +163,13 @@ function LoginForm() {
               <div className="relative">
                 <Lock className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
                   className={`w-full pr-9 sm:pr-10 pl-9 sm:pl-10 py-2.5 sm:py-3 text-sm sm:text-base border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                    errors.password ? 'border-red-500' : 'border-gray-300'
+                    errors.password ? "border-red-500" : "border-gray-300"
                   }`}
                   placeholder="••••••••"
                   autoComplete="current-password"
@@ -156,7 +179,11 @@ function LoginForm() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Eye className="w-4 h-4 sm:w-5 sm:h-5" />}
+                  {showPassword ? (
+                    <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" />
+                  ) : (
+                    <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
+                  )}
                 </button>
               </div>
               {errors.password && (
@@ -172,12 +199,17 @@ function LoginForm() {
                 <input
                   type="checkbox"
                   checked={formData.rememberMe}
-                  onChange={(e) => setFormData({ ...formData, rememberMe: e.target.checked })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, rememberMe: e.target.checked })
+                  }
                   className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                 />
                 <span className="text-gray-700">تذكرني</span>
               </label>
-              <Link href="/forgot-password" className="text-blue-600 hover:underline">
+              <Link
+                href="/forgot-password"
+                className="text-blue-600 hover:underline"
+              >
                 نسيت كلمة المرور؟
               </Link>
             </div>
@@ -202,8 +234,11 @@ function LoginForm() {
             {/* رابط إنشاء حساب */}
             <div className="text-center pt-3 sm:pt-4 border-t">
               <p className="text-sm text-gray-600">
-                ليس لديك حساب؟{' '}
-                <Link href="/register" className="text-blue-600 hover:underline font-medium">
+                ليس لديك حساب؟{" "}
+                <Link
+                  href="/register"
+                  className="text-blue-600 hover:underline font-medium"
+                >
                   إنشاء حساب جديد
                 </Link>
               </p>
@@ -212,7 +247,10 @@ function LoginForm() {
         </div>
         {/* روابط سريعة */}
         <div className="mt-6 sm:mt-8 text-center">
-          <Link href="/" className="text-sm text-gray-600 hover:text-gray-800 transition-colors">
+          <Link
+            href="/"
+            className="text-sm text-gray-600 hover:text-gray-800 transition-colors"
+          >
             العودة للصفحة الرئيسية
           </Link>
         </div>
@@ -222,14 +260,16 @@ function LoginForm() {
 }
 export default function LoginPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">جارٍ التحميل...</p>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">جارٍ التحميل...</p>
+          </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <LoginForm />
     </Suspense>
   );
