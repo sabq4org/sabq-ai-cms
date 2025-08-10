@@ -1,6 +1,4 @@
 "use client";
-
-import QuickAccessHeader from "@/components/admin/modern-dashboard/QuickAccessHeader";
 import { DesignComponents } from "@/components/design-system/DesignSystemGuide";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,8 +29,6 @@ export default function NewDashboardPage() {
 
   return (
     <div className="p-4 lg:p-6 space-y-6" dir="rtl">
-      {/* شريط الوصول السريع */}
-      <QuickAccessHeader />
 
       {/* بطاقات الإحصاءات - تدرجات ناعمة */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
