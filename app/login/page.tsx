@@ -72,7 +72,7 @@ function LoginForm() {
         if (callbackUrl) {
           redirectPath = callbackUrl;
         } else if (data.user?.is_admin) {
-          redirectPath = '/dashboard';
+          redirectPath = '/admin';
         }
         
         // استخدام router.push بدلاً من window.location للحفاظ على حالة التطبيق

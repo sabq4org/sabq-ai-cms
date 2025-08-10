@@ -34,7 +34,7 @@ export async function middleware(req: NextRequest) {
     const at = req.cookies.get("sabq_at")?.value;
     if (!at) {
       const url = nextUrl.clone();
-      url.pathname = "/auth/login";
+      url.pathname = "/login";
       url.searchParams.set("next", pathname);
       return NextResponse.redirect(url);
     }
@@ -45,13 +45,13 @@ export async function middleware(req: NextRequest) {
       const allowed = role === "system_admin" || role === "admin" || (payload as any).isAdmin === true;
       if (!allowed) {
         const url = nextUrl.clone();
-        url.pathname = "/auth/login";
+        url.pathname = "/login";
         url.searchParams.set("next", pathname);
         return NextResponse.redirect(url);
       }
     } catch {
       const url = nextUrl.clone();
-      url.pathname = "/auth/login";
+      url.pathname = "/login";
       url.searchParams.set("next", pathname);
       return NextResponse.redirect(url);
     }
