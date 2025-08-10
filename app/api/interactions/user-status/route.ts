@@ -64,8 +64,7 @@ export async function GET(request: NextRequest) {
     const interactions = await prisma.interactions.findMany({
       where: {
         user_id: userId,
-        target_id: articleId,
-        target_type: "article",
+        article_id: articleId, // استخدام article_id بدلاً من target_id
       },
       select: {
         type: true,

@@ -3,53 +3,40 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-// كاش في الذاكرة للأداء الفائق
-let allArticlesCache: any = null;
-let allArticlesCacheTimestamp = 0;
-const CACHE_DURATION = 30000; // 30 ثانية
+// كاش في الذاكرة للأداء العالي
+let articlesCache: any = null;
+let cacheTimestamp = 0;
+const CACHE_DURATION = 60000; // دقيقة واحدة
 
 export async function GET(request: NextRequest) {
   try {
-    console.log("🚀 [All Muqtarab Articles - Fast] بدء جلب المقالات...");
+    console.log("🚀 [Fast Muqtarab Articles] بدء جلب المقالات...");
 
-    // تحقق من الكاش أولاً
+    // تحقق من الكاش
     const now = Date.now();
-    if (allArticlesCache && now - allArticlesCacheTimestamp < CACHE_DURATION) {
-      console.log("⚡ [All Articles Cache] إرجاع من الكاش");
-      const res = NextResponse.json(allArticlesCache);
+    if (articlesCache && now - cacheTimestamp < CACHE_DURATION) {
+      console.log("✅ [Fast Cache] إرجاع البيانات من الكاش");
+      const res = NextResponse.json(articlesCache);
       res.headers.set("X-Cache", "HIT");
-      res.headers.set(
-        "X-Cache-Age",
-        `${Math.floor((now - allArticlesCacheTimestamp) / 1000)}s`
-      );
       return res;
     }
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "4");
+    const limit = parseInt(searchParams.get("limit") || "8");
     const sortBy = searchParams.get("sortBy") || "newest";
 
     const skip = (page - 1) * limit;
+
+    // استعلام محسن للسرعة العالية
     const startTime = Date.now();
 
-    let orderBy: any = { publish_at: "desc" };
-    if (sortBy === "popular") {
-      orderBy = { view_count: "desc" };
-    }
-
-    const where: any = {
-      status: "published",
-      publish_at: { lte: new Date() },
-    };
-
-    // استعلام محسن جداً
     const [articles, totalCount] = await Promise.all([
       prisma.muqtarabArticle.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy,
+        where: {
+          status: "published",
+          publish_at: { lte: new Date() },
+        },
         select: {
           id: true,
           title: true,
@@ -61,7 +48,7 @@ export async function GET(request: NextRequest) {
           view_count: true,
           tags: true,
           is_featured: true,
-          // زاوية مبسطة
+          // بيانات الزاوية مبسطة
           corner: {
             select: {
               id: true,
@@ -70,7 +57,7 @@ export async function GET(request: NextRequest) {
               theme_color: true,
             },
           },
-          // منشئ مبسط
+          // بيانات المؤلف مبسطة
           creator: {
             select: {
               id: true,
@@ -79,14 +66,27 @@ export async function GET(request: NextRequest) {
             },
           },
         },
+        orderBy:
+          sortBy === "popular"
+            ? { view_count: "desc" }
+            : { publish_at: "desc" },
+        skip,
+        take: limit,
       }),
-      // عد بسيط وسريع
-      prisma.muqtarabArticle.count({ where }),
+
+      // عد سريع مبسط
+      prisma.muqtarabArticle.count({
+        where: {
+          status: "published",
+          publish_at: { lte: new Date() },
+        },
+      }),
     ]);
 
     const queryTime = Date.now() - startTime;
-    console.log(`⚡ استعلام المقالات: ${queryTime}ms`);
+    console.log(`⚡ استعلام قاعدة البيانات: ${queryTime}ms`);
 
+    // تحويل سريع للبيانات
     const formattedArticles = articles.map((article) => ({
       id: article.id,
       title: article.title,
@@ -97,6 +97,8 @@ export async function GET(request: NextRequest) {
       publishDate: article.publish_at,
       views: article.view_count || 0,
       tags: article.tags || [],
+      isFeatured: article.is_featured,
+      link: `/muqtarab/articles/${article.slug}`,
       angle: article.corner
         ? {
             id: article.corner.id,
@@ -110,19 +112,7 @@ export async function GET(request: NextRequest) {
         name: article.creator?.name || "فريق التحرير",
         avatar: article.creator?.avatar,
       },
-      link: `/muqtarab/articles/${article.slug}`,
-      isFeatured: article.is_featured,
-      isRecent:
-        article.publish_at > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
     }));
-
-    // إحصائيات مبسطة للسرعة
-    const stats = {
-      totalArticles: totalCount,
-      featuredCount: articles.filter((a) => a.is_featured).length,
-      recentCount: formattedArticles.filter((a) => a.isRecent).length,
-      totalViews: articles.reduce((sum, art) => sum + (art.view_count || 0), 0),
-    };
 
     const responseData = {
       success: true,
@@ -132,48 +122,55 @@ export async function GET(request: NextRequest) {
         totalPages: Math.ceil(totalCount / limit),
         totalCount,
         limit,
+        hasNext: page < Math.ceil(totalCount / limit),
+        hasPrev: page > 1,
       },
-      stats,
-      performance: {
-        queryTime,
+      stats: {
+        totalArticles: totalCount,
+        featuredCount: articles.filter((a) => a.is_featured).length,
         responseTime: Date.now() - now,
-        cached: false,
+        queryTime,
       },
+      cached: false,
+      timestamp: new Date().toISOString(),
     };
 
     // حفظ في الكاش
-    allArticlesCache = responseData;
-    allArticlesCacheTimestamp = now;
+    articlesCache = responseData;
+    cacheTimestamp = now;
 
     console.log(
-      `✅ [All Articles] تم جلب ${formattedArticles.length} مقال في ${
+      `✅ [Fast Articles] تم جلب ${formattedArticles.length} مقال في ${
         Date.now() - now
       }ms`
     );
 
     const res = NextResponse.json(responseData);
+
+    // تحسين headers للكاش
     res.headers.set(
       "Cache-Control",
-      "public, max-age=30, stale-while-revalidate=60"
+      "public, max-age=60, stale-while-revalidate=120"
     );
-    res.headers.set("CDN-Cache-Control", "public, s-maxage=120");
+    res.headers.set("CDN-Cache-Control", "public, s-maxage=300"); // 5 دقائق
     res.headers.set("X-Cache", "MISS");
     res.headers.set("X-Response-Time", `${Date.now() - now}ms`);
 
     return res;
   } catch (error: any) {
-    console.error("❌ [All Muqtarab Articles] خطأ في جلب المقالات:", error);
+    console.error("❌ [Fast Muqtarab Articles] خطأ:", error);
     return NextResponse.json(
       {
         success: false,
         error: "حدث خطأ في جلب مقالات الزوايا",
         articles: [],
-        pagination: { currentPage: 1, totalPages: 0, totalCount: 0, limit: 4 },
-        stats: {
-          totalArticles: 0,
-          featuredCount: 0,
-          recentCount: 0,
-          totalViews: 0,
+        pagination: {
+          currentPage: 1,
+          totalPages: 0,
+          totalCount: 0,
+          limit: 8,
+          hasNext: false,
+          hasPrev: false,
         },
       },
       { status: 500 }

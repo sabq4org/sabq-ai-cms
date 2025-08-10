@@ -109,9 +109,10 @@ async function getCompleteArticle(slug: string) {
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const article = await getCompleteArticle(params.slug);
+  const { slug } = await params;
+  const article = await getCompleteArticle(slug);
 
   if (!article) {
     return {
@@ -140,7 +141,7 @@ export async function generateMetadata({
       creator: article.author_name,
     },
     alternates: {
-      canonical: `https://sabq.io/news/${params.slug}`,
+      canonical: `https://sabq.io/news/${slug}`,
     },
   };
 }
@@ -148,9 +149,10 @@ export async function generateMetadata({
 export default async function NewsPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const decodedSlug = decodeURIComponent(params.slug);
+  const { slug } = await params;
+  const decodedSlug = decodeURIComponent(slug);
   console.log("🚀 [Build: 2025-01-10-v4] Prisma is_verified field removed");
 
   // جلب البيانات الكاملة من الخادم

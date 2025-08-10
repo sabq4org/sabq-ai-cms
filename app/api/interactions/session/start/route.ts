@@ -10,26 +10,6 @@ interface JWTPayload {
 
 export async function POST(request: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("auth-token")?.value;
-
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    let userId: string;
-    try {
-      if (!process.env.JWT_SECRET) {
-        console.warn("JWT_SECRET not configured");
-        throw new Error("JWT configuration missing");
-      }
-      const decoded = jwt.verify(token, process.env.JWT_SECRET) as JWTPayload;
-      userId = decoded.userId;
-    } catch (error) {
-      console.log("JWT verification failed:", error);
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-    }
-
     const body = await request.json();
     const { articleId, sessionId, deviceType } = body;
 
@@ -40,11 +20,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // التحقق من المستخدم (اختياري للآن)
+    const cookieStore = await cookies();
+    const token = cookieStore.get("auth-token")?.value;
+
+    let userId = "anonymous"; // قيمة افتراضية
+
+    if (token) {
+      try {
+        if (process.env.JWT_SECRET) {
+          const decoded = jwt.verify(
+            token,
+            process.env.JWT_SECRET
+          ) as JWTPayload;
+          userId = decoded.userId;
+        }
+      } catch (error) {
+        console.log("JWT verification failed, using anonymous:", error);
+      }
+    }
+
     // إنشاء جلسة قراءة جديدة
     const readingSession = await prisma.user_reading_sessions.create({
       data: {
         id: sessionId, // استخدام sessionId كمعرف
-        user_id: userId,
+        user_id: userId, // تم التأكد من وجود القيمة
         article_id: articleId,
         started_at: new Date(),
         device_type: deviceType || "desktop",
@@ -54,19 +54,27 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // تسجيل تفاعل "view"
-    await prisma.interactions.create({
-      data: {
-        user_id: userId,
-        target_id: articleId,
-        target_type: "article",
-        type: "view",
-        metadata: {
-          sessionId,
-          deviceType,
-        },
-      },
-    });
+    // تسجيل تفاعل "view" فقط للمستخدمين المسجلين
+    if (userId !== "anonymous") {
+      try {
+        await prisma.interactions.create({
+          data: {
+            user_id: userId,
+            article_id: articleId, // استخدام article_id
+            type: "view",
+            metadata: {
+              sessionId,
+              deviceType,
+            },
+          },
+        });
+      } catch (interactionError) {
+        console.log(
+          "Could not create interaction, continuing:",
+          interactionError
+        );
+      }
+    }
 
     return NextResponse.json({
       success: true,

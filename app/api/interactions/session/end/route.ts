@@ -34,6 +34,8 @@ export async function POST(request: NextRequest) {
       readingSpeed,
       maxScrollDepth,
       interactions,
+      scrollDepth = 0,
+      readPercentage = 0,
     } = body;
 
     if (!sessionId || !articleId) {
@@ -42,6 +44,8 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    const totalTime = duration ? Math.floor(duration / 1000) : 0;
 
     // تحديث جلسة القراءة
     await prisma.user_reading_sessions.updateMany({
@@ -52,7 +56,7 @@ export async function POST(request: NextRequest) {
       data: {
         ended_at: new Date(),
         duration_seconds: totalTime,
-        scroll_depth: scrollDepth,
+        scroll_depth: maxScrollDepth || scrollDepth,
         read_percentage: readPercentage,
       },
     });
