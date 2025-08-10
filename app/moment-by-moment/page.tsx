@@ -312,8 +312,8 @@ function resolveItemHref(item: TimelineItem) {
   return "#";
 }
 
-"use client";
-
+// إزالة توجيه use client المكرر ونقل الواردات الإضافية إلى الأعلى إن لزم
+/*
 import Footer from "@/components/Footer";
 import { getArticleLink } from "@/lib/utils";
 import "@/styles/moment-by-moment.css";
@@ -1154,3 +1154,4 @@ export default function MomentByMomentPage() {
     </>
   );
 }
+*/

@@ -883,6 +883,7 @@ model users {
   dose_feedback            smart_dose_feedback[]     @relation("DoseFeedbackUser")
   dose_templates           smart_dose_templates[]    @relation("DoseTemplateCreator")
   user_interests           user_interests[]
+  ui_settings              UiSetting[]
 
   @@index([email], map: "idx_users_email")
   @@index([role], map: "idx_users_role")
