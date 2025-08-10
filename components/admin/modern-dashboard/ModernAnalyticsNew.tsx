@@ -170,10 +170,10 @@ export default function ModernAnalyticsNew() {
     <>
       <div className="space-y-8">
         {/* رسالة الترحيب الاحترافية */}
-        <DesignComponents.StandardCard className="p-6 bg-gradient-to-l from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 border-purple-200 dark:border-purple-800">
+        <DesignComponents.StandardCard className="p-6 bg-gradient-to-l from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
           <div className="flex items-start gap-4">
-            <div className="flex-shrink-0 w-12 h-12 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center">
-              <BarChart3 className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+            <div className="flex-shrink-0 w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
+              <BarChart3 className="w-6 h-6 text-blue-600 dark:text-blue-400" />
             </div>
             <div className="flex-1">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
@@ -506,10 +506,10 @@ export default function ModernAnalyticsNew() {
         </Tabs>
 
         {/* رسالة النجاح والتفوق */}
-        <DesignComponents.StandardCard className="p-6 bg-gradient-to-l from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-800">
+        <DesignComponents.StandardCard className="p-6 bg-gradient-to-l from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
           <div className="flex items-center gap-4">
-            <div className="flex-shrink-0 w-12 h-12 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center">
-              <Sparkles className="w-6 h-6 text-green-600 dark:text-green-400" />
+            <div className="flex-shrink-0 w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
+              <Sparkles className="w-6 h-6 text-blue-600 dark:text-blue-400" />
             </div>
             <div className="flex-1">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">

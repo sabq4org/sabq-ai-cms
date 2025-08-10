@@ -214,10 +214,10 @@ export default function ModernArticlesNew() {
     >
       <div className="space-y-8">
         {/* رسالة الترحيب الاحترافية */}
-        <DesignComponents.StandardCard className="p-6 bg-gradient-to-l from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 border-green-200 dark:border-green-800">
+        <DesignComponents.StandardCard className="p-6 bg-gradient-to-l from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
           <div className="flex items-start gap-4">
-            <div className="flex-shrink-0 w-12 h-12 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center">
-              <FileText className="w-6 h-6 text-green-600 dark:text-green-400" />
+            <div className="flex-shrink-0 w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
+              <FileText className="w-6 h-6 text-blue-600 dark:text-blue-400" />
             </div>
             <div className="flex-1">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
@@ -296,7 +296,7 @@ export default function ModernArticlesNew() {
                       <Icon className={cn(
                         "w-6 h-6",
                         stat.color === 'blue' && "text-blue-600 dark:text-blue-400",
-                        stat.color === 'green' && "text-green-600 dark:text-green-400",
+                        stat.color === 'green' && "text-blue-600 dark:text-blue-400",
                         stat.color === 'orange' && "text-orange-600 dark:text-orange-400",
                         stat.color === 'purple' && "text-purple-600 dark:text-purple-400"
                       )} />
@@ -366,7 +366,7 @@ export default function ModernArticlesNew() {
                         <button className="text-gray-400 hover:text-blue-600 p-1">
                           <Eye className="w-4 h-4" />
                         </button>
-                        <button className="text-gray-400 hover:text-green-600 p-1">
+                        <button className="text-gray-400 hover:text-blue-600 p-1">
                           <Edit className="w-4 h-4" />
                         </button>
                         <button className="text-gray-400 hover:text-red-600 p-1">
