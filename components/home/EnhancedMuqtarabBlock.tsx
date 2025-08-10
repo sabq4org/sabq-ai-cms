@@ -178,19 +178,22 @@ export default function EnhancedMuqtarabBlock({
               // التحقق بناءً على المعرف
               const baseKey = (article.slug || article.id || "").toString();
               const key = baseKey.trim().toLowerCase();
-              
+
               // التحقق بناءً على العنوان
               const titleKey = (article.title || "").trim().toLowerCase();
-              
+
               // إذا كان المعرف أو العنوان موجود بالفعل
-              if ((key && seenKeys.has(key)) || (titleKey && seenTitles.has(titleKey))) {
+              if (
+                (key && seenKeys.has(key)) ||
+                (titleKey && seenTitles.has(titleKey))
+              ) {
                 return false;
               }
-              
+
               // إضافة المعرف والعنوان للمجموعة
               if (key) seenKeys.add(key);
               if (titleKey) seenTitles.add(titleKey);
-              
+
               return true;
             });
 

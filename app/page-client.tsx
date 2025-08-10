@@ -694,11 +694,11 @@ function NewspaperHomePage({
         {/* تم إزالة شريط النبض الإخباري من نسخة الموبايل فقط */}
         {/* شريط الإحصائيات المحسن للموبايل */}
         <SafeHydration>
-          {isMobileView && (
-            <div className="">
-              <CompactStatsBar darkMode={darkMode} />
-            </div>
-          )}
+                  {isMobileView && (
+          <div className="sticky top-14 z-30 bg-white dark:bg-gray-900 shadow-sm">
+            <CompactStatsBar darkMode={darkMode} />
+          </div>
+        )}
         </SafeHydration>
         {/* 🔥 الترتيب الجديد المحدث للواجهة الرئيسية */}
         {/* 1. الهيدر ⬆️ - تم تأكيده أنه في المقدمة عبر Layout */}

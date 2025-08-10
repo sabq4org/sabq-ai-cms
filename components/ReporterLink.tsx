@@ -31,8 +31,14 @@ interface ReporterLinkProps {
 }
 
 // دالة للحصول على أيقونة التحقق
-function getVerificationIcon(badge: string = "verified") {
-  const iconClass = "w-3 h-3 text-white";
+function getVerificationIcon(badge: string = "verified", size: string = "md") {
+  const sizeClasses = {
+    sm: "w-2.5 h-2.5",
+    md: "w-3 h-3",
+    lg: "w-3.5 h-3.5"
+  };
+  
+  const iconClass = `${sizeClasses[size as keyof typeof sizeClasses] || sizeClasses.md} text-white`;
 
   switch (badge) {
     case "expert":
@@ -135,18 +141,18 @@ export default function ReporterLink({
           />
         )}
         <span className={`font-medium ${classes.text}`}>{displayName}</span>
-        {showVerification && reporterData?.is_verified && (
+        {showVerification && (reporterData?.role === "senior" || reporterData?.role === "expert" || reporterData?.ai_score > 80) && (
           <div className="flex items-center">
             <div
               className={`rounded-full p-0.5 ${
-                reporterData.verification_badge === "expert"
+                reporterData.role === "expert" || reporterData.ai_score >= 95
                   ? "bg-yellow-500"
-                  : reporterData.verification_badge === "senior"
+                  : reporterData.role === "senior" || reporterData.ai_score >= 80
                   ? "bg-purple-500"
                   : "bg-green-500"
               }`}
             >
-              {getVerificationIcon(reporterData.verification_badge)}
+              {getVerificationIcon(reporterData.role === "expert" ? "expert" : reporterData.role === "senior" ? "senior" : "verified", size)}
             </div>
           </div>
         )}
@@ -159,18 +165,18 @@ export default function ReporterLink({
     <div className={`inline-flex items-center gap-1.5 ${className}`}>
       {showIcon && <User className={classes.icon} />}
       <span className={`font-medium ${classes.text}`}>{displayName}</span>
-      {showVerification && reporterData?.is_verified && (
+      {showVerification && (reporterData?.role === "senior" || reporterData?.role === "expert" || reporterData?.ai_score > 80) && (
         <div className="flex items-center">
           <div
             className={`rounded-full p-0.5 ${
-              reporterData.verification_badge === "expert"
+              reporterData.role === "expert" || reporterData.ai_score >= 95
                 ? "bg-yellow-500"
-                : reporterData.verification_badge === "senior"
+                : reporterData.role === "senior" || reporterData.ai_score >= 80
                 ? "bg-purple-500"
                 : "bg-green-500"
             }`}
           >
-            {getVerificationIcon(reporterData.verification_badge)}
+            {getVerificationIcon(reporterData.role === "expert" ? "expert" : reporterData.role === "senior" ? "senior" : "verified", size)}
           </div>
         </div>
       )}

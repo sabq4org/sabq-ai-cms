@@ -39,7 +39,9 @@ async function getCompleteArticle(slug: string) {
             title: true,
             avatar_url: true,
             specializations: true,
-            // is_verified: true, // removed - field doesn't exist in article_authors model
+            role: true,
+            ai_score: true,
+            bio: true,
           },
         },
         categories: {

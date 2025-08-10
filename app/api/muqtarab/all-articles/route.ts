@@ -76,7 +76,8 @@ export async function GET(request: NextRequest) {
       },
       link: `/muqtarab/articles/${article.slug}`,
       isFeatured: article.is_featured,
-      isRecent: article.publish_at > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // نشر في آخر 7 أيام
+      isRecent:
+        article.publish_at > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // نشر في آخر 7 أيام
     }));
 
     const res = NextResponse.json({

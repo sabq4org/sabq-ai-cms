@@ -40,8 +40,8 @@ async function getCompleteArticle(slug: string) {
             avatar_url: true,
             bio: true,
             specializations: true,
-            // is_verified: true, // حقل غير موجود في article_authors
-            // is_opinion_leader: true, // حقل غير موجود في article_authors
+            role: true,
+            ai_score: true,
           },
         },
         categories: {
