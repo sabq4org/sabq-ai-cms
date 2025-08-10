@@ -40,9 +40,14 @@ export async function GET(request: NextRequest) {
 
     let userId: string;
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JWTPayload;
+      if (!process.env.JWT_SECRET) {
+        console.warn("JWT_SECRET not configured");
+        throw new Error("JWT configuration missing");
+      }
+      const decoded = jwt.verify(token, process.env.JWT_SECRET) as JWTPayload;
       userId = decoded.userId;
-    } catch {
+    } catch (error) {
+      console.log("JWT verification failed:", error);
       return NextResponse.json({
         success: true,
         isAuthenticated: false,
@@ -69,7 +74,7 @@ export async function GET(request: NextRequest) {
 
     // تحويل التفاعلات إلى كائن
     const interactionTypes = interactions.map((i) => i.type);
-    
+
     return NextResponse.json({
       success: true,
       isAuthenticated: true,

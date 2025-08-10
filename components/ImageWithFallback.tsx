@@ -1,155 +1,126 @@
 "use client";
 
-import { AlertCircle } from "lucide-react";
 import Image from "next/image";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 
 interface ImageWithFallbackProps {
   src: string;
   alt: string;
-  fill?: boolean;
   width?: number;
   height?: number;
   className?: string;
+  fill?: boolean;
   priority?: boolean;
   quality?: number;
-  placeholder?: "blur" | "empty";
-  blurDataURL?: string;
   sizes?: string;
+  style?: React.CSSProperties;
   fallbackSrc?: string;
-  loadingText?: string;
-  errorText?: string;
-  showLoadingIndicator?: boolean;
-  onLoadComplete?: () => void;
-  onError?: (error: any) => void;
+  unoptimized?: boolean;
 }
+
+const DEFAULT_FALLBACKS = {
+  article: "/images/placeholder-featured.jpg",
+  category: "/images/category-default.jpg",
+  author: "/images/default-avatar.jpg",
+  muqtarab: "/images/default-muqtarab.jpg",
+  default: "/images/placeholder.jpg",
+};
 
 export default function ImageWithFallback({
   src,
   alt,
-  fill = false,
   width,
   height,
   className = "",
+  fill = false,
   priority = false,
   quality = 85,
-  placeholder,
-  blurDataURL,
   sizes,
-  fallbackSrc = "/images/placeholder-featured.jpg",
-  loadingText = "جاري تحميل الصورة...",
-  errorText = "فشل في تحميل الصورة",
-  showLoadingIndicator = true,
-  onLoadComplete,
-  onError,
+  style,
+  fallbackSrc,
+  unoptimized = false,
 }: ImageWithFallbackProps) {
-  const [imageError, setImageError] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [currentSrc, setCurrentSrc] = useState(src);
+  const [imgSrc, setImgSrc] = useState(src);
+  const [hasError, setHasError] = useState(false);
 
-  console.log("🖼️ ImageWithFallback rendering with:", {
-    src,
-    currentSrc,
-    imageError,
-    imageLoaded,
-  });
+  // تحديد نوع الصورة من السياق
+  const getDefaultFallback = () => {
+    if (fallbackSrc) return fallbackSrc;
+    
+    const srcLower = src?.toLowerCase() || "";
+    if (srcLower.includes("category")) return DEFAULT_FALLBACKS.category;
+    if (srcLower.includes("author") || srcLower.includes("avatar")) return DEFAULT_FALLBACKS.author;
+    if (srcLower.includes("muqtarab")) return DEFAULT_FALLBACKS.muqtarab;
+    if (srcLower.includes("article") || srcLower.includes("featured")) return DEFAULT_FALLBACKS.article;
+    
+    return DEFAULT_FALLBACKS.default;
+  };
 
-  const handleLoad = useCallback(() => {
-    console.log("✅ Image loaded successfully:", currentSrc);
-    setImageLoaded(true);
-    setImageError(false);
-    onLoadComplete?.();
-  }, [currentSrc, onLoadComplete]);
-
-  const handleError = useCallback(
-    (error: any) => {
-      console.error("❌ Image failed to load:", currentSrc, error);
-
-      // جرب الصورة البديلة إذا لم نكن نستخدمها بالفعل
-      if (currentSrc !== fallbackSrc && !imageError) {
-        console.log("🔄 Trying fallback image:", fallbackSrc);
-        setCurrentSrc(fallbackSrc);
-        setImageError(false);
-        setImageLoaded(false);
+  const handleError = () => {
+    if (!hasError) {
+      console.warn(`Image failed to load: ${src}`);
+      setHasError(true);
+      const fallback = getDefaultFallback();
+      
+      // إذا كان الفولباك هو SVG، نستخدمه مباشرة
+      if (fallback.endsWith('.svg')) {
+        setImgSrc(fallback);
       } else {
-        setImageError(true);
+        // محاولة تحميل صورة من placeholder service
+        setImgSrc(`https://via.placeholder.com/${width || 800}x${height || 600}?text=${encodeURIComponent(alt || 'صورة')}`);
       }
+    }
+  };
 
-      onError?.(error);
-    },
-    [currentSrc, fallbackSrc, imageError, onError]
-  );
+  // التحقق من صحة الـ URL
+  const isValidSrc = (url: string) => {
+    if (!url) return false;
+    
+    // السماح بـ SVG files
+    if (url.endsWith('.svg')) return true;
+    
+    // السماح بـ placeholder services
+    if (url.includes('placeholder.com')) return true;
+    
+    // السماح بالروابط النسبية والمطلقة
+    return /^(https?:\/\/|\/|data:)/.test(url);
+  };
 
-  // التحقق من صحة القيم
-  const validWidth = width && !isNaN(width) ? width : 800;
-  const validHeight = height && !isNaN(height) ? height : 600;
-
-  const imageClass = `${className} transition-opacity duration-300 ${
-    imageLoaded || currentSrc.startsWith("data:") ? "opacity-100" : "opacity-80"
-  }`;
-  const isUnoptimized =
-    currentSrc.includes("cloudinary.com") || currentSrc.startsWith("data:");
+  // إذا كان الـ src غير صالح من البداية
+  if (!isValidSrc(imgSrc)) {
+    const fallback = getDefaultFallback();
+    return (
+      <div 
+        className={`bg-gray-200 dark:bg-gray-700 flex items-center justify-center ${className}`}
+        style={{
+          width: fill ? "100%" : width,
+          height: fill ? "100%" : height,
+          ...style,
+        }}
+      >
+        <span className="text-gray-400 dark:text-gray-500 text-sm">
+          {alt || "صورة"}
+        </span>
+      </div>
+    );
+  }
 
   return (
-    <div className="relative">
-      {fill ? (
-        <Image
-          src={currentSrc}
-          alt={alt || "صورة"}
-          fill={true}
-          sizes={sizes || "100vw"}
-          className={imageClass}
-          priority={priority}
-          quality={quality}
-          placeholder={placeholder}
-          blurDataURL={blurDataURL}
-          onLoad={handleLoad}
-          onError={handleError}
-          unoptimized={isUnoptimized}
-          style={{ objectFit: "cover" }}
-        />
-      ) : (
-        <Image
-          src={currentSrc}
-          alt={alt || "صورة"}
-          width={validWidth}
-          height={validHeight}
-          className={imageClass}
-          priority={priority}
-          quality={quality}
-          placeholder={placeholder}
-          blurDataURL={blurDataURL}
-          sizes={sizes}
-          onLoad={handleLoad}
-          onError={handleError}
-          unoptimized={isUnoptimized}
-          style={{ objectFit: "cover" }}
-        />
-      )}
-
-      {/* مؤشر التحميل */}
-      {showLoadingIndicator && !imageLoaded && !imageError && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-200 dark:bg-gray-800">
-          <div className="text-center">
-            <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              {loadingText}
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* رسالة خطأ فقط في حالة فشل كامل */}
-      {imageError && currentSrc === fallbackSrc && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-600">
-          <div className="text-center">
-            <AlertCircle className="w-8 h-8 text-red-500 mx-auto mb-2" />
-            <p className="text-sm text-red-600 dark:text-red-400">
-              {errorText}
-            </p>
-          </div>
-        </div>
-      )}
-    </div>
+    <Image
+      src={imgSrc}
+      alt={alt}
+      width={!fill ? width : undefined}
+      height={!fill ? height : undefined}
+      fill={fill}
+      className={className}
+      priority={priority}
+      quality={quality}
+      sizes={sizes}
+      style={style}
+      onError={handleError}
+      unoptimized={unoptimized || imgSrc.endsWith('.svg')}
+      placeholder="blur"
+      blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAr/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+    />
   );
 }

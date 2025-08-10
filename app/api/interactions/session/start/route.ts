@@ -19,9 +19,14 @@ export async function POST(request: NextRequest) {
 
     let userId: string;
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JWTPayload;
+      if (!process.env.JWT_SECRET) {
+        console.warn("JWT_SECRET not configured");
+        throw new Error("JWT configuration missing");
+      }
+      const decoded = jwt.verify(token, process.env.JWT_SECRET) as JWTPayload;
       userId = decoded.userId;
-    } catch {
+    } catch (error) {
+      console.log("JWT verification failed:", error);
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
@@ -65,7 +70,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      sessionId: readingSession.session_id,
+      sessionId: readingSession.id,
       message: "Reading session started",
     });
   } catch (error) {
