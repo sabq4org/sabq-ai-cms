@@ -311,4 +311,4 @@ function resolveItemHref(item: TimelineItem) {
   }
   return "#";
 }
-*/
+
