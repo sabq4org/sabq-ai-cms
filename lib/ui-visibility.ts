@@ -22,8 +22,8 @@ export async function readSidebarVisibility() {
 
     // بديل: SystemSettings (module: ui, category: sidebar, key: visibility)
     try {
-      const sys = await prisma.systemSettings.findUnique({
-        where: { module_category_key: { module: "ui", category: "sidebar", key: "visibility" } },
+      const sys = await prisma.systemSettings.findFirst({
+        where: { module: "ui", category: "sidebar", key: "visibility" },
       });
       if (sys?.value) {
         const value = sys.value as any;
@@ -50,18 +50,26 @@ export async function writeSidebarVisibility(value: any, updatedById?: string) {
     });
   } catch {
     // بديل الكتابة إلى SystemSettings لو UiSetting غير متاح
-    saved = await prisma.systemSettings.upsert({
-      where: { module_category_key: { module: "ui", category: "sidebar", key: "visibility" } },
-      create: {
-        module: "ui",
-        category: "sidebar",
-        key: "visibility",
-        value,
-        data_type: "json",
-        description: "Global sidebar visibility",
-      },
-      update: { value },
+    const existing = await prisma.systemSettings.findFirst({
+      where: { module: "ui", category: "sidebar", key: "visibility" },
     });
+    if (existing) {
+      saved = await prisma.systemSettings.update({
+        where: { id: existing.id },
+        data: { value },
+      });
+    } else {
+      saved = await prisma.systemSettings.create({
+        data: {
+          module: "ui",
+          category: "sidebar",
+          key: "visibility",
+          value,
+          data_type: "json",
+          description: "Global sidebar visibility",
+        },
+      });
+    }
   }
   const r = getRedisClient();
   try { if (r) await r.del(REDIS_KEY); } catch {}
