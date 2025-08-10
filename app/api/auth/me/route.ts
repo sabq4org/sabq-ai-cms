@@ -59,12 +59,14 @@ export async function GET(request: NextRequest) {
     // التحقق من صحة التوكن
     let decoded: any;
     try {
-      // محاولة فك تشفير JWT أولاً
-      decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET || JWT_SECRET);
+      // محاولة فك تشفير JWT أولاً (استخدام ACCESS_SECRET إن وُجد)
+      const verifySecret =
+        process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET || JWT_SECRET;
+      decoded = jwt.verify(token, verifySecret);
     } catch (error) {
       // إذا فشل JWT، جرب تحليل JSON من user cookie
       try {
-        const decodedCookie = decodeURIComponent(token);
+        const decodedCookie = decodeURIComponent(token as string);
         const userObject = JSON.parse(decodedCookie);
         if (userObject.id) {
           decoded = userObject;
@@ -76,9 +78,15 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // استخراج معرف المستخدم من payload (يدعم sub أو id)
+    const userId = decoded?.sub || decoded?.id;
+    if (!userId || typeof userId !== "string") {
+      return corsResponse({ success: false, error: "جلسة غير صالحة" }, 401);
+    }
+
     // البحث عن المستخدم في قاعدة البيانات
     const user = await prisma.users.findUnique({
-      where: { id: decoded.id },
+      where: { id: userId },
       select: {
         id: true,
         email: true,
