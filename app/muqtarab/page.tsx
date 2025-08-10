@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Angle } from "@/types/muqtarab";
+import MuqtarabCard from "@/components/home/MuqtarabCard";
 import {
   BookOpen,
   Calendar,
@@ -451,8 +452,12 @@ function MuqtaribPageContent() {
           {/* عرض جميع الزوايا بتصميم موحد */}
           {(() => {
             const displayAngles = filteredAngles;
-            const featuredAngles = displayAngles.filter(angle => angle.isFeatured);
-            const regularAngles = displayAngles.filter(angle => !angle.isFeatured);
+            const featuredAngles = displayAngles.filter(
+              (angle) => angle.isFeatured
+            );
+            const regularAngles = displayAngles.filter(
+              (angle) => !angle.isFeatured
+            );
 
             return displayAngles.length === 0 ? (
               <div className="text-center py-12 md:py-16">
@@ -475,7 +480,9 @@ function MuqtaribPageContent() {
                   <div className="mb-8">
                     <div className="flex items-center gap-2 mb-4">
                       <Sparkles className="w-5 h-5 text-yellow-500" />
-                      <h3 className="text-lg font-semibold text-gray-900">الزوايا المميزة</h3>
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        الزوايا المميزة
+                      </h3>
                     </div>
                     <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {featuredAngles.map((angle) => (
@@ -496,7 +503,9 @@ function MuqtaribPageContent() {
                     {featuredAngles.length > 0 && (
                       <div className="flex items-center gap-2 mb-4">
                         <BookOpen className="w-5 h-5 text-blue-600" />
-                        <h3 className="text-lg font-semibold text-gray-900">جميع الزوايا</h3>
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          جميع الزوايا
+                        </h3>
                       </div>
                     )}
                     <div className="md:hidden">
@@ -507,19 +516,21 @@ function MuqtaribPageContent() {
                         ))}
                       </div>
                     </div>
-                    <div className={`hidden md:grid gap-6 ${
-                      regularAngles.length === 5 
-                        ? 'grid-cols-2 lg:grid-cols-5' 
-                        : regularAngles.length === 4
-                        ? 'grid-cols-2 lg:grid-cols-4'
-                        : regularAngles.length === 3
-                        ? 'grid-cols-3'
-                        : regularAngles.length === 2
-                        ? 'grid-cols-2'
-                        : regularAngles.length === 1
-                        ? 'grid-cols-1 max-w-md mx-auto'
-                        : 'grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
-                    }`}>
+                    <div
+                      className={`hidden md:grid gap-6 ${
+                        regularAngles.length === 5
+                          ? "grid-cols-2 lg:grid-cols-5"
+                          : regularAngles.length === 4
+                          ? "grid-cols-2 lg:grid-cols-4"
+                          : regularAngles.length === 3
+                          ? "grid-cols-3"
+                          : regularAngles.length === 2
+                          ? "grid-cols-2"
+                          : regularAngles.length === 1
+                          ? "grid-cols-1 max-w-md mx-auto"
+                          : "grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                      }`}
+                    >
                       {regularAngles.map((angle) => (
                         <AngleCard key={angle.id} angle={angle} />
                       ))}
