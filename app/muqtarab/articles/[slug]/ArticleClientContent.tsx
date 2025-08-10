@@ -14,7 +14,6 @@ import {
   Heart,
   MessageCircle,
   Share2,
-  User,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -31,7 +30,7 @@ const RelatedArticleCard = memo(({ article }: { article: any }) => {
   return (
     <Link
       href={`/muqtarab/articles/${article.slug}`}
-      prefetch={true}
+      prefetch={false}
       className="block group"
     >
       <Card className="h-full overflow-hidden hover:shadow-lg transition-all duration-300">
@@ -47,12 +46,12 @@ const RelatedArticleCard = memo(({ article }: { article: any }) => {
             />
           </div>
         )}
-        
+
         <CardContent className="p-4">
           <h3 className="font-bold text-sm mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
             {article.title}
           </h3>
-          
+
           <div className="flex items-center justify-between text-xs text-gray-500">
             <span>{article.readingTime || 5} دقائق</span>
             <span>{article.views?.toLocaleString() || 0} مشاهدة</span>
@@ -65,7 +64,10 @@ const RelatedArticleCard = memo(({ article }: { article: any }) => {
 
 RelatedArticleCard.displayName = "RelatedArticleCard";
 
-function ArticleClientContent({ article, relatedArticles }: ArticleClientContentProps) {
+function ArticleClientContent({
+  article,
+  relatedArticles,
+}: ArticleClientContentProps) {
   const [likes, setLikes] = useState(article.likes || 0);
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -75,7 +77,7 @@ function ArticleClientContent({ article, relatedArticles }: ArticleClientContent
     try {
       setIsLiked(!isLiked);
       setLikes(isLiked ? likes - 1 : likes + 1);
-      
+
       // يمكن إضافة API call هنا
       toast.success(isLiked ? "تم إلغاء الإعجاب" : "تم الإعجاب بالمقال");
     } catch (error) {
@@ -117,7 +119,9 @@ function ArticleClientContent({ article, relatedArticles }: ArticleClientContent
         <header className="mb-8">
           {/* زر العودة */}
           <Link
-            href={article.corner ? `/muqtarab/${article.corner.slug}` : "/muqtarab"}
+            href={
+              article.corner ? `/muqtarab/${article.corner.slug}` : "/muqtarab"
+            }
             className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 mb-6 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -158,7 +162,9 @@ function ArticleClientContent({ article, relatedArticles }: ArticleClientContent
             <div className="flex items-center gap-1">
               <Calendar className="w-4 h-4" />
               <time dateTime={article.publishDate || article.createdAt}>
-                {new Date(article.publishDate || article.createdAt).toLocaleDateString("ar-SA", {
+                {new Date(
+                  article.publishDate || article.createdAt
+                ).toLocaleDateString("ar-SA", {
                   year: "numeric",
                   month: "long",
                   day: "numeric",
@@ -236,15 +242,17 @@ function ArticleClientContent({ article, relatedArticles }: ArticleClientContent
               <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
               {likes}
             </Button>
-            
+
             <Button
               size="sm"
               variant={isSaved ? "default" : "outline"}
               onClick={handleSave}
             >
-              <Bookmark className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />
+              <Bookmark
+                className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`}
+              />
             </Button>
-            
+
             <Button size="sm" variant="outline">
               <MessageCircle className="w-4 h-4 ml-2" />
               {article.comments || 0}
@@ -263,7 +271,10 @@ function ArticleClientContent({ article, relatedArticles }: ArticleClientContent
             <h2 className="text-2xl font-bold mb-6">مقالات ذات صلة</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {relatedArticles.map((relatedArticle) => (
-                <RelatedArticleCard key={relatedArticle.id} article={relatedArticle} />
+                <RelatedArticleCard
+                  key={relatedArticle.id}
+                  article={relatedArticle}
+                />
               ))}
             </div>
           </section>

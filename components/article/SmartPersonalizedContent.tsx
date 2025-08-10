@@ -349,6 +349,25 @@ function SmartPersonalizedContentInner({
         return;
       }
 
+      // التحقق من cache أولاً
+      const cacheKey = `smart-recommendations-${articleId}-${categoryId || 'all'}`;
+      const cachedData = sessionStorage.getItem(cacheKey);
+      
+      if (cachedData) {
+        try {
+          const { recommendations: cached, timestamp } = JSON.parse(cachedData);
+          // استخدام cache إذا كان أقل من 5 دقائق
+          if (Date.now() - timestamp < 5 * 60 * 1000) {
+            console.log("✅ استخدام التوصيات من cache");
+            setRecommendations(cached);
+            setLoading(false);
+            return;
+          }
+        } catch (e) {
+          // تجاهل أخطاء cache
+        }
+      }
+
       console.log("🧠 توليد التوصيات الذكية للمقال:", articleId);
 
       // وقت للتشخيص
@@ -535,6 +554,13 @@ function SmartPersonalizedContentInner({
       setRecommendations(enhancedRecommendations);
       setLastUpdateTime(new Date());
       console.log(`✅ تم تحديث ${enhancedRecommendations.length} توصية بنجاح`);
+      
+      // حفظ في cache
+      const cacheKey = `smart-recommendations-${articleId}-${categoryId || 'all'}`;
+      sessionStorage.setItem(cacheKey, JSON.stringify({
+        recommendations: enhancedRecommendations,
+        timestamp: Date.now()
+      }));
     } catch (err) {
       console.error("❌ خطأ في توليد التوصيات الذكية:", err);
       setError("يتم التحضير لمحتوى يناسبك...");

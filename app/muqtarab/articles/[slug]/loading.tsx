@@ -9,7 +9,7 @@ export default function Loading() {
         <article className="max-w-4xl mx-auto px-4 py-8">
           {/* Skeleton للعنوان */}
           <Skeleton className="h-12 w-3/4 mb-4" />
-          
+
           {/* Skeleton للمعلومات */}
           <div className="flex items-center gap-4 mb-6">
             <Skeleton className="h-10 w-10 rounded-full" />

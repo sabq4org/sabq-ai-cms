@@ -7,16 +7,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   BookOpen,
+  Brain,
   Calendar,
   Eye,
   Lightbulb,
+  Rocket,
   Search,
   Sparkles,
+  Target,
   TrendingUp,
   Users,
-  Brain,
-  Rocket,
-  Target,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -39,15 +39,19 @@ const AngleCard = memo(({ angle }: { angle: any }) => {
   return (
     <Link
       href={`/muqtarab/${angle.slug}`}
-      prefetch={true}
+      prefetch={false}
       className="block h-full transform transition-all duration-300 hover:scale-105"
     >
       <Card className="h-full overflow-hidden border-gray-200 dark:border-gray-700 hover:shadow-xl">
-        <div className={`h-2 bg-gradient-to-r from-${themeColor}-500 to-${themeColor}-600`} />
-        
+        <div
+          className={`h-2 bg-gradient-to-r from-${themeColor}-500 to-${themeColor}-600`}
+        />
+
         <CardContent className="p-6">
           <div className="flex items-start justify-between mb-4">
-            <div className={`p-3 rounded-xl bg-${themeColor}-100 dark:bg-${themeColor}-900/30`}>
+            <div
+              className={`p-3 rounded-xl bg-${themeColor}-100 dark:bg-${themeColor}-900/30`}
+            >
               {angleIcon}
             </div>
             {angle.articleCount > 0 && (
@@ -60,7 +64,7 @@ const AngleCard = memo(({ angle }: { angle: any }) => {
           <h3 className="text-xl font-bold mb-2 text-gray-900 dark:text-white line-clamp-1">
             {angle.title}
           </h3>
-          
+
           <p className="text-gray-600 dark:text-gray-400 line-clamp-2 text-sm mb-4">
             {angle.description}
           </p>
@@ -76,9 +80,7 @@ const AngleCard = memo(({ angle }: { angle: any }) => {
                 {new Date(angle.createdAt).toLocaleDateString("ar-SA")}
               </span>
             </div>
-            {angle.featured && (
-              <Sparkles className="w-4 h-4 text-yellow-500" />
-            )}
+            {angle.featured && <Sparkles className="w-4 h-4 text-yellow-500" />}
           </div>
         </CardContent>
       </Card>
@@ -93,7 +95,7 @@ const FeaturedArticleCard = memo(({ article }: { article: any }) => {
   return (
     <Link
       href={`/muqtarab/articles/${article.slug}`}
-      prefetch={true}
+      prefetch={false}
       className="block group"
     >
       <Card className="overflow-hidden hover:shadow-lg transition-all duration-300">
@@ -110,7 +112,7 @@ const FeaturedArticleCard = memo(({ article }: { article: any }) => {
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
           </div>
         )}
-        
+
         <CardContent className="p-4">
           <div className="flex items-center gap-2 mb-2">
             <Badge variant="secondary" className="text-xs">
@@ -120,15 +122,15 @@ const FeaturedArticleCard = memo(({ article }: { article: any }) => {
               {article.readingTime || 5} دقائق قراءة
             </span>
           </div>
-          
+
           <h3 className="font-bold text-lg mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
             {article.title}
           </h3>
-          
+
           <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-3">
             {article.excerpt}
           </p>
-          
+
           <div className="flex items-center justify-between text-xs">
             <div className="flex items-center gap-2">
               {article.author?.avatar && (
@@ -144,7 +146,7 @@ const FeaturedArticleCard = memo(({ article }: { article: any }) => {
                 {article.author?.name || "مُقترب"}
               </span>
             </div>
-            
+
             <div className="flex items-center gap-2 text-gray-500">
               <Eye className="w-3 h-3" />
               <span>{article.views?.toLocaleString() || 0}</span>
@@ -160,7 +162,7 @@ FeaturedArticleCard.displayName = "FeaturedArticleCard";
 
 function MuqtarabClientContent({ initialData }: MuqtarabClientContentProps) {
   const { angles, heroArticle, featuredArticles, stats } = initialData;
-  
+
   // حالات البحث والفلترة فقط (لا جلب بيانات)
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
@@ -193,17 +195,22 @@ function MuqtarabClientContent({ initialData }: MuqtarabClientContentProps) {
         filtered = filtered.filter((angle) => angle.featured);
         break;
       case "trending":
-        filtered = [...filtered].sort((a, b) => (b.views || 0) - (a.views || 0));
+        filtered = [...filtered].sort(
+          (a, b) => (b.views || 0) - (a.views || 0)
+        );
         break;
       case "recent":
         filtered = [...filtered].sort(
-          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
         break;
       case "tech":
-        filtered = filtered.filter((angle) => 
-          angle.tags?.some((tag: string) => 
-            ["تقنية", "ذكاء اصطناعي", "برمجة", "تكنولوجيا"].includes(tag.toLowerCase())
+        filtered = filtered.filter((angle) =>
+          angle.tags?.some((tag: string) =>
+            ["تقنية", "ذكاء اصطناعي", "برمجة", "تكنولوجيا"].includes(
+              tag.toLowerCase()
+            )
           )
         );
         break;
@@ -254,7 +261,9 @@ function MuqtarabClientContent({ initialData }: MuqtarabClientContentProps) {
                 {filters.map((filter) => (
                   <Button
                     key={filter.id}
-                    variant={selectedFilter === filter.id ? "default" : "outline"}
+                    variant={
+                      selectedFilter === filter.id ? "default" : "outline"
+                    }
                     size="sm"
                     onClick={() => setSelectedFilter(filter.id)}
                     className="flex items-center gap-2"
@@ -305,16 +314,24 @@ function MuqtarabClientContent({ initialData }: MuqtarabClientContentProps) {
                 <div>
                   <Users className="w-8 h-8 mx-auto mb-2 text-blue-600" />
                   <div className="text-3xl font-bold">{stats.totalWriters}</div>
-                  <div className="text-gray-600 dark:text-gray-400">كاتب مبدع</div>
+                  <div className="text-gray-600 dark:text-gray-400">
+                    كاتب مبدع
+                  </div>
                 </div>
                 <div>
                   <BookOpen className="w-8 h-8 mx-auto mb-2 text-green-600" />
-                  <div className="text-3xl font-bold">{stats.totalArticles}</div>
-                  <div className="text-gray-600 dark:text-gray-400">مقال منشور</div>
+                  <div className="text-3xl font-bold">
+                    {stats.totalArticles}
+                  </div>
+                  <div className="text-gray-600 dark:text-gray-400">
+                    مقال منشور
+                  </div>
                 </div>
                 <div>
                   <Eye className="w-8 h-8 mx-auto mb-2 text-purple-600" />
-                  <div className="text-3xl font-bold">{stats.displayViews?.formatted || "0"}</div>
+                  <div className="text-3xl font-bold">
+                    {stats.displayViews?.formatted || "0"}
+                  </div>
                   <div className="text-gray-600 dark:text-gray-400">مشاهدة</div>
                 </div>
               </div>
@@ -336,7 +353,9 @@ function getAngleIcon(iconName?: string) {
     sparkles: <Sparkles className="w-6 h-6 text-pink-600" />,
   };
 
-  return iconMap[iconName || ""] || <BookOpen className="w-6 h-6 text-gray-600" />;
+  return (
+    iconMap[iconName || ""] || <BookOpen className="w-6 h-6 text-gray-600" />
+  );
 }
 
 export default memo(MuqtarabClientContent);

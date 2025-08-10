@@ -33,7 +33,7 @@ const ArticleCard = memo(({ article }: { article: any }) => {
   return (
     <Link
       href={`/muqtarab/articles/${article.slug}`}
-      prefetch={true}
+      prefetch={false}
       className="block group h-full"
     >
       <Card className="h-full overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
@@ -93,7 +93,9 @@ const ArticleCard = memo(({ article }: { article: any }) => {
 
             {/* تاريخ النشر */}
             <time className="text-gray-500 text-xs">
-              {new Date(article.publishDate || article.createdAt).toLocaleDateString("ar-SA")}
+              {new Date(
+                article.publishDate || article.createdAt
+              ).toLocaleDateString("ar-SA")}
             </time>
           </div>
 
@@ -119,9 +121,14 @@ const ArticleCard = memo(({ article }: { article: any }) => {
 
 ArticleCard.displayName = "ArticleCard";
 
-function AngleClientContent({ angle, initialArticles }: AngleClientContentProps) {
+function AngleClientContent({
+  angle,
+  initialArticles,
+}: AngleClientContentProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState<"latest" | "popular" | "oldest">("latest");
+  const [sortBy, setSortBy] = useState<"latest" | "popular" | "oldest">(
+    "latest"
+  );
   const [showOnlyPublished, setShowOnlyPublished] = useState(true);
 
   // فلترة وترتيب المقالات
@@ -187,16 +194,20 @@ function AngleClientContent({ angle, initialArticles }: AngleClientContentProps)
             {/* معلومات الزاوية */}
             <div className="flex items-start gap-6">
               {angle.icon && (
-                <div className={`p-4 rounded-2xl bg-${angle.themeColor || 'blue'}-100 dark:bg-${angle.themeColor || 'blue'}-900/30`}>
+                <div
+                  className={`p-4 rounded-2xl bg-${
+                    angle.themeColor || "blue"
+                  }-100 dark:bg-${angle.themeColor || "blue"}-900/30`}
+                >
                   <BookOpen className="w-8 h-8 text-blue-600" />
                 </div>
               )}
-              
+
               <div className="flex-1">
                 <h1 className="text-3xl md:text-4xl font-bold mb-3 text-gray-900 dark:text-white">
                   {angle.title}
                 </h1>
-                
+
                 {angle.description && (
                   <p className="text-lg text-gray-600 dark:text-gray-400 mb-4">
                     {angle.description}
