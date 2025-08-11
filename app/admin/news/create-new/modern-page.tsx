@@ -313,6 +313,8 @@ export default function ModernCreateNewsPage() {
     }
   };
 
+
+
   const handleSubmit = async (action: "draft" | "publish" | "review") => {
     // التحقق من البيانات المطلوبة
     if (!formData.title || !formData.content) {
@@ -330,7 +332,6 @@ export default function ModernCreateNewsPage() {
       const payload = {
         title: formData.title,
         subtitle: formData.subtitle,
-        slug: formData.slug || generateSlug(),
         excerpt: formData.excerpt,
         content: formData.content,
         author_id: formData.authorId,
@@ -343,19 +344,34 @@ export default function ModernCreateNewsPage() {
         is_featured: formData.isFeatured,
         status: action === "publish" ? "published" : "draft",
         published_at: action === "publish" ? new Date().toISOString() : null,
+        metadata: {
+          subtitle: formData.subtitle
+        }
       };
 
       console.log("البيانات المرسلة:", payload);
+      console.log("البيانات المرسلة (JSON):", JSON.stringify(payload, null, 2));
 
-      const response = await fetch("/api/admin/articles", {
+      const response = await fetch("/api/articles", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
+      console.log("رد الخادم:", {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+      });
+
       if (!response.ok) {
         const error = await response.json();
         console.error("خطأ من الخادم:", error);
+        console.error("تفاصيل الخطأ:", {
+          status: response.status,
+          error: error,
+          payload: payload,
+        });
         throw new Error(error.error || "Failed to save");
       }
 
