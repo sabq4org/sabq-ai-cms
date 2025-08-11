@@ -99,11 +99,15 @@ export default function ModernCreateNewsPage() {
   const [isClient, setIsClient] = useState(false);
 
   // حالات التحميل
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // تغيير من true إلى false
   const [saving, setSaving] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [authors, setAuthors] = useState<Author[]>([]);
   const [aiGenerating, setAIGenerating] = useState(false);
+  
+  // حالات التحميل التدريجي
+  const [loadingCategories, setLoadingCategories] = useState(true);
+  const [loadingAuthors, setLoadingAuthors] = useState(true);
 
   // حالة النموذج
   const [formData, setFormData] = useState({
@@ -159,24 +163,25 @@ export default function ModernCreateNewsPage() {
 
   useEffect(() => {
     setIsClient(true);
-    fetchInitialData();
+    // بدء تحميل البيانات بشكل تدريجي
+    fetchCategoriesAsync();
+    fetchAuthorsAsync();
   }, []);
 
-  const fetchInitialData = async () => {
+  const fetchCategoriesAsync = async () => {
     try {
-      console.log("🔄 بدء تحميل البيانات...");
+      console.log("🔄 بدء تحميل التصنيفات...");
+      const startTime = Date.now();
       
-      const [categoriesRes, authorsRes] = await Promise.all([
-        fetch("/api/categories"),
-        fetch("/api/admin/article-authors?active_only=true"),
-      ]);
+      const response = await fetch("/api/categories");
+      const loadTime = Date.now() - startTime;
+      console.log(`📂 تم جلب التصنيفات في ${loadTime}ms`);
 
-      // معالجة التصنيفات
-      if (categoriesRes.ok) {
-        const categoriesData = await categoriesRes.json();
+      if (response.ok) {
+        const categoriesData = await response.json();
         const loadedCategories = categoriesData.categories || categoriesData || [];
         setCategories(loadedCategories);
-        console.log(`📂 تم جلب ${loadedCategories.length} تصنيف`);
+        console.log(`📂 تم تحميل ${loadedCategories.length} تصنيف`);
 
         // تعيين تصنيف افتراضي
         if (loadedCategories.length > 0 && !formData.categoryId) {
@@ -190,10 +195,24 @@ export default function ModernCreateNewsPage() {
           variant: "destructive",
         });
       }
+    } catch (error) {
+      console.error("❌ خطأ في تحميل التصنيفات:", error);
+    } finally {
+      setLoadingCategories(false);
+    }
+  };
 
-      // معالجة المؤلفين
-      if (authorsRes.ok) {
-        const authorsData = await authorsRes.json();
+  const fetchAuthorsAsync = async () => {
+    try {
+      console.log("🔄 بدء تحميل المراسلين...");
+      const startTime = Date.now();
+      
+      const response = await fetch("/api/admin/article-authors?active_only=true");
+      const loadTime = Date.now() - startTime;
+      console.log(`👥 تم جلب المراسلين في ${loadTime}ms`);
+
+      if (response.ok) {
+        const authorsData = await response.json();
         
         if (authorsData.success && authorsData.authors) {
           const convertedAuthors = authorsData.authors.map((author: any) => ({
@@ -205,7 +224,7 @@ export default function ModernCreateNewsPage() {
           }));
 
           setAuthors(convertedAuthors);
-          console.log(`👥 تم جلب ${convertedAuthors.length} مراسل`);
+          console.log(`👥 تم تحميل ${convertedAuthors.length} مراسل`);
 
           // تعيين مؤلف افتراضي
           if (convertedAuthors.length > 0 && !formData.authorId) {
@@ -224,14 +243,9 @@ export default function ModernCreateNewsPage() {
         });
       }
     } catch (error) {
-      console.error("❌ خطأ في تحميل البيانات:", error);
-      toast({
-        title: "خطأ",
-        description: "حدث خطأ أثناء تحميل البيانات",
-        variant: "destructive",
-      });
+      console.error("❌ خطأ في تحميل المراسلين:", error);
     } finally {
-      setLoading(false);
+      setLoadingAuthors(false);
     }
   };
 
@@ -446,16 +460,17 @@ export default function ModernCreateNewsPage() {
 
   if (!isClient) return null;
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 dark:bg-gray-950 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-gray-600" />
-          <p className="text-gray-600 dark:text-gray-400">جاري تحميل البيانات...</p>
-        </div>
-      </div>
-    );
-  }
+  // إزالة loading screen المطول - السماح بالاستخدام أثناء التحميل
+  // if (loading) {
+  //   return (
+  //     <div className="min-h-screen bg-gray-100 dark:bg-gray-950 flex items-center justify-center">
+  //       <div className="text-center">
+  //         <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-gray-600" />
+  //         <p className="text-gray-600 dark:text-gray-400">جاري تحميل البيانات...</p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <TooltipProvider delayDuration={100}>
@@ -857,10 +872,10 @@ export default function ModernCreateNewsPage() {
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         type="button"
-                        onClick={() => setFormData({ ...formData, publishType: "now" })}
+                        onClick={() => setFormData({ ...formData, publishType: "immediate" })}
                         className={cn(
                           "flex items-center justify-center gap-2 rounded-lg border-2 px-3 py-2.5 text-sm font-medium transition-all",
-                          formData.publishType === "now"
+                          formData.publishType === "immediate"
                             ? "border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
                             : "border-gray-200 bg-white text-gray-700 hover:border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
                         )}
@@ -919,20 +934,27 @@ export default function ModernCreateNewsPage() {
                       المراسل
                     </Label>
                     <div className="relative">
-                      <button
-                        type="button"
-                        onClick={() => setAuthorsOpen(!authorsOpen)}
-                        className={cn(inputClassName, "text-right cursor-pointer")}
-                      >
-                        {authors.find(a => a.id === formData.authorId)?.name || "اختر المراسل"}
-                        <ChevronDown className={cn(
-                          "absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-transform",
-                          authorsOpen && "rotate-180"
-                        )} />
-                      </button>
-                      {authorsOpen && (
-                        <div className="absolute z-50 mt-2 w-full bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 py-1 max-h-60 overflow-auto">
-                          {filteredAuthors.map((author) => (
+                      {loadingAuthors ? (
+                        <div className="flex items-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800">
+                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                          <span className="text-sm text-gray-500">جاري تحميل المراسلين...</span>
+                        </div>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => setAuthorsOpen(!authorsOpen)}
+                            className={cn(inputClassName, "text-right cursor-pointer")}
+                          >
+                            {authors.find(a => a.id === formData.authorId)?.name || "اختر المراسل"}
+                            <ChevronDown className={cn(
+                              "absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-transform",
+                              authorsOpen && "rotate-180"
+                            )} />
+                          </button>
+                          {authorsOpen && (
+                            <div className="absolute z-50 mt-2 w-full bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 py-1 max-h-60 overflow-auto">
+                              {filteredAuthors.map((author) => (
                             <div
                               key={author.id}
                               className="px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer text-sm"
@@ -946,6 +968,8 @@ export default function ModernCreateNewsPage() {
                           ))}
                         </div>
                       )}
+                        </>
+                      )}
                     </div>
                   </div>
 
@@ -956,20 +980,27 @@ export default function ModernCreateNewsPage() {
                       التصنيف
                     </Label>
                     <div className="relative">
-                      <button
-                        type="button"
-                        onClick={() => setCatsOpen(!catsOpen)}
-                        className={cn(inputClassName, "text-right cursor-pointer")}
-                      >
-                        {categories.find(c => c.id === formData.categoryId)?.name_ar || categories.find(c => c.id === formData.categoryId)?.name || "اختر التصنيف"}
-                        <ChevronDown className={cn(
-                          "absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-transform",
-                          catsOpen && "rotate-180"
-                        )} />
-                      </button>
-                      {catsOpen && (
-                        <div className="absolute z-50 mt-2 w-full bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 py-1 max-h-60 overflow-auto">
-                          {filteredCategories.map((category) => (
+                      {loadingCategories ? (
+                        <div className="flex items-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800">
+                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                          <span className="text-sm text-gray-500">جاري تحميل الفئات...</span>
+                        </div>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => setCatsOpen(!catsOpen)}
+                            className={cn(inputClassName, "text-right cursor-pointer")}
+                          >
+                            {categories.find(c => c.id === formData.categoryId)?.name_ar || categories.find(c => c.id === formData.categoryId)?.name || "اختر التصنيف"}
+                            <ChevronDown className={cn(
+                              "absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-transform",
+                              catsOpen && "rotate-180"
+                            )} />
+                          </button>
+                          {catsOpen && (
+                            <div className="absolute z-50 mt-2 w-full bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 py-1 max-h-60 overflow-auto">
+                              {filteredCategories.map((category) => (
                             <div
                               key={category.id}
                               className="px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer text-sm"
@@ -990,6 +1021,8 @@ export default function ModernCreateNewsPage() {
                             </div>
                           ))}
                         </div>
+                      )}
+                        </>
                       )}
                     </div>
                   </div>
