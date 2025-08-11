@@ -404,14 +404,35 @@ export default function ModernCreateNewsPage() {
     // التحقق من البيانات المطلوبة
     if (!formData.title || !formData.content) {
       toast({
-        title: "خطأ في البيانات",
-        description: "يجب إدخال العنوان والمحتوى",
+        title: "خطأ في البيانات ❌",
+        description: "يجب إدخال العنوان والمحتوى على الأقل",
         variant: "destructive",
+        duration: 4000,
+      });
+      return;
+    }
+
+    // التحقق من اكتمال البيانات للنشر
+    if (action === "publish" && completionScore < 60) {
+      toast({
+        title: "البيانات غير مكتملة ⚠️",
+        description: "يجب إكمال 60% من البيانات على الأقل للنشر. يرجى إضافة المحتوى والتصنيف والصورة.",
+        variant: "destructive",
+        duration: 5000,
       });
       return;
     }
 
     setSaving(true);
+
+    // عرض إشعار بداية العملية
+    toast({
+      title: action === "publish" ? "جاري النشر..." : "جاري الحفظ...",
+      description: action === "publish" 
+        ? "يتم نشر الخبر الآن، يرجى الانتظار..." 
+        : "يتم حفظ البيانات، يرجى الانتظار...",
+      duration: 3000,
+    });
 
     try {
       // معالجة المحتوى بناءً على نوعه
@@ -478,31 +499,56 @@ export default function ModernCreateNewsPage() {
           error: error,
           payload: payload,
         });
-        throw new Error(error.error || "Failed to save");
+        
+        // عرض رسالة خطأ مفصلة
+        toast({
+          title: "فشل في الحفظ ❌",
+          description: error.error || error.details || "حدث خطأ أثناء الحفظ",
+          variant: "destructive",
+          duration: 6000,
+        });
+        return;
       }
 
       const result = await response.json();
+      console.log("✅ نتيجة الحفظ:", result);
 
+      // عرض إشعار النجاح مع معلومات إضافية
       toast({
-        title: "تم الحفظ بنجاح",
+        title: "تم الحفظ بنجاح ✅",
         description:
           action === "publish"
-            ? "تم نشر الخبر بنجاح"
+            ? `تم نشر الخبر "${formData.title}" بنجاح وهو متاح الآن للقراء`
             : action === "draft"
-            ? "تم حفظ المسودة"
-            : "تم إرسال الخبر للمراجعة",
+            ? `تم حفظ مسودة "${formData.title}" بنجاح`
+            : `تم إرسال "${formData.title}" للمراجعة`,
+        duration: 5000, // إظهار الإشعار لمدة 5 ثوانٍ
       });
 
-      // Redirect to news list or edit page
-      if (result.id) {
-        router.push(`/admin/news/edit/${result.id}`);
-      }
+      // إعادة توجيه واضحة ومحسنة
+      setTimeout(() => {
+        if (action === "publish") {
+          // للأخبار المنشورة: توجيه لقائمة الأخبار
+          console.log("🔄 إعادة توجيه لقائمة الأخبار...");
+          router.push("/admin/news");
+        } else if (result.article?.id || result.id) {
+          // للمسودات: توجيه لصفحة التحرير
+          const articleId = result.article?.id || result.id;
+          console.log("🔄 إعادة توجيه لصفحة التحرير:", articleId);
+          router.push(`/admin/news/edit/${articleId}`);
+        } else {
+          // fallback: توجيه لقائمة الأخبار
+          console.log("🔄 إعادة توجيه احتياطية لقائمة الأخبار...");
+          router.push("/admin/news");
+        }
+      }, 2000); // انتظار ثانيتين لقراءة الإشعار
     } catch (error) {
       console.error("Error saving:", error);
       toast({
-        title: "خطأ في الحفظ",
-        description: "حدث خطأ أثناء حفظ الخبر",
+        title: "خطأ في الاتصال ❌",
+        description: "حدث خطأ في الاتصال بالخادم. يرجى المحاولة مرة أخرى.",
         variant: "destructive",
+        duration: 6000,
       });
     } finally {
       setSaving(false);
@@ -663,8 +709,8 @@ export default function ModernCreateNewsPage() {
                   disabled={saving}
                   className="gap-2"
                 >
-                  <Save className="w-4 h-4" />
-                  حفظ مسودة
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  {saving ? "جاري الحفظ..." : "حفظ مسودة"}
                 </Button>
                 <Button
                   variant="secondary"
@@ -672,8 +718,8 @@ export default function ModernCreateNewsPage() {
                   disabled={saving}
                   className="gap-2"
                 >
-                  <Eye className="w-4 h-4" />
-                  مراجعة
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4" />}
+                  {saving ? "جاري الإرسال..." : "مراجعة"}
                 </Button>
                 <div className="flex items-center gap-2 border-r px-4">
                   <Button
@@ -694,7 +740,7 @@ export default function ModernCreateNewsPage() {
                     ) : (
                       <Send className="w-4 h-4" />
                     )}
-                    نشر فوري
+                    {saving && formData.publishType === 'immediate' ? "جاري النشر..." : "نشر فوري"}
                   </Button>
                   <Button
                     onClick={() => {

@@ -10,8 +10,16 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // تحديد الرابط الأساسي للتطبيق
+    const baseUrl = process.env.NEXTAUTH_URL || 
+                   process.env.NEXT_PUBLIC_SITE_URL || 
+                   process.env.NEXT_PUBLIC_APP_URL ||
+                   'http://localhost:3000';
+
+    console.log('🔄 [Podcast Cron] استدعاء API توليد النشرة من:', baseUrl);
+
     // استدعاء API توليد النشرة
-    const response = await fetch(`${process.env.NEXTAUTH_URL}/api/generate-podcast`, {
+    const response = await fetch(`${baseUrl}/api/generate-podcast`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

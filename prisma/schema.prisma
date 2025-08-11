@@ -2116,17 +2116,30 @@ model tags {
   is_active            Boolean  @default(true)
   synonyms             String[] @default([])
   seo_meta_description String?
+  
+  // إحصائيات سحابة الكلمات
+  total_usage_count    Int      @default(0)
+  views_count          Int      @default(0)
+  clicks_count         Int      @default(0)
+  growth_rate          Float    @default(0.0)
+  popularity_score     Float    @default(0.0)
+  last_used_at         DateTime?
+  
   created_at           DateTime @default(now())
   updated_at           DateTime @updatedAt
 
   // العلاقات
   article_tags article_tags[]
+  tag_analytics tag_analytics[]
 
   @@index([name])
   @@index([slug])
   @@index([category])
   @@index([is_active])
   @@index([priority])
+  @@index([popularity_score])
+  @@index([total_usage_count])
+  @@index([last_used_at])
   @@map("tags")
 }
 
@@ -2144,4 +2157,28 @@ model article_tags {
   @@index([article_id])
   @@index([tag_id])
   @@map("article_tags")
+}
+
+// جدول تحليلات العلامات اليومية
+model tag_analytics {
+  id               String   @id @default(cuid())
+  tag_id           String
+  date             DateTime @db.Date
+  usage_count      Int      @default(0)
+  article_count    Int      @default(0)
+  views_count      Int      @default(0)
+  clicks_count     Int      @default(0)
+  interactions     Int      @default(0)
+  growth_factor    Float    @default(0.0)
+  popularity_score Float    @default(0.0)
+  created_at       DateTime @default(now())
+
+  // العلاقات
+  tags tags @relation(fields: [tag_id], references: [id], onDelete: Cascade)
+
+  @@unique([tag_id, date])
+  @@index([tag_id])
+  @@index([date])
+  @@index([popularity_score])
+  @@map("tag_analytics")
 }

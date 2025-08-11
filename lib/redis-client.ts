@@ -119,5 +119,12 @@ export function isRedisReady(): boolean {
   return redisInstance !== null && connectionStatus === "ready";
 }
 
-// تصدير نسخة من العميل للاستخدام المباشر إذا لزم الأمر
-export default getRedisClient();
+/**
+ * دالة للحصول على حالة الاتصال الحالية
+ */
+export function getConnectionStatus(): string {
+  return connectionStatus;
+}
+
+// تصدير دالة بدلاً من استدعائها مباشرة لتجنب إنشاء اتصال غير مرغوب فيه
+export default getRedisClient;

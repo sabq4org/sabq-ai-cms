@@ -1,78 +1,134 @@
-'use client';
+"use client";
 
-import { Analytics } from '@vercel/analytics/next';
-import { SpeedInsights } from '@vercel/speed-insights/next';
-import { useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+
+interface AnalyticsContextType {
+  isTracking: boolean;
+  userId?: string;
+  sessionId: string;
+  enableTracking: () => void;
+  disableTracking: () => void;
+  trackEvent: (eventName: string, properties?: Record<string, any>) => void;
+  trackPageView: (page: string, properties?: Record<string, any>) => void;
+}
+
+const AnalyticsContext = createContext<AnalyticsContextType | undefined>(undefined);
+
+export const useAnalytics = () => {
+  const context = useContext(AnalyticsContext);
+  if (!context) {
+    throw new Error('useAnalytics must be used within an AnalyticsProvider');
+  }
+  return context;
+};
 
 interface AnalyticsProviderProps {
-  children?: React.ReactNode;
+  children: ReactNode;
 }
 
 const AnalyticsProvider: React.FC<AnalyticsProviderProps> = ({ children }) => {
+  const [isTracking, setIsTracking] = useState(false);
+  const [userId, setUserId] = useState<string | undefined>(undefined);
+  const [sessionId, setSessionId] = useState<string>('');
+
   useEffect(() => {
-    // تفعيل تتبع إضافي للصفحات المهمة
-    const trackPageView = () => {
-      const path = window.location.pathname;
-      const title = document.title;
-      
-      // تتبع مخصص للصفحات الرئيسية
-      if (path === '/') {
-        console.log('📊 تتبع الصفحة الرئيسية');
-      } else if (path.startsWith('/article/')) {
-        console.log('📰 تتبع مقال:', title);
-      } else if (path.startsWith('/admin/')) {
-        console.log('⚙️ تتبع لوحة التحكم');
-      }
+    // إنشاء session ID فريد
+    const generateSessionId = () => {
+      return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     };
 
-    // تتبع أولي
-    trackPageView();
+    setSessionId(generateSessionId());
 
-    // تتبع التنقل بين الصفحات
-    const originalPushState = window.history.pushState;
-    const originalReplaceState = window.history.replaceState;
+    // التحقق من إعدادات التتبع المحفوظة
+    const savedTrackingPreference = localStorage.getItem('analytics_tracking_enabled');
+    if (savedTrackingPreference !== null) {
+      setIsTracking(savedTrackingPreference === 'true');
+    } else {
+      // افتراضياً، تعطيل التتبع للحفاظ على الخصوصية
+      setIsTracking(false);
+    }
 
-    window.history.pushState = function(...args) {
-      originalPushState.apply(window.history, args);
-      setTimeout(trackPageView, 100);
-    };
-
-    window.history.replaceState = function(...args) {
-      originalReplaceState.apply(window.history, args);
-      setTimeout(trackPageView, 100);
-    };
-
-    // تتبع الرجوع والتقدم
-    window.addEventListener('popstate', trackPageView);
-
-    return () => {
-      window.history.pushState = originalPushState;
-      window.history.replaceState = originalReplaceState;
-      window.removeEventListener('popstate', trackPageView);
-    };
+    // محاولة الحصول على معرف المستخدم من localStorage أو sessionStorage
+    const storedUserId = localStorage.getItem('user_id') || sessionStorage.getItem('user_id');
+    if (storedUserId) {
+      setUserId(storedUserId);
+    }
   }, []);
 
-  // تتبع الأخطاء للتحليلات
-  useEffect(() => {
-    const handleError = (error: ErrorEvent) => {
-      // يمكن إضافة تتبع مخصص للأخطاء هنا
-      console.warn('📊 Analytics - خطأ تم رصده:', error.message);
-    };
+  const enableTracking = () => {
+    setIsTracking(true);
+    localStorage.setItem('analytics_tracking_enabled', 'true');
+  };
 
-    window.addEventListener('error', handleError);
-    return () => window.removeEventListener('error', handleError);
-  }, []);
+  const disableTracking = () => {
+    setIsTracking(false);
+    localStorage.setItem('analytics_tracking_enabled', 'false');
+  };
+
+  const trackEvent = async (eventName: string, properties?: Record<string, any>) => {
+    if (!isTracking) {
+      return;
+    }
+
+    try {
+      // إرسال الحدث إلى API الداخلي
+      const eventData = {
+        event: eventName,
+        properties: {
+          ...properties,
+          sessionId,
+          userId,
+          timestamp: new Date().toISOString(),
+          userAgent: navigator.userAgent,
+          url: window.location.href,
+          referrer: document.referrer,
+        }
+      };
+
+      // إرسال غير متزامن لتجنب تأثير الأداء
+      fetch('/api/analytics/track', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(eventData),
+      }).catch(error => {
+        // تسجيل الخطأ بصمت دون إيقاف التطبيق
+        console.debug('Analytics tracking error:', error);
+      });
+    } catch (error) {
+      // تجاهل أخطاء التتبع لتجنب تعطيل التطبيق
+      console.debug('Analytics event error:', error);
+    }
+  };
+
+  const trackPageView = async (page: string, properties?: Record<string, any>) => {
+    if (!isTracking) {
+      return;
+    }
+
+    await trackEvent('page_view', {
+      page,
+      ...properties,
+    });
+  };
+
+  const value: AnalyticsContextType = {
+    isTracking,
+    userId,
+    sessionId,
+    enableTracking,
+    disableTracking,
+    trackEvent,
+    trackPageView,
+  };
 
   return (
-    <>
+    <AnalyticsContext.Provider value={value}>
       {children}
-      {/* Vercel Analytics - تتبع الزوار والصفحات */}
-      <Analytics />
-      
-      {/* Vercel Speed Insights - تتبع الأداء */}
-      <SpeedInsights />
-    </>
+    </AnalyticsContext.Provider>
   );
 };
 
 export default AnalyticsProvider;
+export type { AnalyticsContextType };

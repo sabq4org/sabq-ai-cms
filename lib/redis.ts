@@ -99,5 +99,5 @@ export const CACHE_KEYS = {
   search: (query: string) => `search:${query}`,
 };
 
-// تصدير العميل المركزي مباشرة
-export default getRedisClient();
+// تصدير العميل المركزي كدالة بدلاً من استدعاء مباشر
+export { getRedisClient as getRedis };

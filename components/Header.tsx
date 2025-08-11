@@ -73,6 +73,13 @@ export default function Header() {
     { url: "/categories", label: "الأقسام", icon: Folder, highlight: false },
     { url: "/muqtarab", label: "مُقترب", icon: Target, highlight: false },
     { url: "/insights/deep", label: "عمق", icon: Brain, highlight: false },
+    { 
+      url: "/test-analytics", 
+      label: "التحليلات", 
+      icon: Activity, 
+      highlight: true,
+      isNew: true
+    },
   ];
 
   const handleLogout = async () => {
@@ -159,7 +166,7 @@ export default function Header() {
                 <Link
                   key={item.url}
                   href={item.url}
-                  className={`flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                  className={`relative flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                     item.highlight
                       ? darkMode
                         ? "text-red-400 hover:text-red-300 hover:bg-blue-800/40"
@@ -171,7 +178,12 @@ export default function Header() {
                 >
                   <item.icon className="w-4 h-4" />
                   {item.label && <span>{item.label}</span>}
-                  {/* شريط نبض الأخبار محذوف - لا شارة */}
+                  {/* شارة "جديد" للعناصر الجديدة */}
+                  {(item as any).isNew && (
+                    <span className="absolute -top-1 -left-1 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full font-bold animate-pulse">
+                      جديد
+                    </span>
+                  )}
                 </Link>
               ))}
             </nav>
@@ -313,7 +325,7 @@ export default function Header() {
                       key={item.url}
                       href={item.url}
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className={`flex items-center space-x-2 rtl:space-x-reverse px-6 py-4 text-base font-medium transition-all duration-300 ${
+                      className={`relative flex items-center space-x-2 rtl:space-x-reverse px-6 py-4 text-base font-medium transition-all duration-300 ${
                         item.highlight
                           ? darkMode
                             ? "text-red-400 hover:text-red-300 hover:bg-blue-800/40"
@@ -325,11 +337,32 @@ export default function Header() {
                     >
                       <item.icon className="w-4 h-4" />
                       {item.label && <span>{item.label}</span>}
-                      {/* شريط نبض الأخبار محذوف - لا شارة */}
+                      {/* شارة "جديد" للعناصر الجديدة في المحمول */}
+                      {(item as any).isNew && (
+                        <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-bold animate-pulse">
+                          جديد
+                        </span>
+                      )}
                     </Link>
                   ))}
 
                   {/* روابط إضافية للمحمول */}
+                  <Link
+                    href="/test-analytics"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`relative flex items-center space-x-2 rtl:space-x-reverse px-6 py-4 text-base font-medium transition-all duration-300 ${
+                      darkMode
+                        ? "text-red-400 hover:text-red-300 hover:bg-blue-800/40"
+                        : "text-red-600 hover:text-red-700 hover:bg-blue-600/20"
+                    }`}
+                  >
+                    <Activity className="w-4 h-4" />
+                    <span>التحليلات المتقدمة</span>
+                    <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-bold animate-pulse">
+                      جديد
+                    </span>
+                  </Link>
+
                   <Link
                     href="/profile"
                     onClick={() => setIsMobileMenuOpen(false)}

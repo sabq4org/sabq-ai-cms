@@ -71,7 +71,12 @@ async function handleArticlePublished(articleId: string) {
     }
 
     // 4. تحديث كاش الصفحة الرئيسية لمقترب
-    await fetch(`${process.env.NEXTAUTH_URL}/api/revalidate?path=/muqtarab`, {
+    const baseUrl = process.env.NEXTAUTH_URL || 
+                   process.env.NEXT_PUBLIC_SITE_URL || 
+                   process.env.NEXT_PUBLIC_APP_URL ||
+                   'http://localhost:3000';
+                   
+    await fetch(`${baseUrl}/api/revalidate?path=/muqtarab`, {
       method: "POST",
       headers: { Authorization: `Bearer ${process.env.REVALIDATE_TOKEN}` },
     }).catch(() => {

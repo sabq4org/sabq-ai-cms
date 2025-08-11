@@ -154,6 +154,33 @@ const sidebarItems: SidebarItem[] = [
     badge: "AI",
     badgeVariant: "secondary",
     isNew: true,
+    children: [
+      {
+        id: "analytics-dashboard",
+        title: "لوحة التحليلات",
+        icon: BarChart3,
+        href: "/test-analytics",
+        badge: "جديد",
+        badgeVariant: "destructive" as const,
+        isNew: true,
+      },
+      {
+        id: "analytics-reports",
+        title: "التقارير المفصلة",
+        icon: FileText,
+        href: "/admin/analytics/reports",
+        badge: "قريباً",
+        badgeVariant: "outline" as const,
+      },
+      {
+        id: "analytics-insights",
+        title: "الرؤى الذكية",
+        icon: Brain,
+        href: "/admin/analytics/insights",
+        badge: "قريباً",
+        badgeVariant: "outline" as const,
+      },
+    ],
   },
   {
     id: "ai-systems",
