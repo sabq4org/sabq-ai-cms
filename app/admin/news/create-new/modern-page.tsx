@@ -314,14 +314,38 @@ export default function ModernCreateNewsPage() {
   };
 
   const handleSubmit = async (action: "draft" | "publish" | "review") => {
+    // التحقق من البيانات المطلوبة
+    if (!formData.title || !formData.content) {
+      toast({
+        title: "خطأ في البيانات",
+        description: "يجب إدخال العنوان والمحتوى",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setSaving(true);
 
     try {
       const payload = {
-        ...formData,
+        title: formData.title,
+        subtitle: formData.subtitle,
+        slug: formData.slug || generateSlug(),
+        excerpt: formData.excerpt,
+        content: formData.content,
+        author_id: formData.authorId,
+        category_id: formData.categoryId,
+        featured_image: formData.featuredImage,
+        keywords: formData.keywords,
+        seo_title: formData.seoTitle || formData.title,
+        seo_description: formData.seoDescription || formData.excerpt,
+        is_breaking: formData.isBreaking,
+        is_featured: formData.isFeatured,
         status: action === "publish" ? "published" : "draft",
         published_at: action === "publish" ? new Date().toISOString() : null,
       };
+
+      console.log("البيانات المرسلة:", payload);
 
       const response = await fetch("/api/admin/articles", {
         method: "POST",
@@ -329,7 +353,11 @@ export default function ModernCreateNewsPage() {
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) throw new Error("Failed to save");
+      if (!response.ok) {
+        const error = await response.json();
+        console.error("خطأ من الخادم:", error);
+        throw new Error(error.error || "Failed to save");
+      }
 
       const result = await response.json();
 
@@ -666,9 +694,10 @@ export default function ModernCreateNewsPage() {
                     <Editor
                       ref={editorRef}
                       content={formData.content}
-                      onChange={(content) =>
-                        setFormData({ ...formData, content })
-                      }
+                      onChange={(content) => {
+                        console.log("محتوى المحرر:", content);
+                        setFormData(prev => ({ ...prev, content }));
+                      }}
                       placeholder="ابدأ بكتابة محتوى الخبر هنا..."
                     />
                   </div>

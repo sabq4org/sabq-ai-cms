@@ -1232,6 +1232,9 @@ export default function EnhancedMediaLibraryPage() {
           <DialogContent className="max-w-4xl">
             <DialogHeader>
               <DialogTitle>تفاصيل الملف</DialogTitle>
+              <DialogDescription>
+                معلومات تفصيلية عن الملف المحدد
+              </DialogDescription>
             </DialogHeader>
             {selectedAsset && (
               <div className="space-y-4">

@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCurrentUser } from "@/app/lib/auth";
+import { requireAdmin } from "@/lib/require-admin";
 
 export async function POST(request: NextRequest) {
   try {
     // التحقق من صلاحيات المستخدم
-    const user = await getCurrentUser();
-    if (!user) {
+    const adminCheck = await requireAdmin(request);
+    if (!adminCheck.authorized) {
       return NextResponse.json(
-        { error: "غير مصرح لك بالوصول" },
+        { error: adminCheck.error || "غير مصرح لك بالوصول" },
         { status: 401 }
       );
     }
