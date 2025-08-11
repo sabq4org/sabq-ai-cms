@@ -926,11 +926,11 @@ export default function EnhancedMediaLibraryPage() {
                             </div>
                             
                             {asset.type === "IMAGE" ? (
-                              <div className="aspect-square bg-gray-100 dark:bg-gray-800">
+                              <div className="aspect-square bg-gray-50 dark:bg-gray-800 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                                 <img
                                   src={asset.thumbnailUrl || asset.cloudinaryUrl}
                                   alt={asset.metadata?.altText || asset.filename}
-                                  className="w-full h-full object-contain"
+                                  className="w-full h-full object-contain p-2 cursor-pointer hover:scale-105 transition-transform duration-200"
                                   onClick={() => {
                                     setSelectedAsset(asset);
                                     setViewDetailsOpen(true);
@@ -1195,12 +1195,14 @@ export default function EnhancedMediaLibraryPage() {
             </DialogHeader>
             <div className="space-y-4 py-4">
               {selectedAsset?.type === "IMAGE" && (
-                <div className="aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
-                  <img
-                    src={selectedAsset.thumbnailUrl || selectedAsset.cloudinaryUrl}
-                    alt={selectedAsset.metadata?.altText || selectedAsset.filename}
-                    className="w-full h-full object-contain"
-                  />
+                <div className="bg-gray-50 dark:bg-gray-900 rounded-lg overflow-hidden p-4">
+                  <div className="max-h-[400px] flex items-center justify-center">
+                    <img
+                      src={selectedAsset.cloudinaryUrl}
+                      alt={selectedAsset.metadata?.altText || selectedAsset.filename}
+                      className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
+                    />
+                  </div>
                 </div>
               )}
               <div className="space-y-2">
@@ -1234,12 +1236,14 @@ export default function EnhancedMediaLibraryPage() {
             {selectedAsset && (
               <div className="space-y-4">
                 {selectedAsset.type === "IMAGE" && (
-                  <div className="aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
-                    <img
-                      src={selectedAsset.cloudinaryUrl}
-                      alt={selectedAsset.metadata?.altText || selectedAsset.filename}
-                      className="w-full h-full object-contain"
-                    />
+                  <div className="bg-gray-50 dark:bg-gray-900 rounded-lg overflow-hidden p-6">
+                    <div className="max-h-[500px] flex items-center justify-center">
+                      <img
+                        src={selectedAsset.cloudinaryUrl}
+                        alt={selectedAsset.metadata?.altText || selectedAsset.filename}
+                        className="max-w-full max-h-full object-contain rounded-lg shadow-xl"
+                      />
+                    </div>
                   </div>
                 )}
                 <div className="grid grid-cols-2 gap-4">
@@ -1305,12 +1309,12 @@ export default function EnhancedMediaLibraryPage() {
               <Button variant="outline" onClick={() => setViewDetailsOpen(false)}>
                 إغلاق
               </Button>
-              <Button asChild>
-                <a href={selectedAsset?.cloudinaryUrl} download target="_blank">
+              <a href={selectedAsset?.cloudinaryUrl} download target="_blank">
+                <Button>
                   <Download className="w-4 h-4 ml-2" />
                   تحميل
-                </a>
-              </Button>
+                </Button>
+              </a>
             </DialogFooter>
           </DialogContent>
         </Dialog>
