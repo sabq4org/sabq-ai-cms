@@ -313,8 +313,27 @@ export async function POST(request: NextRequest) {
       errors.push("العنوان مطلوب ولا يمكن أن يكون فارغاً");
     }
 
-    if (!data.content?.trim()) {
+    // معالجة المحتوى - يمكن أن يكون string أو object من المحرر
+    let processedContent = data.content;
+    
+    if (typeof data.content === 'object' && data.content !== null) {
+      if (data.content.html) {
+        processedContent = data.content.html;
+      } else if (data.content.content) {
+        processedContent = JSON.stringify(data.content);
+      } else {
+        processedContent = JSON.stringify(data.content);
+      }
+    }
+
+    // التحقق من المحتوى بعد المعالجة
+    if (!processedContent?.trim()) {
       errors.push("محتوى المقال مطلوب ولا يمكن أن يكون فارغاً");
+    }
+
+    // التحقق من طول المحتوى
+    if (processedContent && processedContent.length < 10) {
+      errors.push("محتوى المقال قصير جداً (أدنى حد 10 أحرف)");
     }
 
     if (!categoryId) {
@@ -328,11 +347,6 @@ export async function POST(request: NextRequest) {
     // التحقق من طول العنوان
     if (data.title && data.title.length > 200) {
       errors.push("عنوان المقال طويل جداً (أقصى حد 200 حرف)");
-    }
-
-    // التحقق من طول المحتوى
-    if (data.content && data.content.length < 10) {
-      errors.push("محتوى المقال قصير جداً (أدنى حد 10 أحرف)");
     }
 
     if (errors.length > 0) {
@@ -359,11 +373,11 @@ export async function POST(request: NextRequest) {
       data.breaking || data.is_breaking || data.isBreaking || false;
 
     // سيتم تحديد حقول المؤلف لاحقاً بعد التحقق من مصدر المؤلف
-    let articleData = {
+    let articleData: any = {
       id: data.id || generateId(),
       title: data.title,
       slug: uniqueSlug,
-      content: data.content,
+      content: processedContent, // استخدام المحتوى المعالج
       excerpt: data.excerpt || data.summary || null,
       category_id: categoryId, // استخدام المتغير الموحد
       status: data.status || "draft",
@@ -421,7 +435,7 @@ export async function POST(request: NextRequest) {
         }
       }
     } catch (error) {
-      console.log("⚠️ خطأ في البحث في article_authors:", error.message);
+      console.log("⚠️ خطأ في البحث في article_authors:", (error as any).message);
     }
 
     // إذا لم يوجد في article_authors، ابحث في users (النظام القديم)
@@ -447,7 +461,7 @@ export async function POST(request: NextRequest) {
           };
         }
       } catch (error) {
-        console.log("⚠️ خطأ في البحث في users:", error.message);
+        console.log("⚠️ خطأ في البحث في users:", (error as any).message);
       }
     }
 
@@ -481,7 +495,7 @@ export async function POST(request: NextRequest) {
     }
 
     console.log("✅ المؤلف والتصنيف صحيحان:", {
-      author: author.full_name || author.name || author.email,
+      author: author.full_name || author.email,
       authorSource: authorSource,
       category: category.name,
     });

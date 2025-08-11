@@ -115,7 +115,7 @@ export default function ModernCreateNewsPage() {
     subtitle: "",
     slug: "",
     excerpt: "",
-    content: "",
+    content: "" as string | any,
     authorId: "",
     categoryId: "",
     featuredImage: "",
@@ -262,7 +262,24 @@ export default function ModernCreateNewsPage() {
   const calculateCompletion = () => {
     let score = 0;
     if (formData.title) score += 20;
-    if (formData.content && formData.content.length > 100) score += 30;
+    
+    // حساب نقاط المحتوى بطريقة صحيحة
+    if (formData.content) {
+      let contentLength = 0;
+      if (typeof formData.content === 'string') {
+        contentLength = formData.content.length;
+      } else if (typeof formData.content === 'object' && formData.content !== null) {
+        if ((formData.content as any).html) {
+          contentLength = (formData.content as any).html.length;
+        } else if ((formData.content as any).content) {
+          contentLength = JSON.stringify((formData.content as any).content).length;
+        } else {
+          contentLength = JSON.stringify(formData.content).length;
+        }
+      }
+      if (contentLength > 100) score += 30;
+    }
+    
     if (formData.excerpt) score += 10;
     if (formData.categoryId) score += 10;
     if (formData.authorId) score += 10;
@@ -295,7 +312,32 @@ export default function ModernCreateNewsPage() {
 
   // Handle form submission
   const handleAIGeneration = async () => {
-    if (!formData.content || formData.content.length < 50) {
+    // تحقق من وجود محتوى
+    if (!formData.content) {
+      toast({
+        title: "لا يوجد محتوى",
+        description: "يرجى إضافة محتوى أولاً للتوليد التلقائي",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // تحقق من طول المحتوى بطريقة صحيحة
+    let contentLength = 0;
+    if (typeof formData.content === 'string') {
+      contentLength = formData.content.length;
+    } else if (typeof formData.content === 'object' && formData.content !== null) {
+      // إذا كان object، استخرج النص أو HTML للتحقق من الطول
+      if ((formData.content as any).html) {
+        contentLength = (formData.content as any).html.length;
+      } else if ((formData.content as any).content) {
+        contentLength = JSON.stringify((formData.content as any).content).length;
+      } else {
+        contentLength = JSON.stringify(formData.content).length;
+      }
+    }
+
+    if (contentLength < 50) {
       toast({
         title: "المحتوى قصير جداً",
         description: "يجب أن يكون المحتوى 50 حرفاً على الأقل للتوليد التلقائي",
@@ -372,11 +414,32 @@ export default function ModernCreateNewsPage() {
     setSaving(true);
 
     try {
+      // معالجة المحتوى بناءً على نوعه
+      let processedContent = formData.content;
+      
+      // إذا كان المحتوى object (من المحرر)، استخرج HTML
+      if (typeof formData.content === 'object' && formData.content !== null) {
+        if ((formData.content as any).html) {
+          processedContent = (formData.content as any).html;
+        } else if ((formData.content as any).content) {
+          // إذا كان في تنسيق JSON، حول إلى HTML
+          processedContent = JSON.stringify(formData.content);
+        } else {
+          // كـ fallback، حول الـ object كاملاً إلى JSON string
+          processedContent = JSON.stringify(formData.content);
+        }
+      }
+
+      // تأكد من أن المحتوى string
+      if (typeof processedContent !== 'string') {
+        processedContent = String(processedContent);
+      }
+
       const payload = {
         title: formData.title,
         subtitle: formData.subtitle,
         excerpt: formData.excerpt,
-        content: formData.content,
+        content: processedContent,
         author_id: formData.authorId,
         category_id: formData.categoryId,
         featured_image: formData.featuredImage,

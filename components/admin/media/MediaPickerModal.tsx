@@ -161,6 +161,7 @@ export function MediaPickerModal({
         };
         
         console.log("📤 Sending request with Content-Type: application/json");
+        console.log("📤 Request body size:", JSON.stringify(requestBody).length, "characters");
         
         const res = await fetch("/api/admin/media/upload", {
           method: "POST",
@@ -171,10 +172,27 @@ export function MediaPickerModal({
           body: JSON.stringify(requestBody),
         });
 
+        console.log("📡 Response status:", res.status, res.statusText);
+        console.log("📡 Response headers:", Object.fromEntries(res.headers.entries()));
+
         if (!res.ok) {
           const errorData = await res.json().catch(() => ({ error: "Unknown error" }));
-          console.error("Upload failed:", res.status, errorData);
-          throw new Error(errorData.error || `Upload failed: ${res.status}`);
+          console.error("Upload failed:", {
+            status: res.status,
+            statusText: res.statusText,
+            errorData: errorData
+          });
+          
+          let errorMessage = `Upload failed: ${res.status}`;
+          if (res.status === 415) {
+            errorMessage = "نوع المحتوى غير مدعوم. تأكد من أن الملف بصيغة صحيحة.";
+          } else if (res.status === 413) {
+            errorMessage = "حجم الملف كبير جداً. الحد الأقصى 50 ميجابايت.";
+          } else if (errorData.error) {
+            errorMessage = errorData.error;
+          }
+          
+          throw new Error(errorMessage);
         }
         
         const newAsset = await res.json();

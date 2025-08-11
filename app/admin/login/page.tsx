@@ -62,16 +62,7 @@ export default function AdminLogin() {
           </div>
           {/* العبارات مثبتة أسفل العمود */}
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center max-w-xl w-full px-4">
-            <div className="space-y-3">[Error] Failed to load resource: the server responded with a status of 415 (Unsupported Media Type) (upload, line 0)
-[Error] Upload error: – Error: Upload failed
-Error: Upload failed
-	(anonymous function) (create-new:25)
-	(anonymous function) (emergency-react-fix.js:69)
-	(anonymous function) (production-error-fixes.js:36)
-	(anonymous function) (react-130-production-fix.js:60)
-	error (intercept-console-error.js:57)
-	ReactErrorRecovery.useEffect (ReactErrorRecovery.tsx:69)
-	(anonymous function) (MediaPickerModal.tsx:133)
+            <div className="space-y-3">
               <h2 className="text-3xl font-bold">حيث تلتقي التقنية بالمصداقية</h2>
               <p className="text-xl opacity-90">صحافة ذكية، مستقبل مشرق</p>
               <p className="text-lg opacity-80">انضم إلى ثورة الإعلام الرقمي المدعوم بالذكاء الاصطناعي</p>

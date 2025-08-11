@@ -41,8 +41,23 @@ export async function POST(request: NextRequest) {
     // قراءة JSON data
     console.log("📋 Request headers:", {
       contentType: request.headers.get("content-type"),
-      contentLength: request.headers.get("content-length")
+      contentLength: request.headers.get("content-length"),
+      method: request.method
     });
+    
+    // التحقق من Content-Type
+    const contentType = request.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      console.error("❌ Invalid Content-Type:", contentType);
+      return NextResponse.json(
+        { 
+          error: "Invalid Content-Type. Expected application/json",
+          received: contentType || "none",
+          details: "يجب أن يكون نوع المحتوى application/json"
+        },
+        { status: 415 }
+      );
+    }
     
     let data;
     try {
@@ -50,7 +65,7 @@ export async function POST(request: NextRequest) {
     } catch (error) {
       console.error("❌ Failed to parse JSON:", error);
       return NextResponse.json(
-        { error: "Failed to parse JSON data." },
+        { error: "Failed to parse JSON data.", details: "البيانات المرسلة غير صالحة أو مفسدة" },
         { status: 400 }
       );
     }
@@ -143,24 +158,29 @@ export async function POST(request: NextRequest) {
 
     // Create database record
     console.log("💾 Creating database record...");
+    const assetData: any = {
+      filename: file.name,
+      originalName: file.name,
+      mimeType: file.type,
+      size: file.size,
+      width: typeof uploadResult.width === "number" ? uploadResult.width : null,
+      height: typeof uploadResult.height === "number" ? uploadResult.height : null,
+      duration: typeof uploadResult.duration === "number" ? Math.round(uploadResult.duration) : null,
+      cloudinaryId: uploadResult.public_id,
+      cloudinaryUrl: uploadResult.secure_url,
+      thumbnailUrl: uploadResult.secure_url, // For images, same as main URL
+      type: mediaType,
+      metadata: metadata as any, // Type assertion للـ JSON metadata
+      folderId,
+    };
+
+    // إضافة uploadedById فقط إذا كان متوفراً
+    if (userCheck.user?.id) {
+      assetData.uploadedById = userCheck.user.id;
+    }
+
     const asset = await prisma.mediaAsset.create({
-      data: {
-        filename: file.name,
-        originalName: file.name,
-        mimeType: file.type,
-        size: file.size,
-        width: typeof uploadResult.width === "number" ? uploadResult.width : null,
-        height: typeof uploadResult.height === "number" ? uploadResult.height : null,
-        duration: typeof uploadResult.duration === "number" ? Math.round(uploadResult.duration) : null,
-        cloudinaryId: uploadResult.public_id,
-        cloudinaryUrl: uploadResult.secure_url,
-        thumbnailUrl: uploadResult.secure_url, // For images, same as main URL
-        type: mediaType,
-        metadata,
-        folderId,
-        uploadedById: userCheck.user?.id,
-        // altText: altText || null, // TODO: إضافة حقل altText في قاعدة البيانات
-      },
+      data: assetData,
       include: {
         folder: true,
         uploadedBy: {
