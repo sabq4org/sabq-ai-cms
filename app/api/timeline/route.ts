@@ -109,10 +109,6 @@ export async function GET(request: NextRequest) {
         prisma.muqtarabArticle.findMany({
           where: {
             status: "published",
-            OR: [
-              { publish_at: { not: null } },
-              { created_at: { not: null } },
-            ],
           },
           include: {
             corner: {
@@ -120,7 +116,7 @@ export async function GET(request: NextRequest) {
             },
           },
           orderBy: [
-            { publish_at: "desc" },
+            { publish_at: { sort: "desc", nulls: "last" } },
             { created_at: "desc" },
           ],
           take: Math.min(limit, 10),
