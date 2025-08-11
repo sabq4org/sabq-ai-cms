@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath, revalidateTag } from "next/cache";
-import { auth } from "@/auth";
+import { getCurrentUser } from "@/app/lib/auth";
 
 export async function POST(request: NextRequest) {
   try {
     // التحقق من صلاحيات الأدمن
-    const session = await auth();
-    if (!session?.user || session.user.role !== "admin") {
+    const user = await getCurrentUser();
+    if (!user || user.role !== "admin") {
       return NextResponse.json(
         { error: "غير مصرح لك بتنفيذ هذا الإجراء" },
         { status: 403 }
