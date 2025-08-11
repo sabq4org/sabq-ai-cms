@@ -56,6 +56,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import { useMediaLibrary } from '@/components/admin/media/hooks/useMediaLibrary';
+import OptimizedImage from '@/components/admin/media/components/OptimizedImage';
+import LazyOptimizedImage from '@/components/admin/media/components/LazyOptimizedImage';
+import dynamic from 'next/dynamic';
+const VirtualizedMediaGrid = dynamic(() => import('@/components/admin/media/components/VirtualizedMediaGrid'), { ssr: false });
 
 interface MediaFolder {
   id: string;
@@ -103,405 +108,209 @@ interface MediaStats {
 }
 
 export default function EnhancedMediaLibraryPage() {
-  const [folders, setFolders] = useState<MediaFolder[]>([]);
-  const [currentFolder, setCurrentFolder] = useState<MediaFolder | null>(null);
-  const [assets, setAssets] = useState<MediaAsset[]>([]);
-  const [selectedAssets, setSelectedAssets] = useState<Set<string>>(new Set());
-  const [selectedFolders, setSelectedFolders] = useState<Set<string>>(new Set());
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filterType, setFilterType] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [uploading, setUploading] = useState(false);
-  const [stats, setStats] = useState<MediaStats | null>(null);
-  
-  // Dialog states
+  const {
+    state: { folders, assets, stats, loading, uploading, currentFolder, viewMode, filters, selectedAssets, selectedFolders },
+    setViewMode,
+    setFilters,
+    setCurrentFolderById,
+    refresh,
+    selectAsset,
+    selectFolder,
+    clearSelection,
+    uploadFiles,
+    createFolder,
+    renameFolder,
+    deleteFolders,
+    deleteAssets,
+    moveAssets,
+    moveFolders,
+    updateAssetMeta,
+  } = useMediaLibrary({ enableAutoRefresh: false });
+
+  const searchQuery = filters.search || '';
+  const setSearchQuery = (v: string) => setFilters({ search: v });
+  const filterType = filters.type || null;
+  const setFilterType = (v: string | null) => setFilters({ type: v });
+
+  // تحديث breadcrumb
+  const setCurrentFolder = (f: any) => setCurrentFolderById(f?.id || null);
+
+  // تعويض الدوال القديمة مؤقتاً
   const [createFolderOpen, setCreateFolderOpen] = useState(false);
   const [renameFolderOpen, setRenameFolderOpen] = useState(false);
   const [moveItemsOpen, setMoveItemsOpen] = useState(false);
   const [editAssetOpen, setEditAssetOpen] = useState(false);
   const [viewDetailsOpen, setViewDetailsOpen] = useState(false);
-  
-  // Form states
-  const [newFolderName, setNewFolderName] = useState("");
-  const [selectedFolder, setSelectedFolder] = useState<MediaFolder | null>(null);
-  const [selectedAsset, setSelectedAsset] = useState<MediaAsset | null>(null);
+  const [newFolderName, setNewFolderName] = useState('');
+  const [selectedFolderObj, setSelectedFolderObj] = useState<any>(null);
+  const [selectedAsset, setSelectedAsset] = useState<any>(null);
   const [targetFolderId, setTargetFolderId] = useState<string | null>(null);
-  const [assetAltText, setAssetAltText] = useState("");
-  
+  const [assetAltText, setAssetAltText] = useState('');
   const [dragOver, setDragOver] = useState(false);
   const { toast } = useToast();
+  const [density, setDensity] = useState<'compact' | 'comfortable' | 'expanded'>('comfortable');
+  const [focusIndex, setFocusIndex] = useState<number>(-1);
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null); // lightbox
 
-  // Fetch data
-  const fetchData = useCallback(async () => {
-    try {
-      setLoading(true);
-      
-      // Fetch folders
-      const foldersRes = await fetch("/api/admin/media/folders");
-      if (!foldersRes.ok) throw new Error("Failed to fetch folders");
-      const foldersData = await foldersRes.json();
-      setFolders(foldersData.folders);
+  const handleFileUpload = (files: FileList) => uploadFiles(files).then(r => {
+    if (r.success) toast({ title: 'تم الرفع', description: `نجاح: ${r.success}` });
+    if (r.failed) toast({ title: 'أخطاء', description: `فشل: ${r.failed}`, variant: 'destructive' });
+  });
 
-      // Fetch assets
-      const params = new URLSearchParams();
-      if (currentFolder) {
-        params.set("folderId", currentFolder.id);
-      }
-      if (searchQuery) {
-        params.set("search", searchQuery);
-      }
-      if (filterType) {
-        params.set("type", filterType);
-      }
-
-      const assetsRes = await fetch(`/api/admin/media/assets?${params}`);
-      if (!assetsRes.ok) throw new Error("Failed to fetch assets");
-      const assetsData = await assetsRes.json();
-      setAssets(assetsData.assets);
-      
-      // Fetch stats
-      const statsRes = await fetch("/api/admin/media/stats");
-      if (statsRes.ok) {
-        const statsData = await statsRes.json();
-        setStats(statsData);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      toast({
-        title: "خطأ",
-        description: "فشل تحميل البيانات",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [currentFolder, searchQuery, filterType, toast]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  // Handle file upload
-  const handleFileUpload = async (files: FileList) => {
-    setUploading(true);
-    let successCount = 0;
-    let errorCount = 0;
-
-    for (const file of Array.from(files)) {
-      try {
-        // Convert to base64
-        const base64Data = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-
-        const res = await fetch("/api/admin/media/upload", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            file: {
-              name: file.name,
-              type: file.type,
-              size: file.size,
-              data: base64Data
-            },
-            folderId: currentFolder?.id || null,
-            altText: ""
-          }),
-        });
-
-        if (!res.ok) {
-          const error = await res.json();
-          throw new Error(error.error || "Upload failed");
-        }
-
-        successCount++;
-      } catch (error) {
-        console.error("Error uploading file:", error);
-        errorCount++;
-      }
-    }
-
-    setUploading(false);
-    
-    if (successCount > 0) {
-      toast({
-        title: "تم الرفع بنجاح",
-        description: `تم رفع ${successCount} ملف${successCount > 1 ? "ات" : ""}`,
-      });
-      fetchData();
-    }
-    
-    if (errorCount > 0) {
-      toast({
-        title: "خطأ في الرفع",
-        description: `فشل رفع ${errorCount} ملف${errorCount > 1 ? "ات" : ""}`,
-        variant: "destructive",
-      });
-    }
-  };
-
-  // Create folder
   const handleCreateFolder = async () => {
     if (!newFolderName.trim()) return;
-
-    try {
-      const res = await fetch("/api/admin/media/folders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: newFolderName,
-          parentId: currentFolder?.id || null,
-        }),
-      });
-
-      if (!res.ok) throw new Error("Failed to create folder");
-
-      toast({
-        title: "تم إنشاء المجلد",
-        description: `تم إنشاء مجلد "${newFolderName}" بنجاح`,
-      });
-
-      setCreateFolderOpen(false);
-      setNewFolderName("");
-      fetchData();
-    } catch (error) {
-      toast({
-        title: "خطأ",
-        description: "فشل إنشاء المجلد",
-        variant: "destructive",
-      });
-    }
+    const ok = await createFolder(newFolderName, currentFolder?.id || null);
+    if (ok) {
+      toast({ title: 'تم', description: 'تم إنشاء المجلد' });
+      setCreateFolderOpen(false); setNewFolderName('');
+    } else toast({ title: 'خطأ', description: 'فشل الإنشاء', variant: 'destructive' });
   };
 
-  // Rename folder
   const handleRenameFolder = async () => {
-    if (!selectedFolder || !newFolderName.trim()) return;
-
-    try {
-      const res = await fetch(`/api/admin/media/folders/${selectedFolder.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newFolderName }),
-      });
-
-      if (!res.ok) throw new Error("Failed to rename folder");
-
-      toast({
-        title: "تم تعديل الاسم",
-        description: "تم تغيير اسم المجلد بنجاح",
-      });
-
-      setRenameFolderOpen(false);
-      setNewFolderName("");
-      setSelectedFolder(null);
-      fetchData();
-    } catch (error) {
-      toast({
-        title: "خطأ",
-        description: "فشل تعديل اسم المجلد",
-        variant: "destructive",
-      });
-    }
+    if (!selectedFolderObj || !newFolderName.trim()) return;
+    const ok = await renameFolder(selectedFolderObj.id, newFolderName);
+    if (ok) {
+      toast({ title: 'تم', description: 'تم تغيير الاسم' });
+      setRenameFolderOpen(false); setNewFolderName(''); setSelectedFolderObj(null);
+    } else toast({ title: 'خطأ', description: 'فشل التغيير', variant: 'destructive' });
   };
 
-  // Delete folders
   const handleDeleteFolders = async () => {
-    if (selectedFolders.size === 0) return;
-    
-    if (!confirm(`هل أنت متأكد من حذف ${selectedFolders.size} مجلد؟`)) return;
-
-    let successCount = 0;
-    for (const folderId of selectedFolders) {
-      try {
-        const res = await fetch(`/api/admin/media/folders/${folderId}`, {
-          method: "DELETE",
-        });
-        if (res.ok) successCount++;
-      } catch (error) {
-        console.error("Error deleting folder:", error);
-      }
-    }
-
-    toast({
-      title: "تم الحذف",
-      description: `تم حذف ${successCount} مجلد`,
-    });
-
-    setSelectedFolders(new Set());
-    fetchData();
+    if (!selectedFolders.size) return;
+    if (!confirm('حذف المجلدات المحددة؟')) return;
+    const count = await deleteFolders([...selectedFolders]);
+    toast({ title: 'تم', description: `تم حذف ${count}` });
   };
 
-  // Delete assets
   const handleDeleteAssets = async () => {
-    if (selectedAssets.size === 0) return;
-    
-    if (!confirm(`هل أنت متأكد من حذف ${selectedAssets.size} ملف؟`)) return;
-
-    let successCount = 0;
-    for (const assetId of selectedAssets) {
-      try {
-        const res = await fetch(`/api/admin/media/assets/${assetId}`, {
-          method: "DELETE",
-        });
-        if (res.ok) successCount++;
-      } catch (error) {
-        console.error("Error deleting asset:", error);
-      }
-    }
-
-    toast({
-      title: "تم الحذف",
-      description: `تم حذف ${successCount} ملف`,
-    });
-
-    setSelectedAssets(new Set());
-    fetchData();
+    if (!selectedAssets.size) return;
+    if (!confirm('حذف الملفات المحددة؟')) return;
+    const count = await deleteAssets([...selectedAssets]);
+    toast({ title: 'تم', description: `تم حذف ${count}` });
   };
 
-  // Move items
   const handleMoveItems = async () => {
-    if (selectedAssets.size === 0 && selectedFolders.size === 0) return;
-
-    try {
-      // Move assets
-      for (const assetId of selectedAssets) {
-        await fetch(`/api/admin/media/assets/${assetId}/move`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ folderId: targetFolderId }),
-        });
-      }
-
-      // Move folders
-      for (const folderId of selectedFolders) {
-        await fetch(`/api/admin/media/folders/${folderId}/move`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ parentId: targetFolderId }),
-        });
-      }
-
-      toast({
-        title: "تم النقل",
-        description: "تم نقل العناصر المحددة بنجاح",
-      });
-
-      setMoveItemsOpen(false);
-      setSelectedAssets(new Set());
-      setSelectedFolders(new Set());
-      fetchData();
-    } catch (error) {
-      toast({
-        title: "خطأ",
-        description: "فشل نقل بعض العناصر",
-        variant: "destructive",
-      });
-    }
+    await moveAssets([...selectedAssets], targetFolderId);
+    await moveFolders([...selectedFolders], targetFolderId);
+    toast({ title: 'تم النقل', description: 'تم نقل العناصر' });
+    setMoveItemsOpen(false);
   };
 
-  // Update asset
   const handleUpdateAsset = async () => {
     if (!selectedAsset) return;
-
-    try {
-      const res = await fetch(`/api/admin/media/assets/${selectedAsset.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          altText: assetAltText,
-          metadata: {
-            ...selectedAsset.metadata,
-            altText: assetAltText
-          }
-        }),
-      });
-
-      if (!res.ok) throw new Error("Failed to update asset");
-
-      toast({
-        title: "تم التحديث",
-        description: "تم تحديث بيانات الملف بنجاح",
-      });
-
-      setEditAssetOpen(false);
-      setSelectedAsset(null);
-      setAssetAltText("");
-      fetchData();
-    } catch (error) {
-      toast({
-        title: "خطأ",
-        description: "فشل تحديث بيانات الملف",
-        variant: "destructive",
-      });
-    }
+    const ok = await updateAssetMeta(selectedAsset.id, { altText: assetAltText });
+    if (ok) {
+      toast({ title: 'تم', description: 'تحديث ناجح' });
+      setEditAssetOpen(false); setSelectedAsset(null); setAssetAltText('');
+    } else toast({ title: 'خطأ', description: 'فشل التحديث', variant: 'destructive' });
   };
 
-  // Toggle selection
-  const toggleAssetSelection = (assetId: string) => {
-    const newSelection = new Set(selectedAssets);
-    if (newSelection.has(assetId)) {
-      newSelection.delete(assetId);
-    } else {
-      newSelection.add(assetId);
-    }
-    setSelectedAssets(newSelection);
-  };
-
-  const toggleFolderSelection = (folderId: string) => {
-    const newSelection = new Set(selectedFolders);
-    if (newSelection.has(folderId)) {
-      newSelection.delete(folderId);
-    } else {
-      newSelection.add(folderId);
-    }
-    setSelectedFolders(newSelection);
-  };
-
-  // Select all
+  const toggleAssetSelection = (id: string) => selectAsset(id);
+  const toggleFolderSelection = (id: string) => selectFolder(id);
   const selectAll = () => {
-    setSelectedAssets(new Set(assets.map(a => a.id)));
-    setSelectedFolders(new Set(folders.filter(f => f.parentId === currentFolder?.id).map(f => f.id)));
+    assets.forEach(a => selectAsset(a.id));
+    folders.filter(f => f.parentId === currentFolder?.id).forEach(f => selectFolder(f.id));
   };
 
-  const clearSelection = () => {
-    setSelectedAssets(new Set());
-    setSelectedFolders(new Set());
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024; const sizes = ['Bytes','KB','MB','GB'];
+    const i = Math.floor(Math.log(bytes)/Math.log(k));
+    return parseFloat((bytes / Math.pow(k,i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  // Get icon for file type
   const getFileIcon = (type: string) => {
     switch (type) {
-      case "IMAGE": return <ImageIcon className="w-5 h-5" />;
-      case "VIDEO": return <Film className="w-5 h-5" />;
-      case "AUDIO": return <Music className="w-5 h-5" />;
+      case 'IMAGE': return <ImageIcon className="w-5 h-5" />;
+      case 'VIDEO': return <Film className="w-5 h-5" />;
+      case 'AUDIO': return <Music className="w-5 h-5" />;
       default: return <FileText className="w-5 h-5" />;
     }
   };
 
-  // Format file size
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
-  };
-
-  // Handle drag and drop
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
-    
-    if (e.dataTransfer.files.length > 0) {
-      handleFileUpload(e.dataTransfer.files);
-    }
+    if (e.dataTransfer.files.length) handleFileUpload(e.dataTransfer.files);
   };
+
+  const useVirtual = assets.length > 150 && viewMode === 'grid';
+  
+  const visibleFolders = folders.filter(f => f.parentId === currentFolder?.id);
+  const gridItems = [...visibleFolders.map(f => ({ kind: 'folder' as const, item: f })), ...assets.map(a => ({ kind: 'asset' as const, item: a }))];
+  const imageAssets = assets.filter(a => a.type === 'IMAGE');
+  const openPreviewById = (id: string) => {
+    const idx = imageAssets.findIndex(a => a.id === id);
+    if (idx >= 0) setPreviewIndex(idx);
+  };
+  const closePreview = () => setPreviewIndex(null);
+  const navPreview = (dir: 1 | -1) => {
+    if (previewIndex == null) return;
+    const next = (previewIndex + dir + imageAssets.length) % imageAssets.length;
+    setPreviewIndex(next);
+  };
+
+  useEffect(() => {
+    if (viewMode !== 'grid' || useVirtual) return; // مبدئياً للنسخة غير الافتراضية
+    const handler = (e: KeyboardEvent) => {
+      if (previewIndex != null) {
+        // داخل اللايت بوكس
+        if (e.key === 'Escape') { e.preventDefault(); closePreview(); return; }
+        if (e.key === 'ArrowRight') { e.preventDefault(); navPreview(1); return; }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); navPreview(-1); return; }
+      }
+      const target = e.target as HTMLElement;
+      if (['INPUT','TEXTAREA','SELECT','BUTTON'].includes(target.tagName)) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (!gridItems.length) return;
+      const width = typeof window !== 'undefined' ? window.innerWidth : 1200;
+      // تقريب عدد الأعمدة حسب الكثافة و العرض
+      let cols = 4;
+      if (density === 'compact') cols = width >= 1536 ? 8 : width >= 1024 ? 6 : width >= 768 ? 4 : 3;
+      else if (density === 'comfortable') cols = width >= 1280 ? 6 : width >= 1024 ? 4 : width >= 768 ? 3 : 2;
+      else if (density === 'expanded') cols = width >= 1280 ? 4 : width >= 1024 ? 3 : width >= 640 ? 2 : 1;
+      let next = focusIndex;
+      switch (e.key) {
+        case 'ArrowRight':
+          e.preventDefault();
+          next = (focusIndex + 1 + gridItems.length) % gridItems.length; break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          next = (focusIndex - 1 + gridItems.length) % gridItems.length; break;
+        case 'ArrowDown':
+          e.preventDefault();
+          next = focusIndex < 0 ? 0 : Math.min(gridItems.length - 1, focusIndex + cols); break;
+        case 'ArrowUp':
+          e.preventDefault();
+          next = focusIndex < 0 ? 0 : Math.max(0, focusIndex - cols); break;
+        case 'Home':
+          e.preventDefault(); next = 0; break;
+        case 'End':
+          e.preventDefault(); next = gridItems.length - 1; break;
+        case 'Escape':
+          clearSelection(); setFocusIndex(-1); return;
+        case ' ': // Space toggle selection
+          if (focusIndex >= 0) {
+            e.preventDefault();
+            const gi = gridItems[focusIndex];
+            if (gi.kind === 'asset') selectAsset(gi.item.id); else selectFolder(gi.item.id);
+          }
+          return;
+        case 'Enter':
+          if (focusIndex >= 0) {
+            e.preventDefault();
+            const gi = gridItems[focusIndex];
+            if (gi.kind === 'folder') setCurrentFolder(gi.item); else { setSelectedAsset(gi.item); setViewDetailsOpen(true); }
+          }
+          return;
+        default:
+          return;
+      }
+      setFocusIndex(next < 0 ? 0 : next);
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [viewMode, useVirtual, gridItems, focusIndex, density, clearSelection, selectAsset, selectFolder, setCurrentFolder]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -523,6 +332,18 @@ export default function EnhancedMediaLibraryPage() {
               >
                 {viewMode === "grid" ? <List className="w-4 h-4" /> : <Grid3X3 className="w-4 h-4" />}
               </Button>
+              {viewMode === 'grid' && (
+                <Select value={density} onValueChange={(v: any) => setDensity(v)}>
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue placeholder="الكثافة" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="compact">مضغوط</SelectItem>
+                    <SelectItem value="comfortable">متوسط</SelectItem>
+                    <SelectItem value="expanded">واسع</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
               <Button
                 variant="outline"
                 onClick={() => setCreateFolderOpen(true)}
@@ -759,32 +580,53 @@ export default function EnhancedMediaLibraryPage() {
           ) : (
             <ScrollArea className="h-[600px]">
               <div className="p-6">
+                {useVirtual && (
+                  <div className="mb-6">
+                    <VirtualizedMediaGrid
+                      assets={assets}
+                      onSelect={(id) => toggleAssetSelection(id)}
+                      isSelected={(id) => selectedAssets.has(id)}
+                      onOpen={(asset) => { setSelectedAsset(asset); setViewDetailsOpen(true); }}
+                    />
+                  </div>
+                )}
+                {!useVirtual && (
                 <AnimatePresence mode="wait">
                   {viewMode === "grid" ? (
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4"
+                      className={cn(
+                        'grid gap-4',
+                        density === 'compact' && 'grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8',
+                        density === 'comfortable' && 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6',
+                        density === 'expanded' && 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4'
+                      )}
                     >
                       {/* Folders */}
                       {folders
                         .filter(f => f.parentId === currentFolder?.id)
-                        .map((folder) => (
-                          <motion.div
-                            key={folder.id}
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            whileHover={{ scale: 1.05 }}
-                            className={cn(
-                              "relative group cursor-pointer",
-                              selectedFolders.has(folder.id) && "ring-2 ring-blue-500 rounded-lg"
-                            )}
-                          >
-                            <div
-                              className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
-                              onDoubleClick={() => setCurrentFolder(folder)}
-                            >
+                        .map((folder) => {
+                          const idx = gridItems.findIndex(g => g.kind === 'folder' && g.item.id === folder.id);
+                          const focused = idx === focusIndex;
+                          return (
+                           <motion.div
+                             key={folder.id}
+                             initial={{ scale: 0.9, opacity: 0 }}
+                             animate={{ scale: 1, opacity: 1 }}
+                             whileHover={{ scale: 1.05 }}
+                             className={cn(
+                               "relative group cursor-pointer",
+                               selectedFolders.has(folder.id) && "ring-2 ring-blue-500 rounded-lg",
+                               focused && 'ring-2 ring-purple-500 rounded-lg'
+                             )}
+                            tabIndex={0}
+                             >
+                             <div
+                               className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                               onDoubleClick={() => setCurrentFolder(folder)}
+                             >
                               <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <Checkbox
                                   checked={selectedFolders.has(folder.id)}
@@ -805,7 +647,7 @@ export default function EnhancedMediaLibraryPage() {
                                       فتح
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => {
-                                      setSelectedFolder(folder);
+                                      setSelectedFolderObj(folder);
                                       setNewFolderName(folder.name);
                                       setRenameFolderOpen(true);
                                     }}>
@@ -813,7 +655,7 @@ export default function EnhancedMediaLibraryPage() {
                                       إعادة تسمية
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => {
-                                      setSelectedFolders(new Set([folder.id]));
+                                      selectFolder(folder.id); // تعديل نقل مجلد
                                       setMoveItemsOpen(true);
                                     }}>
                                       <Move className="w-4 h-4 ml-2" />
@@ -823,7 +665,6 @@ export default function EnhancedMediaLibraryPage() {
                                     <DropdownMenuItem 
                                       className="text-red-600"
                                       onClick={() => {
-                                        setSelectedFolders(new Set([folder.id]));
                                         handleDeleteFolders();
                                       }}
                                     >
@@ -841,21 +682,26 @@ export default function EnhancedMediaLibraryPage() {
                                 {folder._count.assets} ملف
                               </p>
                             </div>
-                          </motion.div>
-                        ))}
+                           </motion.div>
+                        );})}
 
                       {/* Assets */}
-                      {assets.map((asset) => (
-                        <motion.div
-                          key={asset.id}
-                          initial={{ scale: 0.9, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          whileHover={{ scale: 1.05 }}
-                          className={cn(
-                            "relative group cursor-pointer",
-                            selectedAssets.has(asset.id) && "ring-2 ring-blue-500 rounded-lg"
-                          )}
-                        >
+                      {assets.map((asset) => {
+                        const idx = gridItems.findIndex(g => g.kind === 'asset' && g.item.id === asset.id);
+                        const focused = idx === focusIndex;
+                        return (
+                         <motion.div
+                           key={asset.id}
+                           initial={{ scale: 0.9, opacity: 0 }}
+                           animate={{ scale: 1, opacity: 1 }}
+                           whileHover={{ scale: 1.05 }}
+                           className={cn(
+                             "relative group cursor-pointer",
+                             selectedAssets.has(asset.id) && "ring-2 ring-blue-500 rounded-lg",
+                             focused && 'ring-2 ring-purple-500 rounded-lg'
+                           )}
+                          tabIndex={0}
+                         >
                           <div className="bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden">
                             <div className="absolute top-2 left-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
                               <Checkbox
@@ -904,7 +750,7 @@ export default function EnhancedMediaLibraryPage() {
                                     </a>
                                   </DropdownMenuItem>
                                   <DropdownMenuItem onClick={() => {
-                                    setSelectedAssets(new Set([asset.id]));
+                                    selectAsset(asset.id); // بدل setSelectedAssets
                                     setMoveItemsOpen(true);
                                   }}>
                                     <Move className="w-4 h-4 ml-2" />
@@ -914,7 +760,7 @@ export default function EnhancedMediaLibraryPage() {
                                   <DropdownMenuItem 
                                     className="text-red-600"
                                     onClick={() => {
-                                      setSelectedAssets(new Set([asset.id]));
+                                      selectAsset(asset.id); // تحديد واحد قبل الحذف
                                       handleDeleteAssets();
                                     }}
                                   >
@@ -926,15 +772,24 @@ export default function EnhancedMediaLibraryPage() {
                             </div>
                             
                             {asset.type === "IMAGE" ? (
-                              <div className="aspect-square bg-gray-50 dark:bg-gray-800 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                                <img
+                              <div className={cn(
+                                'bg-gray-50 dark:bg-gray-800 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all relative',
+                                density === 'compact' && 'aspect-square',
+                                density === 'comfortable' && 'aspect-square',
+                                density === 'expanded' && 'aspect-[4/3]'
+                              )}>
+                                <LazyOptimizedImage
                                   src={asset.thumbnailUrl || asset.cloudinaryUrl}
                                   alt={asset.metadata?.altText || asset.filename}
-                                  className="w-full h-full object-contain p-2 cursor-pointer hover:scale-105 transition-transform duration-200"
-                                  onClick={() => {
-                                    setSelectedAsset(asset);
-                                    setViewDetailsOpen(true);
-                                  }}
+                                  fill
+                                  sizeHint={density === 'compact' ? 160 : density === 'comfortable' ? 240 : 320}
+                                  className={cn('p-2 cursor-pointer group-hover:scale-105 transition-transform', density === 'compact' && 'p-1')}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => openPreviewById(asset.id)}
+                                  className="absolute inset-0 focus:outline-none"
+                                  aria-label="عرض الصورة"
                                 />
                               </div>
                             ) : (
@@ -959,7 +814,7 @@ export default function EnhancedMediaLibraryPage() {
                             </div>
                           </div>
                         </motion.div>
-                      ))}
+                      );})}
                     </motion.div>
                   ) : (
                     <motion.div
@@ -1046,25 +901,26 @@ export default function EnhancedMediaLibraryPage() {
                     </motion.div>
                   )}
                 </AnimatePresence>
-
-                {/* Empty State */}
-                {assets.length === 0 && folders.filter(f => f.parentId === currentFolder?.id).length === 0 && (
-                  <div className="text-center py-12">
-                    <FolderOpen className="w-12 h-12 mx-auto text-gray-400 mb-3" />
-                    <p className="text-gray-600">لا توجد ملفات في هذا المجلد</p>
-                    <Button
-                      variant="outline"
-                      className="mt-4"
-                      onClick={() => document.getElementById("file-upload")?.click()}
-                    >
-                      <Upload className="w-4 h-4 ml-2" />
-                      رفع ملفات
-                    </Button>
-                  </div>
                 )}
-              </div>
-            </ScrollArea>
-          )}
+
+                 {/* Empty State */}
+                 {assets.length === 0 && folders.filter(f => f.parentId === currentFolder?.id).length === 0 && (
+                   <div className="text-center py-12">
+                     <FolderOpen className="w-12 h-12 mx-auto text-gray-400 mb-3" />
+                     <p className="text-gray-600">لا توجد ملفات في هذا المجلد</p>
+                     <Button
+                       variant="outline"
+                       className="mt-4"
+                       onClick={() => document.getElementById("file-upload")?.click()}
+                     >
+                       <Upload className="w-4 h-4 ml-2" />
+                       رفع ملفات
+                     </Button>
+                   </div>
+                 )}
+               </div>
+             </ScrollArea>
+           )}
 
           {/* Drag & Drop Overlay */}
           {dragOver && (
@@ -1073,6 +929,43 @@ export default function EnhancedMediaLibraryPage() {
                 <Upload className="w-16 h-16 mx-auto mb-3 text-blue-500" />
                 <p className="text-lg font-medium">أفلت الملفات هنا للرفع</p>
               </div>
+            </div>
+          )}
+
+          {/* Lightbox Preview */}
+          {previewIndex != null && imageAssets[previewIndex] && (
+            <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex flex-col" role="dialog" aria-modal="true">
+              <div className="flex items-center justify-between px-4 py-3 text-white text-sm">
+                <div className="flex items-center gap-3">
+                  <span>{imageAssets[previewIndex].filename}</span>
+                  {imageAssets[previewIndex].width && imageAssets[previewIndex].height && (
+                    <span className="text-gray-300">{imageAssets[previewIndex].width}×{imageAssets[previewIndex].height}</span>
+                  )}
+                  <span className="text-gray-300">{(imageAssets[previewIndex].size/1024).toFixed(1)} KB</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button size="sm" variant="secondary" onClick={() => {navigator.clipboard.writeText(imageAssets[previewIndex].cloudinaryUrl); toast({title:'تم النسخ', description:'تم نسخ الرابط'});}}>نسخ الرابط</Button>
+                  <a href={imageAssets[previewIndex].cloudinaryUrl} download target="_blank"><Button size="sm" variant="secondary">تحميل</Button></a>
+                  <Button size="sm" variant="destructive" onClick={closePreview}>إغلاق (Esc)</Button>
+                </div>
+              </div>
+              <div className="flex-1 relative select-none">
+                <button className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 text-white rounded-full p-3" onClick={() => navPreview(1)} aria-label="التالي">›</button>
+                <button className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 text-white rounded-full p-3" onClick={() => navPreview(-1)} aria-label="السابق">‹</button>
+                <div className="absolute inset-0 flex items-center justify-center p-6">
+                  <div className="relative max-h-full max-w-full w-auto h-auto">
+                    <OptimizedImage
+                      src={imageAssets[previewIndex].cloudinaryUrl}
+                      alt={imageAssets[previewIndex].metadata?.altText || imageAssets[previewIndex].filename}
+                      width={imageAssets[previewIndex].width || 1200}
+                      height={imageAssets[previewIndex].height || 800}
+                      className="object-contain max-h-[80vh] max-w-[90vw] rounded-md shadow-lg"
+                      priority
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="p-4 text-center text-xs text-gray-300">استخدم الأسهم للتنقل، Esc للإغلاق</div>
             </div>
           )}
         </div>
@@ -1197,10 +1090,13 @@ export default function EnhancedMediaLibraryPage() {
               {selectedAsset?.type === "IMAGE" && (
                 <div className="bg-gray-50 dark:bg-gray-900 rounded-lg overflow-hidden p-4">
                   <div className="max-h-[400px] flex items-center justify-center">
-                    <img
+                    <OptimizedImage
                       src={selectedAsset.cloudinaryUrl}
                       alt={selectedAsset.metadata?.altText || selectedAsset.filename}
-                      className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
+                      width={800}
+                      height={600}
+                      className="mx-auto"
+                      priority
                     />
                   </div>
                 </div>
@@ -1241,10 +1137,13 @@ export default function EnhancedMediaLibraryPage() {
                 {selectedAsset.type === "IMAGE" && (
                   <div className="bg-gray-50 dark:bg-gray-900 rounded-lg overflow-hidden p-6">
                     <div className="max-h-[500px] flex items-center justify-center">
-                      <img
+                      <OptimizedImage
                         src={selectedAsset.cloudinaryUrl}
                         alt={selectedAsset.metadata?.altText || selectedAsset.filename}
-                        className="max-w-full max-h-full object-contain rounded-lg shadow-xl"
+                        width={800}
+                        height={600}
+                        className="mx-auto"
+                        priority
                       />
                     </div>
                   </div>

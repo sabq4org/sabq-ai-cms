@@ -1,3 +1,11 @@
+export interface MediaMetadata {
+  altText?: string;
+  tags?: string[];
+  dominantColor?: string;
+  usageCount?: number; // مرات الاستخدام في المقالات
+  [key: string]: any;
+}
+
 export interface MediaFolder {
   id: string;
   name: string;
@@ -33,4 +41,20 @@ export interface MediaAsset {
     avatar?: string;
   };
   createdAt: string;
+  metadata?: MediaMetadata; // معلومات إضافية
+}
+
+export interface MediaStats {
+  totalAssets: number;
+  totalFolders: number;
+  totalSize: number;
+  assetsByType: {
+    IMAGE: number;
+    VIDEO: number;
+    AUDIO: number;
+    DOCUMENT: number;
+  };
+  recentUploads: number;
+  storageUsed: number;
+  storageLimit: number;
 }
