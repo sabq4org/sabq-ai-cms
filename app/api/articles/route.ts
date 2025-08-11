@@ -269,6 +269,8 @@ export async function POST(request: NextRequest) {
   console.log("📡 Request url:", request.url);
 
   let data: any = {}; // تعريف data خارج try block
+  let authorId: string | null | undefined = null; // تعريف authorId خارج try block
+  let categoryId: string | null | undefined = null; // تعريف categoryId خارج try block
 
   try {
     // معالجة آمنة لتحليل JSON
@@ -292,9 +294,8 @@ export async function POST(request: NextRequest) {
     }
 
     // توحيد أسماء الحقول المختلفة
-    const authorId =
-      data.author_id || data.authorId || data.article_author_id || null;
-    const categoryId = data.category_id || data.categoryId || null;
+    authorId = data.author_id || data.authorId || data.article_author_id || null;
+    categoryId = data.category_id || data.categoryId || null;
 
     console.log("🔄 توحيد الحقول:", {
       original_author: data.author_id,
@@ -314,20 +315,38 @@ export async function POST(request: NextRequest) {
     }
 
     // معالجة المحتوى - يمكن أن يكون string أو object من المحرر
+    console.log("🔍 نوع المحتوى الأصلي:", typeof data.content, "القيمة:", data.content);
+    
     let processedContent = data.content;
     
     if (typeof data.content === 'object' && data.content !== null) {
+      console.log("📋 معالجة محتوى object:", Object.keys(data.content));
       if (data.content.html) {
         processedContent = data.content.html;
+        console.log("✅ استخراج HTML من المحتوى");
       } else if (data.content.content) {
         processedContent = JSON.stringify(data.content);
+        console.log("✅ تحويل المحتوى إلى JSON string");
       } else {
         processedContent = JSON.stringify(data.content);
+        console.log("✅ تحويل الكائن كاملاً إلى JSON string");
       }
     }
 
+    // تأكد من أن المحتوى المعالج string وليس null أو undefined
+    if (typeof processedContent !== 'string') {
+      processedContent = String(processedContent || '');
+      console.log("⚠️ تحويل المحتوى إلى string:", typeof processedContent);
+    }
+
+    console.log("🎯 المحتوى النهائي المعالج:", {
+      type: typeof processedContent,
+      length: processedContent?.length || 0,
+      preview: processedContent?.substring(0, 100) || 'فارغ'
+    });
+
     // التحقق من المحتوى بعد المعالجة
-    if (!processedContent?.trim()) {
+    if (!processedContent || !processedContent.trim()) {
       errors.push("محتوى المقال مطلوب ولا يمكن أن يكون فارغاً");
     }
 
@@ -410,7 +429,7 @@ export async function POST(request: NextRequest) {
     // محاولة البحث في article_authors أولاً (النظام الجديد)
     try {
       author = await prisma.article_authors.findUnique({
-        where: { id: authorId },
+        where: { id: authorId || undefined },
         select: { id: true, full_name: true, email: true, is_active: true },
       });
 
@@ -442,7 +461,7 @@ export async function POST(request: NextRequest) {
     if (!author) {
       try {
         const userAuthor = await prisma.users.findUnique({
-          where: { id: authorId },
+          where: { id: authorId || undefined },
           select: { id: true, name: true, email: true, role: true },
         });
 
@@ -467,7 +486,7 @@ export async function POST(request: NextRequest) {
 
     // فحص التصنيف
     const category = await prisma.categories.findUnique({
-      where: { id: categoryId },
+      where: { id: categoryId || undefined },
     });
 
     if (!author) {
