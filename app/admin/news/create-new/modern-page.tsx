@@ -103,6 +103,7 @@ export default function ModernCreateNewsPage() {
   const [saving, setSaving] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [authors, setAuthors] = useState<Author[]>([]);
+  const [aiGenerating, setAIGenerating] = useState(false);
 
   // حالة النموذج
   const [formData, setFormData] = useState({
@@ -280,9 +281,20 @@ export default function ModernCreateNewsPage() {
 
   // Handle form submission
   const handleAIGeneration = async () => {
-    if (!formData.content || formData.content.length < 50) return;
+    if (!formData.content || formData.content.length < 50) {
+      toast({
+        title: "المحتوى قصير جداً",
+        description: "يجب أن يكون المحتوى 50 حرفاً على الأقل للتوليد التلقائي",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setAIGenerating(true);
     
     try {
+      console.log("بدء التوليد التلقائي للمحتوى...");
+      
       const response = await fetch("/api/admin/ai/generate-content", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -291,25 +303,42 @@ export default function ModernCreateNewsPage() {
 
       if (response.ok) {
         const data = await response.json();
+        console.log("نتائج التوليد التلقائي:", data);
+        
+        // تطبيق جميع الحقول المولدة
         setFormData(prev => ({
           ...prev,
           title: data.title || prev.title,
           subtitle: data.subtitle || prev.subtitle,
           excerpt: data.excerpt || prev.excerpt,
           keywords: data.keywords || prev.keywords,
+          // تحديث SEO أيضاً
+          seoTitle: data.title || prev.seoTitle,
+          seoDescription: data.excerpt || prev.seoDescription,
         }));
         
         toast({
-          title: "تم التوليد بنجاح",
+          title: "تم التوليد بنجاح ✨",
           description: "تم توليد العنوان والموجز والكلمات المفتاحية",
+        });
+      } else {
+        const error = await response.json();
+        console.error("خطأ من الخادم:", error);
+        toast({
+          title: "خطأ في التوليد",
+          description: error.error || "فشل في توليد المحتوى",
+          variant: "destructive",
         });
       }
     } catch (error) {
+      console.error("خطأ في التوليد:", error);
       toast({
         title: "خطأ",
-        description: "حدث خطأ أثناء التوليد التلقائي",
+        description: "حدث خطأ أثناء الاتصال بخدمة الذكاء الاصطناعي",
         variant: "destructive",
       });
+    } finally {
+      setAIGenerating(false);
     }
   };
 
@@ -688,10 +717,19 @@ export default function ModernCreateNewsPage() {
                       size="sm"
                       className="gap-2 text-purple-600 hover:text-purple-700"
                       onClick={handleAIGeneration}
-                      disabled={!formData.content || formData.content.length < 50}
+                      disabled={!formData.content || formData.content.length < 50 || aiGenerating}
                     >
-                      <Sparkles className="w-4 h-4" />
-                      🤖 توليد تلقائي
+                      {aiGenerating ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          جاري التوليد...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-4 h-4" />
+                          🤖 توليد تلقائي
+                        </>
+                      )}
                     </Button>
                   </div>
                 </CardHeader>
