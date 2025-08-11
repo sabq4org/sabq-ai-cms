@@ -74,11 +74,14 @@ export function getRedisClient(): Redis | null {
 
       redisInstance.on("error", (err: any) => {
         connectionStatus = "error";
-        console.error("❌ [Redis Client] خطأ في الاتصال:", err.message);
+        // تجنب طباعة خطأ ETIMEDOUT المتكرر
+        if (!err.message.includes("ETIMEDOUT")) {
+          console.error("❌ [Redis Client] خطأ في الاتصال:", err.message);
+        }
         // إغلاق الاتصال ومنع إعادة المحاولة لمنع "Unhandled Rejection"
         if (redisInstance) {
           try {
-            redisInstance.disconnect();
+            redisInstance.disconnect(false); // false = don't reconnect
           } catch {}
         }
         redisInstance = null; // السماح بإعادة الإنشاء في المحاولة التالية

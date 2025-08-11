@@ -175,6 +175,7 @@ model articles {
   ml_predictions     MLPredictions[]
   sentiment_analyses SentimentAnalysis[]
   article_quotes     article_quotes[]
+  article_tags       article_tags[]
   article_author     article_authors?    @relation(fields: [article_author_id], references: [id])
   author             users               @relation("ArticleAuthor", fields: [author_id], references: [id])
   categories         categories?         @relation(fields: [category_id], references: [id])
@@ -2101,4 +2102,46 @@ enum ads_placement {
   sidebar_top
   sidebar_bottom
   footer_banner
+}
+
+// نموذج الكلمات المفتاحية
+model tags {
+  id                   String   @id @default(cuid())
+  name                 String   @unique
+  slug                 String   @unique
+  description          String?
+  color                String   @default("#3B82F6")
+  category             String?
+  priority             Int      @default(5)
+  is_active            Boolean  @default(true)
+  synonyms             String[] @default([])
+  seo_meta_description String?
+  created_at           DateTime @default(now())
+  updated_at           DateTime @updatedAt
+
+  // العلاقات
+  article_tags article_tags[]
+
+  @@index([name])
+  @@index([slug])
+  @@index([category])
+  @@index([is_active])
+  @@index([priority])
+  @@map("tags")
+}
+
+// جدول ربط المقالات بالكلمات المفتاحية (many-to-many)
+model article_tags {
+  id         String @id @default(cuid())
+  article_id String
+  tag_id     String
+
+  // العلاقات
+  articles articles @relation(fields: [article_id], references: [id], onDelete: Cascade)
+  tags     tags     @relation(fields: [tag_id], references: [id], onDelete: Cascade)
+
+  @@unique([article_id, tag_id])
+  @@index([article_id])
+  @@index([tag_id])
+  @@map("article_tags")
 }
