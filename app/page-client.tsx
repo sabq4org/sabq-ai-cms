@@ -557,6 +557,15 @@ function NewspaperHomePage({
     if (articles.length > 0) {
       fetchSmartRecommendations();
     }
+
+    // تحديث التوصيات كل 30 ثانية لضمان ظهور المحتوى الجديد
+    const interval = setInterval(() => {
+      if (articles.length > 0) {
+        fetchSmartRecommendations();
+      }
+    }, 30000); // كل 30 ثانية
+
+    return () => clearInterval(interval);
   }, [articles, user]);
 
   // =============================

@@ -126,7 +126,8 @@ async function getUserBehaviorData(userId?: string): Promise<UserBehavior> {
 
   try {
     // استخدام API الجديد
-    const response = await fetch(`/api/user-behavior?userId=${userId}`, {
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    const response = await fetch(`${baseUrl}/api/user-behavior?userId=${userId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -408,10 +409,13 @@ async function fetchRecentQualityArticles(
   limit: number
 ): Promise<RecommendedArticle[]> {
   try {
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : process.env.NEXTAUTH_URL || 'http://localhost:3000';
     const response = await fetch(
-      `/api/articles?exclude=${excludeId}&limit=${
-        limit * 2
-      }&status=published&sortBy=published_at&order=desc&minViews=50`
+      `${baseUrl}/api/news?limit=${limit * 2}&status=published&sort=published_at&order=desc`,
+      {
+        next: { revalidate: 30 },
+        cache: 'no-store'
+      }
     );
 
     if (!response.ok) return [];
@@ -818,12 +822,15 @@ async function fetchArticlesByCategories(
   excludeId: string
 ): Promise<RecommendedArticle[]> {
   try {
-    // بناء معايير البحث للتصنيفات
-    const categoryQuery = categories
-      .map((cat) => `category=${encodeURIComponent(cat)}`)
-      .join("&");
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    // استخدام أول تصنيف فقط حالياً لأن API لا يدعم تصنيفات متعددة
+    const categoryParam = categories[0] ? `&category=${encodeURIComponent(categories[0])}` : '';
     const response = await fetch(
-      `/api/articles?${categoryQuery}&exclude=${excludeId}&limit=15&status=published&sortBy=views&order=desc`
+      `${baseUrl}/api/news?limit=15&status=published&sort=published_at&order=desc${categoryParam}`,
+      {
+        next: { revalidate: 30 },
+        cache: 'no-store'
+      }
     );
 
     if (!response.ok) {
@@ -931,8 +938,14 @@ async function fetchTrendingArticles(
   tags: string[]
 ): Promise<RecommendedArticle[]> {
   try {
+    // استخدام API الأخبار بدلاً من المقالات للحصول على أحدث المحتوى
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : process.env.NEXTAUTH_URL || 'http://localhost:3000';
     const response = await fetch(
-      `/api/articles?limit=8&status=published&sortBy=views&order=desc&trending=true`
+      `${baseUrl}/api/news?limit=10&status=published&sort=published_at&order=desc&breaking=false&featured=false`,
+      {
+        next: { revalidate: 30 }, // تحديث كل 30 ثانية
+        cache: 'no-store' // منع الكاش لضمان الحصول على أحدث الأخبار
+      }
     );
 
     if (!response.ok) return [];

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 const prisma = new PrismaClient();
 
@@ -204,6 +205,33 @@ export async function POST(request: NextRequest) {
       } catch (quotesError) {
         console.error('⚠️ خطأ في حفظ الاقتباسات الذكية:', quotesError);
         // لا نفشل العملية بسبب الاقتباسات
+      }
+    }
+    
+    // مسح الكاش إذا كان المقال منشور
+    if (data.status === 'published') {
+      try {
+        // مسح كاش الصفحات الرئيسية
+        revalidatePath('/');
+        revalidatePath('/home');
+        revalidatePath('/home-v2');
+        revalidatePath('/news');
+        revalidatePath('/articles');
+        
+        // مسح كاش التصنيف إذا كان موجود
+        if (article.categories?.slug) {
+          revalidatePath(`/category/${article.categories.slug}`);
+        }
+        
+        // مسح كاش tags
+        revalidateTag('articles');
+        revalidateTag('news');
+        revalidateTag('featured-news');
+        
+        console.log('🔄 تم مسح الكاش بنجاح');
+      } catch (cacheError) {
+        console.error('⚠️ خطأ في مسح الكاش:', cacheError);
+        // لا نفشل العملية بسبب الكاش
       }
     }
     
