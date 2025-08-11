@@ -156,9 +156,11 @@ export default function NewDashboardPage() {
               { label: "الوسائط", href: "/admin/modern/media" },
               { label: "أنظمة AI", href: "/admin/ai-editor" },
             ].map((link, i) => (
-              <Button key={i} asChild variant="outline" className="justify-center">
-                <a href={link.href}>{link.label}</a>
-              </Button>
+              <a key={i} href={link.href}>
+                <Button variant="outline" className="w-full justify-center">
+                  {link.label}
+                </Button>
+              </a>
             ))}
           </div>
         </DesignComponents.StandardCard>

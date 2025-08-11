@@ -3,6 +3,8 @@
  * يحل مشاكل عرض الصور في بيئة الإنتاج
  */
 
+const PRODUCTION_DOMAIN = process.env.NEXT_PUBLIC_SITE_URL || 'https://sabq.io';
+
 export const PLACEHOLDER_IMAGES = {
   article: `/images/placeholder-news.svg`,
   analysis: `/images/deep-analysis-default.svg`,

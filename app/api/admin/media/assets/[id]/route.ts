@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth-utils";
+import { requireAdmin } from "@/lib/require-admin";
 import { v2 as cloudinary } from "cloudinary";
 
 // Configure Cloudinary
