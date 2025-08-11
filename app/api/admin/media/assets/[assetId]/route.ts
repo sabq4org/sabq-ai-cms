@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/require-admin";
 import prisma from "@/lib/prisma";
 import { z } from "zod";
+import { v2 as cloudinary } from "cloudinary";
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 const updateAssetSchema = z.object({
   filename: z.string().min(1).max(255).optional(),
@@ -185,8 +192,18 @@ export async function DELETE(request: NextRequest, props: Params) {
       );
     }
 
-    // TODO: Delete from Cloudinary
-    // await deleteFromCloudinary(asset.cloudinaryId);
+    // Delete from Cloudinary
+    if (asset.cloudinaryPublicId) {
+      try {
+        await cloudinary.uploader.destroy(asset.cloudinaryPublicId, {
+          resource_type: asset.resourceType === 'IMAGE' ? 'image' : 'video',
+        });
+      } catch (cloudinaryError) {
+        console.error("Cloudinary deletion failed:", cloudinaryError);
+        // Decide if you want to stop the process or just log the error
+        // For now, we'll log and continue to delete from DB
+      }
+    }
 
     // Delete from database
     await prisma.mediaAsset.delete({

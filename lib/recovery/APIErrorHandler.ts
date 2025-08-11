@@ -118,6 +118,15 @@ export class APIErrorHandler {
       const method = init?.method || 'GET';
       
       try {
+        // إذا كان body من نوع FormData لا نسمح بتمرير Content-Type يدوياً
+        if (init && init.body && typeof FormData !== 'undefined' && init.body instanceof FormData) {
+          const headers = new Headers(init.headers || {});
+          if (headers.has('Content-Type')) {
+            headers.delete('Content-Type');
+            init.headers = headers;
+          }
+        }
+
         // فحص الكاش أولاً للطلبات GET
         if (method === 'GET' && this.config.enableCaching) {
           const cached = this.getCachedResponse(url, method);

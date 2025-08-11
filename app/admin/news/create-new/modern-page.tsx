@@ -14,14 +14,6 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Switch } from "@/components/ui/switch";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Collapsible,
   CollapsibleContent,
@@ -46,6 +38,7 @@ import {
   Calendar,
   AlertCircle,
   CheckCircle,
+  Circle,
   Loader2,
   Sparkles,
   FileText,
@@ -62,18 +55,27 @@ import {
   Info,
   PenTool,
   Lightbulb,
+  Brain,
 } from "lucide-react";
 import { MediaPickerButton } from "@/components/admin/media/MediaPickerButton";
+import { generateShortSlug } from "@/lib/slug";
+import { toast } from "@/components/ui/use-toast";
 
 // تحميل المحرر بشكل ديناميكي
-const Editor = dynamic(() => import("@/components/Editor/Editor"), {
-  ssr: false,
-  loading: () => (
-    <div className="h-96 bg-gray-50 dark:bg-gray-800/50 animate-pulse rounded-lg flex items-center justify-center">
-      <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
-    </div>
-  ),
-});
+const Editor = dynamic(
+  () => import("@/components/Editor/Editor").catch((err) => {
+    console.error("Failed to load Editor:", err);
+    return { default: () => <div className="p-4 text-red-500">فشل تحميل المحرر. يرجى إعادة تحميل الصفحة.</div> };
+  }),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-96 bg-gray-50 dark:bg-gray-800/50 animate-pulse rounded-xl flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+      </div>
+    ),
+  }
+);
 
 interface Category {
   id: string;
@@ -115,7 +117,7 @@ export default function ModernCreateNewsPage() {
     keywords: [] as string[],
     seoTitle: "",
     seoDescription: "",
-    publishType: "now" as "now" | "scheduled",
+    publishType: "immediate" as "immediate" | "scheduled",
     scheduledDate: "",
     isBreaking: false,
     isFeatured: false,
@@ -124,24 +126,19 @@ export default function ModernCreateNewsPage() {
 
   // Keyword input state
   const [keywordInput, setKeywordInput] = useState("");
-  const [authorQuery, setAuthorQuery] = useState("");
-  const [categoryQuery, setCategoryQuery] = useState("");
+  // أزيلت حقول البحث عن المراسل والتصنيف بناء على طلب المستخدم
 
-  const filteredAuthors = useMemo(
-    () =>
-      authors.filter((a) =>
-        (a.name || "").toLowerCase().includes(authorQuery.toLowerCase())
-      ),
-    [authors, authorQuery]
-  );
+  const filteredAuthors = useMemo(() => authors, [authors]);
 
-  const filteredCategories = useMemo(
-    () =>
-      categories.filter((c) =>
-        ((c.name_ar || c.name) || "").toLowerCase().includes(categoryQuery.toLowerCase())
-      ),
-    [categories, categoryQuery]
-  );
+  const filteredCategories = useMemo(() => categories, [categories]);
+
+  // كلاسات التصميم البسيط
+  const inputClassName = "w-full bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:bg-white dark:focus:bg-gray-800 focus:border-gray-400 focus:outline-none transition-colors duration-200";
+  
+  const textareaClassName = "w-full bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:bg-white dark:focus:bg-gray-800 focus:border-gray-400 focus:outline-none transition-colors duration-200 resize-y min-h-[120px]";
+
+  const cardClassName = "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl";
+  const sidebarCardClassName = "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl";
 
   // Collapsible sections state
   const [expandedSections, setExpandedSections] = useState({
@@ -155,6 +152,9 @@ export default function ModernCreateNewsPage() {
   // Auto-save indicator
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [autoSaveEnabled, setAutoSaveEnabled] = useState(true);
+  // حالات فتح القوائم المنسدلة المخصصة
+  const [authorsOpen, setAuthorsOpen] = useState(false);
+  const [catsOpen, setCatsOpen] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -163,38 +163,85 @@ export default function ModernCreateNewsPage() {
 
   const fetchInitialData = async () => {
     try {
+      console.log("🔄 بدء تحميل البيانات...");
+      
       const [categoriesRes, authorsRes] = await Promise.all([
         fetch("/api/categories"),
-        fetch("/api/admin/article-authors"),
+        fetch("/api/admin/article-authors?active_only=true"),
       ]);
 
+      // معالجة التصنيفات
       if (categoriesRes.ok) {
         const categoriesData = await categoriesRes.json();
-        setCategories(categoriesData.categories || []);
+        const loadedCategories = categoriesData.categories || categoriesData || [];
+        setCategories(loadedCategories);
+        console.log(`📂 تم جلب ${loadedCategories.length} تصنيف`);
+
+        // تعيين تصنيف افتراضي
+        if (loadedCategories.length > 0 && !formData.categoryId) {
+          setFormData(prev => ({ ...prev, categoryId: loadedCategories[0].id }));
+        }
+      } else {
+        console.error("❌ فشل في تحميل التصنيفات");
+        toast({
+          title: "خطأ",
+          description: "فشل في تحميل التصنيفات",
+          variant: "destructive",
+        });
       }
 
+      // معالجة المؤلفين
       if (authorsRes.ok) {
         const authorsData = await authorsRes.json();
-        setAuthors(authorsData.authors || []);
+        
+        if (authorsData.success && authorsData.authors) {
+          const convertedAuthors = authorsData.authors.map((author: any) => ({
+            id: author.id,
+            name: author.full_name || author.name,
+            email: author.email || "",
+            slug: author.slug,
+            avatar: author.avatar_url || author.avatar,
+          }));
+
+          setAuthors(convertedAuthors);
+          console.log(`👥 تم جلب ${convertedAuthors.length} مراسل`);
+
+          // تعيين مؤلف افتراضي
+          if (convertedAuthors.length > 0 && !formData.authorId) {
+            setFormData(prev => ({ ...prev, authorId: convertedAuthors[0].id }));
+          }
+        } else {
+          console.log("⚠️ لا يوجد مؤلفين متاحين");
+          setAuthors([]);
+        }
+      } else {
+        console.error("❌ فشل في تحميل المؤلفين");
+        toast({
+          title: "خطأ",
+          description: "فشل في تحميل المراسلين",
+          variant: "destructive",
+        });
       }
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error("❌ خطأ في تحميل البيانات:", error);
+      toast({
+        title: "خطأ",
+        description: "حدث خطأ أثناء تحميل البيانات",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  // Auto-generate slug from title
+  // توليد سلاج قصير تلقائياً مرة واحدة عند التحميل إذا كان فارغاً
   useEffect(() => {
-    if (formData.title && !formData.slug) {
-      const slug = formData.title
-        .toLowerCase()
-        .replace(/[^\u0621-\u064A\w\s-]/g, "")
-        .trim()
-        .replace(/\s+/g, "-");
-      setFormData((prev) => ({ ...prev, slug }));
+    if (!formData.slug) {
+      setFormData((prev) => ({ ...prev, slug: generateShortSlug() }));
     }
-  }, [formData.title]);
+    // تشغيل مرة واحدة فقط عند التحميل
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Calculate completion score
   const calculateCompletion = () => {
@@ -210,14 +257,6 @@ export default function ModernCreateNewsPage() {
   };
 
   const completionScore = calculateCompletion();
-
-  // Toggle section
-  const toggleSection = (section: keyof typeof expandedSections) => {
-    setExpandedSections((prev) => ({
-      ...prev,
-      [section]: !prev[section],
-    }));
-  };
 
   // Handle keyword addition
   const handleAddKeyword = (e: React.KeyboardEvent) => {
@@ -240,6 +279,40 @@ export default function ModernCreateNewsPage() {
   };
 
   // Handle form submission
+  const handleAIGeneration = async () => {
+    if (!formData.content || formData.content.length < 50) return;
+    
+    try {
+      const response = await fetch("/api/admin/ai/generate-content", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: formData.content }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setFormData(prev => ({
+          ...prev,
+          title: data.title || prev.title,
+          subtitle: data.subtitle || prev.subtitle,
+          excerpt: data.excerpt || prev.excerpt,
+          keywords: data.keywords || prev.keywords,
+        }));
+        
+        toast({
+          title: "تم التوليد بنجاح",
+          description: "تم توليد العنوان والموجز والكلمات المفتاحية",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "خطأ",
+        description: "حدث خطأ أثناء التوليد التلقائي",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleSubmit = async (action: "draft" | "publish" | "review") => {
     setSaving(true);
 
@@ -250,7 +323,7 @@ export default function ModernCreateNewsPage() {
         published_at: action === "publish" ? new Date().toISOString() : null,
       };
 
-      const response = await fetch("/api/admin/news", {
+      const response = await fetch("/api/admin/articles", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -300,28 +373,134 @@ export default function ModernCreateNewsPage() {
 
   if (!isClient) return null;
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-950 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-gray-600" />
+          <p className="text-gray-600 dark:text-gray-400">جاري تحميل البيانات...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <TooltipProvider>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <TooltipProvider delayDuration={100}>
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-950">
         {/* Header */}
-        <div className="sticky top-0 z-40 bg-white dark:bg-gray-800 border-b">
-          <div className="container mx-auto px-4 py-4">
+        <div className="sticky top-0 z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+          <div className="container mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                   إنشاء خبر جديد
                 </h1>
-                <Badge variant="secondary" className="gap-1">
-                  <Progress value={completionScore} className="w-20 h-2" />
-                  <span className="text-xs">{completionScore}%</span>
-                </Badge>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-3 cursor-help">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">إكمال الخبر</span>
+                      <div className="flex items-center gap-3">
+                        <div className="relative w-32 h-2.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                          <div 
+                            className={cn(
+                              "absolute inset-y-0 left-0 transition-all duration-500 rounded-full",
+                              completionScore < 30 && "bg-red-500",
+                              completionScore >= 30 && completionScore < 60 && "bg-amber-500",
+                              completionScore >= 60 && completionScore < 100 && "bg-blue-500",
+                              completionScore === 100 && "bg-green-500"
+                            )}
+                            style={{ width: `${completionScore}%` }}
+                          />
+                        </div>
+                        <span className={cn(
+                          "text-sm font-medium transition-colors",
+                          completionScore < 30 && "text-red-600 dark:text-red-500",
+                          completionScore >= 30 && completionScore < 60 && "text-amber-600 dark:text-amber-500",
+                          completionScore >= 60 && completionScore < 100 && "text-blue-600 dark:text-blue-500",
+                          completionScore === 100 && "text-green-600 dark:text-green-500"
+                        )}>{completionScore}%</span>
+                      </div>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-0 overflow-hidden z-50">
+                    <div className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+                      <p className="font-semibold text-sm text-gray-900 dark:text-gray-100">متطلبات إكمال الخبر</p>
+                    </div>
+                    <div className="p-4 space-y-2">
+                      <div className={cn("flex items-center justify-between py-2 px-3 rounded-lg", formData.title ? "bg-green-50 dark:bg-green-900/20" : "bg-gray-50 dark:bg-gray-800/50")}>
+                        <span className={cn("text-sm font-medium", formData.title ? "text-green-700 dark:text-green-400" : "text-gray-600 dark:text-gray-400")}>
+                          العنوان الرئيسي
+                        </span>
+                        <span className={cn("text-xs font-semibold", formData.title ? "text-green-600 dark:text-green-500" : "text-gray-500 dark:text-gray-500")}>
+                          20%
+                        </span>
+                      </div>
+                      <div className={cn("flex items-center justify-between py-2 px-3 rounded-lg", formData.content && formData.content.length > 100 ? "bg-green-50 dark:bg-green-900/20" : "bg-gray-50 dark:bg-gray-800/50")}>
+                        <span className={cn("text-sm font-medium", formData.content && formData.content.length > 100 ? "text-green-700 dark:text-green-400" : "text-gray-600 dark:text-gray-400")}>
+                          محتوى الخبر (100+ حرف)
+                        </span>
+                        <span className={cn("text-xs font-semibold", formData.content && formData.content.length > 100 ? "text-green-600 dark:text-green-500" : "text-gray-500 dark:text-gray-500")}>
+                          30%
+                        </span>
+                      </div>
+                      <div className={cn("flex items-center justify-between py-2 px-3 rounded-lg", formData.excerpt ? "bg-green-50 dark:bg-green-900/20" : "bg-gray-50 dark:bg-gray-800/50")}>
+                        <span className={cn("text-sm font-medium", formData.excerpt ? "text-green-700 dark:text-green-400" : "text-gray-600 dark:text-gray-400")}>
+                          الموجز الذكي
+                        </span>
+                        <span className={cn("text-xs font-semibold", formData.excerpt ? "text-green-600 dark:text-green-500" : "text-gray-500 dark:text-gray-500")}>
+                          10%
+                        </span>
+                      </div>
+                      <div className={cn("flex items-center justify-between py-2 px-3 rounded-lg", formData.categoryId ? "bg-green-50 dark:bg-green-900/20" : "bg-gray-50 dark:bg-gray-800/50")}>
+                        <span className={cn("text-sm font-medium", formData.categoryId ? "text-green-700 dark:text-green-400" : "text-gray-600 dark:text-gray-400")}>
+                          التصنيف
+                        </span>
+                        <span className={cn("text-xs font-semibold", formData.categoryId ? "text-green-600 dark:text-green-500" : "text-gray-500 dark:text-gray-500")}>
+                          10%
+                        </span>
+                      </div>
+                      <div className={cn("flex items-center justify-between py-2 px-3 rounded-lg", formData.authorId ? "bg-green-50 dark:bg-green-900/20" : "bg-gray-50 dark:bg-gray-800/50")}>
+                        <span className={cn("text-sm font-medium", formData.authorId ? "text-green-700 dark:text-green-400" : "text-gray-600 dark:text-gray-400")}>
+                          المراسل
+                        </span>
+                        <span className={cn("text-xs font-semibold", formData.authorId ? "text-green-600 dark:text-green-500" : "text-gray-500 dark:text-gray-500")}>
+                          10%
+                        </span>
+                      </div>
+                      <div className={cn("flex items-center justify-between py-2 px-3 rounded-lg", formData.featuredImage ? "bg-green-50 dark:bg-green-900/20" : "bg-gray-50 dark:bg-gray-800/50")}>
+                        <span className={cn("text-sm font-medium", formData.featuredImage ? "text-green-700 dark:text-green-400" : "text-gray-600 dark:text-gray-400")}>
+                          الصورة البارزة
+                        </span>
+                        <span className={cn("text-xs font-semibold", formData.featuredImage ? "text-green-600 dark:text-green-500" : "text-gray-500 dark:text-gray-500")}>
+                          10%
+                        </span>
+                      </div>
+                      <div className={cn("flex items-center justify-between py-2 px-3 rounded-lg", formData.keywords.length > 0 ? "bg-green-50 dark:bg-green-900/20" : "bg-gray-50 dark:bg-gray-800/50")}>
+                        <span className={cn("text-sm font-medium", formData.keywords.length > 0 ? "text-green-700 dark:text-green-400" : "text-gray-600 dark:text-gray-400")}>
+                          الكلمات المفتاحية
+                        </span>
+                        <span className={cn("text-xs font-semibold", formData.keywords.length > 0 ? "text-green-600 dark:text-green-500" : "text-gray-500 dark:text-gray-500")}>
+                          10%
+                        </span>
+                      </div>
+                      {completionScore < 60 && (
+                        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg px-3 py-2 mt-3">
+                          <p className="text-xs text-amber-700 dark:text-amber-400 flex items-center gap-2">
+                            <AlertCircle className="w-3 h-3" />
+                            يجب إكمال 60% على الأقل للنشر
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
               </div>
 
               <div className="flex items-center gap-3">
                 {/* Auto-save indicator */}
                 {lastSaved && (
-                  <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                    <CheckCircle className="w-3 h-3" />
+                  <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4" />
                     حُفظ تلقائياً {lastSaved.toLocaleTimeString("ar-SA")}
                   </div>
                 )}
@@ -331,837 +510,698 @@ export default function ModernCreateNewsPage() {
                   variant="outline"
                   onClick={() => handleSubmit("draft")}
                   disabled={saving}
+                  className="gap-2"
                 >
-                  <Save className="w-4 h-4 ml-2" />
+                  <Save className="w-4 h-4" />
                   حفظ مسودة
                 </Button>
                 <Button
                   variant="secondary"
                   onClick={() => handleSubmit("review")}
                   disabled={saving}
+                  className="gap-2"
                 >
-                  <Eye className="w-4 h-4 ml-2" />
-                  طلب مراجعة
+                  <Eye className="w-4 h-4" />
+                  مراجعة
                 </Button>
-                <Button
-                  onClick={() => handleSubmit("publish")}
-                  disabled={saving || completionScore < 60}
-                  className="bg-gradient-to-l from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-                >
-                  {saving ? (
-                    <Loader2 className="w-4 h-4 ml-2 animate-spin" />
-                  ) : (
-                    <Send className="w-4 h-4 ml-2" />
-                  )}
-                  نشر فوري
-                </Button>
+                <div className="flex items-center gap-2 border-r px-4">
+                  <Button
+                    onClick={() => {
+                      setFormData(prev => ({ ...prev, publishType: 'immediate' }));
+                      handleSubmit("publish");
+                    }}
+                    disabled={saving || completionScore < 60}
+                    className={cn(
+                      "gap-2 transition-all",
+                      formData.publishType === 'immediate' 
+                        ? "bg-blue-600 hover:bg-blue-700 text-white" 
+                        : "bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
+                    )}
+                  >
+                    {saving && formData.publishType === 'immediate' ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Send className="w-4 h-4" />
+                    )}
+                    نشر فوري
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setFormData(prev => ({ ...prev, publishType: 'scheduled' }));
+                      // سيتم إضافة منطق الجدولة لاحقاً
+                    }}
+                    disabled={saving || completionScore < 60}
+                    className={cn(
+                      "gap-2 transition-all",
+                      formData.publishType === 'scheduled' 
+                        ? "bg-blue-600 hover:bg-blue-700 text-white" 
+                        : "bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
+                    )}
+                  >
+                    <Clock className="w-4 h-4" />
+                    مجدول
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Main Content */}
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-6 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content Area */}
-            <div className="lg:col-span-2 space-y-6">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                {/* Title & Slug */}
-                <Card className="border-0 shadow-sm">
-                  <CardContent className="p-6 space-y-4">
-                    <div>
-                      <Input
-                        placeholder="العنوان الرئيسي..."
-                        value={formData.title}
-                        onChange={(e) =>
-                          setFormData({ ...formData, title: e.target.value })
-                        }
-                        className="text-2xl font-bold border-0 px-0 focus-visible:ring-0 placeholder:text-gray-400"
-                      />
-                    </div>
-
-                    <div className="flex items-center gap-2 text-sm text-gray-500">
-                      <Link className="w-4 h-4" />
-                      <span>sabq.io/news/</span>
-                      <Input
-                        value={formData.slug}
-                        onChange={(e) =>
-                          setFormData({ ...formData, slug: e.target.value })
-                        }
-                        className="flex-1 h-8 text-sm bg-gray-100 dark:bg-gray-800 rounded-md focus-visible:ring-2 focus-visible:ring-blue-500 px-2"
-                        dir="ltr"
-                      />
-                    </div>
-
-                    <div>
-                      <Input
-                        placeholder="العنوان الفرعي (اختياري)"
-                        value={formData.subtitle}
-                        onChange={(e) =>
-                          setFormData({ ...formData, subtitle: e.target.value })
-                        }
-                        className="border rounded-md focus-visible:ring-2 focus-visible:ring-blue-500 placeholder:text-gray-400"
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Content Editor */}
-                <Card className="border-0 shadow-sm">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg">محتوى الخبر</CardTitle>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="gap-1 text-purple-600"
-                          >
-                            <Sparkles className="w-4 h-4" />
-                            مساعد AI
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>اكتب 50 حرفاً على الأقل لتفعيل المساعد</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                    <div className="min-h-[400px]">
-                      <Editor
-                        ref={editorRef}
-                        content={formData.content}
-                        onChange={(content) =>
-                          setFormData({ ...formData, content })
-                        }
-                        placeholder="اكتب محتوى الخبر هنا..."
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Excerpt */}
-                <Card className="border-0 shadow-sm">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <FileText className="w-5 h-5" />
-                      موجز الخبر
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <Textarea
-                      placeholder="اكتب موجزاً قصيراً للخبر..."
-                      value={formData.excerpt}
+            <div className="lg:col-span-2 space-y-8">
+              {/* Title & Subtitle Card */}
+              <Card className={cardClassName}>
+                <CardContent className="p-8 space-y-6">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      العنوان الرئيسي
+                    </Label>
+                    <Input
+                      placeholder="اكتب عنواناً جذاباً ومختصراً..."
+                      value={formData.title}
                       onChange={(e) =>
+                        setFormData({ ...formData, title: e.target.value })
+                      }
+                      className={cn(inputClassName, "font-bold text-lg")}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      العنوان الفرعي (اختياري)
+                    </Label>
+                    <Input
+                      placeholder="أضف تفاصيل إضافية..."
+                      value={formData.subtitle}
+                      onChange={(e) =>
+                        setFormData({ ...formData, subtitle: e.target.value })
+                      }
+                      className={inputClassName}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Smart Excerpt Card */}
+              <Card className={cardClassName}>
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Brain className="w-5 h-5 text-purple-600" />
+                    الموجز الذكي
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <Textarea
+                    placeholder="اكتب موجزاً ذكياً شاملاً يلخص محتوى الخبر..."
+                    value={formData.excerpt}
+                    onChange={(e) => {
+                      if (e.target.value.length <= 500) {
                         setFormData({ ...formData, excerpt: e.target.value })
                       }
-                      rows={3}
-                      className="resize-none rounded-md focus-visible:ring-2 focus-visible:ring-blue-500"
-                    />
-                    <p className="text-xs text-gray-500 mt-2">
-                      {formData.excerpt.length}/160 حرف
+                    }}
+                    rows={5}
+                    className={textareaClassName}
+                    maxLength={500}
+                  />
+                  <div className="flex justify-start items-center mt-3">
+                    <p className="text-xs text-gray-500">
+                      {formData.excerpt.length}/500 حرف
                     </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Content Editor Card */}
+              <Card className={cardClassName}>
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">محتوى الخبر</CardTitle>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="gap-2 text-purple-600 hover:text-purple-700"
+                      onClick={handleAIGeneration}
+                      disabled={!formData.content || formData.content.length < 50}
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      🤖 توليد تلقائي
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {/* AI Generation Tip */}
+                  <div className="mb-4 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                    <div className="flex items-start gap-3">
+                      <Lightbulb className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-purple-700 dark:text-purple-300">
+                        <span className="font-medium">نصيحة:</span> اكتب محتوى الخبر (50+ حرف) ثم اضغط "🤖 توليد تلقائي" لإنشاء العنوان والموجز والكلمات المفتاحية تلقائياً بواسطة الذكاء الاصطناعي
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="min-h-[500px] bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+                    <Editor
+                      ref={editorRef}
+                      content={formData.content}
+                      onChange={(content) =>
+                        setFormData({ ...formData, content })
+                      }
+                      placeholder="ابدأ بكتابة محتوى الخبر هنا..."
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Featured Image */}
+              <Card className={cardClassName}>
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <ImageIcon className="w-5 h-5 text-green-600" />
+                    الصورة البارزة
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {formData.featuredImage ? (
+                    <div className="relative group">
+                      <Image
+                        src={formData.featuredImage}
+                        alt="Featured"
+                        width={800}
+                        height={400}
+                        className="w-full h-80 object-cover rounded-xl"
+                      />
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center gap-3">
+                        <MediaPickerButton
+                          onSelect={(url) =>
+                            setFormData({ ...formData, featuredImage: url })
+                          }
+                          buttonText="تغيير الصورة"
+                          className="bg-white hover:bg-gray-50 text-gray-900 font-medium px-6 py-3 rounded-lg border border-gray-200"
+                        />
+                        <Button
+                          variant="secondary"
+                          size="default"
+                          onClick={() =>
+                            setFormData({ ...formData, featuredImage: "" })
+                          }
+                          className="bg-white hover:bg-gray-50 px-6 py-3 border border-gray-200"
+                        >
+                          <X className="w-5 h-5 ml-2" />
+                          حذف الصورة
+                        </Button>
+                      </div>
+                      <div className="absolute top-4 right-4">
+                        <Badge className="bg-green-500 text-white px-3 py-1">
+                          <CheckCircle className="w-4 h-4 mr-1" />
+                          تم اختيار الصورة
+                        </Badge>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-16 text-center">
+                      <ImageIcon className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+                      <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        اختر الصورة البارزة للخبر
+                      </h3>
+                      <p className="text-gray-600 dark:text-gray-400 mb-6">
+                        الصورة البارزة تظهر في الصفحة الرئيسية ومشاركات السوشيال ميديا
+                      </p>
+                      <MediaPickerButton
+                        onSelect={(url) =>
+                          setFormData({ ...formData, featuredImage: url })
+                        }
+                        buttonText="اختر صورة من المكتبة"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-base"
+                      />
+                      <p className="text-xs text-gray-500 mt-4">
+                        الحد الأقصى: 5MB • الصيغ المدعومة: JPG, PNG, WebP
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
 
             {/* Sidebar */}
-            <div className="space-y-4">
-              {/* Publishing Options - تحسين بصري كامل */}
-              <Collapsible
-                open={expandedSections.publishing}
-                onOpenChange={() => toggleSection("publishing")}
-              >
-                <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-800/50">
-                  <CollapsibleTrigger className="w-full">
-                    <CardHeader className="cursor-pointer hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors rounded-t-lg">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-base flex items-center gap-2 font-semibold text-gray-800 dark:text-gray-200">
-                          <div className="p-1.5 rounded-md bg-blue-100 dark:bg-blue-900/30">
-                            <Send className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                          </div>
-                          النشر
-                        </CardTitle>
-                        <motion.div
-                          animate={{ rotate: expandedSections.publishing ? 180 : 0 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          <ChevronDown className="w-4 h-4 text-gray-500" />
-                        </motion.div>
-                      </div>
-                    </CardHeader>
-                  </CollapsibleTrigger>
-                  <AnimatePresence>
-                    {expandedSections.publishing && (
-                      <CollapsibleContent forceMount>
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.3, ease: "easeInOut" }}
-                        >
-                          <CardContent className="space-y-6 pt-0">
-                            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                              <Label className="font-medium text-gray-700 dark:text-gray-300">الحالة</Label>
-                              <Badge
-                                variant={
-                                  formData.status === "published"
-                                    ? "default"
-                                    : "secondary"
-                                }
-                                className={cn(
-                                  "px-3 py-1.5 font-semibold transition-all",
-                                  formData.status === "published"
-                                    ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                                    : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300"
-                                )}
-                              >
-                                {formData.status === "published" ? (
-                                  <div className="flex items-center gap-1">
-                                    <CheckCircle className="w-3 h-3" />
-                                    منشور
-                                  </div>
-                                ) : (
-                                  <div className="flex items-center gap-1">
-                                    <Clock className="w-3 h-3" />
-                                    مسودة
-                                  </div>
-                                )}
-                              </Badge>
-                            </div>
+            <div className="space-y-6">
+              {/* Publishing Options */}
+              <Card className={sidebarCardClassName}>
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Send className="w-4 h-4 text-blue-600" />
+                    خيارات النشر
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">الحالة</Label>
+                    <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">مسودة</span>
+                      <Badge
+                        variant="secondary"
+                        className="px-3 py-1"
+                      >
+                        غير منشور
+                      </Badge>
+                    </div>
+                  </div>
 
-                            <div className="space-y-3">
-                              <Label className="font-medium text-gray-700 dark:text-gray-300">توقيت النشر</Label>
-                              <Select
-                                value={formData.publishType}
-                                onValueChange={(value: "now" | "scheduled") =>
-                                  setFormData({ ...formData, publishType: value })
-                                }
-                              >
-                                <SelectTrigger className="rounded-lg border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent className="z-[100] shadow-xl border-0 rounded-lg overflow-hidden">
-                                  <SelectItem value="now" className="py-3 px-4">
-                                    <div className="flex items-center gap-3">
-                                      <div className="p-1 rounded bg-green-100 dark:bg-green-900/30">
-                                        <Zap className="w-3 h-3 text-green-600 dark:text-green-400" />
-                                      </div>
-                                      <div>
-                                        <div className="font-medium">نشر فوري</div>
-                                        <div className="text-xs text-gray-500">يتم النشر مباشرة</div>
-                                      </div>
-                                    </div>
-                                  </SelectItem>
-                                  <SelectItem value="scheduled" className="py-3 px-4">
-                                    <div className="flex items-center gap-3">
-                                      <div className="p-1 rounded bg-blue-100 dark:bg-blue-900/30">
-                                        <Calendar className="w-3 h-3 text-blue-600 dark:text-blue-400" />
-                                      </div>
-                                      <div>
-                                        <div className="font-medium">جدولة</div>
-                                        <div className="text-xs text-gray-500">تحديد وقت النشر</div>
-                                      </div>
-                                    </div>
-                                  </SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium">توقيت النشر</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, publishType: "now" })}
+                        className={cn(
+                          "flex items-center justify-center gap-2 rounded-lg border-2 px-3 py-2.5 text-sm font-medium transition-all",
+                          formData.publishType === "now"
+                            ? "border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
+                            : "border-gray-200 bg-white text-gray-700 hover:border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                        )}
+                      >
+                        <Zap className="w-4 h-4" />
+                        نشر فوري
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, publishType: "scheduled" })}
+                        className={cn(
+                          "flex items-center justify-center gap-2 rounded-lg border-2 px-3 py-2.5 text-sm font-medium transition-all",
+                          formData.publishType === "scheduled"
+                            ? "border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
+                            : "border-gray-200 bg-white text-gray-700 hover:border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                        )}
+                      >
+                        <Calendar className="w-4 h-4" />
+                        جدولة
+                      </button>
+                    </div>
+                  </div>
 
-                            <AnimatePresence>
-                              {formData.publishType === "scheduled" && (
-                                <motion.div
-                                  initial={{ opacity: 0, height: 0 }}
-                                  animate={{ opacity: 1, height: "auto" }}
-                                  exit={{ opacity: 0, height: 0 }}
-                                  transition={{ duration: 0.3 }}
-                                  className="space-y-3"
-                                >
-                                  <Label className="font-medium text-gray-700 dark:text-gray-300">تاريخ ووقت النشر</Label>
-                                  <Input
-                                    type="datetime-local"
-                                    value={formData.scheduledDate}
-                                    onChange={(e) =>
-                                      setFormData({
-                                        ...formData,
-                                        scheduledDate: e.target.value,
-                                      })
-                                    }
-                                    className="rounded-lg border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all"
+                  {formData.publishType === "scheduled" && (
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">تاريخ ووقت النشر</Label>
+                      <Input
+                        type="datetime-local"
+                        value={formData.scheduledDate}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            scheduledDate: e.target.value,
+                          })
+                        }
+                        className={inputClassName}
+                      />
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Post Attributes */}
+              <Card className={sidebarCardClassName}>
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Settings className="w-4 h-4 text-purple-600" />
+                    خصائص الخبر
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Author Selection */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium flex items-center gap-2">
+                      <User className="w-3 h-3" />
+                      المراسل
+                    </Label>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => setAuthorsOpen(!authorsOpen)}
+                        className={cn(inputClassName, "text-right cursor-pointer")}
+                      >
+                        {authors.find(a => a.id === formData.authorId)?.name || "اختر المراسل"}
+                        <ChevronDown className={cn(
+                          "absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-transform",
+                          authorsOpen && "rotate-180"
+                        )} />
+                      </button>
+                      {authorsOpen && (
+                        <div className="absolute z-50 mt-2 w-full bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 py-1 max-h-60 overflow-auto">
+                          {filteredAuthors.map((author) => (
+                            <div
+                              key={author.id}
+                              className="px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer text-sm"
+                              onClick={() => {
+                                setFormData({ ...formData, authorId: author.id });
+                                setAuthorsOpen(false);
+                              }}
+                            >
+                              {author.name}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Category Selection */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium flex items-center gap-2">
+                      <Hash className="w-3 h-3" />
+                      التصنيف
+                    </Label>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => setCatsOpen(!catsOpen)}
+                        className={cn(inputClassName, "text-right cursor-pointer")}
+                      >
+                        {categories.find(c => c.id === formData.categoryId)?.name_ar || categories.find(c => c.id === formData.categoryId)?.name || "اختر التصنيف"}
+                        <ChevronDown className={cn(
+                          "absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-transform",
+                          catsOpen && "rotate-180"
+                        )} />
+                      </button>
+                      {catsOpen && (
+                        <div className="absolute z-50 mt-2 w-full bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 py-1 max-h-60 overflow-auto">
+                          {filteredCategories.map((category) => (
+                            <div
+                              key={category.id}
+                              className="px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer text-sm"
+                              onClick={() => {
+                                setFormData({ ...formData, categoryId: category.id });
+                                setCatsOpen(false);
+                              }}
+                            >
+                              <div className="flex items-center gap-2">
+                                {category.color && (
+                                  <div 
+                                    className="w-3 h-3 rounded-full" 
+                                    style={{ backgroundColor: category.color }}
                                   />
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
-
-                            <div className="pt-4 border-t border-gray-200 dark:border-gray-600">
-                              <Button 
-                                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all" 
-                                size="sm"
-                              >
-                                <Eye className="w-4 h-4 ml-2" />
-                                معاينة قبل النشر
-                              </Button>
-                            </div>
-                          </CardContent>
-                        </motion.div>
-                      </CollapsibleContent>
-                    )}
-                  </AnimatePresence>
-                </Card>
-              </Collapsible>
-
-              {/* Post Attributes - تحسين تجربة الاستخدام */}
-              <Collapsible
-                open={expandedSections.attributes}
-                onOpenChange={() => toggleSection("attributes")}
-              >
-                <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-800/50">
-                  <CollapsibleTrigger className="w-full">
-                    <CardHeader className="cursor-pointer hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors rounded-t-lg">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-base flex items-center gap-2 font-semibold text-gray-800 dark:text-gray-200">
-                          <div className="p-1.5 rounded-md bg-purple-100 dark:bg-purple-900/30">
-                            <Settings className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                          </div>
-                          خصائص الخبر
-                        </CardTitle>
-                        <motion.div
-                          animate={{ rotate: expandedSections.attributes ? 180 : 0 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          <ChevronDown className="w-4 h-4 text-gray-500" />
-                        </motion.div>
-                      </div>
-                    </CardHeader>
-                  </CollapsibleTrigger>
-                  <AnimatePresence>
-                    {expandedSections.attributes && (
-                      <CollapsibleContent forceMount>
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.3, ease: "easeInOut" }}
-                        >
-                          <CardContent className="space-y-6 pt-0">
-                            <div className="space-y-3">
-                              <Label className="font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                                <User className="w-3 h-3" />
-                                المؤلف
-                              </Label>
-                              {/* حقل بحث محسن للمؤلف */}
-                              <div className="relative">
-                                <Input
-                                  placeholder="ابحث عن مؤلف..."
-                                  value={authorQuery}
-                                  onChange={(e) => setAuthorQuery(e.target.value)}
-                                  className="rounded-lg border-2 border-gray-200 dark:border-gray-600 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-800 transition-all pl-10"
-                                />
-                                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                              </div>
-                              <Select
-                                value={formData.authorId}
-                                onValueChange={(value) =>
-                                  setFormData({ ...formData, authorId: value })
-                                }
-                              >
-                                <SelectTrigger className="rounded-lg border-2 border-gray-200 dark:border-gray-600 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-800 transition-all">
-                                  <SelectValue placeholder="اختر المؤلف" />
-                                </SelectTrigger>
-                                <SelectContent className="z-[100] shadow-xl border-0 rounded-lg overflow-hidden">
-                                  {filteredAuthors.map((author) => (
-                                    <SelectItem key={author.id} value={author.id} className="py-3 px-4">
-                                      <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-blue-500 flex items-center justify-center text-white text-sm font-medium">
-                                          {author.name?.charAt(0) || "؟"}
-                                        </div>
-                                        <div>
-                                          <div className="font-medium">{author.name}</div>
-                                          {author.email && (
-                                            <div className="text-xs text-gray-500">{author.email}</div>
-                                          )}
-                                        </div>
-                                      </div>
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-
-                            <div className="space-y-3">
-                              <Label className="font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                                <Hash className="w-3 h-3" />
-                                التصنيف
-                              </Label>
-                              {/* حقل بحث محسن للتصنيف */}
-                              <div className="relative">
-                                <Input
-                                  placeholder="ابحث عن تصنيف..."
-                                  value={categoryQuery}
-                                  onChange={(e) => setCategoryQuery(e.target.value)}
-                                  className="rounded-lg border-2 border-gray-200 dark:border-gray-600 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-800 transition-all pl-10"
-                                />
-                                <Hash className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                              </div>
-                              <Select
-                                value={formData.categoryId}
-                                onValueChange={(value) =>
-                                  setFormData({ ...formData, categoryId: value })
-                                }
-                              >
-                                <SelectTrigger className="rounded-lg border-2 border-gray-200 dark:border-gray-600 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-800 transition-all">
-                                  <SelectValue placeholder="اختر التصنيف" />
-                                </SelectTrigger>
-                                <SelectContent className="z-[100] shadow-xl border-0 rounded-lg overflow-hidden">
-                                  {filteredCategories.map((category) => (
-                                    <SelectItem key={category.id} value={category.id} className="py-3 px-4">
-                                      <div className="flex items-center gap-3">
-                                        <div
-                                          className="w-4 h-4 rounded-full shadow-sm"
-                                          style={{
-                                            backgroundColor: category.color || "#6B7280",
-                                          }}
-                                        />
-                                        <div>
-                                          <div className="font-medium">{category.name_ar || category.name}</div>
-                                          <div className="text-xs text-gray-500 capitalize">{category.slug}</div>
-                                        </div>
-                                        {formData.categoryId === category.id && (
-                                          <CheckCircle className="w-4 h-4 text-green-500 mr-auto" />
-                                        )}
-                                      </div>
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-
-                            {/* تحسين المفاتيح (Toggles) */}
-                            <div className="pt-4 border-t border-gray-200 dark:border-gray-600">
-                              <div className="space-y-4">
-                                <div className="flex items-center justify-between p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
-                                  <div className="flex items-center gap-3">
-                                    <div className="p-2 rounded-md bg-red-100 dark:bg-red-900/30">
-                                      <Zap className="w-4 h-4 text-red-600 dark:text-red-400" />
-                                    </div>
-                                    <div>
-                                      <Label htmlFor="breaking" className="cursor-pointer font-semibold text-red-800 dark:text-red-300">
-                                        خبر عاجل
-                                      </Label>
-                                      <p className="text-xs text-red-600 dark:text-red-400">يظهر بأولوية عالية في الموقع</p>
-                                    </div>
-                                  </div>
-                                  <Switch
-                                    id="breaking"
-                                    checked={formData.isBreaking}
-                                    onCheckedChange={(checked) =>
-                                      setFormData({ ...formData, isBreaking: checked })
-                                    }
-                                    className="scale-125 data-[state=checked]:bg-red-500 data-[state=checked]:border-red-500"
-                                  />
-                                </div>
-
-                                <div className="flex items-center justify-between p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                                  <div className="flex items-center gap-3">
-                                    <div className="p-2 rounded-md bg-yellow-100 dark:bg-yellow-900/30">
-                                      <Star className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
-                                    </div>
-                                    <div>
-                                      <Label htmlFor="featured" className="cursor-pointer font-semibold text-yellow-800 dark:text-yellow-300">
-                                        خبر مميز
-                                      </Label>
-                                      <p className="text-xs text-yellow-600 dark:text-yellow-400">يعرض في المقالات المميزة</p>
-                                    </div>
-                                  </div>
-                                  <Switch
-                                    id="featured"
-                                    checked={formData.isFeatured}
-                                    onCheckedChange={(checked) =>
-                                      setFormData({ ...formData, isFeatured: checked })
-                                    }
-                                    className="scale-125 data-[state=checked]:bg-yellow-500 data-[state=checked]:border-yellow-500"
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </motion.div>
-                      </CollapsibleContent>
-                    )}
-                  </AnimatePresence>
-                </Card>
-              </Collapsible>
-
-              {/* Featured Image - تحسين تجربة رفع الصور */}
-              <Collapsible
-                open={expandedSections.featuredImage}
-                onOpenChange={() => toggleSection("featuredImage")}
-              >
-                <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-800/50">
-                  <CollapsibleTrigger className="w-full">
-                    <CardHeader className="cursor-pointer hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors rounded-t-lg">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-base flex items-center gap-2 font-semibold text-gray-800 dark:text-gray-200">
-                          <div className="p-1.5 rounded-md bg-green-100 dark:bg-green-900/30">
-                            <ImageIcon className="w-4 h-4 text-green-600 dark:text-green-400" />
-                          </div>
-                          الصورة البارزة
-                        </CardTitle>
-                        <motion.div
-                          animate={{ rotate: expandedSections.featuredImage ? 180 : 0 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          <ChevronDown className="w-4 h-4 text-gray-500" />
-                        </motion.div>
-                      </div>
-                    </CardHeader>
-                  </CollapsibleTrigger>
-                  <AnimatePresence>
-                    {expandedSections.featuredImage && (
-                      <CollapsibleContent forceMount>
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.3, ease: "easeInOut" }}
-                        >
-                          <CardContent className="pt-0">
-                            {formData.featuredImage ? (
-                              <motion.div
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                className="relative group"
-                              >
-                                <Image
-                                  src={formData.featuredImage}
-                                  alt="Featured"
-                                  width={400}
-                                  height={192}
-                                  className="w-full h-48 object-cover rounded-lg border-2 border-gray-200 dark:border-gray-600"
-                                />
-                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-3">
-                                  <MediaPickerButton
-                                    onSelect={(url) =>
-                                      setFormData({ ...formData, featuredImage: url })
-                                    }
-                                    buttonText="تغيير"
-                                    className="bg-white/90 hover:bg-white text-gray-900 font-medium px-4 py-2 rounded-lg shadow-lg"
-                                  />
-                                  <Button
-                                    variant="secondary"
-                                    size="sm"
-                                    onClick={() =>
-                                      setFormData({ ...formData, featuredImage: "" })
-                                    }
-                                    className="bg-white/90 hover:bg-white text-gray-900 font-medium px-4 py-2 rounded-lg shadow-lg"
-                                  >
-                                    <X className="w-4 h-4 ml-1" />
-                                    حذف
-                                  </Button>
-                                </div>
-                                <div className="absolute top-3 right-3">
-                                  <Badge className="bg-green-500 text-white shadow-lg">
-                                    <CheckCircle className="w-3 h-3 mr-1" />
-                                    مُحددة
-                                  </Badge>
-                                </div>
-                              </motion.div>
-                            ) : (
-                              <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center bg-gray-50 dark:bg-gray-800/50 hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all">
-                                <div className="mb-4">
-                                  <div className="w-16 h-16 mx-auto bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
-                                    <ImageIcon className="w-8 h-8 text-green-600 dark:text-green-400" />
-                                  </div>
-                                </div>
-                                <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                  اختر الصورة البارزة
-                                </h3>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                                  اختر صورة جذابة لتمثيل المحتوى بأفضل شكل
-                                </p>
-                                <MediaPickerButton
-                                  onSelect={(url) =>
-                                    setFormData({ ...formData, featuredImage: url })
-                                  }
-                                  buttonText="اختر صورة"
-                                  className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-medium px-6 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all"
-                                />
-                                <div className="mt-3 text-xs text-gray-400">
-                                  الحد الأقصى: 5MB • JPG, PNG, WebP
-                                </div>
-                              </div>
-                            )}
-                          </CardContent>
-                        </motion.div>
-                      </CollapsibleContent>
-                    )}
-                  </AnimatePresence>
-                </Card>
-              </Collapsible>
-
-              {/* Keywords - تحسين إضافة وإدارة الكلمات المفتاحية */}
-              <Collapsible
-                open={expandedSections.keywords}
-                onOpenChange={() => toggleSection("keywords")}
-              >
-                <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-800/50">
-                  <CollapsibleTrigger className="w-full">
-                    <CardHeader className="cursor-pointer hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors rounded-t-lg">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-base flex items-center gap-2 font-semibold text-gray-800 dark:text-gray-200">
-                          <div className="p-1.5 rounded-md bg-orange-100 dark:bg-orange-900/30">
-                            <Tag className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-                          </div>
-                          الكلمات المفتاحية
-                        </CardTitle>
-                        <motion.div
-                          animate={{ rotate: expandedSections.keywords ? 180 : 0 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          <ChevronDown className="w-4 h-4 text-gray-500" />
-                        </motion.div>
-                      </div>
-                    </CardHeader>
-                  </CollapsibleTrigger>
-                  <AnimatePresence>
-                    {expandedSections.keywords && (
-                      <CollapsibleContent forceMount>
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.3, ease: "easeInOut" }}
-                        >
-                          <CardContent className="pt-0 space-y-6">
-                            {/* Keywords Input */}
-                            <div>
-                              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 block">
-                                أضف كلمات مفتاحية لتحسين SEO
-                              </label>
-                              <div className="relative">
-                                <div className="absolute right-3 top-3 z-10">
-                                  <Hash className="w-4 h-4 text-gray-400" />
-                                </div>
-                                <Input
-                                  placeholder="اكتب كلمة مفتاحية واضغط Enter"
-                                  value={keywordInput}
-                                  onChange={(e) => setKeywordInput(e.target.value)}
-                                  onKeyDown={handleAddKeyword}
-                                  className="pl-3 pr-10 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all"
-                                />
-                              </div>
-                            </div>
-
-                            {/* Keywords Display */}
-                            {formData.keywords.length > 0 && (
-                              <motion.div
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800"
-                              >
-                                <div className="flex items-center gap-2 mb-3">
-                                  <Tag className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-                                  <span className="text-sm font-medium text-orange-800 dark:text-orange-200">
-                                    الكلمات المفتاحية المضافة ({formData.keywords.length})
-                                  </span>
-                                </div>
-                                <div className="flex flex-wrap gap-2">
-                                  {formData.keywords.map((keyword, index) => (
-                                    <motion.div
-                                      key={index}
-                                      initial={{ opacity: 0, scale: 0.8 }}
-                                      animate={{ opacity: 1, scale: 1 }}
-                                      exit={{ opacity: 0, scale: 0.8 }}
-                                      className="flex items-center gap-1 bg-orange-100 dark:bg-orange-800/50 text-orange-800 dark:text-orange-200 px-3 py-1.5 rounded-full text-sm font-medium border border-orange-200 dark:border-orange-700"
-                                    >
-                                      <Hash className="w-3 h-3" />
-                                      {keyword}
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => removeKeyword(index)}
-                                        className="p-0 ml-1 hover:bg-orange-200 dark:hover:bg-orange-700 rounded-full w-4 h-4"
-                                      >
-                                        <X className="w-3 h-3" />
-                                      </Button>
-                                    </motion.div>
-                                  ))}
-                                </div>
-                              </motion.div>
-                            )}
-
-                            {/* SEO Tips */}
-                            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-                              <div className="flex items-start gap-3">
-                                <div className="p-1 rounded bg-blue-100 dark:bg-blue-900/30">
-                                  <Lightbulb className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                                </div>
-                                <div>
-                                  <h4 className="font-medium text-gray-800 dark:text-gray-200 mb-1">
-                                    نصائح لتحسين محركات البحث
-                                  </h4>
-                                  <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                                    <li>• استخدم 3-5 كلمات مفتاحية ذات صلة بالمحتوى</li>
-                                    <li>• اختر كلمات يبحث عنها الجمهور المستهدف</li>
-                                    <li>• تجنب الحشو المفرط للكلمات المفتاحية</li>
-                                    <li>• استخدم كلمات باللغة العربية والإنجليزية حسب المحتوى</li>
-                                  </ul>
-                                </div>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </motion.div>
-                      </CollapsibleContent>
-                    )}
-                  </AnimatePresence>
-                </Card>
-              </Collapsible>
-
-              {/* SEO Settings - تحسين إعدادات محركات البحث */}
-              <Collapsible
-                open={expandedSections.seo}
-                onOpenChange={() => toggleSection("seo")}
-              >
-                <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-800/50">
-                  <CollapsibleTrigger className="w-full">
-                    <CardHeader className="cursor-pointer hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors rounded-t-lg">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-base flex items-center gap-2 font-semibold text-gray-800 dark:text-gray-200">
-                          <div className="p-1.5 rounded-md bg-blue-100 dark:bg-blue-900/30">
-                            <Globe className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                          </div>
-                          إعدادات تحسين محركات البحث (SEO)
-                        </CardTitle>
-                        <motion.div
-                          animate={{ rotate: expandedSections.seo ? 180 : 0 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          <ChevronDown className="w-4 h-4 text-gray-500" />
-                        </motion.div>
-                      </div>
-                    </CardHeader>
-                  </CollapsibleTrigger>
-                  <AnimatePresence>
-                    {expandedSections.seo && (
-                      <CollapsibleContent forceMount>
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.3, ease: "easeInOut" }}
-                        >
-                          <CardContent className="pt-0 space-y-6">
-                            {/* SEO Title */}
-                            <div>
-                              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                                عنوان SEO
-                              </label>
-                              <div className="relative">
-                                <Input
-                                  placeholder="اتركه فارغاً لاستخدام العنوان الرئيسي"
-                                  value={formData.seoTitle}
-                                  onChange={(e) =>
-                                    setFormData({ ...formData, seoTitle: e.target.value })
-                                  }
-                                  className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
-                                />
-                                <div className="absolute left-3 top-3">
-                                  <FileText className="w-4 h-4 text-gray-400" />
-                                </div>
-                              </div>
-                              <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                                الحد المثالي: 50-60 حرف
-                                {formData.seoTitle && (
-                                  <span className={`ml-2 ${formData.seoTitle.length > 60 ? 'text-red-500' : 'text-green-500'}`}>
-                                    ({formData.seoTitle.length} حرف)
-                                  </span>
                                 )}
+                                <span>{category.name_ar || category.name}</span>
                               </div>
                             </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
 
-                            {/* SEO Description */}
-                            <div>
-                              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                                وصف SEO
-                              </label>
-                              <div className="relative">
-                                <Textarea
-                                  placeholder="اتركه فارغاً لاستخدام الموجز"
-                                  value={formData.seoDescription}
-                                  onChange={(e) =>
-                                    setFormData({
-                                      ...formData,
-                                      seoDescription: e.target.value,
-                                    })
-                                  }
-                                  rows={4}
-                                  className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all resize-none"
-                                />
-                              </div>
-                              <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                                الحد المثالي: 150-160 حرف
-                                {formData.seoDescription && (
-                                  <span className={`ml-2 ${formData.seoDescription.length > 160 ? 'text-red-500' : 'text-green-500'}`}>
-                                    ({formData.seoDescription.length} حرف)
-                                  </span>
-                                )}
-                              </div>
-                            </div>
+                  {/* Special Flags */}
+                  <div className="space-y-3 pt-3">
+                    <div>
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, isBreaking: !formData.isBreaking })}
+                        className={cn(
+                          "w-full flex items-center justify-between p-3 rounded-lg border-2 transition-all",
+                          formData.isBreaking
+                            ? "border-red-200 bg-red-50 dark:bg-red-900/20"
+                            : "border-gray-200 hover:border-gray-300 dark:border-gray-700"
+                        )}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Zap className={cn("w-4 h-4", formData.isBreaking ? "text-red-600" : "text-gray-500")} />
+                          <span className={cn("text-sm font-medium", formData.isBreaking ? "text-red-700" : "text-gray-700")}>
+                            خبر عاجل
+                          </span>
+                        </div>
+                        <Badge variant={formData.isBreaking ? "destructive" : "secondary"} className="text-xs">
+                          {formData.isBreaking ? "مفعّل" : "غير مفعّل"}
+                        </Badge>
+                      </button>
+                      <p className="text-xs text-blue-600 dark:text-blue-400 mt-1 pr-1">
+                        يظهر الخبر في شريط الأخبار العاجلة أعلى الموقع
+                      </p>
+                    </div>
 
-                            {/* SEO Preview */}
-                            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-                              <div className="flex items-center gap-2 mb-3">
-                                <Eye className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                                <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
-                                  معاينة نتيجة البحث
-                                </span>
-                              </div>
-                              <div className="bg-white dark:bg-gray-800 p-4 rounded border border-gray-200 dark:border-gray-600">
-                                <div className="text-blue-600 text-lg font-medium mb-1 truncate">
-                                  {formData.seoTitle || formData.title || "عنوان المقال"}
-                                </div>
-                                <div className="text-green-600 text-sm mb-2">
-                                  https://sabq.org/article/news/{formData.slug || "article-slug"}
-                                </div>
-                                <div className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2">
-                                  {formData.seoDescription || formData.excerpt || "وصف المقال سيظهر هنا..."}
-                                </div>
-                              </div>
-                            </div>
+                    <div>
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, isFeatured: !formData.isFeatured })}
+                        className={cn(
+                          "w-full flex items-center justify-between p-3 rounded-lg border-2 transition-all",
+                          formData.isFeatured
+                            ? "border-amber-200 bg-amber-50 dark:bg-amber-900/20"
+                            : "border-gray-200 hover:border-gray-300 dark:border-gray-700"
+                        )}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Star className={cn("w-4 h-4", formData.isFeatured ? "text-amber-600" : "text-gray-500")} />
+                          <span className={cn("text-sm font-medium", formData.isFeatured ? "text-amber-700" : "text-gray-700")}>
+                            خبر مميز
+                          </span>
+                        </div>
+                        <Badge variant={formData.isFeatured ? "default" : "secondary"} className="text-xs">
+                          {formData.isFeatured ? "مفعّل" : "غير مفعّل"}
+                        </Badge>
+                      </button>
+                      <p className="text-xs text-blue-600 dark:text-blue-400 mt-1 pr-1">
+                        يظهر الخبر في القسم المميز بالصفحة الرئيسية
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-                            {/* SEO Tips */}
-                            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
-                              <div className="flex items-start gap-3">
-                                <div className="p-1 rounded bg-blue-100 dark:bg-blue-900/30">
-                                  <Lightbulb className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                                </div>
-                                <div>
-                                  <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">
-                                    نصائح لتحسين SEO
-                                  </h4>
-                                  <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
-                                    <li>• استخدم عنوان جذاب ووصفي (50-60 حرف)</li>
-                                    <li>• اكتب وصف واضح يلخص المحتوى (150-160 حرف)</li>
-                                    <li>• تأكد من وجود الكلمات المفتاحية في العنوان والوصف</li>
-                                    <li>• اجعل المحتوى فريد وذو قيمة للقارئ</li>
-                                  </ul>
-                                </div>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </motion.div>
-                      </CollapsibleContent>
-                    )}
-                  </AnimatePresence>
+
+
+              {/* Keywords */}
+              <Card className={sidebarCardClassName}>
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Tag className="w-4 h-4 text-orange-600" />
+                    الكلمات المفتاحية
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label className="text-sm font-medium mb-2 block">
+                      أضف كلمات مفتاحية لتحسين SEO
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        placeholder="اكتب كلمة مفتاحية واضغط Enter"
+                        value={keywordInput}
+                        onChange={(e) => setKeywordInput(e.target.value)}
+                        onKeyDown={handleAddKeyword}
+                        className={`${inputClassName} pr-10`}
+                      />
+                      <Hash className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    </div>
+                  </div>
+
+                  {formData.keywords.length > 0 && (
+                    <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-sm font-medium text-orange-800 dark:text-orange-200">
+                          الكلمات المفتاحية ({formData.keywords.length})
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {formData.keywords.map((keyword, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center gap-1 bg-white dark:bg-gray-800 text-orange-700 dark:text-orange-300 px-3 py-1.5 rounded-full text-sm font-medium border border-orange-200 dark:border-orange-700"
+                          >
+                            <Hash className="w-3 h-3" />
+                            {keyword}
+                            <button
+                              onClick={() => removeKeyword(index)}
+                              className="ml-1 hover:text-red-600"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* SEO Settings */}
+              <Collapsible defaultOpen={false}>
+                <Card className={sidebarCardClassName}>
+                  <CollapsibleTrigger asChild>
+                    <CardHeader className="pb-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                      <CardTitle className="text-base flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Globe className="w-4 h-4 text-blue-600" />
+                          إعدادات SEO
+                        </div>
+                        <ChevronDown className="w-4 h-4 transition-transform data-[state=open]:rotate-180" />
+                      </CardTitle>
+                    </CardHeader>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <CardContent className="space-y-4 pt-0">
+                  <div>
+                    <Label className="text-sm font-medium mb-2 block">
+                      عنوان SEO
+                    </Label>
+                    <Input
+                      placeholder="اتركه فارغاً لاستخدام العنوان الرئيسي"
+                      value={formData.seoTitle}
+                      onChange={(e) =>
+                        setFormData({ ...formData, seoTitle: e.target.value })
+                      }
+                      className={inputClassName}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      {formData.seoTitle.length}/60 حرف
+                    </p>
+                  </div>
+
+                  <div>
+                    <Label className="text-sm font-medium mb-2 block">
+                      وصف SEO
+                    </Label>
+                    <Textarea
+                      placeholder="اتركه فارغاً لاستخدام الموجز"
+                      value={formData.seoDescription}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          seoDescription: e.target.value,
+                        })
+                      }
+                      rows={3}
+                      className={`${textareaClassName} min-h-[80px]`}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      {formData.seoDescription.length}/160 حرف
+                    </p>
+                  </div>
+
+                  {/* SEO Preview */}
+                  <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+                    <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
+                      معاينة نتيجة البحث
+                    </p>
+                    <div className="text-blue-600 text-sm font-medium truncate">
+                      {formData.seoTitle || formData.title || "عنوان المقال"}
+                    </div>
+                    <div className="text-green-600 text-xs mt-1">
+                      sabq.io/news/{formData.slug}
+                    </div>
+                    <div className="text-gray-600 dark:text-gray-400 text-xs mt-1 line-clamp-2">
+                      {formData.seoDescription || formData.excerpt || "وصف المقال..."}
+                    </div>
+                  </div>
+                    </CardContent>
+                  </CollapsibleContent>
                 </Card>
               </Collapsible>
+
+              {/* SEO Tips & Guidelines */}
+              <Card className={sidebarCardClassName}>
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Lightbulb className="w-4 h-4 text-yellow-600" />
+                    نصائح وإرشادات SEO
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Keywords Tips */}
+                  <div className="p-4 bg-orange-50 dark:bg-orange-900/10 rounded-lg border border-orange-200 dark:border-orange-700">
+                    <div className="flex items-start gap-2 mb-2">
+                      <Tag className="w-4 h-4 text-orange-600 mt-0.5" />
+                      <div>
+                        <h4 className="text-sm font-semibold text-orange-800 dark:text-orange-200 mb-1">
+                          نصائح الكلمات المفتاحية
+                        </h4>
+                        <ul className="text-xs text-orange-700 dark:text-orange-300 space-y-1">
+                          <li>• استخدم 3-5 كلمات مفتاحية مرتبطة بالمحتوى</li>
+                          <li>• امزج بين كلمات عامة وأخرى محددة</li>
+                          <li>• تجنب حشو الكلمات المفتاحية بشكل مفرط</li>
+                          <li>• استخدم مرادفات وكلمات ذات صلة</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SEO Best Practices */}
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900/10 rounded-lg border border-blue-200 dark:border-blue-700">
+                    <div className="flex items-start gap-2 mb-2">
+                      <Globe className="w-4 h-4 text-blue-600 mt-0.5" />
+                      <div>
+                        <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-1">
+                          أفضل ممارسات SEO
+                        </h4>
+                        <ul className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
+                          <li>• العنوان: 50-60 حرف (يظهر كاملاً في البحث)</li>
+                          <li>• الوصف: 150-160 حرف (ملخص جذاب)</li>
+                          <li>• استخدم الكلمات المفتاحية في العنوان والوصف</li>
+                          <li>• اكتب محتوى أصلي وذو قيمة للقارئ</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Important Alerts */}
+                  <div className="p-4 bg-red-50 dark:bg-red-900/10 rounded-lg border border-red-200 dark:border-red-700">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 text-red-600 mt-0.5" />
+                      <div>
+                        <h4 className="text-sm font-semibold text-red-800 dark:text-red-200 mb-1">
+                          تنبيهات مهمة
+                        </h4>
+                        <ul className="text-xs text-red-700 dark:text-red-300 space-y-1">
+                          <li>• تجنب نسخ المحتوى من مواقع أخرى</li>
+                          <li>• لا تستخدم كلمات مفتاحية غير مرتبطة</li>
+                          <li>• تأكد من وجود صورة بارزة عالية الجودة</li>
+                          <li>• راجع الأخطاء الإملائية قبل النشر</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Success Tips */}
+                  <div className="p-4 bg-green-50 dark:bg-green-900/10 rounded-lg border border-green-200 dark:border-green-700">
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
+                      <div>
+                        <h4 className="text-sm font-semibold text-green-800 dark:text-green-200 mb-1">
+                          لنجاح خبرك
+                        </h4>
+                        <ul className="text-xs text-green-700 dark:text-green-300 space-y-1">
+                          <li>• عنوان جذاب يثير الفضول</li>
+                          <li>• موجز واضح يلخص الخبر</li>
+                          <li>• محتوى شامل ومفصل</li>
+                          <li>• صورة بارزة معبرة عن المحتوى</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Quick Stats */}
+                  <div className="p-4 bg-purple-50 dark:bg-purple-900/10 rounded-lg border border-purple-200 dark:border-purple-700">
+                    <div className="flex items-start gap-2">
+                      <TrendingUp className="w-4 h-4 text-purple-600 mt-0.5" />
+                      <div>
+                        <h4 className="text-sm font-semibold text-purple-800 dark:text-purple-200 mb-2">
+                          إحصائيات سريعة
+                        </h4>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div className="bg-white dark:bg-gray-800 rounded p-2 text-center">
+                            <div className="font-bold text-purple-700 dark:text-purple-300">85%</div>
+                            <div className="text-gray-600 dark:text-gray-400">نسبة القراءة مع صورة</div>
+                          </div>
+                          <div className="bg-white dark:bg-gray-800 rounded p-2 text-center">
+                            <div className="font-bold text-purple-700 dark:text-purple-300">3-5</div>
+                            <div className="text-gray-600 dark:text-gray-400">كلمات مفتاحية مثالية</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>

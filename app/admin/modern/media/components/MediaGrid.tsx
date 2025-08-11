@@ -56,7 +56,7 @@ export function MediaGrid({
     return (bytes / (1024 * 1024)).toFixed(1) + " MB";
   };
 
-  const currentFolders = folders.filter(f => f.parentId === currentFolder?.id);
+  const currentFolders = folders.filter(f => f.parentId === (currentFolder?.id || null));
 
   return (
     <>

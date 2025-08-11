@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Upload</title>
+</head>
+<body>
+    <h1>Test File Upload</h1>
+    <form action="http://localhost:3000/api/admin/media/upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" required>
+        <input type="hidden" name="folderId" value="">
+        <button type="submit">Upload</button>
+    </form>
+
+    <script>
+    // Test with JavaScript
+    function testUpload() {
+        const input = document.querySelector('input[type="file"]');
+        if (input.files.length === 0) return;
+        
+        const formData = new FormData();
+        formData.append('file', input.files[0]);
+        formData.append('folderId', '');
+        
+        fetch('http://localhost:3000/api/admin/media/upload', {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+        })
+        .then(res => res.json())
+        .then(console.log)
+        .catch(console.error);
+    }
+    </script>
+    
+    <button onclick="testUpload()">Test JS Upload</button>
+</body>
+</html>

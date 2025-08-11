@@ -59,21 +59,22 @@ export function MediaHeader({
             مجلد جديد
           </Button>
 
-          <label htmlFor="file-upload" className="cursor-pointer">
-            <Button variant="default" disabled={uploading} asChild>
-              <span>
+          <div>
+            <label htmlFor="file-upload" className="cursor-pointer">
+              <Button variant="default" disabled={uploading} className="pointer-events-none">
                 <Upload className="w-4 h-4 ml-2" />
                 {uploading ? "جاري الرفع..." : "رفع ملفات"}
-              </span>
-            </Button>
-          </label>
-          <Input
-            id="file-upload"
-            type="file"
-            multiple
-            className="hidden"
-            onChange={(e) => e.target.files && onFileUpload(e.target.files)}
-          />
+              </Button>
+            </label>
+            <Input
+              id="file-upload"
+              type="file"
+              multiple
+              className="hidden"
+              accept="image/*,video/*,audio/*,.pdf,.doc,.docx"
+              onChange={(e) => e.target.files && onFileUpload(e.target.files)}
+            />
+          </div>
 
           {selectedCount > 0 && (
             <>

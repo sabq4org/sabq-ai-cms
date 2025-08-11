@@ -5,7 +5,7 @@ export const runtime = "nodejs";
 
 // Cache في الذاكرة
 const articleCache = new Map<string, { data: any; timestamp: number }>();
-const CACHE_DURATION = 60 * 1000; // دقيقة واحدة
+const CACHE_DURATION = 30 * 1000; // 30 ثانية
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;

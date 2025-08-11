@@ -116,6 +116,18 @@ class ErrorMonitoringService {
     const originalFetch = window.fetch;
     window.fetch = async (...args) => {
       try {
+        // إزالة Content-Type الخاطئ إذا كان body من نوع FormData
+        const input = args[0] as RequestInfo | URL;
+        const init = (args[1] as RequestInit) || {};
+        if (init && init.body && typeof FormData !== 'undefined' && init.body instanceof FormData) {
+          const headers = new Headers(init.headers || {});
+          if (headers.has('Content-Type')) {
+            headers.delete('Content-Type');
+            init.headers = headers;
+          }
+          args[1] = init;
+        }
+
         const response = await originalFetch(...args);
         if (!response.ok) {
           this.reportError(

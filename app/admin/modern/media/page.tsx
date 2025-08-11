@@ -46,7 +46,7 @@ export default function MediaLibraryPage() {
       const foldersRes = await fetch("/api/admin/media/folders");
       if (!foldersRes.ok) throw new Error("Failed to fetch folders");
       const foldersData = await foldersRes.json();
-      setFolders(foldersData.hierarchy);
+      setFolders(foldersData.folders);
 
       // Fetch assets for current folder
       const params = new URLSearchParams();
@@ -82,31 +82,41 @@ export default function MediaLibraryPage() {
 
   // Handle file upload
   const handleFileUpload = async (files: FileList) => {
+    console.log("🚀 بدء رفع الملفات:", files.length, "ملف");
     setUploading(true);
     let successCount = 0;
     let errorCount = 0;
 
     for (const file of Array.from(files)) {
+      console.log("📎 رفع ملف:", file.name, "حجم:", file.size, "نوع:", file.type);
+      
       const formData = new FormData();
       formData.append("file", file);
       if (currentFolder) {
         formData.append("folderId", currentFolder.id);
+        console.log("📁 رفع في مجلد:", currentFolder.name);
       }
 
       try {
+        console.log("🌐 إرسال طلب رفع...");
         const res = await fetch("/api/admin/media/upload", {
           method: "POST",
           body: formData,
         });
 
+        console.log("📥 استجابة الخادم:", res.status, res.statusText);
+
         if (!res.ok) {
           const error = await res.json();
+          console.error("❌ خطأ في الخادم:", error);
           throw new Error(error.error || "Upload failed");
         }
 
+        const result = await res.json();
+        console.log("✅ تم رفع الملف بنجاح:", result.filename);
         successCount++;
       } catch (error) {
-        console.error("Upload error:", error);
+        console.error("💥 خطأ في رفع الملف:", file.name, error);
         errorCount++;
       }
     }

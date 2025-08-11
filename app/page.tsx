@@ -39,7 +39,7 @@ async function getArticles(limit = 16) {
       const res = await fetch(
         `${baseUrl}/api/news?status=published&limit=${limit}&sort=published_at&order=desc`,
         {
-          next: { revalidate: 60 },
+          next: { revalidate: 30 }, // تقليل مدة الكاش إلى 30 ثانية
           headers: {
             "Content-Type": "application/json",
             "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120",

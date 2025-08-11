@@ -14,11 +14,11 @@ interface MediaBreadcrumbProps {
 export function MediaBreadcrumb({ currentFolder, folders, onNavigate }: MediaBreadcrumbProps) {
   // Build breadcrumb path
   const buildBreadcrumb = () => {
-    const path = [];
+    const path: MediaFolder[] = [];
     let folder = currentFolder;
     while (folder) {
       path.unshift(folder);
-      folder = folders.find(f => f.children?.some(c => c.id === folder!.id)) || null;
+      folder = folders.find(f => f.id === folder!.parentId) || null;
     }
     return path;
   };

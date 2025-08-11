@@ -1,4 +1,4 @@
-const { PrismaClient } = require('../lib/generated/prisma');
+const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
 
 const prisma = new PrismaClient();
@@ -11,27 +11,27 @@ async function createAdminUser() {
     const hashedPassword = await bcrypt.hash('admin123456', 12);
     
     // إنشاء المستخدم
-    const user = await prisma.user.upsert({
+    const user = await prisma.users.upsert({
       where: {
         email: 'admin@sabq.org'
       },
       update: {
-        passwordHash: hashedPassword,
+        password_hash: hashedPassword,
         role: 'admin',
-        isAdmin: true,
-        isVerified: true
+        is_admin: true,
+        is_verified: true
       },
       create: {
         id: 'admin-user-1',
         name: 'مدير سبق',
         email: 'admin@sabq.org',
-        passwordHash: hashedPassword,
+        password_hash: hashedPassword,
         role: 'admin',
-        isAdmin: true,
-        isVerified: true,
+        is_admin: true,
+        is_verified: true,
         avatar: null,
-        createdAt: new Date(),
-        updatedAt: new Date()
+        created_at: new Date(),
+        updated_at: new Date()
       }
     });
     

@@ -2,16 +2,13 @@ import Image from 'next/image';
 import React from 'react';
 import { cva } from 'class-variance-authority';
 import { Loader2 } from 'lucide-react';
-
-
-
-
-
+import { Slot } from '@radix-ui/react-slot';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'default' | 'outline' | 'ghost' | 'destructive' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'subtle' | 'transparent';
   size?: 'sm' | 'default' | 'lg' | 'icon';
   loading?: boolean;
+  asChild?: boolean;
   children?: React.ReactNode;
 }
 
@@ -50,15 +47,17 @@ export const Button: React.FC<ButtonProps> = ({
   variant = 'default', 
   size = 'default',
   loading = false,
+  asChild = false,
   className,
   children,
   disabled,
   ...props 
 }) => {
   const baseClasses = buttonVariants({ variant, size });
+  const Comp = asChild ? Slot : 'button';
   
   return (
-    <button
+    <Comp
       className={`${baseClasses} ${className || ''}`}
       disabled={disabled || loading}
       {...props}
@@ -67,6 +66,6 @@ export const Button: React.FC<ButtonProps> = ({
         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
       )}
       {children}
-    </button>
+    </Comp>
   );
 }; 

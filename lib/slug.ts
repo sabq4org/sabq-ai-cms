@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { nanoid } from 'nanoid';
+import { customAlphabet } from 'nanoid';
 
 const ARABIC_TO_LATIN_MAP: { [key: string]: string } = {
   ء: "",
@@ -67,8 +67,11 @@ export function slugify(input: string): string {
     .replace(/^-+|-+$/g, ""); // Trim hyphens from start and end
 }
 
+// أحرف صغيرة وأرقام فقط لضمان رابط نظيف وموحّد
+const nanoidLower = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 8);
+
 export function generateShortSlug(): string {
-  return nanoid(8); // 8 characters for a good balance of brevity and uniqueness
+  return nanoidLower();
 }
 
 export async function ensureUniqueSlug(

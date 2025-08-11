@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { Upload, FolderOpen, Search, Image as ImageIcon, Video, FileAudio, FileText, ChevronRight, Home, Check } from "lucide-react";
+import { Upload, FolderOpen, Search, Image as ImageIcon, Video, FileAudio, FileText, ChevronRight, Home, Check, Loader2, X } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface MediaFolder {
@@ -43,6 +43,8 @@ interface MediaAsset {
   type: "IMAGE" | "VIDEO" | "AUDIO" | "DOCUMENT";
   folderId: string | null;
   createdAt: string;
+  altText?: string;
+  metadata?: any;
 }
 
 interface MediaPickerModalProps {
@@ -70,6 +72,8 @@ export function MediaPickerModal({
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<{ file: File; altText: string }[]>([]);
+  const [showAltTextModal, setShowAltTextModal] = useState(false);
 
   // Fetch data
   const fetchData = useCallback(async () => {
@@ -117,24 +121,61 @@ export function MediaPickerModal({
     }
   }, [open, fetchData]);
 
+  // Convert file to base64
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
+  };
+
   // Handle file upload
-  const handleFileUpload = async (files: FileList) => {
+  const handleFileUpload = async (filesWithAltText: { file: File; altText: string }[]) => {
+    console.log("🚀 Starting file upload, files:", filesWithAltText);
     setUploading(true);
     
     try {
-      for (const file of Array.from(files)) {
-        const formData = new FormData();
-        formData.append("file", file);
-        if (currentFolder) {
-          formData.append("folderId", currentFolder.id);
-        }
-
+      for (const { file, altText } of filesWithAltText) {
+        console.log("📤 Uploading file:", {
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          altText: altText,
+          lastModified: file.lastModified
+        });
+        
+        // Convert file to base64
+        const base64Data = await fileToBase64(file);
+        
+        const requestBody = {
+          file: {
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            data: base64Data
+          },
+          folderId: currentFolder?.id || null,
+          altText: altText // إضافة النص البديل
+        };
+        
+        console.log("📤 Sending request with Content-Type: application/json");
+        
         const res = await fetch("/api/admin/media/upload", {
           method: "POST",
-          body: formData,
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify(requestBody),
         });
 
-        if (!res.ok) throw new Error("Upload failed");
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({ error: "Unknown error" }));
+          console.error("Upload failed:", res.status, errorData);
+          throw new Error(errorData.error || `Upload failed: ${res.status}`);
+        }
         
         const newAsset = await res.json();
         
@@ -147,8 +188,12 @@ export function MediaPickerModal({
       }
       
       fetchData();
+      setUploadedFiles([]); // مسح قائمة الملفات بعد الرفع الناجح
+      alert(`تم رفع ${filesWithAltText.length} ملف بنجاح!`);
     } catch (error) {
       console.error("Upload error:", error);
+      // عرض رسالة خطأ للمستخدم
+      alert(error instanceof Error ? error.message : "حدث خطأ أثناء رفع الملف");
     } finally {
       setUploading(false);
     }
@@ -195,33 +240,39 @@ export function MediaPickerModal({
 
   return (
     <Dialog open={open} onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-4xl h-[80vh] p-0">
-        <DialogHeader className="p-6 pb-0">
-          <DialogTitle>{title}</DialogTitle>
+      <DialogContent className="max-w-6xl h-[85vh] p-0 overflow-hidden bg-white dark:bg-gray-900">
+        <DialogHeader className="px-6 py-5 border-b bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800">
+          <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-gray-100">{title}</DialogTitle>
         </DialogHeader>
 
-        <Tabs defaultValue="browse" className="flex-1 flex flex-col">
-          <TabsList className="mx-6">
-            <TabsTrigger value="browse">تصفح المكتبة</TabsTrigger>
-            <TabsTrigger value="upload">رفع جديد</TabsTrigger>
+        <Tabs defaultValue="upload" className="flex-1 flex flex-col">
+          <TabsList className="mx-6 mt-4 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+            <TabsTrigger value="upload" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm px-6 py-2 rounded-md transition-all">
+              <Upload className="w-4 h-4 ml-2" />
+              رفع جديد
+            </TabsTrigger>
+            <TabsTrigger value="browse" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm px-6 py-2 rounded-md transition-all">
+              <FolderOpen className="w-4 h-4 ml-2" />
+              تصفح المكتبة
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="browse" className="flex-1 flex flex-col m-0">
             {/* Search Bar */}
-            <div className="px-6 py-3 border-b">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50">
               <div className="relative">
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
                   placeholder="بحث في الملفات..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pr-9"
+                  className="pr-10 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-400"
                 />
               </div>
             </div>
 
             {/* Breadcrumb */}
-            <div className="px-6 py-2 border-b bg-gray-50">
+            <div className="px-6 py-3 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
               <div className="flex items-center gap-1 text-sm">
                 <Button
                   variant="ghost"
@@ -270,7 +321,7 @@ export function MediaPickerModal({
                             className="cursor-pointer"
                             onClick={() => setCurrentFolder(folder)}
                           >
-                            <div className="flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition-colors border">
+                            <div className="flex flex-col items-center p-4 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600">
                               <FolderOpen className="w-10 h-10 text-blue-500 mb-2" />
                               <span className="text-sm font-medium text-center line-clamp-1">
                                 {folder.name}
@@ -303,8 +354,10 @@ export function MediaPickerModal({
                               initial={{ opacity: 0, scale: 0.9 }}
                               animate={{ opacity: 1, scale: 1 }}
                               className={cn(
-                                "cursor-pointer rounded-lg border overflow-hidden transition-all",
-                                isSelected ? "ring-2 ring-blue-500 bg-blue-50" : "hover:shadow-md"
+                                "cursor-pointer rounded-xl border overflow-hidden transition-all group",
+                                isSelected 
+                                  ? "ring-2 ring-blue-500 border-blue-500 bg-blue-50 dark:bg-blue-900/20" 
+                                  : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-lg"
                               )}
                               onClick={() => {
                                 if (multiple) {
@@ -320,27 +373,39 @@ export function MediaPickerModal({
                                 }
                               }}
                             >
-                              <div className="aspect-square bg-gray-100 flex items-center justify-center relative">
+                              <div className="aspect-square bg-gray-100 dark:bg-gray-800 flex items-center justify-center relative overflow-hidden">
                                 {asset.type === "IMAGE" ? (
                                   <img
                                     src={asset.thumbnailUrl || asset.cloudinaryUrl}
-                                    alt={asset.filename}
-                                    className="w-full h-full object-cover"
+                                    alt={asset.altText || (asset.metadata as any)?.altText || asset.filename}
+                                    className="w-full h-full object-contain" // تغيير من object-cover إلى object-contain
                                   />
                                 ) : (
                                   <div className="text-gray-400">
                                     {getAssetIcon(asset.type)}
                                   </div>
                                 )}
+                                <div className={cn(
+                                  "absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity",
+                                  isSelected && "opacity-100 bg-blue-500/30"
+                                )} />
                                 {isSelected && (
-                                  <div className="absolute top-2 right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                                  <div className="absolute top-3 right-3 w-7 h-7 bg-blue-500 rounded-full flex items-center justify-center shadow-lg">
                                     <Check className="w-4 h-4 text-white" />
                                   </div>
                                 )}
                               </div>
-                              <div className="p-2">
-                                <p className="text-xs font-medium line-clamp-1" title={asset.filename}>
+                              <div className="p-3 bg-white dark:bg-gray-900">
+                                {(asset.altText || (asset.metadata as any)?.altText) && (
+                                  <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 mb-1" title={asset.altText || (asset.metadata as any)?.altText}>
+                                    {asset.altText || (asset.metadata as any)?.altText}
+                                  </p>
+                                )}
+                                <p className="text-[10px] text-gray-400 dark:text-gray-500 line-clamp-1 font-mono" title={asset.filename}>
                                   {asset.filename}
+                                </p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                  {(asset.size / 1024 / 1024).toFixed(1)} MB
                                 </p>
                               </div>
                             </motion.div>
@@ -358,42 +423,159 @@ export function MediaPickerModal({
             </ScrollArea>
           </TabsContent>
 
-          <TabsContent value="upload" className="flex-1 flex items-center justify-center m-0">
-            <div className="text-center">
-              <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-              <Label htmlFor="picker-upload" className="cursor-pointer">
-                <Button variant="default" disabled={uploading} asChild>
-                  <span>
-                    {uploading ? "جاري الرفع..." : "اختر ملفات للرفع"}
-                  </span>
-                </Button>
-              </Label>
-              <Input
-                id="picker-upload"
-                type="file"
-                multiple={multiple}
-                accept={acceptedTypes?.join(",")}
-                className="hidden"
-                onChange={(e) => e.target.files && handleFileUpload(e.target.files)}
-              />
-              <p className="text-sm text-muted-foreground mt-2">
-                أو اسحب الملفات وأفلتها هنا
-              </p>
-            </div>
+          <TabsContent value="upload" className="flex-1 flex flex-col m-0 p-6">
+            {uploadedFiles.length === 0 ? (
+              <div className="flex-1 flex items-center justify-center">
+                <div className="w-full max-w-md">
+                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl p-12 text-center hover:border-gray-400 dark:hover:border-gray-500 transition-colors bg-gray-50/50 dark:bg-gray-800/50">
+                    <Upload className="w-16 h-16 mx-auto mb-6 text-gray-400" />
+                    <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                      رفع الملفات
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6">
+                      اسحب الملفات وأفلتها هنا أو
+                    </p>
+                    <Label htmlFor="picker-upload" className="cursor-pointer">
+                      <div 
+                        className={cn(
+                          "inline-flex items-center justify-center gap-2 px-6 py-2 rounded-md text-white font-medium transition-colors",
+                          uploading 
+                            ? "bg-gray-500 cursor-not-allowed" 
+                            : "bg-blue-600 hover:bg-blue-700"
+                        )}
+                      >
+                        {uploading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            جاري الرفع...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-4 h-4" />
+                            اختر الملفات
+                          </>
+                        )}
+                      </div>
+                    </Label>
+                    <input
+                      id="picker-upload"
+                      type="file"
+                      multiple={true} // دائماً تفعيل الرفع المتعدد
+                      accept={acceptedTypes?.join(",") || "image/*"}
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files.length > 0) {
+                          const newFiles = Array.from(e.target.files).map(file => ({
+                            file,
+                            altText: ""
+                          }));
+                          setUploadedFiles(newFiles);
+                        }
+                      }}
+                    />
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-4">
+                      الحد الأقصى: 10MB لكل ملف • يمكنك رفع عدة ملفات دفعة واحدة
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex-1 overflow-y-auto">
+                <h3 className="text-lg font-semibold mb-4">الملفات المختارة ({uploadedFiles.length})</h3>
+                <div className="space-y-3 mb-6">
+                  {uploadedFiles.map((item, index) => (
+                    <div key={index} className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                      <div className="flex items-start gap-4">
+                        <div className="w-20 h-20 bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden flex-shrink-0">
+                          <img
+                            src={URL.createObjectURL(item.file)}
+                            alt={item.file.name}
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{item.file.name}</p>
+                          <Input
+                            placeholder="أضف وصف للصورة (اختياري)"
+                            value={item.altText}
+                            onChange={(e) => {
+                              const newFiles = [...uploadedFiles];
+                              newFiles[index].altText = e.target.value;
+                              setUploadedFiles(newFiles);
+                            }}
+                            className="text-sm"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">{(item.file.size / 1024 / 1024).toFixed(2)} MB</p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setUploadedFiles(uploadedFiles.filter((_, i) => i !== index));
+                          }}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-3">
+                  <Button
+                    onClick={() => handleFileUpload(uploadedFiles)}
+                    disabled={uploading}
+                    className="flex-1"
+                  >
+                    {uploading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 ml-2 animate-spin" />
+                        جاري رفع {uploadedFiles.length} ملف...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-4 h-4 ml-2" />
+                        رفع جميع الملفات
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setUploadedFiles([])}
+                    disabled={uploading}
+                  >
+                    إلغاء
+                  </Button>
+                </div>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
 
         {/* Footer */}
-        <div className="p-6 pt-0 flex justify-between border-t">
-          <Button variant="outline" onClick={onClose}>
+        <div className="px-6 py-4 flex justify-between items-center border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+          <Button 
+            variant="outline" 
+            onClick={onClose}
+            className="px-6"
+          >
             إلغاء
           </Button>
-          <Button 
-            onClick={handleSelect} 
-            disabled={multiple ? selectedAssets.size === 0 : !selectedAsset}
-          >
-            {multiple ? `اختيار (${selectedAssets.size})` : "اختيار"}
-          </Button>
+          
+          <div className="flex items-center gap-3">
+            {(multiple ? selectedAssets.size > 0 : selectedAsset) && (
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                {multiple ? `${selectedAssets.size} ملف محدد` : "ملف واحد محدد"}
+              </span>
+            )}
+            <Button 
+              onClick={handleSelect} 
+              disabled={multiple ? selectedAssets.size === 0 : !selectedAsset}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 disabled:bg-gray-300 dark:disabled:bg-gray-700"
+            >
+              <Check className="w-4 h-4 ml-2" />
+              {multiple ? "اختيار الملفات" : "اختيار الملف"}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

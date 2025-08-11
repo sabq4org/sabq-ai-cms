@@ -6,6 +6,7 @@
 'use client';
 
 import React, { forwardRef } from 'react';
+import { Slot } from '@radix-ui/react-slot';
 import { cn } from '@/lib/utils';
 import { sabqTheme, cssClasses } from '@/lib/design-system/theme';
 import { Loader2 } from 'lucide-react';
@@ -116,21 +117,20 @@ const SabqButton = forwardRef<HTMLButtonElement, SabqButtonProps>(({
     className
   );
 
-  // إذا كان الزر رابط
-  if (href) {
-    return (
-      <a
-        href={href}
-        className={buttonClasses}
-        {...(disabled ? { 'aria-disabled': true } : {})}
-      >
-        {renderContent()}
-      </a>
-    );
+  // 📐 حجم الأيقونة حسب حجم الزر
+  function getIconSize() {
+    switch (size) {
+      case 'xs': return 'w-3 h-3';
+      case 'sm': return 'w-4 h-4';
+      case 'md': return 'w-4 h-4';
+      case 'lg': return 'w-5 h-5';
+      case 'xl': return 'w-6 h-6';
+      default: return 'w-4 h-4';
+    }
   }
 
   // 🎯 محتوى الزر
-  function renderContent() {
+  const renderContent = () => {
     const iconElement = loading ? (
       <Loader2 className={cn('animate-spin', getIconSize())} />
     ) : icon ? (
@@ -144,7 +144,7 @@ const SabqButton = forwardRef<HTMLButtonElement, SabqButtonProps>(({
     return (
       <>
         {iconElement && iconPosition === 'left' && (
-          <span className={cn(children ? 'ml-2' : '')}>{iconElement}</span>
+          <span className={cn(children ? 'mr-2' : '')}>{iconElement}</span>
         )}
         
         {children && (
@@ -152,22 +152,26 @@ const SabqButton = forwardRef<HTMLButtonElement, SabqButtonProps>(({
         )}
         
         {iconElement && iconPosition === 'right' && (
-          <span className={cn(children ? 'mr-2' : '')}>{iconElement}</span>
+          <span className={cn(children ? 'ml-2' : '')}>{iconElement}</span>
         )}
       </>
     );
+  };
+
+  if (asChild) {
+    return (
+      <Slot ref={ref} className={buttonClasses} {...props}>
+        {children}
+      </Slot>
+    );
   }
 
-  // 📐 حجم الأيقونة حسب حجم الزر
-  function getIconSize() {
-    switch (size) {
-      case 'xs': return 'w-3 h-3';
-      case 'sm': return 'w-4 h-4';
-      case 'md': return 'w-4 h-4';
-      case 'lg': return 'w-5 h-5';
-      case 'xl': return 'w-6 h-6';
-      default: return 'w-4 h-4';
-    }
+  if (href && !asChild) {
+    return (
+      <a href={href} className={buttonClasses} {...(disabled ? { 'aria-disabled': true } : {})}>
+        {renderContent()}
+      </a>
+    );
   }
 
   return (
@@ -184,4 +188,4 @@ const SabqButton = forwardRef<HTMLButtonElement, SabqButtonProps>(({
 
 SabqButton.displayName = 'SabqButton';
 
-export default SabqButton;
+export { SabqButton };

@@ -76,6 +76,21 @@ export async function POST(request: NextRequest) {
 
     const { name, parentId } = validation.data;
 
+    // Check if folder with same name already exists in the same location
+    const existingFolder = await prisma.mediaFolder.findFirst({
+      where: {
+        name: name.trim(),
+        parentId: parentId || null,
+      },
+    });
+
+    if (existingFolder) {
+      return NextResponse.json(
+        { error: "مجلد بهذا الاسم موجود بالفعل في هذا المكان" },
+        { status: 409 }
+      );
+    }
+
     // Generate slug from name
     const slug = name
       .toLowerCase()
