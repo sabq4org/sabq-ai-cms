@@ -169,7 +169,7 @@ const AIQuestions: React.FC<Props> = ({ content }) => {
               ))}
             </div>
           </div>
-        )
+        )}
       </div>
     </section>
   );
