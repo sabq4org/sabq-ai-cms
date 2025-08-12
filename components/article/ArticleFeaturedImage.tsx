@@ -19,8 +19,8 @@ interface ArticleFeaturedImageProps {
 function CaptionBox({ caption }: { caption?: string }) {
   if (!caption) return null;
   return (
-    <div className="mt-3 px-4 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg border-r-4 border-blue-500">
-      <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+    <div className="mt-2 py-3 px-4 bg-gray-50 dark:bg-gray-800 rounded-lg border-r-4 border-blue-500 w-full">
+      <p className="text-base md:text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
         {caption}
       </p>
     </div>
