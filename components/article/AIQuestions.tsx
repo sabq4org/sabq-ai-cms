@@ -90,21 +90,21 @@ const AIQuestions: React.FC<Props> = ({ content }) => {
   };
 
   return (
-    <section className="relative mt-10 overflow-hidden rounded-2xl border border-purple-200/60 dark:border-purple-900/40 bg-gradient-to-b from-white to-purple-50/50 dark:from-gray-900 dark:to-purple-950/20 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+    <section className="relative mt-8 overflow-hidden rounded-2xl border border-gray-200/60 dark:border-gray-800/60 bg-white/80 dark:bg-gray-900/50">
       {/* زخرفة خلفية ناعمة */}
       <div className="pointer-events-none absolute -top-24 -left-24 h-56 w-56 rounded-full bg-purple-200/30 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-24 -right-24 h-56 w-56 rounded-full bg-indigo-200/30 blur-3xl" />
 
-      <div className="relative p-6 sm:p-8">
+        <div className="relative p-4 sm:p-6">
         <div className="flex items-start gap-3 mb-2">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-500 to-indigo-500 text-white flex items-center justify-center shadow-sm">
             <MessageCircleQuestion className="w-5 h-5" />
           </div>
           <div className="flex-1">
-            <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-700 to-indigo-700 dark:from-purple-300 dark:to-indigo-300">
-              مكون الذكاء الاصطناعي للأخبار
+            <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100">
+              أسئلة ذكية حول الخبر
             </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               اسأل الذكاء الاصطناعي عن هذا الخبر واحصل على إجابات مبنية على المحتوى
             </p>
           </div>
@@ -146,33 +146,33 @@ const AIQuestions: React.FC<Props> = ({ content }) => {
           </div>
         ) : open && (
           <div className="mt-4">
-            <div className="grid gap-3 sm:gap-4">
+            <div className="grid gap-2 sm:gap-3">
               {questions.map((q) => (
                 <div
                   key={q?.question || String(q)}
-                  className="group rounded-xl border border-gray-200/70 dark:border-gray-700/60 bg-white/70 dark:bg-gray-800/70 backdrop-blur transition-colors"
+                  className="group rounded-lg border border-gray-200/60 dark:border-gray-700/50 bg-white/60 dark:bg-gray-800/60"
                 >
                   <button
                     onClick={() => ask(q)}
-                    className="w-full text-right px-4 sm:px-5 py-3 sm:py-4 font-medium text-gray-800 dark:text-gray-100 hover:text-purple-700 dark:hover:text-purple-300 flex items-center justify-between gap-3"
+                    className="w-full text-right px-3 sm:px-4 py-2.5 sm:py-3 text-[13px] sm:text-sm font-medium text-gray-800 dark:text-gray-100 hover:text-blue-700 dark:hover:text-blue-300 flex items-center justify-between gap-2"
                   >
                     <span className="leading-relaxed">
                       {q?.icon ? <span className="ml-1">{q.icon}</span> : null}
                       {q?.question || String(q)}
                     </span>
-                    <span className="text-xs text-gray-400">{q?.type === 'poll' ? 'صوّت وشاهد النتائج' : 'اضغط لعرض الإجابة'}</span>
+                    <span className="text-[10px] sm:text-xs text-gray-400">{q?.type === 'poll' ? 'صوّت وشاهد النتائج' : 'عرض الإجابة'}</span>
                   </button>
 
                   {/* الإجابة */}
                   {answers[q?.question || String(q)] && (
-                    <div className="px-4 sm:px-5 pb-4">
-                      <div className="rounded-lg border border-purple-200/60 dark:border-purple-800/60 bg-purple-50/40 dark:bg-purple-900/10 p-3 text-sm leading-relaxed text-gray-800 dark:text-gray-200">
+                    <div className="px-3 sm:px-4 pb-3">
+                      <div className="rounded-md border border-gray-200/60 dark:border-gray-700/60 bg-gray-50/60 dark:bg-gray-900/60 p-2.5 text-[13px] leading-relaxed text-gray-800 dark:text-gray-200">
                         {answers[q?.question || String(q)]}
                       </div>
-                      <div className="mt-2 flex items-center justify-end gap-2">
+                      <div className="mt-1.5 flex items-center justify-end gap-2">
                         <button
                           onClick={() => copyAnswer(q?.question || String(q))}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
                         >
                           {copiedFor === (q?.question || String(q)) ? (
                             <>
@@ -191,9 +191,9 @@ const AIQuestions: React.FC<Props> = ({ content }) => {
                   )}
 
                   {answerLoading === (q?.question || String(q)) && (
-                    <div className="px-4 sm:px-5 pb-4 -mt-2">
-                      <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                    <div className="px-3 sm:px-4 pb-3 -mt-1">
+                      <div className="flex items-center gap-2 text-[12px] text-gray-500 dark:text-gray-400">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
                         جاري توليد الإجابة...
                       </div>
                     </div>
@@ -201,21 +201,21 @@ const AIQuestions: React.FC<Props> = ({ content }) => {
 
                   {/* استطلاع رأي */}
                   {q?.type === 'poll' && Array.isArray(q?.options) && (
-                    <div className="px-4 sm:px-5 pb-4 -mt-2">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div className="px-3 sm:px-4 pb-3 -mt-1">
+                      <div className="grid grid-cols-2 gap-2">
                         {q.options.map((opt: string, idx: number) => (
                           <button
                             key={idx}
                             onClick={() => vote(q, idx)}
                             disabled={pollSubmitting === (q?.question || String(q))}
-                            className="w-full text-right px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"
+                            className="w-full text-right px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-[12px]"
                           >
                             {opt}
                           </button>
                         ))}
                       </div>
                       {pollResults[q?.question || String(q)] && (
-                        <div className="mt-3 text-xs text-gray-600 dark:text-gray-300">
+                        <div className="mt-2 text-[11px] text-gray-600 dark:text-gray-300">
                           <div className="flex flex-col gap-1">
                             {q.options.map((opt: string, idx: number) => {
                               const res = pollResults[q?.question || String(q)];
