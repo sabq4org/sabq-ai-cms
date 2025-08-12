@@ -13,6 +13,8 @@ const AIQuestions: React.FC<Props> = ({ content }) => {
   const [answerLoading, setAnswerLoading] = useState<string | null>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [copiedFor, setCopiedFor] = useState<string | null>(null);
+  const [pollSubmitting, setPollSubmitting] = useState<string | null>(null);
+  const [pollResults, setPollResults] = useState<Record<string, { counts: number[]; total: number }>>({});
   const [open, setOpen] = useState(false);
 
   const canGenerate = useMemo(() => (content?.length || 0) > 30, [content]);
@@ -46,6 +48,32 @@ const AIQuestions: React.FC<Props> = ({ content }) => {
       if (json.success) setAnswers((prev) => ({ ...prev, [q]: json.answer }));
     } finally {
       setAnswerLoading(null);
+    }
+  };
+
+  const vote = async (qObj: any, optionIndex: number) => {
+    const qText = qObj?.question || String(qObj);
+    if (!qText || !Array.isArray(qObj?.options)) return;
+    setPollSubmitting(qText);
+    try {
+      const articleIdMatch = typeof window !== 'undefined' ? window.location.pathname.match(/\/article\/([^\/]+)/) : null;
+      const articleId = articleIdMatch?.[1] || '';
+      const res = await fetch('/api/ai/news/poll-vote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          articleId,
+          question: qText,
+          options: qObj.options,
+          optionIndex,
+        })
+      });
+      const json = await res.json();
+      if (json.success) {
+        setPollResults((prev) => ({ ...prev, [qText]: { counts: json.counts, total: json.total } }));
+      }
+    } finally {
+      setPollSubmitting(null);
     }
   };
 
@@ -166,6 +194,45 @@ const AIQuestions: React.FC<Props> = ({ content }) => {
                         <Loader2 className="w-4 h-4 animate-spin" />
                         جاري توليد الإجابة...
                       </div>
+                    </div>
+                  )}
+
+                  {/* استطلاع رأي */}
+                  {q?.type === 'poll' && Array.isArray(q?.options) && (
+                    <div className="px-4 sm:px-5 pb-4 -mt-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {q.options.map((opt: string, idx: number) => (
+                          <button
+                            key={idx}
+                            onClick={() => vote(q, idx)}
+                            disabled={pollSubmitting === (q?.question || String(q))}
+                            className="w-full text-right px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"
+                          >
+                            {opt}
+                          </button>
+                        ))}
+                      </div>
+                      {pollResults[q?.question || String(q)] && (
+                        <div className="mt-3 text-xs text-gray-600 dark:text-gray-300">
+                          <div className="flex flex-col gap-1">
+                            {q.options.map((opt: string, idx: number) => {
+                              const res = pollResults[q?.question || String(q)];
+                              const count = res.counts[idx] || 0;
+                              const total = res.total || 0;
+                              const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+                              return (
+                                <div key={idx} className="flex items-center gap-2">
+                                  <span className="w-24 truncate">{opt}</span>
+                                  <div className="flex-1 h-2 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+                                    <div className="h-2 bg-gradient-to-r from-purple-500 to-indigo-500" style={{ width: `${pct}%` }} />
+                                  </div>
+                                  <span className="w-10 text-left">{pct}%</span>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

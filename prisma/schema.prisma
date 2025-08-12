@@ -572,6 +572,24 @@ model interactions {
   @@index([user_id])
 }
 
+/// تصويتات الاستطلاع لأسئلة الذكاء الإبداعي للمقالات
+model ai_poll_votes {
+  id            String   @id @default(cuid())
+  article_id    String
+  question_id   String   // مُعرّف ثابت للسؤال (hash للنص+الخيارات)
+  question_text String
+  option_index  Int
+  options       Json?
+  user_id       String?
+  ip_hash       String
+  user_agent    String?
+  created_at    DateTime @default(now())
+
+  @@unique([article_id, question_id, ip_hash])
+  @@unique([article_id, question_id, user_id])
+  @@index([article_id, question_id])
+}
+
 model keywords {
   id         String   @id
   name       String
