@@ -9,9 +9,6 @@ import CompactStatsBar from "@/components/mobile/CompactStatsBar";
 import EnhancedMobileNewsCard from "@/components/mobile/EnhancedMobileNewsCard";
 import SmartContentNewsCard from "@/components/mobile/SmartContentNewsCard";
 
-// استيراد أنماط CSS للنسخة الخفيفة من الأخبار المميزة
-import "@/styles/featured-mobile-news.css";
-
 import AdBanner from "@/components/ads/AdBanner";
 import CloudImage from "@/components/ui/CloudImage";
 import { useAuth } from "@/hooks/useAuth";
@@ -698,46 +695,19 @@ function NewspaperHomePage({
         {/* تم إزالة شريط النبض الإخباري من نسخة الموبايل فقط */}
         {/* شريط الإحصائيات المحسن للموبايل - متلاصق مع الهيدر */}
         <SafeHydration>
-          {isMobileView && <CompactStatsBar darkMode={darkMode} />}
+          {isMobileView && (
+            <div className="sticky top-14 z-30 bg-white dark:bg-gray-900 shadow-sm">
+              <CompactStatsBar darkMode={darkMode} />
+            </div>
+          )}
         </SafeHydration>
         {/* 🔥 الترتيب الجديد المحدث للواجهة الرئيسية */}
         {/* 1. الهيدر ⬆️ - تم تأكيده أنه في المقدمة عبر Layout */}
 
         {/* 2. الأخبار المميزة (Featured Articles) 🌟 */}
         {!featuredLoading && featuredArticle.length > 0 && (
-          <div className={`${isMobileView ? "pt-2 pb-2" : "pt-4 pb-6"}`}>
-            {isMobileView ? (
-              <div className="featured-mobile-articles-container">
-                {/* بطاقات الأخبار المميزة للموبايل - النسخة الخفيفة */}
-                <div className="grid grid-cols-1 gap-4">
-                  {featuredArticle.map((article) => (
-                    <EnhancedMobileNewsCard
-                      key={article.id}
-                      news={article}
-                      darkMode={darkMode}
-                      variant="smart-block"
-                      className="featured-mobile-card"
-                    />
-                  ))}
-                </div>
-                
-                {/* أشرطة التنقل */}
-                <div className="mt-4 flex justify-center items-center gap-2">
-                  {featuredArticle.map((_, index) => (
-                    <div 
-                      key={index} 
-                      className={`h-1 rounded-full transition-all duration-300 ease-in-out ${
-                        index === 0
-                          ? "w-10 bg-blue-500 dark:bg-blue-400"
-                          : "w-5 bg-gray-300 dark:bg-gray-600"
-                      }`}
-                    />
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <FeaturedNewsCarousel articles={featuredArticle} />
-            )}
+          <div className={`${isMobileView ? "pt-2 pb-4" : "pt-4 pb-6"}`}>
+            <FeaturedNewsCarousel articles={featuredArticle} />
           </div>
         )}
 
@@ -760,13 +730,13 @@ function NewspaperHomePage({
                 className={`rounded-3xl p-4 sm:p-6 lg:p-8 transition-all duration-500 shadow-lg dark:shadow-gray-900/50 ${
                   darkMode
                     ? "bg-blue-900/10 border border-blue-800/30"
-                    : "bg-blue-50 border border-blue-200/50"
+                    : "bg-blue-50 dark:bg-blue-900/20/50 border border-blue-200/50"
                 }`}
                 style={{
                   backdropFilter: "blur(10px)",
                   background: darkMode
-                    ? "linear-gradient(135deg, rgba(30, 64, 175, 0.12) 0%, rgba(37, 99, 235, 0.08) 100%)"
-                    : "linear-gradient(135deg, rgba(219, 234, 254, 0.7) 0%, rgba(191, 219, 254, 0.4) 100%)",
+                    ? "linear-gradient(135deg, rgba(30, 64, 175, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)"
+                    : "linear-gradient(135deg, rgba(219, 234, 254, 0.5) 0%, rgba(191, 219, 254, 0.3) 100%)",
                 }}
               >
                 <div className="text-center mb-6 sm:mb-8">

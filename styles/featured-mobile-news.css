@@ -13,15 +13,11 @@
 .featured-mobile-card {
   @apply relative w-full overflow-hidden rounded-xl shadow-lg;
   @apply hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02];
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  max-width: 100% !important;
 }
 
 /* حاوي الصورة */
 .featured-mobile-card__image-container {
   @apply relative w-full h-[280px] overflow-hidden;
-  width: 100% !important;
 }
 
 /* الصورة الأساسية */
@@ -224,26 +220,4 @@
     rgba(0, 0, 0, var(--featured-overlay-opacity)) 0%,
     transparent 100%
   );
-}
-
-/* تحسينات خاصة للنسخة الخفيفة */
-.featured-mobile-articles-container {
-  @apply space-y-4 py-2;
-}
-
-/* تأثيرات أشرطة التنقل */
-.featured-mobile-articles-container .navigation-dots {
-  @apply flex justify-center items-center gap-2 mt-4;
-}
-
-.featured-mobile-articles-container .navigation-dot {
-  @apply h-1 rounded-full transition-all duration-300 ease-in-out;
-}
-
-.featured-mobile-articles-container .navigation-dot--active {
-  @apply w-10 bg-blue-500 dark:bg-blue-400;
-}
-
-.featured-mobile-articles-container .navigation-dot--inactive {
-  @apply w-5 bg-gray-300 dark:bg-gray-600;
 }

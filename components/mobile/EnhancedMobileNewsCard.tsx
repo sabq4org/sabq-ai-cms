@@ -22,10 +22,9 @@ import React from "react";
 interface EnhancedMobileNewsCardProps {
   news: any;
   darkMode: boolean;
-  variant?: "hero" | "compact" | "full-width" | "smart-block";
+  variant?: "hero" | "compact" | "full-width";
   onBookmark?: (id: string) => void;
   onShare?: (news: any) => void;
-  className?: string;
 }
 
 export default function EnhancedMobileNewsCard({
@@ -34,7 +33,6 @@ export default function EnhancedMobileNewsCard({
   variant = "compact",
   onBookmark,
   onShare,
-  className = "",
 }: EnhancedMobileNewsCardProps) {
   // 🤖 AI-powered features
   const personalizedScore =
@@ -359,129 +357,9 @@ export default function EnhancedMobileNewsCard({
     );
   }
 
-  // بطاقة smart-block - الأفضل للأخبار المميزة
-  if (variant === "smart-block") {
-    return (
-      <Link href={getArticleLink(news)} className={`block w-full ${className}`}>
-        <article
-          className={`
-          relative overflow-hidden rounded-2xl transition-all duration-300 hover:shadow-lg group
-          ${
-            news.breaking
-              ? darkMode
-                ? "bg-red-950/30 backdrop-blur-sm border-2 border-red-800/70 hover:bg-red-950/40"
-                : "bg-red-50/90 backdrop-blur-sm border-2 border-red-200 hover:bg-red-50"
-              : darkMode
-              ? "bg-gray-800/90 backdrop-blur-sm border border-gray-700/50 hover:bg-gray-800"
-              : "bg-white/90 backdrop-blur-sm border border-gray-200/50 hover:bg-gray-50"
-          }
-        `}
-        >
-          {/* الصورة الرئيسية - تظهر دائمًا إذا كانت متوفرة */}
-          <div className="relative h-48 w-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
-            <SafeImage
-              src={news.featured_image || news.image_url || news.image}
-              alt={news.title || "صورة المقال"}
-              fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
-              sizes="(max-width: 768px) 100vw, 400px"
-              fallbackType="article"
-            />
-            {/* تدرج للخلفية */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-            
-            {/* مؤشرات الحالة المحسنة */}
-            <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
-              {news.breaking && (
-                <span className="flex items-center gap-1 px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse shadow-lg">
-                  <Zap className="w-3 h-3" />
-                  عاجل
-                </span>
-              )}
-              
-              {isPersonalized && (
-                <span className="flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-full shadow-lg">
-                  <Sparkles className="w-3 h-3" />
-                  مخصص
-                </span>
-              )}
-              
-              {isTrending && (
-                <span className="flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold rounded-full shadow-lg">
-                  <TrendingUp className="w-3 h-3" />
-                  رائج
-                </span>
-              )}
-            </div>
-            
-            {/* التصنيف المحسن */}
-            {news.category_name &&
-              (() => {
-                const categoryStyle = getCategoryStyle(news.category_name);
-                return (
-                  <div className="absolute bottom-3 right-3 z-10">
-                    <span
-                      className="flex items-center gap-1 px-3 py-1 text-white text-xs font-bold rounded-full shadow-lg backdrop-blur-sm"
-                      style={{ backgroundColor: categoryStyle.color }}
-                    >
-                      <span>{categoryStyle.emoji}</span>
-                      {news.category_name}
-                    </span>
-                  </div>
-                );
-              })()}
-          </div>
-
-          {/* المحتوى */}
-          <div className="p-5 space-y-3">
-            {/* العنوان مع إصلاح القص */}
-            <h3
-              className={`
-              featured-news-title text-lg font-bold leading-tight line-clamp-3 group-hover:text-blue-600
-              transition-colors duration-200
-              ${
-                darkMode
-                  ? "text-white dark:group-hover:text-blue-400"
-                  : "text-gray-900"
-              }
-            `}
-            >
-              {news.title}
-            </h3>
-
-            {/* معلومات المقال المحسنة */}
-            <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center gap-3">
-                {/* وقت القراءة */}
-                <span
-                  className={`flex items-center gap-1 ${
-                    darkMode ? "text-gray-400" : "text-gray-500"
-                  }`}
-                >
-                  <Clock className="w-3.5 h-3.5" />
-                  {news.reading_time || 5} دقائق
-                </span>
-
-                {/* المشاهدات المحسنة */}
-                <ArticleViews count={news.views || interactionCount} className="text-xs" />
-              </div>
-
-              {/* التاريخ الميلادي */}
-              <span
-                className={`${darkMode ? "text-gray-400" : "text-gray-500"}`}
-              >
-                {formatDateGregorian(news.published_at || news.created_at)}
-              </span>
-            </div>
-          </div>
-        </article>
-      </Link>
-    );
-  }
-
   // البطاقة المضغوطة الافتراضية
   return (
-    <Link href={getArticleLink(news)} className={`block ${className}`}>
+    <Link href={getArticleLink(news)} className="block">
       <article
         className={`relative overflow-hidden rounded-xl transition-all ${
           news.breaking
