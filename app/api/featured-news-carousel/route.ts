@@ -1,3 +1,58 @@
+import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+export async function GET() {
+  try {
+    const articles = await prisma.articles.findMany({
+      where: { featured: true, status: "published" },
+      orderBy: { published_at: "desc" },
+      take: 10,
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        excerpt: true,
+        featured_image: true,
+        published_at: true,
+        reading_time: true,
+        views: true,
+        likes: true,
+        shares: true,
+        category: {
+          select: { id: true, name: true, icon: true, color: true },
+        },
+        author: {
+          select: {
+            id: true,
+            name: true,
+            reporter: {
+              select: {
+                id: true,
+                full_name: true,
+                slug: true,
+                title: true,
+                is_verified: true,
+                verification_badge: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return NextResponse.json({ success: true, articles });
+  } catch (e: any) {
+    console.error("featured-news-carousel error", e);
+    return NextResponse.json(
+      { success: false, error: e?.message || "failed" },
+      { status: 500 }
+    );
+  }
+}
+
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";

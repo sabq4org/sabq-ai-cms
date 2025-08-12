@@ -96,6 +96,13 @@ body {
 @media (max-width: 767px) {
   .grid-mobile-1 { grid-template-columns: 1fr; }
   .grid-mobile-2 { grid-template-columns: repeat(2, 1fr); }
+  /* منع تضييق بلوك المحتوى المخصص في الصفحة الرئيسية */
+  .homepage-wrapper .smart-personalized-container,
+  .homepage-wrapper [class*="SmartPersonalizedContent"],
+  .homepage-wrapper .max-w-7xl .grid {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
 }
 
 /* الشبكة للتابلت */

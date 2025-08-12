@@ -696,7 +696,10 @@ function NewspaperHomePage({
         {/* شريط الإحصائيات المحسن للموبايل - متلاصق مع الهيدر */}
         <SafeHydration>
           {isMobileView && (
-            <div className="sticky top-14 z-30 bg-white dark:bg-gray-900 shadow-sm">
+            <div
+              className="sticky z-30 bg-white dark:bg-gray-900 shadow-sm"
+              style={{ top: "var(--header-height)" }}
+            >
               <CompactStatsBar darkMode={darkMode} />
             </div>
           )}
@@ -706,7 +709,7 @@ function NewspaperHomePage({
 
         {/* 2. الأخبار المميزة (Featured Articles) 🌟 */}
         {!featuredLoading && featuredArticle.length > 0 && (
-          <div className={`${isMobileView ? "pt-2 pb-4" : "pt-4 pb-6"}`}>
+          <div className={`${isMobileView ? "pt-2 pb-2" : "pt-4 pb-6"}`}>
             <FeaturedNewsCarousel articles={featuredArticle} />
           </div>
         )}
@@ -729,15 +732,10 @@ function NewspaperHomePage({
               <div
                 className={`rounded-3xl p-4 sm:p-6 lg:p-8 transition-all duration-500 shadow-lg dark:shadow-gray-900/50 ${
                   darkMode
-                    ? "bg-blue-900/10 border border-blue-800/30"
-                    : "bg-blue-50 dark:bg-blue-900/20/50 border border-blue-200/50"
+                    ? "bg-gray-800/40 border border-gray-700/50"
+                    : "bg-white border border-gray-200/60"
                 }`}
-                style={{
-                  backdropFilter: "blur(10px)",
-                  background: darkMode
-                    ? "linear-gradient(135deg, rgba(30, 64, 175, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)"
-                    : "linear-gradient(135deg, rgba(219, 234, 254, 0.5) 0%, rgba(191, 219, 254, 0.3) 100%)",
-                }}
+                style={{ backdropFilter: "blur(10px)" }}
               >
                 <div className="text-center mb-6 sm:mb-8">
                   {/* أيقونة كبيرة وواضحة */}

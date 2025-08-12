@@ -114,7 +114,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
 
   return (
     <div
-      className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8"
+      className="featured-carousel relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -128,9 +128,9 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
           } backdrop-blur-sm rounded-3xl`}
         >
           {/* Grid Layout: Mobile = full width image, Desktop = 50% للصورة، 50% للنص */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 h-[280px] lg:h-[320px]">
+          <div className="grid grid-cols-1 lg:grid-cols-12 h-[220px] sm:h-[260px] lg:h-[320px]">
             {/* قسم الصورة - عرض كامل للجوال، 6 أعمدة للديسكتوب */}
-            <div className="col-span-1 lg:col-span-6 relative overflow-hidden rounded-xl lg:rounded-r-2xl lg:rounded-l-none h-[280px] lg:h-[320px]">
+            <div className="col-span-1 lg:col-span-6 relative overflow-hidden rounded-xl lg:rounded-r-2xl lg:rounded-l-none h-[220px] sm:h-[260px] lg:h-[320px]">
               {/* الصورة */}
               <div className="relative w-full h-full">
                 <CloudImage
@@ -143,7 +143,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                 />
 
                 {/* تدرج لوني للجوال (من الأسفل) والديسكتوب (من اليسار) */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent lg:bg-gradient-to-l lg:from-black/30 lg:via-transparent lg:to-transparent z-10"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent lg:bg-gradient-to-l lg:from-black/30 lg:via-transparent lg:to-transparent z-10 pointer-events-none"></div>
 
                 {/* شارة الخبر المميز - الزاوية العلوية اليمنى */}
                 <div className="absolute top-3 right-3 z-30">

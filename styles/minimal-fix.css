@@ -98,6 +98,25 @@ img {
   .container {
     padding: 0 0.5rem;
   }
+
+  /* تقليل ارتفاع الكاروسيل وإزالة أي خلفيات زرقاء غير مقصودة */
+  .featured-carousel .h-\[280px\] { height: 220px !important; }
+  .featured-carousel .h-\[320px\] { height: 260px !important; }
+  .featured-carousel [class*="bg-blue-50"],
+  .featured-carousel [class*="bg-blue-100"],
+  .featured-carousel [class*="bg-blue-200"],
+  .featured-carousel [class*="bg-blue-300"],
+  .featured-carousel [class*="bg-blue-400"],
+  .featured-carousel [class*="bg-blue-500"] {
+    background-color: transparent !important;
+  }
+
+  /* منع تمدد الهيدر عمودياً على الموبايل */
+  header.fixed-header { min-height: var(--mobile-header-height) !important; height: var(--mobile-header-height) !important; }
+  header.fixed-header > div { height: var(--mobile-header-height) !important; }
+
+  /* ضمان عرض كامل لبلوك المحتوى المخصص */
+  .homepage-wrapper .max-w-7xl .grid { width: 100% !important; }
 }
 
 /* إخفاء شريط التمرير */
