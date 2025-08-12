@@ -77,12 +77,12 @@ export default function MuqtarabArticlePage() {
         if (!slug) return;
 
         const t0 = performance.now();
-        // جلب بيانات المقال عبر الـ slug مباشرة
+        // 🚀 جلب بيانات المقال عبر الـ slug أو ID - دعم مُحسن للنوعين
         const res = await fetch(
           `/api/muqtarab/articles/${encodeURIComponent(slug)}`,
           {
-            cache: "force-cache",
-            next: { revalidate: 300 },
+            // 🚀 تحسين السرعة - إزالة cache قيود
+            cache: "default",
           }
         );
 
