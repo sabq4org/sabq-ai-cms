@@ -835,6 +835,41 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
             : "🎉 تم نشر المقال بنجاح!",
         });
 
+        // إشعار محسن مع مؤثرات بصرية
+        const successTitle = isEditMode
+          ? status === "draft"
+            ? "💾 تم التحديث بنجاح!"
+            : formData.publishType === "scheduled"
+            ? "📅 تم التحديث بنجاح!"
+            : "🎉 تم التحديث بنجاح!"
+          : status === "draft"
+          ? "💾 تم الحفظ بنجاح!"
+          : formData.publishType === "scheduled"
+          ? "📅 تم الجدولة بنجاح!"
+          : "🎉 تم النشر بنجاح!";
+
+        const successDescription = isEditMode
+          ? status === "draft"
+            ? "✅ تم تحديث المسودة بنجاح، يمكنك متابعة التحرير لاحقاً"
+            : formData.publishType === "scheduled"
+            ? "✅ تم تحديث جدولة المقال بنجاح وسيتم نشره في الوقت المحدد"
+            : "✅ تم تحديث المقال المنشور بنجاح وهو متاح للقراء الآن"
+          : status === "draft"
+          ? "✅ تم حفظ المقال كمسودة بنجاح، يمكنك متابعة التحرير لاحقاً"
+          : formData.publishType === "scheduled"
+          ? "✅ تم جدولة المقال للنشر بنجاح وسيتم نشره تلقائياً في الوقت المحدد"
+          : "✅ تم نشر المقال بنجاح وهو متاح للقراء الآن في الموقع";
+
+        toast.success(successTitle + "\n" + successDescription, {
+          duration: 6000,
+          style: {
+            background: '#10B981',
+            color: 'white',
+            fontSize: '14px',
+            fontWeight: '500',
+          },
+        });
+
         setTimeout(() => {
           router.push("/admin/news");
         }, 1500);
@@ -910,11 +945,49 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
       console.error("❌ خطأ في حفظ المقال:", error);
       const errorMessage =
         error instanceof Error ? error.message : "حدث خطأ أثناء الحفظ";
+      
       setMessage({
         type: "error",
         text: errorMessage,
       });
-      toast.error(errorMessage);
+
+      // إشعار خطأ محسن مع تفاصيل أكثر
+      let enhancedErrorTitle = "❌ فشل في العملية";
+      let enhancedErrorDescription = errorMessage;
+      
+      if (errorMessage.includes('title') || errorMessage.includes('عنوان')) {
+        enhancedErrorTitle = "📝 مشكلة في العنوان";
+        enhancedErrorDescription = "يرجى التأكد من إدخال عنوان مناسب للمقال";
+      } else if (errorMessage.includes('content') || errorMessage.includes('محتوى')) {
+        enhancedErrorTitle = "📄 مشكلة في المحتوى";
+        enhancedErrorDescription = "يرجى التأكد من إدخال محتوى كامل للمقال";
+      } else if (errorMessage.includes('category') || errorMessage.includes('تصنيف')) {
+        enhancedErrorTitle = "🏷️ مشكلة في التصنيف";
+        enhancedErrorDescription = "يرجى اختيار تصنيف مناسب للمقال";
+      } else if (errorMessage.includes('network') || errorMessage.includes('الاتصال')) {
+        enhancedErrorTitle = "🌐 مشكلة في الاتصال";
+        enhancedErrorDescription = "يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى";
+      } else if (errorMessage.includes('server') || errorMessage.includes('خادم')) {
+        enhancedErrorTitle = "🔧 مشكلة في الخادم";
+        enhancedErrorDescription = "خطأ في الخادم، يرجى المحاولة مرة أخرى لاحقاً";
+      } else if (errorMessage.includes('500')) {
+        enhancedErrorTitle = "🔧 خطأ داخلي في الخادم";
+        enhancedErrorDescription = "حدث خطأ داخلي في الخادم، يرجى المحاولة لاحقاً";
+      } else if (errorMessage.includes('404')) {
+        enhancedErrorTitle = "🔍 المورد غير موجود";
+        enhancedErrorDescription = "الصفحة أو المورد المطلوب غير موجود";
+      }
+      
+      toast.error(enhancedErrorTitle + "\n" + enhancedErrorDescription, {
+        duration: 8000,
+        style: {
+          background: '#EF4444',
+          color: 'white',
+          fontSize: '14px',
+          fontWeight: '500',
+          maxWidth: '400px',
+        },
+      });
     } finally {
       console.log("🔄 انتهاء عملية الحفظ");
       setSaving(false);

@@ -249,7 +249,15 @@ function AdminNewsPageContent() {
       // التحقق من نجاح الاستجابة (API الجديد يستخدم data.success)
       if (!data.success) {
         console.error("❌ فشل API في جلب البيانات:", data.error);
-        toast.error(`فشل في جلب الأخبار: ${data.error || "خطأ غير معروف"}`);
+        toast.error(`🔧 خطأ في جلب البيانات\n❌ ${data.error || "خطأ غير معروف في الخادم"}`, {
+          duration: 8000,
+          style: {
+            background: '#EF4444',
+            color: 'white',
+            fontSize: '14px',
+            fontWeight: '500',
+          },
+        });
         setArticles([]);
         return;
       }
@@ -359,7 +367,15 @@ function AdminNewsPageContent() {
         console.error("🔍 خطأ في parsing JSON - قد تكون مشكلة في API format");
       }
 
-      toast.error(`حدث خطأ في جلب الأخبار: ${errorMessage}`);
+      toast.error(`🔧 خطأ في جلب الأخبار\n❌ ${errorMessage}`, {
+        duration: 8000,
+        style: {
+          background: '#EF4444',
+          color: 'white',
+          fontSize: '14px',
+          fontWeight: '500',
+        },
+      });
       setArticles([]); // تأكد من إفراغ المقالات عند الخطأ
     } finally {
       setLoading(false);
@@ -594,45 +610,114 @@ function AdminNewsPageContent() {
       if (response.ok) {
         toast.success(
           !currentStatus
-            ? "✅ تم تفعيل الخبر العاجل"
-            : "⏸️ تم إلغاء الخبر العاجل"
+            ? "🚨 تم تفعيل الخبر العاجل!\n✅ المقال أصبح خبراً عاجلاً ويظهر بأولوية عالية"
+            : "⏸️ تم إلغاء الخبر العاجل!\n✅ تم إلغاء تصنيف المقال كخبر عاجل",
+          {
+            duration: 6000,
+            style: {
+              background: '#10B981',
+              color: 'white',
+              fontSize: '14px',
+              fontWeight: '500',
+            },
+          }
         );
         fetchArticles();
         calculateStatsFromAll(); // تحديث الإحصائيات بعد تغيير حالة العاجل
       } else {
-        toast.error("حدث خطأ في تحديث حالة الخبر");
+        toast.error("🔧 خطأ في تحديث الحالة\n❌ فشل في تحديث حالة الخبر العاجل، يرجى المحاولة مرة أخرى", {
+          duration: 8000,
+          style: {
+            background: '#EF4444',
+            color: 'white',
+            fontSize: '14px',
+            fontWeight: '500',
+          },
+        });
       }
     } catch (error) {
       console.error("خطأ في تبديل الخبر العاجل:", error);
-      toast.error("حدث خطأ في تحديث حالة الخبر");
+      toast.error("🔧 خطأ في النظام\n❌ حدث خطأ تقني في تحديث حالة الخبر العاجل", {
+        duration: 8000,
+        style: {
+          background: '#EF4444',
+          color: 'white',
+          fontSize: '14px',
+          fontWeight: '500',
+        },
+      });
     }
   };
 
   // حذف مقال
   const deleteArticle = async (articleId: string) => {
-    if (!confirm("هل أنت متأكد من حذف هذا المقال؟")) return;
+    if (!confirm("هل أنت متأكد من حذف هذا المقال؟ لا يمكن التراجع عن هذا الإجراء.")) return;
 
     try {
+      // إشعار بداية العملية
+      toast.loading("🗑️ جاري حذف المقال...", {
+        duration: 2000,
+        style: {
+          background: '#FFA500',
+          color: 'white',
+        },
+      });
+
       const response = await fetch(`/api/articles/${articleId}`, {
         method: "DELETE",
       });
 
       if (response.ok) {
-        toast.success("✅ تم حذف الخبر بنجاح");
+        toast.success("🎉 تم الحذف بنجاح!\n✅ تم حذف المقال نهائياً من النظام", {
+          duration: 6000,
+          style: {
+            background: '#10B981',
+            color: 'white',
+            fontSize: '14px',
+            fontWeight: '500',
+          },
+        });
         fetchArticles();
         calculateStatsFromAll(); // تحديث الإحصائيات بعد تغيير الحالة
       } else {
-        toast.error("فشل حذف الخبر - تحقق من الصلاحيات");
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.error || "فشل في حذف المقال، يرجى التحقق من الصلاحيات";
+        toast.error(`❌ فشل في الحذف\n⚠️ ${errorMessage}`, {
+          duration: 8000,
+          style: {
+            background: '#EF4444',
+            color: 'white',
+            fontSize: '14px',
+            fontWeight: '500',
+          },
+        });
       }
     } catch (error) {
       console.error("خطأ في حذف الخبر:", error);
-      toast.error("حدث خطأ في حذف الخبر");
+      toast.error("🔧 خطأ في النظام\n❌ حدث خطأ تقني أثناء حذف المقال، يرجى المحاولة لاحقاً", {
+        duration: 8000,
+        style: {
+          background: '#EF4444',
+          color: 'white',
+          fontSize: '14px',
+          fontWeight: '500',
+        },
+      });
     }
   };
 
   // نشر مقال
   const publishArticle = async (articleId: string) => {
     try {
+      // إشعار بداية العملية
+      toast.loading("🚀 جاري نشر المقال...", {
+        duration: 2000,
+        style: {
+          background: '#3B82F6',
+          color: 'white',
+        },
+      });
+
       const response = await fetch(`/api/articles/${articleId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -643,22 +728,56 @@ function AdminNewsPageContent() {
       });
 
       if (response.ok) {
-        toast.success("✅ تم نشر الخبر بنجاح");
+        toast.success("🎉 تم النشر بنجاح!\n✅ المقال متاح الآن للقراء في الموقع", {
+          duration: 6000,
+          style: {
+            background: '#10B981',
+            color: 'white',
+            fontSize: '14px',
+            fontWeight: '500',
+          },
+        });
         fetchArticles();
         calculateStatsFromAll(); // تحديث الإحصائيات بعد تغيير الحالة
       } else {
         const errorData = await response.json().catch(() => ({}));
-        toast.error(errorData.error || "فشل نشر الخبر");
+        const errorMessage = errorData.error || "فشل في نشر المقال، يرجى المحاولة مرة أخرى";
+        toast.error(`❌ فشل في النشر\n⚠️ ${errorMessage}`, {
+          duration: 8000,
+          style: {
+            background: '#EF4444',
+            color: 'white',
+            fontSize: '14px',
+            fontWeight: '500',
+          },
+        });
       }
     } catch (error) {
       console.error("خطأ في نشر الخبر:", error);
-      toast.error("حدث خطأ في نشر الخبر");
+      toast.error("🔧 خطأ في النظام\n❌ حدث خطأ تقني أثناء نشر المقال، يرجى المحاولة لاحقاً", {
+        duration: 8000,
+        style: {
+          background: '#EF4444',
+          color: 'white',
+          fontSize: '14px',
+          fontWeight: '500',
+        },
+      });
     }
   };
 
   // أرشفة مقال
   const archiveArticle = async (articleId: string) => {
     try {
+      // إشعار بداية العملية
+      toast.loading("📦 جاري أرشفة المقال...", {
+        duration: 2000,
+        style: {
+          background: '#8B5CF6',
+          color: 'white',
+        },
+      });
+
       const response = await fetch(`/api/articles/${articleId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -666,16 +785,41 @@ function AdminNewsPageContent() {
       });
 
       if (response.ok) {
-        toast.success("📦 تم أرشفة الخبر بنجاح");
+        toast.success("📦 تم الأرشفة بنجاح!\n✅ تم نقل المقال إلى الأرشيف", {
+          duration: 6000,
+          style: {
+            background: '#10B981',
+            color: 'white',
+            fontSize: '14px',
+            fontWeight: '500',
+          },
+        });
         fetchArticles();
         calculateStatsFromAll(); // تحديث الإحصائيات بعد تغيير الحالة
       } else {
         const errorData = await response.json().catch(() => ({}));
-        toast.error(errorData.error || "فشل أرشفة الخبر");
+        const errorMessage = errorData.error || "فشل في أرشفة المقال، يرجى المحاولة مرة أخرى";
+        toast.error(`❌ فشل في الأرشفة\n⚠️ ${errorMessage}`, {
+          duration: 8000,
+          style: {
+            background: '#EF4444',
+            color: 'white',
+            fontSize: '14px',
+            fontWeight: '500',
+          },
+        });
       }
     } catch (error) {
       console.error("خطأ في أرشفة الخبر:", error);
-      toast.error("حدث خطأ في أرشفة الخبر");
+      toast.error("🔧 خطأ في النظام\n❌ حدث خطأ تقني أثناء أرشفة المقال، يرجى المحاولة لاحقاً", {
+        duration: 8000,
+        style: {
+          background: '#EF4444',
+          color: 'white',
+          fontSize: '14px',
+          fontWeight: '500',
+        },
+      });
     }
   };
 
@@ -713,7 +857,15 @@ function AdminNewsPageContent() {
       }
     } catch (error) {
       console.error("خطأ في البحث:", error);
-      toast.error("حدث خطأ في البحث");
+      toast.error("🔍 خطأ في البحث\n❌ حدث خطأ أثناء البحث في المقالات، يرجى المحاولة مرة أخرى", {
+        duration: 8000,
+        style: {
+          background: '#EF4444',
+          color: 'white',
+          fontSize: '14px',
+          fontWeight: '500',
+        },
+      });
     } finally {
       setLoading(false);
     }

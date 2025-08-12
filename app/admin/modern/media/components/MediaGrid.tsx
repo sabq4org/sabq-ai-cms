@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { FolderOpen, Image as ImageIcon, Video, FileAudio, FileText, MoreVertical, Download, Edit2, Move, Trash2, Info } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -31,6 +32,7 @@ interface MediaGridProps {
   onFolderSelect?: (folderId: string, selected: boolean) => void;
   onAssetSelect: (assetId: string, selected: boolean) => void;
   onAssetDelete: (assetId: string) => void;
+  onFolderDelete?: (folderId: string) => void;
   onAssetInfo?: (asset: MediaAsset) => void;
   onAssetRename?: (asset: MediaAsset) => void;
   onAssetEditMetadata?: (asset: MediaAsset) => void;
@@ -48,6 +50,7 @@ export function MediaGrid({
   onFolderSelect,
   onAssetSelect,
   onAssetDelete,
+  onFolderDelete,
   onAssetInfo,
   onAssetRename,
   onAssetEditMetadata,
@@ -82,75 +85,87 @@ export function MediaGrid({
       {currentFolders.length > 0 && (
         <div className="mb-6">
           <h3 className="text-sm font-medium text-muted-foreground mb-3">المجلدات</h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-            {currentFolders.map(folder => (
-              <motion.div
-                key={folder.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className={cn(
-                  "group relative cursor-pointer rounded-lg border transition-all",
-                  selectedFolders.has(folder.id) ? "border-blue-500 bg-blue-50" : "hover:bg-gray-50"
-                )}
-              >
-                {/* Selection Checkbox */}
-                {onFolderSelect && (
-                  <div className="absolute top-2 right-2 z-10">
-                    <Checkbox
-                      checked={selectedFolders.has(folder.id)}
-                      onCheckedChange={(checked) => onFolderSelect(folder.id, !!checked)}
-                      className="bg-white"
-                    />
-                  </div>
-                )}
-
-                {/* Folder Actions */}
-                <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 bg-white/80">
-                        <MoreVertical className="w-4 h-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start">
-                      <DropdownMenuItem onClick={() => onFolderClick(folder)}>
-                        <FolderOpen className="w-4 h-4 ml-2" />
-                        فتح
-                      </DropdownMenuItem>
-                      {onFolderRename && (
-                        <DropdownMenuItem onClick={() => onFolderRename(folder)}>
-                          <Edit2 className="w-4 h-4 ml-2" />
-                          إعادة تسمية
-                        </DropdownMenuItem>
-                      )}
-                      <DropdownMenuItem>
-                        <Move className="w-4 h-4 ml-2" />
-                        نقل إلى...
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-destructive">
-                        <Trash2 className="w-4 h-4 ml-2" />
-                        حذف
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-
-                <div
-                  className="flex flex-col items-center p-4"
-                  onClick={() => onFolderClick(folder)}
+            <div className={cn(
+              "grid gap-4",
+              viewMode === "grid" 
+                ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8" 
+                : "grid-cols-1"
+            )}>
+              {currentFolders.map(folder => (
+                <motion.div
+                  key={folder.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className={cn(
+                    "group relative cursor-pointer rounded-xl border border-gray-200 dark:border-gray-700 transition-all hover:shadow-lg",
+                    selectedFolders.has(folder.id) 
+                      ? "border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20" 
+                      : "hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                  )}
                 >
-                  <FolderOpen className="w-12 h-12 text-blue-500 mb-2" />
-                  <span className="text-sm font-medium text-center line-clamp-2">
-                    {folder.name}
-                  </span>
-                  <span className="text-xs text-muted-foreground mt-1">
-                    {folder._count.assets} ملف
-                  </span>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+                  {/* Selection Checkbox */}
+                  {onFolderSelect && (
+                    <div className="absolute top-3 right-3 z-10">
+                      <Checkbox
+                        checked={selectedFolders.has(folder.id)}
+                        onCheckedChange={(checked) => onFolderSelect(folder.id, !!checked)}
+                        className="bg-white dark:bg-gray-800 shadow-sm"
+                      />
+                    </div>
+                  )}
+
+                  {/* Folder Actions */}
+                  <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm">
+                          <MoreVertical className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start">
+                        <DropdownMenuItem onClick={() => onFolderClick(folder)}>
+                          <FolderOpen className="w-4 h-4 ml-2" />
+                          فتح
+                        </DropdownMenuItem>
+                        {onFolderRename && (
+                          <DropdownMenuItem onClick={() => onFolderRename(folder)}>
+                            <Edit2 className="w-4 h-4 ml-2" />
+                            إعادة تسمية
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem>
+                          <Move className="w-4 h-4 ml-2" />
+                          نقل إلى...
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        {onFolderDelete && (
+                          <DropdownMenuItem 
+                            className="text-destructive"
+                            onClick={() => onFolderDelete(folder.id)}
+                          >
+                            <Trash2 className="w-4 h-4 ml-2" />
+                            حذف
+                          </DropdownMenuItem>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+
+                  <div
+                    className="flex flex-col items-center p-4 sm:p-6"
+                    onClick={() => onFolderClick(folder)}
+                  >
+                    <FolderOpen className="w-12 h-12 sm:w-16 sm:h-16 text-blue-500 dark:text-blue-400 mb-3" />
+                    <span className="text-sm sm:text-base font-medium text-center line-clamp-2 text-gray-900 dark:text-white">
+                      {folder.name}
+                    </span>
+                    <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-2">
+                      {folder._count.assets} ملف
+                    </span>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
         </div>
       )}
 
@@ -161,8 +176,10 @@ export function MediaGrid({
             <h3 className="text-sm font-medium text-muted-foreground mb-3">الملفات</h3>
           )}
           <div className={cn(
-            "grid gap-4",
-            viewMode === "grid" ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6" : "grid-cols-1"
+            "grid gap-3 sm:gap-4",
+            viewMode === "grid" 
+              ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8" 
+              : "grid-cols-1"
           )}>
             {assets.map(asset => (
               <motion.div
@@ -170,44 +187,58 @@ export function MediaGrid({
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 className={cn(
-                  "group relative rounded-lg overflow-hidden border transition-all",
-                  selectedAssets.has(asset.id) ? "border-blue-500 bg-blue-50" : "hover:shadow-md"
+                  "group relative rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 transition-all hover:shadow-lg",
+                  selectedAssets.has(asset.id) 
+                    ? "border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20" 
+                    : "hover:shadow-md hover:border-gray-300 dark:hover:border-gray-600",
+                  viewMode === "list" && "hover:bg-gray-50 dark:hover:bg-gray-700/50"
                 )}
               >
                 {viewMode === "grid" ? (
-                  // Grid View
+                  // Enhanced Grid View
                   <>
                     {/* Selection Checkbox */}
-                    <div className="absolute top-2 right-2 z-10">
+                    <div className="absolute top-3 right-3 z-10">
                       <Checkbox
                         checked={selectedAssets.has(asset.id)}
                         onCheckedChange={(checked) => onAssetSelect(asset.id, !!checked)}
-                        className="bg-white"
+                        className="bg-white/90 dark:bg-gray-800/90 shadow-sm backdrop-blur-sm"
                       />
                     </div>
 
-                    {/* Asset Preview */}
+                    {/* Enhanced Asset Preview */}
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <div className="aspect-square bg-gray-100 flex items-center justify-center relative group/preview">
+                        <div className="aspect-square bg-gray-100 dark:bg-gray-700 flex items-center justify-center relative group/preview">
                           {asset.type === "IMAGE" ? (
                             <>
-                              <img
+                              <Image
                                 src={asset.thumbnailUrl || asset.cloudinaryUrl}
                                 alt={asset.originalName}
-                                className="w-full h-full object-cover cursor-pointer"
+                                width={300}
+                                height={300}
+                                className="w-full h-full object-cover cursor-pointer transition-transform group-hover/preview:scale-105"
                                 onClick={() => onAssetInfo?.(asset)}
                               />
-                              {/* Quick Info Overlay */}
-                              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/preview:opacity-100 transition-opacity flex items-center justify-center">
-                                <div className="text-white text-center text-sm">
-                                  <p className="font-medium">{asset.width} × {asset.height}</p>
-                                  <p className="text-xs">{formatFileSize(asset.size)}</p>
+                              {/* Enhanced Quick Info Overlay */}
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover/preview:opacity-100 transition-opacity duration-300">
+                                <div className="absolute bottom-3 left-3 right-3 text-white">
+                                  <div className="flex items-center justify-between text-sm">
+                                    <span className="font-medium">{asset.width} × {asset.height}</span>
+                                    <span className="bg-black/50 px-2 py-1 rounded-md text-xs">
+                                      {formatFileSize(asset.size)}
+                                    </span>
+                                  </div>
+                                  {asset.metadata?.altText && (
+                                    <p className="text-xs mt-1 line-clamp-1 opacity-90">
+                                      {asset.metadata.altText}
+                                    </p>
+                                  )}
                                 </div>
                               </div>
                             </>
                           ) : (
-                            <div className="text-gray-400 cursor-pointer" onClick={() => onAssetInfo?.(asset)}>
+                            <div className="text-gray-400 dark:text-gray-500 cursor-pointer transition-transform group-hover/preview:scale-110" onClick={() => onAssetInfo?.(asset)}>
                               {getAssetIcon(asset.type)}
                             </div>
                           )}
@@ -223,7 +254,7 @@ export function MediaGrid({
                           )}
                           <p>التاريخ: {new Date(asset.createdAt).toLocaleDateString('ar-SA')}</p>
                           {asset.metadata?.altText && (
-                            <p className="text-green-600">الوصف: {asset.metadata.altText}</p>
+                            <p className="text-green-600 dark:text-green-400">الوصف: {asset.metadata.altText}</p>
                           )}
                           {asset.metadata?.tags && asset.metadata.tags.length > 0 && (
                             <p>الوسوم: {asset.metadata.tags.join(', ')}</p>
@@ -232,66 +263,84 @@ export function MediaGrid({
                       </TooltipContent>
                     </Tooltip>
 
-                    {/* Asset Info */}
-                    <div className="p-3">
-                      <p className="text-sm font-medium line-clamp-1" title={asset.originalName}>
-                        {asset.originalName}
-                      </p>
-                      <div className="flex flex-col gap-1 mt-1">
-                        <p className="text-xs text-muted-foreground">
-                          {formatFileSize(asset.size)}
+                    {/* Enhanced Asset Info */}
+                    <div className="p-3 sm:p-4">
+                      <div className="space-y-2">
+                        <p className="text-sm sm:text-base font-medium line-clamp-1 text-gray-900 dark:text-white" title={asset.originalName}>
+                          {asset.originalName}
                         </p>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <span className="px-1.5 py-0.5 rounded-sm bg-gray-100 text-gray-600">
-                            {asset.type}
-                          </span>
-                          {asset.width && asset.height && (
-                            <span className="text-blue-600">
-                              {asset.width} × {asset.height}
+                        
+                        {/* File Details Row 1 */}
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                            <span className="px-2 py-1 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium">
+                              {asset.type}
                             </span>
+                            <span>{formatFileSize(asset.size)}</span>
+                          </div>
+                          
+                          {/* Dimensions and Date */}
+                          {asset.width && asset.height && (
+                            <div className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                              {asset.width} × {asset.height}
+                            </div>
                           )}
+                          
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            {new Date(asset.createdAt).toLocaleDateString('ar-SA', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric'
+                            })}
+                          </div>
                         </div>
-                        <p className="text-xs text-muted-foreground">
-                          {new Date(asset.createdAt).toLocaleDateString('ar-SA', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric'
-                          })}
-                        </p>
+
+                        {/* Enhanced Metadata Display */}
                         {asset.metadata?.altText && (
-                          <p className="text-xs text-green-600 line-clamp-1" title={asset.metadata.altText}>
-                            📝 {asset.metadata.altText}
-                          </p>
+                          <div className="bg-green-50 dark:bg-green-900/20 p-2 rounded-md border border-green-200 dark:border-green-800">
+                            <p className="text-xs text-green-700 dark:text-green-300 line-clamp-2" title={asset.metadata.altText}>
+                              <span className="font-medium">📝 الوصف:</span> {asset.metadata.altText}
+                            </p>
+                          </div>
                         )}
+                        
                         {asset.metadata?.tags && asset.metadata.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            {asset.metadata.tags.slice(0, 2).map((tag, index) => (
-                              <span key={index} className="text-xs px-1 py-0.5 bg-blue-100 text-blue-600 rounded">
-                                {tag}
-                              </span>
-                            ))}
-                            {asset.metadata.tags.length > 2 && (
-                              <span className="text-xs text-gray-500">+{asset.metadata.tags.length - 2}</span>
-                            )}
+                          <div className="space-y-1">
+                            <div className="flex flex-wrap gap-1">
+                              {asset.metadata.tags.slice(0, 3).map((tag, index) => (
+                                <span 
+                                  key={index} 
+                                  className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full font-medium"
+                                  title={tag}
+                                >
+                                  {tag.length > 8 ? tag.substring(0, 8) + '...' : tag}
+                                </span>
+                              ))}
+                              {asset.metadata.tags.length > 3 && (
+                                <span className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full">
+                                  +{asset.metadata.tags.length - 3}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         )}
                       </div>
                     </div>
 
-                    {/* Info Badge */}
+                    {/* Enhanced Info Badge */}
                     {(asset.metadata?.altText || (asset.metadata?.tags && asset.metadata.tags.length > 0)) && (
-                      <div className="absolute bottom-2 right-2">
-                        <div className="bg-green-500 text-white rounded-full p-1">
+                      <div className="absolute bottom-3 right-3">
+                        <div className="bg-green-500 dark:bg-green-600 text-white rounded-full p-1.5 shadow-lg">
                           <Info className="w-3 h-3" />
                         </div>
                       </div>
                     )}
 
-                    {/* Actions Menu */}
-                    <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {/* Enhanced Actions Menu */}
+                    <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 bg-white/80">
+                          <Button variant="ghost" size="icon" className="h-8 w-8 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-sm">
                             <MoreVertical className="w-4 h-4" />
                           </Button>
                         </DropdownMenuTrigger>
@@ -335,53 +384,92 @@ export function MediaGrid({
                     </div>
                   </>
                 ) : (
-                  // List View
-                  <div className="flex items-center gap-4 p-4">
+                  // Enhanced List View
+                  <div className="flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-colors">
                     <Checkbox
                       checked={selectedAssets.has(asset.id)}
                       onCheckedChange={(checked) => onAssetSelect(asset.id, !!checked)}
                     />
                     
-                    <div className="w-12 h-12 rounded bg-gray-100 flex items-center justify-center flex-shrink-0">
+                    <div className="w-16 h-16 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0 overflow-hidden">
                       {asset.type === "IMAGE" && asset.thumbnailUrl ? (
-                        <img
+                        <Image
                           src={asset.thumbnailUrl}
                           alt={asset.filename}
-                          className="w-full h-full object-cover rounded"
+                          width={64}
+                          height={64}
+                          className="w-full h-full object-cover"
                         />
                       ) : (
-                        getAssetIcon(asset.type)
+                        <div className="text-gray-400 dark:text-gray-500">
+                          {getAssetIcon(asset.type)}
+                        </div>
                       )}
                     </div>
 
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate" title={asset.originalName}>
-                        {asset.originalName}
-                      </p>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <span className="px-2 py-1 rounded-sm bg-gray-100 text-gray-600 text-xs">
+                    <div className="flex-1 min-w-0 space-y-2">
+                      <div className="flex items-start justify-between">
+                        <p className="font-medium text-gray-900 dark:text-white truncate pr-4" title={asset.originalName}>
+                          {asset.originalName}
+                        </p>
+                        <div className="text-sm text-gray-500 dark:text-gray-400 flex-shrink-0">
+                          {formatFileSize(asset.size)}
+                        </div>
+                      </div>
+                      
+                      <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
+                        <span className="px-2 py-1 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-medium">
                           {asset.type}
                         </span>
-                        <span>{formatFileSize(asset.size)}</span>
                         {asset.width && asset.height && (
-                          <span className="text-blue-600">{asset.width} × {asset.height}</span>
+                          <span className="text-blue-600 dark:text-blue-400 font-medium">
+                            {asset.width} × {asset.height}
+                          </span>
                         )}
-                        <span>{new Date(asset.createdAt).toLocaleDateString("ar-SA", {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric'
-                        })}</span>
+                        <span className="text-xs">
+                          {new Date(asset.createdAt).toLocaleDateString("ar-SA", {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </span>
                       </div>
-                      {asset.metadata?.altText && (
-                        <p className="text-sm text-green-600 truncate mt-1" title={asset.metadata.altText}>
-                          📝 {asset.metadata.altText}
-                        </p>
+                      
+                      {/* Enhanced metadata for list view */}
+                      {(asset.metadata?.altText || (asset.metadata?.tags && asset.metadata.tags.length > 0)) && (
+                        <div className="space-y-1">
+                          {asset.metadata.altText && (
+                            <div className="flex items-start gap-2">
+                              <span className="text-green-600 dark:text-green-400 text-xs font-medium">📝 الوصف:</span>
+                              <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 flex-1" title={asset.metadata.altText}>
+                                {asset.metadata.altText}
+                              </p>
+                            </div>
+                          )}
+                          {asset.metadata.tags && asset.metadata.tags.length > 0 && (
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-blue-600 dark:text-blue-400 text-xs font-medium">🏷️ الوسوم:</span>
+                              <div className="flex flex-wrap gap-1">
+                                {asset.metadata.tags.map((tag, index) => (
+                                  <span 
+                                    key={index} 
+                                    className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full"
+                                  >
+                                    {tag}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       )}
                     </div>
 
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
+                        <Button variant="ghost" size="icon" className="flex-shrink-0">
                           <MoreVertical className="w-4 h-4" />
                         </Button>
                       </DropdownMenuTrigger>

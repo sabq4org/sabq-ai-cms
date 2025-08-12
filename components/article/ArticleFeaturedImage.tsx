@@ -23,6 +23,15 @@ export default function ArticleFeaturedImage({
 }: ArticleFeaturedImageProps) {
   const [imageError, setImageError] = useState(false);
 
+  // طباعة تشخيصية مؤقتة
+  console.log("🖼️ ArticleFeaturedImage Debug:", {
+    imageUrl: imageUrl?.substring(0, 50),
+    title: title?.substring(0, 30),
+    caption: caption,
+    hasCaption: !!caption,
+    category: category?.name
+  });
+
   // التحقق من صحة URL الصورة
   const isValidImageUrl = (url: string): boolean => {
     if (!url) return false;

@@ -41,6 +41,7 @@ import {
   Circle,
   Loader2,
   Sparkles,
+  Shield,
   FileText,
   Settings,
   Hash,
@@ -104,6 +105,12 @@ export default function ModernCreateNewsPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [authors, setAuthors] = useState<Author[]>([]);
   const [aiGenerating, setAIGenerating] = useState(false);
+  const [testingKey, setTestingKey] = useState(false);
+  const [keyTestResult, setKeyTestResult] = useState<{
+    valid: boolean;
+    message: string;
+    details?: string;
+  } | null>(null);
   
   // حالات التحميل التدريجي
   const [loadingCategories, setLoadingCategories] = useState(true);
@@ -351,10 +358,27 @@ export default function ModernCreateNewsPage() {
     try {
       console.log("بدء التوليد التلقائي للمحتوى...");
       
+      // تحويل المحتوى إلى نص قابل للإرسال
+      let contentToSend = '';
+      if (typeof formData.content === 'string') {
+        contentToSend = formData.content;
+      } else if (typeof formData.content === 'object' && formData.content !== null) {
+        // استخراج النص من object
+        if ((formData.content as any).html) {
+          contentToSend = (formData.content as any).html;
+        } else if ((formData.content as any).content) {
+          contentToSend = JSON.stringify((formData.content as any).content);
+        } else {
+          contentToSend = JSON.stringify(formData.content);
+        }
+      }
+      
+      console.log("المحتوى المرسل:", { type: typeof contentToSend, length: contentToSend.length, preview: contentToSend.substring(0, 100) });
+      
       const response = await fetch("/api/admin/ai/generate-content", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: formData.content }),
+        body: JSON.stringify({ content: contentToSend }),
       });
 
       if (response.ok) {
@@ -398,6 +422,51 @@ export default function ModernCreateNewsPage() {
     }
   };
 
+  // دالة اختبار صلاحية مفتاح OpenAI
+  const handleTestOpenAIKey = async () => {
+    setTestingKey(true);
+    setKeyTestResult(null);
+    
+    try {
+      const response = await fetch("/api/admin/ai/test-key", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await response.json();
+      
+      setKeyTestResult({
+        valid: data.valid,
+        message: data.valid ? data.message : data.error,
+        details: data.details
+      });
+
+      toast({
+        title: data.valid ? "✅ مفتاح صحيح" : "❌ مفتاح غير صحيح",
+        description: data.valid ? data.message : data.error,
+        variant: data.valid ? "default" : "destructive",
+        duration: data.valid ? 5000 : 8000,
+      });
+      
+    } catch (error) {
+      console.error("خطأ في اختبار المفتاح:", error);
+      setKeyTestResult({
+        valid: false,
+        message: "حدث خطأ أثناء اختبار المفتاح",
+        details: "تحقق من الاتصال بالإنترنت"
+      });
+      
+      toast({
+        title: "❌ خطأ في الاختبار",
+        description: "حدث خطأ أثناء اختبار صلاحية المفتاح",
+        variant: "destructive",
+        duration: 8000,
+      });
+    } finally {
+      setTestingKey(false);
+    }
+  };
+
 
 
   const handleSubmit = async (action: "draft" | "publish" | "review") => {
@@ -425,12 +494,14 @@ export default function ModernCreateNewsPage() {
 
     setSaving(true);
 
-    // عرض إشعار بداية العملية
+    // عرض إشعار بداية العملية مع مؤثرات بصرية
     toast({
-      title: action === "publish" ? "جاري النشر..." : "جاري الحفظ...",
+      title: action === "publish" ? "🚀 جاري النشر..." : action === "draft" ? "💾 جاري الحفظ..." : "📋 جاري الإرسال للمراجعة...",
       description: action === "publish" 
-        ? "يتم نشر الخبر الآن، يرجى الانتظار..." 
-        : "يتم حفظ البيانات، يرجى الانتظار...",
+        ? "⏳ يتم نشر الخبر الآن، يرجى الانتظار..." 
+        : action === "draft"
+        ? "⏳ يتم حفظ البيانات كمسودة، يرجى الانتظار..."
+        : "⏳ يتم إرسال المقال للمراجعة، يرجى الانتظار...",
       duration: 3000,
     });
 
@@ -500,12 +571,12 @@ export default function ModernCreateNewsPage() {
           payload: payload,
         });
         
-        // عرض رسالة خطأ مفصلة
+        // عرض رسالة خطأ مفصلة مع معلومات إضافية
         toast({
-          title: "فشل في الحفظ ❌",
-          description: error.error || error.details || "حدث خطأ أثناء الحفظ",
+          title: action === "publish" ? "❌ فشل في النشر" : "❌ فشل في الحفظ",
+          description: `${error.error || error.details || "حدث خطأ أثناء العملية"}\n\n💡 تأكد من اتصالك بالإنترنت وحاول مرة أخرى`,
           variant: "destructive",
-          duration: 6000,
+          duration: 8000, // إظهار أطول للأخطاء
         });
         return;
       }
@@ -513,16 +584,17 @@ export default function ModernCreateNewsPage() {
       const result = await response.json();
       console.log("✅ نتيجة الحفظ:", result);
 
-      // عرض إشعار النجاح مع معلومات إضافية
+      // عرض إشعار النجاح مع معلومات إضافية ومؤثرات بصرية
       toast({
-        title: "تم الحفظ بنجاح ✅",
+        title: action === "publish" ? "🎉 تم النشر بنجاح!" : action === "draft" ? "💾 تم الحفظ بنجاح!" : "📋 تم الإرسال للمراجعة!",
         description:
           action === "publish"
-            ? `تم نشر الخبر "${formData.title}" بنجاح وهو متاح الآن للقراء`
+            ? `✨ تم نشر الخبر "${formData.title}" بنجاح وهو متاح الآن للقراء على الموقع`
             : action === "draft"
-            ? `تم حفظ مسودة "${formData.title}" بنجاح`
-            : `تم إرسال "${formData.title}" للمراجعة`,
-        duration: 5000, // إظهار الإشعار لمدة 5 ثوانٍ
+            ? `📝 تم حفظ مسودة "${formData.title}" بنجاح ويمكنك متابعة التحرير لاحقاً`
+            : `👀 تم إرسال "${formData.title}" للمراجعة وسيتم إشعارك بحالة الموافقة`,
+        duration: 6000, // إظهار الإشعار لمدة 6 ثوانٍ
+        variant: "default", // استخدام النمط الافتراضي للنجاح
       });
 
       // إعادة توجيه واضحة ومحسنة
@@ -545,10 +617,10 @@ export default function ModernCreateNewsPage() {
     } catch (error) {
       console.error("Error saving:", error);
       toast({
-        title: "خطأ في الاتصال ❌",
-        description: "حدث خطأ في الاتصال بالخادم. يرجى المحاولة مرة أخرى.",
+        title: action === "publish" ? "⚠️ خطأ في النشر" : "⚠️ خطأ في الحفظ",
+        description: "حدث خطأ في الاتصال بالخادم. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.",
         variant: "destructive",
-        duration: 6000,
+        duration: 8000,
       });
     } finally {
       setSaving(false);
@@ -836,34 +908,109 @@ export default function ModernCreateNewsPage() {
                 <CardHeader className="pb-4">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">محتوى الخبر</CardTitle>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="gap-2 text-purple-600 hover:text-purple-700"
-                      onClick={handleAIGeneration}
-                      disabled={!formData.content || formData.content.length < 50 || aiGenerating}
-                    >
-                      {aiGenerating ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          جاري التوليد...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="w-4 h-4" />
-                          🤖 توليد تلقائي
-                        </>
-                      )}
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      {/* زر اختبار مفتاح OpenAI */}
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="gap-2 text-blue-600 hover:text-blue-700 border-blue-200 hover:border-blue-300"
+                              onClick={handleTestOpenAIKey}
+                              disabled={testingKey || aiGenerating}
+                            >
+                              {testingKey ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                  اختبار...
+                                </>
+                              ) : (
+                                <>
+                                  <Shield className="w-4 h-4" />
+                                  {keyTestResult?.valid === true ? "✅" : keyTestResult?.valid === false ? "❌" : "🔑"}
+                                </>
+                              )}
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>اختبار صلاحية مفتاح OpenAI API</p>
+                            {keyTestResult && (
+                              <p className="text-xs mt-1 opacity-80">
+                                {keyTestResult.message}
+                              </p>
+                            )}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+
+                      {/* زر التوليد التلقائي */}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="gap-2 text-purple-600 hover:text-purple-700"
+                        onClick={handleAIGeneration}
+                        disabled={!formData.content || formData.content.length < 100 || aiGenerating || testingKey}
+                      >
+                        {aiGenerating ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            جاري التوليد...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-4 h-4" />
+                            🤖 توليد تلقائي
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent>
+                  {/* حالة اختبار مفتاح OpenAI */}
+                  {keyTestResult && (
+                    <div className={`mb-4 p-4 rounded-lg border ${
+                      keyTestResult.valid 
+                        ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' 
+                        : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+                    }`}>
+                      <div className="flex items-start gap-3">
+                        {keyTestResult.valid ? (
+                          <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
+                        ) : (
+                          <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+                        )}
+                        <div>
+                          <p className={`text-sm font-medium ${
+                            keyTestResult.valid 
+                              ? 'text-green-700 dark:text-green-300' 
+                              : 'text-red-700 dark:text-red-300'
+                          }`}>
+                            {keyTestResult.message}
+                          </p>
+                          {keyTestResult.details && (
+                            <p className={`text-xs mt-1 ${
+                              keyTestResult.valid 
+                                ? 'text-green-600 dark:text-green-400' 
+                                : 'text-red-600 dark:text-red-400'
+                            }`}>
+                              {keyTestResult.details}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* AI Generation Tip */}
                   <div className="mb-4 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
                     <div className="flex items-start gap-3">
                       <Lightbulb className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
                       <p className="text-sm text-purple-700 dark:text-purple-300">
-                        <span className="font-medium">نصيحة:</span> اكتب محتوى الخبر (50+ حرف) ثم اضغط "🤖 توليد تلقائي" لإنشاء العنوان والموجز والكلمات المفتاحية تلقائياً بواسطة الذكاء الاصطناعي
+                        <span className="font-medium">نصيحة:</span> اكتب محتوى الخبر (100+ حرف) ثم اضغط "🤖 توليد تلقائي" لإنشاء العنوان والموجز والكلمات المفتاحية تلقائياً بواسطة الذكاء الاصطناعي. 
+                        <br />
+                        <span className="text-xs opacity-75">💡 كلما كان المحتوى أكثر تفصيلاً، كانت النتائج أكثر دقة وصلة بالموضوع</span>
                       </p>
                     </div>
                   </div>

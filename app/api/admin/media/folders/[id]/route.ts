@@ -13,6 +13,7 @@ export async function PATCH(
     }
 
     const { name } = await request.json();
+    const { id } = params;
 
     if (!name || !name.trim()) {
       return NextResponse.json(
@@ -23,7 +24,7 @@ export async function PATCH(
 
     // Check if folder exists
     const folder = await prisma.mediaFolder.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!folder) {
@@ -46,7 +47,7 @@ export async function PATCH(
       where: {
         parentId: folder.parentId,
         slug,
-        NOT: { id: params.id },
+        NOT: { id },
       },
     });
 
@@ -59,7 +60,7 @@ export async function PATCH(
 
     // Update folder
     const updatedFolder = await prisma.mediaFolder.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name,
         slug,
@@ -69,7 +70,7 @@ export async function PATCH(
         _count: {
           select: {
             assets: true,
-            children: true,
+            subfolders: true,
           },
         },
       },
@@ -77,7 +78,7 @@ export async function PATCH(
 
     // Update path for all child folders if needed
     if (folder.name !== name) {
-      await updateChildrenPaths(params.id, updatedFolder.path);
+      await updateChildrenPaths(id, updatedFolder.path);
     }
 
     return NextResponse.json({
@@ -86,7 +87,7 @@ export async function PATCH(
         ...updatedFolder,
         _count: {
           assets: updatedFolder._count.assets,
-          subfolders: updatedFolder._count.children,
+          subfolders: updatedFolder._count.subfolders,
         },
       },
     });
@@ -109,14 +110,16 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = params;
+
     // Check if folder exists and has content
     const folder = await prisma.mediaFolder.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         _count: {
           select: {
             assets: true,
-            children: true,
+            subfolders: true,
           },
         },
       },
@@ -129,7 +132,7 @@ export async function DELETE(
       );
     }
 
-    if (folder._count.assets > 0 || folder._count.children > 0) {
+    if (folder._count.assets > 0 || folder._count.subfolders > 0) {
       return NextResponse.json(
         { error: "Cannot delete folder with content. Please empty it first." },
         { status: 400 }
@@ -138,7 +141,7 @@ export async function DELETE(
 
     // Delete folder
     await prisma.mediaFolder.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({

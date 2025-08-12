@@ -21,10 +21,11 @@ export async function PATCH(
     }
 
     const { altText, metadata } = await request.json();
+    const { id } = await params;
 
     // Get current asset
     const asset = await prisma.mediaAsset.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!asset) {
@@ -46,7 +47,7 @@ export async function PATCH(
 
     // Update asset
     const updatedAsset = await prisma.mediaAsset.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         metadata: updatedMetadata,
         updatedAt: new Date(),
@@ -87,9 +88,11 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
+
     // Get asset details
     const asset = await prisma.mediaAsset.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!asset) {
@@ -109,7 +112,7 @@ export async function DELETE(
 
     // Delete from database
     await prisma.mediaAsset.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({
