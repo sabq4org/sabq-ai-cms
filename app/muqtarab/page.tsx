@@ -116,15 +116,16 @@ function MuqtaribPageContent() {
 
         const startTime = performance.now();
 
-        // 🚀 استخدام API السريع دائماً
-        let apiEndpoint = "/api/muqtarab/fast"; // API سريع ومحسن
+                // 🚀 اختبار API السريع أولاً
+        let apiEndpoint = "/api/muqtarab/optimized-page"; // API الأصلي كما كان
 
         const optimizedResponse = await fetch(apiEndpoint, {
           headers: {
             Accept: "application/json",
           },
-          // 🚀 تحسين caching للسرعة القصوى
-          cache: "default",
+          // 🚀 تحسين caching للمتصفح
+          cache: "force-cache",
+          next: { revalidate: 300 }, // 5 دقائق
         });
 
         if (optimizedResponse.ok) {
