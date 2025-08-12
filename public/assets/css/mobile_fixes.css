@@ -249,6 +249,8 @@
     z-index: 1000 !important;
     transition: left 0.3s ease !important;
     box-shadow: 2px 0 10px rgba(0,0,0,0.1) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
   }
   
   /* إظهار القائمة عند التفعيل */

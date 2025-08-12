@@ -109,7 +109,7 @@ export default function DashboardLayout({
         <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
           <SheetContent
             side="right"
-            className="w-64 p-0 bg-white dark:bg-gray-800"
+            className="w-64 p-0 bg-white dark:bg-gray-800 overflow-y-auto"
           >
             <ModernSidebar
               isCollapsed={false}
