@@ -69,7 +69,10 @@ const ModernCommentsNew: React.FC = () => {
       if (!res.ok) {
         if (res.status === 401) {
           alert("انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى.");
-          window.location.href = "/admin-login";
+          const next = encodeURIComponent(
+            window.location.pathname + window.location.search + window.location.hash
+          );
+          window.location.href = `/admin/login?next=${next}`;
           return false;
         }
       }
@@ -109,7 +112,10 @@ const ModernCommentsNew: React.FC = () => {
       if (!res.ok) {
         if (res.status === 401) {
           alert("انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى.");
-          window.location.href = "/admin-login";
+          const next = encodeURIComponent(
+            window.location.pathname + window.location.search + window.location.hash
+          );
+          window.location.href = `/admin/login?next=${next}`;
           return;
         } else if (res.status === 403) {
           alert("ليس لديك صلاحية للوصول إلى هذه الصفحة.");
