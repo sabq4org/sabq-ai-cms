@@ -45,6 +45,7 @@ import "@/styles/image-optimizations.css";
 import "@/styles/mobile-article-layout.css";
 import "@/styles/mobile-article.css";
 import "./article-styles.css";
+import AIQuestions from "@/components/article/AIQuestions";
 
 interface ArticleClientComponentProps {
   initialArticle: ArticleData | null;
@@ -866,6 +867,19 @@ export default function ArticleClientComponent({
                 />
               </div>
             </div>
+
+            {/* مكون الذكاء الاصطناعي للأسئلة - أسفل تفاصيل الخبر */}
+            {article?.content && (
+              <div className="mb-8">
+                <AIQuestions
+                  content={
+                    typeof article.content === "string"
+                      ? article.content
+                      : JSON.stringify(article.content)
+                  }
+                />
+              </div>
+            )}
 
             {/* يمكن إبقاء المشاركة أسفل المقال إن رغبت لاحقاً؛ حُذفت حالياً */}
 
