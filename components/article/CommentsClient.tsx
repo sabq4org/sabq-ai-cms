@@ -261,7 +261,7 @@ export default function CommentsClient({ articleId }: CommentsClientProps) {
         {!isLoggedIn ? (
           <div className="text-sm text-slate-600">
             للمشاركة، يرجى
-            <a href="/login" className="mx-1 text-blue-600 hover:underline">
+            <a href={`/admin/login?next=${encodeURIComponent(typeof window !== 'undefined' ? window.location.pathname : '/')}`} className="mx-1 text-blue-600 hover:underline">
               تسجيل الدخول
             </a>
             .

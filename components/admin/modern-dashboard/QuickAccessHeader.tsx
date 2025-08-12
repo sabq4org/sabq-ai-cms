@@ -102,8 +102,8 @@ export default function QuickAccessHeader({
             </div>
           </div>
 
-          {/* اليسار: وصلات سريعة + إجراءات */}
-          <div className="flex items-center gap-1 sm:gap-2">
+          {/* اليسار: وصلات سريعة + إجراءات (قابلة للتمرير على الجوال) */}
+          <div className="admin-header flex items-center gap-1 sm:gap-2 overflow-x-auto">
             <Link href="/admin/news">
               <Button variant="ghost" size="sm" className="gap-1">
                 <Newspaper className="h-5 w-5" />
@@ -228,8 +228,8 @@ export default function QuickAccessHeader({
           </div>
         </div>
 
-        {/* اليمين: وصلات سريعة + إجراءات */}
-        <div className="flex items-center gap-1 sm:gap-2">
+        {/* اليمين: وصلات سريعة + إجراءات (قابلة للتمرير على الجوال) */}
+        <div className="admin-header flex items-center gap-1 sm:gap-2 overflow-x-auto">
           <Link href="/admin/news">
             <Button variant="ghost" size="sm" className="gap-1">
               <Newspaper className="h-5 w-5" />
