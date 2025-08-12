@@ -732,10 +732,15 @@ function NewspaperHomePage({
               <div
                 className={`rounded-3xl p-4 sm:p-6 lg:p-8 transition-all duration-500 shadow-lg dark:shadow-gray-900/50 ${
                   darkMode
-                    ? "bg-gray-800/40 border border-gray-700/50"
-                    : "bg-white border border-gray-200/60"
+                    ? "bg-blue-900/10 border border-blue-800/30"
+                    : "bg-blue-50 border border-blue-200/50"
                 }`}
-                style={{ backdropFilter: "blur(10px)" }}
+                style={{
+                  backdropFilter: "blur(10px)",
+                  background: darkMode
+                    ? "linear-gradient(135deg, rgba(30, 64, 175, 0.12) 0%, rgba(37, 99, 235, 0.08) 100%)"
+                    : "linear-gradient(135deg, rgba(219, 234, 254, 0.7) 0%, rgba(191, 219, 254, 0.4) 100%)",
+                }}
               >
                 <div className="text-center mb-6 sm:mb-8">
                   {/* أيقونة كبيرة وواضحة */}
