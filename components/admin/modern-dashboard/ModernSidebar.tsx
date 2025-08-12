@@ -21,6 +21,8 @@ import {
   Brain,
   ChevronLeft,
   ChevronRight,
+  Plus,
+  Minus,
   Database,
   FileText,
   Folder,
@@ -399,7 +401,25 @@ export default function ModernSidebar({
   isMobile = false,
 }: ModernSidebarProps) {
   const pathname = usePathname();
-  const [expandedItems, setExpandedItems] = useState<string[]>(["ai-systems"]);
+  const [expandedItems, setExpandedItems] = useState<string[]>([]);
+
+  // حفظ واسترجاع حالة الطيّ محلياً
+  const STORAGE_KEY = "adminSidebarExpanded_v1";
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) setExpandedItems(parsed as string[]);
+      }
+    } catch {}
+    // افتراضياً: كل العناوين مغلقة
+  }, []);
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(expandedItems));
+    } catch {}
+  }, [expandedItems]);
 
   // استخدام تفضيلات الشريط الجانبي
   const { preferences, loading } = useSidebarPreferences();
@@ -532,12 +552,11 @@ export default function ModernSidebar({
             )}
 
             {hasChildren && (
-              <ChevronLeft
-                className={cn(
-                  "h-4 w-4 transition-transform text-gray-400",
-                  isExpanded && "rotate-90"
-                )}
-              />
+              isExpanded ? (
+                <Minus className={cn("h-4 w-4 text-gray-400")} />
+              ) : (
+                <Plus className={cn("h-4 w-4 text-gray-400")} />
+              )
             )}
           </>
         ) : null}
