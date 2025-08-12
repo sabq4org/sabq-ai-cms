@@ -7,6 +7,7 @@ import { IMAGE_CONFIG } from "./ImageDisplayConfig";
 interface ArticleFeaturedImageProps {
   imageUrl: string;
   title: string;
+  caption?: string; // تعريف الصورة
   category?: {
     name: string;
     color?: string;
@@ -17,6 +18,7 @@ interface ArticleFeaturedImageProps {
 export default function ArticleFeaturedImage({
   imageUrl,
   title,
+  caption,
   category,
 }: ArticleFeaturedImageProps) {
   const [imageError, setImageError] = useState(false);
@@ -68,9 +70,18 @@ export default function ArticleFeaturedImage({
               className="object-cover object-center w-full h-full"
               priority={true}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1024px"
+              unoptimized={imageUrl.includes('placeholder') || imageUrl.includes('via.placeholder')}
               onError={() => setImageError(true)}
             />
           </div>
+          {/* تعريف الصورة */}
+          {caption && (
+            <div className="mt-3 px-4 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg border-r-4 border-blue-500">
+              <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                {caption}
+              </p>
+            </div>
+          )}
         </div>
       );
 
@@ -85,6 +96,7 @@ export default function ArticleFeaturedImage({
             height={600}
             className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 opacity-60"
             priority={false}
+            unoptimized={imageUrl.includes('placeholder') || imageUrl.includes('via.placeholder')}
             onError={() => setImageError(true)}
           />
 
@@ -102,6 +114,7 @@ export default function ArticleFeaturedImage({
                 className="max-w-full max-h-full shadow-2xl transition-all duration-500 hover:scale-[1.02]"
                 priority={true}
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
+                unoptimized={imageUrl.includes('placeholder') || imageUrl.includes('via.placeholder')}
                 onError={() => setImageError(true)}
               />
             </div>
@@ -152,8 +165,17 @@ export default function ArticleFeaturedImage({
                 className="w-full h-auto object-cover"
                 priority={true}
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1024px"
+                unoptimized={imageUrl.includes('placeholder') || imageUrl.includes('via.placeholder')}
               />
             </div>
+            {/* تعريف الصورة */}
+            {caption && (
+              <div className="mt-3 px-4 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg border-r-4 border-blue-500">
+                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                  {caption}
+                </p>
+              </div>
+            )}
           </div>
         </div>
       );
@@ -169,6 +191,7 @@ export default function ArticleFeaturedImage({
             className="w-full h-full object-cover"
             priority={true}
             sizes="100vw"
+            unoptimized={imageUrl.includes('placeholder') || imageUrl.includes('via.placeholder')}
             onError={() => setImageError(true)}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 z-10" />
@@ -187,9 +210,18 @@ export default function ArticleFeaturedImage({
               className="w-full h-auto object-cover min-h-[220px] sm:min-h-[300px] md:min-h-[350px] lg:min-h-[400px]"
               priority={true}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1024px"
+              unoptimized={imageUrl.includes('placeholder') || imageUrl.includes('via.placeholder')}
               onError={() => setImageError(true)}
             />
           </div>
+          {/* تعريف الصورة */}
+          {caption && (
+            <div className="mt-3 px-4 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg border-r-4 border-blue-500">
+              <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                {caption}
+              </p>
+            </div>
+          )}
         </div>
       );
 

@@ -33,6 +33,7 @@ export interface ArticleData {
   category?: { name: string; slug: string; color?: string; icon?: string };
   category_id?: string;
   featured_image?: string;
+  featured_image_caption?: string; // تعريف الصورة البارزة
   image_url?: string; // رابط الصورة المرفوعة
   audio_summary_url?: string;
   published_at?: string;

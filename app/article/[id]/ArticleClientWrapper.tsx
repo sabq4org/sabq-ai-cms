@@ -41,6 +41,7 @@ interface ArticleData {
   content: string;
   excerpt?: string;
   featured_image?: string;
+  featured_image_caption?: string; // تعريف الصورة البارزة
   published_at: string;
   reading_time?: number;
   views_count?: number;

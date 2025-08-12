@@ -732,6 +732,7 @@ export default function ArticleClientComponent({
                   <ArticleFeaturedImage
                     imageUrl={article.featured_image}
                     title={article.title}
+                    caption={article.featured_image_caption}
                     category={article.category}
                   />
                 </div>
@@ -751,6 +752,7 @@ export default function ArticleClientComponent({
                   <ArticleFeaturedImage
                     imageUrl={article.featured_image}
                     title={article.title}
+                    caption={article.featured_image_caption}
                     category={article.category}
                   />
                 </div>

@@ -108,6 +108,11 @@ const nextConfig = {
         hostname: "sabq-storage.s3.amazonaws.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "via.placeholder.com",
+        pathname: "/**",
+      },
     ],
   },
 

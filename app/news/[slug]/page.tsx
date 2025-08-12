@@ -59,6 +59,13 @@ async function getCompleteArticle(slug: string) {
             interactions: true,
           },
         },
+        // جلب معلومات الصورة البارزة
+        media_assets: {
+          select: {
+            id: true,
+            metadata: true,
+          },
+        },
       },
     });
 
@@ -90,6 +97,10 @@ async function getCompleteArticle(slug: string) {
       // التأكد من وجود المحتوى
       content: article.content || "",
 
+      // معلومات الصورة البارزة
+      featured_image_caption: (article.media_assets?.[0]?.metadata as any)?.altText || null,
+      featured_image_metadata: article.media_assets?.[0]?.metadata || null,
+
       // معلومات SEO
       seo: {
         title: article.seo_title || article.title,
@@ -98,6 +109,20 @@ async function getCompleteArticle(slug: string) {
         keywords: article.seo_keywords || article.tags,
       },
     };
+
+    // طباعة معلومات التصحيح
+    console.log("🔍 Article Debug Info:", {
+      id: article.id,
+      title: article.title?.substring(0, 50),
+      featured_image: article.featured_image ? "موجودة" : "غير موجودة",
+      media_assets_count: article.media_assets?.length || 0,
+      featured_image_caption: formattedArticle.featured_image_caption,
+      media_assets_debug: article.media_assets?.map(asset => ({
+        id: asset.id,
+        metadata: asset.metadata,
+        hasAltText: !!(asset.metadata as any)?.altText
+      })) || []
+    });
 
     return formattedArticle;
   } catch (error) {
