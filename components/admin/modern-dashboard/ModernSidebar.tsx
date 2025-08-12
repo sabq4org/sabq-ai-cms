@@ -87,6 +87,17 @@ const sidebarItems: SidebarItem[] = [
       },
       { id: "tags", title: "العلامات", icon: Star, href: "/admin/tags" },
 
+      // القصص الذكية تحت إدارة الأخبار
+      {
+        id: "smart-stories",
+        title: "القصص الذكية",
+        icon: Brain,
+        href: "/admin/stories",
+        badge: "جديد",
+        badgeVariant: "secondary" as const,
+        isNew: true,
+      },
+
       // نقل نظام مُقترب تحت إدارة الأخبار
       {
         id: "muqtarab-module",
