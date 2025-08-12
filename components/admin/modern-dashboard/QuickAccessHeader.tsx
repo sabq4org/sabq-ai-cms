@@ -122,6 +122,12 @@ export default function QuickAccessHeader({
                 <span className="hidden lg:inline text-sm">التحليلات</span>
               </Button>
             </Link>
+            <Link href="/admin/stories">
+              <Button variant="ghost" size="sm" className="gap-1">
+                <Bot className="h-5 w-5" />
+                <span className="hidden lg:inline text-sm">القصص الذكية</span>
+              </Button>
+            </Link>
             <Link href="/admin/modern/settings">
               <Button variant="ghost" size="sm" className="gap-1">
                 <Settings className="h-5 w-5" />
@@ -246,6 +252,12 @@ export default function QuickAccessHeader({
             <Button variant="ghost" size="sm" className="gap-1">
               <BarChart3 className="h-5 w-5" />
               <span className="hidden lg:inline text-sm">التحليلات</span>
+            </Button>
+          </Link>
+          <Link href="/admin/stories">
+            <Button variant="ghost" size="sm" className="gap-1">
+              <Bot className="h-5 w-5" />
+              <span className="hidden lg:inline text-sm">القصص الذكية</span>
             </Button>
           </Link>
           <Link href="/admin/modern/settings">
