@@ -11,7 +11,6 @@ export const runtime = "nodejs";
 // جلب البيانات الكاملة من الخادم
 async function getCompleteArticle(slug: string) {
   try {
-    console.log(`🔍 جلب مقال: ${slug}`);
     const article = await prisma.articles.findFirst({
       where: {
         OR: [
@@ -109,20 +108,6 @@ async function getCompleteArticle(slug: string) {
         keywords: article.seo_keywords || article.tags,
       },
     };
-
-    // طباعة معلومات التصحيح
-    console.log("🔍 Article Debug Info:", {
-      id: article.id,
-      title: article.title?.substring(0, 50),
-      featured_image: article.featured_image ? "موجودة" : "غير موجودة",
-      media_assets_count: article.media_assets?.length || 0,
-      featured_image_caption: formattedArticle.featured_image_caption,
-      media_assets_debug: article.media_assets?.map(asset => ({
-        id: asset.id,
-        metadata: asset.metadata,
-        hasAltText: !!(asset.metadata as any)?.altText
-      })) || []
-    });
 
     return formattedArticle;
   } catch (error) {

@@ -147,6 +147,7 @@ export default function ArticleClientComponent({
 
   // جلب المقال إذا لم يتم تمريره - مع حل طارئ محسن لمشكلة الاتصال بقاعدة البيانات
   useEffect(() => {
+    // 🚀 PERFORMANCE FIX: تجنب fetch إذا كانت البيانات متوفرة بالفعل
     if (!initialArticle) {
       const fetchArticle = async () => {
         try {
@@ -263,10 +264,6 @@ export default function ArticleClientComponent({
       };
 
       fetchArticle();
-    } else {
-      // إذا وصل المقال من السيرفر، عيّنه مباشرة دون انتظار
-      setArticle(processArticle(initialArticle));
-      setLoading(false);
     }
   }, [initialArticle, articleId, router]);
 
