@@ -9,6 +9,9 @@ import CompactStatsBar from "@/components/mobile/CompactStatsBar";
 import EnhancedMobileNewsCard from "@/components/mobile/EnhancedMobileNewsCard";
 import SmartContentNewsCard from "@/components/mobile/SmartContentNewsCard";
 
+// استيراد أنماط CSS للنسخة الخفيفة من الأخبار المميزة
+import "@/styles/featured-mobile-news.css";
+
 import AdBanner from "@/components/ads/AdBanner";
 import CloudImage from "@/components/ui/CloudImage";
 import { useAuth } from "@/hooks/useAuth";
@@ -703,7 +706,38 @@ function NewspaperHomePage({
         {/* 2. الأخبار المميزة (Featured Articles) 🌟 */}
         {!featuredLoading && featuredArticle.length > 0 && (
           <div className={`${isMobileView ? "pt-2 pb-2" : "pt-4 pb-6"}`}>
-            <FeaturedNewsCarousel articles={featuredArticle} />
+            {isMobileView ? (
+              <div className="featured-mobile-articles-container">
+                {/* بطاقات الأخبار المميزة للموبايل - النسخة الخفيفة */}
+                <div className="grid grid-cols-1 gap-4">
+                  {featuredArticle.map((article) => (
+                    <EnhancedMobileNewsCard
+                      key={article.id}
+                      news={article}
+                      darkMode={darkMode}
+                      variant="smart-block"
+                      className="featured-mobile-card"
+                    />
+                  ))}
+                </div>
+                
+                {/* أشرطة التنقل */}
+                <div className="mt-4 flex justify-center items-center gap-2">
+                  {featuredArticle.map((_, index) => (
+                    <div 
+                      key={index} 
+                      className={`h-1 rounded-full transition-all duration-300 ease-in-out ${
+                        index === 0
+                          ? "w-10 bg-blue-500 dark:bg-blue-400"
+                          : "w-5 bg-gray-300 dark:bg-gray-600"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <FeaturedNewsCarousel articles={featuredArticle} />
+            )}
           </div>
         )}
 
