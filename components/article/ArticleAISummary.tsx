@@ -139,11 +139,9 @@ export default function ArticleAISummary({
     setIsPlaying(false);
   };
 
-  // إذا لم يكن هناك ملخص ولا يمكن للمستخدم توليد ملخص، لا تعرض شيء
-  if (!summary && !canGenerateSummary) {
-    return null;
-  }
-
+  // نعرض المكون دائمًا للتجربة المستخدم المستمرة
+  // حتى لو لم يكن هناك ملخص، سنعرض رسالة مناسبة
+  
   return (
     <TooltipProvider>
       <div className={cn(
@@ -231,7 +229,11 @@ export default function ArticleAISummary({
                 )}
               </Button>
             </div>
-          ) : null}
+          ) : (
+            <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-2">
+              الموجز الذكي غير متاح حالياً
+            </p>
+          )}
         </div>
 
         {/* عنصر الصوت المخفي */}
