@@ -578,6 +578,28 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // ربط المقال بنظام القصص الذكي (MVP)
+    try {
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+      await fetch(`${siteUrl}/api/stories/analyze`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: article.title,
+          content: article.content || "",
+          category: category?.name,
+          source: "article-created",
+          meta: {
+            articleId: article.id,
+            articleSlug: article.slug,
+            categoryId: article.category_id,
+            authorId: article.author_id,
+            createdAt: article.created_at,
+          },
+        }),
+      }).catch(() => {});
+    } catch {}
+
     // تعامل مبسط مع المقالات المميزة - تجنب FeaturedArticleManager مؤقتاً
     if (articleData.featured === true) {
       console.log("ℹ️ المقال مميز - تم تعيينه كمميز مباشرة");

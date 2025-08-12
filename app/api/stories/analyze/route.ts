@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 // MVP: تحليل بسيط يعتمد على كلمات مفتاحية وربط بالقصة الأقرب
 export async function POST(request: NextRequest) {
   try {
-    const { title, content, category, source } = await request.json();
+    const { title, content, category, source, meta } = await request.json();
     if (!title || !content) {
       return NextResponse.json({ success: false, error: "title, content مطلوبان" }, { status: 400 });
     }
@@ -45,6 +45,7 @@ export async function POST(request: NextRequest) {
           source,
           event_date: new Date(),
           importanceScore: 5.0,
+          metadata: meta ? { ...(meta as any), source: source || "analyze" } : undefined,
         },
       });
       return NextResponse.json({ success: true, action: "linked", storyId: best.story.id, event });
@@ -67,6 +68,7 @@ export async function POST(request: NextRequest) {
         source,
         event_date: new Date(),
         importanceScore: 5.0,
+        metadata: meta ? { ...(meta as any), source: source || "analyze" } : undefined,
       },
     });
 
