@@ -89,7 +89,25 @@ const EditArticlePage = () => {
       const data = await response.json();
       
       if (response.ok && data) {
-        setForm({
+        let parsedTags = [];
+      try {
+        // محاولة استخراج الكلمات المفتاحية من البيانات المستلمة بطرق مختلفة
+        if (Array.isArray(data.tags)) {
+          parsedTags = data.tags;
+        } else if (typeof data.tags === 'string') {
+          // محاولة تحليل النص إلى مصفوفة إذا كان JSON
+          parsedTags = JSON.parse(data.tags || '[]');
+        } else if (data.seo_keywords && typeof data.seo_keywords === 'string') {
+          // استخدام الكلمات المفتاحية من حقل آخر إذا كان متاحًا
+          parsedTags = data.seo_keywords.split(',').map(tag => tag.trim()).filter(Boolean);
+        }
+        console.log("✅ الكلمات المفتاحية المستخرجة:", parsedTags);
+      } catch (error) {
+        console.error("⚠️ خطأ في تحليل الكلمات المفتاحية:", error);
+        parsedTags = [];
+      }
+
+      setForm({
           title: data.title || '',
           content: data.content || '',
           excerpt: data.excerpt || data.summary || '',
@@ -97,7 +115,7 @@ const EditArticlePage = () => {
           category_id: data.category_id || '',
           article_type: data.article_type || 'opinion',
           featured_image: data.featured_image || '',
-          tags: data.tags || [],
+          tags: parsedTags,
           status: data.status || 'draft'
         });
 
@@ -581,9 +599,18 @@ const EditArticlePage = () => {
               'p-6 rounded-xl border',
               darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
             )}>
-              <h3 className={cn('font-semibold mb-4', darkMode ? 'text-white' : 'text-gray-900')}>
-                الكلمات المفتاحية
-              </h3>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className={cn('font-semibold', darkMode ? 'text-white' : 'text-gray-900')}>
+                  الكلمات المفتاحية
+                </h3>
+                <span className={cn('text-xs font-medium rounded-full px-2 py-1',
+                  form.tags.length > 0 
+                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                    : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
+                )}>
+                  {form.tags.length > 0 ? `${form.tags.length} كلمات` : 'لم يتم الإضافة'}
+                </span>
+              </div>
               
               {/* Tag Input */}
               <div className="mb-3">

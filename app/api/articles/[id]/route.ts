@@ -157,12 +157,51 @@ export async function GET(
     const authorAvatar =
       article.article_author?.avatar_url || article.author?.avatar || null;
 
+    // معالجة الكلمات المفتاحية (tags)
+    let tags = [];
+    try {
+      if (article.tags && Array.isArray(article.tags)) {
+        tags = article.tags;
+      } else if (article.tags && typeof article.tags === 'string') {
+        // تجربة تحليل النص إلى مصفوفة
+        try {
+          tags = JSON.parse(article.tags);
+          if (!Array.isArray(tags)) {
+            tags = [];
+          }
+        } catch (e) {
+          // إذا فشل التحليل، قد يكون قائمة مفصولة بفاصلة
+          tags = article.tags.split(',').map(tag => tag.trim()).filter(Boolean);
+        }
+      } else if (article.seo_keywords) {
+        // استخدام الكلمات المفتاحية من حقل آخر إذا كان متاحًا
+        tags = typeof article.seo_keywords === 'string' 
+          ? article.seo_keywords.split(',').map(tag => tag.trim()).filter(Boolean)
+          : [];
+      } else {
+        tags = [];
+      }
+      
+      // تسجيل للمساعدة في التشخيص
+      console.log("🏷️ الكلمات المفتاحية المستخرجة:", {
+        originalTags: article.tags,
+        processedTags: tags,
+        type: typeof article.tags,
+        hasSeoKeywords: !!article.seo_keywords
+      });
+    } catch (error) {
+      console.error("❌ خطأ في معالجة الكلمات المفتاحية:", error);
+      tags = [];
+    }
+
     const formattedArticle = {
       ...article,
       // ✅ إضافة image للتوافق مع المكونات
       image: article.featured_image,
       image_url: article.featured_image,
       category: categoryInfo,
+      // ضمان إرجاع الكلمات المفتاحية كمصفوفة
+      tags: tags,
       // إعطاء أولوية لكاتب المقال الحقيقي من article_authors
       author_name: authorName,
       author_title: article.article_author?.title || null,
