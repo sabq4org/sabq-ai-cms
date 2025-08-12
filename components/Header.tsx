@@ -108,16 +108,17 @@ export default function Header() {
 
   // ضبط متغير ارتفاع الهيدر لإضافة مسافة أعلى المحتوى
   useEffect(() => {
-    const updateHeaderHeight = () => {
+    const updateHeaderHeights = () => {
       const h = headerElRef.current?.offsetHeight || 64;
       if (typeof document !== "undefined") {
         document.documentElement.style.setProperty("--header-height", `${h}px`);
+        document.documentElement.style.setProperty("--mobile-header-height", `${Math.min(h, 56)}px`);
       }
     };
 
-    updateHeaderHeight();
-    window.addEventListener("resize", updateHeaderHeight);
-    return () => window.removeEventListener("resize", updateHeaderHeight);
+    updateHeaderHeights();
+    window.addEventListener("resize", updateHeaderHeights);
+    return () => window.removeEventListener("resize", updateHeaderHeights);
   }, []);
 
   // عدم عرض أي شيء حتى يتم تحميل الثيم

@@ -99,6 +99,15 @@ export default function ArticleClientComponent({
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
+  // تأكيد البدء من أعلى الصفحة في النسخة الخفيفة للموبايل
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // إرجاع التمرير للأعلى بعد التنقل مباشرة
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+      });
+    }
+  }, []);
   // توليد محتوى HTML بشكل متزامن لتجنب ومضة الفراغ بعد اختفاء شاشة التحميل
   const contentHtml = useMemo(() => {
     const raw = article?.content || null;
