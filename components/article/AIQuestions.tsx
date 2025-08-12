@@ -35,14 +35,16 @@ const AIQuestions: React.FC<Props> = ({ content }) => {
     }
   };
 
-  const ask = async (q: string) => {
+  const ask = async (qObj: any) => {
+    const q = qObj?.question || String(qObj);
+    const qType = qObj?.type;
     if (!q) return;
     setAnswerLoading(q);
     try {
       const res = await fetch("/api/ai/news/generate-answer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: q, content }),
+        body: JSON.stringify({ question: q, content, type: qType }),
       });
       const json = await res.json();
       if (json.success) setAnswers((prev) => ({ ...prev, [q]: json.answer }));
@@ -151,7 +153,7 @@ const AIQuestions: React.FC<Props> = ({ content }) => {
                   className="group rounded-xl border border-gray-200/70 dark:border-gray-700/60 bg-white/70 dark:bg-gray-800/70 backdrop-blur transition-colors"
                 >
                   <button
-                    onClick={() => ask(q?.question || String(q))}
+                    onClick={() => ask(q)}
                     className="w-full text-right px-4 sm:px-5 py-3 sm:py-4 font-medium text-gray-800 dark:text-gray-100 hover:text-purple-700 dark:hover:text-purple-300 flex items-center justify-between gap-3"
                   >
                     <span className="leading-relaxed">
