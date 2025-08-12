@@ -44,6 +44,7 @@ import { useReporterProfile } from "@/lib/hooks/useReporterProfile";
 import "@/styles/image-optimizations.css";
 import "@/styles/mobile-article-layout.css";
 import "@/styles/mobile-article.css";
+import "@/styles/mobile-article-stats.css";
 import "./article-styles.css";
 import AIQuestions from "@/components/article/AIQuestions";
 

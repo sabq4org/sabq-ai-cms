@@ -2,7 +2,7 @@
 @media (max-width: 768px) {
   /* ضمان أن يبدأ المحتوى من أعلى الهيدر تماماً */
   html, body {
-    scroll-padding-top: var(--mobile-header-height) !important;
+    scroll-padding-top: 0 !important;
   }
 
   /* إزالة أي margin-top غير مقصود في غلاف المقال */
@@ -14,7 +14,7 @@
   }
 
   /* منع أي anchor من دفع المحتوى للأسفل عند تحميل الصفحة */
-  [id] { scroll-margin-top: calc(var(--mobile-header-height) + 8px) !important; }
+  [id] { scroll-margin-top: 0 !important; }
   .article-mobile {
     font-family: var(--font-family-base, 'IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', system-ui, sans-serif) !important;
     padding: 1rem;

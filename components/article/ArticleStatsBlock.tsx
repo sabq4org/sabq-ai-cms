@@ -49,9 +49,9 @@ export default function ArticleStatsBlock({
   };
 
   return (
-    <div className={`bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-600 shadow-sm hover:shadow-md transition-all duration-300 ${className}`}>
+    <div className={`mobile-stats-container bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-xl p-3 sm:p-6 border border-gray-200 dark:border-gray-600 shadow-sm hover:shadow-md transition-all duration-300 ${className}`}>
       {/* العنوان */}
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex items-center gap-2 mb-3">
         <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
         <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
           📊 إحصائيات المقال
@@ -59,46 +59,46 @@ export default function ArticleStatsBlock({
       </div>
 
       {/* الإحصائيات الرئيسية */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-4">
+      <div className="mobile-stats-grid grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-3">
         {/* المشاهدات */}
-        <div className="flex flex-col items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-600 hover:scale-105 transition-transform">
-          <Eye className="w-5 h-5 text-blue-500 mb-1" />
-          <span className="text-lg font-bold text-gray-800 dark:text-gray-200">
+        <div className="flex flex-col items-center p-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-600 hover:scale-105 transition-transform">
+          <Eye className="mobile-stats-icon w-4 h-4 text-blue-500 mb-0.5" />
+          <span className="mobile-stats-number text-base font-bold text-gray-800 dark:text-gray-200 leading-tight">
             {formatNumber(views)}
           </span>
-          <span className="text-xs text-gray-500 dark:text-gray-400">مشاهدة</span>
+          <span className="mobile-stats-label text-xs text-gray-500 dark:text-gray-400">مشاهدة</span>
         </div>
 
         {/* الإعجابات */}
-        <div className="flex flex-col items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-600 hover:scale-105 transition-transform">
-          <Heart className="w-5 h-5 text-red-500 mb-1" />
-          <span className="text-lg font-bold text-gray-800 dark:text-gray-200">
+        <div className="flex flex-col items-center p-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-600 hover:scale-105 transition-transform">
+          <Heart className="mobile-stats-icon w-4 h-4 text-red-500 mb-0.5" />
+          <span className="mobile-stats-number text-base font-bold text-gray-800 dark:text-gray-200 leading-tight">
             {formatNumber(likes)}
           </span>
-          <span className="text-xs text-gray-500 dark:text-gray-400">إعجاب</span>
+          <span className="mobile-stats-label text-xs text-gray-500 dark:text-gray-400">إعجاب</span>
         </div>
 
         {/* الحفظ */}
-        <div className="flex flex-col items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-600 hover:scale-105 transition-transform">
-          <Bookmark className="w-5 h-5 text-green-500 mb-1" />
-          <span className="text-lg font-bold text-gray-800 dark:text-gray-200">
+        <div className="flex flex-col items-center p-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-600 hover:scale-105 transition-transform">
+          <Bookmark className="mobile-stats-icon w-4 h-4 text-green-500 mb-0.5" />
+          <span className="mobile-stats-number text-base font-bold text-gray-800 dark:text-gray-200 leading-tight">
             {formatNumber(saves)}
           </span>
-          <span className="text-xs text-gray-500 dark:text-gray-400">حفظ</span>
+          <span className="mobile-stats-label text-xs text-gray-500 dark:text-gray-400">حفظ</span>
         </div>
 
         {/* المشاركات */}
-        <div className="flex flex-col items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-600 hover:scale-105 transition-transform">
-          <Share2 className="w-5 h-5 text-purple-500 mb-1" />
-          <span className="text-lg font-bold text-gray-800 dark:text-gray-200">
+        <div className="flex flex-col items-center p-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-600 hover:scale-105 transition-transform">
+          <Share2 className="mobile-stats-icon w-4 h-4 text-purple-500 mb-0.5" />
+          <span className="mobile-stats-number text-base font-bold text-gray-800 dark:text-gray-200 leading-tight">
             {formatNumber(shares)}
           </span>
-          <span className="text-xs text-gray-500 dark:text-gray-400">مشاركة</span>
+          <span className="mobile-stats-label text-xs text-gray-500 dark:text-gray-400">مشاركة</span>
         </div>
       </div>
 
       {/* المعلومات الإضافية */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+      <div className="mobile-stats-footer flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-2 border-t border-gray-200 dark:border-gray-600">
         {/* نسبة النمو */}
         {growthRate !== undefined && (
           <div className="flex items-center gap-2">
@@ -130,14 +130,14 @@ export default function ArticleStatsBlock({
       </div>
 
       {/* مؤشر الشعبية - للنسخة المحمولة */}
-      <div className="sm:hidden mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+      <div className="mobile-popularity-indicator sm:hidden mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
         <div className="flex items-center justify-between text-xs">
           <span className="text-gray-500 dark:text-gray-400">مؤشر الشعبية</span>
           <div className="flex items-center gap-1">
             {[...Array(5)].map((_, i) => (
               <div
                 key={i}
-                className={`w-2 h-2 rounded-full ${
+                className={`mobile-popularity-dot w-2 h-2 rounded-full ${
                   i < Math.min(5, Math.ceil((likes + saves + shares) / 10))
                     ? 'bg-yellow-400'
                     : 'bg-gray-300 dark:bg-gray-600'
