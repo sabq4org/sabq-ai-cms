@@ -204,6 +204,16 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  
+  // معالجة مراجع الصوت النسبية مثل /some/path/test.mp3 → /test.mp3
+  async rewrites() {
+    return [
+      {
+        source: '/:path*/test.mp3',
+        destination: '/test.mp3',
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;
