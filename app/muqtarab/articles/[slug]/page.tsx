@@ -21,6 +21,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 
+// ضمان تشغيل الصفحة على بيئة Node بسبب Prisma
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 // Removed client-side fetching logic; now server rendered
 
 interface AngleSummary {
@@ -36,35 +41,95 @@ function isLikelyId(value: string) {
 }
 
 async function loadArticleAndRelated(raw: string) {
+  // Fallback ذكي عبر API في حال تعذر استخدام Prisma (مثلاً على Edge)
+  const fetchFromApi = async () => {
+    try {
+      const baseUrl =
+        process.env.NEXTAUTH_URL ||
+        process.env.NEXT_PUBLIC_SITE_URL ||
+        "https://sabq.io";
+      const res = await fetch(`${baseUrl}/api/muqtarab/articles/${encodeURIComponent(raw)}`, {
+        // تأكد من عدم استخدام الكاش حتى لا تظهر بيانات قديمة
+        cache: "no-store",
+        // محاولات محدودة لتفادي التعليق
+        next: { revalidate: 0 },
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+      if (!data?.success || !data?.article) return null;
+      const a = data.article;
+      const angle = a.corner
+        ? {
+            id: a.corner.id,
+            title: a.corner.name,
+            slug: a.corner.slug,
+            themeColor: a.corner.theme_color || "#3B82F6",
+          }
+        : null;
+      const uiArticle: AngleArticle = {
+        id: a.id,
+        angleId: angle?.id || "",
+        title: a.title,
+        slug: a.slug,
+        content: a.content,
+        excerpt: a.excerpt || undefined,
+        authorId: a.author?.id || "",
+        author: a.author ? { id: a.author.id, name: a.author.name } : undefined,
+        sentiment: undefined,
+        tags: undefined,
+        coverImage: a.coverImage || undefined,
+        isPublished: !!a.isPublished,
+        publishDate: a.publishDate || undefined,
+        readingTime: a.readingTime || undefined,
+        views: a.views || 0,
+        createdAt: a.createdAt as any,
+        updatedAt: a.createdAt as any,
+      };
+      return { article: uiArticle, angle, related: [], cross: [] };
+    } catch {
+      return null;
+    }
+  };
+
   const useId = isLikelyId(raw);
-  const article =
-    (await prisma.muqtarabArticle.findUnique({
-      where: useId ? { id: raw } : { slug: raw },
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        content: true,
-        excerpt: true,
-        cover_image: true,
-        status: true,
-        publish_at: true,
-        read_time: true,
-        view_count: true,
-        like_count: true,
-        comment_count: true,
-        created_at: true,
-        creator: { select: { id: true, name: true, avatar: true } },
-        corner: { select: { id: true, name: true, slug: true, theme_color: true } },
-      },
-    })) || null;
+  let article: any = null;
+  try {
+    if (!prisma || !(prisma as any).muqtarabArticle) {
+      // Prisma غير متاح في هذا السياق
+      return await fetchFromApi();
+    }
+    article =
+      (await prisma.muqtarabArticle.findUnique({
+        where: useId ? { id: raw } : { slug: raw },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          content: true,
+          excerpt: true,
+          cover_image: true,
+          status: true,
+          publish_at: true,
+          read_time: true,
+          view_count: true,
+          like_count: true,
+          comment_count: true,
+          created_at: true,
+          creator: { select: { id: true, name: true, avatar: true } },
+          corner: { select: { id: true, name: true, slug: true, theme_color: true } },
+        },
+      })) || null;
+  } catch {
+    // أي فشل في Prisma → fallback API
+    return await fetchFromApi();
+  }
 
   if (!article || article.status !== "published") return null;
 
   // Fire and forget view increment (not awaited)
-  prisma.muqtarabArticle
-    .update({ where: { id: article.id }, data: { view_count: { increment: 1 } } })
-    .catch(() => {});
+  try {
+    await queueViewIncrement(article.id)
+  } catch {}
 
   const angle: AngleSummary | null = article.corner
     ? {
