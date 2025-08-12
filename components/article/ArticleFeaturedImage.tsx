@@ -1,18 +1,49 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { IMAGE_CONFIG } from "./ImageDisplayConfig";
+
+// Simple in-memory cache for URL validity to avoid repeated parsing
+const urlValidityCache = new Map<string, boolean>();
 
 interface ArticleFeaturedImageProps {
   imageUrl: string;
   title: string;
   caption?: string; // تعريف الصورة
-  category?: {
-    name: string;
-    color?: string;
-    icon?: string;
-  };
+  category?: { name: string; color?: string; icon?: string };
+  blurDataURL?: string; // اختيارية لدعم placeholder blur
+}
+
+// Caption box extracted to avoid repetition
+function CaptionBox({ caption }: { caption?: string }) {
+  if (!caption) return null;
+  return (
+    <div className="mt-3 px-4 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg border-r-4 border-blue-500">
+      <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+        {caption}
+      </p>
+    </div>
+  );
+}
+
+// URL validation with caching
+function isValidImageUrl(url: string): boolean {
+  if (!url || typeof url !== "string" || url.length < 5) return false;
+  // quick invalid patterns
+  if (url === "undefined" || url === "null" || url.includes("undefined")) return false;
+  if (urlValidityCache.has(url)) return urlValidityCache.get(url)!;
+  let valid = false;
+  try {
+    // allow protocol-relative / relative local paths
+    const candidate = url.startsWith("http") ? url : (url.startsWith("/") ? `https://local${url}` : `https://example.com/${url}`);
+    new URL(candidate);
+    valid = true;
+  } catch {
+    valid = url.startsWith("/") || url.includes("images/");
+  }
+  urlValidityCache.set(url, valid);
+  return valid;
 }
 
 export default function ArticleFeaturedImage({
@@ -20,33 +51,19 @@ export default function ArticleFeaturedImage({
   title,
   caption,
   category,
+  blurDataURL,
 }: ArticleFeaturedImageProps) {
   const [imageError, setImageError] = useState(false);
-
-  // التحقق من صحة URL الصورة
-  const isValidImageUrl = (url: string): boolean => {
-    if (!url) return false;
-    if (typeof url !== "string") return false;
-    if (url.length < 5) return false; // URL غير منطقي
-
-    // تحقق من بعض الحالات الشائعة للعناوين غير الصالحة
-    if (url === "undefined" || url === "null" || url.includes("undefined")) {
-      return false;
-    }
-
-    // محاولة معرفة إذا كان URL صالح
-    try {
-      const urlObj = new URL(
-        url.startsWith("http") ? url : `https://example.com/${url}`
-      );
-      return true;
-    } catch (e) {
-      return url.startsWith("/") || url.includes("images/"); // قد تكون مسارات محلية صالحة
-    }
+  const valid = useMemo(() => isValidImageUrl(imageUrl), [imageUrl]);
+  const shouldUnoptimize = imageUrl.includes("placeholder") || imageUrl.includes("via.placeholder");
+  const commonImageProps = {
+    onError: () => setImageError(true),
+    placeholder: blurDataURL ? ("blur" as const) : ("empty" as const),
+    blurDataURL,
   };
 
-  // إذا كانت الصورة غير صالحة أو حدث خطأ في تحميلها
-  if (imageError || !isValidImageUrl(imageUrl)) {
+  // Fallback if invalid
+  if (imageError || !valid) {
     return (
       <div className="w-full h-48 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
         <p className="text-gray-500 dark:text-gray-400 text-center">
@@ -56,7 +73,6 @@ export default function ArticleFeaturedImage({
     );
   }
 
-  // عرض بناءً على الوضع المحدد في الإعدادات
   switch (IMAGE_CONFIG.DISPLAY_MODE) {
     case "default":
       return (
@@ -68,20 +84,13 @@ export default function ArticleFeaturedImage({
               alt={title || "صورة المقال"}
               fill
               className="object-cover object-center w-full h-full"
-              priority={true}
+              priority
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1024px"
-              unoptimized={imageUrl.includes('placeholder') || imageUrl.includes('via.placeholder')}
-              onError={() => setImageError(true)}
+              unoptimized={shouldUnoptimize}
+              {...commonImageProps}
             />
           </div>
-          {/* تعريف الصورة */}
-          {caption && (
-            <div className="mt-3 px-4 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg border-r-4 border-blue-500">
-              <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                {caption}
-              </p>
-            </div>
-          )}
+          <CaptionBox caption={caption} />
         </div>
       );
 
@@ -96,8 +105,8 @@ export default function ArticleFeaturedImage({
             height={600}
             className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 opacity-60"
             priority={false}
-            unoptimized={imageUrl.includes('placeholder') || imageUrl.includes('via.placeholder')}
-            onError={() => setImageError(true)}
+            unoptimized={shouldUnoptimize}
+            {...commonImageProps}
           />
 
           {/* الطبقة الداكنة فوق الخلفية المموهة */}
@@ -112,10 +121,10 @@ export default function ArticleFeaturedImage({
                 width={800}
                 height={600}
                 className="max-w-full max-h-full shadow-2xl transition-all duration-500 hover:scale-[1.02]"
-                priority={true}
+                priority
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
-                unoptimized={imageUrl.includes('placeholder') || imageUrl.includes('via.placeholder')}
-                onError={() => setImageError(true)}
+                unoptimized={shouldUnoptimize}
+                {...commonImageProps}
               />
             </div>
           </div>
@@ -139,7 +148,7 @@ export default function ArticleFeaturedImage({
         </div>
       );
 
-    case "aspect-ratio":
+    case "aspect-ratio": {
       // التحقق من وجود مسار للصورة حقيقي وليس undefined أو فارغ
       const hasValidImage =
         imageUrl &&
@@ -163,22 +172,17 @@ export default function ArticleFeaturedImage({
                 width={1024}
                 height={576}
                 className="w-full h-auto object-cover"
-                priority={true}
+                priority
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1024px"
-                unoptimized={imageUrl.includes('placeholder') || imageUrl.includes('via.placeholder')}
+                unoptimized={shouldUnoptimize}
+                {...commonImageProps}
               />
             </div>
-            {/* تعريف الصورة */}
-            {caption && (
-              <div className="mt-3 px-4 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg border-r-4 border-blue-500">
-                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                  {caption}
-                </p>
-              </div>
-            )}
+            <CaptionBox caption={caption} />
           </div>
         </div>
       );
+    }
 
     case "fullwidth":
       return (
@@ -189,10 +193,10 @@ export default function ArticleFeaturedImage({
             width={1920}
             height={1080}
             className="w-full h-full object-cover"
-            priority={true}
+            priority
             sizes="100vw"
-            unoptimized={imageUrl.includes('placeholder') || imageUrl.includes('via.placeholder')}
-            onError={() => setImageError(true)}
+            unoptimized={shouldUnoptimize}
+            {...commonImageProps}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 z-10" />
         </div>
@@ -208,20 +212,13 @@ export default function ArticleFeaturedImage({
               width={1024}
               height={576}
               className="w-full h-auto object-cover min-h-[220px] sm:min-h-[300px] md:min-h-[350px] lg:min-h-[400px]"
-              priority={true}
+              priority
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1024px"
-              unoptimized={imageUrl.includes('placeholder') || imageUrl.includes('via.placeholder')}
-              onError={() => setImageError(true)}
+              unoptimized={shouldUnoptimize}
+              {...commonImageProps}
             />
           </div>
-          {/* تعريف الصورة */}
-          {caption && (
-            <div className="mt-3 px-4 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg border-r-4 border-blue-500">
-              <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                {caption}
-              </p>
-            </div>
-          )}
+          <CaptionBox caption={caption} />
         </div>
       );
 

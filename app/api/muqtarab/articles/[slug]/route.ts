@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { queueViewIncrement } from '@/lib/viewBatch'
 
 export const runtime = "nodejs";
 
@@ -105,10 +106,8 @@ export async function GET(
     }
 
     // 🚀 تحسين: Update view count بشكل غير متزامن
-    prisma.muqtarabArticle.update({
-      where: { id: article.id },
-      data: { view_count: { increment: 1 } },
-    }).catch(err => console.log("Failed to update view count:", err));
+    // prisma.muqtarabArticle.update({ where: { id: article.id }, data: { view_count: { increment: 1 } }, }).catch(err => console.log("Failed to update view count:", err));
+    queueViewIncrement(article.id)
 
     const formattedArticle = {
       id: article.id,
@@ -147,6 +146,7 @@ export async function GET(
     }, {
       headers: {
         'Cache-Control': 'public, max-age=300, stale-while-revalidate=600',
+        'X-Data-Timing': `${Date.now()}`
       }
     });
   } catch (error: any) {
