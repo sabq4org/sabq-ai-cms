@@ -101,11 +101,12 @@ export default function ArticleClientComponent({
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   // تأكيد البدء من أعلى الصفحة في النسخة الخفيفة للموبايل
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // إرجاع التمرير للأعلى بعد التنقل مباشرة
-      requestAnimationFrame(() => {
-        window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
-      });
+    if (typeof window !== "undefined") {
+      // إعادة التمرير للأعلى فور التحميل
+      window.scrollTo(0, 0);
+      // إعادة ثانية بعد الرسم الأول لضمان عدم بقاء الإزاحة
+      requestAnimationFrame(() => window.scrollTo(0, 0));
+      setTimeout(() => window.scrollTo(0, 0), 0);
     }
   }, []);
   // توليد محتوى HTML بشكل متزامن لتجنب ومضة الفراغ بعد اختفاء شاشة التحميل
