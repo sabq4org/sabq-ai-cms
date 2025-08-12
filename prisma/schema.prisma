@@ -1539,6 +1539,101 @@ model MuqtarabComment {
   @@map("muqtarab_comments")
 }
 
+/// Smart Story Tracking - Core Models
+model Story {
+  id               String   @id @default(cuid())
+  title            String
+  description      String?
+  category         String?
+  status           String   @default("active")
+  importanceLevel  Int      @default(5)
+  tags             String[]
+  metadata         Json?
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  events           Event[]
+  storyEntities    StoryEntity[]
+  subscriptions    StorySubscription[]
+  predictions      Prediction[]
+
+  @@index([category])
+  @@index([status])
+  @@index([created_at])
+}
+
+model Event {
+  id              String   @id @default(cuid())
+  story_id        String
+  title           String
+  content         String
+  source          String?
+  event_date      DateTime
+  importanceScore Decimal  @default(5.0)
+  sentimentScore  Decimal?
+  metadata        Json?
+  created_at      DateTime @default(now())
+
+  story           Story    @relation(fields: [story_id], references: [id], onDelete: Cascade)
+
+  @@index([story_id])
+  @@index([event_date])
+}
+
+model Entity {
+  id          String   @id @default(cuid())
+  name        String
+  type        String?
+  description String?
+  metadata    Json?
+  created_at  DateTime @default(now())
+
+  stories     StoryEntity[]
+}
+
+model StoryEntity {
+  id              String   @id @default(cuid())
+  story_id        String
+  entity_id       String
+  role            String?
+  relevanceScore  Decimal  @default(5.0)
+  created_at      DateTime @default(now())
+
+  story           Story    @relation(fields: [story_id], references: [id], onDelete: Cascade)
+  entity          Entity   @relation(fields: [entity_id], references: [id], onDelete: Cascade)
+
+  @@index([story_id])
+  @@index([entity_id])
+}
+
+model StorySubscription {
+  id                 String   @id @default(cuid())
+  user_id            String
+  story_id           String
+  notificationLevel  String   @default("medium")
+  is_active          Boolean  @default(true)
+  created_at         DateTime @default(now())
+
+  story              Story    @relation(fields: [story_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([story_id])
+}
+
+model Prediction {
+  id               String   @id @default(cuid())
+  story_id         String
+  prediction_text  String
+  confidence_score Decimal?
+  prediction_date  DateTime @default(now())
+  actual_outcome   String?
+  is_verified      Boolean  @default(false)
+  created_at       DateTime @default(now())
+
+  story            Story    @relation(fields: [story_id], references: [id], onDelete: Cascade)
+
+  @@index([story_id])
+}
 /// إعدادات واجهة عامة (Global UI Settings)
 model UiSetting {
   id          String   @id @default(cuid())
