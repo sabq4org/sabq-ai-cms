@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { Loader2, MessageCircleQuestion, RefreshCw } from "lucide-react";
+import { Check, Clipboard, Loader2, MessageCircleQuestion, RefreshCw, ChevronDown } from "lucide-react";
 
 interface Props {
   content: string;
@@ -12,6 +12,8 @@ const AIQuestions: React.FC<Props> = ({ content }) => {
   const [questions, setQuestions] = useState<string[]>([]);
   const [answerLoading, setAnswerLoading] = useState<string | null>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [copiedFor, setCopiedFor] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
 
   const canGenerate = useMemo(() => (content?.length || 0) > 30, [content]);
 
@@ -47,68 +49,128 @@ const AIQuestions: React.FC<Props> = ({ content }) => {
     }
   };
 
-  return (
-    <section className="mt-10 border rounded-xl p-5 bg-white dark:bg-gray-900">
-      <div className="flex items-center gap-3 mb-2">
-        <div className="w-9 h-9 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-          <MessageCircleQuestion className="w-5 h-5 text-purple-600" />
-        </div>
-        <div>
-          <h2 className="text-lg font-semibold">اسأل الذكاء الاصطناعي عن هذا الخبر</h2>
-          <p className="text-sm text-gray-500">أسئلة ذكية وإجابات مبنية على محتوى الخبر</p>
-        </div>
-      </div>
+  const copyAnswer = async (q: string) => {
+    const a = answers[q];
+    if (!a) return;
+    try {
+      await navigator.clipboard.writeText(a);
+      setCopiedFor(q);
+      setTimeout(() => setCopiedFor(null), 1500);
+    } catch {}
+  };
 
-      {questions.length === 0 ? (
-        <div className="mt-4">
-          <button
-            onClick={generate}
-            disabled={!canGenerate || loading}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-600 text-white disabled:opacity-60"
-          >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-            {loading ? "جاري التوليد..." : "توليد الأسئلة الذكية"}
-          </button>
-          {!canGenerate && (
-            <p className="text-xs text-gray-500 mt-2">أضف محتوى أطول قليلاً لتفعيل التوليد</p>
-          )}
-        </div>
-      ) : (
-        <div className="mt-4">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium">الأسئلة المولدة</h3>
+  return (
+    <section className="relative mt-10 overflow-hidden rounded-2xl border border-purple-200/60 dark:border-purple-900/40 bg-gradient-to-b from-white to-purple-50/50 dark:from-gray-900 dark:to-purple-950/20 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+      {/* زخرفة خلفية ناعمة */}
+      <div className="pointer-events-none absolute -top-24 -left-24 h-56 w-56 rounded-full bg-purple-200/30 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-24 -right-24 h-56 w-56 rounded-full bg-indigo-200/30 blur-3xl" />
+
+      <div className="relative p-6 sm:p-8">
+        <div className="flex items-start gap-3 mb-2">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-500 to-indigo-500 text-white flex items-center justify-center shadow-sm">
+            <MessageCircleQuestion className="w-5 h-5" />
+          </div>
+          <div className="flex-1">
+            <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-700 to-indigo-700 dark:from-purple-300 dark:to-indigo-300">
+              مكون الذكاء الاصطناعي للأخبار
+            </h2>
+            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+              اسأل الذكاء الاصطناعي عن هذا الخبر واحصل على إجابات مبنية على المحتوى
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            {questions.length > 0 && (
+              <button
+                onClick={generate}
+                className="inline-flex items-center gap-1 text-sm text-purple-700 dark:text-purple-300 hover:text-purple-800 transition-colors"
+              >
+                <RefreshCw className="w-4 h-4" /> إعادة التوليد
+              </button>
+            )}
             <button
-              onClick={generate}
-              className="inline-flex items-center gap-1 text-purple-700"
+              onClick={() => setOpen((v) => !v)}
+              aria-expanded={open}
+              className="inline-flex items-center gap-1 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 transition-colors"
+              title={open ? "إخفاء" : "إظهار"}
             >
-              <RefreshCw className="w-4 h-4" /> إعادة التوليد
+              <span className="hidden sm:inline">{open ? "إخفاء" : "إظهار"}</span>
+              <ChevronDown className={`w-4 h-4 transition-transform ${open ? "rotate-180" : "rotate-0"}`} />
             </button>
           </div>
-          <div className="space-y-2">
-            {questions.map((q) => (
-              <div key={q} className="border rounded-lg p-3">
-                <button
-                  onClick={() => ask(q)}
-                  className="text-right w-full font-medium text-gray-800 hover:text-purple-700"
-                >
-                  {q}
-                </button>
-                {answers[q] && (
-                  <div className="text-sm text-gray-700 mt-2 leading-relaxed">
-                    {answers[q]}
-                  </div>
-                )}
-                {answerLoading === q && (
-                  <div className="flex items-center gap-2 text-sm text-gray-500 mt-2">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    جاري توليد الإجابة...
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
         </div>
-      )}
+
+        {/* الحالة الأولية */}
+        {open && questions.length === 0 ? (
+          <div className="mt-3">
+            <button
+              onClick={generate}
+              disabled={!canGenerate || loading}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/20 hover:shadow-purple-500/30 active:scale-[0.99] transition-all disabled:opacity-60"
+            >
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              {loading ? "جاري التوليد..." : "توليد الأسئلة الذكية"}
+            </button>
+            {!canGenerate && (
+              <p className="text-xs text-gray-500 mt-2">أضف محتوى أطول قليلاً لتفعيل التوليد</p>
+            )}
+          </div>
+        ) : open && (
+          <div className="mt-4">
+            <div className="grid gap-3 sm:gap-4">
+              {questions.map((q) => (
+                <div
+                  key={q}
+                  className="group rounded-xl border border-gray-200/70 dark:border-gray-700/60 bg-white/70 dark:bg-gray-800/70 backdrop-blur transition-colors"
+                >
+                  <button
+                    onClick={() => ask(q)}
+                    className="w-full text-right px-4 sm:px-5 py-3 sm:py-4 font-medium text-gray-800 dark:text-gray-100 hover:text-purple-700 dark:hover:text-purple-300 flex items-center justify-between gap-3"
+                  >
+                    <span className="leading-relaxed">{q}</span>
+                    <span className="text-xs text-gray-400">اضغط لعرض الإجابة</span>
+                  </button>
+
+                  {/* الإجابة */}
+                  {answers[q] && (
+                    <div className="px-4 sm:px-5 pb-4">
+                      <div className="rounded-lg border border-purple-200/60 dark:border-purple-800/60 bg-purple-50/40 dark:bg-purple-900/10 p-3 text-sm leading-relaxed text-gray-800 dark:text-gray-200">
+                        {answers[q]}
+                      </div>
+                      <div className="mt-2 flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => copyAnswer(q)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+                        >
+                          {copiedFor === q ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 text-green-600" />
+                              <span>تم النسخ</span>
+                            </>
+                          ) : (
+                            <>
+                              <Clipboard className="w-3.5 h-3.5" />
+                              <span>نسخ الإجابة</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {answerLoading === q && (
+                    <div className="px-4 sm:px-5 pb-4 -mt-2">
+                      <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        جاري توليد الإجابة...
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      </div>
     </section>
   );
 };
