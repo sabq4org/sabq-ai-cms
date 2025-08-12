@@ -348,8 +348,8 @@
 /* ===== 7. تحسينات الأداء والحركة ===== */
 @media screen and (max-width: 768px) {
   
-  /* تسريع الحركات */
-  * {
+  /* تسريع الحركات - نطاق محدود لتفادي مشاكل z-index على عناصر القوائم المنسدلة */
+  .scrollable, .table-wrapper, .admin-header, .side-navigation, .sidebar {
     -webkit-transform: translateZ(0) !important;
     transform: translateZ(0) !important;
   }

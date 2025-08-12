@@ -1407,7 +1407,7 @@ function AdminNewsPageContent() {
                             </TableCell>
 
                             <TableCell className="py-1">
-                              <DropdownMenu>
+                              <DropdownMenu modal={false}>
                                 <DropdownMenuTrigger asChild>
                                   <Button
                                     variant="outline"
