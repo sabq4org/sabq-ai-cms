@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {
-    const { question, content } = await req.json();
+    const { question, content, type } = await req.json();
     if (!question || !content) {
       return NextResponse.json(
         { success: false, error: "السؤال والمحتوى مطلوبان" },
@@ -21,7 +21,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const prompt = `أجب بإيجاز ودقة وبالعربية على السؤال التالي اعتماداً فقط على المعلومات المذكورة في النص المرفق. إن لم تتوفر الإجابة في النص قل: لا تتوفر معلومات كافية.
+    const style = type === "prediction" ? "تحليل تنبؤي مع سيناريوهات"
+      : type === "comparison" ? "مقارنة وسياق"
+      : type === "solutions" ? "حلول إبداعية"
+      : type === "poll" ? "عرض وجهات النظر والخلفيات"
+      : "تحليل عميق";
+
+    const prompt = `أجب بإيجاز ودقة وبالعربية على السؤال التالي اعتماداً فقط على المعلومات المذكورة في النص المرفق.
+نوع الإجابة المطلوب: ${style}. إن لم تتوفر الإجابة في النص قل: لا تتوفر معلومات كافية.
 
 النص:
 ${content}

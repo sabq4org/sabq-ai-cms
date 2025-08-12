@@ -21,12 +21,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const prompt = `اقرأ النص العربي التالي بتمعّن واستخرج 5 أسئلة ذكية ومفيدة ومتنوعة تغطي الجوانب المهمة في الخبر. أعد إجابة بصيغة JSON مصفوفة نصوص فقط.
+    const prompt = `اقرأ الخبر أدناه وولّد 5 أسئلة إبداعية ومتنوعة تغطي الأنواع التالية:
+1) prediction 🔮  2) poll 📊  3) analysis 🔍  4) comparison 🌍  5) solutions 🎯
+
+أعد النتيجة كـ JSON فقط بالتنسيق التالي (دون نص زائد):
+{
+  "questions": [
+    {"type":"prediction","icon":"🔮","question":"نص السؤال"},
+    {"type":"poll","icon":"📊","question":"سؤال استطلاع","options":["خيار 1","خيار 2","خيار 3"]},
+    {"type":"analysis","icon":"🔍","question":"..."},
+    {"type":"comparison","icon":"🌍","question":"..."},
+    {"type":"solutions","icon":"🎯","question":"..."}
+  ]
+}
 
 النص:
-${content}
-
-المطلوب (JSON فقط): ["سؤال 1","سؤال 2","سؤال 3","سؤال 4","سؤال 5"]`;
+${content}`;
 
     const resp = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -55,24 +65,32 @@ ${content}
     }
 
     const data = await resp.json();
-    const raw = data.choices?.[0]?.message?.content || "[]";
-    let questions: string[] = [];
+    const raw = data.choices?.[0]?.message?.content || "{}";
+    let questions: any[] = [];
     try {
-      // قد يأتي كائن، نتوقع مصفوفة ضمنه
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) questions = parsed;
-      else if (Array.isArray(parsed.questions)) questions = parsed.questions;
+      if (Array.isArray(parsed?.questions)) questions = parsed.questions;
     } catch {
-      // fallback بسيط: اقتطاع أسطر
-      questions = String(raw)
+      // fallback بسيط (مصفوفة أسئلة كنصوص)
+      const arr = String(raw)
         .replace(/[\[\]\"\n]/g, " ")
         .split("?")
         .map((s) => (s.trim() ? s.trim() + "؟" : ""))
         .filter(Boolean)
         .slice(0, 5);
+      questions = arr.map((q: string) => ({ type: "analysis", icon: "🔍", question: q }));
     }
 
-    return NextResponse.json({ success: true, questions, count: questions.length });
+    // تطبيع البنية
+    const normalized = questions
+      .filter((q: any) => typeof q === "object" ? q.question : q)
+      .map((q: any) => (
+        typeof q === "object"
+          ? { type: q.type || "analysis", icon: q.icon || "🔍", question: q.question, options: q.options || undefined }
+          : { type: "analysis", icon: "🔍", question: String(q) }
+      ));
+
+    return NextResponse.json({ success: true, questions: normalized, count: normalized.length });
   } catch (e: any) {
     return NextResponse.json(
       { success: false, error: e?.message || "خطأ في التوليد" },

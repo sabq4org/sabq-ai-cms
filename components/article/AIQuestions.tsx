@@ -9,7 +9,7 @@ interface Props {
 
 const AIQuestions: React.FC<Props> = ({ content }) => {
   const [loading, setLoading] = useState(false);
-  const [questions, setQuestions] = useState<string[]>([]);
+  const [questions, setQuestions] = useState<any[]>([]);
   const [answerLoading, setAnswerLoading] = useState<string | null>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [copiedFor, setCopiedFor] = useState<string | null>(null);
@@ -119,29 +119,32 @@ const AIQuestions: React.FC<Props> = ({ content }) => {
             <div className="grid gap-3 sm:gap-4">
               {questions.map((q) => (
                 <div
-                  key={q}
+                  key={q?.question || String(q)}
                   className="group rounded-xl border border-gray-200/70 dark:border-gray-700/60 bg-white/70 dark:bg-gray-800/70 backdrop-blur transition-colors"
                 >
                   <button
-                    onClick={() => ask(q)}
+                    onClick={() => ask(q?.question || String(q))}
                     className="w-full text-right px-4 sm:px-5 py-3 sm:py-4 font-medium text-gray-800 dark:text-gray-100 hover:text-purple-700 dark:hover:text-purple-300 flex items-center justify-between gap-3"
                   >
-                    <span className="leading-relaxed">{q}</span>
-                    <span className="text-xs text-gray-400">اضغط لعرض الإجابة</span>
+                    <span className="leading-relaxed">
+                      {q?.icon ? <span className="ml-1">{q.icon}</span> : null}
+                      {q?.question || String(q)}
+                    </span>
+                    <span className="text-xs text-gray-400">{q?.type === 'poll' ? 'صوّت وشاهد النتائج' : 'اضغط لعرض الإجابة'}</span>
                   </button>
 
                   {/* الإجابة */}
-                  {answers[q] && (
+                  {answers[q?.question || String(q)] && (
                     <div className="px-4 sm:px-5 pb-4">
                       <div className="rounded-lg border border-purple-200/60 dark:border-purple-800/60 bg-purple-50/40 dark:bg-purple-900/10 p-3 text-sm leading-relaxed text-gray-800 dark:text-gray-200">
-                        {answers[q]}
+                        {answers[q?.question || String(q)]}
                       </div>
                       <div className="mt-2 flex items-center justify-end gap-2">
                         <button
-                          onClick={() => copyAnswer(q)}
+                          onClick={() => copyAnswer(q?.question || String(q))}
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
                         >
-                          {copiedFor === q ? (
+                          {copiedFor === (q?.question || String(q)) ? (
                             <>
                               <Check className="w-3.5 h-3.5 text-green-600" />
                               <span>تم النسخ</span>
@@ -157,7 +160,7 @@ const AIQuestions: React.FC<Props> = ({ content }) => {
                     </div>
                   )}
 
-                  {answerLoading === q && (
+                  {answerLoading === (q?.question || String(q)) && (
                     <div className="px-4 sm:px-5 pb-4 -mt-2">
                       <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                         <Loader2 className="w-4 h-4 animate-spin" />
