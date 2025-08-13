@@ -149,12 +149,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
 
                 {/* أسهم التنقل تم نقلها من على الصورة */}
 
-                {/* العنوان في أعلى الصورة - للجوال فقط */}
-                <div className="lg:hidden absolute top-0 left-0 right-0 p-4 z-20 bg-gradient-to-b from-black/90 to-black/20">
-                  <h2 className="text-white text-lg font-bold leading-snug drop-shadow-md">
-                    {currentArticle.title}
-                  </h2>
-                </div>
+
                 
 
               </div>
@@ -251,32 +246,38 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
         </div>
       </Link>
 
+      {/* العنوان أسفل الصورة - للموبايل فقط */}
+      <div className="lg:hidden px-4 py-2">
+        <h2 className="text-base font-bold text-gray-900 dark:text-white line-clamp-2">
+          {currentArticle.title}
+        </h2>
+      </div>
+
       {/* منطقة التنقل للموبايل - خارج الكاروسيل */}
-      {console.log('[DEBUG] Rendering mobile navigation area')}
-      <div className="mt-3 px-4" style={{ display: 'block', marginTop: '12px', border: '2px solid red' }}>
-        <div className="flex items-center justify-between" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div className="lg:hidden px-4 pb-3" style={{ display: 'block' }}>
+        <div className="flex items-center justify-center gap-3">
           {/* زر السابق */}
           <button
             onClick={(e) => {
               e.preventDefault();
               handlePrevious();
             }}
-            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-300 shadow-sm"
+            className="p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-200"
             aria-label="السابق"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-4 h-4" />
           </button>
           
           {/* نقاط التنقل */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             {articles.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentIndex(index)}
-                className={`h-2 rounded-full transition-all duration-300 ${
+                className={`h-1.5 rounded-full transition-all duration-300 ${
                   index === currentIndex
-                    ? "w-8 bg-blue-500 dark:bg-blue-400"
-                    : "w-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400"
+                    ? "w-6 bg-blue-500 dark:bg-blue-400"
+                    : "w-1.5 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400"
                 }`}
                 aria-label={`الانتقال للخبر ${index + 1}`}
               />
@@ -289,10 +290,10 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
               e.preventDefault();
               handleNext();
             }}
-            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-300 shadow-sm"
+            className="p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-200"
             aria-label="التالي"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-4 h-4" />
           </button>
         </div>
       </div>
