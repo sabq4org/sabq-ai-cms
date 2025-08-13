@@ -19,6 +19,7 @@ import "../styles/globals.css";
 import "../styles/minimal-fix.css";
 import "../styles/mobile-internal-pages-fix.css";
 import "../styles/mobile-news.css";
+import "../styles/mobile-sidebar-compact.css"; // تحسينات القائمة الجانبية المحسنة للجوال
 import "../styles/mobile.css";
 import "../styles/muqtarab-animations.css";
 import "../styles/news-card-desktop.css";
@@ -259,6 +260,9 @@ export default function RootLayout({
         {/* Mobile Lite Version Fixes - إصلاحات النسخة الخفيفة */}
         <link rel="stylesheet" href="/styles/mobile-lite-fixes.css" />
         <script src="/mobile-lite-fixes.js" defer></script>
+        
+        {/* Mobile Sidebar Enhancements - تحسينات القائمة الجانبية للجوال */}
+        <script src="/mobile-sidebar-enhancements.js" defer></script>
         
 
       </head>

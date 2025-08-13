@@ -186,18 +186,18 @@ export default function MobileDashboardLayout({
           </div>
         )}
 
-        {/* القائمة المنسدلة للموبايل */}
+        {/* القائمة المنسدلة للموبايل - تصميم مدمج محسن */}
         {isMobileMenuOpen && (
           <div className={`
             border-t ${darkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'}
           `}>
-            <div className="p-4">
+            <div className="p-3">
               <h3 className={`text-sm font-medium mb-3 ${
                 darkMode ? 'text-gray-300' : 'text-gray-600'
               }`}>
                 الروابط السريعة
               </h3>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
                 {quickLinks.map((link, index) => (
                   <button
                     key={index}
@@ -206,14 +206,14 @@ export default function MobileDashboardLayout({
                       setIsMobileMenuOpen(false);
                     }}
                     className={`
-                      flex items-center gap-3 p-3 rounded-lg transition-colors
+                      mobile-nav-item w-full flex items-center gap-3 p-2 rounded-md transition-colors min-h-[44px]
                       ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'}
                     `}
                   >
-                    <div className={`w-8 h-8 rounded-lg ${link.color} flex items-center justify-center text-white`}>
+                    <div className={`icon w-6 h-6 rounded-md ${link.color} flex items-center justify-center text-white flex-shrink-0`}>
                       {link.icon}
                     </div>
-                    <span className={`text-sm font-medium ${
+                    <span className={`text text-sm font-medium ${
                       darkMode ? 'text-white' : 'text-gray-900'
                     }`}>
                       {link.title}
@@ -231,51 +231,51 @@ export default function MobileDashboardLayout({
         </div>
       </main>
 
-      {/* شريط التنقل السفلي الثابت (اختياري) */}
+      {/* شريط التنقل السفلي الثابت - مُحسّن للمس */}
       <div className={`
         fixed bottom-0 left-0 right-0 border-t
         ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}
         safe-area-pb
       `}>
-        <div className="flex items-center justify-around p-2">
+        <div className="flex items-center justify-around py-1">
           <button
             onClick={() => router.push('/dashboard')}
-            className={`flex flex-col items-center p-2 rounded-lg transition-colors ${
+            className={`flex flex-col items-center p-2 rounded-lg transition-colors min-h-[44px] min-w-[44px] ${
               darkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-600'
             }`}
           >
-            <Settings className="w-5 h-5 mb-1" />
+            <Settings className="w-5 h-5 mb-0.5" />
             <span className="text-xs">الرئيسية</span>
           </button>
 
           <button
             onClick={() => router.push('/dashboard/news')}
-            className={`flex flex-col items-center p-2 rounded-lg transition-colors ${
+            className={`mobile-nav-item flex flex-col items-center p-2 rounded-lg transition-colors min-h-[44px] min-w-[44px] ${
               darkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-600'
             }`}
           >
-            <Newspaper className="w-5 h-5 mb-1" />
-            <span className="text-xs">الأخبار</span>
+            <Newspaper className="icon w-5 h-5 mb-0.5" />
+            <span className="text text-xs">الأخبار</span>
           </button>
 
           <button
             onClick={() => router.push('/dashboard/insights')}
-            className={`flex flex-col items-center p-2 rounded-lg transition-colors ${
+            className={`mobile-nav-item flex flex-col items-center p-2 rounded-lg transition-colors min-h-[44px] min-w-[44px] ${
               darkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-600'
             }`}
           >
-            <BarChart3 className="w-5 h-5 mb-1" />
-            <span className="text-xs">الإحصائيات</span>
+            <BarChart3 className="icon w-5 h-5 mb-0.5" />
+            <span className="text text-xs">الإحصائيات</span>
           </button>
 
           <button
             onClick={() => router.push('/dashboard/article')}
-            className={`flex flex-col items-center p-2 rounded-lg transition-colors ${
+            className={`mobile-nav-item flex flex-col items-center p-2 rounded-lg transition-colors min-h-[44px] min-w-[44px] ${
               darkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-600'
             }`}
           >
-            <FileText className="w-5 h-5 mb-1" />
-            <span className="text-xs">المقالات</span>
+            <FileText className="icon w-5 h-5 mb-0.5" />
+            <span className="text text-xs">المقالات</span>
           </button>
         </div>
       </div>

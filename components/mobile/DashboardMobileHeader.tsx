@@ -404,8 +404,8 @@ export default function DashboardMobileHeader({
               </button>
             </div>
 
-            {/* عناصر القائمة */}
-            <nav className="p-4 space-y-2">
+            {/* عناصر القائمة - تصميم مدمج محسن */}
+            <nav className="p-3 space-y-1">
               {dashboardMenuItems.map((item) => {
                 const isActive = pathname === item.url;
                 const Icon = item.icon;
@@ -416,20 +416,20 @@ export default function DashboardMobileHeader({
                     href={item.url}
                     onClick={() => setMobileMenuOpen(false)}
                     className={`
-                      flex items-center gap-3 px-4 py-3 rounded-lg transition-colors
+                      mobile-nav-item flex items-center gap-3 px-3 py-2 rounded-md transition-colors min-h-[44px]
                       ${
                         isActive
                           ? darkMode
-                            ? "bg-blue-600 text-white"
-                            : "bg-blue-50 text-blue-600 border border-blue-200"
+                            ? "active bg-blue-600 text-white"
+                            : "active bg-blue-50 text-blue-600 border border-blue-200"
                           : darkMode
                           ? "hover:bg-gray-700 text-gray-300"
                           : "hover:bg-gray-100 text-gray-700"
                       }
                     `}
                   >
-                    <Icon className="w-5 h-5" />
-                    <span className="font-medium">{item.label}</span>
+                    <Icon className="icon w-5 h-5 flex-shrink-0" />
+                    <span className="text text-sm font-medium">{item.label}</span>
                   </Link>
                 );
               })}

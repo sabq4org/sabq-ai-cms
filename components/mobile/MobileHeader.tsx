@@ -217,90 +217,80 @@ export default function MobileHeader({
           />
           
           {/* القائمة */}
-          <nav className="fixed top-0 right-0 w-80 h-full bg-white dark:bg-gray-900 z-50 shadow-xl animate-in slide-in-from-right duration-300">
-            <div className="p-4">
-              {/* رأس القائمة */}
-              <div className="flex items-center justify-between mb-6">
+          <div className="mobile-sidebar fixed top-0 right-0 bottom-0 w-80 max-w-sm bg-white dark:bg-gray-900 z-50 animate-in slide-in-from-right duration-300 overflow-y-auto">
+            {/* رأس القائمة */}
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
                     <span className="text-white font-bold">س</span>
                   </div>
                   <div>
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-                      القائمة الرئيسية
-                    </h2>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      صحيفة سبق الذكية
-                    </p>
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-white">سبق الذكية</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">منصة الأخبار الذكية</p>
                   </div>
                 </div>
-                
                 <button
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
                 >
                   <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </button>
               </div>
-
-              {/* عناصر القائمة */}
-              <ul className="space-y-2">
-                {navigationItems.map((item, index) => {
-                  const Icon = item.icon;
-                  return (
-                    <li key={index}>
-                      <Link
-                        href={item.url}
-                        onClick={() => setMobileMenuOpen(false)}
-                        className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                          item.highlight
-                            ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30'
-                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-                        }`}
-                      >
-                        <Icon className={`w-5 h-5 ${item.highlight ? 'animate-pulse' : ''}`} />
-                        <span className="flex-1 font-medium">{item.label}</span>
-                        {item.badge && (
-                          <span className="w-6 h-6 bg-red-500 text-white text-xs rounded-full flex items-center justify-center animate-bounce">
-                            {item.badge}
-                          </span>
-                        )}
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-
-              {/* فاصل */}
-              <div className="my-6 border-t border-gray-200 dark:border-gray-700" />
-
-              {/* روابط إضافية */}
-              <ul className="space-y-2">
-                <li>
-                  <Link
-                    href="/settings"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                  >
-                    <Settings className="w-5 h-5" />
-                    <span>الإعدادات</span>
-                  </Link>
-                </li>
-                <li>
-                  <button
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      // تسجيل الخروج
-                    }}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                  >
-                    <LogOut className="w-5 h-5" />
-                    <span>تسجيل الخروج</span>
-                  </button>
-                </li>
-              </ul>
             </div>
-          </nav>
+
+            {/* عناصر القائمة */}
+            <nav className="flex-1 px-3 py-2 space-y-1">
+              {navigationItems.map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.url}
+                  className={`mobile-nav-item group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200 min-h-[44px] ${
+                    item.highlight
+                      ? "bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-600 dark:text-blue-400"
+                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  }`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <item.icon
+                    className="icon flex-shrink-0 w-5 h-5 ml-3"
+                    aria-hidden="true"
+                  />
+                  <span className="text">{item.label}</span>
+                  {item.badge && (
+                    <span className="badge bg-red-500 text-white text-xs px-2 py-1 rounded-full mr-2">
+                      {item.badge}
+                    </span>
+                  )}
+                </Link>
+              ))}
+            </nav>
+
+            {/* قسم الإعدادات */}
+            <div className="border-t border-gray-200 dark:border-gray-700 p-3">
+              <div className="sidebar-group-title">الإعدادات</div>
+              <div className="space-y-1">
+                <Link
+                  href="/settings"
+                  className="mobile-nav-item flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 min-h-[44px]"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Settings className="icon flex-shrink-0 w-5 h-5 ml-3" />
+                  <span className="text">الإعدادات</span>
+                </Link>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    // إضافة منطق تسجيل الخروج هنا
+                  }}
+                  className="mobile-nav-item danger w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 min-h-[44px]"
+                >
+                  <LogOut className="icon flex-shrink-0 w-5 h-5 ml-3" />
+                  <span className="text">تسجيل الخروج</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </>
       )}
 

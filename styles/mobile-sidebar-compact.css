@@ -1,0 +1,336 @@
+/* تحسينات القائمة الجانبية للجوال - Compact Inline Layout */
+/* Mobile Sidebar Improvements - Compact Inline Layout */
+
+/* ===== قواعد عامة للقوائم الجانبية على الجوال ===== */
+@media (max-width: 768px) {
+  
+  /* القائمة الجانبية الأساسية */
+  .mobile-sidebar,
+  .sidebar-mobile {
+    width: 300px;
+    max-width: 85vw;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+  }
+
+  /* عناصر القائمة المحسنة */
+  .mobile-nav-item,
+  .sidebar-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 8px 12px !important;
+    border-radius: 8px !important;
+    transition: all 0.2s ease !important;
+    min-height: 44px !important; /* مساحة لمس مناسبة */
+    margin-bottom: 2px !important;
+    text-decoration: none !important;
+  }
+
+  /* أيقونات القائمة */
+  .mobile-nav-item .icon,
+  .sidebar-item .icon,
+  .mobile-nav-item svg,
+  .sidebar-item svg {
+    width: 20px !important;
+    height: 20px !important;
+    flex-shrink: 0 !important;
+    color: #6b7280 !important; /* gray-500 */
+  }
+
+  /* نص العناصر */
+  .mobile-nav-item .text,
+  .sidebar-item .text,
+  .mobile-nav-item span:not(.badge),
+  .sidebar-item span:not(.badge) {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: #374151 !important; /* gray-700 */
+    line-height: 1.2 !important;
+  }
+
+  /* الشارات (badges) */
+  .mobile-nav-item .badge,
+  .sidebar-item .badge {
+    margin-left: auto !important;
+    padding: 2px 8px !important;
+    border-radius: 9999px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    min-width: 20px !important;
+    height: 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  /* شارة جديد */
+  .badge-new {
+    background: #ef4444 !important; /* red-500 */
+    color: white !important;
+  }
+
+  /* شارة تحديث */
+  .badge-updated {
+    background: #10b981 !important; /* green-500 */
+    color: white !important;
+  }
+
+  /* شارة تجريبي */
+  .badge-beta {
+    background: #f59e0b !important; /* yellow-500 */
+    color: white !important;
+  }
+
+  /* حالة التحديد */
+  .mobile-nav-item.active,
+  .sidebar-item.active {
+    background: rgba(59, 130, 246, 0.1) !important; /* blue-50 */
+    color: #2563eb !important; /* blue-600 */
+  }
+
+  .mobile-nav-item.active .icon,
+  .sidebar-item.active .icon,
+  .mobile-nav-item.active svg,
+  .sidebar-item.active svg {
+    color: #2563eb !important; /* blue-600 */
+  }
+
+  /* حالة التحويم/اللمس */
+  .mobile-nav-item:hover,
+  .sidebar-item:hover,
+  .mobile-nav-item:focus,
+  .sidebar-item:focus {
+    background: #f3f4f6 !important; /* gray-100 */
+  }
+
+  .mobile-nav-item:active,
+  .sidebar-item:active {
+    background: #e5e7eb !important; /* gray-200 */
+    transform: scale(0.98) !important;
+  }
+
+  /* فواصل المجموعات */
+  .sidebar-divider {
+    height: 1px !important;
+    background: #e5e7eb !important; /* gray-200 */
+    margin: 12px 16px !important;
+    border: none !important;
+  }
+
+  /* عناوين المجموعات */
+  .sidebar-group-title {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    color: #9ca3af !important; /* gray-400 */
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    padding: 8px 12px 4px 12px !important;
+    margin-top: 16px !important;
+  }
+
+  .sidebar-group-title:first-child {
+    margin-top: 0 !important;
+  }
+
+  /* تحسينات للوضع الليلي */
+  .dark .mobile-sidebar,
+  .dark .sidebar-mobile {
+    background: rgba(31, 41, 55, 0.98) !important; /* gray-800 */
+  }
+
+  .dark .mobile-nav-item .text,
+  .dark .sidebar-item .text,
+  .dark .mobile-nav-item span:not(.badge),
+  .dark .sidebar-item span:not(.badge) {
+    color: #d1d5db !important; /* gray-300 */
+  }
+
+  .dark .mobile-nav-item .icon,
+  .dark .sidebar-item .icon,
+  .dark .mobile-nav-item svg,
+  .dark .sidebar-item svg {
+    color: #9ca3af !important; /* gray-400 */
+  }
+
+  .dark .mobile-nav-item:hover,
+  .dark .sidebar-item:hover {
+    background: rgba(55, 65, 81, 0.7) !important; /* gray-700 */
+  }
+
+  .dark .mobile-nav-item:active,
+  .dark .sidebar-item:active {
+    background: rgba(75, 85, 99, 0.7) !important; /* gray-600 */
+  }
+
+  .dark .mobile-nav-item.active,
+  .dark .sidebar-item.active {
+    background: rgba(59, 130, 246, 0.2) !important; /* blue-600/20 */
+    color: #60a5fa !important; /* blue-400 */
+  }
+
+  .dark .mobile-nav-item.active .icon,
+  .dark .sidebar-item.active .icon,
+  .dark .mobile-nav-item.active svg,
+  .dark .sidebar-item.active svg {
+    color: #60a5fa !important; /* blue-400 */
+  }
+
+  .dark .sidebar-divider {
+    background: #374151 !important; /* gray-700 */
+  }
+
+  .dark .sidebar-group-title {
+    color: #6b7280 !important; /* gray-500 */
+  }
+
+  /* تحسينات الأداء */
+  .mobile-sidebar *,
+  .sidebar-mobile * {
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+  }
+
+  /* تحسين التمرير */
+  .mobile-sidebar,
+  .sidebar-mobile {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important; /* Firefox */
+  }
+
+  .mobile-sidebar::-webkit-scrollbar,
+  .sidebar-mobile::-webkit-scrollbar {
+    display: none !important; /* Chrome, Safari */
+  }
+
+  /* منع تأثيرات الانتقال أثناء التمرير */
+  .mobile-sidebar.scrolling .mobile-nav-item,
+  .sidebar-mobile.scrolling .sidebar-item {
+    transition: none !important;
+  }
+}
+
+/* ===== تحسينات للشاشات الصغيرة جداً (أقل من 375px) ===== */
+@media (max-width: 375px) {
+  .mobile-sidebar,
+  .sidebar-mobile {
+    width: 280px !important;
+    max-width: 90vw !important;
+  }
+
+  .mobile-nav-item,
+  .sidebar-item {
+    padding: 6px 10px !important;
+    gap: 10px !important;
+  }
+
+  .mobile-nav-item .icon,
+  .sidebar-item .icon,
+  .mobile-nav-item svg,
+  .sidebar-item svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .mobile-nav-item .text,
+  .sidebar-item .text,
+  .mobile-nav-item span:not(.badge),
+  .sidebar-item span:not(.badge) {
+    font-size: 13px !important;
+  }
+}
+
+/* ===== تحسينات إضافية للإمكانية الوصول ===== */
+@media (max-width: 768px) {
+  /* تحسين التباين للمستخدمين ذوي الإعاقة البصرية */
+  @media (prefers-contrast: high) {
+    .mobile-nav-item,
+    .sidebar-item {
+      border: 1px solid #d1d5db !important;
+    }
+
+    .mobile-nav-item.active,
+    .sidebar-item.active {
+      border-color: #2563eb !important;
+    }
+  }
+
+  /* تحسين للمستخدمين الذين يفضلون تقليل الحركة */
+  @media (prefers-reduced-motion: reduce) {
+    .mobile-nav-item,
+    .sidebar-item {
+      transition: none !important;
+    }
+
+    .mobile-nav-item:active,
+    .sidebar-item:active {
+      transform: none !important;
+    }
+  }
+
+  /* دعم القارئات الصوتية */
+  .mobile-nav-item:focus-visible,
+  .sidebar-item:focus-visible {
+    outline: 2px solid #2563eb !important;
+    outline-offset: 2px !important;
+  }
+}
+
+/* ===== أنماط مساعدة لأنواع مختلفة من العناصر ===== */
+@media (max-width: 768px) {
+  /* عنصر خطر */
+  .mobile-nav-item.danger,
+  .sidebar-item.danger {
+    color: #dc2626 !important; /* red-600 */
+  }
+
+  .mobile-nav-item.danger .icon,
+  .sidebar-item.danger .icon,
+  .mobile-nav-item.danger svg,
+  .sidebar-item.danger svg {
+    color: #dc2626 !important;
+  }
+
+  .mobile-nav-item.danger:hover,
+  .sidebar-item.danger:hover {
+    background: rgba(220, 38, 38, 0.1) !important;
+  }
+
+  /* عنصر تحذير */
+  .mobile-nav-item.warning,
+  .sidebar-item.warning {
+    color: #d97706 !important; /* orange-600 */
+  }
+
+  .mobile-nav-item.warning .icon,
+  .sidebar-item.warning .icon,
+  .mobile-nav-item.warning svg,
+  .sidebar-item.warning svg {
+    color: #d97706 !important;
+  }
+
+  /* عنصر نجاح */
+  .mobile-nav-item.success,
+  .sidebar-item.success {
+    color: #059669 !important; /* green-600 */
+  }
+
+  .mobile-nav-item.success .icon,
+  .sidebar-item.success .icon,
+  .mobile-nav-item.success svg,
+  .sidebar-item.success svg {
+    color: #059669 !important;
+  }
+
+  /* عنصر غير نشط */
+  .mobile-nav-item.disabled,
+  .sidebar-item.disabled {
+    opacity: 0.5 !important;
+    pointer-events: none !important;
+  }
+}
