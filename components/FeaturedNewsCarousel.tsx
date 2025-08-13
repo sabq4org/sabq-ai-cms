@@ -151,11 +151,19 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
 
               {/* Overlay متدرج للجوال - عنصر ابن مباشر */}
               {/* استخدمنا z-10 لوضعه فوق الصورة */}
-              <div className="lg:hidden absolute bottom-0 left-0 right-0 h-2/3 z-10 bg-gradient-to-t from-black/90 via-black/60 to-transparent" />
+              {/* إضافة transform: translateZ(0) لحل مشكلة التسريع العتادي */}
+              <div 
+                className="lg:hidden absolute bottom-0 left-0 right-0 h-2/3 z-10 bg-gradient-to-t from-black/90 via-black/60 to-transparent" 
+                style={{ transform: 'translateZ(0)' }}
+              />
               
               {/* المحتوى (العنوان والمعلومات) - عنصر ابن مباشر */}
               {/* استخدمنا z-20 لوضعه فوق الـ Overlay */}
-              <div className="lg:hidden absolute bottom-0 left-0 right-0 z-20 p-4 flex flex-col justify-end h-full">
+              {/* إضافة transform: translateZ(0) لحل مشكلة التسريع العتادي */}
+              <div 
+                className="lg:hidden absolute inset-0 z-20 p-4 flex flex-col justify-end"
+                style={{ transform: 'translateZ(0)' }}
+              >
                 {/* حاوية للمحتوى لدفعه للأسفل */}
                 <div className="mt-auto">
                     {/* معلومات التصنيف والتاريخ */}
