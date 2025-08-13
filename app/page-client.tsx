@@ -657,7 +657,7 @@ function NewspaperHomePage({
     try {
       console.log(`🔍 جلب مقالات التصنيف ID: ${categoryId}`);
       const res = await fetch(
-        `/api/news?status=published&category=${categoryId}&limit=20&sort=published_at&order=desc`
+        `/api/articles?status=published&category_id=${categoryId}&limit=20&sort=created_at&order=desc`
       );
       const json = await res.json();
 
@@ -804,14 +804,14 @@ function NewspaperHomePage({
                         <button
                           key={category.id}
                           onClick={() => handleCategoryClick(category.id)}
-                          className={`group px-3 py-2 sm:px-4 md:px-6 sm:py-3 rounded-xl font-medium text-xs sm:text-sm transition-all duration-300 transform hover:scale-105 relative ${
+                          className={`group px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg font-medium text-xs transition-all duration-300 transform hover:scale-105 relative ${
                             selectedCategory === category.id
                               ? darkMode
-                                ? "bg-blue-600 text-white border-2 border-blue-500 shadow-lg dark:shadow-gray-900/50"
-                                : "bg-blue-500 text-white border-2 border-blue-400 shadow-lg dark:shadow-gray-900/50"
+                                ? "bg-blue-600 text-white border border-blue-500 shadow-md"
+                                : "bg-blue-500 text-white border border-blue-400 shadow-md"
                               : darkMode
                               ? "bg-blue-800/20 hover:bg-blue-700/30 text-blue-100 hover:text-blue-50 border border-blue-700/30 hover:border-blue-600/50"
-                              : "bg-white dark:bg-gray-800/80 hover:bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:text-blue-600 border border-blue-200/50 hover:border-blue-300 shadow-sm dark:shadow-gray-900/50 hover:shadow-lg dark:shadow-gray-900/50 backdrop-blur-sm"
+                              : "bg-white hover:bg-blue-50 text-gray-700 hover:text-blue-600 border border-gray-200 hover:border-blue-300 shadow-sm hover:shadow-md backdrop-blur-sm"
                           }`}
                         >
                           {/* شارة "مخصص" للتصنيفات المخصصة */}
@@ -824,27 +824,29 @@ function NewspaperHomePage({
                                 categoryIcons[category.name_ar] ||
                                 categoryIcons["default"];
                               return category.icon ? (
-                                <span className="text-sm sm:text-lg group-hover:scale-110 transition-transform duration-300">
+                                <span className="text-xs sm:text-sm group-hover:scale-110 transition-transform duration-300">
                                   {category.icon}
                                 </span>
                               ) : (
-                                <IconComponent className="w-3 h-3 sm:w-4 sm:h-4 group-hover:scale-110 transition-transform duration-300" />
+                                <IconComponent className="w-3 h-3 group-hover:scale-110 transition-transform duration-300" />
                               );
                             })()}
                             <span className="whitespace-nowrap">
                               {category.name_ar || category.name}
                             </span>
-                            <span
-                              className={`text-xs ${
-                                selectedCategory === category.id
-                                  ? "text-white/90"
-                                  : darkMode
-                                  ? "text-blue-200 opacity-60"
-                                  : "text-gray-500 dark:text-gray-400 dark:text-gray-500 opacity-60"
-                              }`}
-                            >
-                              ({category.articles_count || 0})
-                            </span>
+                            {(category.articles_count > 0) && (
+                              <span
+                                className={`text-xs ${
+                                  selectedCategory === category.id
+                                    ? "text-white/90"
+                                    : darkMode
+                                    ? "text-blue-200 opacity-70"
+                                    : "text-gray-500 opacity-70"
+                                }`}
+                              >
+                                ({category.articles_count})
+                              </span>
+                            )}
                           </div>
                         </button>
                       ))}
@@ -900,8 +902,8 @@ function NewspaperHomePage({
                           </div>
                         ) : categoryArticles.length > 0 ? (
                           <>
-                            {/* Grid Layout for Cards */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 content-start">
+                            {/* Grid Layout for Cards - محسن للنسخة الخفيفة */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 content-start">
                               {categoryArticles.map((article: any) => (
                                 <Link
                                   key={article.id}
@@ -909,14 +911,14 @@ function NewspaperHomePage({
                                   className="group"
                                 >
                                   <article
-                                    className={`h-full rounded-3xl overflow-hidden shadow-xl dark:shadow-gray-900/50 transition-all duration-300 transform ${
+                                    className={`h-full rounded-xl overflow-hidden shadow-md transition-all duration-300 transform hover:scale-[1.02] ${
                                       darkMode
                                         ? "bg-gray-800 border border-gray-700"
-                                        : "bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700"
+                                        : "bg-white border border-gray-100"
                                     }`}
                                   >
                                     {/* صورة المقال */}
-                                    <div className="relative h-40 sm:h-48 overflow-hidden">
+                                    <div className="relative h-32 sm:h-36 overflow-hidden">
                                       <CloudImage
                                         src={article?.image || null}
                                         alt={article?.title || "صورة المقال"}
@@ -926,15 +928,15 @@ function NewspaperHomePage({
                                         priority={false}
                                       />
                                       {/* Category Badge */}
-                                      <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
+                                      <div className="absolute top-2 right-2">
                                         <span
-                                          className={`inline-flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-bold ${
+                                          className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium ${
                                             darkMode
                                               ? "bg-blue-900/80 text-blue-200 backdrop-blur-sm"
                                               : "bg-blue-500/90 text-white backdrop-blur-sm"
                                           }`}
                                         >
-                                          <Tag className="w-2 h-2 sm:w-3 sm:h-3" />
+                                          <Tag className="w-2 h-2" />
                                           {
                                             categories.find(
                                               (c) => c.id === selectedCategory
@@ -944,13 +946,13 @@ function NewspaperHomePage({
                                       </div>
                                     </div>
                                     {/* محتوى البطاقة */}
-                                    <div className="p-4 sm:p-5">
+                                    <div className="p-3 sm:p-4">
                                       {/* العنوان */}
                                       <h4
-                                        className={`font-bold text-base sm:text-lg mb-3 line-clamp-2 ${
+                                        className={`font-semibold text-sm sm:text-base mb-2 line-clamp-2 ${
                                           darkMode
                                             ? "text-white"
-                                            : "text-gray-900 dark:text-white"
+                                            : "text-gray-900"
                                         } transition-colors`}
                                         title={article.title}
                                       >
@@ -959,104 +961,58 @@ function NewspaperHomePage({
                                       {/* الملخص */}
                                       {article.summary && (
                                         <p
-                                          className={`text-sm mb-4 line-clamp-2 transition-colors duration-300 text-gray-600 dark:text-gray-400 dark:text-gray-500`}
+                                          className={`text-xs sm:text-sm mb-3 line-clamp-2 transition-colors duration-300 ${
+                                            darkMode
+                                              ? "text-gray-400"
+                                              : "text-gray-600"
+                                          }`}
                                         >
                                           {article.summary}
                                         </p>
                                       )}
                                       {/* التفاصيل السفلية */}
                                       <div
-                                        className={`flex items-center justify-between pt-3 sm:pt-4 border-t ${
+                                        className={`flex items-center justify-between pt-2 border-t ${
                                           darkMode
                                             ? "border-gray-700"
-                                            : "border-gray-100 dark:border-gray-700"
+                                            : "border-gray-100"
                                         }`}
                                       >
                                         {/* المعلومات */}
-                                        <div className="flex flex-col gap-1">
-                                          {/* التاريخ والوقت */}
-                                          <div className="flex items-center gap-2 sm:gap-3 text-xs">
-                                            <div className="text-sm text-gray-500 flex items-center gap-2">
-                                              <Clock className="w-4 h-4" />
-                                              <SafeDate
-                                                date={
-                                                  article.published_at ||
-                                                  article.created_at
-                                                }
-                                              />
-                                            </div>
-                                            {article.reading_time && (
-                                              <span
-                                                className={`flex items-center gap-1 ${
-                                                  darkMode
-                                                    ? "text-gray-400 dark:text-gray-500"
-                                                    : "text-gray-500 dark:text-gray-400 dark:text-gray-500"
-                                                }`}
-                                              >
-                                                <Clock className="w-3 h-3" />
-                                                {article.reading_time} د
-                                              </span>
-                                            )}
+                                        <div className="flex items-center gap-2 text-xs">
+                                          <div className={`flex items-center gap-1 ${
+                                            darkMode ? "text-gray-400" : "text-gray-500"
+                                          }`}>
+                                            <Clock className="w-3 h-3" />
+                                            <SafeDate
+                                              date={
+                                                article.published_at ||
+                                                article.created_at
+                                              }
+                                            />
                                           </div>
-                                          {/* الكاتب والمشاهدات */}
-                                          <div className="flex items-center gap-2 sm:gap-3 text-xs">
-                                            {article.author_name && (
-                                              <span
-                                                className={`flex items-center gap-1 ${
-                                                  darkMode
-                                                    ? "text-gray-400 dark:text-gray-500"
-                                                    : "text-gray-500 dark:text-gray-400 dark:text-gray-500"
-                                                }`}
-                                              >
-                                                <User className="w-3 h-3" />
-                                                {article.author_name}
-                                              </span>
-                                            )}
+                                          {article.reading_time && (
                                             <span
                                               className={`flex items-center gap-1 ${
-                                                darkMode
-                                                  ? "text-gray-400 dark:text-gray-500"
-                                                  : "text-gray-500 dark:text-gray-400 dark:text-gray-500"
+                                                darkMode ? "text-gray-400" : "text-gray-500"
+                                              }`}
+                                            >
+                                              {article.reading_time} د
+                                            </span>
+                                          )}
+                                        </div>
+                                        {/* زر القراءة */}
+                                        <div className="flex items-center gap-2">
+                                          {article.view_count > 0 && (
+                                            <span
+                                              className={`flex items-center gap-1 ${
+                                                darkMode ? "text-gray-400" : "text-gray-500"
                                               }`}
                                             >
                                               <Eye className="w-3 h-3" />
-                                              {article.views_count || 0}
+                                              {article.view_count}
                                             </span>
-                                            {typeof article.comments_count ===
-                                              "number" &&
-                                              article.comments_count > 0 && (
-                                                <span
-                                                  className={`flex items-center gap-1 ${
-                                                    darkMode
-                                                      ? "text-gray-400 dark:text-gray-500"
-                                                      : "text-gray-500 dark:text-gray-400 dark:text-gray-500"
-                                                  }`}
-                                                >
-                                                  <MessageSquare className="w-3 h-3" />
-                                                  {new Intl.NumberFormat("ar", {
-                                                    notation: "compact",
-                                                  }).format(
-                                                    article.comments_count
-                                                  )}
-                                                </span>
-                                              )}
-                                          </div>
-                                        </div>
-                                        {/* زر القراءة */}
-                                        <div
-                                          className={`p-2 rounded-xl transition-all ${
-                                            darkMode
-                                              ? "bg-blue-900/20"
-                                              : "bg-blue-50 dark:bg-blue-900/20"
-                                          }`}
-                                        >
-                                          <ArrowLeft
-                                            className={`w-4 h-4 transition-transform ${
-                                              darkMode
-                                                ? "text-blue-400"
-                                                : "text-blue-600"
-                                            }`}
-                                          />
+                                          )}
                                         </div>
                                       </div>
                                     </div>
@@ -1099,7 +1055,8 @@ function NewspaperHomePage({
                             }`}
                           >
                             <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                            <p>لا توجد مقالات منشورة في هذا التصنيف حالياً</p>
+                            <p className="text-base font-medium mb-2">لا توجد مقالات في هذا التصنيف</p>
+                            <p className="text-sm opacity-70">تفقد التصنيفات الأخرى أو عُد لاحقاً</p>
                           </div>
                         )}
                       </div>

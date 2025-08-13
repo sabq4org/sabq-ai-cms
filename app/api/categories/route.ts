@@ -12,11 +12,28 @@ export async function GET(request: NextRequest) {
       orderBy: {
         display_order: "asc",
       },
+      include: {
+        _count: {
+          select: {
+            articles: {
+              where: {
+                status: "published",
+              },
+            },
+          },
+        },
+      },
     });
+
+    // إضافة عدد المقالات إلى كل تصنيف
+    const categoriesWithCount = categories.map((category) => ({
+      ...category,
+      articles_count: category._count.articles,
+    }));
 
     return NextResponse.json({
       success: true,
-      categories: categories,
+      categories: categoriesWithCount,
     });
   } catch (error: any) {
     return NextResponse.json(
