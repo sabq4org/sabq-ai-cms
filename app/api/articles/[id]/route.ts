@@ -157,40 +157,107 @@ export async function GET(
     const authorAvatar =
       article.article_author?.avatar_url || article.author?.avatar || null;
 
-    // معالجة الكلمات المفتاحية (tags)
+    // معالجة الكلمات المفتاحية (tags) وseo_keywords
     let tags = [];
+    let keywords = [];
+    
     try {
-      if (article.tags && Array.isArray(article.tags)) {
-        tags = article.tags;
-      } else if (article.tags && typeof article.tags === 'string') {
-        // تجربة تحليل النص إلى مصفوفة
-        try {
-          tags = JSON.parse(article.tags);
-          if (!Array.isArray(tags)) {
-            tags = [];
+      // أولاً نحاول استخراج الكلمات المفتاحية من seo_keywords (أولوية أعلى)
+      if (article.seo_keywords) {
+        console.log("🔑 استخراج الكلمات المفتاحية من seo_keywords:", article.seo_keywords);
+        
+        if (Array.isArray(article.seo_keywords)) {
+          keywords = article.seo_keywords;
+        } else if (typeof article.seo_keywords === 'string') {
+          try {
+            // محاولة تحليل JSON
+            const parsedKeywords = JSON.parse(article.seo_keywords);
+            keywords = Array.isArray(parsedKeywords) ? parsedKeywords : [article.seo_keywords];
+          } catch (e) {
+            // إذا لم تكن JSON صالح، نفترض أنها قائمة مفصولة بفواصل
+            keywords = article.seo_keywords.split(',').map(k => k.trim()).filter(Boolean);
           }
-        } catch (e) {
-          // إذا فشل التحليل، قد يكون قائمة مفصولة بفاصلة
-          tags = article.tags.split(',').map(tag => tag.trim()).filter(Boolean);
+        } else {
+          keywords = article.seo_keywords ? [String(article.seo_keywords)] : [];
         }
-      } else if (article.seo_keywords) {
-        // استخدام الكلمات المفتاحية من حقل آخر إذا كان متاحًا
-        tags = typeof article.seo_keywords === 'string' 
-          ? article.seo_keywords.split(',').map(tag => tag.trim()).filter(Boolean)
-          : [];
-      } else {
-        tags = [];
+        
+        console.log("✅ الكلمات المفتاحية من seo_keywords بعد المعالجة:", keywords);
+      }
+      
+      // ثم نحاول استخراج الكلمات المفتاحية من metadata.keywords أو metadata.seo_keywords
+      if ((!keywords || keywords.length === 0) && article.metadata) {
+        const metadata = typeof article.metadata === 'string' ? JSON.parse(article.metadata) : article.metadata;
+        
+        if (metadata.keywords || metadata.seo_keywords) {
+          const metaKeywords = metadata.seo_keywords || metadata.keywords;
+          console.log("🔑 استخراج الكلمات المفتاحية من metadata:", metaKeywords);
+          
+          if (Array.isArray(metaKeywords)) {
+            keywords = metaKeywords;
+          } else if (typeof metaKeywords === 'string') {
+            try {
+              const parsedKeywords = JSON.parse(metaKeywords);
+              keywords = Array.isArray(parsedKeywords) ? parsedKeywords : [metaKeywords];
+            } catch (e) {
+              keywords = metaKeywords.split(',').map(k => k.trim()).filter(Boolean);
+            }
+          } else if (metaKeywords) {
+            keywords = [String(metaKeywords)];
+          }
+          
+          console.log("✅ الكلمات المفتاحية من metadata بعد المعالجة:", keywords);
+        }
+      }
+      
+      // أخيراً نحاول استخراج العلامات (tags) التقليدية
+      if ((!keywords || keywords.length === 0) && article.tags) {
+        console.log("🏷️ استخراج العلامات من tags:", article.tags);
+        
+        if (Array.isArray(article.tags)) {
+          tags = article.tags;
+        } else if (typeof article.tags === 'string') {
+          try {
+            const parsedTags = JSON.parse(article.tags);
+            tags = Array.isArray(parsedTags) ? parsedTags : [article.tags];
+          } catch (e) {
+            tags = article.tags.split(',').map(tag => tag.trim()).filter(Boolean);
+          }
+        } else {
+          tags = article.tags ? [String(article.tags)] : [];
+        }
+        
+        // إذا وجدنا العلامات ولم نجد كلمات مفتاحية، نستخدم العلامات كبديل
+        if (tags.length > 0 && (!keywords || keywords.length === 0)) {
+          keywords = tags;
+        }
+        
+        console.log("✅ العلامات المستخرجة:", tags);
       }
       
       // تسجيل للمساعدة في التشخيص
-      console.log("🏷️ الكلمات المفتاحية المستخرجة:", {
-        originalTags: article.tags,
-        processedTags: tags,
-        type: typeof article.tags,
-        hasSeoKeywords: !!article.seo_keywords
+      console.log("🔍 معلومات الكلمات المفتاحية والعلامات:", {
+        seo_keywords: {
+          original: article.seo_keywords,
+          processed: keywords,
+          type: typeof article.seo_keywords
+        },
+        tags: {
+          original: article.tags,
+          processed: tags,
+          type: typeof article.tags
+        },
+        metadata: {
+          hasKeywords: article.metadata && (typeof article.metadata === 'string' ? 
+            JSON.parse(article.metadata).keywords !== undefined : 
+            article.metadata.keywords !== undefined),
+          hasSeoKeywords: article.metadata && (typeof article.metadata === 'string' ? 
+            JSON.parse(article.metadata).seo_keywords !== undefined : 
+            article.metadata.seo_keywords !== undefined)
+        }
       });
     } catch (error) {
       console.error("❌ خطأ في معالجة الكلمات المفتاحية:", error);
+      keywords = [];
       tags = [];
     }
 
@@ -200,8 +267,16 @@ export async function GET(
       image: article.featured_image,
       image_url: article.featured_image,
       category: categoryInfo,
-      // ضمان إرجاع الكلمات المفتاحية كمصفوفة
+      // ضمان إرجاع الكلمات المفتاحية كمصفوفة في جميع الحقول المتوقعة
       tags: tags,
+      keywords: keywords,
+      seo_keywords: keywords,
+      // ضمان وجود الكلمات المفتاحية في metadata أيضًا
+      metadata: {
+        ...article.metadata,
+        keywords: keywords,
+        seo_keywords: keywords
+      },
       // إعطاء أولوية لكاتب المقال الحقيقي من article_authors
       author_name: authorName,
       author_title: article.article_author?.title || null,
@@ -350,6 +425,68 @@ export async function PATCH(
       updated_at: new Date(),
     };
 
+    // معالجة خاصة للكلمات المفتاحية (seo_keywords)
+    if (data.seo_keywords !== undefined) {
+      // تحويل الكلمات المفتاحية إلى تنسيق مناسب
+      try {
+        console.log("🔑 معالجة الكلمات المفتاحية:", data.seo_keywords);
+        
+        // تنظيف وتهيئة البيانات
+        let keywords = data.seo_keywords;
+        
+        if (Array.isArray(keywords)) {
+          // إذا كانت مصفوفة، نستخدمها مباشرة
+          updateData.seo_keywords = keywords;
+        } else if (typeof keywords === 'string') {
+          // إذا كانت نصًا قد يكون JSON، نحاول تحليلها
+          try {
+            const parsedKeywords = JSON.parse(keywords);
+            updateData.seo_keywords = Array.isArray(parsedKeywords) ? parsedKeywords : [keywords];
+          } catch (e) {
+            // إذا لم تكن JSON صالح، نفترض أنها قائمة مفصولة بفواصل
+            updateData.seo_keywords = keywords.split(',').map(k => k.trim()).filter(Boolean);
+          }
+        } else if (keywords) {
+          // أي نوع آخر، نحوله إلى نص ثم إلى مصفوفة
+          updateData.seo_keywords = [String(keywords)];
+        } else {
+          // إذا كانت فارغة، نضع مصفوفة فارغة
+          updateData.seo_keywords = [];
+        }
+        
+        console.log("✅ الكلمات المفتاحية بعد المعالجة:", updateData.seo_keywords);
+      } catch (error) {
+        console.error("❌ خطأ في معالجة الكلمات المفتاحية:", error);
+        // في حالة الخطأ، استخدم مصفوفة فارغة كقيمة افتراضية آمنة
+        updateData.seo_keywords = [];
+      }
+    }
+    
+    // إذا كانت هناك كلمات مفتاحية في metadata، استخرجها أيضًا
+    if (data.metadata?.keywords !== undefined && !data.seo_keywords) {
+      try {
+        console.log("🔑 استخراج الكلمات المفتاحية من metadata:", data.metadata.keywords);
+        
+        let metadataKeywords = data.metadata.keywords;
+        if (Array.isArray(metadataKeywords)) {
+          updateData.seo_keywords = metadataKeywords;
+        } else if (typeof metadataKeywords === 'string') {
+          try {
+            const parsedKeywords = JSON.parse(metadataKeywords);
+            updateData.seo_keywords = Array.isArray(parsedKeywords) ? parsedKeywords : [metadataKeywords];
+          } catch (e) {
+            updateData.seo_keywords = metadataKeywords.split(',').map(k => k.trim()).filter(Boolean);
+          }
+        } else if (metadataKeywords) {
+          updateData.seo_keywords = [String(metadataKeywords)];
+        }
+        
+        console.log("✅ الكلمات المفتاحية من metadata بعد المعالجة:", updateData.seo_keywords);
+      } catch (error) {
+        console.error("❌ خطأ في استخراج الكلمات المفتاحية من metadata:", error);
+      }
+    }
+
     // نسخ الحقول المسموح بها فقط
     const allowedFields = [
       "title",
@@ -361,7 +498,7 @@ export async function PATCH(
       "published_at",
       "seo_title",
       "seo_description",
-      "seo_keywords",
+      // "seo_keywords", - تمت معالجته بشكل خاص أعلاه
       "breaking",
       // 'featured' تمت إزالته من هنا وسيتم معالجته بشكل خاص
       // الحقول غير الموجودة في schema: subtitle, type, image_caption, author_name, publish_at, external_link

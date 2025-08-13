@@ -67,12 +67,42 @@ export function SEOStep({
     }
   };
 
-  // إضافة كلمة مفتاحية
-  const addKeyword = (keyword: string) => {
-    if (keyword && !formData.keywords.includes(keyword)) {
+  // تأكد من أن keywords دائمًا مصفوفة
+  const ensureKeywordsArray = () => {
+    if (!formData.keywords) {
       setFormData((prev: any) => ({
         ...prev,
-        keywords: [...prev.keywords, keyword]
+        keywords: []
+      }));
+      return [];
+    } else if (!Array.isArray(formData.keywords)) {
+      // إذا كانت نصًا أو أي نوع آخر، نحولها إلى مصفوفة
+      const convertedKeywords = typeof formData.keywords === 'string' 
+        ? formData.keywords.split(',').map((k: string) => k.trim()).filter((k: string) => k)
+        : [String(formData.keywords)];
+      
+      setFormData((prev: any) => ({
+        ...prev,
+        keywords: convertedKeywords
+      }));
+      
+      return convertedKeywords;
+    }
+    return formData.keywords;
+  };
+
+  // استدعاء التحويل عند تحميل المكون
+  React.useEffect(() => {
+    ensureKeywordsArray();
+  }, []);
+
+  // إضافة كلمة مفتاحية
+  const addKeyword = (keyword: string) => {
+    const keywords = ensureKeywordsArray();
+    if (keyword && !keywords.includes(keyword)) {
+      setFormData((prev: any) => ({
+        ...prev,
+        keywords: [...keywords, keyword]
       }));
       setCurrentKeyword('');
     }
@@ -80,9 +110,10 @@ export function SEOStep({
 
   // حذف كلمة مفتاحية
   const removeKeyword = (keyword: string) => {
+    const keywords = ensureKeywordsArray();
     setFormData((prev: any) => ({
       ...prev,
-      keywords: prev.keywords.filter((k: string) => k !== keyword)
+      keywords: keywords.filter((k: string) => k !== keyword)
     }));
   };
 
@@ -99,10 +130,11 @@ export function SEOStep({
   // حساب جودة SEO
   const getSEOScore = () => {
     let score = 0;
+    const keywordsLength = Array.isArray(formData.keywords) ? formData.keywords.length : 0;
     const checks = {
-      title: formData.title.length >= 30 && formData.title.length <= 60,
-      description: formData.seoDescription.length >= 120 && formData.seoDescription.length <= 160,
-      keywords: formData.keywords.length >= 3 && formData.keywords.length <= 5,
+      title: formData.title && formData.title.length >= 30 && formData.title.length <= 60,
+      description: formData.seoDescription && formData.seoDescription.length >= 120 && formData.seoDescription.length <= 160,
+      keywords: keywordsLength >= 3 && keywordsLength <= 5,
       image: !!formData.featuredImage
     };
     
@@ -161,7 +193,7 @@ export function SEOStep({
               الكلمات المفتاحية (3-5)
             </span>
             <span className={`text-sm ${checks.keywords ? 'text-green-600' : 'text-red-600'}`}>
-              {formData.keywords.length} كلمات
+              {Array.isArray(formData.keywords) ? formData.keywords.length : 0} كلمات
             </span>
           </div>
           <div className="flex items-center justify-between">
@@ -231,7 +263,7 @@ export function SEOStep({
         <div className="flex items-center justify-between mb-3">
           <Label className="text-base font-medium">
             الكلمات المفتاحية
-            {formData.keywords.length > 0 && (
+            {Array.isArray(formData.keywords) && formData.keywords.length > 0 && (
               <span className="text-sm text-gray-500 font-normal mr-2">
                 ({formData.keywords.length})
               </span>
@@ -255,18 +287,26 @@ export function SEOStep({
 
         {/* عرض الكلمات المفتاحية */}
         <div className="flex flex-wrap gap-2 mb-3">
-          {formData.keywords.map((keyword: string, index: number) => (
-            <span key={index} className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-sm flex items-center gap-1">
-              <Hash className="w-3 h-3" />
-              {keyword}
-              <button
-                onClick={() => removeKeyword(keyword)}
-                className="ml-1 hover:text-purple-900 dark:hover:text-purple-100"
-              >
-                <X className="w-3 h-3" />
-              </button>
-            </span>
-          ))}
+          {Array.isArray(formData.keywords) ? (
+            formData.keywords.length > 0 ? (
+              formData.keywords.map((keyword: string, index: number) => (
+                <span key={index} className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-sm flex items-center gap-1">
+                  <Hash className="w-3 h-3" />
+                  {keyword}
+                  <button
+                    onClick={() => removeKeyword(keyword)}
+                    className="ml-1 hover:text-purple-900 dark:hover:text-purple-100"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              ))
+            ) : (
+              <span className="text-sm text-gray-500">لم يتم إضافة كلمات مفتاحية بعد</span>
+            )
+          ) : (
+            <span className="text-sm text-gray-500">جاري تحميل الكلمات المفتاحية...</span>
+          )}
         </div>
 
         {/* إضافة كلمة مفتاحية */}

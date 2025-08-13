@@ -46,48 +46,51 @@ export default function FeaturedMobileCard({ article, className = '' }: Featured
   return (
     <div className={`relative w-full md:w-[calc(100%+32px)] md:-mr-4 md:-ml-4 overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] ${className}`}>
       <Link href={getArticleLink(article)} className="block relative">
-        {/* الصورة الأساسية محسنة للموبايل */}
-        <div className="relative w-full h-[280px] sm:h-[320px] overflow-hidden">
-          <Image
-            src={imageUrl}
-            alt={article.title}
-            fill
-            className="object-cover transition-transform duration-500 hover:scale-105"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
-            priority
-            onLoad={() => setImageLoaded(true)}
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = generatePlaceholderImage(article.title, 'article');
-            }}
-          />
+        {/* المكون الكامل كـ flex column */}
+        <div className="flex flex-col">
+          {/* قسم الصورة - الجزء العلوي */}
+          <div className="relative w-full h-[280px] sm:h-[320px] overflow-hidden">
+            <Image
+              src={imageUrl}
+              alt={article.title}
+              fill
+              className="object-cover transition-transform duration-500 hover:scale-105"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
+              priority
+              onLoad={() => setImageLoaded(true)}
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = generatePlaceholderImage(article.title, 'article');
+              }}
+            />
           
-          {/* Loading placeholder */}
-          {!imageLoaded && (
-            <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse flex items-center justify-center">
-              <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 animate-bounce" />
+            {/* Loading placeholder */}
+            {!imageLoaded && (
+              <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 animate-bounce" />
+              </div>
+            )}
+
+            {/* وسم "مميز" في الزاوية العلوية اليمنى - بحجم على قدر الكلمة */}
+            <div className="absolute top-3 right-3 z-30 bg-gradient-to-l from-yellow-500 to-amber-600 text-white px-3 py-1.5 text-xs rounded-full shadow-md flex items-center gap-1 font-bold">
+              <span className="text-yellow-200">✨</span>
+              مميز
             </div>
-          )}
 
-          {/* Overlay Gradient - طبقة ضبابية سوداء لتمييز العنوان */}
-          <div className="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-black/70 to-transparent z-10" />
-
-          {/* وسم "مميز" في الزاوية العلوية اليمنى */}
-          <div className="absolute top-3 right-3 z-30 bg-yellow-500 text-white px-2 py-1 text-xs rounded flex items-center gap-1">
-            مميز ✨
+            {/* شارة عاجل إذا كانت موجودة */}
+            {article.breaking && (
+              <div className="absolute top-3 left-3 z-30 bg-red-500 text-white px-2 py-1 text-xs rounded flex items-center gap-1 animate-pulse">
+                <span className="w-1.5 h-1.5 bg-white rounded-full animate-ping" />
+                عاجل
+              </div>
+            )}
           </div>
 
-          {/* شارة عاجل إذا كانت موجودة */}
-          {article.breaking && (
-            <div className="absolute top-3 left-3 z-30 bg-red-500 text-white px-2 py-1 text-xs rounded flex items-center gap-1 animate-pulse">
-              <span className="w-1.5 h-1.5 bg-white rounded-full animate-ping" />
-              عاجل
-            </div>
-          )}
-
-          {/* العنوان فوق الطبقة الضبابية */}
-          <div className="absolute bottom-4 left-4 right-4 z-20 text-white text-lg font-semibold leading-snug">
-            {article.title}
+          {/* قسم العنوان - أسفل الصورة */}
+          <div className="p-4 bg-white dark:bg-gray-800">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white leading-snug">
+              {article.title}
+            </h2>
           </div>
         </div>
       </Link>

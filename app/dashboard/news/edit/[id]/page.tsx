@@ -178,35 +178,108 @@ export default function EditArticlePage() {
             publishType: 'now',
             scheduledDate: '',
             keywords: (() => {
-              // محاولة جلب الكلمات المفتاحية من مصادر مختلفة
+              console.log('🔑 تشخيص البيانات المستلمة:', {
+                'metadata': article.metadata,
+                'metadata.keywords': article.metadata?.keywords,
+                'metadata.seo_keywords': article.metadata?.seo_keywords,
+                'direct_keywords': article.keywords,
+                'seo_keywords': article.seo_keywords,
+                'type_metadata_keywords': typeof article.metadata?.keywords,
+                'type_seo_keywords': typeof article.seo_keywords,
+                'type_direct_keywords': typeof article.keywords
+              });
+              
+              // 1. البحث في metadata.keywords (الأولوية الأولى)
               if (article.metadata?.keywords) {
                 if (Array.isArray(article.metadata.keywords)) {
+                  console.log('✅ تم العثور على كلمات مفتاحية في metadata.keywords كمصفوفة');
                   return article.metadata.keywords;
                 }
                 if (typeof article.metadata.keywords === 'string') {
                   try {
                     const parsed = JSON.parse(article.metadata.keywords);
-                    return Array.isArray(parsed) ? parsed : [];
+                    if (Array.isArray(parsed)) {
+                      console.log('✅ تم العثور على كلمات مفتاحية في metadata.keywords كـJSON string');
+                      return parsed;
+                    }
                   } catch {
                     // قد تكون مفصولة بفواصل
+                    console.log('✅ تم العثور على كلمات مفتاحية في metadata.keywords كنص مفصول بفواصل');
                     return article.metadata.keywords.split(',').map((k: string) => k.trim()).filter(Boolean);
                   }
                 }
               }
+              
+              // 2. البحث في seo_keywords مباشرة (الأولوية الثانية)
+              if (article.seo_keywords) {
+                if (Array.isArray(article.seo_keywords)) {
+                  console.log('✅ تم العثور على كلمات مفتاحية في seo_keywords كمصفوفة');
+                  return article.seo_keywords;
+                }
+                if (typeof article.seo_keywords === 'string') {
+                  try {
+                    const parsed = JSON.parse(article.seo_keywords);
+                    if (Array.isArray(parsed)) {
+                      console.log('✅ تم العثور على كلمات مفتاحية في seo_keywords كـJSON string');
+                      return parsed;
+                    }
+                  } catch {
+                    // قد تكون مفصولة بفواصل
+                    console.log('✅ تم العثور على كلمات مفتاحية في seo_keywords كنص مفصول بفواصل');
+                    return article.seo_keywords.split(',').map((k: string) => k.trim()).filter(Boolean);
+                  }
+                }
+              }
+              
+              // 3. البحث في metadata.seo_keywords (الأولوية الثالثة)
+              if (article.metadata?.seo_keywords) {
+                if (Array.isArray(article.metadata.seo_keywords)) {
+                  console.log('✅ تم العثور على كلمات مفتاحية في metadata.seo_keywords كمصفوفة');
+                  return article.metadata.seo_keywords;
+                }
+                if (typeof article.metadata.seo_keywords === 'string') {
+                  try {
+                    const parsed = JSON.parse(article.metadata.seo_keywords);
+                    if (Array.isArray(parsed)) {
+                      console.log('✅ تم العثور على كلمات مفتاحية في metadata.seo_keywords كـJSON string');
+                      return parsed;
+                    }
+                  } catch {
+                    // قد تكون مفصولة بفواصل
+                    console.log('✅ تم العثور على كلمات مفتاحية في metadata.seo_keywords كنص مفصول بفواصل');
+                    return article.metadata.seo_keywords.split(',').map((k: string) => k.trim()).filter(Boolean);
+                  }
+                }
+              }
+              
+              // 4. البحث في keywords مباشرة (الأولوية الرابعة)
               if (article.keywords) {
                 if (Array.isArray(article.keywords)) {
+                  console.log('✅ تم العثور على كلمات مفتاحية في keywords كمصفوفة');
                   return article.keywords;
                 }
                 if (typeof article.keywords === 'string') {
                   try {
                     const parsed = JSON.parse(article.keywords);
-                    return Array.isArray(parsed) ? parsed : [];
+                    if (Array.isArray(parsed)) {
+                      console.log('✅ تم العثور على كلمات مفتاحية في keywords كـJSON string');
+                      return parsed;
+                    }
                   } catch {
                     // قد تكون مفصولة بفواصل
+                    console.log('✅ تم العثور على كلمات مفتاحية في keywords كنص مفصول بفواصل');
                     return article.keywords.split(',').map((k: string) => k.trim()).filter(Boolean);
                   }
                 }
               }
+              
+              // 5. البحث في tags (الأولوية الخامسة)
+              if (article.tags && article.tags.length > 0) {
+                console.log('✅ تم العثور على كلمات مفتاحية في tags');
+                return Array.isArray(article.tags) ? article.tags : [article.tags];
+              }
+              
+              console.log('⚠️ لم يتم العثور على أي كلمات مفتاحية');
               return [];
             })(),
             seoTitle: article.metadata?.seo_title || article.seo_title || '',
@@ -274,6 +347,11 @@ export default function EditArticlePage() {
     try {
       const selectedAuthor = authors.find(a => a.id === formData.authorId);
       
+      // تأكد من أن الكلمات المفتاحية مصفوفة صالحة
+      const keywords = Array.isArray(formData.keywords) 
+        ? formData.keywords 
+        : (formData.keywords ? [formData.keywords] : []);
+      
       const articleData: any = {
         title: formData.title.trim(),
         content: editorRef.current ? editorRef.current.getHTML() : formData.content,
@@ -284,8 +362,12 @@ export default function EditArticlePage() {
         featured_image: formData.featuredImage || undefined,
         image_caption: formData.featuredImageCaption || undefined,
         status,
+        // إضافة seo_keywords مباشرة إلى الكائن الرئيسي
+        seo_keywords: keywords,
+        // تضمين الكلمات المفتاحية في metadata أيضاً للتوافق
         metadata: {
-          keywords: formData.keywords,
+          keywords: keywords,
+          seo_keywords: keywords, // تخزين نسخة في metadata.seo_keywords أيضاً
           seo_title: formData.seoTitle,
           seo_description: formData.seoDescription,
           is_featured: formData.isFeatured,
@@ -299,7 +381,11 @@ export default function EditArticlePage() {
       }
 
       console.log('📤 البيانات المرسلة للتحديث:', articleData);
-      console.log('🔑 الكلمات المفتاحية المرسلة:', articleData.metadata?.keywords);
+      console.log('🔑 الكلمات المفتاحية المرسلة:', {
+        'metadata.keywords': articleData.metadata?.keywords,
+        'metadata.seo_keywords': articleData.metadata?.seo_keywords,
+        'seo_keywords_direct': articleData.seo_keywords
+      });
       
       const response = await fetch(`/api/articles/${articleId}`, {
         method: 'PATCH',

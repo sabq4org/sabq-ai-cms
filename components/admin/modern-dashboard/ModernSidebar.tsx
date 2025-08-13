@@ -70,7 +70,6 @@ const sidebarItems: SidebarItem[] = [
     title: "إدارة الأخبار",
     icon: Newspaper,
     href: "/admin/news",
-    badge: "24",
     children: [
       { id: "news", title: "الأخبار", icon: Newspaper, href: "/admin/news" },
       {
@@ -93,9 +92,6 @@ const sidebarItems: SidebarItem[] = [
         title: "القصص الذكية",
         icon: Brain,
         href: "/admin/stories",
-        badge: "جديد",
-        badgeVariant: "secondary" as const,
-        isNew: true,
       },
 
       // نقل نظام مُقترب تحت إدارة الأخبار
@@ -104,9 +100,6 @@ const sidebarItems: SidebarItem[] = [
         title: "نظام مُقترب",
         icon: PenTool,
         href: "/admin/muqtarib",
-        badge: "جديد",
-        badgeVariant: "secondary" as const,
-        isNew: true,
         children: [
           {
             id: "muqtarib-dashboard",
@@ -129,9 +122,6 @@ const sidebarItems: SidebarItem[] = [
         title: "مكتبة الوسائط",
         icon: Folder,
         href: "/admin/modern/media",
-        badge: "جديد",
-        badgeVariant: "secondary" as const,
-        isNew: true,
       },
 
       // نقل النظم الصوتية تحت إدارة الأخبار
@@ -140,8 +130,6 @@ const sidebarItems: SidebarItem[] = [
         title: "النظم الصوتية",
         icon: Globe,
         href: "/admin/audio-programs",
-        badge: "مميز",
-        badgeVariant: "secondary" as const,
         children: [
           {
             id: "audio-programs",
@@ -164,34 +152,24 @@ const sidebarItems: SidebarItem[] = [
     title: "التحليلات المتقدمة",
     icon: BarChart3,
     href: "/admin/modern/analytics",
-    badge: "AI",
-    badgeVariant: "secondary",
-    isNew: true,
     children: [
       {
         id: "analytics-dashboard",
         title: "لوحة التحليلات",
         icon: BarChart3,
         href: "/test-analytics",
-        badge: "جديد",
-        badgeVariant: "destructive" as const,
-        isNew: true,
       },
       {
         id: "analytics-reports",
         title: "التقارير المفصلة",
         icon: FileText,
         href: "/admin/analytics/reports",
-        badge: "قريباً",
-        badgeVariant: "outline" as const,
       },
       {
         id: "analytics-insights",
         title: "الرؤى الذكية",
         icon: Brain,
         href: "/admin/analytics/insights",
-        badge: "قريباً",
-        badgeVariant: "outline" as const,
       },
     ],
   },
@@ -200,16 +178,12 @@ const sidebarItems: SidebarItem[] = [
     title: "الأنظمة الذكية",
     icon: Brain,
     href: "/dashboard/smart-blocks",
-    badge: "10",
-    badgeVariant: "secondary",
     children: [
       {
         id: "smart-entities",
         title: "الكيانات الذكية",
         icon: Network,
         href: "/admin/smart-entities",
-        badge: "جديد",
-        badgeVariant: "secondary" as const,
       },
       {
         id: "smart-blocks",
@@ -273,8 +247,6 @@ const sidebarItems: SidebarItem[] = [
     title: "برنامج الولاء",
     icon: Heart,
     href: "/admin/loyalty",
-    badge: "جديد",
-    badgeVariant: "outline",
     children: [
       {
         id: "loyalty-main",
@@ -307,26 +279,18 @@ const sidebarItems: SidebarItem[] = [
     title: "إدارة التنبيهات",
     icon: Bell,
     href: "/admin/notifications",
-    badge: "5",
-    badgeVariant: "destructive",
   },
   {
     id: "performance",
     title: "تحسين الأداء",
     icon: Zap,
     href: "/admin/performance-optimization",
-    badge: "NEW",
-    badgeVariant: "outline",
-    isNew: true,
   },
   {
     id: "themes",
     title: "السمات التكيفية",
     icon: Palette,
     href: "/admin/modern/adaptive-themes",
-    badge: "جديد",
-    badgeVariant: "secondary",
-    isNew: true,
   },
   {
     id: "external-data",
@@ -356,7 +320,6 @@ const sidebarItems: SidebarItem[] = [
     title: "التعليقات",
     icon: MessageSquare,
     href: "/admin/modern/comments",
-    badge: "12",
   },
   {
     id: "settings",
@@ -370,25 +333,18 @@ const sidebarItems: SidebarItem[] = [
         title: "تخصيص الشريط الجانبي",
         icon: LayoutDashboard,
         href: "/admin/settings/sidebar",
-        badge: "جديد",
-        badgeVariant: "secondary" as const,
-        isNew: true,
       },
       {
         id: "logo-manager",
         title: "إدارة اللوجو",
         icon: Palette,
         href: "/admin/logo-manager",
-        badge: "جديد",
-        badgeVariant: "secondary" as const,
       },
       {
         id: "vercel-analytics",
         title: "تحليلات Vercel",
         icon: BarChart3,
         href: "/admin/analytics/vercel",
-        badge: "جديد",
-        badgeVariant: "secondary" as const,
       },
       {
         id: "advanced",
