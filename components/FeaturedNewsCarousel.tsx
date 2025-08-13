@@ -159,11 +159,9 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
               {/* استخدمنا z-20 لوضعه فوق الـ Overlay */}
               {/* إضافة transform: translateZ(0) لحل مشكلة التسريع العتادي */}
               <div 
-                className="lg:hidden absolute inset-0 z-20 p-4 flex flex-col justify-end"
+                className="lg:hidden absolute bottom-0 left-0 right-0 z-30 p-4"
                 style={{ transform: 'translateZ(0)' }}
               >
-                {/* حاوية للمحتوى مع مساحة أكبر للنص */}
-                <div className="flex flex-col justify-end min-h-[120px]">
                     {/* معلومات التصنيف والتاريخ */}
                     <div className="flex items-center gap-2 mb-2 text-xs text-white" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.7)' }}>
                       <span className="text-sm">{currentArticle.category?.icon || '📰'}</span>
@@ -177,11 +175,13 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                       </span>
                     </div>
                     
-                    {/* العنوان */}
-                    <h3 className="text-white text-base font-bold leading-tight line-clamp-2" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>
-                      {currentArticle.title}
-                    </h3>
-                </div>
+                {/* العنوان */}
+                <h3 
+                  className="text-white text-base font-bold leading-tight line-clamp-2 bg-black/20 p-2 rounded-md" 
+                  style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.9)' }}
+                >
+                  {currentArticle.title}
+                </h3>
               </div>
             </div>
 
