@@ -1,7 +1,6 @@
 "use client";
 
 import Footer from "@/components/Footer";
-import "@/styles/muqtarab-featured-carousel.css";
 import { HeroCard } from "@/components/muqtarab/HeroCard";
 import WithMuqtarabErrorBoundary from "@/components/muqtarab/MuqtarabErrorBoundary";
 import { MuqtarabPageSkeleton } from "@/components/muqtarab/MuqtarabSkeletons";
