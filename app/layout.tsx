@@ -14,16 +14,24 @@ import "../styles/compact-stats.css";
 import "../styles/enhanced-dark-mode-mobile.css";
 import "../styles/enhanced-mobile-stats.css";
 import "../styles/featured-mobile-card.css";
+import "../styles/featured-news-carousel-fixes.css"; // إضافة إصلاحات كاروسيل الأخبار المميزة
 import "../styles/globals.css";
+import "../styles/home-word-cloud.css"; // أنماط سحابة الكلمات
+import "../styles/home-word-cloud-mobile-fix.css"; // إصلاحات محددة لمكون HomeWordCloud
+import "../styles/word-cloud-mobile.css"; // تحسينات سحابة الكلمات للجوال
+import "../styles/word-cloud-mobile-advanced.css"; // تحسينات متقدمة للجوال
+import "../styles/word-cloud-mobile-universal.css"; // تحسينات شاملة لجميع مكونات Word Cloud
+import "../styles/word-cloud-mobile-emergency-fix.css"; // إصلاحات طارئة لمشاكل الجوال
+import "../styles/word-cloud.css"; // أنماط مكون Word Cloud الجديد
 import "../styles/minimal-fix.css";
 import "../styles/mobile-internal-pages-fix.css";
 import "../styles/mobile-news.css";
+import "../styles/mobile-sidebar-compact.css"; // تحسينات القائمة الجانبية المحسنة للجوال
 import "../styles/mobile.css";
 import "../styles/muqtarab-animations.css";
-import "../styles/news-pulse-positioning.css";
+import "../styles/news-card-desktop.css";
 import "../styles/no-focus-outline.css";
 import "../styles/profile-mobile.css";
-import "../styles/pulse-ticker-center.css";
 import "../styles/remove-gap.css";
 import "../styles/responsive-ui.css";
 import "../styles/saas-dashboard.css";
@@ -33,6 +41,9 @@ import "../styles/tailwind-overrides.css";
 import "../styles/theme-manager.css";
 import "./globals.css";
 import { Providers } from "./providers";
+
+// لا نستخدم هنا dynamic import لأنها تسبب مشكلة في Next.js 15.4.1
+// لاحظ: أي مكون يستخدم hooks يجب أن يكون client component
 
 const ibmPlexArabic = IBM_Plex_Sans_Arabic({
   subsets: ["arabic"],
@@ -68,14 +79,16 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "ar_SA",
-    url: "https://sabq.me",
+    url: process.env.NEXT_PUBLIC_SITE_URL || "https://sabq.io",
     siteName: "سبق الذكية",
     title: "سبق الذكية - منصة الأخبار الذكية",
     description:
       "تابع أحدث الأخبار والتحليلات العميقة عبر منصة سبق الذكية المدعومة بالذكاء الاصطناعي.",
     images: [
       {
-        url: "https://sabq.me/og-image.jpg",
+        url: `${
+          process.env.NEXT_PUBLIC_SITE_URL || "https://sabq.io"
+        }/og-image.jpg`,
         width: 1200,
         height: 630,
         alt: "سبق الذكية - منصة الأخبار الذكية",
@@ -91,7 +104,9 @@ export const metadata: Metadata = {
     description:
       "تابع أحدث الأخبار والتحليلات العميقة عبر منصة سبق الذكية المدعومة بالذكاء الاصطناعي.",
     images: {
-      url: "https://sabq.me/og-image.jpg",
+      url: `${
+        process.env.NEXT_PUBLIC_SITE_URL || "https://sabq.io"
+      }/og-image.jpg`,
       alt: "سبق الذكية",
     },
   },
@@ -107,6 +122,7 @@ export const metadata: Metadata = {
     },
   },
   icons: {
+    // إزالة تعريف أيقونة من app/ لتفادي التعارض مع public/
     icon: [
       { url: "/favicon.ico" },
       { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
@@ -127,10 +143,10 @@ export const metadata: Metadata = {
     startupImage: "/apple-touch-icon.png",
   },
   alternates: {
-    canonical: "https://sabq.me",
+    canonical: process.env.NEXT_PUBLIC_SITE_URL || "https://sabq.io",
     languages: {
-      "ar-SA": "https://sabq.me",
-      ar: "https://sabq.me",
+      "ar-SA": process.env.NEXT_PUBLIC_SITE_URL || "https://sabq.io",
+      ar: process.env.NEXT_PUBLIC_SITE_URL || "https://sabq.io",
     },
   },
   category: "news",
@@ -171,24 +187,24 @@ export default function RootLayout({
         />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
 
-                {/* 🚨 CRITICAL: Production Error Protection - Must Load First */}
-        <script 
+        {/* 🚨 CRITICAL: Production Error Protection - Must Load First */}
+        <script
           dangerouslySetInnerHTML={{
             __html: `
               // Ultra-Aggressive React Error #130 Protection for Production
               (function() {
                 if (typeof window === 'undefined') return;
-                
+
                 // Immediate error blocking
                 var blocked = 0;
                 var originalError = console.error;
                 var originalWarn = console.warn;
-                
+
                 // Block all React #130 errors immediately
                 console.error = function() {
                   var args = Array.prototype.slice.call(arguments);
                   var str = args[0] ? String(args[0]) : '';
-                  
+
                   if (str.indexOf('Minified React error #130') !== -1 ||
                       str.indexOf('Element type is invalid') !== -1 ||
                       str.indexOf('undefined') !== -1 && str.indexOf('React') !== -1 ||
@@ -197,22 +213,22 @@ export default function RootLayout({
                     console.log('🛡️ Blocked error #' + blocked);
                     return; // Block completely
                   }
-                  
+
                   if (originalError) originalError.apply(console, args);
                 };
-                
+
                 // Block warnings too
                 console.warn = function() {
                   var args = Array.prototype.slice.call(arguments);
                   var str = args[0] ? String(args[0]) : '';
-                  
+
                   if (str.indexOf('لا توجد مقالات صالحة') !== -1) {
                     return; // Silent
                   }
-                  
+
                   if (originalWarn) originalWarn.apply(console, args);
                 };
-                
+
                 // Block window errors
                 window.addEventListener('error', function(e) {
                   if (e && e.error) {
@@ -227,7 +243,7 @@ export default function RootLayout({
                     }
                   }
                 }, true);
-                
+
                 // Load production fix
                 var script = document.createElement('script');
                 script.src = '/react-130-production-fix.js';
@@ -243,6 +259,19 @@ export default function RootLayout({
 
         {/* Production Error Fixes */}
         <script src="/production-error-fixes.js" defer></script>
+
+        {/* Mobile light version CSS/JS (global, non-intrusive) */}
+        <link rel="stylesheet" href="/assets/css/mobile_fixes.css" />
+        <script src="/assets/js/mobile_interactions.js" defer></script>
+        
+        {/* Mobile Lite Version Fixes - إصلاحات النسخة الخفيفة */}
+        <link rel="stylesheet" href="/styles/mobile-lite-fixes.css" />
+        <script src="/mobile-lite-fixes.js" defer></script>
+        
+        {/* Mobile Sidebar Enhancements - تحسينات القائمة الجانبية للجوال */}
+        <script src="/mobile-sidebar-enhancements.js" defer></script>
+        
+
       </head>
       <body
         className={`${ibmPlexArabic.variable} font-arabic`}
@@ -257,6 +286,7 @@ export default function RootLayout({
                     <Providers>
                       <GlobalErrorHandler />
                       <ConditionalHeader />
+                      {/* تم تعطيل مراقب قاعدة البيانات مؤقتًا لإصلاح المشكلة */}
                       <ContentWrapper>{children}</ContentWrapper>
                     </Providers>
                   </AnalyticsProvider>
