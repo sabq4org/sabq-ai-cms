@@ -276,11 +276,24 @@ export async function GET(
         keywords: keywords,
         seo_keywords: keywords,
         // ضمان وجود الكلمات المفتاحية في metadata أيضًا
-        metadata: {
-          ...article.metadata,
-          keywords: keywords,
-          seo_keywords: keywords
-        },
+        metadata: (() => {
+          try {
+            const parsedMetadata = typeof article.metadata === 'string' 
+              ? JSON.parse(article.metadata) 
+              : article.metadata || {};
+            return {
+              ...parsedMetadata,
+              keywords: keywords,
+              seo_keywords: keywords
+            };
+          } catch (e) {
+            console.warn("⚠️ خطأ في تحليل metadata:", e);
+            return {
+              keywords: keywords,
+              seo_keywords: keywords
+            };
+          }
+        })(),
         // إعطاء أولوية لكاتب المقال الحقيقي من article_authors
         author_name: authorName,
         author_title: article.article_author?.title || null,
@@ -317,6 +330,14 @@ export async function GET(
         : article.featured_image?.includes("placeholder")
         ? "placeholder"
         : "other",
+    });
+
+    // تسجيل البيانات المرجعة للكلمات المفتاحية
+    console.log("📤 البيانات المرجعة للكلمات المفتاحية:", {
+      keywords: formattedArticle.data.keywords,
+      seo_keywords: formattedArticle.data.seo_keywords,
+      metadata_keywords: formattedArticle.data.metadata?.keywords,
+      keywordsCount: formattedArticle.data.keywords?.length || 0
     });
 
     // إرجاع البيانات مع معلومات الكاتب المحسنة
