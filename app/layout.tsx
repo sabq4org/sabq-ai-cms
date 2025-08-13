@@ -254,6 +254,10 @@ export default function RootLayout({
         {/* Mobile light version CSS/JS (global, non-intrusive) */}
         <link rel="stylesheet" href="/assets/css/mobile_fixes.css" />
         <script src="/assets/js/mobile_interactions.js" defer></script>
+        
+        {/* Mobile Lite Version Fixes - إصلاحات النسخة الخفيفة */}
+        <link rel="stylesheet" href="/styles/mobile-lite-fixes.css" />
+        <script src="/mobile-lite-fixes.js" defer></script>
       </head>
       <body
         className={`${ibmPlexArabic.variable} font-arabic`}

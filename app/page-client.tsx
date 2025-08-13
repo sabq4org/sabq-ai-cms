@@ -689,6 +689,8 @@ function NewspaperHomePage({
         } ${darkMode ? "bg-gray-900" : "bg-gray-50"}`}
         style={{
           direction: "rtl",
+          marginTop: 0,
+          paddingTop: isMobileView ? 0 : undefined
         }}
       >
         {/* شريط النبض الإخباري للموبايل - محذوف حسب الطلب */}

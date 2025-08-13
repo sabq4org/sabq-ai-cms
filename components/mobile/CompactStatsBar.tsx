@@ -58,10 +58,10 @@ export default function CompactStatsBar({ darkMode }: MobileStatsBarProps) {
 
   return (
     <div
-      className={`w-full py-2.5 px-3 sticky z-30 ${
+      className={`compact-stats-bar w-full py-2 px-3 sticky z-30 ${
         darkMode ? "bg-gray-900/85" : "bg-white/90"
       } backdrop-blur-md border-b ${darkMode ? "border-gray-800" : "border-gray-200"}`}
-      style={{ top: "var(--header-height)" }}
+      style={{ top: "var(--header-height)", height: "auto" }}
     >
       {/* خلية واحدة متناسقة */}
       <div className={`flex items-center justify-around`}>

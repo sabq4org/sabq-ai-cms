@@ -32,16 +32,43 @@ export async function GET(request: NextRequest) {
       },
     });
 
+    // إذا لم توجد مقالات مميزة، جلب آخر المقالات المنشورة
+    let articlesToReturn = featuredArticles;
+    
     if (!featuredArticles || featuredArticles.length === 0) {
-      return NextResponse.json({
-        success: true,
-        articles: [],
-        message: "لا توجد أخبار مميزة حالياً",
+      // جلب آخر 3 مقالات منشورة كـ fallback
+      articlesToReturn = await prisma.articles.findMany({
+        where: {
+          status: "published",
+          article_type: {
+            notIn: ["opinion", "analysis", "interview"],
+          },
+        },
+        orderBy: {
+          published_at: "desc",
+        },
+        take: 3,
+        include: {
+          categories: true,
+          author: {
+            include: {
+              reporter_profile: true,
+            },
+          },
+        },
       });
+      
+      if (!articlesToReturn || articlesToReturn.length === 0) {
+        return NextResponse.json({
+          success: true,
+          articles: [],
+          message: "لا توجد أخبار حالياً",
+        });
+      }
     }
 
     // تنسيق البيانات
-    const formattedArticles = featuredArticles.map((article) => ({
+    const formattedArticles = articlesToReturn.map((article) => ({
       id: article.id,
       title: article.title,
       slug: article.slug,
