@@ -254,7 +254,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
       </div>
 
       {/* منطقة التنقل للموبايل - خارج الكاروسيل */}
-      <div className="lg:hidden px-4 pb-3" style={{ display: 'block' }}>
+      <div className="lg:hidden px-4 pb-3">
         <div className="flex items-center justify-center gap-3">
           {/* زر السابق */}
           <button
