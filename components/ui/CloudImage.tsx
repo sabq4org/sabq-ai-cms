@@ -121,6 +121,7 @@ export default function CloudImage({
           }
           quality={quality}
           priority={priority}
+          unoptimized
           className={`${className} object-cover object-center rounded-xl ${
             isLoading ? "opacity-0" : "opacity-100"
           } transition-opacity duration-300`}
@@ -153,6 +154,7 @@ export default function CloudImage({
         height={validHeight}
         quality={quality}
         priority={priority}
+        unoptimized
         sizes={
           sizes || "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         }
@@ -161,6 +163,7 @@ export default function CloudImage({
         } transition-opacity duration-300`}
         onError={handleError}
         onLoad={handleLoad}
+        onLoadingComplete={() => setIsLoading(false)}
         style={{ objectFit: "cover", width: "100%", height: "100%" }}
       />
     </div>
