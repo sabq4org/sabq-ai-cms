@@ -130,11 +130,10 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
           {/* Grid Layout: Mobile = full width image, Desktop = 50% للصورة، 50% للنص */}
           <div className="grid grid-cols-1 lg:grid-cols-12 h-[220px] sm:h-[260px] lg:h-[320px]">
             {/* قسم الصورة - عرض كامل للجوال، 6 أعمدة للديسكتوب */}
-            {/* هذا هو العنصر الرئيسي الآن. أضفنا له relative و overflow-hidden مباشرة. */}
-            <div className="col-span-1 lg:col-span-6 relative rounded-xl lg:rounded-r-2xl lg:rounded-l-none h-[220px] sm:h-[260px] lg:h-[320px] overflow-hidden">
+            {/* حاوية الصورة المرجعية */}
+            <div className="col-span-1 lg:col-span-6 relative overflow-hidden rounded-xl lg:rounded-r-2xl lg:rounded-l-none h-[220px] sm:h-[260px] lg:h-[320px]">
               
               {/* الصورة - الآن هي عنصر ابن مباشر */}
-              {console.log('[DEBUG] Image data:', currentArticle.featured_image)}
               {(currentArticle.featured_image || currentArticle.image) ? (
                 <img
                   src={currentArticle.featured_image || currentArticle.image}
@@ -149,41 +148,42 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                 </div>
               )}
 
-              {/* Overlay متدرج للجوال - عنصر ابن مباشر */}
-              <div 
-                className="lg:hidden absolute bottom-0 left-0 right-0 h-full z-10 bg-gradient-to-t from-black/90 via-black/50 via-transparent to-transparent" 
-                style={{ transform: 'translateZ(0)' }}
+              {/* Overlay متدرج للجوال - أسفل الصورة فقط */}
+              <div
+                className="lg:hidden absolute bottom-0 left-0 right-0 z-10 pointer-events-none"
+                style={{
+                  height: '40%',
+                  background:
+                    'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0) 100%)',
+                  transform: 'translateZ(0)'
+                }}
               />
               
               {/* المحتوى (العنوان والمعلومات) - عنصر ابن مباشر */}
               {/* استخدمنا z-20 لوضعه فوق الـ Overlay */}
               {/* إضافة transform: translateZ(0) لحل مشكلة التسريع العتادي */}
-              {/* العنوان والمعلومات - خارج حاوية الصورة تماماً */}
-              <div 
-                className="lg:hidden absolute bottom-4 left-4 right-4 text-white"
-                style={{ 
-                  zIndex: 999,
-                  backgroundColor: 'rgba(0,0,0,0.8)',
-                  padding: '12px',
-                  borderRadius: '8px',
-                  transform: 'translateZ(0)'
-                }}
+              {/* العنوان والمعلومات - داخل الحاوية في الأسفل */}
+              <div
+                className="lg:hidden absolute bottom-0 left-0 right-0 z-20 p-3"
+                style={{ transform: 'translateZ(0)' }}
               >
                 {/* معلومات التصنيف والتاريخ */}
-                <div className="flex items-center gap-2 mb-2 text-xs">
+                <div className="flex items-center gap-2 mb-1 text-[11px] text-white/90">
                   <span className="text-sm">{currentArticle.category?.icon || '📰'}</span>
                   <span className="font-medium">{currentArticle.category?.name || 'أخبار'}</span>
-                  <span>•</span>
-                  <span>
+                  <span className="opacity-80">•</span>
+                  <span className="opacity-90">
                     {new Date(currentArticle.published_at || new Date()).toLocaleDateString('ar-SA', {
                       month: 'short',
                       day: 'numeric'
                     })}
                   </span>
                 </div>
-                
+
                 {/* العنوان */}
-                <h3 className="text-white text-base font-bold leading-tight">
+                <h3
+                  className="text-white text-[15px] font-bold leading-snug line-clamp-2 drop-shadow-md"
+                >
                   {currentArticle.title}
                 </h3>
               </div>
