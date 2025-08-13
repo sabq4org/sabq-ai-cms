@@ -336,8 +336,103 @@ function MuqtaribPageContent() {
         </div>
       )}
 
-      {/* المقالات المختارة من الزوايا */}
-      {featuredArticles.length > 0 && (
+      {/* عرض بديل للمقالات إذا لم يكن هناك مقال مميز */}
+      {!heroArticle && featuredArticles.length > 0 && (
+        <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-1 h-6 bg-blue-600 rounded-full"></div>
+              <h2 className="text-xl md:text-2xl font-bold text-foreground">
+                أحدث المقالات المميزة
+              </h2>
+            </div>
+            <p className="text-muted-foreground text-sm md:text-base">
+              اكتشف أحدث المقالات من زوايا مُقترب المتنوعة
+            </p>
+          </div>
+
+          {/* عرض أول مقال بشكل مميز */}
+          <div className="mb-8">
+            <div className="md:hidden">
+              <MobileHeroCard heroArticle={{
+                ...featuredArticles[0],
+                aiScore: 85,
+                tags: featuredArticles[0].tags || [],
+                angle: {
+                  title: featuredArticles[0].angle?.title || "مُقترب",
+                  slug: featuredArticles[0].angle?.slug || "muqtarab",
+                  icon: featuredArticles[0].angle?.icon,
+                  themeColor: featuredArticles[0].angle?.themeColor,
+                }
+              }} />
+            </div>
+            <div className="hidden md:block">
+              <HeroCard heroArticle={{
+                ...featuredArticles[0],
+                aiScore: 85,
+                tags: featuredArticles[0].tags || [],
+                angle: {
+                  title: featuredArticles[0].angle?.title || "مُقترب",
+                  slug: featuredArticles[0].angle?.slug || "muqtarab",
+                  icon: featuredArticles[0].angle?.icon,
+                  themeColor: featuredArticles[0].angle?.themeColor,
+                }
+              }} className="mb-8" />
+            </div>
+          </div>
+
+          {/* باقي المقالات في شبكة */}
+          {featuredArticles.length > 1 && (
+            <>
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold text-foreground">
+                  مقالات أخرى مختارة
+                </h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                {featuredArticles.slice(1, 7).map((article) => {
+                  const cardData = {
+                    id: article.id,
+                    title: article.title,
+                    excerpt: article.excerpt || "",
+                    slug: article.slug,
+                    coverImage: article.coverImage,
+                    readingTime: article.readingTime || 5,
+                    publishDate: article.publishDate || article.createdAt,
+                    views: article.views || 0,
+                    tags: article.tags || [],
+                    isFeatured: true,
+                    isRecent: false,
+                    link: `/muqtarab/articles/${article.slug}`,
+                    angle: {
+                      id: article.angle?.id,
+                      title: article.angle?.title || "مُقترب",
+                      slug: article.angle?.slug || "muqtarab",
+                      icon: article.angle?.icon,
+                      themeColor: article.angle?.themeColor,
+                    },
+                    author: {
+                      name: article.author?.name || "فريق التحرير",
+                      avatar: article.author?.avatar,
+                    },
+                  };
+
+                  return (
+                    <MuqtarabCard
+                      key={article.id}
+                      article={cardData}
+                      variant="small"
+                    />
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* المقالات المختارة من الزوايا - تظهر عندما يوجد heroArticle */}
+      {heroArticle && featuredArticles.length > 0 && (
         <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-2">

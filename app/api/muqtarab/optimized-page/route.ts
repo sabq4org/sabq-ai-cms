@@ -78,9 +78,15 @@ export async function GET(req: NextRequest) {
         take: 20, // حد أقصى معقول
       }),
 
-      // مقال مميز مبسط
+      // مقال مميز مبسط - أولاً نبحث عن المميز، ثم الأحدث
       prisma.muqtarabArticle.findFirst({
-        where: { is_featured: true, status: "published" },
+        where: { 
+          status: "published",
+          OR: [
+            { is_featured: true },
+            { view_count: { gte: 100 } }, // أو مقال بمشاهدات عالية
+          ]
+        },
         select: {
           id: true,
           title: true,
@@ -101,7 +107,11 @@ export async function GET(req: NextRequest) {
             },
           },
         },
-        orderBy: { publish_at: "desc" },
+        orderBy: [
+          { is_featured: "desc" }, // المميز أولاً
+          { view_count: "desc" }, // ثم الأكثر مشاهدة
+          { publish_at: "desc" }, // ثم الأحدث
+        ],
       }),
 
       // مقالات مختارة مبسطة
@@ -130,6 +140,12 @@ export async function GET(req: NextRequest) {
         take: 12, // زيادة عدد المقالات المميزة
       }),
     ]);
+
+    // 🚀 Fallback للمقال المميز إذا لم يُوجد
+    if (!heroArticle && featuredArticles.length > 0) {
+      heroArticle = featuredArticles[0]; // أخذ أول مقال كمميز
+      featuredArticles = featuredArticles.slice(1); // باقي المقالات كمختارة
+    }
 
     // 📊 إحصائيات مبسطة (cached أو static)
     const stats = {
