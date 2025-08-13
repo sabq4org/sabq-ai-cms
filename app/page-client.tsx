@@ -25,6 +25,12 @@ import SafeHydration from "@/components/SafeHydration";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { Clock, User } from "lucide-react";
 
+// Import للمكونات المحسنة الجديدة
+const MobileHeaderCompact = dynamic(
+  () => import("@/components/mobile/MobileHeaderCompact"),
+  { ssr: false }
+);
+
 // Safe Dynamic imports with Next.js dynamic and SSR disabled to prevent hydration issues
 const EmptyComponent = () => null;
 
@@ -78,6 +84,19 @@ const FeaturedNewsCarousel = dynamic(
     ssr: false,
     loading: () => (
       <div className="w-full h-80 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />
+    ),
+  }
+);
+
+const HomeWordCloud = dynamic(
+  () =>
+    import("@/components/home/HomeWordCloud").catch(() => ({
+      default: EmptyComponent,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-48 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />
     ),
   }
 );
@@ -695,10 +714,18 @@ function NewspaperHomePage({
       >
         {/* شريط النبض الإخباري للموبايل - محذوف حسب الطلب */}
         {/* تم إزالة شريط النبض الإخباري من نسخة الموبايل فقط */}
+        
+        {/* الهيدر المحسن للموبايل */}
+        <SafeHydration>
+          {isMobileView && (
+            <MobileHeaderCompact className="mobile-enter" />
+          )}
+        </SafeHydration>
+        
         {/* شريط الإحصائيات المحسن للموبايل - متلاصق مع الهيدر */}
         <SafeHydration>
           {isMobileView && (
-            <div className="sticky top-14 z-30 bg-white dark:bg-gray-900 shadow-sm">
+            <div className="sticky top-32 z-30 bg-white dark:bg-gray-900 shadow-sm">
               <CompactStatsBar darkMode={darkMode} />
             </div>
           )}
@@ -712,6 +739,11 @@ function NewspaperHomePage({
             <FeaturedNewsCarousel articles={featuredArticle} />
           </div>
         )}
+
+        {/* 3. سحابة الكلمات الرائجة 🔥 */}
+        <div className={`${isMobileView ? "py-3" : "py-6"}`}>
+          <HomeWordCloud maxKeywords={15} />
+        </div>
 
         {/* إعلان أسفل الأخبار المميزة */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
