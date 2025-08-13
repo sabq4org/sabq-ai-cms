@@ -344,6 +344,18 @@ export default function EditArticlePage() {
 
   // دالة حفظ المقال
   const handleSubmit = useCallback(async (status: 'draft' | 'published') => {
+    // إلغاء أي رسائل سابقة
+    toast.dismiss();
+    // عرض رسالة "جاري الحفظ"
+    const loadingToast = toast.loading('جاري الحفظ...', {
+      style: {
+        background: '#F9FAFB',
+        color: '#111827',
+        minWidth: '250px',
+      },
+      position: 'top-right',
+    });
+    
     try {
       const selectedAuthor = authors.find(a => a.id === formData.authorId);
       
@@ -393,19 +405,75 @@ export default function EditArticlePage() {
         body: JSON.stringify(articleData),
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        console.log('✅ نتيجة التحديث:', result);
-        toast.success(status === 'draft' ? 'تم حفظ المسودة بنجاح' : 'تم تحديث المقال بنجاح');
-        router.push('/dashboard/news');
+      // إلغاء رسالة التحميل
+      toast.dismiss(loadingToast);
+
+      const result = await response.json();
+      console.log('✅ نتيجة التحديث:', result);
+        
+      if (response.ok && result.ok) {
+        // رسالة نجاح محسنة
+        toast.success(
+          result.message || (status === 'draft' ? 'تم حفظ المسودة بنجاح' : 'تم تحديث المقال بنجاح'), 
+          {
+            duration: 5000,
+            style: {
+              background: '#10B981',
+              color: 'white',
+              minWidth: '300px',
+            },
+            position: 'top-right',
+            icon: '✅',
+            // إضافة زر للذهاب مباشرة إلى قائمة المقالات
+            iconTheme: {
+              primary: '#fff',
+              secondary: '#10B981',
+            }
+          }
+        );
+        
+        // تأخير التوجيه للسماح للمستخدم برؤية الرسالة
+        setTimeout(() => {
+          router.push('/dashboard/news');
+        }, 2000);
       } else {
-        const errorData = await response.json();
-        console.error('❌ خطأ في الاستجابة:', errorData);
-        throw new Error(errorData.error || errorData.details || 'فشل في حفظ المقال');
+        console.error('❌ خطأ في الاستجابة:', result);
+        
+        // رسالة خطأ محسنة مع زر إعادة المحاولة
+        toast.error(
+          result.message || result.error || result.details || 'فشل في حفظ المقال',
+          {
+            duration: 8000, // مدة أطول لقراءة رسالة الخطأ
+            style: {
+              background: '#EF4444',
+              color: 'white',
+              minWidth: '300px',
+            },
+            position: 'top-right',
+            icon: '❌',
+          }
+        );
       }
-    } catch (error) {
+    } catch (error: any) {
+      // إلغاء رسالة التحميل في حالة الخطأ
+      toast.dismiss(loadingToast);
+      
       console.error('Error saving article:', error);
-      toast.error('حدث خطأ في حفظ المقال');
+      
+      // رسالة خطأ محسنة مع تفاصيل
+      toast.error(
+        `حدث خطأ في حفظ المقال: ${error.message || 'خطأ غير معروف'}`,
+        {
+          duration: 8000,
+          style: {
+            background: '#EF4444',
+            color: 'white',
+            minWidth: '300px',
+          },
+          position: 'top-right',
+          icon: '❌',
+        }
+      );
     }
   }, [formData, authors, articleId, router]);
 

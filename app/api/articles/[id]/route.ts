@@ -17,9 +17,10 @@ export async function GET(
       console.log("❌ معرف المقال مفقود - المرحلة 2.1");
       return NextResponse.json(
         {
-          success: false,
-          error: "معرف المقال مطلوب",
+          ok: false,
+          message: "تعذّر الحصول على المقال: معرّف المقال مطلوب",
           code: "MISSING_ID",
+          details: "يجب توفير معرّف المقال في رابط API"
         },
         { status: 400 }
       );
@@ -79,8 +80,8 @@ export async function GET(
       console.log(`⚠️ المقال غير موجود: ${id}`);
       return NextResponse.json(
         {
-          success: false,
-          error: "المقال غير موجود",
+          ok: false,
+          message: "تعذّر الحصول على المقال: المقال غير موجود",
           code: "ARTICLE_NOT_FOUND",
           details: "تأكد من صحة رابط المقال أو قد يكون المقال قد تم حذفه",
         },
@@ -116,8 +117,8 @@ export async function GET(
 
       return NextResponse.json(
         {
-          success: false,
-          error: errorMessage,
+          ok: false,
+          message: `تعذّر الحصول على المقال: ${errorMessage}`,
           code: "ARTICLE_NOT_PUBLISHED",
           details: errorDetails,
           status: article.status,
@@ -262,44 +263,47 @@ export async function GET(
     }
 
     const formattedArticle = {
-      ...article,
-      // ✅ إضافة image للتوافق مع المكونات
-      image: article.featured_image,
-      image_url: article.featured_image,
-      category: categoryInfo,
-      // ضمان إرجاع الكلمات المفتاحية كمصفوفة في جميع الحقول المتوقعة
-      tags: tags,
-      keywords: keywords,
-      seo_keywords: keywords,
-      // ضمان وجود الكلمات المفتاحية في metadata أيضًا
-      metadata: {
-        ...article.metadata,
+      ok: true,
+      message: "تم الحصول على المقال بنجاح",
+      data: {
+        ...article,
+        // ✅ إضافة image للتوافق مع المكونات
+        image: article.featured_image,
+        image_url: article.featured_image,
+        category: categoryInfo,
+        // ضمان إرجاع الكلمات المفتاحية كمصفوفة في جميع الحقول المتوقعة
+        tags: tags,
         keywords: keywords,
-        seo_keywords: keywords
-      },
-      // إعطاء أولوية لكاتب المقال الحقيقي من article_authors
-      author_name: authorName,
-      author_title: article.article_author?.title || null,
-      author_specialty: article.article_author?.specializations?.[0] || null,
-      author_avatar: authorAvatar,
-      author_slug: article.article_author?.slug || null,
-      // دعم النظام القديم أيضاً مع إضافة معلومات المراسل
-      author: {
-        ...article.author,
-        name: authorName,
-        avatar: authorAvatar,
-        // إضافة بيانات المراسل من article_author
-        reporter: article.article_author
-          ? {
-              id: article.article_author.id,
-              full_name: article.article_author.full_name,
-              slug: article.article_author.slug,
-              is_verified: true, // افتراضي للمراسلين المسجلين
-              verification_badge: "verified",
-            }
-          : null,
-      },
-      success: true,
+        seo_keywords: keywords,
+        // ضمان وجود الكلمات المفتاحية في metadata أيضًا
+        metadata: {
+          ...article.metadata,
+          keywords: keywords,
+          seo_keywords: keywords
+        },
+        // إعطاء أولوية لكاتب المقال الحقيقي من article_authors
+        author_name: authorName,
+        author_title: article.article_author?.title || null,
+        author_specialty: article.article_author?.specializations?.[0] || null,
+        author_avatar: authorAvatar,
+        author_slug: article.article_author?.slug || null,
+        // دعم النظام القديم أيضاً مع إضافة معلومات المراسل
+        author: {
+          ...article.author,
+          name: authorName,
+          avatar: authorAvatar,
+          // إضافة بيانات المراسل من article_author
+          reporter: article.article_author
+            ? {
+                id: article.article_author.id,
+                full_name: article.article_author.full_name,
+                slug: article.article_author.slug,
+                is_verified: true, // افتراضي للمراسلين المسجلين
+                verification_badge: "verified",
+              }
+            : null,
+        }
+      }
     };
 
     // 🔍 تتبع الصورة للتشخيص
@@ -324,10 +328,10 @@ export async function GET(
     if (error.message?.includes("connection") || error.code === "P2024") {
       return NextResponse.json(
         {
-          success: false,
-          error: "مشكلة في الاتصال بقاعدة البيانات",
-          details: "يرجى المحاولة مرة أخرى بعد قليل",
+          ok: false,
+          message: "تعذّر الحصول على المقال: مشكلة في الاتصال بقاعدة البيانات",
           code: "DB_CONNECTION_ERROR",
+          details: "يرجى المحاولة مرة أخرى بعد قليل"
         },
         { status: 503 }
       );
@@ -335,9 +339,10 @@ export async function GET(
 
     return NextResponse.json(
       {
-        success: false,
-        error: "حدث خطأ في جلب المقال",
-        details: error.message || "خطأ غير معروف",
+        ok: false,
+        message: "تعذّر الحصول على المقال: خطأ في النظام",
+        code: "SYSTEM_ERROR",
+        details: error.message || "خطأ غير معروف"
       },
       { status: 500 }
     );
@@ -678,10 +683,17 @@ export async function PATCH(
         console.groupEnd();
       }
 
+      // إرجاع استجابة موحدة متوافقة مع معايير API Envelope
       return NextResponse.json({
-        success: true,
-        article: updatedArticle,
-      });
+        ok: true,
+        message: status === "draft" ? "تم حفظ المسودة بنجاح" : "تم تحديث المقال بنجاح",
+        data: {
+          id: updatedArticle.id,
+          title: updatedArticle.title,
+          slug: updatedArticle.slug,
+          status: updatedArticle.status
+        }
+      }, { status: 200 });
     } catch (updateError: any) {
       console.error("❌ خطأ في تحديث المقال في قاعدة البيانات:", updateError);
       console.error("📋 تفاصيل خطأ التحديث:", {
@@ -692,22 +704,24 @@ export async function PATCH(
         updateData: JSON.stringify(updateData, null, 2),
       });
 
-      // رسائل خطأ أكثر تفصيلاً
+      // رسائل خطأ أكثر تفصيلاً متوافقة مع معايير API Envelope
       if (updateError.code === "P2025") {
         return NextResponse.json(
           {
-            success: false,
-            error: "المقال غير موجود",
-            details: "Article not found",
+            ok: false,
+            message: "المقال غير موجود",
+            code: "ARTICLE_NOT_FOUND",
+            details: "تأكد من صحة معرف المقال"
           },
           { status: 404 }
         );
       } else if (updateError.code === "P2002") {
         return NextResponse.json(
           {
-            success: false,
-            error: "قيمة مكررة في حقل فريد",
-            details: `Unique constraint failed: ${updateError.meta?.target}`,
+            ok: false,
+            message: "تعذّر حفظ المقال: قيمة مكررة في حقل فريد",
+            code: "DUPLICATE_VALUE_ERROR",
+            details: `حقل مكرر: ${updateError.meta?.target}`
           },
           { status: 409 }
         );
@@ -715,15 +729,10 @@ export async function PATCH(
 
       return NextResponse.json(
         {
-          success: false,
-          error: "فشل تحديث المقال",
+          ok: false,
+          message: "تعذّر حفظ المقال: خطأ في قاعدة البيانات",
+          code: "DATABASE_ERROR",
           details: updateError.message || "خطأ غير معروف في قاعدة البيانات",
-          debug: {
-            errorCode: updateError.code,
-            errorType: updateError.constructor.name,
-            articleId: id,
-            timestamp: new Date().toISOString(),
-          },
         },
         { status: 500 }
       );
@@ -742,19 +751,10 @@ export async function PATCH(
 
     return NextResponse.json(
       {
-        success: false,
-        error: "فشل تحديث المقال",
-        details: error.message || "خطأ غير معروف",
-        ...(isDebug
-          ? {
-              debug: {
-                errorType: error.constructor.name,
-                errorCode: error.code,
-                articleId: id,
-                timestamp: new Date().toISOString(),
-              },
-            }
-          : {}),
+        ok: false,
+        message: "تعذّر حفظ المقال: خطأ داخلي غير متوقع",
+        code: "INTERNAL_ERROR",
+        details: isDebug ? error.message : "الرجاء المحاولة لاحقاً"
       },
       { status: 500 }
     );
@@ -793,8 +793,10 @@ export async function DELETE(
       console.log(`❌ المقال غير موجود: ${id}`);
       return NextResponse.json(
         {
-          success: false,
-          error: "المقال غير موجود",
+          ok: false,
+          message: "تعذّر حذف المقال: المقال غير موجود",
+          code: "ARTICLE_NOT_FOUND",
+          details: `معرف المقال: ${id} غير موجود في قاعدة البيانات`
         },
         { status: 404 }
       );
@@ -877,9 +879,9 @@ export async function DELETE(
     }
 
     return NextResponse.json({
-      success: true,
+      ok: true,
       message: `تم حذف المقال "${existingArticle.title}" نهائياً`,
-      details: {
+      data: {
         id: existingArticle.id,
         title: existingArticle.title,
         deletedAt: new Date().toISOString(),
@@ -891,8 +893,10 @@ export async function DELETE(
     if (error.code === "P2025") {
       return NextResponse.json(
         {
-          success: false,
-          error: "المقال غير موجود",
+          ok: false,
+          message: "تعذّر حذف المقال: المقال غير موجود",
+          code: "ARTICLE_NOT_FOUND",
+          details: `معرف المقال: ${id} غير موجود في قاعدة البيانات`
         },
         { status: 404 }
       );
@@ -900,8 +904,9 @@ export async function DELETE(
 
     return NextResponse.json(
       {
-        success: false,
-        error: "فشل حذف المقال",
+        ok: false,
+        message: "تعذّر حذف المقال: خطأ في النظام",
+        code: "SYSTEM_ERROR",
         details: error.message || "خطأ غير معروف",
         debug:
           process.env.NODE_ENV === "development"

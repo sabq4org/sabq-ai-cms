@@ -284,10 +284,10 @@ export async function POST(request: NextRequest) {
       console.error("❌ خطأ في تحليل JSON:", jsonError);
       return NextResponse.json(
         {
-          success: false,
-          error: "البيانات المرسلة غير صحيحة",
-          details: "فشل في تحليل البيانات المرسلة - تأكد من صحة تنسيق JSON",
+          ok: false,
+          message: "تعذّر إنشاء المقال: البيانات المرسلة غير صحيحة",
           code: "INVALID_JSON",
+          details: "فشل في تحليل البيانات المرسلة - تأكد من صحة تنسيق JSON"
         },
         { status: 400 }
       );
@@ -371,8 +371,9 @@ export async function POST(request: NextRequest) {
     if (errors.length > 0) {
       return NextResponse.json(
         {
-          success: false,
-          error: "بيانات المقال غير صحيحة",
+          ok: false,
+          message: "تعذّر إنشاء المقال: بيانات غير صحيحة",
+          code: "VALIDATION_ERROR",
           details: errors.join(", "),
           validation_errors: errors,
         },
@@ -445,8 +446,9 @@ export async function POST(request: NextRequest) {
           console.error("❌ المؤلف غير نشط:", authorId);
           return NextResponse.json(
             {
-              success: false,
-              error: "المؤلف المحدد غير نشط في النظام",
+              ok: false,
+              message: "تعذّر إنشاء المقال: المؤلف المحدد غير نشط في النظام",
+              code: "INACTIVE_AUTHOR",
               details: `معرف المؤلف: ${authorId}`,
             },
             { status: 400 }
@@ -493,8 +495,9 @@ export async function POST(request: NextRequest) {
       console.error("❌ المؤلف غير موجود في أي جدول:", authorId);
       return NextResponse.json(
         {
-          success: false,
-          error: "المؤلف المحدد غير موجود في النظام",
+          ok: false,
+          message: "تعذّر إنشاء المقال: المؤلف المحدد غير موجود في النظام",
+          code: "AUTHOR_NOT_FOUND",
           details: `معرف المؤلف: ${authorId}. تأكد من اختيار مؤلف من القائمة المتاحة.`,
         },
         { status: 400 }
@@ -505,8 +508,9 @@ export async function POST(request: NextRequest) {
       console.error("❌ التصنيف غير موجود:", categoryId);
       return NextResponse.json(
         {
-          success: false,
-          error: "التصنيف المحدد غير موجود في النظام",
+          ok: false,
+          message: "تعذّر إنشاء المقال: التصنيف المحدد غير موجود في النظام",
+          code: "CATEGORY_NOT_FOUND",
           details: `معرف التصنيف: ${categoryId}`,
         },
         { status: 400 }
@@ -607,20 +611,17 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       {
-        success: true,
-        article,
+        ok: true,
         message:
           data.status === "published"
             ? "تم نشر المقال بنجاح"
             : "تم حفظ المسودة بنجاح",
-        summary: {
+        data: {
           id: article.id,
+          slug: article.slug,
           title: article.title,
-          author: article.author?.name || article.author?.email,
-          category: article.categories?.name,
-          status: article.status,
-          created_at: article.created_at,
-        },
+          status: article.status
+        }
       },
       { status: 201 }
     );
@@ -632,9 +633,10 @@ export async function POST(request: NextRequest) {
     if (error.code === "P2002") {
       return NextResponse.json(
         {
-          success: false,
-          error: "المقال موجود مسبقاً",
-          details: "يوجد مقال بنفس العنوان أو المعرف",
+          ok: false,
+          message: "تعذّر إنشاء المقال: المقال موجود مسبقاً",
+          code: "DUPLICATE_ARTICLE",
+          details: "يوجد مقال بنفس العنوان أو المعرف"
         },
         { status: 409 }
       );
@@ -642,8 +644,9 @@ export async function POST(request: NextRequest) {
 
     if (error.code === "P2003") {
       const field = error.meta?.field_name || "unknown";
-      let message = "خطأ في البيانات المرجعية";
+      let message = "تعذّر إنشاء المقال: خطأ في البيانات المرجعية";
       let details = "التصنيف أو المؤلف غير موجود";
+      let errorCode = "REFERENCE_NOT_FOUND";
 
       console.error("🔍 تفاصيل خطأ P2003:", {
         field,
@@ -655,51 +658,49 @@ export async function POST(request: NextRequest) {
       });
 
       if (field.includes("author")) {
-        message = "المستخدم المحدد غير موجود";
-        details = `معرف المستخدم: ${authorId}`;
+        message = "تعذّر إنشاء المقال: المستخدم المحدد غير موجود";
+        details = `معرف المستخدم: ${authorId} غير موجود`;
+        errorCode = "AUTHOR_NOT_FOUND";
       } else if (field.includes("category")) {
-        message = "التصنيف المحدد غير موجود";
-        details = `معرف التصنيف: ${categoryId}`;
+        message = "تعذّر إنشاء المقال: التصنيف المحدد غير موجود";
+        details = `معرف التصنيف: ${categoryId} غير موجود`;
+        errorCode = "CATEGORY_NOT_FOUND";
       }
 
       return NextResponse.json(
         {
-          success: false,
-          error: message,
-          details,
-          debug: {
-            field,
-            author_id: authorId,
-            category_id: categoryId,
-          },
+          ok: false,
+          message: message,
+          code: errorCode,
+          details: details
         },
         { status: 400 }
       );
     }
 
     // معالجة محسنة للأخطاء المختلفة
-    let errorMessage = "فشل في إنشاء المقال";
+    let errorMessage = "تعذّر إنشاء المقال: فشل في العملية";
     let errorDetails = error.message || "خطأ غير معروف";
     let statusCode = 500;
     let errorCode = error.code || "UNKNOWN_ERROR";
 
     // معالجة خاصة لأنواع الأخطاء المختلفة
     if (error.name === "SyntaxError") {
-      errorMessage = "خطأ في تنسيق البيانات";
+      errorMessage = "تعذّر إنشاء المقال: خطأ في تنسيق البيانات";
       errorDetails = "البيانات المرسلة غير صحيحة أو تحتوي على أحرف غير مدعومة";
       statusCode = 400;
       errorCode = "SYNTAX_ERROR";
     } else if (error.name === "ValidationError") {
-      errorMessage = "خطأ في التحقق من البيانات";
+      errorMessage = "تعذّر إنشاء المقال: خطأ في التحقق من البيانات";
       statusCode = 400;
       errorCode = "VALIDATION_ERROR";
     } else if (error.code === "P2002") {
-      errorMessage = "المقال موجود مسبقاً";
+      errorMessage = "تعذّر إنشاء المقال: المقال موجود مسبقاً";
       errorDetails = "يوجد مقال آخر بنفس العنوان أو المعرف";
       statusCode = 409;
       errorCode = "DUPLICATE_ARTICLE";
     } else if (error.code === "P2025") {
-      errorMessage = "البيانات المرجعية غير موجودة";
+      errorMessage = "تعذّر إنشاء المقال: البيانات المرجعية غير موجودة";
       errorDetails = "المؤلف أو التصنيف المحدد غير موجود";
       statusCode = 400;
       errorCode = "REFERENCE_NOT_FOUND";
@@ -715,10 +716,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       {
-        success: false,
-        error: errorMessage,
-        details: errorDetails,
+        ok: false,
+        message: errorMessage,
         code: errorCode,
+        details: errorDetails
       },
       { status: statusCode }
     );
