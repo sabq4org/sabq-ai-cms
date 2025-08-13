@@ -150,7 +150,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                 {/* أسهم التنقل تم نقلها من على الصورة */}
 
                 {/* نقاط التنقل للموبايل */}
-                <div className="dots-container lg:hidden absolute bottom-16 left-1/2 -translate-x-1/2 flex gap-1.5 z-25">
+                <div className="dots-container lg:hidden absolute bottom-16 left-1/2 -translate-x-1/2 flex gap-1.5" style={{ zIndex: 25 }}>
                   {articles.map((_, index) => (
                     <button
                       key={index}
