@@ -80,7 +80,7 @@ export default function EnhancedMobileNewsCard({
   // بطاقة Hero للأخبار المميزة
   if (variant === "hero") {
     return (
-      <Link href={getArticleLink(news)} className="block w-full">
+      <Link href={getArticleLink(news)} className="block w-full md:w-[calc(100%+32px)] md:-mr-4 md:-ml-4">
         <article
           className={`relative overflow-hidden rounded-2xl shadow-lg transition-all hover:shadow-xl ${
             news.breaking
@@ -93,13 +93,13 @@ export default function EnhancedMobileNewsCard({
           }`}
         >
           {/* الصورة بارتفاع أكبر */}
-          <div className="relative h-56 w-full bg-gray-200 dark:bg-gray-700">
+          <div className="relative h-56 sm:h-64 w-full bg-gray-200 dark:bg-gray-700">
             <SafeImage
               src={news.featured_image || news.image_url || news.image}
               alt={news.title || "صورة المقال"}
               fill
               className="object-cover"
-              sizes="(max-width: 768px) 100vw"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw"
               priority
               fallbackType="article"
             />
@@ -233,7 +233,7 @@ export default function EnhancedMobileNewsCard({
   // بطاقة Full Width للقوائم
   if (variant === "full-width") {
     return (
-      <Link href={getArticleLink(news)} className="block w-full">
+      <Link href={getArticleLink(news)} className="block w-full md:w-[calc(100%+16px)] md:-mr-2 md:-ml-2">
         <article
           className={`overflow-hidden transition-all ${
             news.breaking
@@ -246,14 +246,14 @@ export default function EnhancedMobileNewsCard({
           }`}
         >
           <div className="flex items-start p-4 gap-4">
-            {/* الصورة - مربعة مع زوايا دائرية */}
-            <div className="relative w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden bg-gray-200 dark:bg-gray-700">
+            {/* الصورة - مربعة مع زوايا دائرية بحجم أكبر */}
+            <div className="relative w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 rounded-xl overflow-hidden bg-gray-200 dark:bg-gray-700">
               <SafeImage
                 src={news.featured_image || news.image_url || news.image}
                 alt={news.title || "صورة المقال"}
                 fill
                 className="object-cover"
-                sizes="96px"
+                sizes="(max-width: 640px) 96px, 112px"
                 fallbackType="article"
               />
             </div>
@@ -359,7 +359,7 @@ export default function EnhancedMobileNewsCard({
 
   // البطاقة المضغوطة الافتراضية
   return (
-    <Link href={getArticleLink(news)} className="block">
+    <Link href={getArticleLink(news)} className="block w-full md:w-[calc(100%+24px)] md:-mr-3 md:-ml-3">
       <article
         className={`relative overflow-hidden rounded-xl transition-all ${
           news.breaking
@@ -372,13 +372,13 @@ export default function EnhancedMobileNewsCard({
         }`}
       >
         {/* الصورة مع نسبة 16:9 - تظهر دائمًا إذا كانت متوفرة بغض النظر عن نوع المقال */}
-        <div className="relative h-48 w-full bg-gray-200 dark:bg-gray-700">
+        <div className="relative h-48 sm:h-56 w-full bg-gray-200 dark:bg-gray-700">
           <SafeImage
             src={news.featured_image || news.image_url || news.image}
             alt={news.title || "صورة المقال"}
             fill
             className="object-cover"
-            sizes="(max-width: 768px) 100vw"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw"
             fallbackType="article"
           />
 

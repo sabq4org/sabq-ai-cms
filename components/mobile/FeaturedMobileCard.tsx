@@ -44,16 +44,16 @@ export default function FeaturedMobileCard({ article, className = '' }: Featured
   const imageUrl = getValidImageUrl(article.featured_image);
 
   return (
-    <div className={`relative w-full overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] ${className}`}>
+    <div className={`relative w-full md:w-[calc(100%+32px)] md:-mr-4 md:-ml-4 overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] ${className}`}>
       <Link href={getArticleLink(article)} className="block relative">
         {/* الصورة الأساسية محسنة للموبايل */}
-        <div className="relative w-full h-[280px] overflow-hidden">
+        <div className="relative w-full h-[280px] sm:h-[320px] overflow-hidden">
           <Image
             src={imageUrl}
             alt={article.title}
             fill
             className="object-cover transition-transform duration-500 hover:scale-105"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
             priority
             onLoad={() => setImageLoaded(true)}
             onError={(e) => {
