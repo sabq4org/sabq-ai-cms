@@ -149,18 +149,20 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                 )}
 
                 {/* Overlay متدرج للجوال - يغطي 40% من أسفل الصورة */}
-                <div className="lg:hidden absolute bottom-0 left-0 right-0 h-2/5 bg-gradient-to-t from-black/70 via-black/40 to-transparent z-10 pointer-events-none"></div>
+                <div className="lg:hidden absolute bottom-0 left-0 right-0 h-2/5 bg-gradient-to-t from-black/80 via-black/50 to-transparent z-10"></div>
                 
                 {/* العنوان مدمج أسفل الصورة - للجوال فقط */}
-                <div className="lg:hidden absolute bottom-0 left-0 right-0 z-20 p-3">
+                <div className="lg:hidden absolute bottom-0 left-0 right-0 z-30 p-4" style={{ backgroundColor: 'rgba(0,0,0,0.1)' }}>
+                  {console.log('[DEBUG] Category:', currentArticle.category?.name)}
+                  {console.log('[DEBUG] Date:', currentArticle.published_at)}
+                  
                   {/* معلومات التصنيف والتاريخ */}
-                  <div className="flex items-center gap-2 mb-2 text-xs text-white/90">
-                    <span className="text-sm">{currentArticle.category?.icon}</span>
-                    <span className="font-medium">{currentArticle.category?.name}</span>
-                    <span className="text-white/70">•</span>
-                    <span className="text-white/80">
-                      {new Date(currentArticle.published_at).toLocaleDateString('ar-SA', {
-                        year: 'numeric',
+                  <div className="flex items-center gap-2 mb-2 text-xs text-white">
+                    <span className="text-sm bg-red-500 px-1 rounded">🗺️</span>
+                    <span className="font-medium bg-blue-500 px-1 rounded">محليات</span>
+                    <span className="text-white">•</span>
+                    <span className="text-white bg-green-500 px-1 rounded">
+                      {new Date().toLocaleDateString('ar-SA', {
                         month: 'short',
                         day: 'numeric'
                       })}
@@ -168,7 +170,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                   </div>
                   
                   {/* العنوان */}
-                  <h3 className="text-white text-sm font-bold line-clamp-2 leading-tight drop-shadow-lg">
+                  <h3 className="text-white text-base font-bold leading-tight bg-black/30 p-2 rounded" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
                     {currentArticle.title}
                   </h3>
                 </div>
