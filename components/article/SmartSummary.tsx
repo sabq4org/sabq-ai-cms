@@ -8,7 +8,13 @@ import {
 } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
-interface SmartSummaryProps {
+int                        <div 
+                      key={index}
+                      className={`
+                        flex items-start gap-3 p-4 rounded-lg
+                        ${darkMode ? 'bg-blue-900/20' : 'bg-white/70'}
+                      `}
+                    >SmartSummaryProps {
   summary: {
     id: string;
     brief_summary: string;
@@ -35,9 +41,9 @@ export default function SmartSummary({ summary, articleTitle, originalReadingTim
 
   return (
     <div className={`
-      my-12 rounded-3xl overflow-hidden shadow-2xl
+      my-12 rounded-3xl overflow-hidden shadow-2xl max-w-full w-full
       ${darkMode 
-        ? 'bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700' 
+        ? 'bg-gradient-to-br from-blue-900/40 to-indigo-900/40 border border-blue-800/50' 
         : 'bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100'
       }
     `}>
@@ -50,12 +56,12 @@ export default function SmartSummary({ summary, articleTitle, originalReadingTim
           <div className="flex items-center gap-3">
             <div className={`
               p-3 rounded-2xl
-              ${darkMode ? 'bg-blue-900/30' : 'bg-blue-500/10'}
+              ${darkMode ? 'bg-blue-900/50' : 'bg-blue-500/10'}
             `}>
-              <Brain className={`w-6 h-6 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+              <Brain className={`w-8 h-8 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
             </div>
             <div>
-              <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              <h3 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                 خلاصة التحرير الذكي
               </h3>
               <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -67,12 +73,15 @@ export default function SmartSummary({ summary, articleTitle, originalReadingTim
           {/* Time saved indicator */}
           <div className={`
             px-4 py-2 rounded-xl text-center
-            ${darkMode ? 'bg-green-900/20 border border-green-800' : 'bg-green-50 border border-green-200'}
+            ${darkMode ? 'bg-green-900/30 border border-green-800/70' : 'bg-green-50 border border-green-200'}
           `}>
-            <div className={`text-lg font-bold ${darkMode ? 'text-green-400' : 'text-green-600'}`}>
-              {summary.reading_time_saved} دقائق
+            <div className="flex items-center justify-center gap-1">
+              <Clock className={`w-5 h-5 ${darkMode ? 'text-green-400' : 'text-green-600'}`} />
+              <div className={`text-lg font-bold ${darkMode ? 'text-green-400' : 'text-green-600'}`}>
+                {summary.reading_time_saved} دقائق
+              </div>
             </div>
-            <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            <div className={`text-xs ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
               توفير {timeSavedPercentage}% من الوقت
             </div>
           </div>
@@ -83,11 +92,11 @@ export default function SmartSummary({ summary, articleTitle, originalReadingTim
         {/* Brief Summary */}
         <div className="mb-6">
           <div className={`
-            text-lg leading-relaxed p-4 rounded-xl
-            ${darkMode ? 'bg-gray-700/30' : 'bg-white/70'}
-            border border-gray-200 dark:border-gray-600
+            text-lg leading-relaxed p-5 rounded-xl
+            ${darkMode ? 'bg-indigo-900/20' : 'bg-white/70'}
+            border ${darkMode ? 'border-indigo-800/50' : 'border-blue-200'}
           `}>
-            <p className={`${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>
+            <p className={`${darkMode ? 'text-gray-100' : 'text-gray-800'} text-lg`}>
               {summary.brief_summary}
             </p>
           </div>
@@ -97,9 +106,9 @@ export default function SmartSummary({ summary, articleTitle, originalReadingTim
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
           <div className={`
             text-center p-3 rounded-xl
-            ${darkMode ? 'bg-gray-700/30' : 'bg-white/50'}
+            ${darkMode ? 'bg-blue-900/20' : 'bg-white/50'}
           `}>
-            <BarChart3 className={`w-5 h-5 mx-auto mb-1 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+            <BarChart3 className={`w-7 h-7 mx-auto mb-1 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
             <div className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
               {summary.comprehension_score}%
             </div>
@@ -110,9 +119,9 @@ export default function SmartSummary({ summary, articleTitle, originalReadingTim
 
           <div className={`
             text-center p-3 rounded-xl
-            ${darkMode ? 'bg-gray-700/30' : 'bg-white/50'}
+            ${darkMode ? 'bg-amber-900/20' : 'bg-white/50'}
           `}>
-            <Lightbulb className={`w-5 h-5 mx-auto mb-1 ${darkMode ? 'text-yellow-400' : 'text-yellow-600'}`} />
+            <Lightbulb className={`w-7 h-7 mx-auto mb-1 ${darkMode ? 'text-yellow-400' : 'text-yellow-600'}`} />
             <div className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
               {summary.key_points.length}
             </div>
@@ -123,9 +132,9 @@ export default function SmartSummary({ summary, articleTitle, originalReadingTim
 
           <div className={`
             text-center p-3 rounded-xl
-            ${darkMode ? 'bg-gray-700/30' : 'bg-white/50'}
+            ${darkMode ? 'bg-purple-900/20' : 'bg-white/50'}
           `}>
-            <Sparkles className={`w-5 h-5 mx-auto mb-1 ${darkMode ? 'text-purple-400' : 'text-purple-600'}`} />
+            <Sparkles className={`w-7 h-7 mx-auto mb-1 ${darkMode ? 'text-purple-400' : 'text-purple-600'}`} />
             <div className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
               {summary.main_insights.length}
             </div>
@@ -136,9 +145,9 @@ export default function SmartSummary({ summary, articleTitle, originalReadingTim
 
           <div className={`
             text-center p-3 rounded-xl
-            ${darkMode ? 'bg-gray-700/30' : 'bg-white/50'}
+            ${darkMode ? 'bg-green-900/20' : 'bg-white/50'}
           `}>
-            <Target className={`w-5 h-5 mx-auto mb-1 ${darkMode ? 'text-green-400' : 'text-green-600'}`} />
+            <Target className={`w-7 h-7 mx-auto mb-1 ${darkMode ? 'text-green-400' : 'text-green-600'}`} />
             <div className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
               {summary.relevance_topics.length}
             </div>
@@ -150,8 +159,8 @@ export default function SmartSummary({ summary, articleTitle, originalReadingTim
 
         {/* Key Points */}
         <div className="mb-6">
-          <h4 className={`text-lg font-semibold mb-3 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-            <CheckCircle className="w-5 h-5 text-green-500" />
+          <h4 className={`text-xl font-semibold mb-3 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+            <CheckCircle className="w-6 h-6 text-green-500" />
             النقاط الرئيسية
           </h4>
           <div className="space-y-2">
@@ -159,8 +168,8 @@ export default function SmartSummary({ summary, articleTitle, originalReadingTim
               <div 
                 key={index}
                 className={`
-                  flex items-start gap-3 p-3 rounded-lg
-                  ${darkMode ? 'bg-gray-700/20' : 'bg-white/50'}
+                  flex items-start gap-3 p-4 rounded-lg
+                  ${darkMode ? 'bg-blue-900/20' : 'bg-white/70'}
                 `}
               >
                 <div className={`
@@ -182,8 +191,8 @@ export default function SmartSummary({ summary, articleTitle, originalReadingTim
           <button
             onClick={() => setExpanded(!expanded)}
             className={`
-              w-full flex items-center justify-between p-3 rounded-lg
-              transition-colors hover:bg-gray-100 dark:hover:bg-gray-700/30
+              w-full flex items-center justify-between p-4 rounded-lg
+              transition-colors hover:bg-blue-100/30 dark:hover:bg-blue-800/30
               ${darkMode ? 'text-white' : 'text-gray-900'}
             `}
           >
@@ -195,8 +204,8 @@ export default function SmartSummary({ summary, articleTitle, originalReadingTim
             <div className="mt-4 space-y-6">
               {/* Main Insights */}
               <div>
-                <h5 className={`font-semibold mb-3 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                  <Sparkles className="w-4 h-4 text-purple-500" />
+                <h5 className={`text-lg font-semibold mb-3 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                  <Sparkles className="w-6 h-6 text-purple-500" />
                   الرؤى الثاقبة
                 </h5>
                 <div className="space-y-2">
@@ -204,8 +213,8 @@ export default function SmartSummary({ summary, articleTitle, originalReadingTim
                     <div 
                       key={index}
                       className={`
-                        p-3 rounded-lg border-r-4 border-purple-400
-                        ${darkMode ? 'bg-purple-900/10' : 'bg-purple-50'}
+                        p-4 rounded-lg border-r-4 border-purple-400
+                        ${darkMode ? 'bg-purple-900/20' : 'bg-purple-50'}
                       `}
                     >
                       <p className={`${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
@@ -219,8 +228,8 @@ export default function SmartSummary({ summary, articleTitle, originalReadingTim
               {/* Action Items */}
               {summary.action_items && summary.action_items.length > 0 && (
                 <div>
-                  <h5 className={`font-semibold mb-3 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                    <Zap className="w-4 h-4 text-orange-500" />
+                  <h5 className={`text-lg font-semibold mb-3 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <Zap className="w-6 h-6 text-orange-500" />
                     خطوات عملية
                   </h5>
                   <div className="space-y-2">
@@ -244,8 +253,8 @@ export default function SmartSummary({ summary, articleTitle, originalReadingTim
 
               {/* Related Concepts */}
               <div>
-                <h5 className={`font-semibold mb-3 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                  <BookOpen className="w-4 h-4 text-blue-500" />
+                <h5 className={`text-lg font-semibold mb-3 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                  <BookOpen className="w-6 h-6 text-blue-500" />
                   مفاهيم ذات صلة
                 </h5>
                 <div className="flex flex-wrap gap-2">
@@ -275,13 +284,13 @@ export default function SmartSummary({ summary, articleTitle, originalReadingTim
             <button
               onClick={() => setShowNextSteps(!showNextSteps)}
               className={`
-                w-full flex items-center justify-between p-3 rounded-lg
-                transition-colors hover:bg-gray-100 dark:hover:bg-gray-700/30
+                w-full flex items-center justify-between p-4 rounded-lg
+                transition-colors hover:bg-green-100/30 dark:hover:bg-green-800/30
                 ${darkMode ? 'text-white' : 'text-gray-900'}
               `}
             >
               <span className="font-medium flex items-center gap-2">
-                <Target className="w-4 h-4 text-green-500" />
+                <Target className="w-6 h-6 text-green-500" />
                 الخطوات التالية المقترحة
               </span>
               {showNextSteps ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
@@ -323,8 +332,8 @@ export default function SmartSummary({ summary, articleTitle, originalReadingTim
             : 'bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200'
           }
         `}>
-          <h5 className={`font-semibold mb-2 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-            <Award className="w-4 h-4 text-indigo-500" />
+          <h5 className={`text-lg font-semibold mb-2 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+            <Award className="w-6 h-6 text-indigo-500" />
             خلاصة القول
           </h5>
           <p className={`leading-relaxed ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
