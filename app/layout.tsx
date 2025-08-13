@@ -262,6 +262,9 @@ export default function RootLayout({
         
         {/* Featured News Fixes - إصلاحات الأخبار المميزة */}
         <script src="/featured-news-fixes.js" defer></script>
+        
+        {/* Featured News Carousel Mobile - تحسينات كاروسيل الموبايل */}
+        <link rel="stylesheet" href="/styles/featured-news-carousel-mobile.css" />
       </head>
       <body
         className={`${ibmPlexArabic.variable} font-arabic`}
