@@ -158,36 +158,32 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
               {/* المحتوى (العنوان والمعلومات) - عنصر ابن مباشر */}
               {/* استخدمنا z-20 لوضعه فوق الـ Overlay */}
               {/* إضافة transform: translateZ(0) لحل مشكلة التسريع العتادي */}
-              {/* اختبار الظهور - مربع أحمر واضح */}
+              {/* العنوان والمعلومات - خارج حاوية الصورة تماماً */}
               <div 
-                className="lg:hidden absolute bottom-0 left-0 right-0 z-50 p-4"
+                className="lg:hidden absolute bottom-4 left-4 right-4 text-white"
                 style={{ 
-                  transform: 'translateZ(0)',
-                  backgroundColor: 'red !important',
-                  border: '5px solid yellow',
-                  zIndex: 9999
+                  zIndex: 999,
+                  backgroundColor: 'rgba(0,0,0,0.8)',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  transform: 'translateZ(0)'
                 }}
               >
-                {/* اختبار نص واضح */}
-                <div style={{ 
-                  backgroundColor: 'blue', 
-                  color: 'white', 
-                  padding: '10px', 
-                  fontSize: '20px',
-                  fontWeight: 'bold'
-                }}>
-                  TEST - هل ترى هذا النص؟
+                {/* معلومات التصنيف والتاريخ */}
+                <div className="flex items-center gap-2 mb-2 text-xs">
+                  <span className="text-sm">{currentArticle.category?.icon || '📰'}</span>
+                  <span className="font-medium">{currentArticle.category?.name || 'أخبار'}</span>
+                  <span>•</span>
+                  <span>
+                    {new Date(currentArticle.published_at || new Date()).toLocaleDateString('ar-SA', {
+                      month: 'short',
+                      day: 'numeric'
+                    })}
+                  </span>
                 </div>
                 
-                {/* العنوان الأصلي */}
-                <h3 style={{ 
-                  color: 'white', 
-                  fontSize: '16px', 
-                  fontWeight: 'bold',
-                  backgroundColor: 'green',
-                  padding: '10px',
-                  margin: '10px 0'
-                }}>
+                {/* العنوان */}
+                <h3 className="text-white text-base font-bold leading-tight">
                   {currentArticle.title}
                 </h3>
               </div>
