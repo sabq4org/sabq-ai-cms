@@ -440,30 +440,28 @@ export async function PATCH(
         let keywords = data.seo_keywords;
         
         if (Array.isArray(keywords)) {
-          // إذا كانت مصفوفة، نستخدمها مباشرة
-          updateData.seo_keywords = keywords;
-        } else if (typeof keywords === 'string') {
-          // إذا كانت نصًا قد يكون JSON، نحاول تحليلها
-          try {
-            const parsedKeywords = JSON.parse(keywords);
-            updateData.seo_keywords = Array.isArray(parsedKeywords) ? parsedKeywords : [keywords];
-          } catch (e) {
-            // إذا لم تكن JSON صالح، نفترض أنها قائمة مفصولة بفواصل
-            updateData.seo_keywords = keywords.split(',').map(k => k.trim()).filter(Boolean);
+          // إذا كانت مصفوفة، نحولها إلى JSON string أو نص مفصول بفواصل
+          if (keywords.length === 0) {
+            updateData.seo_keywords = null; // إذا كانت فارغة، نضع null
+          } else {
+            updateData.seo_keywords = JSON.stringify(keywords); // نحفظها كـ JSON string
           }
+        } else if (typeof keywords === 'string') {
+          // إذا كانت نصًا، نستخدمها مباشرة
+          updateData.seo_keywords = keywords || null;
         } else if (keywords) {
-          // أي نوع آخر، نحوله إلى نص ثم إلى مصفوفة
-          updateData.seo_keywords = [String(keywords)];
+          // أي نوع آخر، نحوله إلى نص
+          updateData.seo_keywords = String(keywords);
         } else {
-          // إذا كانت فارغة، نضع مصفوفة فارغة
-          updateData.seo_keywords = [];
+          // إذا كانت فارغة أو undefined، نضع null
+          updateData.seo_keywords = null;
         }
         
         console.log("✅ الكلمات المفتاحية بعد المعالجة:", updateData.seo_keywords);
       } catch (error) {
         console.error("❌ خطأ في معالجة الكلمات المفتاحية:", error);
-        // في حالة الخطأ، استخدم مصفوفة فارغة كقيمة افتراضية آمنة
-        updateData.seo_keywords = [];
+        // في حالة الخطأ، استخدم null كقيمة افتراضية آمنة
+        updateData.seo_keywords = null;
       }
     }
     
@@ -474,16 +472,15 @@ export async function PATCH(
         
         let metadataKeywords = data.metadata.keywords;
         if (Array.isArray(metadataKeywords)) {
-          updateData.seo_keywords = metadataKeywords;
-        } else if (typeof metadataKeywords === 'string') {
-          try {
-            const parsedKeywords = JSON.parse(metadataKeywords);
-            updateData.seo_keywords = Array.isArray(parsedKeywords) ? parsedKeywords : [metadataKeywords];
-          } catch (e) {
-            updateData.seo_keywords = metadataKeywords.split(',').map(k => k.trim()).filter(Boolean);
+          if (metadataKeywords.length === 0) {
+            updateData.seo_keywords = null;
+          } else {
+            updateData.seo_keywords = JSON.stringify(metadataKeywords);
           }
+        } else if (typeof metadataKeywords === 'string') {
+          updateData.seo_keywords = metadataKeywords || null;
         } else if (metadataKeywords) {
-          updateData.seo_keywords = [String(metadataKeywords)];
+          updateData.seo_keywords = String(metadataKeywords);
         }
         
         console.log("✅ الكلمات المفتاحية من metadata بعد المعالجة:", updateData.seo_keywords);
