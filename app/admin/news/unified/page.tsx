@@ -528,11 +528,13 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
               const articleData = await articleResponse.json();
               console.log("✅ تم جلب بيانات المقال:", articleData);
 
-              // التعامل مع كلا التنسيقين (للتوافق)
+              // التعامل مع تنسيقات متعددة لواجهات API (success/article) أو (ok/data) أو كائن مباشر
               let article = null;
-              if (articleData.success && articleData.article) {
+              if (articleData?.success && articleData?.article) {
                 article = articleData.article;
-              } else if (articleData.id && articleData.title) {
+              } else if (articleData?.ok && articleData?.data) {
+                article = articleData.data;
+              } else if (articleData?.id && articleData?.title) {
                 // البيانات مباشرة
                 article = articleData;
               }
@@ -560,7 +562,10 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                   title: article.title || "",
                   subtitle: article.metadata?.subtitle || "",
                   excerpt: article.excerpt || "",
-                  content: article.content || "",
+                  content:
+                    typeof article.content === "string"
+                      ? article.content
+                      : article.content?.content || "",
                   // تفضيل المراسل الحقيقي من جدول article_authors عند التعديل
                   authorId:
                     article.article_author_id ||
@@ -573,7 +578,8 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                     article.metadata?.is_breaking || article.breaking || false,
                   isFeatured:
                     article.metadata?.is_featured || article.featured || false,
-                  featuredImage: article.featured_image || "",
+                  featuredImage:
+                    article.featured_image || article.image || article.image_url || "",
                   featuredImageCaption: article.metadata?.image_caption || "",
                   gallery: article.metadata?.gallery || [],
                   externalLink: article.metadata?.external_link || "",
@@ -581,20 +587,14 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                   scheduledDate: "",
                   keywords: (() => {
                     // محاولة جلب الكلمات المفتاحية من مصادر مختلفة
-                    if (
-                      article.metadata?.keywords &&
-                      Array.isArray(article.metadata.keywords)
-                    ) {
-                      return article.metadata.keywords;
+                    if (Array.isArray(article.metadata?.keywords)) {
+                      return article.metadata.keywords as any[];
                     }
                     if (article.keywords && Array.isArray(article.keywords)) {
                       return article.keywords;
                     }
                     // إذا كانت مخزنة كـ JSON string
-                    if (
-                      article.metadata?.keywords &&
-                      typeof article.metadata.keywords === "string"
-                    ) {
+                    if (typeof article.metadata?.keywords === "string") {
                       try {
                         const parsed = JSON.parse(article.metadata.keywords);
                         return Array.isArray(parsed) ? parsed : [];
@@ -602,10 +602,7 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                         return [];
                       }
                     }
-                    if (
-                      article.keywords &&
-                      typeof article.keywords === "string"
-                    ) {
+                    if (typeof article.keywords === "string") {
                       try {
                         const parsed = JSON.parse(article.keywords);
                         return Array.isArray(parsed) ? parsed : [];
@@ -625,6 +622,7 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                     article.metadata?.seo_description ||
                     article.seo_description ||
                     "",
+                  // ضمان وجود status
                   status: article.status || "draft",
                 });
 
