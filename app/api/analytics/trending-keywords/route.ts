@@ -101,25 +101,42 @@ export async function GET(request: NextRequest) {
         .sort((a, b) => b[1] - a[1])
         .slice(0, limit);
 
-      // إنشاء البيانات النهائية
+      // إنشاء البيانات النهائية بالتنسيق الجديد
       const keywords = sortedKeywords.map(([text, count], index) => {
-        // حساب الحجم بناءً على الترتيب والتكرار
-        let size = 1;
-        if (index < 3) size = 5;
-        else if (index < 8) size = 4;
-        else if (index < 15) size = 3;
-        else if (index < 25) size = 2;
+        // حساب الوزن (1-100) بناءً على التكرار
+        const maxCount = sortedKeywords[0][1];
+        const weight = Math.round((count / maxCount) * 100);
 
-        // تحديد الاتجاه (محاكاة - يمكن تطويرها لاحقاً)
-        const trend = Math.random() > 0.6 ? 'up' : Math.random() > 0.3 ? 'stable' : 'down';
+        // تحديد فئة اللون حسب السياق
+        let colorKey = 'misc';
+        if (['السعودية', 'الرياض', 'جدة', 'الدمام', 'مكة', 'المدينة'].some(city => text.includes(city))) {
+          colorKey = 'geo';
+        } else if (['اقتصاد', 'استثمار', 'تجارة', 'مال', 'أسهم', 'نفط'].some(eco => text.includes(eco))) {
+          colorKey = 'economy';
+        } else if (['سياسة', 'حكومة', 'وزير', 'أمير', 'ملك'].some(pol => text.includes(pol))) {
+          colorKey = 'politics';
+        } else if (['حرب', 'صراع', 'نزاع', 'قتال'].some(conf => text.includes(conf))) {
+          colorKey = 'conflict';
+        } else if (['تقنية', 'ذكاء', 'رقمي', 'تكنولوجيا', 'الذكاء الاصطناعي'].some(tech => text.includes(tech))) {
+          colorKey = 'tech';
+        } else if (['رياضة', 'كرة', 'لاعب', 'نادي', 'بطولة'].some(sport => text.includes(sport))) {
+          colorKey = 'sports';
+        }
+
+        // تحديد الاتجاه (محاكاة - يمكن تطويرها لاحقاً للمقارنة مع الفترة السابقة)
+        const trendRandom = Math.random();
+        let trend: 'up' | 'down' | 'flat' = 'flat';
+        if (trendRandom > 0.7) trend = 'up';
+        else if (trendRandom < 0.3) trend = 'down';
 
         return {
-          id: `keyword-${index}`,
+          id: `keyword-${index + 1}`,
           text,
+          weight,
           count,
+          colorKey,
           trend,
-          size,
-          url: `/search?q=${encodeURIComponent(text)}`,
+          href: `/search?q=${encodeURIComponent(text)}`,
           articleIds: keywordArticles.get(text) || []
         };
       });
@@ -135,23 +152,23 @@ export async function GET(request: NextRequest) {
     } catch (dbError) {
       console.error('خطأ في الاتصال بقاعدة البيانات:', dbError);
       
-      // إرجاع بيانات تجريبية في حالة فشل قاعدة البيانات
+      // إرجاع بيانات تجريبية محدثة في حالة فشل قاعدة البيانات
       const mockKeywords = [
-        { id: '1', text: 'السعودية', count: 156, trend: 'up', size: 5, url: '/search?q=السعودية' },
-        { id: '2', text: 'الرياض', count: 134, trend: 'up', size: 4, url: '/search?q=الرياض' },
-        { id: '3', text: 'اقتصاد', count: 98, trend: 'stable', size: 4, url: '/search?q=اقتصاد' },
-        { id: '4', text: 'تقنية', count: 87, trend: 'up', size: 3, url: '/search?q=تقنية' },
-        { id: '5', text: 'رؤية', count: 76, trend: 'up', size: 3, url: '/search?q=رؤية' },
-        { id: '6', text: 'نيوم', count: 65, trend: 'up', size: 3, url: '/search?q=نيوم' },
-        { id: '7', text: 'الذكاء الاصطناعي', count: 54, trend: 'up', size: 2, url: '/search?q=ذكاء+اصطناعي' },
-        { id: '8', text: 'الطاقة', count: 43, trend: 'stable', size: 2, url: '/search?q=طاقة' },
-        { id: '9', text: 'المملكة', count: 89, trend: 'stable', size: 3, url: '/search?q=المملكة' },
-        { id: '10', text: 'جدة', count: 67, trend: 'down', size: 2, url: '/search?q=جدة' },
-        { id: '11', text: 'الدمام', count: 45, trend: 'stable', size: 2, url: '/search?q=الدمام' },
-        { id: '12', text: 'القمة', count: 38, trend: 'up', size: 2, url: '/search?q=قمة' },
-        { id: '13', text: 'استثمار', count: 56, trend: 'up', size: 2, url: '/search?q=استثمار' },
-        { id: '14', text: 'تطوير', count: 41, trend: 'up', size: 2, url: '/search?q=تطوير' },
-        { id: '15', text: 'البيئة', count: 33, trend: 'stable', size: 1, url: '/search?q=البيئة' }
+        { id: '1', text: 'السعودية', weight: 95, count: 156, colorKey: 'geo', trend: 'up', href: '/search?q=السعودية' },
+        { id: '2', text: 'الرياض', weight: 88, count: 134, colorKey: 'geo', trend: 'up', href: '/search?q=الرياض' },
+        { id: '3', text: 'اقتصاد', weight: 75, count: 98, colorKey: 'economy', trend: 'flat', href: '/search?q=اقتصاد' },
+        { id: '4', text: 'تقنية', weight: 68, count: 87, colorKey: 'tech', trend: 'up', href: '/search?q=تقنية' },
+        { id: '5', text: 'رؤية', weight: 62, count: 76, colorKey: 'politics', trend: 'up', href: '/search?q=رؤية' },
+        { id: '6', text: 'نيوم', weight: 58, count: 65, colorKey: 'economy', trend: 'up', href: '/search?q=نيوم' },
+        { id: '7', text: 'الذكاء الاصطناعي', weight: 52, count: 54, colorKey: 'tech', trend: 'up', href: '/search?q=ذكاء+اصطناعي' },
+        { id: '8', text: 'الطاقة', weight: 45, count: 43, colorKey: 'economy', trend: 'flat', href: '/search?q=طاقة' },
+        { id: '9', text: 'المملكة', weight: 72, count: 89, colorKey: 'geo', trend: 'flat', href: '/search?q=المملكة' },
+        { id: '10', text: 'جدة', weight: 59, count: 67, colorKey: 'geo', trend: 'down', href: '/search?q=جدة' },
+        { id: '11', text: 'الدمام', weight: 42, count: 45, colorKey: 'geo', trend: 'flat', href: '/search?q=الدمام' },
+        { id: '12', text: 'القمة', weight: 38, count: 38, colorKey: 'politics', trend: 'up', href: '/search?q=قمة' },
+        { id: '13', text: 'استثمار', weight: 48, count: 56, colorKey: 'economy', trend: 'up', href: '/search?q=استثمار' },
+        { id: '14', text: 'تطوير', weight: 41, count: 41, colorKey: 'misc', trend: 'up', href: '/search?q=تطوير' },
+        { id: '15', text: 'البيئة', weight: 35, count: 33, colorKey: 'misc', trend: 'flat', href: '/search?q=البيئة' }
       ];
 
       return NextResponse.json({

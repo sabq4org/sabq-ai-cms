@@ -19,6 +19,7 @@ import "../styles/globals.css";
 import "../styles/home-word-cloud.css"; // أنماط سحابة الكلمات
 import "../styles/word-cloud-mobile.css"; // تحسينات سحابة الكلمات للجوال
 import "../styles/word-cloud-mobile-advanced.css"; // تحسينات متقدمة للجوال
+import "../styles/word-cloud.css"; // أنماط مكون Word Cloud الجديد
 import "../styles/minimal-fix.css";
 import "../styles/mobile-internal-pages-fix.css";
 import "../styles/mobile-news.css";
