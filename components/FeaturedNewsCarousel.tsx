@@ -148,14 +148,40 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                   </div>
                 )}
 
-                {/* اختبار الظهور - overlay أحمر واضح */}
-                <div 
-                  className="absolute bottom-0 left-0 right-0 bg-red-500 z-50" 
-                  style={{ height: '100px', backgroundColor: 'red !important' }}
-                >
-                  <div className="text-white text-xl font-bold p-4">
-                    TEST - إذا ظهر هذا النص فالمشكلة في CSS
+                {/* Overlay متدرج للجوال - يغطي 40% من أسفل الصورة */}
+                <div className="lg:hidden absolute bottom-0 left-0 right-0 z-10" style={{ height: '40%', background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)' }}></div>
+                
+                {/* العنوان مدمج أسفل الصورة - للجوال فقط */}
+                <div className="lg:hidden absolute bottom-0 left-0 right-0 z-20" style={{ padding: '12px' }}>
+                  {/* معلومات التصنيف والتاريخ */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', fontSize: '12px', color: 'rgba(255,255,255,0.9)' }}>
+                    <span style={{ fontSize: '14px' }}>{currentArticle.category?.icon || '📰'}</span>
+                    <span style={{ fontWeight: '500' }}>{currentArticle.category?.name || 'أخبار'}</span>
+                    <span style={{ color: 'rgba(255,255,255,0.7)' }}>•</span>
+                    <span style={{ color: 'rgba(255,255,255,0.8)' }}>
+                      {new Date(currentArticle.published_at || new Date()).toLocaleDateString('ar-SA', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </span>
                   </div>
+                  
+                  {/* العنوان */}
+                  <h3 style={{ 
+                    color: '#fff', 
+                    fontSize: '14px', 
+                    fontWeight: 'bold', 
+                    lineHeight: '1.2',
+                    textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                    margin: 0
+                  }}>
+                    {currentArticle.title}
+                  </h3>
                 </div>
 
                 {/* تم إزالة شارة "مميز" حسب الطلب */}
