@@ -156,49 +156,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                   </h2>
                 </div>
                 
-                {/* أزرار التنقل للموبايل - على جانبي الصورة */}
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handlePrevious();
-                  }}
-                  className="lg:hidden absolute top-1/2 -translate-y-1/2 right-2 z-30 p-2 rounded-full bg-black/60 text-white transition-all hover:bg-black/80"
-                  aria-label="السابق"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleNext();
-                  }}
-                  className="lg:hidden absolute top-1/2 -translate-y-1/2 left-2 z-30 p-2 rounded-full bg-black/60 text-white transition-all hover:bg-black/80"
-                  aria-label="التالي"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                
-                {/* نقاط التنقل للموبايل - أسفل الصورة */}
-                <div className="lg:hidden absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-25">
-                  {articles.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setCurrentIndex(index);
-                      }}
-                      className={`transition-all duration-300 ${
-                        index === currentIndex
-                          ? "w-6 h-2 rounded-full bg-white"
-                          : "w-2 h-2 rounded-full bg-white/50 hover:bg-white/75"
-                      }`}
-                      aria-label={`الانتقال للخبر ${index + 1}`}
-                    />
-                  ))}
-                </div>
+
               </div>
             </div>
 
@@ -292,6 +250,51 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
           {/* أزرار التنقل - تم نقلها خارج الصورة */}
         </div>
       </Link>
+
+      {/* منطقة التنقل للموبايل - خارج الكاروسيل */}
+      <div className="lg:hidden mt-3 px-4">
+        <div className="flex items-center justify-between">
+          {/* زر السابق */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              handlePrevious();
+            }}
+            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-300 shadow-sm"
+            aria-label="السابق"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+          
+          {/* نقاط التنقل */}
+          <div className="flex items-center gap-2">
+            {articles.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  index === currentIndex
+                    ? "w-8 bg-blue-500 dark:bg-blue-400"
+                    : "w-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400"
+                }`}
+                aria-label={`الانتقال للخبر ${index + 1}`}
+              />
+            ))}
+          </div>
+          
+          {/* زر التالي */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              handleNext();
+            }}
+            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-300 shadow-sm"
+            aria-label="التالي"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
 
       {/* منطقة التنقل - للديسكتوب فقط */}
       <div className="hidden lg:flex mt-4 justify-center items-center">
