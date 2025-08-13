@@ -150,9 +150,11 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
 
               {/* Overlay متدرج للجوال - أسفل الصورة فقط */}
               <div
-                className="lg:hidden absolute bottom-0 left-0 right-0 z-10 pointer-events-none"
+                className="lg:hidden absolute left-0 right-0 z-10 pointer-events-none"
                 style={{
-                  height: '40%',
+                  bottom: 0,
+                  top: 'auto',
+                  height: '42%',
                   background:
                     'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0) 100%)',
                   transform: 'translateZ(0)'
@@ -164,8 +166,8 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
               {/* إضافة transform: translateZ(0) لحل مشكلة التسريع العتادي */}
               {/* العنوان والمعلومات - داخل الحاوية في الأسفل */}
               <div
-                className="lg:hidden absolute bottom-0 left-0 right-0 z-20 p-3"
-                style={{ transform: 'translateZ(0)' }}
+                className="lg:hidden absolute left-0 right-0 z-20 p-3"
+                style={{ bottom: 0, top: 'auto', transform: 'translateZ(0)' }}
               >
                 {/* معلومات التصنيف والتاريخ */}
                 <div className="flex items-center gap-2 mb-1 text-[11px] text-white/90">
