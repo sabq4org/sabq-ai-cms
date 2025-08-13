@@ -153,6 +153,21 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                 
                 {/* العنوان في المنطقة المظللة - للجوال فقط */}
                 <div className="lg:hidden absolute bottom-4 left-4 right-4 z-20">
+                  {/* معلومات التصنيف والتاريخ */}
+                  <div className="flex items-center gap-2 mb-2 text-xs text-white/90">
+                    <span className="text-sm">{currentArticle.category?.icon}</span>
+                    <span className="font-medium">{currentArticle.category?.name}</span>
+                    <span className="text-white/70">•</span>
+                    <span className="text-white/80">
+                      {new Date(currentArticle.published_at).toLocaleDateString('ar-SA', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </span>
+                  </div>
+                  
+                  {/* العنوان */}
                   <h2 className="text-white text-lg font-bold leading-tight drop-shadow-lg">
                     {currentArticle.title}
                   </h2>
