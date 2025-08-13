@@ -260,15 +260,7 @@ export default function RootLayout({
         <link rel="stylesheet" href="/styles/mobile-lite-fixes.css" />
         <script src="/mobile-lite-fixes.js" defer></script>
         
-        {/* Featured News Fixes - إصلاحات الأخبار المميزة */}
-        <script src="/featured-news-fixes.js" defer></script>
-        
-        {/* Featured News Carousel Mobile - تحسينات كاروسيل الموبايل */}
-        <link rel="stylesheet" href="/styles/featured-news-carousel-mobile.css" />
-        
-        {/* Emergency Fix for Featured Carousel */}
-        <link rel="stylesheet" href="/styles/featured-carousel-emergency-fix.css" />
-        <script src="/featured-carousel-fix.js" defer></script>
+
       </head>
       <body
         className={`${ibmPlexArabic.variable} font-arabic`}

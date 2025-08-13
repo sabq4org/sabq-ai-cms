@@ -107,68 +107,40 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
 
   // إذا لا توجد أخبار، لا نعرض شيئاً
   if (!articles.length) {
-    console.warn('[FeaturedNewsCarousel] No articles provided');
     return null;
   }
 
   const currentArticle = articles[currentIndex];
-  
-  if (!currentArticle) {
-    console.error('[FeaturedNewsCarousel] Current article is undefined', { currentIndex, articlesLength: articles.length });
-    return null;
-  }
-  
-  console.log('[FeaturedNewsCarousel] Rendering with article:', currentArticle.title);
 
   return (
     <div
-      className="featured-carousel featured-carousel-mobile relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6"
+      className="featured-carousel relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* عرض تجريبي لتحديد المشكلة */}
-      <div style={{ 
-        position: 'absolute', 
-        top: 0, 
-        left: 0, 
-        background: 'yellow', 
-        padding: '10px', 
-        zIndex: 100,
-        fontSize: '12px'
-      }}>
-        DEBUG: {currentArticle.title ? 'Article loaded' : 'No article'}
-      </div>
-      
       <Link href={getArticleLink(currentArticle)} className="group block">
         {/* البلوك الرئيسي - تم تحسين الخلفية لضمان الرؤية */}
         <div
-          className={`relative transition-all duration-500 group-hover:shadow-2xl ${
+          className={`relative overflow-hidden transition-all duration-500 group-hover:shadow-2xl ${
             darkMode
               ? "bg-gray-800 hover:bg-gray-800"
               : "bg-white hover:bg-white"
           } backdrop-blur-none rounded-3xl`}
-          style={{ minHeight: '220px' }}
         >
           {/* Grid Layout: Mobile = full width image, Desktop = 50% للصورة، 50% للنص */}
           <div className="grid grid-cols-1 lg:grid-cols-12 h-[220px] sm:h-[260px] lg:h-[320px]">
             {/* قسم الصورة - عرض كامل للجوال، 6 أعمدة للديسكتوب */}
             <div className="col-span-1 lg:col-span-6 relative overflow-hidden rounded-xl lg:rounded-r-2xl lg:rounded-l-none h-[220px] sm:h-[260px] lg:h-[320px]">
               {/* الصورة */}
-              <div className="image-container relative w-full h-full bg-gray-200">
-                {currentArticle.featured_image ? (
-                  <CloudImage
-                    src={currentArticle.featured_image}
-                    alt={currentArticle.title}
-                    fill
-                    className="article-image w-full h-full object-cover object-center rounded-xl transition-transform duration-700 group-hover:scale-105"
-                    fallbackType="article"
-                    priority={true}
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                    <span className="text-white text-4xl">📰</span>
-                  </div>
-                )}
+              <div className="relative w-full h-full">
+                <CloudImage
+                  src={currentArticle.featured_image}
+                  alt={currentArticle.title}
+                  fill
+                  className="w-full h-full object-cover object-center rounded-xl transition-transform duration-700 group-hover:scale-105"
+                  fallbackType="article"
+                  priority={true}
+                />
 
                 {/* تدرج لوني للجوال والديسكتوب - من الأسفل إلى الأعلى مع ظل قوي */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-10 pointer-events-none shadow-inner"></div>
@@ -177,52 +149,11 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
 
                 {/* أسهم التنقل تم نقلها من على الصورة */}
 
-                {/* نقاط التنقل للموبايل */}
-                <div className="dots-container lg:hidden absolute bottom-16 left-1/2 -translate-x-1/2 flex gap-1.5" style={{ zIndex: 25 }}>
-                  {articles.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setCurrentIndex(index);
-                      }}
-                      className={`dot transition-all duration-300 ${
-                        index === currentIndex
-                          ? "active w-6 h-2 rounded-full bg-white"
-                          : "w-2 h-2 rounded-full bg-white/50 hover:bg-white/75"
-                      }`}
-                      aria-label={`الانتقال للخبر ${index + 1}`}
-                    />
-                  ))}
-                </div>
-
-                {/* العنوان في أسفل الصورة - للجوال فقط */}
-                <div className="bottom-title-container lg:hidden absolute bottom-0 left-0 right-0 p-3 z-20">
-                  {/* خلفية شفافة سوداء مع تدرج */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent"></div>
-                  
-                  {/* المحتوى */}
-                  <div className="relative z-10">
-                    {/* التصنيف والتاريخ */}
-                    <div className="article-meta flex items-center gap-2 text-xs text-gray-200 mb-1.5">
-                      {currentArticle.category && (
-                        <span className="flex items-center gap-1">
-                          {currentArticle.category.icon && (
-                            <span className="category-icon text-sm">{currentArticle.category.icon}</span>
-                          )}
-                          <span>{currentArticle.category.name}</span>
-                        </span>
-                      )}
-                      {currentArticle.category && <span className="separator text-gray-400">•</span>}
-                      <span>{formatDateGregorian(currentArticle.published_at)}</span>
-                    </div>
-                    
-                    {/* العنوان */}
-                    <h2 className="article-title text-white text-base font-bold leading-tight line-clamp-2 drop-shadow-lg">
-                      {currentArticle.title}
-                    </h2>
-                  </div>
+                {/* العنوان داخل الصورة - للجوال فقط */}
+                <div className="lg:hidden absolute bottom-0 left-0 right-0 p-4 z-20 bg-gradient-to-t from-black/90 to-black/20">
+                  <h2 className="text-white text-lg font-bold leading-snug drop-shadow-md">
+                    {currentArticle.title}
+                  </h2>
                 </div>
               </div>
             </div>
@@ -318,30 +249,8 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
         </div>
       </Link>
 
-      {/* أزرار التنقل للموبايل - على جانبي الكاروسيل */}
-      <button
-        onClick={(e) => {
-          e.preventDefault();
-          handlePrevious();
-        }}
-        className="nav-button prev lg:hidden absolute top-1/2 -translate-y-1/2 right-2 z-30 p-2 rounded-full bg-black/60 text-white transition-all hover:bg-black/80"
-        aria-label="السابق"
-      >
-        <ChevronRight className="w-5 h-5" />
-      </button>
-      <button
-        onClick={(e) => {
-          e.preventDefault();
-          handleNext();
-        }}
-        className="nav-button next lg:hidden absolute top-1/2 -translate-y-1/2 left-2 z-30 p-2 rounded-full bg-black/60 text-white transition-all hover:bg-black/80"
-        aria-label="التالي"
-      >
-        <ChevronLeft className="w-5 h-5" />
-      </button>
-
-      {/* منطقة التنقل الجديدة مع الأسهم والأشرطة - للديسكتوب فقط */}
-      <div className="hidden lg:flex mt-4 justify-center items-center">
+      {/* منطقة التنقل الجديدة مع الأسهم والأشرطة */}
+      <div className="mt-4 flex justify-center items-center">
         <div className="flex items-center gap-3 px-4">
           {/* زر السابق */}
           <button
