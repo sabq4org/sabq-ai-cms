@@ -7,7 +7,7 @@ import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { 
   Menu, Search, Bell, User, X, Sun, Moon, Activity, 
-  Home, Newspaper, Bookmark, Settings, LogOut, ChevronDown 
+  Home, Newspaper, Bookmark, Settings, LogOut, ChevronDown, PenTool 
 } from 'lucide-react';
 
 // واجهة محسنة
@@ -113,6 +113,13 @@ const navigationItems = [
     url: '/news', 
     icon: Newspaper,
     color: 'text-green-600 dark:text-green-400'
+  },
+  { 
+    label: 'الرأي',
+    url: '/opinion',
+    icon: PenTool,
+    color: 'text-orange-600 dark:text-orange-400',
+    badge: 'جديد'
   },
   { 
     label: 'المحفوظات', 
@@ -229,8 +236,8 @@ const SideMenu = memo(({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
           </div>
 
           {/* عناصر القائمة الرئيسية */}
-          <div className="flex-1 overflow-y-auto py-4">
-            <ul className="space-y-1 px-4">
+          <div className="flex-1 overflow-y-auto py-3">
+            <ul className="space-y-1 px-3">
               {navigationItems.map((item, index) => {
                 const Icon = item.icon;
                 return (
@@ -238,20 +245,24 @@ const SideMenu = memo(({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
                     <Link
                       href={item.url}
                       onClick={onClose}
-                      className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group ${
+                      className={`flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 group min-h-[44px] ${
                         item.highlight
                           ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30'
                           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                       }`}
                     >
-                      <Icon className={`w-6 h-6 ${item.color} ${item.highlight ? 'animate-pulse' : ''} group-hover:scale-110 transition-transform duration-200`} />
-                      <span className="flex-1 font-medium">{item.label}</span>
+                      <Icon className={`w-5 h-5 ${item.color} ${item.highlight ? 'animate-pulse' : ''} flex-shrink-0`} />
+                      <span className="flex-1 text-sm font-medium">{item.label}</span>
                       {item.highlight && newEventsCount > 0 && (
-                        <span className="w-6 h-6 bg-red-500 text-white text-xs rounded-full flex items-center justify-center animate-bounce font-bold">
+                        <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full min-w-[20px] text-center">
                           {newEventsCount > 9 ? '9+' : newEventsCount}
                         </span>
                       )}
-                      <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-200" />
+                      {item.badge && (
+                        <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full">
+                          {item.badge}
+                        </span>
+                      )}
                     </Link>
                   </li>
                 );
@@ -259,34 +270,34 @@ const SideMenu = memo(({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
             </ul>
 
             {/* فاصل */}
-            <div className="my-6 mx-4 border-t border-gray-200 dark:border-gray-700" />
+            <div className="my-4 mx-4 border-t border-gray-200 dark:border-gray-700" />
 
             {/* روابط إضافية */}
-            <ul className="space-y-1 px-4">
+            <ul className="space-y-1 px-3">
               <li>
                 <Link
                   href="/settings"
                   onClick={onClose}
-                  className="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 group"
+                  className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 group min-h-[44px]"
                 >
-                  <Settings className="w-6 h-6 text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300 group-hover:rotate-90 transition-all duration-200" />
-                  <span>الإعدادات</span>
+                  <Settings className="w-5 h-5 text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300 flex-shrink-0" />
+                  <span className="text-sm">الإعدادات</span>
                 </Link>
               </li>
             </ul>
           </div>
 
           {/* تذييل القائمة */}
-          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="p-3 border-t border-gray-200 dark:border-gray-700">
             <button
               onClick={() => {
                 onClose();
                 // منطق تسجيل الخروج
               }}
-              className="w-full flex items-center gap-4 px-4 py-3 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 group"
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 group min-h-[44px]"
             >
-              <LogOut className="w-6 h-6 group-hover:scale-110 transition-transform duration-200" />
-              <span className="font-medium">تسجيل الخروج</span>
+              <LogOut className="w-5 h-5 flex-shrink-0" />
+              <span className="text-sm font-medium">تسجيل الخروج</span>
             </button>
           </div>
         </div>
