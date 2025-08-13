@@ -126,6 +126,8 @@ export default function CloudImage({
           } transition-opacity duration-300`}
           onError={handleError}
           onLoad={handleLoad}
+          // onLoadingComplete أكثر اعتمادية خاصة مع الصور المحملة مسبقاً و SSR
+          onLoadingComplete={() => setIsLoading(false)}
           style={{ objectFit: "cover", width: "100%", height: "100%" }}
         />
       </>

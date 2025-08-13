@@ -142,6 +142,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                     className="w-full h-full object-cover object-center rounded-xl transition-transform duration-700 group-hover:scale-105"
                     fallbackType="article"
                     priority={true}
+                    sizes="(max-width:768px) 100vw, (min-width:1024px) 50vw, 100vw"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
