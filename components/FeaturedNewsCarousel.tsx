@@ -145,13 +145,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                 {/* تدرج لوني للجوال والديسكتوب - من الأسفل إلى الأعلى مع ظل قوي */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-10 pointer-events-none shadow-inner"></div>
 
-                {/* شارة الخبر المميز - شريط أفقي أعلى الصورة بعرض كامل */}
-                <div className="absolute top-0 right-0 left-0 z-30 bg-gradient-to-b from-yellow-500 to-yellow-500/80 py-1.5 px-4 text-center backdrop-blur-sm">
-                  <div className="text-white text-sm font-medium flex items-center justify-center gap-1.5">
-                    <Star className="w-4 h-4" />
-                    مميز 
-                  </div>
-                </div>
+                {/* تم إزالة شارة "مميز" حسب الطلب */}
 
                 {/* أسهم التنقل تم نقلها من على الصورة */}
 
