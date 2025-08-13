@@ -1,226 +1,88 @@
-/**
- * أنماط مكون Word Cloud المتطور
- * Advanced Word Cloud Component Styles
- */
-
-/* ===== الأنماط الأساسية ===== */
-.word-cloud-container {
-  /* تحسين الأداء */
-  contain: layout style paint;
-  will-change: transform;
-  
-  /* تحسين النصوص العربية */
-  direction: rtl;
-  font-feature-settings: 'kern' 1, 'liga' 1;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* Enhanced Word Cloud Styles */
+.enhanced-word-cloud {
+  width: 100%;
+  min-height: 200px;
 }
 
-/* ===== تحسينات الكلمات ===== */
-.word-cloud-item {
-  /* منع اختيار النص */
-  -webkit-user-select: none;
-  -moz-user-select: none;
+/* Word Cloud Container */
+.enhanced-word-cloud .word-cloud-container {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Word Items */
+.enhanced-word-cloud button {
+  transition: all 0.2s ease;
+  cursor: pointer;
   user-select: none;
-  
-  /* تحسين اللمس */
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-  
-  /* تحسين الأداء */
-  transform: translateZ(0);
-  backface-visibility: hidden;
 }
 
-/* ===== تأثيرات الـ hover ===== */
-.word-cloud-item:hover {
-  /* تأثير الظل النصي */
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+.enhanced-word-cloud button:hover {
+  transform: scale(1.05);
 }
 
-.word-cloud-item:active {
-  /* تأثير الضغط */
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+.enhanced-word-cloud button:active {
+  transform: scale(0.95);
 }
 
-/* ===== الوضع المظلم ===== */
-.dark .word-cloud-item:hover {
-  filter: drop-shadow(0 2px 4px rgba(255, 255, 255, 0.1));
+/* Trend Icons */
+.enhanced-word-cloud .trend-icon {
+  display: inline-block;
+  margin-inline-start: 4px;
 }
 
-.dark .word-cloud-item:active {
-  filter: drop-shadow(0 1px 2px rgba(255, 255, 255, 0.15));
-}
-
-/* ===== تحسينات للجوال ===== */
-@media (max-width: 768px) {
-  .word-cloud-container {
-    padding: 12px;
-  }
-  
-  .word-cloud-item {
-    /* مساحة لمس محسنة */
-    min-height: 32px;
-    min-width: 40px;
-    padding: 4px 8px;
-    
-    /* تقليل التأثيرات للأداء */
-    transition: transform 0.2s ease, filter 0.2s ease;
-  }
-  
-  /* إزالة hover effects على الجوال */
-  .word-cloud-item:hover {
-    filter: none;
-  }
-  
-  /* تأثير الضغط فقط */
-  .word-cloud-item:active {
-    transform: scale(0.95);
-    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
-  }
-}
-
-/* ===== تحسينات للشاشات الصغيرة جداً ===== */
-@media (max-width: 480px) {
-  .word-cloud-item {
-    min-height: 28px;
-    min-width: 36px;
-    padding: 3px 6px;
-    font-size: 0.8rem !important;
-  }
-}
-
-/* ===== تحسينات الـ Skeleton ===== */
-.word-cloud-skeleton-item {
-  background: linear-gradient(
-    90deg,
-    rgba(209, 213, 219, 0.3) 0%,
-    rgba(209, 213, 219, 0.8) 50%,
-    rgba(209, 213, 219, 0.3) 100%
-  );
+/* Skeleton Loading */
+.enhanced-word-cloud .skeleton-item {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
   background-size: 200% 100%;
-  animation: shimmer 1.5s infinite ease-in-out;
+  animation: loading 1.5s ease-in-out infinite;
 }
 
-.dark .word-cloud-skeleton-item {
-  background: linear-gradient(
-    90deg,
-    rgba(75, 85, 99, 0.3) 0%,
-    rgba(75, 85, 99, 0.8) 50%,
-    rgba(75, 85, 99, 0.3) 100%
-  );
-  background-size: 200% 100%;
-}
-
-@keyframes shimmer {
+@keyframes loading {
   0% {
-    background-position: -200% 0;
-  }
-  100% {
     background-position: 200% 0;
   }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
-/* ===== تحسينات أيقونات الاتجاه ===== */
-.trend-icon {
-  /* منع تأثر الأيقونة بالـ scaling */
-  transform-origin: center;
-  flex-shrink: 0;
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .enhanced-word-cloud .skeleton-item {
+    background: linear-gradient(90deg, #2a2a2a 25%, #333333 50%, #2a2a2a 75%);
+  }
 }
 
-.trend-icon.up {
-  color: #10b981; /* emerald-500 */
+/* Responsive Design */
+@media (max-width: 768px) {
+  .enhanced-word-cloud {
+    min-height: 150px;
+  }
 }
 
-.trend-icon.down {
-  color: #ef4444; /* red-500 */
+/* RTL Support */
+[dir="rtl"] .enhanced-word-cloud .trend-icon {
+  margin-inline-start: 0;
+  margin-inline-end: 4px;
 }
 
-.trend-icon.flat {
-  color: #6b7280; /* gray-500 */
-}
-
-/* ===== تحسينات الـ Tooltip ===== */
-.word-cloud-tooltip {
-  max-width: 300px;
-  z-index: 9999;
-  
-  /* تحسين القراءة */
-  line-height: 1.4;
-  text-align: center;
-  
-  /* تحسين الأداء */
-  will-change: transform, opacity;
-  backface-visibility: hidden;
-}
-
-/* ===== تحسينات الوصولية ===== */
-.word-cloud-item:focus-visible {
+/* Focus States for Accessibility */
+.enhanced-word-cloud button:focus-visible {
   outline: 2px solid #3b82f6;
   outline-offset: 2px;
-  border-radius: 6px;
+  border-radius: 4px;
 }
 
-.dark .word-cloud-item:focus-visible {
-  outline-color: #60a5fa;
+/* Stats Section */
+.enhanced-word-cloud .stats-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-/* تحسين التباين في الوضع المظلم */
-.dark .word-cloud-container {
-  color-scheme: dark;
-}
-
-/* ===== تحسينات RTL ===== */
-.word-cloud-container[dir="rtl"] {
-  text-align: center;
-}
-
-.word-cloud-container[dir="rtl"] .word-cloud-item {
-  direction: rtl;
-  unicode-bidi: bidi-override;
-}
-
-/* ===== تحسينات الطباعة ===== */
-@media print {
-  .word-cloud-container {
-    background: white !important;
-    border: 1px solid #e5e7eb !important;
-    box-shadow: none !important;
-  }
-  
-  .word-cloud-item {
-    color: #374151 !important;
-    text-shadow: none !important;
-    filter: none !important;
-  }
-  
-  .trend-icon {
-    display: none;
-  }
-}
-
-/* ===== تحسينات الحركة المخفضة ===== */
-@media (prefers-reduced-motion: reduce) {
-  .word-cloud-item {
-    transition: none !important;
-    animation: none !important;
-  }
-  
-  .word-cloud-skeleton-item {
-    animation: none !important;
-  }
-}
-
-/* ===== تحسينات الألوان عالية التباين ===== */
-@media (prefers-contrast: high) {
-  .word-cloud-item {
-    border: 1px solid currentColor;
-    background-color: rgba(255, 255, 255, 0.9);
-  }
-  
-  .dark .word-cloud-item {
-    background-color: rgba(0, 0, 0, 0.9);
-    color: white !important;
+@media (prefers-color-scheme: dark) {
+  .enhanced-word-cloud .stats-section {
+    border-top-color: rgba(255, 255, 255, 0.1);
   }
 }
