@@ -1,0 +1,88 @@
+/* Enhanced Word Cloud Styles */
+.enhanced-word-cloud {
+  width: 100%;
+  min-height: 200px;
+}
+
+/* Word Cloud Container */
+.enhanced-word-cloud .word-cloud-container {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Word Items */
+.enhanced-word-cloud button {
+  transition: all 0.2s ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+.enhanced-word-cloud button:hover {
+  transform: scale(1.05);
+}
+
+.enhanced-word-cloud button:active {
+  transform: scale(0.95);
+}
+
+/* Trend Icons */
+.enhanced-word-cloud .trend-icon {
+  display: inline-block;
+  margin-inline-start: 4px;
+}
+
+/* Skeleton Loading */
+.enhanced-word-cloud .skeleton-item {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s ease-in-out infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .enhanced-word-cloud .skeleton-item {
+    background: linear-gradient(90deg, #2a2a2a 25%, #333333 50%, #2a2a2a 75%);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .enhanced-word-cloud {
+    min-height: 150px;
+  }
+}
+
+/* RTL Support */
+[dir="rtl"] .enhanced-word-cloud .trend-icon {
+  margin-inline-start: 0;
+  margin-inline-end: 4px;
+}
+
+/* Focus States for Accessibility */
+.enhanced-word-cloud button:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Stats Section */
+.enhanced-word-cloud .stats-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  .enhanced-word-cloud .stats-section {
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
+}
