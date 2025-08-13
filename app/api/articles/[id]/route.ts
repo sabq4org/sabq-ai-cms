@@ -704,7 +704,7 @@ export async function PATCH(
       // إرجاع استجابة موحدة متوافقة مع معايير API Envelope
       return NextResponse.json({
         ok: true,
-        message: status === "draft" ? "تم حفظ المسودة بنجاح" : "تم تحديث المقال بنجاح",
+        message: updatedArticle.status === "draft" ? "تم حفظ المسودة بنجاح" : "تم تحديث المقال بنجاح",
         data: {
           id: updatedArticle.id,
           title: updatedArticle.title,
