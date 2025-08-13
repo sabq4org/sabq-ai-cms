@@ -148,8 +148,15 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                   </div>
                 )}
 
-                {/* تدرج لوني للجوال والديسكتوب - من الأسفل إلى الأعلى مع ظل قوي */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-10 pointer-events-none shadow-inner"></div>
+                {/* تدرج لوني من الأسفل إلى الأعلى مع ظل قوي */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 via-black/30 to-transparent z-10 pointer-events-none"></div>
+                
+                {/* العنوان في المنطقة المظللة - للجوال فقط */}
+                <div className="lg:hidden absolute bottom-4 left-4 right-4 z-20">
+                  <h2 className="text-white text-lg font-bold leading-tight drop-shadow-lg">
+                    {currentArticle.title}
+                  </h2>
+                </div>
 
                 {/* تم إزالة شارة "مميز" حسب الطلب */}
 
