@@ -268,6 +268,7 @@ export default function RootLayout({
         
         {/* Emergency Fix for Featured Carousel */}
         <link rel="stylesheet" href="/styles/featured-carousel-emergency-fix.css" />
+        <script src="/featured-carousel-fix.js" defer></script>
       </head>
       <body
         className={`${ibmPlexArabic.variable} font-arabic`}

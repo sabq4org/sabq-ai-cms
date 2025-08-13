@@ -102,15 +102,51 @@
   z-index: 35 !important;
 }
 
+/* إصلاح الشبكة المخفية */
+.featured-carousel .grid {
+  display: grid !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* إصلاح الصورة المخفية */
+.featured-carousel .relative.overflow-hidden {
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: block !important;
+}
+
+/* إصلاح CloudImage component */
+.featured-carousel span[style*="display:inline-block"] {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* إصلاح Next.js Image wrapper */
+.featured-carousel span > img {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* إزالة أي transform قد يخفي المحتوى */
+.featured-carousel * {
+  transform: none !important;
+}
+
 /* Debug styles - يمكن إزالتها لاحقاً */
 .featured-carousel {
   border: 2px solid red !important;
+  background: #f0f0f0 !important;
 }
 
 .featured-carousel > a {
   border: 2px solid blue !important;
+  background: white !important;
 }
 
 .featured-carousel .grid {
   border: 2px solid green !important;
+  background: #e0e0e0 !important;
 }

@@ -142,26 +142,33 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
       <Link href={getArticleLink(currentArticle)} className="group block">
         {/* البلوك الرئيسي - تم تحسين الخلفية لضمان الرؤية */}
         <div
-          className={`relative overflow-hidden transition-all duration-500 group-hover:shadow-2xl ${
+          className={`relative transition-all duration-500 group-hover:shadow-2xl ${
             darkMode
               ? "bg-gray-800 hover:bg-gray-800"
               : "bg-white hover:bg-white"
           } backdrop-blur-none rounded-3xl`}
+          style={{ minHeight: '220px' }}
         >
           {/* Grid Layout: Mobile = full width image, Desktop = 50% للصورة، 50% للنص */}
           <div className="grid grid-cols-1 lg:grid-cols-12 h-[220px] sm:h-[260px] lg:h-[320px]">
             {/* قسم الصورة - عرض كامل للجوال، 6 أعمدة للديسكتوب */}
             <div className="col-span-1 lg:col-span-6 relative overflow-hidden rounded-xl lg:rounded-r-2xl lg:rounded-l-none h-[220px] sm:h-[260px] lg:h-[320px]">
               {/* الصورة */}
-              <div className="image-container relative w-full h-full">
-                <CloudImage
-                  src={currentArticle.featured_image}
-                  alt={currentArticle.title}
-                  fill
-                  className="article-image w-full h-full object-cover object-center rounded-xl transition-transform duration-700 group-hover:scale-105"
-                  fallbackType="article"
-                  priority={true}
-                />
+              <div className="image-container relative w-full h-full bg-gray-200">
+                {currentArticle.featured_image ? (
+                  <CloudImage
+                    src={currentArticle.featured_image}
+                    alt={currentArticle.title}
+                    fill
+                    className="article-image w-full h-full object-cover object-center rounded-xl transition-transform duration-700 group-hover:scale-105"
+                    fallbackType="article"
+                    priority={true}
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                    <span className="text-white text-4xl">📰</span>
+                  </div>
+                )}
 
                 {/* تدرج لوني للجوال والديسكتوب - من الأسفل إلى الأعلى مع ظل قوي */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-10 pointer-events-none shadow-inner"></div>
