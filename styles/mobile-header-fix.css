@@ -1,0 +1,103 @@
+/* إصلاحات الهيدر للموبايل */
+
+/* التأكد من ظهور الهيدر في الموبايل */
+.mobile-header {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* الهيدر في الوضع الليلي */
+.dark .mobile-header {
+  background-color: #1f2937;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* تحسين ارتفاع الهيدر */
+.mobile-header {
+  min-height: 56px;
+  height: auto;
+}
+
+/* التأكد من وضوح محتوى الهيدر */
+.mobile-header > div {
+  padding: 0.75rem 1rem;
+}
+
+/* إصلاح مشكلة الهيدر المخفي */
+@media (max-width: 768px) {
+  .mobile-header {
+    display: block !important;
+  }
+  
+  /* إضافة مساحة أعلى المحتوى لتجنب تغطية الهيدر */
+  body {
+    padding-top: 56px;
+  }
+  
+  /* التأكد من عدم إخفاء الهيدر عند التمرير */
+  .mobile-header.scrolled {
+    transform: translateY(0) !important;
+  }
+}
+
+/* تحسين الأزرار في الهيدر */
+.mobile-header button {
+  min-width: 40px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* تحسين شعار الموقع */
+.mobile-header .logo {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+/* إصلاح قائمة البحث */
+.mobile-header .search-container {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* إصلاح القائمة الجانبية */
+.mobile-menu {
+  position: fixed;
+  top: 56px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: white;
+  z-index: 40;
+  overflow-y: auto;
+}
+
+.dark .mobile-menu {
+  background-color: #1f2937;
+}
+
+/* تحسين الانتقالات */
+.mobile-header,
+.mobile-menu {
+  transition: all 0.3s ease;
+}
+
+/* إصلاح مشكلة عدم ظهور الهيدر العادي في الشاشات الكبيرة */
+@media (min-width: 769px) {
+  .mobile-header {
+    display: none !important;
+  }
+  
+  body {
+    padding-top: 0;
+  }
+}
