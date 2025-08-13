@@ -249,8 +249,6 @@
     z-index: 1000 !important;
     transition: left 0.3s ease !important;
     box-shadow: 2px 0 10px rgba(0,0,0,0.1) !important;
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch !important;
   }
   
   /* إظهار القائمة عند التفعيل */
@@ -350,8 +348,8 @@
 /* ===== 7. تحسينات الأداء والحركة ===== */
 @media screen and (max-width: 768px) {
   
-  /* تسريع الحركات - نطاق محدود لتفادي مشاكل z-index على عناصر القوائم المنسدلة */
-  .scrollable, .table-wrapper, .admin-header, .side-navigation, .sidebar {
+  /* تسريع الحركات */
+  * {
     -webkit-transform: translateZ(0) !important;
     transform: translateZ(0) !important;
   }
