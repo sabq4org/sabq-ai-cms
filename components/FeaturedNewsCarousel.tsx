@@ -252,8 +252,9 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
       </Link>
 
       {/* منطقة التنقل للموبايل - خارج الكاروسيل */}
-      <div className="lg:hidden mt-3 px-4">
-        <div className="flex items-center justify-between">
+      {console.log('[DEBUG] Rendering mobile navigation area')}
+      <div className="lg:hidden mt-3 px-4" style={{ display: 'block', marginTop: '12px' }}>
+        <div className="flex items-center justify-between" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           {/* زر السابق */}
           <button
             onClick={(e) => {
