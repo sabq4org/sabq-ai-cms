@@ -148,15 +148,15 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                 </div>
               )}
 
-              {/* Overlay متدرج للجوال - أسفل الصورة فقط */}
+              {/* شادو متدرج ذكي من أسفل - محسّن للقراءة */}
               <div
                 className="lg:hidden absolute left-0 right-0 z-10 pointer-events-none"
                 style={{
                   bottom: 0,
                   top: 'auto',
-                  height: '42%',
+                  height: '50%',
                   background:
-                    'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0) 100%)',
+                    'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0) 100%)',
                   transform: 'translateZ(0)'
                 }}
               />
@@ -166,8 +166,8 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
               {/* إضافة transform: translateZ(0) لحل مشكلة التسريع العتادي */}
               {/* العنوان والمعلومات - داخل الحاوية في الأسفل */}
               <div
-                className="lg:hidden absolute left-0 right-0 z-20 p-3"
-                style={{ bottom: 0, top: 'auto', transform: 'translateZ(0)' }}
+                className="lg:hidden absolute left-4 right-4 z-20"
+                style={{ bottom: '12px', top: 'auto', transform: 'translateZ(0)' }}
               >
                 {/* معلومات التصنيف والتاريخ */}
                 <div className="flex items-center gap-2 mb-1 text-[11px] text-white/90">
@@ -183,9 +183,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                 </div>
 
                 {/* العنوان */}
-                <h3
-                  className="text-white text-[15px] font-bold leading-snug line-clamp-2 drop-shadow-md"
-                >
+                <h3 className="text-white text-base font-bold leading-snug line-clamp-2 drop-shadow-md">
                   {currentArticle.title}
                 </h3>
               </div>
