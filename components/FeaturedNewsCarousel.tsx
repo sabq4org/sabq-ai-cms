@@ -135,14 +135,12 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
               <div className="relative w-full h-full bg-gray-100">
                 {console.log('[DEBUG] Image data:', currentArticle.featured_image)}
                 {(currentArticle.featured_image || currentArticle.image) ? (
-                  <CloudImage
+                  <img
                     src={currentArticle.featured_image || currentArticle.image}
                     alt={currentArticle.title}
-                    fill
                     className="w-full h-full object-cover object-center rounded-xl transition-transform duration-700 group-hover:scale-105"
-                    fallbackType="article"
-                    priority={true}
-                    sizes="(max-width:768px) 100vw, (min-width:1024px) 50vw, 100vw"
+                    style={{ width: '100%', height: '100%' }}
+                    loading="eager"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
