@@ -130,16 +130,19 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
           {/* Grid Layout: Mobile = full width image, Desktop = 50% للصورة، 50% للنص */}
           <div className="grid grid-cols-1 lg:grid-cols-12 h-[220px] sm:h-[260px] lg:h-[320px]">
             {/* قسم الصورة - عرض كامل للجوال، 6 أعمدة للديسكتوب */}
-            <div className="col-span-1 lg:col-span-6 relative rounded-xl lg:rounded-r-2xl lg:rounded-l-none h-[220px] sm:h-[260px] lg:h-[320px]" style={{ overflow: 'visible' }}>
-              {/* الصورة */}
-              <div className="relative w-full h-full bg-gray-100" style={{ overflow: 'hidden', borderRadius: '12px' }}>
+            <div className="col-span-1 lg:col-span-6 relative rounded-xl lg:rounded-r-2xl lg:rounded-l-none h-[220px] sm:h-[260px] lg:h-[320px]">
+              {/* 
+                الحاوية الجديدة هذه ستكون هي المرجع (relative) لكل العناصر المطلقة (absolute) بداخلها.
+                أضفنا rounded-xl و overflow-hidden هنا.
+              */}
+              <div className="relative w-full h-full rounded-xl overflow-hidden">
+                {/* الصورة */}
                 {console.log('[DEBUG] Image data:', currentArticle.featured_image)}
                 {(currentArticle.featured_image || currentArticle.image) ? (
                   <img
                     src={currentArticle.featured_image || currentArticle.image}
                     alt={currentArticle.title}
                     className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                    style={{ width: '100%', height: '100%' }}
                     loading="eager"
                   />
                 ) : (
@@ -147,59 +150,30 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                     <span className="text-6xl">📰</span>
                   </div>
                 )}
-              </div>
 
-              {/* Overlay متدرج للجوال - يغطي 40% من أسفل الصورة - خارج حاوية الصورة */}
-              <div className="lg:hidden absolute bottom-0 left-0 right-0 z-10" style={{ 
-                height: '40%', 
-                background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.5) 60%, transparent 100%)',
-                borderRadius: '0 0 12px 12px'
-              }}></div>
-              
-              {/* العنوان مدمج أسفل الصورة - للجوال فقط - خارج حاوية الصورة */}
-              <div className="lg:hidden absolute bottom-0 left-0 right-0 z-30" style={{ 
-                padding: '16px',
-                background: 'rgba(0,0,0,0.1)'
-              }}>
-                {/* معلومات التصنيف والتاريخ */}
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '8px', 
-                  marginBottom: '8px', 
-                  fontSize: '12px', 
-                  color: '#ffffff',
-                  textShadow: '1px 1px 2px rgba(0,0,0,0.8)'
-                }}>
-                  <span style={{ fontSize: '14px' }}>{currentArticle.category?.icon || '📰'}</span>
-                  <span style={{ fontWeight: '500' }}>{currentArticle.category?.name || 'أخبار'}</span>
-                  <span>•</span>
-                  <span>
-                    {new Date(currentArticle.published_at || new Date()).toLocaleDateString('ar-SA', {
-                      month: 'short',
-                      day: 'numeric'
-                    })}
-                  </span>
-                </div>
+                {/* Overlay متدرج للجوال - تم نقله إلى الداخل */}
+                <div className="lg:hidden absolute bottom-0 left-0 right-0 h-[40%] z-10 bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
                 
-                {/* العنوان */}
-                <h3 style={{ 
-                  color: '#ffffff', 
-                  fontSize: '16px', 
-                  fontWeight: 'bold', 
-                  lineHeight: '1.3',
-                  textShadow: '2px 2px 4px rgba(0,0,0,0.9)',
-                  display: '-webkit-box',
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden',
-                  margin: 0,
-                  backgroundColor: 'rgba(0,0,0,0.2)',
-                  padding: '8px',
-                  borderRadius: '6px'
-                }}>
-                  {currentArticle.title}
-                </h3>
+                {/* العنوان والمعلومات - تم نقله إلى الداخل */}
+                <div className="lg:hidden absolute bottom-0 left-0 right-0 z-20 p-4">
+                  {/* معلومات التصنيف والتاريخ */}
+                  <div className="flex items-center gap-2 mb-2 text-xs text-white" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}>
+                    <span className="text-sm">{currentArticle.category?.icon || '📰'}</span>
+                    <span className="font-medium">{currentArticle.category?.name || 'أخبار'}</span>
+                    <span>•</span>
+                    <span>
+                      {new Date(currentArticle.published_at || new Date()).toLocaleDateString('ar-SA', {
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </span>
+                  </div>
+                  
+                  {/* العنوان */}
+                  <h3 className="text-white text-base font-bold leading-tight line-clamp-2" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.9)' }}>
+                    {currentArticle.title}
+                  </h3>
+                </div>
               </div>
             </div>
 
