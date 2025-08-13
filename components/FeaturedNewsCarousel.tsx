@@ -130,49 +130,51 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
           {/* Grid Layout: Mobile = full width image, Desktop = 50% للصورة، 50% للنص */}
           <div className="grid grid-cols-1 lg:grid-cols-12 h-[220px] sm:h-[260px] lg:h-[320px]">
             {/* قسم الصورة - عرض كامل للجوال، 6 أعمدة للديسكتوب */}
-            <div className="col-span-1 lg:col-span-6 relative rounded-xl lg:rounded-r-2xl lg:rounded-l-none h-[220px] sm:h-[260px] lg:h-[320px]">
-              {/* 
-                الحاوية الجديدة هذه ستكون هي المرجع (relative) لكل العناصر المطلقة (absolute) بداخلها.
-                أضفنا rounded-xl و overflow-hidden هنا.
-              */}
-              <div className="relative w-full h-full rounded-xl overflow-hidden">
-                {/* الصورة */}
-                {console.log('[DEBUG] Image data:', currentArticle.featured_image)}
-                {(currentArticle.featured_image || currentArticle.image) ? (
-                  <img
-                    src={currentArticle.featured_image || currentArticle.image}
-                    alt={currentArticle.title}
-                    className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                    loading="eager"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
-                    <span className="text-6xl">📰</span>
-                  </div>
-                )}
+            {/* هذا هو العنصر الرئيسي الآن. أضفنا له relative و overflow-hidden مباشرة. */}
+            <div className="col-span-1 lg:col-span-6 relative rounded-xl lg:rounded-r-2xl lg:rounded-l-none h-[220px] sm:h-[260px] lg:h-[320px] overflow-hidden">
+              
+              {/* الصورة - الآن هي عنصر ابن مباشر */}
+              {console.log('[DEBUG] Image data:', currentArticle.featured_image)}
+              {(currentArticle.featured_image || currentArticle.image) ? (
+                <img
+                  src={currentArticle.featured_image || currentArticle.image}
+                  alt={currentArticle.title}
+                  // الصورة يجب أن تملأ الحاوية بالكامل
+                  className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                  loading="eager"
+                />
+              ) : (
+                <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
+                  <span className="text-6xl">📰</span>
+                </div>
+              )}
 
-                {/* Overlay متدرج للجوال - تم نقله إلى الداخل */}
-                <div className="lg:hidden absolute bottom-0 left-0 right-0 h-[40%] z-10 bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
-                
-                {/* العنوان والمعلومات - تم نقله إلى الداخل */}
-                <div className="lg:hidden absolute bottom-0 left-0 right-0 z-20 p-4">
-                  {/* معلومات التصنيف والتاريخ */}
-                  <div className="flex items-center gap-2 mb-2 text-xs text-white" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}>
-                    <span className="text-sm">{currentArticle.category?.icon || '📰'}</span>
-                    <span className="font-medium">{currentArticle.category?.name || 'أخبار'}</span>
-                    <span>•</span>
-                    <span>
-                      {new Date(currentArticle.published_at || new Date()).toLocaleDateString('ar-SA', {
-                        month: 'short',
-                        day: 'numeric'
-                      })}
-                    </span>
-                  </div>
-                  
-                  {/* العنوان */}
-                  <h3 className="text-white text-base font-bold leading-tight line-clamp-2" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.9)' }}>
-                    {currentArticle.title}
-                  </h3>
+              {/* Overlay متدرج للجوال - عنصر ابن مباشر */}
+              {/* استخدمنا z-10 لوضعه فوق الصورة */}
+              <div className="lg:hidden absolute bottom-0 left-0 right-0 h-2/3 z-10 bg-gradient-to-t from-black/90 via-black/60 to-transparent" />
+              
+              {/* المحتوى (العنوان والمعلومات) - عنصر ابن مباشر */}
+              {/* استخدمنا z-20 لوضعه فوق الـ Overlay */}
+              <div className="lg:hidden absolute bottom-0 left-0 right-0 z-20 p-4 flex flex-col justify-end h-full">
+                {/* حاوية للمحتوى لدفعه للأسفل */}
+                <div className="mt-auto">
+                    {/* معلومات التصنيف والتاريخ */}
+                    <div className="flex items-center gap-2 mb-2 text-xs text-white" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.7)' }}>
+                      <span className="text-sm">{currentArticle.category?.icon || '📰'}</span>
+                      <span className="font-medium">{currentArticle.category?.name || 'أخبار'}</span>
+                      <span>•</span>
+                      <span>
+                        {new Date(currentArticle.published_at || new Date()).toLocaleDateString('ar-SA', {
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </span>
+                    </div>
+                    
+                    {/* العنوان */}
+                    <h3 className="text-white text-base font-bold leading-tight line-clamp-2" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>
+                      {currentArticle.title}
+                    </h3>
                 </div>
               </div>
             </div>
