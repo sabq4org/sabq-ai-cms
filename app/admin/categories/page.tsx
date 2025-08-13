@@ -119,6 +119,39 @@ const CategoriesPage = () => {
 
   const stats = getCategoryStats();
 
+  // دالة تعديل التصنيف
+  const handleEditCategory = (category: Category) => {
+    // يمكنك هنا فتح نافذة modal للتعديل أو التوجيه لصفحة التعديل
+    console.log("تعديل التصنيف:", category);
+    // مثال: التوجيه لصفحة التعديل
+    window.location.href = `/admin/categories/edit/${category.id}`;
+  };
+
+  // دالة حذف التصنيف
+  const handleDeleteCategory = async (categoryId: string) => {
+    if (!confirm("هل أنت متأكد من حذف هذا التصنيف؟")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/categories/${categoryId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        // إعادة تحميل التصنيفات
+        const updatedCategories = categories.filter(cat => cat.id !== categoryId);
+        setCategories(updatedCategories);
+        alert("تم حذف التصنيف بنجاح");
+      } else {
+        alert("فشل حذف التصنيف");
+      }
+    } catch (error) {
+      console.error("خطأ في حذف التصنيف:", error);
+      alert("حدث خطأ أثناء حذف التصنيف");
+    }
+  };
+
   const statsCards = [
     {
       title: "إجمالي الفئات",
@@ -334,10 +367,18 @@ const CategoriesPage = () => {
                     </div>
                   </div>
                   <DesignComponents.ActionBar>
-                    <button className="text-gray-400 hover:text-blue-600 p-1">
+                    <button 
+                      onClick={() => handleEditCategory(category)}
+                      className="text-gray-400 hover:text-blue-600 p-1 transition-colors"
+                      title="تعديل التصنيف"
+                    >
                       <Edit className="w-4 h-4" />
                     </button>
-                    <button className="text-gray-400 hover:text-red-600 p-1">
+                    <button 
+                      onClick={() => handleDeleteCategory(category.id)}
+                      className="text-gray-400 hover:text-red-600 p-1 transition-colors"
+                      title="حذف التصنيف"
+                    >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </DesignComponents.ActionBar>
@@ -364,7 +405,11 @@ const CategoriesPage = () => {
                       </div>
                     )}
                   </div>
-                  <Button variant="ghost" size="sm">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => window.location.href = `/admin/categories/${category.id}`}
+                  >
                     <Eye className="w-4 h-4" />
                   </Button>
                 </div>
