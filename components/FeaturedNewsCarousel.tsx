@@ -249,8 +249,53 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
         </div>
       </Link>
 
-      {/* منطقة التنقل الجديدة مع الأسهم والأشرطة */}
-      <div className="mt-4 flex justify-center items-center">
+      {/* منطقة التنقل للموبايل - أسفل الصورة */}
+      <div className="lg:hidden mt-2">
+        <div className="flex justify-center items-center gap-2 px-4">
+          {/* زر السابق */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              handlePrevious();
+            }}
+            className="p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-300 shadow-sm"
+            aria-label="السابق"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+          
+          {/* نقاط التنقل */}
+          <div className="flex justify-center items-center gap-1">
+            {articles.map((article, index) => (
+              <button
+                key={article.id}
+                onClick={() => setCurrentIndex(index)}
+                className={`h-1.5 rounded-full transition-all duration-300 ease-in-out ${
+                  index === currentIndex
+                    ? "w-6 bg-blue-500 dark:bg-blue-400"
+                    : "w-1.5 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500"
+                }`}
+                aria-label={`الانتقال إلى الخبر ${index + 1}`}
+              />
+            ))}
+          </div>
+          
+          {/* زر التالي */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              handleNext();
+            }}
+            className="p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-300 shadow-sm"
+            aria-label="التالي"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* منطقة التنقل - للديسكتوب فقط */}
+      <div className="hidden lg:flex mt-4 justify-center items-center">
         <div className="flex items-center gap-3 px-4">
           {/* زر السابق */}
           <button

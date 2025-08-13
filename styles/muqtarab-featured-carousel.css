@@ -1,0 +1,115 @@
+/* 📱 تحسينات كاروسيل الأخبار المميزة للنسخة الخفيفة */
+/* Muqtarab Featured Carousel Enhancements */
+
+@media (max-width: 1024px) {
+  /* حاوية الكاروسيل */
+  .featured-carousel {
+    margin-bottom: 0.5rem !important;
+  }
+  
+  /* منطقة التنقل الجديدة أسفل الصورة */
+  .featured-carousel + .lg\:hidden {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 0.5rem 0;
+    margin: 0.5rem 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+  
+  /* الوضع الداكن */
+  .dark .featured-carousel + .lg\:hidden {
+    background: rgba(31, 41, 55, 0.95);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* أزرار التنقل */
+  .featured-carousel + .lg\:hidden button {
+    transition: all 0.2s ease;
+  }
+  
+  /* تصغير حجم الأزرار للموبايل */
+  .featured-carousel + .lg\:hidden .p-1\.5 {
+    padding: 0.375rem !important;
+  }
+  
+  /* النقاط - تصميم أنيق */
+  .featured-carousel + .lg\:hidden .h-1\.5 {
+    height: 6px !important;
+  }
+  
+  .featured-carousel + .lg\:hidden .w-1\.5 {
+    width: 6px !important;
+  }
+  
+  .featured-carousel + .lg\:hidden .w-6 {
+    width: 20px !important;
+  }
+  
+  /* تحسين التباعد */
+  .featured-carousel + .lg\:hidden .gap-1 {
+    gap: 0.375rem !important;
+  }
+  
+  .featured-carousel + .lg\:hidden .gap-2 {
+    gap: 0.75rem !important;
+  }
+  
+  /* إضافة تأثير hover للنقاط */
+  .featured-carousel + .lg\:hidden button[aria-label*="الانتقال"]:hover {
+    transform: scale(1.2);
+  }
+  
+  /* تأثير النقر */
+  .featured-carousel + .lg\:hidden button:active {
+    transform: scale(0.95);
+  }
+  
+  /* تحسين الألوان */
+  .featured-carousel + .lg\:hidden .bg-blue-500 {
+    background: linear-gradient(90deg, #3B82F6 0%, #2563EB 100%) !important;
+  }
+  
+  /* إخفاء overflow للموبايل */
+  @media (max-width: 640px) {
+    .featured-carousel + .lg\:hidden {
+      margin: 0.25rem 0.5rem;
+      padding: 0.375rem 0;
+    }
+    
+    /* أزرار أصغر للشاشات الصغيرة جداً */
+    .featured-carousel + .lg\:hidden .w-4 {
+      width: 14px !important;
+      height: 14px !important;
+    }
+  }
+  
+  /* تحسينات الأداء */
+  .featured-carousel + .lg\:hidden {
+    will-change: transform;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+  
+  /* منع اختيار النص */
+  .featured-carousel + .lg\:hidden {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  
+  /* دعم RTL */
+  [dir="rtl"] .featured-carousel + .lg\:hidden button:first-child {
+    order: 3;
+  }
+  
+  [dir="rtl"] .featured-carousel + .lg\:hidden button:last-child {
+    order: 1;
+  }
+  
+  [dir="rtl"] .featured-carousel + .lg\:hidden > div > div:nth-child(2) {
+    order: 2;
+  }
+}
