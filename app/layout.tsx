@@ -17,11 +17,12 @@ import "../styles/featured-mobile-card.css";
 import "../styles/featured-news-carousel-fixes.css"; // إضافة إصلاحات كاروسيل الأخبار المميزة
 import "../styles/globals.css";
 import "../styles/home-word-cloud.css"; // أنماط سحابة الكلمات
+import "../styles/word-cloud-mobile.css"; // تحسينات سحابة الكلمات للجوال
+import "../styles/word-cloud-mobile-advanced.css"; // تحسينات متقدمة للجوال
 import "../styles/minimal-fix.css";
 import "../styles/mobile-internal-pages-fix.css";
 import "../styles/mobile-news.css";
 import "../styles/mobile-sidebar-compact.css"; // تحسينات القائمة الجانبية المحسنة للجوال
-import "../styles/mobile-interface-enhancements.css"; // تحسينات الواجهة الرئيسية للجوال
 import "../styles/mobile.css";
 import "../styles/muqtarab-animations.css";
 import "../styles/news-card-desktop.css";

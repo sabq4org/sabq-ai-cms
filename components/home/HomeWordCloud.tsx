@@ -92,14 +92,14 @@ export default function HomeWordCloud({
     loadKeywords();
   }, [maxKeywords]);
 
-  // الحصول على حجم النص بناءً على size
+  // الحصول على حجم النص بناءً على size - محسن للجوال
   const getTextSize = (size: number) => {
     switch (size) {
-      case 5: return 'text-3xl md:text-4xl lg:text-5xl';
-      case 4: return 'text-2xl md:text-3xl lg:text-4xl';
-      case 3: return 'text-xl md:text-2xl lg:text-3xl';
-      case 2: return 'text-lg md:text-xl lg:text-2xl';
-      default: return 'text-base md:text-lg';
+      case 5: return 'text-lg sm:text-2xl md:text-3xl lg:text-4xl';
+      case 4: return 'text-base sm:text-xl md:text-2xl lg:text-3xl';
+      case 3: return 'text-sm sm:text-lg md:text-xl lg:text-2xl';
+      case 2: return 'text-sm sm:text-base md:text-lg lg:text-xl';
+      default: return 'text-xs sm:text-sm md:text-base';
     }
   };
 
@@ -121,10 +121,10 @@ export default function HomeWordCloud({
   };
 
   return (
-    <div className={`w-full home-word-cloud ${className}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className={`w-full home-word-cloud mobile-optimized ${className}`}>
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
         <div
-          className={`rounded-2xl transition-all duration-300 ${
+          className={`word-cloud-container rounded-2xl transition-all duration-300 ${
             darkMode
               ? 'bg-gray-800/50 border border-gray-700/50'
               : 'bg-gradient-to-br from-blue-50 to-indigo-100 border border-blue-200/50'

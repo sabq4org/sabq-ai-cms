@@ -25,12 +25,6 @@ import SafeHydration from "@/components/SafeHydration";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { Clock, User } from "lucide-react";
 
-// Import للمكونات المحسنة الجديدة
-const MobileHeaderCompact = dynamic(
-  () => import("@/components/mobile/MobileHeaderCompact"),
-  { ssr: false }
-);
-
 // Safe Dynamic imports with Next.js dynamic and SSR disabled to prevent hydration issues
 const EmptyComponent = () => null;
 
@@ -714,18 +708,10 @@ function NewspaperHomePage({
       >
         {/* شريط النبض الإخباري للموبايل - محذوف حسب الطلب */}
         {/* تم إزالة شريط النبض الإخباري من نسخة الموبايل فقط */}
-        
-        {/* الهيدر المحسن للموبايل */}
-        <SafeHydration>
-          {isMobileView && (
-            <MobileHeaderCompact className="mobile-enter" />
-          )}
-        </SafeHydration>
-        
         {/* شريط الإحصائيات المحسن للموبايل - متلاصق مع الهيدر */}
         <SafeHydration>
           {isMobileView && (
-            <div className="sticky top-32 z-30 bg-white dark:bg-gray-900 shadow-sm">
+            <div className="sticky top-14 z-30 bg-white dark:bg-gray-900 shadow-sm">
               <CompactStatsBar darkMode={darkMode} />
             </div>
           )}
