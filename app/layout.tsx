@@ -19,7 +19,6 @@ import "../styles/article-featured-image-fix.css";
 import "../styles/globals.css";
 import "../styles/word-cloud.css";
 import "../styles/improved-mobile-menu.css";
-import "../styles/mobile-header-fix.css";
 import "../styles/news-card-desktop.css";
 import "../styles/minimal-fix.css";
 import "../styles/mobile-internal-pages-fix.css";
