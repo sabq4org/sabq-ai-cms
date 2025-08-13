@@ -80,7 +80,7 @@ export default function EnhancedMobileNewsCard({
   // بطاقة Hero للأخبار المميزة
   if (variant === "hero") {
     return (
-      <Link href={getArticleLink(news)} className="block w-full md:w-[calc(100%+32px)] md:-mr-4 md:-ml-4">
+      <Link href={getArticleLink(news)} className="block w-full -mx-4 md:w-[calc(100%+32px)] md:-mr-4 md:-ml-4">
         <article
           className={`relative overflow-hidden rounded-2xl shadow-lg transition-all hover:shadow-xl ${
             news.breaking
@@ -233,7 +233,7 @@ export default function EnhancedMobileNewsCard({
   // بطاقة Full Width للقوائم
   if (variant === "full-width") {
     return (
-      <Link href={getArticleLink(news)} className="block w-full md:w-[calc(100%+16px)] md:-mr-2 md:-ml-2">
+      <Link href={getArticleLink(news)} className="block w-full -mx-4 md:w-[calc(100%+32px)] md:-mr-4 md:-ml-4">
         <article
           className={`overflow-hidden transition-all ${
             news.breaking
@@ -359,7 +359,7 @@ export default function EnhancedMobileNewsCard({
 
   // البطاقة المضغوطة الافتراضية
   return (
-    <Link href={getArticleLink(news)} className="block w-full md:w-[calc(100%+24px)] md:-mr-3 md:-ml-3">
+    <Link href={getArticleLink(news)} className="block w-full -mx-4 md:w-[calc(100%+32px)] md:-mr-4 md:-ml-4">
       <article
         className={`relative overflow-hidden rounded-xl transition-all ${
           news.breaking
