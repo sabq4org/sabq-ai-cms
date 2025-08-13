@@ -148,11 +148,11 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                   </div>
                 )}
 
-                {/* تدرج لوني من الأسفل إلى الأعلى مع ظل قوي */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 via-black/30 to-transparent z-10 pointer-events-none"></div>
+                {/* Overlay متدرج للجوال - يغطي 40% من أسفل الصورة */}
+                <div className="lg:hidden absolute bottom-0 left-0 right-0 h-2/5 bg-gradient-to-t from-black/70 via-black/40 to-transparent z-10 pointer-events-none"></div>
                 
-                {/* العنوان في المنطقة المظللة - للجوال فقط */}
-                <div className="lg:hidden absolute bottom-4 left-4 right-4 z-20">
+                {/* العنوان مدمج أسفل الصورة - للجوال فقط */}
+                <div className="lg:hidden absolute bottom-0 left-0 right-0 z-20 p-3">
                   {/* معلومات التصنيف والتاريخ */}
                   <div className="flex items-center gap-2 mb-2 text-xs text-white/90">
                     <span className="text-sm">{currentArticle.category?.icon}</span>
@@ -168,9 +168,9 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                   </div>
                   
                   {/* العنوان */}
-                  <h2 className="text-white text-lg font-bold leading-tight drop-shadow-lg">
+                  <h3 className="text-white text-sm font-bold line-clamp-2 leading-tight drop-shadow-lg">
                     {currentArticle.title}
-                  </h2>
+                  </h3>
                 </div>
 
                 {/* تم إزالة شارة "مميز" حسب الطلب */}
