@@ -108,6 +108,17 @@ const nextConfig = {
         hostname: "sabq-storage.s3.amazonaws.com",
         pathname: "/**",
       },
+      // السماح بعرض الصور من دومين الموقع مباشرةً
+      {
+        protocol: "https",
+        hostname: "sabq.io",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "www.sabq.io",
+        pathname: "/**",
+      },
       {
         protocol: "https",
         hostname: "via.placeholder.com",
