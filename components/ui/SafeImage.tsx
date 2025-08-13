@@ -50,7 +50,7 @@ export default function SafeImage({
   sizes,
   style,
 }: SafeImageProps) {
-  // تهيئة imageSrc بالصورة الافتراضية مباشرة (استخدم المحلية أولاً)
+  // تحسين: تهيئة imageSrc بالصورة الافتراضية مباشرة (استخدم المحلية أولاً)
   const [imageSrc, setImageSrc] = useState<string>(
     LOCAL_FALLBACK_IMAGES[fallbackType]
   );

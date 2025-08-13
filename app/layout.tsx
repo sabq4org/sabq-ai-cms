@@ -14,6 +14,7 @@ import "../styles/compact-stats.css";
 import "../styles/enhanced-dark-mode-mobile.css";
 import "../styles/enhanced-mobile-stats.css";
 import "../styles/featured-mobile-card.css";
+import "../styles/featured-news-carousel-fixes.css"; // إضافة إصلاحات كاروسيل الأخبار المميزة
 import "../styles/globals.css";
 import "../styles/minimal-fix.css";
 import "../styles/mobile-internal-pages-fix.css";
@@ -258,6 +259,9 @@ export default function RootLayout({
         {/* Mobile Lite Version Fixes - إصلاحات النسخة الخفيفة */}
         <link rel="stylesheet" href="/styles/mobile-lite-fixes.css" />
         <script src="/mobile-lite-fixes.js" defer></script>
+        
+        {/* Featured News Fixes - إصلاحات الأخبار المميزة */}
+        <script src="/featured-news-fixes.js" defer></script>
       </head>
       <body
         className={`${ibmPlexArabic.variable} font-arabic`}

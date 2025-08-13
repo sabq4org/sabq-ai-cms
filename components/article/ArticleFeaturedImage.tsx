@@ -40,7 +40,8 @@ function isValidImageUrl(url: string): boolean {
     new URL(candidate);
     valid = true;
   } catch {
-    valid = url.startsWith("/") || url.includes("images/");
+    // تحسين التعامل مع المسارات النسبية - أي مسار يبدأ بـ / أو يحتوي على صور أو مسار نسبي يُعتبر صالحًا
+    valid = url.startsWith("/") || url.includes("images/") || url.includes("img/") || url.includes("assets/") || url.includes("content/");
   }
   urlValidityCache.set(url, valid);
   return valid;
@@ -54,12 +55,22 @@ export default function ArticleFeaturedImage({
   blurDataURL,
 }: ArticleFeaturedImageProps) {
   const [imageError, setImageError] = useState(false);
-  const valid = useMemo(() => isValidImageUrl(imageUrl), [imageUrl]);
-  const shouldUnoptimize = imageUrl.includes("placeholder") || imageUrl.includes("via.placeholder");
+  
+  // استخدام قيمة افتراضية للصورة إذا كانت فارغة أو غير صالحة
+  const safeImageUrl = imageUrl || '/assets/placeholder-article.jpg';
+  
+  // تحقق من صلاحية الرابط
+  const valid = useMemo(() => isValidImageUrl(safeImageUrl), [safeImageUrl]);
+  
+  // تحسين خاصية Unoptimized لمعالجة مشكلة الصور
+  const shouldUnoptimize = safeImageUrl.includes("placeholder") || 
+                           safeImageUrl.includes("via.placeholder") || 
+                           !safeImageUrl.startsWith("http");
+  
   const commonImageProps = {
     onError: () => setImageError(true),
     placeholder: blurDataURL ? ("blur" as const) : ("empty" as const),
-    blurDataURL,
+    blurDataURL: blurDataURL || 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==',
   };
 
   // Fallback if invalid

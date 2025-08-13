@@ -119,13 +119,13 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
       onMouseLeave={handleMouseLeave}
     >
       <Link href={getArticleLink(currentArticle)} className="group block">
-        {/* البلوك الرئيسي */}
+        {/* البلوك الرئيسي - تم تحسين الخلفية لضمان الرؤية */}
         <div
           className={`relative overflow-hidden transition-all duration-500 group-hover:shadow-2xl ${
             darkMode
-              ? "bg-gray-800/50 hover:bg-gray-800/70"
+              ? "bg-gray-800 hover:bg-gray-800"
               : "bg-white hover:bg-white"
-          } backdrop-blur-sm rounded-3xl`}
+          } backdrop-blur-none rounded-3xl`}
         >
           {/* Grid Layout: Mobile = full width image, Desktop = 50% للصورة، 50% للنص */}
           <div className="grid grid-cols-1 lg:grid-cols-12 h-[220px] sm:h-[260px] lg:h-[320px]">
