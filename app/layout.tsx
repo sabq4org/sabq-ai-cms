@@ -17,8 +17,11 @@ import "../styles/featured-mobile-card.css";
 import "../styles/featured-news-carousel-fixes.css"; // إضافة إصلاحات كاروسيل الأخبار المميزة
 import "../styles/globals.css";
 import "../styles/home-word-cloud.css"; // أنماط سحابة الكلمات
+import "../styles/home-word-cloud-mobile-fix.css"; // إصلاحات محددة لمكون HomeWordCloud
 import "../styles/word-cloud-mobile.css"; // تحسينات سحابة الكلمات للجوال
 import "../styles/word-cloud-mobile-advanced.css"; // تحسينات متقدمة للجوال
+import "../styles/word-cloud-mobile-universal.css"; // تحسينات شاملة لجميع مكونات Word Cloud
+import "../styles/word-cloud-mobile-emergency-fix.css"; // إصلاحات طارئة لمشاكل الجوال
 import "../styles/word-cloud.css"; // أنماط مكون Word Cloud الجديد
 import "../styles/minimal-fix.css";
 import "../styles/mobile-internal-pages-fix.css";
