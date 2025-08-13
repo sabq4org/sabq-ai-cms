@@ -709,6 +709,7 @@ function NewspaperHomePage({
         {/* 2. الأخبار المميزة (Featured Articles) 🌟 */}
         {!featuredLoading && featuredArticle.length > 0 && (
           <div className={`${isMobileView ? "pt-2 pb-4" : "pt-4 pb-6"}`}>
+            {console.log('[DEBUG] Featured Articles:', featuredArticle)}
             <FeaturedNewsCarousel articles={featuredArticle} />
           </div>
         )}

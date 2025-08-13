@@ -107,10 +107,18 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
 
   // إذا لا توجد أخبار، لا نعرض شيئاً
   if (!articles.length) {
+    console.warn('[FeaturedNewsCarousel] No articles provided');
     return null;
   }
 
   const currentArticle = articles[currentIndex];
+  
+  if (!currentArticle) {
+    console.error('[FeaturedNewsCarousel] Current article is undefined', { currentIndex, articlesLength: articles.length });
+    return null;
+  }
+  
+  console.log('[FeaturedNewsCarousel] Rendering with article:', currentArticle.title);
 
   return (
     <div
@@ -118,6 +126,19 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
+      {/* عرض تجريبي لتحديد المشكلة */}
+      <div style={{ 
+        position: 'absolute', 
+        top: 0, 
+        left: 0, 
+        background: 'yellow', 
+        padding: '10px', 
+        zIndex: 100,
+        fontSize: '12px'
+      }}>
+        DEBUG: {currentArticle.title ? 'Article loaded' : 'No article'}
+      </div>
+      
       <Link href={getArticleLink(currentArticle)} className="group block">
         {/* البلوك الرئيسي - تم تحسين الخلفية لضمان الرؤية */}
         <div

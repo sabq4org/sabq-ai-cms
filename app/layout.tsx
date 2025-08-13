@@ -265,6 +265,9 @@ export default function RootLayout({
         
         {/* Featured News Carousel Mobile - تحسينات كاروسيل الموبايل */}
         <link rel="stylesheet" href="/styles/featured-news-carousel-mobile.css" />
+        
+        {/* Emergency Fix for Featured Carousel */}
+        <link rel="stylesheet" href="/styles/featured-carousel-emergency-fix.css" />
       </head>
       <body
         className={`${ibmPlexArabic.variable} font-arabic`}
