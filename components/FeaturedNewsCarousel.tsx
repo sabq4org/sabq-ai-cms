@@ -253,11 +253,13 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
         </div>
       </Link>
 
-      {/* العنوان أسفل الصورة - للموبايل فقط */}
+      {/* العنوان أسفل الصورة - للموبايل فقط (قابل للنقر) */}
       <div className="lg:hidden px-4 py-2">
-        <h2 className="text-base font-bold text-gray-900 dark:text-white line-clamp-2">
-          {currentArticle.title}
-        </h2>
+        <Link href={getArticleLink(currentArticle)} className="block">
+          <h2 className="text-base font-bold text-gray-900 dark:text-white line-clamp-2">
+            {currentArticle.title}
+          </h2>
+        </Link>
       </div>
 
       {/* منطقة التنقل للموبايل - خارج الكاروسيل */}

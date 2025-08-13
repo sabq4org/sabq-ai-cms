@@ -70,17 +70,17 @@ export function getProductionImageUrl(
     return imageUrl;
   }
 
-  // معالجة الروابط الخارجية
-  if (imageUrl.startsWith("http")) {
-    // في بيئة الإنتاج، استخدم الدومين الكامل
+  // معالجة الروابط المطلقة (http/https) — تُعاد كما هي بدون إضافة الدومين
+  if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+    return imageUrl;
+  }
+
+  // الروابط النسبية التي تبدأ بـ "/" — أضف الدومين المناسب
+  if (imageUrl.startsWith("/")) {
     if (typeof window !== "undefined") {
-      // Client-side
-      const currentDomain = window.location.origin;
-      return `${currentDomain}${imageUrl}`;
-    } else {
-      // Server-side - استخدم دومين الإنتاج
-      return `${PRODUCTION_DOMAIN}${imageUrl}`;
+      return `${window.location.origin}${imageUrl}`;
     }
+    return `${PRODUCTION_DOMAIN}${imageUrl}`;
   }
 
   // إذا كانت الصورة من S3
