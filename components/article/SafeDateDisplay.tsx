@@ -1,12 +1,13 @@
 "use client";
 
-import { formatFullDate, formatRelativeDate } from "@/lib/date-utils";
+import { formatFullDate, formatRelativeDate, formatTime } from "@/lib/date-utils";
 import { useEffect, useState } from "react";
 
 interface SafeDateDisplayProps {
   date: string;
   format?: "full" | "relative";
   className?: string;
+  showTime?: boolean; // إظهار الوقت HH:mm
 }
 
 /**
@@ -17,6 +18,7 @@ export default function SafeDateDisplay({
   date,
   format = "relative",
   className = "",
+  showTime = false,
 }: SafeDateDisplayProps) {
   const [mounted, setMounted] = useState(false);
   const [formattedDate, setFormattedDate] = useState<string>("");
@@ -25,11 +27,11 @@ export default function SafeDateDisplay({
     setMounted(true);
     // تنسيق التاريخ فقط بعد التحميل على العميل
     if (date) {
-      const formatted =
-        format === "full" ? formatFullDate(date) : formatRelativeDate(date);
-      setFormattedDate(formatted);
+      const base = format === "full" ? formatFullDate(date) : formatRelativeDate(date);
+      const time = showTime ? ` — ${formatTime(date, true)} بتوقيت الرياض` : "";
+      setFormattedDate(`${base}${time}`);
     }
-  }, [date, format]);
+  }, [date, format, showTime]);
 
   // عرض نص ثابت أثناء SSR لتجنب hydration mismatch
   if (!mounted) {

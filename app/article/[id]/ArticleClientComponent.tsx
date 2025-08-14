@@ -600,6 +600,7 @@ export default function ArticleClientComponent({
                       <SafeDateDisplay
                         date={article.published_at || article.created_at || ""}
                         format="full"
+                        showTime
                       />
                     </span>
                     <span className="sm:hidden text-left">
@@ -660,12 +661,13 @@ export default function ArticleClientComponent({
                     <div className="flex items-center gap-1.5 flex-wrap">{/* تقليل gap */}
                       <div className="flex items-center gap-1">
                         <span>🗓️</span>
-                        <span>
-                          <SafeDateDisplay
-                            date={article.published_at || article.created_at || ""}
-                            format="relative"
-                          />
-                        </span>
+                    <span>
+                      <SafeDateDisplay
+                        date={article.published_at || article.created_at || ""}
+                        format="relative"
+                        showTime
+                      />
+                    </span>
                       </div>
                       <span className="text-gray-300 dark:text-gray-600">•</span>
                       <div className="flex items-center gap-1 whitespace-nowrap">
