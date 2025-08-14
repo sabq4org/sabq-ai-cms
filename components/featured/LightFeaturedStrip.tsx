@@ -5,7 +5,6 @@ import Link from "next/link";
 import OptimizedImage from "@/components/ui/OptimizedImage";
 import { formatDateNumeric } from "@/lib/date-utils";
 import { getArticleLink } from "@/lib/utils";
-import { getProductionImageUrl } from "@/lib/production-image-fix";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 
 interface LightFeaturedStripProps {
@@ -60,7 +59,8 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
         {articles.map((article, idx) => {
           const category = article.category?.name || article.category_name || article.category || "عام";
           const date = article.published_at || article.created_at;
-          const image = article.featured_image || article.image || article.image_url || null;
+          // لم نعد بحاجة للبحث في حقول متعددة - API يرسل الصورة المعالجة
+          const image = article.featured_image;
           return (
             <Link
               key={article.id || idx}
@@ -77,12 +77,7 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
               >
                 <div className="relative aspect-video w-full overflow-hidden">
                   <OptimizedImage
-                    src={getProductionImageUrl(image || '', {
-                      width: 800,
-                      height: 450,
-                      quality: 85,
-                      fallbackType: "article"
-                    })}
+                    src={image} // الصورة معالجة مسبقاً من API
                     alt={article.title || "صورة"}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
