@@ -8,20 +8,23 @@
   background-color: #f3f4f6;
 }
 
-/* أحجام الصورة حسب الشاشة */
+/* أحجام الصورة حسب الشاشة - نسب أبعاد بدلاً من ارتفاعات ثابتة */
 .article-featured-image {
-  height: 400px; /* موبايل */
+  height: auto; /* السماح للصورة بتحديد ارتفاعها */
+  max-height: 70vh; /* حد أقصى لتجنب الصور الطويلة جداً */
+  aspect-ratio: 16 / 9; /* نسبة افتراضية */
 }
 
 @media (min-width: 640px) {
   .article-featured-image {
-    height: 500px; /* تابلت */
+    max-height: 80vh; /* تابلت */
   }
 }
 
 @media (min-width: 1024px) {
   .article-featured-image {
-    height: 600px; /* ديسكتوب */
+    max-height: 90vh; /* ديسكتوب */
+    aspect-ratio: auto; /* السماح بنسب مختلفة */
   }
 }
 
@@ -49,21 +52,20 @@
   overflow: hidden;
 }
 
-/* إصلاح الصور الصغيرة */
-.article-featured-image.h-\[400px\] {
-  height: 400px !important;
+/* Override للارتفاعات الثابتة من Tailwind */
+.article-featured-image[class*="h-["] {
+  height: auto !important;
+  max-height: 90vh !important;
 }
 
-.article-featured-image.sm\:h-\[500px\] {
-  @media (min-width: 640px) {
-    height: 500px !important;
-  }
+/* تأكد من أن الصورة تأخذ العرض الكامل */
+.article-featured-image.w-full {
+  width: 100% !important;
 }
 
-.article-featured-image.lg\:h-\[600px\] {
-  @media (min-width: 1024px) {
-    height: 600px !important;
-  }
+/* إزالة أي قيود على العرض الأقصى */
+.article-featured-image[class*="max-w-"] {
+  max-width: none !important;
 }
 
 /* تحسينات إضافية للجودة */

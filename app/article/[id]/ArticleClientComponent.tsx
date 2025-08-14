@@ -415,7 +415,7 @@ export default function ArticleClientComponent({
     return (
       <div className="min-h-[100svh] bg-gray-50 dark:bg-gray-900">
         <div className="pt-[var(--mobile-header-height)] sm:pt-[var(--header-height)] lg:pt-20">
-          <div className="max-w-4xl mx-auto px-4 py-4 sm:py-6 lg:py-8">
+          <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-4 py-4 sm:py-6 lg:py-8">
             <div className="animate-pulse space-y-4 loading-skeleton">
               <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg w-3/4"></div>
               <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded-lg w-1/2"></div>
@@ -541,7 +541,7 @@ export default function ArticleClientComponent({
         <div className="relative">
           <article
             ref={viewTrackingRef}
-            className="max-w-4xl mx-auto py-4 sm:py-6 lg:py-8 article-content"
+            className="max-w-screen-lg lg:max-w-[110ch] mx-auto py-4 sm:py-6 lg:py-8 article-content"
           >
             {/* رأس المقال محسن للموبايل */}
             <header className="mb-2 sm:mb-4">
@@ -737,8 +737,8 @@ export default function ArticleClientComponent({
           </article>
         </div>
 
-        {/* منطقة المحتوى - نفس عرض الصورة والعنوان تماماً للديسكتوب، عرض كامل للموبايل */}
-        <div className="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-2">
+        {/* منطقة المحتوى - عرض أوسع للديسكتوب لدعم الصور الكبيرة */}
+        <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-3 sm:px-6 lg:px-8 py-2">
           {/* صورة المقال للديسكتوب - عرض كامل محاذي للمحتوى */}
           {article.featured_image &&
             typeof article.featured_image === "string" &&
@@ -873,7 +873,9 @@ export default function ArticleClientComponent({
                     prose-headings:text-gray-900 dark:prose-headings:text-white
                     prose-p:text-gray-700 dark:prose-p:text-gray-300
                     prose-p:leading-relaxed
+                    prose-img:w-full prose-img:h-auto prose-img:max-w-none
                     prose-img:rounded-xl prose-img:shadow-xl
+                    prose-figure:m-0 prose-figure:my-8
                     prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
                     prose-strong:text-gray-900 dark:prose-strong:text-white
                     prose-blockquote:border-blue-500 dark:prose-blockquote:border-blue-400
