@@ -759,8 +759,8 @@ export default function ArticleClientComponent({
             
           <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-3 sm:px-6 lg:px-8 py-2">
             <div className="bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-6 lg:p-8">
-            {/* منطقة الصورة والموجز الذكي للموبايل - الصورة فوق الموجز */}
-            <div className="sm:hidden mb-6">
+              {/* منطقة الصورة والموجز الذكي للموبايل - الصورة فوق الموجز */}
+              <div className="sm:hidden mb-6">
               {/* الصورة - محاذاة مع بداية الموجز */}
               {article.featured_image &&
                 typeof article.featured_image === "string" &&
@@ -977,6 +977,7 @@ export default function ArticleClientComponent({
               userId={undefined} // يمكن تمرير معرف المستخدم عند التسجيل
             />
           </div>
+        </div>
         </div>
       </main>
 
