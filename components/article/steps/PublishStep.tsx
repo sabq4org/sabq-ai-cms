@@ -98,6 +98,9 @@ export function PublishStep({
                   : 'bg-white border-gray-300 text-gray-900'
               } focus:outline-none focus:ring-2 focus:ring-blue-500`}
             />
+            <p className={`mt-2 text-xs ${darkMode ? 'text-blue-200' : 'text-blue-700'}`}>
+              التوقيت يُفهم كـ Asia/Riyadh (UTC+3) وسيُحوَّل تلقائيًا إلى UTC عند الحفظ.
+            </p>
           </div>
         )}
       </div>

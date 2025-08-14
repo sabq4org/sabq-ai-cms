@@ -552,9 +552,26 @@ export async function PATCH(
 
     // منطق الجدولة عند التحديث: إذا تم تمرير scheduled_for مستقبلية → status=scheduled وإزالة published_at
     try {
+      // تحويل وقت الرياض إلى UTC بنفس منطق الإنشاء
+      function toUTCFromRiyadh(input: string | Date): Date | null {
+        try {
+          if (!input) return null;
+          if (input instanceof Date) return input;
+          if (/([zZ]|[+-]\d{2}:?\d{2})$/.test(input)) {
+            const d = new Date(input);
+            return isNaN(d.getTime()) ? null : d;
+          }
+          const dLocal = new Date(input);
+          if (isNaN(dLocal.getTime())) return null;
+          return new Date(dLocal.getTime() - 3 * 60 * 60 * 1000);
+        } catch {
+          return null;
+        }
+      }
+
       if (data.scheduled_for || data.publish_at || data.publishAt) {
         const rawSchedule = data.scheduled_for || data.publish_at || data.publishAt;
-        const scheduledDate = new Date(rawSchedule);
+        const scheduledDate = toUTCFromRiyadh(rawSchedule);
         if (!isNaN(scheduledDate.getTime())) {
           const now = new Date();
           if (scheduledDate.getTime() > now.getTime()) {

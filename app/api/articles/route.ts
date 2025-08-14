@@ -418,11 +418,32 @@ export async function POST(request: NextRequest) {
       content_type: contentType as any,
     };
 
+    // دالة مساعدة: تحويل وقت محلي (Asia/Riyadh) إلى UTC
+    function toUTCFromRiyadh(input: string | Date): Date | null {
+      try {
+        if (!input) return null;
+        if (input instanceof Date) return input;
+        // إذا كانت السلسلة تحتوي على منطقة/إزاحة زمنية صريحة نتركها كما هي
+        if (/([zZ]|[+-]\d{2}:?\d{2})$/.test(input)) {
+          const d = new Date(input);
+          return isNaN(d.getTime()) ? null : d;
+        }
+        // نتعامل معها كوقت محلي للرياض UTC+3 → نحول إلى UTC بطرح 3 ساعات
+        const dLocal = new Date(input);
+        if (isNaN(dLocal.getTime())) return null;
+        // تاريخ بدون منطقة زمنية في بيئة الخادم (غالباً UTC) سيُفسَّر كـ UTC، لذا نطرح 3 ساعات لنحصل على UTC الصحيح
+        const utcMs = dLocal.getTime() - 3 * 60 * 60 * 1000;
+        return new Date(utcMs);
+      } catch {
+        return null;
+      }
+    }
+
     // منطق الجدولة: منع النشر الفوري إذا تم تحديد وقت مستقبلي
     try {
       const rawSchedule = data.scheduled_for || data.publish_at || data.publishAt;
       if (rawSchedule) {
-        const scheduledDate = new Date(rawSchedule);
+        const scheduledDate = toUTCFromRiyadh(rawSchedule);
         if (!isNaN(scheduledDate.getTime())) {
           const now = new Date();
           if (scheduledDate.getTime() > now.getTime()) {
