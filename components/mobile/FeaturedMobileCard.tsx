@@ -44,18 +44,18 @@ export default function FeaturedMobileCard({ article, className = '' }: Featured
   const imageUrl = getValidImageUrl(article.featured_image);
 
   return (
-    <div className={`relative w-full md:w-[calc(100%+32px)] md:-mr-4 md:-ml-4 overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] ${className}`}>
+    <div className={`relative rounded-lg overflow-hidden group ${className}`}>
       <Link href={getArticleLink(article)} className="block">
-        {/* الحاوية الرئيسية - relative وoverflow hidden */}
+        {/* الحاوية الرئيسية */}
         <div className="relative overflow-hidden">
-          {/* الصورة بارتفاع ثابت */}
-          <div className="relative w-full h-56 md:h-64">
+          {/* الصورة بارتفاع ثابت ومتدرج حسب المقاس */}
+          <div className="relative w-full h-48 sm:h-56 lg:h-64">
             <Image
               src={imageUrl}
               alt={article.title}
               fill
-              className="h-56 w-full object-cover md:h-64"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 100vw"
               loading="lazy"
               fetchPriority="low"
               onLoad={() => setImageLoaded(true)}
@@ -74,13 +74,9 @@ export default function FeaturedMobileCard({ article, className = '' }: Featured
           </div>
 
           {/* طبقة الظل من أسفل لأعلى */}
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent pointer-events-none" />
 
-          {/* وسم "مميز" في الزاوية العلوية اليمنى */}
-          <div className="absolute top-3 right-3 z-30 bg-gradient-to-l from-yellow-500 to-amber-600 text-white px-3 py-1.5 text-xs rounded-full shadow-md flex items-center gap-1 font-bold">
-            <span className="text-yellow-200">✨</span>
-            مميز
-          </div>
+          {/* شعار مميز اختياري يمكن إظهاره لاحقاً */}
 
           {/* شارة عاجل إذا كانت موجودة */}
           {article.breaking && (
@@ -90,17 +86,9 @@ export default function FeaturedMobileCard({ article, className = '' }: Featured
             </div>
           )}
 
-          {/* محتوى أسفل الصورة - العنوان داخل الصورة */}
-          <div className="absolute inset-x-0 bottom-0 z-10 p-4">
-            {/* وسم التصنيف إن وجد */}
-            {article.category && (
-              <div className="mb-2 flex items-center gap-2 text-xs text-white/85">
-                <span>{article.category.name}</span>
-              </div>
-            )}
-
-            {/* العنوان */}
-            <h3 className="line-clamp-2 text-base font-bold leading-snug text-white drop-shadow-[0_1px_2px_rgba(0,0,0,.6)]">
+          {/* العنوان */}
+          <div className="absolute bottom-3 left-4 right-4 z-10">
+            <h3 className="text-white text-sm sm:text-base lg:text-lg font-bold leading-snug drop-shadow-md line-clamp-2">
               {article.title}
             </h3>
           </div>
