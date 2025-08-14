@@ -541,10 +541,10 @@ export default function ArticleClientComponent({
         <div className="relative">
           <article
             ref={viewTrackingRef}
-            className="max-w-screen-lg lg:max-w-[110ch] mx-auto py-3 sm:py-5 lg:py-7 article-content" // تقليل الـ padding العمودي قليلاً لرفع المحتوى
+            className="max-w-screen-lg lg:max-w-[110ch] mx-auto py-3 sm:py-5 lg:py-7 article-content"
           >
             {/* رأس المقال محسن للموبايل */}
-            <header className="mb-1 sm:mb-2"> {/* تقليل المسافة أسفل الهيدر لرفع الصورة */}
+            <header className="mb-1 sm:mb-2">
               {/* Desktop Header - محاذاة العرض تمامًا مع حاوية الصورة البارزة */}
               <div className="hidden sm:block">
                 <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-3 sm:px-6 lg:px-8">
@@ -706,8 +706,7 @@ export default function ArticleClientComponent({
                 </div>
               </div>
             </header>
-            {/* إعلان أسفل هيدر المقال */}
-            <AdBanner placement="article_detail_header" className="mb-5" /> {/* تقليل المسافة أسفل الإعلان */}
+            <AdBanner placement="article_detail_header" className="mb-5" />
           </article>
         </div>
         {/* منطقة المحتوى - عرض أوسع للديسكتوب */}
