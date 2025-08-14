@@ -465,7 +465,7 @@ export default function MobileDashboard() {
                   window.location.href = item.href;
                 }
               }}
-              className={`flex flex-col items-center gap-1 h-16 cursor-pointer ${
+              className={`flex flex-row items-center gap-2 h-16 px-4 cursor-pointer ${
                 item.active 
                   ? (isDarkMode ? 'text-blue-400' : 'text-blue-600')
                   : (isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700')

@@ -240,41 +240,41 @@ export default function MobileDashboardLayout({
         <div className="flex items-center justify-around py-1">
           <button
             onClick={() => router.push('/dashboard')}
-            className={`flex flex-col items-center p-2 rounded-lg transition-colors min-h-[44px] min-w-[44px] ${
+            className={`flex flex-row items-center gap-2 p-2 rounded-lg transition-colors min-h-[44px] ${
               darkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-600'
             }`}
           >
-            <Settings className="w-5 h-5 mb-0.5" />
+            <Settings className="w-5 h-5" />
             <span className="text-xs">الرئيسية</span>
           </button>
 
           <button
             onClick={() => router.push('/dashboard/news')}
-            className={`mobile-nav-item flex flex-col items-center p-2 rounded-lg transition-colors min-h-[44px] min-w-[44px] ${
+            className={`mobile-nav-item flex flex-row items-center gap-2 p-2 rounded-lg transition-colors min-h-[44px] ${
               darkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-600'
             }`}
           >
-            <Newspaper className="icon w-5 h-5 mb-0.5" />
+            <Newspaper className="icon w-5 h-5" />
             <span className="text text-xs">الأخبار</span>
           </button>
 
           <button
             onClick={() => router.push('/dashboard/insights')}
-            className={`mobile-nav-item flex flex-col items-center p-2 rounded-lg transition-colors min-h-[44px] min-w-[44px] ${
+            className={`mobile-nav-item flex flex-row items-center gap-2 p-2 rounded-lg transition-colors min-h-[44px] ${
               darkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-600'
             }`}
           >
-            <BarChart3 className="icon w-5 h-5 mb-0.5" />
+            <BarChart3 className="icon w-5 h-5" />
             <span className="text text-xs">الإحصائيات</span>
           </button>
 
           <button
             onClick={() => router.push('/dashboard/article')}
-            className={`mobile-nav-item flex flex-col items-center p-2 rounded-lg transition-colors min-h-[44px] min-w-[44px] ${
+            className={`mobile-nav-item flex flex-row items-center gap-2 p-2 rounded-lg transition-colors min-h-[44px] ${
               darkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-600'
             }`}
           >
-            <FileText className="icon w-5 h-5 mb-0.5" />
+            <FileText className="icon w-5 h-5" />
             <span className="text text-xs">المقالات</span>
           </button>
         </div>
