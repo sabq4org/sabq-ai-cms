@@ -169,6 +169,123 @@ const SearchBar = memo(({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
 
 SearchBar.displayName = 'SearchBar';
 
+// القائمة الجانبية المحسنة  
+const SideMenu = memo(({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+  const { count: newEventsCount } = useNewEventsCounter();
+
+  if (!isOpen) return null;
+
+  const navigationItems = [
+    { 
+      label: 'الرئيسية', 
+      url: '/', 
+      icon: Home,
+      color: 'text-blue-600 dark:text-blue-400'
+    },
+    { 
+      label: 'اللحظة بلحظة', 
+      url: '/moment-by-moment', 
+      icon: Activity,
+      highlight: true,
+      color: 'text-red-500 dark:text-red-400'
+    },
+    { 
+      label: 'الأخبار', 
+      url: '/news', 
+      icon: Newspaper,
+      color: 'text-green-600 dark:text-green-400'
+    },
+    { 
+      label: 'التحليل العميق', 
+      url: '/deep-analysis', 
+      icon: Sparkles,
+      color: 'text-indigo-600 dark:text-indigo-400'
+    },
+    { 
+      label: 'مقالات الرأي',
+      url: '/opinion',
+      icon: PenTool,
+      color: 'text-orange-600 dark:text-orange-400',
+      badge: 'جديد'
+    },
+    { 
+      label: 'الميديا', 
+      url: '/media', 
+      icon: Bookmark,
+      color: 'text-purple-600 dark:text-purple-400'
+    },
+  ];
+
+  return (
+    <>
+      {/* الخلفية الشفافة */}
+      <div 
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 animate-in fade-in duration-200"
+        onClick={onClose}
+      />
+      
+      {/* القائمة */}
+      <nav className="fixed top-0 right-0 w-80 max-w-[85vw] h-full bg-white dark:bg-gray-900 z-50 shadow-2xl animate-in slide-in-from-right duration-300">
+        <div className="flex flex-col h-full">
+          {/* رأس القائمة */}
+          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between mb-4">
+              <SiteLogo />
+              <button
+                onClick={onClose}
+                className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
+                aria-label="إغلاق القائمة"
+              >
+                <X className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+              </button>
+            </div>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              صحيفة سبق الإلكترونية - مدعومة بالذكاء الاصطناعي
+            </p>
+          </div>
+
+          {/* عناصر القائمة الرئيسية */}
+          <div className="flex-1 overflow-y-auto py-3">
+            <ul className="space-y-1 px-3">
+              {navigationItems.map((item, index) => {
+                const Icon = item.icon;
+                return (
+                  <li key={index}>
+                    <Link
+                      href={item.url}
+                      onClick={onClose}
+                      className={`flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 group min-h-[44px] ${
+                        item.highlight
+                          ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30'
+                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                      }`}
+                    >
+                      <Icon className={`w-5 h-5 ${item.color} ${item.highlight ? 'animate-pulse' : ''} flex-shrink-0`} />
+                      <span className="flex-1 text-sm font-medium">{item.label}</span>
+                      {item.highlight && newEventsCount > 0 && (
+                        <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full min-w-[20px] text-center">
+                          {newEventsCount > 9 ? '9+' : newEventsCount}
+                        </span>
+                      )}
+                      {item.badge && (
+                        <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full">
+                          {item.badge}
+                        </span>
+                      )}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </>
+  );
+});
+
+SideMenu.displayName = 'SideMenu';
+
 
 
 // الهيدر الرئيسي المحسن
@@ -336,8 +453,8 @@ const MobileHeader = memo(({
         <div className="h-0.5 bg-gradient-to-r from-blue-500 via-purple-600 to-indigo-700 transform origin-left scale-x-0 transition-transform duration-300" />
       </header>
 
-      {/* القائمة الجانبية النظيفة */}
-      <CleanMobileSidebar 
+      {/* القائمة الجانبية */}
+      <SideMenu 
         isOpen={mobileMenuOpen} 
         onClose={() => setMobileMenuOpen(false)} 
       />
