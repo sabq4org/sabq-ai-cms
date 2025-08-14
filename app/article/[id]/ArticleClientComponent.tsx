@@ -713,8 +713,8 @@ export default function ArticleClientComponent({
             typeof article.featured_image === "string" &&
             article.featured_image.length > 0 &&
             !article.metadata?.emergency_mode && (
-              <div className="hidden sm:block mb-6 px-4 sm:px-6 lg:px-8">{/* توحيد حافة الصورة مع حاوية المحتوى */}
-                <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto article-featured-image-wrapper">
+              <div className="hidden sm:block mb-6">{/* توحيد حافة الصورة مع حاوية المحتوى */}
+                <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-3 sm:px-6 lg:px-8 article-featured-image-wrapper">
                   <ArticleFeaturedImage
                     imageUrl={article.featured_image}
                     title={article.title}
