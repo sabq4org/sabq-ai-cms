@@ -7,7 +7,7 @@ import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { 
   Menu, Search, Bell, User, X, Sun, Moon, Activity, 
-  Home, Newspaper, Bookmark, Settings, LogOut, ChevronDown, PenTool,
+  Home, Newspaper, Film, Settings, LogOut, ChevronDown, PenTool,
   Sparkles 
 } from 'lucide-react';
 import UserDropdown from './UserDropdown';
@@ -212,7 +212,7 @@ const SideMenu = memo(({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
     { 
       label: 'الميديا', 
       url: '/media', 
-      icon: Bookmark,
+      icon: Film,
       color: 'text-purple-600 dark:text-purple-400'
     },
   ];
@@ -241,7 +241,7 @@ const SideMenu = memo(({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
               </button>
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              صحيفة سبق الإلكترونية - مدعومة بالذكاء الاصطناعي
+              أقسام الموقع الرئيسية
             </p>
           </div>
 
