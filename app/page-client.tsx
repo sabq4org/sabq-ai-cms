@@ -69,6 +69,9 @@ const MuqtarabBlock = dynamic(
   }
 );
 
+// استيراد المكون الجديد الخفيف
+import LightFeaturedStrip from "@/components/featured/LightFeaturedStrip";
+// إضافة استيراد ديناميكي للكاروسيل لسطح المكتب
 const FeaturedNewsCarousel = dynamic(
   () =>
     import("@/components/FeaturedNewsCarousel").catch(() => ({
@@ -722,7 +725,11 @@ function NewspaperHomePage({
         {/* 2. الأخبار المميزة (Featured Articles) 🌟 */}
         {!featuredLoading && featuredArticle.length > 0 && (
           <div className={`${isMobileView ? "pt-2 pb-4" : "pt-4 pb-6"}`}>
-            <FeaturedNewsCarousel articles={featuredArticle} />
+            {isMobileView ? (
+              <LightFeaturedStrip articles={featuredArticle} heading={undefined} />
+            ) : (
+              <FeaturedNewsCarousel articles={featuredArticle} />
+            )}
           </div>
         )}
 
@@ -911,7 +918,7 @@ function NewspaperHomePage({
                               className={`w-5 h-5 ${
                                 darkMode
                                   ? "text-gray-400 dark:text-gray-500"
-                                  : "text-gray-600 dark:text-gray-400 dark:text-gray-500"
+                                  : "text-gray-600 dark:text-gray-400"
                               }`}
                             />
                           </button>
