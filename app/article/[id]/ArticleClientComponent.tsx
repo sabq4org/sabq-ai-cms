@@ -630,6 +630,7 @@ export default function ArticleClientComponent({
                   </div>
                 </div>
               </div>
+              </div>
 
               {/* Mobile Header */}
               <div className="sm:hidden px-4 py-6 bg-white dark:bg-gray-900 transition-colors duration-300">
