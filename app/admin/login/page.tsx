@@ -38,7 +38,10 @@ export default function AdminLogin() {
 
       const data = await res.json();
       if (res.ok && data?.success) {
-        // توجيه مباشر بعد نجاح تسجيل الدخول، والميدلوير سيحمي المسارات
+        // fallback: حفظ التوكن في كوكي إضافي للتوافق مع الميدلوير
+        try {
+          document.cookie = `auth-token=${data.token}; path=/; max-age=${60 * 60}; SameSite=Lax`;
+        } catch {}
         router.replace(next);
       } else {
         alert(data?.error || "فشل تسجيل الدخول");

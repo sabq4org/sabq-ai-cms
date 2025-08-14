@@ -35,7 +35,7 @@ export async function middleware(req: NextRequest) {
     if (pathname === "/admin/login") {
       return NextResponse.next();
     }
-    const at = req.cookies.get("sabq_at")?.value;
+    const at = req.cookies.get("sabq_at")?.value || req.cookies.get("auth-token")?.value;
     if (!at) {
       const url = nextUrl.clone();
       url.pathname = "/admin/login";
