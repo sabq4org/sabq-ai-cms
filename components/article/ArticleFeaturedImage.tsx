@@ -11,18 +11,22 @@ interface ArticleFeaturedImageProps {
     color?: string;
     icon?: string;
   };
+  caption?: string;
+  className?: string;
 }
 
 export default function ArticleFeaturedImage({
   imageUrl,
   title,
   category,
+  caption,
+  className,
 }: ArticleFeaturedImageProps) {
   // عرض بناءً على الوضع المحدد في الإعدادات
   switch (IMAGE_CONFIG.DISPLAY_MODE) {
     case "default":
       return (
-        <div className="relative w-full">
+        <div className={`relative w-full ${className || ''}`}>
           {/* الصورة الرئيسية - محسنة بحجم أكبر */}
           <div className="relative overflow-hidden rounded-lg shadow-lg">
             <OptimizedImage
@@ -52,7 +56,7 @@ export default function ArticleFeaturedImage({
 
     case "blur-overlay":
       return (
-        <div className="article-featured-image relative h-[400px] sm:h-[500px] lg:h-[600px] w-full overflow-hidden bg-gray-900 dark:bg-black">
+        <div className={`article-featured-image relative h-[400px] sm:h-[500px] lg:h-[600px] w-full overflow-hidden bg-gray-900 dark:bg-black ${className || ''}`}>
           {/* صورة الخلفية المموهة */}
           <img
             src={imageUrl}

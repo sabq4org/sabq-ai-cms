@@ -734,25 +734,27 @@ export default function ArticleClientComponent({
             {/* إعلان أسفل هيدر المقال */}
             <AdBanner placement="article_detail_header" className="mb-6" />
 
-            {/* صورة المقال - بنفس عرض العنوان تماماً */}
-            {article.featured_image &&
-              typeof article.featured_image === "string" &&
-              article.featured_image.length > 0 &&
-              !article.metadata?.emergency_mode && ( // تجنب عرض الصورة في وضع الطوارئ
-                <div className="hidden sm:block px-6 lg:px-8 mb-6">
-                  <ArticleFeaturedImage
-                    imageUrl={article.featured_image}
-                    title={article.title}
-                    caption={article.featured_image_caption}
-                    category={article.category}
-                  />
-                </div>
-              )}
           </article>
         </div>
 
         {/* منطقة المحتوى - نفس عرض الصورة والعنوان تماماً للديسكتوب، عرض كامل للموبايل */}
         <div className="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-2">
+          {/* صورة المقال للديسكتوب - عرض كامل محاذي للمحتوى */}
+          {article.featured_image &&
+            typeof article.featured_image === "string" &&
+            article.featured_image.length > 0 &&
+            !article.metadata?.emergency_mode && (
+              <div className="hidden sm:block mb-6 article-featured-image-wrapper">
+                <ArticleFeaturedImage
+                  imageUrl={article.featured_image}
+                  title={article.title}
+                  caption={article.featured_image_caption}
+                  category={article.category}
+                  className="w-full rounded-xl shadow-lg"
+                />
+              </div>
+            )}
+            
           <div className="bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-6 lg:p-8">
             {/* منطقة الصورة والموجز الذكي للموبايل - الصورة فوق الموجز */}
             <div className="sm:hidden mb-6">
@@ -785,13 +787,13 @@ export default function ArticleClientComponent({
                   article.excerpt ||
                   ""
                 }
-                className="shadow-lg"
+                className="shadow-lg article-ai-summary-mobile"
                 showFloatingAudio={true}
               />
             </div>
 
             {/* الموجز الذكي للديسكتوب - منفصل دائماً */}
-            <div className="hidden sm:block mb-6 sm:mb-8">
+            <div className="hidden sm:block mb-6 sm:mb-8 article-ai-summary-wrapper">
               <ArticleAISummary
                 articleId={article.id}
                 title={article.title || "مقال بدون عنوان"}
@@ -799,7 +801,7 @@ export default function ArticleClientComponent({
                 existingSummary={
                   article.ai_summary || article.summary || article.excerpt || ""
                 }
-                className="shadow-lg"
+                className="shadow-lg w-full"
               />
             </div>
 

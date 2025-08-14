@@ -19,6 +19,7 @@ import "../styles/article-featured-image-fix.css";
 import "../styles/mobile-article-enhancements.css";
 import "../styles/mobile-article-image-summary.css";
 import "../styles/mobile-article-layout-fix.css";
+import "../styles/article-content-alignment.css";
 import "../styles/globals.css";
 import "../styles/word-cloud.css";
 import "../styles/improved-mobile-menu.css";

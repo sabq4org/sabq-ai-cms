@@ -152,7 +152,7 @@ export default function ArticleAISummary({
         'rounded-xl p-3 sm:p-4',
         'border border-purple-200/50 dark:border-purple-700/30',
         'shadow-sm hover:shadow-md transition-shadow',
-        'max-w-lg mx-auto', // تصغير العرض الأقصى
+        'w-full', // عرض كامل
         className
       )}>
         {/* الأيقونة في الزاوية مع tooltip */}
@@ -196,7 +196,7 @@ export default function ArticleAISummary({
         {/* المحتوى */}
         <div className="px-8"> {/* مساحة للأيقونات */}
           {summary ? (
-            <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed line-clamp-4">
+            <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
               {summary}
             </p>
           ) : canGenerateSummary ? (
