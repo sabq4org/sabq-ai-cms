@@ -426,12 +426,13 @@ const MobileHeader = memo(({
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
                     className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95 transition-all duration-200 relative"
                     aria-label="قائمة المستخدم"
+                    aria-haspopup="menu"
+                    aria-expanded={userMenuOpen}
                   >
                     <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                    {/* مؤشر صغير للإشارة إلى وجود قائمة */}
                     <ChevronDown className="absolute -bottom-1 -right-1 w-3 h-3 text-gray-400 dark:text-gray-500" />
                   </button>
-                  
+
                   {/* القائمة المنسدلة للمستخدم */}
                   <UserDropdown 
                     isOpen={userMenuOpen}
