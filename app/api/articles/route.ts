@@ -688,7 +688,7 @@ export async function POST(request: NextRequest) {
           status: article.status
         }
       },
-      { status: 201 }
+      { status: 201, headers: { "Cache-Control": "no-store" } }
     );
   } catch (error: any) {
     console.error("❌ خطأ في إنشاء المقال:", error);

@@ -8,8 +8,9 @@
   --font-family-heading: var(--font-family-base);
 }
 
-/* 📖 فرض الخط على جميع عناصر المحتوى */
-html, body, * {
+/* 📖 تعيين الخط على مستوى الجسم للتقليل من إعادة الحسابات */
+body,
+.font-arabic {
   font-family: var(--font-family-base) !important;
 }
 
@@ -157,8 +158,11 @@ a, button, .btn {
   padding-left: 0 !important;
 }
 
-/* 🔤 إصلاح مشاكل التباعد */
-* {
+/* 🔤 إصلاح مشاكل التباعد (دون تعميم على كل العناصر قبل/بعد) */
+.article-content,
+.content,
+.main-content,
+.page-content {
   word-spacing: normal !important;
   letter-spacing: normal !important;
   text-justify: none !important;
@@ -218,10 +222,7 @@ a, button, .btn {
   font-family: var(--font-family-content) !important;
 }
 
-/* 🏁 ضمان التطبيق على كل شيء */
-*, *::before, *::after {
-  font-family: inherit !important;
-}
+/* 🏁 إزالة التعيميم لتقليل تكلفة CSS، نعتمد على body والعناصر المستهدفة أعلاه */
 
 /* 📖 تأكيد نهائي للمحتوى */
 .content, .main-content, .page-content {

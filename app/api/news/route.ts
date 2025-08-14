@@ -238,7 +238,13 @@ export async function GET(request: NextRequest) {
       totalPages,
     });
 
-    return NextResponse.json(response);
+    return NextResponse.json(response, {
+      headers: {
+        "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+        "CDN-Cache-Control": "max-age=60",
+        "Vercel-CDN-Cache-Control": "max-age=60",
+      },
+    });
   } catch (error) {
     console.error("❌ [News API] خطأ في جلب الأخبار:", error);
 
