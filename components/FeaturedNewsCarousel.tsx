@@ -139,34 +139,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                 sizes="(max-width:1024px) 100vw, 50vw"
                 className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
               />
-              {/* طبقة شفافة وعنوان للهواتف فقط - للتجنب التكرار مع منطقة النص */}
-              <div
-                className="lg:hidden absolute inset-0 z-10 pointer-events-none"
-                style={{
-                  background:
-                    'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.5) 25%, transparent 100%)',
-                  transform: 'translateZ(0)'
-                }}
-              />
-              <div
-                className="lg:hidden absolute left-4 right-4 z-20"
-                style={{ bottom: '12px', top: 'auto', transform: 'translateZ(0)' }}
-              >
-                <div className="flex items-center gap-2 mb-1 text-[11px] text-white/90">
-                  <span className="text-sm">{currentArticle.category?.icon || '📰'}</span>
-                  <span className="font-medium">{currentArticle.category?.name || 'أخبار'}</span>
-                  <span className="opacity-80">•</span>
-                  <span className="opacity-90">
-                    {new Date(currentArticle.published_at || new Date()).toLocaleDateString('ar-SA', {
-                      month: 'short',
-                      day: 'numeric'
-                    })}
-                  </span>
-                </div>
-                <h3 className="text-white text-base font-bold leading-snug line-clamp-2 drop-shadow-md">
-                  {currentArticle.title}
-                </h3>
-              </div>
+              {/* تمت إزالة طبقة العنوان على الصورة للهواتف حسب الطلب */}
               {showBadge && (
                 <div className="hidden lg:block absolute top-4 right-4 z-30">
                   <div className="bg-yellow-500 text-white px-3 py-1 text-xs rounded-full flex items-center gap-1 shadow">
