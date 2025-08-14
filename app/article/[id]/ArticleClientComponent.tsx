@@ -630,7 +630,7 @@ export default function ArticleClientComponent({
               {/* Mobile Header */}
               <div className="sm:hidden px-4 py-6 bg-white dark:bg-gray-900 transition-colors duration-300">
                 {/* العنوان الرئيسي */}
-                <h1 className="text-4xl font-bold leading-tight text-gray-900 dark:text-white mb-2">{/* تكبير العنوان للموبايل */}
+                <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-white mb-2">{/* تصغير العنوان للموبايل تكة واحدة */}
                   {article.title}
                 </h1>
 
