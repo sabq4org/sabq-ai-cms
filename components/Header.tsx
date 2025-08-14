@@ -364,44 +364,7 @@ export default function Header() {
                     </span>
                   </Link>
 
-                  <Link
-                    href="/profile"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={`flex items-center space-x-2 rtl:space-x-reverse px-6 py-4 text-base font-medium transition-all duration-300 ${
-                      darkMode
-                        ? "text-gray-300 hover:text-white hover:bg-blue-800/40"
-                        : "text-gray-700 hover:text-gray-900 hover:bg-blue-600/20"
-                    }`}
-                  >
-                    <User className="w-4 h-4" />
-                    <span>الملف الشخصي</span>
-                  </Link>
 
-                  <Link
-                    href="/my-journey"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={`flex items-center space-x-2 rtl:space-x-reverse px-6 py-4 text-base font-medium transition-all duration-300 ${
-                      darkMode
-                        ? "text-gray-300 hover:text-white hover:bg-blue-800/40"
-                        : "text-gray-700 hover:text-gray-900 hover:bg-blue-600/20"
-                    }`}
-                  >
-                    <Target className="w-4 h-4" />
-                    <span>رحلتك المعرفية</span>
-                  </Link>
-
-                  <Link
-                    href="/settings"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={`flex items-center space-x-2 rtl:space-x-reverse px-4 py-3 text-sm font-medium transition-all duration-300 ${
-                      darkMode
-                        ? "text-gray-300 hover:text-white hover:bg-blue-800/40"
-                        : "text-gray-700 hover:text-gray-900 hover:bg-blue-600/20"
-                    }`}
-                  >
-                    <Settings className="w-4 h-4" />
-                    <span>الإعدادات</span>
-                  </Link>
                 </nav>
               </div>
             </>
