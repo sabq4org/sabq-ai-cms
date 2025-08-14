@@ -27,6 +27,7 @@ import toast from "react-hot-toast";
 import ClientOnly from "./ClientOnly";
 import UserDropdown from "./UserDropdown";
 import MobileUserDropdown from "./mobile/UserDropdown";
+import UserMenuDrawer from "./mobile/UserMenuDrawer";
 
 export default function Header() {
   const router = useRouter();
@@ -289,27 +290,24 @@ export default function Header() {
               {/* زر وقائمة ملف شخصي للموبايل فقط */}
               {user && (
                 <div className="md:hidden relative">
-                  <button
-                    ref={mobileUserBtnRef}
-                    onClick={() => setIsMobileUserOpen(true)}
-                    className={`p-2 rounded-lg transition-all duration-300 ${
-                      darkMode
-                        ? "text-gray-300 hover:text-white hover:bg-blue-800/40"
-                        : "text-gray-700 hover:text-gray-900 hover:bg-blue-600/20"
-                    }`}
-                    aria-label="قائمة المستخدم للموبايل"
-                    aria-haspopup="menu"
-                    aria-expanded={isMobileUserOpen}
-                  >
-                    <span className="inline-flex items-center gap-1">
-                      <User className="w-5 h-5" />
-                      <ChevronDown className="w-3 h-3 opacity-70" />
-                    </span>
-                  </button>
-                  <MobileUserDropdown
-                    isOpen={isMobileUserOpen}
-                    onClose={() => setIsMobileUserOpen(false)}
-                    anchorRef={mobileUserBtnRef}
+                  <UserMenuDrawer
+                    trigger={
+                      <button
+                        ref={mobileUserBtnRef}
+                        className={`p-2 rounded-lg transition-all duration-300 ${
+                          darkMode
+                            ? "text-gray-300 hover:text-white hover:bg-blue-800/40"
+                            : "text-gray-700 hover:text-gray-900 hover:bg-blue-600/20"
+                        }`}
+                        aria-label="قائمة المستخدم للموبايل"
+                        aria-haspopup="menu"
+                      >
+                        <span className="inline-flex items-center gap-1">
+                          <User className="w-5 h-5" />
+                          <ChevronDown className="w-3 h-3 opacity-70" />
+                        </span>
+                      </button>
+                    }
                   />
                 </div>
               )}
