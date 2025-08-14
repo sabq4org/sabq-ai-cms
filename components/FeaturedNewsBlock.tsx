@@ -1,8 +1,10 @@
 "use client";
 
 import CloudImage from "@/components/ui/CloudImage";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { formatDateGregorian } from "@/lib/date-utils";
+import { getProductionImageUrl } from "@/lib/production-image-fix";
 import {
   Award,
   Calendar,
@@ -18,7 +20,7 @@ import {
   User,
 } from "lucide-react";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 interface FeaturedArticle {
   id: string;
@@ -57,6 +59,20 @@ interface FeaturedNewsBlockProps {
 
 const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({ article }) => {
   const { darkMode } = useDarkModeContext();
+  const [isDesktop, setIsDesktop] = useState(false);
+  // التحقق من نوع الجهاز عند تحميل المكون
+  useEffect(() => {
+    const checkDevice = () => {
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+    
+    checkDevice();
+    window.addEventListener('resize', checkDevice);
+    
+    return () => {
+      window.removeEventListener('resize', checkDevice);
+    };
+  }, []);
 
   const getVerificationIcon = (badge: string) => {
     switch (badge) {
@@ -77,6 +93,9 @@ const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({ article }) => {
   if (!article) {
     return null;
   }
+  
+  // تسجيل معلومات عن الصورة للتشخيص
+  console.log('🖼️ FeaturedNewsBlock Image URL:', article.featured_image);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
@@ -93,16 +112,36 @@ const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({ article }) => {
           <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[240px] lg:min-h-[280px]">
             {/* قسم الصورة - 6 أعمدة (50%) */}
             <div className="lg:col-span-6 relative overflow-hidden lg:rounded-r-2xl rounded-t-2xl lg:rounded-t-none">
-              {/* الصورة */}
+              {/* الصورة - استخدام OptimizedImage في الديسكتوب و CloudImage في الموبايل */}
               <div className="relative w-full h-48 lg:h-full">
-                <CloudImage
-                  src={article.featured_image}
-                  alt={article.title}
-                  fill
-                  className="w-full h-full object-cover object-center rounded-xl transition-transform duration-700 group-hover:scale-105"
-                  fallbackType="article"
-                  priority={true}
-                />
+                {isDesktop ? (
+                  // استخدام OptimizedImage للديسكتوب
+                  <div className="relative w-full h-full" style={{ minHeight: "280px" }}>
+                    <OptimizedImage
+                      src={getProductionImageUrl(article.featured_image, {
+                        width: 800,
+                        height: 500,
+                        quality: 85,
+                        fallbackType: "article",
+                      })}
+                      alt={article.title}
+                      fill={true}
+                      className="w-full h-full object-cover object-center rounded-xl transition-transform duration-700 group-hover:scale-105"
+                      priority={true}
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                    />
+                  </div>
+                ) : (
+                  // استخدام CloudImage للموبايل
+                  <CloudImage
+                    src={article.featured_image}
+                    alt={article.title}
+                    fill
+                    className="w-full h-full object-cover object-center rounded-xl transition-transform duration-700 group-hover:scale-105"
+                    fallbackType="article"
+                    priority={true}
+                  />
+                )}
 
                 {/* تدرج لوني ناعم فوق الصورة */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent lg:bg-gradient-to-l lg:from-black/30 lg:via-transparent lg:to-transparent"></div>
