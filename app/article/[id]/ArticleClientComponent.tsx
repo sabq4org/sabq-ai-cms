@@ -545,8 +545,10 @@ export default function ArticleClientComponent({
           >
             {/* رأس المقال محسن للموبايل */}
             <header className="mb-1 sm:mb-2"> {/* تقليل المسافة أسفل الهيدر لرفع الصورة */}
-              {/* Desktop Header - تحسين توازن العناصر وإزالة الحدود */}
-              <div className="hidden sm:block px-3 sm:px-6 lg:px-8 py-6 lg:py-8 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl border-0 max-w-screen-lg lg:max-w-[110ch] mx-auto">
+              {/* Desktop Header - محاذاة العرض تمامًا مع حاوية الصورة البارزة */}
+              <div className="hidden sm:block">
+                <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-3 sm:px-6 lg:px-8">
+                  <div className="py-6 lg:py-8 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl border-0">
                 {/* التصنيف - محاذاة لليمين مع تحسين الهامش */}
                 {article.category && (
                   <div className="flex justify-end mb-5">
@@ -624,6 +626,7 @@ export default function ArticleClientComponent({
                       />
                     </>
                   )}
+                  </div>
                 </div>
               </div>
 
