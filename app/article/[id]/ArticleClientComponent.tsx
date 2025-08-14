@@ -541,10 +541,10 @@ export default function ArticleClientComponent({
         <div className="relative">
           <article
             ref={viewTrackingRef}
-            className="max-w-screen-lg lg:max-w-[110ch] mx-auto py-4 sm:py-6 lg:py-8 article-content"
+            className="max-w-screen-lg lg:max-w-[110ch] mx-auto py-3 sm:py-5 lg:py-7 article-content" // تقليل الـ padding العمودي قليلاً لرفع المحتوى
           >
             {/* رأس المقال محسن للموبايل */}
-            <header className="mb-2 sm:mb-4">
+            <header className="mb-1 sm:mb-2"> {/* تقليل المسافة أسفل الهيدر لرفع الصورة */}
               {/* Desktop Header - تحسين توازن العناصر وإزالة الحدود */}
               <div className="hidden sm:block px-6 lg:px-8 py-6 lg:py-8 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl border-0">
                 {/* التصنيف - محاذاة لليمين مع تحسين الهامش */}
@@ -565,20 +565,19 @@ export default function ArticleClientComponent({
                 )}
 
                 {/* العنوان - تحسين المسافات والهوامش */}
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-5 text-gray-900 dark:text-white leading-tight text-right tracking-tight">
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 text-gray-900 dark:text-white leading-tight text-right tracking-tight">{/* تقليل المسافة السفلية */}
                   {article.title}
                 </h1>
 
                 {/* العنوان الفرعي - تحسين المظهر */}
                 {getSubtitle() && (
-                  <h2 className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-400 mb-6 text-right leading-relaxed">
+                  <h2 className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-400 mb-4 text-right leading-relaxed">{/* تقليل المسافة */}
                     {getSubtitle()}
                   </h2>
                 )}
 
-                {/* المعلومات الأساسية - Desktop مع ترتيب من اليسار: إسم المراسل - التاريخ - مدة القراءة - عدد المشاهدات */}
-                <div className="flex flex-wrap items-center justify-start gap-3 sm:gap-5 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-6 text-left border-0 article-meta-info">
-                  {/* 1. إسم المراسل - الأولوية الأولى */}
+                {/* المعلومات الأساسية - Desktop */}
+                <div className="flex flex-wrap items-center justify-start gap-2 sm:gap-3 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-4 text-left border-0 article-meta-info">{/* تقليل الفجوات */}
                   {article.author && (
                     <div className="flex items-center gap-1.5 sm:gap-2 justify-start">
                       <ReporterLink
@@ -590,12 +589,10 @@ export default function ArticleClientComponent({
                       />
                     </div>
                   )}
-
-                  {/* 2. التاريخ والوقت - الأولوية الثانية */}
                   {article.author && (
-                    <span className="text-gray-300 dark:text-gray-600">•</span>
+                    <span className="text-gray-300 dark:text-gray-600 px-0.5">•</span>
                   )}
-                  <div className="flex items-center gap-1.5 sm:gap-2 justify-start text-left">
+                  <div className="flex items-center gap-1.5 sm:gap-1.5 justify-start text-left whitespace-nowrap">
                     <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                     <span className="hidden sm:inline text-left">
                       <SafeDateDisplay
@@ -610,52 +607,41 @@ export default function ArticleClientComponent({
                       />
                     </span>
                   </div>
-
-                  {/* 3. وقت القراءة - الأولوية الثالثة */}
-                  <span className="text-gray-300 dark:text-gray-600">•</span>
-                  <div className="flex items-center gap-1.5 sm:gap-2 justify-start text-left">
+                  <span className="text-gray-300 dark:text-gray-600 px-0.5">•</span>
+                  <div className="flex items-center gap-1.5 sm:gap-1.5 justify-start text-left whitespace-nowrap">
                     <Clock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                     <span className="text-left">
                       {article.reading_time ||
-                        calculateReadingTime(article.content || "")}{" "}
-                      د
+                        calculateReadingTime(article.content || "")} د
                     </span>
                   </div>
-
-                  {/* 4. عدد المشاهدات - الأولوية الرابعة */}
                   {article.views !== undefined && (
                     <>
-                      <span className="text-gray-300 dark:text-gray-600">
-                        •
-                      </span>
+                      <span className="text-gray-300 dark:text-gray-600 px-0.5">•</span>
                       <ArticleViews
                         count={article.views}
-                        className="text-xs sm:text-sm text-left"
+                        className="text-xs sm:text-sm text-left whitespace-nowrap"
                       />
                     </>
                   )}
                 </div>
               </div>
 
-              {/* Mobile Header محسن - شفاف تماماً للوضع الليلي */}
+              {/* Mobile Header */}
               <div className="sm:hidden px-4 py-6 bg-white dark:bg-gray-900 transition-colors duration-300">
                 {/* العنوان الرئيسي */}
-                <h1 className="text-xl md:text-2xl lg:text-3xl font-bold leading-tight text-gray-900 dark:text-white mb-3">
+                <h1 className="text-xl md:text-2xl lg:text-3xl font-bold leading-tight text-gray-900 dark:text-white mb-2">{/* تقليل المسافة */}
                   {article.title}
                 </h1>
 
                 {/* العنوان الفرعي */}
                 {getSubtitle() && (
-                  <h2 className="text-sm leading-relaxed text-gray-600 dark:text-gray-300 font-normal mb-4">
+                  <h2 className="text-sm leading-relaxed text-gray-600 dark:text-gray-300 font-normal mb-3">{/* تقليل المسافة */}
                     {getSubtitle()}
                   </h2>
                 )}
-
-                {/* التصنيف ومعلومات النشر */}
-                <div className="flex items-start justify-between gap-3">
-                  {/* معلومات النشر والتصنيف في اليسار */}
+                <div className="flex items-start justify-between gap-2">{/* تقليل الفراغ */}
                   <div className="flex flex-col items-start gap-1.5 text-xs text-gray-600 dark:text-gray-300 flex-1">
-                    {/* المراسل مع التوثيق */}
                     {article.author && (
                       <div className="flex items-center gap-1.5">
                         <span>👤</span>
@@ -668,37 +654,28 @@ export default function ArticleClientComponent({
                         />
                       </div>
                     )}
-
-                    {/* التاريخ ووقت القراءة والمشاهدات */}
-                    <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex items-center gap-1.5 flex-wrap">{/* تقليل gap */}
                       <div className="flex items-center gap-1">
                         <span>🗓️</span>
                         <span>
                           <SafeDateDisplay
-                            date={
-                              article.published_at || article.created_at || ""
-                            }
+                            date={article.published_at || article.created_at || ""}
                             format="relative"
                           />
                         </span>
                       </div>
-                      <span className="text-gray-300 dark:text-gray-600">
-                        •
-                      </span>
-                      <div className="flex items-center gap-1">
+                      <span className="text-gray-300 dark:text-gray-600">•</span>
+                      <div className="flex items-center gap-1 whitespace-nowrap">
                         <Clock className="w-3 h-3 flex-shrink-0" />
                         <span>
                           {article.reading_time ||
-                            calculateReadingTime(article.content || "")}{" "}
-                          د
+                            calculateReadingTime(article.content || "")} د
                         </span>
                       </div>
                       {article.views !== undefined && (
                         <>
-                          <span className="text-gray-300 dark:text-gray-600">
-                            •
-                          </span>
-                          <div className="flex items-center gap-1">
+                          <span className="text-gray-300 dark:text-gray-600">•</span>
+                          <div className="flex items-center gap-1 whitespace-nowrap">
                             <span>👁️</span>
                             <ArticleViews
                               count={article.views}
@@ -708,8 +685,6 @@ export default function ArticleClientComponent({
                         </>
                       )}
                     </div>
-
-                    {/* ليبل التصنيف */}
                     {article.category && (
                       <div className="mt-1">
                         <Link
@@ -718,9 +693,7 @@ export default function ArticleClientComponent({
                         >
                           <Hash className="w-3 h-3 flex-shrink-0" />
                           {article.category.icon && (
-                            <span className="text-xs">
-                              {article.category.icon}
-                            </span>
+                            <span className="text-xs">{article.category.icon}</span>
                           )}
                           <span>{article.category.name}</span>
                         </Link>
@@ -730,21 +703,17 @@ export default function ArticleClientComponent({
                 </div>
               </div>
             </header>
-
             {/* إعلان أسفل هيدر المقال */}
-            <AdBanner placement="article_detail_header" className="mb-6" />
-
+            <AdBanner placement="article_detail_header" className="mb-5" /> {/* تقليل المسافة أسفل الإعلان */}
           </article>
         </div>
-
-        {/* منطقة المحتوى - عرض أوسع للديسكتوب لدعم الصور الكبيرة */}
+        {/* منطقة المحتوى - عرض أوسع للديسكتوب */}
         <div className="w-full">
-          {/* صورة المقال للديسكتوب - عرض كامل بدون قيود */}
           {article.featured_image &&
             typeof article.featured_image === "string" &&
             article.featured_image.length > 0 &&
             !article.metadata?.emergency_mode && (
-              <div className="hidden sm:block mb-8 px-4 sm:px-8 lg:px-12">
+              <div className="hidden sm:block mb-6 px-4 sm:px-8 lg:px-12">{/* رفع الصورة بتقليل الهامش السفلي */}
                 <div className="max-w-screen-xl mx-auto article-featured-image-wrapper">
                   <ArticleFeaturedImage
                     imageUrl={article.featured_image}
@@ -756,57 +725,69 @@ export default function ArticleClientComponent({
                 </div>
               </div>
             )}
-            
           <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-3 sm:px-6 lg:px-8 py-2">
             <div className="bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-6 lg:p-8">
-              {/* منطقة الصورة والموجز الذكي للموبايل - الصورة فوق الموجز */}
               <div className="sm:hidden mb-6">
-              {/* الصورة - محاذاة مع بداية الموجز */}
-              {article.featured_image &&
-                typeof article.featured_image === "string" &&
-                article.featured_image.length > 0 &&
-                !article.metadata?.emergency_mode && (
-                  <div className="mb-4">
-                    <div className="relative h-[240px] overflow-hidden rounded-lg">
-                      <MobileFeaturedImage
-                        imageUrl={article.featured_image}
-                        title={article.title}
-                        caption={article.featured_image_caption}
-                        category={article.category}
-                        className="h-full"
-                      />
+                {article.featured_image &&
+                  typeof article.featured_image === "string" &&
+                  article.featured_image.length > 0 &&
+                  !article.metadata?.emergency_mode && (
+                    <div className="mb-4">
+                      <div className="relative h-[230px] overflow-hidden rounded-lg">{/* خفض الارتفاع قليلاً لرفع المحتوى */}
+                        <MobileFeaturedImage
+                          imageUrl={article.featured_image}
+                          title={article.title}
+                          caption={article.featured_image_caption}
+                          category={article.category}
+                          className="h-full"
+                        />
+                      </div>
                     </div>
-                  </div>
-                )}
-              
-              {/* الموجز الذكي */}
-              <ArticleAISummary
-                articleId={article.id}
-                title={article.title || "مقال بدون عنوان"}
-                content={article.content || ""}
-                existingSummary={
-                  article.ai_summary ||
-                  article.summary ||
-                  article.excerpt ||
-                  ""
-                }
-                className="shadow-lg article-ai-summary-mobile"
-                showFloatingAudio={true}
-              />
-            </div>
-
-            {/* الموجز الذكي للديسكتوب - منفصل دائماً */}
-            <div className="hidden sm:block mb-6 sm:mb-8 article-ai-summary-wrapper">
-              <ArticleAISummary
-                articleId={article.id}
-                title={article.title || "مقال بدون عنوان"}
-                content={article.content || ""}
-                existingSummary={
-                  article.ai_summary || article.summary || article.excerpt || ""
-                }
-                className="shadow-lg w-full"
-              />
-            </div>
+                  )}
+                <ArticleAISummary
+                  articleId={article.id}
+                  title={article.title || "مقال بدون عنوان"}
+                  content={article.content || ""}
+                  existingSummary={
+                    article.ai_summary ||
+                    article.summary ||
+                    article.excerpt ||
+                    ""
+                  }
+                  className="shadow-lg article-ai-summary-mobile"
+                  showFloatingAudio={true}
+                />
+                <div className="mt-3 flex justify-end">
+                  <SmartAudioButton
+                    articleId={article.id}
+                    title={article.title || ""}
+                    content={article.content || ""}
+                    variant="inline"
+                  />
+                </div>
+              </div>
+              <div className="hidden sm:block mb-6 sm:mb-8 article-ai-summary-wrapper">
+                <ArticleAISummary
+                  articleId={article.id}
+                  title={article.title || "مقال بدون عنوان"}
+                  content={article.content || ""}
+                  existingSummary={
+                    article.ai_summary ||
+                    article.summary ||
+                    article.excerpt ||
+                    ""
+                  }
+                  className="shadow-lg w-full"
+                />
+                <div className="mt-4 flex justify-end">
+                  <SmartAudioButton
+                    articleId={article.id}
+                    title={article.title || ""}
+                    content={article.content || ""}
+                    variant="inline"
+                  />
+                </div>
+              </div>
 
             {/* شريط التفاعل الذكي - عرض أوسع للموبايل */}
             <div className="mb-6 sm:mb-8 -mx-3 sm:mx-0">
@@ -974,11 +955,11 @@ export default function ArticleClientComponent({
               categoryName={article.category?.name}
               tags={article.keywords || []}
               darkMode={darkMode}
-              userId={undefined} // يمكن تمرير معرف المستخدم عند التسجيل
+              userId={undefined}
             />
           </div>
-        </div>
-        </div>
+        </div> {/* closes max-w-screen-lg wrapper */}
+      </div> {/* closes w-full container */}
       </main>
 
       <Footer />
