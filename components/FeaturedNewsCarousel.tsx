@@ -1,6 +1,7 @@
 "use client";
 
 import CloudImage from "@/components/ui/CloudImage";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { formatDateGregorian } from "@/lib/date-utils";
 import {
@@ -15,6 +16,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
+import { useFeaturedCarousel } from "@/components/featured/hooks/useFeaturedCarousel";
 
 interface FeaturedArticle {
   id: string;
@@ -50,36 +52,26 @@ interface FeaturedArticle {
 interface FeaturedNewsCarouselProps {
   articles: FeaturedArticle[];
   autoPlayInterval?: number; // بالمللي ثانية
+  heights?: { mobile?: number; mobileLg?: number; desktop?: number };
+  showBadge?: boolean;
 }
 
 const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
   articles,
   autoPlayInterval = 5000, // 5 ثواني افتراضياً
+  heights = { mobile: 220, mobileLg: 260, desktop: 320 },
+  showBadge = false,
 }) => {
   const { darkMode } = useDarkModeContext();
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-
-  // التحريك التلقائي
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-
-    if (isAutoPlaying) {
-      interval = setInterval(() => {
-        setCurrentIndex((prev) => (prev + 1) % articles.length);
-      }, autoPlayInterval);
-    }
-
-    return () => {
-      if (interval) {
-        clearInterval(interval);
-      }
-    };
-  }, [isAutoPlaying, articles.length, autoPlayInterval]);
+  const { index: currentIndex, setIndex: setCurrentIndex, next: handleNext, prev: handlePrevious, isReducedMotion } = useFeaturedCarousel({
+    length: articles.length,
+    autoPlayInterval,
+    paused: false,
+  });
 
   // إيقاف التحريك التلقائي عند تحريك الماوس فوق المكون
-  const handleMouseEnter = () => setIsAutoPlaying(false);
-  const handleMouseLeave = () => setIsAutoPlaying(true);
+  const handleMouseEnter = () => {/* يمكن لاحقاً تفعيل الإيقاف */};
+  const handleMouseLeave = () => {/* يمكن لاحقاً إعادة التشغيل */};
 
   const getVerificationIcon = (badge: string) => {
     switch (badge) {
@@ -97,58 +89,52 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
     return article.slug ? `/news/${article.slug}` : `/news/${article.id}`;
   };
 
-  const handlePrevious = () => {
-    setCurrentIndex((prev) => (prev - 1 + articles.length) % articles.length);
-  };
-
-  const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % articles.length);
-  };
-
   // إذا لا توجد أخبار، لا نعرض شيئاً
   if (!articles.length) {
     return null;
   }
 
   const currentArticle = articles[currentIndex];
+  const mobileH = heights.mobile || 220;
+  const mobileLgH = heights.mobileLg || mobileH;
+  const desktopH = heights.desktop || mobileLgH;
 
   return (
     <div
       className="featured-carousel relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      aria-roledescription="carousel"
+      aria-label="الأخبار المميزة"
     >
-      <Link href={getArticleLink(currentArticle)} className="group block">
-        {/* البلوك الرئيسي - تم تحسين الخلفية لضمان الرؤية */}
+      <Link href={getArticleLink(currentArticle)} className="group block" aria-live="polite">
         <div
           className={`relative overflow-hidden transition-all duration-500 group-hover:shadow-2xl ${
-            darkMode
-              ? "bg-gray-800 hover:bg-gray-800"
-              : "bg-white hover:bg-white"
-          } backdrop-blur-none rounded-3xl`}
+            darkMode ? "bg-gray-800 hover:bg-gray-800" : "bg-white hover:bg-white"
+          } rounded-3xl`}
         >
-          {/* Grid Layout: Mobile = full width image, Desktop = 50% للصورة، 50% للنص */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 h-[220px] sm:h-[260px] lg:h-[320px]">
-            {/* قسم الصورة - عرض كامل للجوال، 6 أعمدة للديسكتوب */}
-            {/* حاوية الصورة المرجعية */}
-            <div className="col-span-1 lg:col-span-6 relative overflow-hidden rounded-xl lg:rounded-r-2xl lg:rounded-l-none h-[220px] sm:h-[260px] lg:h-[320px]">
-              
-              {/* الصورة - الآن هي عنصر ابن مباشر */}
-              {(currentArticle.featured_image || currentArticle.image) ? (
-                <img
-                  src={currentArticle.featured_image || currentArticle.image}
+          <div
+            className={`grid grid-cols-1 lg:grid-cols-12`}
+            style={{ height: `${desktopH}px` }}
+          >
+            <div
+              className="col-span-1 lg:col-span-6 relative overflow-hidden rounded-xl lg:rounded-r-2xl lg:rounded-l-none"
+              style={{ height: `${desktopH}px` }}
+            >
+              {(currentArticle.featured_image) ? (
+                <OptimizedImage
+                  src={currentArticle.featured_image}
                   alt={currentArticle.title}
-                  // الصورة يجب أن تملأ الحاوية بالكامل
-                  className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                  loading="eager"
+                  fill
+                  priority
+                  sizes="(max-width:1024px) 100vw, 50vw"
+                  className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
                 />
               ) : (
                 <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
                   <span className="text-6xl">📰</span>
                 </div>
               )}
-
-              {/* شادو متدرج ذكي من أسفل - محسّن للقراءة */}
               <div
                 className="lg:hidden absolute inset-0 z-10 pointer-events-none"
                 style={{
@@ -157,16 +143,10 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                   transform: 'translateZ(0)'
                 }}
               />
-              
-              {/* المحتوى (العنوان والمعلومات) - عنصر ابن مباشر */}
-              {/* استخدمنا z-20 لوضعه فوق الـ Overlay */}
-              {/* إضافة transform: translateZ(0) لحل مشكلة التسريع العتادي */}
-              {/* العنوان والمعلومات - داخل الحاوية في الأسفل */}
               <div
                 className="lg:hidden absolute left-4 right-4 z-20"
                 style={{ bottom: '12px', top: 'auto', transform: 'translateZ(0)' }}
               >
-                {/* معلومات التصنيف والتاريخ */}
                 <div className="flex items-center gap-2 mb-1 text-[11px] text-white/90">
                   <span className="text-sm">{currentArticle.category?.icon || '📰'}</span>
                   <span className="font-medium">{currentArticle.category?.name || 'أخبار'}</span>
@@ -178,17 +158,20 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                     })}
                   </span>
                 </div>
-
-                {/* العنوان */}
                 <h3 className="text-white text-base font-bold leading-snug line-clamp-2 drop-shadow-md">
                   {currentArticle.title}
                 </h3>
               </div>
+              {showBadge && (
+                <div className="hidden lg:block absolute top-4 right-4 z-30">
+                  <div className="bg-yellow-500 text-white px-3 py-1 text-xs rounded-full flex items-center gap-1 shadow">
+                    <span>مميز</span>
+                    <Star className="w-3 h-3" />
+                  </div>
+                </div>
+              )}
             </div>
-
-            {/* قسم النص - 6 أعمدة (50%) - مخفي في الجوال */}
-            <div className="hidden lg:flex lg:col-span-6 p-4 lg:p-6 flex-col justify-between h-[280px] lg:h-[320px] overflow-hidden">
-              {/* العنوان الرئيسي */}
+            <div className="hidden lg:flex lg:col-span-6 p-4 lg:p-6 flex-col justify-between overflow-hidden" style={{ height: `${desktopH}px` }}>
               <h2
                 className={`text-xl lg:text-2xl xl:text-3xl font-bold mb-4 leading-tight line-clamp-3 transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400 ${
                   darkMode ? "text-white" : "text-gray-900"
@@ -196,8 +179,6 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
               >
                 {currentArticle.title}
               </h2>
-
-              {/* النبذة */}
               {currentArticle.excerpt && (
                 <p
                   className={`text-sm lg:text-base mb-6 leading-relaxed line-clamp-2 ${
@@ -207,64 +188,32 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                   {currentArticle.excerpt}
                 </p>
               )}
-
-              {/* المعلومات الأساسية */}
               <div className="flex flex-wrap gap-4 text-sm mb-6">
-                {/* المراسل */}
                 {currentArticle.author && (
                   <div className="flex items-center gap-1.5">
-                    <User
-                      className={`w-4 h-4 ${
-                        darkMode ? "text-gray-400" : "text-gray-500"
-                      }`}
-                    />
-                    <span
-                      className={darkMode ? "text-gray-300" : "text-gray-600"}
-                    >
-                      {currentArticle.author.reporter?.full_name ||
-                        currentArticle.author.name}
+                    <User className={`w-4 h-4 ${darkMode ? "text-gray-400" : "text-gray-500"}`} />
+                    <span className={darkMode ? "text-gray-300" : "text-gray-600"}>
+                      {currentArticle.author.reporter?.full_name || currentArticle.author.name}
                     </span>
                   </div>
                 )}
-
-                {/* التصنيف */}
                 {currentArticle.category && (
                   <div className="flex items-center gap-1.5">
-                    {currentArticle.category.icon && (
-                      <span className="text-base">
-                        {currentArticle.category.icon}
-                      </span>
-                    )}
-                    <span
-                      className={darkMode ? "text-gray-300" : "text-gray-600"}
-                    >
-                      {currentArticle.category.name}
-                    </span>
+                    {currentArticle.category.icon && <span className="text-base">{currentArticle.category.icon}</span>}
+                    <span className={darkMode ? "text-gray-300" : "text-gray-600"}>{currentArticle.category.name}</span>
                   </div>
                 )}
-
-                {/* التاريخ */}
                 <div className="flex items-center gap-1.5">
-                  <Calendar
-                    className={`w-4 h-4 ${
-                      darkMode ? "text-gray-400" : "text-gray-500"
-                    }`}
-                  />
-                  <span
-                    className={darkMode ? "text-gray-300" : "text-gray-600"}
-                  >
+                  <Calendar className={`w-4 h-4 ${darkMode ? "text-gray-400" : "text-gray-500"}`} />
+                  <span className={darkMode ? "text-gray-300" : "text-gray-600"}>
                     {formatDateGregorian(currentArticle.published_at)}
                   </span>
                 </div>
               </div>
-
-              {/* زر "اقرأ المزيد" - محاذاة لليسار */}
               <div className="mt-auto flex justify-end">
                 <div
                   className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300 ${
-                    darkMode
-                      ? "bg-gray-700 hover:bg-gray-600 text-gray-200"
-                      : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                    darkMode ? "bg-gray-700 hover:bg-gray-600 text-gray-200" : "bg-gray-100 hover:bg-gray-200 text-gray-700"
                   }`}
                 >
                   <span>اقرأ المزيد</span>
@@ -273,98 +222,48 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
               </div>
             </div>
           </div>
-          {/* أزرار التنقل - تم نقلها خارج الصورة */}
         </div>
       </Link>
-
-
-
-      {/* منطقة التنقل للموبايل - خارج الكاروسيل */}
-      <div className="lg:hidden px-4 pb-3">
+      {/* مؤشرات و أزرار التنقل */}
+      <div className="lg:hidden px-4 pb-3" aria-label="مؤشرات الكاروسيل">
         <div className="flex items-center justify-center gap-3">
-          {/* زر السابق */}
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              handlePrevious();
-            }}
-            className="p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-200"
-            aria-label="السابق"
-          >
+          <button onClick={(e) => { e.preventDefault(); handlePrevious(); }} className="p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-200" aria-label="السابق">
             <ChevronRight className="w-4 h-4" />
           </button>
-          
-          {/* نقاط التنقل */}
           <div className="flex items-center gap-1.5">
-            {articles.map((_, index) => (
+            {articles.map((_, idx) => (
               <button
-                key={index}
-                onClick={() => setCurrentIndex(index)}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  index === currentIndex
-                    ? "w-6 bg-blue-500 dark:bg-blue-400"
-                    : "w-1.5 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400"
-                }`}
-                aria-label={`الانتقال للخبر ${index + 1}`}
+                key={idx}
+                onClick={() => setCurrentIndex(idx)}
+                className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentIndex ? "w-6 bg-blue-500 dark:bg-blue-400" : "w-1.5 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400"}`}
+                aria-label={`الانتقال للخبر ${idx + 1}`}
+                aria-current={idx === currentIndex}
               />
             ))}
           </div>
-          
-          {/* زر التالي */}
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              handleNext();
-            }}
-            className="p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-200"
-            aria-label="التالي"
-          >
+          <button onClick={(e) => { e.preventDefault(); handleNext(); }} className="p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-200" aria-label="التالي">
             <ChevronLeft className="w-4 h-4" />
           </button>
         </div>
       </div>
-
-      {/* منطقة التنقل - للديسكتوب فقط */}
-      <div className="hidden lg:flex mt-4 justify-center items-center">
+      <div className="hidden lg:flex mt-4 justify-center items-center" aria-label="مؤشرات الكاروسيل (ديسكتوب)">
         <div className="flex items-center gap-3 px-4">
-          {/* زر السابق */}
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              handlePrevious();
-            }}
-            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-300 shadow-sm"
-            aria-label="الخبر السابق"
-          >
+          <button onClick={(e) => { e.preventDefault(); handlePrevious(); }} className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-300 shadow-sm" aria-label="الخبر السابق">
             <ChevronRight className="w-5 h-5" />
           </button>
-          
-          {/* أشرطة التنقل */}
           <div className="flex justify-center items-center gap-1.5">
-            {articles.map((article, index) => (
+            {articles.map((a, idx) => (
               <button
-                key={article.id}
-                onClick={() => setCurrentIndex(index)}
-                className={`h-1.5 rounded-full transition-all duration-300 ease-in-out ${
-                  index === currentIndex
-                    ? "w-8 bg-blue-500 dark:bg-blue-400"
-                    : "w-4 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500"
-                }`}
-                aria-label={`الانتقال إلى الخبر ${index + 1}: ${article.title}`}
-                title={article.title}
+                key={a.id}
+                onClick={() => setCurrentIndex(idx)}
+                className={`h-1.5 rounded-full transition-all duration-300 ease-in-out ${idx === currentIndex ? "w-8 bg-blue-500 dark:bg-blue-400" : "w-4 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500"}`}
+                aria-label={`الانتقال إلى الخبر ${idx + 1}: ${a.title}`}
+                aria-current={idx === currentIndex}
+                title={a.title}
               />
             ))}
           </div>
-          
-          {/* زر التالي */}
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              handleNext();
-            }}
-            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-300 shadow-sm"
-            aria-label="الخبر التالي"
-          >
+          <button onClick={(e) => { e.preventDefault(); handleNext(); }} className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-300 shadow-sm" aria-label="الخبر التالي">
             <ChevronLeft className="w-5 h-5" />
           </button>
         </div>
