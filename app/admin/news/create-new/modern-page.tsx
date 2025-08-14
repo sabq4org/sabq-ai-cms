@@ -527,7 +527,8 @@ export default function ModernCreateNewsPage() {
         processedContent = String(processedContent);
       }
 
-      const payload = {
+      const isScheduled = formData.publishType === "scheduled" && !!formData.scheduledDate;
+      const payload: any = {
         title: formData.title,
         subtitle: formData.subtitle,
         excerpt: formData.excerpt,
@@ -540,12 +541,19 @@ export default function ModernCreateNewsPage() {
         seo_description: formData.seoDescription || formData.excerpt,
         is_breaking: formData.isBreaking,
         is_featured: formData.isFeatured,
-        status: action === "publish" ? "published" : "draft",
-        published_at: action === "publish" ? new Date().toISOString() : null,
+        // إذا كانت جدولة، لا نرسل published_at ولا نجبر الحالة على published
+        status: action === "publish" ? (isScheduled ? "draft" : "published") : "draft",
         metadata: {
           subtitle: formData.subtitle
         }
       };
+
+      if (isScheduled) {
+        // تحويل تاريخ الرياض إلى النص كما هو؛ API سيحوّله إلى UTC ويضع status=scheduled
+        payload.scheduled_for = formData.scheduledDate;
+      } else if (action === "publish") {
+        payload.published_at = new Date().toISOString();
+      }
 
       console.log("البيانات المرسلة:", payload);
       console.log("البيانات المرسلة (JSON):", JSON.stringify(payload, null, 2));
@@ -816,8 +824,17 @@ export default function ModernCreateNewsPage() {
                   </Button>
                   <Button
                     onClick={() => {
+                      if (!formData.scheduledDate) {
+                        toast({ title: "وقت الجدولة مطلوب", description: "يرجى اختيار التاريخ والوقت أولاً", variant: "destructive" });
+                        return;
+                      }
+                      const dt = new Date(formData.scheduledDate);
+                      if (isNaN(dt.getTime()) || dt.getTime() <= Date.now()) {
+                        toast({ title: "تاريخ غير صالح", description: "اختر وقتاً مستقبلياً للجدولة", variant: "destructive" });
+                        return;
+                      }
                       setFormData(prev => ({ ...prev, publishType: 'scheduled' }));
-                      // سيتم إضافة منطق الجدولة لاحقاً
+                      handleSubmit("publish");
                     }}
                     disabled={saving || completionScore < 60}
                     className={cn(
