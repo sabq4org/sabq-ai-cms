@@ -73,13 +73,6 @@ export default function Header() {
     { url: "/categories", label: "الأقسام", icon: Folder, highlight: false },
     { url: "/muqtarab", label: "مُقترب", icon: Target, highlight: false },
     { url: "/insights/deep", label: "عمق", icon: Brain, highlight: false },
-    { 
-      url: "/test-analytics", 
-      label: "التحليلات", 
-      icon: Activity, 
-      highlight: true,
-      isNew: true
-    },
   ];
 
   const handleLogout = async () => {
@@ -348,22 +341,6 @@ export default function Header() {
                   ))}
 
                   {/* روابط إضافية للمحمول */}
-                  <Link
-                    href="/test-analytics"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={`relative flex items-center space-x-2 rtl:space-x-reverse px-6 py-4 text-base font-medium transition-all duration-300 ${
-                      darkMode
-                        ? "text-red-400 hover:text-red-300 hover:bg-blue-800/40"
-                        : "text-red-600 hover:text-red-700 hover:bg-blue-600/20"
-                    }`}
-                  >
-                    <Activity className="w-4 h-4" />
-                    <span>التحليلات المتقدمة</span>
-                    <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-bold animate-pulse">
-                      جديد
-                    </span>
-                  </Link>
-
 
                 </nav>
               </div>

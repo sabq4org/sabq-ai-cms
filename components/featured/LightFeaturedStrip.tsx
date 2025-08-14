@@ -5,6 +5,7 @@ import Link from "next/link";
 import OptimizedImage from "@/components/ui/OptimizedImage";
 import { formatDateNumeric } from "@/lib/date-utils";
 import { getArticleLink } from "@/lib/utils";
+import { getProductionImageUrl } from "@/lib/production-image-fix";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 
 interface LightFeaturedStripProps {
@@ -77,7 +78,12 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
                 <div className="relative aspect-video w-full overflow-hidden">
                   {image ? (
                     <OptimizedImage
-                      src={image}
+                      src={getProductionImageUrl(image, {
+                        width: 800,
+                        height: 450,
+                        quality: 85,
+                        fallbackType: "article"
+                      })}
                       alt={article.title || "صورة"}
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"

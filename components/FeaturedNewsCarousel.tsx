@@ -4,6 +4,7 @@ import CloudImage from "@/components/ui/CloudImage";
 import OptimizedImage from "@/components/ui/OptimizedImage";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { formatDateGregorian } from "@/lib/date-utils";
+import { getProductionImageUrl } from "@/lib/production-image-fix";
 import {
   ArrowLeft,
   Award,
@@ -103,6 +104,12 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
       id: currentArticle.id,
       title: currentArticle.title?.substring(0, 50) + '...',
       featured_image: currentArticle.featured_image,
+      processedImageUrl: currentArticle.featured_image ? getProductionImageUrl(currentArticle.featured_image, {
+        width: 800,
+        height: 600,
+        quality: 85,
+        fallbackType: "article"
+      }) : null,
       hasImage: !!currentArticle.featured_image
     });
   }
@@ -134,7 +141,12 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
             >
               {(currentArticle.featured_image) ? (
                 <OptimizedImage
-                  src={currentArticle.featured_image}
+                  src={getProductionImageUrl(currentArticle.featured_image, {
+                    width: 800,
+                    height: 600,
+                    quality: 85,
+                    fallbackType: "article"
+                  })}
                   alt={currentArticle.title}
                   fill
                   priority
@@ -231,31 +243,14 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
           </div>
         </div>
       </Link>
-      {/* مؤشرات و أزرار التنقل */}
-      <div className="lg:hidden px-4 pb-3" aria-label="مؤشرات الكاروسيل">
-        <div className="flex items-center justify-center gap-3">
-          <button onClick={(e) => { e.preventDefault(); handlePrevious(); }} className="p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-200" aria-label="السابق">
-            <ChevronRight className="w-4 h-4" />
-          </button>
-          <div className="flex items-center gap-1.5">
-            {articles.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => setCurrentIndex(idx)}
-                className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentIndex ? "w-6 bg-blue-500 dark:bg-blue-400" : "w-1.5 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400"}`}
-                aria-label={`الانتقال للخبر ${idx + 1}`}
-                aria-current={idx === currentIndex}
-              />
-            ))}
-          </div>
-          <button onClick={(e) => { e.preventDefault(); handleNext(); }} className="p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-200" aria-label="التالي">
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-      <div className="hidden lg:flex mt-4 justify-center items-center" aria-label="مؤشرات الكاروسيل (ديسكتوب)">
-        <div className="flex items-center gap-3 px-4">
-          <button onClick={(e) => { e.preventDefault(); handlePrevious(); }} className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-300 shadow-sm" aria-label="الخبر السابق">
+      {/* مؤشرات و أزرار التنقل - موحدة لجميع الشاشات */}
+      <div className="flex mt-4 justify-center items-center px-4" aria-label="مؤشرات الكاروسيل">
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={(e) => { e.preventDefault(); handlePrevious(); }} 
+            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-300 shadow-sm" 
+            aria-label="الخبر السابق"
+          >
             <ChevronRight className="w-5 h-5" />
           </button>
           <div className="flex justify-center items-center gap-1.5">
@@ -263,14 +258,22 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
               <button
                 key={a.id}
                 onClick={() => setCurrentIndex(idx)}
-                className={`h-1.5 rounded-full transition-all duration-300 ease-in-out ${idx === currentIndex ? "w-8 bg-blue-500 dark:bg-blue-400" : "w-4 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500"}`}
+                className={`h-1.5 rounded-full transition-all duration-300 ease-in-out ${
+                  idx === currentIndex 
+                    ? "w-8 bg-blue-500 dark:bg-blue-400" 
+                    : "w-4 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500"
+                }`}
                 aria-label={`الانتقال إلى الخبر ${idx + 1}: ${a.title}`}
                 aria-current={idx === currentIndex}
                 title={a.title}
               />
             ))}
           </div>
-          <button onClick={(e) => { e.preventDefault(); handleNext(); }} className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-300 shadow-sm" aria-label="الخبر التالي">
+          <button 
+            onClick={(e) => { e.preventDefault(); handleNext(); }} 
+            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-300 shadow-sm" 
+            aria-label="الخبر التالي"
+          >
             <ChevronLeft className="w-5 h-5" />
           </button>
         </div>
