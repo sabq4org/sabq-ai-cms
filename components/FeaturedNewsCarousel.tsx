@@ -119,7 +119,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
     >
       <Link href={getArticleLink(currentArticle)} className="group block" aria-live="polite">
         <div
-          className={`relative overflow-hidden transition-all duration-500 group-hover:shadow-2xl ${
+          className={`relative overflow-visible transition-all duration-500 group-hover:shadow-2xl ${
             darkMode ? "bg-gray-800 hover:bg-gray-800" : "bg-white hover:bg-white"
           } rounded-3xl`}
         >
@@ -128,7 +128,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
             style={{ height: `${desktopH}px` }}
           >
             <div
-              className="col-span-1 lg:col-span-6 relative overflow-hidden rounded-xl lg:rounded-r-2xl lg:rounded-l-none"
+              className="col-span-1 lg:col-span-6 relative overflow-visible rounded-xl lg:rounded-r-2xl lg:rounded-l-none"
               style={{ height: `${desktopH}px` }}
             >
               <OptimizedImage
