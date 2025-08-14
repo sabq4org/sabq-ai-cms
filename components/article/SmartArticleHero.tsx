@@ -212,7 +212,7 @@ export default function SmartArticleHero({ article }: SmartArticleHeroProps) {
         <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8 text-white">
           <div className="max-w-4xl mx-auto">
             {/* العنوان */}
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold mb-4 leading-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 leading-tight">
               {article.title}
             </h1>
 
