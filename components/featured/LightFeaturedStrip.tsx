@@ -2,7 +2,7 @@
 
 import React, { useRef, useCallback } from "react";
 import Link from "next/link";
-import CloudImage from "@/components/ui/CloudImage";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 import { formatDateNumeric } from "@/lib/date-utils";
 import { getArticleLink } from "@/lib/utils";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
@@ -76,7 +76,7 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
               >
                 <div className="relative aspect-video w-full overflow-hidden">
                   {image ? (
-                    <CloudImage
+                    <OptimizedImage
                       src={image}
                       alt={article.title || "صورة"}
                       fill
