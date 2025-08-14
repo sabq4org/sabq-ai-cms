@@ -571,7 +571,7 @@ export default function ArticleClientComponent({
 
                 {/* العنوان الفرعي - تحسين المظهر */}
                 {getSubtitle() && (
-                  <h2 className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-400 mb-4 text-right leading-relaxed font-normal">{/* إزالة السُمك */}
+                  <h2 className="text-3xl sm:text-4xl lg:text-5xl text-gray-600 dark:text-gray-400 mb-4 text-right leading-relaxed font-normal">{/* أصغر بدرجتين من العنوان الرئيسي وبوزن عادي */}
                     {getSubtitle()}
                   </h2>
                 )}
@@ -636,7 +636,7 @@ export default function ArticleClientComponent({
 
                 {/* العنوان الفرعي */}
                 {getSubtitle() && (
-                  <h2 className="text-sm leading-relaxed text-gray-600 dark:text-gray-300 font-normal mb-3">{/* تقليل المسافة */}
+                  <h2 className="text-xl leading-relaxed text-gray-600 dark:text-gray-300 font-normal mb-3">{/* أصغر بدرجتين من العنوان الرئيسي وبوزن عادي */}
                     {getSubtitle()}
                   </h2>
                 )}
