@@ -701,11 +701,10 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
           is_breaking: formData.isBreaking,
           gallery: formData.gallery || [],
         },
-        ...(status === "published" &&
-          formData.publishType === "scheduled" &&
-          formData.scheduledDate && {
-            scheduled_for: formData.scheduledDate,
-          }),
+        // تمرير scheduled_for فقط، والسيرفر يقرر الحالة
+        ...(formData.publishType === "scheduled" && formData.scheduledDate && {
+          scheduled_for: formData.scheduledDate,
+        }),
       };
 
       console.log("📤 البيانات التي سترسل:", {

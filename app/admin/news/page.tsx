@@ -31,6 +31,7 @@ import { formatDateTime } from "@/lib/date-utils";
 import { formatDashboardStat } from "@/lib/format-utils";
 import {
   CheckCircle,
+  Clock,
   Download,
   Edit,
   Eye,
@@ -174,6 +175,7 @@ function AdminNewsPageContent() {
     total: 0,
     published: 0,
     draft: 0,
+    scheduled: 0,
     archived: 0,
     deleted: 0,
     breaking: 0,
@@ -1009,7 +1011,7 @@ function AdminNewsPageContent() {
             />
 
             {/* بطاقات إحصائيات الأخبار */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
               {/* بطاقة الأخبار المنشورة */}
               <DesignComponents.StandardCard
                 className={`p-6 hover:shadow-lg transition-shadow cursor-pointer ${
@@ -1062,6 +1064,34 @@ function AdminNewsPageContent() {
                   </div>
                   <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-yellow-100 dark:bg-yellow-900/30">
                     <PauseCircle className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
+                  </div>
+                </div>
+              </DesignComponents.StandardCard>
+
+              {/* بطاقة المجدولة */}
+              <DesignComponents.StandardCard
+                className={`p-6 hover:shadow-lg transition-shadow cursor-pointer ${
+                  filterStatus === "scheduled" ? "ring-2 ring-blue-500" : ""
+                }`}
+                onClick={() => setFilterStatus("scheduled")}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                      المجدولة
+                    </p>
+                    <div className="flex items-center gap-3 mt-2">
+                      <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        {formatNumber(stats?.scheduled || 0)}
+                      </p>
+                      <div className="flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-full text-blue-700 bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400">
+                        <Clock className="w-3 h-3" />
+                        مؤجلة
+                      </div>
+                    </div>
+                  </div>
+                  <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-blue-100 dark:bg-blue-900/30">
+                    <Clock className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                   </div>
                 </div>
               </DesignComponents.StandardCard>
@@ -1190,7 +1220,7 @@ function AdminNewsPageContent() {
                       <span className="text-sm text-gray-600 dark:text-gray-400">
                         عرض:
                       </span>
-                      <Badge
+                       <Badge
                         variant="outline"
                         className={
                           filterStatus === "published"
@@ -1199,6 +1229,8 @@ function AdminNewsPageContent() {
                             ? "bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300 border-yellow-300"
                             : filterStatus === "archived"
                             ? "bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 border-orange-300"
+                              : filterStatus === "scheduled"
+                              ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-blue-300"
                             : filterStatus === "deleted"
                             ? "bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-red-300"
                             : "bg-gray-50 dark:bg-gray-900/20 text-gray-700 dark:text-gray-300 border-gray-300"
@@ -1208,6 +1240,8 @@ function AdminNewsPageContent() {
                           ? "✅ الأخبار المنشورة"
                           : filterStatus === "draft"
                           ? "✏️ الأخبار المسودة"
+                            : filterStatus === "scheduled"
+                            ? "🕒 الأخبار المجدولة"
                           : filterStatus === "archived"
                           ? "🗂️ الأخبار المؤرشفة"
                           : filterStatus === "deleted"

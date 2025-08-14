@@ -50,6 +50,9 @@ export async function GET(request: NextRequest) {
     if (status !== "all") {
       where.status = status;
     }
+    // استبعاد المجدولة من الواجهات العامة افتراضياً عند status=published
+    // استبعاد العناصر المجدولة من أي استعلامات عامة بشكل افتراضي
+    where.status = status === "all" ? { in: ["published", "draft", "archived", "deleted", "scheduled"] } : status;
 
     // تصفية حسب التصنيف
     if (categoryId) {

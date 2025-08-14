@@ -269,8 +269,8 @@ export async function POST(request: NextRequest) {
   console.log("📡 Request url:", request.url);
 
   let data: any = {}; // تعريف data خارج try block
-  let authorId: string | null | undefined = null; // تعريف authorId خارج try block
-  let categoryId: string | null | undefined = null; // تعريف categoryId خارج try block
+    let authorId: string | null | undefined = null; // تعريف authorId خارج try block
+    let categoryId: string | null | undefined = null; // تعريف categoryId خارج try block
 
   try {
     // معالجة آمنة لتحليل JSON
@@ -409,12 +409,54 @@ export async function POST(request: NextRequest) {
       seo_keywords: data.seo_keywords || null,
       created_at: new Date(),
       updated_at: new Date(),
-      published_at: data.status === "published" ? new Date() : null,
+      // سيتم تحديد published_at و scheduled_for أدناه حسب منطق الجدولة
+      published_at: null as Date | null,
+      scheduled_for: null as Date | null,
       metadata: data.metadata || {},
       // تعيين article_type والتوافق مع content_type
       article_type: data.article_type || "news",
       content_type: contentType as any,
     };
+
+    // منطق الجدولة: منع النشر الفوري إذا تم تحديد وقت مستقبلي
+    try {
+      const rawSchedule = data.scheduled_for || data.publish_at || data.publishAt;
+      if (rawSchedule) {
+        const scheduledDate = new Date(rawSchedule);
+        if (!isNaN(scheduledDate.getTime())) {
+          const now = new Date();
+          if (scheduledDate.getTime() > now.getTime()) {
+            // مجدول في المستقبل → الحالة scheduled ولا يوجد published_at
+            articleData.status = "scheduled";
+            articleData.scheduled_for = scheduledDate;
+            articleData.published_at = null;
+          } else {
+            // الوقت في الماضي/الآن → نشر فوري
+            articleData.status = "published";
+            articleData.published_at = now;
+            articleData.scheduled_for = null;
+          }
+        }
+      } else if ((data.publishMode === "publish_now") || data.status === "published") {
+        // نشر فوري صريح
+        articleData.status = "published";
+        articleData.published_at = new Date();
+        articleData.scheduled_for = null;
+      } else if (!data.status || data.status === "draft") {
+        // مسودة
+        articleData.status = "draft";
+        articleData.published_at = null;
+        articleData.scheduled_for = null;
+      }
+    } catch (e) {
+      console.warn("⚠️ فشل منطق الجدولة، سيتم افتراض مسودة/نشر افتراضي:", (e as any)?.message);
+      if (data.status === "published") {
+        articleData.published_at = new Date();
+      } else {
+        articleData.published_at = null;
+      }
+      articleData.scheduled_for = null;
+    }
 
     console.log("📝 بيانات المقال المنقاة:", articleData);
 
@@ -613,8 +655,10 @@ export async function POST(request: NextRequest) {
       {
         ok: true,
         message:
-          data.status === "published"
+          (article.status === "published")
             ? "تم نشر المقال بنجاح"
+            : (article.status === "scheduled")
+            ? "تم جدولة المقال للنشر"
             : "تم حفظ المسودة بنجاح",
         data: {
           id: article.id,

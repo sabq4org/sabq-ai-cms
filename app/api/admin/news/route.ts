@@ -73,6 +73,22 @@ export async function GET(request: NextRequest) {
     ]);
 
     // إنشاء الاستجابة مع headers صريحة
+    // إحصائيات شاملة بما فيها المجدولة
+    const statsAgg = await prisma.articles.groupBy({
+      by: ["status"],
+      _count: { _all: true },
+    }).catch(() => [] as any[]);
+
+    const stats = {
+      total: totalCount,
+      published: statsAgg.find((s: any) => s.status === "published")?._count?._all || 0,
+      draft: statsAgg.find((s: any) => s.status === "draft")?._count?._all || 0,
+      archived: statsAgg.find((s: any) => s.status === "archived")?._count?._all || 0,
+      scheduled: statsAgg.find((s: any) => s.status === "scheduled")?._count?._all || 0,
+      deleted: statsAgg.find((s: any) => s.status === "deleted")?._count?._all || 0,
+      breaking: articles.filter((a) => a.breaking).length,
+    };
+
     const response = NextResponse.json({
       success: true,
       articles,
@@ -81,6 +97,7 @@ export async function GET(request: NextRequest) {
       limit,
       totalPages: Math.ceil(totalCount / limit),
       hasMore: skip + limit < totalCount,
+      stats,
     });
 
     // إضافة headers لمنع مشاكل الترميز

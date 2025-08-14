@@ -519,6 +519,7 @@ export async function PATCH(
       "status",
       "metadata",
       "published_at",
+      "scheduled_for",
       "seo_title",
       "seo_description",
       // "seo_keywords", - تمت معالجته بشكل خاص أعلاه
@@ -547,6 +548,28 @@ export async function PATCH(
         updateData[field] = data[field];
         console.log(`✅ تم نسخ الحقل ${field}:`, data[field]);
       }
+    }
+
+    // منطق الجدولة عند التحديث: إذا تم تمرير scheduled_for مستقبلية → status=scheduled وإزالة published_at
+    try {
+      if (data.scheduled_for || data.publish_at || data.publishAt) {
+        const rawSchedule = data.scheduled_for || data.publish_at || data.publishAt;
+        const scheduledDate = new Date(rawSchedule);
+        if (!isNaN(scheduledDate.getTime())) {
+          const now = new Date();
+          if (scheduledDate.getTime() > now.getTime()) {
+            updateData.status = "scheduled";
+            updateData.scheduled_for = scheduledDate;
+            updateData.published_at = null;
+          } else {
+            updateData.status = "published";
+            updateData.published_at = now;
+            updateData.scheduled_for = null;
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("⚠️ فشل معالجة منطق الجدولة في PATCH:", (e as any)?.message);
     }
 
     // معالجة خاصة للعلاقات (author و category و article_author)
