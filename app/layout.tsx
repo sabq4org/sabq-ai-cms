@@ -16,6 +16,7 @@ import "../styles/enhanced-mobile-stats.css";
 import "../styles/featured-mobile-card.css";
 import "../styles/featured-news-carousel-fixes.css";
 import "../styles/article-featured-image-fix.css";
+import "../styles/article-featured-image-desktop.css";
 import "../styles/mobile-article-enhancements.css";
 import "../styles/mobile-article-image-summary.css";
 import "../styles/mobile-article-layout-fix.css";

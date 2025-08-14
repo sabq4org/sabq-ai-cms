@@ -738,24 +738,27 @@ export default function ArticleClientComponent({
         </div>
 
         {/* منطقة المحتوى - عرض أوسع للديسكتوب لدعم الصور الكبيرة */}
-        <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-3 sm:px-6 lg:px-8 py-2">
-          {/* صورة المقال للديسكتوب - عرض كامل محاذي للمحتوى */}
+        <div className="w-full">
+          {/* صورة المقال للديسكتوب - عرض كامل بدون قيود */}
           {article.featured_image &&
             typeof article.featured_image === "string" &&
             article.featured_image.length > 0 &&
             !article.metadata?.emergency_mode && (
-              <div className="hidden sm:block mb-6 article-featured-image-wrapper">
-                <ArticleFeaturedImage
-                  imageUrl={article.featured_image}
-                  title={article.title}
-                  caption={article.featured_image_caption}
-                  category={article.category}
-                  className="w-full rounded-xl shadow-lg"
-                />
+              <div className="hidden sm:block mb-8 px-4 sm:px-8 lg:px-12">
+                <div className="max-w-screen-xl mx-auto article-featured-image-wrapper">
+                  <ArticleFeaturedImage
+                    imageUrl={article.featured_image}
+                    title={article.title}
+                    caption={article.featured_image_caption}
+                    category={article.category}
+                    className="w-full rounded-xl shadow-2xl"
+                  />
+                </div>
               </div>
             )}
             
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-6 lg:p-8">
+          <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-3 sm:px-6 lg:px-8 py-2">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-6 lg:p-8">
             {/* منطقة الصورة والموجز الذكي للموبايل - الصورة فوق الموجز */}
             <div className="sm:hidden mb-6">
               {/* الصورة - محاذاة مع بداية الموجز */}

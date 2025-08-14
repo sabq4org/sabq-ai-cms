@@ -32,9 +32,9 @@ export default function ArticleFeaturedImage({
             <OptimizedImage
               src={imageUrl}
               alt={title}
-              className="w-full object-cover h-[400px] sm:h-[500px] md:h-[600px] lg:h-[700px]"
+              className="w-full h-auto object-cover max-h-[90vh]"
               priority={true}
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 95vw, 1200px"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, (max-width: 1536px) 1536px, 1920px"
             />
             {/* عرض التصنيف إذا وُجد */}
             {category && (
