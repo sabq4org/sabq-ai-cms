@@ -1,8 +1,2 @@
-Force Vercel Rebuild
-====================
-
-Build ID: ${Date.now()}
-Date: ${new Date().toISOString()}
-Version: 0.2.2
-
-This file is used to force Vercel to detect changes and rebuild the project. 
+Last rebuild: ${new Date().toISOString()}
+This file forces Vercel to rebuild the application

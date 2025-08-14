@@ -5,6 +5,29 @@ const nextConfig = {
     return "build-" + Date.now();
   },
 
+  // تعطيل التخزين المؤقت للتطوير
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+          },
+          {
+            key: 'Pragma',
+            value: 'no-cache',
+          },
+          {
+            key: 'Expires',
+            value: '0',
+          },
+        ],
+      },
+    ];
+  },
+
   // Note: api config moved to individual route handlers
 
   experimental: {
