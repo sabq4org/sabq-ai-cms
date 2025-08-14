@@ -78,8 +78,13 @@ export function OptimizedImage({
     );
   }
 
+  const wrapperClassName = cn(
+    fill ? "absolute inset-0 w-full h-full" : "relative overflow-hidden",
+    className
+  );
+
   return (
-    <div className={cn("relative overflow-hidden", className)}>
+    <div className={wrapperClassName}>
       {/* Loading skeleton */}
       {isLoading && (
         <div
