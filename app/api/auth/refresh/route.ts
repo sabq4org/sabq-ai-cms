@@ -5,9 +5,7 @@ import prisma from "@/lib/prisma";
 import { setAccessCookie, clearAuthCookies } from "@/lib/auth-cookies";
 
 export async function POST(req: NextRequest) {
-  const cookieHeader = req.headers.get("cookie") || "";
-  const match = cookieHeader.match(/sabq_rt=([^;]+)/);
-  const rt = match?.[1];
+  const rt = req.cookies.get("sabq_rt")?.value;
   if (!rt) return NextResponse.json({ error: "No refresh token" }, { status: 401 });
 
   try {

@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 
 const secure = process.env.SECURE_COOKIES === "true" || process.env.NODE_ENV === "production";
-const domain: string | undefined = undefined; // عيّنه إذا لزم
+// ضبط الدومين للكوكيز في الإنتاج ليدعم كل الساب دومين
+const domain: string | undefined = process.env.NEXT_PUBLIC_COOKIE_DOMAIN || undefined;
 
 export function setAuthCookies(res: NextResponse, access: string, refresh: string) {
   setAccessCookie(res, access);
@@ -9,7 +10,7 @@ export function setAuthCookies(res: NextResponse, access: string, refresh: strin
     httpOnly: true,
     secure,
     sameSite: "lax",
-    path: "/api/auth",
+    path: "/",
     maxAge: 60 * 60 * 24 * Number(process.env.JWT_REFRESH_TTL_DAYS || 7),
     domain,
   });

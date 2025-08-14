@@ -1,4 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
+import { clearAuthCookies } from "@/lib/auth-cookies";
+
+export const runtime = "nodejs";
+
+export async function POST(_req: NextRequest) {
+  const res = NextResponse.json({ success: true });
+  clearAuthCookies(res);
+  return res;
+}
+
+import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/prisma";
 import { clearAuthCookies } from "@/lib/auth-cookies";
