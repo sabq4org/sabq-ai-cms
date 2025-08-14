@@ -12,6 +12,7 @@ interface MobileFeaturedImageProps {
     color?: string;
     icon?: string;
   };
+  className?: string;
 }
 
 export default function MobileFeaturedImage({
@@ -19,14 +20,15 @@ export default function MobileFeaturedImage({
   title,
   caption,
   category,
+  className,
 }: MobileFeaturedImageProps) {
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
 
   return (
-    <div className="relative w-full -mx-4 sm:mx-0">
-      {/* حاوي الصورة - يمتد من أقصى اليمين لليسار */}
-      <div className="relative h-[240px] sm:h-[280px] overflow-hidden bg-gray-100 dark:bg-gray-800">
+    <div className={`relative w-full h-full ${className || ''}`}>
+      {/* حاوي الصورة */}
+      <div className="relative w-full h-full overflow-hidden bg-gray-100 dark:bg-gray-800 rounded-lg">
         {/* الصورة مع lazy loading */}
         <Image
           src={imageError ? "/images/placeholder-featured.jpg" : imageUrl}

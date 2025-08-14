@@ -24,6 +24,7 @@ interface ArticleAISummaryProps {
   content: string;
   existingSummary?: string;
   className?: string;
+  showFloatingAudio?: boolean;
 }
 
 export default function ArticleAISummary({
@@ -31,7 +32,8 @@ export default function ArticleAISummary({
   title,
   content,
   existingSummary,
-  className
+  className,
+  showFloatingAudio
 }: ArticleAISummaryProps) {
   const { user } = useAuth();
   const [summary, setSummary] = useState(existingSummary || '');
@@ -105,19 +107,20 @@ export default function ArticleAISummary({
     // توليد صوت جديد
     setIsLoadingAudio(true);
     try {
-      const response = await fetch('/api/audio/summarize', {
+      const response = await fetch('/api/tts/elevenlabs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           text: summary,
-          voice: 'sarah', // أو أي صوت آخر مناسب
-          lang: 'ar'
+          articleId: articleId
         })
       });
 
       if (response.ok) {
-        const data = await response.json();
-        setAudioUrl(data.audio_url);
+        // إنشاء blob URL من الصوت المُستلم
+        const audioBlob = await response.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+        setAudioUrl(audioUrl);
         
         // تشغيل الصوت بعد تحميله
         setTimeout(() => {
@@ -166,38 +169,27 @@ export default function ArticleAISummary({
           </Tooltip>
         </div>
 
-        {/* زر الصوت في الزاوية اليسرى */}
+        {/* زر الصوت في الزاوية اليسرى - بسيط وبدون إطار */}
         {summary && (
-          <div className="absolute top-2 left-2">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={generateAndPlayAudio}
-                  disabled={isLoadingAudio}
-                  className={cn(
-                    "h-7 w-7 rounded-full transition-all",
-                    isPlaying 
-                      ? "bg-purple-600 text-white hover:bg-purple-700" 
-                      : "bg-white/80 dark:bg-gray-800/80 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  )}
-                >
-                  {isLoadingAudio ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : isPlaying ? (
-                    <Pause className="h-3.5 w-3.5" />
-                  ) : (
-                    <Volume2 className="h-3.5 w-3.5" />
-                  )}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" align="start">
-                <p className="text-xs">
-                  {isPlaying ? 'إيقاف' : 'استمع للموجز'}
-                </p>
-              </TooltipContent>
-            </Tooltip>
+          <div className="absolute top-1 left-1">
+            <button
+              onClick={generateAndPlayAudio}
+              disabled={isLoadingAudio}
+              className={cn(
+                "h-8 w-8 flex items-center justify-center rounded-md transition-all",
+                "hover:bg-purple-100/50 dark:hover:bg-purple-900/20",
+                isPlaying && "text-purple-600 dark:text-purple-400"
+              )}
+              aria-label={isPlaying ? 'إيقاف الاستماع' : 'استمع للموجز'}
+            >
+              {isLoadingAudio ? (
+                <Loader2 className="h-4 w-4 animate-spin text-purple-600" />
+              ) : isPlaying ? (
+                <Pause className="h-4 w-4" />
+              ) : (
+                <Volume2 className="h-4 w-4" />
+              )}
+            </button>
           </div>
         )}
 

@@ -13,7 +13,7 @@ import {
   Award,
   Star,
 } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 
 interface UserDropdownProps {
@@ -23,10 +23,18 @@ interface UserDropdownProps {
 }
 
 export default function UserDropdown({ isOpen, onClose, anchorRef }: UserDropdownProps) {
-  const { user, logout } = useAuth();
+  const { user, logout, isLoggedIn } = useAuth();
   const { darkMode } = useDarkModeContext();
   const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // بيانات مستخدم تجريبية إذا لم يكن هناك مستخدم
+  const displayUser = user || {
+    name: "أبو محمد",
+    email: "user@sabq.ai",
+    points: 1250,
+    badges: ["قارئ نشط", "محلل متميز"]
+  };
 
   // إغلاق القائمة عند النقر خارجها
   useEffect(() => {
@@ -68,7 +76,7 @@ export default function UserDropdown({ isOpen, onClose, anchorRef }: UserDropdow
       label: "رحلتك المعرفية",
       href: "/journey",
       description: "تتبع تقدمك ونقاطك",
-      badge: user?.points || 0,
+      badge: displayUser.points || 0,
     },
     {
       icon: Settings,
@@ -87,7 +95,7 @@ export default function UserDropdown({ isOpen, onClose, anchorRef }: UserDropdow
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="md:hidden fixed inset-0 bg-black/20 z-40"
+            className="user-dropdown-backdrop md:hidden fixed inset-0 bg-black/20 z-40"
             onClick={onClose}
           />
 
@@ -99,7 +107,7 @@ export default function UserDropdown({ isOpen, onClose, anchorRef }: UserDropdow
             exit={{ opacity: 0, scale: 0.95, y: -10 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
             className={`
-              absolute top-full left-2 mt-2 w-72 rounded-2xl shadow-2xl z-50 overflow-hidden
+              user-dropdown absolute top-full left-2 mt-2 w-72 rounded-2xl shadow-2xl z-50 overflow-hidden
               ${darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}
               border backdrop-blur-sm
             `}
@@ -111,22 +119,22 @@ export default function UserDropdown({ isOpen, onClose, anchorRef }: UserDropdow
                   w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold
                   ${darkMode ? "bg-gray-700 text-gray-300" : "bg-gray-200 text-gray-700"}
                 `}>
-                  {user?.name?.charAt(0) || "م"}
+                  {displayUser.name?.charAt(0) || "م"}
                 </div>
                 <div className="flex-1">
                   <p className={`font-medium ${darkMode ? "text-white" : "text-gray-900"}`}>
-                    {user?.name || "مستخدم"}
+                    {displayUser.name || "مستخدم"}
                   </p>
                   <p className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
-                    {user?.email || "user@example.com"}
+                    {displayUser.email || "user@example.com"}
                   </p>
                 </div>
               </div>
 
               {/* شارات المستخدم */}
-              {user?.badges && user.badges.length > 0 && (
+              {displayUser.badges && displayUser.badges.length > 0 && (
                 <div className="flex gap-2 mt-3">
-                  {user.badges.slice(0, 3).map((badge, index) => (
+                  {displayUser.badges.slice(0, 3).map((badge, index) => (
                     <div
                       key={index}
                       className="flex items-center gap-1 px-2 py-1 rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400"
@@ -182,7 +190,7 @@ export default function UserDropdown({ isOpen, onClose, anchorRef }: UserDropdow
               <button
                 onClick={handleLogout}
                 className={`
-                  w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl
+                  logout-button w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl
                   font-medium text-sm transition-all duration-200
                   bg-red-500 hover:bg-red-600 text-white
                   transform hover:scale-[1.02] active:scale-[0.98]

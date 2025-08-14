@@ -754,48 +754,44 @@ export default function ArticleClientComponent({
         {/* منطقة المحتوى - نفس عرض الصورة والعنوان تماماً للديسكتوب، عرض كامل للموبايل */}
         <div className="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-2">
           <div className="bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-6 lg:p-8">
-            {/* صورة المقال على الجوال - منفصلة */}
-            {article.featured_image &&
-              typeof article.featured_image === "string" &&
-              article.featured_image.length > 0 &&
-              !article.metadata?.emergency_mode && (
-                <div className="sm:hidden -mx-3">
-                  <MobileFeaturedImage
-                    imageUrl={article.featured_image}
-                    title={article.title}
-                    caption={article.featured_image_caption}
-                    category={article.category}
+            {/* منطقة الصورة والموجز الذكي للموبايل - بجانب بعض */}
+            <div className="sm:hidden mb-6 -mx-3">
+              <div className="flex gap-3 px-3">
+                {/* الصورة */}
+                {article.featured_image &&
+                  typeof article.featured_image === "string" &&
+                  article.featured_image.length > 0 &&
+                  !article.metadata?.emergency_mode && (
+                    <div className="flex-1">
+                      <div className="relative h-[200px] overflow-hidden rounded-lg">
+                        <MobileFeaturedImage
+                          imageUrl={article.featured_image}
+                          title={article.title}
+                          caption={article.featured_image_caption}
+                          category={article.category}
+                          className="h-full"
+                        />
+                      </div>
+                    </div>
+                  )}
+                
+                {/* الموجز الذكي */}
+                <div className="flex-1">
+                  <ArticleAISummary
+                    articleId={article.id}
+                    title={article.title || "مقال بدون عنوان"}
+                    content={article.content || ""}
+                    existingSummary={
+                      article.ai_summary ||
+                      article.summary ||
+                      article.excerpt ||
+                      ""
+                    }
+                    className="h-[200px] shadow-lg"
+                    showFloatingAudio={true}
                   />
                 </div>
-              )}
-
-            {/* الموجز الذكي منفصل للجوال */}
-            <div className="sm:hidden mb-6 -mx-3">
-              <div className="px-3">
-                <ArticleAISummary
-                  articleId={article.id}
-                  title={article.title || "مقال بدون عنوان"}
-                  content={article.content || ""}
-                  existingSummary={
-                    article.ai_summary ||
-                    article.summary ||
-                    article.excerpt ||
-                    ""
-                  }
-                  className="shadow-lg"
-                />
               </div>
-            </div>
-
-            {/* زر الاستماع الذكي العائم للموبايل */}
-            <div className="sm:hidden">
-              <SmartAudioButton
-                articleId={article.id}
-                title={article.title || ""}
-                content={article.content || ""}
-                variant="floating"
-                position="bottom-right"
-              />
             </div>
 
             {/* الموجز الذكي للديسكتوب - منفصل دائماً */}
