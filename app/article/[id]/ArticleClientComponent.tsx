@@ -571,7 +571,7 @@ export default function ArticleClientComponent({
 
                 {/* العنوان الفرعي - تحسين المظهر */}
                 {getSubtitle() && (
-                  <h2 className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-400 mb-4 text-right leading-relaxed">{/* تقليل المسافة */}
+                  <h2 className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-400 mb-4 text-right leading-relaxed font-normal">{/* إزالة السُمك */}
                     {getSubtitle()}
                   </h2>
                 )}
@@ -641,7 +641,7 @@ export default function ArticleClientComponent({
                   </h2>
                 )}
                 <div className="flex items-start justify-between gap-2">{/* تقليل الفراغ */}
-                  <div className="flex flex-col items-start gap-1.5 text-xs text-gray-600 dark:text-gray-300 flex-1">
+                  <div className="flex flex-col items-start gap-0.5 text-xs text-gray-600 dark:text-gray-300 flex-1">{/* تقليل المسافة بين اسم المراسل والبيانات */}
                     {article.author && (
                       <div className="flex items-center gap-1.5">
                         <span>👤</span>
