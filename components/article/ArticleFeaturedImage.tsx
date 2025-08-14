@@ -32,7 +32,7 @@ export default function ArticleFeaturedImage({
             <OptimizedImage
               src={imageUrl}
               alt={title}
-              className="w-full object-cover h-[350px] sm:h-[450px] md:h-[550px] lg:h-[600px]"
+              className="w-full object-cover h-[400px] sm:h-[500px] md:h-[600px] lg:h-[700px]"
               priority={true}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 95vw, 1200px"
             />
