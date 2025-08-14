@@ -3,13 +3,10 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import Header from "./Header";
-import MobileHeaderEnhanced from "./mobile/MobileHeader-Enhanced";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 export default function ConditionalHeader() {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
-  const isMobile = useMediaQuery("(max-width: 768px)");
 
   useEffect(() => {
     setMounted(true);
@@ -28,11 +25,6 @@ export default function ConditionalHeader() {
 
   if (shouldHideHeader) {
     return null;
-  }
-
-  // استخدام MobileHeaderEnhanced للأجهزة المحمولة
-  if (isMobile) {
-    return <MobileHeaderEnhanced showUserMenu={true} />;
   }
 
   return <Header />;
