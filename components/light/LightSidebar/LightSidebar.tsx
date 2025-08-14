@@ -15,8 +15,8 @@ const NAV_ITEMS = [
   { href: '/news', label: 'الأخبار', icon: <Newspaper className="w-5 h-5" /> },
   { href: '/categories', label: 'الأقسام', icon: <LayoutGrid className="w-5 h-5" /> },
   { href: '/articles', label: 'المقالات', icon: <FileText className="w-5 h-5" /> },
-  { href: '/muqtareb', label: 'مُقترب', icon: <Compass className="w-5 h-5" /> },
-  { href: '/depth', label: 'عمق', icon: <Brain className="w-5 h-5" /> },
+  { href: '/muqtarab', label: 'مُقترب', icon: <Compass className="w-5 h-5" /> },
+  { href: '/deep', label: 'عمق', icon: <Brain className="w-5 h-5" /> },
 ];
 
 export function LightSidebar({ initialOpen, onCloseExternal }: LightSidebarProps) {
@@ -70,7 +70,7 @@ export function LightSidebar({ initialOpen, onCloseExternal }: LightSidebarProps
         onClick={toggle}
         aria-controls="light-sidebar-panel"
         aria-expanded={isOpen}
-        className="inline-flex items-center justify-center rounded-lg p-2.5 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500/60 dark:focus:ring-blue-400/50 transition-colors"
+        className="inline-flex md:hidden fixed top-3 right-3 z-50 items-center justify-center rounded-lg p-2.5 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500/60 dark:focus:ring-blue-400/50 transition-colors"
       >
         <span className="sr-only">{isOpen ? 'إغلاق القائمة' : 'فتح القائمة'}</span>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
@@ -121,6 +121,7 @@ export function LightSidebar({ initialOpen, onCloseExternal }: LightSidebarProps
                     label={item.label}
                     icon={item.icon}
                     onNavigate={handleClose}
+                    className="text-[14px] sm:text-[15px] md:hover:translate-x-1 md:transition-transform"
                   />
                 ))}
               </nav>
