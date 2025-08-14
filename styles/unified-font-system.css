@@ -38,8 +38,12 @@ body,
 .article-content h5,
 .article-content h6 {
   font-family: var(--font-family-heading) !important;
-  font-weight: 700 !important;
   line-height: 1.3 !important;
+}
+
+/* ضمان أن العنوان الفرعي يبقى بوزن عادي حتى مع !important العام */
+.article-subtitle {
+  font-weight: 400 !important;
 }
 
 /* 📑 فقرات المحتوى */
