@@ -27,16 +27,16 @@ export default function ArticleFeaturedImage({
     case "default":
       return (
         <div className={`relative w-full ${className || ''}`}>
-          {/* الصورة الرئيسية - محسنة بحجم أكبر */}
-          <div className="relative overflow-hidden rounded-lg shadow-lg">
+          {/* الصورة الرئيسية - ضبط للحفاظ على الأبعاد الأصلية دون قص */}
+          <div className="relative rounded-lg shadow-lg flex items-center justify-center bg-gray-50 dark:bg-gray-900">
             <OptimizedImage
               src={imageUrl}
               alt={title}
-              className="w-full h-auto object-cover max-h-[90vh]"
+              className="w-full h-auto object-center"
               priority={true}
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, (max-width: 1536px) 1536px, 1920px"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, (max-width: 1536px) 110ch, 110ch"
             />
-            {/* عرض التصنيف إذا وُجد */}
+            {/* التصنيف */}
             {category && (
               <div className="absolute top-4 right-4">
                 <span
@@ -58,11 +58,12 @@ export default function ArticleFeaturedImage({
       return (
         <div className={`article-featured-image relative h-[400px] sm:h-[500px] lg:h-[600px] w-full overflow-hidden bg-gray-900 dark:bg-black ${className || ''}`}>
           {/* صورة الخلفية المموهة */}
-          <img
+          <OptimizedImage
             src={imageUrl}
             alt=""
             className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 opacity-60"
-            loading="lazy"
+            priority={false}
+            sizes="100vw"
           />
 
           {/* الطبقة الداكنة فوق الخلفية المموهة */}
@@ -75,7 +76,6 @@ export default function ArticleFeaturedImage({
                 src={imageUrl}
                 alt={title}
                 className="max-w-full max-h-full shadow-2xl transition-all duration-500 hover:scale-[1.02]"
-                aspectRatio="auto"
                 priority={true}
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
               />
@@ -110,7 +110,6 @@ export default function ArticleFeaturedImage({
                 src={imageUrl}
                 alt={title}
                 className="w-full"
-                aspectRatio={IMAGE_CONFIG.ASPECT_RATIO as any}
                 priority={true}
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
               />
