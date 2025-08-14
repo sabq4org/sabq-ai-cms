@@ -150,13 +150,10 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
 
               {/* شادو متدرج ذكي من أسفل - محسّن للقراءة */}
               <div
-                className="lg:hidden absolute left-0 right-0 z-10 pointer-events-none"
+                className="lg:hidden absolute inset-0 z-10 pointer-events-none"
                 style={{
-                  bottom: 0,
-                  top: 'auto',
-                  height: '50%',
                   background:
-                    'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0) 100%)',
+                    'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.5) 25%, transparent 100%)',
                   transform: 'translateZ(0)'
                 }}
               />

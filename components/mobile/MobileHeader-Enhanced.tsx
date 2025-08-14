@@ -10,8 +10,7 @@ import {
   Home, Newspaper, Bookmark, Settings, LogOut, ChevronDown, PenTool,
   Sparkles 
 } from 'lucide-react';
-import UserDropdown from './UserDropdown';
-import CleanMobileSidebar from './CleanMobileSidebar';
+
 
 // واجهة محسنة
 interface MobileHeaderProps {

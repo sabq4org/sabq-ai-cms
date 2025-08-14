@@ -19,8 +19,6 @@ import "../styles/article-featured-image-fix.css";
 import "../styles/mobile-article-enhancements.css";
 import "../styles/mobile-article-image-summary.css";
 import "../styles/mobile-article-layout-fix.css";
-import "../styles/featured-mobile-card-fix.css";
-import "../styles/user-dropdown-fix.css";
 import "../styles/globals.css";
 import "../styles/word-cloud.css";
 import "../styles/improved-mobile-menu.css";
@@ -30,7 +28,6 @@ import "../styles/mobile-internal-pages-fix.css";
 import "../styles/mobile-news.css";
 import "../styles/mobile-sidebar-compact.css";
 import "../styles/mobile-sidebar-clean.css";
-import "../styles/mobile-sidebar-final-fix.css";
 import "../styles/mobile.css";
 import "../styles/muqtarab-animations.css";
 import "../styles/no-focus-outline.css";
@@ -273,9 +270,6 @@ export default function RootLayout({
         
         {/* Mobile Sidebar Enhancements - تحسينات القائمة الجانبية للجوال */}
         <script src="/mobile-sidebar-enhancements.js" defer></script>
-        
-        {/* Mobile Sidebar Verification - التحقق من القائمة الجانبية */}
-        <script src="/mobile-sidebar-verification.js" defer></script>
         
 
       </head>
