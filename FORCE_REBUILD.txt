@@ -1,2 +1,3 @@
 Last rebuild: ${new Date().toISOString()}
 This file forces Vercel to rebuild the application2025-08-14T21:19:16Z - force redeploy: fix JSX header close in ArticleClientComponent
+2025-08-14T21:29:03Z - force redeploy: pick latest HEAD after JSX fix and time display
