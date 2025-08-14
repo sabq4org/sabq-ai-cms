@@ -42,7 +42,8 @@ body,
 }
 
 /* ضمان أن العنوان الفرعي يبقى بوزن عادي حتى مع !important العام */
-.article-subtitle {
+/* قاعدة أكثر تحديدًا لتجاوز .article-content h2 */
+.article-content h2.article-subtitle {
   font-weight: 400 !important;
 }
 
@@ -98,6 +99,11 @@ a, button, .btn {
     font-size: 16px !important;
     line-height: 1.7 !important;
   }
+  /* العنوان الفرعي أصغر من الرئيسي على الموبايل */
+  .article-content h2.article-subtitle {
+    font-size: 1.125rem !important; /* ~18px */
+    line-height: 1.6 !important;
+  }
   
   .article-content h1 {
     font-size: 1.75rem !important;
@@ -126,6 +132,11 @@ a, button, .btn {
   .article-content {
     font-size: 18px !important;
     line-height: 1.8 !important;
+  }
+  /* العنوان الفرعي أصغر من الرئيسي على الديسكتوب */
+  .article-content h2.article-subtitle {
+    font-size: 1.375rem !important; /* ~22px */
+    line-height: 1.6 !important;
   }
   
   .article-content h1 {

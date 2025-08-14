@@ -573,7 +573,7 @@ export default function ArticleClientComponent({
 
                 {/* العنوان الفرعي - تحسين المظهر */}
                 {getSubtitle() && (
-                  <h2 className="article-subtitle text-3xl sm:text-4xl lg:text-5xl text-gray-600 dark:text-gray-400 mb-4 text-right leading-relaxed font-normal">{/* أصغر بدرجتين من العنوان الرئيسي وبوزن عادي */}
+                  <h2 className="article-subtitle text-2xl sm:text-3xl lg:text-4xl text-gray-600 dark:text-gray-400 mb-4 text-right leading-relaxed font-normal">{/* أصغر من العنوان الرئيسي بدرجة إضافية */}
                     {getSubtitle()}
                   </h2>
                 )}
