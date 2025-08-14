@@ -95,6 +95,17 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
   }
 
   const currentArticle = articles[currentIndex];
+  
+  // تسجيل console للتشخيص في النسخة الكاملة
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🖼️ [FeaturedNewsCarousel] Desktop Mode: Component is rendering for desktop screens');
+    console.log('🖼️ [FeaturedNewsCarousel] Current Article:', {
+      id: currentArticle.id,
+      title: currentArticle.title?.substring(0, 50) + '...',
+      featured_image: currentArticle.featured_image,
+      hasImage: !!currentArticle.featured_image
+    });
+  }
   const mobileH = heights.mobile || 220;
   const mobileLgH = heights.mobileLg || mobileH;
   const desktopH = heights.desktop || mobileLgH;
@@ -135,6 +146,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                   <span className="text-6xl">📰</span>
                 </div>
               )}
+              {/* طبقة شفافة وعنوان للهواتف فقط - للتجنب التكرار مع منطقة النص */}
               <div
                 className="lg:hidden absolute inset-0 z-10 pointer-events-none"
                 style={{
@@ -188,6 +200,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                   {currentArticle.excerpt}
                 </p>
               )}
+              {/* المعلومات الإضافية للديسكتوب فقط - التصنيف يظهر فوق الصورة في الهاتف */}
               <div className="flex flex-wrap gap-4 text-sm mb-6">
                 {currentArticle.author && (
                   <div className="flex items-center gap-1.5">
@@ -195,12 +208,6 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                     <span className={darkMode ? "text-gray-300" : "text-gray-600"}>
                       {currentArticle.author.reporter?.full_name || currentArticle.author.name}
                     </span>
-                  </div>
-                )}
-                {currentArticle.category && (
-                  <div className="flex items-center gap-1.5">
-                    {currentArticle.category.icon && <span className="text-base">{currentArticle.category.icon}</span>}
-                    <span className={darkMode ? "text-gray-300" : "text-gray-600"}>{currentArticle.category.name}</span>
                   </div>
                 )}
                 <div className="flex items-center gap-1.5">

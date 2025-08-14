@@ -29,13 +29,30 @@ export default function OptimizedImage({
   const [loading, setLoading] = useState(true);
 
   const handleError = () => {
+    console.warn('🖼️ [OptimizedImage] Failed to load image:', src);
     setError(true);
     setLoading(false);
   };
 
   const handleLoad = () => {
+    console.log('🖼️ [OptimizedImage] Successfully loaded image:', src);
     setLoading(false);
   };
+
+  // التحقق من صحة الرابط بطريقة أكثر دقة
+  if (!src || src.trim() === '' || src === 'null' || src === 'undefined') {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('🖼️ [OptimizedImage] Invalid src provided:', src);
+    }
+    return (
+      <div className={`flex items-center justify-center bg-gray-100 dark:bg-gray-800 ${className}`}>
+        <div className="flex flex-col items-center justify-center text-gray-400 dark:text-gray-600">
+          <ImageIcon className="w-8 h-8 mb-2" />
+          <span className="text-xs">لا توجد صورة</span>
+        </div>
+      </div>
+    );
+  }
 
   // إذا كان هناك خطأ، اعرض fallback
   if (error) {
