@@ -138,7 +138,7 @@ export default function FontsDemoPage() {
     <div className="min-h-screen bg-gray-50 p-6" dir="rtl">
       <div className="mx-auto max-w-7xl">
         <header className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">مقارنة خطوط عربية للمشاريع الإعلامية</h1>
+          <h1 className={`text-2xl font-bold text-gray-900 ${ibm.className}`}>مقارنة خطوط عربية للمشاريع الإعلامية</h1>
           <p className="text-sm text-gray-600 mt-1">
             عناوين 42px و28px + فقرة نصية (~400 حرف). جرّب وقرر خط العناوين وخط النصوص.
           </p>
