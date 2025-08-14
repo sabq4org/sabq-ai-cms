@@ -1,25 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { clearAuthCookies } from "@/lib/auth-cookies";
-
-export const runtime = "nodejs";
-
-export async function POST(_req: NextRequest) {
-  const res = NextResponse.json({ success: true });
-  clearAuthCookies(res);
-  return res;
-}
-
-import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/prisma";
 import { clearAuthCookies } from "@/lib/auth-cookies";
 
+export const runtime = "nodejs";
+
 export async function POST(request: NextRequest) {
   try {
     // إبطال refresh token المطابق إن وجد
-    const cookieHeader = request.headers.get("cookie") || "";
-    const match = cookieHeader.match(/sabq_rt=([^;]+)/);
-    const rt = match?.[1];
+    const rt = request.cookies.get("sabq_rt")?.value || null;
     if (rt) {
       const candidates = await prisma.refreshToken.findMany({ where: { revokedAt: null } });
       for (const c of candidates) {
