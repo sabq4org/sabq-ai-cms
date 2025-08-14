@@ -138,25 +138,19 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
               className="col-span-1 lg:col-span-6 relative overflow-hidden rounded-xl lg:rounded-r-2xl lg:rounded-l-none"
               style={{ height: `${desktopH}px` }}
             >
-              {(currentArticle.featured_image) ? (
-                <OptimizedImage
-                  src={getProductionImageUrl(currentArticle.featured_image, {
-                    width: 800,
-                    height: 600,
-                    quality: 85,
-                    fallbackType: "article"
-                  })}
-                  alt={currentArticle.title}
-                  fill
-                  priority
-                  sizes="(max-width:1024px) 100vw, 50vw"
-                  className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                />
-              ) : (
-                <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
-                  <span className="text-6xl">📰</span>
-                </div>
-              )}
+              <OptimizedImage
+                src={getProductionImageUrl(currentArticle.featured_image || '', {
+                  width: 800,
+                  height: 600,
+                  quality: 85,
+                  fallbackType: "article"
+                })}
+                alt={currentArticle.title}
+                fill
+                priority
+                sizes="(max-width:1024px) 100vw, 50vw"
+                className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+              />
               {/* طبقة شفافة وعنوان للهواتف فقط - للتجنب التكرار مع منطقة النص */}
               <div
                 className="lg:hidden absolute inset-0 z-10 pointer-events-none"

@@ -76,24 +76,18 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
                 } shadow-sm hover:shadow-lg`}
               >
                 <div className="relative aspect-video w-full overflow-hidden">
-                  {image ? (
-                    <OptimizedImage
-                      src={getProductionImageUrl(image, {
-                        width: 800,
-                        height: 450,
-                        quality: 85,
-                        fallbackType: "article"
-                      })}
-                      alt={article.title || "صورة"}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
-                      priority={idx === 0}
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-xs text-gray-400 bg-gray-100 dark:bg-gray-700">
-                      لا توجد صورة
-                    </div>
-                  )}
+                  <OptimizedImage
+                    src={getProductionImageUrl(image || '', {
+                      width: 800,
+                      height: 450,
+                      quality: 85,
+                      fallbackType: "article"
+                    })}
+                    alt={article.title || "صورة"}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+                    priority={idx === 0}
+                  />
                   {/* شارة التصنيف */}
                   <div className="absolute top-2 left-2">
                     <span

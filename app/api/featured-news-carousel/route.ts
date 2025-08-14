@@ -85,7 +85,13 @@ export async function GET(request: NextRequest) {
       slug: article.slug,
       excerpt: article.excerpt,
       content: article.content,
-      featured_image: article.featured_image || article.image || article.image_url || null,
+      featured_image: article.featured_image || 
+                      article.social_image || 
+                      article.image || 
+                      article.image_url || 
+                      (article.metadata as any)?.featured_image ||
+                      (article.metadata as any)?.image ||
+                      null,
       published_at: article.published_at,
       reading_time: article.reading_time,
       views: article.views || 0,
