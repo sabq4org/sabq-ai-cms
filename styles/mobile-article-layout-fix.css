@@ -1,0 +1,47 @@
+/* إصلاحات تخطيط صفحة المقال للموبايل */
+
+/* محاذاة الصورة والموجز الذكي */
+@media (max-width: 640px) {
+  /* الصورة المميزة للموبايل */
+  .mobile-featured-image-wrapper {
+    margin-bottom: 1rem;
+  }
+  
+  /* ارتفاع الصورة المميزة */
+  .mobile-featured-image-wrapper > div {
+    height: 240px;
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+  
+  /* التأكد من أن الصورة والموجز لهما نفس العرض */
+  .article-mobile-content > div {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  
+  /* الموجز الذكي */
+  .article-ai-summary {
+    margin-top: 0;
+  }
+}
+
+/* تحسينات إضافية للتخطيط */
+.article-content-mobile {
+  /* إزالة أي padding زائد */
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+/* محاذاة العناصر بشكل صحيح */
+.mobile-article-section {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .mobile-featured-image-wrapper {
+    background-color: rgba(31, 41, 55, 0.5);
+  }
+}

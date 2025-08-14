@@ -18,6 +18,7 @@ import "../styles/featured-news-carousel-fixes.css";
 import "../styles/article-featured-image-fix.css";
 import "../styles/mobile-article-enhancements.css";
 import "../styles/mobile-article-image-summary.css";
+import "../styles/mobile-article-layout-fix.css";
 import "../styles/featured-mobile-card-fix.css";
 import "../styles/user-dropdown-fix.css";
 import "../styles/globals.css";
