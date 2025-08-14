@@ -4,7 +4,6 @@ import CloudImage from "@/components/ui/CloudImage";
 import OptimizedImage from "@/components/ui/OptimizedImage";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { formatDateGregorian } from "@/lib/date-utils";
-import { getProductionImageUrl } from "@/lib/production-image-fix";
 import {
   ArrowLeft,
   Award,
@@ -98,20 +97,14 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
   const currentArticle = articles[currentIndex];
   
   // تسجيل console للتشخيص
-  console.log('🖼️ [FeaturedNewsCarousel] Desktop Mode: Component is rendering');
-  console.log('🖼️ [FeaturedNewsCarousel] Current Article:', {
-    id: currentArticle.id,
-    title: currentArticle.title?.substring(0, 50) + '...',
-    featured_image: currentArticle.featured_image,
-    processedImageUrl: currentArticle.featured_image ? getProductionImageUrl(currentArticle.featured_image, {
-      width: 800,
-      height: 600,
-      quality: 85,
-      fallbackType: "article"
-    }) : null,
-    hasImage: !!currentArticle.featured_image,
-    imageType: currentArticle.featured_image ? typeof currentArticle.featured_image : 'no-image'
-  });
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🖼️ [FeaturedNewsCarousel] Current Article:', {
+      id: currentArticle.id,
+      title: currentArticle.title?.substring(0, 50) + '...',
+      featured_image: currentArticle.featured_image,
+      hasImage: !!currentArticle.featured_image
+    });
+  }
   const mobileH = heights.mobile || 220;
   const mobileLgH = heights.mobileLg || mobileH;
   const desktopH = heights.desktop || mobileLgH;
@@ -139,12 +132,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
               style={{ height: `${desktopH}px` }}
             >
               <OptimizedImage
-                src={getProductionImageUrl(currentArticle.featured_image || '', {
-                  width: 800,
-                  height: 600,
-                  quality: 85,
-                  fallbackType: "article"
-                })}
+                src={currentArticle.featured_image} // الصورة معالجة مسبقاً من API
                 alt={currentArticle.title}
                 fill
                 priority

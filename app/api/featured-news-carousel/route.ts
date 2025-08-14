@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { getProductionImageUrl } from "@/lib/production-image-fix";
 export const runtime = "nodejs";
 
 // تعطيل التخزين المؤقت بالكامل لضمان التحديث الفوري
@@ -72,32 +73,42 @@ export async function GET(request: NextRequest) {
     if (articlesToReturn.length > 0) {
       console.log('🔍 [Featured API] First article image fields:', {
         featured_image: articlesToReturn[0]?.featured_image,
-        image: articlesToReturn[0]?.image,
-        image_url: articlesToReturn[0]?.image_url,
+        social_image: articlesToReturn[0]?.social_image,
+        metadata: articlesToReturn[0]?.metadata,
         all_keys: Object.keys(articlesToReturn[0])
       });
     }
     
     // تنسيق البيانات
-    const formattedArticles = articlesToReturn.map((article) => ({
-      id: article.id,
-      title: article.title,
-      slug: article.slug,
-      excerpt: article.excerpt,
-      content: article.content,
-      featured_image: article.featured_image || 
-                      article.social_image || 
-                      article.image || 
-                      article.image_url || 
-                      (article.metadata as any)?.featured_image ||
-                      (article.metadata as any)?.image ||
-                      null,
-      published_at: article.published_at,
-      reading_time: article.reading_time,
-      views: article.views || 0,
-      likes: article.likes || 0,
-      shares: article.shares || 0,
-      category: article.categories
+    const formattedArticles = articlesToReturn.map((article) => {
+      // 1. تجميع رابط الصورة الخام من مصادر متعددة
+      const rawImageUrl = article.featured_image ||
+                          article.social_image ||
+                          (article.metadata as any)?.featured_image ||
+                          (article.metadata as any)?.image ||
+                          null;
+
+      // 2. معالجة الرابط الخام للحصول على رابط صالح للإنتاج
+      const finalImageUrl = getProductionImageUrl(rawImageUrl, {
+        width: 800,
+        height: 600,
+        quality: 85,
+        fallbackType: "article"
+      });
+
+      return {
+        id: article.id,
+        title: article.title,
+        slug: article.slug,
+        excerpt: article.excerpt,
+        content: article.content,
+        featured_image: finalImageUrl, // 3. استخدام الحقل الموحد والنهائي
+        published_at: article.published_at,
+        reading_time: article.reading_time,
+        views: article.views || 0,
+        likes: article.likes || 0,
+        shares: article.shares || 0,
+        category: article.categories
         ? {
             id: article.categories.id,
             name: article.categories.name,
@@ -123,10 +134,11 @@ export async function GET(request: NextRequest) {
               : null,
           }
         : null,
-      metadata: article.metadata,
-      created_at: article.created_at,
-      updated_at: article.updated_at,
-    }));
+        metadata: article.metadata,
+        created_at: article.created_at,
+        updated_at: article.updated_at,
+      };
+    });
 
     return NextResponse.json(
       {
