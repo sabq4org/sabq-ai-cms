@@ -243,41 +243,6 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
           </div>
         </div>
       </Link>
-      {/* مؤشرات و أزرار التنقل - موحدة لجميع الشاشات */}
-      <div className="flex mt-4 justify-center items-center px-4" aria-label="مؤشرات الكاروسيل">
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={(e) => { e.preventDefault(); handlePrevious(); }} 
-            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-300 shadow-sm" 
-            aria-label="الخبر السابق"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-          <div className="flex justify-center items-center gap-1.5">
-            {articles.map((a, idx) => (
-              <button
-                key={a.id}
-                onClick={() => setCurrentIndex(idx)}
-                className={`h-1.5 rounded-full transition-all duration-300 ease-in-out ${
-                  idx === currentIndex 
-                    ? "w-8 bg-blue-500 dark:bg-blue-400" 
-                    : "w-4 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500"
-                }`}
-                aria-label={`الانتقال إلى الخبر ${idx + 1}: ${a.title}`}
-                aria-current={idx === currentIndex}
-                title={a.title}
-              />
-            ))}
-          </div>
-          <button 
-            onClick={(e) => { e.preventDefault(); handleNext(); }} 
-            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-300 shadow-sm" 
-            aria-label="الخبر التالي"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
     </div>
   );
 };
