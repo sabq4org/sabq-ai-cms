@@ -152,7 +152,8 @@ const AdBanner: React.FC<AdBannerProps> = ({ placement, className = "" }) => {
       case "below_custom_block":
         return `${baseClass} max-w-4xl`;
       case "article_detail_header":
-        return `${baseClass} max-w-3xl`;
+        // تقليل الحجم درجة واحدة: تقليل العرض الأقصى قليلاً
+        return `${baseClass} max-w-2xl`;
       case "sidebar_top":
       case "sidebar_bottom":
         return `${baseClass} max-w-sm`;
@@ -160,6 +161,17 @@ const AdBanner: React.FC<AdBannerProps> = ({ placement, className = "" }) => {
         return `${baseClass} max-w-7xl`;
       default:
         return baseClass;
+    }
+  };
+
+  // ضبط نسبة الأبعاد للصورة حسب الموضع
+  const getAspectClass = () => {
+    switch (placement) {
+      case "article_detail_header":
+        // تقليل الارتفاع قليلاً (تكة واحدة) على كل الشاشات
+        return "aspect-[18/9] sm:aspect-[22/6]"; // كان: 16/9 و 20/6
+      default:
+        return "aspect-[16/9] sm:aspect-[20/6]";
     }
   };
 
@@ -194,7 +206,7 @@ const AdBanner: React.FC<AdBannerProps> = ({ placement, className = "" }) => {
         </div>
 
         {/* صورة الإعلان */}
-        <div className="relative w-full aspect-[16/9] sm:aspect-[20/6] overflow-hidden">
+        <div className={`relative w-full ${getAspectClass()} overflow-hidden`}>
           <Image
             src={ad.image_url}
             alt={ad.title || "إعلان"}
