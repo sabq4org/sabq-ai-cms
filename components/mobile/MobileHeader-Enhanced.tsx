@@ -1,14 +1,16 @@
 'use client';
 
-import React, { useState, useEffect, memo, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, memo, useCallback, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { 
   Menu, Search, Bell, User, X, Sun, Moon, Activity, 
-  Home, Newspaper, Bookmark, Settings, LogOut, ChevronDown, PenTool 
+  Home, Newspaper, Bookmark, Settings, LogOut, ChevronDown, PenTool,
+  Sparkles 
 } from 'lucide-react';
+import UserDropdown from './UserDropdown';
 
 // واجهة محسنة
 interface MobileHeaderProps {
@@ -93,7 +95,7 @@ const useScrollDetection = () => {
   return { isScrolled, isScrollingDown };
 };
 
-// عناصر التنقل الرئيسية
+// عناصر التنقل الرئيسية - أقسام الموقع فقط
 const navigationItems = [
   { 
     label: 'الرئيسية', 
@@ -115,15 +117,21 @@ const navigationItems = [
     color: 'text-green-600 dark:text-green-400'
   },
   { 
-    label: 'الرأي',
+    label: 'التحليل العميق', 
+    url: '/deep-analysis', 
+    icon: Sparkles,
+    color: 'text-indigo-600 dark:text-indigo-400'
+  },
+  { 
+    label: 'مقالات الرأي',
     url: '/opinion',
     icon: PenTool,
     color: 'text-orange-600 dark:text-orange-400',
     badge: 'جديد'
   },
   { 
-    label: 'المحفوظات', 
-    url: '/bookmarks', 
+    label: 'الميديا', 
+    url: '/media', 
     icon: Bookmark,
     color: 'text-purple-600 dark:text-purple-400'
   },
@@ -268,37 +276,6 @@ const SideMenu = memo(({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
                 );
               })}
             </ul>
-
-            {/* فاصل */}
-            <div className="my-4 mx-4 border-t border-gray-200 dark:border-gray-700" />
-
-            {/* روابط إضافية */}
-            <ul className="space-y-1 px-3">
-              <li>
-                <Link
-                  href="/settings"
-                  onClick={onClose}
-                  className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 group min-h-[44px]"
-                >
-                  <Settings className="w-5 h-5 text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300 flex-shrink-0" />
-                  <span className="text-sm">الإعدادات</span>
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* تذييل القائمة */}
-          <div className="p-3 border-t border-gray-200 dark:border-gray-700">
-            <button
-              onClick={() => {
-                onClose();
-                // منطق تسجيل الخروج
-              }}
-              className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 group min-h-[44px]"
-            >
-              <LogOut className="w-5 h-5 flex-shrink-0" />
-              <span className="text-sm font-medium">تسجيل الخروج</span>
-            </button>
           </div>
         </div>
       </nav>
@@ -323,11 +300,14 @@ const MobileHeader = memo(({
   
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userButtonRef = useRef<HTMLButtonElement>(null);
 
   // إغلاق القوائم عند تغيير المسار
   useEffect(() => {
     setMobileMenuOpen(false);
     setSearchOpen(false);
+    setUserMenuOpen(false);
   }, []);
 
   // منع التمرير عند فتح القائمة
@@ -436,13 +416,25 @@ const MobileHeader = memo(({
 
               {/* قائمة المستخدم */}
               {showUserMenu && (
-                <Link
-                  href="/login"
-                  className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95 transition-all duration-200"
-                  aria-label="تسجيل الدخول"
-                >
-                  <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                </Link>
+                <div className="relative">
+                  <button
+                    ref={userButtonRef}
+                    onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95 transition-all duration-200 relative"
+                    aria-label="قائمة المستخدم"
+                  >
+                    <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                    {/* مؤشر صغير للإشارة إلى وجود قائمة */}
+                    <ChevronDown className="absolute -bottom-1 -right-1 w-3 h-3 text-gray-400 dark:text-gray-500" />
+                  </button>
+                  
+                  {/* القائمة المنسدلة للمستخدم */}
+                  <UserDropdown 
+                    isOpen={userMenuOpen}
+                    onClose={() => setUserMenuOpen(false)}
+                    anchorRef={userButtonRef}
+                  />
+                </div>
               )}
             </div>
           </div>

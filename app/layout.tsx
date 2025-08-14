@@ -25,6 +25,7 @@ import "../styles/minimal-fix.css";
 import "../styles/mobile-internal-pages-fix.css";
 import "../styles/mobile-news.css";
 import "../styles/mobile-sidebar-compact.css";
+import "../styles/mobile-sidebar-clean.css";
 import "../styles/mobile.css";
 import "../styles/muqtarab-animations.css";
 import "../styles/no-focus-outline.css";
