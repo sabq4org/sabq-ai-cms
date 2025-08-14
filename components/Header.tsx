@@ -28,6 +28,7 @@ import ClientOnly from "./ClientOnly";
 import UserDropdown from "./UserDropdown";
 import MobileUserDropdown from "./mobile/UserDropdown";
 import UserMenuDrawer from "./mobile/UserMenuDrawer";
+import UserMenuOverlay from "./mobile/UserMenuOverlay";
 
 export default function Header() {
   const router = useRouter();
@@ -290,7 +291,7 @@ export default function Header() {
               {/* زر وقائمة ملف شخصي للموبايل فقط */}
               {user && (
                 <div className="md:hidden relative">
-                  <UserMenuDrawer
+                  <UserMenuOverlay
                     trigger={
                       <button
                         ref={mobileUserBtnRef}
