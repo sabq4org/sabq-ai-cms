@@ -231,7 +231,7 @@ export default function Header() {
 
               {/* معلومات المستخدم */}
               {user ? (
-                <div className="relative" ref={dropdownRef}>
+                <div className="relative hidden md:block" ref={dropdownRef}>
                   <button
                     onClick={handleDropdownToggle}
                     className={`flex items-center space-x-2 rtl:space-x-reverse p-2 rounded-lg transition-all duration-300 ${
@@ -301,7 +301,10 @@ export default function Header() {
                     aria-haspopup="menu"
                     aria-expanded={isMobileUserOpen}
                   >
-                    <User className="w-5 h-5" />
+                    <span className="inline-flex items-center gap-1">
+                      <User className="w-5 h-5" />
+                      <ChevronDown className="w-3 h-3 opacity-70" />
+                    </span>
                   </button>
                   <MobileUserDropdown
                     isOpen={isMobileUserOpen}

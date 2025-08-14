@@ -103,7 +103,7 @@ export default function UserDropdown({ isOpen, onClose, anchorRef }: UserDropdow
       <div
         ref={dropdownRef}
         className={`
-          absolute top-full right-0 mt-2 w-72
+          fixed right-3 top-14 w-[88vw] max-w-sm sm:w-80 sm:right-4 sm:top-16
           bg-white dark:bg-gray-900 
           rounded-xl shadow-xl 
           border border-gray-200 dark:border-gray-700
