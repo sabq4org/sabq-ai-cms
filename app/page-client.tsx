@@ -733,11 +733,6 @@ function NewspaperHomePage({
           </div>
         )}
 
-        {/* 3. سحابة الكلمات الرائجة 🔥 */}
-        <div className={`${isMobileView ? "py-3" : "py-6"}`}>
-          <HomeWordCloud maxKeywords={15} />
-        </div>
-
         {/* إعلان أسفل الأخبار المميزة */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <AdBanner placement="below_featured" />
@@ -1519,8 +1514,15 @@ function NewspaperHomePage({
           </section>
         </main>
         {/* 7. مقترب (زاوية تحليلية) 📝 */}
+        {/* 🔥 ترتيب خاص للموبايل: نقل الكلمات الشائعة فوق مقترب للجوال فقط */}
+        {isMobileView && (
+          <div className="mobile-word-cloud-section mobile-section-spacing mobile-layout-transition py-3 mb-4">
+            <HomeWordCloud maxKeywords={15} />
+          </div>
+        )}
+        
         <div
-          className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${
+          className={`mobile-trending-section mobile-layout-transition max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${
             isMobileView ? "py-4" : "py-6"
           }`}
         >
@@ -1531,6 +1533,13 @@ function NewspaperHomePage({
             viewMode="grid"
           />
         </div>
+        
+        {/* 🔥 للديسكتوب: الكلمات الشائعة في مكانها الأصلي بعد مقترب */}
+        {!isMobileView && (
+          <div className="desktop-word-cloud-section py-6">
+            <HomeWordCloud maxKeywords={15} />
+          </div>
+        )}
         {/* 8. التحليل العميق (Deep Analysis) 🧠 */}
         {/* Deep Analysis Block - بلوك التحليل العميق - خارج main للامتداد الكامل */}
         <section

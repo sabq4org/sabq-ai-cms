@@ -97,22 +97,21 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
 
   const currentArticle = articles[currentIndex];
   
-  // تسجيل console للتشخيص في النسخة الكاملة
-  if (process.env.NODE_ENV === 'development') {
-    console.log('🖼️ [FeaturedNewsCarousel] Desktop Mode: Component is rendering for desktop screens');
-    console.log('🖼️ [FeaturedNewsCarousel] Current Article:', {
-      id: currentArticle.id,
-      title: currentArticle.title?.substring(0, 50) + '...',
-      featured_image: currentArticle.featured_image,
-      processedImageUrl: currentArticle.featured_image ? getProductionImageUrl(currentArticle.featured_image, {
-        width: 800,
-        height: 600,
-        quality: 85,
-        fallbackType: "article"
-      }) : null,
-      hasImage: !!currentArticle.featured_image
-    });
-  }
+  // تسجيل console للتشخيص
+  console.log('🖼️ [FeaturedNewsCarousel] Desktop Mode: Component is rendering');
+  console.log('🖼️ [FeaturedNewsCarousel] Current Article:', {
+    id: currentArticle.id,
+    title: currentArticle.title?.substring(0, 50) + '...',
+    featured_image: currentArticle.featured_image,
+    processedImageUrl: currentArticle.featured_image ? getProductionImageUrl(currentArticle.featured_image, {
+      width: 800,
+      height: 600,
+      quality: 85,
+      fallbackType: "article"
+    }) : null,
+    hasImage: !!currentArticle.featured_image,
+    imageType: currentArticle.featured_image ? typeof currentArticle.featured_image : 'no-image'
+  });
   const mobileH = heights.mobile || 220;
   const mobileLgH = heights.mobileLg || mobileH;
   const desktopH = heights.desktop || mobileLgH;

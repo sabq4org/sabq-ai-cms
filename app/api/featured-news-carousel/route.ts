@@ -67,6 +67,17 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // تسجيل للتشخيص
+    console.log('🔍 [Featured API] Articles found:', articlesToReturn.length);
+    if (articlesToReturn.length > 0) {
+      console.log('🔍 [Featured API] First article image fields:', {
+        featured_image: articlesToReturn[0]?.featured_image,
+        image: articlesToReturn[0]?.image,
+        image_url: articlesToReturn[0]?.image_url,
+        all_keys: Object.keys(articlesToReturn[0])
+      });
+    }
+    
     // تنسيق البيانات
     const formattedArticles = articlesToReturn.map((article) => ({
       id: article.id,
@@ -74,7 +85,7 @@ export async function GET(request: NextRequest) {
       slug: article.slug,
       excerpt: article.excerpt,
       content: article.content,
-      featured_image: article.featured_image,
+      featured_image: article.featured_image || article.image || article.image_url || null,
       published_at: article.published_at,
       reading_time: article.reading_time,
       views: article.views || 0,

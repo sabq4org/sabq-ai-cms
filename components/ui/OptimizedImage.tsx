@@ -29,7 +29,12 @@ export default function OptimizedImage({
   const [loading, setLoading] = useState(true);
 
   const handleError = () => {
-    console.warn('🖼️ [OptimizedImage] Failed to load image:', src);
+    console.error('🖼️ [OptimizedImage] Failed to load image:', {
+      src,
+      srcType: typeof src,
+      srcLength: src?.length,
+      srcStart: src?.substring(0, 50)
+    });
     setError(true);
     setLoading(false);
   };
