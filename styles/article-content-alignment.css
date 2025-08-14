@@ -7,23 +7,35 @@
     width: 100%;
     margin-bottom: 2rem;
   }
-  
+
   /* الموجز الذكي - عرض كامل محاذي للمحتوى */
   .article-ai-summary-wrapper {
     width: 100%;
     margin-bottom: 2rem;
   }
-  
+
   /* التأكد من أن المحتوى والصورة والموجز لهم نفس العرض */
   .article-content-container {
     width: 100%;
     max-width: none;
   }
-  
+
   /* إزالة أي padding إضافي قد يؤثر على المحاذاة */
   .article-content-wrapper > div {
     padding-left: 0;
     padding-right: 0;
+  }
+
+  /* محاذاة رأس المقال مع نفس عرض الصورة وتوسيط رأسي/أفقي */
+  .article-header-wrapper {
+    max-width: 110ch;
+    margin-right: auto;
+    margin-left: auto;
+    padding-right: 1.5rem;
+    padding-left: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 }
 
