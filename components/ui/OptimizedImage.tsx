@@ -71,14 +71,18 @@ export default function OptimizedImage({
     );
   }
 
+  const wrapperClass = fill
+    ? 'absolute inset-0 w-full h-full'
+    : 'relative inline-block';
+
   return (
-    <div className={`relative ${className}`}>
+    <div className={wrapperClass}>
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800 animate-pulse">
           <div className="w-8 h-8 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
         </div>
       )}
-      
+
       <Image
         src={src}
         alt={alt}
@@ -88,10 +92,9 @@ export default function OptimizedImage({
         sizes={sizes}
         priority={priority}
         quality={quality}
-        className={loading ? 'opacity-0' : 'opacity-100 transition-opacity duration-300'}
+        className={`${loading ? 'opacity-0' : 'opacity-100 transition-opacity duration-300'} ${className}`}
         onError={handleError}
         onLoad={handleLoad}
-        // تقليل التايم أوت
         placeholder="blur"
         blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
       />
