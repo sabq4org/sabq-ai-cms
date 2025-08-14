@@ -1,0 +1,81 @@
+/* إصلاحات نهائية للقائمة الجانبية للموبايل */
+
+/* إخفاء أي عناصر شخصية في القائمة الجانبية الرئيسية */
+.mobile-sidebar a[href="/settings"],
+.mobile-sidebar a[href="/profile"],
+.mobile-sidebar a[href="/journey"],
+.mobile-sidebar a[href="/knowledge-journey"],
+.mobile-sidebar button:contains("تسجيل الخروج"),
+nav.fixed a[href="/settings"],
+nav.fixed a[href="/profile"],
+nav.fixed a[href="/journey"],
+nav.fixed button:contains("تسجيل الخروج") {
+  display: none !important;
+}
+
+/* إزالة قسم الإعدادات من القائمة الجانبية */
+.mobile-sidebar .border-t:has(a[href="/settings"]),
+nav.fixed > div > div:has(a[href="/settings"]) {
+  display: none !important;
+}
+
+/* التأكد من أن القائمة تحتوي فقط على أقسام الموقع */
+.mobile-sidebar nav,
+nav.fixed .flex-1 {
+  padding-bottom: 1rem;
+}
+
+/* إزالة أي فواصل غير ضرورية */
+.mobile-sidebar .border-t:last-child,
+nav.fixed .border-t:last-child {
+  display: none;
+}
+
+/* تحسين مظهر القائمة الجانبية */
+nav.fixed {
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
+/* التأكد من عمل القائمة المنسدلة للمستخدم */
+.user-dropdown {
+  z-index: 9999 !important;
+  position: absolute !important;
+  display: block !important;
+}
+
+/* إصلاح موضع القائمة المنسدلة */
+@media (max-width: 768px) {
+  .user-dropdown {
+    position: fixed !important;
+    top: 60px !important;
+    right: 10px !important;
+    left: auto !important;
+  }
+}
+
+/* تحسينات إضافية للقائمة الجانبية */
+.mobile-sidebar,
+nav.fixed {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
+}
+
+.mobile-sidebar::-webkit-scrollbar,
+nav.fixed::-webkit-scrollbar {
+  width: 4px;
+}
+
+.mobile-sidebar::-webkit-scrollbar-thumb,
+nav.fixed::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .mobile-sidebar::-webkit-scrollbar-thumb,
+  nav.fixed::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}
