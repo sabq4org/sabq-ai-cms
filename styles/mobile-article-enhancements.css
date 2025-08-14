@@ -1,0 +1,88 @@
+/* تحسينات صفحة المقال للموبايل */
+
+/* إزالة الفراغات الزائدة حول الصورة */
+.sm\:hidden > .MobileFeaturedImage,
+.mobile-featured-image {
+  margin-bottom: 0 !important;
+}
+
+/* تحسين التباعد بين العناصر */
+.article-mobile-content {
+  gap: 0.75rem;
+}
+
+/* الصورة المميزة - تمتد من اليمين لليسار */
+.mobile-featured-image-container {
+  margin-left: -1rem;
+  margin-right: -1rem;
+  width: calc(100% + 2rem);
+}
+
+/* زر الاستماع الذكي العائم */
+.smart-audio-button-floating {
+  position: fixed;
+  z-index: 40;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* التوافق مع الشاشات الصغيرة جداً */
+@media (max-width: 320px) {
+  .mobile-featured-image-container {
+    height: 200px;
+  }
+  
+  .smart-audio-button-floating {
+    bottom: 1rem;
+    right: 1rem;
+  }
+  
+  .smart-audio-button-floating button {
+    width: 3rem;
+    height: 3rem;
+  }
+}
+
+/* تحسين تجربة المستخدم */
+.article-content-mobile {
+  padding-top: 0.5rem;
+}
+
+/* إزالة المساحة بين الصورة والموجز */
+.mobile-article-image + .mobile-article-summary {
+  margin-top: 0;
+}
+
+/* تحسين lazy loading */
+.mobile-featured-image img {
+  will-change: opacity;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* تحسين الأداء */
+@media (prefers-reduced-motion: reduce) {
+  .smart-audio-button-floating,
+  .mobile-featured-image img {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* التوافق مع الوضع الليلي */
+.dark .mobile-featured-image-container {
+  background-color: #1a1a1a;
+}
+
+.dark .smart-audio-button-floating {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}

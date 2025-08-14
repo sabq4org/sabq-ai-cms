@@ -4,6 +4,7 @@ import { isEmergencyArticleSupported } from "@/app/emergency-articles";
 import Footer from "@/components/Footer";
 import ReporterLink from "@/components/ReporterLink";
 import ArticleFeaturedImage from "@/components/article/ArticleFeaturedImage";
+import MobileFeaturedImage from "@/components/article/MobileFeaturedImage";
 import SafeDateDisplay from "@/components/article/SafeDateDisplay";
 import DbConnectionError from "@/components/db-connection-error";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
@@ -34,6 +35,7 @@ import {
 // import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
 
 import ArticleAISummary from "@/components/article/ArticleAISummary";
+import SmartAudioButton from "@/components/article/SmartAudioButton";
 import ArticleStatsBlock from "@/components/article/ArticleStatsBlock";
 import CommentsPanel from "@/components/article/CommentsPanel";
 import EnhancedOpinionLayout from "@/components/article/EnhancedOpinionLayout";
@@ -757,8 +759,8 @@ export default function ArticleClientComponent({
               typeof article.featured_image === "string" &&
               article.featured_image.length > 0 &&
               !article.metadata?.emergency_mode && (
-                <div className="sm:hidden mb-6 -mx-3">
-                  <ArticleFeaturedImage
+                <div className="sm:hidden -mx-3">
+                  <MobileFeaturedImage
                     imageUrl={article.featured_image}
                     title={article.title}
                     caption={article.featured_image_caption}
@@ -783,6 +785,17 @@ export default function ArticleClientComponent({
                   className="shadow-lg"
                 />
               </div>
+            </div>
+
+            {/* زر الاستماع الذكي العائم للموبايل */}
+            <div className="sm:hidden">
+              <SmartAudioButton
+                articleId={article.id}
+                title={article.title || ""}
+                content={article.content || ""}
+                variant="floating"
+                position="bottom-right"
+              />
             </div>
 
             {/* الموجز الذكي للديسكتوب - منفصل دائماً */}
