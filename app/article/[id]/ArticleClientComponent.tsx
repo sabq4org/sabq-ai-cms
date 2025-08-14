@@ -565,7 +565,7 @@ export default function ArticleClientComponent({
                 )}
 
                 {/* العنوان - تحسين المسافات والهوامش */}
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 text-gray-900 dark:text-white leading-tight text-right tracking-tight">{/* تقليل المسافة السفلية */}
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 text-gray-900 dark:text-white leading-tight text-right tracking-tight">{/* زيادة حجم الخط للموبايل */}
                   {article.title}
                 </h1>
 
