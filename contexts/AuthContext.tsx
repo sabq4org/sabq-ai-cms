@@ -102,23 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // إذا فشل API، محاولة قراءة من الكوكيز كـ fallback
-      const userCookie = Cookies.get("user");
-      if (userCookie) {
-        try {
-          const userData = JSON.parse(decodeURIComponent(userCookie));
-          setUser(userData);
-          if (typeof window !== "undefined") {
-            localStorage.setItem("user", JSON.stringify(userData));
-            if (userData.id) {
-              localStorage.setItem("user_id", String(userData.id));
-            }
-          }
-          setLoading(false);
-          return;
-        } catch (error) {
-          console.error("فشل في قراءة كوكيز المستخدم:", error);
-        }
-      }
+      // أمان: لا تعتمد على Cookie 'user' كمصدر مصادقة
 
       // إذا لم نجد أي بيانات مستخدم، تنظيف localStorage
       if (typeof window !== "undefined") {
@@ -156,11 +140,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         secure: true,
         sameSite: "lax",
       });
-      Cookies.set("user", JSON.stringify(decodedUser), {
-        expires: 7,
-        secure: false,
-        sameSite: "lax",
-      });
+      // لا ننشئ Cookie 'user' كي لا تُستخدم كمصدر مصادقة
       if (typeof window !== "undefined") {
         localStorage.setItem("user", JSON.stringify(decodedUser));
         if (decodedUser.id) {

@@ -24,22 +24,7 @@ export async function GET(request: NextRequest) {
       request.cookies.get("sabq_at")?.value ||
       request.cookies.get("auth-token")?.value;
 
-    // إذا لم يوجد في الكوكيز، جرب cookie بإسم 'user'
-    if (!token) {
-      const userCookie = request.cookies.get("user")?.value;
-      if (userCookie) {
-        try {
-          // فك تشفير URL encoding
-          const decodedCookie = decodeURIComponent(userCookie);
-          const userObject = JSON.parse(decodedCookie);
-          if (userObject.id) {
-            token = userCookie; // استخدم المعرف من cookie
-          }
-        } catch (e) {
-          console.log("فشل في تحليل user cookie:", e);
-        }
-      }
-    }
+    // 🔒 أمان: لا تعتمد أبداً على cookie باسم 'user' للمصادقة
 
     // إذا لم يوجد في الكوكيز، جرب من Authorization header
     if (!token) {
@@ -59,23 +44,11 @@ export async function GET(request: NextRequest) {
     // التحقق من صحة التوكن
     let decoded: any;
     try {
-      // محاولة فك تشفير JWT أولاً (استخدام ACCESS_SECRET إن وُجد)
       const verifySecret =
         process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET || JWT_SECRET;
       decoded = jwt.verify(token, verifySecret);
     } catch (error) {
-      // إذا فشل JWT، جرب تحليل JSON من user cookie
-      try {
-        const decodedCookie = decodeURIComponent(token as string);
-        const userObject = JSON.parse(decodedCookie);
-        if (userObject.id) {
-          decoded = userObject;
-        } else {
-          throw new Error("لا يحتوي على معرف مستخدم");
-        }
-      } catch (jsonError) {
-        return corsResponse({ success: false, error: "جلسة غير صالحة" }, 401);
-      }
+      return corsResponse({ success: false, error: "جلسة غير صالحة" }, 401);
     }
 
     // استخراج معرف المستخدم من payload (يدعم sub أو id)
