@@ -67,6 +67,10 @@ export async function GET(request: NextRequest) {
         total,
         totalPages: Math.ceil(total / limit),
       },
+    }, {
+      headers: {
+        'Cache-Control': 'no-store'
+      }
     });
   } catch (error) {
     console.error("Error fetching assets:", error);
