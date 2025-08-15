@@ -94,6 +94,7 @@ export default function CommentsClient({ articleId }: CommentsClientProps) {
       const res = await fetch("/api/comments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           articleId,
           content: content.trim(),
@@ -288,7 +289,7 @@ export default function CommentsClient({ articleId }: CommentsClientProps) {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
                               credentials: 'include',
-                              body: JSON.stringify({ commentId: c.id, userId: isLoggedIn ? 'current' : 'anonymous' })
+                              body: JSON.stringify({ commentId: c.id })
                             });
                             const data = await res.json();
                             if (!res.ok || data.success === false) {
@@ -329,7 +330,29 @@ export default function CommentsClient({ articleId }: CommentsClientProps) {
                           {(openReplies[c.id] ? "إخفاء الردود" : `${c.repliesCount} رد${(c.repliesCount || 0) > 1 ? "ود" : ""}`)}
                         </button>
                       )}
-                      <button className="inline-flex items-center gap-1 hover:text-red-600">
+                      <button
+                        className="inline-flex items-center gap-1 hover:text-red-600"
+                        onClick={async () => {
+                          try {
+                            const res = await fetch(`/api/comments/${encodeURIComponent(c.id)}/report`, {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              credentials: 'include',
+                              body: JSON.stringify({ reason: 'other', details: 'إبلاغ من الواجهة' })
+                            });
+                            const data = await res.json();
+                            if (!res.ok || data.success === false) {
+                              throw new Error(data?.error || 'فشل في إرسال البلاغ');
+                            }
+                            try {
+                              const toast = (await import('react-hot-toast')).default;
+                              toast.success('تم إرسال البلاغ');
+                            } catch {}
+                          } catch (e: any) {
+                            setError(e.message || 'فشل في إرسال البلاغ');
+                          }
+                        }}
+                      >
                         <Flag className="w-3.5 h-3.5" /> إبلاغ
                       </button>
                     </div>
