@@ -27,6 +27,7 @@ import "../styles/user-dropdown.css";
 import "@/styles/globals.css";
 import "@/styles/error-fixes.css";
 import "../styles/article-title-width-fix.css";
+import "../styles/css-error-fixes.css";
 import "../styles/unified-font-system.css";
 import "../styles/word-cloud.css";
 import "../styles/improved-mobile-menu.css";

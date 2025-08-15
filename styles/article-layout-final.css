@@ -1,0 +1,108 @@
+/* 🎯 تحسينات محاذاة العرض النهائية للعنوان والصورة والمحتوى */
+
+/* العرض الموحد للعناصر الرئيسية */
+.article-unified-container {
+  max-width: 56rem !important; /* 896px */
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 1.5rem !important; /* 24px */
+  padding-right: 1.5rem !important; /* 24px */
+}
+
+/* للشاشات الكبيرة */
+@media (min-width: 1024px) {
+  .article-unified-container {
+    padding-left: 2rem !important; /* 32px */
+    padding-right: 2rem !important; /* 32px */
+  }
+}
+
+/* للموبايل */
+@media (max-width: 639px) {
+  .article-unified-container {
+    max-width: 100% !important;
+    padding-left: 1rem !important; /* 16px */
+    padding-right: 1rem !important; /* 16px */
+  }
+}
+
+/* تطبيق المحاذاة على عناصر المقال */
+.article-title-wrapper,
+.article-featured-image-wrapper,
+.article-content-container {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  box-sizing: border-box;
+}
+
+@media (min-width: 1024px) {
+  .article-title-wrapper,
+  .article-featured-image-wrapper,
+  .article-content-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+@media (max-width: 639px) {
+  .article-title-wrapper,
+  .article-featured-image-wrapper,
+  .article-content-container {
+    max-width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* إزالة أي تعارضات مع النظام القديم */
+.article-title-wrapper.title-image-width-sync,
+.article-featured-image-wrapper.title-image-width-sync {
+  max-width: 56rem !important;
+  padding-left: 1.5rem !important;
+  padding-right: 1.5rem !important;
+}
+
+@media (min-width: 1024px) {
+  .article-title-wrapper.title-image-width-sync,
+  .article-featured-image-wrapper.title-image-width-sync {
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+  }
+}
+
+@media (max-width: 639px) {
+  .article-title-wrapper.title-image-width-sync,
+  .article-featured-image-wrapper.title-image-width-sync {
+    max-width: 100% !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+}
+
+/* ضمان النسبة الصحيحة للصور */
+.article-featured-image-wrapper img,
+.article-featured-image-wrapper .relative {
+  width: 100%;
+  height: auto;
+  border-radius: 0.75rem; /* rounded-xl */
+}
+
+/* تحسين المسافات */
+.article-section-spacing {
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .article-section-spacing {
+    margin-bottom: 2rem;
+  }
+}
+
+/* إزالة تأثيرات العرض الكامل المتبقية */
+.article-full-width-override {
+  max-width: 56rem !important;
+  width: auto !important;
+  margin: 0 auto !important;
+}

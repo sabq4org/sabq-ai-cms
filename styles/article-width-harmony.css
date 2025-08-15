@@ -1,0 +1,125 @@
+/* 🎯 توحيد عرض العنوان والصورة والمحتوى - نظام متجاوب محسن */
+
+/* القواعد الأساسية للمحاذاة الموحدة */
+.article-width-container {
+  max-width: 56rem; /* 896px - max-w-4xl */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem; /* 24px - px-6 */
+  padding-right: 1.5rem; /* 24px - px-6 */
+  box-sizing: border-box;
+}
+
+/* تحسينات للشاشات الكبيرة */
+@media (min-width: 1024px) {
+  .article-width-container {
+    padding-left: 2rem; /* 32px - lg:px-8 */
+    padding-right: 2rem; /* 32px - lg:px-8 */
+  }
+}
+
+/* تحسينات للشاشات المتوسطة */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .article-width-container {
+    padding-left: 1.5rem; /* 24px - sm:px-6 */
+    padding-right: 1.5rem; /* 24px - sm:px-6 */
+  }
+}
+
+/* للموبايل - عرض كامل مع حشو مناسب */
+@media (max-width: 639px) {
+  .article-width-container {
+    max-width: 100%;
+    padding-left: 1rem; /* 16px - px-4 */
+    padding-right: 1rem; /* 16px - px-4 */
+  }
+}
+
+/* تطبيق على العناصر المحددة */
+.article-title-section,
+.article-featured-image-section,
+.article-content-section {
+  max-width: 56rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  box-sizing: border-box;
+}
+
+@media (min-width: 1024px) {
+  .article-title-section,
+  .article-featured-image-section,
+  .article-content-section {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+@media (max-width: 639px) {
+  .article-title-section,
+  .article-featured-image-section,
+  .article-content-section {
+    max-width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* ضمان عدم تجاوز العرض في أي حالة */
+.article-title-section *,
+.article-featured-image-section *,
+.article-content-section * {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* تحسين المحاذاة للنص العربي */
+.article-title-section {
+  text-align: right;
+  direction: rtl;
+}
+
+.article-meta-section {
+  text-align: left;
+  direction: ltr;
+}
+
+/* التأكد من تطابق aspect ratio للصور */
+.article-featured-image-section img,
+.article-featured-image-section .aspect-ratio-container {
+  width: 100%;
+  height: auto;
+  border-radius: 0.75rem; /* rounded-xl */
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); /* shadow-2xl */
+}
+
+/* نظام responsive محسن للصور */
+@media (max-width: 639px) {
+  .article-featured-image-section img {
+    border-radius: 0.5rem; /* rounded-lg for mobile */
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); /* lighter shadow for mobile */
+  }
+}
+
+/* ضمان التناسق في المسافات */
+.article-section-spacing {
+  margin-bottom: 1.5rem; /* mb-6 */
+}
+
+@media (min-width: 640px) {
+  .article-section-spacing {
+    margin-bottom: 2rem; /* sm:mb-8 */
+  }
+}
+
+/* إزالة أي تعارضات محتملة */
+.article-width-override {
+  max-width: 56rem !important;
+  margin: 0 auto !important;
+}
+
+/* Dark mode compatibility - قواعد محددة للوضع الداكن */
+.dark .article-width-container {
+  color: #f9fafb; /* text-gray-50 */
+}

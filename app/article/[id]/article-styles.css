@@ -1,3 +1,26 @@
+/* محاذاة العرض الموحد للعنوان والصورة والمحتوى */
+.article-unified-width {
+  max-width: 56rem !important; /* max-w-4xl */
+  margin: 0 auto !important;
+  padding-left: 1.5rem !important; /* px-6 */
+  padding-right: 1.5rem !important; /* px-6 */
+}
+
+@media (min-width: 1024px) {
+  .article-unified-width {
+    padding-left: 2rem !important; /* lg:px-8 */
+    padding-right: 2rem !important; /* lg:px-8 */
+  }
+}
+
+@media (max-width: 639px) {
+  .article-unified-width {
+    max-width: 100% !important;
+    padding-left: 1rem !important; /* px-4 */
+    padding-right: 1rem !important; /* px-4 */
+  }
+}
+
 /* 📰 أنماط صفحة المقال */
 .article-page {
   font-family: var(

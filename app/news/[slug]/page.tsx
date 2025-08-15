@@ -58,13 +58,6 @@ async function getCompleteArticle(slug: string) {
             interactions: true,
           },
         },
-        // جلب معلومات الصورة البارزة
-        media_assets: {
-          select: {
-            id: true,
-            metadata: true,
-          },
-        },
       },
     });
 
@@ -97,8 +90,8 @@ async function getCompleteArticle(slug: string) {
       content: article.content || "",
 
       // معلومات الصورة البارزة
-      featured_image_caption: (article.media_assets?.[0]?.metadata as any)?.altText || null,
-      featured_image_metadata: article.media_assets?.[0]?.metadata || null,
+      featured_image_caption: null,
+      featured_image_metadata: null,
 
       // معلومات SEO
       seo: {
