@@ -570,10 +570,13 @@ export default function EditArticlePage() {
       if (formData.publishType === 'scheduled' && formData.scheduledDate) {
         articleData.scheduled_for = formData.scheduledDate;
       }
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 20000);
       const response = await fetch(`/api/articles/${articleId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(articleData),
+        signal: controller.signal,
       });
       const result = await response.json();
       if (response.ok) {
@@ -603,9 +606,14 @@ export default function EditArticlePage() {
         toast.error(result.error || 'فشل تحديث المقال', { id: 'save' });
       }
     } catch (error) {
-      console.error('❌ خطأ في تحديث المقال:', error);
-      toast.error('حدث خطأ في الاتصال', { id: 'save' });
+      if ((error as any)?.name === 'AbortError') {
+        toast.error('انتهت مهلة التحديث، تحقق من الاتصال ثم حاول مرة أخرى', { id: 'save' });
+      } else {
+        console.error('❌ خطأ في تحديث المقال:', error);
+        toast.error('حدث خطأ في الاتصال', { id: 'save' });
+      }
     } finally {
+      try { clearTimeout(timeoutId as any); } catch {}
       setSaving(false);
     }
   };

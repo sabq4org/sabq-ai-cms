@@ -201,14 +201,18 @@ export default function CreateArticlePage() {
         articleData.publish_at = formData.scheduledDate;
       }
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 20000);
       const response = await fetch('/api/articles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(articleData),
+        signal: controller.signal,
       });
 
       // إلغاء رسالة التحميل
       toast.dismiss(loadingToast);
+      try { clearTimeout(timeoutId); } catch {}
 
       const result = await response.json();
       console.log('✅ نتيجة الإنشاء:', result);
@@ -273,9 +277,11 @@ export default function CreateArticlePage() {
     } catch (error: any) {
       // إلغاء رسالة التحميل في حالة الخطأ
       toast.dismiss(loadingToast);
-      
+      if (error?.name === 'AbortError') {
+        toast.error('انتهت مهلة النشر، تحقق من الاتصال وحاول مرة أخرى');
+        return;
+      }
       console.error('Error saving article:', error);
-      
       // رسالة خطأ محسنة مع تفاصيل
       toast.error(
         `حدث خطأ في حفظ المقال: ${error.message || 'خطأ غير معروف'}`,

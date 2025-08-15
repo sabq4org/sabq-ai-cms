@@ -236,11 +236,14 @@ export default function NewsManagementPageEnhanced() {
   // دوال المساعدة للأزرار
   const handleDelete = async (id: string) => {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 20000);
       const response = await fetch(`/api/articles/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ status: "deleted" }),
+        signal: controller.signal,
       });
 
       if (!response.ok) {
@@ -259,9 +262,13 @@ export default function NewsManagementPageEnhanced() {
       } else {
         throw new Error(result.error || "فشل في حذف المقال");
       }
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "فشل في حذف المقال");
-      console.error("خطأ في حذف المقال:", e);
+    } catch (e: any) {
+      if (e?.name === 'AbortError') {
+        toast.error('انتهت مهلة حذف المقال، حاول مجددًا');
+      } else {
+        toast.error(e instanceof Error ? e.message : "فشل في حذف المقال");
+        console.error("خطأ في حذف المقال:", e);
+      }
     }
   };
 
@@ -317,11 +324,14 @@ export default function NewsManagementPageEnhanced() {
 
   const handleStatusUpdate = async (id: string, status: NewsStatus) => {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 20000);
       const response = await fetch(`/api/articles/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ status }),
+        signal: controller.signal,
       });
 
       if (!response.ok) {
@@ -347,19 +357,26 @@ export default function NewsManagementPageEnhanced() {
       } else {
         throw new Error(result.error || "فشل في تحديث الحالة");
       }
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "فشل في تحديث الحالة");
-      console.error("خطأ في تحديث الحالة:", e);
+    } catch (e: any) {
+      if (e?.name === 'AbortError') {
+        toast.error('انتهت مهلة تحديث الحالة، حاول مجددًا');
+      } else {
+        toast.error(e instanceof Error ? e.message : "فشل في تحديث الحالة");
+        console.error("خطأ في تحديث الحالة:", e);
+      }
     }
   };
 
   const handleRestore = async (id: string) => {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 20000);
       const response = await fetch(`/api/articles/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ status: "draft", is_deleted: false }),
+        signal: controller.signal,
       });
 
       if (!response.ok) {
@@ -378,9 +395,13 @@ export default function NewsManagementPageEnhanced() {
       } else {
         throw new Error(result.error || "فشل استعادة المقال");
       }
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "فشل استعادة المقال");
-      console.error("خطأ في استعادة المقال:", e);
+    } catch (e: any) {
+      if (e?.name === 'AbortError') {
+        toast.error('انتهت مهلة الاستعادة، حاول مجددًا');
+      } else {
+        toast.error(e instanceof Error ? e.message : "فشل استعادة المقال");
+        console.error("خطأ في استعادة المقال:", e);
+      }
     }
   };
 
