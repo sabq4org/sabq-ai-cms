@@ -74,6 +74,10 @@ export function MediaPickerModal({
   const [uploadedFiles, setUploadedFiles] = useState<{ file: File; altText: string }[]>([]);
   const [showAltTextModal, setShowAltTextModal] = useState(false);
   const contentRef = useRef<HTMLDivElement | null>(null);
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(24);
+  const [totalPages, setTotalPages] = useState(1);
 
   // Fetch data
   const fetchData = useCallback(async () => {
@@ -94,6 +98,8 @@ export function MediaPickerModal({
       if (searchQuery) {
         params.set("search", searchQuery);
       }
+      params.set("page", String(page));
+      params.set("limit", String(limit));
 
       const assetsRes = await fetch(`/api/admin/media/assets?${params}`, { credentials: 'include' });
       if (!assetsRes.ok) throw new Error("Failed to fetch assets");
@@ -108,12 +114,13 @@ export function MediaPickerModal({
       }
       
       setAssets(filteredAssets);
+      setTotalPages(assetsData.pagination?.totalPages || 1);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
-  }, [currentFolder, searchQuery, acceptedTypes]);
+  }, [currentFolder, searchQuery, acceptedTypes, page, limit]);
 
   useEffect(() => {
     if (!open) return;
@@ -128,7 +135,7 @@ export function MediaPickerModal({
       fetchData();
     }, 300);
     return () => clearTimeout(t);
-  }, [searchQuery, currentFolder]);
+  }, [searchQuery, currentFolder, page, limit]);
 
   // Convert file to base64
   const fileToBase64 = (file: File): Promise<string> => {
@@ -288,14 +295,26 @@ export function MediaPickerModal({
           <TabsContent value="browse" className="flex-1 flex flex-col m-0">
             {/* Search Bar */}
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50">
-              <div className="relative">
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <Input
-                  placeholder="بحث في الملفات..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pr-10 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-400"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center">
+                <div className="relative md:col-span-2">
+                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Input
+                    placeholder="بحث دقيق بالاسم أو الوصف..."
+                    value={searchQuery}
+                    onChange={(e) => { setPage(1); setSearchQuery(e.target.value); }}
+                    className="pr-10 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-400"
+                  />
+                </div>
+                <div className="flex items-center justify-end gap-2">
+                  <Label className="text-sm text-gray-600 dark:text-gray-400">عدد لكل صفحة</Label>
+                  <select className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md px-2 py-1 text-sm"
+                          value={limit}
+                          onChange={(e) => { setPage(1); setLimit(parseInt(e.target.value || '24')); }}>
+                    <option value={12}>12</option>
+                    <option value={24}>24</option>
+                    <option value={48}>48</option>
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -439,6 +458,14 @@ export function MediaPickerModal({
                             </motion.div>
                           );
                         })}
+                      </div>
+                      {/* Pagination */}
+                      <div className="flex items-center justify-between mt-4">
+                        <div className="text-sm text-gray-500">صفحة {page} من {totalPages}</div>
+                        <div className="flex items-center gap-2">
+                          <Button variant="outline" size="sm" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1}>السابق</Button>
+                          <Button variant="outline" size="sm" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages}>التالي</Button>
+                        </div>
                       </div>
                     </div>
                   ) : (
