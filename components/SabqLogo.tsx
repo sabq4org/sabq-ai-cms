@@ -11,7 +11,7 @@ interface SabqLogoProps {
 }
 
 export default function SabqLogo({
-  className = "",
+  className,
   width = 120,
   height = 40,
   isWhite = false,
@@ -40,17 +40,6 @@ export default function SabqLogo({
 
   // استخدام الشعار من الإعدادات أو الافتراضي
   const src = imageError ? "/logo.png" : (isDarkMode && logoDarkUrl ? logoDarkUrl : logoUrl) || "/logo.png";
-  
-  // DEBUG: لنرى ما يحدث
-  useEffect(() => {
-    console.log("SabqLogo Debug:", {
-      isDarkMode,
-      logoUrl,
-      logoDarkUrl,
-      selectedSrc: src,
-      isWhite
-    });
-  }, [isDarkMode, logoUrl, logoDarkUrl, src, isWhite]);
 
   // شعار نصي احتياطي
   if (imageError) {
@@ -73,14 +62,15 @@ export default function SabqLogo({
   }
 
   return (
-    <div className={`relative ${className}`} style={{ width, height }}>
+    <div className={`relative ${className || ""}`} style={className ? {} : { width, height }}>
       <Image
         src={src}
-        alt="سبق"
+        alt="شعار صحيفة سبق"
         width={width}
         height={height}
-        className={`object-contain ${isWhite ? "brightness-0 invert" : ""}`}
-        priority
+        className={`${className || "object-contain"} ${isWhite ? "brightness-0 invert" : ""} ${isDarkMode && !logoDarkUrl && !isWhite ? "dark:invert dark:brightness-0" : ""}`}
+        priority={false}
+        loading="lazy"
         onError={() => setImageError(true)}
       />
     </div>
