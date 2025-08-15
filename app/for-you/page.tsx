@@ -86,31 +86,13 @@ export default function ForYouPage() {
   const fetchPersonalizedContent = async () => {
     try {
       setLoading(true);
-      let url = `/api/content/personalized?user_id=${userId}&limit=20`;
-      // إضافة فلتر التصنيف
-      if (selectedCategory) {
-        url += `&category_id=${selectedCategory}`;
-      }
-      // إضافة طريقة الترتيب
-      if (sortBy === "newest") {
-        url += "&sort=published_at&order=desc";
-      } else if (sortBy === "popular") {
-        url += "&sort=views_count&order=desc";
-      } else {
-        url += "&sort=relevance&order=desc";
-      }
-      const response = await fetch(url);
-      if (response.ok) {
-        const result = await response.json();
-        if (result.success && result.data) {
-          setArticles(result.data.articles || []);
-        } else {
-          setArticles([]);
-        }
-      } else {
-        console.error("Failed to fetch personalized content");
-        setArticles([]);
-      }
+      const response = await fetch(`/api/feed/personalized?limit=20&offset=0`, { cache: 'no-store' });
+      if (!response.ok) throw new Error('failed');
+      const result = await response.json();
+      const items: { articleId: string }[] = result.items || [];
+      // مبدئياً: جلب بيانات المقالات عبر API عام إن لزم (يمكن لاحقاً ضمّ بيانات المقال كاملة من الخلاصة)
+      // هنا سنحوّل العناصر إلى شكل الواجهة المتوقّع بصورة مبسطة
+      setArticles(items.map((it: any) => ({ id: it.articleId, title: `مقال #${it.articleId}`, summary: '', category_id: 0, published_at: new Date().toISOString() })) as any);
     } catch (error) {
       console.error("Error fetching personalized content:", error);
       setArticles([]);
