@@ -93,7 +93,8 @@ export default function ReadersManagementPage() {
   const fetchReaders = async () => {
     try {
       const response = await fetch(
-        `/api/users/readers?page=${currentPage}&limit=${ITEMS_PER_PAGE}&search=${searchTerm}&status=${statusFilter}&verified=${verifiedFilter}&subscription=${subscriptionFilter}`
+        `/api/users/readers?page=${currentPage}&limit=${ITEMS_PER_PAGE}&search=${encodeURIComponent(searchTerm)}&status=${statusFilter || 'all'}&verified=${verifiedFilter || 'all'}&subscription=${subscriptionFilter || 'all'}`,
+        { cache: 'no-store' }
       );
 
       if (!response.ok) throw new Error("فشل في جلب البيانات");

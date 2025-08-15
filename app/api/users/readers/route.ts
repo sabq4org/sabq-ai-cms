@@ -27,6 +27,9 @@ export async function GET(request: NextRequest) {
     // فلتر الحالة
     if (status !== 'all') {
       where.status = status;
+    } else {
+      // بشكل افتراضي لا نعرض الحسابات غير النشطة (المحذوفة من لوحة التحكم)
+      where.status = { not: 'inactive' };
     }
     
     // فلتر التوثيق

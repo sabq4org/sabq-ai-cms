@@ -25,6 +25,13 @@ export async function GET(request: NextRequest) {
       ];
     }
 
+    // إخفاء الحسابات غير النشطة افتراضياً
+    if (!status) {
+      where.status = { not: 'inactive' };
+    } else if (status && status !== 'all') {
+      where.status = status;
+    }
+
     // جلب المستخدمين مع الإحصائيات
     const users = await prisma.users.findMany({
       where,
