@@ -86,8 +86,8 @@ export default function FeaturedMobileCard({ article, className = '' }: Featured
             </div>
           )}
 
-          {/* العنوان */}
-          <div className="absolute bottom-3 left-4 right-4 z-10">
+          {/* العنوان للموبايل فقط */}
+          <div className="md:hidden absolute bottom-3 left-4 right-4 z-10">
             <h3 className="text-white text-sm sm:text-base lg:text-lg font-bold leading-snug drop-shadow-md line-clamp-2">
               {article.title}
             </h3>

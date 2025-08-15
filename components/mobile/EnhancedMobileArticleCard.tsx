@@ -250,8 +250,8 @@ export default function EnhancedMobileArticleCard({
               </div>
             )}
 
-            {/* المحتوى النصي المحسن فوق الظلال */}
-            <div className="absolute bottom-0 left-0 right-0 p-5 text-white z-10">
+            {/* المحتوى النصي المحسن فوق الظلال - للموبايل فقط */}
+            <div className="md:hidden absolute bottom-0 left-0 right-0 p-5 text-white z-10">
               {/* التصنيف مع تصميم محسن */}
               {article.category && (
                 <div className="mb-3">
