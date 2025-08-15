@@ -3,10 +3,8 @@ import { Transporter } from 'nodemailer';
 import { emailConfig } from '@/config/email.config';
 import { getCorrectEmailConfig } from './email-config-fix';
 
-// فحص إذا كنا في بيئة بناء Vercel
-const isVercelBuild = process.env.VERCEL === '1' || 
-                     process.env.VERCEL_ENV !== undefined ||
-                     process.env.DISABLE_EMAIL === 'true';
+// التحكم في تعطيل البريد عبر متغير بيئة صريح فقط
+const disableEmail = process.env.DISABLE_EMAIL === 'true';
 
 // إنشاء transporter للبريد الإلكتروني
 let transporter: Transporter | null = null;
@@ -14,7 +12,7 @@ let transporter: Transporter | null = null;
 // تهيئة البريد الإلكتروني - lazy initialization
 export function initializeEmail() {
   // تخطي التهيئة أثناء البناء أو إذا كان مطلوباً
-  if (isVercelBuild ||
+  if (disableEmail ||
       process.env.SKIP_EMAIL_VERIFICATION === 'true' || 
       process.env.NODE_ENV === 'test' ||
       process.env.BUILDING === 'true') {
@@ -202,9 +200,9 @@ const emailTemplates = {
 
 // إرسال بريد التحقق
 export async function sendVerificationEmail(to: string, name: string, code: string) {
-  // تخطي الإرسال أثناء البناء
-  if (isVercelBuild) {
-    console.log('🏗️  Skipping email send during build');
+  // تخطي الإرسال إذا تم تعطيله صراحة
+  if (disableEmail) {
+    console.log('🚫 Email sending disabled by env (DISABLE_EMAIL=true)');
     return true;
   }
   

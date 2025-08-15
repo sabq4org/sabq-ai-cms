@@ -38,7 +38,7 @@ export function getCorrectEmailConfig() {
     secure,
     auth: {
       user: process.env.SMTP_USER || 'ai@sabq.org',
-      pass: process.env.SMTP_PASS || 'MyY&RXSne=Wb2gM>'
+      pass: process.env.SMTP_PASS || ''
     },
     tls: {
       rejectUnauthorized: process.env.NODE_ENV === 'production' ? true : false,
