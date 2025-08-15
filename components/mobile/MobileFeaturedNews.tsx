@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -20,6 +20,7 @@ export default function MobileFeaturedNews({ items, withSwipe = true }: MobileFe
   const sanitized = useMemo(() => Array.isArray(items) ? items.filter(Boolean) : [], [items]);
   const [active, setActive] = useState(0);
   const trackRef = useRef<HTMLDivElement | null>(null);
+  const timerRef = useRef<number | null>(null);
 
   if (!sanitized.length) return null;
 
@@ -29,6 +30,45 @@ export default function MobileFeaturedNews({ items, withSwipe = true }: MobileFe
     const cardWidth = el.firstElementChild ? (el.firstElementChild as HTMLElement).clientWidth : 1;
     const idx = Math.round(el.scrollLeft / cardWidth);
     setActive(Math.max(0, Math.min(idx, sanitized.length - 1)));
+  };
+
+  // تشغيل تلقائي كل 3 ثواني مع الحفاظ على السحب اليدوي
+  useEffect(() => {
+    if (!withSwipe || sanitized.length <= 1) return;
+    const el = trackRef.current;
+    if (!el) return;
+
+    const tick = () => {
+      if (!trackRef.current) return;
+      const container = trackRef.current;
+      const slide = container.firstElementChild as HTMLElement | null;
+      if (!slide) return;
+      const width = slide.clientWidth;
+      const nextIndex = (active + 1) % sanitized.length;
+      container.scrollTo({ left: nextIndex * width, behavior: "smooth" });
+      setActive(nextIndex);
+    };
+
+    timerRef.current = window.setInterval(tick, 3000);
+    return () => {
+      if (timerRef.current) window.clearInterval(timerRef.current);
+      timerRef.current = null;
+    };
+  }, [active, withSwipe, sanitized.length]);
+
+  const formatGregorian = (iso?: string) => {
+    if (!iso) return "";
+    const d = new Date(iso);
+    try {
+      return new Intl.DateTimeFormat("ar-SA", {
+        calendar: "gregory",
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }).format(d);
+    } catch {
+      return d.toLocaleDateString("en-GB");
+    }
   };
 
   return (
@@ -59,7 +99,7 @@ export default function MobileFeaturedNews({ items, withSwipe = true }: MobileFe
                   src={item.imageUrl}
                   alt={item.title}
                   fill
-                  className="object-cover"
+                  className="object-cover object-[75%_50%]"
                   priority={i === 0}
                   loading={i === 0 ? "eager" : "lazy"}
                   decoding="async"
@@ -69,21 +109,23 @@ export default function MobileFeaturedNews({ items, withSwipe = true }: MobileFe
 
                 {/* طبقة النص السفلي */}
                 <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
-                  <h3 className="text-white text-base sm:text-lg font-semibold leading-snug line-clamp-2">
-                    {item.title}
-                  </h3>
-                  <div className="mt-1 flex items-center gap-2 text-[10px] sm:text-[11px] text-white/90">
+                  {/* التصنيف + التاريخ (فوق العنوان) */}
+                  <div className="flex items-center gap-2 text-[10px] sm:text-[11px] text-white/90 mb-1">
                     {item.category && (
                       <span className="inline-flex items-center px-2 py-[2px] rounded-full bg-white/15 backdrop-blur-sm border border-white/20">
                         {item.category}
                       </span>
                     )}
                     {item.publishedAt && (
-                      <time dateTime={item.publishedAt} className="opacity-90">
-                        {new Date(item.publishedAt).toLocaleDateString("ar-SA")}
+                      <time dateTime={item.publishedAt} aria-label="تاريخ النشر" className="opacity-90">
+                        {formatGregorian(item.publishedAt)}
                       </time>
                     )}
                   </div>
+                  {/* العنوان */}
+                  <h3 className="text-white text-base sm:text-lg font-semibold leading-snug line-clamp-2">
+                    {item.title}
+                  </h3>
                 </div>
               </div>
             </article>
