@@ -920,35 +920,7 @@ export default function ArticleClientComponent({
               />
             </div>
 
-            {/* إصلاح التوجه العربي للمحتوى */}
-            <style jsx>{`
-              .arabic-article-content p {
-                text-align: right !important;
-                direction: rtl !important;
-              }
-
-              .arabic-article-content * {
-                text-align: right !important;
-                direction: rtl !important;
-              }
-
-              .arabic-article-content h1,
-              .arabic-article-content h2,
-              .arabic-article-content h3,
-              .arabic-article-content h4,
-              .arabic-article-content h5,
-              .arabic-article-content h6 {
-                text-align: right !important;
-                direction: rtl !important;
-              }
-
-              .arabic-article-content blockquote {
-                text-align: right !important;
-                direction: rtl !important;
-                border-right: 4px solid #3b82f6 !important;
-                border-left: none !important;
-              }
-            `}</style>
+            {/* تم نقل أنماط RTL إلى ملفات CSS العامة لضمان الاستقرار أثناء البناء */}
           </div>
           
           <div className="mt-6 sm:mt-8">
