@@ -631,7 +631,7 @@ export default function ArticleClientComponent({
               </div>
 
               {/* Mobile Header */}
-              <div className="sm:hidden px-4 py-6 bg-white dark:bg-gray-900 transition-colors duration-300">
+              <div className="sm:hidden px-4 py-6 bg-transparent transition-colors duration-300">
                 {/* العنوان الرئيسي */}
                 <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-white mb-2">{/* تصغير العنوان للموبايل تكة واحدة */}
                   {article.title}
@@ -727,7 +727,7 @@ export default function ArticleClientComponent({
               </div>
             )}
           <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-3 sm:px-6 lg:px-8 py-2">
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-6 lg:p-8">
+            <div className="bg-transparent dark:bg-transparent rounded-xl p-3 sm:p-6 lg:p-8">
               <div className="sm:hidden mb-6">
                 {article.featured_image &&
                   typeof article.featured_image === "string" &&

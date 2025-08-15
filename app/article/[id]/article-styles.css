@@ -132,6 +132,8 @@ hr.article-separator {
 .article-content header .max-w-screen-lg > .py-4 { background: transparent !important; }
 .article-content header .bg-transparent { background: transparent !important; }
 .article-content header [class*="bg-white"] { background-color: transparent !important; }
+.article-content .bg-white { background-color: transparent !important; }
+.article-content [class*="bg-gray-50"] { background-color: transparent !important; }
 
 .article-content p {
   margin-bottom: 1.5rem;
