@@ -934,7 +934,6 @@ export default function ArticleClientComponent({
             />
           </div>
         </div>
-      </div>
       </main>
 
       <Footer />
