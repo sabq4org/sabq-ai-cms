@@ -26,17 +26,7 @@
     padding-right: 0;
   }
 
-  /* محاذاة رأس المقال مع نفس عرض الصورة وتوسيط رأسي/أفقي */
-  .article-header-wrapper {
-    max-width: 110ch;
-    margin-right: auto;
-    margin-left: auto;
-    padding-right: 1.5rem;
-    padding-left: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
+  /* أُلغي استخدام .article-header-wrapper لتجنب التعشيش المزدوج للحاويات */
 }
 
 /* للنسخة الخفيفة (Mobile) */

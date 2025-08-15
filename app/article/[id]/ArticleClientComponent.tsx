@@ -546,9 +546,9 @@ export default function ArticleClientComponent({
             {/* رأس المقال محسن للموبايل */}
             <header className="mb-1 sm:mb-2">
               {/* Desktop Header - محاذاة العرض تمامًا مع حاوية الصورة البارزة */}
-              <div className="hidden sm:block article-header-wrapper">
+              <div className="hidden sm:block">
                 <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-3 sm:px-6 lg:px-8">
-                  <div className="py-5 lg:py-6 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl border-0 flex flex-col justify-center">
+                  <div className="py-4 lg:py-6 flex flex-col justify-center">
                 {/* التصنيف - محاذاة لليمين مع تحسين الهامش */}
                 {article.category && (
                   <div className="flex justify-end mb-5">
