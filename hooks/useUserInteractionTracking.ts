@@ -110,8 +110,10 @@ export function useUserInteractionTracking(articleId: string) {
       const response = await fetch(`/api/interactions/user-status?articleId=${articleId}`);
       if (response.ok) {
         const data = await response.json();
-        setHasLiked(data.hasLiked);
-        setHasSaved(data.hasSaved);
+        const liked = data?.interactions?.liked ?? data?.liked ?? data?.hasLiked ?? false;
+        const saved = data?.interactions?.saved ?? data?.saved ?? data?.hasSaved ?? false;
+        setHasLiked(!!liked);
+        setHasSaved(!!saved);
       }
     } catch (error) {
       console.error('Error fetching user interactions:', error);
@@ -228,16 +230,17 @@ export function useUserInteractionTracking(articleId: string) {
     }
 
     try {
-      await fetch('/api/interactions', {
+      const res = await fetch('/api/interactions/like', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          targetId: articleId,
-          targetType: 'article',
-          type: 'like',
-          userId: user.id,
+          articleId,
+          like: newLikeStatus,
         }),
       });
+      if (!res.ok) {
+        setHasLiked(!newLikeStatus);
+      }
     } catch (error) {
       console.error('Error toggling like:', error);
       setHasLiked(!newLikeStatus); // العودة للحالة السابقة
@@ -256,16 +259,17 @@ export function useUserInteractionTracking(articleId: string) {
     }
 
     try {
-      await fetch('/api/interactions', {
+      const res = await fetch('/api/bookmarks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          targetId: articleId,
-          targetType: 'article',
-          type: 'save',
-          userId: user.id,
+          articleId,
+          saved: newSaveStatus,
         }),
       });
+      if (!res.ok) {
+        setHasSaved(!newSaveStatus);
+      }
     } catch (error) {
       console.error('Error toggling save:', error);
       setHasSaved(!newSaveStatus);
