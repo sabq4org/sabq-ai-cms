@@ -40,6 +40,7 @@ export async function generateArticleSummary(content: string, title: string): Pr
 ${content}
 
 اكتب ملخصاً في 2-3 جمل يوضح الفكرة الرئيسية والنقاط المهمة، بأسلوب صحفي احترافي.
+أعد الصياغة بصيغ متنوعة وتجنب تكرار نفس العبارات في كل محاولة.
 `;
 
     const response = await openai.chat.completions.create({
@@ -51,11 +52,11 @@ ${content}
         },
         {
           role: "user",
-          content: prompt
+          content: `${prompt}\n\nتعليمات إضافية: رقم محاولة التوليد: ${Math.floor(Math.random()*100000)}.`
         }
       ],
       max_tokens: 200,
-      temperature: 0.7,
+      temperature: 0.85,
     });
 
     return response.choices[0]?.message?.content?.trim() || "";
@@ -98,11 +99,11 @@ ${content}
         },
         {
           role: "user",
-          content: prompt
+          content: `${prompt}\n\nتعليمات إضافية: رقم محاولة التوليد: ${Math.floor(Math.random()*100000)}.`
         }
       ],
       max_tokens: 300,
-      temperature: 0.8,
+      temperature: 0.9,
     });
 
     const result = response.choices[0]?.message?.content?.trim();
@@ -162,11 +163,11 @@ ${content}
         },
         {
           role: "user",
-          content: prompt
+          content: `${prompt}\n\nتعليمات إضافية: أعد المحاولة بأسلوب مختلف، رقم المحاولة: ${Math.floor(Math.random()*100000)}.`
         }
       ],
       max_tokens: 150,
-      temperature: 0.5,
+      temperature: 0.75,
     });
 
     const result = response.choices[0]?.message?.content?.trim();
