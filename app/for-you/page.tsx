@@ -22,7 +22,7 @@ interface Article {
   title: string;
   summary: string;
   content?: string;
-  category_id: number;
+  category_id: any;
   category_name?: string;
   author_name?: string;
   featured_image?: string;
@@ -50,6 +50,7 @@ export default function ForYouPage() {
   const [darkMode, setDarkMode] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const [interestCategoryIds, setInterestCategoryIds] = useState<Set<string>>(new Set());
   useEffect(() => {
     // التحقق من الوضع المظلم
     const savedDarkMode = localStorage.getItem("darkMode");
@@ -68,6 +69,14 @@ export default function ForYouPage() {
     }
     // جلب التصنيفات
     fetchCategories();
+    // جلب اهتمامات المستخدم لتمييز العناصر
+    fetch('/api/user/preferences', { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(data => {
+        const ids = new Set<string>((data.interests || []).map((i: any) => String(i.category_id)).filter(Boolean));
+        setInterestCategoryIds(ids);
+      })
+      .catch(() => {});
   }, []);
   useEffect(() => {
     if (isLoggedIn && userId) {
@@ -89,10 +98,23 @@ export default function ForYouPage() {
       const response = await fetch(`/api/feed/personalized?limit=20&offset=0`, { cache: 'no-store' });
       if (!response.ok) throw new Error('failed');
       const result = await response.json();
-      const items: { articleId: string }[] = result.items || [];
-      // مبدئياً: جلب بيانات المقالات عبر API عام إن لزم (يمكن لاحقاً ضمّ بيانات المقال كاملة من الخلاصة)
-      // هنا سنحوّل العناصر إلى شكل الواجهة المتوقّع بصورة مبسطة
-      setArticles(items.map((it: any) => ({ id: it.articleId, title: `مقال #${it.articleId}`, summary: '', category_id: 0, published_at: new Date().toISOString() })) as any);
+      const items = (result.items || []) as any[];
+      setArticles(
+        items.map((a: any) => ({
+          id: a.id || a.articleId,
+          title: a.title || '',
+          summary: a.excerpt || a.summary || '',
+          featured_image: a.featured_image,
+          category_id: a.category_id,
+          published_at: a.published_at || new Date().toISOString(),
+          reading_time: a.reading_time || 5,
+          views_count: a.views || a.views_count || 0,
+          likes_count: a.likes || a.likes_count || 0,
+          shares_count: a.shares || a.shares_count || 0,
+          score: a.score,
+          is_personalized: true,
+        })) as any
+      );
     } catch (error) {
       console.error("Error fetching personalized content:", error);
       setArticles([]);
@@ -349,10 +371,10 @@ export default function ForYouPage() {
                       height={100}
                     />
                     {/* شارة التصنيف - أعلى اليسار */}
-                    <div className="absolute top-3 left-3">
+                    <div className="absolute top-3 left-3 space-y-1">
                       {(() => {
                         const categoryData = categories.find(
-                          (cat) => cat.id === article.category_id
+                          (cat) => String(cat.id) === String(article.category_id)
                         );
                         if (categoryData) {
                           return (
@@ -372,6 +394,11 @@ export default function ForYouPage() {
                           </span>
                         );
                       })()}
+                      {interestCategoryIds.has(String(article.category_id)) && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-green-600/90 text-white shadow-sm">
+                          ضمن اهتماماتك
+                        </span>
+                      )}
                     </div>
                     {/* نسبة المطابقة - أعلى اليمين (إذا كانت عالية) */}
                     {article.confidence && article.confidence > 70 && (

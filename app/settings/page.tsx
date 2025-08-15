@@ -5,8 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import { Bell, Shield, Moon, Sun, Globe, Save, ArrowLeft
-} from 'lucide-react';
+import { Bell, Shield, Moon, Sun, Globe, Save, ArrowLeft, Brain, Trash2 } from 'lucide-react';
 interface UserSettings {
   notifications: {
     email: boolean;
@@ -24,6 +23,7 @@ export default function SettingsPage() {
   const router = useRouter();
   const { darkMode, toggleDarkMode } = useDarkModeContext();
   const [loading, setLoading] = useState(false);
+  const [personalizationEnabled, setPersonalizationEnabled] = useState<boolean>(true);
   const [settings, setSettings] = useState<UserSettings>({
     notifications: {
       email: true,
@@ -43,12 +43,19 @@ export default function SettingsPage() {
     if (savedSettings) {
       setSettings(JSON.parse(savedSettings));
     }
+    // جلب موافقة التخصيص من الخادم
+    fetch('/api/user/consent', { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(data => setPersonalizationEnabled(!!data.enabled))
+      .catch(() => {});
   }, []);
   const handleSave = async () => {
     setLoading(true);
     try {
       // حفظ الإعدادات في localStorage
       localStorage.setItem('userSettings', JSON.stringify(settings));
+      // حفظ موافقة التخصيص
+      await fetch('/api/user/consent', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ enabled: personalizationEnabled }) });
       // تطبيق تغيير الثيم
       if (settings.theme === 'dark' && !darkMode) {
         toggleDarkMode();
@@ -58,6 +65,21 @@ export default function SettingsPage() {
       toast.success('تم حفظ الإعدادات بنجاح');
     } catch (error) {
       toast.error('حدث خطأ في حفظ الإعدادات');
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleWipePersonalization = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch('/api/user/personalization/wipe', { method: 'POST' });
+      if (res.ok) {
+        toast.success('تم مسح الاهتمامات والتفاعلات الخاصة بك');
+      } else {
+        toast.error('تعذّر المسح');
+      }
+    } catch {
+      toast.error('تعذّر المسح');
     } finally {
       setLoading(false);
     }
@@ -184,6 +206,28 @@ export default function SettingsPage() {
               </div>
               <div className="p-6">
                 <div className="space-y-4">
+                  {/* تخصيص المحتوى */}
+                  <label className="flex items-center justify-between cursor-pointer">
+                    <div className="flex items-center gap-3">
+                      <Brain className="w-5 h-5 text-purple-500" />
+                      <div>
+                        <p className="font-medium text-gray-900 dark:text-white">تخصيص الخلاصة</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">استخدم تفاعلاتي لعرض محتوى مخصّص لي</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setPersonalizationEnabled(v => !v)}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                        personalizationEnabled ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          personalizationEnabled ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
+                  </label>
                   <label className="flex items-center justify-between cursor-pointer">
                     <div>
                       <p className="font-medium text-gray-900 dark:text-white">عرض الملف الشخصي</p>
@@ -227,6 +271,12 @@ export default function SettingsPage() {
                     </button>
                   </label>
                 </div>
+              </div>
+              <div className="p-6 border-t border-gray-200 dark:border-gray-700">
+                <button onClick={handleWipePersonalization} disabled={loading} className="inline-flex items-center gap-2 px-4 py-2 text-sm rounded-lg bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-300">
+                  <Trash2 className="w-4 h-4" />
+                  مسح تفضيلاتي وتفاعلاتي
+                </button>
               </div>
             </div>
             {/* إعدادات اللغة */}
