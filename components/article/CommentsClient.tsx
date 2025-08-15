@@ -279,7 +279,30 @@ export default function CommentsClient({ articleId }: CommentsClientProps) {
                       </div>
                     )}
                     <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
-                      <button className="inline-flex items-center gap-1 hover:text-slate-900">
+                      <button
+                        className="inline-flex items-center gap-1 hover:text-slate-900"
+                        onClick={async () => {
+                          try {
+                            const res = await fetch('/api/comments/like', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              credentials: 'include',
+                              body: JSON.stringify({ commentId: c.id, userId: isLoggedIn ? 'current' : 'anonymous' })
+                            });
+                            const data = await res.json();
+                            if (!res.ok || data.success === false) {
+                              throw new Error(data?.error || 'فشل في تسجيل الإعجاب');
+                            }
+                            // تحديث محلي بسيط: لا نعرض العدّاد الآن، فقط توست
+                            try {
+                              const toast = (await import('react-hot-toast')).default;
+                              toast.success(data.isLiked ? 'تم تسجيل الإعجاب' : 'تم إلغاء الإعجاب');
+                            } catch {}
+                          } catch (e: any) {
+                            setError(e.message || 'فشل في تسجيل الإعجاب');
+                          }
+                        }}
+                      >
                         <ThumbsUp className="w-3.5 h-3.5" /> إعجاب
                       </button>
                       <button
