@@ -146,7 +146,7 @@ const EditArticlePage = () => {
 
   const fetchAuthors = async () => {
     try {
-      const response = await fetch('/api/admin/article-authors?active_only=true');
+      const response = await fetch('/api/admin/article-authors?active_only=true', { credentials: 'include' });
       const data = await response.json();
       
       if (data.success) {

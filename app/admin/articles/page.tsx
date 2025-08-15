@@ -180,7 +180,7 @@ const ArticlesAdminPage = () => {
 
   const loadAuthors = async () => {
     try {
-      const response = await fetch("/api/admin/article-authors");
+      const response = await fetch("/api/admin/article-authors", { credentials: 'include' });
       if (response.ok) {
         const data = await response.json();
         setAuthors(data.authors || []);

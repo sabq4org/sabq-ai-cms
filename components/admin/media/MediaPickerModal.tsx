@@ -81,7 +81,7 @@ export function MediaPickerModal({
       setLoading(true);
       
       // Fetch folders
-      const foldersRes = await fetch("/api/admin/media/folders");
+      const foldersRes = await fetch("/api/admin/media/folders", { credentials: 'include' });
       if (!foldersRes.ok) throw new Error("Failed to fetch folders");
       const foldersData = await foldersRes.json();
       setFolders(foldersData.hierarchy);
@@ -95,7 +95,7 @@ export function MediaPickerModal({
         params.set("search", searchQuery);
       }
 
-      const assetsRes = await fetch(`/api/admin/media/assets?${params}`);
+      const assetsRes = await fetch(`/api/admin/media/assets?${params}`, { credentials: 'include' });
       if (!assetsRes.ok) throw new Error("Failed to fetch assets");
       const assetsData = await assetsRes.json();
       

@@ -111,8 +111,8 @@ export default function SmartMediaPicker({
       setLoading(true);
       
       const [foldersResponse, assetsResponse] = await Promise.all([
-        fetch("/api/admin/media/folders"),
-        fetch("/api/admin/media/assets?type=IMAGE")
+        fetch("/api/admin/media/folders", { credentials: 'include' }),
+        fetch("/api/admin/media/assets?type=IMAGE", { credentials: 'include' })
       ]);
 
       if (foldersResponse.ok && assetsResponse.ok) {

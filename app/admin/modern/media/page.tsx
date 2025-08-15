@@ -95,8 +95,8 @@ export default function MediaLibraryPage() {
       
       // Fetch folders and assets in parallel
       const [foldersResponse, assetsResponse] = await Promise.all([
-        fetch("/api/admin/media/folders"),
-        fetch("/api/admin/media/assets")
+        fetch("/api/admin/media/folders", { credentials: 'include' }),
+        fetch("/api/admin/media/assets", { credentials: 'include' })
       ]);
 
       if (foldersResponse.ok && assetsResponse.ok) {

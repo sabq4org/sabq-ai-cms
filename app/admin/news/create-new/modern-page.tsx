@@ -181,7 +181,7 @@ export default function ModernCreateNewsPage() {
       console.log("🔄 بدء تحميل التصنيفات...");
       const startTime = Date.now();
       
-      const response = await fetch("/api/categories");
+      const response = await fetch("/api/categories", { cache: 'no-store' });
       const loadTime = Date.now() - startTime;
       console.log(`📂 تم جلب التصنيفات في ${loadTime}ms`);
 
@@ -215,7 +215,7 @@ export default function ModernCreateNewsPage() {
       console.log("🔄 بدء تحميل المراسلين...");
       const startTime = Date.now();
       
-      const response = await fetch("/api/admin/article-authors?active_only=true");
+      const response = await fetch("/api/admin/article-authors?active_only=true", { credentials: 'include' });
       const loadTime = Date.now() - startTime;
       console.log(`👥 تم جلب المراسلين في ${loadTime}ms`);
 
