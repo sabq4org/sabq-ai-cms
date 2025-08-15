@@ -157,6 +157,16 @@ hr.article-separator {
   border-radius: 8px;
 }
 
+/* استهداف مباشر لمسار العنصر كما في DevTools لضبط الشفافية بدقة */
+body > div.page-content-wrapper > main > div.relative > article.article-content {
+  background: transparent !important;
+}
+
+/* إزالة أي خلفية داخل هيدر المقال ضمن هذا المسار فقط */
+body > div.page-content-wrapper > main > div.relative > article.article-content header [class*="bg-"] {
+  background: transparent !important;
+}
+
 @media (max-width: 768px) {
   .article-container {
     padding: 1rem;
