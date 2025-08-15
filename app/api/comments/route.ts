@@ -363,8 +363,12 @@ export async function POST(request: NextRequest) {
     let processedContent = content;
     let requiresModeration = false;
 
-    // إذا كان المستخدم مشرف أو كاتب، وافق مباشرة بدون تحليل
-    if (user && ["admin", "moderator", "author"].includes(userRole)) {
+    // أولاً: إذا كان وضع المراجعة "human" فكل التعليقات تُحوّل للمراجعة حتى لو كان المعلّق مدير/مشرف
+    if (aiSettings.mode === "human") {
+      commentStatus = "pending";
+      requiresModeration = true;
+    } else if (user && ["admin", "moderator", "author"].includes(userRole)) {
+      // في الأوضاع الأخرى، المدير/المشرف يُنشر تعليقه مباشرة
       commentStatus = "approved";
     } else {
       // تحديد نوع التحليل المطلوب
