@@ -11,6 +11,7 @@ interface CommentItem {
   status: string;
   createdAt: string;
   user?: { name: string; avatar?: string | null } | null;
+  repliesCount?: number;
 }
 
 interface CommentsClientProps {
@@ -34,24 +35,24 @@ export default function CommentsClient({ articleId }: CommentsClientProps) {
       if (!append) setLoading(true);
       setError(null);
       const res = await fetch(
-        `/api/comments?article_id=${encodeURIComponent(
-          articleId
-        )}&page=${pageNum}&limit=10&sort=${sort}`,
+        `/api/comments/tree?articleId=${encodeURIComponent(articleId)}&limit=10` +
+          (pageNum > 1 ? `&cursor=${encodeURIComponent(comments[comments.length - 1]?.id || "")}` : ""),
         { cache: "no-store" }
       );
       const data = await res.json();
       if (!res.ok || data.success === false) {
         throw new Error(data?.error || "فشل في جلب التعليقات");
       }
-      const items: CommentItem[] = (data.comments || []).map((c: any) => ({
+      const items: CommentItem[] = (data.items || []).map((c: any) => ({
         id: c.id,
         content: c.content,
-        status: c.status,
-        createdAt: c.createdAt || c.created_at,
+        status: "approved",
+        createdAt: c.createdAt,
         user: c.user || null,
+        repliesCount: c.repliesCount || 0,
       }));
       setComments((prev) => (append ? [...prev, ...items] : items));
-      setHasMore(pageNum < (data.pagination?.totalPages || 1));
+      setHasMore(Boolean(data.nextCursor));
       // تحديث العداد بالعدد الإجمالي من الاستجابة حال توفره
       if (typeof data.pagination?.total === "number") {
         const evt = new CustomEvent("comments:count", {
@@ -233,6 +234,23 @@ export default function CommentsClient({ articleId }: CommentsClientProps) {
                       <button className="inline-flex items-center gap-1 hover:text-slate-900">
                         <ThumbsUp className="w-3.5 h-3.5" /> إعجاب
                       </button>
+                      {c.repliesCount ? (
+                        <button
+                          className="inline-flex items-center gap-1 text-blue-600 hover:underline"
+                          onClick={async () => {
+                            // تحميل الردود عند الطلب وعرضها في نافذة بسيطة مؤقتاً (يمكن تحسينها لاحقاً)
+                            try {
+                              const r = await fetch(`/api/comments/replies?parentId=${encodeURIComponent(c.id)}`, { cache: "no-store" });
+                              const j = await r.json();
+                              if (j?.success) {
+                                alert(j.items.map((x: any) => `• ${x.content}`).join("\n\n") || "لا توجد ردود");
+                              }
+                            } catch {}
+                          }}
+                        >
+                          {c.repliesCount} رد{c.repliesCount > 1 ? "ود" : ""}
+                        </button>
+                      ) : null}
                       <button className="inline-flex items-center gap-1 hover:text-red-600">
                         <Flag className="w-3.5 h-3.5" /> إبلاغ
                       </button>
