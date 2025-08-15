@@ -28,7 +28,11 @@ export async function POST(req: NextRequest) {
         prisma.UserInteractions.deleteMany({ where: { user_id: user.id, article_id: articleId, interaction_type: "like" } }),
         prisma.articles.update({ where: { id: articleId }, data: { likes: { decrement: 1 } } })
       ]);
+      // ضمان عدم السالب
+      await prisma.articles.updateMany({ where: { id: articleId, likes: { lt: 0 } as any }, data: { likes: 0 } });
     }
+
+    const updated = await prisma.articles.findUnique({ where: { id: articleId }, select: { likes: true, saves: true } });
 
     const redis = getRedisClient();
     if (redis) {
@@ -36,7 +40,7 @@ export async function POST(req: NextRequest) {
     }
 
     await prisma.$disconnect();
-    return NextResponse.json({ liked: !!like });
+    return NextResponse.json({ liked: !!like, likes: updated?.likes || 0, saves: updated?.saves || 0 });
   } catch (e: any) {
     if (String(e?.message || e).includes("Unauthorized")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

@@ -40,20 +40,45 @@ export function SmartInteractionButtons({
 
   // معالج الإعجاب
   const handleLike = async () => {
+    const prevLiked = hasLiked;
     await toggleLike();
-    setLocalStats(prev => ({
-      ...prev,
-      likes: hasLiked ? prev.likes - 1 : prev.likes + 1,
-    }));
+    try {
+      // جلب القيم المحدثة من الخادم
+      const res = await fetch('/api/interactions/like', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ articleId, like: !prevLiked }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        setLocalStats(prev => ({ ...prev, likes: json.likes ?? prev.likes }));
+      } else {
+        setLocalStats(prev => ({ ...prev, likes: prevLiked ? prev.likes - 1 : prev.likes + 1 }));
+      }
+    } catch {
+      setLocalStats(prev => ({ ...prev, likes: prevLiked ? prev.likes - 1 : prev.likes + 1 }));
+    }
   };
 
   // معالج الحفظ
   const handleSave = async () => {
+    const prevSaved = hasSaved;
     await toggleSave();
-    setLocalStats(prev => ({
-      ...prev,
-      saves: hasSaved ? prev.saves - 1 : prev.saves + 1,
-    }));
+    try {
+      const res = await fetch('/api/bookmarks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ articleId, saved: !prevSaved }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        setLocalStats(prev => ({ ...prev, saves: json.saves ?? prev.saves }));
+      } else {
+        setLocalStats(prev => ({ ...prev, saves: prevSaved ? prev.saves - 1 : prev.saves + 1 }));
+      }
+    } catch {
+      setLocalStats(prev => ({ ...prev, saves: prevSaved ? prev.saves - 1 : prev.saves + 1 }));
+    }
   };
 
   // معالج المشاركة
