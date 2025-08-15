@@ -61,6 +61,7 @@ import {
 import { MediaPickerButton } from "@/components/admin/media/MediaPickerButton";
 import { generateShortSlug } from "@/lib/slug";
 import { toast } from "@/components/ui/use-toast";
+import { Toaster } from "@/components/ui/toaster";
 
 // تحميل المحرر بشكل ديناميكي
 const Editor = dynamic(
@@ -493,6 +494,9 @@ export default function ModernCreateNewsPage() {
     }
 
     setSaving(true);
+    // تعطيل الأزرار أثناء الإرسال لمنع النقرات المزدوجة
+    const scheduleButton = document.querySelector<HTMLButtonElement>('button:has(.w-4.h-4 + span:contains("مجدول"))');
+    scheduleButton?.setAttribute('disabled', 'true');
 
     // عرض إشعار بداية العملية مع مؤثرات بصرية
     toast({
@@ -632,6 +636,7 @@ export default function ModernCreateNewsPage() {
       });
     } finally {
       setSaving(false);
+      scheduleButton?.removeAttribute('disabled');
     }
   };
 
