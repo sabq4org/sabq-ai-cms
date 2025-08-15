@@ -1,6 +1,6 @@
 /* محاذاة العرض الموحد للعنوان والصورة والمحتوى */
 .article-unified-width {
-  max-width: 56rem !important; /* max-w-4xl */
+  max-width: 50rem !important; /* اجعلها أضيق من الموجز قليلاً (يمكن ضبطها) */
   margin: 0 auto !important;
   padding-left: 1.5rem !important; /* px-6 */
   padding-right: 1.5rem !important; /* px-6 */

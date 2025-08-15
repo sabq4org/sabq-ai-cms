@@ -549,8 +549,8 @@ export default function ArticleClientComponent({
             <header className="mb-1 sm:mb-2">
               {/* Desktop Header - محاذاة العرض مع حاوية المحتوى */}
               <div className="hidden sm:block">
-                <div className="article-title-wrapper max-w-4xl mx-auto px-6 lg:px-8">
-                  <div className="py-4 lg:py-6 flex flex-col justify-center bg-gray-50 dark:bg-gray-900">
+                <div className="article-title-wrapper article-unified-width">
+                  <div className="px-3 sm:px-6 lg:px-8 py-4 lg:py-6 flex flex-col justify-center bg-gray-50 dark:bg-gray-900">
                 {/* التصنيف - محاذاة لليمين مع تحسين الهامش */}
                 {article.category && (
                   <div className="flex justify-end mb-5">
@@ -569,7 +569,7 @@ export default function ArticleClientComponent({
                 )}
 
                 {/* غلاف عنوان/عنوان فرعي مع توافق الوضع الداكن */}
-                <div className="article-title-wrapper article-unified-width text-right">
+                <div className="text-right">
                   {/* العنوان - تحسين المسافات والهوامش */}
                   <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-3 text-gray-900 dark:text-white leading-tight tracking-tight article-title-overlay bg-transparent">{/* زيادة حجم الخط للموبايل أكثر */}
                     {article.title}
@@ -584,7 +584,7 @@ export default function ArticleClientComponent({
                 </div>
 
                 {/* المعلومات الأساسية - Desktop (مُرتبة) */}
-                <div className="article-meta-info max-w-4xl mx-auto flex flex-wrap items-center justify-start gap-3 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-4 text-left border-0">
+                <div className="article-meta-info flex flex-wrap items-center justify-start gap-3 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-4 text-left border-0">
                   {/* المراسل */}
                   {article.author && (
                     <div className="inline-flex items-center gap-1.5 sm:gap-2">
