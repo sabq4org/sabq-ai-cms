@@ -578,56 +578,51 @@ export default function ArticleClientComponent({
                   </h2>
                 )}
 
-                {/* المعلومات الأساسية - Desktop */}
-                <div className="flex flex-wrap items-center justify-start gap-2 sm:gap-3 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-4 text-left border-0 article-meta-info">{/* تقليل الفجوات */}
+                {/* المعلومات الأساسية - Desktop (مُرتبة) */}
+                <div className="flex flex-wrap items-center justify-start gap-3 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-4 text-left border-0 article-meta-info">
+                  {/* المراسل */}
                   {article.author && (
-                    <div className="flex items-center gap-1.5 sm:gap-2 justify-start">
+                    <div className="inline-flex items-center gap-1.5 sm:gap-2">
                       <ReporterLink
                         author={article.author as any}
                         size="sm"
                         showIcon={true}
                         showVerification={true}
-                        className="truncate max-w-[120px] sm:max-w-none text-xs sm:text-sm text-left"
+                        className="truncate max-w-[160px] sm:max-w-none text-xs sm:text-sm"
                       />
                     </div>
                   )}
-                  {article.author && (
-                    <span className="text-gray-300 dark:text-gray-600 px-0.5">•</span>
-                  )}
-                  <div className="flex items-center gap-1.5 sm:gap-1.5 justify-start text-left whitespace-nowrap">
-                    <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                    <span className="hidden sm:inline text-left">
-                      <SafeDateDisplay
-                        date={article.published_at || article.created_at || ""}
-                        format="full"
-                        showTime
-                      />
-                    </span>
-                    <span className="sm:hidden text-left">
-                      <SafeDateDisplay
-                        date={article.published_at || article.created_at || ""}
-                        format="relative"
-                      />
-                    </span>
+
+                  {/* التاريخ والتوقيت */}
+                  <div className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                    <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+                    <SafeDateDisplay
+                      date={article.published_at || article.created_at || ""}
+                      format="full"
+                      showTime
+                    />
                   </div>
-                  <span className="text-gray-300 dark:text-gray-600 px-0.5">•</span>
-                  <div className="flex items-center gap-1.5 sm:gap-1.5 justify-start text-left whitespace-nowrap">
-                    <Clock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                    <span className="text-left">
+
+                  {/* وقت القراءة */}
+                  <div className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                    <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+                    <span>
                       {article.reading_time ||
                         calculateReadingTime(article.content || "")} د
                     </span>
                   </div>
+
+                  {/* عدد المشاهدات */}
                   {article.views !== undefined && (
-                    <>
-                      <span className="text-gray-300 dark:text-gray-600 px-0.5">•</span>
+                    <div className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                      <span>👁️</span>
                       <ArticleViews
                         count={article.views}
-                        className="text-xs sm:text-sm text-left whitespace-nowrap"
+                        className="text-xs sm:text-sm"
                       />
-                    </>
+                    </div>
                   )}
-                  </div>
+                </div>
                 </div>
               </div>
               </div>
@@ -660,15 +655,13 @@ export default function ArticleClientComponent({
                       </div>
                     )}
                     <div className="flex items-center gap-1.5 flex-wrap">{/* تقليل gap */}
-                      <div className="flex items-center gap-1">
-                        <span>🗓️</span>
-                    <span>
-                      <SafeDateDisplay
-                        date={article.published_at || article.created_at || ""}
-                        format="relative"
-                        showTime
-                      />
-                    </span>
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
+                        <SafeDateDisplay
+                          date={article.published_at || article.created_at || ""}
+                          format="relative"
+                          showTime
+                        />
                       </div>
                       <span className="text-gray-300 dark:text-gray-600">•</span>
                       <div className="flex items-center gap-1 whitespace-nowrap">
