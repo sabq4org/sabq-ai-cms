@@ -834,7 +834,10 @@ export default function ModernCreateNewsPage() {
                         return;
                       }
                       setFormData(prev => ({ ...prev, publishType: 'scheduled' }));
-                      handleSubmit("publish");
+                      // تأكيد بصري فوري بأن الطلب بدأ
+                      toast({ title: "⏳ جاري جدولة الخبر...", description: new Date(formData.scheduledDate).toLocaleString("ar-SA") });
+                      // تنفيذ الإرسال بعد frame للسماح بتحديث الحالة
+                      setTimeout(() => handleSubmit("publish"), 0);
                     }}
                     disabled={saving || completionScore < 60}
                     className={cn(
