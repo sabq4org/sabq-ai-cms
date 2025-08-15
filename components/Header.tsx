@@ -26,6 +26,9 @@ import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import ClientOnly from "./ClientOnly";
 import UserDropdown from "./UserDropdown";
+import MobileUserDropdown from "./mobile/UserDropdown";
+import UserMenuDrawer from "./mobile/UserMenuDrawer";
+import NotificationBell from "@/components/Notifications/NotificationBell";
 
 export default function Header() {
   const router = useRouter();
@@ -40,6 +43,8 @@ export default function Header() {
   const [newEventsCount, setNewEventsCount] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const headerElRef = useRef<HTMLElement>(null);
+  const mobileUserBtnRef = useRef<HTMLButtonElement>(null);
+  const [isMobileUserOpen, setIsMobileUserOpen] = useState(false);
 
   // فحص الأحداث الجديدة
   useEffect(() => {
@@ -184,6 +189,10 @@ export default function Header() {
 
             {/* أدوات الهيدر */}
             <div className="flex items-center space-x-2 md:space-x-4 rtl:space-x-reverse">
+              {/* الجرس */}
+              <div className="hidden md:block">
+                <NotificationBell />
+              </div>
               {/* أيقونة لحظة بلحظة */}
               <Link
                 href="/moment-by-moment"
@@ -228,7 +237,7 @@ export default function Header() {
 
               {/* معلومات المستخدم */}
               {user ? (
-                <div className="relative" ref={dropdownRef}>
+                <div className="relative hidden md:block" ref={dropdownRef}>
                   <button
                     onClick={handleDropdownToggle}
                     className={`flex items-center space-x-2 rtl:space-x-reverse p-2 rounded-lg transition-all duration-300 ${
@@ -281,6 +290,31 @@ export default function Header() {
                   <LogIn className="w-4 h-4" />
                   <span>تسجيل الدخول</span>
                 </Link>
+              )}
+
+              {/* زر وقائمة ملف شخصي للموبايل فقط */}
+              {user && (
+                <div className="md:hidden relative">
+                  <UserMenuDrawer
+                    trigger={
+                      <button
+                        ref={mobileUserBtnRef}
+                        className={`p-2 rounded-lg transition-all duration-300 ${
+                          darkMode
+                            ? "text-gray-300 hover:text-white hover:bg-blue-800/40"
+                            : "text-gray-700 hover:text-gray-900 hover:bg-blue-600/20"
+                        }`}
+                        aria-label="قائمة المستخدم للموبايل"
+                        aria-haspopup="menu"
+                      >
+                        <span className="inline-flex items-center gap-1">
+                          <User className="w-5 h-5" />
+                          <ChevronDown className="w-3 h-3 opacity-70" />
+                        </span>
+                      </button>
+                    }
+                  />
+                </div>
               )}
 
               {/* المينيو المحمول */}
