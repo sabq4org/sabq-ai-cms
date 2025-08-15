@@ -94,7 +94,7 @@ export async function PATCH(
             message: "تمت الموافقة على تعليق جديد على خبر قد يهمك",
             type: "user_engagement" as any,
             priority: "medium" as any,
-            data: { comment_id: id, article_id: existing.article_id },
+            data: { comment_id: id, article_id: existing.article_id, actor_id: existing.user_id },
             created_at: new Date(),
           },
         } as any);
