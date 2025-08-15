@@ -83,8 +83,8 @@ export default function QuickAccessHeader({
               </Button>
             )}
             <div className="flex items-center">
-              <SabqLogo className="hidden sm:block" width={112} height={32} />
-              <SabqLogo className="sm:hidden" width={88} height={26} />
+              <SabqLogo className="hidden sm:block" width={84} height={24} />
+              <SabqLogo className="sm:hidden" width={64} height={20} />
             </div>
             <div className="hidden sm:block">
               <div className="text-sm text-gray-500 dark:text-gray-300 leading-tight">مشروع</div>
@@ -216,8 +216,8 @@ export default function QuickAccessHeader({
         {/* اليسار: الشعار + اسم المشروع */}
         <div className="flex items-center gap-3">
           <div className="flex items-center">
-            <SabqLogo className="hidden sm:block" width={112} height={32} />
-            <SabqLogo className="sm:hidden" width={88} height={26} />
+            <SabqLogo className="hidden sm:block" width={84} height={24} />
+            <SabqLogo className="sm:hidden" width={64} height={20} />
           </div>
           <div className="hidden sm:block">
             <div className="text-sm text-gray-500 dark:text-gray-300 leading-tight">مشروع</div>
