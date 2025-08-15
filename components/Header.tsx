@@ -28,7 +28,7 @@ import ClientOnly from "./ClientOnly";
 import UserDropdown from "./UserDropdown";
 import MobileUserDropdown from "./mobile/UserDropdown";
 import UserMenuDrawer from "./mobile/UserMenuDrawer";
-import NotificationBell from "@/components/notifications/NotificationBell";
+import NotificationBell from "@/components/Notifications/NotificationBell";
 
 export default function Header() {
   const router = useRouter();
