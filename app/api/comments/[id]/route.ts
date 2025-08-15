@@ -83,8 +83,25 @@ export async function PATCH(
       },
     });
 
-    // ضمان عدم رجوعه مباشرة لقائمة الانتظار عبر أي revalidate متأخر
-    // لا تغييرات إضافية هنا، المنطق يعتمد على الحالة المرسلة فقط
+    // عند الموافقة: جدولة/تسجيل تنويه عام (قابل للتخصيص لاحقاً)
+    if (desiredStatus === "approved") {
+      try {
+        await prisma.smart_notifications.create({
+          data: {
+            id: `notif-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+            user_id: null,
+            title: "تعليق جديد",
+            message: "تمت الموافقة على تعليق جديد على خبر قد يهمك",
+            type: "user_engagement" as any,
+            priority: "medium" as any,
+            data: { comment_id: id, article_id: existing.article_id },
+            created_at: new Date(),
+          },
+        } as any);
+      } catch (e) {
+        console.warn("تعذر تسجيل التنويه عند الموافقة على التعليق:", (e as any)?.message);
+      }
+    }
 
     // تحديث عدّاد التعليقات بالمقال في حال تغيّر شمولية الموافقة
     try {

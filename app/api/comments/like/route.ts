@@ -74,6 +74,19 @@ export async function POST(request: NextRequest) {
       data: { likes: newLikesCount }
     });
 
+    // عند الإعجاب لأول مرة: تسجيل اهتمام بالمؤلف لمتابعة نشاطه لاحقاً
+    if (isLiked && comment.user_id && comment.user_id !== userId) {
+      try {
+        await prisma.user_preferences.upsert({
+          where: { user_id_key: { user_id: userId!, key: `follow_person:${comment.user_id}` } as any },
+          update: { value: { set: true }, updated_at: new Date() },
+          create: { user_id: userId!, key: `follow_person:${comment.user_id}`, value: true, created_at: new Date(), updated_at: new Date() },
+        } as any);
+      } catch (e) {
+        console.warn('تعذر تسجيل المتابعة للمؤلف:', (e as any)?.message);
+      }
+    }
+
     return NextResponse.json({
       success: true,
       isLiked,
