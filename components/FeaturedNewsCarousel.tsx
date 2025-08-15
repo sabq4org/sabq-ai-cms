@@ -111,7 +111,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
 
   return (
     <div
-      className="featured-carousel relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6"
+      className="featured-carousel relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6 overflow-visible"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       aria-roledescription="carousel"
@@ -119,16 +119,16 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
     >
       <Link href={getArticleLink(currentArticle)} className="group block" aria-live="polite">
         <div
-          className={`relative overflow-visible transition-all duration-500 group-hover:shadow-2xl ${
+          className={`relative overflow-hidden transition-all duration-500 group-hover:shadow-2xl ${
             darkMode ? "bg-gray-800 hover:bg-gray-800" : "bg-white hover:bg-white"
           } rounded-3xl`}
         >
           <div
             className={`grid grid-cols-1 lg:grid-cols-12`}
-            style={{ height: `${desktopH}px` }}
+            style={{ height: `${desktopH}px`, overflow: 'hidden', borderRadius: '1.5rem' }}
           >
             <div
-              className="col-span-1 lg:col-span-6 relative overflow-visible rounded-xl lg:rounded-r-2xl lg:rounded-l-none"
+              className="col-span-1 lg:col-span-6 relative overflow-hidden"
               style={{ height: `${desktopH}px` }}
             >
               <OptimizedImage
@@ -149,7 +149,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                 </div>
               )}
             </div>
-            <div className="hidden lg:flex lg:col-span-6 p-4 lg:p-6 flex-col justify-between overflow-hidden" style={{ height: `${desktopH}px` }}>
+            <div className="hidden lg:flex lg:col-span-6 p-4 lg:p-6 flex-col justify-between" style={{ height: `${desktopH}px` }}>
               <h2
                 className={`text-xl lg:text-2xl xl:text-3xl font-bold mb-4 leading-tight line-clamp-3 transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400 ${
                   darkMode ? "text-white" : "text-gray-900"

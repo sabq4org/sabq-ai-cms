@@ -110,7 +110,7 @@ export default function MobileFeaturedNews({ items, withSwipe = true }: MobileFe
                   src={item.imageUrl}
                   alt={item.title}
                   fill
-                  className="object-cover object-[75%_50%]"
+                  className="object-cover object-center"
                   priority={i === 0}
                   loading={i === 0 ? "eager" : "lazy"}
                   decoding="async"

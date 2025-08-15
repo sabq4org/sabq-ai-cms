@@ -266,7 +266,7 @@ const FeaturedNewsCard = memo(
       `}
         >
           {/* الصورة */}
-          <div className="relative h-48 sm:h-56 w-full overflow-hidden">
+          <div className="relative h-48 sm:h-56 w-full overflow-hidden rounded-xl">
             <CloudImage
               src={imageUrl}
               alt={article.title}
