@@ -17,7 +17,7 @@ export default function SabqLogo({
   isWhite = false,
 }: SabqLogoProps) {
   const [imageError, setImageError] = useState(false);
-  const { logoUrl } = useSiteSettings();
+  const { logoUrl, logoDarkUrl } = useSiteSettings();
 
   // التحقق من الوضع الليلي
   const isDarkMode =
@@ -25,7 +25,7 @@ export default function SabqLogo({
     document.documentElement.classList.contains("dark");
 
   // استخدام الشعار من الإعدادات أو الافتراضي
-  const src = imageError ? "/logo.png" : logoUrl || "/logo.png";
+  const src = imageError ? "/logo.png" : (isDarkMode ? (logoDarkUrl || logoUrl) : logoUrl) || "/logo.png";
 
   // شعار نصي احتياطي
   if (imageError) {

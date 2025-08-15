@@ -48,6 +48,7 @@ export async function GET(request: NextRequest) {
 
 async function readFileSettingsFallback(): Promise<{
   logoUrl?: string;
+  logoDarkUrl?: string;
 } | null> {
   try {
     const settingsPath = path.join(
@@ -57,7 +58,7 @@ async function readFileSettingsFallback(): Promise<{
     );
     const content = await fs.readFile(settingsPath, "utf8");
     const json = JSON.parse(content);
-    return { logoUrl: json.logoUrl };
+    return { logoUrl: json.logoUrl, logoDarkUrl: json.logoDarkUrl };
   } catch {
     return null;
   }
