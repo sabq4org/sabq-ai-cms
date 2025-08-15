@@ -45,6 +45,7 @@ export default function MobileFeaturedImage({
             setImageError(true);
             setImageLoading(false);
           }}
+          style={{ objectPosition: 'center 35%' }}
         />
 
         {/* تدرج خفيف في الأسفل لتحسين قراءة النص */}

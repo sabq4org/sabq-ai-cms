@@ -33,9 +33,12 @@ export default function ArticleFeaturedImage({
               src={imageUrl}
               alt={title}
               fill
-              className="object-cover object-center"
+              className="object-cover"
               priority={true}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, (max-width: 1536px) 110ch, 110ch"
+              objectPosition="center 35%"
+              smartCrop="auto"
+              aspectRatio="16:9"
             />
             {/* التصنيف */}
             {category && (
@@ -75,9 +78,12 @@ export default function ArticleFeaturedImage({
               src={imageUrl}
               alt={title}
               fill
-              className="object-contain md:object-cover shadow-2xl transition-all duration-500 md:hover:scale-[1.02]"
+              className="object-cover shadow-2xl transition-all duration-500 md:hover:scale-[1.02]"
               priority={true}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
+              objectPosition="center 35%"
+              smartCrop="auto"
+              aspectRatio="16:9"
             />
             {category && (
               <div className="absolute bottom-4 left-4 z-20">
@@ -108,6 +114,9 @@ export default function ArticleFeaturedImage({
                 className="object-cover"
                 priority={true}
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
+                objectPosition="center 35%"
+                smartCrop="auto"
+                aspectRatio="16:9"
               />
               
               {/* تراكب التصنيف */}
@@ -141,6 +150,9 @@ export default function ArticleFeaturedImage({
               className="object-cover transition-transform duration-300 hover:scale-105"
               priority={true}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 95vw, 1200px"
+              objectPosition="center 35%"
+              smartCrop="auto"
+              aspectRatio="16:9"
             />
             {/* تدرج خفيف للتحسين البصري */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />

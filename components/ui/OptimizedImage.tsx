@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { CSSProperties, useMemo, useState } from 'react';
 import Image from 'next/image';
 import { ImageIcon } from 'lucide-react';
 
@@ -12,6 +12,12 @@ interface OptimizedImageProps {
   fill?: boolean;
   sizes?: string;
   quality?: number;
+  // تحديد موضع القص داخل الإطار (CSS object-position)
+  objectPosition?: string; // مثال: 'center 30%'
+  // تفعيل قص ذكي عند استخدام Cloudinary
+  smartCrop?: 'auto' | 'subject' | 'face';
+  // تمرير نسبة الأبعاد إلى Cloudinary إن رغبت (مثال: '16:9')
+  aspectRatio?: string;
 }
 
 export default function OptimizedImage({
@@ -24,9 +30,31 @@ export default function OptimizedImage({
   fill = false,
   sizes,
   quality = 80,
+  objectPosition,
+  smartCrop,
+  aspectRatio,
 }: OptimizedImageProps) {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  // كشف Cloudinary وتحضير تحويلات ذكية إن لزم
+  const computedSrc = useMemo(() => {
+    try {
+      if (!src || !smartCrop) return src;
+      const isCloudinary = src.includes('res.cloudinary.com') && src.includes('/upload/');
+      if (!isCloudinary) return src;
+
+      const parts = src.split('/upload/');
+      if (parts.length !== 2) return src;
+
+      const g = smartCrop === 'face' ? 'g_face' : smartCrop === 'subject' ? 'g_auto:subject' : 'g_auto';
+      const ar = aspectRatio ? `,ar_${aspectRatio.replace('x', ':')}` : '';
+      const transform = `c_fill,f_auto,q_auto,${g}${ar}`;
+      return `${parts[0]}/upload/${transform}/${parts[1]}`;
+    } catch {
+      return src;
+    }
+  }, [src, smartCrop, aspectRatio]);
 
   const handleError = () => {
     if (process.env.NODE_ENV === 'development') {
@@ -74,6 +102,10 @@ export default function OptimizedImage({
     ? 'absolute inset-0 w-full h-full'
     : 'relative inline-block';
 
+  const style: CSSProperties | undefined = objectPosition
+    ? { objectPosition }
+    : undefined;
+
   return (
     <div className={wrapperClass}>
       {loading && (
@@ -83,7 +115,7 @@ export default function OptimizedImage({
       )}
 
       <Image
-        src={src}
+        src={computedSrc}
         alt={alt}
         width={width}
         height={height}
@@ -92,6 +124,7 @@ export default function OptimizedImage({
         priority={priority}
         quality={quality}
         className={`${loading ? 'opacity-0' : 'opacity-100 transition-opacity duration-300'} ${className}`}
+        style={style}
         onError={handleError}
         onLoad={handleLoad}
         placeholder="blur"
