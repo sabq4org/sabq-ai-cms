@@ -68,6 +68,13 @@ const ModernCommentsNew: React.FC = () => {
 
       if (!res.ok) {
         if (res.status === 401) {
+          // محاولة تحديث التوكن تلقائياً
+          try {
+            const r = await fetch("/api/auth/refresh", { method: "POST", credentials: "include" });
+            if (r.ok) {
+              return true; // اعتبر المصادقة صالحة بعد التحديث
+            }
+          } catch {}
           alert("انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى.");
           const next = encodeURIComponent(
             window.location.pathname + window.location.search + window.location.hash
@@ -111,6 +118,28 @@ const ModernCommentsNew: React.FC = () => {
 
       if (!res.ok) {
         if (res.status === 401) {
+          // محاولة تحديث التوكن تلقائياً ثم إعادة المحاولة مرة واحدة
+          try {
+            const r = await fetch("/api/auth/refresh", { method: "POST", credentials: "include" });
+            if (r.ok) {
+              const retry = await fetch(`/api/comments?${params.toString()}`, {
+                cache: "no-store",
+                credentials: "include",
+                headers: { Accept: "application/json", "Content-Type": "application/json" },
+              });
+              if (retry.ok) {
+                const json = await retry.json().catch(() => ({}));
+                if (json && json.success) {
+                  const list = json.comments || json.data || [];
+                  setComments(list);
+                  if (json.stats) setStats(json.stats); else calculateStats(list as any);
+                  setTotalPages(json.pagination?.totalPages || 1);
+                  setLoading(false);
+                  return;
+                }
+              }
+            }
+          } catch {}
           alert("انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى.");
           const next = encodeURIComponent(
             window.location.pathname + window.location.search + window.location.hash

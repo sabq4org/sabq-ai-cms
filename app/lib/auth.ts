@@ -47,7 +47,9 @@ export function generateToken(user: User): string {
 // التحقق من JWT token
 export async function verifyToken(token: string): Promise<any> {
   try {
-    return jwt.verify(token, process.env.JWT_SECRET || "secret");
+    const secret =
+      process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET || "secret";
+    return jwt.verify(token, secret);
   } catch (error) {
     return null;
   }
@@ -72,6 +74,7 @@ export async function getCurrentUser(): Promise<User | null> {
     const cookieStore = await cookies();
     // دعم أكثر من اسم للكوكيز الخاصة بالتوكن، مع مسار احتياطي لقراءة كوكيز "user"
     const tokenCookie =
+      cookieStore.get("sabq_at") ||
       cookieStore.get("auth-token") ||
       cookieStore.get("token") ||
       cookieStore.get("jwt");
@@ -145,7 +148,7 @@ export async function getCurrentUser(): Promise<User | null> {
     const prisma = new PrismaClient();
 
     const user = await prisma.users.findUnique({
-      where: { id: payload.id || payload.userId },
+      where: { id: (payload.sub as string) || payload.id || payload.userId },
       select: {
         id: true,
         email: true,
