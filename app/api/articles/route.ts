@@ -628,9 +628,28 @@ export async function POST(request: NextRequest) {
           articleData.author_id = defaultUser.id;
           console.log("📝 استخدام user افتراضي:", defaultUser.id);
         } else {
-          // إذا لم يوجد أي user، نترك author_id فارغ
-          delete articleData.author_id;
-          console.log("⚠️ لا يوجد users في النظام، سيتم تخطي author_id");
+          // آخر محاولة: إنشاء user جديد بنفس معرف المؤلف
+          console.log("⚡ إنشاء user طارئ بنفس معرف المؤلف...");
+          try {
+            const emergencyUser = await prisma.users.create({
+              data: {
+                id: author.id, // نفس معرف المؤلف
+                email: author.email || `${author.id}@sabq.org`,
+                name: author.full_name || 'مؤلف',
+                role: 'writer',
+                email_verified_at: new Date(),
+                created_at: new Date(),
+                updated_at: new Date()
+              }
+            });
+            articleData.author_id = emergencyUser.id;
+            console.log("✅ تم إنشاء user طارئ:", emergencyUser.id);
+          } catch (userCreateError) {
+            console.error("❌ فشل إنشاء user طارئ:", userCreateError);
+            // كحل أخير: استخدام نفس الـ ID
+            articleData.author_id = author.id;
+            console.log("⚠️ استخدام نفس الـ ID كحل أخير");
+          }
         }
       }
       
