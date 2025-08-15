@@ -52,6 +52,17 @@ export class EmailService {
   constructor() {
     // تحميل الإعدادات من متغيرات البيئة
     this.config = this.loadConfig();
+    
+    // تجنب تهيئة SMTP أثناء البناء أو في بيئة CI/CD
+    if (process.env.NODE_ENV !== 'development' && 
+        (process.env.VERCEL_ENV === 'preview' || 
+         process.env.CI === 'true' || 
+         process.env.BUILDING === 'true' ||
+         typeof window === 'undefined' && !process.env.SMTP_PASS)) {
+      console.log('⏸️ Skipping email service initialization during build');
+      return;
+    }
+    
     this.initializeTransporter();
   }
 
@@ -148,10 +159,16 @@ export class EmailService {
           break;
       }
 
-      // اختبار الاتصال
-      if (this.transporter) {
-        await this.transporter.verify();
-        console.log('✅ Email service initialized successfully');
+      // اختبار الاتصال (تجنب أثناء البناء)
+      if (this.transporter && process.env.NODE_ENV !== 'production') {
+        try {
+          await this.transporter.verify();
+          console.log('✅ Email service initialized successfully');
+        } catch (verifyError) {
+          console.warn('⚠️ Email service initialized but verification failed:', verifyError);
+        }
+      } else if (this.transporter) {
+        console.log('📧 Email service initialized (verification skipped in production)');
       }
     } catch (error) {
       console.error('❌ Failed to initialize email service:', error);

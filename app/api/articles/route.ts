@@ -775,4 +775,3 @@ export async function POST(request: NextRequest) {
 function generateId() {
   return `article_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 }
-زض
