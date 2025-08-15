@@ -133,7 +133,7 @@ export default function EditArticlePage() {
     const loadArticle = async () => {
       try {
         setArticleLoading(true);
-        const response = await fetch(`/api/articles/${articleId}?all=true`);
+        const response = await fetch(`/api/articles/${articleId}?all=true`, { cache: 'no-store' });
         
         if (!response.ok) {
           throw new Error('فشل في جلب بيانات المقال');
@@ -189,6 +189,11 @@ export default function EditArticlePage() {
                 'type_direct_keywords': typeof article.keywords
               });
               
+              // 0. في حال كانت الاستجابة مغلفة كما في بعض APIs: data.seo_keywords
+              if ((article as any)?.data?.seo_keywords && Array.isArray((article as any).data.seo_keywords)) {
+                return (article as any).data.seo_keywords as string[];
+              }
+
               // 1. البحث في metadata.keywords (الأولوية الأولى)
               if (article.metadata?.keywords) {
                 if (Array.isArray(article.metadata.keywords)) {
