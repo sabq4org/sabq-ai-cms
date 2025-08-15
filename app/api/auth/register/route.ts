@@ -15,6 +15,7 @@ export const runtime = 'nodejs';
 export async function POST(request: Request) {
   try {
     console.log('🔄 بدء معالجة طلب التسجيل');
+    let emailSent = false; // تتبع نجاح إرسال بريد التحقق
     
     // التأكد من الاتصال بقاعدة البيانات
     try {
@@ -70,7 +71,7 @@ export async function POST(request: Request) {
     if (existingUser) {
       return NextResponse.json(
         { success: false, error: 'البريد الإلكتروني مستخدم بالفعل' },
-        { status: 400 }
+        { status: 409 }
       );
     }
 
@@ -112,8 +113,8 @@ export async function POST(request: Request) {
     // إرسال بريد التحقق
     try {
       console.log('📧 جاري إرسال بريد التحقق إلى:', email);
-      const emailSent = await sendVerificationEmail(email, name, verificationCode);
-      
+      emailSent = await sendVerificationEmail(email, name, verificationCode);
+
       if (!emailSent) {
         console.warn('⚠️ تحذير: فشل إرسال بريد التحقق');
       } else {
