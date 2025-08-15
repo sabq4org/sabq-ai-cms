@@ -76,7 +76,7 @@ export default function Footer() {
           <div className="md:col-span-2 lg:col-span-1 flex flex-col items-start">
             <div className="mb-3">
               {/* مطابقة مقاسات الهيدر (Desktop) */}
-              <SabqLogo width={144} height={40} />
+              <SabqLogo width={112} height={32} />
             </div>
             <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mt-2">
               صحيفة إلكترونية سعودية شاملة، نعمل على مدار الساعة لننقل لكم
