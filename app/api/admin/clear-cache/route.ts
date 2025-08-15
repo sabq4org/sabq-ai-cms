@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { getCurrentUser } from "@/app/lib/auth";
+import { cache } from "@/lib/redis";
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,6 +14,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // مسح Redis cache
+    await cache.clearPattern("featured-news:*");
+    await cache.clearPattern("articles:*");
+    await cache.clearPattern("news:*");
+    await cache.clearPattern("*carousel*");
+    
     // مسح cache الصفحات الرئيسية
     revalidatePath("/");
     revalidatePath("/home");
@@ -25,7 +32,7 @@ export async function POST(request: NextRequest) {
     revalidateTag("featured-news");
     revalidateTag("news");
 
-    console.log("✅ تم مسح الكاش بنجاح");
+    console.log("✅ تم مسح الكاش بنجاح (Redis + ISR)");
 
     return NextResponse.json({
       success: true,

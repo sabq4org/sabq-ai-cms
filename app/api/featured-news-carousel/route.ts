@@ -12,7 +12,7 @@ export const fetchCache = "default-cache";
 export async function GET(request: NextRequest) {
   try {
     // bump cache key to invalidate previous cached payloads
-    const cacheKey = "featured-news:carousel:v3";
+    const cacheKey = "featured-news:carousel:v4";
 
     // محاولة الجلب من Redis أولاً
     const cached = await redis.get<any>(cacheKey);
