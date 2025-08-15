@@ -63,12 +63,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchUserFromAPI = async (): Promise<User | null> => {
     try {
       const token = Cookies.get("auth-token");
-      if (!token) return null;
+      const headers: Record<string, string> = {};
+      if (token) headers["Authorization"] = `Bearer ${token}`;
 
       const response = await fetch("/api/auth/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers,
         credentials: "include",
       });
 

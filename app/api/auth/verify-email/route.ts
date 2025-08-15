@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { sendWelcomeEmail } from '@/lib/email';
+import jwt from 'jsonwebtoken';
+import { setAuthCookies } from '@/lib/auth-cookies';
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,10 +30,14 @@ export async function POST(request: NextRequest) {
         where: { email },
         data: { is_verified: true, email_verified_at: new Date(), updated_at: new Date() }
       });
+      // إصدار توكنات وتسجيل الدخول تلقائياً
+      const access = jwt.sign({ sub: updated.id, role: updated.role || 'user' }, process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET || 'secret', { expiresIn: `${process.env.JWT_ACCESS_TTL_MIN || 15}m`, issuer: 'sabq-ai-cms' });
+      const refresh = jwt.sign({ sub: updated.id }, process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET || 'secret', { expiresIn: `${process.env.JWT_REFRESH_TTL_DAYS || 7}d`, issuer: 'sabq-ai-cms' });
+      const response = NextResponse.json({ success: true, message: 'تم تأكيد البريد الإلكتروني بنجاح', user: { id: updated.id, email: updated.email, name: updated.name } });
+      setAuthCookies(response, access, refresh);
       try { await prisma.email_verification_codes.deleteMany({ where: { email } }); } catch {}
       try { await sendWelcomeEmail(email, updated.name || email.split('@')[0]); } catch {}
-      const { password_hash, ...userWithoutPassword } = updated as any;
-      return NextResponse.json({ success: true, message: 'تم تأكيد البريد الإلكتروني بنجاح', user: userWithoutPassword });
+      return response;
     }
 
     // جلب رمز التحقق من قاعدة البيانات
@@ -78,9 +84,12 @@ export async function POST(request: NextRequest) {
     await prisma.email_verification_codes.deleteMany({ where: { email } });
 
     try { await sendWelcomeEmail(email, updated.name || email.split('@')[0]); } catch (e) { console.warn('sendWelcomeEmail failed:', e); }
-
-    const { password_hash, ...userWithoutPassword } = updated as any;
-    return NextResponse.json({ success: true, message: 'تم تأكيد البريد الإلكتروني بنجاح', user: userWithoutPassword });
+    // إصدار توكنات وتسجيل الدخول تلقائياً
+    const access = jwt.sign({ sub: updated.id, role: updated.role || 'user' }, process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET || 'secret', { expiresIn: `${process.env.JWT_ACCESS_TTL_MIN || 15}m`, issuer: 'sabq-ai-cms' });
+    const refresh = jwt.sign({ sub: updated.id }, process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET || 'secret', { expiresIn: `${process.env.JWT_REFRESH_TTL_DAYS || 7}d`, issuer: 'sabq-ai-cms' });
+    const response = NextResponse.json({ success: true, message: 'تم تأكيد البريد الإلكتروني بنجاح', user: { id: updated.id, email: updated.email, name: updated.name } });
+    setAuthCookies(response, access, refresh);
+    return response;
   } catch (error) {
     console.error('خطأ في التحقق من البريد:', error);
     return NextResponse.json(
