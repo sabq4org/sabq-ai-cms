@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { randomUUID } from "crypto";
 
 interface JWTPayload {
   userId: string;
@@ -21,10 +22,11 @@ export async function POST(request: NextRequest) {
     }
 
     // التحقق من المستخدم (اختياري للآن)
-    const cookieStore = await cookies();
+    const cookieStore = cookies();
     const token = cookieStore.get("auth-token")?.value;
 
-    let userId = "anonymous"; // قيمة افتراضية
+    const ANONYMOUS_USER_ID = "00000000-0000-0000-0000-000000000000";
+    let userId: string = ANONYMOUS_USER_ID; // قيمة افتراضية آمنة بطول 36
 
     if (token) {
       try {
@@ -33,18 +35,25 @@ export async function POST(request: NextRequest) {
             token,
             process.env.JWT_SECRET
           ) as JWTPayload;
-          userId = decoded.userId;
+          // في حالة عدم وجود userId في التوكن نستخدم المعرّف المجهول الآمن
+          userId = decoded.userId || ANONYMOUS_USER_ID;
         }
       } catch (error) {
         console.log("JWT verification failed, using anonymous:", error);
       }
     }
 
+    // التأكد من أن معرف الجلسة بطول مناسب لقاعدة البيانات (<= 36)
+    const safeSessionId =
+      typeof sessionId === "string" && sessionId.length <= 36
+        ? sessionId
+        : randomUUID();
+
     // إنشاء جلسة قراءة جديدة
     const readingSession = await prisma.user_reading_sessions.create({
       data: {
-        id: sessionId, // استخدام sessionId كمعرف
-        user_id: userId, // تم التأكد من وجود القيمة
+        id: safeSessionId, // استخدام sessionId الآمن كمعرف
+        user_id: userId, // تم التأكد من وجود قيمة نصية صالحة بطول 36
         article_id: articleId,
         started_at: new Date(),
         device_type: deviceType || "desktop",

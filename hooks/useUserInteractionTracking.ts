@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { randomUUID } from 'crypto';
 
 // دالة debounce مخصصة
 function debounce<T extends (...args: any[]) => any>(
@@ -52,7 +53,8 @@ export function useUserInteractionTracking(articleId: string) {
   useEffect(() => {
     if (!user || !articleId) return;
 
-    const sessionId = `${user.id}-${articleId}-${Date.now()}`;
+    // استعمال UUID قصير لتفادي تجاوز حدود قاعدة البيانات للجلسة (<=36)
+    const sessionId = cryptoRandomId();
     const deviceType = getDeviceType();
 
     sessionRef.current = {
@@ -333,3 +335,12 @@ function getDeviceType(): 'mobile' | 'tablet' | 'desktop' {
   if (width < 1024) return 'tablet';
   return 'desktop';
 } 
+
+// مولد معرّف جلسة بطول 36
+function cryptoRandomId() {
+  try {
+    return randomUUID();
+  } catch {
+    return `session-${Math.random().toString(36).slice(2, 10)}-${Date.now()}`.slice(0, 36);
+  }
+}
