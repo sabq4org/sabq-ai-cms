@@ -281,7 +281,7 @@ export function MediaPickerModal({
         </DialogHeader>
 
         <Tabs defaultValue="upload" className="flex-1 flex flex-col min-h-0">
-          <TabsList className="mx-6 mt-4 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+          <TabsList className="mx-2 mt-4 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
             <TabsTrigger value="upload" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm px-6 py-2 rounded-md transition-all">
               <Upload className="w-4 h-4 ml-2" />
               رفع جديد
@@ -292,9 +292,9 @@ export function MediaPickerModal({
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="browse" className="flex-1 flex flex-col min-h-0 m-0">
+          <TabsContent value="browse" className="flex-1 flex flex-col min-h-0 m-0 w-full">
             {/* Search Bar */}
-            <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50">
+            <div className="px-2 py-3 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center">
                 <div className="relative md:col-span-2">
                   <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -319,7 +319,7 @@ export function MediaPickerModal({
             </div>
 
             {/* Breadcrumb */}
-            <div className="px-6 py-3 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+            <div className="px-2 py-3 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
               <div className="flex items-center gap-1 text-sm">
                 <Button
                   variant="ghost"
@@ -346,20 +346,20 @@ export function MediaPickerModal({
             </div>
 
             {/* Content */}
-            <div ref={contentRef} className="flex-1 overflow-y-auto px-4 py-3 min-h-0">
+            <div ref={contentRef} className="flex-1 overflow-y-auto px-2 py-3 min-h-0 w-full">
               {loading ? (
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-4">
+                <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 2xl:grid-cols-12 gap-2 w-full">
                   {[...Array(8)].map((_, i) => (
-                    <Skeleton key={i} className="h-32" />
+                    <Skeleton key={i} className="h-24" />
                   ))}
                 </div>
               ) : (
                 <>
                   {/* Folders */}
                   {currentFolders.length > 0 && (
-                    <div className="mb-6">
+                    <div className="mb-4 w-full">
                       <h3 className="text-sm font-medium text-muted-foreground mb-3">المجلدات</h3>
-                      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-4">
+                      <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 2xl:grid-cols-12 gap-2 w-full">
                         {currentFolders.map(folder => (
                           <motion.div
                             key={folder.id}
@@ -385,11 +385,11 @@ export function MediaPickerModal({
 
                   {/* Assets */}
                   {assets.length > 0 ? (
-                    <div>
+                    <div className="w-full">
                       {currentFolders.length > 0 && (
                         <h3 className="text-sm font-medium text-muted-foreground mb-3">الملفات</h3>
                       )}
-                      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-4">
+                      <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 2xl:grid-cols-12 gap-2 w-full">
                         {assets.map(asset => {
                           const isSelected = multiple 
                             ? selectedAssets.has(asset.id)
@@ -420,7 +420,7 @@ export function MediaPickerModal({
                                 }
                               }}
                             >
-                              <div className="aspect-[4/3] bg-gray-100 dark:bg-gray-800 flex items-center justify-center relative overflow-hidden rounded-lg">
+                              <div className="aspect-square bg-gray-100 dark:bg-gray-800 flex items-center justify-center relative overflow-hidden rounded-lg">
                                 {asset.type === "IMAGE" ? (
                                   <img
                                     src={asset.thumbnailUrl || asset.cloudinaryUrl}
