@@ -548,7 +548,7 @@ export default function ArticleClientComponent({
               {/* Desktop Header - محاذاة العرض تمامًا مع حاوية الصورة البارزة */}
               <div className="hidden sm:block">
                 <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-3 sm:px-6 lg:px-8">
-                  <div className="py-4 lg:py-6 flex flex-col justify-center">
+                  <div className="py-4 lg:py-6 bg-white dark:bg-gray-800 rounded-xl flex flex-col justify-center">
                 {/* التصنيف - محاذاة لليمين مع تحسين الهامش */}
                 {article.category && (
                   <div className="flex justify-end mb-5">
