@@ -176,7 +176,9 @@ function NewspaperHomePage({
         const isSmallScreen = window.innerWidth <= 768;
         setIsMobile(isMobileDevice || isSmallScreen);
       } catch (error) {
-        console.warn("Error detecting device type:", error);
+        if (process.env.NODE_ENV !== "production") {
+          console.warn("Error detecting device type:", error);
+        }
         setIsMobile(false);
       }
     };
@@ -227,7 +229,9 @@ function NewspaperHomePage({
   const [featuredArticle, setFeaturedArticle] = useState<any[]>(initialFeaturedArticles);
   const [featuredLoading, setFeaturedLoading] = useState<boolean>(initialFeaturedArticles.length === 0);
 
-  console.log("🔧 NewspaperHomePage: تحضير useEffects...");
+  if (process.env.NODE_ENV !== "production") {
+    console.log("🔧 NewspaperHomePage: تحضير useEffects...");
+  }
 
   // دوال مؤقتة
   const handleInterestClick = useCallback(
@@ -459,20 +463,26 @@ function NewspaperHomePage({
     const fetchCategories = async () => {
       try {
         setCategoriesLoading(true);
-        console.log("🔄 جلب التصنيفات من العميل...");
+        if (process.env.NODE_ENV !== "production") {
+          console.log("🔄 جلب التصنيفات من العميل...");
+        }
         const res = await fetch("/api/categories?is_active=true");
         const json = await res.json();
         // 💡 FIX: The API returns { data: [...] } or just [...]
         const list = Array.isArray(json)
           ? json
           : json.data ?? json.categories ?? [];
-        console.log("✅ التصنيفات المُحدثة من العميل:", list.length);
+        if (process.env.NODE_ENV !== "production") {
+          console.log("✅ التصنيفات المُحدثة من العميل:", list.length);
+        }
         setCategories(list);
         if (list.length === 0) {
           console.warn("No categories were fetched from the API.");
         }
       } catch (err) {
-        console.error("خطأ في جلب التصنيفات:", err);
+        if (process.env.NODE_ENV !== "production") {
+          console.error("خطأ في جلب التصنيفات:", err);
+        }
       } finally {
         setCategoriesLoading(false);
       }
@@ -480,10 +490,14 @@ function NewspaperHomePage({
 
     // جلب التصنيفات فقط إذا لم تكن هناك تصنيفات أولية
     if (initialCategories.length === 0) {
-      console.log("⚠️ لا توجد تصنيفات أولية، جاري الجلب من العميل...");
+      if (process.env.NODE_ENV !== "production") {
+        console.log("⚠️ لا توجد تصنيفات أولية، جاري الجلب من العميل...");
+      }
       fetchCategories();
     } else {
-      console.log("✅ استخدام التصنيفات الأولية:", initialCategories.length);
+      if (process.env.NODE_ENV !== "production") {
+        console.log("✅ استخدام التصنيفات الأولية:", initialCategories.length);
+      }
       setCategoriesLoading(false);
     }
   }, [initialCategories]);
@@ -670,20 +684,28 @@ function NewspaperHomePage({
     setSelectedCategory(categoryId);
     setCategoryArticlesLoading(true);
     try {
-      console.log(`🔍 جلب مقالات التصنيف ID: ${categoryId}`);
+      if (process.env.NODE_ENV !== "production") {
+        console.log(`🔍 جلب مقالات التصنيف ID: ${categoryId}`);
+      }
       const res = await fetch(
         `/api/articles?status=published&category_id=${categoryId}&limit=20&sort=created_at&order=desc`
       );
       const json = await res.json();
 
-      console.log(`📊 استجابة API الجديد للتصنيف ${categoryId}:`, json);
+      if (process.env.NODE_ENV !== "production") {
+        console.log(`📊 استجابة API الجديد للتصنيف ${categoryId}:`, json);
+      }
 
       if (json.success) {
         const list = json.data || [];
-        console.log(`✅ تم جلب ${list.length} مقال للتصنيف ${categoryId}`);
+        if (process.env.NODE_ENV !== "production") {
+          console.log(`✅ تم جلب ${list.length} مقال للتصنيف ${categoryId}`);
+        }
         setCategoryArticles(list);
       } else {
-        console.error(`❌ فشل جلب مقالات التصنيف ${categoryId}:`, json.error);
+        if (process.env.NODE_ENV !== "production") {
+          console.error(`❌ فشل جلب مقالات التصنيف ${categoryId}:`, json.error);
+        }
         setCategoryArticles([]);
       }
     } catch (err) {
@@ -725,17 +747,19 @@ function NewspaperHomePage({
         {!featuredLoading && featuredArticle.length > 0 && (
           <div className={`${isMobileView ? "pt-2 pb-4" : "pt-4 pb-6"}`}>
             {isMobileView ? (
-              <MobileFeaturedNews
-                items={(featuredArticle || []).map((a: any) => ({
-                  id: a.id,
-                  title: a.title,
-                  imageUrl: a.featured_image,
-                  href: getArticleLink(a),
-                  category: a.category?.name || a.category_name || undefined,
-                  publishedAt: a.published_at || a.created_at,
-                }))}
-                withSwipe={true}
-              />
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <MobileFeaturedNews
+                  items={(featuredArticle || []).map((a: any) => ({
+                    id: a.id,
+                    title: a.title,
+                    imageUrl: a.featured_image,
+                    href: getArticleLink(a),
+                    category: a.category?.name || a.category_name || undefined,
+                    publishedAt: a.published_at || a.created_at,
+                  }))}
+                  withSwipe={true}
+                />
+              </div>
             ) : (
               <FeaturedNewsCarousel articles={featuredArticle} />
             )}
@@ -1614,19 +1638,21 @@ export default function PageClient({
   initialDeepAnalyses = [],
   initialFeaturedArticles = [],
 }: PageClientProps) {
-  // 🔍 Debug: فحص البيانات الواردة
-  console.log("🎯 [DEBUG] PageClient received data:", {
-    articlesCount: initialArticles.length,
-    firstArticle: initialArticles[0]
-      ? {
-          title: initialArticles[0].title?.substring(0, 30) + "...",
-          hasImage: !!initialArticles[0].image,
-          hasImageUrl: !!initialArticles[0].image_url,
-          hasFeaturedImage: !!initialArticles[0].featured_image,
-          imageValue: initialArticles[0].image?.substring(0, 50) + "...",
-        }
-      : "No articles",
-  });
+  // 🔍 Debug: فحص البيانات الواردة (تعطيل في الإنتاج)
+  if (process.env.NODE_ENV !== "production") {
+    console.log("🎯 [DEBUG] PageClient received data:", {
+      articlesCount: initialArticles.length,
+      firstArticle: initialArticles[0]
+        ? {
+            title: initialArticles[0].title?.substring(0, 30) + "...",
+            hasImage: !!initialArticles[0].image,
+            hasImageUrl: !!initialArticles[0].image_url,
+            hasFeaturedImage: !!initialArticles[0].featured_image,
+            imageValue: initialArticles[0].image?.substring(0, 50) + "...",
+          }
+        : "No articles",
+    });
+  }
 
   const [stats, setStats] = useState(initialStats);
 

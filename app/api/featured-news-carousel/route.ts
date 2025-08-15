@@ -1,15 +1,28 @@
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { getProductionImageUrl } from "@/lib/production-image-fix";
+import { cache as redis } from "@/lib/redis";
 export const runtime = "nodejs";
 
-// تعطيل التخزين المؤقت بالكامل لضمان التحديث الفوري
-export const revalidate = 0;
-export const dynamic = "force-dynamic";
-export const fetchCache = "force-no-store";
+// سياسة الكاش: تحديث كل 60 ثانية مع SWR 5 دقائق
+export const revalidate = 60;
+export const dynamic = "force-static";
+export const fetchCache = "default-cache";
 
 export async function GET(request: NextRequest) {
   try {
+    const cacheKey = "featured-news:carousel:v1";
+
+    // محاولة الجلب من Redis أولاً
+    const cached = await redis.get<any>(cacheKey);
+    if (cached) {
+      return NextResponse.json(cached, {
+        headers: {
+          "Cache-Control": "public, max-age=60, stale-while-revalidate=300",
+          "Content-Type": "application/json",
+        },
+      });
+    }
     // جلب آخر 3 مقالات مميزة منشورة (أخبار فقط، بدون مقالات الرأي)
     const featuredArticles = await prisma.articles.findMany({
       where: {
@@ -68,15 +81,17 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // تسجيل للتشخيص
-    console.log('🔍 [Featured API] Articles found:', articlesToReturn.length);
-    if (articlesToReturn.length > 0) {
-      console.log('🔍 [Featured API] First article image fields:', {
-        featured_image: articlesToReturn[0]?.featured_image,
-        social_image: articlesToReturn[0]?.social_image,
-        metadata: articlesToReturn[0]?.metadata,
-        all_keys: Object.keys(articlesToReturn[0])
-      });
+    // تسجيل للتشخيص (في التطوير فقط)
+    if (process.env.NODE_ENV !== "production") {
+      console.log('🔍 [Featured API] Articles found:', articlesToReturn.length);
+      if (articlesToReturn.length > 0) {
+        console.log('🔍 [Featured API] First article image fields:', {
+          featured_image: articlesToReturn[0]?.featured_image,
+          social_image: articlesToReturn[0]?.social_image,
+          metadata: articlesToReturn[0]?.metadata,
+          all_keys: Object.keys(articlesToReturn[0])
+        });
+      }
     }
     
     // تنسيق البيانات
@@ -140,21 +155,22 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    return NextResponse.json(
-      {
-        success: true,
-        articles: formattedArticles,
-        count: formattedArticles.length,
-        timestamp: new Date().toISOString(), // للتأكد من التحديث
+    const responseData = {
+      success: true,
+      articles: formattedArticles,
+      count: formattedArticles.length,
+      timestamp: new Date().toISOString(),
+    };
+
+    // حفظ في Redis لمدة 60 ثانية
+    await redis.set(cacheKey, responseData, 60);
+
+    return NextResponse.json(responseData, {
+      headers: {
+        "Cache-Control": "public, max-age=60, stale-while-revalidate=300",
+        "Content-Type": "application/json",
       },
-      {
-        headers: {
-          "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
-          Pragma: "no-cache",
-          Expires: "0",
-        },
-      }
-    );
+    });
   } catch (error: any) {
     console.error("❌ خطأ في جلب الأخبار المميزة:", error);
     return NextResponse.json(

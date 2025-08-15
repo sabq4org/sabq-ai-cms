@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma';
 import { cache } from '@/lib/redis'
-import { CACHE_KEYS, CACHE_TTL } from '@/lib/redis'
+import { CACHE_TTL } from '@/lib/redis'
 
 export async function GET(request: NextRequest) {
   try {
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     const cachedData = await cache.get(cacheKey)
     if (cachedData) {
       console.log('✅ تم جلب الأخبار من Redis cache')
-      return NextResponse.json(cachedData)
+      return NextResponse.json(cachedData, { headers: { "Cache-Control": "public, max-age=60, stale-while-revalidate=300" } })
     }
     
     // جلب الأخبار فقط من قاعدة البيانات (بدون مقالات الرأي)

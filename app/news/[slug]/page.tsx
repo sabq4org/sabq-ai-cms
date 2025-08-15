@@ -2,8 +2,8 @@ import ArticleClientComponent from "@/app/article/[id]/ArticleClientComponent";
 import prisma from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 
-// تفعيل ISR مع إعادة التحقق كل دقيقة
-export const revalidate = 60;
+// ISR: تفاصيل الخبر (NEWS) تعاد التحقق كل 300 ثانية
+export const revalidate = 300;
 // السماح بالتخزين المؤقت
 export const dynamic = "error";
 export const runtime = "nodejs";

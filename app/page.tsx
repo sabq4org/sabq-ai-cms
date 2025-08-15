@@ -2,6 +2,9 @@ import { Metadata } from "next";
 import { headers } from "next/headers";
 import PageClient from "./page-client";
 
+// ISR: إعادة التحقق كل 60 ثانية للصفحة الرئيسية
+export const revalidate = 60;
+
 // Metadata للصفحة الرئيسية
 export const metadata: Metadata = {
   title: "صحيفة سبق الالكترونية AI - الصفحة الرئيسية",
@@ -254,11 +257,13 @@ async function getFeaturedArticles() {
 }
 
 // Force dynamic for server-side features
-export const dynamic = "force-dynamic";
+// تمت إزالة force-dynamic للسماح بـ ISR
 
 export default async function HomePage() {
   try {
-    console.log("🚀 بدء تحميل الصفحة الرئيسية...");
+    if (process.env.NODE_ENV !== "production") {
+      console.log("🚀 بدء تحميل الصفحة الرئيسية...");
+    }
 
     // جلب جميع البيانات بالتوازي
     const [
@@ -290,13 +295,15 @@ export default async function HomePage() {
       }),
     ]);
 
-    console.log("✅ تم جلب البيانات بنجاح:", {
-      articles: articles.length,
-      categories: categories.length,
-      stats: !!newsStats,
-      deepAnalyses: deepAnalyses.length,
-      featured: featured.length,
-    });
+    if (process.env.NODE_ENV !== "production") {
+      console.log("✅ تم جلب البيانات بنجاح:", {
+        articles: articles.length,
+        categories: categories.length,
+        stats: !!newsStats,
+        deepAnalyses: deepAnalyses.length,
+        featured: featured.length,
+      });
+    }
 
     return (
       <PageClient

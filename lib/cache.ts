@@ -1,3 +1,37 @@
+import { cache as redis } from "@/lib/redis";
+
+export async function cached<T>(
+  key: string,
+  ttlSec: number,
+  fetcher: () => Promise<T>
+): Promise<T> {
+  const hit = await redis.get<T>(key);
+  if (hit) return hit as T;
+  const data = await fetcher();
+  await redis.set(key, data, ttlSec);
+  return data;
+}
+
+export async function bust(keys: string[]): Promise<void> {
+  if (!keys || keys.length === 0) return;
+  const deletions: Array<Promise<void>> = [];
+  for (const k of keys) {
+    if (k.includes("*")) {
+      deletions.push(redis.clearPattern(k));
+    } else {
+      deletions.push(redis.del(k));
+    }
+  }
+  await Promise.all(deletions);
+}
+
+export const CACHE_KEYS = {
+  home: () => "news:home:v1",
+  category: (slug: string) => `news:category:${slug}:v1`,
+  article: (id: string) => `article:${id}:v1`,
+  trending: () => "trending:global:v1",
+};
+
 // نظام Cache محسن للأداء العالي
 
 // Cache في الذاكرة (Memory Cache) مع TTL
