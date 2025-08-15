@@ -98,12 +98,21 @@ export default function CommentsClient({ articleId }: CommentsClientProps) {
       if (!res.ok || data.success === false) {
         throw new Error(data?.error || "فشل في إنشاء التعليق");
       }
+      // إشعار فوري بنجاح الإرسال
+      try {
+        const toast = (await import("react-hot-toast")).default;
+        toast.success(
+          data?.comment?.is_approved
+            ? "تم إضافة التعليق ونُشر مباشرة"
+            : "تم إضافة التعليق بنجاح، بانتظار المراجعة"
+        );
+      } catch {}
       setContent("");
       // تحديث تفاؤلي بسيط
       const newItem: CommentItem = {
         id: data.comment?.id || `temp-${Date.now()}`,
         content: data.comment?.content || content.trim(),
-        status: data.comment?.status || "approved",
+        status: data.comment?.status || (data.comment?.is_approved ? "approved" : "pending"),
         createdAt: data.comment?.createdAt || new Date().toISOString(),
         user: data.comment?.user || { name: "أنت" },
       };
@@ -215,6 +224,11 @@ export default function CommentsClient({ articleId }: CommentsClientProps) {
                         </button>
                       )}
                     </div>
+                    {c.status !== "approved" && (
+                      <div className="text-xs text-gray-500 mt-1">
+                        هذا التعليق يخضع للتحليل بواسطة الذكاء الاصطناعي قبل النشر النهائي
+                      </div>
+                    )}
                     <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
                       <button className="inline-flex items-center gap-1 hover:text-slate-900">
                         <ThumbsUp className="w-3.5 h-3.5" /> إعجاب

@@ -579,10 +579,13 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       {
+        status: "success",
         success: true,
         comment: {
           ...formatComment(comment),
           user: userData,
+          is_approved: commentStatus === "approved",
+          ai_classification: aiClassification,
         },
         message:
           commentStatus === "pending"
