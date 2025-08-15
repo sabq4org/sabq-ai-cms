@@ -136,16 +136,15 @@ export default function MomentByMomentPage() {
     fetchTimeline(true);
   }, []);
 
-  // Auto-refresh for live updates
-  useEffect(() => {
-    if (isLive) {
-      const interval = setInterval(() => {
-        fetchTimeline(true);
-      }, 30000); // Refresh every 30 seconds
-
-      return () => clearInterval(interval);
-    }
-  }, [isLive]);
+  // Auto-refresh for live updates (disabled per request)
+  // useEffect(() => {
+  //   if (isLive) {
+  //     const interval = setInterval(() => {
+  //       fetchTimeline(true);
+  //     }, 30000);
+  //     return () => clearInterval(interval);
+  //   }
+  // }, [isLive]);
 
   const loadMore = () => {
     if (!loading && hasMore) {
