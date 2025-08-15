@@ -136,7 +136,8 @@ hr.article-separator {
 .article-content [class*="bg-gray-50"] { background-color: transparent !important; }
 
 /*Fallback قاسٍ: إزالة أي خلفية داخل الهيدر العلوي بالكامل*/
-.article-content header * { background: transparent !important; }
+/* لا نلغي خلفية الهيدر كاملة؛ نُبقي الشفافية فقط على العنوان */
+.article-content header *:not(h1):not(.article-title-overlay) { background: inherit; }
 
 .article-content p {
   margin-bottom: 1.5rem;

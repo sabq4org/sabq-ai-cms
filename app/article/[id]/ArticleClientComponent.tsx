@@ -413,7 +413,7 @@ export default function ArticleClientComponent({
 
   if (loading || !article) {
     return (
-      <div className="min-h-[100svh] bg-transparent dark:bg-transparent">
+      <div className="min-h-[100svh] bg-gray-50 dark:bg-gray-900">
         <div className="pt-[var(--mobile-header-height)] sm:pt-[var(--header-height)] lg:pt-20">
           <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-4 py-4 sm:py-6 lg:py-8">
             <div className="animate-pulse space-y-4 loading-skeleton">
@@ -536,7 +536,7 @@ export default function ArticleClientComponent({
       {/* شريط التقدم في القراءة */}
       <ReadingProgressBar />
 
-      <main className="min-h-[100svh] bg-transparent dark:bg-transparent pt-[var(--mobile-header-height)] sm:pt-[var(--header-height)] lg:pt-20">
+      <main className="min-h-[100svh] bg-gray-50 dark:bg-gray-900 pt-[var(--mobile-header-height)] sm:pt-[var(--header-height)] lg:pt-20">
         {/* منطقة المحتوى الرئيسية */}
         <div className="relative">
           <article
@@ -548,7 +548,7 @@ export default function ArticleClientComponent({
               {/* Desktop Header - محاذاة العرض تمامًا مع حاوية الصورة البارزة */}
               <div className="hidden sm:block">
                 <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-3 sm:px-6 lg:px-8">
-                  <div className="py-4 lg:py-6 flex flex-col justify-center bg-transparent">
+                  <div className="py-4 lg:py-6 flex flex-col justify-center bg-gray-50 dark:bg-gray-900">
                 {/* التصنيف - محاذاة لليمين مع تحسين الهامش */}
                 {article.category && (
                   <div className="flex justify-end mb-5">
