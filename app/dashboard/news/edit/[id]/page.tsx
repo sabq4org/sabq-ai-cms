@@ -146,18 +146,28 @@ export default function EditArticlePage() {
         let article = null;
         if (data.success && data.article) {
           article = data.article;
+        } else if (data.data) {
+          // في حالة كانت البيانات مغلفة في data
+          article = data.data;
         } else if (data.id && data.title) {
           // في حالة كانت البيانات مباشرة
           article = data;
         }
         
         if (article) {
-                    console.log('✅ بيانات المقال:', article);
-          console.log('🔑 الكلمات المفتاحية المستلمة:', {
-            metadata_keywords: article.metadata?.keywords,
-            direct_keywords: article.keywords,
-            type_metadata: typeof article.metadata?.keywords,
-            type_direct: typeof article.keywords
+          console.log('✅ بيانات المقال الكاملة:', JSON.stringify(article, null, 2));
+          console.log('🔑 تحليل الكلمات المفتاحية:', {
+            'article.metadata': article.metadata,
+            'article.metadata?.keywords': article.metadata?.keywords,
+            'article.metadata?.seo_keywords': article.metadata?.seo_keywords,
+            'article.metadata?.tags': article.metadata?.tags,
+            'article.keywords': article.keywords,
+            'article.seo_keywords': article.seo_keywords,
+            'article.tags': article.tags,
+            'type_metadata': typeof article.metadata,
+            'type_keywords': typeof article.keywords,
+            'type_seo_keywords': typeof article.seo_keywords,
+            'type_tags': typeof article.tags
           });
           
           // تحديث البيانات
@@ -281,7 +291,28 @@ export default function EditArticlePage() {
               // 5. البحث في tags (الأولوية الخامسة)
               if (article.tags && article.tags.length > 0) {
                 console.log('✅ تم العثور على كلمات مفتاحية في tags');
-                return Array.isArray(article.tags) ? article.tags : [article.tags];
+                return Array.isArray(article.tags) ? article.tags.filter(Boolean) : [article.tags].filter(Boolean);
+              }
+              
+              // 6. البحث في metadata.tags (الأولوية السادسة)
+              if (article.metadata?.tags) {
+                if (Array.isArray(article.metadata.tags)) {
+                  console.log('✅ تم العثور على كلمات مفتاحية في metadata.tags كمصفوفة');
+                  return article.metadata.tags.filter(Boolean);
+                }
+                if (typeof article.metadata.tags === 'string') {
+                  try {
+                    const parsed = JSON.parse(article.metadata.tags);
+                    if (Array.isArray(parsed)) {
+                      console.log('✅ تم العثور على كلمات مفتاحية في metadata.tags كـJSON string');
+                      return parsed.filter(Boolean);
+                    }
+                  } catch {
+                    // قد تكون مفصولة بفواصل
+                    console.log('✅ تم العثور على كلمات مفتاحية في metadata.tags كنص مفصول بفواصل');
+                    return article.metadata.tags.split(',').map((k: string) => k.trim()).filter(Boolean);
+                  }
+                }
               }
               
               console.log('⚠️ لم يتم العثور على أي كلمات مفتاحية');
