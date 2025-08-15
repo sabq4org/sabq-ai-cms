@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import { headers } from "next/headers";
 import PageClient from "./page-client";
 
 // ISR: إعادة التحقق كل 60 ثانية للصفحة الرئيسية
@@ -27,12 +26,14 @@ export const metadata: Metadata = {
 };
 
 // Server Component لجلب البيانات مع معالجة محسنة للأخطاء
+function getBaseUrl() {
+  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL;
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return process.env.NODE_ENV === "production" ? "https://sabq.io" : "http://localhost:3000";
+}
 async function getArticles(limit = 16) {
   try {
-    const headersList = await headers();
-    const host = headersList.get("host") || "localhost:3002";
-    const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
-    const baseUrl = `${protocol}://${host}`;
+    const baseUrl = getBaseUrl();
 
     // إضافة timeout للطلب
     const controller = new AbortController();
@@ -99,10 +100,7 @@ async function getArticles(limit = 16) {
 
 async function getCategories() {
   try {
-    const headersList = await headers();
-    const host = headersList.get("host") || "localhost:3002";
-    const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
-    const baseUrl = `${protocol}://${host}`;
+    const baseUrl = getBaseUrl();
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -141,10 +139,7 @@ async function getCategories() {
 
 async function getNewsStats() {
   try {
-    const headersList = await headers();
-    const host = headersList.get("host") || "localhost:3002";
-    const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
-    const baseUrl = `${protocol}://${host}`;
+    const baseUrl = getBaseUrl();
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -180,10 +175,7 @@ async function getNewsStats() {
 
 async function getDeepAnalyses() {
   try {
-    const headersList = await headers();
-    const host = headersList.get("host") || "localhost:3002";
-    const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
-    const baseUrl = `${protocol}://${host}`;
+    const baseUrl = getBaseUrl();
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -223,10 +215,7 @@ async function getDeepAnalyses() {
 
 async function getFeaturedArticles() {
   try {
-    const headersList = await headers();
-    const host = headersList.get("host") || "localhost:3002";
-    const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
-    const baseUrl = `${protocol}://${host}`;
+    const baseUrl = getBaseUrl();
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 8000);
     try {
