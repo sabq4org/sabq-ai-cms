@@ -48,8 +48,7 @@ export async function GET(request: NextRequest) {
           status: true,
           email_verified: true,
           created_at: true,
-          last_login: true,
-          metadata: true
+          last_login: true
         },
         orderBy: {
           created_at: 'desc'
@@ -62,12 +61,9 @@ export async function GET(request: NextRequest) {
     
     // تحويل البيانات للتنسيق المطلوب
     const formattedReaders = readers.map(reader => {
-      // استخراج معلومات الاشتراك من metadata
-      const metadata = reader.metadata as any || {};
-      const subscription = metadata.subscription || { type: 'free' };
-      
-      // حساب عدد المقالات المقروءة (تقديري)
-      const articlesRead = metadata.articles_read || Math.floor(Math.random() * 100);
+      // اشتراك افتراضي وقراءة تقديرية كقيم مبدئية
+      const subscription = { type: 'free' } as any;
+      const articlesRead = 0;
       
       return {
         id: reader.id,
