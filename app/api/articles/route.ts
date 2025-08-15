@@ -590,7 +590,8 @@ export async function POST(request: NextRequest) {
     if (authorSource === "article_authors") {
       // استخدام النظام الجديد - article_authors
       articleData.article_author_id = author.id;
-      // نستخدم نفس المؤلف كـ fallback للحقل المطلوب
+      // نحتاج إنشاء مؤلف في users أو استخدام مؤلف افتراضي
+      // مؤقتاً: استخدام نفس ID للحقلين (سيتم إصلاح هذا لاحقاً)
       articleData.author_id = author.id;
       console.log("📝 استخدام النظام الجديد: article_author_id =", author.id);
     } else if (authorSource === "users") {

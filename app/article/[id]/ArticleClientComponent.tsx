@@ -541,13 +541,13 @@ export default function ArticleClientComponent({
         <div className="relative">
           <article
             ref={viewTrackingRef}
-            className="max-w-screen-lg lg:max-w-[110ch] mx-auto py-3 sm:py-5 lg:py-7 article-content"
+            className="article-content"
           >
             {/* رأس المقال محسن للموبايل */}
             <header className="mb-1 sm:mb-2">
               {/* Desktop Header - محاذاة العرض تمامًا مع حاوية الصورة البارزة */}
               <div className="hidden sm:block">
-                <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-3 sm:px-6 lg:px-8">
+                <div className="article-title-wrapper title-image-width-sync max-w-screen-lg lg:max-w-[110ch] mx-auto px-3 sm:px-6 lg:px-8">
                   <div className="py-4 lg:py-6 flex flex-col justify-center bg-gray-50 dark:bg-gray-900">
                 {/* التصنيف - محاذاة لليمين مع تحسين الهامش */}
                 {article.category && (
@@ -567,7 +567,7 @@ export default function ArticleClientComponent({
                 )}
 
                 {/* غلاف عنوان/عنوان فرعي مع توافق الوضع الداكن */}
-                <div className="article-title-wrapper text-right">
+                <div className="article-title-wrapper title-image-width-sync text-right">
                   {/* العنوان - تحسين المسافات والهوامش */}
                   <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-3 text-gray-900 dark:text-white leading-tight tracking-tight article-title-overlay bg-transparent">{/* زيادة حجم الخط للموبايل أكثر */}
                     {article.title}
@@ -582,7 +582,7 @@ export default function ArticleClientComponent({
                 </div>
 
                 {/* المعلومات الأساسية - Desktop (مُرتبة) */}
-                <div className="flex flex-wrap items-center justify-start gap-3 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-4 text-left border-0 article-meta-info">
+                <div className="article-meta-info title-image-width-sync flex flex-wrap items-center justify-start gap-3 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-4 text-left border-0">
                   {/* المراسل */}
                   {article.author && (
                     <div className="inline-flex items-center gap-1.5 sm:gap-2">
@@ -626,8 +626,8 @@ export default function ArticleClientComponent({
                     </div>
                   )}
                 </div>
+                  </div>
                 </div>
-              </div>
               </div>
 
               {/* Mobile Header */}
@@ -715,7 +715,7 @@ export default function ArticleClientComponent({
             article.featured_image.length > 0 &&
             !article.metadata?.emergency_mode && (
               <div className="hidden sm:block mb-6">{/* توحيد حافة الصورة مع حاوية المحتوى */}
-                <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-3 sm:px-6 lg:px-8 article-featured-image-wrapper">
+                <div className="article-featured-image-wrapper title-image-width-sync max-w-screen-lg lg:max-w-[110ch] mx-auto px-3 sm:px-6 lg:px-8">
                   <ArticleFeaturedImage
                     imageUrl={article.featured_image}
                     title={article.title}

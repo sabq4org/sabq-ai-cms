@@ -1,0 +1,82 @@
+/* إصلاح عرض حاوية العنوان وبيانات النشر بنفس عرض الصورة */
+
+/* ضمان أن الحاويتين متطابقتان تماماً في العرض */
+.title-image-width-sync {
+  /* استخدام نفس العرض الأقصى للتأكد من المحاذاة */
+  width: 100% !important;
+  max-width: inherit !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: inherit !important;
+  padding-right: inherit !important;
+}
+
+/* حاوية العنوان - للتأكد من المحاذاة مع الصورة */
+.article-title-wrapper {
+  display: block;
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* حاوية الصورة البارزة - للتأكد من المحاذاة مع العنوان */
+.article-featured-image-wrapper {
+  display: block;
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* معلومات المقال - لتتماشى مع نفس العرض */
+.article-meta-info {
+  display: flex !important;
+  width: 100% !important;
+  max-width: inherit !important;
+  box-sizing: border-box;
+}
+
+/* إزالة أي تعارضات في العرض الأقصى */
+.article-content {
+  max-width: none !important;
+}
+
+/* تطابق العرض على جميع أحجام الشاشات */
+@media (max-width: 639px) {
+  .title-image-width-sync {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .title-image-width-sync {
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .title-image-width-sync {
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+  }
+}
+
+/* ضمان المحاذاة المثالية */
+.article-title-wrapper.title-image-width-sync,
+.article-featured-image-wrapper.title-image-width-sync {
+  display: block;
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* إصلاح النص العربي والمحاذاة */
+.article-title-wrapper {
+  text-align: right;
+  direction: rtl;
+}
+
+.article-meta-info {
+  text-align: left;
+  direction: ltr;
+}

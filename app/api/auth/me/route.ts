@@ -15,16 +15,10 @@ export async function GET(request: NextRequest) {
   try {
     console.log("🔍 بدء التحقق من هوية المستخدم...");
 
-    // Debugging: طباعة متغيرات البيئة للتأكد من وجودها
-    console.log("DATABASE_URL is set:", !!process.env.DATABASE_URL);
-    console.log("JWT_SECRET is set:", !!process.env.JWT_SECRET);
-
     // محاولة الحصول على التوكن من الكوكيز أو من Authorization header
     let token =
       request.cookies.get("sabq_at")?.value ||
       request.cookies.get("auth-token")?.value;
-
-    // 🔒 أمان: لا تعتمد أبداً على cookie باسم 'user' للمصادقة
 
     // إذا لم يوجد في الكوكيز، جرب من Authorization header
     if (!token) {
@@ -77,62 +71,33 @@ export async function GET(request: NextRequest) {
       return corsResponse({ success: false, error: "المستخدم غير موجود" }, 404);
     }
 
-    // جلب نقاط الولاء
-    const loyaltyPoints = await prisma.loyalty_points.findMany({
-      where: { user_id: user.id },
-      select: {
-        points: true,
-      },
-    });
+    const isAdmin =
+      user.is_admin === true ||
+      user.role === "admin" ||
+      user.role === "super_admin" ||
+      user.role === "system_admin";
 
-    // حساب مجموع نقاط الولاء
-    const totalLoyaltyPoints = loyaltyPoints.reduce(
-      (total: number, lp: { points: number }) => total + lp.points,
-      0
-    );
-
-    // جلب تفضيلات المستخدم
-    const preferences = await prisma.user_preferences.findMany({
-      where: {
-        user_id: user.id,
-        key: { startsWith: "category_" },
-      },
-      select: {
-        id: true,
-        key: true,
-        value: true,
-      },
-    });
-
-    // استخراج اهتمامات المستخدم
-    const interests = {
-      categories: preferences
-        .filter((pref: { key: string }) => pref.key.startsWith("category_"))
-        .map((pref: { value: any }) => {
-          const value = pref.value as any;
-          return value?.name || "";
-        })
-        .filter(Boolean),
-      keywords: [], // لا توجد جدول keywords في المستخدمين
-    };
-
-    // إضافة معلومات إضافية
-    const responseUser = {
-      ...user,
-      is_admin:
-        user.is_admin || user.role === "admin" || user.role === "super_admin",
-      loyaltyPoints: totalLoyaltyPoints,
-      status: "active", // قيمة افتراضية
-      role: user.role || "user",
-      isVerified: user.is_verified || false,
-      interests: interests.categories,
-    };
-
+    // إرجاع استجابة متوافقة مع النظام
     return corsResponse({
       success: true,
-      user: responseUser,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role || "user",
+        is_admin: isAdmin,
+        isAdmin: isAdmin,
+        is_verified: user.is_verified || false,
+        isVerified: user.is_verified || false,
+        avatar: user.avatar,
+        created_at: user.created_at,
+        updated_at: user.updated_at,
+        status: "active",
+        loyaltyPoints: 0,
+        interests: [],
+      },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("خطأ في جلب بيانات المستخدم:", error);
     return corsResponse(
       {
