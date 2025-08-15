@@ -586,34 +586,12 @@ export async function POST(request: NextRequest) {
       category: category.name,
     });
 
-    // تحديد حقول المؤلف بناءً على مصدره
+    // تحديد حقول المؤلف بناءً على مصدره - مبسط
     if (authorSource === "article_authors") {
       // استخدام النظام الجديد - article_authors
       articleData.article_author_id = author.id;
-      // author_id مطلوب في schema — نحاول تعيين مستخدم نظامي ثابت لتفادي P2003
-      try {
-        const superAdmin = await prisma.users.findFirst({
-          where: {
-            OR: [
-              { email: "admin@sabq.ai" },
-              { is_admin: true },
-              { role: { in: ["admin", "superadmin", "editor"] } },
-            ],
-          },
-          select: { id: true },
-        });
-        if (superAdmin?.id) {
-          articleData.author_id = superAdmin.id;
-        } else {
-          const anyUser = await prisma.users.findFirst({
-            select: { id: true },
-          });
-          articleData.author_id = anyUser?.id || author.id; // fallback أخير
-        }
-      } catch (error) {
-        const anyUser = await prisma.users.findFirst({ select: { id: true } });
-        articleData.author_id = anyUser?.id || author.id;
-      }
+      // نستخدم نفس المؤلف كـ fallback للحقل المطلوب
+      articleData.author_id = author.id;
       console.log("📝 استخدام النظام الجديد: article_author_id =", author.id);
     } else if (authorSource === "users") {
       // استخدام النظام القديم - users
@@ -632,48 +610,39 @@ export async function POST(request: NextRequest) {
       status: articleData.status,
     });
 
-    // إنشاء المقال أولاً
+    // إنشاء المقال بشكل مبسط وسريع
+    console.log("⚡ إنشاء المقال...");
     const article = await prisma.articles.create({
       data: articleData,
-      include: {
-        author: {
-          select: { id: true, name: true, email: true },
-        },
-        categories: {
-          select: { id: true, name: true, slug: true },
-        },
-      },
     });
 
-    // ربط المقال بنظام القصص الذكي (MVP) - غير حاجز للاستجابة وبمهلة قصيرة
-    try {
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2000);
-      // عدم الانتظار لتجنب تعليق النشر إذا كان المسار بطيئًا أو غير متاح
-      fetch(`${siteUrl}/api/stories/analyze`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: article.title,
-          content: article.content || "",
-          category: category?.name,
-          source: "article-created",
-          meta: {
-            articleId: article.id,
-            articleSlug: article.slug,
-            categoryId: article.category_id,
-            authorId: article.author_id,
-            createdAt: article.created_at,
-          },
-        }),
-        signal: controller.signal,
-      })
-        .catch(() => {})
-        .finally(() => {
-          try { clearTimeout(timeoutId); } catch {}
+    console.log("✅ تم إنشاء المقال بنجاح:", article.id);
+
+    // ربط المقال بنظام القصص الذكي في الخلفية (لا نعطل النشر)
+    if (typeof process !== 'undefined') {
+      setImmediate(() => {
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+        fetch(`${siteUrl}/api/stories/analyze`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: article.title,
+            content: article.content || "",
+            category: category?.name,
+            source: "article-created",
+            meta: {
+              articleId: article.id,
+              articleSlug: article.slug,
+              categoryId: article.category_id,
+              authorId: article.author_id,
+              createdAt: article.created_at,
+            },
+          }),
+        }).catch((error) => {
+          console.warn("⚠️ فشل تحليل القصة في الخلفية:", error.message);
         });
-    } catch {}
+      });
+    }
 
     // تعامل مبسط مع المقالات المميزة - تجنب FeaturedArticleManager مؤقتاً
     if (articleData.featured === true) {

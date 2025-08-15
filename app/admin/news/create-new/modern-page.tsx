@@ -494,9 +494,16 @@ export default function ModernCreateNewsPage() {
     }
 
     setSaving(true);
-    // تعطيل الأزرار أثناء الإرسال لمنع النقرات المزدوجة
-    const scheduleButton = document.querySelector<HTMLButtonElement>('button:has(.w-4.h-4 + span:contains("مجدول"))');
-    scheduleButton?.setAttribute('disabled', 'true');
+    // تعطيل الأزرار أثناء الإرسال لمنع النقرات المزدوجة (استبدال :has/:contains غير المدعومة)
+    let scheduleButton: HTMLButtonElement | undefined;
+    try {
+      const allButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('button'));
+      scheduleButton = allButtons.find((btn) => {
+        const iconNextToSpan = btn.querySelector('.w-4.h-4 + span');
+        return iconNextToSpan && iconNextToSpan.textContent && iconNextToSpan.textContent.includes('مجدول');
+      });
+      scheduleButton?.setAttribute('disabled', 'true');
+    } catch {}
 
     // عرض إشعار بداية العملية مع مؤثرات بصرية
     toast({
@@ -562,10 +569,17 @@ export default function ModernCreateNewsPage() {
       console.log("البيانات المرسلة:", payload);
       console.log("البيانات المرسلة (JSON):", JSON.stringify(payload, null, 2));
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // زيادة المهلة إلى 60 ثانية
       const response = await fetch("/api/articles", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Cache-Control": "no-cache",
+          "Pragma": "no-cache"
+        },
         body: JSON.stringify(payload),
+        signal: controller.signal,
       });
 
       console.log("رد الخادم:", {
@@ -594,6 +608,7 @@ export default function ModernCreateNewsPage() {
       }
 
       const result = await response.json();
+      try { clearTimeout(timeoutId); } catch {}
       console.log("✅ نتيجة الحفظ:", result);
 
       // عرض إشعار النجاح مع معلومات إضافية ومؤثرات بصرية
@@ -626,17 +641,26 @@ export default function ModernCreateNewsPage() {
           router.push("/admin/news");
         }
       }, 2000); // انتظار ثانيتين لقراءة الإشعار
-    } catch (error) {
-      console.error("Error saving:", error);
-      toast({
-        title: action === "publish" ? "⚠️ خطأ في النشر" : "⚠️ خطأ في الحفظ",
-        description: "حدث خطأ في الاتصال بالخادم. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.",
-        variant: "destructive",
-        duration: 8000,
-      });
+    } catch (error: any) {
+      if (error?.name === 'AbortError') {
+        toast({ 
+          title: '⏳ انتهت مهلة النشر', 
+          description: 'استغرق النشر وقتاً أطول من المتوقع. تحقق من الاتصال وحاول مجدداً أو تحقق من قائمة الأخبار إذا تم النشر بالفعل.', 
+          variant: 'destructive', 
+          duration: 10000 
+        });
+      } else {
+        console.error("Error saving:", error);
+        toast({
+          title: action === "publish" ? "⚠️ خطأ في النشر" : "⚠️ خطأ في الحفظ",
+          description: `حدث خطأ في الاتصال بالخادم: ${error.message || 'خطأ غير معروف'}. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.`,
+          variant: "destructive",
+          duration: 8000,
+        });
+      }
     } finally {
       setSaving(false);
-      scheduleButton?.removeAttribute('disabled');
+      try { scheduleButton?.removeAttribute('disabled'); } catch {}
     }
   };
 
