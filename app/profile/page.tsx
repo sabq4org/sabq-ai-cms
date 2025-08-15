@@ -652,54 +652,54 @@ export default function ProfilePage() {
       formData.append("type", "avatar");
       formData.append("userId", user.id);
       console.log("📤 رفع الصورة للمستخدم:", user.id);
-      const uploadResponse = await fetch("/api/upload", {
+
+      // 1) محاولة الرفع إلى Cloudinary أولاً (آمن للإنتاج)
+      let uploadResponse = await fetch("/api/upload/cloudinary", {
         method: "POST",
         body: formData,
       });
+
+      // 2) في حال الفشل جرّب الرفع المحلي (للبيئة التطويرية فقط)
+      if (!uploadResponse.ok) {
+        console.warn("⚠️ فشل رفع Cloudinary، تجربة /api/upload كخطة بديلة");
+        uploadResponse = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+      }
+
       if (uploadResponse.ok) {
         const uploadData = await uploadResponse.json();
         console.log("✅ تم رفع الصورة:", uploadData);
+        const avatarUrl = (uploadData.data || uploadData).url;
+
         // تحديث في قاعدة البيانات
         console.log("💾 تحديث قاعدة البيانات...");
         const updateResponse = await fetch("/api/user/update-avatar", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            userId: user.id,
-            avatarUrl: (uploadData.data || uploadData).url,
-          }),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: user.id, avatarUrl }),
         });
+
         if (updateResponse.ok) {
-          const updateData = await updateResponse.json();
-          console.log("✅ تم تحديث قاعدة البيانات:", updateData);
-          // تحديث بيانات المستخدم المحلية
-          const avatarUrl = (uploadData.data || uploadData).url;
           const updatedUser = { ...user, avatar: avatarUrl };
           setUser(updatedUser);
-          // تحديث localStorage
           localStorage.setItem("user", JSON.stringify(updatedUser));
           toast.success("تم تحديث الصورة الشخصية بنجاح");
-          // تحديث الصفحة لضمان ظهور الصورة في جميع الأماكن
-          setTimeout(() => {
-            window.location.reload();
-          }, 1000);
+          setTimeout(() => { window.location.reload(); }, 600);
         } else {
-          const updateError = (await updateResponse.json()) as {
-            error?: string;
-          };
+          const updateError = (await updateResponse.json()).error || "حدث خطأ في تحديث قاعدة البيانات";
           console.error("❌ خطأ في تحديث قاعدة البيانات:", updateError);
-          toast.error(updateError.error || "حدث خطأ في تحديث قاعدة البيانات");
+          toast.error(updateError);
         }
       } else {
-        const uploadError = await uploadResponse.json();
+        const uploadError = await uploadResponse.json().catch(() => ({}));
         console.error("❌ خطأ في رفع الصورة:", uploadError);
-        toast.error(uploadError.error || "حدث خطأ في رفع الصورة");
+        toast.error(uploadError.error || "فشل رفع الصورة. يرجى المحاولة لاحقاً");
       }
     } catch (error) {
       console.error("💥 خطأ عام في رفع الصورة:", error);
-      toast.error("حدث خطأ في رفع الصورة");
+      toast.error("حدث خطأ غير متوقع أثناء رفع الصورة");
     } finally {
       setUploadingAvatar(false);
     }

@@ -56,8 +56,8 @@ export class EditorNotificationManager {
         'Server error': 'خطأ في الخادم'
       },
 
-      // المستويات المسموحة (للمحررين نعرض فقط success و warning المهمة)
-      allowedLevels: ['success', 'warning'],
+      // المستويات المسموحة (السماح بعرض الأخطاء للمستخدمين أيضاً)
+      allowedLevels: ['success', 'warning', 'error'],
       
       // الرسائل التقنية للمطورين فقط
       developmentOnly: true
