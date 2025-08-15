@@ -154,12 +154,19 @@ export async function POST(request: NextRequest) {
     });
 
     // إنشاء response مع الكوكيز
-    const response = NextResponse.json({
-      success: true,
-      message: "تم تسجيل الدخول بنجاح",
-      user: responseUser,
-      token: access,
-    });
+    const response = NextResponse.json(
+      {
+        success: true,
+        message: "تم تسجيل الدخول بنجاح",
+        user: responseUser,
+        token: access,
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+        },
+      }
+    );
 
     // تعيين كوكيز sabq_at & sabq_rt
     setAuthCookies(response, access, refresh);

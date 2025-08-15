@@ -144,6 +144,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const decodedUser = jwtDecode<User>(token);
       setUser(decodedUser);
+      // إشعار نجاح فوري للمستخدم النهائي (يُعرض عبر FilteredToaster)
+      try {
+        // dynamic import لتجنب كسر SSR
+        import("react-hot-toast").then(({ default: toast }: any) => {
+          toast.success("تم تسجيل الدخول بنجاح");
+        }).catch(() => {});
+      } catch {}
       Cookies.set("auth-token", token, {
         expires: 7,
         secure: true,
