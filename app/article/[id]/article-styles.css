@@ -68,6 +68,11 @@
   color: #374151;
 }
 
+/* خلفية المقال الافتراضية تبقى كما هي */
+.article-content {
+  background: transparent;
+}
+
 /* تحسينات تصميم هيدر المقال - إزالة الخطوط والحدود */
 .article-header {
   border: none !important;
@@ -137,7 +142,7 @@ hr.article-separator {
 
 /*Fallback قاسٍ: إزالة أي خلفية داخل الهيدر العلوي بالكامل*/
 /* لا نلغي خلفية الهيدر كاملة؛ نُبقي الشفافية فقط على العنوان */
-.article-content header *:not(h1):not(.article-title-overlay) { background: inherit; }
+.article-content header *:not(h1):not(.article-title-overlay) { background: unset; }
 
 .article-content p {
   margin-bottom: 1.5rem;
