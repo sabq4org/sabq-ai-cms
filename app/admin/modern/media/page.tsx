@@ -574,7 +574,7 @@ export default function MediaLibraryPage() {
           {loading ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
               {Array.from({ length: 16 }).map((_, i) => (
-                <div key={i} className="aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
+                <div key={i} className="aspect-[4/3] bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
               ))}
             </div>
           ) : (
@@ -646,7 +646,7 @@ export default function MediaLibraryPage() {
                 <div className={cn(
                   "grid gap-4",
                   viewMode === "grid" 
-                    ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
+                    ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8"
                     : "grid-cols-1"
                 )}>
                   {filteredAssets.map((asset: MediaAsset) => {
@@ -664,13 +664,13 @@ export default function MediaLibraryPage() {
                         onClick={() => handleAssetSelect(asset.id)}
                       >
                         <CardContent className="p-0">
-                          <div className="relative aspect-square overflow-hidden rounded-t-lg">
+                          <div className="relative aspect-[4/3] overflow-hidden rounded-t-lg">
                             {asset.type === "IMAGE" ? (
                               <Image
                                 src={asset.thumbnailUrl || asset.cloudinaryUrl}
                                 alt={asset.metadata?.altText || asset.originalName}
                                 fill
-                                className="object-cover group-hover:scale-105 transition-transform duration-200"
+                                className="object-cover object-center group-hover:scale-105 transition-transform duration-200"
                                 sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
                               />
                             ) : (
