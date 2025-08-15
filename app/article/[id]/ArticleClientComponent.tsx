@@ -950,10 +950,7 @@ export default function ArticleClientComponent({
               }
             `}</style>
           </div>
-
-          {/* لم نعد نظهر التعليقات هنا؛ صارت ضمن CommentsPanel */}
-
-          {/* المحتوى المخصص بذكاء - نظام التوصيات الشخصي */}
+          
           <div className="mt-6 sm:mt-8">
             <SmartPersonalizedContent
               articleId={article.id}
