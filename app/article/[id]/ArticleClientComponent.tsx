@@ -566,17 +566,20 @@ export default function ArticleClientComponent({
                   </div>
                 )}
 
-                {/* العنوان - تحسين المسافات والهوامش */}
-                <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-3 text-gray-900 dark:text-white leading-tight text-right tracking-tight inline-block article-title-overlay">{/* زيادة حجم الخط للموبايل أكثر */}
-                  {article.title}
-                </h1>
+                {/* غلاف عنوان/عنوان فرعي مع توافق الوضع الداكن */}
+                <div className="article-title-wrapper inline-block text-right">
+                  {/* العنوان - تحسين المسافات والهوامش */}
+                  <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-3 text-gray-900 dark:text-white leading-tight tracking-tight article-title-overlay">{/* زيادة حجم الخط للموبايل أكثر */}
+                    {article.title}
+                  </h1>
 
-                {/* العنوان الفرعي - تحسين المظهر */}
-                {getSubtitle() && (
-                  <h2 className="article-subtitle text-2xl sm:text-3xl lg:text-4xl text-gray-600 dark:text-gray-400 mb-3 text-right leading-relaxed font-normal">{/* أصغر من العنوان الرئيسي بدرجة إضافية */}
-                    {getSubtitle()}
-                  </h2>
-                )}
+                  {/* العنوان الفرعي - تحسين المظهر */}
+                  {getSubtitle() && (
+                    <h2 className="article-subtitle text-2xl sm:text-3xl lg:text-4xl text-gray-600 dark:text-gray-200 mb-2 leading-relaxed font-normal">
+                      {getSubtitle()}
+                    </h2>
+                  )}
+                </div>
 
                 {/* المعلومات الأساسية - Desktop (مُرتبة) */}
                 <div className="flex flex-wrap items-center justify-start gap-3 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-4 text-left border-0 article-meta-info">
