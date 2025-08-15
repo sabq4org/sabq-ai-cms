@@ -21,15 +21,27 @@ export default function MobileFeaturedNews({ items, withSwipe = true }: MobileFe
   const [active, setActive] = useState(0);
   const trackRef = useRef<HTMLDivElement | null>(null);
   const timerRef = useRef<number | null>(null);
+  const indexRef = useRef<number>(0);
 
   if (!sanitized.length) return null;
 
   const handleScroll = () => {
     if (!trackRef.current) return;
     const el = trackRef.current;
-    const cardWidth = el.firstElementChild ? (el.firstElementChild as HTMLElement).clientWidth : 1;
-    const idx = Math.round(el.scrollLeft / cardWidth);
-    setActive(Math.max(0, Math.min(idx, sanitized.length - 1)));
+    // ابحث عن أقرب شريحة لموضع التمرير الفعلي بدلاً من القسمة على عرض البطاقة (لتفادي مشكلة الـ gap)
+    let nearestIdx = 0;
+    let minDist = Infinity;
+    for (let i = 0; i < el.children.length; i++) {
+      const child = el.children[i] as HTMLElement;
+      const left = child.offsetLeft;
+      const dist = Math.abs(el.scrollLeft - left);
+      if (dist < minDist) {
+        minDist = dist;
+        nearestIdx = i;
+      }
+    }
+    setActive(nearestIdx);
+    indexRef.current = nearestIdx;
   };
 
   // تشغيل تلقائي كل 3 ثواني مع الحفاظ على السحب اليدوي
@@ -38,23 +50,22 @@ export default function MobileFeaturedNews({ items, withSwipe = true }: MobileFe
     const el = trackRef.current;
     if (!el) return;
 
-    const tick = () => {
-      if (!trackRef.current) return;
+    timerRef.current = window.setInterval(() => {
       const container = trackRef.current;
-      const slide = container.firstElementChild as HTMLElement | null;
-      if (!slide) return;
-      const width = slide.clientWidth;
-      const nextIndex = (active + 1) % sanitized.length;
-      container.scrollTo({ left: nextIndex * width, behavior: "smooth" });
+      if (!container) return;
+      const children = container.children;
+      if (!children || children.length === 0) return;
+      const nextIndex = (indexRef.current + 1) % children.length;
+      const targetLeft = (children[nextIndex] as HTMLElement).offsetLeft;
+      container.scrollTo({ left: targetLeft, behavior: "smooth" });
+      indexRef.current = nextIndex;
       setActive(nextIndex);
-    };
-
-    timerRef.current = window.setInterval(tick, 3000);
+    }, 3000);
     return () => {
       if (timerRef.current) window.clearInterval(timerRef.current);
       timerRef.current = null;
     };
-  }, [active, withSwipe, sanitized.length]);
+  }, [withSwipe, sanitized.length]);
 
   const formatGregorian = (iso?: string) => {
     if (!iso) return "";
