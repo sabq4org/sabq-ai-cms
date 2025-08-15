@@ -1,0 +1,110 @@
+import React, { useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+
+export interface MobileFeaturedItem {
+  id: string;
+  title: string;
+  imageUrl: string;
+  href: string;
+  category?: string;
+  publishedAt?: string;
+}
+
+interface MobileFeaturedNewsProps {
+  items: MobileFeaturedItem[];
+  withSwipe?: boolean;
+}
+
+export default function MobileFeaturedNews({ items, withSwipe = true }: MobileFeaturedNewsProps) {
+  const sanitized = useMemo(() => Array.isArray(items) ? items.filter(Boolean) : [], [items]);
+  const [active, setActive] = useState(0);
+  const trackRef = useRef<HTMLDivElement | null>(null);
+
+  if (!sanitized.length) return null;
+
+  const handleScroll = () => {
+    if (!trackRef.current) return;
+    const el = trackRef.current;
+    const cardWidth = el.firstElementChild ? (el.firstElementChild as HTMLElement).clientWidth : 1;
+    const idx = Math.round(el.scrollLeft / cardWidth);
+    setActive(Math.max(0, Math.min(idx, sanitized.length - 1)));
+  };
+
+  return (
+    <section dir="rtl" className="relative w-full select-none">
+      <div
+        ref={trackRef}
+        onScroll={withSwipe ? handleScroll : undefined}
+        className={
+          withSwipe
+            ? "flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory no-scrollbar"
+            : ""
+        }
+      >
+        <style jsx>{`
+          .no-scrollbar::-webkit-scrollbar { display: none; }
+        `}</style>
+        {(withSwipe ? sanitized : [sanitized[0]]).map((item, i) => (
+          <Link
+            key={item.id}
+            href={item.href}
+            className={withSwipe ? "snap-start shrink-0 w-[92vw]" : "block w-full"}
+            aria-label={item.title}
+          >
+            <article className="relative w-full overflow-hidden rounded-2xl">
+              {/* إطار بنسبة 16:9 يثبت الارتفاع */}
+              <div className="relative aspect-[16/9] w-full">
+                <Image
+                  src={item.imageUrl}
+                  alt={item.title}
+                  fill
+                  className="object-cover"
+                  priority={i === 0}
+                  loading={i === 0 ? "eager" : "lazy"}
+                  decoding="async"
+                />
+                {/* تدرج أسود من الأسفل للأعلى */}
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
+
+                {/* طبقة النص السفلي */}
+                <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
+                  <h3 className="text-white text-base sm:text-lg font-semibold leading-snug line-clamp-2">
+                    {item.title}
+                  </h3>
+                  <div className="mt-1 flex items-center gap-2 text-[10px] sm:text-[11px] text-white/90">
+                    {item.category && (
+                      <span className="inline-flex items-center px-2 py-[2px] rounded-full bg-white/15 backdrop-blur-sm border border-white/20">
+                        {item.category}
+                      </span>
+                    )}
+                    {item.publishedAt && (
+                      <time dateTime={item.publishedAt} className="opacity-90">
+                        {new Date(item.publishedAt).toLocaleDateString("ar-SA")}
+                      </time>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </article>
+          </Link>
+        ))}
+      </div>
+
+      {/* مؤشرات صغيرة عند وجود أكثر من عنصر ومع تفعيل السحب */}
+      {withSwipe && sanitized.length > 1 && (
+        <div className="absolute left-1/2 -translate-x-1/2 bottom-2 flex items-center gap-1.5">
+          {sanitized.map((_, i) => (
+            <span
+              key={i}
+              className={
+                "block w-1.5 h-1.5 rounded-full transition-all " +
+                (i === active ? "bg-white/90" : "bg-white/40")
+              }
+            />
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}

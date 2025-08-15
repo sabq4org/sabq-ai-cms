@@ -71,6 +71,7 @@ const MuqtarabBlock = dynamic(
 
 // استيراد المكون الجديد الخفيف
 import LightFeaturedStrip from "@/components/featured/LightFeaturedStrip";
+import MobileFeaturedNews from "@/components/mobile/MobileFeaturedNews";
 // إضافة استيراد ديناميكي للكاروسيل لسطح المكتب
 const FeaturedNewsCarousel = dynamic(
   () =>
@@ -724,7 +725,17 @@ function NewspaperHomePage({
         {!featuredLoading && featuredArticle.length > 0 && (
           <div className={`${isMobileView ? "pt-2 pb-4" : "pt-4 pb-6"}`}>
             {isMobileView ? (
-              <LightFeaturedStrip articles={featuredArticle} heading={undefined} />
+              <MobileFeaturedNews
+                items={(featuredArticle || []).map((a: any) => ({
+                  id: a.id,
+                  title: a.title,
+                  imageUrl: a.featured_image,
+                  href: getArticleLink(a),
+                  category: a.category?.name || a.category_name || undefined,
+                  publishedAt: a.published_at || a.created_at,
+                }))}
+                withSwipe={true}
+              />
             ) : (
               <FeaturedNewsCarousel articles={featuredArticle} />
             )}
