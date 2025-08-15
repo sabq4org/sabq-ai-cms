@@ -218,6 +218,41 @@ async function getDeepAnalyses() {
   }
 }
 
+async function getFeaturedArticles() {
+  try {
+    const headersList = await headers();
+    const host = headersList.get("host") || "localhost:3002";
+    const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
+    const baseUrl = `${protocol}://${host}`;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    try {
+      const res = await fetch(`${baseUrl}/api/featured-news-carousel`, {
+        next: { revalidate: 60, tags: ["featured-news"] },
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120",
+        },
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      if (!res.ok) {
+        console.warn(`⚠️ فشل جلب الأخبار المميزة: ${res.status}`);
+        return [] as any[];
+      }
+      const data = await res.json();
+      return (data.articles as any[]) || [];
+    } catch (e) {
+      clearTimeout(timeoutId);
+      console.warn("⚠️ خطأ في جلب الأخبار المميزة:", e);
+      return [] as any[];
+    }
+  } catch (error) {
+    console.warn("⚠️ خطأ في إعداد طلب الأخبار المميزة:", error);
+    return [] as any[];
+  }
+}
+
 // Force dynamic for server-side features
 export const dynamic = "force-dynamic";
 
@@ -231,6 +266,7 @@ export default async function HomePage() {
       categories = [],
       newsStats = null,
       deepAnalyses = [],
+      featured = [],
     ] = await Promise.all([
       getArticles(20).catch((err) => {
         console.warn("⚠️ فشل جلب المقالات:", err);
@@ -248,6 +284,10 @@ export default async function HomePage() {
         console.warn("⚠️ فشل جلب التحليلات:", err);
         return [];
       }),
+      getFeaturedArticles().catch((err) => {
+        console.warn("⚠️ فشل جلب الأخبار المميزة:", err);
+        return [] as any[];
+      }),
     ]);
 
     console.log("✅ تم جلب البيانات بنجاح:", {
@@ -255,6 +295,7 @@ export default async function HomePage() {
       categories: categories.length,
       stats: !!newsStats,
       deepAnalyses: deepAnalyses.length,
+      featured: featured.length,
     });
 
     return (
@@ -263,6 +304,7 @@ export default async function HomePage() {
         initialCategories={categories}
         initialStats={newsStats}
         initialDeepAnalyses={deepAnalyses}
+        initialFeaturedArticles={featured}
       />
     );
   } catch (error) {

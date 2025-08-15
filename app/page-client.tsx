@@ -145,6 +145,7 @@ interface PageClientProps {
     dailyArticles: number | null;
     loading: boolean;
   };
+  initialFeaturedArticles?: any[];
 }
 
 function NewspaperHomePage({
@@ -153,6 +154,7 @@ function NewspaperHomePage({
   initialStats,
   initialDeepAnalyses = [],
   stats,
+  initialFeaturedArticles = [],
 }: PageClientProps) {
   const { user, loading: authLoading } = useAuth();
   const { darkMode } = useDarkModeContext();
@@ -220,8 +222,8 @@ function NewspaperHomePage({
   const [smartRecommendations, setSmartRecommendations] = useState<
     RecommendedArticle[]
   >([]);
-  const [featuredArticle, setFeaturedArticle] = useState<any[]>([]);
-  const [featuredLoading, setFeaturedLoading] = useState<boolean>(true);
+  const [featuredArticle, setFeaturedArticle] = useState<any[]>(initialFeaturedArticles);
+  const [featuredLoading, setFeaturedLoading] = useState<boolean>(initialFeaturedArticles.length === 0);
 
   console.log("🔧 NewspaperHomePage: تحضير useEffects...");
 
@@ -520,33 +522,28 @@ function NewspaperHomePage({
   // جلب التوصيات الذكية
   // جلب الخبر المميز
   useEffect(() => {
-    const fetchFeaturedArticle = async () => {
-      try {
-        setFeaturedLoading(true);
-        // استخدام tags بدلاً من timestamp لإدارة الكاش
-        const response = await fetch(`/api/featured-news-carousel`, {
-          next: {
-            revalidate: 60,
-            tags: ["featured-news"],
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success && data.articles && data.articles.length > 0) {
-            // نأخذ جميع الأخبار المميزة
-            setFeaturedArticle(data.articles);
+    // إذا تم تمرير بيانات أولية، لا حاجة لجلبها فوراً
+    if (initialFeaturedArticles.length === 0) {
+      (async () => {
+        try {
+          setFeaturedLoading(true);
+          const response = await fetch(`/api/featured-news-carousel`, { cache: 'no-store' });
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.articles && data.articles.length > 0) {
+              setFeaturedArticle(data.articles);
+            }
           }
+        } catch (e) {
+          console.error('خطأ في جلب الخبر المميز (Client fallback):', e);
+        } finally {
+          setFeaturedLoading(false);
         }
-      } catch (error) {
-        console.error("خطأ في جلب الخبر المميز:", error);
-      } finally {
-        setFeaturedLoading(false);
-      }
-    };
-
-    fetchFeaturedArticle();
-  }, []);
+      })();
+    } else {
+      setFeaturedLoading(false);
+    }
+  }, [initialFeaturedArticles]);
 
   useEffect(() => {
     const fetchSmartRecommendations = async () => {
