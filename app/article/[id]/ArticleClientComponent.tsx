@@ -550,7 +550,7 @@ export default function ArticleClientComponent({
               {/* Desktop Header - محاذاة العرض مع حاوية المحتوى */}
               <div className="hidden sm:block">
                 <div className="article-title-wrapper article-unified-width">
-                  <div className="px-3 sm:px-6 lg:px-8 py-4 lg:py-6 flex flex-col justify-center bg-gray-50 dark:bg-gray-900">
+                  <div className="px-3 sm:px-6 lg:px-8 py-4 lg:py-6 flex flex-col justify-center">
                 {/* التصنيف - محاذاة لليمين مع تحسين الهامش */}
                 {article.category && (
                   <div className="flex justify-end mb-5">

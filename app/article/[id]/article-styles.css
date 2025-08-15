@@ -97,17 +97,55 @@
   background: transparent;
 }
 
-/* تحسينات تصميم هيدر المقال - إزالة الخطوط والحدود */
+/* تحسينات تصميم هيدر المقال - إزالة الخطوط والحدود والخلفيات */
 .article-header {
   border: none !important;
   border-top: none !important;
   border-bottom: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
 }
 
 .article-meta {
   border: none !important;
   border-top: none !important;
   border-bottom: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* إزالة أي خلفية من header المقال */
+.article-title-wrapper {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.article-title-wrapper > div {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  border-bottom: none !important;
+}
+
+/* إزالة شاملة لأي خلفية في منطقة header المقال */
+.article-title-wrapper *,
+.article-header *,
+header.mb-1 *,
+header.mb-2 * {
+  background: transparent !important;
+  background-color: transparent !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+/* استثناءات للعناصر التي تحتاج خلفية (أزرار، تصنيفات) */
+.article-title-wrapper a[class*="bg-"],
+.article-header a[class*="bg-"],
+.article-title-wrapper button,
+.article-header button {
+  background: revert !important;
+  background-color: revert !important;
 }
 
 /* تحسين محاذاة معلومات النشر لليمين */
