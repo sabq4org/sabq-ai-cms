@@ -212,7 +212,7 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
               التحليل العميق من سبق
             </h2>
           </div>
-          <p className="text-base sm:text-lg mt-2 text-white/90 drop-shadow card-description" style={{ wordSpacing: 'normal', letterSpacing: 'normal' }}>
+          <p className="text-base sm:text-lg mt-2 text-blue-50 drop-shadow card-description" style={{ wordSpacing: 'normal', letterSpacing: 'normal' }}>
             رؤى استراتيجية ودراسات معمقة بالذكاء الاصطناعي
           </p>
         </div>
@@ -393,7 +393,7 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
 
                       {/* الملخص - سطرين فقط */}
                       <p className={`text-sm leading-relaxed line-clamp-2 mb-4 ${
-                        darkMode ? 'text-gray-300' : 'text-gray-600'
+                        darkMode ? 'text-gray-200' : 'text-gray-600'
                       }`}>
                         {summary}
                       </p>
@@ -431,8 +431,8 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                       }`}>
                         <div className="flex items-center gap-3">
                           <div className="flex items-center gap-1">
-                            <Clock3 className={`w-3.5 h-3.5 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
-                            <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                            <Clock3 className={`w-3.5 h-3.5 ${darkMode ? 'text-gray-300' : 'text-gray-500'}`} />
+                            <span className={`text-xs ${darkMode ? 'text-gray-300' : 'text-gray-500'}`}>
                               {readTime} د
                             </span>
                           </div>
@@ -451,11 +451,11 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
                         </div>
                         
                         <div className="flex items-center gap-2">
-                          <span className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                          <span className={`text-xs ${darkMode ? 'text-gray-300' : 'text-gray-400'}`}>
                             {item.analyzed_at ? formatDate(item.analyzed_at) : 'التاريخ غير محدد'}
                           </span>
                           <ChevronRight className={`w-3.5 h-3.5 transition-transform group-hover:translate-x-1 ${
-                            darkMode ? 'text-gray-400' : 'text-gray-500'
+                            darkMode ? 'text-gray-300' : 'text-gray-500'
                           }`} />
                         </div>
                       </div>

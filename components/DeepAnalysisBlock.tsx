@@ -342,7 +342,7 @@ export default function DeepAnalysisBlock({
               </h2>
             </div>
             <p
-              className="text-base sm:text-lg mt-2 text-white/90 drop-shadow card-description"
+              className="text-base sm:text-lg mt-2 text-blue-50 drop-shadow card-description"
               style={{ wordSpacing: "normal", letterSpacing: "normal" }}
             >
               رؤى استراتيجية ودراسات معمقة بالذكاء الاصطناعي
@@ -690,7 +690,7 @@ export default function DeepAnalysisBlock({
                             <h3
                               className={`text-sm font-bold mb-1.5 leading-tight line-clamp-2 ${
                                 darkMode ? "text-white" : "text-gray-900"
-                              } group-hover:text-purple-600 transition-colors`}
+                              } group-hover:text-purple-400 transition-colors`}
                             >
                               {title}
                             </h3>
@@ -698,7 +698,7 @@ export default function DeepAnalysisBlock({
                             {/* الملخص */}
                             <p
                               className={`text-xs leading-relaxed line-clamp-2 ${
-                                darkMode ? "text-gray-400" : "text-gray-600"
+                                darkMode ? "text-gray-200" : "text-gray-700"
                               }`}
                             >
                               {summary}

@@ -144,7 +144,7 @@ const DeepAnalysisCard = ({
 
           {/* الملخص */}
           {analysis.summary && (
-            <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-3">
+            <p className="text-sm text-gray-700 dark:text-gray-200 line-clamp-2 mb-3">
               {analysis.summary}
             </p>
           )}
@@ -164,7 +164,7 @@ const DeepAnalysisCard = ({
           )}
 
           {/* الإحصائيات */}
-          <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mt-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+          <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-300 mt-2 pt-2 border-t border-gray-100 dark:border-gray-800">
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
