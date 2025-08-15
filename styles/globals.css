@@ -549,3 +549,25 @@ select {
     height: 0.875rem !important;
   }
 }
+
+/* إخفاء العناوين المتراكبة على صور الأخبار المميزة في الديسكتوب فقط */
+@media (min-width: 768px) {
+  /* استهداف شامل لجميع مكونات الأخبار المميزة */
+  [class*="featured"] .absolute h1,
+  [class*="featured"] .absolute h2,
+  [class*="featured"] .absolute h3,
+  [class*="Featured"] .absolute h1,
+  [class*="Featured"] .absolute h2,
+  [class*="Featured"] .absolute h3,
+  .featured-carousel .absolute h1,
+  .featured-carousel .absolute h2,
+  .featured-carousel .absolute h3 {
+    display: none !important;
+  }
+  
+  /* استهداف محدد للعناوين المتراكبة على الصور */
+  [class*="featured"] .absolute.z-20 h3,
+  [class*="Featured"] .absolute.z-20 h3 {
+    display: none !important;
+  }
+}
