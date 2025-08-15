@@ -1,0 +1,13 @@
+FORCE DEPLOYMENT: 2025-08-16T00:15:00+03:00
+
+This file forces Vercel to redeploy the application.
+Last changes pushed to clean-main:
+
+1. Dark logo support in footer (logoDarkUrl)
+2. Media library modal expansion (96vw width)
+3. Toast message positioning fix
+4. Keywords fetching fix for article edit
+5. Muqtarab block positioning
+6. Mobile lite header overlap fix
+
+Delete this file after successful deployment.
