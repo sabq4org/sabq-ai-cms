@@ -14,12 +14,7 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
     
     // بناء شروط البحث
-    const where: any = {
-      // استبعاد المستخدمين الإداريين
-      role: {
-        notIn: ['admin', 'editor', 'content-manager', 'moderator', 'كاتب']
-      }
-    };
+    const where: any = {};
     
     // البحث بالاسم أو البريد
     if (search) {
@@ -54,14 +49,7 @@ export async function GET(request: NextRequest) {
           email_verified: true,
           created_at: true,
           last_login: true,
-          metadata: true,
-          _count: {
-            select: {
-              comments: true,
-              likes: true,
-              bookmarks: true
-            }
-          }
+          metadata: true
         },
         orderBy: {
           created_at: 'desc'
@@ -92,9 +80,9 @@ export async function GET(request: NextRequest) {
         last_login: reader.last_login,
         stats: {
           articles_read: articlesRead,
-          comments: reader._count.comments,
-          likes: reader._count.likes,
-          bookmarks: reader._count.bookmarks
+          comments: 0,
+          likes: 0,
+          bookmarks: 0
         },
         subscription
       };
