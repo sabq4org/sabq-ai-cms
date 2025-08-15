@@ -1,7 +1,7 @@
 "use client";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface SabqLogoProps {
   className?: string;
@@ -17,15 +17,40 @@ export default function SabqLogo({
   isWhite = false,
 }: SabqLogoProps) {
   const [imageError, setImageError] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const { logoUrl, logoDarkUrl } = useSiteSettings();
 
-  // التحقق من الوضع الليلي
-  const isDarkMode =
-    typeof window !== "undefined" &&
-    document.documentElement.classList.contains("dark");
+  // مراقبة تغيير الوضع الليلي بشكل ديناميكي
+  useEffect(() => {
+    const checkDarkMode = () => {
+      setIsDarkMode(document.documentElement.classList.contains("dark"));
+    };
+
+    checkDarkMode();
+
+    // مراقبة التغييرات في class الـ html
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   // استخدام الشعار من الإعدادات أو الافتراضي
-  const src = imageError ? "/logo.png" : (isDarkMode ? (logoDarkUrl || logoUrl) : logoUrl) || "/logo.png";
+  const src = imageError ? "/logo.png" : (isDarkMode && logoDarkUrl ? logoDarkUrl : logoUrl) || "/logo.png";
+  
+  // DEBUG: لنرى ما يحدث
+  useEffect(() => {
+    console.log("SabqLogo Debug:", {
+      isDarkMode,
+      logoUrl,
+      logoDarkUrl,
+      selectedSrc: src,
+      isWhite
+    });
+  }, [isDarkMode, logoUrl, logoDarkUrl, src, isWhite]);
 
   // شعار نصي احتياطي
   if (imageError) {
@@ -38,9 +63,7 @@ export default function SabqLogo({
           className={`text-2xl font-bold ${
             isWhite
               ? "text-white"
-              : isDarkMode
-              ? "text-gray-100"
-              : "text-gray-900"
+              : "text-gray-900 dark:text-gray-100"
           }`}
         >
           سبق
@@ -56,7 +79,7 @@ export default function SabqLogo({
         alt="سبق"
         width={width}
         height={height}
-        className={`object-contain ${isWhite || isDarkMode ? "brightness-0 invert" : ""}`}
+        className={`object-contain ${isWhite ? "brightness-0 invert" : ""}`}
         priority
         onError={() => setImageError(true)}
       />
