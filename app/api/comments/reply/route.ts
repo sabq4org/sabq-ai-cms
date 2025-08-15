@@ -4,10 +4,6 @@ import { getCurrentUser } from "@/app/lib/auth";
 
 export const runtime = "nodejs";
 
-function isUUID(id: string) {
-  return /^[0-9a-fA-F-]{10,}$/.test(id);
-}
-
 async function getDepth(commentId: string): Promise<number> {
   let depth = 1;
   let current = await prisma.comments.findUnique({ where: { id: commentId }, select: { parent_id: true } });
@@ -33,11 +29,6 @@ export async function POST(request: NextRequest) {
 
     if (!articleId || !parentId || !content.trim()) {
       return NextResponse.json({ success: false, error: "حقول مطلوبة ناقصة" }, { status: 400 });
-    }
-
-    if (!isUUID(parentId)) {
-      // لا نقيّد articleId بصيغة UUID لأن مقالاتنا ليست UUID دائماً
-      return NextResponse.json({ success: false, error: "parentId غير صالح" }, { status: 400 });
     }
 
     const parent = await prisma.comments.findUnique({ where: { id: parentId }, select: { article_id: true, id: true } });
@@ -66,6 +57,10 @@ export async function POST(request: NextRequest) {
         likes: 0,
         created_at: new Date(),
         updated_at: new Date(),
+        metadata: {
+          ...(parent as any)?.metadata,
+          reply_to: parentId,
+        },
       },
     });
 

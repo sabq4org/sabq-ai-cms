@@ -155,6 +155,7 @@ export default function CommentsClient({ articleId }: CommentsClientProps) {
       const res = await fetch("/api/comments/reply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ articleId, parentId, content }),
       });
       const data = await res.json();
