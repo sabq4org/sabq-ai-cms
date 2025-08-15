@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import EnhancedDarkModeToggle from './EnhancedDarkModeToggle';
@@ -25,6 +25,8 @@ export default function MobileLiteLayout({
   const { resolvedTheme, mounted } = useTheme();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [isLoaded, setIsLoaded] = useState(false);
+  const headerRef = useRef<HTMLElement | null>(null);
+  const [headerHeight, setHeaderHeight] = useState<number>(0);
 
   useEffect(() => {
     setIsLoaded(true);
@@ -41,15 +43,37 @@ export default function MobileLiteLayout({
     }
   }, [resolvedTheme, mounted, isLoaded, isMobile]);
 
+  // قياس ارتفاع الهيدر لتفادي تراكب المحتوى تحته
+  useEffect(() => {
+    const measure = () => {
+      if (showHeader && headerRef.current) {
+        const rect = headerRef.current.getBoundingClientRect();
+        setHeaderHeight(Math.ceil(rect.height));
+      } else {
+        setHeaderHeight(0);
+      }
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    window.addEventListener('orientationchange', measure as any);
+    return () => {
+      window.removeEventListener('resize', measure);
+      window.removeEventListener('orientationchange', measure as any);
+    };
+  }, [showHeader, isLoaded]);
+
   if (!mounted || !isLoaded) {
     return <MobileLiteLayoutSkeleton />;
   }
 
   return (
-    <div className={`mobile-lite-layout ${resolvedTheme} ${className}`}>
+    <div
+      className={`mobile-lite-layout ${resolvedTheme} ${className}`}
+      style={{ ['--ml-header-h' as any]: `${headerHeight}px` }}
+    >
       {/* Header محسن */}
       {showHeader && (
-        <header className="mobile-lite-header">
+        <header className="mobile-lite-header" ref={headerRef}>
           <div className="header-content">
             <div className="header-brand">
               <h1 className="brand-title">سبق الذكية</h1>
@@ -178,6 +202,7 @@ export default function MobileLiteLayout({
           display: flex;
           flex-direction: column;
           min-height: 0;
+          padding-top: calc(var(--ml-header-h, 56px) + env(safe-area-inset-top));
         }
 
         .main-content {
