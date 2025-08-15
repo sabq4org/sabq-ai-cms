@@ -98,8 +98,8 @@ const FeaturedNewsCard = memo(
                 )}
               </div>
 
-              {/* المحتوى */}
-              <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8 text-white">
+              {/* المحتوى - مخفي على الديسكتوب، ظاهر على الموبايل */}
+              <div className="md:hidden absolute bottom-0 left-0 right-0 p-6 lg:p-8 text-white">
                 {/* التصنيف */}
                 {article.category && (
                   <div className="mb-3">
