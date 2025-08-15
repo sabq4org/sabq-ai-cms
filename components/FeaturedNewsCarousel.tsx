@@ -170,9 +170,6 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                     })}
                   </span>
                 </div>
-                <h3 className="text-white text-base font-bold leading-snug line-clamp-2 drop-shadow-md">
-                  {currentArticle.title}
-                </h3>
               </div>
               {showBadge && (
                 <div className="hidden lg:block absolute top-4 right-4 z-30">
