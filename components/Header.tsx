@@ -28,6 +28,7 @@ import ClientOnly from "./ClientOnly";
 import UserDropdown from "./UserDropdown";
 import MobileUserDropdown from "./mobile/UserDropdown";
 import UserMenuDrawer from "./mobile/UserMenuDrawer";
+import NotificationBell from "@/components/notifications/NotificationBell";
 
 export default function Header() {
   const router = useRouter();
@@ -188,6 +189,10 @@ export default function Header() {
 
             {/* أدوات الهيدر */}
             <div className="flex items-center space-x-2 md:space-x-4 rtl:space-x-reverse">
+              {/* الجرس */}
+              <div className="hidden md:block">
+                <NotificationBell />
+              </div>
               {/* أيقونة لحظة بلحظة */}
               <Link
                 href="/moment-by-moment"
