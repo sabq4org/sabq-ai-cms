@@ -275,7 +275,7 @@ export function MediaPickerModal({
 
   return (
     <Dialog open={open} onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-6xl h-[85vh] p-0 overflow-hidden bg-white dark:bg-gray-900 flex flex-col">
+      <DialogContent className="w-[92vw] max-w-[92vw] h-[85vh] p-0 overflow-hidden bg-white dark:bg-gray-900 flex flex-col">
         <DialogHeader className="px-6 py-5 border-b bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800">
           <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-gray-100">{title}</DialogTitle>
         </DialogHeader>
@@ -348,7 +348,7 @@ export function MediaPickerModal({
             {/* Content */}
             <div ref={contentRef} className="flex-1 overflow-y-auto px-6 py-4 min-h-0">
               {loading ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4">
                   {[...Array(8)].map((_, i) => (
                     <Skeleton key={i} className="h-32" />
                   ))}
@@ -359,7 +359,7 @@ export function MediaPickerModal({
                   {currentFolders.length > 0 && (
                     <div className="mb-6">
                       <h3 className="text-sm font-medium text-muted-foreground mb-3">المجلدات</h3>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4">
                         {currentFolders.map(folder => (
                           <motion.div
                             key={folder.id}
@@ -389,7 +389,7 @@ export function MediaPickerModal({
                       {currentFolders.length > 0 && (
                         <h3 className="text-sm font-medium text-muted-foreground mb-3">الملفات</h3>
                       )}
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4">
                         {assets.map(asset => {
                           const isSelected = multiple 
                             ? selectedAssets.has(asset.id)
@@ -420,7 +420,7 @@ export function MediaPickerModal({
                                 }
                               }}
                             >
-                              <div className="aspect-square bg-gray-100 dark:bg-gray-800 flex items-center justify-center relative overflow-hidden">
+                              <div className="aspect-[4/3] bg-gray-100 dark:bg-gray-800 flex items-center justify-center relative overflow-hidden">
                                 {asset.type === "IMAGE" ? (
                                   <img
                                     src={asset.thumbnailUrl || asset.cloudinaryUrl}
