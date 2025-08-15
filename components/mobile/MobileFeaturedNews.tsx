@@ -118,8 +118,8 @@ export default function MobileFeaturedNews({ items, withSwipe = true }: MobileFe
                 {/* تدرج أسود من الأسفل للأعلى */}
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
 
-                {/* طبقة النص السفلي */}
-                <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
+                {/* طبقة النص السفلي - للموبايل فقط */}
+                <div className="md:hidden absolute inset-x-0 bottom-0 p-3 sm:p-4">
                   {/* التصنيف + التاريخ (فوق العنوان) */}
                   <div className="flex items-center gap-2 text-[10px] sm:text-[11px] text-white/90 mb-1">
                     {item.category && (

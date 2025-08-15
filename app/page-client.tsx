@@ -173,7 +173,7 @@ function NewspaperHomePage({
           /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
             userAgent
           );
-        const isSmallScreen = window.innerWidth <= 768;
+        const isSmallScreen = window.innerWidth < 768;
         setIsMobile(isMobileDevice || isSmallScreen);
       } catch (error) {
         if (process.env.NODE_ENV !== "production") {
