@@ -29,6 +29,10 @@ export default function CommentsClient({ articleId }: CommentsClientProps) {
   const [hasMore, setHasMore] = useState(true);
   const [sort, setSort] = useState<"new" | "old" | "top">("new");
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyContent, setReplyContent] = useState<string>("");
+  const [openReplies, setOpenReplies] = useState<Record<string, boolean>>({});
+  const [repliesByParent, setRepliesByParent] = useState<Record<string, CommentItem[]>>({});
 
   const fetchComments = async (pageNum = 1, append = false) => {
     try {
@@ -124,6 +128,50 @@ export default function CommentsClient({ articleId }: CommentsClientProps) {
       setError(e.message || "فشل في إضافة التعليق");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const loadReplies = async (parentId: string) => {
+    try {
+      const r = await fetch(`/api/comments/replies?parentId=${encodeURIComponent(parentId)}`, { cache: "no-store" });
+      const j = await r.json();
+      if (j?.success) {
+        const items: CommentItem[] = (j.items || []).map((x: any) => ({
+          id: x.id,
+          content: x.content,
+          status: "approved",
+          createdAt: x.createdAt,
+          user: x.user || null,
+        }));
+        setRepliesByParent((prev) => ({ ...prev, [parentId]: items }));
+      }
+    } catch {}
+  };
+
+  const submitReply = async (parentId: string) => {
+    try {
+      const content = replyContent.trim();
+      if (!content) return;
+      const res = await fetch("/api/comments/reply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ articleId, parentId, content }),
+      });
+      const data = await res.json();
+      if (!res.ok || data.success === false) {
+        throw new Error(data?.error || "فشل في إرسال الرد");
+      }
+      try {
+        const toast = (await import("react-hot-toast")).default;
+        toast.success("تم إضافة الرد وبانتظار المراجعة");
+      } catch {}
+      setReplyContent("");
+      setReplyingTo(null);
+      // إعادة تحميل الردود لعرضها
+      await loadReplies(parentId);
+      setOpenReplies((prev) => ({ ...prev, [parentId]: true }));
+    } catch (e: any) {
+      setError(e.message || "فشل في إرسال الرد");
     }
   };
 
@@ -234,27 +282,71 @@ export default function CommentsClient({ articleId }: CommentsClientProps) {
                       <button className="inline-flex items-center gap-1 hover:text-slate-900">
                         <ThumbsUp className="w-3.5 h-3.5" /> إعجاب
                       </button>
-                      {c.repliesCount ? (
+                      <button
+                        className="inline-flex items-center gap-1 hover:text-blue-600"
+                        onClick={() => {
+                          setReplyingTo(c.id);
+                          setReplyContent("");
+                        }}
+                      >
+                        رد
+                      </button>
+                      {(c.repliesCount || 0) > 0 && (
                         <button
                           className="inline-flex items-center gap-1 text-blue-600 hover:underline"
                           onClick={async () => {
-                            // تحميل الردود عند الطلب وعرضها في نافذة بسيطة مؤقتاً (يمكن تحسينها لاحقاً)
-                            try {
-                              const r = await fetch(`/api/comments/replies?parentId=${encodeURIComponent(c.id)}`, { cache: "no-store" });
-                              const j = await r.json();
-                              if (j?.success) {
-                                alert(j.items.map((x: any) => `• ${x.content}`).join("\n\n") || "لا توجد ردود");
-                              }
-                            } catch {}
+                            const isOpen = !!openReplies[c.id];
+                            if (!isOpen && !repliesByParent[c.id]) {
+                              await loadReplies(c.id);
+                            }
+                            setOpenReplies((prev) => ({ ...prev, [c.id]: !isOpen }));
                           }}
                         >
-                          {c.repliesCount} رد{c.repliesCount > 1 ? "ود" : ""}
+                          {(openReplies[c.id] ? "إخفاء الردود" : `${c.repliesCount} رد${(c.repliesCount || 0) > 1 ? "ود" : ""}`)}
                         </button>
-                      ) : null}
+                      )}
                       <button className="inline-flex items-center gap-1 hover:text-red-600">
                         <Flag className="w-3.5 h-3.5" /> إبلاغ
                       </button>
                     </div>
+                    {replyingTo === c.id && (
+                      <div className="mt-3">
+                        <textarea
+                          value={replyContent}
+                          onChange={(e) => setReplyContent(e.target.value)}
+                          rows={2}
+                          className="w-full rounded-md border px-2 py-1 text-sm focus:outline-none focus:ring"
+                          placeholder="اكتب ردك..."
+                        />
+                        <div className="mt-2 flex items-center gap-2">
+                          <button
+                            onClick={() => submitReply(c.id)}
+                            className="px-3 py-1 rounded-md bg-blue-600 text-white text-xs hover:bg-blue-700"
+                          >
+                            إرسال الرد
+                          </button>
+                          <button
+                            onClick={() => { setReplyingTo(null); setReplyContent(""); }}
+                            className="px-3 py-1 rounded-md border text-xs"
+                          >
+                            إلغاء
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                    {openReplies[c.id] && (repliesByParent[c.id]?.length || 0) > 0 && (
+                      <div className="ms-6 mt-3 border-s ps-3 space-y-3">
+                        {repliesByParent[c.id]!.map((r) => (
+                          <div key={r.id} className="text-sm">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[11px] text-slate-500">{new Date(r.createdAt).toLocaleDateString("ar-SA")}</span>
+                              <span className="text-[11px] text-slate-600">{r.user?.name || "مستخدم"}</span>
+                            </div>
+                            <div className="mt-1 text-slate-800">{r.content}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
