@@ -69,6 +69,33 @@ export async function POST(request: Request) {
     });
 
     if (existingUser) {
+      // إذا كان غير موثّق، نُعيد إصدار رمز تحقق جديد بدلاً من 409
+      if (!existingUser.is_verified) {
+        const verificationCode = generateVerificationCode();
+        await prisma.email_verification_codes.deleteMany({ where: { email: email.toLowerCase() } });
+        await prisma.email_verification_codes.create({
+          data: {
+            id: `code-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            email: email.toLowerCase(),
+            code: verificationCode,
+            expires_at: new Date(Date.now() + 10 * 60 * 1000),
+            created_at: new Date()
+          }
+        });
+        try {
+          console.log('📧 إعادة إرسال رمز التحقق إلى:', email);
+          const emailSentAgain = await sendVerificationEmail(email, existingUser.name || email.split('@')[0], verificationCode);
+          if (!emailSentAgain) {
+            console.warn('⚠️ فشل إعادة إرسال بريد التحقق (سيُظهر الكود في السجل إن مُفعّل)');
+          }
+        } catch {}
+        return NextResponse.json({
+          success: true,
+          message: 'الحساب موجود وغير موثّق. تم إصدار رمز تحقق جديد.',
+          requiresVerification: true,
+          user: { id: existingUser.id, email: existingUser.email, name: existingUser.name }
+        });
+      }
       return NextResponse.json(
         { success: false, error: 'البريد الإلكتروني مستخدم بالفعل' },
         { status: 409 }

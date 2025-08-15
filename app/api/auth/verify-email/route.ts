@@ -36,17 +36,26 @@ export async function POST(request: NextRequest) {
 
     // جلب رمز التحقق من قاعدة البيانات
     const verification = await prisma.email_verification_codes.findFirst({
-      where: { email, code }
+      where: { email },
+      orderBy: { created_at: 'desc' }
     });
 
+    // دعم الكود الثابت من الإعدادات
+    const allowStatic = process.env.SKIP_EMAIL_VERIFICATION === 'true' || process.env.USE_STATIC_VERIFICATION_CODE === 'true';
+    const staticCode = process.env.STATIC_VERIFICATION_CODE || '000000';
+    const candidateCode = code || '';
+
     if (!verification) {
-      return NextResponse.json(
-        { success: false, error: 'رمز التحقق غير صحيح' },
-        { status: 400 }
-      );
+      // إن لم نجد رمزاً، نسمح بالكود الثابت إن مُفعّل
+      if (!(allowStatic && candidateCode === staticCode)) {
+        return NextResponse.json(
+          { success: false, error: 'رمز التحقق غير صحيح' },
+          { status: 400 }
+        );
+      }
     }
 
-    if (verification.expires_at && verification.expires_at < new Date()) {
+    if (verification && verification.expires_at && verification.expires_at < new Date() && !(allowStatic && candidateCode === staticCode)) {
       return NextResponse.json(
         { success: false, error: 'انتهت صلاحية رمز التحقق' },
         { status: 400 }
