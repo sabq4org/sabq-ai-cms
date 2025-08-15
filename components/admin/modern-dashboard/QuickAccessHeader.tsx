@@ -32,6 +32,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import SabqLogo from "@/components/SabqLogo";
 
 interface QuickAccessHeaderProps {
   showMenuButton?: boolean;
@@ -81,8 +82,9 @@ export default function QuickAccessHeader({
                 <Menu className="h-5 w-5" />
               </Button>
             )}
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-sm">
-              <span className="text-sm font-extrabold">س</span>
+            <div className="flex items-center">
+              <SabqLogo className="hidden sm:block" width={112} height={32} />
+              <SabqLogo className="sm:hidden" width={88} height={26} />
             </div>
             <div className="hidden sm:block">
               <div className="text-sm text-gray-500 dark:text-gray-300 leading-tight">مشروع</div>
@@ -213,8 +215,9 @@ export default function QuickAccessHeader({
       <div className="flex items-center gap-3 md:gap-6 justify-between">
         {/* اليسار: الشعار + اسم المشروع */}
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-sm">
-            <span className="text-sm font-extrabold">س</span>
+          <div className="flex items-center">
+            <SabqLogo className="hidden sm:block" width={112} height={32} />
+            <SabqLogo className="sm:hidden" width={88} height={26} />
           </div>
           <div className="hidden sm:block">
             <div className="text-sm text-gray-500 dark:text-gray-300 leading-tight">مشروع</div>
