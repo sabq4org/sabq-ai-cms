@@ -7,7 +7,7 @@ import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { 
   User, Mail, Lock, Eye, EyeOff, 
-  CheckCircle, AlertCircle, Sparkles 
+  CheckCircle, AlertCircle, Sparkles, UserPlus 
 } from 'lucide-react';
 import SabqLogo from '@/components/SabqLogo';
 export default function RegisterPage() {
@@ -17,11 +17,9 @@ export default function RegisterPage() {
     fullName: '',
     email: '',
     password: '',
-    confirmPassword: '',
     agreeToTerms: false
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<any>({});
   const validateForm = () => {
@@ -38,9 +36,6 @@ export default function RegisterPage() {
       newErrors.password = 'كلمة المرور مطلوبة';
     } else if (formData.password.length < 8) {
       newErrors.password = 'كلمة المرور يجب أن تكون 8 أحرف على الأقل';
-    }
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'كلمات المرور غير متطابقة';
     }
     if (!formData.agreeToTerms) {
       newErrors.agreeToTerms = 'يجب الموافقة على الشروط والأحكام';
@@ -152,25 +147,25 @@ export default function RegisterPage() {
           </div>
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center max-w-xl w-full px-4">
             <div className="space-y-4">
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 text-right">
-                <h3 className="text-2xl font-bold">لا تفوّت لحظة</h3>
-                <p className="opacity-90 mt-1">كن أول من يعرف… الخبر، التحليل، والقصة الكاملة بين يديك.</p>
+              <div className="rounded-xl p-0 text-right">
+                <h3 className="text-2xl font-bold text-white">لا تفوّت لحظة</h3>
+                <p className="mt-1 text-white/90 font-normal">كن أول من يعرف… الخبر، التحليل، والقصة الكاملة بين يديك.</p>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 text-right">
-                <h3 className="text-2xl font-bold">صوتك مسموع</h3>
-                <p className="opacity-90 mt-1">ناقش، علّق، وشارك رأيك مع مجتمع يهتم بما تقوله.</p>
+              <div className="rounded-xl p-0 text-right">
+                <h3 className="text-2xl font-bold text-white">صوتك مسموع</h3>
+                <p className="mt-1 text-white/90 font-normal">ناقش، علّق، وشارك رأيك مع مجتمع يهتم بما تقوله.</p>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 text-right">
-                <h3 className="text-2xl font-bold">قصتك تبدأ هنا</h3>
-                <p className="opacity-90 mt-1">من الأخبار العاجلة إلى التحليلات العميقة… أنت في قلب الحدث.</p>
+              <div className="rounded-xl p-0 text-right">
+                <h3 className="text-2xl font-bold text-white">قصتك تبدأ هنا</h3>
+                <p className="mt-1 text-white/90 font-normal">من الأخبار العاجلة إلى التحليلات العميقة… أنت في قلب الحدث.</p>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 text-right">
-                <h3 className="text-2xl font-bold">لك وحدك</h3>
-                <p className="opacity-90 mt-1">محتوى مصمم على ذوقك، لأن اهتماماتك ليست مثل أحد.</p>
+              <div className="rounded-xl p-0 text-right">
+                <h3 className="text-2xl font-bold text-white">لك وحدك</h3>
+                <p className="mt-1 text-white/90 font-normal">محتوى مصمم على ذوقك، لأن اهتماماتك ليست مثل أحد.</p>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 text-right">
-                <h3 className="text-2xl font-bold">أكثر من قارئ… أنت شريك</h3>
-                <p className="opacity-90 mt-1">انضم وشارك في صناعة الإعلام الذكي الجديد.</p>
+              <div className="rounded-xl p-0 text-right">
+                <h3 className="text-2xl font-bold text-white">أكثر من قارئ… أنت شريك</h3>
+                <p className="mt-1 text-white/90 font-normal">انضم وشارك في صناعة الإعلام الذكي الجديد.</p>
               </div>
             </div>
             <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 text-sm font-medium mt-6">
@@ -187,8 +182,8 @@ export default function RegisterPage() {
               <div className="lg:hidden mb-4">
                 <SabqLogo className="mx-auto" width={140} height={48} />
               </div>
-              <h1 className="text-2xl font-bold text-gray-800">أنشئ حسابك وابدأ رحلتك مع سبق</h1>
-              <p className="text-gray-600">لنصمم لك تجربة قراءة ذكية تناسب اهتماماتك</p>
+              <h1 className="text-2xl font-bold text-gray-800 inline-flex items-center gap-2 justify-center"><UserPlus className="w-5 h-5 text-blue-600"/> أنشئ حسابك وابدأ رحلتك مع سبق</h1>
+              <p className="text-gray-600 font-normal">لنصمم لك تجربة قراءة ذكية تناسب اهتماماتك</p>
               <div className="lg:hidden inline-flex items-center gap-2 bg-blue-50 rounded-full px-3 py-1 text-sm font-medium text-blue-600 w-fit mx-auto">AI-Powered</div>
             </div>
 
@@ -277,38 +272,7 @@ export default function RegisterPage() {
                 </p>
               )}
             </div>
-            {/* تأكيد كلمة المرور */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 md:mb-2">
-                تأكيد كلمة المرور
-              </label>
-              <div className="relative">
-                <Lock className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400 dark:text-gray-500" />
-                <input
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  value={formData.confirmPassword}
-                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                  className={`w-full pr-9 md:pr-10 pl-9 md:pl-10 py-2.5 md:py-3 text-sm md:text-base border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all dark:bg-gray-700 dark:text-white ${
-                    errors.confirmPassword ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                  }`}
-                  placeholder="••••••••"
-                  autoComplete="new-password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
-                >
-                  {showConfirmPassword ? <EyeOff className="w-4 h-4 md:w-5 md:h-5" /> : <Eye className="w-4 h-4 md:w-5 md:h-5" />}
-                </button>
-              </div>
-              {errors.confirmPassword && (
-                <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
-                  <AlertCircle className="w-3 h-3" />
-                  {errors.confirmPassword}
-                </p>
-              )}
-            </div>
+            {/* تمت إزالة تأكيد كلمة المرور حسب الطلب */}
             {/* الموافقة على الشروط */}
             <div>
               <label className="flex items-start gap-2 md:gap-3 cursor-pointer">
