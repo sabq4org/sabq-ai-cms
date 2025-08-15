@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Heart, Bookmark, Share2, MessageSquare, Eye, Clock } from 'lucide-react';
 import { useEnhancedTracking } from '@/hooks/useEnhancedTracking';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
-import { toast } from 'sonner';
+import toast from 'react-hot-toast';
 
 interface ArticleInteractionBarProps {
   articleId: string;
@@ -92,10 +92,9 @@ export default function ArticleInteractionBar({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          userId,
-          articleId,
-          type: 'like',
-          action: newLiked ? 'add' : 'remove'
+          user_id: userId,
+          article_id: articleId,
+          type: 'like'
         })
       });
 
@@ -130,10 +129,9 @@ export default function ArticleInteractionBar({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId,
-          articleId,
-          type: 'save',
-          action: newSaved ? 'add' : 'remove'
+          user_id: userId,
+          article_id: articleId,
+          type: 'save'
         })
       });
 
