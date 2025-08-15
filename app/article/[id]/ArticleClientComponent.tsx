@@ -964,9 +964,8 @@ export default function ArticleClientComponent({
               userId={undefined}
             />
           </div>
-        </div> {/* closes bg-transparent */}
-      </div> {/* closes max-w-4xl */}
-    </div> {/* closes w-full container */}
+        </div> {/* closes article-unified-width */}
+      </div> {/* closes w-full */}
       </main>
 
       <Footer />
