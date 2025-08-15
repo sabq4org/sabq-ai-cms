@@ -155,7 +155,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                   transform: 'translateZ(0)'
                 }}
               />
-              {/* العنوان المتراكب - للموبايل فقط (تحديث: 2025-01-14) */}
+              {/* العنوان المتراكب - للموبايل فقط (FORCE UPDATE: 2025-08-15T17:40) */}
               <div
                 className="md:hidden absolute left-4 right-4 z-20"
                 style={{ bottom: '12px', top: 'auto', transform: 'translateZ(0)' }}
