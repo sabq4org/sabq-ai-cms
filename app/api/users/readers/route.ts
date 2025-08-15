@@ -31,9 +31,9 @@ export async function GET(request: NextRequest) {
     
     // فلتر التوثيق
     if (verified === 'verified') {
-      where.email_verified = true;
+      where.is_verified = true;
     } else if (verified === 'unverified') {
-      where.email_verified = false;
+      where.is_verified = false;
     }
     
     // جلب القراء
@@ -46,9 +46,9 @@ export async function GET(request: NextRequest) {
           email: true,
           avatar: true,
           status: true,
-          email_verified: true,
+          is_verified: true,
           created_at: true,
-          last_login: true
+          last_login_at: true,
         },
         orderBy: {
           created_at: 'desc'
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
     ]);
     
     // تحويل البيانات للتنسيق المطلوب
-    const formattedReaders = readers.map(reader => {
+    const formattedReaders = readers.map((reader: any) => {
       // اشتراك افتراضي وقراءة تقديرية كقيم مبدئية
       const subscription = { type: 'free' } as any;
       const articlesRead = 0;
@@ -71,9 +71,9 @@ export async function GET(request: NextRequest) {
         email: reader.email,
         avatar: reader.avatar,
         status: reader.status || 'active',
-        email_verified: reader.email_verified || false,
+        email_verified: Boolean(reader.is_verified),
         created_at: reader.created_at,
-        last_login: reader.last_login,
+        last_login: reader.last_login_at ?? null,
         stats: {
           articles_read: articlesRead,
           comments: 0,
