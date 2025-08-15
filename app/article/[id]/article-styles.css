@@ -167,6 +167,24 @@ body > div.page-content-wrapper > main > div.relative > article.article-content 
   background: transparent !important;
 }
 
+/* استهداف الحاوية المحددة من DevTools: إزالة الخلفية البيضاء في الوضع الداكن فقط */
+.dark article.article-content > header.article-title-text {
+  background-color: transparent !important;
+}
+
+/* إزالة أي خلفية من العناصر الداخلية التي تستخدم bg- داخل الهيدر المحدد في الوضع الداكن فقط */
+.dark article.article-content > header.article-title-text [class*="bg-"] {
+  background-color: transparent !important;
+}
+
+/* تحسين تباين العنوان الفرعي وبيانات النشر داخل الهيدر المحدد للوضع الداكن */
+.dark article.article-content > header.article-title-text .article-subtitle {
+  color: #e5e7eb !important;
+}
+.dark article.article-content > header.article-title-text .article-meta-info {
+  color: #cbd5e1 !important;
+}
+
 @media (max-width: 768px) {
   .article-container {
     padding: 1rem;
