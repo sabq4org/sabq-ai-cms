@@ -15,8 +15,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // وضع تطوير: كود عام 000000
-    if (process.env.NODE_ENV !== 'production' && code === '000000') {
+    // كود ثابت مؤقت (للبيئة غير الإنتاجية أو عند تفعيل SKIP_EMAIL_VERIFICATION)
+    if ((process.env.NODE_ENV !== 'production' || process.env.SKIP_EMAIL_VERIFICATION === 'true') && code === '000000') {
       const user = await prisma.users.findUnique({ where: { email } });
       if (!user) {
         return NextResponse.json(

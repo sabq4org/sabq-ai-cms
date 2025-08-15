@@ -331,6 +331,10 @@ export async function sendTwoFactorCode(to: string, code: string) {
 
 // توليد رمز تحقق عشوائي
 export function generateVerificationCode(): string {
+  const staticFromEnv = process.env.STATIC_VERIFICATION_CODE;
+  const useStatic = process.env.USE_STATIC_VERIFICATION_CODE === 'true' || process.env.SKIP_EMAIL_VERIFICATION === 'true';
+  if (staticFromEnv) return staticFromEnv.padStart(6, '0').slice(0, 6);
+  if (useStatic) return '000000';
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
