@@ -884,30 +884,10 @@ export async function DELETE(
         where: { article_id: id },
       });
 
-      // حذف الإعجابات
-      await prisma.likes.deleteMany({
-        where: { article_id: id },
-      });
-
-      // حذف المشاركات
-      await prisma.shares.deleteMany({
-        where: { article_id: id },
-      });
-
-      // حذف المقالات المحفوظة للمستخدمين
-      await prisma.saved_articles.deleteMany({
-        where: { article_id: id },
-      });
-
-      // حذف قراءات المقال
-      await prisma.article_reads.deleteMany({
-        where: { article_id: id },
-      });
-
-      // حذف أي بيانات تحليلات
-      await prisma.article_analytics.deleteMany({
-        where: { article_id: id },
-      });
+      // حذف تفاعلات المستخدمين المعيارية
+      await prisma.interactions.deleteMany({ where: { article_id: id } });
+      // حذف التعليقات (موجودة في schema)
+      await prisma.comments.deleteMany({ where: { article_id: id } });
 
       console.log(`🧹 تم حذف جميع البيانات المرتبطة بالمقال`);
     });
