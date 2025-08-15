@@ -78,7 +78,8 @@ const FeaturedNewsCarousel = dynamic(
       default: EmptyComponent,
     })),
   {
-    ssr: false,
+    // السماح بالـ SSR لعرض فوري على الديسكتوب
+    ssr: true,
     loading: () => (
       <div className="w-full h-80 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />
     ),
@@ -1600,6 +1601,7 @@ export default function PageClient({
     loading: false,
   },
   initialDeepAnalyses = [],
+  initialFeaturedArticles = [],
 }: PageClientProps) {
   // 🔍 Debug: فحص البيانات الواردة
   console.log("🎯 [DEBUG] PageClient received data:", {
@@ -1630,6 +1632,7 @@ export default function PageClient({
       initialArticles={initialArticles}
       initialCategories={initialCategories}
       initialDeepAnalyses={initialDeepAnalyses}
+      initialFeaturedArticles={initialFeaturedArticles}
     />
   );
 }
