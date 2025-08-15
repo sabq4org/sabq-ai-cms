@@ -146,9 +146,9 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                   <span className="text-6xl">📰</span>
                 </div>
               )}
-              {/* طبقة شفافة وعنوان للهواتف فقط - للتجنب التكرار مع منطقة النص */}
+              {/* طبقة شفافة وعنوان للهواتف فقط - إخفاء على التابلت/الديسكتوب */}
               <div
-                className="lg:hidden absolute inset-0 z-10 pointer-events-none"
+                className="md:hidden absolute inset-0 z-10 pointer-events-none"
                 style={{
                   background:
                     'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.5) 25%, transparent 100%)',
@@ -156,7 +156,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                 }}
               />
               <div
-                className="lg:hidden absolute left-4 right-4 z-20"
+                className="md:hidden absolute left-4 right-4 z-20"
                 style={{ bottom: '12px', top: 'auto', transform: 'translateZ(0)' }}
               >
                 <div className="flex items-center gap-2 mb-1 text-[11px] text-white/90">

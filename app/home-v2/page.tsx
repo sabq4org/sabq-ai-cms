@@ -355,11 +355,14 @@ export default async function HomeV2() {
                     fallbackType="article"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                  {/* إخفاء العنوان المتراكب على الديسكتوب - الإبقاء فقط للموبايل */}
+                  <div className="md:hidden relative h-full p-4 flex flex-col justify-end">
+                    <h3 className="text-white font-bold line-clamp-2">
+                      {a.title}
+                    </h3>
+                  </div>
                 </div>
-                <div className="relative h-full p-4 flex flex-col justify-end">
-                  <h3 className="text-white font-bold line-clamp-2">
-                    {a.title}
-                  </h3>
+                <div className="hidden md:flex relative h-full p-4 flex-col justify-end">
                   <div className="mt-1 text-blue-100 text-xs flex items-center gap-3">
                     <span className="inline-flex items-center gap-1">
                       <Eye className="w-3.5 h-3.5" />{" "}
