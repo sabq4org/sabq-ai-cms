@@ -415,7 +415,10 @@ export async function POST(request: NextRequest) {
       metadata: data.metadata || {},
       // تعيين article_type والتوافق مع content_type
       article_type: data.article_type || "news",
-      content_type: contentType as any,
+      content_type: contentType,
+      // إضافة معرف مؤلف مؤقت يتم تحديثه لاحقاً
+      article_author_id: null,
+      author_id: null,
     };
 
     // دالة مساعدة: تحويل وقت محلي (Asia/Riyadh) إلى UTC
@@ -586,13 +589,45 @@ export async function POST(request: NextRequest) {
       category: category.name,
     });
 
-    // تحديد حقول المؤلف بناءً على مصدره - مبسط
+    // تحديد حقول المؤلف بناءً على مصدره
     if (authorSource === "article_authors") {
       // استخدام النظام الجديد - article_authors
       articleData.article_author_id = author.id;
-      // نحتاج إنشاء مؤلف في users أو استخدام مؤلف افتراضي
-      // مؤقتاً: استخدام نفس ID للحقلين (سيتم إصلاح هذا لاحقاً)
-      articleData.author_id = author.id;
+      
+      // البحث عن user مرتبط بنفس البريد الإلكتروني أو إنشاء مؤلف افتراضي
+      let systemUser = null;
+      try {
+        if (author.email) {
+          systemUser = await prisma.users.findFirst({
+            where: { email: author.email },
+            select: { id: true }
+          });
+        }
+      } catch (e) {
+        console.log("⚠️ فشل البحث عن user مرتبط");
+      }
+      
+      if (systemUser) {
+        articleData.author_id = systemUser.id;
+        console.log("📝 تم ربط المؤلف بـ user موجود:", systemUser.id);
+      } else {
+        // استخدام user افتراضي أو إنشاء واحد
+        // البحث عن أول user متاح كـ fallback
+        const defaultUser = await prisma.users.findFirst({
+          select: { id: true },
+          orderBy: { created_at: 'asc' }
+        });
+        
+        if (defaultUser) {
+          articleData.author_id = defaultUser.id;
+          console.log("📝 استخدام user افتراضي:", defaultUser.id);
+        } else {
+          // إذا لم يوجد أي user، نترك author_id فارغ
+          delete articleData.author_id;
+          console.log("⚠️ لا يوجد users في النظام، سيتم تخطي author_id");
+        }
+      }
+      
       console.log("📝 استخدام النظام الجديد: article_author_id =", author.id);
     } else if (authorSource === "users") {
       // استخدام النظام القديم - users
