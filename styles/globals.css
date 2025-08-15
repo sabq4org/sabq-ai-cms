@@ -3,6 +3,28 @@
 
 .data-\[state\=open\]\:slide-in-from-right[data-state="open"] { animation: slide-in-from-right 220ms cubic-bezier(0.2,0.8,0.2,1); }
 .data-\[state\=closed\]\:slide-out-to-right[data-state="closed"] { animation: slide-out-to-right 200ms ease; }
+
+/* إصلاحات الأخطاء والمشاكل العامة */
+/* تصحيح أنماط الصور المكسورة */
+img[src=""],
+img:not([src]),
+img[src*="800x600.jpg"] {
+  display: none !important;
+}
+
+/* إخفاء عناصر "مجدول" */
+[data-status="scheduled"],
+.scheduled-indicator,
+.status-scheduled {
+  display: none !important;
+}
+
+/* فلترة الأخبار المجدولة */
+.article-card[data-status="scheduled"],
+.news-card[data-status="scheduled"] {
+  display: none !important;
+}
+
 /* متغيرات CSS لأبعاد العناصر الثابتة */
 :root {
   --header-height: 64px; /* ارتفاع الهيدر الرئيسي */

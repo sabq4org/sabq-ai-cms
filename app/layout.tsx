@@ -24,7 +24,8 @@ import "../styles/mobile-article-layout-fix.css";
 import "../styles/article-content-alignment.css";
 import "../styles/article-content-images.css";
 import "../styles/user-dropdown.css";
-import "../styles/globals.css";
+import "@/styles/globals.css";
+import "@/styles/error-fixes.css";
 import "../styles/unified-font-system.css";
 import "../styles/word-cloud.css";
 import "../styles/improved-mobile-menu.css";
@@ -267,16 +268,17 @@ export default function RootLayout({
         {/* Production Error Fixes */}
         <script src="/production-error-fixes.js" defer></script>
 
-        {/* Mobile light version CSS/JS (global, non-intrusive) */}
-        <link rel="stylesheet" href="/assets/css/mobile_fixes.css" />
+        {/* Mobile light version JS (global, non-intrusive) */}
         <script src="/assets/js/mobile_interactions.js" defer></script>
         
         {/* Mobile Lite Version Fixes - إصلاحات النسخة الخفيفة */}
-        <link rel="stylesheet" href="/styles/mobile-lite-fixes.css" />
         <script src="/mobile-lite-fixes.js" defer></script>
         
         {/* Mobile Sidebar Enhancements - تحسينات القائمة الجانبية للجوال */}
         <script src="/mobile-sidebar-enhancements.js" defer></script>
+        
+        {/* CSS Selector & JavaScript Error Fixes - إصلاح أخطاء CSS و JavaScript */}
+        <script src="/selector-fix.js" defer></script>
         
 
       </head>

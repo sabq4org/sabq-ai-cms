@@ -96,8 +96,9 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
 
   const currentArticle = articles[currentIndex];
   
-  // تسجيل console للتشخيص
+  // تسجيل console للتشخيص في النسخة الكاملة
   if (process.env.NODE_ENV === 'development') {
+    console.log('🖼️ [FeaturedNewsCarousel] Desktop Mode: Component is rendering for desktop screens');
     console.log('🖼️ [FeaturedNewsCarousel] Current Article:', {
       id: currentArticle.id,
       title: currentArticle.title?.substring(0, 50) + '...',
@@ -111,7 +112,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
 
   return (
     <div
-      className="featured-carousel relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6 overflow-visible"
+      className="featured-carousel relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       aria-roledescription="carousel"
@@ -125,21 +126,54 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
         >
           <div
             className={`grid grid-cols-1 lg:grid-cols-12`}
-            style={{ height: `${desktopH}px`, overflow: 'hidden', borderRadius: '1.5rem' }}
+            style={{ height: `${desktopH}px` }}
           >
             <div
-              className="col-span-1 lg:col-span-6 relative overflow-hidden"
+              className="col-span-1 lg:col-span-6 relative overflow-hidden rounded-xl lg:rounded-r-2xl lg:rounded-l-none"
               style={{ height: `${desktopH}px` }}
             >
-              <OptimizedImage
-                src={currentArticle.featured_image} // الصورة معالجة مسبقاً من API
-                alt={currentArticle.title}
-                fill
-                priority
-                sizes="(max-width:1024px) 100vw, 50vw"
-                className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+              {(currentArticle.featured_image) ? (
+                <OptimizedImage
+                  src={currentArticle.featured_image}
+                  alt={currentArticle.title}
+                  fill
+                  priority
+                  sizes="(max-width:1024px) 100vw, 50vw"
+                  className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                />
+              ) : (
+                <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
+                  <span className="text-6xl">📰</span>
+                </div>
+              )}
+              {/* طبقة شفافة وعنوان للهواتف فقط - للتجنب التكرار مع منطقة النص */}
+              <div
+                className="lg:hidden absolute inset-0 z-10 pointer-events-none"
+                style={{
+                  background:
+                    'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.5) 25%, transparent 100%)',
+                  transform: 'translateZ(0)'
+                }}
               />
-              {/* تمت إزالة طبقة العنوان على الصورة للهواتف حسب الطلب */}
+              <div
+                className="lg:hidden absolute left-4 right-4 z-20"
+                style={{ bottom: '12px', top: 'auto', transform: 'translateZ(0)' }}
+              >
+                <div className="flex items-center gap-2 mb-1 text-[11px] text-white/90">
+                  <span className="text-sm">{currentArticle.category?.icon || '📰'}</span>
+                  <span className="font-medium">{currentArticle.category?.name || 'أخبار'}</span>
+                  <span className="opacity-80">•</span>
+                  <span className="opacity-90">
+                    {new Date(currentArticle.published_at || new Date()).toLocaleDateString('ar-SA', {
+                      month: 'short',
+                      day: 'numeric'
+                    })}
+                  </span>
+                </div>
+                <h3 className="text-white text-base font-bold leading-snug line-clamp-2 drop-shadow-md">
+                  {currentArticle.title}
+                </h3>
+              </div>
               {showBadge && (
                 <div className="hidden lg:block absolute top-4 right-4 z-30">
                   <div className="bg-yellow-500 text-white px-3 py-1 text-xs rounded-full flex items-center gap-1 shadow">
@@ -149,7 +183,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                 </div>
               )}
             </div>
-            <div className="hidden lg:flex lg:col-span-6 p-4 lg:p-6 flex-col justify-between" style={{ height: `${desktopH}px` }}>
+            <div className="hidden lg:flex lg:col-span-6 p-4 lg:p-6 flex-col justify-between overflow-hidden" style={{ height: `${desktopH}px` }}>
               <h2
                 className={`text-xl lg:text-2xl xl:text-3xl font-bold mb-4 leading-tight line-clamp-3 transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400 ${
                   darkMode ? "text-white" : "text-gray-900"
@@ -197,6 +231,41 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
           </div>
         </div>
       </Link>
+      {/* مؤشرات و أزرار التنقل - موحدة لجميع الشاشات */}
+      <div className="flex mt-4 justify-center items-center px-4" aria-label="مؤشرات الكاروسيل">
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={(e) => { e.preventDefault(); handlePrevious(); }} 
+            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-300 shadow-sm" 
+            aria-label="الخبر السابق"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+          <div className="flex justify-center items-center gap-1.5">
+            {articles.map((a, idx) => (
+              <button
+                key={a.id}
+                onClick={() => setCurrentIndex(idx)}
+                className={`h-1.5 rounded-full transition-all duration-300 ease-in-out ${
+                  idx === currentIndex 
+                    ? "w-8 bg-blue-500 dark:bg-blue-400" 
+                    : "w-4 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500"
+                }`}
+                aria-label={`الانتقال إلى الخبر ${idx + 1}: ${a.title}`}
+                aria-current={idx === currentIndex}
+                title={a.title}
+              />
+            ))}
+          </div>
+          <button 
+            onClick={(e) => { e.preventDefault(); handleNext(); }} 
+            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-300 shadow-sm" 
+            aria-label="الخبر التالي"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
