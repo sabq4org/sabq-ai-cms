@@ -729,7 +729,7 @@ export default function ArticleClientComponent({
               </div>
             )}
           <div className="article-unified-width py-2">
-            <div className="bg-transparent dark:bg-transparent rounded-xl p-3 sm:p-6 lg:p-8">
+            <div className="bg-transparent dark:bg-transparent rounded-xl">
               <div className="sm:hidden mb-6">
                 {article.featured_image &&
                   typeof article.featured_image === "string" &&
@@ -772,7 +772,7 @@ export default function ArticleClientComponent({
             </div>
 
             {/* منطقة الموجز الذكي للديسكتوب */}
-            <div className="hidden sm:block mb-6 sm:mb-8 article-ai-summary-wrapper">
+            <div className="hidden sm:block mb-6 sm:mb-8">
               <ArticleAISummary
                   articleId={article.id}
                   title={article.title || "مقال بدون عنوان"}
@@ -795,9 +795,9 @@ export default function ArticleClientComponent({
                 </div>
               </div>
 
-            {/* شريط التفاعل الذكي - عرض أوسع للموبايل */}
-            <div className="mb-6 sm:mb-8 -mx-3 sm:mx-0">
-              <div className="px-3 sm:px-0">
+            {/* شريط التفاعل الذكي */}
+            <div className="mb-6 sm:mb-8">
+              <div>
                 <SmartInteractionButtons
                   articleId={article.id}
                   initialStats={{
@@ -816,10 +816,10 @@ export default function ArticleClientComponent({
 
             {/* تمت إزالة أزرار المشاركة هنا بناء على التوجيه */}
 
-            {/* الكلمات المفتاحية - عرض أوسع للموبايل */}
+            {/* الكلمات المفتاحية */}
             {keywords.length > 0 && (
-              <div className="mb-6 sm:mb-8 -mx-3 sm:mx-0">
-                <div className="px-3 sm:px-0">
+              <div className="mb-6 sm:mb-8">
+                <div>
                   <div className="flex flex-wrap gap-1.5 sm:gap-2">
                     {keywords.map((keyword, index) => (
                       <Link
@@ -836,9 +836,9 @@ export default function ArticleClientComponent({
               </div>
             )}
 
-            {/* زر وضع القراءة - عرض أوسع للموبايل */}
-            <div className="mb-6 sm:mb-8 -mx-3 sm:mx-0">
-              <div className="px-3 sm:px-0 flex justify-end">
+            {/* زر وضع القراءة */}
+            <div className="mb-6 sm:mb-8">
+              <div className="flex justify-end">
                 <button
                   onClick={() => setIsReading(!isReading)}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
@@ -855,9 +855,9 @@ export default function ArticleClientComponent({
               </div>
             </div>
 
-            {/* محتوى المقال - عرض أوسع للموبايل */}
-            <div className="mb-12 -mx-3 sm:mx-0">
-              <div className="px-3 sm:px-0">
+            {/* محتوى المقال */}
+            <div className="mb-12">
+              <div>
                 <div
                   className={`prose max-w-none dark:prose-invert arabic-article-content
                     prose-headings:text-gray-900 dark:prose-headings:text-white

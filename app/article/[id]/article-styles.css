@@ -1,6 +1,6 @@
-/* محاذاة العرض الموحد للعنوان والصورة والمحتوى */
+/* توحيد عرض جميع حاويات المقال مع بلوك "محتوى مخصص لك" */
 .article-unified-width {
-  max-width: 50rem !important; /* اجعلها أضيق من الموجز قليلاً (يمكن ضبطها) */
+  max-width: 56rem !important; /* max-w-4xl = 896px = 56rem - نفس عرض SmartPersonalizedContent */
   margin: 0 auto !important;
   padding-left: 1.5rem !important; /* px-6 */
   padding-right: 1.5rem !important; /* px-6 */
