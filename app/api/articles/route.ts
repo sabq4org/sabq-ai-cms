@@ -648,6 +648,14 @@ export async function POST(request: NextRequest) {
 
     // إنشاء المقال بشكل مبسط وسريع
     console.log("⚡ إنشاء المقال...");
+    
+    console.log("🔍 البيانات المُرسلة إلى Prisma:");
+    console.log("   - id:", articleData.id);
+    console.log("   - author_id:", articleData.author_id);
+    console.log("   - article_author_id:", articleData.article_author_id);
+    console.log("   - category_id:", articleData.category_id);
+    console.log("   - content_type:", articleData.content_type);
+    
     const article = await prisma.articles.create({
       data: articleData,
     });
@@ -728,10 +736,13 @@ export async function POST(request: NextRequest) {
 
       console.error("🔍 تفاصيل خطأ P2003:", {
         field,
+        constraint: error.meta?.constraint,
         meta: error.meta,
         receivedData: {
-          author_id: authorId,
-          category_id: categoryId,
+          authorId,
+          categoryId,
+          article_author_id: articleData?.article_author_id,
+          author_id: articleData?.author_id,
         },
       });
 
