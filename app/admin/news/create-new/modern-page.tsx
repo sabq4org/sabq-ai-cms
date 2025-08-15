@@ -600,9 +600,9 @@ export default function ModernCreateNewsPage() {
         // عرض رسالة خطأ مفصلة مع معلومات إضافية
         toast({
           title: action === "publish" ? "❌ فشل في النشر" : "❌ فشل في الحفظ",
-          description: `${error.error || error.details || "حدث خطأ أثناء العملية"}\n\n💡 تأكد من اتصالك بالإنترنت وحاول مرة أخرى`,
+          description: `${error.message || error.details || error.error || 'Unknown error'}`,
           variant: "destructive",
-          duration: 8000, // إظهار أطول للأخطاء
+          duration: 6000,
         });
         return;
       }
@@ -613,15 +613,9 @@ export default function ModernCreateNewsPage() {
 
       // عرض إشعار النجاح مع معلومات إضافية ومؤثرات بصرية
       toast({
-        title: action === "publish" ? "🎉 تم النشر بنجاح!" : action === "draft" ? "💾 تم الحفظ بنجاح!" : "📋 تم الإرسال للمراجعة!",
-        description:
-          action === "publish"
-            ? `✨ تم نشر الخبر "${formData.title}" بنجاح، وتم أيضاً إرساله لنظام تتبع القصص الذكي للربط والتنبيه`
-            : action === "draft"
-            ? `📝 تم حفظ مسودة "${formData.title}" بنجاح، وسيتم تحليله لاحقاً للربط بقصة`
-            : `👀 تم إرسال "${formData.title}" للمراجعة، وسيتم تحليله لربطه بقصة إذا لزم الأمر`,
-        duration: 6000,
-        variant: "default",
+        title: action === "publish" ? "🎉 تم النشر بنجاح" : action === "draft" ? "💾 تم الحفظ بنجاح" : "📋 تم الإرسال للمراجعة",
+        description: result?.message || formData.title,
+        duration: 5000,
       });
 
       // إعادة توجيه واضحة ومحسنة
@@ -652,8 +646,8 @@ export default function ModernCreateNewsPage() {
       } else {
         console.error("Error saving:", error);
         toast({
-          title: action === "publish" ? "⚠️ خطأ في النشر" : "⚠️ خطأ في الحفظ",
-          description: `حدث خطأ في الاتصال بالخادم: ${error.message || 'خطأ غير معروف'}. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.`,
+          title: action === "publish" ? "⚠️ فشل في النشر" : "⚠️ فشل في الحفظ",
+          description: error?.message || 'حدث خطأ غير معروف',
           variant: "destructive",
           duration: 8000,
         });
@@ -692,6 +686,7 @@ export default function ModernCreateNewsPage() {
 
   return (
     <TooltipProvider delayDuration={100}>
+      <Toaster />
       <div className="min-h-screen bg-gray-100 dark:bg-gray-950">
         {/* Header */}
         <div className="sticky top-0 z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
