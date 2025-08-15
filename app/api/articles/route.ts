@@ -444,7 +444,7 @@ export async function POST(request: NextRequest) {
       const rawSchedule = data.scheduled_for || data.publish_at || data.publishAt;
       if (rawSchedule) {
         const scheduledDate = toUTCFromRiyadh(rawSchedule);
-        if (!isNaN(scheduledDate.getTime())) {
+        if (scheduledDate && typeof scheduledDate.getTime === 'function' && !isNaN(scheduledDate.getTime())) {
           const now = new Date();
           if (scheduledDate.getTime() > now.getTime()) {
             // مجدول في المستقبل → الحالة scheduled ولا يوجد published_at
@@ -645,10 +645,13 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // ربط المقال بنظام القصص الذكي (MVP)
+    // ربط المقال بنظام القصص الذكي (MVP) - غير حاجز للاستجابة وبمهلة قصيرة
     try {
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-      await fetch(`${siteUrl}/api/stories/analyze`, {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2000);
+      // عدم الانتظار لتجنب تعليق النشر إذا كان المسار بطيئًا أو غير متاح
+      fetch(`${siteUrl}/api/stories/analyze`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -664,7 +667,12 @@ export async function POST(request: NextRequest) {
             createdAt: article.created_at,
           },
         }),
-      }).catch(() => {});
+        signal: controller.signal,
+      })
+        .catch(() => {})
+        .finally(() => {
+          try { clearTimeout(timeoutId); } catch {}
+        });
     } catch {}
 
     // تعامل مبسط مع المقالات المميزة - تجنب FeaturedArticleManager مؤقتاً
