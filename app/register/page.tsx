@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 export default function RegisterPage() {
   const router = useRouter();
+  const emailRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -87,11 +88,19 @@ export default function RegisterPage() {
         ok: response.ok
       });
       
-      const data = await response.json();
+      const data = await response.json().catch(() => ({} as any));
       console.log('بيانات الاستجابة:', data);
       
       if (!response.ok) {
-        throw new Error(data.error || data.message || 'فشل التسجيل');
+        const serverMessage = data?.error || data?.message || '';
+        // معالجة خاصة للبريد المستخدم
+        if (response.status === 409 || /مستخدم بالفعل|already/i.test(serverMessage)) {
+          setErrors((prev: any) => ({ ...prev, email: 'البريد الإلكتروني مستخدم بالفعل' }));
+          emailRef.current?.focus();
+          toast.error('البريد الإلكتروني مستخدم بالفعل');
+          return;
+        }
+        throw new Error(serverMessage || 'فشل التسجيل');
       }
       
       // إلغاء رسالة التحميل
@@ -118,7 +127,15 @@ export default function RegisterPage() {
       if (error.name === 'AbortError') {
         toast.error('انتهت مهلة الاتصال. يرجى المحاولة مرة أخرى.');
       } else {
-        toast.error(error instanceof Error ? error.message : 'حدث خطأ في التسجيل');
+        const message = error instanceof Error ? error.message : 'حدث خطأ في التسجيل';
+        // إظهار رسالة مفهومة للمستخدم عند البريد المكرر
+        if (/مستخدم بالفعل|already/i.test(message)) {
+          setErrors((prev: any) => ({ ...prev, email: 'البريد الإلكتروني مستخدم بالفعل' }));
+          emailRef.current?.focus();
+          toast.error('البريد الإلكتروني مستخدم بالفعل');
+        } else {
+          toast.error(message);
+        }
       }
     } finally {
       setLoading(false);
@@ -184,6 +201,7 @@ export default function RegisterPage() {
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  ref={emailRef}
                   className={`w-full pr-9 md:pr-10 pl-3 md:pl-4 py-2.5 md:py-3 text-sm md:text-base border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all dark:bg-gray-700 dark:text-white ${
                     errors.email ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                   }`}
@@ -274,12 +292,12 @@ export default function RegisterPage() {
                 />
                 <span className="text-xs md:text-sm text-gray-700 dark:text-gray-300">
                   أوافق على{' '}
-                  <Link href="/terms" className="text-indigo-600 dark:text-indigo-400 hover:underline">
+                  <Link href="/terms-of-use" className="text-indigo-600 dark:text-indigo-400 hover:underline">
                     الشروط والأحكام
                   </Link>{' '}
                   <span className="hidden md:inline">
                     و{' '}
-                    <Link href="/privacy" className="text-indigo-600 dark:text-indigo-400 hover:underline">
+                    <Link href="/privacy-policy" className="text-indigo-600 dark:text-indigo-400 hover:underline">
                       سياسة الخصوصية
                     </Link>
                   </span>
