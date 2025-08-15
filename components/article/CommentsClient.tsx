@@ -173,27 +173,24 @@ export default function CommentsClient({ articleId }: CommentsClientProps) {
                 className="border rounded-lg p-3 bg-white dark:bg-white"
               >
                 <div className="flex gap-3">
-                  {/* عمود الصورة والاسم والتاريخ */}
-                  <div className="flex flex-col items-center w-16">
-                    <div className="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden">
+                  {/* عمود الصورة والاسم والتاريخ والوقت */}
+                  <div className="flex flex-col items-center w-20">
+                    <div className="w-14 h-14 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden">
                       {c.user?.avatar ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={c.user.avatar as any}
-                          alt=""
-                          className="w-full h-full object-cover"
-                        />
+                        <img src={c.user.avatar as any} alt="" className="w-full h-full object-cover" />
                       ) : (
-                        <span className="text-sm font-semibold text-slate-600">
+                        <span className="text-base font-semibold text-slate-600">
                           {(c.user?.name || "زائر").slice(0, 2)}
                         </span>
                       )}
                     </div>
-                    <div className="mt-1 text-[11px] text-slate-700 text-center max-w-[3.5rem] truncate">
+                    <div className="mt-1 text-[11px] text-slate-700 text-center max-w-[4.5rem] truncate">
                       {c.user?.name || "زائر"}
                     </div>
-                    <div className="text-[10px] text-slate-400">
-                      {new Date(c.createdAt).toLocaleDateString("ar-SA")}
+                    <div className="mt-0.5 text-[10px] text-slate-500 text-center leading-tight">
+                      <div>{new Date(c.createdAt).toLocaleDateString("en-GB")}</div>
+                      <div>{new Date(c.createdAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}</div>
                     </div>
                   </div>
                   {/* محتوى التعليق */}

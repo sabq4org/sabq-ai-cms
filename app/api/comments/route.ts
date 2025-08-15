@@ -207,8 +207,42 @@ export async function GET(request: NextRequest) {
       prisma.comments.count({ where }),
     ]);
 
-    // تنسيق البيانات
-    const formattedComments = comments.map(formatComment);
+    // جلب بيانات المستخدمين المرتبطين لإظهار الاسم والصورة
+    const userIds = Array.from(
+      new Set((comments as any[]).map((c) => c.user_id).filter(Boolean))
+    ) as string[];
+    let userMap = new Map<string, { id: string; name: string | null; avatar: string | null }>();
+    if (userIds.length) {
+      const users = await prisma.users.findMany({
+        where: { id: { in: userIds } },
+        select: { id: true, name: true, avatar: true },
+      });
+      userMap = new Map(users.map((u) => [u.id, { id: u.id, name: u.name || null, avatar: u.avatar || null }]));
+    }
+
+    // تنسيق البيانات مع تضمين معلومات المستخدم
+    const formattedComments = (comments as any[]).map((comment) => {
+      const u = comment.user_id ? userMap.get(comment.user_id) : null;
+      return {
+        id: comment.id,
+        content: comment.content,
+        status: comment.status,
+        createdAt: comment.created_at,
+        user: comment.user_id
+          ? {
+              id: comment.user_id,
+              name: u?.name || "مستخدم",
+              avatar: u?.avatar || null,
+            }
+          : {
+              name: comment.metadata?.guestName || "زائر",
+              avatar: null,
+            },
+        replies: [],
+        reportsCount: 0,
+        metadata: comment.metadata,
+      };
+    });
 
     return NextResponse.json(
       {
