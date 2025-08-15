@@ -550,7 +550,7 @@ export default function ArticleClientComponent({
               {/* Desktop Header - محاذاة العرض مع حاوية المحتوى */}
               <div className="hidden sm:block">
                 <div className="article-title-wrapper article-unified-width">
-                  <div className="px-3 sm:px-6 lg:px-8 py-4 lg:py-6 flex flex-col justify-center">
+                  <div className="px-0 py-4 lg:py-6 flex flex-col justify-center">
                 {/* التصنيف - محاذاة لليمين مع تحسين الهامش */}
                 {article.category && (
                   <div className="flex justify-end mb-5">
@@ -584,7 +584,7 @@ export default function ArticleClientComponent({
                 </div>
 
                 {/* المعلومات الأساسية - Desktop (مُرتبة) */}
-                <div className="article-meta-info flex flex-wrap items-center justify-start gap-3 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-4 text-left border-0">
+                <div className="article-meta-info flex flex-wrap items-center justify-end gap-3 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-4 text-right border-0">
                   {/* المراسل */}
                   {article.author && (
                     <div className="inline-flex items-center gap-1.5 sm:gap-2">

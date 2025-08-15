@@ -23,14 +23,14 @@ body, html {
 .article-unified-width {
   max-width: 56rem !important; /* max-w-4xl = 896px = 56rem - نفس عرض SmartPersonalizedContent */
   margin: 0 auto !important;
-  padding-left: 1.5rem !important; /* px-6 */
-  padding-right: 1.5rem !important; /* px-6 */
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 @media (min-width: 1024px) {
   .article-unified-width {
-    padding-left: 2rem !important; /* lg:px-8 */
-    padding-right: 2rem !important; /* lg:px-8 */
+    padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 }
 
