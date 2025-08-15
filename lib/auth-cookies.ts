@@ -40,7 +40,24 @@ export function clearAuthCookies(res: NextResponse) {
     httpOnly: true,
     secure,
     sameSite: "lax",
-    path: "/api/auth",
+    path: "/",
+    maxAge: 0,
+    domain,
+  });
+  // إزالة كوكيز التوافق مع الواجهة
+  res.cookies.set("auth-token", "", {
+    httpOnly: false,
+    secure,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+    domain,
+  });
+  res.cookies.set("user", "", {
+    httpOnly: false,
+    secure,
+    sameSite: "lax",
+    path: "/",
     maxAge: 0,
     domain,
   });
