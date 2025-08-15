@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 // Cache للأداء
 let cache: { count: number; timestamp: number } | null = null;
@@ -21,16 +22,20 @@ export async function GET(request: NextRequest) {
     // حساب الأحداث الجديدة خلال آخر ساعة
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
 
-    // عدد المقالات الجديدة (الأخبار والمقالات في نفس الجدول)
+    // عدد المقالات الجديدة (خلال آخر ساعة) مع توافق لأنواع المحتوى وكتابة مختلفة
     const articlesCount = await prisma.articles.count({
       where: {
-        created_at: {
-          gte: oneHourAgo,
-        },
         status: 'published',
-        article_type: {
-          in: ['news', 'article', 'breaking']
-        }
+        OR: [
+          { published_at: { gte: oneHourAgo } },
+          { created_at: { gte: oneHourAgo } },
+        ],
+        OR: [
+          // المعيار القياسي
+          { content_type: 'NEWS' as any },
+          // توافق مع الحقول/القيم القديمة (String)
+          { article_type: { in: ['news','article','breaking','NEWS','ARTICLE','BREAKING'] } as any },
+        ],
       },
     });
 
@@ -44,12 +49,13 @@ export async function GET(request: NextRequest) {
       count: articlesCount,
       cached: false,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("خطأ في جلب عدد الأحداث:", error);
     return NextResponse.json(
       {
         count: 0,
         error: "خطأ في جلب البيانات",
+        details: process.env.NODE_ENV !== 'production' ? String(error?.message || error) : undefined,
       },
       { status: 500 }
     );

@@ -88,12 +88,12 @@ const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({ article }) => {
             {/* قسم الصورة - 6 أعمدة (50%) */}
             <div className="lg:col-span-6 relative overflow-hidden lg:rounded-r-2xl rounded-t-2xl lg:rounded-t-none">
               {/* الصورة */}
-              <div className="relative w-full h-48 lg:h-full">
+              <div className="relative w-full h-48 lg:h-full overflow-hidden">
                 <CloudImage
                   src={article.featured_image}
                   alt={article.title}
                   fill
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
                   fallbackType="article"
                   priority={true}
                 />

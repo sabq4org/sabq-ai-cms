@@ -47,6 +47,8 @@ import "@/styles/image-optimizations.css";
 import "@/styles/mobile-article-layout.css";
 import "@/styles/mobile-article.css";
 import "@/styles/mobile-article-stats.css";
+import "@/styles/article-width-harmony.css";
+import "@/styles/article-layout-final.css";
 import "./article-styles.css";
 import AIQuestions from "@/components/article/AIQuestions";
 
@@ -541,14 +543,14 @@ export default function ArticleClientComponent({
         <div className="relative">
           <article
             ref={viewTrackingRef}
-            className="max-w-screen-lg lg:max-w-[110ch] mx-auto py-3 sm:py-5 lg:py-7 article-content"
+            className="article-content"
           >
             {/* رأس المقال محسن للموبايل */}
             <header className="mb-1 sm:mb-2">
-              {/* Desktop Header - محاذاة العرض تمامًا مع حاوية الصورة البارزة */}
+              {/* Desktop Header - محاذاة العرض مع حاوية المحتوى */}
               <div className="hidden sm:block">
-                <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-3 sm:px-6 lg:px-8">
-                  <div className="py-4 lg:py-6 flex flex-col justify-center bg-transparent">
+                <div className="article-title-wrapper max-w-4xl mx-auto px-6 lg:px-8">
+                  <div className="py-4 lg:py-6 flex flex-col justify-center bg-gray-50 dark:bg-gray-900">
                 {/* التصنيف - محاذاة لليمين مع تحسين الهامش */}
                 {article.category && (
                   <div className="flex justify-end mb-5">
@@ -566,20 +568,23 @@ export default function ArticleClientComponent({
                   </div>
                 )}
 
-                {/* العنوان - تحسين المسافات والهوامش */}
-                <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-3 text-gray-900 dark:text-white leading-tight text-right tracking-tight">{/* زيادة حجم الخط للموبايل أكثر */}
-                  {article.title}
-                </h1>
+                {/* غلاف عنوان/عنوان فرعي مع توافق الوضع الداكن */}
+                <div className="article-title-wrapper max-w-4xl mx-auto text-right">
+                  {/* العنوان - تحسين المسافات والهوامش */}
+                  <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-3 text-gray-900 dark:text-white leading-tight tracking-tight article-title-overlay bg-transparent">{/* زيادة حجم الخط للموبايل أكثر */}
+                    {article.title}
+                  </h1>
 
-                {/* العنوان الفرعي - تحسين المظهر */}
-                {getSubtitle() && (
-                  <h2 className="article-subtitle text-2xl sm:text-3xl lg:text-4xl text-gray-600 dark:text-gray-400 mb-3 text-right leading-relaxed font-normal">{/* أصغر من العنوان الرئيسي بدرجة إضافية */}
-                    {getSubtitle()}
-                  </h2>
-                )}
+                  {/* العنوان الفرعي - تحسين المظهر */}
+                  {getSubtitle() && (
+                    <h2 className="article-subtitle text-2xl sm:text-3xl lg:text-4xl text-gray-600 dark:text-gray-200 mb-2 leading-relaxed font-normal">
+                      {getSubtitle()}
+                    </h2>
+                  )}
+                </div>
 
                 {/* المعلومات الأساسية - Desktop (مُرتبة) */}
-                <div className="flex flex-wrap items-center justify-start gap-3 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-4 text-left border-0 article-meta-info">
+                <div className="article-meta-info max-w-4xl mx-auto flex flex-wrap items-center justify-start gap-3 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-4 text-left border-0">
                   {/* المراسل */}
                   {article.author && (
                     <div className="inline-flex items-center gap-1.5 sm:gap-2">
@@ -623,12 +628,12 @@ export default function ArticleClientComponent({
                     </div>
                   )}
                 </div>
+                  </div>
                 </div>
-              </div>
               </div>
 
               {/* Mobile Header */}
-              <div className="sm:hidden px-4 py-6 bg-white dark:bg-gray-900 transition-colors duration-300">
+              <div className="sm:hidden px-4 py-6 bg-transparent transition-colors duration-300">
                 {/* العنوان الرئيسي */}
                 <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-white mb-2">{/* تصغير العنوان للموبايل تكة واحدة */}
                   {article.title}
@@ -711,8 +716,8 @@ export default function ArticleClientComponent({
             typeof article.featured_image === "string" &&
             article.featured_image.length > 0 &&
             !article.metadata?.emergency_mode && (
-              <div className="hidden sm:block mb-6">{/* توحيد حافة الصورة مع حاوية المحتوى */}
-                <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-3 sm:px-6 lg:px-8 article-featured-image-wrapper">
+              <div className="hidden sm:block mb-6">
+                <div className="article-featured-image-wrapper max-w-4xl mx-auto px-6 lg:px-8">
                   <ArticleFeaturedImage
                     imageUrl={article.featured_image}
                     title={article.title}
@@ -723,8 +728,8 @@ export default function ArticleClientComponent({
                 </div>
               </div>
             )}
-          <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-3 sm:px-6 lg:px-8 py-2">
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-6 lg:p-8">
+          <div className="max-w-4xl mx-auto px-6 lg:px-8 py-2">
+            <div className="bg-transparent dark:bg-transparent rounded-xl p-3 sm:p-6 lg:p-8">
               <div className="sm:hidden mb-6">
                 {article.featured_image &&
                   typeof article.featured_image === "string" &&
@@ -764,8 +769,11 @@ export default function ArticleClientComponent({
                   />
                 </div>
               </div>
-              <div className="hidden sm:block mb-6 sm:mb-8 article-ai-summary-wrapper">
-                <ArticleAISummary
+            </div>
+
+            {/* منطقة الموجز الذكي للديسكتوب */}
+            <div className="hidden sm:block mb-6 sm:mb-8 article-ai-summary-wrapper">
+              <ArticleAISummary
                   articleId={article.id}
                   title={article.title || "مقال بدون عنوان"}
                   content={article.content || ""}
@@ -956,8 +964,9 @@ export default function ArticleClientComponent({
               userId={undefined}
             />
           </div>
-        </div> {/* closes max-w-screen-lg wrapper */}
-      </div> {/* closes w-full container */}
+        </div> {/* closes bg-transparent */}
+      </div> {/* closes max-w-4xl */}
+    </div> {/* closes w-full container */}
       </main>
 
       <Footer />

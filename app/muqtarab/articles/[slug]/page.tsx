@@ -1,4 +1,5 @@
-import { prisma } from "@/lib/prisma-simple";
+import prisma from "@/lib/prisma";
+import { cached } from "@/lib/cache";
 import { queueViewIncrement } from '@/lib/viewBatch'
 import ArticleAudioPlayer from "@/components/muqtarab/ArticleAudioPlayer";
 import { Badge } from "@/components/ui/badge";
@@ -23,8 +24,7 @@ import { Suspense } from "react";
 
 // ضمان تشغيل الصفحة على بيئة Node بسبب Prisma
 export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 300;
 
 // Removed client-side fetching logic; now server rendered
 
@@ -41,6 +41,7 @@ function isLikelyId(value: string) {
 }
 
 async function loadArticleAndRelated(raw: string) {
+  return cached(`muq:article:${raw}:v1`, 300, async () => {
   // Fallback ذكي عبر API في حال تعذر استخدام Prisma (مثلاً على Edge)
   const fetchFromApi = async () => {
     try {
@@ -204,6 +205,7 @@ async function loadArticleAndRelated(raw: string) {
   };
 
   return { article: uiArticle, angle, related, cross };
+  });
 }
 
 function basicSanitize(html: string) {

@@ -29,20 +29,15 @@ export default function OptimizedImage({
   const [loading, setLoading] = useState(true);
 
   const handleError = () => {
-    if (process.env.NODE_ENV !== 'production') {
-      console.error('🖼️ [OptimizedImage] Failed to load image:', {
-        src,
-        srcType: typeof src,
-        srcLength: src?.length,
-        srcStart: src?.substring(0, 50)
-      });
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('🖼️ [OptimizedImage] Failed to load image:', src);
     }
     setError(true);
     setLoading(false);
   };
 
   const handleLoad = () => {
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV === 'development') {
       console.log('🖼️ [OptimizedImage] Successfully loaded image:', src);
     }
     setLoading(false);

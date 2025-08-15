@@ -1,3 +1,26 @@
+/* محاذاة العرض الموحد للعنوان والصورة والمحتوى */
+.article-unified-width {
+  max-width: 56rem !important; /* max-w-4xl */
+  margin: 0 auto !important;
+  padding-left: 1.5rem !important; /* px-6 */
+  padding-right: 1.5rem !important; /* px-6 */
+}
+
+@media (min-width: 1024px) {
+  .article-unified-width {
+    padding-left: 2rem !important; /* lg:px-8 */
+    padding-right: 2rem !important; /* lg:px-8 */
+  }
+}
+
+@media (max-width: 639px) {
+  .article-unified-width {
+    max-width: 100% !important;
+    padding-left: 1rem !important; /* px-4 */
+    padding-right: 1rem !important; /* px-4 */
+  }
+}
+
 /* 📰 أنماط صفحة المقال */
 .article-page {
   font-family: var(
@@ -32,6 +55,28 @@
   color: #1f2937;
 }
 
+/* تحسين تباين العنوان في الوضع الداكن فوق الخلفيات/الصور */
+.dark .article-title-overlay {
+  /* إزالة أي حاوية/خلفية في الوضع الداكن */
+  background: transparent !important;
+  color: #ffffff !important; /* نص أبيض فقط */
+  padding: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  /* ظل خفيف فقط لتحسين القراءة فوق الصور عند الحاجة */
+  text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+}
+
+/* الاستغناء عن الحاوية تماماً في كلا الوضعين */
+.article-title-wrapper {
+  display: contents; /* لا توليد box */
+}
+.dark .article-title-wrapper {
+  background: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
 .article-content {
   font-family: var(
     --font-family-content,
@@ -44,6 +89,11 @@
   line-height: 1.8;
   font-size: 1.125rem; /* 18px */
   color: #374151;
+}
+
+/* خلفية المقال الافتراضية تبقى كما هي */
+.article-content {
+  background: transparent;
 }
 
 /* تحسينات تصميم هيدر المقال - إزالة الخطوط والحدود */
@@ -106,6 +156,17 @@ hr.article-separator {
   line-height: 1.3;
 }
 
+/* إزالة أي خلفية بيضاء قد تأتي من عناصر عليا حول العنوان */
+.article-content header .max-w-screen-lg > .py-4 { background: transparent !important; }
+.article-content header .bg-transparent { background: transparent !important; }
+.article-content header [class*="bg-white"] { background-color: transparent !important; }
+.article-content .bg-white { background-color: transparent !important; }
+.article-content [class*="bg-gray-50"] { background-color: transparent !important; }
+
+/*Fallback قاسٍ: إزالة أي خلفية داخل الهيدر العلوي بالكامل*/
+/* لا نلغي خلفية الهيدر كاملة؛ نُبقي الشفافية فقط على العنوان */
+.article-content header *:not(h1):not(.article-title-overlay) { background: unset; }
+
 .article-content p {
   margin-bottom: 1.5rem;
   text-align: right;
@@ -117,6 +178,34 @@ hr.article-separator {
   height: auto;
   margin: 2rem 0;
   border-radius: 8px;
+}
+
+/* استهداف مباشر لمسار العنصر كما في DevTools لضبط الشفافية بدقة */
+body > div.page-content-wrapper > main > div.relative > article.article-content {
+  background: transparent !important;
+}
+
+/* إزالة أي خلفية داخل هيدر المقال ضمن هذا المسار فقط */
+body > div.page-content-wrapper > main > div.relative > article.article-content header [class*="bg-"] {
+  background: transparent !important;
+}
+
+/* استهداف الحاوية المحددة من DevTools: إزالة الخلفية البيضاء في الوضع الداكن فقط */
+.dark article.article-content > header.article-title-text {
+  background-color: transparent !important;
+}
+
+/* إزالة أي خلفية من العناصر الداخلية التي تستخدم bg- داخل الهيدر المحدد في الوضع الداكن فقط */
+.dark article.article-content > header.article-title-text [class*="bg-"] {
+  background-color: transparent !important;
+}
+
+/* تحسين تباين العنوان الفرعي وبيانات النشر داخل الهيدر المحدد للوضع الداكن */
+.dark article.article-content > header.article-title-text .article-subtitle {
+  color: #e5e7eb !important;
+}
+.dark article.article-content > header.article-title-text .article-meta-info {
+  color: #cbd5e1 !important;
 }
 
 @media (max-width: 768px) {

@@ -8,7 +8,6 @@
 /* قواعد عامة للكاروسيل */
 .featured-carousel {
   width: 100%;
-  overflow: hidden;
   position: relative;
   z-index: 1;
   min-height: 300px; /* ارتفاع أدنى لمنع الوميض */
@@ -29,14 +28,17 @@
   visibility: visible !important;
 }
 
-/* تأكيد عرض الصور */
-.featured-carousel img {
+/* تأكيد عرض الصور وعدم خروجها عن الحدود الدائرية */
+.featured-carousel img,
+.featured-carousel picture,
+.featured-carousel [data-nimg] {
   opacity: 1 !important;
   display: block;
   visibility: visible !important;
   object-fit: cover;
   width: 100%;
   height: 100%;
+  border-radius: inherit;
 }
 
 /* إصلاح طبقة التدرج */

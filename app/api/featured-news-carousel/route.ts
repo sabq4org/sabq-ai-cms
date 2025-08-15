@@ -11,7 +11,8 @@ export const fetchCache = "default-cache";
 
 export async function GET(request: NextRequest) {
   try {
-    const cacheKey = "featured-news:carousel:v1";
+    // bump cache key to invalidate previous cached payloads
+    const cacheKey = "featured-news:carousel:v2";
 
     // محاولة الجلب من Redis أولاً
     const cached = await redis.get<any>(cacheKey);
@@ -46,6 +47,32 @@ export async function GET(request: NextRequest) {
       },
     });
 
+    // Helper: استبعاد الأخبار التجريبية/الوهمية من العرض العام
+    const TEST_PATTERNS = [
+      /\btest\b/i,
+      /\bdemo\b/i,
+      /\bdummy\b/i,
+      /\bsample\b/i,
+      /تجريبي/i,
+      /تجريبية/i,
+      /اختبار/i,
+    ];
+
+    const isTestOrSampleArticle = (article: any) => {
+      try {
+        const title = article?.title || "";
+        const slug = article?.slug || "";
+        const authorName = article?.author?.name || "";
+        const reporterName = article?.author?.reporter_profile?.full_name || "";
+        const meta = JSON.stringify(article?.metadata || {});
+        const id = String(article?.id || "");
+        const haystack = `${title}\n${slug}\n${authorName}\n${reporterName}\n${meta}\n${id}`;
+        return TEST_PATTERNS.some((re) => re.test(haystack));
+      } catch {
+        return false;
+      }
+    };
+
     // إذا لم توجد مقالات مميزة، جلب آخر المقالات المنشورة
     let articlesToReturn = featuredArticles;
     
@@ -61,7 +88,7 @@ export async function GET(request: NextRequest) {
         orderBy: {
           published_at: "desc",
         },
-        take: 3,
+        take: 10,
         include: {
           categories: true,
           author: {
@@ -80,6 +107,40 @@ export async function GET(request: NextRequest) {
         });
       }
     }
+
+    // استبعاد الأخبار التجريبية إن وُجدت
+    let filtered = (articlesToReturn || []).filter((a) => !isTestOrSampleArticle(a));
+
+    // في حال قلّ العدد، حاول جلب المزيد لتكميل 3 عناصر
+    if (filtered.length < 3) {
+      const moreArticles = await prisma.articles.findMany({
+        where: {
+          status: "published",
+          article_type: {
+            notIn: ["opinion", "analysis", "interview"],
+          },
+        },
+        orderBy: { published_at: "desc" },
+        take: 20,
+        include: {
+          categories: true,
+          author: { include: { reporter_profile: true } },
+        },
+      });
+      const merged = [...articlesToReturn, ...moreArticles];
+      const seen = new Set<string>();
+      filtered = merged
+        .filter((a) => !isTestOrSampleArticle(a))
+        .filter((a) => {
+          const key = String(a.id);
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+    }
+
+    // الإبقاء على 3 عناصر فقط
+    articlesToReturn = filtered.slice(0, 3);
 
     // تسجيل للتشخيص (في التطوير فقط)
     if (process.env.NODE_ENV !== "production") {
