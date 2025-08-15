@@ -1,3 +1,24 @@
+/* إزالة أي خلفية من body و html للصفحة كاملة */
+body, html {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* إزالة خلفية من أي عنصر قد يحمل bg-white أو bg-gray */
+.article-content,
+.article-content *:not(a):not(button):not([class*="bg-blue"]):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-yellow"]):not([class*="bg-purple"]) {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* استهداف محدد لأي div أو section قد يحمل خلفية بيضاء */
+.article-content div:not([class*="bg-"]):not([style*="background"]),
+.article-content section:not([class*="bg-"]):not([style*="background"]),
+.article-content header:not([class*="bg-"]):not([style*="background"]) {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
 /* توحيد عرض جميع حاويات المقال مع بلوك "محتوى مخصص لك" */
 .article-unified-width {
   max-width: 56rem !important; /* max-w-4xl = 896px = 56rem - نفس عرض SmartPersonalizedContent */
