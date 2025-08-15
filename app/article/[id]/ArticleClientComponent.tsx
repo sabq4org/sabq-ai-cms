@@ -415,7 +415,7 @@ export default function ArticleClientComponent({
 
   if (loading || !article) {
     return (
-      <div className="min-h-[100svh] bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-[100svh]">
         <div className="pt-[var(--mobile-header-height)] sm:pt-[var(--header-height)] lg:pt-20">
           <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-4 py-4 sm:py-6 lg:py-8">
             <div className="animate-pulse space-y-4 loading-skeleton">
@@ -538,7 +538,7 @@ export default function ArticleClientComponent({
       {/* شريط التقدم في القراءة */}
       <ReadingProgressBar />
 
-      <main className="min-h-[100svh] bg-gray-50 dark:bg-gray-900 pt-[var(--mobile-header-height)] sm:pt-[var(--header-height)] lg:pt-20">
+      <main className="min-h-[100svh] pt-[var(--mobile-header-height)] sm:pt-[var(--header-height)] lg:pt-20">
         {/* منطقة المحتوى الرئيسية */}
         <div className="relative">
           <article
