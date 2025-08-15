@@ -1,6 +1,6 @@
 {
   "name": "sabq-ai-cms",
-  "version": "1.0.0",
+  "version": "1.0.1-emergency",
   "private": true,
   "engines": {
     "node": ">=18.0.0",
