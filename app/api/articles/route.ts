@@ -296,6 +296,12 @@ export async function POST(request: NextRequest) {
     // توحيد أسماء الحقول المختلفة
     authorId = data.author_id || data.authorId || data.article_author_id || null;
     categoryId = data.category_id || data.categoryId || null;
+    
+    // إذا لم يتم إرسال تصنيف، استخدم التصنيف الافتراضي (محليات)
+    if (!categoryId) {
+      categoryId = 'cat-001'; // محليات كافتراضي
+      console.log("⚠️ لم يتم تحديد تصنيف، سيتم استخدام التصنيف الافتراضي: محليات");
+    }
 
     console.log("🔄 توحيد الحقول:", {
       original_author: data.author_id,
