@@ -12,10 +12,6 @@
     {
       "path": "/api/cron/update-word-popularity",
       "schedule": "0 */6 * * *"
-    },
-    {
-      "path": "/api/articles/scheduled",
-      "schedule": "* * * * *"
     }
   ],
   "functions": {
