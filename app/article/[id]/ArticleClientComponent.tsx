@@ -567,7 +567,7 @@ export default function ArticleClientComponent({
                 )}
 
                 {/* العنوان - تحسين المسافات والهوامش */}
-                <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-3 text-gray-900 dark:text-white leading-tight text-right tracking-tight">{/* زيادة حجم الخط للموبايل أكثر */}
+                <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-3 text-gray-900 dark:text-white leading-tight text-right tracking-tight inline-block article-title-overlay">{/* زيادة حجم الخط للموبايل أكثر */}
                   {article.title}
                 </h1>
 
