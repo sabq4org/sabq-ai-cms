@@ -29,39 +29,73 @@ export async function middleware(req: NextRequest) {
   const { nextUrl } = req;
   const pathname = nextUrl.pathname;
 
-  // حماية /admin/**
-  if (pathname.startsWith("/admin")) {
+  // حماية /admin/** (واجهات) و /api/admin/** (واجهات برمجية) مع إعادة التحقق من الدور من قاعدة البيانات
+  const isAdminPage = pathname.startsWith("/admin");
+  const isAdminApi = pathname.startsWith("/api/admin");
+  if (isAdminPage || isAdminApi) {
     // السماح بصفحة دخول الإدارة بدون توكن
-    if (pathname === "/admin/login") {
+    if (isAdminPage && pathname === "/admin/login") {
       return NextResponse.next();
     }
     const at = req.cookies.get("sabq_at")?.value || req.cookies.get("auth-token")?.value;
     if (!at) {
+      if (isAdminApi) {
+        return new NextResponse(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { "Content-Type": "application/json; charset=utf-8" },
+        });
+      }
       const url = nextUrl.clone();
       url.pathname = "/admin/login";
       url.searchParams.set("next", pathname);
       return NextResponse.redirect(url);
     }
     try {
-      const secretString =
-        process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET || "";
+      // التحقق من التوكن
+      const secretString = process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET || "";
       const secret = new TextEncoder().encode(secretString);
-      const { payload } = await jwtVerify(at, secret, {
-        issuer: "sabq-ai-cms",
+      await jwtVerify(at, secret, { issuer: "sabq-ai-cms" });
+
+      // إعادة التحقق من الدور من قاعدة البيانات في كل طلب إداري
+      const meUrl = new URL("/api/user/me", req.url);
+      const meRes = await fetch(meUrl.toString(), {
+        headers: { cookie: req.headers.get("cookie") || "" },
+        cache: "no-store",
       });
-      const role = (payload as any).role as string | undefined;
-      const allowed =
-        role === "system_admin" ||
-        role === "super_admin" ||
-        role === "admin" ||
-        (payload as any).isAdmin === true;
+      if (!meRes.ok) {
+        if (isAdminApi) {
+          return new NextResponse(JSON.stringify({ error: "Unauthorized" }), {
+            status: 401,
+            headers: { "Content-Type": "application/json; charset=utf-8" },
+          });
+        }
+        const url = nextUrl.clone();
+        url.pathname = "/admin/login";
+        url.searchParams.set("next", pathname);
+        return NextResponse.redirect(url);
+      }
+      const me = (await meRes.json()) as { role?: string; isAdmin?: boolean };
+      const role = (me.role || "").toString();
+      const allowed = role === "system_admin" || role === "super_admin" || role === "admin" || me.isAdmin === true;
       if (!allowed) {
+        if (isAdminApi) {
+          return new NextResponse(JSON.stringify({ error: "Forbidden" }), {
+            status: 403,
+            headers: { "Content-Type": "application/json; charset=utf-8" },
+          });
+        }
         const url = nextUrl.clone();
         url.pathname = "/admin/login";
         url.searchParams.set("next", pathname);
         return NextResponse.redirect(url);
       }
     } catch {
+      if (isAdminApi) {
+        return new NextResponse(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { "Content-Type": "application/json; charset=utf-8" },
+        });
+      }
       const url = nextUrl.clone();
       url.pathname = "/admin/login";
       url.searchParams.set("next", pathname);

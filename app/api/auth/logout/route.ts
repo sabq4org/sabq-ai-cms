@@ -21,6 +21,10 @@ export async function POST(request: NextRequest) {
 
     const response = NextResponse.json({ success: true, message: "تم تسجيل الخروج بنجاح" });
     clearAuthCookies(response);
+    // مسح أي ترويسات تخزين/كاش لضمان انتهاء الجلسة فوراً
+    response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
+    response.headers.set("Pragma", "no-cache");
+    response.headers.set("Expires", "0");
     return response;
   } catch (error) {
     console.error("خطأ في تسجيل الخروج:", error);
