@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -74,6 +73,7 @@ export function MediaPickerModal({
   const [uploading, setUploading] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<{ file: File; altText: string }[]>([]);
   const [showAltTextModal, setShowAltTextModal] = useState(false);
+  const contentRef = useRef<HTMLDivElement | null>(null);
 
   // Fetch data
   const fetchData = useCallback(async () => {
@@ -116,10 +116,19 @@ export function MediaPickerModal({
   }, [currentFolder, searchQuery, acceptedTypes]);
 
   useEffect(() => {
-    if (open) {
+    if (!open) return;
+    fetchData();
+  }, [open]);
+
+  // جلب مهدأ عند تغيير البحث/المجلد لتفادي كثرة الطلبات + إعادة التمرير للأعلى
+  useEffect(() => {
+    if (!open) return;
+    const t = setTimeout(() => {
+      try { contentRef.current?.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior }); } catch {}
       fetchData();
-    }
-  }, [open, fetchData]);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [searchQuery, currentFolder]);
 
   // Convert file to base64
   const fileToBase64 = (file: File): Promise<string> => {
@@ -318,9 +327,9 @@ export function MediaPickerModal({
             </div>
 
             {/* Content */}
-            <ScrollArea className="flex-1 px-6 py-4">
+            <div ref={contentRef} className="flex-1 overflow-y-auto px-6 py-4">
               {loading ? (
-                <div className="grid grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                   {[...Array(8)].map((_, i) => (
                     <Skeleton key={i} className="h-32" />
                   ))}
@@ -331,7 +340,7 @@ export function MediaPickerModal({
                   {currentFolders.length > 0 && (
                     <div className="mb-6">
                       <h3 className="text-sm font-medium text-muted-foreground mb-3">المجلدات</h3>
-                      <div className="grid grid-cols-4 gap-3">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                         {currentFolders.map(folder => (
                           <motion.div
                             key={folder.id}
@@ -361,7 +370,7 @@ export function MediaPickerModal({
                       {currentFolders.length > 0 && (
                         <h3 className="text-sm font-medium text-muted-foreground mb-3">الملفات</h3>
                       )}
-                      <div className="grid grid-cols-4 gap-3">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                         {assets.map(asset => {
                           const isSelected = multiple 
                             ? selectedAssets.has(asset.id)
@@ -397,7 +406,7 @@ export function MediaPickerModal({
                                   <img
                                     src={asset.thumbnailUrl || asset.cloudinaryUrl}
                                     alt={asset.altText || (asset.metadata as any)?.altText || asset.filename}
-                                    className="w-full h-full object-contain" // تغيير من object-cover إلى object-contain
+                                    className="w-full h-full object-cover"
                                   />
                                 ) : (
                                   <div className="text-gray-400">
@@ -439,7 +448,7 @@ export function MediaPickerModal({
                   )}
                 </>
               )}
-            </ScrollArea>
+            </div>
           </TabsContent>
 
           <TabsContent value="upload" className="flex-1 flex flex-col m-0 p-6">
