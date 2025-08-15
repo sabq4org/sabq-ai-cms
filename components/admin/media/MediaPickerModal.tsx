@@ -275,7 +275,7 @@ export function MediaPickerModal({
 
   return (
     <Dialog open={open} onOpenChange={() => onClose()}>
-      <DialogContent className="w-[98vw] max-w-[1400px] h-[95vh] p-0 overflow-hidden bg-white dark:bg-gray-900 flex flex-col">
+      <DialogContent className="w-[98vw] max-w-[1400px] h-[96vh] max-h-[96vh] p-0 overflow-hidden bg-white dark:bg-gray-900 flex flex-col">
         <DialogHeader className="px-4 py-3 border-b bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800">
           <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</DialogTitle>
         </DialogHeader>
@@ -346,9 +346,9 @@ export function MediaPickerModal({
             </div>
 
             {/* Content */}
-            <div ref={contentRef} className="flex-1 overflow-y-auto px-2 py-2 min-h-0 w-full h-full">
+            <div ref={contentRef} className="flex-1 overflow-y-auto px-2 py-2 min-h-[60vh] sm:min-h-[65vh] lg:min-h-[70vh] w-full h-full">
               {loading ? (
-                <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 2xl:grid-cols-12 gap-2 w-full">
+                <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 2xl:grid-cols-14 gap-2 w-full">
                   {[...Array(8)].map((_, i) => (
                     <Skeleton key={i} className="h-24" />
                   ))}
@@ -359,7 +359,7 @@ export function MediaPickerModal({
                   {currentFolders.length > 0 && (
                     <div className="mb-4 w-full">
                       <h3 className="text-sm font-medium text-muted-foreground mb-3">المجلدات</h3>
-                      <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 2xl:grid-cols-12 gap-2 w-full">
+                      <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 2xl:grid-cols-14 gap-2 w-full">
                         {currentFolders.map(folder => (
                           <motion.div
                             key={folder.id}
@@ -389,7 +389,7 @@ export function MediaPickerModal({
                       {currentFolders.length > 0 && (
                         <h3 className="text-sm font-medium text-muted-foreground mb-3">الملفات</h3>
                       )}
-                      <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 2xl:grid-cols-12 gap-2 w-full">
+                      <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 2xl:grid-cols-14 gap-2 w-full">
                         {assets.map(asset => {
                           const isSelected = multiple 
                             ? selectedAssets.has(asset.id)
@@ -420,12 +420,12 @@ export function MediaPickerModal({
                                 }
                               }}
                             >
-                              <div className="aspect-square bg-gray-100 dark:bg-gray-800 flex items-center justify-center relative overflow-hidden rounded-lg">
+                              <div className="aspect-square bg-gray-100 dark:bg-gray-800 flex items-center justify-center relative overflow-hidden rounded-lg w-full h-full">
                                 {asset.type === "IMAGE" ? (
                                   <img
                                     src={asset.thumbnailUrl || asset.cloudinaryUrl}
                                     alt={asset.altText || (asset.metadata as any)?.altText || asset.filename}
-                                    className="w-full h-full object-cover"
+                                    className="w-full h-full object-cover object-center"
                                   />
                                 ) : (
                                   <div className="text-gray-400">
