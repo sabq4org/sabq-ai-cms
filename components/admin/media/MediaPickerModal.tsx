@@ -76,7 +76,7 @@ export function MediaPickerModal({
   const contentRef = useRef<HTMLDivElement | null>(null);
   // Pagination state
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(24);
+  const [limit, setLimit] = useState(48);
   const [totalPages, setTotalPages] = useState(1);
 
   // Fetch data
@@ -275,13 +275,13 @@ export function MediaPickerModal({
 
   return (
     <Dialog open={open} onOpenChange={() => onClose()}>
-      <DialogContent className="w-[98vw] max-w-[1400px] h-[90vh] p-0 overflow-hidden bg-white dark:bg-gray-900 flex flex-col">
-        <DialogHeader className="px-6 py-5 border-b bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800">
-          <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-gray-100">{title}</DialogTitle>
+      <DialogContent className="w-[98vw] max-w-[1400px] h-[95vh] p-0 overflow-hidden bg-white dark:bg-gray-900 flex flex-col">
+        <DialogHeader className="px-4 py-3 border-b bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800">
+          <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</DialogTitle>
         </DialogHeader>
 
         <Tabs defaultValue="upload" className="flex-1 flex flex-col min-h-0">
-          <TabsList className="mx-2 mt-4 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+          <TabsList className="mx-2 mt-2 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
             <TabsTrigger value="upload" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm px-6 py-2 rounded-md transition-all">
               <Upload className="w-4 h-4 ml-2" />
               رفع جديد
@@ -294,7 +294,7 @@ export function MediaPickerModal({
 
           <TabsContent value="browse" className="flex-1 flex flex-col min-h-0 m-0 w-full">
             {/* Search Bar */}
-            <div className="px-2 py-3 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50">
+            <div className="px-2 py-2 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center">
                 <div className="relative md:col-span-2">
                   <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -310,16 +310,16 @@ export function MediaPickerModal({
                   <select className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md px-2 py-1 text-sm"
                           value={limit}
                           onChange={(e) => { setPage(1); setLimit(parseInt(e.target.value || '24')); }}>
-                    <option value={12}>12</option>
                     <option value={24}>24</option>
                     <option value={48}>48</option>
+                    <option value={96}>96</option>
                   </select>
                 </div>
               </div>
             </div>
 
             {/* Breadcrumb */}
-            <div className="px-2 py-3 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+            <div className="px-2 py-2 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
               <div className="flex items-center gap-1 text-sm">
                 <Button
                   variant="ghost"
@@ -346,7 +346,7 @@ export function MediaPickerModal({
             </div>
 
             {/* Content */}
-            <div ref={contentRef} className="flex-1 overflow-y-auto px-2 py-3 min-h-0 w-full">
+            <div ref={contentRef} className="flex-1 overflow-y-auto px-2 py-2 min-h-0 w-full h-full">
               {loading ? (
                 <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 2xl:grid-cols-12 gap-2 w-full">
                   {[...Array(8)].map((_, i) => (
@@ -459,14 +459,7 @@ export function MediaPickerModal({
                           );
                         })}
                       </div>
-                      {/* Pagination */}
-                      <div className="flex items-center justify-between mt-4">
-                        <div className="text-sm text-gray-500">صفحة {page} من {totalPages}</div>
-                        <div className="flex items-center gap-2">
-                          <Button variant="outline" size="sm" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1}>السابق</Button>
-                          <Button variant="outline" size="sm" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages}>التالي</Button>
-                        </div>
-                      </div>
+
                     </div>
                   ) : (
                     <div className="text-center py-12">
@@ -476,6 +469,35 @@ export function MediaPickerModal({
                 </>
               )}
             </div>
+            
+            {/* Pagination - خارج منطقة التمرير */}
+            {!loading && assets.length > 0 && (
+              <div className="px-2 py-2 border-t border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50">
+                <div className="flex items-center justify-between">
+                  <div className="text-xs text-gray-500">صفحة {page} من {totalPages}</div>
+                  <div className="flex items-center gap-1">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-7 px-2 text-xs"
+                      onClick={() => setPage(p => Math.max(1, p - 1))} 
+                      disabled={page <= 1}
+                    >
+                      السابق
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-7 px-2 text-xs"
+                      onClick={() => setPage(p => Math.min(totalPages, p + 1))} 
+                      disabled={page >= totalPages}
+                    >
+                      التالي
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="upload" className="flex-1 flex flex-col m-0 p-6">
