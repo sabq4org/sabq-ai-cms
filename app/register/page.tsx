@@ -9,6 +9,7 @@ import {
   User, Mail, Lock, Eye, EyeOff, 
   CheckCircle, AlertCircle, Sparkles 
 } from 'lucide-react';
+import SabqLogo from '@/components/SabqLogo';
 export default function RegisterPage() {
   const router = useRouter();
   const emailRef = useRef<HTMLInputElement>(null);
@@ -142,29 +143,56 @@ export default function RegisterPage() {
     }
   };
   return (
-  <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4 py-6 md:py-8">
-      {/* خلفية ديناميكية - مخفية على الموبايل */}
-      <div className="absolute inset-0 overflow-hidden hidden md:block">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-300 dark:bg-blue-800 rounded-full blur-3xl opacity-30 animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-300 dark:bg-purple-800 rounded-full blur-3xl opacity-30 animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-300 dark:bg-indigo-800 rounded-full blur-3xl opacity-20"></div>
-      </div>
-      <div className="relative z-10 w-full max-w-md">
-        {/* الشعار والعنوان */}
-        <div className="text-center mb-4 md:mb-6">
-          <div className="inline-flex items-center justify-center w-14 h-14 md:w-20 md:h-20 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full shadow-lg mb-3">
-            <Sparkles className="w-7 h-7 md:w-10 md:h-10 text-white" />
+    <div className="min-h-screen bg-gradient-to-br from-sky-400 via-blue-500 to-blue-600 flex items-center justify-center p-4" dir="rtl">
+      <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-8 items-stretch">
+        {/* الجانب الأيسر - محتوى تسويقي ملهم (مطابق لأسلوب دخول الفريق) */}
+        <div className="hidden lg:block relative text-white p-8 h-full">
+          <div className="flex items-start justify-center">
+            <SabqLogo className="mx-auto" width={220} height={72} isWhite />
           </div>
-          <h1 className="text-xl md:text-3xl font-bold text-gray-800 dark:text-white mb-1 md:mb-2">أهلاً بك في سبق</h1>
-          <p className="text-xs md:text-base text-gray-600 dark:text-gray-300 hidden md:block">انضم لأكبر منصة إخبارية ذكية في المملكة</p>
-          {/* رسالة واضحة للموبايل */}
-          <p className="text-sm text-indigo-600 dark:text-indigo-400 font-medium md:hidden">
-            ✅ سجل الآن لبدء تخصيص محتواك الذكي
-          </p>
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center max-w-xl w-full px-4">
+            <div className="space-y-4">
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 text-right">
+                <h3 className="text-2xl font-bold">لا تفوّت لحظة</h3>
+                <p className="opacity-90 mt-1">كن أول من يعرف… الخبر، التحليل، والقصة الكاملة بين يديك.</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 text-right">
+                <h3 className="text-2xl font-bold">صوتك مسموع</h3>
+                <p className="opacity-90 mt-1">ناقش، علّق، وشارك رأيك مع مجتمع يهتم بما تقوله.</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 text-right">
+                <h3 className="text-2xl font-bold">قصتك تبدأ هنا</h3>
+                <p className="opacity-90 mt-1">من الأخبار العاجلة إلى التحليلات العميقة… أنت في قلب الحدث.</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 text-right">
+                <h3 className="text-2xl font-bold">لك وحدك</h3>
+                <p className="opacity-90 mt-1">محتوى مصمم على ذوقك، لأن اهتماماتك ليست مثل أحد.</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 text-right">
+                <h3 className="text-2xl font-bold">أكثر من قارئ… أنت شريك</h3>
+                <p className="opacity-90 mt-1">انضم وشارك في صناعة الإعلام الذكي الجديد.</p>
+              </div>
+            </div>
+            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 text-sm font-medium mt-6">
+              <Sparkles className="w-4 h-4" />
+              AI-Powered
+            </div>
+          </div>
         </div>
-        {/* نموذج التسجيل */}
-        <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-2xl shadow-xl p-4 md:p-8 border border-white/50 dark:border-gray-700/50">
-          <form onSubmit={handleSubmit} className="space-y-3 md:space-y-5">
+
+        {/* الجانب الأيمن - بطاقة التسجيل */}
+        <div className="w-full max-w-md mx-auto lg:pt-0">
+          <div className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm rounded-xl p-6">
+            <div className="text-center space-y-2 pb-4">
+              <div className="lg:hidden mb-4">
+                <SabqLogo className="mx-auto" width={140} height={48} />
+              </div>
+              <h1 className="text-2xl font-bold text-gray-800">أنشئ حسابك وابدأ رحلتك مع سبق</h1>
+              <p className="text-gray-600">لنصمم لك تجربة قراءة ذكية تناسب اهتماماتك</p>
+              <div className="lg:hidden inline-flex items-center gap-2 bg-blue-50 rounded-full px-3 py-1 text-sm font-medium text-blue-600 w-fit mx-auto">AI-Powered</div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-3 md:space-y-5">
             {/* الاسم الكامل */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 md:mb-2">
@@ -337,22 +365,24 @@ export default function RegisterPage() {
                 </Link>
               </p>
             </div>
-          </form>
-        </div>
-        {/* الميزات - مخفية على الموبايل */}
-        <div className="mt-6 text-center space-y-2 hidden md:block">
-          <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center justify-center gap-2">
-            <CheckCircle className="w-4 h-4 text-green-500" />
-            50 نقطة ترحيبية مجانية
-          </p>
-          <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center justify-center gap-2">
-            <CheckCircle className="w-4 h-4 text-green-500" />
-            محتوى مخصص حسب اهتماماتك
-          </p>
-          <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center justify-center gap-2">
-            <CheckCircle className="w-4 h-4 text-green-500" />
-            تنبيهات ذكية للأخبار المهمة
-          </p>
+            </form>
+
+            {/* مزايا سريعة */}
+            <div className="mt-4 text-center space-y-2">
+              <p className="text-sm text-gray-600 flex items-center justify-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-500" />
+                50 نقطة ترحيبية مجانية
+              </p>
+              <p className="text-sm text-gray-600 flex items-center justify-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-500" />
+                محتوى مخصص حسب اهتماماتك
+              </p>
+              <p className="text-sm text-gray-600 flex items-center justify-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-500" />
+                تنبيهات ذكية للأخبار المهمة
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -41,7 +41,8 @@
     "backup:cleanup": "node backup-controller.js cleanup",
     "backup:schedule:start": "node backup-controller.js schedule --start",
     "backup:schedule:stop": "node backup-controller.js schedule --stop",
-    "backup:setup": "node backup-controller.js setup"
+    "backup:setup": "node backup-controller.js setup",
+    "cleanup:trial-users": "node scripts/cleanup-trial-users.js"
   },
   "dependencies": {
     "@aws-sdk/client-ses": "^3.856.0",
