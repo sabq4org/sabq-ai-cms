@@ -67,9 +67,10 @@
   text-shadow: 0 2px 4px rgba(0,0,0,0.4);
 }
 
-/* الاستغناء عن الحاوية تماماً في كلا الوضعين */
+/* ضبط الحاوية لعنوان المقال لتلتزم بعرض المحتوى (بدلاً من display: contents) */
 .article-title-wrapper {
-  display: contents; /* لا توليد box */
+  display: block;
+  width: 100%;
 }
 .dark .article-title-wrapper {
   background: transparent !important;

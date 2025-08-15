@@ -569,7 +569,7 @@ export default function ArticleClientComponent({
                 )}
 
                 {/* غلاف عنوان/عنوان فرعي مع توافق الوضع الداكن */}
-                <div className="article-title-wrapper max-w-4xl mx-auto text-right">
+                <div className="article-title-wrapper article-unified-width text-right">
                   {/* العنوان - تحسين المسافات والهوامش */}
                   <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-3 text-gray-900 dark:text-white leading-tight tracking-tight article-title-overlay bg-transparent">{/* زيادة حجم الخط للموبايل أكثر */}
                     {article.title}
@@ -717,7 +717,7 @@ export default function ArticleClientComponent({
             article.featured_image.length > 0 &&
             !article.metadata?.emergency_mode && (
               <div className="hidden sm:block mb-6">
-                <div className="article-featured-image-wrapper max-w-4xl mx-auto px-6 lg:px-8">
+                <div className="article-featured-image-wrapper article-unified-width">
                   <ArticleFeaturedImage
                     imageUrl={article.featured_image}
                     title={article.title}
@@ -728,7 +728,7 @@ export default function ArticleClientComponent({
                 </div>
               </div>
             )}
-          <div className="max-w-4xl mx-auto px-6 lg:px-8 py-2">
+          <div className="article-unified-width py-2">
             <div className="bg-transparent dark:bg-transparent rounded-xl p-3 sm:p-6 lg:p-8">
               <div className="sm:hidden mb-6">
                 {article.featured_image &&
