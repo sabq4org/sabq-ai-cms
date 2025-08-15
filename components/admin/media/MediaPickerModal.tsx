@@ -275,12 +275,12 @@ export function MediaPickerModal({
 
   return (
     <Dialog open={open} onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-6xl h-[85vh] p-0 overflow-hidden bg-white dark:bg-gray-900">
+      <DialogContent className="max-w-6xl h-[85vh] p-0 overflow-hidden bg-white dark:bg-gray-900 flex flex-col">
         <DialogHeader className="px-6 py-5 border-b bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800">
           <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-gray-100">{title}</DialogTitle>
         </DialogHeader>
 
-        <Tabs defaultValue="upload" className="flex-1 flex flex-col">
+        <Tabs defaultValue="upload" className="flex-1 flex flex-col min-h-0">
           <TabsList className="mx-6 mt-4 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
             <TabsTrigger value="upload" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm px-6 py-2 rounded-md transition-all">
               <Upload className="w-4 h-4 ml-2" />
@@ -292,7 +292,7 @@ export function MediaPickerModal({
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="browse" className="flex-1 flex flex-col m-0">
+          <TabsContent value="browse" className="flex-1 flex flex-col min-h-0 m-0">
             {/* Search Bar */}
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center">
@@ -346,7 +346,7 @@ export function MediaPickerModal({
             </div>
 
             {/* Content */}
-            <div ref={contentRef} className="flex-1 overflow-y-auto px-6 py-4">
+            <div ref={contentRef} className="flex-1 overflow-y-auto px-6 py-4 min-h-0">
               {loading ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                   {[...Array(8)].map((_, i) => (
