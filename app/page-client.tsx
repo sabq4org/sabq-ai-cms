@@ -21,7 +21,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
 const AIInsightsBlock = dynamic(
-  () => import("@/components/ai/AIInsightsBlock").catch(() => ({ default: EmptyComponent })),
+  () => import("@/components/ai/AIInsightsBlockSimple").catch(() => ({ default: EmptyComponent })),
   { ssr: false }
 );
 
