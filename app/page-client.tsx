@@ -727,7 +727,7 @@ function NewspaperHomePage({
       <div
         className={`homepage-wrapper min-h-screen transition-colors duration-300 ${
           isMobileView ? "pt-0" : "pt-14 sm:pt-16 lg:pt-20"
-        } ${darkMode ? "bg-gray-900" : "bg-gray-50"}`}
+        } ${darkMode ? "bg-gray-900" : "bg-white"}`}
         style={{
           direction: "rtl",
           marginTop: 0,
