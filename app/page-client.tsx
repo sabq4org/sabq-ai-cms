@@ -20,7 +20,10 @@ import { getArticleLink } from "@/lib/utils";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
-import AIInsightsBlock from "@/components/ai/AIInsightsBlock";
+const AIInsightsBlock = dynamic(
+  () => import("@/components/ai/AIInsightsBlock").catch(() => ({ default: EmptyComponent })),
+  { ssr: false }
+);
 
 import SafeHydration from "@/components/SafeHydration";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
