@@ -40,7 +40,7 @@ async function calculateInsights(): Promise<ArticleInsight[]> {
     where: {
       status: 'PUBLISHED',
       published_at: {
-        gte: new Date(Date.now() - 24 * 60 * 60 * 1000) // آخر 24 ساعة
+        not: null
       }
     },
     include: {
@@ -170,7 +170,11 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('AI Insights error:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to generate insights' },
+      { 
+        success: false, 
+        error: 'Failed to generate insights',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }

@@ -799,8 +799,19 @@ function NewspaperHomePage({
                 <div className="relative -m-4 sm:-m-6 lg:-m-8">
                   <AIInsightsBlock />
                 </div>
-                {/* إخفاء المحتوى القديم للتصنيفات */}
-                {false && categoriesLoading ? (
+              </div>
+            </div>
+            
+            {/* إخفاء المحتوى القديم للتصنيفات */}
+            {false && (
+              <div
+                className={`rounded-3xl p-4 sm:p-6 lg:p-8 transition-all duration-500 shadow-lg dark:shadow-gray-900/50 ${
+                  darkMode
+                    ? "bg-blue-900/10 border border-blue-800/30"
+                    : "bg-blue-50 dark:bg-blue-900/20/50 border border-blue-200/50"
+                }`}
+              >
+                {categoriesLoading ? (
                   <div className="flex items-center justify-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
                   </div>
@@ -1081,7 +1092,7 @@ function NewspaperHomePage({
                   </div>
                 )}
               </div>
-            </div>
+            )}
             {/* 1/3: النشرة الصوتية */}
             <aside className={`lg:col-span-1 ${isMobileView ? "mt-0" : ""}`}>
               <div

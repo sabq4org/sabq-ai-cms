@@ -95,8 +95,49 @@ export default function AIInsightsBlock() {
     );
   }
 
-  if (error || insights.length === 0) {
-    return null;
+  if (error) {
+    return (
+      <section className="py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="p-8 bg-red-50 dark:bg-red-900/20 rounded-xl">
+            <p className="text-red-600 dark:text-red-400">
+              {error}
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // عرض رسالة عندما لا توجد مؤشرات
+  if (insights.length === 0) {
+    return (
+      <section className="py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-950">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-center mb-8">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl">
+                <Brain className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                  <span>مؤشرات ذكية</span>
+                  <Sparkles className="w-5 h-5 text-yellow-500" />
+                </h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  ماذا يقرأ الناس الآن؟ تحليل مباشر بالذكاء الاصطناعي
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="text-center p-12 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
+            <p className="text-gray-500 dark:text-gray-400">
+              جاري تحليل البيانات... يرجى المحاولة لاحقاً
+            </p>
+          </div>
+        </div>
+      </section>
+    );
   }
 
   return (
