@@ -92,22 +92,16 @@ export default function SmartInsightsWidget() {
         accent: 'border-l-green-500'
       },
       'اقتصادي مهم': { 
-        color: 'text-amber-600', 
-        bg: 'bg-amber-50', 
+        color: 'text-yellow-600', 
+        bg: 'bg-yellow-50', 
         icon: '💰',
-        accent: 'border-l-amber-500'
+        accent: 'border-l-yellow-500'
       },
       'سياسي بارز': { 
         color: 'text-purple-600', 
         bg: 'bg-purple-50', 
         icon: '🏛️',
         accent: 'border-l-purple-500'
-      },
-      'صحي متطور': { 
-        color: 'text-emerald-600', 
-        bg: 'bg-emerald-50', 
-        icon: '⚕️',
-        accent: 'border-l-emerald-500'
       },
       'محل نقاش': { 
         color: 'text-orange-600', 
@@ -120,7 +114,7 @@ export default function SmartInsightsWidget() {
     return configs[tag as keyof typeof configs] || {
       color: 'text-gray-600', 
       bg: 'bg-gray-50', 
-      icon: '⭐',
+      icon: '💬',
       accent: 'border-l-gray-500'
     };
   };

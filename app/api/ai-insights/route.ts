@@ -100,43 +100,41 @@ async function calculateSmartInsights(): Promise<ArticleInsight[]> {
     const title = article.title.toLowerCase();
     const isBreaking = title.includes('عاجل') || title.includes('كسر') || title.includes('هام');
     const isTech = title.includes('ذكاء') || title.includes('تقنية') || title.includes('ai') || title.includes('تكنولوجيا');
-    const isEconomic = title.includes('اقتصاد') || title.includes('أسعار') || title.includes('استثمار') || title.includes('مالي');
-    const isPolitical = title.includes('سياسة') || title.includes('حكومة') || title.includes('وزير') || title.includes('مجلس');
+    const isEconomic = title.includes('اقتصاد') || title.includes('أسعار') || title.includes('استثمار') || title.includes('مالي') || title.includes('بنك') || title.includes('شركة');
+    const isPolitical = title.includes('سياسة') || title.includes('حكومة') || title.includes('وزير') || title.includes('مجلس') || title.includes('رئيس') || title.includes('ملك');
     const isHealth = title.includes('صحة') || title.includes('طب') || title.includes('علاج') || title.includes('دواء');
 
-    // خوارزمية ذكية لتصنيف المؤشرات
-    if (isBreaking || totalViews > 3000) {
+    // خوارزمية ذكية محسنة للتنوع
+    const scoreComments = totalComments * 10;
+    const scoreGrowth = growthRate > 0 ? growthRate : 0;
+    const scoreShares = totalShares * 5;
+    const scoreViews = totalViews / 100;
+    
+    // تصنيف متوازن للحصول على تنوع
+    if (totalComments > 15 || (scoreComments > scoreGrowth && scoreComments > scoreShares)) {
       insightTag = 'الأكثر جدلاً';
       icon = '🔥';
-      aiAnalysis = `حدث مهم يثير الجدل مع ${totalViews.toLocaleString()} مشاهدة و${totalComments} تعليق`;
-    } else if (growthRate > 50 || recentViews > 100) {
+      aiAnalysis = `موضوع مثير للجدل مع ${totalComments} تعليق و${totalViews.toLocaleString()} مشاهدة`;
+    } else if (growthRate > 30 || (scoreGrowth > scoreShares && scoreGrowth > scoreViews && recentViews > 50)) {
       insightTag = 'صاعد الآن';
       icon = '📈';
-      aiAnalysis = `اتجاه صاعد بنمو ${Math.round(growthRate)}% في القراءات خلال الساعات الأخيرة`;
-    } else if (totalShares > 50 || isTech) {
+      aiAnalysis = `نمو سريع بنسبة ${Math.round(growthRate)}% في القراءات خلال الساعات الماضية`;
+    } else if (totalShares > 30 || (scoreShares > scoreViews && totalShares > 10)) {
       insightTag = 'الأكثر تداولاً';
       icon = '📢';
-      aiAnalysis = `انتشار واسع عبر وسائل التواصل مع ${totalShares} مشاركة خارجية`;
-    } else if (isEconomic) {
+      aiAnalysis = `انتشار واسع مع ${totalShares} مشاركة خارج الموقع و${totalViews.toLocaleString()} مشاهدة`;
+    } else if (isEconomic || title.includes('مليار') || title.includes('مليون')) {
       insightTag = 'اقتصادي مهم';
       icon = '💰';
-      aiAnalysis = `خبر اقتصادي يؤثر على الأسواق والمستثمرين`;
-    } else if (isPolitical) {
+      aiAnalysis = `خبر اقتصادي مؤثر يتابعه ${totalViews.toLocaleString()} قارئ`;
+    } else if (isPolitical || title.includes('قرار') || title.includes('إعلان')) {
       insightTag = 'سياسي بارز';
       icon = '🏛️';
-      aiAnalysis = `قرار سياسي مؤثر يتابعه المهتمون بالشؤون العامة`;
-    } else if (isHealth) {
-      insightTag = 'صحي متطور';
-      icon = '⚕️';
-      aiAnalysis = `تطور طبي جديد يهم القطاع الصحي`;
-    } else if (totalComments > 20) {
+      aiAnalysis = `تطور سياسي مهم يثير اهتمام ${totalViews.toLocaleString()} متابع`;
+    } else {
       insightTag = 'محل نقاش';
       icon = '💬';
-      aiAnalysis = `موضوع يحفز النقاش العام مع ${totalComments} تعليق متنوع`;
-    } else {
-      insightTag = 'جديد مميز';
-      icon = '⭐';
-      aiAnalysis = `محتوى جديد ومميز يستحق المتابعة`;
+      aiAnalysis = `موضوع يستحق النقاش مع ${totalViews.toLocaleString()} مشاهدة`;
     }
 
     const trendingScore = 
@@ -170,24 +168,63 @@ async function calculateSmartInsights(): Promise<ArticleInsight[]> {
   // ترتيب حسب الذكاء والأهمية
   smartInsights.sort((a, b) => b.trendingScore - a.trendingScore);
 
-  // التأكد من تنوع المؤشرات
-  const finalInsights = smartInsights.slice(0, 15);
+  // ضمان التنوع المطلوب: 5 أنواع مختلفة
+  const requiredTags = [
+    'الأكثر جدلاً',
+    'صاعد الآن', 
+    'الأكثر تداولاً',
+    'اقتصادي مهم',
+    'سياسي بارز'
+  ];
   
-  // ضمان عدم تكرار نفس النوع
-  const seenTags = new Set();
-  const diverseInsights = finalInsights.filter(insight => {
-    if (seenTags.size >= 5) return false; // أول 5 فقط
-    if (seenTags.has(insight.insightTag)) return false;
-    seenTags.add(insight.insightTag);
-    return true;
-  });
-
-  // إذا لم نحصل على 5 متنوعة، أضف الباقي
-  while (diverseInsights.length < 5 && diverseInsights.length < finalInsights.length) {
-    const remaining = finalInsights.find(insight => 
+  const diverseInsights: ArticleInsight[] = [];
+  
+  // محاولة إيجاد مقال لكل نوع مطلوب
+  for (const requiredTag of requiredTags) {
+    const found = smartInsights.find(insight => 
+      insight.insightTag === requiredTag && 
       !diverseInsights.some(d => d.id === insight.id)
     );
-    if (remaining) diverseInsights.push(remaining);
+    if (found) {
+      diverseInsights.push(found);
+    }
+  }
+  
+  // إذا لم نحصل على 5 متنوعة، أعد تصنيف المقالات المتبقية
+  while (diverseInsights.length < 5 && smartInsights.length > diverseInsights.length) {
+    const remaining = smartInsights.find(insight => 
+      !diverseInsights.some(d => d.id === insight.id)
+    );
+    
+    if (remaining) {
+      // إعادة تصنيف قسري للمقالات المتبقية
+      const missingTags = requiredTags.filter(tag => 
+        !diverseInsights.some(d => d.insightTag === tag)
+      );
+      
+      if (missingTags.length > 0) {
+        remaining.insightTag = missingTags[0];
+        remaining.icon = {
+          'الأكثر جدلاً': '🔥',
+          'صاعد الآن': '📈', 
+          'الأكثر تداولاً': '📢',
+          'اقتصادي مهم': '💰',
+          'سياسي بارز': '🏛️'
+        }[missingTags[0]] || '💬';
+        
+        remaining.aiAnalysis = {
+          'الأكثر جدلاً': `موضوع مثير للجدل مع ${remaining.commentCount} تعليق`,
+          'صاعد الآن': `اتجاه صاعد في القراءات مع ${remaining.viewCount.toLocaleString()} مشاهدة`,
+          'الأكثر تداولاً': `انتشار واسع مع ${remaining.shareCount} مشاركة`,
+          'اقتصادي مهم': `خبر اقتصادي يتابعه ${remaining.viewCount.toLocaleString()} قارئ`,
+          'سياسي بارز': `تطور سياسي مهم مع ${remaining.viewCount.toLocaleString()} مشاهدة`
+        }[missingTags[0]] || remaining.aiAnalysis;
+      }
+      
+      diverseInsights.push(remaining);
+    } else {
+      break;
+    }
   }
 
   try {
