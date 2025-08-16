@@ -171,19 +171,19 @@ async function calculateSmartInsights(): Promise<ArticleInsight[]> {
   smartInsights.sort((a, b) => b.trendingScore - a.trendingScore);
 
   // التأكد من تنوع المؤشرات
-  const finalInsights = smartInsights.slice(0, 10);
+  const finalInsights = smartInsights.slice(0, 15);
   
   // ضمان عدم تكرار نفس النوع
   const seenTags = new Set();
   const diverseInsights = finalInsights.filter(insight => {
-    if (seenTags.size >= 3) return false; // أول 3 فقط
+    if (seenTags.size >= 5) return false; // أول 5 فقط
     if (seenTags.has(insight.insightTag)) return false;
     seenTags.add(insight.insightTag);
     return true;
   });
 
-  // إذا لم نحصل على 3 متنوعة، أضف الباقي
-  while (diverseInsights.length < 3 && diverseInsights.length < finalInsights.length) {
+  // إذا لم نحصل على 5 متنوعة، أضف الباقي
+  while (diverseInsights.length < 5 && diverseInsights.length < finalInsights.length) {
     const remaining = finalInsights.find(insight => 
       !diverseInsights.some(d => d.id === insight.id)
     );

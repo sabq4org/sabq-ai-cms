@@ -64,7 +64,7 @@ export default function SmartInsightsWidget() {
   useEffect(() => {
     if (insights.length > 1) {
       const carousel = setInterval(() => {
-        setCurrentIndex(prev => (prev + 1) % Math.min(3, insights.length));
+        setCurrentIndex(prev => (prev + 1) % Math.min(5, insights.length));
       }, 8000); // كل 8 ثواني
       
       return () => clearInterval(carousel);
@@ -177,10 +177,12 @@ export default function SmartInsightsWidget() {
             </div>
             <div className="h-16 bg-slate-300/40 dark:bg-slate-600/40 rounded-xl"></div>
           </div>
-          <div className="flex gap-2">
-            <div className="w-2 h-2 bg-blue-400/60 dark:bg-blue-500/60 rounded-full"></div>
-            <div className="w-2 h-2 bg-slate-300/60 dark:bg-slate-600/60 rounded-full"></div>
-            <div className="w-2 h-2 bg-slate-300/60 dark:bg-slate-600/60 rounded-full"></div>
+          <div className="flex gap-1.5">
+            <div className="w-2.5 h-2.5 bg-red-400/60 dark:bg-red-500/60 rounded-full"></div>
+            <div className="w-2.5 h-2.5 bg-blue-400/60 dark:bg-blue-500/60 rounded-full animate-pulse"></div>
+            <div className="w-2.5 h-2.5 bg-green-400/60 dark:bg-green-500/60 rounded-full"></div>
+            <div className="w-2.5 h-2.5 bg-yellow-400/60 dark:bg-yellow-500/60 rounded-full"></div>
+            <div className="w-2.5 h-2.5 bg-purple-400/60 dark:bg-purple-500/60 rounded-full"></div>
           </div>
         </div>
       </div>
@@ -204,9 +206,11 @@ export default function SmartInsightsWidget() {
             </div>
           </div>
           <div className="flex justify-center gap-1">
-            <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse delay-100"></div>
-            <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse delay-200"></div>
+            <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
+            <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse delay-75"></div>
+            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse delay-150"></div>
+            <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse delay-200"></div>
+            <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse delay-300"></div>
           </div>
         </div>
       </div>
@@ -324,25 +328,41 @@ export default function SmartInsightsWidget() {
         </Link>
       </div>
 
-      {/* مؤشرات النقاط والتحكم */}
+      {/* مؤشرات النقاط والتحكم - 5 نقاط ملونة */}
       <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-200/50 dark:border-slate-600/50">
         <div className="flex gap-1.5">
-          {insights.slice(0, 3).map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                index === currentIndex 
-                  ? `${config.color.replace('text-', 'bg-')} shadow-sm` 
-                  : 'bg-slate-400/40 dark:bg-slate-500/40 hover:bg-slate-400/60 dark:hover:bg-slate-500/60'
-              }`}
+          {insights.slice(0, 5).map((insight, index) => {
+            const dotConfig = getInsightConfig(insight?.insightTag || '');
+            const isActive = index === currentIndex;
+            const dotColor = dotConfig.color.replace('text-', 'bg-');
+            const dotColorMuted = dotColor.replace('-600', '-300/60').replace('bg-', 'bg-');
+            
+            return (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 hover:scale-110 ${
+                  isActive 
+                    ? `${dotColor} shadow-sm ring-2 ring-white/50 dark:ring-slate-800/50` 
+                    : `${dotColorMuted} dark:${dotColor.replace('-600', '-500/40')} hover:scale-105`
+                }`}
+                title={insight?.insightTag || `المؤشر ${index + 1}`}
+              />
+            );
+          })}
+          
+          {/* إضافة نقاط فارغة إذا كان عدد المؤشرات أقل من 5 */}
+          {Array.from({ length: Math.max(0, 5 - insights.length) }, (_, index) => (
+            <div
+              key={`empty-${index}`}
+              className="w-2.5 h-2.5 rounded-full bg-slate-200/50 dark:bg-slate-600/30"
             />
           ))}
         </div>
         
         <Link 
-          href="/trending" 
-          className="text-xs text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+          href="/ai-insights" 
+          className="text-xs text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
         >
           عرض الكل ←
         </Link>
