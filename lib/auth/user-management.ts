@@ -325,12 +325,12 @@ export class UserManagementService {
           id: SecurityManager.generateSecureToken(16),
           user_id: user.id,
           session_token: await SecurityManager.hashPassword(accessToken),
-          ip_address: sessionInfo?.ip_address,
+          ip_address: sessionInfo?.ip_address || 'unknown',
           user_agent: sessionInfo?.user_agent,
-          device_type: sessionInfo?.device_type,
+          device_type: sessionInfo?.device_type || 'desktop',
           location: {},
           last_activity_at: new Date(),
-          updated_at: new Date()
+          is_active: true
         }
       });
 
