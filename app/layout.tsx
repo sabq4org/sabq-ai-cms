@@ -285,7 +285,7 @@ export default function RootLayout({
 
       </head>
       <body
-        className={`${ibmPlexArabic.variable} font-arabic`}
+        className={`${ibmPlexArabic.variable} font-arabic bg-white text-gray-900 dark:bg-gray-900 dark:text-white`}
         suppressHydrationWarning
       >
         <CriticalErrorBoundary>
