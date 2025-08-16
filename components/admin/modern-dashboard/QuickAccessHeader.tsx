@@ -22,6 +22,7 @@ import {
   Search,
   User,
 } from "lucide-react";
+import SmartSystemIndicator from "@/components/smart-system/SmartSystemIndicator";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -142,6 +143,11 @@ export default function QuickAccessHeader({
                 <span className="hidden xl:inline text-sm">أنظمة AI</span>
               </Button>
             </Link>
+
+            <div className="mx-1 hidden md:block h-6 w-px bg-gray-200 dark:bg-gray-700" />
+
+            {/* مؤشر النظام الذكي */}
+            <SmartSystemIndicator />
 
             <div className="mx-1 hidden md:block h-6 w-px bg-gray-200 dark:bg-gray-700" />
 

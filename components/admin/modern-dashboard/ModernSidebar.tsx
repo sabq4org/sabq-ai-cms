@@ -180,6 +180,15 @@ const sidebarItems: SidebarItem[] = [
     href: "/dashboard/smart-blocks",
     children: [
       {
+        id: "smart-system-control",
+        title: "النظام الذكي المتكامل",
+        icon: Settings,
+        href: "/admin/smart-system",
+        badge: "جديد",
+        badgeVariant: "default" as const,
+        isNew: true,
+      },
+      {
         id: "smart-entities",
         title: "الكيانات الذكية",
         icon: Network,
