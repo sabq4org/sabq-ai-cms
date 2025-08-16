@@ -783,8 +783,29 @@ function NewspaperHomePage({
           }`}
         >
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-            {/* 2/3: التصنيفات */}
-            <div className="lg:col-span-2">
+            {/* النسخة المحمولة: النشرة الصوتية أولاً */}
+            {isMobileView && (
+              <div className="order-1">
+                <div
+                  className={`h-full rounded-3xl p-4 sm:p-5 transition-all duration-500 shadow-lg dark:shadow-gray-900/50 ${
+                    darkMode
+                      ? "bg-blue-900/10 border border-blue-800/30"
+                      : "bg-blue-50 dark:bg-blue-900/20/50 border border-blue-200/50"
+                  }`}
+                  style={{
+                    backdropFilter: "blur(10px)",
+                    background: darkMode
+                      ? "linear-gradient(135deg, rgba(30, 64, 175, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)"
+                      : "linear-gradient(135deg, rgba(219, 234, 254, 0.5) 0%, rgba(191, 219, 254, 0.3) 100%)",
+                  }}
+                >
+                  <SmartAudioBlock variant="sidebar" />
+                </div>
+              </div>
+            )}
+            
+            {/* المؤشرات الذكية */}
+            <div className={`${isMobileView ? 'order-2' : 'lg:col-span-2'}`}>
               <div
                 className={`h-full rounded-3xl p-4 sm:p-6 lg:p-8 transition-all duration-500 shadow-lg dark:shadow-gray-900/50 ${
                   darkMode
@@ -1096,24 +1117,26 @@ function NewspaperHomePage({
                 )}
               </div>
             )}
-            {/* 1/3: النشرة الصوتية */}
-            <aside className={`lg:col-span-1 ${isMobileView ? "mt-0" : ""}`}>
-              <div
-                className={`h-full rounded-3xl p-4 sm:p-5 transition-all duration-500 shadow-lg dark:shadow-gray-900/50 ${
-                  darkMode
-                    ? "bg-blue-900/10 border border-blue-800/30"
-                    : "bg-blue-50 dark:bg-blue-900/20/50 border border-blue-200/50"
-                }`}
-                style={{
-                  backdropFilter: "blur(10px)",
-                  background: darkMode
-                    ? "linear-gradient(135deg, rgba(30, 64, 175, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)"
-                    : "linear-gradient(135deg, rgba(219, 234, 254, 0.5) 0%, rgba(191, 219, 254, 0.3) 100%)",
-                }}
-              >
-                <SmartAudioBlock variant="sidebar" />
-              </div>
-            </aside>
+            {/* النشرة الصوتية لسطح المكتب فقط */}
+            {!isMobileView && (
+              <aside className="lg:col-span-1">
+                <div
+                  className={`h-full rounded-3xl p-4 sm:p-5 transition-all duration-500 shadow-lg dark:shadow-gray-900/50 ${
+                    darkMode
+                      ? "bg-blue-900/10 border border-blue-800/30"
+                      : "bg-blue-50 dark:bg-blue-900/20/50 border border-blue-200/50"
+                  }`}
+                  style={{
+                    backdropFilter: "blur(10px)",
+                    background: darkMode
+                      ? "linear-gradient(135deg, rgba(30, 64, 175, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)"
+                      : "linear-gradient(135deg, rgba(219, 234, 254, 0.5) 0%, rgba(191, 219, 254, 0.3) 100%)",
+                  }}
+                >
+                  <SmartAudioBlock variant="sidebar" />
+                </div>
+              </aside>
+            )}
           </div>
         </section>
 
