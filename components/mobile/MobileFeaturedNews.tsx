@@ -144,38 +144,17 @@ export default function MobileFeaturedNews({ items, withSwipe = true }: MobileFe
         ))}
       </div>
 
-      {/* مؤشرات صور مصغرة عند وجود أكثر من عنصر ومع تفعيل السحب */}
+      {/* مؤشرات صغيرة عند وجود أكثر من عنصر ومع تفعيل السحب */}
       {withSwipe && sanitized.length > 1 && (
-        <div className="absolute left-1/2 -translate-x-1/2 bottom-2 flex items-center gap-2">
-          {sanitized.map((item, i) => (
-            <button
+        <div className="absolute left-1/2 -translate-x-1/2 bottom-2 flex items-center gap-1.5">
+          {sanitized.map((_, i) => (
+            <span
               key={i}
-              onClick={() => {
-                const container = trackRef.current;
-                if (!container) return;
-                const children = container.children;
-                if (!children || children.length === 0) return;
-                const targetLeft = (children[i] as HTMLElement).offsetLeft;
-                container.scrollTo({ left: targetLeft, behavior: "smooth" });
-                setActive(i);
-              }}
-              className={`relative overflow-hidden rounded transition-all duration-300 ${
-                i === active 
-                  ? "w-10 h-6 ring-1 ring-white/70 shadow-md" 
-                  : "w-6 h-6 opacity-40 hover:opacity-60"
-              }`}
-              aria-label={`الانتقال إلى ${item.title}`}
-            >
-              <img
-                src={item.imageUrl}
-                alt={item.title}
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-              <div className={`absolute inset-0 ${
-                i === active ? "bg-white/15" : "bg-black/35"
-              }`}></div>
-            </button>
+              className={
+                "block w-1.5 h-1.5 rounded-full transition-all " +
+                (i === active ? "bg-white/90" : "bg-white/40")
+              }
+            />
           ))}
         </div>
       )}
