@@ -9,16 +9,18 @@ interface ContentWrapperProps {
 export default function ContentWrapper({ children }: ContentWrapperProps) {
   const pathname = usePathname();
 
-  // الصفحات التي لا تحتاج padding-top
-  const noPaddingRoutes = [
+  // الصفحات التي لا تحتاج padding-top إطلاقاً (هيدر مخصّص)
+  const noPaddingPrefixes = [
     "/dashboard",
     "/admin",
     "/login",
     "/register",
     "/forgot-password",
+    "/news", // صفحات الأخبار لها هيدر/تنسيقها
+    "/article", // صفحات المقال لها قياس خاص
   ];
 
-  const shouldAddPadding = !noPaddingRoutes.some((route) =>
+  const shouldAddPadding = !noPaddingPrefixes.some((route) =>
     pathname?.startsWith(route)
   );
 
@@ -26,7 +28,7 @@ export default function ContentWrapper({ children }: ContentWrapperProps) {
     <div
       className={
         shouldAddPadding
-          ? "pt-[var(--mobile-header-height)] sm:pt-[var(--header-height)] min-h-[100svh]"
+          ? "pt-[calc(var(--mobile-header-height,56px))] sm:pt-[calc(var(--header-height,64px))] min-h-[100svh]"
           : ""
       }
     >
