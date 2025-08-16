@@ -42,7 +42,7 @@ const SECURITY_CONFIG = {
 };
 
 // فئة إدارة كلمات المرور المتقدمة
-export class AdvancedPasswordManager {
+class AdvancedPasswordManager {
   /**
    * التحقق من قوة كلمة المرور
    */
@@ -158,7 +158,7 @@ export class AdvancedPasswordManager {
 }
 
 // فئة إدارة الجلسات المتقدمة
-export class SessionManager {
+class SessionManager {
   /**
    * التحقق من عدد الجلسات المتزامنة
    */
@@ -267,7 +267,7 @@ export class SessionManager {
 }
 
 // فئة الحماية من الهجمات
-export class SecurityProtection {
+class SecurityProtection {
   private static loginAttempts = new Map<string, { count: number; lastAttempt: Date; blockedUntil?: Date }>();
   private static suspiciousActivities = new Map<string, { count: number; activities: string[] }>();
 
@@ -390,7 +390,7 @@ export class SecurityProtection {
 }
 
 // فئة التشفير المتقدم
-export class AdvancedEncryption {
+class AdvancedEncryption {
   private static readonly ALGORITHM = 'aes-256-gcm';
   private static readonly KEY_LENGTH = 32;
   private static readonly IV_LENGTH = 16;
@@ -466,7 +466,7 @@ export class AdvancedEncryption {
 }
 
 // فئة التحليل الأمني والمراقبة
-export class SecurityMonitoring {
+class SecurityMonitoring {
   /**
    * تسجيل حدث أمني
    */
