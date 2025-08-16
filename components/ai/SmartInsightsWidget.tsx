@@ -155,11 +155,28 @@ export default function SmartInsightsWidget() {
 
   if (loading) {
     return (
-      <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-700">
-        <div className="animate-pulse space-y-3">
-          <div className="h-4 w-24 bg-slate-300 dark:bg-slate-600 rounded"></div>
-          <div className="h-3 w-full bg-slate-300 dark:bg-slate-600 rounded"></div>
-          <div className="h-3 w-3/4 bg-slate-300 dark:bg-slate-600 rounded"></div>
+      <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 h-full flex flex-col">
+        <div className="animate-pulse space-y-4 flex-1">
+          <div className="space-y-2">
+            <div className="h-3 w-20 bg-slate-300 dark:bg-slate-600 rounded"></div>
+            <div className="h-6 w-40 bg-slate-300 dark:bg-slate-600 rounded"></div>
+            <div className="h-3 w-32 bg-slate-300 dark:bg-slate-600 rounded"></div>
+          </div>
+          <div className="flex-1 space-y-3">
+            <div className="flex gap-3">
+              <div className="w-8 h-8 bg-slate-300 dark:bg-slate-600 rounded"></div>
+              <div className="flex-1 space-y-2">
+                <div className="h-4 w-full bg-slate-300 dark:bg-slate-600 rounded"></div>
+                <div className="h-4 w-3/4 bg-slate-300 dark:bg-slate-600 rounded"></div>
+              </div>
+            </div>
+            <div className="h-16 bg-slate-300 dark:bg-slate-600 rounded-xl"></div>
+          </div>
+          <div className="flex gap-2">
+            <div className="w-2 h-2 bg-slate-300 dark:bg-slate-600 rounded-full"></div>
+            <div className="w-2 h-2 bg-slate-300 dark:bg-slate-600 rounded-full"></div>
+            <div className="w-2 h-2 bg-slate-300 dark:bg-slate-600 rounded-full"></div>
+          </div>
         </div>
       </div>
     );
@@ -167,9 +184,15 @@ export default function SmartInsightsWidget() {
 
   if (error || insights.length === 0) {
     return (
-      <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 text-center">
-        <div className="text-slate-500 dark:text-slate-400 text-sm">
-          🤖 جاري تحليل الاتجاهات...
+      <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 h-full flex flex-col items-center justify-center text-center">
+        <div className="space-y-3">
+          <div className="text-4xl">🤖</div>
+          <div className="text-slate-500 dark:text-slate-400 text-sm">
+            جاري تحليل الاتجاهات...
+          </div>
+          <div className="text-xs text-slate-400">
+            المؤشرات الذكية ستظهر قريباً
+          </div>
         </div>
       </div>
     );
@@ -179,79 +202,107 @@ export default function SmartInsightsWidget() {
   const config = getInsightConfig(currentInsight.insightTag);
 
   return (
-    <div className={`${config.bg} dark:bg-slate-800 rounded-2xl p-5 border-l-4 ${config.accent} shadow-sm transition-all duration-500 hover:shadow-md`}>
-      {/* Header مضغوط */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          <span className="text-xs font-medium text-slate-600 dark:text-slate-300">
-            مؤشرات ذكية
-          </span>
+    <div className={`${config.bg} dark:bg-slate-800 rounded-2xl p-5 border-l-4 ${config.accent} shadow-sm transition-all duration-500 hover:shadow-md h-full flex flex-col`}>
+      {/* Header مع عنوان أكبر */}
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+              مباشر الآن
+            </span>
+          </div>
+          <div className="flex items-center gap-1 text-[10px] text-slate-400">
+            <Clock className="w-2.5 h-2.5" />
+            <span>تحديث مستمر</span>
+          </div>
         </div>
-        <div className="flex items-center gap-2 text-[10px] text-slate-400">
-          <Clock className="w-2.5 h-2.5" />
-          <span>مباشر</span>
+        
+        <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">
+          🎯 مؤشرات ذكية
+        </h2>
+        
+        {/* 3 بطاقات صغيرة مع تدرجات */}
+        <div className="grid grid-cols-3 gap-2 mt-3">
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/30 rounded-lg p-2 text-center">
+            <div className="text-xs font-medium text-blue-700 dark:text-blue-300">تحليل فوري</div>
+          </div>
+          <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/30 rounded-lg p-2 text-center">
+            <div className="text-xs font-medium text-green-700 dark:text-green-300">اتجاهات ذكية</div>
+          </div>
+          <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/30 rounded-lg p-2 text-center">
+            <div className="text-xs font-medium text-purple-700 dark:text-purple-300">تحديث مستمر</div>
+          </div>
         </div>
       </div>
 
-      {/* المؤشر الحالي */}
-      <Link href={`/article/${currentInsight.slug}`} className="block group">
-        <div className="space-y-2">
-          {/* العنوان مع المؤشر */}
-          <div className="flex items-start gap-2">
-            <span className="text-lg leading-none">{config.icon}</span>
-            <div className="flex-1 min-w-0">
-              <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 line-clamp-2 transition-colors">
-                {currentInsight.title}
-              </h3>
-            </div>
-          </div>
-          
-          {/* التصنيف والمقاييس */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className={`text-xs font-medium px-2 py-1 rounded-full ${config.bg} ${config.color} border border-current/20`}>
-                {currentInsight.insightTag}
-              </span>
+      {/* المؤشر الحالي - flex-1 ليملأ المساحة */}
+      <div className="flex-1 flex flex-col">
+        <Link href={`/article/${currentInsight.slug}`} className="block group flex-1">
+          <div className="space-y-3 h-full flex flex-col">
+            {/* العنوان مع المؤشر */}
+            <div className="flex items-start gap-3">
+              <span className="text-2xl leading-none">{config.icon}</span>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-base font-semibold text-slate-800 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 line-clamp-3 transition-colors leading-relaxed">
+                  {currentInsight.title}
+                </h3>
+              </div>
             </div>
             
-            <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
-              {/* Mini Chart */}
-              <div className={`${config.color}`}>
-                {generateMiniChart(currentInsight.trendingScore)}
+            {/* التصنيف والمقاييس */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className={`text-sm font-medium px-3 py-1.5 rounded-full ${config.bg} ${config.color} border border-current/20`}>
+                  {currentInsight.insightTag}
+                </span>
               </div>
               
-              {/* المقياس الرئيسي */}
-              <div className="flex items-center gap-1">
-                {currentInsight.insightTag === 'الأكثر جدلاً' && (
-                  <>
-                    <MessageCircle className="w-3 h-3" />
-                    <span>{formatMetric(currentInsight.commentCount)}</span>
-                  </>
-                )}
-                {currentInsight.insightTag === 'صاعد الآن' && (
-                  <>
-                    <TrendingUp className="w-3 h-3" />
-                    <span>+{currentInsight.growthRate.toFixed(0)}%</span>
-                  </>
-                )}
-                {(currentInsight.insightTag === 'الأكثر تداولاً' || 
-                  !['الأكثر جدلاً', 'صاعد الآن'].includes(currentInsight.insightTag)) && (
-                  <>
-                    <Eye className="w-3 h-3" />
-                    <span>{formatMetric(currentInsight.viewCount)}</span>
-                  </>
-                )}
+              <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
+                {/* Mini Chart */}
+                <div className={`${config.color}`}>
+                  {generateMiniChart(currentInsight.trendingScore)}
+                </div>
+                
+                {/* المقياس الرئيسي */}
+                <div className="flex items-center gap-1.5">
+                  {currentInsight.insightTag === 'الأكثر جدلاً' && (
+                    <>
+                      <MessageCircle className="w-4 h-4" />
+                      <span className="font-medium">{formatMetric(currentInsight.commentCount)}</span>
+                    </>
+                  )}
+                  {currentInsight.insightTag === 'صاعد الآن' && (
+                    <>
+                      <TrendingUp className="w-4 h-4" />
+                      <span className="font-medium">+{currentInsight.growthRate.toFixed(0)}%</span>
+                    </>
+                  )}
+                  {(currentInsight.insightTag === 'الأكثر تداولاً' || 
+                    !['الأكثر جدلاً', 'صاعد الآن'].includes(currentInsight.insightTag)) && (
+                    <>
+                      <Eye className="w-4 h-4" />
+                      <span className="font-medium">{formatMetric(currentInsight.viewCount)}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* التحليل الذكي - flex-1 للمساحة المتبقية */}
+            <div className="flex-1 flex flex-col justify-center">
+              <div className="text-sm text-slate-600 dark:text-slate-400 bg-white/60 dark:bg-slate-700/60 rounded-xl p-4 border border-slate-200/50 dark:border-slate-600/50 backdrop-blur-sm">
+                <div className="flex items-start gap-2">
+                  <span className="text-lg">💡</span>
+                  <div className="leading-relaxed">
+                    {currentInsight.aiAnalysis}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-
-          {/* التحليل الذكي */}
-          <div className="text-xs text-slate-600 dark:text-slate-400 bg-white/50 dark:bg-slate-700/50 rounded-lg p-2 border border-slate-200/50 dark:border-slate-600/50">
-            💡 {currentInsight.aiAnalysis}
-          </div>
-        </div>
-      </Link>
+        </Link>
+      </div>
 
       {/* مؤشرات النقاط والتحكم */}
       <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-200/50 dark:border-slate-600/50">
