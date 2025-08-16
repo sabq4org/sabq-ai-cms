@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
-import { TrendingUp, Eye, Heart, MessageCircle, Share2, Clock, Sparkles, Brain, Zap } from 'lucide-react';
+import { Eye, MessageCircle, Clock, Sparkles, Brain, TrendingUp, Share2, AlertTriangle } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
 interface ArticleInsight {
@@ -56,10 +56,8 @@ export default function AIInsightsBlock() {
 
   useEffect(() => {
     fetchInsights();
-    
-    // تحديث كل 3 دقائق
-    const interval = setInterval(fetchInsights, 3 * 60 * 1000);
-    
+    // تحديث كل 15 دقيقة
+    const interval = setInterval(fetchInsights, 15 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -79,19 +77,27 @@ export default function AIInsightsBlock() {
 
   if (loading) {
     return (
-      <section className="py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <Skeleton className="h-10 w-64" />
-            <Skeleton className="h-6 w-32" />
+      <div className="w-full">
+        <Card className="rounded-2xl border border-gray-200 dark:border-gray-800 p-4 shadow-sm bg-white/70 dark:bg-gray-900/60">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
+                <Brain className="w-4 h-4 text-white" />
+              </div>
+              <span className="text-sm font-bold text-gray-900 dark:text-gray-100">مؤشرات ذكية</span>
+            </div>
+            <Skeleton className="h-3 w-24" />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {[...Array(6)].map((_, i) => (
-              <Skeleton key={i} className="h-32" />
-            ))}
+          <div className="space-y-2">
+            <Skeleton className="h-6 w-full" />
+            <Skeleton className="h-6 w-[85%]" />
+            <Skeleton className="h-6 w-[70%]" />
           </div>
-        </div>
-      </section>
+          <div className="mt-3 flex justify-end">
+            <Skeleton className="h-7 w-20" />
+          </div>
+        </Card>
+      </div>
     );
   }
 
@@ -112,164 +118,130 @@ export default function AIInsightsBlock() {
   // عرض رسالة عندما لا توجد مؤشرات
   if (insights.length === 0) {
     return (
-      <section className="py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-950">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-center mb-8">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl">
-                <Brain className="w-6 h-6 text-white" />
+      <div className="w-full">
+        <Card className="rounded-2xl border border-gray-200 dark:border-gray-800 p-4 shadow-sm bg-white/70 dark:bg-gray-900/60">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
+                <Brain className="w-4 h-4 text-white" />
               </div>
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                  <span>مؤشرات ذكية</span>
-                  <Sparkles className="w-5 h-5 text-yellow-500" />
-                </h2>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                  ماذا يقرأ الناس الآن؟ تحليل مباشر بالذكاء الاصطناعي
-                </p>
-              </div>
+              <span className="text-sm font-bold text-gray-900 dark:text-gray-100">مؤشرات ذكية</span>
+            </div>
+            <div className="flex items-center gap-2 text-[11px] text-gray-500">
+              <Clock className="w-3 h-3" />
+              <span>يتم التحديث كل 15 دقيقة</span>
             </div>
           </div>
-          <div className="text-center p-12 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
-            <p className="text-gray-500 dark:text-gray-400">
-              جاري تحليل البيانات... يرجى المحاولة لاحقاً
-            </p>
+          <div className="text-xs text-gray-500 dark:text-gray-400 py-6 text-center">لا توجد مؤشرات حالياً</div>
+          <div className="mt-3 flex justify-end">
+            <Link href="/trends-demo" className="text-[11px] px-2.5 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300">عرض الكل</Link>
           </div>
-        </div>
-      </section>
+        </Card>
+      </div>
     );
   }
 
+  // تحضير أفضل 3 عناصر فقط
+  const topThree = useMemo(() => insights.slice(0, 3), [insights]);
+
+  // تحديد المؤشر الذكي لكل عنصر (ألوان: أحمر/أزرق/أخضر)
+  function getIndicator(i: ArticleInsight): { label: string; colorClass: string; icon: JSX.Element; tooltip: string } {
+    // الأكثر جدلاً (تعليقات عالية)
+    if (i.commentCount >= 30) {
+      return {
+        label: 'الأكثر جدلاً',
+        colorClass: 'text-red-600 bg-red-50 dark:text-red-300 dark:bg-red-900/20',
+        icon: <AlertTriangle className="w-3.5 h-3.5" />,
+        tooltip: `تعليقات مرتفعة (${i.commentCount}) خلال فترة وجيزة`,
+      };
+    }
+    // صاعد الآن (نمو قوي خلال الساعة)
+    if (i.growthRate > 50) {
+      return {
+        label: 'صاعد الآن',
+        colorClass: 'text-blue-600 bg-blue-50 dark:text-blue-300 dark:bg-blue-900/20',
+        icon: <TrendingUp className="w-3.5 h-3.5" />,
+        tooltip: `نمو سريع في القراءات (+${Math.round(i.growthRate)}% ساعة)`,
+      };
+    }
+    // الأكثر تداولاً (مشاركات عالية)
+    if (i.shareCount >= 50) {
+      return {
+        label: 'الأكثر تداولاً',
+        colorClass: 'text-green-600 bg-green-50 dark:text-green-300 dark:bg-green-900/20',
+        icon: <Share2 className="w-3.5 h-3.5" />,
+        tooltip: `تمت مشاركة الخبر ${i.shareCount} مرة`,
+      };
+    }
+    // افتراضي
+    return {
+      label: i.insightTag || 'مميز',
+      colorClass: 'text-gray-600 bg-gray-50 dark:text-gray-300 dark:bg-gray-800/60',
+      icon: <Sparkles className="w-3.5 h-3.5" />,
+      tooltip: 'خبر بارز وفق خوارزمية الترند',
+    };
+  }
+
   return (
-    <section className="py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-950">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl">
-              <Brain className="w-6 h-6 text-white" />
+    <div className="w-full">
+      <TooltipProvider>
+        <Card className="rounded-2xl border border-gray-200 dark:border-gray-800 p-4 shadow-sm bg-white/70 dark:bg-gray-900/60">
+          {/* العنوان وأخر تحديث */}
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
+                <Brain className="w-4 h-4 text-white" />
+              </div>
+              <span className="text-sm font-bold text-gray-900 dark:text-gray-100">مؤشرات ذكية</span>
             </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                <span>مؤشرات ذكية</span>
-                <Sparkles className="w-5 h-5 text-yellow-500" />
-              </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                ماذا يقرأ الناس الآن؟ تحليل مباشر بالذكاء الاصطناعي
-              </p>
+            <div className="flex items-center gap-2 text-[11px] text-gray-500">
+              <Clock className="w-3 h-3" />
+              <span>آخر تحديث {getTimeAgo(lastUpdate.toISOString())}</span>
             </div>
           </div>
-          <div className="flex items-center gap-2 text-xs text-gray-500">
-            <Clock className="w-3 h-3" />
-            <span>آخر تحديث {getTimeAgo(lastUpdate.toISOString())}</span>
+
+          {/* العناصر (3 أسطر فقط) */}
+          <ul className="space-y-2">
+            {topThree.map((item) => {
+              const ind = getIndicator(item);
+              return (
+                <li key={item.id} className="flex items-center justify-between gap-3 text-[13px]">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className={cn('inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold', ind.colorClass)}>
+                          {ind.icon}
+                          {ind.label}
+                        </span>
+                        <Link
+                          href={`/article/${item.slug}`}
+                          className="truncate text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400"
+                        >
+                          {item.title}
+                        </Link>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <span className="text-xs">{ind.tooltip}</span>
+                    </TooltipContent>
+                  </Tooltip>
+                  <div className="flex items-center gap-3 shrink-0 text-[12px] text-gray-500 dark:text-gray-400">
+                    <span className="inline-flex items-center gap-1"><Eye className="w-3.5 h-3.5" /> {formatNumber(item.viewCount)}</span>
+                    <span className="inline-flex items-center gap-1"><MessageCircle className="w-3.5 h-3.5" /> {formatNumber(item.commentCount)}</span>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+
+          {/* زر عرض الكل */}
+          <div className="mt-3 flex justify-end">
+            <Link href="/trends-demo" className="text-[11px] px-2.5 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300">
+              عرض الكل
+            </Link>
           </div>
-        </div>
-
-        {/* Insights Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <AnimatePresence mode="popLayout">
-            {insights.map((insight, index) => (
-              <motion.div
-                key={insight.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ delay: index * 0.05 }}
-              >
-                <Link href={`/article/${insight.slug}`}>
-                  <Card className="group relative overflow-hidden h-full p-4 hover:shadow-xl transition-all duration-300 border-gray-200 dark:border-gray-700">
-                    {/* خلفية متحركة */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-blue-50/20 dark:to-blue-900/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    
-                    <div className="relative z-10">
-                      {/* Header */}
-                      <div className="flex items-start justify-between gap-3 mb-3">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="text-2xl">{insight.icon}</span>
-                            <Badge className={cn("text-xs font-medium", insight.insightColor)}>
-                              {insight.insightTag}
-                            </Badge>
-                            {insight.growthRate > 50 && (
-                              <motion.div
-                                animate={{ scale: [1, 1.2, 1] }}
-                                transition={{ repeat: Infinity, duration: 2 }}
-                              >
-                                <Zap className="w-4 h-4 text-yellow-500" />
-                              </motion.div>
-                            )}
-                          </div>
-                          <h3 className="font-bold text-gray-900 dark:text-gray-100 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                            {insight.title}
-                          </h3>
-                        </div>
-                      </div>
-
-                      {/* Stats */}
-                      <div className="flex items-center gap-4 text-xs text-gray-600 dark:text-gray-400">
-                        <div className="flex items-center gap-1">
-                          <Eye className="w-3 h-3" />
-                          <span>{formatNumber(insight.viewCount)}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Heart className="w-3 h-3" />
-                          <span>{formatNumber(insight.likeCount)}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <MessageCircle className="w-3 h-3" />
-                          <span>{formatNumber(insight.commentCount)}</span>
-                        </div>
-                        {insight.shareCount > 0 && (
-                          <div className="flex items-center gap-1">
-                            <Share2 className="w-3 h-3" />
-                            <span>{formatNumber(insight.shareCount)}</span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Growth Indicator */}
-                      {insight.growthRate > 20 && (
-                        <div className="mt-3 flex items-center gap-2">
-                          <div className="flex-1 h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                            <motion.div
-                              className="h-full bg-gradient-to-r from-green-500 to-emerald-500"
-                              initial={{ width: 0 }}
-                              animate={{ width: `${Math.min(100, insight.growthRate)}%` }}
-                              transition={{ duration: 1, delay: index * 0.1 }}
-                            />
-                          </div>
-                          <span className="text-xs font-medium text-green-600 dark:text-green-400 flex items-center gap-1">
-                            <TrendingUp className="w-3 h-3" />
-                            {insight.growthRate.toFixed(0)}%
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Category & Time */}
-                      <div className="mt-3 flex items-center justify-between text-xs">
-                        <span className="text-gray-500 dark:text-gray-400">
-                          {insight.category}
-                        </span>
-                        <span className="text-gray-400">
-                          {getTimeAgo(insight.publishedAt)}
-                        </span>
-                      </div>
-                    </div>
-                  </Card>
-                </Link>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-
-        {/* AI Note */}
-        <div className="mt-8 text-center">
-          <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center justify-center gap-2">
-            <Brain className="w-3 h-3" />
-            يتم تحليل البيانات بواسطة الذكاء الاصطناعي وتحديثها كل 3 دقائق
-          </p>
-        </div>
-      </div>
-    </section>
+        </Card>
+      </TooltipProvider>
+    </div>
   );
 }
