@@ -155,27 +155,32 @@ export default function SmartInsightsWidget() {
 
   if (loading) {
     return (
-      <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 h-full flex flex-col">
+      <div className="bg-gradient-to-br from-slate-50/80 via-white/90 to-slate-100/60 dark:from-slate-800/80 dark:via-slate-800/90 dark:to-slate-900/60 rounded-2xl p-5 border border-slate-200/50 dark:border-slate-700/50 shadow-lg backdrop-blur-sm h-full flex flex-col">
         <div className="animate-pulse space-y-4 flex-1">
           <div className="space-y-2">
-            <div className="h-3 w-20 bg-slate-300 dark:bg-slate-600 rounded"></div>
-            <div className="h-6 w-40 bg-slate-300 dark:bg-slate-600 rounded"></div>
-            <div className="h-3 w-32 bg-slate-300 dark:bg-slate-600 rounded"></div>
+            <div className="h-3 w-20 bg-slate-300/60 dark:bg-slate-600/60 rounded"></div>
+            <div className="h-6 w-40 bg-slate-300/60 dark:bg-slate-600/60 rounded"></div>
+            <div className="h-3 w-32 bg-slate-300/60 dark:bg-slate-600/60 rounded"></div>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            <div className="h-12 bg-blue-200/40 dark:bg-blue-800/40 rounded-lg"></div>
+            <div className="h-12 bg-green-200/40 dark:bg-green-800/40 rounded-lg"></div>
+            <div className="h-12 bg-purple-200/40 dark:bg-purple-800/40 rounded-lg"></div>
           </div>
           <div className="flex-1 space-y-3">
             <div className="flex gap-3">
-              <div className="w-8 h-8 bg-slate-300 dark:bg-slate-600 rounded"></div>
+              <div className="w-8 h-8 bg-slate-300/60 dark:bg-slate-600/60 rounded"></div>
               <div className="flex-1 space-y-2">
-                <div className="h-4 w-full bg-slate-300 dark:bg-slate-600 rounded"></div>
-                <div className="h-4 w-3/4 bg-slate-300 dark:bg-slate-600 rounded"></div>
+                <div className="h-4 w-full bg-slate-300/60 dark:bg-slate-600/60 rounded"></div>
+                <div className="h-4 w-3/4 bg-slate-300/60 dark:bg-slate-600/60 rounded"></div>
               </div>
             </div>
-            <div className="h-16 bg-slate-300 dark:bg-slate-600 rounded-xl"></div>
+            <div className="h-16 bg-slate-300/40 dark:bg-slate-600/40 rounded-xl"></div>
           </div>
           <div className="flex gap-2">
-            <div className="w-2 h-2 bg-slate-300 dark:bg-slate-600 rounded-full"></div>
-            <div className="w-2 h-2 bg-slate-300 dark:bg-slate-600 rounded-full"></div>
-            <div className="w-2 h-2 bg-slate-300 dark:bg-slate-600 rounded-full"></div>
+            <div className="w-2 h-2 bg-blue-400/60 dark:bg-blue-500/60 rounded-full"></div>
+            <div className="w-2 h-2 bg-slate-300/60 dark:bg-slate-600/60 rounded-full"></div>
+            <div className="w-2 h-2 bg-slate-300/60 dark:bg-slate-600/60 rounded-full"></div>
           </div>
         </div>
       </div>
@@ -184,14 +189,24 @@ export default function SmartInsightsWidget() {
 
   if (error || insights.length === 0) {
     return (
-      <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 h-full flex flex-col items-center justify-center text-center">
-        <div className="space-y-3">
-          <div className="text-4xl">🤖</div>
-          <div className="text-slate-500 dark:text-slate-400 text-sm">
-            جاري تحليل الاتجاهات...
+      <div className="bg-gradient-to-br from-slate-50/80 via-white/90 to-slate-100/60 dark:from-slate-800/80 dark:via-slate-800/90 dark:to-slate-900/60 rounded-2xl p-5 border border-slate-200/50 dark:border-slate-700/50 shadow-lg backdrop-blur-sm h-full flex flex-col items-center justify-center text-center">
+        <div className="space-y-4">
+          <div className="text-5xl animate-bounce">🤖</div>
+          <div className="space-y-2">
+            <div className="text-slate-600 dark:text-slate-300 text-base font-medium">
+              🎯 مؤشرات ذكية
+            </div>
+            <div className="text-slate-500 dark:text-slate-400 text-sm">
+              جاري تحليل الاتجاهات...
+            </div>
+            <div className="text-xs text-slate-400 dark:text-slate-500">
+              المؤشرات الذكية ستظهر قريباً
+            </div>
           </div>
-          <div className="text-xs text-slate-400">
-            المؤشرات الذكية ستظهر قريباً
+          <div className="flex justify-center gap-1">
+            <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse delay-100"></div>
+            <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse delay-200"></div>
           </div>
         </div>
       </div>
@@ -202,7 +217,9 @@ export default function SmartInsightsWidget() {
   const config = getInsightConfig(currentInsight.insightTag);
 
   return (
-    <div className={`${config.bg} dark:bg-slate-800 rounded-2xl p-5 border-l-4 ${config.accent} shadow-sm transition-all duration-500 hover:shadow-md h-full flex flex-col`}>
+    <div className="bg-gradient-to-br from-slate-50/80 via-white/90 to-slate-100/60 dark:from-slate-800/80 dark:via-slate-800/90 dark:to-slate-900/60 rounded-2xl p-5 border border-slate-200/50 dark:border-slate-700/50 shadow-lg backdrop-blur-sm transition-all duration-500 hover:shadow-xl h-full flex flex-col relative overflow-hidden">
+      {/* خط جانبي ملون ديناميكي */}
+      <div className={`absolute top-0 right-0 w-1 h-full ${config.accent.replace('border-l-', 'bg-')} transition-colors duration-500`}></div>
       {/* Header مع عنوان أكبر */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
