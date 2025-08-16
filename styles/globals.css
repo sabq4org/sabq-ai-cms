@@ -136,9 +136,9 @@ select:focus-visible {
   }
 }
 
-/* التطبيق الموحّد للهيدر - إضافة تباعد أعلى المحتوى لتجنب التراكب */
+/* التطبيق الموحّد للهيدر - إضافة تباعد أعلى المحتوى مع مسافة إضافية */
 .page-content-wrapper {
-  padding-top: var(--header-height) !important;
+  padding-top: calc(var(--header-height) + 1.5rem) !important; /* إضافة 24px مسافة إضافية */
   margin-top: 0 !important;
   min-height: 100vh;
   position: relative;
@@ -147,7 +147,7 @@ select:focus-visible {
 
 @media (max-width: 768px) {
   .page-content-wrapper {
-    padding-top: var(--mobile-header-height) !important;
+    padding-top: calc(var(--mobile-header-height) + 1rem) !important; /* إضافة 16px للموبايل */
   }
 }
 
