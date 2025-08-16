@@ -20,8 +20,8 @@ import { getArticleLink } from "@/lib/utils";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
-const AIInsightsBlock = dynamic(
-  () => import("@/components/ai/AIInsightsBlockSimple").catch(() => ({ default: EmptyComponent })),
+const SmartInsightsWidget = dynamic(
+  () => import("@/components/ai/SmartInsightsWidget").catch(() => ({ default: EmptyComponent })),
   { ssr: false }
 );
 
@@ -800,7 +800,7 @@ function NewspaperHomePage({
               >
                 {/* استبدال محتوى التصنيفات بـ AI Insights */}
                 <div className="relative -m-4 sm:-m-6 lg:-m-8">
-                  <AIInsightsBlock />
+                  <SmartInsightsWidget />
                 </div>
               </div>
             </div>
