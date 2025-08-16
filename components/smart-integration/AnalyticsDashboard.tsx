@@ -53,13 +53,13 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DatePicker } from '@/components/ui/date-picker';
+import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, PointElement, ArcElement, Title, Tooltip, Legend, TimeScale } from 'chart.js';
 import { Bar, Line, Doughnut, Radar } from 'react-chartjs-2';
-import { format, subDays, startOfDay, endOfDay, eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval } from 'date-fns';
+import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 
 // Register Chart.js components
@@ -786,10 +786,7 @@ const RealTimeWidget = () => {
 
 export const AnalyticsDashboard: React.FC = () => {
   const { user, trackPageView } = useGlobalStore();
-  const [dateRange, setDateRange] = useState({
-    from: subDays(new Date(), 30),
-    to: new Date(),
-  });
+  const [selectedPeriod, setSelectedPeriod] = useState('30days');
   const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
@@ -866,17 +863,15 @@ export const AnalyticsDashboard: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <DatePicker
-            date={dateRange.from}
-            onDateChange={(date) => setDateRange({ ...dateRange, from: date || new Date() })}
-            placeholder="من تاريخ"
-          />
-          
-          <DatePicker
-            date={dateRange.to}
-            onDateChange={(date) => setDateRange({ ...dateRange, to: date || new Date() })}
-            placeholder="إلى تاريخ"
-          />
+          <Button variant="outline" size="sm">
+            آخر 7 أيام
+          </Button>
+          <Button variant="outline" size="sm">
+            آخر 30 يوم
+          </Button>
+          <Button variant="outline" size="sm">
+            هذا الشهر
+          </Button>
 
           <Button variant="outline" onClick={() => refetch()}>
             <RefreshCw className="w-4 h-4 mr-2" />

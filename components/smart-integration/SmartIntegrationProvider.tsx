@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+// Devtools removed for production
 import { useGlobalStore, useAuth } from '@/stores/globalStore';
 import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from 'next-themes';
@@ -407,9 +407,7 @@ export const SmartIntegrationProvider: React.FC<SmartIntegrationProviderProps> =
                 {children}
                 
                 {/* Development Tools */}
-                {process.env.NODE_ENV === 'development' && (
-                  <ReactQueryDevtools initialIsOpen={false} />
-                )}
+                {/* DevTools disabled for production build */}
                 
                 {/* Toast Notifications */}
                 <Toaster
