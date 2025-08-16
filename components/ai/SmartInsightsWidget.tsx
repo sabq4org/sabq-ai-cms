@@ -328,36 +328,47 @@ export default function SmartInsightsWidget() {
         </Link>
       </div>
 
-      {/* مؤشرات النقاط والتحكم - 5 نقاط ملونة */}
+      {/* مؤشرات النقاط والتحكم - 5 نقاط ملونة دائماً */}
       <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-200/50 dark:border-slate-600/50">
         <div className="flex gap-1.5">
-          {insights.slice(0, 5).map((insight, index) => {
-            const dotConfig = getInsightConfig(insight?.insightTag || '');
-            const isActive = index === currentIndex;
-            const dotColor = dotConfig.color.replace('text-', 'bg-');
-            const dotColorMuted = dotColor.replace('-600', '-300/60').replace('bg-', 'bg-');
+          {Array.from({ length: 5 }, (_, index) => {
+            const insight = insights[index];
+            const dotConfig = insight ? getInsightConfig(insight.insightTag) : getInsightConfig('');
+            const isActive = index === currentIndex && insight;
+            const hasData = !!insight;
+            
+            // ألوان افتراضية للنقاط حسب الترتيب
+            const defaultColors = [
+              'bg-red-400/40 dark:bg-red-500/40',      // أحمر
+              'bg-blue-400/40 dark:bg-blue-500/40',    // أزرق  
+              'bg-green-400/40 dark:bg-green-500/40',  // أخضر
+              'bg-yellow-400/40 dark:bg-yellow-500/40', // أصفر
+              'bg-purple-400/40 dark:bg-purple-500/40'  // بنفسجي
+            ];
+            
+            let dotClasses = '';
+            if (hasData) {
+              const dotColor = dotConfig.color.replace('text-', 'bg-');
+              const dotColorMuted = dotColor.replace('-600', '-300/60').replace('bg-', 'bg-');
+              dotClasses = isActive 
+                ? `${dotColor} shadow-sm ring-2 ring-white/50 dark:ring-slate-800/50`
+                : `${dotColorMuted} dark:${dotColor.replace('-600', '-500/40')} hover:scale-105`;
+            } else {
+              dotClasses = defaultColors[index] || 'bg-slate-300/40 dark:bg-slate-600/40';
+            }
             
             return (
               <button
                 key={index}
-                onClick={() => setCurrentIndex(index)}
-                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 hover:scale-110 ${
-                  isActive 
-                    ? `${dotColor} shadow-sm ring-2 ring-white/50 dark:ring-slate-800/50` 
-                    : `${dotColorMuted} dark:${dotColor.replace('-600', '-500/40')} hover:scale-105`
-                }`}
+                onClick={() => hasData && setCurrentIndex(index)}
+                disabled={!hasData}
+                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                  hasData ? 'hover:scale-110 cursor-pointer' : 'cursor-default'
+                } ${dotClasses}`}
                 title={insight?.insightTag || `المؤشر ${index + 1}`}
               />
             );
           })}
-          
-          {/* إضافة نقاط فارغة إذا كان عدد المؤشرات أقل من 5 */}
-          {Array.from({ length: Math.max(0, 5 - insights.length) }, (_, index) => (
-            <div
-              key={`empty-${index}`}
-              className="w-2.5 h-2.5 rounded-full bg-slate-200/50 dark:bg-slate-600/30"
-            />
-          ))}
         </div>
         
         <Link 
