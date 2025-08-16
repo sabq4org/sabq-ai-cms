@@ -222,15 +222,18 @@ export default function SmartInsightsWidget() {
           🎯 مؤشرات ذكية
         </h2>
         
-        {/* 3 بطاقات صغيرة مع تدرجات */}
+        {/* 3 بطاقات صغيرة مع تدرجات وأيقونات */}
         <div className="grid grid-cols-3 gap-2 mt-3">
           <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/30 rounded-lg p-2 text-center">
+            <div className="text-sm mb-1">🧠</div>
             <div className="text-xs font-medium text-blue-700 dark:text-blue-300">تحليل فوري</div>
           </div>
           <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/30 rounded-lg p-2 text-center">
+            <div className="text-sm mb-1">📊</div>
             <div className="text-xs font-medium text-green-700 dark:text-green-300">اتجاهات ذكية</div>
           </div>
           <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/30 rounded-lg p-2 text-center">
+            <div className="text-sm mb-1">⚡</div>
             <div className="text-xs font-medium text-purple-700 dark:text-purple-300">تحديث مستمر</div>
           </div>
         </div>
@@ -306,15 +309,15 @@ export default function SmartInsightsWidget() {
 
       {/* مؤشرات النقاط والتحكم */}
       <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-200/50 dark:border-slate-600/50">
-        <div className="flex gap-1">
+        <div className="flex gap-1.5">
           {insights.slice(0, 3).map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
-              className={`w-1.5 h-1.5 rounded-full transition-all ${
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
                 index === currentIndex 
-                  ? `${config.color.replace('text-', 'bg-')}` 
-                  : 'bg-slate-300 dark:bg-slate-600'
+                  ? `${config.color.replace('text-', 'bg-')} shadow-sm` 
+                  : 'bg-slate-400/40 dark:bg-slate-500/40 hover:bg-slate-400/60 dark:hover:bg-slate-500/60'
               }`}
             />
           ))}

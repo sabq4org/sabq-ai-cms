@@ -786,7 +786,7 @@ function NewspaperHomePage({
             {/* 2/3: التصنيفات */}
             <div className="lg:col-span-2">
               <div
-                className={`rounded-3xl p-4 sm:p-6 lg:p-8 transition-all duration-500 shadow-lg dark:shadow-gray-900/50 ${
+                className={`h-full rounded-3xl p-4 sm:p-6 lg:p-8 transition-all duration-500 shadow-lg dark:shadow-gray-900/50 ${
                   darkMode
                     ? "bg-blue-900/10 border border-blue-800/30"
                     : "bg-blue-50 dark:bg-blue-900/20/50 border border-blue-200/50"
