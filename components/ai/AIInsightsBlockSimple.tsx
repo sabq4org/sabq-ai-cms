@@ -26,6 +26,7 @@ export default function AIInsightsBlockSimple() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const fetchInsights = async () => {
     try {
@@ -66,23 +67,52 @@ export default function AIInsightsBlockSimple() {
     return num.toString();
   };
 
-  const getTimeAgo = (date: string): string => {
-    const minutes = Math.floor((Date.now() - new Date(date).getTime()) / 60000);
+  const getTimeAgo = (date: Date): string => {
+    const minutes = Math.floor((Date.now() - date.getTime()) / 60000);
     if (minutes < 60) return `منذ ${minutes} دقيقة`;
     const hours = Math.floor(minutes / 60);
     if (hours < 24) return `منذ ${hours} ساعة`;
     return `منذ ${Math.floor(hours / 24)} يوم`;
   };
 
+  const getTooltipText = (insight: ArticleInsight): string => {
+    if (insight.insightTag === 'الأكثر جدلاً') {
+      return `${insight.commentCount} تعليق مع تباين في الآراء`;
+    }
+    if (insight.insightTag === 'صاعد الآن') {
+      return `ارتفاع ${insight.growthRate.toFixed(0)}% في القراءات خلال الساعة الماضية`;
+    }
+    if (insight.insightTag === 'الأكثر تداولاً') {
+      return `تمت مشاركة الخبر ${insight.shareCount} مرة خارج الموقع`;
+    }
+    return `${insight.viewCount} مشاهدة`;
+  };
+
+  const getInsightStyles = (tag: string) => {
+    switch (tag) {
+      case 'الأكثر جدلاً':
+        return 'text-red-600';
+      case 'صاعد الآن':
+        return 'text-blue-600';
+      case 'الأكثر تداولاً':
+        return 'text-green-600';
+      default:
+        return 'text-gray-600';
+    }
+  };
+
   if (loading) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8 rounded-3xl shadow-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200/50 dark:border-blue-800/30">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 max-h-64">
         <div className="animate-pulse">
-          <div className="h-6 w-48 bg-gray-300 dark:bg-gray-700 rounded mb-4"></div>
+          <div className="flex items-center justify-between mb-4">
+            <div className="h-5 w-32 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div className="h-3 w-20 bg-gray-200 dark:bg-gray-700 rounded"></div>
+          </div>
           <div className="space-y-3">
-            <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded"></div>
-            <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded"></div>
-            <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded"></div>
+            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded"></div>
           </div>
         </div>
       </div>
@@ -91,8 +121,8 @@ export default function AIInsightsBlockSimple() {
 
   if (error) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8 rounded-3xl shadow-lg bg-red-50 dark:bg-red-900/20 border border-red-200/50 dark:border-red-800/30 text-center">
-        <p className="text-red-600 dark:text-red-400">
+      <div className="bg-red-50 dark:bg-red-900/20 rounded-2xl shadow-sm p-5 text-center max-h-64">
+        <p className="text-red-600 dark:text-red-400 text-sm">
           {error}
         </p>
       </div>
@@ -101,65 +131,72 @@ export default function AIInsightsBlockSimple() {
 
   if (insights.length === 0) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8 rounded-3xl shadow-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200/50 dark:border-gray-700/30 text-center">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-          مؤشرات ذكية ✨
+      <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl shadow-sm p-5 text-center max-h-64">
+        <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-2">
+          ✨ مؤشرات ذكية
         </h2>
-        <p className="text-gray-500 dark:text-gray-400">
-          جاري تحليل البيانات... يرجى المحاولة لاحقاً
+        <p className="text-gray-500 dark:text-gray-400 text-sm">
+          جاري تحليل البيانات...
         </p>
       </div>
     );
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 rounded-3xl shadow-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200/50 dark:border-blue-800/30">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <span className="text-yellow-500">✨</span>
-          <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
-            مؤشرات ذكية
-          </h2>
-        </div>
-        <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-          <Clock className="w-3 h-3" />
-          <span>آخر تحديث {getTimeAgo(lastUpdate.toISOString())}</span>
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 relative max-h-64">
+      {/* Header - مضغوط */}
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-1">
+          <span className="text-sm">✨</span>
+          مؤشرات ذكية
+        </h2>
+        <div className="flex items-center gap-1 text-[10px] text-gray-400">
+          <Clock className="w-2.5 h-2.5" />
+          <span>{getTimeAgo(lastUpdate)}</span>
         </div>
       </div>
 
-      {/* Insights List */}
-      <div className="space-y-3">
+      {/* قائمة الأخبار - 3 فقط */}
+      <div className="space-y-2.5">
         {insights.slice(0, 3).map((insight) => (
-          <Link 
-            key={insight.id} 
-            href={`/article/${insight.slug}`} 
-            className="block group"
-          >
-            <div className="flex items-center gap-2 text-sm font-medium text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-              <span className="text-xl">{insight.icon}</span>
-              <span className="flex-1 line-clamp-1">{insight.title}</span>
-              <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                {insight.insightTag === 'الأكثر جدلاً' && (
-                  <span>{formatNumber(insight.commentCount)}</span>
-                )}
-                {insight.insightTag === 'صاعد الآن' && (
-                  <span>{insight.growthRate.toFixed(0)}%</span>
-                )}
-                {insight.insightTag === 'الأكثر تداولاً' && (
-                  <span>{formatNumber(insight.shareCount)}</span>
-                )}
+          <div key={insight.id} className="relative">
+            <Link 
+              href={`/article/${insight.slug}`} 
+              className="block group"
+              onMouseEnter={() => setHoveredId(insight.id)}
+              onMouseLeave={() => setHoveredId(null)}
+            >
+              <div className="flex items-center gap-2 text-[13px]">
+                <span className={`text-base ${getInsightStyles(insight.insightTag)}`}>
+                  {insight.icon}
+                </span>
+                <span className="flex-1 text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200 line-clamp-1">
+                  {insight.title}
+                </span>
+                <span className={`text-[11px] font-medium ${getInsightStyles(insight.insightTag)}`}>
+                  {insight.insightTag === 'الأكثر جدلاً' && formatNumber(insight.commentCount)}
+                  {insight.insightTag === 'صاعد الآن' && `+${insight.growthRate.toFixed(0)}%`}
+                  {insight.insightTag === 'الأكثر تداولاً' && formatNumber(insight.shareCount)}
+                </span>
               </div>
-            </div>
-          </Link>
+            </Link>
+            
+            {/* Tooltip بسيط */}
+            {hoveredId === insight.id && (
+              <div className="absolute z-10 bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 dark:bg-gray-700 text-white text-[11px] rounded-lg whitespace-nowrap shadow-lg">
+                <div className="absolute bottom-[-4px] left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 dark:bg-gray-700 rotate-45"></div>
+                {getTooltipText(insight)}
+              </div>
+            )}
+          </div>
         ))}
       </div>
 
-      {/* View All Button */}
-      <div className="mt-6 text-center">
+      {/* زر عرض الكل - صغير */}
+      <div className="mt-4 text-center">
         <Link 
           href="/ai-insights" 
-          className="inline-flex items-center justify-center px-4 py-2 rounded-full text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white transition-colors shadow-md"
+          className="inline-flex items-center justify-center px-3 py-1.5 rounded-full text-xs font-medium bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 transition-colors"
         >
           عرض الكل
         </Link>
