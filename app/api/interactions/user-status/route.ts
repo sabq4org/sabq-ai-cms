@@ -60,30 +60,39 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // جلب تفاعلات المستخدم مع المقال
-    const interactions = await prisma.interactions.findMany({
+    // جلب تفاعلات المستخدم مع المقال من الجدول الصحيح
+    const userInteractions = await prisma.UserInteractions.findMany({
       where: {
         user_id: userId,
-        article_id: articleId, // استخدام article_id بدلاً من target_id
+        article_id: articleId,
       },
       select: {
-        type: true,
+        interaction_type: true,
       },
     });
 
-    // تحويل التفاعلات إلى كائن
-    const interactionTypes = interactions.map((i) => i.type);
+    console.log(`🔍 جلب تفاعلات المستخدم ${userId} للمقال ${articleId}:`, userInteractions);
 
-    return NextResponse.json({
+    // تحويل التفاعلات إلى كائن
+    const interactionTypes = userInteractions.map((i) => i.interaction_type);
+
+    const result = {
       success: true,
       isAuthenticated: true,
+      liked: interactionTypes.includes("like"),
+      saved: interactionTypes.includes("save"), 
+      hasLiked: interactionTypes.includes("like"),
+      hasSaved: interactionTypes.includes("save"),
       interactions: {
         liked: interactionTypes.includes("like"),
         saved: interactionTypes.includes("save"),
         shared: interactionTypes.includes("share"),
         hasComment: interactionTypes.includes("comment"),
       },
-    });
+    };
+
+    console.log('✅ نتيجة جلب الحالة:', result);
+    return NextResponse.json(result);
   } catch (error) {
     console.error("Error fetching user status:", error);
     return NextResponse.json(

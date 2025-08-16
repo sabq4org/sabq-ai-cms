@@ -111,24 +111,22 @@ export function useUserInteractionTracking(articleId: string) {
     console.log('🔍 جلب حالة تفاعل المستخدم للمقال:', articleId);
     
     try {
-      // محاولة جلب حالة الإعجاب
-      const likeResponse = await fetch(`/api/interactions/user-status?articleId=${articleId}&type=like`);
-      if (likeResponse.ok) {
-        const likeData = await likeResponse.json();
-        const liked = likeData?.liked || likeData?.hasLiked || false;
+      const response = await fetch(`/api/interactions/user-status?articleId=${articleId}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('📊 بيانات التفاعل المستلمة:', data);
+        
+        const liked = data?.liked || data?.hasLiked || false;
+        const saved = data?.saved || data?.hasSaved || false;
+        
         setHasLiked(!!liked);
-        console.log('👍 حالة الإعجاب:', liked);
-      }
-      
-      // محاولة جلب حالة الحفظ
-      const saveResponse = await fetch(`/api/interactions/user-status?articleId=${articleId}&type=save`);
-      if (saveResponse.ok) {
-        const saveData = await saveResponse.json();
-        const saved = saveData?.saved || saveData?.hasSaved || false;
         setHasSaved(!!saved);
-        console.log('💾 حالة الحفظ:', saved);
+        
+        console.log('✅ تم تحديث الحالة - إعجاب:', liked, 'حفظ:', saved);
+      } else {
+        console.error('❌ فشل في جلب حالة التفاعل:', response.status);
       }
-      
     } catch (error) {
       console.error('❌ خطأ في جلب حالة التفاعل:', error);
     }
