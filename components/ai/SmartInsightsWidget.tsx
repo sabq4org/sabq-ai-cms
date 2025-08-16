@@ -174,13 +174,13 @@ export default function SmartInsightsWidget() {
             <div className="h-16 bg-slate-300/40 dark:bg-slate-600/40 rounded-xl"></div>
           </div>
           <div className="flex items-center justify-between pt-3 border-t border-slate-200/50 dark:border-slate-600/50">
-            <div className="flex gap-1.5">
-              <div className="w-2.5 h-2.5 bg-red-400/80 dark:bg-red-500/80 rounded-full animate-pulse"></div>
-              <div className="w-2.5 h-2.5 bg-blue-400/80 dark:bg-blue-500/80 rounded-full animate-pulse delay-100"></div>
-              <div className="w-2.5 h-2.5 bg-green-400/80 dark:bg-green-500/80 rounded-full animate-pulse delay-200"></div>
-              <div className="w-2.5 h-2.5 bg-yellow-400/80 dark:bg-yellow-500/80 rounded-full animate-pulse delay-300"></div>
-              <div className="w-2.5 h-2.5 bg-purple-400/80 dark:bg-purple-500/80 rounded-full animate-pulse delay-500"></div>
-            </div>
+                      <div className="flex gap-1.5">
+            <div className="w-2.5 h-2.5 bg-red-500/90 dark:bg-red-500/80 rounded-full animate-pulse"></div>
+            <div className="w-2.5 h-2.5 bg-blue-500/90 dark:bg-blue-500/80 rounded-full animate-pulse delay-100"></div>
+            <div className="w-2.5 h-2.5 bg-green-500/90 dark:bg-green-500/80 rounded-full animate-pulse delay-200"></div>
+            <div className="w-2.5 h-2.5 bg-yellow-500/90 dark:bg-yellow-500/80 rounded-full animate-pulse delay-300"></div>
+            <div className="w-2.5 h-2.5 bg-purple-500/90 dark:bg-purple-500/80 rounded-full animate-pulse delay-500"></div>
+          </div>
             <div className="text-xs text-slate-400 dark:text-slate-500">جاري التحميل...</div>
           </div>
         </div>
@@ -206,11 +206,11 @@ export default function SmartInsightsWidget() {
           </div>
           <div className="flex items-center justify-between pt-3 border-t border-slate-200/50 dark:border-slate-600/50 mt-4">
             <div className="flex gap-1.5">
-              <div className="w-2.5 h-2.5 bg-red-400/60 dark:bg-red-500/60 rounded-full"></div>
-              <div className="w-2.5 h-2.5 bg-blue-400/60 dark:bg-blue-500/60 rounded-full"></div>
-              <div className="w-2.5 h-2.5 bg-green-400/60 dark:bg-green-500/60 rounded-full"></div>
-              <div className="w-2.5 h-2.5 bg-yellow-400/60 dark:bg-yellow-500/60 rounded-full"></div>
-              <div className="w-2.5 h-2.5 bg-purple-400/60 dark:bg-purple-500/60 rounded-full"></div>
+              <div className="w-2.5 h-2.5 bg-red-500/80 dark:bg-red-500/60 rounded-full"></div>
+              <div className="w-2.5 h-2.5 bg-blue-500/80 dark:bg-blue-500/60 rounded-full"></div>
+              <div className="w-2.5 h-2.5 bg-green-500/80 dark:bg-green-500/60 rounded-full"></div>
+              <div className="w-2.5 h-2.5 bg-yellow-500/80 dark:bg-yellow-500/60 rounded-full"></div>
+              <div className="w-2.5 h-2.5 bg-purple-500/80 dark:bg-purple-500/60 rounded-full"></div>
             </div>
             <div className="text-xs text-slate-400 dark:text-slate-500">قريباً...</div>
           </div>
@@ -351,12 +351,23 @@ export default function SmartInsightsWidget() {
             let dotClasses = '';
             if (hasData) {
               const dotColor = dotConfig.color.replace('text-', 'bg-');
-              const dotColorMuted = dotColor.replace('-600', '-300/60').replace('bg-', 'bg-');
+              // تحسين الألوان للوضع الفاتح والمظلم
+              const dotColorMuted = dotColor.replace('-600', '-400/70'); // تحسين للوضع الفاتح
+              const dotColorMutedDark = dotColor.replace('-600', '-500/50'); // للوضع المظلم
+              
               dotClasses = isActive 
                 ? `${dotColor} shadow-sm ring-2 ring-white/50 dark:ring-slate-800/50`
-                : `${dotColorMuted} dark:${dotColor.replace('-600', '-500/40')} hover:scale-105`;
+                : `${dotColorMuted} dark:${dotColorMutedDark} hover:scale-105`;
             } else {
-              dotClasses = defaultColors[index] || 'bg-slate-300/40 dark:bg-slate-600/40';
+              // ألوان أوضح للنقاط الافتراضية في الوضع الفاتح
+              const lightColors = [
+                'bg-red-400/70 dark:bg-red-500/40',      // أحمر
+                'bg-blue-400/70 dark:bg-blue-500/40',    // أزرق  
+                'bg-green-400/70 dark:bg-green-500/40',  // أخضر
+                'bg-yellow-400/70 dark:bg-yellow-500/40', // أصفر
+                'bg-purple-400/70 dark:bg-purple-500/40'  // بنفسجي
+              ];
+              dotClasses = lightColors[index] || 'bg-slate-400/60 dark:bg-slate-600/40';
             }
             
             return (
