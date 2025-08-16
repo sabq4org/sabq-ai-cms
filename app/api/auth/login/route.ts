@@ -1,186 +1,121 @@
-import { setAuthCookies } from "@/lib/auth-cookies";
-import prisma from "@/lib/prisma";
-import { rateLimit } from "@/lib/rate-limit";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { NextRequest, NextResponse } from "next/server";
-
-export const runtime = "nodejs";
-
-const JWT_SECRET =
-  process.env.JWT_SECRET || "your-secret-key-change-this-in-production";
+// API لتسجيل الدخول - نظام سبق الذكية
+import { NextRequest, NextResponse } from 'next/server';
+import { UserManagementService, UserLoginSchema, SecurityManager } from '@/lib/auth/user-management';
 
 export async function POST(request: NextRequest) {
   try {
-    // التحقق من content-type
-    const contentType = request.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
-      return NextResponse.json(
-        { success: false, error: "Content-Type must be application/json" },
-        { status: 400 }
-      );
-    }
-
-    let body;
-    try {
-      body = await request.json();
-    } catch (parseError) {
-      console.error("خطأ في parsing JSON:", parseError);
-      return NextResponse.json(
-        { success: false, error: "Invalid JSON in request body" },
-        { status: 400 }
-      );
-    }
-
-    const { email, password } = body;
-
-    console.log("محاولة تسجيل دخول:", { email });
-    console.log("BODY:", body);
-
-    // التحقق من البيانات المطلوبة
-    if (!email || !password) {
-      return NextResponse.json(
-        { success: false, error: "البريد الإلكتروني وكلمة المرور مطلوبان" },
-        { status: 400 }
-      );
-    }
-
-    try {
-      await rateLimit(`login:${email}`, 5, 60);
-    } catch (e: any) {
+    const body = await request.json();
+    
+    // التحقق من صحة البيانات
+    const validationResult = UserLoginSchema.safeParse(body);
+    
+    if (!validationResult.success) {
       return NextResponse.json(
         {
           success: false,
-          error: "تم تجاوز عدد محاولات الدخول، يرجى المحاولة بعد دقيقة.",
+          error: 'بيانات غير صحيحة',
+          details: validationResult.error.format()
         },
-        { status: e.status || 429 }
+        { status: 400 }
       );
     }
 
-    // البحث عن المستخدم في قاعدة البيانات
-    const user = await prisma.users.findFirst({
-      where: { email: email.toLowerCase() },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        password_hash: true,
-        role: true,
-        is_verified: true,
-        is_admin: true,
-        created_at: true,
-        updated_at: true,
-      },
-    });
-
-    console.log("USER:", user);
-
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: "البريد الإلكتروني أو كلمة المرور غير صحيحة" },
-        { status: 401 }
-      );
-    }
-
-    // التحقق من كلمة المرور
-    const isPasswordValid = await bcrypt.compare(
-      password,
-      user.password_hash || ""
-    );
-
-    console.log("Password validation result:", isPasswordValid);
-
-    if (!isPasswordValid) {
-      return NextResponse.json(
-        { success: false, error: "البريد الإلكتروني أو كلمة المرور غير صحيحة" },
-        { status: 401 }
-      );
-    }
-
-    // التحقق من حالة الحساب
-    if (!user.is_verified) {
-      return NextResponse.json(
-        { success: false, error: "يرجى تأكيد بريدك الإلكتروني أولاً" },
-        { status: 403 }
-      );
-    }
-
-    console.log("تسجيل دخول ناجح للمستخدم:", user.email);
-
-    // إضافة معلومات إضافية للمستخدم
-    const responseUser = {
-      ...user,
-      // التأكد من وجود جميع الحقول المطلوبة
-      loyaltyPoints: 0, // قيمة افتراضية
-      status: "active", // قيمة افتراضية
-      role: user.role || "مستخدم",
-      roleId: user.role,
-      isVerified: user.is_verified || false,
-      isAdmin: user.is_admin || false,
+    // جمع معلومات الجلسة
+    const sessionInfo = {
+      ip_address: SecurityManager.cleanIpAddress(request),
+      user_agent: request.headers.get('user-agent') || undefined,
+      device_type: getDeviceType(request.headers.get('user-agent') || '')
     };
 
-    // إنشاء JWTs: access + refresh
-    const access = jwt.sign(
-      {
-        sub: user.id,
-        role: user.role || "user",
-      },
-      process.env.JWT_ACCESS_SECRET || JWT_SECRET,
-      {
-        expiresIn: `${process.env.JWT_ACCESS_TTL_MIN || 15}m`,
-        issuer: "sabq-ai-cms",
-      }
-    );
-    const refresh = jwt.sign(
-      { sub: user.id },
-      process.env.JWT_REFRESH_SECRET || JWT_SECRET,
-      {
-        expiresIn: `${process.env.JWT_REFRESH_TTL_DAYS || 7}d`,
-        issuer: "sabq-ai-cms",
-      }
+    // تسجيل الدخول
+    const result = await UserManagementService.loginUser(
+      validationResult.data, 
+      sessionInfo
     );
 
-    await prisma.refreshToken.create({
-      data: {
-        userId: user.id,
-        tokenHash: await bcrypt.hash(refresh, 12),
-        userAgent: request.headers.get("user-agent") ?? undefined,
-        ipAddress: request.headers.get("x-forwarded-for") ?? undefined,
-        expiresAt: new Date(
-          Date.now() +
-            1000 * 60 * 60 * 24 * Number(process.env.JWT_REFRESH_TTL_DAYS || 7)
-        ),
-      },
-    });
+    if (!result.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: result.error
+        },
+        { status: 401 }
+      );
+    }
 
-    // إنشاء response مع الكوكيز
+    // إرسال الاستجابة الناجحة
     const response = NextResponse.json(
       {
         success: true,
-        message: "تم تسجيل الدخول بنجاح",
-        user: responseUser,
-        token: access,
+        message: result.message,
+        user: {
+          id: result.user?.id,
+          email: result.user?.email,
+          name: result.user?.name,
+          role: result.user?.role,
+          is_admin: result.user?.is_admin,
+          is_verified: result.user?.is_verified,
+          avatar: result.user?.avatar,
+          profile_completed: result.user?.profile_completed,
+          loyalty_points: result.user?.loyalty_points,
+          preferred_language: result.user?.preferred_language
+        }
       },
-      {
-        headers: {
-          "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
-        },
-      }
+      { status: 200 }
     );
 
-    // تعيين كوكيز sabq_at & sabq_rt
-    setAuthCookies(response, access, refresh);
+    // تعيين cookies آمنة
+    if (result.access_token && result.refresh_token) {
+      response.cookies.set('access_token', result.access_token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 15 * 60, // 15 دقيقة
+        path: '/'
+      });
+
+      response.cookies.set('refresh_token', result.refresh_token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 30 * 24 * 60 * 60, // 30 يوم
+        path: '/'
+      });
+    }
 
     return response;
-  } catch (error) {
-    console.error("خطأ في تسجيل الدخول:", error);
+
+  } catch (error: any) {
+    console.error('Login API error:', error);
+    
     return NextResponse.json(
       {
         success: false,
-        error: "حدث خطأ في عملية تسجيل الدخول",
-        details: error instanceof Error ? error.message : "Unknown error",
+        error: 'خطأ داخلي في الخادم'
       },
       { status: 500 }
     );
   }
+}
+
+// دالة لتحديد نوع الجهاز
+function getDeviceType(userAgent: string): string {
+  if (/mobile/i.test(userAgent)) {
+    return 'mobile';
+  } else if (/tablet/i.test(userAgent)) {
+    return 'tablet';
+  } else {
+    return 'desktop';
+  }
+}
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  });
 }

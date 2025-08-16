@@ -1,36 +1,62 @@
-import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
-import prisma from "@/lib/prisma";
-import { clearAuthCookies } from "@/lib/auth-cookies";
-
-export const runtime = "nodejs";
+// API لتسجيل الخروج - نظام سبق الذكية
+import { NextRequest, NextResponse } from 'next/server';
+import { UserManagementService } from '@/lib/auth/user-management';
 
 export async function POST(request: NextRequest) {
   try {
-    // إبطال refresh token المطابق إن وجد
-    const rt = request.cookies.get("sabq_rt")?.value || null;
-    if (rt) {
-      const candidates = await prisma.refreshToken.findMany({ where: { revokedAt: null } });
-      for (const c of candidates) {
-        if (await bcrypt.compare(rt, c.tokenHash)) {
-          await prisma.refreshToken.update({ where: { id: c.id }, data: { revokedAt: new Date() } });
-          break;
-        }
-      }
+    // الحصول على access token من headers أو cookies
+    let accessToken = request.headers.get('authorization')?.replace('Bearer ', '');
+    
+    if (!accessToken) {
+      accessToken = request.cookies.get('access_token')?.value;
     }
 
-    const response = NextResponse.json({ success: true, message: "تم تسجيل الخروج بنجاح" });
-    clearAuthCookies(response);
-    // مسح أي ترويسات تخزين/كاش لضمان انتهاء الجلسة فوراً
-    response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
-    response.headers.set("Pragma", "no-cache");
-    response.headers.set("Expires", "0");
-    return response;
-  } catch (error) {
-    console.error("خطأ في تسجيل الخروج:", error);
-    return NextResponse.json(
-      { success: false, error: "حدث خطأ في عملية تسجيل الخروج" },
-      { status: 500 }
+    if (accessToken) {
+      // تسجيل الخروج
+      await UserManagementService.logoutUser(accessToken);
+    }
+
+    // إرسال الاستجابة الناجحة
+    const response = NextResponse.json(
+      {
+        success: true,
+        message: 'تم تسجيل الخروج بنجاح'
+      },
+      { status: 200 }
     );
+
+    // حذف cookies
+    response.cookies.delete('access_token');
+    response.cookies.delete('refresh_token');
+
+    return response;
+
+  } catch (error: any) {
+    console.error('Logout API error:', error);
+    
+    // حتى لو حدث خطأ، نعتبر الخروج ناجحاً لأغراض الأمان
+    const response = NextResponse.json(
+      {
+        success: true,
+        message: 'تم تسجيل الخروج'
+      },
+      { status: 200 }
+    );
+
+    response.cookies.delete('access_token');
+    response.cookies.delete('refresh_token');
+
+    return response;
   }
+}
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  });
 }

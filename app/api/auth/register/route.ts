@@ -1,235 +1,98 @@
+// API لتسجيل المستخدمين الجدد - نظام سبق الذكية
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
-import bcrypt from 'bcryptjs';
-import { sendVerificationEmail, generateVerificationCode } from '@/lib/email';
-import { getCorrectEmailConfig } from '@/lib/email-config-fix';
-import crypto from 'crypto';
+import { UserManagementService, UserCreateSchema } from '@/lib/auth/user-management';
+import { z } from 'zod';
 
-// تعطيل التخزين المؤقت
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
-
-export const runtime = 'nodejs';
-
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    console.log('🔄 بدء معالجة طلب التسجيل');
-    let emailSent = false; // تتبع نجاح إرسال بريد التحقق
-    
-    // التأكد من الاتصال بقاعدة البيانات
-    try {
-      await prisma.$connect();
-      console.log('✅ تم الاتصال بقاعدة البيانات بنجاح');
-    } catch (connectError) {
-      console.error('❌ خطأ في الاتصال بقاعدة البيانات:', connectError);
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'فشل الاتصال بقاعدة البيانات',
-          details: connectError instanceof Error ? connectError.message : 'خطأ غير معروف'
-        },
-        { status: 500 }
-      );
-    }
-    
     const body = await request.json();
-    console.log('📝 بيانات الطلب:', { ...body, password: '******' });
     
-    const { name, email, password } = body;
-
-    // التحقق من البيانات المطلوبة
-    if (!name || !email || !password) {
+    // التحقق من صحة البيانات
+    const validationResult = UserCreateSchema.safeParse(body);
+    
+    if (!validationResult.success) {
       return NextResponse.json(
-        { success: false, error: 'جميع الحقول مطلوبة' },
+        {
+          success: false,
+          error: 'بيانات غير صحيحة',
+          details: validationResult.error.format()
+        },
         { status: 400 }
       );
     }
 
-    // التحقق من صحة البريد الإلكتروني
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    // تسجيل المستخدم
+    const result = await UserManagementService.registerUser(validationResult.data);
+
+    if (!result.success) {
       return NextResponse.json(
-        { success: false, error: 'البريد الإلكتروني غير صحيح' },
+        {
+          success: false,
+          error: result.error
+        },
         { status: 400 }
       );
     }
 
-    // التحقق من طول كلمة المرور
-    if (password.length < 8) {
-      return NextResponse.json(
-        { success: false, error: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل' },
-        { status: 400 }
-      );
-    }
-
-    // التحقق من عدم وجود بريد إلكتروني مكرر
-    const existingUser = await prisma.users.findUnique({
-      where: { email: email.toLowerCase() }
-    });
-
-    if (existingUser) {
-      // إذا كان غير موثّق، نُعيد إصدار رمز تحقق جديد بدلاً من 409
-      if (!existingUser.is_verified) {
-        const verificationCode = generateVerificationCode();
-        await prisma.email_verification_codes.deleteMany({ where: { email: email.toLowerCase() } });
-        await prisma.email_verification_codes.create({
-          data: {
-            id: `code-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-            email: email.toLowerCase(),
-            code: verificationCode,
-            expires_at: new Date(Date.now() + 10 * 60 * 1000),
-            created_at: new Date()
-          }
-        });
-        try {
-          console.log('📧 إعادة إرسال رمز التحقق إلى:', email);
-          const emailSentAgain = await sendVerificationEmail(email, existingUser.name || email.split('@')[0], verificationCode);
-          if (!emailSentAgain) {
-            console.warn('⚠️ فشل إعادة إرسال بريد التحقق (سيُظهر الكود في السجل إن مُفعّل)');
-          }
-        } catch {}
-        return NextResponse.json({
-          success: true,
-          message: 'الحساب موجود وغير موثّق. تم إصدار رمز تحقق جديد.',
-          requiresVerification: true,
-          user: { id: existingUser.id, email: existingUser.email, name: existingUser.name }
-        });
-      }
-      return NextResponse.json(
-        { success: false, error: 'البريد الإلكتروني مستخدم بالفعل' },
-        { status: 409 }
-      );
-    }
-
-    // تشفير كلمة المرور
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // إنشاء معرف فريد
-    const userId = `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-
-    // إنشاء المستخدم في قاعدة البيانات
-    const newUser = await prisma.users.create({
-      data: {
-        id: userId,
-        name,
-        email: email.toLowerCase(),
-        password_hash: hashedPassword,
-        is_verified: false,
-        role: 'user',
-        is_admin: false,
-        created_at: new Date(),
-        updated_at: new Date()
-      }
-    });
-
-    // توليد رمز التحقق
-    const verificationCode = generateVerificationCode();
-    
-    // حفظ رمز التحقق في قاعدة البيانات
-    await prisma.email_verification_codes.create({
-      data: {
-        id: `code-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        email: email.toLowerCase(),
-        code: verificationCode,
-        expires_at: new Date(Date.now() + 10 * 60 * 1000), // 10 دقائق
-        created_at: new Date()
-      }
-    });
-
-    // إرسال بريد التحقق
-    try {
-      console.log('📧 جاري إرسال بريد التحقق إلى:', email);
-      emailSent = await sendVerificationEmail(email, name, verificationCode);
-
-      if (!emailSent) {
-        console.warn('⚠️ تحذير: فشل إرسال بريد التحقق');
-      } else {
-        console.log('✅ تم إرسال بريد التحقق بنجاح');
-      }
-    } catch (emailError) {
-      console.error('❌ خطأ في إرسال بريد التحقق:', emailError);
-      // لا نريد إيقاف عملية التسجيل إذا فشل إرسال البريد
-    }
-
-    // إنشاء نقاط ولاء أولية (50 نقطة ترحيبية)
-    await prisma.loyalty_points.create({
-      data: {
-        id: `lp-${crypto.randomUUID()}`,
-        user_id: newUser.id,
-        points: 50,
-        action: 'registration_bonus',
-        created_at: new Date()
-      }
-    });
-
-    // إرجاع بيانات المستخدم (بدون كلمة المرور)
-    const { password_hash, ...userWithoutPassword } = newUser;
-    
-    return NextResponse.json({
-      success: true,
-      message: emailSent 
-        ? 'تم إنشاء الحساب بنجاح. تم إرسال رمز التحقق إلى بريدك الإلكتروني' 
-        : 'تم إنشاء الحساب بنجاح',
-      user: userWithoutPassword,
-      requiresVerification: true
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-store, no-cache, must-revalidate'
-      }
-    });
-    
-  } catch (error) {
-    console.error('❌ خطأ في التسجيل:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: 'حدث خطأ في عملية التسجيل',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
-      { 
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-store, no-cache, must-revalidate'
+    // إرسال الاستجابة الناجحة
+    const response = NextResponse.json(
+      {
+        success: true,
+        message: result.message,
+        user: {
+          id: result.user?.id,
+          email: result.user?.email,
+          name: result.user?.name,
+          role: result.user?.role,
+          is_verified: result.user?.is_verified,
+          profile_completed: result.user?.profile_completed
         }
-      }
+      },
+      { status: 201 }
     );
-  } finally {
-    // التأكد من إغلاق اتصال قاعدة البيانات
-    try {
-      await prisma.$disconnect();
-      console.log('✅ تم إغلاق اتصال قاعدة البيانات بنجاح');
-    } catch (disconnectError) {
-      console.error('❌ خطأ في إغلاق اتصال قاعدة البيانات:', disconnectError);
+
+    // تعيين cookies آمنة
+    if (result.access_token && result.refresh_token) {
+      response.cookies.set('access_token', result.access_token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 15 * 60, // 15 دقيقة
+        path: '/'
+      });
+
+      response.cookies.set('refresh_token', result.refresh_token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 30 * 24 * 60 * 60, // 30 يوم
+        path: '/'
+      });
     }
+
+    return response;
+
+  } catch (error: any) {
+    console.error('Registration API error:', error);
+    
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'خطأ داخلي في الخادم'
+      },
+      { status: 500 }
+    );
   }
 }
 
-export async function GET(request: Request) {
-  try {
-    const [totalUsers, verifiedUsers, totalPoints] = await Promise.all([
-      prisma.users.count(),
-      prisma.users.count({ where: { is_verified: true } }),
-      prisma.loyalty_points.aggregate({
-        _sum: { points: true }
-      })
-    ]);
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        totalUsers,
-        verifiedUsers,
-        totalLoyaltyPoints: totalPoints._sum.points || 0
-      }
-    });
-  } catch (error) {
-    console.error('خطأ في جلب الإحصائيات:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'حدث خطأ في جلب الإحصائيات'
-    }, { status: 500 });
-  }
-} 
+// تحديد CORS headers
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  });
+}
