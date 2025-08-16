@@ -6,7 +6,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 // إعدادات الأمان
-export const SECURITY_CONFIG = {
+const SECURITY_CONFIG = {
   // كلمات المرور
   PASSWORD: {
     MIN_LENGTH: 8,
