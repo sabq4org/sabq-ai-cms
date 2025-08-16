@@ -20,6 +20,7 @@ import { getArticleLink } from "@/lib/utils";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
+import AIInsightsBlock from "@/components/ai/AIInsightsBlock";
 
 import SafeHydration from "@/components/SafeHydration";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
@@ -794,61 +795,12 @@ function NewspaperHomePage({
                     : "linear-gradient(135deg, rgba(219, 234, 254, 0.5) 0%, rgba(191, 219, 254, 0.3) 100%)",
                 }}
               >
-                <div className="text-center mb-6 sm:mb-8">
-                  {/* أيقونة كبيرة وواضحة */}
-                  <div className="mb-4">
-                    <div
-                      className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-2xl flex items-center justify-center shadow-xl ${
-                        darkMode
-                          ? "bg-gradient-to-br from-blue-600 to-blue-800"
-                          : "bg-gradient-to-br from-blue-500 to-blue-700"
-                      }`}
-                    >
-                      <Tag className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-                    </div>
-                  </div>
-                  {/* العنوان */}
-                  <h2
-                    className={`text-xl sm:text-2xl font-bold mb-3 transition-colors duration-300 ${
-                      darkMode
-                        ? "text-white"
-                        : "text-gray-800 dark:text-gray-100"
-                    }`}
-                  >
-                    {isLoggedIn
-                      ? "استكشف بحسب اهتماماتك"
-                      : "استكشف بحسب التصنيفات"}
-                  </h2>
-                  {/* الوصف */}
-                  <p
-                    className={`text-sm transition-colors duration-300 ${
-                      darkMode ? "text-gray-400" : "text-gray-600"
-                    }`}
-                  >
-                    {isLoggedIn
-                      ? "التصنيفات المختارة لك بناءً على تفضيلاتك وتفاعلاتك"
-                      : "اختر التصنيف الذي يهمك لتصفح الأخبار المتخصصة"}
-                  </p>
-                  <div
-                    className={`text-xs mt-2 transition-colors duration-300 ${
-                      darkMode ? "text-gray-500" : "text-gray-500"
-                    }`}
-                  >
-                    {isLoggedIn ? (
-                      <div className="flex items-center gap-1 justify-center">
-                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                        <span className="opacity-75">
-                          مخصص لك بناءً على تفضيلاتك
-                        </span>
-                      </div>
-                    ) : (
-                      <span className="opacity-75">
-                        التصنيفات مرتبطة بنظام إدارة المحتوى
-                      </span>
-                    )}
-                  </div>
+                {/* استبدال محتوى التصنيفات بـ AI Insights */}
+                <div className="relative -m-4 sm:-m-6 lg:-m-8">
+                  <AIInsightsBlock />
                 </div>
-                {categoriesLoading ? (
+                {/* إخفاء المحتوى القديم للتصنيفات */}
+                {false && categoriesLoading ? (
                   <div className="flex items-center justify-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
                   </div>
