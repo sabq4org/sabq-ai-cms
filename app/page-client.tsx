@@ -1535,36 +1535,47 @@ function NewspaperHomePage({
             )}
           </section>
         </main>
-        {/* 7. الكلمات المفتاحية ومقترب - قبل التحليل العميق */}
-        {/* FORCE UPDATE: 2025-08-16 - ترتيب صحيح للنسخة الخفيفة */}
+
+        {/* 7. النسخة المحمولة: الكلمات المفتاحية ومقترب قبل التحليل العميق */}
         {isMobileView && (
-          <div className="mobile-word-cloud-section mobile-section-spacing mobile-layout-transition py-3 mb-4">
-            <HomeWordCloud maxKeywords={15} />
+          <>
+            {/* بلوك الكلمات المفتاحية للموبايل */}
+            <div className="mobile-word-cloud-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 mb-6">
+              <HomeWordCloud maxKeywords={15} />
+            </div>
+            
+            {/* بلوك مقترب للموبايل */}
+            <div className="mobile-muqtarab-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 mb-8">
+              <MuqtarabBlock
+                limit={4}
+                showPagination={false}
+                showFilters={false}
+                viewMode="grid"
+              />
+            </div>
+          </>
+        )}
+        
+        {/* النسخة العادية: مقترب للجميع */}
+        {!isMobileView && (
+          <div className="desktop-muqtarab-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 mb-8">
+            <MuqtarabBlock
+              limit={8}
+              showPagination={true}
+              showFilters={true}
+              viewMode="grid"
+            />
           </div>
         )}
         
-        {/* بلوك مقترب - يظهر بعد الكلمات المفتاحية في الموبايل */}
-        <div
-          className={`mobile-trending-section mobile-layout-transition max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${
-            isMobileView ? "py-4" : "py-6"
-          }`}
-        >
-          <MuqtarabBlock
-            limit={4}
-            showPagination={false}
-            showFilters={false}
-            viewMode="grid"
-          />
-        </div>
-        
-        {/* 🔥 للديسكتوب: الكلمات الشائعة في مكانها الأصلي بعد مقترب */}
+        {/* الكلمات المفتاحية للديسكتوب */}
         {!isMobileView && (
-          <div className="desktop-word-cloud-section py-6">
+          <div className="desktop-word-cloud-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 mb-8">
             <HomeWordCloud maxKeywords={15} />
           </div>
         )}
         {/* 8. التحليل العميق (Deep Analysis) 🧠 */}
-        {/* Deep Analysis Block - بلوك التحليل العميق - خارج main للامتداد الكامل */}
+        {/* Deep Analysis Block - بلوك التحليل العميق - يأتي بعد الكلمات المفتاحية ومقترب */}
         <section
           className={`relative w-full bg-[#1a365d] dark:bg-[#0d1b2a] ${
             isMobileView ? "py-12 mb-12" : "py-16 mb-16"
