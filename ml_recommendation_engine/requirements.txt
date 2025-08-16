@@ -1,0 +1,94 @@
+# محرك التوصيات الذكي - سبق الذكية
+# Sabq AI Intelligent Recommendation Engine - Requirements
+
+# ===== المكتبات الأساسية =====
+# Core Libraries
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.10.0
+scikit-learn>=1.3.0
+
+# ===== التعلم العميق =====
+# Deep Learning
+torch>=2.0.0
+torchvision>=0.15.0
+tensorflow>=2.13.0
+transformers>=4.30.0
+
+# ===== معالجة النصوص العربية =====
+# Arabic Text Processing
+nltk>=3.8
+arabic-reshaper>=3.0.0
+python-bidi>=0.4.2
+gensim>=4.3.0
+
+# ===== APIs وقواعد البيانات =====
+# APIs and Databases
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0
+asyncpg>=0.28.0
+redis[hiredis]>=4.6.0
+psycopg2-binary>=2.9.0
+
+# ===== التخزين السحابي =====
+# Cloud Storage
+aioboto3>=11.0.0
+boto3>=1.28.0
+
+# ===== معالجة البيانات =====
+# Data Processing
+joblib>=1.3.0
+pickle5>=0.0.12
+aiofiles>=23.0.0
+PyYAML>=6.0
+
+# ===== المراقبة والتحليلات =====
+# Monitoring and Analytics
+prometheus-client>=0.17.0
+structlog>=23.0.0
+
+# ===== التطوير والاختبار =====
+# Development and Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+black>=23.0.0
+isort>=5.12.0
+flake8>=6.0.0
+
+# ===== أدوات إضافية =====
+# Additional Tools
+python-multipart>=0.0.6
+email-validator>=2.0.0
+passlib[bcrypt]>=1.7.4
+python-jose[cryptography]>=3.3.0
+
+# ===== مكتبات خاصة بالمشروع =====
+# Project Specific
+implicit>=0.7.0
+surprise>=1.1.3
+lightfm>=1.17
+networkx>=3.1
+
+# ===== للإنتاج =====
+# Production
+gunicorn>=21.0.0
+celery[redis]>=5.3.0
+flower>=2.0.0
+
+# ===== أمان =====
+# Security
+cryptography>=41.0.0
+pyjwt>=2.8.0
+
+# ===== تحسين الأداء =====
+# Performance Optimization
+numba>=0.57.0
+cython>=3.0.0
+
+# ===== مساعدة إضافية =====
+# Additional Helpers
+tqdm>=4.65.0
+click>=8.1.0
+rich>=13.0.0
+typer>=0.9.0
