@@ -124,31 +124,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loadUserFromCookie();
   }, []);
 
-  const login = (token: string) => {
+  const login = async (token: string) => {
     try {
-      const decodedUser = jwtDecode<User>(token);
-      setUser(decodedUser);
-      // إشعار نجاح فوري للمستخدم النهائي (يُعرض عبر FilteredToaster)
-      try {
-        // dynamic import لتجنب كسر SSR
-        import("react-hot-toast").then(({ default: toast }: any) => {
-          toast.success("تم تسجيل الدخول بنجاح");
-        }).catch(() => {});
-      } catch {}
+      console.log('🔑 بدء تسجيل الدخول بالتوكن');
+      
+      // حفظ التوكن أولاً
       Cookies.set("auth-token", token, {
         expires: 7,
-        secure: true,
+        secure: process.env.NODE_ENV === 'production',
         sameSite: "lax",
       });
-      // لا ننشئ Cookie 'user' كي لا تُستخدم كمصدر مصادقة
-      if (typeof window !== "undefined") {
-        localStorage.setItem("user", JSON.stringify(decodedUser));
-        if (decodedUser.id) {
-          localStorage.setItem("user_id", String(decodedUser.id));
+      
+      // جلب بيانات المستخدم من API
+      const userData = await fetchUserFromAPI();
+      if (userData) {
+        setUser(userData);
+        console.log('✅ تم تسجيل الدخول بنجاح:', userData.name);
+        
+        // حفظ في localStorage
+        if (typeof window !== "undefined") {
+          localStorage.setItem("user", JSON.stringify(userData));
+          if (userData.id) {
+            localStorage.setItem("user_id", String(userData.id));
+          }
         }
+      } else {
+        // إذا فشل جلب البيانات، جرب decode التوكن كبديل
+        const decodedUser = jwtDecode<User>(token);
+        setUser(decodedUser);
+        console.log('⚠️ تم استخدام decode كبديل');
       }
+      
+      setLoading(false);
     } catch (error) {
       console.error("فشل في معالجة التوكن عند تسجيل الدخول:", error);
+      setLoading(false);
     }
   };
 

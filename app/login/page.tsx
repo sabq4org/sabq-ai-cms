@@ -77,15 +77,17 @@ function LoginForm() {
       });
       const data = await response.json();
       if (response.ok && data.success) {
+        console.log('📊 استجابة تسجيل الدخول:', data);
+        
         // استخدام login من AuthContext
         if (data.token) {
-          login(data.token);
+          await login(data.token);
+          console.log('✅ تم حفظ التوكن واستدعاء login');
         }
 
         toast.success(data.message || "تم تسجيل الدخول بنجاح");
 
         // تحديد مسار إعادة التوجيه
-        // إعطاء الأولوية لـ callbackUrl إذا كان موجوداً
         let redirectPath = "/";
 
         if (callbackUrl) {
@@ -94,10 +96,10 @@ function LoginForm() {
           redirectPath = "/admin";
         }
 
-        // استخدام router.push بدلاً من window.location للحفاظ على حالة التطبيق
-        setTimeout(() => {
-          router.push(redirectPath);
-        }, 500);
+        console.log('🔄 إعادة توجيه إلى:', redirectPath);
+        
+        // إعادة توجيه فورية
+        router.push(redirectPath);
       } else {
         toast.error(data.error || "حدث خطأ في تسجيل الدخول");
       }
