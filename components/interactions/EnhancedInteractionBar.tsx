@@ -131,11 +131,15 @@ export default function EnhancedInteractionBar({
     try {
       const response = await fetch(`/api/interactions/user-article?userId=${user.id}&articleId=${articleId}`);
       if (response.ok) {
-        const data = await response.json();
-        setUserInteraction(prev => ({
-          ...prev,
-          ...data.interactions
-        }));
+        const result = await response.json();
+        if (result.success && result.data) {
+          setUserInteraction(prev => ({
+            ...prev,
+            liked: result.data.liked || false,
+            bookmarked: result.data.saved || false,
+            shared: result.data.shared || false
+          }));
+        }
       }
     } catch (error) {
       console.error('خطأ في جلب حالة التفاعل:', error);
@@ -175,20 +179,23 @@ export default function EnhancedInteractionBar({
     setIsLoading(true);
 
     try {
-      const currentState = userInteraction[type === 'like' ? 'liked' : type === 'bookmark' ? 'bookmarked' : 'shared'];
+      // تحويل bookmark إلى save للتوافق مع API
+      const apiType = type === 'bookmark' ? 'save' : type;
+      const stateKey = type === 'like' ? 'liked' : type === 'bookmark' ? 'bookmarked' : 'shared';
+      const statsKey = type === 'like' ? 'likes' : type === 'bookmark' ? 'bookmarks' : 'shares';
+      
+      const currentState = userInteraction[stateKey];
       const newState = !currentState;
 
       // تحديث فوري للواجهة (Optimistic Update)
       setUserInteraction(prev => ({
         ...prev,
-        [type === 'like' ? 'liked' : type === 'bookmark' ? 'bookmarked' : 'shared']: newState
+        [stateKey]: newState
       }));
 
       setStats(prev => ({
         ...prev,
-        [type === 'like' ? 'likes' : type === 'bookmark' ? 'bookmarks' : 'shares']: 
-          newState ? prev[type === 'like' ? 'likes' : type === 'bookmark' ? 'bookmarks' : 'shares'] + 1 
-                  : Math.max(0, prev[type === 'like' ? 'likes' : type === 'bookmark' ? 'bookmarks' : 'shares'] - 1)
+        [statsKey]: newState ? prev[statsKey] + 1 : Math.max(0, prev[statsKey] - 1)
       }));
 
       // إرسال للخادم
@@ -196,10 +203,9 @@ export default function EnhancedInteractionBar({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId: user!.id,
-          articleId,
-          type,
-          action: newState ? 'add' : 'remove',
+          user_id: user!.id,
+          article_id: articleId,
+          type: apiType,
           metadata: {
             platform,
             readTime: userInteraction.readTime,
@@ -239,14 +245,12 @@ export default function EnhancedInteractionBar({
       // إرجاع الحالة في حالة الفشل
       setUserInteraction(prev => ({
         ...prev,
-        [type === 'like' ? 'liked' : type === 'bookmark' ? 'bookmarked' : 'shared']: 
-          !userInteraction[type === 'like' ? 'liked' : type === 'bookmark' ? 'bookmarked' : 'shared']
+        [stateKey]: currentState
       }));
 
       setStats(prev => ({
         ...prev,
-        [type === 'like' ? 'likes' : type === 'bookmark' ? 'bookmarks' : 'shares']: 
-          initialStats[type === 'like' ? 'likes' : type === 'bookmark' ? 'bookmarks' : 'shares']
+        [statsKey]: currentState ? prev[statsKey] + 1 : Math.max(0, prev[statsKey] - 1)
       }));
 
       toast.error('حدث خطأ في التفاعل');
