@@ -78,9 +78,9 @@ const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({ article }) => {
         {/* البلوك الرئيسي */}
         <div className={`relative overflow-hidden transition-all duration-500 group-hover:shadow-2xl ${
           darkMode 
-            ? 'bg-gray-800/50 hover:bg-gray-800/70' 
-            : 'bg-white/80 hover:bg-white'
-        } backdrop-blur-sm rounded-3xl`}>
+            ? 'bg-gray-800/40 hover:bg-gray-800/60' 
+            : 'bg-white/60 hover:bg-white/90'
+        } backdrop-blur-md rounded-3xl border border-white/20 dark:border-gray-700/30`}>
           
           {/* Grid Layout: 50% للصورة، 50% للنص */}
           <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[240px] lg:min-h-[280px]">
@@ -116,10 +116,14 @@ const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({ article }) => {
             </div>
 
             {/* قسم النص - 6 أعمدة (50%) */}
-            <div className="lg:col-span-6 p-4 lg:p-6 flex flex-col justify-center">
+            <div className={`lg:col-span-6 p-4 lg:p-6 flex flex-col justify-center relative ${
+              darkMode 
+                ? 'bg-gradient-to-br from-gray-800/80 via-gray-800/70 to-gray-900/60' 
+                : 'bg-gradient-to-br from-white/95 via-white/90 to-slate-50/80'
+            } lg:rounded-l-2xl rounded-b-2xl lg:rounded-b-none backdrop-blur-sm`}>
               {/* العنوان الرئيسي - مقصور على 2-3 سطور */}
               <h2 className={`text-xl lg:text-2xl xl:text-3xl font-bold mb-3 leading-tight line-clamp-3 transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400 ${
-                darkMode ? 'text-white' : 'text-gray-900'
+                darkMode ? 'text-white drop-shadow-sm' : 'text-gray-900'
               }`}>
                 {article.title}
               </h2>
@@ -127,7 +131,7 @@ const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({ article }) => {
               {/* موجز الخبر - مكثف */}
               {article.excerpt && (
                 <p className={`text-xs lg:text-base font-normal mb-4 leading-relaxed line-clamp-2 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
+                  darkMode ? 'text-gray-200 drop-shadow-sm' : 'text-gray-700'
                 }`}>
                   {article.excerpt}
                 </p>
