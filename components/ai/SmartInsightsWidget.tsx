@@ -38,6 +38,8 @@ export default function SmartInsightsWidget() {
       
       const data = await response.json();
       if (data.success && data.data) {
+        // تأخير قصير لضمان رؤية النقاط الملونة
+        await new Promise(resolve => setTimeout(resolve, 1000));
         setInsights(data.data);
         setError(null);
       } else {
@@ -171,12 +173,15 @@ export default function SmartInsightsWidget() {
             </div>
             <div className="h-16 bg-slate-300/40 dark:bg-slate-600/40 rounded-xl"></div>
           </div>
-          <div className="flex gap-1.5">
-            <div className="w-2.5 h-2.5 bg-red-400/60 dark:bg-red-500/60 rounded-full"></div>
-            <div className="w-2.5 h-2.5 bg-blue-400/60 dark:bg-blue-500/60 rounded-full animate-pulse"></div>
-            <div className="w-2.5 h-2.5 bg-green-400/60 dark:bg-green-500/60 rounded-full"></div>
-            <div className="w-2.5 h-2.5 bg-yellow-400/60 dark:bg-yellow-500/60 rounded-full"></div>
-            <div className="w-2.5 h-2.5 bg-purple-400/60 dark:bg-purple-500/60 rounded-full"></div>
+          <div className="flex items-center justify-between pt-3 border-t border-slate-200/50 dark:border-slate-600/50">
+            <div className="flex gap-1.5">
+              <div className="w-2.5 h-2.5 bg-red-400/80 dark:bg-red-500/80 rounded-full animate-pulse"></div>
+              <div className="w-2.5 h-2.5 bg-blue-400/80 dark:bg-blue-500/80 rounded-full animate-pulse delay-100"></div>
+              <div className="w-2.5 h-2.5 bg-green-400/80 dark:bg-green-500/80 rounded-full animate-pulse delay-200"></div>
+              <div className="w-2.5 h-2.5 bg-yellow-400/80 dark:bg-yellow-500/80 rounded-full animate-pulse delay-300"></div>
+              <div className="w-2.5 h-2.5 bg-purple-400/80 dark:bg-purple-500/80 rounded-full animate-pulse delay-500"></div>
+            </div>
+            <div className="text-xs text-slate-400 dark:text-slate-500">جاري التحميل...</div>
           </div>
         </div>
       </div>
@@ -199,12 +204,15 @@ export default function SmartInsightsWidget() {
               المؤشرات الذكية ستظهر قريباً
             </div>
           </div>
-          <div className="flex justify-center gap-1">
-            <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
-            <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse delay-75"></div>
-            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse delay-150"></div>
-            <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse delay-200"></div>
-            <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse delay-300"></div>
+          <div className="flex items-center justify-between pt-3 border-t border-slate-200/50 dark:border-slate-600/50 mt-4">
+            <div className="flex gap-1.5">
+              <div className="w-2.5 h-2.5 bg-red-400/60 dark:bg-red-500/60 rounded-full"></div>
+              <div className="w-2.5 h-2.5 bg-blue-400/60 dark:bg-blue-500/60 rounded-full"></div>
+              <div className="w-2.5 h-2.5 bg-green-400/60 dark:bg-green-500/60 rounded-full"></div>
+              <div className="w-2.5 h-2.5 bg-yellow-400/60 dark:bg-yellow-500/60 rounded-full"></div>
+              <div className="w-2.5 h-2.5 bg-purple-400/60 dark:bg-purple-500/60 rounded-full"></div>
+            </div>
+            <div className="text-xs text-slate-400 dark:text-slate-500">قريباً...</div>
           </div>
         </div>
       </div>
