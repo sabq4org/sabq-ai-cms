@@ -20,7 +20,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import AdBanner from "@/components/ads/AdBanner";
-import { SmartInteractionButtons } from "@/components/article/SmartInteractionButtons";
+import BasicLikeSave from "@/components/article/BasicLikeSave";
 // إزالة المشاركة أعلى التعليقات حسب الطلب
 import { useViewTracking } from "@/hooks/useViewTracking";
 import {
@@ -795,23 +795,13 @@ export default function ArticleClientComponent({
                 </div>
               </div>
 
-            {/* شريط التفاعل الذكي */}
+            {/* أزرار الإعجاب والحفظ البسيطة */}
             <div className="mb-6 sm:mb-8">
-              <div>
-                <SmartInteractionButtons
-                  articleId={article.id}
-                  initialStats={{
-                    likes: article.likes || article.stats?.likes || 0,
-                    saves: article.saves || article.stats?.saves || 0,
-                    shares: article.shares || article.stats?.shares || 0,
-                    comments: article.comments_count || 0,
-                  }}
-                  onComment={() => {
-                    // تم إزالة قسم التعليقات
-                    console.log("تم النقر على التعليقات");
-                  }}
-                />
-              </div>
+              <BasicLikeSave
+                articleId={article.id}
+                initialLikes={article.likes || article.stats?.likes || 0}
+                initialSaves={article.saves || article.stats?.saves || 0}
+              />
             </div>
 
             {/* تمت إزالة أزرار المشاركة هنا بناء على التوجيه */}
