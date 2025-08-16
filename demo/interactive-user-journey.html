@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تجربة المستخدم التفاعلية - سبق الذكية</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            direction: rtl;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        .phone-mockup {
+            background: #1a1a1a;
+            border-radius: 30px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 400px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .screen {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            min-height: 600px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .notification-icon {
+            position: relative;
+            background: #667eea;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff4757;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        
+        .greeting {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .time-display {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .greeting h2 {
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .recommendations {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+        }
+        
+        .ai-icon {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 10px;
+            font-size: 12px;
+        }
+        
+        .article-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-right: 4px solid #667eea;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .article-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .article-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        
+        .article-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .ai-reason {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            margin-top: 8px;
+            display: inline-block;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #f1f2f6;
+            color: #333;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        
+        .floating-ai {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .demo-controls {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+            color: white;
+        }
+        
+        .stats-overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 10px;
+            opacity: 0.7;
+        }
+        
+        .notification-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            display: none;
+            max-width: 400px;
+            width: 90%;
+            z-index: 1000;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 999;
+        }
+        
+        .notification-content h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌟 تجربة المستخدم التفاعلية</h1>
+            <p>شاهد كيف يعمل الذكاء الاصطناعي في "سبق الذكية"</p>
+        </div>
+        
+        <div class="phone-mockup">
+            <div class="screen">
+                <div class="stats-overlay">
+                    <div>⚡ 185ms استجابة</div>
+                    <div>🧠 87% دقة AI</div>
+                    <div>👥 12K+ مستخدم</div>
+                </div>
+                
+                <div class="app-header">
+                    <div>
+                        <h3>سبق الذكية</h3>
+                    </div>
+                    <div class="notification-icon" onclick="showNotifications()">
+                        🔔
+                        <div class="notification-badge" id="notificationCount">3</div>
+                    </div>
+                </div>
+                
+                <div class="greeting">
+                    <div class="time-display" id="currentTime"></div>
+                    <h2 id="greetingMessage">صباح الخير أحمد!</h2>
+                    <p id="personalizedMessage">إليك مقالات مُختارة خصيصاً لك</p>
+                </div>
+                
+                <div class="recommendations">
+                    <div class="section-title">
+                        <div class="ai-icon">🧠</div>
+                        توصيات ذكية
+                    </div>
+                    
+                    <div class="article-card" onclick="readArticle('ai')">
+                        <div class="article-title">مستقبل الذكاء الاصطناعي في التعليم</div>
+                        <div class="article-meta">
+                            <span>د. محمد العلي</span>
+                            <span>⏱️ 5 دقائق</span>
+                        </div>
+                        <div class="ai-reason">💡 لأنك قرأت 3 مقالات في التقنية هذا الأسبوع</div>
+                    </div>
+                    
+                    <div class="article-card" onclick="readArticle('culture')">
+                        <div class="article-title">جماليات العمارة الإسلامية الحديثة</div>
+                        <div class="article-meta">
+                            <span>أ. فاطمة أحمد</span>
+                            <span>⏱️ 8 دقائق</span>
+                        </div>
+                        <div class="ai-reason">🎨 قراء مثلك أحبوا أيضاً هذا المحتوى</div>
+                    </div>
+                    
+                    <div class="article-card" onclick="readArticle('personal')">
+                        <div class="article-title">7 عادات يومية تغير حياتك للأفضل</div>
+                        <div class="article-meta">
+                            <span>د. سارة محمد</span>
+                            <span>⏱️ 6 دقائق</span>
+                        </div>
+                        <div class="ai-reason">⭐ مناسب لوقت الصباح حسب عادات قراءتك</div>
+                    </div>
+                </div>
+                
+                <div class="actions">
+                    <button class="btn btn-primary" onclick="simulateAI()">🧠 تشغيل AI</button>
+                    <button class="btn btn-secondary" onclick="showAnalytics()">📊 التحليلات</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="demo-controls">
+            <h3>🎮 تحكم في التجربة</h3>
+            <p>جرب الأزرار أعلاه لترى كيف يعمل الذكاء الاصطناعي</p>
+            <div style="margin-top: 15px;">
+                <button class="btn btn-primary" onclick="changeTime('morning')" style="margin: 5px;">🌅 الصباح</button>
+                <button class="btn btn-primary" onclick="changeTime('evening')" style="margin: 5px;">🌙 المساء</button>
+                <button class="btn btn-secondary" onclick="resetDemo()" style="margin: 5px;">🔄 إعادة تعيين</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="floating-ai" onclick="showAIInsights()">
+        🤖
+    </div>
+    
+    <!-- Notification Popup -->
+    <div class="overlay" id="overlay" onclick="closePopup()"></div>
+    <div class="notification-popup" id="notificationPopup">
+        <button class="close-btn" onclick="closePopup()">×</button>
+        <div class="notification-content">
+            <h3>🔔 الإشعارات الذكية</h3>
+            <div style="margin-bottom: 15px;">
+                <strong>📝 مقال جديد من كاتب تتابعه</strong><br>
+                <small style="color: #666;">منذ 5 دقائق • أفضل وقت للقراءة</small>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <strong>💡 اقتراح شخصي</strong><br>
+                <small style="color: #666;">هذا المقال مناسب لاهتماماتك</small>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <strong>👥 تفاعل اجتماعي</strong><br>
+                <small style="color: #666;">شخص علق على مقال أعجبك</small>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentScenario = 'morning';
+        
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('ar-SA', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('currentTime').textContent = `⏰ ${timeString}`;
+        }
+        
+        function changeTime(scenario) {
+            currentScenario = scenario;
+            const greeting = document.getElementById('greetingMessage');
+            const message = document.getElementById('personalizedMessage');
+            
+            if (scenario === 'morning') {
+                greeting.textContent = 'صباح الخير أحمد!';
+                message.textContent = 'إليك أهم الأخبار لبداية يوم مثمر';
+                document.querySelector('.screen').style.background = 'linear-gradient(to bottom, #fff, #f8f9fa)';
+            } else if (scenario === 'evening') {
+                greeting.textContent = 'مساء الخير أحمد!';
+                message.textContent = 'وقت الاسترخاء مع قراءة مميزة';
+                document.querySelector('.screen').style.background = 'linear-gradient(to bottom, #2c3e50, #34495e)';
+                document.querySelector('.screen').style.color = 'white';
+            }
+            
+            // محاكاة تحديث التوصيات حسب الوقت
+            simulateTimeBasedRecommendations(scenario);
+        }
+        
+        function simulateTimeBasedRecommendations(scenario) {
+            const articles = document.querySelectorAll('.article-card');
+            
+            if (scenario === 'evening') {
+                articles[0].querySelector('.article-title').textContent = 'تأملات في جمال الطبيعة';
+                articles[0].querySelector('.ai-reason').textContent = '🌙 محتوى مريح للمساء';
+                
+                articles[1].querySelector('.article-title').textContent = 'فن الطبخ العربي الأصيل';
+                articles[1].querySelector('.ai-reason').textContent = '🍽️ وقت العشاء - محتوى مناسب';
+                
+                articles[2].querySelector('.article-title').textContent = 'قصص ملهمة من التراث';
+                articles[2].querySelector('.ai-reason').textContent = '📚 قراءة عميقة لنهاية اليوم';
+            }
+        }
+        
+        function showNotifications() {
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('notificationPopup').style.display = 'block';
+            
+            // محاكاة تقليل عدد الإشعارات
+            document.getElementById('notificationCount').textContent = '0';
+        }
+        
+        function closePopup() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('notificationPopup').style.display = 'none';
+        }
+        
+        function readArticle(type) {
+            let message = '';
+            switch(type) {
+                case 'ai':
+                    message = '🧠 تم تسجيل اهتمامك بالذكاء الاصطناعي!\n\n✅ سيتم تحسين التوصيات القادمة\n📈 تم رفع نقاط "التقنية" في ملفك\n⏱️ متوسط وقت القراءة: 4 دقائق';
+                    break;
+                case 'culture':
+                    message = '🎨 اكتشفت اهتماماً جديداً بالثقافة!\n\n✅ تم إضافة "الفنون" لاهتماماتك\n📚 سنقترح محتوى ثقافي أكثر\n⭐ تقييم إيجابي للمحتوى المتنوع';
+                    break;
+                case 'personal':
+                    message = '🌟 تطوير الذات يهمك!\n\n✅ تم تحديث تفضيلاتك\n📈 زيادة المحتوى التحفيزي\n⏰ أفضل وقت لك: الصباح الباكر';
+                    break;
+            }
+            
+            alert(message);
+            
+            // محاكاة تحديث الإحصائيات
+            const stats = document.querySelector('.stats-overlay');
+            stats.innerHTML = `
+                <div>⚡ 182ms استجابة</div>
+                <div>🧠 89% دقة AI ↗️</div>
+                <div>👥 12K+ مستخدم</div>
+                <div style="color: #4cd137;">✅ تعلم جديد!</div>
+            `;
+        }
+        
+        function simulateAI() {
+            const btn = event.target;
+            btn.textContent = '🔄 يعمل الذكاء الاصطناعي...';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                // محاكاة إعادة ترتيب التوصيات
+                const recommendations = document.querySelector('.recommendations');
+                const newArticle = document.createElement('div');
+                newArticle.className = 'article-card';
+                newArticle.style.borderRight = '4px solid #4cd137';
+                newArticle.innerHTML = `
+                    <div class="article-title">🔥 ترندينغ: أحدث تطورات ChatGPT</div>
+                    <div class="article-meta">
+                        <span>تك عربي</span>
+                        <span>⏱️ 3 دقائق</span>
+                    </div>
+                    <div class="ai-reason" style="background: #d4edda; color: #155724;">
+                        🎯 تم اكتشافه بناءً على قراءتك الأخيرة!
+                    </div>
+                `;
+                
+                recommendations.insertBefore(newArticle, recommendations.children[1]);
+                
+                btn.textContent = '✅ تم التحسين';
+                btn.style.background = '#4cd137';
+                
+                setTimeout(() => {
+                    btn.textContent = '🧠 تشغيل AI';
+                    btn.style.background = '#667eea';
+                    btn.disabled = false;
+                }, 2000);
+            }, 1500);
+        }
+        
+        function showAnalytics() {
+            alert(`📊 تحليلات المستخدم أحمد:
+
+📚 هذا الأسبوع:
+• 8 مقالات مقروءة
+• 45 دقيقة وقت قراءة
+• 3 تعليقات منشورة
+
+🎯 الاهتمامات:
+• التقنية: 40%
+• التطوير الشخصي: 30%
+• الثقافة: 20%
+• الرياضة: 10%
+
+⏰ أفضل أوقات القراءة:
+• الصباح: 8:00-9:00
+• المساء: 19:00-21:00
+
+📈 التحسن:
+• دقة التوصيات: 87% ↗️
+• رضا المستخدم: 4.8/5 ⭐`);
+        }
+        
+        function showAIInsights() {
+            alert(`🤖 رؤى الذكاء الاصطناعي:
+
+🧠 ما يحدث الآن:
+• تحليل 1,247 تفاعل في الدقيقة
+• معالجة 15 نموذج ML متزامن
+• تحديث التوصيات كل 30 ثانية
+
+⚡ الأداء الحالي:
+• زمن الاستجابة: 185ms
+• دقة التوصيات: 87%
+• معدل رضا المستخدمين: 94%
+
+🎯 التحسينات المستمرة:
+• تعلم من 12,000+ مستخدم
+• تحديث النماذج كل ساعة
+• تحسين دقة اللغة العربية
+
+🔮 التنبؤات:
+• نمو متوقع: +25% الشهر القادم
+• تحسن الدقة: +3% خلال أسبوع`);
+        }
+        
+        function resetDemo() {
+            location.reload();
+        }
+        
+        // تحديث الوقت كل ثانية
+        setInterval(updateTime, 1000);
+        updateTime();
+        
+        // محاكاة إشعارات جديدة
+        setInterval(() => {
+            const count = document.getElementById('notificationCount');
+            if (count.textContent === '0') {
+                count.textContent = Math.floor(Math.random() * 3) + 1;
+            }
+        }, 10000);
+    </script>
+</body>
+</html>
