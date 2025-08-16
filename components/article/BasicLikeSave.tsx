@@ -10,6 +10,24 @@ interface BasicLikeSaveProps {
   initialSaves?: number;
 }
 
+function getAuthToken(): string | null {
+  try {
+    // 1) من localStorage إذا كان محفوظاً
+    if (typeof window !== 'undefined') {
+      const ls = localStorage.getItem('auth-token');
+      if (ls) return ls;
+    }
+    // 2) من الكوكيز
+    if (typeof document !== 'undefined') {
+      const match = document.cookie
+        .split('; ')
+        .find((row) => row.startsWith('auth-token='));
+      if (match) return decodeURIComponent(match.split('=')[1]);
+    }
+  } catch {}
+  return null;
+}
+
 export default function BasicLikeSave({ 
   articleId, 
   initialLikes = 0, 
@@ -22,27 +40,35 @@ export default function BasicLikeSave({
   const [saves, setSaves] = useState(initialSaves);
   const [loading, setLoading] = useState(false);
 
+  const authToken = getAuthToken();
+  const authHeaders: Record<string, string> = authToken
+    ? { Authorization: `Bearer ${authToken}` }
+    : {};
+
   // جلب حالة المستخدم عند التحميل
   useEffect(() => {
     if (!user || !articleId) return;
-    
-    console.log('🔍 جلب حالة التفاعل للمقال:', articleId);
     fetchUserStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, articleId]);
 
   const fetchUserStatus = async () => {
     try {
-      const response = await fetch(`/api/interactions/user-status?articleId=${articleId}`);
+      const response = await fetch(`/api/interactions/user-status?articleId=${articleId}` , {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders,
+        },
+      });
       const data = await response.json();
-      
-      console.log('📊 حالة التفاعل:', data);
-      
-      if (data.success) {
-        setLiked(data.liked || false);
-        setSaved(data.saved || false);
+      if (response.ok && data) {
+        setLiked(!!(data.liked ?? data.hasLiked ?? data.interactions?.liked));
+        setSaved(!!(data.saved ?? data.hasSaved ?? data.interactions?.saved));
       }
     } catch (error) {
-      console.error('❌ خطأ في جلب الحالة:', error);
+      // تجاهل
     }
   };
 
@@ -51,36 +77,29 @@ export default function BasicLikeSave({
       alert('يرجى تسجيل الدخول أولاً');
       return;
     }
-
     if (loading) return;
     setLoading(true);
 
     try {
       const newLikeStatus = !liked;
-      console.log('👍 محاولة إعجاب:', newLikeStatus);
-      
       const response = await fetch('/api/interactions/like', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          articleId, 
-          like: newLikeStatus 
-        }),
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders,
+        },
+        body: JSON.stringify({ articleId, like: newLikeStatus }),
       });
 
-      const data = await response.json();
-      console.log('📊 نتيجة الإعجاب:', data);
-
+      const data = await response.json().catch(() => ({}));
       if (response.ok) {
         setLiked(newLikeStatus);
-        setLikes(data.likes || (newLikeStatus ? likes + 1 : likes - 1));
-        console.log('✅ تم الإعجاب بنجاح');
+        setLikes(typeof data.likes === 'number' ? data.likes : (newLikeStatus ? likes + 1 : Math.max(0, likes - 1)));
       } else {
-        console.error('❌ فشل الإعجاب:', data);
         alert('حدث خطأ في الإعجاب');
       }
     } catch (error) {
-      console.error('❌ خطأ في الإعجاب:', error);
       alert('حدث خطأ في الإعجاب');
     } finally {
       setLoading(false);
@@ -92,36 +111,29 @@ export default function BasicLikeSave({
       alert('يرجى تسجيل الدخول أولاً');
       return;
     }
-
     if (loading) return;
     setLoading(true);
 
     try {
       const newSaveStatus = !saved;
-      console.log('💾 محاولة حفظ:', newSaveStatus);
-      
       const response = await fetch('/api/bookmarks', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          articleId, 
-          saved: newSaveStatus 
-        }),
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders,
+        },
+        body: JSON.stringify({ articleId, saved: newSaveStatus }),
       });
 
-      const data = await response.json();
-      console.log('📊 نتيجة الحفظ:', data);
-
+      const data = await response.json().catch(() => ({}));
       if (response.ok) {
         setSaved(newSaveStatus);
-        setSaves(data.saves || (newSaveStatus ? saves + 1 : saves - 1));
-        console.log('✅ تم الحفظ بنجاح');
+        setSaves(typeof data.saves === 'number' ? data.saves : (newSaveStatus ? saves + 1 : Math.max(0, saves - 1)));
       } else {
-        console.error('❌ فشل الحفظ:', data);
         alert('حدث خطأ في الحفظ');
       }
     } catch (error) {
-      console.error('❌ خطأ في الحفظ:', error);
       alert('حدث خطأ في الحفظ');
     } finally {
       setLoading(false);
@@ -130,7 +142,6 @@ export default function BasicLikeSave({
 
   return (
     <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-      {/* زر الإعجاب */}
       <button
         onClick={handleLike}
         disabled={loading || !user}
@@ -144,7 +155,6 @@ export default function BasicLikeSave({
         <span>{likes}</span>
       </button>
 
-      {/* زر الحفظ */}
       <button
         onClick={handleSave}
         disabled={loading || !user}
@@ -158,7 +168,6 @@ export default function BasicLikeSave({
         <span>{saves}</span>
       </button>
 
-      {/* معلومات التطوير */}
       <div className="text-xs text-gray-500">
         {user ? `مستخدم: ${user.name}` : 'غير مسجل دخول'}
       </div>

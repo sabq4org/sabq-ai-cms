@@ -78,7 +78,11 @@ function LoginForm() {
       const data = await response.json();
       if (response.ok && data.success) {
         console.log('📊 استجابة تسجيل الدخول:', data);
-        
+
+        // حفظ التوكن أيضاً في localStorage لتسهيل تمريه في Authorization
+        if (typeof window !== 'undefined' && data.token) {
+          localStorage.setItem('auth-token', data.token);
+        }
         // استخدام login من AuthContext
         if (data.token) {
           await login(data.token);
@@ -105,7 +109,7 @@ function LoginForm() {
       }
     } catch (error) {
       console.error("Login error:", error);
-      toast.error("حدث خطأ في الاتصال بالخادم");
+      toast.error("تعذر تسجيل الدخول");
     } finally {
       setLoading(false);
     }
