@@ -119,9 +119,9 @@ export default function MobileFeaturedNews({ items, withSwipe = true }: MobileFe
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
 
                 {/* طبقة النص السفلي - للموبايل فقط (تحديث: 2025-01-14) */}
-                <div className="md:hidden absolute inset-x-0 bottom-0 p-3 sm:p-4">
+                <div className="md:hidden absolute inset-x-0 bottom-0 p-3 sm:p-4 pb-6 sm:pb-8">
                   {/* التصنيف + التاريخ (فوق العنوان) */}
-                  <div className="flex items-center gap-2 text-[10px] sm:text-[11px] text-white/90 mb-1">
+                  <div className="flex items-center gap-2 text-[10px] sm:text-[11px] text-white/90 mb-2">
                     {item.category && (
                       <span className="inline-flex items-center px-2 py-[2px] rounded-full bg-white/15 backdrop-blur-sm border border-white/20">
                         {item.category}
