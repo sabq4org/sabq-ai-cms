@@ -1,43 +1,147 @@
+# Docker Compose for Sabq AI CMS Production Environment
+# Complete infrastructure with monitoring and analytics
+
 version: '3.8'
 
 services:
-  # Next.js Application
+  # ===== Frontend Application =====
   app:
     build:
       context: .
       dockerfile: Dockerfile
+      target: runner
     container_name: sabq-ai-cms
     restart: unless-stopped
     ports:
-      - "${PORT:-3000}:3000"
+      - "3000:3000"
     environment:
       - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:3000}
-      - JWT_SECRET=${JWT_SECRET}
-      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
+      - DATABASE_URL=postgresql://sabq_user:${POSTGRES_PASSWORD}@postgres:5432/sabq_ai_cms
+      - REDIS_URL=redis://redis:6379
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-    volumes:
-      - ./public/uploads:/app/public/uploads
-      - ./data:/app/data
+      - NEXTAUTH_URL=http://localhost:3000
+    depends_on:
+      - postgres
+      - redis
+      - kafka
     networks:
       - sabq-network
-    depends_on:
-      - redis
+    volumes:
+      - app-data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
-  # Redis for caching (optional)
+  # ===== PostgreSQL Database =====
+  postgres:
+    image: postgres:15-alpine
+    container_name: sabq-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=sabq_ai_cms
+      - POSTGRES_USER=sabq_user
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+    networks:
+      - sabq-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sabq_user -d sabq_ai_cms"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ===== Redis Cache =====
   redis:
     image: redis:7-alpine
     container_name: sabq-redis
     restart: unless-stopped
-    ports:
-      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     volumes:
       - redis-data:/data
+      - ./config/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    ports:
+      - "6379:6379"
     networks:
       - sabq-network
-    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
-  # Nginx Reverse Proxy (optional for production)
+  # ===== ClickHouse Analytics =====
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: sabq-clickhouse
+    restart: unless-stopped
+    environment:
+      - CLICKHOUSE_DB=sabq_analytics
+      - CLICKHOUSE_USER=analytics_user
+      - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+      - ./config/clickhouse/config.xml:/etc/clickhouse-server/config.xml:ro
+      - ./config/clickhouse/users.xml:/etc/clickhouse-server/users.xml:ro
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    networks:
+      - sabq-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8123/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ===== Apache Kafka =====
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: sabq-zookeeper
+    restart: unless-stopped
+    environment:
+      - ZOOKEEPER_CLIENT_PORT=2181
+      - ZOOKEEPER_TICK_TIME=2000
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper/data
+      - zookeeper-logs:/var/lib/zookeeper/log
+    networks:
+      - sabq-network
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: sabq-kafka
+    restart: unless-stopped
+    depends_on:
+      - zookeeper
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    ports:
+      - "9092:9092"
+    networks:
+      - sabq-network
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ===== Nginx Load Balancer =====
   nginx:
     image: nginx:alpine
     container_name: sabq-nginx
@@ -46,39 +150,207 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./ssl:/etc/nginx/ssl:ro
-      - ./public/uploads:/usr/share/nginx/html/uploads:ro
-    networks:
-      - sabq-network
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./config/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./config/nginx/ssl:/etc/nginx/ssl:ro
+      - nginx-logs:/var/log/nginx
     depends_on:
       - app
-    profiles:
-      - production
-
-  postgres:
-    image: postgres:15-alpine
-    restart: always
-    environment:
-      POSTGRES_DB: sabq_cms
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./init-db:/docker-entrypoint-initdb.d
+    networks:
+      - sabq-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
+  # ===== Prometheus Monitoring =====
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: sabq-prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - sabq-network
+
+  # ===== Grafana Dashboards =====
+  grafana:
+    image: grafana/grafana:latest
+    container_name: sabq-grafana
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./config/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./config/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - sabq-network
+
+  # ===== Elasticsearch for Logging =====
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: sabq-elasticsearch
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - sabq-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ===== Kibana Dashboard =====
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: sabq-kibana
+    restart: unless-stopped
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - sabq-network
+
+  # ===== Logstash =====
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.11.0
+    container_name: sabq-logstash
+    restart: unless-stopped
+    volumes:
+      - ./config/logstash/pipeline:/usr/share/logstash/pipeline:ro
+      - ./config/logstash/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+    depends_on:
+      - elasticsearch
+    networks:
+      - sabq-network
+
+  # ===== Redis Commander =====
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: sabq-redis-commander
+    restart: unless-stopped
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    networks:
+      - sabq-network
+
+  # ===== Adminer Database Admin =====
+  adminer:
+    image: adminer:latest
+    container_name: sabq-adminer
+    restart: unless-stopped
+    environment:
+      - ADMINER_DEFAULT_SERVER=postgres
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - sabq-network
+
+  # ===== Kafka UI =====
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: sabq-kafka-ui
+    restart: unless-stopped
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=sabq-cluster
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
+      - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
+    ports:
+      - "8082:8080"
+    depends_on:
+      - kafka
+    networks:
+      - sabq-network
+
+  # ===== Backup Service =====
+  backup:
+    image: alpine:latest
+    container_name: sabq-backup
+    restart: unless-stopped
+    volumes:
+      - postgres-data:/backup/postgres:ro
+      - redis-data:/backup/redis:ro
+      - app-data:/backup/app:ro
+      - backup-storage:/backup/storage
+      - ./scripts/backup.sh:/backup/backup.sh:ro
+    command: |
+      sh -c "
+        apk add --no-cache postgresql-client redis dcron
+        echo '0 2 * * * /backup/backup.sh' | crontab -
+        crond -f
+      "
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - sabq-network
+
+# ===== Networks =====
 networks:
   sabq-network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
 
+# ===== Volumes =====
 volumes:
+  postgres-data:
+    driver: local
   redis-data:
     driver: local
-  postgres_data: 
+  clickhouse-data:
+    driver: local
+  kafka-data:
+    driver: local
+  zookeeper-data:
+    driver: local
+  zookeeper-logs:
+    driver: local
+  elasticsearch-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+  nginx-logs:
+    driver: local
+  app-data:
+    driver: local
+  backup-storage:
+    driver: local

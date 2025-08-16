@@ -1,0 +1,66 @@
+# نظام تتبع سلوك المستخدم - سبق الذكية
+# User Behavior Tracking System - Sabq AI - Requirements
+
+# ===== Backend Framework =====
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+
+# ===== Database =====
+asyncpg>=0.29.0
+psycopg2-binary>=2.9.7
+sqlalchemy>=2.0.23
+alembic>=1.13.0
+
+# ===== Cache & Real-time Storage =====
+redis[hiredis]>=5.0.1
+aioredis>=2.0.1
+
+# ===== Event Streaming =====
+aiokafka>=0.8.11
+kafka-python>=2.0.2
+confluent-kafka>=2.3.0
+
+# ===== Async Processing =====
+asyncio-mqtt>=0.16.1
+celery[redis]>=5.3.4
+httpx>=0.25.2
+
+# ===== Security & Privacy =====
+cryptography>=41.0.7
+passlib[bcrypt]>=1.7.4
+python-jose[cryptography]>=3.3.0
+python-multipart>=0.0.6
+
+# ===== Data Processing =====
+pandas>=2.1.4
+numpy>=1.25.0
+pydantic>=2.5.0
+
+# ===== Monitoring & Logging =====
+structlog>=23.2.0
+prometheus-client>=0.19.0
+opentelemetry-api>=1.21.0
+opentelemetry-sdk>=1.21.0
+
+# ===== Testing =====
+pytest>=7.4.3
+pytest-asyncio>=0.22.0
+pytest-cov>=4.1.0
+httpx>=0.25.2  # for testing FastAPI
+factory-boy>=3.3.0
+
+# ===== Development =====
+black>=23.11.0
+isort>=5.12.0
+flake8>=6.1.0
+mypy>=1.7.0
+
+# ===== Environment Management =====
+python-dotenv>=1.0.0
+
+# ===== Additional Tools =====
+click>=8.1.7
+rich>=13.7.0
+typer>=0.9.0

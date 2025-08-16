@@ -1,0 +1,254 @@
+# ConfigMaps for Sabq AI CMS
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sabq-ai-cms-config
+  namespace: sabq-ai-cms
+data:
+  NODE_ENV: "production"
+  NEXT_TELEMETRY_DISABLED: "1"
+  PORT: "3000"
+  # Database Configuration
+  POSTGRES_DB: "sabq_ai_cms"
+  POSTGRES_USER: "sabq_user"
+  # Redis Configuration
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"
+  # ClickHouse Configuration
+  CLICKHOUSE_HOST: "clickhouse-service"
+  CLICKHOUSE_PORT: "8123"
+  CLICKHOUSE_DB: "sabq_analytics"
+  # Kafka Configuration
+  KAFKA_BROKERS: "kafka-service:9092"
+  # API Configuration
+  API_BASE_URL: "https://api.sabq.ai"
+  # Features Flags
+  FEATURE_SMART_RECOMMENDATIONS: "true"
+  FEATURE_REAL_TIME_NOTIFICATIONS: "true"
+  FEATURE_ANALYTICS: "true"
+  # Performance Settings
+  MAX_CONCURRENT_USERS: "10000"
+  CACHE_TTL: "300"
+  SESSION_TIMEOUT: "3600"
+
+---
+# Nginx Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: sabq-ai-cms
+data:
+  nginx.conf: |
+    user nginx;
+    worker_processes auto;
+    error_log /var/log/nginx/error.log warn;
+    pid /var/run/nginx.pid;
+
+    events {
+        worker_connections 1024;
+        use epoll;
+        multi_accept on;
+    }
+
+    http {
+        include /etc/nginx/mime.types;
+        default_type application/octet-stream;
+
+        # Logging
+        log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                        '$status $body_bytes_sent "$http_referer" '
+                        '"$http_user_agent" "$http_x_forwarded_for"';
+        access_log /var/log/nginx/access.log main;
+
+        # Performance
+        sendfile on;
+        tcp_nopush on;
+        tcp_nodelay on;
+        keepalive_timeout 65;
+        types_hash_max_size 2048;
+        client_max_body_size 10M;
+
+        # Compression
+        gzip on;
+        gzip_vary on;
+        gzip_min_length 10240;
+        gzip_proxied expired no-cache no-store private must-revalidate max-age=0;
+        gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
+
+        # Security Headers
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header X-XSS-Protection "1; mode=block" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Referrer-Policy "no-referrer-when-downgrade" always;
+        add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
+
+        # Upstream servers
+        upstream sabq_app {
+            server sabq-ai-cms-service:3000 max_fails=3 fail_timeout=30s;
+        }
+
+        server {
+            listen 80;
+            server_name _;
+
+            # Health check endpoint
+            location /health {
+                access_log off;
+                return 200 "healthy\n";
+                add_header Content-Type text/plain;
+            }
+
+            # Main application
+            location / {
+                proxy_pass http://sabq_app;
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection 'upgrade';
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_cache_bypass $http_upgrade;
+                proxy_read_timeout 60s;
+                proxy_connect_timeout 60s;
+            }
+
+            # Static files caching
+            location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+                proxy_pass http://sabq_app;
+                expires 1y;
+                add_header Cache-Control "public, immutable";
+            }
+
+            # API endpoints
+            location /api/ {
+                proxy_pass http://sabq_app;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                
+                # Rate limiting for API
+                limit_req zone=api_rate_limit burst=10 nodelay;
+            }
+        }
+
+        # Rate limiting zones
+        limit_req_zone $binary_remote_addr zone=api_rate_limit:10m rate=10r/s;
+    }
+
+---
+# Redis Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-config
+  namespace: sabq-ai-cms
+data:
+  redis.conf: |
+    # Redis Configuration for Sabq AI CMS
+    
+    # Network
+    bind 0.0.0.0
+    port 6379
+    timeout 0
+    
+    # Memory
+    maxmemory 256mb
+    maxmemory-policy allkeys-lru
+    
+    # Persistence
+    save 900 1
+    save 300 10
+    save 60 10000
+    appendonly yes
+    appendfsync everysec
+    
+    # Security
+    requirepass REDIS_PASSWORD_PLACEHOLDER
+    
+    # Performance
+    tcp-keepalive 300
+    tcp-backlog 511
+    
+    # Logging
+    loglevel notice
+    logfile ""
+
+---
+# Prometheus Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: sabq-ai-cms
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+
+    rule_files:
+      # - "first_rules.yml"
+      # - "second_rules.yml"
+
+    scrape_configs:
+      # Prometheus itself
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['localhost:9090']
+
+      # Kubernetes API server
+      - job_name: 'kubernetes-apiservers'
+        kubernetes_sd_configs:
+          - role: endpoints
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+            action: keep
+            regex: default;kubernetes;https
+
+      # Kubernetes nodes
+      - job_name: 'kubernetes-nodes'
+        kubernetes_sd_configs:
+          - role: node
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+
+      # Sabq AI CMS Application
+      - job_name: 'sabq-ai-cms'
+        static_configs:
+          - targets: ['sabq-ai-cms-service:3000']
+        metrics_path: '/api/metrics'
+        scrape_interval: 10s
+
+      # Redis
+      - job_name: 'redis'
+        static_configs:
+          - targets: ['redis-service:6379']
+
+      # PostgreSQL
+      - job_name: 'postgres'
+        static_configs:
+          - targets: ['postgres-service:5432']
+
+      # ClickHouse
+      - job_name: 'clickhouse'
+        static_configs:
+          - targets: ['clickhouse-service:8123']
+
+    alerting:
+      alertmanagers:
+        - static_configs:
+            - targets:
+              # - alertmanager:9093
+
+    # Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+    rule_files:
+      - "/etc/prometheus/rules/*.yml"
