@@ -41,6 +41,7 @@ import {
   TrendingUp,
   Users,
   Zap,
+  Activity,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -187,6 +188,14 @@ const sidebarItems: SidebarItem[] = [
         badge: "جديد",
         badgeVariant: "default" as const,
         isNew: true,
+      },
+      {
+        id: "system-status",
+        title: "مراقبة الأنظمة",
+        icon: Activity,
+        href: "/admin/system-status",
+        badge: "مراقبة",
+        badgeVariant: "secondary" as const,
       },
       {
         id: "smart-entities",

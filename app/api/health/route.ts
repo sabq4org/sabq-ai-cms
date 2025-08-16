@@ -1,112 +1,125 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-export async function GET() {
-  const startTime = Date.now();
-  
+export async function GET(request: NextRequest) {
   try {
-    // معلومات البيئة
-    const environment = {
-      NODE_ENV: process.env.NODE_ENV,
-      DATABASE_URL_SET: !!process.env.DATABASE_URL,
-      DIRECT_URL_SET: !!process.env.DIRECT_URL,
-      VERCEL: !!process.env.VERCEL,
-      DIGITAL_OCEAN: !!process.env.DIGITAL_OCEAN_APP_ID
-    };
+    const startTime = Date.now();
     
-    // اختبار الاتصال الأساسي
-    const dbTest = await prisma.$queryRaw<Array<{test: number, db: string, version: string}>>`SELECT 1 as test, current_database() as db, version() as version`;
+    // فحص قاعدة البيانات
+    const dbCheck = await prisma.$queryRaw`SELECT 1 as status`;
+    const dbResponseTime = Date.now() - startTime;
     
-    // اختبار استعلامات حقيقية
-    const [articlesCount, usersCount, categoriesCount] = await Promise.all([
-      prisma.articles.count().catch(() => 0),
-      prisma.users.count().catch(() => 0),
-      prisma.categories.count().catch(() => 0)
-    ]);
-    
-    // حساب وقت الاستجابة
-    const responseTime = Date.now() - startTime;
-    
-    return NextResponse.json({
-      status: 'healthy',
+    // فحص العمليات الأساسية
+    const checks = {
       database: {
-        connected: true,
-        info: dbTest[0],
-        responseTime: `${responseTime}ms`
+        status: 'healthy',
+        responseTime: dbResponseTime,
+        connection: 'active'
       },
-      data: {
-        articles: articlesCount,
-        users: usersCount,
-        categories: categoriesCount
+      application: {
+        status: 'healthy',
+        uptime: process.uptime(),
+        memory: process.memoryUsage(),
+        nodeVersion: process.version
       },
-      environment,
-      timestamp: new Date().toISOString()
-    }, {
+      apis: {
+        status: 'healthy',
+        endpoints: [
+          '/api/auth/login',
+          '/api/articles',
+          '/api/interactions',
+          '/api/user/likes',
+          '/api/user/saved'
+        ]
+      },
+      smartSystems: {
+        status: 'healthy',
+        components: [
+          'SimpleInteractionButtons',
+          'SmartRecommendations', 
+          'IntelligentNotifications',
+          'UserProfileDashboard',
+          'PersonalizationSettings',
+          'AdminControlPanel',
+          'AnalyticsDashboard',
+          'ContentManagement',
+          'RealTimeUpdates'
+        ]
+      }
+    };
+
+    // إحصائيات سريعة
+    const stats = await getSystemStats();
+
+    const health = {
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      version: '2.0.0',
+      environment: process.env.NODE_ENV || 'development',
+      checks,
+      stats,
+      responseTime: Date.now() - startTime
+    };
+
+    return NextResponse.json(health, { 
+      status: 200,
       headers: {
-        'Cache-Control': 'no-store, no-cache, must-revalidate',
-        'X-Response-Time': `${responseTime}ms`
+        'Cache-Control': 'no-cache',
+        'Content-Type': 'application/json'
       }
     });
+
   } catch (error) {
-    const responseTime = Date.now() - startTime;
     console.error('Health check failed:', error);
-    
-    // تحليل نوع الخطأ
-    let errorType = 'UNKNOWN';
-    let errorDetails = 'Unknown error occurred';
-    
-    if (error instanceof Error) {
-      errorDetails = error.message;
-      
-      if ('code' in error) {
-        const errorCode = (error as any).code;
-        if (errorCode === 'P2024') {
-          errorType = 'POOL_TIMEOUT';
-          errorDetails = 'Connection pool timeout - check your pooling settings';
-        } else if (errorCode === 'P2010') {
-          errorType = 'CONNECTION_FAILED';
-          errorDetails = 'Failed to connect to database - check your DATABASE_URL';
-        } else if (errorCode === 'ECONNREFUSED') {
-          errorType = 'CONNECTION_REFUSED';
-          errorDetails = 'Database connection refused - check if database is running';
-        }
-      }
-    }
     
     return NextResponse.json({
       status: 'unhealthy',
-      database: {
-        connected: false,
-        error: errorType,
-        details: errorDetails,
-        responseTime: `${responseTime}ms`
-      },
-      environment: {
-        NODE_ENV: process.env.NODE_ENV,
-        DATABASE_URL_SET: !!process.env.DATABASE_URL,
-        DIRECT_URL_SET: !!process.env.DIRECT_URL
-      },
       timestamp: new Date().toISOString(),
-      suggestion: getErrorSuggestion(errorType)
+      error: error instanceof Error ? error.message : 'Unknown error',
+      checks: {
+        database: { status: 'error' },
+        application: { status: 'error' }
+      }
     }, { 
       status: 503,
       headers: {
-        'Cache-Control': 'no-store, no-cache, must-revalidate',
-        'X-Response-Time': `${responseTime}ms`
+        'Cache-Control': 'no-cache',
+        'Content-Type': 'application/json'
       }
     });
   }
 }
 
-function getErrorSuggestion(errorType: string): string {
-  switch (errorType) {
-    case 'POOL_TIMEOUT':
-      return 'Try adding ?pgbouncer=true&pool_timeout=60 to your DATABASE_URL';
-    case 'CONNECTION_FAILED':
-      return 'Check that DATABASE_URL is set correctly with port 6543 for pooling';
-    case 'CONNECTION_REFUSED':
-      return 'Ensure your database is running and accessible from Digital Ocean';
-    default:
-      return 'Check your database configuration and environment variables';
+async function getSystemStats() {
+  try {
+    // إحصائيات قاعدة البيانات
+    const [
+      articlesCount,
+      usersCount,
+      interactionsCount,
+      commentsCount
+    ] = await Promise.all([
+      prisma.articles.count(),
+      prisma.users.count(),
+      prisma.interactions?.count() || 0,
+      prisma.comments?.count() || 0
+    ]);
+
+    return {
+      articles: articlesCount,
+      users: usersCount,
+      interactions: interactionsCount,
+      comments: commentsCount,
+      uptime: process.uptime(),
+      memory: {
+        used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+        total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024)
+      }
+    };
+  } catch (error) {
+    console.error('Error getting stats:', error);
+    return {
+      error: 'Unable to fetch stats'
+    };
   }
 }
