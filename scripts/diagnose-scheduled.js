@@ -66,15 +66,15 @@ async function diagnoseScheduledNews() {
       }
     });
 
+    // تصنيف حسب الوقت
+    const overdue = [];
+    const upcoming = [];
+    const invalid = [];
+
     if (allScheduled.length === 0) {
       console.log('   ✅ لا توجد أخبار مجدولة حالياً');
     } else {
       console.log(`   📄 المجموع: ${allScheduled.length} خبر مجدول\n`);
-
-      // تصنيف حسب الوقت
-      const overdue = [];
-      const upcoming = [];
-      const invalid = [];
 
       allScheduled.forEach(article => {
         if (!article.scheduled_for) {
@@ -139,12 +139,12 @@ async function diagnoseScheduledNews() {
         action: {
           in: ['auto_publish_article', 'auto_publish_error', 'manual_publish_scheduled']
         },
-        timestamp: {
+        created_at: {
           gte: new Date(now.getTime() - 24 * 60 * 60 * 1000) // آخر 24 ساعة
         }
       },
       orderBy: {
-        timestamp: 'desc'
+        created_at: 'desc'
       },
       take: 10
     });
@@ -156,7 +156,7 @@ async function diagnoseScheduledNews() {
       console.log(`   📄 عدد السجلات في آخر 24 ساعة: ${publishLogs.length}\n`);
       
       publishLogs.forEach((log, index) => {
-        const details = JSON.parse(log.details || '{}');
+        const details = log.metadata || {};
         const actionLabel = {
           'auto_publish_article': '✅ نشر تلقائي',
           'auto_publish_error': '❌ خطأ نشر تلقائي', 
@@ -165,7 +165,7 @@ async function diagnoseScheduledNews() {
         
         console.log(`   ${index + 1}. ${actionLabel}`);
         console.log(`      📰 العنوان: ${details.title || 'غير محدد'}`);
-        console.log(`      ⏰ الوقت: ${log.timestamp.toLocaleString('ar-SA', { timeZone: 'Asia/Riyadh' })}`);
+        console.log(`      ⏰ الوقت: ${log.created_at.toLocaleString('ar-SA', { timeZone: 'Asia/Riyadh' })}`);
         if (details.error) {
           console.log(`      ❌ الخطأ: ${details.error}`);
         }

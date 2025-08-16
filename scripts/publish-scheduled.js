@@ -137,16 +137,16 @@ async function publishScheduledNews() {
             action: 'manual_publish_scheduled',
             entity_type: 'article',
             entity_id: article.id,
-            details: JSON.stringify({
+            metadata: {
               title: article.title,
               scheduled_for: article.scheduled_for,
               published_at: now,
               manual_publish: true,
               script_execution: true
-            }),
+            },
             ip_address: '127.0.0.1',
             user_agent: 'Local-Script/1.0',
-            timestamp: now
+            created_at: now
           }
         });
 
@@ -166,16 +166,16 @@ async function publishScheduledNews() {
               action: 'manual_publish_error',
               entity_type: 'article',
               entity_id: article.id,
-              details: JSON.stringify({
-                title: article.title,
-                scheduled_for: article.scheduled_for,
-                error: error.message,
-                attempted_at: now,
-                script_execution: true
-              }),
+                          metadata: {
+              title: article.title,
+              scheduled_for: article.scheduled_for,
+              error: error.message,
+              attempted_at: now,
+              script_execution: true
+            },
               ip_address: '127.0.0.1',
               user_agent: 'Local-Script/1.0',
-              timestamp: now
+              created_at: now
             }
           });
         } catch (logError) {

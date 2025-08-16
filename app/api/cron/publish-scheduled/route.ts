@@ -115,15 +115,15 @@ export async function GET(request: NextRequest) {
               action: 'auto_publish_article',
               entity_type: 'article',
               entity_id: article.id,
-              details: JSON.stringify({
+              metadata: {
                 title: article.title,
                 scheduled_for: article.scheduled_for,
                 published_at: now,
                 auto_published: true
-              }),
+              },
               ip_address: '127.0.0.1', // نظام داخلي
               user_agent: 'Vercel-Cron/1.0',
-              timestamp: now
+              created_at: now
             }
           });
         } catch (logError) {
@@ -155,15 +155,15 @@ export async function GET(request: NextRequest) {
               action: 'auto_publish_error',
               entity_type: 'article',
               entity_id: article.id,
-              details: JSON.stringify({
+              metadata: {
                 title: article.title,
                 scheduled_for: article.scheduled_for,
                 error: errorResult.error,
                 attempted_at: now
-              }),
+              },
               ip_address: '127.0.0.1',
               user_agent: 'Vercel-Cron/1.0',
-              timestamp: now
+              created_at: now
             }
           });
         } catch (logError) {
