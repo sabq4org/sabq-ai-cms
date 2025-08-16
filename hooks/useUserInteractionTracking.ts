@@ -106,17 +106,31 @@ export function useUserInteractionTracking(articleId: string) {
 
   // جلب التفاعلات السابقة للمستخدم
   const fetchUserInteractions = async () => {
+    if (!user || !articleId) return;
+    
+    console.log('🔍 جلب حالة تفاعل المستخدم للمقال:', articleId);
+    
     try {
-      const response = await fetch(`/api/interactions/user-status?articleId=${articleId}`);
-      if (response.ok) {
-        const data = await response.json();
-        const liked = data?.interactions?.liked ?? data?.liked ?? data?.hasLiked ?? false;
-        const saved = data?.interactions?.saved ?? data?.saved ?? data?.hasSaved ?? false;
+      // محاولة جلب حالة الإعجاب
+      const likeResponse = await fetch(`/api/interactions/user-status?articleId=${articleId}&type=like`);
+      if (likeResponse.ok) {
+        const likeData = await likeResponse.json();
+        const liked = likeData?.liked || likeData?.hasLiked || false;
         setHasLiked(!!liked);
-        setHasSaved(!!saved);
+        console.log('👍 حالة الإعجاب:', liked);
       }
+      
+      // محاولة جلب حالة الحفظ
+      const saveResponse = await fetch(`/api/interactions/user-status?articleId=${articleId}&type=save`);
+      if (saveResponse.ok) {
+        const saveData = await saveResponse.json();
+        const saved = saveData?.saved || saveData?.hasSaved || false;
+        setHasSaved(!!saved);
+        console.log('💾 حالة الحفظ:', saved);
+      }
+      
     } catch (error) {
-      console.error('Error fetching user interactions:', error);
+      console.error('❌ خطأ في جلب حالة التفاعل:', error);
     }
   };
 
@@ -230,20 +244,48 @@ export function useUserInteractionTracking(articleId: string) {
     }
 
     try {
+      console.log('👍 محاولة إعجاب بالمقال:', { articleId, like: newLikeStatus });
+      
       const res = await fetch('/api/interactions/like', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('auth-token') || localStorage.getItem('sabq_at') || localStorage.getItem('access_token')}`
+        },
         body: JSON.stringify({
           articleId,
           like: newLikeStatus,
         }),
       });
+      
+      const data = await res.json();
+      console.log('📊 استجابة الإعجاب:', data);
+      
       if (!res.ok) {
+        console.error('❌ فشل الإعجاب:', data);
         setHasLiked(!newLikeStatus);
+      } else {
+        console.log('✅ تم الإعجاب بنجاح!');
+        // إشعار نجاح
+        if (window.showNotification) {
+          window.showNotification({
+            type: 'success',
+            message: newLikeStatus ? 'تم الإعجاب بالمقال!' : 'تم إلغاء الإعجاب!',
+            duration: 3000
+          });
+        }
       }
     } catch (error) {
       console.error('Error toggling like:', error);
       setHasLiked(!newLikeStatus); // العودة للحالة السابقة
+      // إشعار خطأ
+      if (window.showNotification) {
+        window.showNotification({
+          type: 'error',
+          message: 'حدث خطأ في الإعجاب. يرجى المحاولة مرة أخرى.',
+          duration: 5000
+        });
+      }
     }
   };
 
@@ -259,20 +301,48 @@ export function useUserInteractionTracking(articleId: string) {
     }
 
     try {
+      console.log('🔄 محاولة حفظ المقال:', { articleId, saved: newSaveStatus });
+      
       const res = await fetch('/api/bookmarks', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('auth-token') || localStorage.getItem('sabq_at') || localStorage.getItem('access_token')}`
+        },
         body: JSON.stringify({
           articleId,
           saved: newSaveStatus,
         }),
       });
+      
+      const data = await res.json();
+      console.log('📊 استجابة حفظ المقال:', data);
+      
       if (!res.ok) {
+        console.error('❌ فشل حفظ المقال:', data);
         setHasSaved(!newSaveStatus);
+      } else {
+        console.log('✅ تم حفظ المقال بنجاح!');
+        // إشعار نجاح
+        if (window.showNotification) {
+          window.showNotification({
+            type: 'success',
+            message: newSaveStatus ? 'تم حفظ المقال!' : 'تم إلغاء حفظ المقال!',
+            duration: 3000
+          });
+        }
       }
     } catch (error) {
       console.error('Error toggling save:', error);
       setHasSaved(!newSaveStatus);
+      // إشعار خطأ
+      if (window.showNotification) {
+        window.showNotification({
+          type: 'error',
+          message: 'حدث خطأ في الحفظ. يرجى المحاولة مرة أخرى.',
+          duration: 5000
+        });
+      }
     }
   };
 

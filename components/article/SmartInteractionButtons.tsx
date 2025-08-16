@@ -40,44 +40,83 @@ export function SmartInteractionButtons({
 
   // معالج الإعجاب
   const handleLike = async () => {
-    const prevLiked = hasLiked;
-    await toggleLike();
+    console.log('🔄 بدء عملية الإعجاب للمقال:', articleId);
+    
     try {
-      // جلب القيم المحدثة من الخادم
+      const newLikeStatus = !hasLiked;
+      
       const res = await fetch('/api/interactions/like', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ articleId, like: !prevLiked }),
+        headers: { 
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+          articleId, 
+          like: newLikeStatus 
+        }),
       });
+      
+      console.log('📊 استجابة API الإعجاب:', res.status);
+      
       if (res.ok) {
-        const json = await res.json();
-        setLocalStats(prev => ({ ...prev, likes: json.likes ?? prev.likes }));
+        const data = await res.json();
+        console.log('✅ نجح الإعجاب:', data);
+        
+        // تحديث الحالة المحلية
+        await toggleLike();
+        setLocalStats(prev => ({ 
+          ...prev, 
+          likes: data.likes || (newLikeStatus ? prev.likes + 1 : prev.likes - 1)
+        }));
+        
+        console.log('✅ تم الإعجاب بنجاح!');
       } else {
-        setLocalStats(prev => ({ ...prev, likes: prevLiked ? prev.likes - 1 : prev.likes + 1 }));
+        const error = await res.text();
+        console.error('❌ فشل الإعجاب:', error);
       }
-    } catch {
-      setLocalStats(prev => ({ ...prev, likes: prevLiked ? prev.likes - 1 : prev.likes + 1 }));
+    } catch (error) {
+      console.error('❌ خطأ في الإعجاب:', error);
     }
   };
 
   // معالج الحفظ
   const handleSave = async () => {
-    const prevSaved = hasSaved;
-    await toggleSave();
+    console.log('💾 بدء عملية حفظ المقال:', articleId);
+    
     try {
+      const newSaveStatus = !hasSaved;
+      
       const res = await fetch('/api/bookmarks', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ articleId, saved: !prevSaved }),
+        headers: { 
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+          articleId, 
+          saved: newSaveStatus 
+        }),
       });
+      
+      console.log('📊 استجابة API الحفظ:', res.status);
+      
       if (res.ok) {
-        const json = await res.json();
-        setLocalStats(prev => ({ ...prev, saves: json.saves ?? prev.saves }));
+        const data = await res.json();
+        console.log('✅ نجح الحفظ:', data);
+        
+        // تحديث الحالة المحلية
+        await toggleSave();
+        setLocalStats(prev => ({ 
+          ...prev, 
+          saves: data.saves || (newSaveStatus ? prev.saves + 1 : prev.saves - 1)
+        }));
+        
+        console.log('✅ تم حفظ المقال بنجاح!');
       } else {
-        setLocalStats(prev => ({ ...prev, saves: prevSaved ? prev.saves - 1 : prev.saves + 1 }));
+        const error = await res.text();
+        console.error('❌ فشل الحفظ:', error);
       }
-    } catch {
-      setLocalStats(prev => ({ ...prev, saves: prevSaved ? prev.saves - 1 : prev.saves + 1 }));
+    } catch (error) {
+      console.error('❌ خطأ في الحفظ:', error);
     }
   };
 

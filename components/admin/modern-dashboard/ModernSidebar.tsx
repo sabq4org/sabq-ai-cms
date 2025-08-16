@@ -41,6 +41,7 @@ import {
   TrendingUp,
   Users,
   Zap,
+  Activity,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -179,6 +180,31 @@ const sidebarItems: SidebarItem[] = [
     icon: Brain,
     href: "/dashboard/smart-blocks",
     children: [
+      {
+        id: "smart-system-control",
+        title: "النظام الذكي المتكامل",
+        icon: Settings,
+        href: "/admin/smart-system",
+        badge: "جديد",
+        badgeVariant: "default" as const,
+        isNew: true,
+      },
+      {
+        id: "system-status",
+        title: "مراقبة الأنظمة",
+        icon: Activity,
+        href: "/admin/system-status",
+        badge: "مراقبة",
+        badgeVariant: "secondary" as const,
+      },
+      {
+        id: "live-analytics",
+        title: "التحليلات المباشرة",
+        icon: BarChart3,
+        href: "/admin/analytics/live",
+        badge: "مباشر",
+        badgeVariant: "default" as const,
+      },
       {
         id: "smart-entities",
         title: "الكيانات الذكية",
