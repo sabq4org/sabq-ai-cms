@@ -7,7 +7,8 @@ import { getImageUrl } from "@/lib/image-utils";
 import { getProductionImageUrl } from "@/lib/production-image-fix";
 import { linkTo } from "@/lib/url-builder";
 import { cn } from "@/lib/utils";
-import { Calendar, Eye, MessageSquare, Zap } from "lucide-react";
+import { Calendar, MessageSquare, Zap } from "lucide-react";
+import ArticleViews from '@/components/ui/ArticleViews';
 import Link from "next/link";
 
 interface ArticleCardProps {
@@ -217,12 +218,12 @@ export default function ArticleCard({
                 {formatDateNumeric(publishDate)}
               </time>
               <span className="mx-1">•</span>
-              <span className="inline-flex items-center gap-1">
-                <Eye className="w-4 h-4" />
-                {new Intl.NumberFormat("ar", { notation: "compact" }).format(
-                  article.views ?? article.views_count ?? 0
-                )}
-              </span>
+              <ArticleViews 
+                count={article.views ?? article.views_count ?? 0} 
+                variant="minimal" 
+                size="sm" 
+                showLabel={false}
+              />
               {typeof article.comments_count === "number" && (
                 <>
                   <span className="mx-1">•</span>
@@ -307,12 +308,12 @@ export default function ArticleCard({
                 {formatDateNumeric(publishDate)}
               </time>
               <span className="mx-1">•</span>
-              <span className="inline-flex items-center gap-1">
-                <Eye className="w-4 h-4" />
-                {new Intl.NumberFormat("ar", { notation: "compact" }).format(
-                  article.views ?? article.views_count ?? 0
-                )}
-              </span>
+              <ArticleViews 
+                count={article.views ?? article.views_count ?? 0} 
+                variant="minimal" 
+                size="sm" 
+                showLabel={false}
+              />
               {typeof article.comments_count === "number" && (
                 <>
                   <span className="mx-1">•</span>

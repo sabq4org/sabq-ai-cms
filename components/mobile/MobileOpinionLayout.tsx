@@ -11,7 +11,6 @@ import {
   Award,
   Calendar,
   Clock,
-  Eye,
   Heart,
   MessageCircle,
   Quote,
@@ -19,6 +18,7 @@ import {
   Star,
   User,
 } from "lucide-react";
+import ArticleViews from '@/components/ui/ArticleViews';
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -224,10 +224,12 @@ export default function MobileOpinionLayout({
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-4 text-sm">
-                      <span className="inline-flex items-center gap-1">
-                        <Eye className="w-4 h-4" />
-                        {new Intl.NumberFormat("ar").format(article.views || 0)}
-                      </span>
+                      <ArticleViews 
+                        count={article.views || 0} 
+                        size="md" 
+                        variant="minimal" 
+                        showLabel={false}
+                      />
                       <span className="inline-flex items-center gap-1">
                         <Heart className="w-4 h-4" />
                         {new Intl.NumberFormat("ar").format(article.likes || 0)}

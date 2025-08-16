@@ -9,7 +9,6 @@ import {
   Bookmark,
   Calendar,
   Clock,
-  Eye,
   MessageCircle,
   Share2,
   Sparkles,

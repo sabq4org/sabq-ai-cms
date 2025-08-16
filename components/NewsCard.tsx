@@ -6,7 +6,8 @@ import { formatDateNumeric } from "@/lib/date-utils";
 import { getImageUrl } from "@/lib/image-utils";
 import { getProductionImageUrl } from "@/lib/production-image-fix";
 import { cn } from "@/lib/utils";
-import { Calendar, Eye, Zap } from "lucide-react";
+import { Calendar, Zap } from "lucide-react";
+import ArticleViews from '@/components/ui/ArticleViews';
 import Link from "next/link";
 
 interface NewsCardProps {
@@ -198,12 +199,12 @@ export default function NewsCard({ news, viewMode = "grid" }: NewsCardProps) {
                 {formatDateNumeric(publishDate)}
               </time>
               <span className="mx-1">•</span>
-              <span className="inline-flex items-center gap-1">
-                <Eye className="w-4 h-4" />
-                {new Intl.NumberFormat("ar", { notation: "compact" }).format(
-                  news.views ?? news.views_count ?? 0
-                )}
-              </span>
+              <ArticleViews 
+                count={news.views ?? news.views_count ?? 0} 
+                variant="minimal" 
+                size="sm" 
+                showLabel={false}
+              />
             </div>
           </div>
           <div className="category-underline" aria-hidden />
@@ -273,12 +274,12 @@ export default function NewsCard({ news, viewMode = "grid" }: NewsCardProps) {
                 {formatDateNumeric(publishDate)}
               </time>
               <span className="mx-1">•</span>
-              <span className="inline-flex items-center gap-1">
-                <Eye className="w-4 h-4" />
-                {new Intl.NumberFormat("ar", { notation: "compact" }).format(
-                  news.views ?? news.views_count ?? 0
-                )}
-              </span>
+              <ArticleViews 
+                count={news.views ?? news.views_count ?? 0} 
+                variant="minimal" 
+                size="sm" 
+                showLabel={false}
+              />
             </div>
           </div>
         </div>

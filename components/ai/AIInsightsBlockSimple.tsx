@@ -19,6 +19,7 @@ interface ArticleInsight {
   insightColor: string;
   icon: string;
   publishedAt: string;
+  aiAnalysis: string;
 }
 
 export default function AIInsightsBlockSimple() {
@@ -76,16 +77,7 @@ export default function AIInsightsBlockSimple() {
   };
 
   const getTooltipText = (insight: ArticleInsight): string => {
-    if (insight.insightTag === 'الأكثر جدلاً') {
-      return `${insight.commentCount} تعليق مع تباين في الآراء`;
-    }
-    if (insight.insightTag === 'صاعد الآن') {
-      return `ارتفاع ${insight.growthRate.toFixed(0)}% في القراءات خلال الساعة الماضية`;
-    }
-    if (insight.insightTag === 'الأكثر تداولاً') {
-      return `تمت مشاركة الخبر ${insight.shareCount} مرة خارج الموقع`;
-    }
-    return `${insight.viewCount} مشاهدة`;
+    return insight.aiAnalysis || `تحليل ذكي: ${insight.viewCount} مشاهدة`;
   };
 
   const getInsightStyles = (tag: string) => {
@@ -96,6 +88,14 @@ export default function AIInsightsBlockSimple() {
         return 'text-blue-600';
       case 'الأكثر تداولاً':
         return 'text-green-600';
+      case 'اقتصادي مهم':
+        return 'text-yellow-600';
+      case 'سياسي بارز':
+        return 'text-purple-600';
+      case 'صحي متطور':
+        return 'text-teal-600';
+      case 'محل نقاش':
+        return 'text-orange-600';
       default:
         return 'text-gray-600';
     }

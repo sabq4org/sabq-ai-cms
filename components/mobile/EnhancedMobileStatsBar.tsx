@@ -5,7 +5,6 @@ import {
   Activity,
   Calendar,
   Clock,
-  Eye,
   Minus,
   Newspaper,
   RefreshCw,
@@ -15,6 +14,7 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
+import ArticleViews from '@/components/ui/ArticleViews';
 import { useCallback, useEffect, useState } from "react";
 
 interface DailyChange {
@@ -454,30 +454,13 @@ export default function EnhancedMobileStatsBar({
                 : "bg-blue-50/50 hover:bg-blue-50"
             }`}
           >
-            <div
-              className={`stats-icon-container p-2 rounded-full mx-auto mb-2 w-fit ${
-                darkMode ? "bg-blue-500/20" : "bg-blue-100"
-              }`}
-            >
-              <Eye
-                className={`w-4 h-4 ${
-                  darkMode ? "text-blue-400" : "text-blue-600"
-                }`}
+            <div className="flex flex-col items-center justify-center">
+              <ArticleViews 
+                count={stats.total_views} 
+                size="md"
+                variant="default"
+                className={`mb-1 ${darkMode ? "text-blue-300" : "text-blue-600"}`}
               />
-            </div>
-            <div
-              className={`stats-number text-sm font-bold ${
-                darkMode ? "text-white" : "text-gray-900"
-              }`}
-            >
-              {(stats.total_views / 1000).toFixed(0)}k
-            </div>
-            <div
-              className={`stats-text text-xs ${
-                darkMode ? "text-blue-300" : "text-blue-600"
-              }`}
-            >
-              مشاهدة
             </div>
           </div>
 

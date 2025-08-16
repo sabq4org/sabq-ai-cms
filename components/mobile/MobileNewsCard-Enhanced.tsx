@@ -4,9 +4,10 @@ import React, { memo, useState, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { 
-  Calendar, Eye, User, Clock, Zap, Star, Heart, 
+  Calendar, User, Clock, Zap, Star, Heart, 
   Bookmark, Share2, MessageSquare, TrendingUp, Award
 } from 'lucide-react';
+import ArticleViews from '@/components/ui/ArticleViews';
 import { formatRelativeDate } from '@/lib/date-utils';
 import { getArticleLink } from '@/lib/utils';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
@@ -240,7 +241,7 @@ const ArticleStats = memo(({
 
   const stats = [
     {
-      icon: Eye,
+      component: <ArticleViews count={article.views || 0} variant="minimal" size="xs" />,
       value: article.views || 0,
       label: 'مشاهدة',
       color: 'text-blue-500'
@@ -269,18 +270,23 @@ const ArticleStats = memo(({
 
   return (
     <div className="flex items-center gap-3 text-xs">
-      {visibleStats.map(({ icon: Icon, value, label, color }, index) => (
-        <div 
-          key={index}
-          className={`flex items-center gap-1 ${
-            darkMode ? 'text-gray-400' : 'text-gray-500'
-          } hover:${color} transition-colors duration-200`}
-        >
-          <Icon className="w-3 h-3" />
-          <span className="font-medium">{value}</span>
-          {variant === 'featured' && <span className="hidden sm:inline">{label}</span>}
-        </div>
-      ))}
+      {visibleStats.map(({ icon: Icon, component, value, label, color }, index) => {
+        if (component) {
+          return <div key={index}>{component}</div>;
+        }
+        return (
+          <div 
+            key={index}
+            className={`flex items-center gap-1 ${
+              darkMode ? 'text-gray-400' : 'text-gray-500'
+            } hover:${color} transition-colors duration-200`}
+          >
+            <Icon className="w-3 h-3" />
+            <span className="font-medium">{value}</span>
+            {variant === 'featured' && <span className="hidden sm:inline">{label}</span>}
+          </div>
+        );
+      })}
       
       {/* مؤشر التفاعل العالي */}
       {metrics.isTrending && (

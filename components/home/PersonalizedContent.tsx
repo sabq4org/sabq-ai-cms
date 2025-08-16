@@ -13,7 +13,6 @@ import {
     Bookmark,
     CheckCircle,
     Clock,
-    Eye,
     Filter,
     Heart,
     Settings,
@@ -22,6 +21,7 @@ import {
     User,
     Zap
 } from 'lucide-react';
+import ArticleViews from '@/components/ui/ArticleViews';
 
 
 
@@ -608,12 +608,12 @@ export default function PersonalizedContent() {
                               </div>
 
                               <div className="flex items-center space-x-3 space-x-reverse text-xs">
-                                <span className={`flex items-center space-x-1 space-x-reverse ${
-                                  darkMode ? 'text-gray-400' : 'text-gray-500'
-                                }`}>
-                                  <Eye className="w-3 h-3" />
-                                  <span>{String(formatNumber(article.views_count || article.views) || '0')}</span>
-                                </span>
+                                <ArticleViews 
+                                  count={article.views_count || article.views || 0} 
+                                  variant="minimal" 
+                                  size="xs" 
+                                  showLabel={false}
+                                />
 
                                 <span className={`flex items-center space-x-1 space-x-reverse ${
                                   darkMode ? 'text-gray-400' : 'text-gray-500'
