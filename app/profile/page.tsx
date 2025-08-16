@@ -949,34 +949,20 @@ export default function ProfilePage() {
                     <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400" />
                   )}
                 </button>
-                <button
-                  onClick={() => setActiveTab("likes")}
-                  className={`flex items-center gap-2 px-3 sm:px-6 py-3 sm:py-4 font-medium transition-all relative whitespace-nowrap text-sm sm:text-base ${
-                    activeTab === "likes"
-                      ? "text-blue-600 dark:text-blue-400"
-                      : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-                  }`}
+                <Link
+                  href="/profile/liked"
+                  className="flex items-center gap-2 px-3 sm:px-6 py-3 sm:py-4 font-medium transition-all relative whitespace-nowrap text-sm sm:text-base text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
                 >
                   <Heart className="w-4 h-4" />
                   الإعجابات
-                  {activeTab === "likes" && (
-                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400" />
-                  )}
-                </button>
-                <button
-                  onClick={() => setActiveTab("saved")}
-                  className={`flex items-center gap-2 px-3 sm:px-6 py-3 sm:py-4 font-medium transition-all relative whitespace-nowrap text-sm sm:text-base ${
-                    activeTab === "saved"
-                      ? "text-blue-600 dark:text-blue-400"
-                      : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-                  }`}
+                </Link>
+                <Link
+                  href="/profile/saved"
+                  className="flex items-center gap-2 px-3 sm:px-6 py-3 sm:py-4 font-medium transition-all relative whitespace-nowrap text-sm sm:text-base text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
                 >
                   <Bookmark className="w-4 h-4" />
                   المحفوظات
-                  {activeTab === "saved" && (
-                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400" />
-                  )}
-                </button>
+                </Link>
               </div>
             </div>
           </div>

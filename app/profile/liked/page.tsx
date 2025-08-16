@@ -3,11 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Bookmark, Clock, Eye, User, Trash2 } from 'lucide-react';
+import { Heart, Clock, Eye, User } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
 
-interface SavedArticle {
+interface LikedArticle {
   id: string;
   title: string;
   summary: string;
@@ -20,9 +20,9 @@ interface SavedArticle {
   featured_image_url?: string;
 }
 
-export default function SavedArticlesPage() {
+export default function LikedArticlesPage() {
   const { user } = useAuth();
-  const [articles, setArticles] = useState<SavedArticle[]>([]);
+  const [articles, setArticles] = useState<LikedArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,72 +32,43 @@ export default function SavedArticlesPage() {
       return;
     }
 
-    const fetchSavedArticles = async () => {
+    const fetchLikedArticles = async () => {
       try {
-        const response = await fetch('/api/user/saved', {
+        const response = await fetch('/api/user/likes', {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('auth-token')}`,
           }
         });
 
         if (!response.ok) {
-          throw new Error('فشل في تحميل المقالات المحفوظة');
+          throw new Error('فشل في تحميل المقالات المعجب بها');
         }
 
         const data = await response.json();
         setArticles(data.articles || []);
       } catch (err) {
-        console.error('Error fetching saved articles:', err);
-        setError('حدث خطأ في تحميل المقالات المحفوظة');
+        console.error('Error fetching liked articles:', err);
+        setError('حدث خطأ في تحميل المقالات المعجب بها');
         toast.error('حدث خطأ في تحميل المقالات');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchSavedArticles();
+    fetchLikedArticles();
   }, [user]);
-
-  // إزالة مقال من المحفوظات
-  const removeFromSaved = async (articleId: string) => {
-    try {
-      const response = await fetch('/api/interactions/bookmark', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth-token')}`,
-        },
-        body: JSON.stringify({
-          articleId,
-          saved: false
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('فشل في إزالة المقال');
-      }
-
-      // إزالة المقال من القائمة
-      setArticles(prev => prev.filter(article => article.id !== articleId));
-      toast.success('تم إزالة المقال من المحفوظات');
-
-    } catch (error) {
-      console.error('Error removing saved article:', error);
-      toast.error('حدث خطأ في إزالة المقال');
-    }
-  };
 
   if (!user) {
     return (
       <div className="container mx-auto px-4 py-8">
         <Card>
           <CardContent className="text-center py-8">
-            <Bookmark className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <Heart className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-gray-700 mb-2">
               يجب تسجيل الدخول
             </h2>
             <p className="text-gray-500">
-              يجب تسجيل الدخول لرؤية المقالات المحفوظة
+              يجب تسجيل الدخول لرؤية المقالات المعجب بها
             </p>
           </CardContent>
         </Card>
@@ -149,23 +120,23 @@ export default function SavedArticlesPage() {
     <div className="container mx-auto px-4 py-8" dir="rtl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold flex items-center gap-3 mb-2">
-          <Bookmark className="w-8 h-8 text-blue-500" />
-          المقالات المحفوظة
+          <Heart className="w-8 h-8 text-red-500" />
+          المقالات المعجب بها
         </h1>
         <p className="text-gray-600">
-          المقالات التي حفظتها للقراءة لاحقاً ({articles.length} مقال)
+          المقالات التي أعجبتك ({articles.length} مقال)
         </p>
       </div>
 
       {articles.length === 0 ? (
         <Card>
           <CardContent className="text-center py-12">
-            <Bookmark className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-gray-600 mb-2">
-              لا توجد مقالات محفوظة
+              لا توجد مقالات معجب بها
             </h2>
             <p className="text-gray-500 mb-4">
-              لم تقم بحفظ أي مقال بعد
+              لم تقم بالإعجاب بأي مقال بعد
             </p>
             <Link 
               href="/news"
@@ -191,32 +162,21 @@ export default function SavedArticlesPage() {
                       />
                     ) : (
                       <div className="w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center">
-                        <Bookmark className="w-8 h-8 text-gray-400" />
+                        <Heart className="w-8 h-8 text-gray-400" />
                       </div>
                     )}
                   </div>
 
                   {/* محتوى المقال */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-xl font-semibold text-gray-900 line-clamp-2 flex-1">
-                        <Link 
-                          href={`/article/${article.id}`}
-                          className="hover:text-blue-600 transition-colors"
-                        >
-                          {article.title}
-                        </Link>
-                      </h3>
-                      
-                      {/* زر الإزالة */}
-                      <button
-                        onClick={() => removeFromSaved(article.id)}
-                        className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition-colors"
-                        title="إزالة من المحفوظات"
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2 line-clamp-2">
+                      <Link 
+                        href={`/article/${article.id}`}
+                        className="hover:text-blue-600 transition-colors"
                       >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    </div>
+                        {article.title}
+                      </Link>
+                    </h3>
                     
                     <p className="text-gray-600 mb-3 line-clamp-2">
                       {article.summary}
@@ -237,8 +197,8 @@ export default function SavedArticlesPage() {
                         {article.views}
                       </div>
                       <div className="flex items-center gap-1">
-                        <Bookmark className="w-4 h-4 text-blue-500" />
-                        {article.saves}
+                        <Heart className="w-4 h-4 text-red-500" />
+                        {article.likes}
                       </div>
                     </div>
                   </div>
