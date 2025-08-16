@@ -35,39 +35,53 @@ async function calculateInsights(): Promise<ArticleInsight[]> {
   }
 
   // جلب المقالات مع إحصائياتها
-  const articles = await prisma.article.findMany({
+  const articles = await prisma.articles.findMany({
     where: {
-      status: 'PUBLISHED',
+      status: 'published',
       published_at: {
-        not: null
-      }
+        not: null,
+      },
     },
     include: {
       interactions: {
         where: {
           created_at: {
-            gte: new Date(Date.now() - 3 * 60 * 60 * 1000) // آخر 3 ساعات
-          }
-        }
+            gte: new Date(Date.now() - 3 * 60 * 60 * 1000), // آخر 3 ساعات
+          },
+        },
       },
-      comments: true,
-      category: true
+      categories: true,
     },
     orderBy: {
-      published_at: 'desc'
+      published_at: 'desc',
     },
-    take: 50
+    take: 50,
   });
 
+  // حساب عدد التعليقات لكل مقال دفعة واحدة
+  const articleIds = articles.map((a) => a.id);
+  const commentsGrouped = articleIds.length
+    ? await prisma.comments.groupBy({
+        by: ['article_id'],
+        where: { article_id: { in: articleIds } },
+        _count: { _all: true },
+      })
+    : [];
+  const articleIdToCommentCount = new Map<string, number>();
+  for (const row of commentsGrouped) {
+    // @ts-ignore prisma groupBy typing for dynamic keys
+    articleIdToCommentCount.set(row.article_id as string, row._count?._all ?? 0);
+  }
+
   // حساب المؤشرات الذكية
-  const insights: ArticleInsight[] = articles.map(article => {
+  const insights: ArticleInsight[] = articles.map((article) => {
     // حساب المشاهدات والتفاعلات
     const recentViews = article.interactions.filter(i => i.type === 'view').length;
     const recentLikes = article.interactions.filter(i => i.type === 'like').length;
-    const totalViews = article.view_count || 0;
-    const totalLikes = article.like_count || 0;
-    const totalComments = article.comments.length;
-    const totalShares = article.share_count || 0;
+    const totalViews = (article as any).views || 0;
+    const totalLikes = (article as any).likes || 0;
+    const totalShares = (article as any).shares || 0;
+    const totalComments = articleIdToCommentCount.get(article.id) ?? 0;
     
     // حساب معدل النمو (مشاهدات آخر 3 ساعات مقابل المعدل)
     const avgHourlyViews = totalViews / Math.max(1, 
@@ -123,7 +137,10 @@ async function calculateInsights(): Promise<ArticleInsight[]> {
       id: article.id,
       title: article.title,
       slug: article.slug,
-      category: article.category?.name || 'عام',
+      category:
+        (article as any).categories?.name_ar ||
+        (article as any).categories?.name ||
+        'عام',
       viewCount: totalViews,
       likeCount: totalLikes,
       commentCount: totalComments,
