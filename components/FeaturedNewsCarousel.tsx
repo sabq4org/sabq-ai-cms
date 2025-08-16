@@ -250,8 +250,8 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                 onClick={() => setCurrentIndex(idx)}
                 className={`relative overflow-hidden rounded-lg transition-all duration-300 ease-in-out cursor-pointer ${
                   idx === currentIndex 
-                    ? "w-14 h-10 ring-2 ring-blue-500 dark:ring-blue-400 shadow-lg transform scale-105 z-10" 
-                    : "w-10 h-7 hover:w-12 hover:h-8 opacity-70 hover:opacity-100 hover:shadow-md"
+                    ? "w-16 h-9 ring-2 ring-blue-500 dark:ring-blue-400 shadow-lg z-10" 
+                    : "w-10 h-9 hover:w-12 hover:h-9 opacity-50 hover:opacity-70 hover:shadow-md"
                 }`}
                 aria-label={`الانتقال إلى الخبر ${idx + 1}: ${article.title}`}
                 aria-current={idx === currentIndex}
@@ -279,8 +279,8 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                 {/* تدرج لوني ناعم */}
                 <div className={`absolute inset-0 transition-opacity duration-300 ${
                   idx === currentIndex 
-                    ? "bg-blue-500/20" 
-                    : "bg-black/20 hover:bg-black/10"
+                    ? "bg-blue-500/15" 
+                    : "bg-black/40 hover:bg-black/25"
                 }`}></div>
                 {/* مؤشر النشاط */}
                 {idx === currentIndex && (

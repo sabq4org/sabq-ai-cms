@@ -161,8 +161,8 @@ export default function MobileFeaturedNews({ items, withSwipe = true }: MobileFe
               }}
               className={`relative overflow-hidden rounded transition-all duration-300 ${
                 i === active 
-                  ? "w-8 h-5 ring-1 ring-white/70 shadow-md" 
-                  : "w-6 h-4 opacity-70 hover:opacity-100"
+                  ? "w-10 h-6 ring-1 ring-white/70 shadow-md" 
+                  : "w-6 h-6 opacity-40 hover:opacity-60"
               }`}
               aria-label={`الانتقال إلى ${item.title}`}
             >
@@ -173,7 +173,7 @@ export default function MobileFeaturedNews({ items, withSwipe = true }: MobileFe
                 loading="lazy"
               />
               <div className={`absolute inset-0 ${
-                i === active ? "bg-white/20" : "bg-black/20"
+                i === active ? "bg-white/15" : "bg-black/35"
               }`}></div>
             </button>
           ))}
