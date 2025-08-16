@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/app/lib/auth";
+import { requireAuthFromRequest } from "@/app/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
-    const user = await requireAuth();
+    const user = await requireAuthFromRequest(req);
     const { PrismaClient } = await import("@prisma/client");
     const prisma = new PrismaClient();
     const { articleId, saved } = await req.json();

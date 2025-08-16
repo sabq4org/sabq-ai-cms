@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/app/lib/auth";
+import { requireAuthFromRequest } from "@/app/lib/auth";
 import getRedisClient from "@/lib/redis-client";
 import { deleteKeysByPattern } from "@/lib/redis-helpers";
 
 export async function POST(req: NextRequest) {
   try {
-    const user = await requireAuth();
+    const user = await requireAuthFromRequest(req);
     const { PrismaClient } = await import("@prisma/client");
     const prisma = new PrismaClient();
     const { articleId, like } = await req.json();
