@@ -1546,14 +1546,15 @@ function NewspaperHomePage({
             )}
           </section>
         </main>
-        {/* 7. مقترب (زاوية تحليلية) 📝 */}
-        {/* 🔥 ترتيب خاص للموبايل: نقل الكلمات الشائعة فوق مقترب للجوال فقط */}
+        {/* 7. الكلمات المفتاحية ومقترب - قبل التحليل العميق */}
+        {/* FORCE UPDATE: 2025-08-16 - ترتيب صحيح للنسخة الخفيفة */}
         {isMobileView && (
           <div className="mobile-word-cloud-section mobile-section-spacing mobile-layout-transition py-3 mb-4">
             <HomeWordCloud maxKeywords={15} />
           </div>
         )}
         
+        {/* بلوك مقترب - يظهر بعد الكلمات المفتاحية في الموبايل */}
         <div
           className={`mobile-trending-section mobile-layout-transition max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${
             isMobileView ? "py-4" : "py-6"
