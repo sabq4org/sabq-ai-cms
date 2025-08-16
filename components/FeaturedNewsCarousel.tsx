@@ -250,8 +250,8 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                 onClick={() => setCurrentIndex(idx)}
                 className={`relative overflow-hidden rounded-lg transition-all duration-300 ease-in-out cursor-pointer ${
                   idx === currentIndex 
-                    ? "w-18 h-11 ring-2 ring-blue-500 dark:ring-blue-400 shadow-lg transform scale-105 z-10" 
-                    : "w-12 h-8 hover:w-14 hover:h-9 opacity-70 hover:opacity-100 hover:shadow-md"
+                    ? "w-14 h-10 ring-2 ring-blue-500 dark:ring-blue-400 shadow-lg transform scale-105 z-10" 
+                    : "w-10 h-7 hover:w-12 hover:h-8 opacity-70 hover:opacity-100 hover:shadow-md"
                 }`}
                 aria-label={`الانتقال إلى الخبر ${idx + 1}: ${article.title}`}
                 aria-current={idx === currentIndex}
