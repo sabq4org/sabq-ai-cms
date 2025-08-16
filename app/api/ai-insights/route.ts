@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getRedisClient } from '@/lib/redis/client';
-import prisma from '@/lib/prisma/client';
+import { getRedisClient } from '@/lib/redis';
+import prisma from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
