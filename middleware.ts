@@ -37,7 +37,12 @@ export async function middleware(req: NextRequest) {
     if (isAdminPage && pathname === "/admin/login") {
       return NextResponse.next();
     }
-    const at = req.cookies.get("sabq_at")?.value || req.cookies.get("auth-token")?.value;
+    const at =
+      req.cookies.get("sabq_at")?.value ||
+      req.cookies.get("auth-token")?.value ||
+      req.cookies.get("access_token")?.value ||
+      req.cookies.get("token")?.value ||
+      req.cookies.get("jwt")?.value;
     if (!at) {
       if (isAdminApi) {
         return new NextResponse(JSON.stringify({ error: "Unauthorized" }), {
@@ -54,7 +59,8 @@ export async function middleware(req: NextRequest) {
       // التحقق من التوكن
       const secretString = process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET || "";
       const secret = new TextEncoder().encode(secretString);
-      await jwtVerify(at, secret, { issuer: "sabq-ai-cms" });
+      // التحقق من التوكن بدون فرض issuer لتوافق الإصدارات المختلفة
+      await jwtVerify(at, secret);
 
       // إعادة التحقق من الدور من قاعدة البيانات في كل طلب إداري
       const meUrl = new URL("/api/user/me", req.url);

@@ -59,7 +59,8 @@ export async function POST(request: NextRequest) {
           profile_completed: result.user?.profile_completed,
           loyalty_points: result.user?.loyalty_points,
           preferred_language: result.user?.preferred_language
-        }
+        },
+        token: result.access_token
       },
       { status: 200 }
     );
@@ -71,6 +72,14 @@ export async function POST(request: NextRequest) {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
         maxAge: 15 * 60, // 15 دقيقة
+        path: '/'
+      });
+
+      response.cookies.set('auth-token', result.access_token, {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 7, // 7 أيام لتوافق واجهة العميل
         path: '/'
       });
 

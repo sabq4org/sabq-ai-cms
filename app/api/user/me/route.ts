@@ -12,6 +12,9 @@ export async function GET(request: NextRequest) {
     let token =
       request.cookies.get("sabq_at")?.value ||
       request.cookies.get("auth-token")?.value ||
+      request.cookies.get("access_token")?.value ||
+      request.cookies.get("token")?.value ||
+      request.cookies.get("jwt")?.value ||
       undefined;
 
     if (!token) {
@@ -35,7 +38,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    const userId = decoded?.sub || decoded?.id || decoded?.userId;
+    const userId = decoded?.sub || decoded?.id || decoded?.userId || decoded?.user_id;
     if (!userId || typeof userId !== "string") {
       return NextResponse.json({ error: "Invalid session" }, { status: 401 });
     }

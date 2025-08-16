@@ -18,7 +18,10 @@ export async function GET(request: NextRequest) {
     // محاولة الحصول على التوكن من الكوكيز أو من Authorization header
     let token =
       request.cookies.get("sabq_at")?.value ||
-      request.cookies.get("auth-token")?.value;
+      request.cookies.get("auth-token")?.value ||
+      request.cookies.get("access_token")?.value ||
+      request.cookies.get("token")?.value ||
+      request.cookies.get("jwt")?.value;
 
     // إذا لم يوجد في الكوكيز، جرب من Authorization header
     if (!token) {
@@ -46,7 +49,7 @@ export async function GET(request: NextRequest) {
     }
 
     // استخراج معرف المستخدم من payload (يدعم sub أو id)
-    const userId = decoded?.sub || decoded?.id;
+    const userId = decoded?.sub || decoded?.id || decoded?.userId || decoded?.user_id;
     if (!userId || typeof userId !== "string") {
       return corsResponse({ success: false, error: "جلسة غير صالحة" }, 401);
     }

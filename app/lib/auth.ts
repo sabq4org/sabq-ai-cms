@@ -76,6 +76,7 @@ export async function getCurrentUser(): Promise<User | null> {
     const tokenCookie =
       cookieStore.get("sabq_at") ||
       cookieStore.get("auth-token") ||
+      cookieStore.get("access_token") ||
       cookieStore.get("token") ||
       cookieStore.get("jwt");
 
