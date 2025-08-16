@@ -243,20 +243,50 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
           >
             <ChevronRight className="w-5 h-5" />
           </button>
-          <div className="flex justify-center items-center gap-1.5">
-            {articles.map((a, idx) => (
+          <div className="flex justify-center items-center gap-3 px-2">
+            {articles.map((article, idx) => (
               <button
-                key={a.id}
+                key={article.id}
                 onClick={() => setCurrentIndex(idx)}
-                className={`h-1.5 rounded-full transition-all duration-300 ease-in-out ${
+                className={`relative overflow-hidden rounded-lg transition-all duration-300 ease-in-out cursor-pointer ${
                   idx === currentIndex 
-                    ? "w-8 bg-blue-500 dark:bg-blue-400" 
-                    : "w-4 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500"
+                    ? "w-18 h-11 ring-2 ring-blue-500 dark:ring-blue-400 shadow-lg transform scale-105 z-10" 
+                    : "w-12 h-8 hover:w-14 hover:h-9 opacity-70 hover:opacity-100 hover:shadow-md"
                 }`}
-                aria-label={`الانتقال إلى الخبر ${idx + 1}: ${a.title}`}
+                aria-label={`الانتقال إلى الخبر ${idx + 1}: ${article.title}`}
                 aria-current={idx === currentIndex}
-                title={a.title}
-              />
+                title={article.title}
+              >
+                {article.featured_image ? (
+                  <img
+                    src={article.featured_image}
+                    alt={article.title}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      target.nextElementSibling?.classList.remove('hidden');
+                    }}
+                  />
+                ) : null}
+                {/* Fallback للصور المفقودة */}
+                <div className={`${article.featured_image ? 'hidden' : 'flex'} w-full h-full items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800`}>
+                  <span className="text-xs font-bold text-blue-600 dark:text-blue-300">
+                    {article.title.split(' ').slice(0, 2).join(' ')}
+                  </span>
+                </div>
+                {/* تدرج لوني ناعم */}
+                <div className={`absolute inset-0 transition-opacity duration-300 ${
+                  idx === currentIndex 
+                    ? "bg-blue-500/20" 
+                    : "bg-black/20 hover:bg-black/10"
+                }`}></div>
+                {/* مؤشر النشاط */}
+                {idx === currentIndex && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 dark:bg-blue-400"></div>
+                )}
+              </button>
             ))}
           </div>
           <button 
