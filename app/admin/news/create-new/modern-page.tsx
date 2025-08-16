@@ -539,6 +539,10 @@ export default function ModernCreateNewsPage() {
       }
 
       const isScheduled = formData.publishType === "scheduled" && !!formData.scheduledDate;
+      console.log("handleSubmit - action:", action);
+      console.log("handleSubmit - publishType:", formData.publishType);
+      console.log("handleSubmit - scheduledDate:", formData.scheduledDate);
+      console.log("handleSubmit - isScheduled:", isScheduled);
       const payload: any = {
         title: formData.title,
         subtitle: formData.subtitle,
@@ -848,31 +852,67 @@ export default function ModernCreateNewsPage() {
                   </Button>
                   <Button
                     onClick={() => {
+                      console.log("زر الجدولة تم الضغط عليه");
+                      console.log("تاريخ الجدولة:", formData.scheduledDate);
+                      
                       if (!formData.scheduledDate) {
-                        toast({ title: "وقت الجدولة مطلوب", description: "يرجى اختيار التاريخ والوقت أولاً", variant: "destructive" });
+                        toast({ 
+                          title: "وقت الجدولة مطلوب", 
+                          description: "يرجى اختيار التاريخ والوقت أولاً", 
+                          variant: "destructive" 
+                        });
                         return;
                       }
+                      
                       const dt = new Date(formData.scheduledDate);
-                      if (isNaN(dt.getTime()) || dt.getTime() <= Date.now()) {
-                        toast({ title: "تاريخ غير صالح", description: "اختر وقتاً مستقبلياً للجدولة", variant: "destructive" });
+                      console.log("التاريخ المحول:", dt);
+                      console.log("الوقت الحالي:", new Date());
+                      
+                      if (isNaN(dt.getTime())) {
+                        toast({ 
+                          title: "تاريخ غير صالح", 
+                          description: "يرجى إدخال تاريخ صحيح", 
+                          variant: "destructive" 
+                        });
                         return;
                       }
+                      
+                      if (dt.getTime() <= Date.now()) {
+                        toast({ 
+                          title: "تاريخ غير صالح", 
+                          description: "اختر وقتاً مستقبلياً للجدولة", 
+                          variant: "destructive" 
+                        });
+                        return;
+                      }
+                      
+                      console.log("جميع التحققات نجحت، جاري تحديث publishType");
                       setFormData(prev => ({ ...prev, publishType: 'scheduled' }));
+                      
                       // تأكيد بصري فوري بأن الطلب بدأ
-                      toast({ title: "⏳ جاري جدولة الخبر...", description: new Date(formData.scheduledDate).toLocaleString("ar-SA") });
+                      toast({ 
+                        title: "⏳ جاري جدولة الخبر...", 
+                        description: `سيتم النشر في: ${dt.toLocaleString("ar-SA")}` 
+                      });
+                      
                       // تنفيذ الإرسال بعد frame للسماح بتحديث الحالة
-                      setTimeout(() => handleSubmit("publish"), 0);
+                      console.log("جاري استدعاء handleSubmit");
+                      setTimeout(() => handleSubmit("publish"), 100);
                     }}
                     disabled={saving || completionScore < 60}
                     className={cn(
                       "gap-2 transition-all",
                       formData.publishType === 'scheduled' 
-                        ? "bg-blue-600 hover:bg-blue-700 text-white" 
-                        : "bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
+                        ? "bg-green-600 hover:bg-green-700 text-white" 
+                        : "bg-blue-600 hover:bg-blue-700 text-white"
                     )}
                   >
-                    <Clock className="w-4 h-4" />
-                    مجدول
+                    {saving && formData.publishType === 'scheduled' ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Clock className="w-4 h-4" />
+                    )}
+                    {saving && formData.publishType === 'scheduled' ? "جاري الجدولة..." : "جدولة للنشر"}
                   </Button>
                 </div>
               </div>
@@ -1211,8 +1251,14 @@ export default function ModernCreateNewsPage() {
                             scheduledDate: e.target.value,
                           })
                         }
+                        min={new Date().toISOString().slice(0,16)}
                         className={inputClassName}
                       />
+                      {formData.scheduledDate && (
+                        <p className="text-xs text-blue-600 dark:text-blue-400">
+                          سيتم النشر في: {new Date(formData.scheduledDate).toLocaleString("ar-SA")}
+                        </p>
+                      )}
                     </div>
                   )}
                 </CardContent>
