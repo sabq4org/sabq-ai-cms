@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getRedisClient } from '@/lib/redis';
+import { cache } from '@/lib/redis';
 import prisma from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
@@ -22,14 +22,13 @@ interface ArticleInsight {
 }
 
 async function calculateInsights(): Promise<ArticleInsight[]> {
-  const cache = await getRedisClient();
   const cacheKey = 'ai-insights:v1';
   
   // محاولة جلب من الكاش
   try {
-    const cached = await cache.get(cacheKey);
+    const cached = await cache.get<ArticleInsight[]>(cacheKey);
     if (cached) {
-      return JSON.parse(cached);
+      return cached;
     }
   } catch (error) {
     console.error('Cache error:', error);
@@ -146,7 +145,7 @@ async function calculateInsights(): Promise<ArticleInsight[]> {
   
   // حفظ في الكاش لمدة 3 دقائق
   try {
-    await cache.setex(cacheKey, 180, JSON.stringify(topInsights));
+    await cache.set(cacheKey, topInsights, 180);
   } catch (error) {
     console.error('Cache save error:', error);
   }
