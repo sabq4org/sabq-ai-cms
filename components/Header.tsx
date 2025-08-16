@@ -45,6 +45,8 @@ export default function Header() {
   const headerElRef = useRef<HTMLElement>(null);
   const mobileUserBtnRef = useRef<HTMLButtonElement>(null);
   const [isMobileUserOpen, setIsMobileUserOpen] = useState(false);
+  const [userOpen, setUserOpen] = useState(false);
+  const userAnchorRef = useRef<HTMLAnchorElement | HTMLButtonElement | null>(null);
 
   // بعد العودة من تسجيل الدخول، حاول تحديث المستخدم فوراً
   useEffect(() => {
@@ -195,7 +197,18 @@ export default function Header() {
 
               {/* المستخدم أو تسجيل الدخول */}
               {user ? (
-                <UserDropdown user={user as any} onLogout={handleLogout} />
+                <button
+                  ref={userAnchorRef as any}
+                  onClick={() => setUserOpen((v) => !v)}
+                  className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    darkMode
+                      ? "text-blue-300 hover:text-white hover:bg-blue-800/40"
+                      : "text-blue-700 hover:text-blue-800 hover:bg-blue-100"
+                  }`}
+                >
+                  <User className="w-4 h-4" />
+                  {user.name || "حسابي"}
+                </button>
               ) : (
                 <Link
                   href="/login"
@@ -213,6 +226,17 @@ export default function Header() {
           </div>
         </div>
       </header>
+
+      {/* قائمة المستخدم */}
+      {user && (
+        <UserDropdown
+          user={user as any}
+          onLogout={handleLogout}
+          anchorElement={userAnchorRef.current as any}
+          open={userOpen}
+          onClose={() => setUserOpen(false)}
+        />
+      )}
     </>
   );
 }
