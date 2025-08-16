@@ -174,7 +174,7 @@ export default function EnhancedMobileStatsBar({
 
   return (
     <div
-      className={`enhanced-mobile-stats ${className} ${
+      className={`enhanced-mobile-stats mb-3 md:mb-4 ${className} ${
         darkMode ? "bg-gray-900" : "bg-white"
       }
       border-b ${darkMode ? "border-gray-700" : "border-gray-200"}
