@@ -167,8 +167,6 @@ function AdminNewsPageContent() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("published");
-  const [activeView, setActiveView] = useState("all"); // للتبويبات الجديدة
-  const [showFilters, setShowFilters] = useState(false); // لإظهار/إخفاء الفلاتر
   const [categories, setCategories] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
 
@@ -947,166 +945,41 @@ function AdminNewsPageContent() {
       <link rel="stylesheet" href="/manus-ui.css" />
       
       <TooltipProvider>
-        <div style={{ 
-          padding: '0 24px', 
-          background: 'transparent', 
+        <div className="space-y-8" style={{ 
+          background: 'hsl(var(--bg))', 
           minHeight: '100vh',
-          width: '100%',
-          maxWidth: 'none',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center'
+          padding: '24px'
         }}>
-        <div style={{
-          width: '100%',
-          maxWidth: '1600px'
-        }}>
-          {/* رسالة الترحيب بتصميم Manus UI - نفس تصميم الصفحة الرئيسية */}
-          <div className="card card-accent" style={{ 
-            marginBottom: '20px',
-            background: 'hsl(var(--bg))',
+          {/* رسالة الترحيب */}
+          <div className="card card-accent" style={{
+            background: 'hsl(var(--bg-card))',
             border: '1px solid hsl(var(--accent) / 0.2)',
-            borderLeftWidth: '4px'
+            borderLeftWidth: '4px',
+            padding: '24px'
           }}>
-            <div style={{ padding: '24px 32px' }}>
-              <h1 style={{ 
-                fontSize: '32px', 
-                fontWeight: '700',
-                marginBottom: '12px',
-                color: 'hsl(var(--fg))',
-                lineHeight: '1.2'
-              }}>
-                مرحباً في إدارة الأخبار 📰
-              </h1>
-              <p style={{ 
-                color: 'hsl(var(--muted))',
-                fontSize: '16px',
-                fontWeight: '400'
-              }}>
-                🚀 نحول الأحداث إلى قصص تصنع الفرق في عالم الإعلام الرقمي
-              </p>
-            </div>
-          </div>
-
-          {/* الإحصائيات الرئيسية - نفس تصميم الصفحة الرئيسية */}
-          <section style={{ marginBottom: '32px' }}>
-            <div className="grid grid-4" style={{ gap: '16px' }}>
-              {/* بطاقة الأخبار المنشورة */}
-              <div className="card">
-                <div style={{ padding: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div>
-                    <div className="text-sm text-muted" style={{ marginBottom: '8px' }}>الأخبار المنشورة</div>
-                    <div style={{ fontSize: '28px', fontWeight: '700', color: 'hsl(var(--fg))' }}>
-                      {formatNumber(stats?.published || 0)}
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '8px' }}>
-                      <div style={{ color: '#10b981', fontSize: '14px' }}>↑ 12.5%</div>
-                      <span className="text-xs text-muted">من الشهر الماضي</span>
-                    </div>
-                  </div>
-                  <div style={{
-                    width: '48px',
-                    height: '48px',
-                    background: '#10b981',
-                    borderRadius: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'white'
-                  }}>
-                    <CheckCircle style={{ width: '24px', height: '24px' }} />
-                  </div>
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
+                <FileText className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                  نظام إدارة الأخبار المتطور
+                </h2>
+                <p className="text-muted mb-4">
+                  إدارة شاملة للمحتوى الإخباري مع أدوات ذكية لتحرير ونشر الأخبار
+                </p>
+                <div className="flex gap-3">
+                  <DesignComponents.StatusIndicator
+                    status="success"
+                    text={`${formatNumber(stats?.published || 0)} خبر منشور`}
+                  />
+                  <DesignComponents.StatusIndicator
+                    status="info"
+                    text={`${formatNumber(filteredArticles.length)} إجمالي`}
+                  />
                 </div>
               </div>
-
-              {/* بطاقة المسودات */}
-              <div className="card">
-                <div style={{ padding: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div>
-                    <div className="text-sm text-muted" style={{ marginBottom: '8px' }}>المسودات</div>
-                    <div style={{ fontSize: '28px', fontWeight: '700', color: 'hsl(var(--fg))' }}>
-                      {formatNumber(stats?.draft || 0)}
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '8px' }}>
-                      <div style={{ color: '#f59e0b', fontSize: '14px' }}>→ 0%</div>
-                      <span className="text-xs text-muted">بدون تغيير</span>
-                    </div>
-                  </div>
-                  <div style={{
-                    width: '48px',
-                    height: '48px',
-                    background: '#f59e0b',
-                    borderRadius: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'white'
-                  }}>
-                    <FileText style={{ width: '24px', height: '24px' }} />
-                  </div>
-                </div>
-              </div>
-
-              {/* بطاقة الأرشيف */}
-              <div className="card">
-                <div style={{ padding: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div>
-                    <div className="text-sm text-muted" style={{ marginBottom: '8px' }}>في الأرشيف</div>
-                    <div style={{ fontSize: '28px', fontWeight: '700', color: 'hsl(var(--fg))' }}>
-                      {formatNumber(stats?.archived || 0)}
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '8px' }}>
-                      <div style={{ color: '#6366f1', fontSize: '14px' }}>↑ 5.2%</div>
-                      <span className="text-xs text-muted">من الشهر الماضي</span>
-                    </div>
-                  </div>
-                  <div style={{
-                    width: '48px',
-                    height: '48px',
-                    background: '#6366f1',
-                    borderRadius: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'white'
-                  }}>
-                    <Clock style={{ width: '24px', height: '24px' }} />
-                  </div>
-                </div>
-              </div>
-
-              {/* بطاقة إجمالي المشاهدات */}
-              <div className="card">
-                <div style={{ padding: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div>
-                    <div className="text-sm text-muted" style={{ marginBottom: '8px' }}>إجمالي المشاهدات</div>
-                    <div style={{ fontSize: '28px', fontWeight: '700', color: 'hsl(var(--fg))' }}>
-                      {formatNumber(stats?.views || 125400)}
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '8px' }}>
-                      <div style={{ color: '#10b981', fontSize: '14px' }}>↑ 18.3%</div>
-                      <span className="text-xs text-muted">من الشهر الماضي</span>
-                    </div>
-                  </div>
-                  <div style={{
-                    width: '48px',
-                    height: '48px',
-                    background: 'hsl(var(--accent))',
-                    borderRadius: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'white'
-                  }}>
-                    <Eye style={{ width: '24px', height: '24px' }} />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* البقية كما هي */}
-          <div style={{ display: 'none' }}>
+              <div className="flex gap-3">
                 <Link href="/admin/news/smart-editor">
                   <Button
                     variant="outline"
@@ -1129,268 +1002,257 @@ function AdminNewsPageContent() {
               </div>
             </div>
           </div>
-          
-          {/* بطاقة رئيسية مع تبويبات - نفس تصميم الصفحة الرئيسية */}
-          <section style={{ marginBottom: '32px' }}>
-            <div className="card">
-              <div className="card-header" style={{ 
-                borderBottom: '1px solid hsl(var(--line))',
-                padding: '20px 24px'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div>
-                    <div className="card-title">📊 إدارة الأخبار المتقدمة</div>
-                    <div className="card-subtitle">تحكم شامل في المحتوى الإخباري</div>
-                  </div>
-                  <div style={{ display: 'flex', gap: '12px' }}>
-                    <Button variant="outline" size="sm">
-                      <Filter className="w-4 h-4 ml-2" />
-                      تصفية
-                    </Button>
-                    <Button size="sm">
-                      <Download className="w-4 h-4 ml-2" />
-                      تصدير
-                    </Button>
-                  </div>
-                </div>
-              </div>
 
-              {/* التبويبات بتصميم Manus UI */}
-              <div className="tabbar">
-                <button 
-                  className={`tab ${activeView === 'all' ? 'active' : ''}`}
-                  onClick={() => setActiveView('all')}
-                >
-                  📋 جميع الأخبار
-                </button>
-                <button 
-                  className={`tab ${activeView === 'published' ? 'active' : ''}`}
-                  onClick={() => setActiveView('published')}
-                >
-                  ✅ المنشورة
-                </button>
-                <button 
-                  className={`tab ${activeView === 'draft' ? 'active' : ''}`}
-                  onClick={() => setActiveView('draft')}
-                >
-                  📝 المسودات
-                </button>
-                <button 
-                  className={`tab ${activeView === 'archived' ? 'active' : ''}`}
-                  onClick={() => setActiveView('archived')}
-                >
-                  📦 الأرشيف
-                </button>
-              </div>
-
-              {/* محتوى التبويبات */}
-              <div style={{ padding: '24px' }}>
-                {/* البحث والفلترة */}
-                <div style={{ marginBottom: '24px' }}>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 w-5 h-5" />
-                    <Input
-                      type="text"
-                      placeholder="ابحث في الأخبار..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 bg-white dark:bg-gray-800"
-                      style={{
-                        background: 'hsl(var(--bg-card))',
-                        border: '1px solid hsl(var(--line))',
-                        borderRadius: '12px',
-                        padding: '12px 16px 12px 44px',
-                        fontSize: '15px',
-                        width: '100%'
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* إحصائيات التبويب الحالي */}
-                <div className="divide-list" style={{ marginBottom: '24px' }}>
-                  <div className="list-item">
-                    <div>
-                      <div className="text-base">📊 إجمالي الأخبار</div>
-                      <div className="text-sm text-muted">عدد الأخبار في هذا القسم</div>
-                    </div>
-                    <div className="text-lg" style={{ fontWeight: '600', color: 'hsl(var(--accent))' }}>
-                      {formatNumber(
-                        activeView === 'all' 
-                          ? stats?.total || 0
-                          : activeView === 'published' 
-                          ? stats?.published || 0
-                          : activeView === 'draft'
-                          ? stats?.draft || 0
-                          : stats?.archived || 0
-                      )}
-                    </div>
-                  </div>
-                  <div className="list-item">
-                    <div>
-                      <div className="text-base">👁️ المشاهدات</div>
-                      <div className="text-sm text-muted">إجمالي مشاهدات القسم</div>
-                    </div>
-                    <div className="text-lg" style={{ fontWeight: '600', color: 'hsl(var(--accent))' }}>
-                      {formatNumber(stats?.views || 0)}
-                    </div>
-                  </div>
-                  <div className="list-item">
-                    <div>
-                      <div className="text-base">📈 معدل النمو</div>
-                      <div className="text-sm text-muted">مقارنة بالشهر الماضي</div>
-                    </div>
-                    <div className="text-lg" style={{ fontWeight: '600', color: '#10b981' }}>
-                      +14.5%
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          </section>
-
-          {/* أزرار الإجراءات السريعة */}
-          <section style={{ marginBottom: '32px' }}>
-            <div className="grid grid-2" style={{ gap: '16px' }}>
-              <div className="card">
-                <div className="card-header">
-                  <div className="card-title">⚡ إجراءات سريعة</div>
-                  <div className="card-subtitle">إنشاء وإدارة المحتوى</div>
-                </div>
-                
-                <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <Link href="/admin/news/unified" className="btn btn-primary">
-                    <Plus style={{ width: '16px', height: '16px' }} />
-                    إنشاء خبر جديد
-                  </Link>
-                  <Link href="/admin/news/smart-editor" className="btn">
-                    <Sparkles style={{ width: '16px', height: '16px' }} />
-                    المحرر الذكي
-                  </Link>
-                  <Button variant="outline" onClick={() => setShowFilters(!showFilters)}>
-                    <Filter style={{ width: '16px', height: '16px' }} />
-                    {showFilters ? 'إخفاء الفلاتر' : 'إظهار الفلاتر'}
+          {/* إحصائيات الأخبار */}
+          <div>
+            <DesignComponents.SectionHeader
+              title="إحصائيات الأخبار"
+              description="نظرة عامة على حالة المحتوى الإخباري"
+              action={
+                <DesignComponents.ActionBar>
+                  <Button variant="outline" size="sm">
+                    <Filter className="w-4 h-4 ml-2" />
+                    تصفية
                   </Button>
-                </div>
-              </div>
+                  <Button size="sm">
+                    <Download className="w-4 h-4 ml-2" />
+                    تصدير
+                  </Button>
+                </DesignComponents.ActionBar>
+              }
+            />
 
-              <div className="card">
-                <div className="card-header">
-                  <div className="card-title">📊 إحصائيات سريعة</div>
-                  <div className="card-subtitle">نظرة عامة على المحتوى</div>
-                </div>
-                
-                <div className="divide-list" style={{ padding: '20px' }}>
-                  <div className="list-item">
-                    <div>
-                      <div className="text-sm">إجمالي الأخبار</div>
-                      <div className="text-xs text-muted">جميع الحالات</div>
-                    </div>
-                    <div className="text-lg" style={{ fontWeight: '600', color: 'hsl(var(--accent))' }}>
-                      {formatNumber(stats?.total || 0)}
+            {/* بطاقات إحصائيات الأخبار */}
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+              {/* بطاقة الأخبار المنشورة */}
+              <div
+                className="card"
+                style={{
+                  cursor: 'pointer',
+                  background: filterStatus === "published" ? 'hsl(var(--accent-3))' : 'hsl(var(--bg-card))',
+                  color: filterStatus === "published" ? 'white' : 'hsl(var(--fg))',
+                  border: filterStatus === "published" ? '2px solid hsl(var(--accent-3))' : '1px solid hsl(var(--line))',
+                  padding: '24px'
+                }}
+                onClick={() => setFilterStatus("published")}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <p className="text-sm" style={{ color: filterStatus === "published" ? 'rgba(255,255,255,0.8)' : 'hsl(var(--muted))' }}>
+                      الأخبار المنشورة
+                    </p>
+                    <div className="flex items-center gap-3 mt-2">
+                      <p className="text-2xl font-bold" style={{ color: filterStatus === "published" ? 'white' : 'hsl(var(--fg))' }}>
+                        {formatNumber(stats?.published || 0)}
+                      </p>
+                      <div className="chip" style={{
+                        background: filterStatus === "published" ? 'rgba(255,255,255,0.2)' : 'hsl(var(--accent-3) / 0.1)',
+                        color: filterStatus === "published" ? 'white' : 'hsl(var(--accent-3))',
+                        border: 'none'
+                      }}>
+                        <CheckCircle className="w-3 h-3" />
+                        نشط
+                      </div>
                     </div>
                   </div>
-                  <div className="list-item">
-                    <div>
-                      <div className="text-sm">آخر نشر</div>
-                      <div className="text-xs text-muted">آخر خبر منشور</div>
-                    </div>
-                    <div className="text-sm" style={{ color: 'hsl(var(--muted))' }}>
-                      منذ 3 ساعات
-                    </div>
-                  </div>
-                  <div className="list-item">
-                    <div>
-                      <div className="text-sm">معدل النشر</div>
-                      <div className="text-xs text-muted">أخبار/يوم</div>
-                    </div>
-                    <div className="text-lg" style={{ fontWeight: '600', color: '#10b981' }}>
-                      24
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-
-
-          {/* شريط البحث والفلاتر بتصميم Manus UI */}
-          <div className="card" style={{ marginBottom: '24px', padding: '16px' }}>
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1 relative">
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 w-5 h-5" />
-                <Input
-                  placeholder="ابحث في جميع الأخبار..."
-                  value={searchTerm}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    setSearchTerm(value);
-
-                    // تطبيق debounce للبحث الشامل
-                    if (value.trim()) {
-                      setTimeout(() => {
-                        if (searchTerm === value) {
-                          // تأكد أن القيمة لم تتغير
-                          performGlobalSearch(value);
-                        }
-                      }, 500);
-                    } else {
-                      fetchArticles(); // ارجع للفلتر الحالي عند حذف البحث
-                    }
-                  }}
-                  style={{
-                    background: 'hsl(var(--bg-card))',
-                    border: '1px solid hsl(var(--line))',
+                  <div style={{
+                    width: '48px',
+                    height: '48px',
+                    background: filterStatus === "published" ? 'rgba(255,255,255,0.2)' : 'hsl(var(--accent-3) / 0.1)',
                     borderRadius: '12px',
-                    padding: '12px 16px 12px 44px',
-                    fontSize: '15px',
-                    width: '100%',
-                    color: 'hsl(var(--fg))'
-                  }}
-                />
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <CheckCircle style={{ 
+                      width: '24px', 
+                      height: '24px', 
+                      color: filterStatus === "published" ? 'white' : 'hsl(var(--accent-3))'
+                    }} />
+                  </div>
+                </div>
               </div>
 
-              {showFilters && (
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  style={{
-                    padding: '12px 16px',
-                    border: '1px solid hsl(var(--line))',
-                    borderRadius: '12px',
-                    background: 'hsl(var(--bg-card))',
-                    color: 'hsl(var(--fg))',
-                    fontSize: '15px',
-                    minWidth: '200px'
-                  }}
-                >
-                  <option value="all">جميع التصنيفات</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </option>
-                  ))}
-                </select>
-              )}
+              {/* بطاقة المسودات */}
+              <div
+                className="card"
+                style={{
+                  cursor: 'pointer',
+                  background: filterStatus === "draft" ? 'hsl(var(--accent-4))' : 'hsl(var(--bg-card))',
+                  color: filterStatus === "draft" ? 'white' : 'hsl(var(--fg))',
+                  border: filterStatus === "draft" ? '2px solid hsl(var(--accent-4))' : '1px solid hsl(var(--line))',
+                  padding: '24px'
+                }}
+                onClick={() => setFilterStatus("draft")}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <p className="text-sm" style={{ color: filterStatus === "draft" ? 'rgba(255,255,255,0.8)' : 'hsl(var(--muted))' }}>
+                      المسودات
+                    </p>
+                    <div className="flex items-center gap-3 mt-2">
+                      <p className="text-2xl font-bold" style={{ color: filterStatus === "draft" ? 'white' : 'hsl(var(--fg))' }}>
+                        {formatNumber(stats?.draft || 0)}
+                      </p>
+                      <div className="flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-full text-yellow-700 bg-yellow-100 dark:bg-yellow-900/30 dark:text-yellow-400">
+                        <PauseCircle className="w-3 h-3" />
+                        مؤجل
+                      </div>
+                    </div>
+                  </div>
+                  <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-yellow-100 dark:bg-yellow-900/30">
+                    <PauseCircle className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
+                  </div>
+                </div>
+              </div>
+
+              {/* بطاقة المجدولة */}
+              <div
+                className={`p-6 hover:shadow-lg transition-shadow cursor-pointer ${
+                  filterStatus === "scheduled" ? "ring-2 ring-blue-500" : ""
+                }`}
+                onClick={() => setFilterStatus("scheduled")}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-muted">
+                      المجدولة
+                    </p>
+                    <div className="flex items-center gap-3 mt-2">
+                      <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        {formatNumber(stats?.scheduled || 0)}
+                      </p>
+                      <div className="flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-full text-blue-700 bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400">
+                        <Clock className="w-3 h-3" />
+                        مؤجلة
+                      </div>
+                    </div>
+                  </div>
+                  <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-blue-100 dark:bg-blue-900/30">
+                    <Clock className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                  </div>
+                </div>
+              </div>
+
+              {/* بطاقة الأرشيف */}
+              <div
+                className={`p-6 hover:shadow-lg transition-shadow cursor-pointer ${
+                  filterStatus === "archived" ? "ring-2 ring-blue-500" : ""
+                }`}
+                onClick={() => setFilterStatus("archived")}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-muted">
+                      المؤرشفة
+                    </p>
+                    <div className="flex items-center gap-3 mt-2">
+                      <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        {formatNumber(stats?.archived || 0)}
+                      </p>
+                      <div className="flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-full text-orange-700 bg-orange-100 dark:bg-orange-900/30 dark:text-orange-400">
+                        <XCircle className="w-3 h-3" />
+                        محفوظ
+                      </div>
+                    </div>
+                  </div>
+                  <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-orange-100 dark:bg-orange-900/30">
+                    <XCircle className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+                  </div>
+                </div>
+              </div>
+
+              {/* بطاقة المحذوفة */}
+              <div
+                className={`p-6 hover:shadow-lg transition-shadow cursor-pointer ${
+                  filterStatus === "deleted" ? "ring-2 ring-blue-500" : ""
+                }`}
+                onClick={() => setFilterStatus("deleted")}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-muted">
+                      المحذوفة
+                    </p>
+                    <div className="flex items-center gap-3 mt-2">
+                      <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        {formatNumber(stats?.deleted || 0)}
+                      </p>
+                      <div className="flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-full text-red-700 bg-red-100 dark:bg-red-900/30 dark:text-red-400">
+                        <Trash2 className="w-3 h-3" />
+                        محذوف
+                      </div>
+                    </div>
+                  </div>
+                  <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-red-100 dark:bg-red-900/30">
+                    <Trash2 className="w-6 h-6 text-red-600 dark:text-red-400" />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* جدول المقالات بتصميم Manus UI */}
+          {/* شريط البحث والفلاتر */}
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
+              <Input
+                placeholder="البحث في جميع الأخبار..."
+                value={searchTerm}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setSearchTerm(value);
+
+                  // تطبيق debounce للبحث الشامل
+                  if (value.trim()) {
+                    setTimeout(() => {
+                      if (searchTerm === value) {
+                        // تأكد أن القيمة لم تتغير
+                        performGlobalSearch(value);
+                      }
+                    }, 500);
+                  } else {
+                    fetchArticles(); // ارجع للفلتر الحالي عند حذف البحث
+                  }
+                }}
+                style={{
+                  paddingRight: '40px',
+                  background: 'hsl(var(--bg-card))',
+                  border: '1px solid hsl(var(--line))',
+                  color: 'hsl(var(--fg))',
+                  borderRadius: '8px'
+                }}
+              />
+            </div>
+
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              style={{
+                padding: '8px 16px',
+                border: '1px solid hsl(var(--line))',
+                borderRadius: '8px',
+                background: 'hsl(var(--bg-card))',
+                color: 'hsl(var(--fg))'
+              }}
+            >
+              <option value="all">جميع التصنيفات</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* جدول المقالات */}
           <div className="card" style={{ minHeight: '600px', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ 
-              padding: '20px', 
-              borderBottom: '1px solid hsl(var(--line))',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ padding: '16px', borderBottom: '1px solid hsl(var(--line))' }}>
+              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {searchTerm.trim() ? (
                     <>
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                      <span className="text-sm" style={{ color: 'hsl(var(--muted))' }}>
                         نتائج البحث عن:
                       </span>
                       <Badge
@@ -1405,7 +1267,7 @@ function AdminNewsPageContent() {
                     </>
                   ) : (
                     <>
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                      <span className="text-sm" style={{ color: 'hsl(var(--muted))' }}>
                         عرض:
                       </span>
                        <Badge
@@ -1421,7 +1283,7 @@ function AdminNewsPageContent() {
                               ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-blue-300"
                             : filterStatus === "deleted"
                             ? "bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-red-300"
-                            : "bg-gray-50 dark:bg-gray-900/20 text-gray-700 dark:text-gray-300 border-gray-300"
+                            : "bg-gray-50 dark:bg-gray-900/20 text-muted border-gray-300"
                         }
                       >
                         {filterStatus === "published"
@@ -1452,7 +1314,7 @@ function AdminNewsPageContent() {
               {loading ? (
                 <div className="p-8 text-center">
                   <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-white"></div>
-                  <p className="mt-2 text-gray-600 dark:text-gray-400">
+                  <p className="mt-2 text-muted">
                     جاري التحميل...
                   </p>
                 </div>
@@ -1462,10 +1324,10 @@ function AdminNewsPageContent() {
                     <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
                       <FileText className="w-8 h-8 text-gray-400 dark:text-gray-500" />
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                    <h3 className="text-lg font-semibold text-fg mb-2">
                       لا توجد أخبار
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-400 mb-6">
+                    <p className="text-muted mb-6">
                       {searchTerm.trim()
                         ? `لا توجد نتائج للبحث "${searchTerm}"`
                         : filterStatus === "published"
@@ -1487,30 +1349,30 @@ function AdminNewsPageContent() {
               ) : (
                 <div className="overflow-x-auto flex-1">
                   <Table>
-                    <TableHeader className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+                    <TableHeader style={{ background: 'hsl(var(--bg-card))', borderBottom: '1px solid hsl(var(--line))' }}>
                       <TableRow>
-                        <TableHead className="text-right w-12 text-gray-700 dark:text-gray-300">
+                        <TableHead className="text-right w-12 text-muted">
                           #
                         </TableHead>
-                        <TableHead className="text-right text-gray-700 dark:text-gray-300">
+                        <TableHead className="text-right text-muted">
                           العنوان
                         </TableHead>
-                        <TableHead className="text-center text-gray-700 dark:text-gray-300">
+                        <TableHead className="text-center text-muted">
                           عاجل
                         </TableHead>
-                        <TableHead className="text-center text-gray-700 dark:text-gray-300">
+                        <TableHead className="text-center text-muted">
                           الحالة
                         </TableHead>
-                        <TableHead className="text-center text-gray-700 dark:text-gray-300">
+                        <TableHead className="text-center text-muted">
                           التصنيف
                         </TableHead>
-                        <TableHead className="text-center text-gray-700 dark:text-gray-300">
+                        <TableHead className="text-center text-muted">
                           المشاهدات
                         </TableHead>
-                        <TableHead className="text-center text-gray-700 dark:text-gray-300">
+                        <TableHead className="text-center text-muted">
                           تاريخ النشر
                         </TableHead>
-                        <TableHead className="text-center text-gray-700 dark:text-gray-300">
+                        <TableHead className="text-center text-muted">
                           الإجراءات
                         </TableHead>
                       </TableRow>
@@ -1529,18 +1391,22 @@ function AdminNewsPageContent() {
                         return (
                           <TableRow
                             key={article.id}
-                            className="h-12 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900/50"
+                            style={{ 
+                              height: '48px', 
+                              borderBottom: '1px solid hsl(var(--line))'
+                            }}
+                            className="hover:bg-accent/5"
                           >
-                            <TableCell className="py-1 text-right font-medium text-gray-900 dark:text-white text-xs">
+                            <TableCell className="py-1 text-right font-medium text-fg text-xs">
                               {index + 1}
                             </TableCell>
 
                             <TableCell className="py-1 text-right">
                               <div className="flex-1">
-                                <p className="text-sm font-semibold text-gray-900 dark:text-white line-clamp-2">
+                                <p className="text-sm font-semibold text-fg line-clamp-2">
                                   {article.title || "عنوان غير محدد"}
                                 </p>
-                                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                                <p className="text-xs text-muted mt-1">
                                   <Users className="w-2.5 h-2.5 inline-block ml-1" />
                                   {article.author?.name ||
                                     article.author_name ||
@@ -1587,7 +1453,7 @@ function AdminNewsPageContent() {
                                     ? "bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 border-orange-300 dark:border-orange-700"
                                     : article.status === "deleted"
                                     ? "bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-red-300 dark:border-red-700"
-                                    : "bg-gray-50 dark:bg-gray-900/20 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-700"
+                                    : "bg-gray-50 dark:bg-gray-900/20 text-muted border-gray-300 dark:border-gray-700"
                                 }`}
                               >
                                 {article.status === "published" && "✅ منشورة"}
@@ -1611,7 +1477,7 @@ function AdminNewsPageContent() {
                             <TableCell className="py-1 text-center">
                               <div className="flex items-center justify-center gap-1">
                                 <Eye className="w-3 h-3 text-gray-400 dark:text-gray-500" />
-                                <span className="text-xs font-medium text-gray-900 dark:text-white">
+                                <span className="text-xs font-medium text-fg">
                                   {formatNumber(article.views || 0)}
                                 </span>
                               </div>
@@ -1619,7 +1485,7 @@ function AdminNewsPageContent() {
 
                             <TableCell className="py-1 text-center">
                               <div className="text-xs">
-                                <div className="font-medium text-gray-900 dark:text-white">
+                                <div className="font-medium text-fg">
                                   {dateTime.date}
                                 </div>
                                 <div className="text-gray-500 dark:text-gray-400 text-[10px] mt-0.5">
@@ -1739,6 +1605,7 @@ function AdminNewsPageContent() {
               )}
             </div>
           </div>
+        </div>
       </TooltipProvider>
     </>
   );
