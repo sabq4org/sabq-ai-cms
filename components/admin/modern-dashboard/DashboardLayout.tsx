@@ -59,7 +59,7 @@ export default function DashboardLayout({
       <div style={{
         minHeight: '100vh',
         background: 'hsl(var(--bg))',
-        paddingTop: '56px',
+        paddingTop: '0px',
         display: 'flex'
       }}>
         
@@ -104,7 +104,7 @@ export default function DashboardLayout({
         <main style={{
           flex: 1,
           marginRight: !isMobile ? (sidebarOpen ? '280px' : '80px') : '0',
-          padding: '4px 16px 16px 16px',
+          padding: '0px 16px 16px 16px',
           minHeight: 'calc(100vh - 56px)',
           transition: 'margin-right 0.3s ease'
         }}>
