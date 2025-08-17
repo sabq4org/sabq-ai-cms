@@ -68,12 +68,13 @@ export async function POST(request: NextRequest) {
     // تعيين cookies آمنة (دعم الدومين العلوي لمشاركة الجلسة بين sabq.io و www.sabq.io)
     if (result.access_token && result.refresh_token) {
       const cookieDomain = process.env.COOKIE_DOMAIN || process.env.NEXT_PUBLIC_COOKIE_DOMAIN || (process.env.NODE_ENV === 'production' ? '.sabq.io' : undefined);
+      const remember = validationResult.data.remember_me === true;
 
       response.cookies.set('access_token', result.access_token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        maxAge: 15 * 60, // 15 دقيقة
+        maxAge: remember ? 7 * 24 * 60 * 60 : 15 * 60, // 7 أيام مع تذكرني، وإلا 15 دقيقة
         path: '/',
         ...(cookieDomain ? { domain: cookieDomain } as any : {}),
       });
@@ -82,7 +83,7 @@ export async function POST(request: NextRequest) {
         httpOnly: false,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        maxAge: 60 * 60 * 24 * 7, // 7 أيام لتوافق واجهة العميل
+        maxAge: remember ? 60 * 60 * 24 * 14 : 60 * 60 * 24 * 7, // إطالة في حال تذكرني
         path: '/',
         ...(cookieDomain ? { domain: cookieDomain } as any : {}),
       });
@@ -91,7 +92,7 @@ export async function POST(request: NextRequest) {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        maxAge: 30 * 24 * 60 * 60, // 30 يوم
+        maxAge: remember ? 60 * 24 * 60 * 60 : 30 * 24 * 60 * 60, // 60 يوم مع تذكرني
         path: '/',
         ...(cookieDomain ? { domain: cookieDomain } as any : {}),
       });

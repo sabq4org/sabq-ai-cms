@@ -296,11 +296,12 @@ export class UserManagementService {
       });
 
       // إنشاء الرموز
+      const accessTtl = validatedData.remember_me ? '7d' : JWT_EXPIRES_IN;
       const accessToken = SecurityManager.createJWTToken({
         user_id: user.id,
         email: user.email,
         role: user.role
-      });
+      }, accessTtl);
 
       const refreshToken = SecurityManager.createJWTToken({
         user_id: user.id,
