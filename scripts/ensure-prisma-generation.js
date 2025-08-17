@@ -1,64 +1,23 @@
 #!/usr/bin/env node
 
 const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
 
 console.log('🔧 Ensuring Prisma client generation...');
 
 try {
-  // التحقق من وجود DATABASE_URL للبيئة الإنتاجية
+  // Set a placeholder DATABASE_URL for Vercel build if it's not present
   if (process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL) {
-    console.warn('⚠️  DATABASE_URL not found in production, using placeholder...');
+    console.warn('⚠️  DATABASE_URL not found, using a placeholder for generation.');
     process.env.DATABASE_URL = 'postgresql://user:pass@localhost:5432/db?schema=public';
   }
-  
-  const schemaPath = path.join(process.cwd(), 'prisma', 'schema.prisma');
-  console.log('📝 Using Prisma schema at:', schemaPath);
-  
-  // توليد Prisma Client
-  console.log('🏗️  Generating Prisma Client...');
-  execSync(`npx prisma generate --schema="${schemaPath}"`, { stdio: 'inherit' });
-  
-  // التحقق من وجود Prisma Client
-  const prismaClientPath = path.join(__dirname, '..', 'lib', 'generated', 'prisma');
-  
-  if (fs.existsSync(prismaClientPath)) {
-    console.log('✅ Prisma client generated successfully!');
-    
-    // التحقق من وجود daily_doses model
-    const indexPath = path.join(prismaClientPath, 'index.d.ts');
-    if (fs.existsSync(indexPath)) {
-      const content = fs.readFileSync(indexPath, 'utf8');
-      if (content.includes('daily_doses')) {
-        console.log('✅ Model daily_doses found in Prisma Client');
-      } else {
-        console.warn('⚠️  Model daily_doses NOT found in Prisma Client - please check schema.prisma');
-      }
-    }
-  } else {
-    console.error('❌ Prisma client path not found!');
-    // محاولة إنشاء المجلد وإعادة التوليد
-    console.log('📁 Creating directory and retrying...');
-    fs.mkdirSync(prismaClientPath, { recursive: true });
-    execSync(`npx prisma generate --schema="${schemaPath}"`, { stdio: 'inherit' });
-  }
-  
-  console.log('🚀 Build preparation complete!');
-  
+
+  console.log('🏗️  Running `npx prisma generate`...');
+  // Let prisma find the schema file automatically. It defaults to 'prisma/schema.prisma'
+  execSync('npx prisma generate', { stdio: 'inherit' });
+  console.log('✅ Prisma client generated successfully!');
+
 } catch (error) {
   console.error('❌ Prisma generation failed:', error.message);
-  console.error('📝 Full error:', error);
-  
-  // في حالة الفشل، نحاول مرة أخرى مع إعدادات مختلفة
-  console.log('🔄 Attempting fallback generation...');
-  try {
-    process.env.DATABASE_URL = process.env.DATABASE_URL || 'postgresql://user:pass@localhost:5432/db?schema=public';
-    const schemaPath = path.join(process.cwd(), 'prisma', 'schema.prisma');
-    execSync(`npx prisma generate --generator client --schema="${schemaPath}"`, { stdio: 'inherit' });
-    console.log('✅ Fallback generation succeeded!');
-  } catch (fallbackError) {
-    console.error('❌ Fallback generation also failed:', fallbackError.message);
-    // نستمر على أي حال
-  }
+  // Exit with an error code to fail the build, so we know something is wrong.
+  process.exit(1);
 }

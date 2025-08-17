@@ -1,5 +1,7 @@
+const path = require('path');
 /** @type {import('next').NextConfig} */
 // FORCE REBUILD: 2025-08-15T21:02 - Emergency deployment
+
 const nextConfig = {
   // إضافة معرف فريد للملفات الثابتة
   generateBuildId: async () => {
