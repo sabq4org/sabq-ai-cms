@@ -501,10 +501,10 @@ export default function ModernSidebar({
                   س
                 </div>
                 <h1 className="heading-3" style={{ margin: 0, fontSize: '18px' }}>
-                  سبق الذكية
+                  الإدارة
                 </h1>
               </div>
-              <p className="text-xs text-muted">نظام إدارة المحتوى</p>
+              <p className="text-xs text-muted">Manus UI</p>
             </div>
           )}
           
@@ -600,7 +600,7 @@ export default function ModernSidebar({
           </div>
         )}
 
-        {/* معلومات الإصدار - مصغرة */}
+        {/* معلومات بسيطة */}
         <div style={{
           padding: isCollapsed ? '8px' : '12px 16px',
           borderTop: '1px solid hsl(var(--line))',
@@ -608,13 +608,7 @@ export default function ModernSidebar({
         }}>
           {!isCollapsed ? (
             <div>
-              <div className="text-xs text-muted">Manus UI v2.0</div>
-              <div className="text-xs" style={{ 
-                color: 'hsl(var(--accent))',
-                fontWeight: '600'
-              }}>
-                سبق الذكية
-              </div>
+              <div className="text-xs text-muted">Manus UI</div>
             </div>
           ) : (
             <div style={{
@@ -629,7 +623,7 @@ export default function ModernSidebar({
               fontSize: '10px',
               color: 'hsl(var(--accent))'
             }}>
-              ✓
+              س
             </div>
           )}
         </div>

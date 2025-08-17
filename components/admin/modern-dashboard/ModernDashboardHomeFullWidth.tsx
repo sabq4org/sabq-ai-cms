@@ -218,7 +218,7 @@ export default function ModernDashboardHomeFullWidth() {
               س
             </div>
             <h1 className="heading-3" style={{ margin: 0 }}>سبق الذكية</h1>
-            <p className="text-xs text-muted">لوحة التحكم الإدارية</p>
+            <p className="text-xs text-muted">Manus UI</p>
           </div>
 
           {/* التنقل الرئيسي */}
@@ -285,10 +285,10 @@ export default function ModernDashboardHomeFullWidth() {
               <div className="divider"></div>
               <div className="card" style={{ padding: '12px', marginBottom: 0 }}>
                 <div className="text-sm" style={{ fontWeight: '600' }}>
-                  مرحباً، {user.name || user.email || 'المدير'}
+                  {user.name || 'المدير'}
                 </div>
                 <div className="text-xs text-muted">
-                  {user.role === 'admin' ? 'مدير النظام' : 'محرر'}
+                  متصل
                 </div>
               </div>
             </div>
@@ -300,7 +300,7 @@ export default function ModernDashboardHomeFullWidth() {
           {/* الهيدر */}
           <header className="manus-header">
             <div>
-              <h1 className="heading-2" style={{ margin: 0 }}>لوحة التحكم الإدارية</h1>
+              <h1 className="heading-2" style={{ margin: 0 }}>الإدارة</h1>
               <p className="text-sm text-muted">إدارة شاملة لمنصة سبق الذكية - نظام Manus UI</p>
             </div>
             <div style={{ display: 'flex', gap: '12px' }}>
