@@ -3,12 +3,12 @@
   "version": "1.0.1-emergency",
   "private": true,
   "engines": {
-    "node": ">=18.0.0",
+    "node": "20.x",
     "npm": ">=9.0.0"
   },
   "scripts": {
     "dev": "next dev",
-    "prebuild": "node scripts/ensure-prisma-generation.js",
+    "prebuild": "sh -c \"[ -f scripts/ensure-prisma-generation.js ] && node scripts/ensure-prisma-generation.js || npx prisma generate\"",
     "build": "next build",
     "build:clean": "node scripts/clear-cache.js && npm run build",
     "build:production": "node scripts/production-build-fix.js && prisma generate && next build",
