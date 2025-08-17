@@ -104,7 +104,7 @@ export default function DashboardLayout({
         <main style={{
           flex: 1,
           marginRight: !isMobile ? (sidebarOpen ? '280px' : '80px') : '0',
-          padding: '24px',
+          padding: '12px 24px 24px 24px',
           minHeight: 'calc(100vh - 70px)',
           transition: 'margin-right 0.3s ease'
         }}>

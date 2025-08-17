@@ -186,13 +186,13 @@ export default function ModernDashboardHomeFullWidth() {
       
       {/* محتوى مرئي واضح */}
       <div style={{ 
-        padding: '24px',
+        padding: '0',
         background: 'hsl(var(--bg))',
         minHeight: '100vh'
       }}>
         
-        {/* رسالة تأكيد التطبيق */}
-        <section style={{ marginBottom: '32px' }}>
+        {/* رسالة الترحيب AI */}
+        <section style={{ marginBottom: '24px' }}>
           <div className="card" style={{ 
             textAlign: 'center',
             background: 'hsl(var(--accent) / 0.05)',
