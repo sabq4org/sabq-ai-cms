@@ -1,5 +1,8 @@
 // مدير الإشعارات الفورية - سبق الذكية
-import jwt from 'jsonwebtoken';
+let jwt: any;
+if (typeof window === 'undefined') {
+  jwt = require('jsonwebtoken');
+}
 
 export interface NotificationUserData {
   userId: string;
@@ -241,6 +244,22 @@ export class NotificationManager {
    */
   private verifyToken(token: string): any {
     try {
+      // في Client-side، نقبل التوكن كما هو ونعتمد على الـ API للتحقق
+      if (typeof window !== 'undefined') {
+        // محاولة فك التوكن بدون التحقق (للحصول على البيانات فقط)
+        try {
+          const parts = token.split('.');
+          if (parts.length === 3) {
+            const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+            return payload;
+          }
+        } catch (e) {
+          console.error('❌ فشل في فك التوكن:', e);
+        }
+        return null;
+      }
+      
+      // في Server-side، نتحقق من التوكن
       const keys = [
         process.env.JWT_ACCESS_SECRET,
         process.env.JWT_SECRET,
