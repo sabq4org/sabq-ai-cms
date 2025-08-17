@@ -65,14 +65,17 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
 
-    // تعيين cookies آمنة
+    // تعيين cookies آمنة (دعم الدومين العلوي لمشاركة الجلسة بين sabq.io و www.sabq.io)
     if (result.access_token && result.refresh_token) {
+      const cookieDomain = process.env.COOKIE_DOMAIN || process.env.NEXT_PUBLIC_COOKIE_DOMAIN || (process.env.NODE_ENV === 'production' ? '.sabq.io' : undefined);
+
       response.cookies.set('access_token', result.access_token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
         maxAge: 15 * 60, // 15 دقيقة
-        path: '/'
+        path: '/',
+        ...(cookieDomain ? { domain: cookieDomain } as any : {}),
       });
 
       response.cookies.set('auth-token', result.access_token, {
@@ -80,7 +83,8 @@ export async function POST(request: NextRequest) {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         maxAge: 60 * 60 * 24 * 7, // 7 أيام لتوافق واجهة العميل
-        path: '/'
+        path: '/',
+        ...(cookieDomain ? { domain: cookieDomain } as any : {}),
       });
 
       response.cookies.set('refresh_token', result.refresh_token, {
@@ -88,7 +92,8 @@ export async function POST(request: NextRequest) {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
         maxAge: 30 * 24 * 60 * 60, // 30 يوم
-        path: '/'
+        path: '/',
+        ...(cookieDomain ? { domain: cookieDomain } as any : {}),
       });
     }
 
