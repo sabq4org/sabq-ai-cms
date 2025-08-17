@@ -24,7 +24,7 @@
 
 body {
   font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  background-color: hsl(var(--bg)) !important;
+  background: var(--bg-gradient) !important;
   color: hsl(var(--fg)) !important;
   line-height: 1.6;
   direction: rtl;
@@ -33,6 +33,23 @@ body {
   -moz-osx-font-smoothing: grayscale;
   margin: 0;
   padding: 0;
+  min-height: 100vh;
+}
+
+/* وضع داكن */
+[data-theme="dark"] body {
+  background: linear-gradient(135deg, hsl(var(--dark-bg)) 0%, hsl(222 47% 9%) 100%) !important;
+  color: hsl(var(--dark-fg)) !important;
+}
+
+[data-theme="dark"] {
+  --bg: var(--dark-bg);
+  --bg-card: var(--dark-bg-card);
+  --fg: var(--dark-fg);
+  --line: var(--dark-line);
+  --muted: var(--dark-muted);
+  --card-shadow: 0 1px 3px hsla(0 0% 0% / 0.2), 0 1px 2px hsla(0 0% 0% / 0.1);
+  --card-shadow-hover: 0 4px 6px hsla(0 0% 0% / 0.2), 0 2px 4px hsla(0 0% 0% / 0.1);
 }
 
 /* نظام التخطيط - Layout System */
@@ -40,13 +57,75 @@ body {
   display: grid;
   grid-template-columns: 260px 1fr;
   min-height: 100vh;
-  background: hsl(var(--bg)) !important;
+  background: var(--bg-gradient) !important;
+}
+
+/* نمط شبكي خفيف في الخلفية */
+.manus-layout::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 1px 1px, hsl(var(--line)) 1px, transparent 0);
+  background-size: 20px 20px;
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: -1;
 }
 
 /* التأكد من ظهور العناصر */
 .card, .btn, .tab, .chip {
   opacity: 1 !important;
   visibility: visible !important;
+}
+
+/* تأثيرات الحركة */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+/* تحسين الأزرار */
+.btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, hsla(var(--accent) / 0.1), transparent);
+  transition: left 0.5s;
+}
+
+.btn:hover::before {
+  left: 100%;
 }
 
 .manus-sidebar {
@@ -73,12 +152,36 @@ body {
 
 /* البطاقات - Cards */
 .card {
-  background: hsl(var(--bg));
+  background: hsl(var(--bg-card));
   border: 1px solid hsl(var(--line));
   border-radius: 16px;
   padding: 24px;
   margin-bottom: 16px;
-  transition: border-color 0.2s ease;
+  box-shadow: var(--card-shadow);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.card:hover {
+  box-shadow: var(--card-shadow-hover);
+  transform: translateY(-1px);
+}
+
+/* البطاقات الملونة */
+.card-accent {
+  border-left: 4px solid hsl(var(--accent));
+}
+
+.card-success {
+  border-left: 4px solid hsl(var(--accent-3));
+}
+
+.card-warning {
+  border-left: 4px solid hsl(var(--accent-4));
+}
+
+.card-danger {
+  border-left: 4px solid hsl(var(--accent-5));
 }
 
 .card:hover {

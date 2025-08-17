@@ -193,11 +193,12 @@ export default function ModernDashboardHomeFullWidth() {
         
         {/* رسالة الترحيب AI */}
         <section style={{ marginBottom: '12px' }}>
-          <div className="card" style={{ 
+          <div className="card card-accent" style={{ 
             textAlign: 'center',
-            background: 'hsl(var(--accent) / 0.05)',
+            background: 'linear-gradient(135deg, hsl(var(--bg-card)) 0%, hsl(var(--accent) / 0.03) 100%)',
             border: '1px solid hsl(var(--accent) / 0.2)',
-            padding: '12px'
+            padding: '12px',
+            borderLeftWidth: '4px'
           }}>
             <div style={{ fontSize: '28px', marginBottom: '6px' }}>🤖</div>
             <div className="card-title" style={{ fontSize: '18px', marginBottom: '3px', lineHeight: '1.2' }}>
