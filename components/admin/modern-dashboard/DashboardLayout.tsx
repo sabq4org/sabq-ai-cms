@@ -84,7 +84,7 @@ export default function DashboardLayout({
 
         {/* الشريط الجانبي للجوال */}
         {isMobile && sidebarOpen && (
-          <aside className="manus-sidebar" style={{
+          <aside style={{
             position: 'fixed',
             top: '56px',
             right: 0,
@@ -93,7 +93,8 @@ export default function DashboardLayout({
             padding: '16px 12px',
             overflowY: 'auto',
             zIndex: 1000,
-            borderLeft: '1px solid hsl(var(--line))'
+            borderLeft: '1px solid hsl(var(--line))',
+            background: 'transparent'
           }}>
             <ModernSidebar isCollapsed={false} onToggle={toggleSidebar} isMobile={isMobile} />
           </aside>
