@@ -241,8 +241,20 @@ export class NotificationManager {
    */
   private verifyToken(token: string): any {
     try {
-      const secret = process.env.JWT_SECRET || 'your-secret-key';
-      return jwt.verify(token, secret);
+      const keys = [
+        process.env.JWT_ACCESS_SECRET,
+        process.env.JWT_SECRET,
+        'your-super-secret-jwt-key',
+        'your-secret-key',
+        'secret',
+      ].filter(Boolean) as string[];
+
+      for (const k of keys) {
+        try {
+          return jwt.verify(token, k);
+        } catch (_) {}
+      }
+      return null;
     } catch (error) {
       console.error('❌ خطأ في التحقق من Token:', error);
       return null;
