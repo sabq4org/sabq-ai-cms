@@ -169,8 +169,12 @@ export default function ModernDashboardHomeFullWidth() {
       {/* تحميل CSS Manus UI */}
       <link rel="stylesheet" href="/manus-ui.css" />
       
-      {/* محتوى الصفحة فقط - بدون تخطيط إضافي */}
-      <div style={{ padding: '24px' }}>
+      {/* محتوى مرئي واضح */}
+      <div style={{ 
+        padding: '24px',
+        background: 'hsl(var(--bg))',
+        minHeight: '100vh'
+      }}>
         
         {/* رسالة تأكيد التطبيق */}
         <section style={{ marginBottom: '32px' }}>

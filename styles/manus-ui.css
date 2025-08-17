@@ -24,13 +24,15 @@
 
 body {
   font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  background-color: hsl(var(--bg));
-  color: hsl(var(--fg));
+  background-color: hsl(var(--bg)) !important;
+  color: hsl(var(--fg)) !important;
   line-height: 1.6;
   direction: rtl;
   text-align: right;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  padding: 0;
 }
 
 /* نظام التخطيط - Layout System */
@@ -38,7 +40,13 @@ body {
   display: grid;
   grid-template-columns: 260px 1fr;
   min-height: 100vh;
-  background: hsl(var(--bg));
+  background: hsl(var(--bg)) !important;
+}
+
+/* التأكد من ظهور العناصر */
+.card, .btn, .tab, .chip {
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 .manus-sidebar {
