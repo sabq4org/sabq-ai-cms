@@ -104,16 +104,17 @@ export class SmartNotificationEngine {
           userId,
           type: 'new_article',
           title: `${em} جديد في ${categoryName}`,
-          message: `بما أنك مهتم بـ${categoryName}، تم نشر خبر قد يهمك: "${article.title.substring(0, 60)}..."`,
+          message: article.title,
           entityId: articleId,
           entityType: 'article',
           category: categoryName,
           articleId,
           priority: 'medium',
+          link: `/news/${article.slug}`,
           metadata: {
             categoryId,
             authorName: (article as any).article_author?.full_name || (article as any).author?.name,
-            featuredImage: (article as any).featured_image
+            categoryIntro: `بما أنك مهتم بـ${categoryName}، تم نشر خبر قد يهمك:`
           }
         });
       }

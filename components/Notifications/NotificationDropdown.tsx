@@ -3,6 +3,7 @@
 // مكون الإشعارات الذكية في الهيدر - سبق الذكية
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import Link from 'next/link';
 import { BellIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { BellIcon as BellSolidIcon } from '@heroicons/react/24/solid';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -258,11 +259,20 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                   {notifications
                     .slice()
                     .sort((a, b) => {
+                      // الترتيب الأساسي: الأحدث أولاً
+                      const timeSort = new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                      
+                      // إضافة وزن إضافي للإشعارات غير المقروءة
+                      if (!a.read_at && b.read_at) return -1;
+                      if (a.read_at && !b.read_at) return 1;
+                      
+                      // ثم حسب الأولوية
                       const weights: Record<string, number> = { urgent: 3, high: 2, medium: 1, low: 0 };
                       const pa = weights[a.priority as keyof typeof weights] ?? 0;
                       const pb = weights[b.priority as keyof typeof weights] ?? 0;
                       if (pb !== pa) return pb - pa;
-                      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                      
+                      return timeSort;
                     })
                     .map((notification) => (
                     <motion.div
@@ -311,23 +321,39 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                             </div>
                           </div>
                           
-                          <p className={`text-sm ${
-                            !notification.read_at 
-                              ? 'text-gray-700 dark:text-gray-300' 
-                              : 'text-gray-500 dark:text-gray-400'
-                          } leading-relaxed break-words`}>
-                            {notification.message}
-                          </p>
-                          {((notification as any)?.metadata?.featuredImage || (notification as any)?.data?.featuredImage) && (
-                            <div className="mt-2">
-                              <img
-                                src={(notification as any).metadata?.featuredImage || (notification as any).data?.featuredImage}
-                                alt=""
-                                className="w-full h-28 object-cover rounded-md"
-                                loading="lazy"
-                              />
-                            </div>
+                          {/* النص التوضيحي بلون مختلف */}
+                          {(notification as any).metadata?.categoryIntro && (
+                            <p className="text-xs text-blue-600 dark:text-blue-400 mb-1">
+                              {(notification as any).metadata.categoryIntro}
+                            </p>
                           )}
+                          
+                          {/* رسالة الإشعار كرابط قابل للنقر */}
+                          {notification.link ? (
+                            <Link 
+                              href={notification.link}
+                              className={`text-sm ${
+                                !notification.read_at 
+                                  ? 'text-gray-900 dark:text-white font-medium hover:text-blue-600 dark:hover:text-blue-400' 
+                                  : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100'
+                              } leading-relaxed break-words block hover:underline`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                !notification.read_at && markAsRead(notification.id);
+                              }}
+                            >
+                              {notification.message}
+                            </Link>
+                          ) : (
+                            <p className={`text-sm ${
+                              !notification.read_at 
+                                ? 'text-gray-700 dark:text-gray-300' 
+                                : 'text-gray-500 dark:text-gray-400'
+                            } leading-relaxed break-words`}>
+                              {notification.message}
+                            </p>
+                          )}
+
                           
                           <div className="flex items-center justify-between mt-2">
                             <p className="text-xs text-gray-400 dark:text-gray-500">

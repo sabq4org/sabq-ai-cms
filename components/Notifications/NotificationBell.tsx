@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 interface NotiItem {
   id: string;
   title: string;
+  message?: string;
+  metadata?: any;
   link: string;
   created_at: string;
 }
@@ -49,7 +51,9 @@ export default function NotificationBell() {
         const list: NotiItem[] = (j.data.notifications || []).map((n: any) => ({
           id: n.id,
           title: n.title,
-          link: mapLink(n),
+          message: n.message,
+          metadata: n.metadata || n.data,
+          link: n.link || mapLink(n),
           created_at: n.created_at,
         }));
         setItems(list);
@@ -93,7 +97,13 @@ export default function NotificationBell() {
                 <li key={n.id} className="p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 text-right rtl:text-right">
                   <Link href={n.link} className="block">
                     <div className="text-sm font-medium text-gray-900 dark:text-gray-100 break-words">{n.title}</div>
-                    <div className="text-[11px] text-gray-500">{new Date(n.created_at).toLocaleString("ar-SA")}</div>
+                    {n.metadata?.categoryIntro && (
+                      <div className="text-[11px] text-blue-600 dark:text-blue-400 mt-0.5">{n.metadata.categoryIntro}</div>
+                    )}
+                    {n.message && (
+                      <div className="text-xs text-gray-700 dark:text-gray-300 mt-1 line-clamp-2">{n.message}</div>
+                    )}
+                    <div className="text-[11px] text-gray-500 mt-1">{new Date(n.created_at).toLocaleString("ar-SA")}</div>
                   </Link>
                 </li>
               ))}
