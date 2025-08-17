@@ -1,18 +1,3 @@
-import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
-import { getCurrentUser } from "@/app/lib/auth";
-
-export const runtime = "nodejs";
-
-export async function POST(req: NextRequest) {
-  try {
-    const user = await getCurrentUser();
-    if (!user) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
-
-    const body = await req.json().catch(() => ({}));
-    const ids: string[] = Array.isArray(body?.ids) ? body.ids : [];
-    if (ids.length === 0) return NextResponse.json({ success: false, error: "ids مطلوبة" }, { status: 400 });
-
 // API تعليم الإشعارات كمقروءة - سبق الذكية
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
@@ -243,11 +228,4 @@ export async function PATCH(req: NextRequest) {
       code: 'BATCH_UPDATE_ERROR'
     }, { status: 500 });
   }
-}    return NextResponse.json({ success: true });
-  } catch (e: any) {
-    console.error("/api/notifications/mark-read error:", e);
-    return NextResponse.json({ success: false, error: "Failed" }, { status: 500 });
-  }
 }
-
-

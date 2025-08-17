@@ -248,8 +248,7 @@ export class NotificationManager {
           message: notification.message,
           priority: notification.priority as any,
           status: 'sent',
-          created_at: notification.createdAt,
-          metadata: {}
+          created_at: notification.createdAt
         }
       });
 
@@ -371,7 +370,6 @@ export class NotificationManager {
       activeSubscribers: this.subscribers.size
     };
   }
-}
 }
 
 // تصدير المثيل الوحيد
