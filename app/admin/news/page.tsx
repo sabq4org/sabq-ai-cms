@@ -1140,6 +1140,7 @@ function AdminNewsPageContent() {
                   </div>
                 </div>
               </div>
+              </DesignComponents.StandardCard>
 
               {/* بطاقة الأرشيف */}
               <DesignComponents.StandardCard
