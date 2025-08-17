@@ -945,9 +945,14 @@ function AdminNewsPageContent() {
       <link rel="stylesheet" href="/manus-ui.css" />
       
       <TooltipProvider>
-        <div style={{ padding: '0', background: 'hsl(var(--bg))', minHeight: '100vh' }}>
-          {/* رسالة الترحيب */}
-          <DesignComponents.StandardCard className="p-6 bg-gradient-to-l from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
+        <div style={{ padding: '0', background: 'transparent', minHeight: '100vh' }}>
+          {/* رسالة الترحيب بتصميم Manus UI */}
+          <div className="card card-accent" style={{ 
+            marginBottom: '20px',
+            background: 'hsl(var(--bg))',
+            border: '1px solid hsl(var(--accent) / 0.2)',
+            borderLeftWidth: '4px'
+          }}>
             <div className="flex items-start gap-4">
               <div className="flex-shrink-0 w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
                 <FileText className="w-6 h-6 text-blue-600 dark:text-blue-400" />
@@ -993,7 +998,7 @@ function AdminNewsPageContent() {
               </div>
             </div>
           </div>
-
+          
           {/* إحصائيات الأخبار */}
           <div>
             <DesignComponents.SectionHeader
@@ -1026,33 +1031,66 @@ function AdminNewsPageContent() {
                   border: filterStatus === "published" ? '2px solid hsl(var(--accent-3))' : '1px solid hsl(var(--accent-3) / 0.3)'
                 }}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ flex: 1 }}>
+                    <div className="text-sm" style={{ 
+                      color: filterStatus === "published" ? 'rgba(255,255,255,0.8)' : 'hsl(var(--muted))',
+                      marginBottom: '8px'
+                    }}>
                       الأخبار المنشورة
-                    </p>
-                    <div className="flex items-center gap-3 mt-2">
-                      <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div className="heading-2" style={{ 
+                        color: filterStatus === "published" ? 'white' : 'hsl(var(--accent-3))',
+                        marginBottom: '0',
+                        fontSize: '24px'
+                      }}>
                         {formatNumber(stats?.published || 0)}
-                      </p>
-                      <div className="flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-full text-blue-700 bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400">
-                        <CheckCircle className="w-3 h-3" />
+                      </div>
+                      <div className="chip" style={{
+                        background: filterStatus === "published" ? 'rgba(255,255,255,0.2)' : 'hsl(var(--accent-3) / 0.1)',
+                        color: filterStatus === "published" ? 'white' : 'hsl(var(--accent-3))',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        padding: '4px 8px',
+                        borderRadius: '12px',
+                        fontSize: '12px',
+                        fontWeight: '500'
+                      }}>
+                        <CheckCircle style={{ width: '12px', height: '12px' }} />
                         نشط
                       </div>
                     </div>
                   </div>
-                  <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-blue-100 dark:bg-blue-900/30">
-                    <CheckCircle className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                  <div style={{
+                    width: '48px',
+                    height: '48px',
+                    background: filterStatus === "published" ? 'rgba(255,255,255,0.2)' : 'hsl(var(--accent-3) / 0.1)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <CheckCircle style={{ 
+                      width: '24px', 
+                      height: '24px', 
+                      color: filterStatus === "published" ? 'white' : 'hsl(var(--accent-3))'
+                    }} />
                   </div>
                 </div>
               </div>
-
+              
               {/* بطاقة المسودات */}
-              <DesignComponents.StandardCard
-                className={`p-6 hover:shadow-lg transition-shadow cursor-pointer ${
-                  filterStatus === "draft" ? "ring-2 ring-blue-500" : ""
-                }`}
+              <div 
+                className={`card card-warning ${filterStatus === "draft" ? "selected" : ""}`}
                 onClick={() => setFilterStatus("draft")}
+                style={{ 
+                  cursor: 'pointer',
+                  background: filterStatus === "draft" ? 'hsl(var(--accent-4))' : 'hsl(var(--bg-card))',
+                  color: filterStatus === "draft" ? 'white' : 'hsl(var(--fg))',
+                  border: filterStatus === "draft" ? '2px solid hsl(var(--accent-4))' : '1px solid hsl(var(--accent-4) / 0.3)'
+                }}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
@@ -1157,8 +1195,8 @@ function AdminNewsPageContent() {
                     <Trash2 className="w-6 h-6 text-red-600 dark:text-red-400" />
                   </div>
                 </div>
-              </div>
-            </div>
+                                </div>
+            </section>
           </div>
 
           {/* شريط البحث والفلاتر */}
@@ -1557,7 +1595,7 @@ function AdminNewsPageContent() {
                 </div>
               )}
             </div>
-          </div>
+          </DesignComponents.StandardCard>
         </div>
       </TooltipProvider>
     </>
@@ -1567,15 +1605,8 @@ function AdminNewsPageContent() {
 // تصدير المكون مع ErrorBoundary المخصص للحماية من الأخطاء
 export default function AdminNewsPage() {
   return (
-    <>
-      {/* تحميل CSS Manus UI */}
-      <link rel="stylesheet" href="/manus-ui.css" />
-      
-      <div style={{ padding: '0', background: 'transparent', minHeight: '100vh' }}>
-        <AdminNewsErrorBoundary>
-          <AdminNewsPageContent />
-        </AdminNewsErrorBoundary>
-      </div>
-    </>
+    <AdminNewsErrorBoundary>
+      <AdminNewsPageContent />
+    </AdminNewsErrorBoundary>
   );
 }
