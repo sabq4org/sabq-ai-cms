@@ -12,9 +12,11 @@ import {
   Home,
   ChevronDown,
   LogOut,
-  Moon,
-  Sun
+  FileText,
+  BarChart3,
+  Users
 } from "lucide-react";
+import DarkModeToggle from './DarkModeToggle';
 
 interface ManusHeaderProps {
   onMenuClick?: () => void;
@@ -56,10 +58,11 @@ export default function ManusHeader({ onMenuClick, showMenuButton = false }: Man
         left: 0,
         right: 0,
         height: '56px',
-        background: 'hsl(var(--bg))',
+        background: 'linear-gradient(135deg, hsl(var(--bg-card)) 0%, hsl(var(--bg)) 100%)',
         borderBottom: '1px solid hsl(var(--line))',
         zIndex: 1000,
-        backdropFilter: 'blur(10px)'
+        backdropFilter: 'blur(10px)',
+        boxShadow: '0 1px 3px hsla(var(--shadow) / 0.1)'
       }}>
         <div style={{
           display: 'flex',

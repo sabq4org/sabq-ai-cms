@@ -106,12 +106,36 @@ body {
 
 /* البطاقات - Cards */
 .card {
-  background: hsl(var(--bg));
+  background: hsl(var(--bg-card));
   border: 1px solid hsl(var(--line));
   border-radius: 16px;
   padding: 24px;
   margin-bottom: 16px;
-  transition: border-color 0.2s ease;
+  box-shadow: var(--card-shadow);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.card:hover {
+  box-shadow: var(--card-shadow-hover);
+  transform: translateY(-1px);
+}
+
+/* البطاقات الملونة */
+.card-accent {
+  border-left: 4px solid hsl(var(--accent));
+}
+
+.card-success {
+  border-left: 4px solid hsl(var(--accent-3));
+}
+
+.card-warning {
+  border-left: 4px solid hsl(var(--accent-4));
+}
+
+.card-danger {
+  border-left: 4px solid hsl(var(--accent-5));
 }
 
 .card:hover {
