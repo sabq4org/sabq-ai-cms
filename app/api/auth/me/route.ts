@@ -1,11 +1,11 @@
-import { corsResponse, handleOptions } from "@/lib/cors";
+import { corsResponseFromRequest, handleOptionsForRequest } from "@/lib/cors";
 import prisma from "@/lib/prisma";
 import jwt from "jsonwebtoken";
 import { NextRequest } from "next/server";
 
 // معالجة طلبات OPTIONS للـ CORS
 export async function OPTIONS() {
-  return handleOptions();
+  return handleOptionsForRequest();
 }
 
 const JWT_SECRET =
@@ -32,7 +32,8 @@ export async function GET(request: NextRequest) {
     }
 
     if (!token) {
-      return corsResponse(
+      return corsResponseFromRequest(
+        request,
         { success: false, error: "لم يتم العثور على معلومات المصادقة" },
         401
       );
@@ -45,13 +46,13 @@ export async function GET(request: NextRequest) {
         process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET || JWT_SECRET;
       decoded = jwt.verify(token, verifySecret);
     } catch (error) {
-      return corsResponse({ success: false, error: "جلسة غير صالحة" }, 401);
+      return corsResponseFromRequest(request, { success: false, error: "جلسة غير صالحة" }, 401);
     }
 
     // استخراج معرف المستخدم من payload (يدعم sub أو id)
     const userId = decoded?.sub || decoded?.id || decoded?.userId || decoded?.user_id;
     if (!userId || typeof userId !== "string") {
-      return corsResponse({ success: false, error: "جلسة غير صالحة" }, 401);
+      return corsResponseFromRequest(request, { success: false, error: "جلسة غير صالحة" }, 401);
     }
 
     // البحث عن المستخدم في قاعدة البيانات
@@ -71,7 +72,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!user) {
-      return corsResponse({ success: false, error: "المستخدم غير موجود" }, 404);
+      return corsResponseFromRequest(request, { success: false, error: "المستخدم غير موجود" }, 404);
     }
 
     const isAdmin =
@@ -81,7 +82,7 @@ export async function GET(request: NextRequest) {
       user.role === "system_admin";
 
     // إرجاع استجابة متوافقة مع النظام
-    return corsResponse({
+    return corsResponseFromRequest(request, {
       success: true,
       user: {
         id: user.id,
@@ -102,7 +103,8 @@ export async function GET(request: NextRequest) {
     });
   } catch (error: any) {
     console.error("خطأ في جلب بيانات المستخدم:", error);
-    return corsResponse(
+    return corsResponseFromRequest(
+      request,
       {
         success: false,
         error: "حدث خطأ في جلب بيانات المستخدم",
