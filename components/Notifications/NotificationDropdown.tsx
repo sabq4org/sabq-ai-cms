@@ -283,7 +283,16 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                           ? 'bg-blue-50 dark:bg-blue-900/20 border-l-4 border-l-blue-500' 
                           : ''
                       }`}
-                      onClick={() => !notification.read_at && markAsRead(notification.id)}
+                      onClick={(e) => {
+                        // تحديد كمقروء إذا لم يكن كذلك
+                        if (!notification.read_at) {
+                          markAsRead(notification.id);
+                        }
+                        // الانتقال للرابط إذا كان موجود
+                        if (notification.link && !e.defaultPrevented) {
+                          window.location.href = notification.link;
+                        }
+                      }}
                     >
                       <div className="flex flex-row-reverse items-start gap-3">
                         {/* أيقونة نوع الإشعار */}

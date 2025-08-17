@@ -81,7 +81,13 @@ export default function NotificationBell() {
         )}
       </button>
       {open && (
-        <div className="fixed md:absolute md:left-auto md:right-0 left-2 right-2 md:w-80 w-[calc(100vw-1rem)] mt-2 rounded-2xl shadow-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-2 z-50 rtl:text-right">
+        <>
+          {/* طبقة شفافة للنقر خارج البوكس */}
+          <div 
+            className="fixed inset-0 z-40 md:hidden" 
+            onClick={() => setOpen(false)}
+          />
+          <div className="fixed md:absolute md:left-auto md:right-0 left-2 right-2 md:w-80 w-[calc(100vw-1rem)] mt-2 rounded-2xl shadow-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-2 z-50 rtl:text-right">
           {items.length === 0 ? (
             <div className="p-4 text-sm text-gray-500">لا توجد إشعارات</div>
           ) : (
@@ -95,7 +101,7 @@ export default function NotificationBell() {
                 .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
                 .map((n) => (
                 <li key={n.id} className="p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 text-right rtl:text-right">
-                  <Link href={n.link} className="block">
+                  <Link href={n.link} className="block" onClick={() => setOpen(false)}>
                     <div className="text-sm font-medium text-gray-900 dark:text-gray-100 break-words">{n.title}</div>
                     {n.metadata?.categoryIntro && (
                       <div className="text-[11px] text-blue-600 dark:text-blue-400 mt-0.5">{n.metadata.categoryIntro}</div>
@@ -112,7 +118,8 @@ export default function NotificationBell() {
               </li>
             </ul>
           )}
-        </div>
+          </div>
+        </>
       )}
     </div>
   );
