@@ -3,6 +3,7 @@
 // Hook للإشعارات الذكية في الهيدر - سبق الذكية
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { toast } from 'react-hot-toast';
+import { getAuthHeaders } from '@/lib/utils/auth-headers';
 
 interface SmartNotification {
   id: string;
@@ -76,16 +77,12 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
       setLoading(true);
       setError(null);
 
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('مطلوب تسجيل الدخول');
-      }
-
       const response = await fetch(`/api/notifications?page=${pageNum}&limit=20`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          ...getAuthHeaders(),
           'Content-Type': 'application/json'
-        }
+        },
+        credentials: 'include'
       });
 
       if (!response.ok) {
@@ -141,15 +138,10 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
    */
   const markAsRead = useCallback(async (notificationId: string) => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('مطلوب تسجيل الدخول');
-      }
-
       const response = await fetch('/api/notifications/mark-read', {
         method: 'PATCH',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          ...getAuthHeaders(),
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -192,15 +184,10 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
    */
   const markAllAsRead = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('مطلوب تسجيل الدخول');
-      }
-
       const response = await fetch('/api/notifications/mark-read', {
         method: 'PATCH',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          ...getAuthHeaders(),
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -254,15 +241,10 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
     metadata?: any;
   }): Promise<boolean> => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('مطلوب تسجيل الدخول');
-      }
-
       const response = await fetch('/api/notifications', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          ...getAuthHeaders(),
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -298,18 +280,12 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
    */
   const connectToNotifications = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        console.warn('⚠️ لا يوجد token للاتصال بالإشعارات');
-        return;
-      }
-
       // استيراد مدير الإشعارات
       const { default: manager } = await import('@/lib/notifications/websocket-manager');
       notificationManager.current = manager;
 
       // مصادقة المستخدم
-      const auth = manager.authenticateUser(token, (data: any) => {
+      const auth = manager.authenticateUser(undefined, (data: any) => {
         try {
           switch (data.type) {
             case 'new_notification':
