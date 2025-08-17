@@ -190,18 +190,18 @@ export default function Header() {
             </nav>
 
             {/* أدوات الهيدر */}
-            <div className="flex items-center space-x-2 md:space-x-4 rtl:space-x-reverse header-tools">
+            <div className="flex items-center space-x-1 md:space-x-3 rtl:space-x-reverse header-tools">
               {/* زر لحظة بلحظة - يظهر على الشاشات المتوسطة فأعلى فقط */}
               <Link
                 href="/moment-by-moment"
-                className="relative p-2 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors duration-200"
+                className="relative p-1.5 md:p-2 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors duration-200"
                 aria-label="لحظة بلحظة"
                 title="لحظة بلحظة"
               >
-                <Activity className="h-6 w-6" />
+                <Activity className="h-5 w-5 md:h-6 md:w-6" />
                 {newEventsCount > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center">
-                    {newEventsCount > 99 ? '99+' : newEventsCount}
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 px-0.5 flex items-center justify-center">
+                    {newEventsCount > 9 ? '9+' : newEventsCount}
                   </span>
                 )}
               </Link>
@@ -209,14 +209,14 @@ export default function Header() {
               {/* زر الوضع الليلي */}
               <button
                 onClick={toggleDarkMode}
-                className="relative p-2 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors duration-200"
+                className="relative p-1.5 md:p-2 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors duration-200"
                 aria-label={darkMode ? "تفعيل الوضع النهاري" : "تفعيل الوضع الليلي"}
                 title={darkMode ? "تفعيل الوضع النهاري" : "تفعيل الوضع الليلي"}
               >
                 {darkMode ? (
-                  <Sun className="h-6 w-6" />
+                  <Sun className="h-5 w-5 md:h-6 md:w-6" />
                 ) : (
-                  <Moon className="h-6 w-6" />
+                  <Moon className="h-5 w-5 md:h-6 md:w-6" />
                 )}
               </button>
 
