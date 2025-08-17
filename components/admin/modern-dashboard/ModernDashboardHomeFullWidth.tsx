@@ -192,19 +192,19 @@ export default function ModernDashboardHomeFullWidth() {
       }}>
         
         {/* رسالة الترحيب AI */}
-        <section style={{ marginBottom: '16px' }}>
+        <section style={{ marginBottom: '12px' }}>
           <div className="card" style={{ 
             textAlign: 'center',
             background: 'hsl(var(--accent) / 0.05)',
             border: '1px solid hsl(var(--accent) / 0.2)',
-            padding: '16px'
+            padding: '12px'
           }}>
-            <div style={{ fontSize: '32px', marginBottom: '8px' }}>🤖</div>
-            <div className="card-title" style={{ fontSize: '20px', marginBottom: '4px', lineHeight: '1.2' }}>
+            <div style={{ fontSize: '28px', marginBottom: '6px' }}>🤖</div>
+            <div className="card-title" style={{ fontSize: '18px', marginBottom: '3px', lineHeight: '1.2' }}>
               مرحباً يا {user?.name || 'مدير النظام'} 
             </div>
             <div className="card-subtitle" style={{ 
-              marginBottom: '12px', 
+              marginBottom: '10px', 
               fontSize: '14px', 
               color: 'hsl(var(--accent))',
               cursor: 'pointer',

@@ -55,7 +55,7 @@ export default function ManusHeader({ onMenuClick, showMenuButton = false }: Man
         top: 0,
         left: 0,
         right: 0,
-        height: '70px',
+        height: '56px',
         background: 'hsl(var(--bg))',
         borderBottom: '1px solid hsl(var(--line))',
         zIndex: 1000,
@@ -66,7 +66,7 @@ export default function ManusHeader({ onMenuClick, showMenuButton = false }: Man
           alignItems: 'center',
           justifyContent: 'space-between',
           height: '100%',
-          padding: '0 24px',
+          padding: '0 20px',
           maxWidth: '100%'
         }}>
           
