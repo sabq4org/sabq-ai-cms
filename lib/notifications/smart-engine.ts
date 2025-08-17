@@ -395,11 +395,22 @@ export class SmartNotificationEngine {
       console.log(`🎯 المستخدمون المهتمون من الاهتمامات المحفوظة: ${userInterests.length}`);
 
       // 2. البحث في التفاعلات السابقة (مصدر إضافي)
-      const interactions = await prisma.interactions.findMany({
+      // نحتاج أولاً للحصول على معرفات المقالات في هذا التصنيف
+      const categoryArticles = await prisma.articles.findMany({
         where: {
-          articles: {
-            category_id: categoryId
-          },
+          category_id: categoryId,
+          status: 'published'
+        },
+        select: { id: true },
+        take: 100 // نحدد عدد المقالات لتحسين الأداء
+      });
+
+      const articleIds = categoryArticles.map(a => a.id);
+
+      // ثم نبحث عن التفاعلات مع هذه المقالات
+      const interactions = articleIds.length > 0 ? await prisma.interactions.findMany({
+        where: {
+          article_id: { in: articleIds },
           type: { in: ['like', 'save'] },
           created_at: {
             gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) // آخر 30 يوم
@@ -408,7 +419,7 @@ export class SmartNotificationEngine {
         distinct: ['user_id'],
         select: { user_id: true },
         take: 50
-      });
+      }) : [];
 
       interactions.forEach(i => userIds.add(i.user_id));
       console.log(`👥 المستخدمون المهتمون من التفاعلات: ${interactions.length}`);
