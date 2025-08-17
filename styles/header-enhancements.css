@@ -12,6 +12,7 @@
   position: relative;
   overflow: visible;
   background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05));
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .moment-by-moment-btn:hover {
@@ -80,21 +81,51 @@
   box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
 }
 
+/* زر تسجيل الدخول */
+.header-tools a[href="/login"] {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.header-tools a[href="/login"]:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.header-tools a[href="/login"]::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+  transition: all 0.3s ease;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+}
+
+.header-tools a[href="/login"]:hover::before {
+  width: 100px;
+  height: 100px;
+}
+
+.dark .header-tools a[href="/login"] {
+  background: rgba(96, 165, 250, 0.1);
+}
+
+.dark .header-tools a[href="/login"]:hover {
+  background: rgba(96, 165, 250, 0.2);
+}
+
 /* تحسينات للموبايل */
 @media (max-width: 768px) {
   .header-tools {
     gap: 0.5rem;
   }
   
-  .moment-by-moment-btn {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.875rem;
-  }
-  
-  .moment-by-moment-btn span {
-    display: none;
-  }
-  
+  .moment-by-moment-btn,
   .dark-mode-btn {
     width: 36px;
     height: 36px;
@@ -114,13 +145,16 @@
     gap: 0.25rem;
   }
   
-  .moment-by-moment-btn {
-    padding: 0.375rem 0.5rem;
-  }
-  
+  .moment-by-moment-btn,
   .dark-mode-btn {
     width: 32px;
     height: 32px;
+  }
+  
+  .notification-badge {
+    font-size: 8px;
+    min-width: 14px;
+    height: 14px;
   }
 }
 
@@ -142,27 +176,31 @@
 
 /* إضافة تأثيرات بصرية للأزرار النشطة */
 .moment-by-moment-btn:active,
-.dark-mode-btn:active {
+.dark-mode-btn:active,
+.header-tools a[href="/login"]:active {
   transform: scale(0.95);
   transition: transform 0.1s ease;
 }
 
 /* تحسين الوصولية */
 .moment-by-moment-btn:focus,
-.dark-mode-btn:focus {
+.dark-mode-btn:focus,
+.header-tools a[href="/login"]:focus {
   outline: 2px solid rgba(59, 130, 246, 0.5);
   outline-offset: 2px;
 }
 
 .dark .moment-by-moment-btn:focus,
-.dark .dark-mode-btn:focus {
+.dark .dark-mode-btn:focus,
+.dark .header-tools a[href="/login"]:focus {
   outline-color: rgba(96, 165, 250, 0.5);
 }
 
 /* تحسين للوضع عالي التباين */
 @media (prefers-contrast: high) {
   .moment-by-moment-btn,
-  .dark-mode-btn {
+  .dark-mode-btn,
+  .header-tools a[href="/login"] {
     border-width: 2px;
     border-style: solid;
   }
@@ -171,7 +209,8 @@
     border-color: #dc2626;
   }
   
-  .dark-mode-btn {
+  .dark-mode-btn,
+  .header-tools a[href="/login"] {
     border-color: currentColor;
   }
 }
@@ -180,12 +219,15 @@
 @media (prefers-reduced-motion: reduce) {
   .moment-by-moment-btn,
   .dark-mode-btn,
+  .header-tools a[href="/login"],
   .notification-badge {
     transition: none !important;
     animation: none !important;
   }
   
-  .dark-mode-btn:hover {
+  .dark-mode-btn:hover,
+  .moment-by-moment-btn:hover,
+  .header-tools a[href="/login"]:hover {
     transform: none !important;
   }
 }

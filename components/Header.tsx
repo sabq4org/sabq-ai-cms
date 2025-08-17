@@ -193,14 +193,14 @@ export default function Header() {
               {/* زر لحظة بلحظة */}
               <Link
                 href="/moment-by-moment"
-                className={`moment-by-moment-btn relative inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                className={`moment-by-moment-btn relative inline-flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-200 ${
                   darkMode
                     ? "text-red-300 hover:text-red-200 hover:bg-red-900/30 border border-red-800/50"
                     : "text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200"
                 }`}
+                title="لحظة بلحظة"
               >
-                <Activity className="w-4 h-4" />
-                <span className="hidden sm:inline">لحظة بلحظة</span>
+                <Activity className="w-5 h-5" />
                 {newEventsCount > 0 && (
                   <span className="notification-badge absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                     {newEventsCount > 9 ? '9+' : newEventsCount}
@@ -247,14 +247,14 @@ export default function Header() {
               ) : (
                 <Link
                   href="/login"
-                  className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`inline-flex items-center justify-center w-9 h-9 rounded-lg transition-colors ${
                     darkMode
                       ? "text-blue-300 hover:text-white hover:bg-blue-800/40"
                       : "text-blue-700 hover:text-blue-800 hover:bg-blue-100"
                   }`}
+                  title="تسجيل الدخول"
                 >
-                  <LogIn className="w-4 h-4" />
-                  تسجيل الدخول
+                  <LogIn className="w-5 h-5" />
                 </Link>
               )}
             </div>
