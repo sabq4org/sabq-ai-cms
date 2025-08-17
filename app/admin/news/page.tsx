@@ -945,9 +945,14 @@ function AdminNewsPageContent() {
       <link rel="stylesheet" href="/manus-ui.css" />
       
       <TooltipProvider>
-        <div style={{ padding: '0', background: 'hsl(var(--bg))', minHeight: '100vh' }}>
-          {/* رسالة الترحيب */}
-          <DesignComponents.StandardCard className="p-6 bg-gradient-to-l from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
+        <div style={{ padding: '0', background: 'transparent', minHeight: '100vh' }}>
+          {/* رسالة الترحيب بتصميم Manus UI */}
+          <div className="card card-accent" style={{ 
+            marginBottom: '20px',
+            background: 'hsl(var(--bg))',
+            border: '1px solid hsl(var(--accent) / 0.2)',
+            borderLeftWidth: '4px'
+          }}>
             <div className="flex items-start gap-4">
               <div className="flex-shrink-0 w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
                 <FileText className="w-6 h-6 text-blue-600 dark:text-blue-400" />
