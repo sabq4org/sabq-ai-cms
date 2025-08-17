@@ -1,10 +1,14 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { User } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import EnhancedDarkModeToggle from './EnhancedDarkModeToggle';
 import NotificationBellLight from '@/components/Notifications/NotificationBellLight';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface MobileLiteLayoutProps {
   children: React.ReactNode;
@@ -28,6 +32,7 @@ export default function MobileLiteLayout({
   const [isLoaded, setIsLoaded] = useState(false);
   const headerRef = useRef<HTMLElement | null>(null);
   const [headerHeight, setHeaderHeight] = useState<number>(0);
+  const { user } = useAuth();
 
   useEffect(() => {
     setIsLoaded(true);
@@ -82,13 +87,25 @@ export default function MobileLiteLayout({
             </div>
             
             <div className="header-actions">
-              {/* أيقونة الإشعارات */}
-              <NotificationBellLight />
-              
-              <EnhancedDarkModeToggle 
-                variant="compact" 
-                className="header-theme-toggle"
-              />
+              {/* الاكتفاء بصورة الملف الشخصي بدون الاسم */}
+              <Link
+                href={user ? '/profile' : '/login'}
+                aria-label={user ? 'الملف الشخصي' : 'تسجيل الدخول'}
+                className="avatar-button"
+              >
+                {user?.avatar ? (
+                  <Image
+                    src={user.avatar}
+                    alt={user.name || 'الملف الشخصي'}
+                    width={36}
+                    height={36}
+                    className="avatar-img"
+                    unoptimized
+                  />
+                ) : (
+                  <User className="avatar-fallback" />
+                )}
+              </Link>
             </div>
           </div>
           
@@ -180,6 +197,39 @@ export default function MobileLiteLayout({
           display: flex;
           align-items: center;
           gap: 8px;
+        }
+
+        /* إلغاء الخلفيات البيضاء لأيقونات داخل الهيدر الخفيف */
+        .header-actions :global(button),
+        .header-actions :global(a) {
+          background: transparent !important;
+          border: none;
+          box-shadow: none;
+        }
+
+        /* زر الصورة الشخصية */
+        .avatar-button {
+          width: 36px;
+          height: 36px;
+          border-radius: 9999px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid var(--border-light);
+          overflow: hidden;
+        }
+
+        .avatar-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border-radius: 9999px;
+        }
+
+        .avatar-fallback {
+          width: 20px;
+          height: 20px;
+          color: var(--text-primary);
         }
 
         .progress-bar {
