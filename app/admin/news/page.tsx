@@ -30,6 +30,8 @@ import {
 import { formatDateTime } from "@/lib/date-utils";
 import { formatDashboardStat } from "@/lib/format-utils";
 import {
+  ArrowUpRight,
+  ArrowDownRight,
   CheckCircle,
   Clock,
   Download,
@@ -1025,167 +1027,173 @@ function AdminNewsPageContent() {
             {/* بطاقات إحصائيات الأخبار */}
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
               {/* بطاقة الأخبار المنشورة */}
-              <div
-                className="card"
-                style={{
-                  cursor: 'pointer',
-                  background: filterStatus === "published" ? 'hsl(var(--accent-3))' : 'hsl(var(--bg-card))',
-                  color: filterStatus === "published" ? 'white' : 'hsl(var(--fg))',
-                  border: filterStatus === "published" ? '2px solid hsl(var(--accent-3))' : '1px solid hsl(var(--line))',
-                  padding: '24px'
-                }}
-                onClick={() => setFilterStatus("published")}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <p className="text-sm" style={{ color: filterStatus === "published" ? 'rgba(255,255,255,0.8)' : 'hsl(var(--muted))' }}>
-                      الأخبار المنشورة
-                    </p>
-                    <div className="flex items-center gap-3 mt-2">
-                      <p className="text-2xl font-bold" style={{ color: filterStatus === "published" ? 'white' : 'hsl(var(--fg))' }}>
-                        {formatNumber(stats?.published || 0)}
-                      </p>
-                      <div className="chip" style={{
-                        background: filterStatus === "published" ? 'rgba(255,255,255,0.2)' : 'hsl(var(--accent-3) / 0.1)',
-                        color: filterStatus === "published" ? 'white' : 'hsl(var(--accent-3))',
-                        border: 'none'
-                      }}>
-                        <CheckCircle className="w-3 h-3" />
-                        نشط
-                      </div>
-                    </div>
-                  </div>
+              <div className="card" onClick={() => setFilterStatus("published")} style={{ cursor: 'pointer' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                   <div style={{
                     width: '48px',
                     height: '48px',
-                    background: filterStatus === "published" ? 'rgba(255,255,255,0.2)' : 'hsl(var(--accent-3) / 0.1)',
+                    background: 'hsl(var(--accent) / 0.1)',
                     borderRadius: '12px',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center'
+                    justifyContent: 'center',
+                    color: 'hsl(var(--accent))'
                   }}>
-                    <CheckCircle style={{ 
-                      width: '24px', 
-                      height: '24px', 
-                      color: filterStatus === "published" ? 'white' : 'hsl(var(--accent-3))'
-                    }} />
+                    <CheckCircle style={{ width: '24px', height: '24px' }} />
+                  </div>
+                  
+                  <div style={{ flex: 1 }}>
+                    <div className="text-xs text-muted" style={{ marginBottom: '4px' }}>الأخبار المنشورة</div>
+                    <div className="heading-3" style={{ margin: '4px 0', color: 'hsl(var(--accent))' }}>
+                      {formatNumber(stats?.published || 0)}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <ArrowUpRight style={{ 
+                        width: '14px', 
+                        height: '14px',
+                        color: '#10b981'
+                      }} />
+                      <span className="text-xs" style={{ color: '#10b981' }}>
+                        +12.5%
+                      </span>
+                      <span className="text-xs text-muted">من الشهر الماضي</span>
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* بطاقة المسودات */}
-              <div
-                className="card"
-                style={{
-                  cursor: 'pointer',
-                  background: filterStatus === "draft" ? 'hsl(var(--accent-4))' : 'hsl(var(--bg-card))',
-                  color: filterStatus === "draft" ? 'white' : 'hsl(var(--fg))',
-                  border: filterStatus === "draft" ? '2px solid hsl(var(--accent-4))' : '1px solid hsl(var(--line))',
-                  padding: '24px'
-                }}
-                onClick={() => setFilterStatus("draft")}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <p className="text-sm" style={{ color: filterStatus === "draft" ? 'rgba(255,255,255,0.8)' : 'hsl(var(--muted))' }}>
-                      المسودات
-                    </p>
-                    <div className="flex items-center gap-3 mt-2">
-                      <p className="text-2xl font-bold" style={{ color: filterStatus === "draft" ? 'white' : 'hsl(var(--fg))' }}>
-                        {formatNumber(stats?.draft || 0)}
-                      </p>
-                      <div className="flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-full text-yellow-700 bg-yellow-100 dark:bg-yellow-900/30 dark:text-yellow-400">
-                        <PauseCircle className="w-3 h-3" />
-                        مؤجل
-                      </div>
-                    </div>
+              <div className="card" onClick={() => setFilterStatus("draft")} style={{ cursor: 'pointer' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div style={{
+                    width: '48px',
+                    height: '48px',
+                    background: 'hsl(var(--accent) / 0.1)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'hsl(var(--accent))'
+                  }}>
+                    <FileText style={{ width: '24px', height: '24px' }} />
                   </div>
-                  <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-yellow-100 dark:bg-yellow-900/30">
-                    <PauseCircle className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
+                  
+                  <div style={{ flex: 1 }}>
+                    <div className="text-xs text-muted" style={{ marginBottom: '4px' }}>المسودات</div>
+                    <div className="heading-3" style={{ margin: '4px 0', color: 'hsl(var(--accent))' }}>
+                      {formatNumber(stats?.draft || 0)}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <ArrowUpRight style={{ 
+                        width: '14px', 
+                        height: '14px',
+                        color: '#f59e0b'
+                      }} />
+                      <span className="text-xs" style={{ color: '#f59e0b' }}>
+                        0%
+                      </span>
+                      <span className="text-xs text-muted">بدون تغيير</span>
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* بطاقة المجدولة */}
-              <div
-                className={`p-6 hover:shadow-lg transition-shadow cursor-pointer ${
-                  filterStatus === "scheduled" ? "ring-2 ring-blue-500" : ""
-                }`}
-                onClick={() => setFilterStatus("scheduled")}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-muted">
-                      المجدولة
-                    </p>
-                    <div className="flex items-center gap-3 mt-2">
-                      <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                        {formatNumber(stats?.scheduled || 0)}
-                      </p>
-                      <div className="flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-full text-blue-700 bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400">
-                        <Clock className="w-3 h-3" />
-                        مؤجلة
-                      </div>
-                    </div>
+              <div className="card" onClick={() => setFilterStatus("scheduled")} style={{ cursor: 'pointer' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div style={{
+                    width: '48px',
+                    height: '48px',
+                    background: 'hsl(var(--accent) / 0.1)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'hsl(var(--accent))'
+                  }}>
+                    <Clock style={{ width: '24px', height: '24px' }} />
                   </div>
-                  <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-blue-100 dark:bg-blue-900/30">
-                    <Clock className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                  
+                  <div style={{ flex: 1 }}>
+                    <div className="text-xs text-muted" style={{ marginBottom: '4px' }}>المجدولة</div>
+                    <div className="heading-3" style={{ margin: '4px 0', color: 'hsl(var(--accent))' }}>
+                      {formatNumber(stats?.scheduled || 0)}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <ArrowUpRight style={{ 
+                        width: '14px', 
+                        height: '14px',
+                        color: '#3b82f6'
+                      }} />
+                      <span className="text-xs" style={{ color: '#3b82f6' }}>
+                        +5%
+                      </span>
+                      <span className="text-xs text-muted">من الأسبوع الماضي</span>
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* بطاقة الأرشيف */}
-              <div
-                className={`p-6 hover:shadow-lg transition-shadow cursor-pointer ${
-                  filterStatus === "archived" ? "ring-2 ring-blue-500" : ""
-                }`}
-                onClick={() => setFilterStatus("archived")}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-muted">
-                      المؤرشفة
-                    </p>
-                    <div className="flex items-center gap-3 mt-2">
-                      <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                        {formatNumber(stats?.archived || 0)}
-                      </p>
-                      <div className="flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-full text-orange-700 bg-orange-100 dark:bg-orange-900/30 dark:text-orange-400">
-                        <XCircle className="w-3 h-3" />
-                        محفوظ
-                      </div>
-                    </div>
+              <div className="card" onClick={() => setFilterStatus("archived")} style={{ cursor: 'pointer' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div style={{
+                    width: '48px',
+                    height: '48px',
+                    background: 'hsl(var(--accent) / 0.1)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'hsl(var(--accent))'
+                  }}>
+                    <XCircle style={{ width: '24px', height: '24px' }} />
                   </div>
-                  <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-orange-100 dark:bg-orange-900/30">
-                    <XCircle className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+                  
+                  <div style={{ flex: 1 }}>
+                    <div className="text-xs text-muted" style={{ marginBottom: '4px' }}>المؤرشفة</div>
+                    <div className="heading-3" style={{ margin: '4px 0', color: 'hsl(var(--accent))' }}>
+                      {formatNumber(stats?.archived || 0)}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <ArrowDownRight style={{ 
+                        width: '14px', 
+                        height: '14px',
+                        color: '#ef4444'
+                      }} />
+                      <span className="text-xs" style={{ color: '#ef4444' }}>
+                        -2.1%
+                      </span>
+                      <span className="text-xs text-muted">من الشهر الماضي</span>
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* بطاقة المحذوفة */}
-              <div
-                className={`p-6 hover:shadow-lg transition-shadow cursor-pointer ${
-                  filterStatus === "deleted" ? "ring-2 ring-blue-500" : ""
-                }`}
-                onClick={() => setFilterStatus("deleted")}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-muted">
-                      المحذوفة
-                    </p>
-                    <div className="flex items-center gap-3 mt-2">
-                      <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                        {formatNumber(stats?.deleted || 0)}
-                      </p>
-                      <div className="flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-full text-red-700 bg-red-100 dark:bg-red-900/30 dark:text-red-400">
-                        <Trash2 className="w-3 h-3" />
-                        محذوف
-                      </div>
-                    </div>
+              <div className="card" onClick={() => setFilterStatus("deleted")} style={{ cursor: 'pointer' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div style={{
+                    width: '48px',
+                    height: '48px',
+                    background: 'hsl(var(--accent) / 0.1)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'hsl(var(--accent))'
+                  }}>
+                    <Trash2 style={{ width: '24px', height: '24px' }} />
                   </div>
-                  <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-red-100 dark:bg-red-900/30">
-                    <Trash2 className="w-6 h-6 text-red-600 dark:text-red-400" />
+                  
+                  <div style={{ flex: 1 }}>
+                    <div className="text-xs text-muted" style={{ marginBottom: '4px' }}>المحذوفة</div>
+                    <div className="heading-3" style={{ margin: '4px 0', color: 'hsl(var(--accent))' }}>
+                      {formatNumber(stats?.deleted || 0)}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span className="text-xs text-muted">بدون نشاط حديث</span>
+                    </div>
                   </div>
                 </div>
               </div>
