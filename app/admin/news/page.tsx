@@ -946,12 +946,10 @@ function AdminNewsPageContent() {
       
       <TooltipProvider>
         <div style={{ 
-          padding: '0 24px', 
+          padding: '0', 
           background: 'transparent', 
           minHeight: '100vh',
-          width: '100%',
-          maxWidth: '1600px',
-          margin: '0 auto'
+          width: '100%'
         }}>
           {/* رسالة الترحيب بتصميم Manus UI */}
           <div className="card card-accent" style={{ 

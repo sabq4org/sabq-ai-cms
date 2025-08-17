@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import dynamic from "next/dynamic";
 import React, { useEffect, useState } from "react";
 import ManusHeader from "./ManusHeader";
+import { usePathname } from "next/navigation";
 
 // تحميل المكونات بشكل ديناميكي لتحسين الأداء
 const ModernSidebar = dynamic(() => import("./ModernSidebar"), {
@@ -31,6 +32,8 @@ export default function DashboardLayout({
 }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const pathname = usePathname();
+  const isNewsPage = pathname?.includes('/admin/news');
 
   // تحديد حجم الشاشة
   useEffect(() => {
@@ -103,10 +106,11 @@ export default function DashboardLayout({
         {/* المحتوى الرئيسي */}
         <main style={{
           flex: 1,
-          marginRight: !isMobile ? (sidebarOpen ? '280px' : '80px') : '0',
-          padding: '0px 16px 16px 16px',
+          marginRight: isNewsPage ? '0' : (!isMobile ? (sidebarOpen ? '280px' : '80px') : '0'),
+          padding: isNewsPage ? '0' : '0px 16px 16px 16px',
           minHeight: 'calc(100vh - 56px)',
-          transition: 'margin-right 0.3s ease'
+          transition: 'margin-right 0.3s ease',
+          width: '100%'
         }}>
           <div className={cn("fade-in", className)}>
             {children}
