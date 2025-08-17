@@ -58,7 +58,8 @@ export async function GET(req: NextRequest) {
           status: true,
           read_at: true,
           created_at: true,
-          sent_at: true
+          sent_at: true,
+          data: true
         }
       }),
 

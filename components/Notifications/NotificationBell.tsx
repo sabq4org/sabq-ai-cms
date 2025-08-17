@@ -35,6 +35,9 @@ export default function NotificationBell() {
 
   const mapLink = (n: any): string => {
     const data = n.data || {};
+    // استخدام الرابط المباشر إذا كان موجود
+    if (data.link) return data.link;
+    // Fallback للطرق القديمة
     if (data.articleId) return `/article/${data.articleId}`;
     if (data.entityType === 'article' && data.entityId) return `/article/${data.entityId}`;
     return "/profile/notifications";
@@ -117,6 +120,9 @@ export default function NotificationBell() {
                 <li key={n.id} className="p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 text-right rtl:text-right">
                   <Link href={n.link} className="block" onClick={() => setOpen(false)}>
                     <div className="text-sm font-medium text-gray-900 dark:text-gray-100 break-words">{n.title}</div>
+                    {n.metadata?.categoryIntro && (
+                      <div className="text-[11px] text-blue-600 dark:text-blue-400 mt-0.5">{n.metadata.categoryIntro}</div>
+                    )}
                     {n.message && (
                       <div className="text-xs text-gray-700 dark:text-gray-300 mt-1 line-clamp-2">{n.message}</div>
                     )}

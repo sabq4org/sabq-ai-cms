@@ -100,6 +100,8 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
         newNotifications = newNotifications.map((n: any) => ({
           ...n,
           data: n.data || n.metadata || {},
+          link: n.link || n.data?.link || (n.data?.articleId ? `/news/${n.data.articleId}` : ''),
+          metadata: n.data || n.metadata || {}
         }));
         
         setNotifications(prev => 

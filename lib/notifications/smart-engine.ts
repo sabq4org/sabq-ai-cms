@@ -45,6 +45,7 @@ export class SmartNotificationEngine {
             articleId: data.articleId,
             authorId: data.authorId,
             commentId: data.commentId,
+            link: data.link,
             ...data.metadata
           },
           status: 'pending',
