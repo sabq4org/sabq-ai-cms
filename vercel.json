@@ -1,0 +1,29 @@
+{
+  "buildCommand": "npm ci --legacy-peer-deps && npm run build",
+  "outputDirectory": ".next",
+  "framework": "nextjs",
+  "devCommand": "npm run dev",
+  "installCommand": "npm ci --legacy-peer-deps",
+  "crons": [
+    {
+      "path": "/api/cron/generate-podcast",
+      "schedule": "0 6,12,18 * * *"
+    },
+    {
+      "path": "/api/cron/update-word-popularity",
+      "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/api/cron/publish-scheduled",
+      "schedule": "* * * * *"
+    }
+  ],
+  "functions": {
+    "app/api/**/*.ts": {
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
+  }
+}

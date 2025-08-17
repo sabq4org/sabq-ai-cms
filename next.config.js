@@ -195,6 +195,12 @@ const nextConfig = {
       tls: false,
     };
 
+    // إضافة alias لمكتبات TipTap لتجنب تضارب الإصدارات
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@tiptap/core': require.resolve('@tiptap/core'),
+    };
+
     // تحسين bundle size للإنتاج فقط
     if (!dev && !isServer) {
       config.optimization.splitChunks = {
