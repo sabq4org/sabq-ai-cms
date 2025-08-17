@@ -1,37 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAuthFromRequest } from '@/app/lib/auth';
+import { requireAdmin } from '@/lib/require-admin';
 import { generateAllAIContent } from '@/lib/services/ai-content-service';
 import { getOpenAIKey } from '@/lib/openai-config';
 
 export async function POST(request: NextRequest) {
   try {
-    // التحقق من المصادقة
-    const authResult = await requireAuthFromRequest(request);
-    
-    if (!authResult || authResult.error) {
+    // التحقق من المصادقة والصلاحيات
+    const adminCheck = await requireAdmin(request);
+    if (!adminCheck.authorized || !adminCheck.user) {
       console.error('🚫 محاولة وصول غير مصرح بها للتوليد التلقائي');
       return NextResponse.json(
-        { error: 'غير مصرح بالوصول' },
-        { status: 401 }
+        { error: adminCheck.error || 'غير مصرح بالوصول' },
+        { status: adminCheck.error === 'Insufficient permissions' ? 403 : 401 }
       );
     }
-
-    const user = authResult.user;
-    
-    // التحقق من صلاحيات المستخدم (يجب أن يكون محرر أو أدمن)
-    if (!user.roles?.includes('admin') && !user.roles?.includes('editor') && !user.roles?.includes('author')) {
-      console.error('🚫 المستخدم ليس لديه صلاحيات التوليد:', user.email);
-      return NextResponse.json(
-        { error: 'ليس لديك صلاحية لاستخدام التوليد التلقائي' },
-        { status: 403 }
-      );
-    }
+    const user = adminCheck.user;
 
     console.log('🤖 بدء التوليد التلقائي للمستخدم:', user.email);
-    
+
     const body = await request.json();
     const { content } = body;
-    
+
     // التحقق من وجود المحتوى
     if (!content) {
       return NextResponse.json(
@@ -39,7 +28,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     // التحقق من طول المحتوى
     if (content.length < 50) {
       return NextResponse.json(

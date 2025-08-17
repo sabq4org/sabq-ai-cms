@@ -115,11 +115,11 @@ export async function getCurrentUser(): Promise<User | null> {
             }
           })();
           const parsed = JSON.parse(decoded);
+          const { PrismaClient } = await import("@prisma/client");
+          const prisma = new PrismaClient();
+          let user = null as any;
           if (parsed?.id) {
-            // استعلام قاعدة البيانات للحصول على أحدث بيانات المستخدم
-            const { PrismaClient } = await import("@prisma/client");
-            const prisma = new PrismaClient();
-            const user = await prisma.users.findUnique({
+            user = await prisma.users.findUnique({
               where: { id: parsed.id },
               select: {
                 id: true,
@@ -130,27 +130,39 @@ export async function getCurrentUser(): Promise<User | null> {
                 avatar: true,
               },
             });
-            await prisma.$disconnect();
-            if (!user) return null;
-            const superAdmins = (
-              process.env.SUPER_ADMIN_EMAILS || "admin@sabq.ai"
-            )
-              .split(",")
-              .map((s) => s.trim().toLowerCase())
-              .filter(Boolean);
-            const isSuper =
-              !!user.email && superAdmins.includes(user.email.toLowerCase());
-            return {
-              id: user.id,
-              email: user.email,
-              name: user.name || "User",
-              role_id: user.is_admin ? 1 : 2,
-              status: "active",
-              avatar_url: user.avatar || undefined,
-              role: user.role,
-              isAdmin: user.is_admin || isSuper,
-            } as User & { role: string };
+          } else if (parsed?.email) {
+            user = await prisma.users.findUnique({
+              where: { email: parsed.email },
+              select: {
+                id: true,
+                email: true,
+                name: true,
+                role: true,
+                is_admin: true,
+                avatar: true,
+              },
+            });
           }
+          await prisma.$disconnect();
+          if (!user) return null;
+          const superAdmins = (
+            process.env.SUPER_ADMIN_EMAILS || "admin@sabq.ai"
+          )
+            .split(",")
+            .map((s) => s.trim().toLowerCase())
+            .filter(Boolean);
+          const isSuper =
+            !!user.email && superAdmins.includes(user.email.toLowerCase());
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name || "User",
+            role_id: user.is_admin ? 1 : 2,
+            status: "active",
+            avatar_url: user.avatar || undefined,
+            role: user.role,
+            isAdmin: user.is_admin || isSuper,
+          } as User & { role: string };
         } catch (e) {
           // تجاهُل أي خطأ في التحليل والاعتماد على مسار التوكن فقط
         }
@@ -163,17 +175,34 @@ export async function getCurrentUser(): Promise<User | null> {
     const { PrismaClient } = await import("@prisma/client");
     const prisma = new PrismaClient();
 
-    const user = await prisma.users.findUnique({
-      where: { id: (payload.sub as string) || payload.id || payload.userId },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        role: true,
-        is_admin: true,
-        avatar: true,
-      },
-    });
+    const payloadId = (payload?.sub as string) || payload?.id || payload?.userId || payload?.uid || payload?.user?.id || payload?.user_id;
+    const payloadEmail = payload?.email || payload?.user?.email;
+    let user = null as any;
+    if (payloadId) {
+      user = await prisma.users.findUnique({
+        where: { id: String(payloadId) },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          role: true,
+          is_admin: true,
+          avatar: true,
+        },
+      });
+    } else if (payloadEmail) {
+      user = await prisma.users.findUnique({
+        where: { email: String(payloadEmail) },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          role: true,
+          is_admin: true,
+          avatar: true,
+        },
+      });
+    }
 
     await prisma.$disconnect();
 
@@ -328,17 +357,34 @@ export async function requireAuthFromRequest(request: NextRequest): Promise<User
   const { PrismaClient } = await import("@prisma/client");
   const prisma = new PrismaClient();
 
-  const user = await prisma.users.findUnique({
-    where: { id: payload.sub as string || payload.id || payload.userId },
-    select: {
-      id: true,
-      email: true,
-      name: true,
-      role: true,
-      is_admin: true,
-      avatar: true,
-    },
-  });
+  const pid = (payload?.sub as string) || payload?.id || payload?.userId || payload?.uid || payload?.user?.id || payload?.user_id;
+  const pemail = payload?.email || payload?.user?.email;
+  let user = null as any;
+  if (pid) {
+    user = await prisma.users.findUnique({
+      where: { id: String(pid) },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        is_admin: true,
+        avatar: true,
+      },
+    });
+  } else if (pemail) {
+    user = await prisma.users.findUnique({
+      where: { email: String(pemail) },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        is_admin: true,
+        avatar: true,
+      },
+    });
+  }
 
   await prisma.$disconnect();
 
