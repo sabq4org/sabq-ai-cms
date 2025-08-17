@@ -68,8 +68,8 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
-      window.removeEventListener('resize', () => {});
-      window.removeEventListener('scroll', () => {} as any);
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition);
     };
   }, [isOpen]);
 
