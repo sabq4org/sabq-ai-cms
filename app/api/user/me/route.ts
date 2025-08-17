@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-const JWT_FALLBACK = "your-secret-key-change-this-in-production";
+const JWT_FALLBACK = process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET || "secret";
 
 export async function GET(request: NextRequest) {
   try {

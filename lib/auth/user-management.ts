@@ -7,8 +7,8 @@ import { z } from 'zod';
 
 const prisma = new PrismaClient();
 
-// JWT إعدادات
-const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key';
+// JWT إعدادات - توحيد السر مع بقية النظام
+const JWT_SECRET = process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET || 'secret';
 const JWT_EXPIRES_IN = '15m';
 const REFRESH_TOKEN_EXPIRES_IN = '30d';
 

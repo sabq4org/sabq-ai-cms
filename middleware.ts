@@ -57,7 +57,7 @@ export async function middleware(req: NextRequest) {
     }
     try {
       // التحقق من التوكن
-      const secretString = process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET || "";
+      const secretString = process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET || "secret";
       const secret = new TextEncoder().encode(secretString);
       // التحقق من التوكن بدون فرض issuer لتوافق الإصدارات المختلفة
       await jwtVerify(at, secret);
