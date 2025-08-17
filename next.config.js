@@ -199,6 +199,7 @@ const nextConfig = {
     config.resolve.alias = {
       ...config.resolve.alias,
       '@tiptap/core': require.resolve('@tiptap/core'),
+      '@': path.resolve(__dirname),
     };
 
     // تحسين bundle size للإنتاج فقط
