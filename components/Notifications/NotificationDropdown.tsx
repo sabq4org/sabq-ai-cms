@@ -18,6 +18,7 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
   const dropdownRef = useRef<HTMLDivElement>(null);
   const anchorRef = useRef<HTMLButtonElement>(null);
   const [position, setPosition] = useState<{ top: number; right: number }>({ top: 0, right: 16 });
+  const [hiddenNotifications, setHiddenNotifications] = useState<Set<string>>(new Set());
 
   const {
     notifications,
@@ -37,8 +38,13 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
    * جلب الإشعارات عند فتح القائمة
    */
   useEffect(() => {
-    if (isOpen && notifications.length === 0) {
-      fetchNotifications(1, true);
+    if (isOpen) {
+      // إعادة تعيين الإشعارات المخفية عند فتح القائمة
+      setHiddenNotifications(new Set());
+      
+      if (notifications.length === 0) {
+        fetchNotifications(1, true);
+      }
     }
   }, [isOpen, notifications.length, fetchNotifications]);
 
@@ -257,6 +263,7 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
               ) : (
                 <>
                   {notifications
+                    .filter(n => !hiddenNotifications.has(n.id))
                     .slice()
                     .sort((a, b) => {
                       // الترتيب الأساسي: الأحدث أولاً
@@ -288,9 +295,15 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                         if (!notification.read_at) {
                           markAsRead(notification.id);
                         }
+                        
+                        // إخفاء الإشعار من القائمة
+                        setHiddenNotifications(prev => new Set([...prev, notification.id]));
+                        
                         // الانتقال للرابط إذا كان موجود
                         if (notification.link && !e.defaultPrevented) {
-                          window.location.href = notification.link;
+                          setTimeout(() => {
+                            window.location.href = notification.link;
+                          }, 200); // تأخير بسيط للسماح بالحركة
                         }
                       }}
                     >
