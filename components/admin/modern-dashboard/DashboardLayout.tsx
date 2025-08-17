@@ -24,8 +24,8 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({
   children,
-  pageTitle = "الإدارة",
-  pageDescription = "نظام إدارة المحتوى",
+  pageTitle = "لوحة التحكم",
+  pageDescription = "إدارة منصة سبق الذكية",
   className,
 }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -70,8 +70,8 @@ export default function DashboardLayout({
           {/* هيدر بسيط */}
           <header className="manus-header">
             <div>
-              <h1 className="heading-2" style={{ margin: 0 }}>الإدارة</h1>
-              <p className="text-sm text-muted">نظام إدارة المحتوى</p>
+              <h1 className="heading-2" style={{ margin: 0 }}>{pageTitle}</h1>
+              <p className="text-sm text-muted">{pageDescription}</p>
             </div>
             <div style={{ display: 'flex', gap: '12px' }}>
               {isMobile && (

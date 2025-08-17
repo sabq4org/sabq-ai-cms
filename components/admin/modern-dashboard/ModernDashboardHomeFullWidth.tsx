@@ -1,6 +1,6 @@
 /**
- * لوحة التحكم الحديثة - تصميم Manus UI - إصدار عامل
- * Modern Dashboard - Manus UI Design - Working Version
+ * لوحة التحكم الحديثة - تصميم Manus UI مطبق بشكل صحيح
+ * Modern Dashboard - Manus UI Design Applied Correctly
  */
 
 "use client";
@@ -16,39 +16,19 @@ import {
   Bell,
   Eye,
   FileText,
-  Home,
   MessageSquare,
   Settings,
   Users,
   Plus,
-  Search,
   Menu,
   X,
-  Target,
-  Zap,
-  Globe
 } from "lucide-react";
 
-// تطبيق Manus UI النظيف بدون أخطاء
+// تطبيق Manus UI مع الاحتفاظ بالوظائف الأصلية
 export default function ModernDashboardHomeFullWidth() {
   const { user } = useAuth();
   const [currentTheme, setCurrentTheme] = useState('blue');
-  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
-  const [isMobile, setIsMobile] = useState(false);
-
-  // كشف الجهاز المحمول
-  useEffect(() => {
-    const checkMobile = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
-      setSidebarOpen(!mobile);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
   // ثيمات الألوان
   const themes = {
@@ -68,18 +48,18 @@ export default function ModernDashboardHomeFullWidth() {
     }
   };
 
-  // بيانات الإحصائيات
+  // بيانات الإحصائيات - من الملف الأصلي
   const statsData = [
     {
       title: "إجمالي الزوار",
-      value: "45.2K",
+      value: "45.2k",
       icon: Users,
       change: 12.5,
       changeType: "increase" as const,
     },
     {
-      title: "مشاهدات الصفحة",
-      value: "128.4K",
+      title: "مشاهدات الصفحة", 
+      value: "128.4k",
       icon: Eye,
       change: 8.2,
       changeType: "increase" as const,
@@ -100,7 +80,48 @@ export default function ModernDashboardHomeFullWidth() {
     },
   ];
 
-  // مكون الإحصائيات
+  // الأنشطة الحديثة - من الملف الأصلي
+  const recentActivities = [
+    {
+      title: "تم نشر مقال جديد",
+      time: "5 دقائق",
+      type: "article",
+      icon: FileText,
+    },
+    {
+      title: "تعليق جديد على مقال",
+      time: "12 دقيقة", 
+      type: "comment",
+      icon: MessageSquare,
+    },
+    { 
+      title: "مستخدم جديد انضم", 
+      time: "30 دقيقة", 
+      type: "user", 
+      icon: Users 
+    },
+    { 
+      title: "تحديث في النظام", 
+      time: "1 ساعة", 
+      type: "system", 
+      icon: Activity 
+    },
+  ];
+
+  // حالة الأنظمة الذكية - من الملف الأصلي
+  const aiSystemsStatus = [
+    { name: "تحليل المشاعر", status: "active", accuracy: 94.2, color: "green" },
+    { name: "التوصيات الذكية", status: "active", accuracy: 91.8, color: "green" },
+    { name: "البحث الذكي", status: "active", accuracy: 96.1, color: "green" },
+    {
+      name: "تصنيف المحتوى",
+      status: "maintenance", 
+      accuracy: 88.5,
+      color: "yellow",
+    },
+  ];
+
+  // مكون بطاقة الإحصائيات بتصميم Manus UI
   const StatCard = ({ title, value, icon: Icon, change, changeType }: any) => {
     const ChangeIcon = changeType === 'increase' ? ArrowUpRight : ArrowDownRight;
     
@@ -145,141 +166,229 @@ export default function ModernDashboardHomeFullWidth() {
 
   return (
     <>
+      {/* تحميل CSS Manus UI */}
       <link rel="stylesheet" href="/manus-ui.css" />
       
-      <div style={{ background: 'hsl(var(--bg))', minHeight: '100vh', padding: '24px' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          
-          {/* هيدر الصفحة */}
-          <header style={{
-            marginBottom: '32px',
-            padding: '24px 0',
-            borderBottom: '1px solid hsl(var(--line))'
+      {/* محتوى الصفحة فقط - بدون تخطيط إضافي */}
+      <div style={{ padding: '24px' }}>
+        
+        {/* رسالة تأكيد التطبيق */}
+        <section style={{ marginBottom: '32px' }}>
+          <div className="card" style={{ 
+            textAlign: 'center',
+            background: 'hsl(var(--accent) / 0.05)',
+            border: '1px solid hsl(var(--accent) / 0.2)',
+            padding: '24px'
           }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{
-                width: '64px',
-                height: '64px',
-                background: 'hsl(var(--accent))',
-                borderRadius: '16px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                fontSize: '32px',
-                fontWeight: '700',
-                margin: '0 auto 16px'
-              }}>
-                س
-              </div>
-              <h1 className="heading-1" style={{ marginBottom: '8px' }}>سبق الذكية</h1>
-              <p className="text-base text-muted">لوحة التحكم الإدارية - تصميم Manus UI</p>
+            <div style={{ fontSize: '32px', marginBottom: '12px' }}>🎨</div>
+            <div className="card-title">تصميم Manus UI مطبق</div>
+            <div className="card-subtitle" style={{ marginBottom: '20px' }}>
+              التصميم الثنائي الألوان يعمل مع الشريط الجانبي الأساسي
             </div>
-          </header>
-
-          {/* الإحصائيات */}
-          <section className="grid grid-4" style={{ marginBottom: '32px' }}>
-            {statsData.map((stat, index) => (
-              <StatCard key={index} {...stat} />
-            ))}
-          </section>
-
-          {/* بطاقة النجاح */}
-          <section style={{ marginBottom: '32px' }}>
-            <div className="card" style={{ 
-              textAlign: 'center',
-              background: 'hsl(var(--accent) / 0.05)',
-              border: '1px solid hsl(var(--accent) / 0.2)',
-              padding: '40px'
-            }}>
-              <div style={{ fontSize: '64px', marginBottom: '16px' }}>🎉</div>
-              <div className="card-title" style={{ fontSize: '24px', marginBottom: '12px' }}>
-                تم تطبيق Manus UI بنجاح!
-              </div>
-              <div className="card-subtitle" style={{ marginBottom: '24px', fontSize: '16px' }}>
-                التصميم الثنائي الألوان يعمل الآن بدون قوائم إضافية
-              </div>
-              
-              <div className="grid grid-2" style={{ gap: '16px', maxWidth: '400px', margin: '0 auto' }}>
-                <div className="card" style={{ padding: '16px' }}>
-                  <div className="text-sm" style={{ fontWeight: '600', marginBottom: '4px' }}>
-                    ✅ مشكلة القائمة الإضافية
-                  </div>
-                  <div className="text-xs text-muted">تم حلها نهائياً</div>
-                </div>
-                
-                <div className="card" style={{ padding: '16px' }}>
-                  <div className="text-sm" style={{ fontWeight: '600', marginBottom: '4px' }}>
-                    🎨 تصميم Manus UI
-                  </div>
-                  <div className="text-xs text-muted">يعمل بدون أخطاء</div>
-                </div>
-              </div>
+            
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+              {Object.entries(themes).map(([key, theme]) => (
+                <button
+                  key={key}
+                  className={`btn btn-sm ${currentTheme === key ? 'btn-primary' : ''}`}
+                  onClick={() => applyTheme(key)}
+                >
+                  {theme.name}
+                </button>
+              ))}
             </div>
-          </section>
+          </div>
+        </section>
 
-          {/* تغيير الألوان */}
-          <section style={{ marginBottom: '32px' }}>
-            <div className="card">
-              <div className="card-header">
-                <div className="card-title">🎨 تجربة الألوان</div>
-                <div className="card-subtitle">جرب الألوان المختلفة للواجهة</div>
-              </div>
-              
-              <div style={{ textAlign: 'center' }}>
-                <div className="text-sm" style={{ marginBottom: '16px' }}>
-                  اللون الحالي: <strong>{themes[currentTheme as keyof typeof themes].name}</strong>
+        {/* الإحصائيات بتصميم Manus UI */}
+        <section className="grid grid-4" style={{ marginBottom: '32px' }}>
+          {statsData.map((stat, index) => (
+            <StatCard key={index} {...stat} />
+          ))}
+        </section>
+
+        {/* التبويبات */}
+        <section style={{ marginBottom: '32px' }}>
+          <div className="card">
+            <div className="card-header">
+              <div className="card-title">📊 تحليلات مفصلة</div>
+              <div className="card-subtitle">عرض البيانات حسب نوع التحليل</div>
+            </div>
+
+            {/* التبويبات بتصميم Manus UI */}
+            <div className="tabbar">
+              <button 
+                className={`tab ${activeTab === 'overview' ? 'active' : ''}`}
+                onClick={() => setActiveTab('overview')}
+              >
+                📈 نظرة عامة
+              </button>
+              <button 
+                className={`tab ${activeTab === 'activities' ? 'active' : ''}`}
+                onClick={() => setActiveTab('activities')}
+              >
+                🔔 الأنشطة الحديثة  
+              </button>
+              <button 
+                className={`tab ${activeTab === 'ai-systems' ? 'active' : ''}`}
+                onClick={() => setActiveTab('ai-systems')}
+              >
+                🤖 الأنظمة الذكية
+              </button>
+            </div>
+
+            {/* محتوى التبويبات */}
+            <div>
+              {activeTab === 'overview' && (
+                <div className="divide-list">
+                  <div className="list-item">
+                    <div>
+                      <div className="text-base">📊 متوسط الزيارات اليومية</div>
+                      <div className="text-sm text-muted">عدد الزوار الفريدين يومياً</div>
+                    </div>
+                    <div className="text-lg" style={{ fontWeight: '600', color: 'hsl(var(--accent))' }}>
+                      12,450
+                    </div>
+                  </div>
+                  <div className="list-item">
+                    <div>
+                      <div className="text-base">⏱️ متوسط وقت القراءة</div>
+                      <div className="text-sm text-muted">الوقت المُقضي في قراءة المحتوى</div>
+                    </div>
+                    <div className="text-lg" style={{ fontWeight: '600', color: 'hsl(var(--accent))' }}>
+                      4:32 دقيقة
+                    </div>
+                  </div>
+                  <div className="list-item">
+                    <div>
+                      <div className="text-base">📈 معدل النمو الشهري</div>
+                      <div className="text-sm text-muted">نمو المنصة والمحتوى</div>
+                    </div>
+                    <div className="text-lg" style={{ fontWeight: '600', color: '#10b981' }}>
+                      +18.5%
+                    </div>
+                  </div>
                 </div>
-                
-                <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                  {Object.entries(themes).map(([key, theme]) => (
-                    <button
-                      key={key}
-                      className={`btn ${currentTheme === key ? 'btn-primary' : ''}`}
-                      onClick={() => applyTheme(key)}
-                      style={{ minWidth: '80px' }}
-                    >
-                      {theme.name}
-                    </button>
+              )}
+
+              {activeTab === 'activities' && (
+                <div className="divide-list">
+                  {recentActivities.map((activity, index) => (
+                    <div key={index} className="list-item">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{
+                          width: '32px',
+                          height: '32px',
+                          background: 'hsl(var(--accent) / 0.1)',
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: 'hsl(var(--accent))'
+                        }}>
+                          <activity.icon style={{ width: '16px', height: '16px' }} />
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div className="text-sm">{activity.title}</div>
+                          <div className="text-xs text-muted">منذ {activity.time}</div>
+                        </div>
+                      </div>
+                    </div>
                   ))}
                 </div>
-                
-                <div className="text-xs text-muted" style={{ marginTop: '16px' }}>
-                  💡 التغيير فوري ويؤثر على كامل الصفحة
+              )}
+
+              {activeTab === 'ai-systems' && (
+                <div className="divide-list">
+                  {aiSystemsStatus.map((system, index) => (
+                    <div key={index} className="list-item">
+                      <div>
+                        <div className="text-base">{system.name}</div>
+                        <div className="text-sm text-muted">دقة النظام: {system.accuracy}%</div>
+                      </div>
+                      <div className={`chip ${
+                        system.status === 'active' ? '' : 'chip-muted'
+                      }`} style={{
+                        background: system.status === 'active' ? '#10b981' : '#f59e0b',
+                        color: 'white',
+                        border: 'none'
+                      }}>
+                        {system.status === 'active' ? '✅ نشط' : '⚠️ صيانة'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* أدوات الإدارة السريعة */}
+        <section>
+          <div className="grid grid-2">
+            <div className="card">
+              <div className="card-header">
+                <div className="card-title">⚡ إجراءات سريعة</div>
+                <div className="card-subtitle">المهام الإدارية الشائعة</div>
+              </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <Link href="/admin/articles/create" className="btn btn-primary">
+                  <Plus style={{ width: '16px', height: '16px' }} />
+                  إنشاء مقال جديد
+                </Link>
+                <Link href="/admin/news/create" className="btn">
+                  📰 إضافة خبر عاجل
+                </Link>
+                <Link href="/admin/analytics" className="btn">
+                  <BarChart3 style={{ width: '16px', height: '16px' }} />
+                  تقارير مفصلة
+                </Link>
+                <Link href="/admin/users" className="btn">
+                  <Users style={{ width: '16px', height: '16px' }} />
+                  إدارة المستخدمين
+                </Link>
+              </div>
+            </div>
+
+            <div className="card">
+              <div className="card-header">
+                <div className="card-title">🎯 حالة النظام</div>
+                <div className="card-subtitle">مراقبة الأداء والخدمات</div>
+              </div>
+              
+              <div className="divide-list">
+                <div className="list-item">
+                  <div>
+                    <div className="text-sm">خادم قاعدة البيانات</div>
+                    <div className="text-xs text-muted">استجابة ممتازة</div>
+                  </div>
+                  <div className="chip" style={{ background: '#10b981', color: 'white', border: 'none' }}>
+                    ✅ متصل
+                  </div>
+                </div>
+                <div className="list-item">
+                  <div>
+                    <div className="text-sm">نظام الذكاء الاصطناعي</div>
+                    <div className="text-xs text-muted">تحليل المحتوى نشط</div>
+                  </div>
+                  <div className="chip" style={{ background: 'hsl(var(--accent))', color: 'white', border: 'none' }}>
+                    🤖 يعمل
+                  </div>
+                </div>
+                <div className="list-item">
+                  <div>
+                    <div className="text-sm">مساحة التخزين</div>
+                    <div className="text-xs text-muted">78% مستخدم من 500GB</div>
+                  </div>
+                  <div className="chip chip-muted">
+                    💾 جيد
+                  </div>
                 </div>
               </div>
             </div>
-          </section>
-
-          {/* روابط مفيدة */}
-          <section>
-            <div className="card">
-              <div className="card-header">
-                <div className="card-title">🔗 صفحات أخرى</div>
-                <div className="card-subtitle">جرب التصاميم المختلفة</div>
-              </div>
-              
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                gap: '12px'
-              }}>
-                <Link href="/admin" className="btn">
-                  📊 الإدارة الأصلية
-                </Link>
-                <Link href="/dashboard-simple" className="btn">
-                  📋 لوحة التحكم البسيطة
-                </Link>
-                <Link href="/manus-ui" className="btn">
-                  🎨 العرض التوضيحي
-                </Link>
-                <Link href="/" className="btn btn-primary">
-                  🏠 الموقع الرئيسي
-                </Link>
-              </div>
-            </div>
-          </section>
-        </div>
+          </div>
+        </section>
       </div>
     </>
   );
