@@ -144,7 +144,7 @@ body {
 }
 
 .manus-sidebar {
-  background: hsl(var(--bg)) !important;
+  background: hsl(var(--bg-elevated)) !important;
   border: none;
   padding: 24px 16px;
   transition: background 0.3s ease;

@@ -636,7 +636,7 @@ export default function ModernSidebar({
       flexDirection: 'column',
       borderRadius: '0',
       boxShadow: 'none',
-      background: 'hsl(var(--bg))'
+      background: 'hsl(var(--bg-elevated))'
     }}>
 
       {/* شعار مصغر للسايدبار */}
