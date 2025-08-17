@@ -1,5 +1,6 @@
 /**
- * الشريط الجانبي الحديث - Modern Sidebar
+ * الشريط الجانبي الحديث - Manus UI Design
+ * Modern Sidebar with Two-Color Theme
  */
 
 "use client";
@@ -42,6 +43,8 @@ import {
   Users,
   Zap,
   Activity,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -59,6 +62,7 @@ interface SidebarItem {
   children?: SidebarItem[];
 }
 
+// عناصر الشريط الجانبي الأساسية - محفوظة كما هي
 const sidebarItems: SidebarItem[] = [
   {
     id: "dashboard",
@@ -86,16 +90,12 @@ const sidebarItems: SidebarItem[] = [
         href: "/admin/categories",
       },
       { id: "tags", title: "العلامات", icon: Star, href: "/admin/tags" },
-
-      // القصص الذكية تحت إدارة الأخبار
       {
         id: "smart-stories",
         title: "القصص الذكية",
         icon: Brain,
         href: "/admin/stories",
       },
-
-      // نقل نظام مُقترب تحت إدارة الأخبار
       {
         id: "muqtarab-module",
         title: "نظام مُقترب",
@@ -116,16 +116,12 @@ const sidebarItems: SidebarItem[] = [
           },
         ],
       },
-
-      // نقل مكتبة الوسائط تحت إدارة الأخبار
       {
         id: "media-library",
         title: "مكتبة الوسائط",
         icon: Folder,
         href: "/admin/modern/media",
       },
-
-      // نقل النظم الصوتية تحت إدارة الأخبار
       {
         id: "audio-systems",
         title: "النظم الصوتية",
@@ -150,72 +146,21 @@ const sidebarItems: SidebarItem[] = [
   },
   {
     id: "analytics",
-    title: "التحليلات المتقدمة",
+    title: "التحليلات والذكاء",
     icon: BarChart3,
     href: "/admin/modern/analytics",
     children: [
       {
-        id: "analytics-dashboard",
-        title: "لوحة التحليلات",
+        id: "analytics-main",
+        title: "التحليلات الرئيسية",
         icon: BarChart3,
-        href: "/test-analytics",
+        href: "/admin/modern/analytics",
       },
       {
-        id: "analytics-reports",
-        title: "التقارير المفصلة",
-        icon: FileText,
-        href: "/admin/analytics/reports",
-      },
-      {
-        id: "analytics-insights",
-        title: "الرؤى الذكية",
+        id: "ai-analytics",
+        title: "تحليلات الذكاء الاصطناعي",
         icon: Brain,
-        href: "/admin/analytics/insights",
-      },
-    ],
-  },
-  {
-    id: "ai-systems",
-    title: "الأنظمة الذكية",
-    icon: Brain,
-    href: "/dashboard/smart-blocks",
-    children: [
-      {
-        id: "smart-system-control",
-        title: "النظام الذكي المتكامل",
-        icon: Settings,
-        href: "/admin/smart-system",
-        badge: "جديد",
-        badgeVariant: "default" as const,
-        isNew: true,
-      },
-      {
-        id: "system-status",
-        title: "مراقبة الأنظمة",
-        icon: Activity,
-        href: "/admin/system-status",
-        badge: "مراقبة",
-        badgeVariant: "secondary" as const,
-      },
-      {
-        id: "live-analytics",
-        title: "التحليلات المباشرة",
-        icon: BarChart3,
-        href: "/admin/analytics/live",
-        badge: "مباشر",
-        badgeVariant: "default" as const,
-      },
-      {
-        id: "smart-entities",
-        title: "الكيانات الذكية",
-        icon: Network,
-        href: "/admin/smart-entities",
-      },
-      {
-        id: "smart-blocks",
-        title: "الكتل الذكية",
-        icon: Brain,
-        href: "/admin/smart-blocks",
+        href: "/admin/ai-analytics",
       },
       {
         id: "sentiment-analysis",
@@ -224,128 +169,55 @@ const sidebarItems: SidebarItem[] = [
         href: "/admin/sentiment-analysis",
       },
       {
-        id: "recommendations",
-        title: "التوصيات الذكية",
-        icon: TrendingUp,
-        href: "/admin/recommendations",
-      },
-      {
         id: "intelligent-search",
         title: "البحث الذكي",
         icon: Search,
         href: "/admin/intelligent-search",
       },
-      {
-        id: "deep-insights",
-        title: "التحليل العميق",
-        icon: BarChart3,
-        href: "/admin/deep-analysis",
-      },
-      {
-        id: "ai-models",
-        title: "نماذج الذكاء الاصطناعي",
-        icon: Brain,
-        href: "/admin/ai-models",
-      },
-      {
-        id: "ai-editor",
-        title: "محرر AI",
-        icon: FileText,
-        href: "/admin/ai-editor",
-      },
-      {
-        id: "ai-analytics",
-        title: "تحليلات AI",
-        icon: TrendingUp,
-        href: "/admin/ai-analytics",
-      },
-      {
-        id: "ai-settings",
-        title: "إعدادات AI",
-        icon: Settings,
-        href: "/admin/settings/ai-settings",
-      },
-    ],
-  },
-  // تمت إزالة قسم إدارة المحتوى حسب الطلب ونقل الأقسام المطلوبة تحت إدارة الأخبار
-  {
-    id: "loyalty-program",
-    title: "برنامج الولاء",
-    icon: Heart,
-    href: "/admin/loyalty",
-    children: [
-      {
-        id: "loyalty-main",
-        title: "نظرة عامة",
-        icon: Heart,
-        href: "/admin/loyalty",
-      },
-      {
-        id: "loyalty-users",
-        title: "المستخدمين",
-        icon: Users,
-        href: "/admin/loyalty/users",
-      },
-      {
-        id: "loyalty-rewards",
-        title: "المكافآت",
-        icon: Star,
-        href: "/admin/loyalty/rewards",
-      },
-      {
-        id: "loyalty-campaigns",
-        title: "الحملات",
-        icon: TrendingUp,
-        href: "/admin/loyalty/campaigns",
-      },
     ],
   },
   {
-    id: "notifications",
-    title: "إدارة التنبيهات",
-    icon: Bell,
-    href: "/admin/notifications",
-  },
-  {
-    id: "performance",
-    title: "تحسين الأداء",
-    icon: Zap,
-    href: "/admin/performance-optimization",
-  },
-  {
-    id: "themes",
-    title: "السمات التكيفية",
-    icon: Palette,
-    href: "/admin/modern/adaptive-themes",
-  },
-  {
-    id: "external-data",
-    title: "البيانات الخارجية",
-    icon: Globe,
-    href: "/admin/external-data",
-  },
-  {
-    id: "users",
-    title: "المستخدمين",
+    id: "users-management",
+    title: "إدارة المستخدمين",
     icon: Users,
     href: "/admin/users",
     children: [
-      { id: "readers", title: "القراء", icon: Users, href: "/admin/users" },
+      { id: "users", title: "المستخدمون", icon: Users, href: "/admin/users" },
       { id: "team", title: "الفريق", icon: Users, href: "/admin/team" },
       {
-        id: "roles",
-        title: "الأدوار",
-        icon: Shield,
-        href: "/admin/users/roles",
+        id: "comments",
+        title: "التعليقات",
+        icon: MessageSquare,
+        href: "/admin/comments",
+        badge: "جديد",
       },
     ],
   },
-  
   {
-    id: "comments",
-    title: "التعليقات",
-    icon: MessageSquare,
-    href: "/admin/modern/comments",
+    id: "ai-systems",
+    title: "الأنظمة الذكية",
+    icon: Brain,
+    href: "/admin/ai-systems",
+    children: [
+      {
+        id: "smart-entities",
+        title: "الكيانات الذكية",
+        icon: Network,
+        href: "/admin/smart-entities",
+      },
+      {
+        id: "recommendations",
+        title: "نظام التوصيات",
+        icon: TrendingUp,
+        href: "/admin/recommendations",
+      },
+      {
+        id: "smart-editor",
+        title: "المحرر الذكي",
+        icon: PenTool,
+        href: "/admin/ai-editor",
+      },
+    ],
   },
   {
     id: "settings",
@@ -353,242 +225,225 @@ const sidebarItems: SidebarItem[] = [
     icon: Settings,
     href: "/admin/settings",
     children: [
-      { id: "general", title: "عام", icon: Settings, href: "/admin/settings" },
       {
-        id: "sidebar-settings",
-        title: "تخصيص الشريط الجانبي",
-        icon: LayoutDashboard,
-        href: "/admin/settings/sidebar",
+        id: "general-settings",
+        title: "الإعدادات العامة",
+        icon: Settings,
+        href: "/admin/settings",
       },
       {
-        id: "logo-manager",
-        title: "إدارة اللوجو",
+        id: "appearance",
+        title: "المظهر",
         icon: Palette,
-        href: "/admin/logo-manager",
+        href: "/admin/settings/appearance",
       },
       {
-        id: "vercel-analytics",
-        title: "تحليلات Vercel",
-        icon: BarChart3,
-        href: "/admin/analytics/vercel",
-      },
-      {
-        id: "advanced",
-        title: "متقدم",
-        icon: Database,
-        href: "/admin/settings/advanced",
+        id: "notifications",
+        title: "الإشعارات",
+        icon: Bell,
+        href: "/admin/notifications",
+        badge: "7",
       },
     ],
   },
 ];
 
 interface ModernSidebarProps {
-  isCollapsed: boolean;
-  onToggle: () => void;
+  isCollapsed?: boolean;
+  onToggle?: () => void;
   isMobile?: boolean;
 }
 
 export default function ModernSidebar({
-  isCollapsed,
+  isCollapsed = false,
   onToggle,
   isMobile = false,
 }: ModernSidebarProps) {
+  // استخدام نظام التفضيلات الموجود
+  const { sidebarPreferences, updateSidebarPreferences } = useSidebarPreferences();
   const pathname = usePathname();
+  
+  // حالات العناصر المتوسعة
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
+  const [currentTheme, setCurrentTheme] = useState('blue');
 
-  // حفظ واسترجاع حالة الطيّ محلياً
-  const STORAGE_KEY = "adminSidebarExpanded_v1";
+  // ثيمات الألوان
+  const themes = {
+    blue: { accent: '212 90% 50%', name: 'الأزرق' },
+    green: { accent: '142 71% 45%', name: 'الأخضر' },
+    purple: { accent: '262 83% 58%', name: 'البنفسجي' },
+    orange: { accent: '25 95% 53%', name: 'البرتقالي' },
+    red: { accent: '0 84% 60%', name: 'الأحمر' },
+  };
+
+  // تطبيق الثيم
+  const applyTheme = (theme: string) => {
+    const themeData = themes[theme as keyof typeof themes];
+    if (themeData) {
+      document.documentElement.style.setProperty('--accent', themeData.accent);
+      setCurrentTheme(theme);
+    }
+  };
+
+  // العناصر المخصصة حسب التفضيلات
+  const customizedSidebarItems = useMemo(() => {
+    if (!sidebarPreferences?.items) return sidebarItems;
+    
+    return sidebarPreferences.items
+      .filter(pref => !pref.isHidden)
+      .sort((a, b) => (a.order || 0) - (b.order || 0))
+      .map(pref => sidebarItems.find(item => item.id === pref.id))
+      .filter(Boolean) as SidebarItem[];
+  }, [sidebarPreferences]);
+
+  // تحميل العناصر المتوسعة المحفوظة
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      const saved = localStorage.getItem('sidebar-expanded-items');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) setExpandedItems(parsed as string[]);
       }
     } catch {}
-    // افتراضياً: كل العناوين مغلقة
   }, []);
+
+  // حفظ العناصر المتوسعة
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(expandedItems));
-    } catch {}
+    localStorage.setItem('sidebar-expanded-items', JSON.stringify(expandedItems));
   }, [expandedItems]);
 
-  // استخدام تفضيلات الشريط الجانبي
-  const { preferences, loading } = useSidebarPreferences();
-
-  // ترتيب وفلترة العناصر حسب التفضيلات
-  const [globalVisibility, setGlobalVisibility] = useState<Record<string, boolean> | null>(null);
-
-  useEffect(() => {
-    // قراءة الإعداد العالمي من الخادم (يعمل في العميل عبر نداء API داخلي)
-    // في بيئة SSR يمكن نقله لمكوّن خادم لاحقاً
-    (async () => {
-      try {
-        const res = await fetch("/api/admin/ui/sidebar-visibility", { headers: { "x-internal": "1" } });
-        if (res.ok) {
-          const data = await res.json();
-          const map = new Map<string, boolean>((data.items ?? []).map((i: any) => [i.key, !!i.visible]));
-          const obj: Record<string, boolean> = {};
-          sidebarItems.forEach((it) => { obj[it.id] = map.get(it.id) ?? true; });
-          setGlobalVisibility(obj);
-        } else {
-          setGlobalVisibility(null);
-        }
-      } catch {
-        setGlobalVisibility(null);
-      }
-    })();
-  }, []);
-
-  const customizedSidebarItems = useMemo(() => {
-    if (loading || preferences.sidebar_order.length === 0) {
-      let base = sidebarItems.filter((item) => !preferences.sidebar_hidden.includes(item.id));
-      if (globalVisibility) {
-        base = base.filter((it) => globalVisibility[it.id] !== false);
-      }
-      return base;
-    }
-
-    // ترتيب العناصر حسب التفضيلات
-    const orderedItems = preferences.sidebar_order
-      .map((id) => sidebarItems.find((item) => item.id === id))
-      .filter(Boolean) as SidebarItem[];
-
-    // إضافة أي عناصر جديدة لم تكن موجودة في الترتيب المحفوظ
-    const newItems = sidebarItems.filter(
-      (item) => !preferences.sidebar_order.includes(item.id)
-    );
-
-    const allItems = [...orderedItems, ...newItems];
-
-    let filtered = allItems.filter((item) => !preferences.sidebar_hidden.includes(item.id));
-    if (globalVisibility) {
-      filtered = filtered.filter((it) => globalVisibility[it.id] !== false);
-    }
-    return filtered;
-  }, [preferences, loading, globalVisibility]);
-
+  // تبديل حالة توسع العنصر
   const toggleExpanded = (itemId: string) => {
-    setExpandedItems((prev) =>
-      prev.includes(itemId)
-        ? prev.filter((id) => id !== itemId)
+    setExpandedItems(prev => 
+      prev.includes(itemId) 
+        ? prev.filter(id => id !== itemId)
         : [...prev, itemId]
     );
   };
 
-  const isActive = (href: string) => {
-    if (!pathname) return false;
-    if (href === "/admin") {
-      return pathname === "/admin";
-    }
-    return pathname.startsWith(href);
-  };
-
-  const SidebarItemComponent = ({
-    item,
-    level = 0,
-  }: {
-    item: SidebarItem;
-    level?: number;
+  // مكون العنصر الفردي
+  const SidebarItemComponent = ({ 
+    item, 
+    level = 0 
+  }: { 
+    item: SidebarItem; 
+    level?: number; 
   }) => {
     const hasChildren = item.children && item.children.length > 0;
     const isExpanded = expandedItems.includes(item.id);
-    const active = isActive(item.href);
+    const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+    const indentStyle = { paddingRight: `${level * 16}px` };
 
     const itemContent = (
-      <div
-        className={cn(
-          "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200",
-          "hover:bg-blue-50 dark:hover:bg-blue-900/20 group",
-          "cursor-pointer select-none",
-          level > 0 && "mr-4",
-          active &&
-            "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300",
-          active && "shadow-sm border border-blue-200 dark:border-blue-700"
-        )}
-        onClick={() => hasChildren && toggleExpanded(item.id)}
-      >
-        <item.icon
-          className={cn(
-            "h-5 w-5 transition-colors",
-            active
-              ? "text-blue-600 dark:text-blue-400"
-              : "text-gray-500 dark:text-gray-400",
-            "group-hover:text-blue-600 dark:group-hover:text-blue-400"
-          )}
-        />
-
-        {!isCollapsed ? (
-          <>
-            <span
-              className={cn(
-                "font-medium text-sm transition-colors flex-1",
-                active
-                  ? "text-blue-700 dark:text-blue-300"
-                  : "text-gray-700 dark:text-gray-300"
-              )}
-            >
-              {item.title}
+      <div style={{
+        ...indentStyle,
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        padding: isCollapsed ? '12px' : '12px 16px',
+        margin: '4px 0',
+        borderRadius: '12px',
+        border: isActive ? '1px solid hsl(var(--accent))' : '1px solid transparent',
+        background: isActive ? 'hsl(var(--accent) / 0.1)' : 'transparent',
+        color: isActive ? 'hsl(var(--accent))' : 'hsl(var(--fg))',
+        transition: 'all 0.2s ease',
+        cursor: 'pointer',
+        fontSize: '14px',
+        fontWeight: isActive ? '600' : '500'
+      }}
+      className="interactive"
+      onMouseEnter={(e) => {
+        if (!isActive) {
+          e.currentTarget.style.background = 'hsl(var(--line) / 0.5)';
+          e.currentTarget.style.borderColor = 'hsl(var(--line))';
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!isActive) {
+          e.currentTarget.style.background = 'transparent';
+          e.currentTarget.style.borderColor = 'transparent';
+        }
+      }}
+      onClick={() => hasChildren && toggleExpanded(item.id)}
+    >
+      <item.icon style={{ width: '20px', height: '20px', minWidth: '20px' }} />
+      
+      {!isCollapsed && (
+        <>
+          <span style={{ flex: 1 }}>{item.title}</span>
+          
+          {item.badge && (
+            <span className="chip" style={{
+              background: 'hsl(var(--accent))',
+              color: 'white',
+              fontSize: '10px',
+              padding: '2px 6px',
+              borderRadius: '10px',
+              border: 'none'
+            }}>
+              {item.badge}
             </span>
-
-            {item.badge && (
-              <Badge
-                variant={item.badgeVariant || "default"}
-                className={cn(
-                  "text-xs px-2 py-0.5",
-                  item.isNew && "animate-pulse"
-                )}
-              >
-                {item.badge}
-              </Badge>
-            )}
-
-            {hasChildren && (
-              isExpanded ? (
-                <Minus className={cn("h-4 w-4 text-gray-400")} />
-              ) : (
-                <Plus className={cn("h-4 w-4 text-gray-400")} />
-              )
-            )}
-          </>
-        ) : null}
-      </div>
+          )}
+          
+          {item.isNew && (
+            <span className="chip" style={{
+              background: '#10b981',
+              color: 'white',
+              fontSize: '9px',
+              padding: '2px 5px',
+              borderRadius: '8px',
+              border: 'none'
+            }}>
+              جديد
+            </span>
+          )}
+          
+          {hasChildren && (
+            <div style={{ 
+              transition: 'transform 0.2s ease',
+              transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'
+            }}>
+              <ChevronDown style={{ width: '16px', height: '16px' }} />
+            </div>
+          )}
+        </>
+      )}
+    </div>
     );
 
-    return (
-      <div key={item.id}>
-        {isCollapsed ? (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link href={item.href}>{itemContent}</Link>
-              </TooltipTrigger>
-              <TooltipContent side="left" className="font-medium">
-                {item.title}
-                {item.badge && ` (${item.badge})`}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        ) : (
-          <div>
-            {hasChildren ? (
-              itemContent
-            ) : (
-              <Link href={item.href}>{itemContent}</Link>
-            )}
+    if (isCollapsed && hasChildren) {
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              {itemContent}
+            </TooltipTrigger>
+            <TooltipContent side="left" className="font-medium">
+              {item.title}
+              {item.badge && ` (${item.badge})`}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    }
 
-            {hasChildren && isExpanded && !isCollapsed && (
-              <div className="mt-1 space-y-1">
-                {item.children?.map((child) => (
-                  <SidebarItemComponent
-                    key={child.id}
-                    item={child}
-                    level={level + 1}
-                  />
-                ))}
-              </div>
-            )}
+    return (
+      <div>
+        {hasChildren ? (
+          itemContent
+        ) : (
+          <Link href={item.href}>{itemContent}</Link>
+        )}
+
+        {hasChildren && isExpanded && !isCollapsed && (
+          <div style={{ marginTop: '8px', marginBottom: '8px' }}>
+            {item.children?.map((child) => (
+              <SidebarItemComponent
+                key={child.id}
+                item={child}
+                level={level + 1}
+              />
+            ))}
           </div>
         )}
       </div>
@@ -596,44 +451,189 @@ export default function ModernSidebar({
   };
 
   return (
-    <div className="relative h-full flex flex-col bg-white dark:bg-gray-800">
-      {/* مقبض جانبي أنيق للتكبير/التصغير */}
-      {!isMobile && (
-        <button
-          type="button"
-          onClick={onToggle}
-          aria-label={isCollapsed ? "توسيع الشريط الجانبي" : "طي الشريط الجانبي"}
-          className={cn(
-            "hidden lg:flex items-center justify-center",
-            "absolute top-1/2 -translate-y-1/2 left-0 -translate-x-1/2 z-50",
-            "h-12 w-3 rounded-full",
-            "bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600",
-            "shadow"
+    <>
+      {/* تحميل CSS Manus UI */}
+      <link rel="stylesheet" href="/manus-ui.css" />
+      
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        right: 0,
+        height: '100vh',
+        width: isCollapsed ? '80px' : '280px',
+        background: 'hsl(var(--bg))',
+        borderLeft: '1px solid hsl(var(--line))',
+        transition: 'width 0.3s ease',
+        zIndex: 40,
+        display: 'flex',
+        flexDirection: 'column',
+        overflowY: 'auto'
+      }}>
+        
+        {/* هيدر الشريط الجانبي */}
+        <div style={{
+          padding: isCollapsed ? '16px 12px' : '20px 16px',
+          borderBottom: '1px solid hsl(var(--line))',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: isCollapsed ? 'center' : 'space-between'
+        }}>
+          {!isCollapsed && (
+            <div>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                marginBottom: '4px'
+              }}>
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  background: 'hsl(var(--accent))',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontSize: '18px',
+                  fontWeight: '700'
+                }}>
+                  س
+                </div>
+                <h1 className="heading-3" style={{ margin: 0, fontSize: '18px' }}>
+                  سبق الذكية
+                </h1>
+              </div>
+              <p className="text-xs text-muted">نظام إدارة المحتوى</p>
+            </div>
           )}
-        >
-          {isCollapsed ? (
-            <ChevronRight className="h-3 w-3 text-gray-600 dark:text-gray-300" />
-          ) : (
-            <ChevronLeft className="h-3 w-3 text-gray-600 dark:text-gray-300" />
+          
+          {!isMobile && (
+            <button
+              onClick={onToggle}
+              style={{
+                width: '24px',
+                height: '24px',
+                border: '1px solid hsl(var(--line))',
+                borderRadius: '6px',
+                background: 'transparent',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'hsl(var(--accent))';
+                e.currentTarget.style.color = 'hsl(var(--accent))';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'hsl(var(--line))';
+                e.currentTarget.style.color = 'hsl(var(--fg))';
+              }}
+            >
+              {isCollapsed ? 
+                <ChevronLeft style={{ width: '14px', height: '14px' }} /> : 
+                <ChevronRight style={{ width: '14px', height: '14px' }} />
+              }
+            </button>
           )}
-        </button>
-      )}
-
-      {/* قائمة التنقل */}
-      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-        {customizedSidebarItems.map((item) => (
-          <SidebarItemComponent key={item.id} item={item} />
-        ))}
-      </nav>
-
-      {/* تذييل الشريط الجانبي */}
-      {!isCollapsed && (
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-          <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
-            سبق الذكية v2.0
-          </div>
         </div>
-      )}
-    </div>
+
+        {/* قائمة التنقل */}
+        <nav style={{ 
+          flex: 1, 
+          padding: isCollapsed ? '16px 8px' : '16px',
+          overflowY: 'auto'
+        }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            {customizedSidebarItems.map((item) => (
+              <SidebarItemComponent key={item.id} item={item} />
+            ))}
+          </div>
+        </nav>
+
+        {/* قسم تغيير الثيم - فقط إذا لم يكن مطوياً */}
+        {!isCollapsed && (
+          <div style={{ 
+            padding: '16px',
+            borderTop: '1px solid hsl(var(--line))'
+          }}>
+            <h3 className="heading-3" style={{ 
+              fontSize: '12px', 
+              marginBottom: '12px',
+              color: 'hsl(var(--muted))',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              🎨 لون الواجهة
+            </h3>
+            
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              gap: '6px',
+              marginBottom: '12px'
+            }}>
+              {Object.entries(themes).map(([key, theme]) => (
+                <button
+                  key={key}
+                  className={currentTheme === key ? 'btn-primary' : 'btn'}
+                  onClick={() => applyTheme(key)}
+                  style={{ 
+                    padding: '6px 8px',
+                    fontSize: '10px',
+                    borderRadius: '8px'
+                  }}
+                >
+                  {theme.name}
+                </button>
+              ))}
+            </div>
+            
+            <div className="text-xs text-muted" style={{ 
+              textAlign: 'center',
+              lineHeight: '1.4'
+            }}>
+              💡 تغيير فوري لكامل النظام
+            </div>
+          </div>
+        )}
+
+        {/* معلومات الإصدار - مصغرة */}
+        <div style={{
+          padding: isCollapsed ? '8px' : '12px 16px',
+          borderTop: '1px solid hsl(var(--line))',
+          textAlign: 'center'
+        }}>
+          {!isCollapsed ? (
+            <div>
+              <div className="text-xs text-muted">Manus UI v2.0</div>
+              <div className="text-xs" style={{ 
+                color: 'hsl(var(--accent))',
+                fontWeight: '600'
+              }}>
+                سبق الذكية
+              </div>
+            </div>
+          ) : (
+            <div style={{
+              width: '20px',
+              height: '20px',
+              background: 'hsl(var(--accent) / 0.2)',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto',
+              fontSize: '10px',
+              color: 'hsl(var(--accent))'
+            }}>
+              ✓
+            </div>
+          )}
+        </div>
+      </div>
+    </>
   );
 }
