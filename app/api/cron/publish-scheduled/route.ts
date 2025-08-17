@@ -106,6 +106,18 @@ export async function GET(request: NextRequest) {
         
         console.log(`✅ تم نشر: "${article.title}"`);
 
+        // إشعار المستخدمين المهتمين بالتصنيف عند النشر
+        try {
+          if (article.category_id) {
+            const { SmartNotificationEngine } = await import('@/lib/notifications/smart-engine');
+            SmartNotificationEngine
+              .notifyNewArticleInCategory(article.id, article.category_id)
+              .catch(err => console.warn('⚠️ فشل إشعار المهتمين بالتصنيف:', err));
+          }
+        } catch (notifyErr) {
+          console.warn('⚠️ خطأ أثناء محاولة إرسال إشعار الاهتمامات:', notifyErr);
+        }
+
         // إضافة entry للـ activity log (اختياري)
         try {
           await prisma.activity_logs.create({

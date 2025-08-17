@@ -79,7 +79,8 @@ export class SmartNotificationEngine {
         where: { id: articleId },
         include: {
           categories: true,
-          authors: true
+          author: true,
+          article_author: true,
         }
       });
 
@@ -92,13 +93,14 @@ export class SmartNotificationEngine {
 
       // إنشاء إشعارات للمستخدمين
       for (const userId of interestedUsers) {
-        const categoryName = article.categories?.[0]?.name || 'التصنيف المفضل';
+        const categoryName = (article as any).categories?.name || 'التصنيف المفضل';
+        const em = SmartNotificationEngine.pickCategoryEmoji(categoryName);
         
         await this.createNotification({
           userId,
           type: 'new_article',
-          title: `📰 مقال جديد في ${categoryName}`,
-          message: `بما أنك مهتم بـ${categoryName}، تم نشر مقال جديد بعنوان: "${article.title.substring(0, 50)}..."`,
+          title: `${em} جديد في ${categoryName}`,
+          message: `بما أنك مهتم بـ${categoryName}، تم نشر خبر قد يهمك: "${article.title.substring(0, 60)}..."`,
           entityId: articleId,
           entityType: 'article',
           category: categoryName,
@@ -106,8 +108,8 @@ export class SmartNotificationEngine {
           priority: 'medium',
           metadata: {
             categoryId,
-            authorName: article.authors?.[0]?.name,
-            featuredImage: article.featured_image
+            authorName: (article as any).article_author?.full_name || (article as any).author?.name,
+            featuredImage: (article as any).featured_image
           }
         });
       }
@@ -460,7 +462,7 @@ export class SmartNotificationEngine {
       // تحليل الفئات المفضلة
       const categoryCount: { [key: string]: number } = {};
       recentInteractions.forEach(interaction => {
-        const category = interaction.articles?.categories?.[0]?.name;
+        const category = interaction.articles?.categories?.name;
         if (category) {
           categoryCount[category] = (categoryCount[category] || 0) + 1;
         }
@@ -499,13 +501,11 @@ export class SmartNotificationEngine {
       const recommendedArticles = await prisma.articles.findMany({
         where: {
           categories: {
-            some: {
+            is: {
               name: { in: behavior.interests }
             }
           },
-          created_at: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }, // آخر أسبوع
-          is_active: true,
-          // استبعاد المقالات التي تفاعل معها المستخدم
+          created_at: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
           interactions: {
             none: { user_id: userId }
           }
@@ -520,9 +520,9 @@ export class SmartNotificationEngine {
       return recommendedArticles.map(article => ({
         id: article.id,
         title: article.title,
-        featured_image: article.featured_image,
-        reason: `مشابه لاهتماماتك في ${article.categories?.[0]?.name}`,
-        score: 0.8 // نقطة افتراضية
+        featured_image: (article as any).featured_image,
+        reason: `مشابه لاهتماماتك في ${(article as any).categories?.name}`,
+        score: 0.8
       }));
 
     } catch (error) {
@@ -629,6 +629,16 @@ export class SmartNotificationEngine {
       'urgent': 'urgent'
     };
     return mapping[priority] || 'medium';
+  }
+
+  private static pickCategoryEmoji(categoryName?: string): string {
+    const name = (categoryName || '').toLowerCase();
+    if (/(سفر|سياحة|ترحال|travel|tourism)/i.test(name)) return '✈️🏝️🧭';
+    if (/(اقتصاد|مال|اقتصادى|business|economy|finance)/i.test(name)) return '💼📈';
+    if (/(رياضة|sport)/i.test(name)) return '⚽️🏆';
+    if (/(طقس|weather)/i.test(name)) return '⛅️🌧️';
+    if (/(تقنية|تكنولوجيا|tech)/i.test(name)) return '💡🤖';
+    return '📰';
   }
 }
 
