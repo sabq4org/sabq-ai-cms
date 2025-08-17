@@ -1,0 +1,73 @@
+/* تحسينات الصورة المميزة للديسكتوب */
+
+/* إزالة أي قيود على عرض الصورة */
+.article-featured-image-wrapper {
+  width: 100%;
+  position: relative;
+}
+
+/* الصورة المميزة للديسكتوب */
+@media (min-width: 640px) {
+  .article-featured-image-wrapper img {
+    width: 100%;
+    height: auto;
+    max-height: 90vh;
+    object-fit: cover;
+    display: block;
+  }
+  
+  /* التأكد من أن الحاوية لا تقيد العرض */
+  .article-featured-image-wrapper > div {
+    width: 100%;
+  }
+  
+  /* إزالة أي padding أو margin زائد */
+  .article-featured-image-wrapper figure {
+    margin: 0;
+  }
+}
+
+/* تحسينات الصورة الكبيرة */
+@media (min-width: 1024px) {
+  /* السماح للصورة بأن تكون أكبر على الشاشات الكبيرة */
+  .article-featured-image-wrapper {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .article-featured-image-wrapper img {
+    max-height: 800px;
+  }
+}
+
+/* إصلاح مشكلة الفراغ الأبيض */
+.article-featured-image-wrapper .optimized-image-container,
+.article-featured-image-wrapper .relative {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+/* التأكد من أن Next/Image لا يضيف قيود */
+.article-featured-image-wrapper span {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+/* إصلاح OptimizedImage component */
+.article-featured-image-wrapper .optimized-image {
+  width: 100% !important;
+  height: auto !important;
+  max-width: none !important;
+}
+
+/* Override أي ارتفاعات ثابتة من Tailwind */
+.article-featured-image-wrapper [class*="h-["] {
+  height: auto !important;
+}
+
+/* Dark mode enhancements */
+@media (prefers-color-scheme: dark) {
+  .article-featured-image-wrapper {
+    background: transparent;
+  }
+}

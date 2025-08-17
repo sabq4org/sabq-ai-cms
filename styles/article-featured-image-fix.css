@@ -1,0 +1,113 @@
+/* إصلاح حجم الصورة المميزة في صفحة المقال */
+
+/* الصورة المميزة للمقال - أحجام محسنة */
+.article-featured-image {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background-color: #f3f4f6;
+}
+
+/* أحجام الصورة حسب الشاشة - نسب أبعاد بدلاً من ارتفاعات ثابتة */
+.article-featured-image {
+  height: auto; /* السماح للصورة بتحديد ارتفاعها */
+  max-height: 70vh; /* حد أقصى لتجنب الصور الطويلة جداً */
+  aspect-ratio: 16 / 9; /* نسبة افتراضية */
+}
+
+@media (min-width: 640px) {
+  .article-featured-image {
+    max-height: 80vh; /* تابلت */
+  }
+}
+
+@media (min-width: 1024px) {
+  .article-featured-image {
+    max-height: 90vh; /* ديسكتوب */
+    aspect-ratio: auto; /* السماح بنسب مختلفة */
+  }
+}
+
+/* تحسين عرض الصورة */
+.article-featured-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* صورة محسنة مع حاوي */
+.article-featured-image .optimized-image,
+.article-featured-image .article-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* حاوي الصورة المحسن */
+.article-image-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Override للارتفاعات الثابتة من Tailwind */
+.article-featured-image[class*="h-["] {
+  height: auto !important;
+  max-height: 90vh !important;
+}
+
+/* تأكد من أن الصورة تأخذ العرض الكامل */
+.article-featured-image.w-full {
+  width: 100% !important;
+}
+
+/* إزالة أي قيود على العرض الأقصى */
+.article-featured-image[class*="max-w-"] {
+  max-width: none !important;
+}
+
+/* تحسينات إضافية للجودة */
+.article-featured-image img,
+.article-featured-image .next-image {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+/* حالة التحميل */
+.article-featured-image .loading-skeleton {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    #f3f4f6 25%,
+    #e5e7eb 50%,
+    #f3f4f6 75%
+  );
+  background-size: 200% 100%;
+  animation: loading-wave 1.5s ease-in-out infinite;
+}
+
+@keyframes loading-wave {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* الوضع الليلي */
+.dark .article-featured-image {
+  background-color: #1f2937;
+}
+
+.dark .article-featured-image .loading-skeleton {
+  background: linear-gradient(
+    90deg,
+    #374151 25%,
+    #4b5563 50%,
+    #374151 75%
+  );
+}

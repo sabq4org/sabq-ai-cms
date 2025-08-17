@@ -1,0 +1,195 @@
+/* 🎯 تحسينات إضافية لصورة المراسل المحمولة */
+
+/* تحسين موضع الصورة لإظهار الوجه كاملاً */
+.reporter-avatar-smart-crop {
+  /* استخدام object-position ذكي لتركيز الوجه */
+  object-position: center 25% !important;
+
+  /* تحسين لأشكال الوجه المختلفة */
+  aspect-ratio: 1 / 1;
+
+  /* ضمان عدم تشويه الصورة */
+  object-fit: cover !important;
+
+  /* تحسين على الهواتف العمودية */
+  @media (orientation: portrait) and (max-width: 768px) {
+    object-position: center 20% !important;
+  }
+
+  /* تحسين على الهواتف الأفقية */
+  @media (orientation: landscape) and (max-width: 768px) {
+    object-position: center 30% !important;
+  }
+}
+
+/* تحسين خاص للصور الطويلة/العمودية */
+.reporter-avatar-portrait-fix {
+  /* للصور التي نسبة العرض للارتفاع فيها أقل من 1:1 */
+  object-position: center 15% !important;
+
+  /* زيادة تكبير طفيف لإظهار الوجه بشكل أفضل */
+  transform: scale(1.1);
+  transform-origin: center 25%;
+}
+
+/* تحسين للصور المربعة */
+.reporter-avatar-square-fix {
+  object-position: center 35% !important;
+}
+
+/* حاوي محسن للصورة مع إمكانية التحكم في القص */
+.reporter-avatar-container-enhanced {
+  /* إضافة padding داخلي للتحكم في القص */
+  padding: 2px;
+
+  /* خلفية تدرجية للحالات الطارئة */
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+
+  /* تحسين الظل للمحمول */
+  box-shadow: 0 8px 25px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* تحسين الصورة الداخلية */
+.reporter-avatar-inner {
+  width: calc(100% - 4px);
+  height: calc(100% - 4px);
+  border-radius: inherit;
+  overflow: hidden;
+  background: white;
+
+  /* في الوضع المظلم */
+  @media (prefers-color-scheme: dark) {
+    background: #1f2937;
+  }
+}
+
+/* تحسين للشاشات عالية الكثافة */
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .reporter-avatar-smart-crop {
+    /* تحسين جودة الصورة */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* تحسين خاص للآيفون */
+@media only screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) {
+  .reporter-avatar-container {
+    width: 110px;
+    height: 110px;
+  }
+
+  .reporter-avatar-smart-crop {
+    object-position: center 22% !important;
+  }
+}
+
+/* تحسين للآيفون الصغير (SE) */
+@media only screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) {
+  .reporter-avatar-container {
+    width: 95px;
+    height: 95px;
+  }
+}
+
+/* تحسين للشاشات الكبيرة (iPad) */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+  .reporter-avatar-container {
+    width: 140px;
+    height: 140px;
+  }
+
+  .reporter-avatar-smart-crop {
+    object-position: center 28% !important;
+  }
+}
+
+/* تأثير تحسين الحدة للصور الضبابية */
+.reporter-avatar-enhance {
+  filter: contrast(1.1) brightness(1.02) saturate(1.05);
+
+  /* على الشاشات عالية الدقة، تقليل التأثير */
+  @media (-webkit-min-device-pixel-ratio: 2) {
+    filter: contrast(1.05) brightness(1.01) saturate(1.02);
+  }
+}
+
+/* تحسين للحالة المحملة */
+.reporter-avatar-loaded {
+  opacity: 1;
+  transform: scale(1);
+  transition: all 0.3s ease-in-out;
+}
+
+/* حالة التحميل المحسنة */
+.reporter-avatar-loading-enhanced {
+  opacity: 0.7;
+  transform: scale(0.95);
+
+  /* تأثير نبض ناعم */
+  animation: soft-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes soft-pulse {
+  0%,
+  100% {
+    opacity: 0.7;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+}
+
+/* تحسين متقدم لموضع الصورة بناءً على نسبة العرض للارتفاع */
+.reporter-avatar-aspect-auto {
+  /* للصور الطويلة (أطول من العرض) */
+  &[data-aspect="tall"] {
+    object-position: center 15% !important;
+  }
+
+  /* للصور العريضة (أعرض من الارتفاع) */
+  &[data-aspect="wide"] {
+    object-position: center 45% !important;
+  }
+
+  /* للصور المربعة تقريباً */
+  &[data-aspect="square"] {
+    object-position: center 30% !important;
+  }
+}
+
+/* تحسين الاستجابة للمس على الأجهزة اللمسية */
+@media (hover: none) and (pointer: coarse) {
+  .reporter-avatar-container {
+    /* تحسين منطقة اللمس */
+    min-width: 44px;
+    min-height: 44px;
+
+    /* تقليل تأثيرات الحركة للأداء */
+    transition: transform 0.2s ease;
+  }
+
+  .reporter-avatar-container:active {
+    transform: scale(0.98);
+  }
+}
+
+/* تحسين للطباعة */
+@media print {
+  .reporter-avatar-container {
+    /* ثبات الحجم للطباعة */
+    width: 3cm !important;
+    height: 3cm !important;
+
+    /* إزالة التأثيرات للطباعة */
+    box-shadow: none !important;
+    filter: none !important;
+  }
+
+  .reporter-avatar-enhance {
+    filter: none;
+  }
+}

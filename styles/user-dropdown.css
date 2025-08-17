@@ -1,0 +1,70 @@
+/* تنسيقات القائمة المنسدلة للمستخدم */
+
+/* انيميشن القائمة المنسدلة */
+@keyframes dropdown-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.user-dropdown {
+  animation: dropdown-fade-in 0.2s ease-out;
+}
+
+/* تحسينات الموضع للقائمة المنسدلة */
+.user-dropdown-container {
+  position: relative;
+}
+
+/* التأكد من أن القائمة تظهر فوق العناصر الأخرى */
+.user-dropdown-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  background: transparent;
+}
+
+/* تحسينات زر تسجيل الخروج */
+.logout-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.logout-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s;
+}
+
+.logout-button:hover::before {
+  left: 100%;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .user-dropdown {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .user-dropdown {
+    max-width: calc(100vw - 2rem);
+    right: auto;
+    left: 1rem;
+  }
+}

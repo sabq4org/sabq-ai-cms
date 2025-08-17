@@ -1,0 +1,37 @@
+/* 📏 إصلاح المسافات للنسخة الخفيفة - Featured News */
+
+@media (max-width: 768px) {
+  /* إصلاح مسافة الأخبار المميزة */
+  .featured-news-section {
+    margin-top: 1rem !important;
+    padding-top: 0.5rem !important;
+  }
+  
+  /* إصلاح مسافة شريط الإحصائيات */
+  .compact-stats-bar {
+    margin-top: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  /* إصلاح المسافة بين الهيدر وشريط الإحصائيات */
+  .sticky.top-14.z-30 {
+    top: calc(56px + 0.5rem) !important; /* ارتفاع الهيدر + مسافة */
+  }
+  
+  /* إصلاح مسافة بداية المحتوى الرئيسي */
+  .page-content-wrapper > div:first-child {
+    padding-top: 0.5rem !important;
+  }
+  
+  /* إصلاح مسافة كروت الأخبار */
+  .news-card,
+  .article-card {
+    margin-top: 0.5rem !important;
+  }
+  
+  /* إضافة مسافة للعناصر الأولى بعد الهيدر */
+  .homepage-content > *:first-child,
+  .main-content > *:first-child {
+    margin-top: 0.75rem !important;
+  }
+}

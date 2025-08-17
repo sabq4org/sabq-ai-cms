@@ -1,0 +1,50 @@
+/* إزالة الفراغ نهائياً بين الهيدر وشريط النبض */
+
+/* إزالة padding من ContentWrapper */
+.page-content-wrapper {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* إزالة أي padding من أول div بعد ContentWrapper */
+.page-content-wrapper > div:first-child {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* شريط النبض يبدأ من الأعلى مباشرة */
+.pulse-ticker-mobile,
+.pulse-ticker-desktop {
+  position: relative !important;
+  top: 0 !important;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* العنصر الأول يجب أن يكون بدون أي فراغ */
+.pulse-first-element {
+  position: relative !important;
+  top: 0 !important;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* تأكيد إزالة الفراغ من جميع العناصر المحتملة */
+body > div,
+#__next > div,
+main > div {
+  padding-top: 0 !important;
+}
+
+/* الهيدر يبقى في مكانه */
+.fixed-header {
+  position: fixed !important;
+  top: 0 !important;
+  z-index: 9999 !important;
+}
+
+/* المحتوى يبدأ مباشرة بعد الهيدر */
+.fixed-header + * {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}

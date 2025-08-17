@@ -1,0 +1,223 @@
+/**
+ * تصميم الأخبار المميزة للهواتف
+ * Featured Mobile News Design
+ * 
+ * تصميم محسن للأخبار المميزة على الهواتف مع:
+ * - العنوان داخل الصورة
+ * - طبقة ضبابية سوداء للتباين
+ * - وسم "مميز" واضح
+ * - تأثيرات تفاعلية
+ */
+
+/* البنية الأساسية للخبر المميز */
+.featured-mobile-card {
+  @apply relative w-full overflow-hidden rounded-xl shadow-lg;
+  @apply hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02];
+}
+
+/* حاوي الصورة */
+.featured-mobile-card__image-container {
+  @apply relative w-full h-[280px] overflow-hidden;
+}
+
+/* الصورة الأساسية */
+.featured-mobile-card__image {
+  @apply object-cover transition-transform duration-500 hover:scale-105;
+}
+
+/* الطبقة الضبابية السوداء */
+.featured-mobile-card__overlay {
+  @apply absolute bottom-0 left-0 w-full h-1/3;
+  @apply bg-gradient-to-t from-black/70 to-transparent z-10;
+}
+
+/* وسم "مميز" */
+.featured-mobile-card__badge {
+  @apply absolute top-3 right-3 z-30;
+  @apply bg-yellow-500 text-white px-2 py-1 text-xs rounded;
+  @apply flex items-center gap-1;
+}
+
+/* شارة "عاجل" */
+.featured-mobile-card__breaking {
+  @apply absolute top-3 left-3 z-30;
+  @apply bg-red-500 text-white px-2 py-1 text-xs rounded;
+  @apply flex items-center gap-1 animate-pulse;
+}
+
+/* نقطة الخبر العاجل */
+.featured-mobile-card__breaking-dot {
+  @apply w-1.5 h-1.5 bg-white rounded-full animate-ping;
+}
+
+/* العنوان */
+.featured-mobile-card__title {
+  @apply absolute bottom-4 left-4 right-4 z-20;
+  @apply text-white text-lg font-semibold leading-snug;
+}
+
+/* تحسينات إضافية للهواتف */
+@media (max-width: 768px) {
+  /* تقليل حجم الخط قليلاً على الشاشات الصغيرة جداً */
+  .featured-mobile-card__title {
+    @apply text-base;
+  }
+  
+  /* تقليل المسافات على الشاشات الصغيرة */
+  .featured-mobile-card__badge,
+  .featured-mobile-card__breaking {
+    @apply top-2 px-1.5 py-0.5 text-xs;
+  }
+  
+  .featured-mobile-card__badge {
+    @apply right-2;
+  }
+  
+  .featured-mobile-card__breaking {
+    @apply left-2;
+  }
+  
+  .featured-mobile-card__title {
+    @apply bottom-3 left-3 right-3;
+  }
+}
+
+/* تحسينات للشاشات الكبيرة (تابلت) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .featured-mobile-card__title {
+    @apply text-xl;
+  }
+}
+
+/* تأثيرات تفاعلية متقدمة */
+.featured-mobile-card:hover .featured-mobile-card__image {
+  @apply scale-105;
+}
+
+.featured-mobile-card:hover .featured-mobile-card__badge {
+  @apply shadow-lg;
+}
+
+.featured-mobile-card:hover .featured-mobile-card__title {
+  @apply text-gray-100;
+}
+
+/* دعم الوضع الليلي */
+.dark .featured-mobile-card {
+  @apply shadow-gray-900/20;
+}
+
+.dark .featured-mobile-card:hover {
+  @apply shadow-gray-900/40;
+}
+
+/* انتقالات سلسة */
+.featured-mobile-card * {
+  @apply transition-all duration-300 ease-in-out;
+}
+
+/* حماية من overflow النص الطويل */
+.featured-mobile-card__title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* تحسين القراءة على شاشات عالية الكثافة */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .featured-mobile-card__title {
+    @apply font-medium;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  }
+}
+
+/* ضمان التباين الكافي */
+.featured-mobile-card__overlay {
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.8) 0%,
+    rgba(0, 0, 0, 0.6) 30%,
+    rgba(0, 0, 0, 0.3) 60%,
+    transparent 100%
+  );
+}
+
+/* تحسين الأداء */
+.featured-mobile-card__image-container {
+  contain: layout style paint;
+}
+
+.featured-mobile-card__image {
+  will-change: transform;
+}
+
+/* إمكانية الوصول */
+.featured-mobile-card:focus-within {
+  @apply ring-2 ring-blue-500 ring-offset-2;
+}
+
+.featured-mobile-card__title:focus {
+  @apply outline-none;
+}
+
+/* حالة التحميل */
+.featured-mobile-card--loading .featured-mobile-card__image-container::before {
+  content: '';
+  @apply absolute inset-0 bg-gray-200 animate-pulse z-20;
+  @apply flex items-center justify-center;
+}
+
+.featured-mobile-card--loading .featured-mobile-card__image-container::after {
+  content: '⏳';
+  @apply absolute inset-0 flex items-center justify-center z-30;
+  @apply text-2xl text-gray-400;
+}
+
+/* حالة الخطأ */
+.featured-mobile-card--error .featured-mobile-card__image-container::before {
+  content: '';
+  @apply absolute inset-0 bg-gray-100 z-20;
+  @apply flex items-center justify-center;
+}
+
+.featured-mobile-card--error .featured-mobile-card__image-container::after {
+  content: '📷';
+  @apply absolute inset-0 flex items-center justify-center z-30;
+  @apply text-3xl text-gray-400;
+}
+
+/* متغيرات CSS للتخصيص */
+:root {
+  --featured-card-height: 280px;
+  --featured-card-border-radius: 0.75rem; /* xl */
+  --featured-badge-color: #eab308; /* yellow-500 */
+  --featured-breaking-color: #ef4444; /* red-500 */
+  --featured-overlay-opacity: 0.7;
+}
+
+/* مثال للاستخدام مع متغيرات مخصصة */
+.featured-mobile-card--custom {
+  border-radius: var(--featured-card-border-radius);
+}
+
+.featured-mobile-card--custom .featured-mobile-card__image-container {
+  height: var(--featured-card-height);
+}
+
+.featured-mobile-card--custom .featured-mobile-card__badge {
+  background-color: var(--featured-badge-color);
+}
+
+.featured-mobile-card--custom .featured-mobile-card__breaking {
+  background-color: var(--featured-breaking-color);
+}
+
+.featured-mobile-card--custom .featured-mobile-card__overlay {
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, var(--featured-overlay-opacity)) 0%,
+    transparent 100%
+  );
+}

@@ -1,0 +1,116 @@
+/* إصلاح التوجه العربي للمحتوى في جميع أنحاء الموقع */
+
+/* إصلاح المحتوى العربي الذي يحتوي على text-align: left inline */
+.arabic-content p,
+.arabic-content-paragraph,
+.arabic-article-content p {
+  text-align: right !important;
+  direction: rtl !important;
+}
+
+.arabic-content *,
+.arabic-content-paragraph *,
+.arabic-article-content * {
+  text-align: right !important;
+  direction: rtl !important;
+}
+
+/* إصلاح العناوين */
+.arabic-content h1,
+.arabic-content h2,
+.arabic-content h3,
+.arabic-content h4,
+.arabic-content h5,
+.arabic-content h6,
+.arabic-article-content h1,
+.arabic-article-content h2,
+.arabic-article-content h3,
+.arabic-article-content h4,
+.arabic-article-content h5,
+.arabic-article-content h6 {
+  text-align: right !important;
+  direction: rtl !important;
+}
+
+/* إصلاح الاقتباسات */
+.arabic-content blockquote,
+.arabic-article-content blockquote {
+  text-align: right !important;
+  direction: rtl !important;
+  border-right: 4px solid #3b82f6 !important;
+  border-left: none !important;
+  padding-right: 1rem !important;
+  padding-left: 0 !important;
+}
+
+/* إصلاح القوائم */
+.arabic-content ul,
+.arabic-content ol,
+.arabic-article-content ul,
+.arabic-article-content ol {
+  text-align: right !important;
+  direction: rtl !important;
+  padding-right: 1.5rem !important;
+  padding-left: 0 !important;
+}
+
+.arabic-content li,
+.arabic-article-content li {
+  text-align: right !important;
+  direction: rtl !important;
+}
+
+/* إصلاح الجداول */
+.arabic-content table,
+.arabic-article-content table {
+  direction: rtl !important;
+}
+
+.arabic-content td,
+.arabic-content th,
+.arabic-article-content td,
+.arabic-article-content th {
+  text-align: right !important;
+}
+
+/* إصلاح الصور */
+.arabic-content img,
+.arabic-article-content img {
+  max-width: 100%;
+  height: auto;
+  margin: 1rem auto;
+  display: block;
+}
+
+/* تحسين المسافات والخطوط */
+.arabic-content,
+.arabic-article-content {
+  font-family: "Arabic UI Text", "SF Arabic", "Segoe UI Arabic", "Tahoma",
+    sans-serif;
+  line-height: 1.8;
+  letter-spacing: 0.02em;
+}
+
+/* إصلاح الروابط */
+.arabic-content a,
+.arabic-article-content a {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+/* إصلاح النصوص المميزة */
+.arabic-content strong,
+.arabic-content b,
+.arabic-article-content strong,
+.arabic-article-content b {
+  font-weight: 700;
+  direction: rtl !important;
+}
+
+.arabic-content em,
+.arabic-content i,
+.arabic-article-content em,
+.arabic-article-content i {
+  font-style: italic;
+  direction: rtl !important;
+}

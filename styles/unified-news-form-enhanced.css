@@ -1,0 +1,109 @@
+
+  
+    90deg,
+    backdrop-filter: blur(10px);
+    background: rgba(31, 41, 55, 0.5);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
+    opacity: 0;
+    opacity: 1;
+    rgba(255, 255, 255, 0.3),
+    transform: translateX(-100%);
+    transform: translateX(100%);
+    transform: translateY(0);
+    transform: translateY(20px);
+    transparent
+    transparent,
+  .enhanced-input:focus {
+  .news-type-card:hover {
+  .side-block {
+  );
+  }
+  0% {
+  100% {
+  animation: fadeInUp 0.5s ease-out;
+  animation: shimmer 2s infinite;
+  background: currentColor;
+  background: linear-gradient(
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(45deg, transparent, var(--accent-color), transparent);
+  background: rgba(255, 255, 255, 0.2);
+  border-color: #3b82f6;
+  border-radius: 12px;
+  border-radius: 50%;
+  border-radius: inherit;
+  bottom: 0;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  color: white;
+  content: '';
+  cursor: pointer;
+  from {
+  height: 0;
+  height: 300px;
+  inset: 0;
+  isolation: isolate;
+  left: 0;
+  left: 50%;
+  mask-composite: exclude;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  opacity: 0;
+  opacity: 0.5;
+  opacity: 1;
+  outline: none;
+  overflow: hidden;
+  padding-left: 3rem;
+  padding: 2px;
+  position: absolute;
+  position: relative;
+  right: 0;
+  to {
+  top: 0;
+  top: 50%;
+  transform: scale(1.02);
+  transform: translate(-50%, -50%);
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+  transition: opacity 0.3s ease;
+  transition: width 0.6s, height 0.6s;
+  user-select: none;
+  width: 0;
+  width: 300px;
+  width: 4px;
+.ai-button {
+.ai-button:hover {
+.animate-fade-in {
+.enhanced-alert {
+.enhanced-alert::before {
+.enhanced-input:focus {
+.interactive-card {
+.interactive-card::before {
+.interactive-card.active::before {
+.news-type-card {
+.news-type-card:hover {
+.news-type-card.active {
+.progress-bar {
+.progress-bar::after {
+.publish-button {
+.publish-button::before {
+.publish-button:hover::before {
+.side-block {
+.side-block:hover {
+}
+} 
+@keyframes fadeInUp {
+@keyframes shimmer {
+@media (prefers-color-scheme: dark) {
+/* تحسينات نموذج النشر الموحد */
+/* أزرار النشر المحسنة */
+/* بطاقات نوع الخبر */
+/* حقول الإدخال المحسنة */
+/* رسائل التنبيه المحسنة */
+/* شريط التقدم المحسن */
+/* البطاقات التفاعلية */
+/* البلوكات الجانبية */
+/* الرسوم المتحركة */
+/* الوضع الليلي */
+/* أزرار AI */

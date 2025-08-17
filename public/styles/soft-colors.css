@@ -1,0 +1,130 @@
+
+  
+    90deg,
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    background-color: white;
+    background-position: -200% 0;
+    background-position: 200% 0;
+    color: black;
+    display: none !important;
+    transition-duration: 0.01ms !important;
+    var(--bg-cream) 0%,
+    var(--bg-cream) 100%
+    var(--bg-warm-gray) 50%,
+  --accent-soft-blue: #172554;
+  --accent-soft-blue: #E6F2FF;
+  --accent-soft-green: #14532D;
+  --accent-soft-green: #E6F7E6;
+  --accent-soft-orange: #451A03;
+  --accent-soft-orange: #FFF4E6;
+  --accent-soft-purple: #2E1065;
+  --accent-soft-purple: #F3E8FF;
+  --bg-cream: #0F0F11;
+  --bg-cream: #FAFAF9;
+  --bg-light-beige: #1C1C1F;
+  --bg-light-beige: #F9F7F4;
+  --bg-soft-white: #18181B;
+  --bg-soft-white: #F7F7F5;
+  --bg-warm-gray: #27272A;
+  --bg-warm-gray: #F5F5F4;
+  --shadow-large: 0 8px 32px rgba(0, 0, 0, 0.08);
+  --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.06);
+  --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --text-muted: #71717A;
+  --text-muted: #8A8A8A;
+  --text-primary: #2D2D2D;
+  --text-primary: #FAFAFA;
+  --text-secondary: #5A5A5A;
+  --text-secondary: #A1A1AA;
+  .no-print {
+  );
+  }
+  * {
+  /* ألوان الخلفية الناعمة */
+  /* ألوان التأكيد */
+  /* ألوان النصوص */
+  /* الظلال الناعمة */
+  0% {
+  100% {
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+  backdrop-filter: blur(10px);
+  background-color: rgba(15, 15, 17, 0.95);
+  background-color: rgba(250, 250, 249, 0.95);
+  background-color: var(--bg-cream);
+  background-color: var(--bg-light-beige);
+  background-color: var(--bg-soft-white);
+  background-color: var(--bg-warm-gray);
+  background-size: 200% 100%;
+  background: linear-gradient(
+  background: var(--bg-cream);
+  background: var(--bg-warm-gray);
+  background: var(--text-muted);
+  body {
+  border-color: var(--accent-soft-blue);
+  border-color: var(--bg-warm-gray);
+  border-radius: 5px;
+  box-shadow: var(--shadow-large);
+  box-shadow: var(--shadow-medium);
+  box-shadow: var(--shadow-soft);
+  color: var(--text-primary);
+  color: var(--text-secondary);
+  height: 10px;
+  line-height: 1.8;
+  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  width: 10px;
+::-webkit-scrollbar {
+::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb:hover {
+::-webkit-scrollbar-track {
+:root {
+.article-card {
+.article-card:hover {
+.card,
+.container,
+.dark {
+.dark header {
+.dropdown-menu,
+.reading-mode {
+.reading-mode p {
+.skeleton {
+[class*="rounded"] {
+[role="menu"] {
+}
+} 
+@keyframes skeleton-loading {
+@media (prefers-reduced-motion: reduce) {
+@media print {
+/* تطبيق الخلفية الناعمة على الأزرار بدون فئات خلفية محددة */
+/* تطبيق الألوان على الصفحة الرئيسية */
+/* ألوان ناعمة مريحة للعين */
+/* تحسينات خاصة للقراءة */
+/* الألوان الأساسية */
+/* البطاقات والحاويات */
+/* القوائم المنسدلة */
+/* الهيدر والفوتر */
+/* الوضع المظلم */
+/* تأثيرات التحميل */
+/* تحسينات الأداء */
+/* تحسينات الطباعة */
+/* شريط التمرير */
+/* الأزرار */
+/* الجداول */
+/* المقالات */
+/* النماذج */
+body {
+button {
+button:not(.bg-blue-500):not(.bg-green-500):not(.bg-red-500):not(.bg-gradient-to-r):not(.bg-gray-100):not(.bg-gray-200) {
+button:not(.bg-blue-500):not(.bg-green-500):not(.bg-red-500):not(.bg-gradient-to-r):not(.bg-gray-100):not(.bg-gray-200):hover {
+footer {
+header {
+input,
+input:focus,
+select {
+select:focus {
+table {
+textarea,
+textarea:focus,
+tr:hover {
+tr:nth-child(even) {

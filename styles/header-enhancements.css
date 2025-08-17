@@ -1,0 +1,233 @@
+/* 🌙 تحسينات الهيدر مع زر الوضع الليلي ولحظة بلحظة */
+
+/* تحسينات الهيدر العامة */
+.fixed-header {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* زر لحظة بلحظة */
+.moment-by-moment-btn {
+  position: relative;
+  overflow: visible;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05));
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.moment-by-moment-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+}
+
+/* badge العدد */
+.notification-badge {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  font-size: 10px;
+  font-weight: 600;
+  min-width: 18px;
+  height: 18px;
+  border: 2px solid white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+/* زر الوضع الليلي */
+.dark-mode-btn {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.dark-mode-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  transition: all 0.3s ease;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+}
+
+.dark-mode-btn:hover::before {
+  width: 100px;
+  height: 100px;
+}
+
+.dark-mode-btn:hover {
+  transform: rotate(15deg) scale(1.05);
+}
+
+/* تحسينات الوضع الليلي */
+.dark .dark-mode-btn {
+  background: rgba(251, 191, 36, 0.1);
+}
+
+.dark .dark-mode-btn:hover {
+  background: rgba(251, 191, 36, 0.2);
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+}
+
+/* زر تسجيل الدخول */
+.header-tools a[href="/login"] {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.header-tools a[href="/login"]:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.header-tools a[href="/login"]::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+  transition: all 0.3s ease;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+}
+
+.header-tools a[href="/login"]:hover::before {
+  width: 100px;
+  height: 100px;
+}
+
+.dark .header-tools a[href="/login"] {
+  background: rgba(96, 165, 250, 0.1);
+}
+
+.dark .header-tools a[href="/login"]:hover {
+  background: rgba(96, 165, 250, 0.2);
+}
+
+/* تحسينات للموبايل */
+@media (max-width: 768px) {
+  .header-tools {
+    gap: 0.5rem;
+  }
+  
+  .moment-by-moment-btn,
+  .dark-mode-btn {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .notification-badge {
+    font-size: 9px;
+    min-width: 16px;
+    height: 16px;
+    top: -2px;
+    right: -2px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-tools {
+    gap: 0.25rem;
+  }
+  
+  .moment-by-moment-btn,
+  .dark-mode-btn {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .notification-badge {
+    font-size: 8px;
+    min-width: 14px;
+    height: 14px;
+  }
+}
+
+/* تحسينات الانتقالات */
+.header-tools > * {
+  transition: all 0.2s ease-out;
+}
+
+.header-tools > *:hover {
+  z-index: 10;
+}
+
+/* تحسين التباعد في RTL */
+[dir="rtl"] .header-tools {
+  direction: ltr;
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+/* إضافة تأثيرات بصرية للأزرار النشطة */
+.moment-by-moment-btn:active,
+.dark-mode-btn:active,
+.header-tools a[href="/login"]:active {
+  transform: scale(0.95);
+  transition: transform 0.1s ease;
+}
+
+/* تحسين الوصولية */
+.moment-by-moment-btn:focus,
+.dark-mode-btn:focus,
+.header-tools a[href="/login"]:focus {
+  outline: 2px solid rgba(59, 130, 246, 0.5);
+  outline-offset: 2px;
+}
+
+.dark .moment-by-moment-btn:focus,
+.dark .dark-mode-btn:focus,
+.dark .header-tools a[href="/login"]:focus {
+  outline-color: rgba(96, 165, 250, 0.5);
+}
+
+/* تحسين للوضع عالي التباين */
+@media (prefers-contrast: high) {
+  .moment-by-moment-btn,
+  .dark-mode-btn,
+  .header-tools a[href="/login"] {
+    border-width: 2px;
+    border-style: solid;
+  }
+  
+  .moment-by-moment-btn {
+    border-color: #dc2626;
+  }
+  
+  .dark-mode-btn,
+  .header-tools a[href="/login"] {
+    border-color: currentColor;
+  }
+}
+
+/* تحسين للوضع reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .moment-by-moment-btn,
+  .dark-mode-btn,
+  .header-tools a[href="/login"],
+  .notification-badge {
+    transition: none !important;
+    animation: none !important;
+  }
+  
+  .dark-mode-btn:hover,
+  .moment-by-moment-btn:hover,
+  .header-tools a[href="/login"]:hover {
+    transform: none !important;
+  }
+}

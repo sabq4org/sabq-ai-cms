@@ -1,0 +1,299 @@
+/* إزالة أي خلفية من body و html للصفحة كاملة */
+body, html {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* إزالة خلفية من أي عنصر قد يحمل bg-white أو bg-gray */
+.article-content,
+.article-content *:not(a):not(button):not([class*="bg-blue"]):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-yellow"]):not([class*="bg-purple"]) {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* استهداف محدد لأي div أو section قد يحمل خلفية بيضاء */
+.article-content div:not([class*="bg-"]):not([style*="background"]),
+.article-content section:not([class*="bg-"]):not([style*="background"]),
+.article-content header:not([class*="bg-"]):not([style*="background"]) {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* توحيد عرض جميع حاويات المقال مع بلوك "محتوى مخصص لك" */
+.article-unified-width {
+  max-width: 56rem !important; /* max-w-4xl = 896px = 56rem - نفس عرض SmartPersonalizedContent */
+  margin: 0 auto !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+@media (min-width: 1024px) {
+  .article-unified-width {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+}
+
+@media (max-width: 639px) {
+  .article-unified-width {
+    max-width: 100% !important;
+    padding-left: 1rem !important; /* px-4 */
+    padding-right: 1rem !important; /* px-4 */
+  }
+}
+
+/* 📰 أنماط صفحة المقال */
+.article-page {
+  font-family: var(
+    --font-family-base,
+    "IBM Plex Sans Arabic",
+    "Tajawal",
+    "Noto Sans Arabic",
+    system-ui,
+    sans-serif
+  ) !important;
+}
+
+.article-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.article-title {
+  font-family: var(
+    --font-family-heading,
+    "IBM Plex Sans Arabic",
+    "Tajawal",
+    "Noto Sans Arabic",
+    system-ui,
+    sans-serif
+  ) !important;
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+  color: #1f2937;
+}
+
+/* تحسين تباين العنوان في الوضع الداكن فوق الخلفيات/الصور */
+.dark .article-title-overlay {
+  /* إزالة أي حاوية/خلفية في الوضع الداكن */
+  background: transparent !important;
+  color: #ffffff !important; /* نص أبيض فقط */
+  padding: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  /* ظل خفيف فقط لتحسين القراءة فوق الصور عند الحاجة */
+  text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+}
+
+/* ضبط الحاوية لعنوان المقال لتلتزم بعرض المحتوى (بدلاً من display: contents) */
+.article-title-wrapper {
+  display: block;
+  width: 100%;
+}
+.dark .article-title-wrapper {
+  background: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+.article-content {
+  font-family: var(
+    --font-family-content,
+    "IBM Plex Sans Arabic",
+    "Tajawal",
+    "Noto Sans Arabic",
+    system-ui,
+    sans-serif
+  ) !important;
+  line-height: 1.8;
+  font-size: 1.125rem; /* 18px */
+  color: #374151;
+}
+
+/* خلفية المقال الافتراضية تبقى كما هي */
+.article-content {
+  background: transparent;
+}
+
+/* تحسينات تصميم هيدر المقال - إزالة الخطوط والحدود والخلفيات */
+.article-header,
+header.mb-1,
+header.mb-2 {
+  border: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.article-meta {
+  border: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* إزالة أي خلفية من header المقال */
+.article-title-wrapper {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.article-title-wrapper > div {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  border-bottom: none !important;
+}
+
+/* إزالة شاملة لأي خلفية وحدود في منطقة header المقال */
+.article-title-wrapper *,
+.article-header *,
+header.mb-1 *,
+header.mb-2 * {
+  background: transparent !important;
+  background-color: transparent !important;
+  border-bottom: none !important;
+  border-top: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* استثناءات للعناصر التي تحتاج خلفية (أزرار، تصنيفات) */
+.article-title-wrapper a[class*="bg-"],
+.article-header a[class*="bg-"],
+.article-title-wrapper button,
+.article-header button {
+  background: revert !important;
+  background-color: revert !important;
+}
+
+/* تحسين محاذاة معلومات النشر لليمين */
+.article-meta-info {
+  text-align: right !important;
+  justify-content: flex-end !important;
+  direction: rtl !important;
+  flex-direction: row-reverse !important;
+}
+
+.article-meta-info > * {
+  text-align: right !important;
+  direction: rtl !important;
+}
+
+/* إزالة أي خطوط فاصلة */
+.article-divider {
+  display: none !important;
+}
+
+hr.article-separator {
+  display: none !important;
+}
+
+/* وضع القراءة المحسن */
+.article-content.reading-mode {
+  font-size: 1.25rem; /* 20px */
+  line-height: 1.9;
+}
+
+.article-content h1,
+.article-content h2,
+.article-content h3,
+.article-content h4,
+.article-content h5,
+.article-content h6 {
+  font-family: var(
+    --font-family-heading,
+    "IBM Plex Sans Arabic",
+    "Tajawal",
+    "Noto Sans Arabic",
+    system-ui,
+    sans-serif
+  ) !important;
+  font-weight: 600;
+  margin: 2rem 0 1rem 0;
+  line-height: 1.3;
+}
+
+/* إزالة أي خلفية بيضاء قد تأتي من عناصر عليا حول العنوان */
+.article-content header .max-w-screen-lg > .py-4 { background: transparent !important; }
+.article-content header .bg-transparent { background: transparent !important; }
+.article-content header [class*="bg-white"] { background-color: transparent !important; }
+.article-content .bg-white { background-color: transparent !important; }
+.article-content [class*="bg-gray-50"] { background-color: transparent !important; }
+
+/*Fallback قاسٍ: إزالة أي خلفية داخل الهيدر العلوي بالكامل*/
+/* لا نلغي خلفية الهيدر كاملة؛ نُبقي الشفافية فقط على العنوان */
+.article-content header *:not(h1):not(.article-title-overlay) { background: unset; }
+
+.article-content p {
+  margin-bottom: 1.5rem;
+  text-align: right;
+  direction: rtl;
+}
+
+.article-content img {
+  max-width: 100%;
+  height: auto;
+  margin: 2rem 0;
+  border-radius: 8px;
+}
+
+/* استهداف مباشر لمسار العنصر كما في DevTools لضبط الشفافية بدقة */
+body > div.page-content-wrapper > main > div.relative > article.article-content {
+  background: transparent !important;
+}
+
+/* إزالة أي خلفية داخل هيدر المقال ضمن هذا المسار فقط */
+body > div.page-content-wrapper > main > div.relative > article.article-content header [class*="bg-"] {
+  background: transparent !important;
+}
+
+/* استهداف الحاوية المحددة من DevTools: إزالة الخلفية البيضاء في الوضع الداكن فقط */
+.dark article.article-content > header.article-title-text {
+  background-color: transparent !important;
+}
+
+/* إزالة أي خلفية من العناصر الداخلية التي تستخدم bg- داخل الهيدر المحدد في الوضع الداكن فقط */
+.dark article.article-content > header.article-title-text [class*="bg-"] {
+  background-color: transparent !important;
+}
+
+/* تحسين تباين العنوان الفرعي وبيانات النشر داخل الهيدر المحدد للوضع الداكن */
+.dark article.article-content > header.article-title-text .article-subtitle {
+  color: #e5e7eb !important;
+}
+.dark article.article-content > header.article-title-text .article-meta-info {
+  color: #cbd5e1 !important;
+}
+
+@media (max-width: 768px) {
+  .article-container {
+    padding: 1rem;
+  }
+
+  .article-title {
+    font-size: 1.75rem;
+  }
+
+  .article-content {
+    font-size: 1rem; /* 16px */
+  }
+
+  .article-content.reading-mode {
+    font-size: 1.125rem; /* 18px */
+  }
+}
+
+@media print {
+  .article-content {
+    font-family: "Times New Roman", serif;
+    color: black;
+  }
+}

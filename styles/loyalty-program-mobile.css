@@ -1,0 +1,282 @@
+/* 📱 تحسينات برنامج الولاء للأجهزة المحمولة */
+
+@media (max-width: 768px) {
+  /* Hero Section Mobile */
+  .loyalty-hero-mobile {
+    padding: 3rem 1rem 2rem;
+    text-align: center;
+  }
+
+  .loyalty-hero-mobile h1 {
+    font-size: 2rem;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+  }
+
+  .loyalty-hero-mobile p {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .loyalty-hero-mobile .buttons {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .loyalty-hero-mobile .button {
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+    font-size: 0.95rem;
+  }
+
+  /* Membership Tiers Mobile */
+  .loyalty-tiers-mobile {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+
+  .loyalty-tier-card-mobile {
+    padding: 1.25rem;
+    border-radius: 1rem;
+  }
+
+  .loyalty-tier-card-mobile h3 {
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .loyalty-tier-card-mobile .icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .loyalty-tier-card-mobile .benefit {
+    font-size: 0.875rem;
+    line-height: 1.4;
+  }
+
+  /* Points Activities Mobile */
+  .loyalty-activities-mobile {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    padding: 0 1rem;
+  }
+
+  .loyalty-activity-card-mobile {
+    padding: 1rem;
+    border-radius: 0.75rem;
+    flex-direction: column;
+    text-align: center;
+    gap: 0.75rem;
+  }
+
+  .loyalty-activity-card-mobile .icon-container {
+    margin: 0 auto 0.5rem;
+  }
+
+  .loyalty-activity-card-mobile h3 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .loyalty-activity-card-mobile .description {
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .loyalty-activity-card-mobile .points {
+    font-size: 0.875rem;
+    padding: 0.375rem 0.75rem;
+  }
+
+  /* Rewards Mobile */
+  .loyalty-rewards-mobile {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+
+  .loyalty-reward-card-mobile {
+    padding: 1.25rem;
+    border-radius: 1rem;
+  }
+
+  .loyalty-reward-card-mobile .content {
+    gap: 0.75rem;
+  }
+
+  .loyalty-reward-card-mobile .icon-container {
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+  }
+
+  .loyalty-reward-card-mobile .icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .loyalty-reward-card-mobile h3 {
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .loyalty-reward-card-mobile .description {
+    font-size: 0.875rem;
+    line-height: 1.4;
+    margin-bottom: 0.75rem;
+  }
+
+  .loyalty-reward-card-mobile .required-points {
+    font-size: 0.875rem;
+  }
+
+  /* FAQ Mobile */
+  .loyalty-faq-mobile {
+    padding: 0 1rem;
+  }
+
+  .loyalty-faq-card-mobile {
+    padding: 1rem;
+    border-radius: 0.75rem;
+  }
+
+  .loyalty-faq-card-mobile h3 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .loyalty-faq-card-mobile .answer {
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  /* Section Spacing Mobile */
+  .loyalty-section-mobile {
+    padding: 2.5rem 0;
+  }
+
+  .loyalty-section-title-mobile {
+    font-size: 1.75rem;
+    margin-bottom: 0.75rem;
+    text-align: center;
+    padding: 0 1rem;
+  }
+
+  .loyalty-section-subtitle-mobile {
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+    text-align: center;
+    padding: 0 1rem;
+  }
+
+  /* CTA Section Mobile */
+  .loyalty-cta-mobile {
+    padding: 3rem 1rem;
+    text-align: center;
+  }
+
+  .loyalty-cta-mobile h2 {
+    font-size: 1.75rem;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+  }
+
+  .loyalty-cta-mobile p {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .loyalty-cta-mobile .button {
+    padding: 0.875rem 1.5rem;
+    font-size: 0.95rem;
+  }
+
+  /* Badge Adjustments */
+  .loyalty-badge-mobile {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    border-radius: 1.5rem;
+  }
+
+  .loyalty-badge-mobile .icon {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  /* Typography Mobile */
+  .loyalty-mobile-typography h1 {
+    font-size: 2rem;
+    line-height: 1.2;
+  }
+
+  .loyalty-mobile-typography h2 {
+    font-size: 1.75rem;
+    line-height: 1.25;
+  }
+
+  .loyalty-mobile-typography h3 {
+    font-size: 1.25rem;
+    line-height: 1.3;
+  }
+
+  .loyalty-mobile-typography p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  /* Container Adjustments */
+  .loyalty-container-mobile {
+    padding: 0 1rem;
+    max-width: 100%;
+  }
+
+  /* Responsive Images */
+  .loyalty-responsive-icon {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+  }
+}
+
+/* Tablet specific adjustments */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .loyalty-tiers-mobile {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+
+  .loyalty-activities-mobile {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .loyalty-rewards-mobile {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+}
+
+/* التحسينات للوضع الليلي على الجوال */
+@media (max-width: 768px) and (prefers-color-scheme: dark) {
+  .loyalty-tier-card-mobile {
+    background: rgba(31, 41, 55, 0.8);
+    border-color: rgba(75, 85, 99, 0.5);
+  }
+
+  .loyalty-activity-card-mobile {
+    background: rgba(31, 41, 55, 0.9);
+    border-color: rgba(75, 85, 99, 0.3);
+  }
+
+  .loyalty-reward-card-mobile {
+    background: rgba(31, 41, 55, 0.9);
+    border-color: rgba(75, 85, 99, 0.3);
+  }
+
+  .loyalty-faq-card-mobile {
+    background: rgba(31, 41, 55, 0.9);
+    border-color: rgba(75, 85, 99, 0.3);
+  }
+}

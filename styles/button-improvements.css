@@ -1,0 +1,199 @@
+
+  align-items: center;
+  background-color: #374151;
+  background-color: #3B82F6;
+  background-color: #E5E7EB;
+  background: #1F2937;
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  background: linear-gradient(135deg, #4F46E5 0%, #4338CA 100%);
+  background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+  background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);
+  background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+  background: linear-gradient(135deg, #BFDBFE 0%, #93C5FD 100%);
+  background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+  background: linear-gradient(135deg, #D97706 0%, #B45309 100%);
+  background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+  background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+  background: linear-gradient(135deg, #E9D5FF 0%, #DDD6FE 100%);
+  background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+  background: linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 100%);
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  background: linear-gradient(135deg, #FDE68A 0%, #FCD34D 100%);
+  background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
+  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(139, 92, 246, 0.1) 100%);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0.1) 100%);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(239, 68, 68, 0.1) 100%);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(245, 158, 11, 0.1) 100%);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0.1) 100%);
+  background: rgba(139, 92, 246, 0.2);
+  background: rgba(139, 92, 246, 0.3);
+  background: rgba(245, 158, 11, 0.2);
+  background: rgba(245, 158, 11, 0.3);
+  background: rgba(59, 130, 246, 0.2);
+  background: rgba(59, 130, 246, 0.3);
+  border-color: #10B981;
+  border-color: #2563EB;
+  border-color: #3B82F6;
+  border-color: #4B5563;
+  border-color: #60A5FA;
+  border-color: #8B5CF6;
+  border-color: #EF4444;
+  border-color: #F59E0B;
+  border-radius: 12px;
+  border-radius: 50%;
+  border-radius: 6px;
+  border-radius: 8px;
+  border-top-color: #1F2937;
+  border: 2px solid #10B981;
+  border: 2px solid #D1D5DB;
+  border: 2px solid #EF4444;
+  border: 2px solid #F59E0B;
+  border: 2px solid;
+  border: 5px solid transparent;
+  border: none;
+  bottom: 100%;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+  color: #059669;
+  color: #065F46;
+  color: #1F2937;
+  color: #2563EB;
+  color: #34D399;
+  color: #60A5FA;
+  color: #6B7280;
+  color: #7C3AED;
+  color: #92400E;
+  color: #991B1B;
+  color: #A78BFA;
+  color: #D1D5DB;
+  color: #D97706;
+  color: #DC2626;
+  color: #F59E0B;
+  color: #F87171;
+  color: #F9FAFB;
+  color: #FBBF24;
+  color: white;
+  content: '';
+  content: attr(title);
+  cursor: help;
+  cursor: pointer;
+  display: flex;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-weight: 600;
+  height: 40px;
+  justify-content: center;
+  left: 50%;
+  min-width: 140px;
+  padding: 12px 24px;
+  padding: 16px;
+  padding: 8px 12px;
+  padding: 8px 16px;
+  padding: 8px;
+  position: absolute;
+  position: relative;
+  transform: translateX(-50%);
+  transform: translateY(-1px);
+  transform: translateY(-2px);
+  transform: translateY(0);
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  width: 40px;
+  z-index: 1000;
+.dark .feature-description {
+.dark .feature-icon-blue {
+.dark .feature-icon-orange {
+.dark .feature-icon-purple {
+.dark .feature-label {
+.dark .feature-status.active {
+.dark .feature-status.inactive {
+.dark .feature-toggle-blue {
+.dark .feature-toggle-orange {
+.dark .feature-toggle-purple {
+.dark .message-error {
+.dark .message-success {
+.dark .message-warning {
+.dark .switch-improved {
+.dark .switch-improved[data-state="checked"] {
+.feature-description {
+.feature-icon {
+.feature-icon-blue {
+.feature-icon-orange {
+.feature-icon-purple {
+.feature-label {
+.feature-status {
+.feature-status.active {
+.feature-status.inactive {
+.feature-toggle-blue {
+.feature-toggle-blue:hover {
+.feature-toggle-container {
+.feature-toggle-container:hover {
+.feature-toggle-orange {
+.feature-toggle-orange:hover {
+.feature-toggle-purple {
+.feature-toggle-purple:hover {
+.message-error {
+.message-success {
+.message-warning {
+.save-button-danger {
+.save-button-danger:hover {
+.save-button-indigo {
+.save-button-indigo:hover {
+.save-button-primary {
+.save-button-primary:active {
+.save-button-primary:hover {
+.save-button-purple {
+.save-button-purple:hover {
+.save-button-success {
+.save-button-success:hover {
+.save-button-warning {
+.save-button-warning:hover {
+.switch-improved {
+.switch-improved[data-state="checked"] {
+.test-button {
+.test-button:hover {
+.tooltip {
+.tooltip:hover::after {
+.tooltip:hover::before {
+}
+} 
+/* زر الحفظ الأزرق الداكن (الذكاء الاصطناعي) */
+/* تحسين التباين للوضع الداكن */
+/* تحسينات أزرار الإعدادات - تباين أفضل وألوان واضحة */
+/* زر الحفظ البرتقالي (النسخ الاحتياطي) */
+/* زر الحفظ الأحمر (الأمان) */
+/* تحسين أزرار التفعيل */
+/* تحسين التباين للأيقونات */
+/* تحسين التباين للتبديلات */
+/* تحسين التباين للخلفيات */
+/* تحسين التباين للرسائل */
+/* تحسين التباين للنصوص */
+/* تحسين حالة التفعيل */
+/* زر الحفظ الأخضر */
+/* زر الحفظ الأرجواني */
+/* زر الحفظ الرئيسي */
+/* تحسين التباين للـ tooltips */
+/* المحرر الذكي */
+/* الوضع الداكن */
+/* تحسين الأيقونات */
+/* زر الاختبار */
+/* الإشعارات */
+/* التحليلات */

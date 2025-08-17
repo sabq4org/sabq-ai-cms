@@ -1,0 +1,44 @@
+
+    transform: translate(-20px, 20px) scale(0.9);
+    transform: translate(0px, 0px) scale(1);
+    transform: translate(30px, -50px) scale(1.1);
+  --tw-bg-opacity: 0.2;
+  --tw-bg-opacity: 0.5;
+  --tw-border-opacity: 0.2;
+  -ms-overflow-style: none;
+  -webkit-backdrop-filter: blur(12px);
+  }
+  0% {
+  100% {
+  33% {
+  66% {
+  animation-delay: 2s;
+  animation-delay: 4s;
+  animation: blob 7s infinite;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  display: none;
+  filter: drop-shadow(0 10px 8px rgba(0, 0, 0, 0.04)) drop-shadow(0 4px 3px rgba(0, 0, 0, 0.1));
+  scrollbar-width: none;
+.animate-blob {
+.animation-delay-2000 {
+.animation-delay-4000 {
+.backdrop-blur-md {
+.bg-opacity-20 {
+.bg-opacity-50 {
+.border-opacity-20 {
+.drop-shadow-lg {
+.scrollbar-hide {
+.scrollbar-hide::-webkit-scrollbar {
+.shadow-xl {
+}
+} 
+@keyframes blob {
+/* حركة الدوائر المتحركة في الخلفية */
+/* أنماط صفحة لحظة بلحظة */
+/* إخفاء شريط التمرير */
+/* تأثير الظل للنصوص */
+/* حدود شفافة */
+/* خلفيات شفافة */
+/* ظلال محسنة */
+/* تأثير backdrop blur */

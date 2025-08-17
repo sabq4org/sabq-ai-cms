@@ -1,0 +1,214 @@
+/*
+ * إصلاحات محسنة لعرض الأخبار المميزة
+ * Enhanced Featured News Display Fixes
+ * 
+ * هذا الملف يحل مشكلة عدم ظهور الصور في بلوك الأخبار المميزة
+ * This file fixes the issue where images don't display in featured news block
+ */
+
+/* قواعد أساسية للكاروسيل */
+.featured-carousel {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+  min-height: 300px;
+}
+
+/* ضمان ظهور المحتوى */
+.featured-carousel > a,
+.featured-carousel article,
+.featured-carousel .featured-news-image-container,
+.featured-carousel .featured-news-image {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* إصلاح خاص للصور */
+.featured-news-image-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.featured-news-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  object-position: center;
+  z-index: 1;
+  /* إزالة أي قواعد قد تخفي الصورة */
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+}
+
+/* إصلاح مشكلة Next.js Image */
+.featured-news-image img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* تأكيد عرض البطاقات */
+.featured-carousel article {
+  background-color: white;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.dark .featured-carousel article {
+  background-color: #1f2937;
+}
+
+/* إصلاح طبقة التدرج - لا تؤثر على الصورة */
+.featured-carousel .absolute.inset-0 {
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* النص فوق الصورة */
+.featured-carousel h2.featured-news-title {
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  font-weight: bold;
+  z-index: 3;
+  position: relative;
+}
+
+/* أزرار التنقل */
+.featured-carousel button {
+  opacity: 0.8;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  z-index: 10;
+  transition: opacity 0.3s ease;
+}
+
+.featured-carousel button:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* إصلاح للجوال */
+@media (max-width: 768px) {
+  .featured-carousel {
+    min-height: 220px;
+    margin: 0;
+    padding: 0;
+  }
+
+  .featured-carousel article {
+    border-radius: 12px;
+    margin: 0.5rem;
+  }
+
+  .featured-news-image-container {
+    min-height: 200px;
+    border-radius: 12px 12px 0 0;
+  }
+}
+
+/* تحسين الأداء */
+.featured-carousel *,
+.featured-news-image-container *,
+.featured-news-image * {
+  will-change: auto;
+  backface-visibility: hidden;
+}
+
+/* ضمان عدم تداخل العناصر */
+.featured-carousel .z-10 {
+  z-index: 10 !important;
+}
+
+.featured-carousel .z-20 {
+  z-index: 20 !important;
+}
+
+.featured-carousel .z-30 {
+  z-index: 30 !important;
+}
+
+/* إصلاح خاص لتحميل الصور */
+.featured-news-image[data-loaded="false"] {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* إصلاح خاص للوضع المظلم */
+.dark .featured-news-image[data-loaded="false"] {
+  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+  background-size: 200% 100%;
+}
+
+/* ضمان أن الصور لا تختفي عند التحويم */
+.featured-carousel:hover .featured-news-image,
+.featured-carousel:hover .featured-news-image img {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* إصلاح خاص لـ Safari */
+@supports (-webkit-appearance: none) {
+  .featured-news-image,
+  .featured-news-image img {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+}
+
+/* قواعد للتأكد من عدم إخفاء العناصر */
+.featured-carousel [class*="opacity-0"],
+.featured-carousel [class*="invisible"],
+.featured-carousel [class*="hidden"] {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+}
+
+/* استثناء لعناصر التحكم فقط */
+.featured-carousel .sr-only,
+.featured-carousel [aria-hidden="true"] {
+  /* هذه العناصر تبقى مخفية للـ accessibility */
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* إصلاح مشكلة overflow المحتملة */
+.featured-carousel .overflow-hidden {
+  overflow: hidden;
+}
+
+/* تأكيد أن الصور تظهر في جميع الأحوال */
+.featured-news-image,
+.featured-news-image > *,
+.featured-news-image img {
+  max-width: none !important;
+  max-height: none !important;
+  min-width: 100% !important;
+  min-height: 100% !important;
+}

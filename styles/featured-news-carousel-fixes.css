@@ -1,0 +1,112 @@
+/*
+ * إصلاحات كاروسيل الأخبار المميزة
+ * Featured News Carousel Fixes
+ *
+ * تحسينات عرض بطاقات الأخبار المميزة وإصلاح مشكلة البطاقات البيضاء
+ */
+
+/* قواعد عامة للكاروسيل */
+.featured-carousel {
+  width: 100%;
+  position: relative;
+  z-index: 1;
+  min-height: 300px; /* ارتفاع أدنى لمنع الوميض */
+}
+
+/* إصلاح مشكلة عدم ظهور المحتوى */
+.featured-carousel > a {
+  display: block;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* تحسين عرض البطاقات */
+.featured-carousel article {
+  background-color: white;
+  opacity: 1 !important;
+  display: block;
+  visibility: visible !important;
+}
+
+/* تأكيد عرض الصور وعدم خروجها عن الحدود الدائرية */
+.featured-carousel img,
+.featured-carousel picture,
+.featured-carousel [data-nimg] {
+  opacity: 1 !important;
+  display: block;
+  visibility: visible !important;
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+}
+
+/* إصلاح طبقة التدرج */
+.featured-carousel .absolute.inset-0 {
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* تحسين قراءة النص */
+.featured-carousel h2.featured-news-title {
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  font-weight: bold;
+}
+
+/* إصلاح للجوال */
+@media (max-width: 768px) {
+  .featured-carousel {
+    min-height: 220px;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .featured-carousel article {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* تحسينات للوضع المظلم */
+.dark .featured-carousel article {
+  background-color: #1f2937;
+}
+
+/* تأكيد وضوح عناصر التفاعل */
+.featured-carousel button {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  z-index: 20;
+}
+
+/* إصلاح مشكلة التراكب */
+.featured-carousel .z-10,
+.featured-carousel .z-20,
+.featured-carousel .z-30 {
+  position: relative;
+  z-index: auto;
+}
+
+/* إصلاح وضوح العناصر */
+.featured-carousel .z-10 {
+  z-index: 10 !important;
+}
+
+.featured-carousel .z-20 {
+  z-index: 20 !important;
+}
+
+.featured-carousel .z-30 {
+  z-index: 30 !important;
+}
+
+/* تحسين أداء الرسوم المتحركة */
+.featured-carousel * {
+  will-change: auto;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}

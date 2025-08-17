@@ -1,0 +1,75 @@
+
+    letter-spacing: normal !important;
+    text-align: start !important;
+    white-space: normal !important;
+    word-spacing: normal !important;
+  .card-description,
+  .card-title,
+  .deep-analysis-card,
+  .smart-content-card {
+  }
+  font-family: var(--font-family-base) !important;
+  letter-spacing: inherit;
+  letter-spacing: normal !important;
+  text-align: start !important;
+  text-align: start !important; /* بدلاً من justify للنصوص العربية */
+  text-align: start !important; /* تجاوز justify في النصوص العربية */
+  text-align: start !important; /* تجنب justify مع النصوص العربية */
+  white-space: normal !important;
+  word-spacing: inherit;
+  word-spacing: normal !important;
+.analysis-card-title-mobile {
+.analysis-card-title,
+.analysis-content {
+.arabic-text,
+.article-card .headline {
+.article-card .title,
+.article-card h3,
+.article-card h4,
+.article-card-title,
+.article-excerpt,
+.article-summary {
+.card-description,
+.card-excerpt,
+.card-meta,
+.card-summary,
+.card-title,
+.deep-analysis-block h3,
+.deep-analysis-block h4,
+.deep-analysis-block p {
+.deep-analysis-block,
+.deep-analysis-card .card-content,
+.deep-analysis-card .card-summary,
+.deep-analysis-card .card-title,
+.deep-analysis-card-container {
+.deep-analysis-card,
+.deep-analysis-summary {
+.deep-analysis-title,
+.deep-analysis-widget h3,
+.deep-analysis-widget h4,
+.deep-analysis-widget p,
+.deep-analysis-widget,
+.prose p {
+.smart-content-card .card-description {
+.smart-content-card .card-title,
+.smart-content-card,
+.text-justify {
+}
+@media (max-width: 768px) {
+* {
+/* إصلاح مشكلة التباعد غير الطبيعي بين الكلمات في العناوين والنصوص */
+/* إصلاح إضافي للعناصر التي قد تحتوي على تباعد مخصص */
+/* إصلاح خاص للعناصر التي تحتوي على النص العربي */
+/* تأكيد أن الخطوط تستخدم القيم الافتراضية للتباعد */
+/* إصلاح خاص للعناوين في بطاقات المقالات */
+/* تطبيق إضافي للتأكد من عدم تأثير justify على النصوص العربية */
+/* إصلاح خاص لعناصر التحليل العميق */
+/* تطبيق إعدادات الخط العربي الأساسية */
+/* عناوين المقالات في البطاقات المختلفة */
+/* بطاقات المقالات والعناوين الأساسية */
+/* إصلاح النصوص التوضيحية */
+/* إصلاح خاص للموبايل */
+/* بطاقات التحليل العميق */
+/* البطاقات الذكية */
+h1, h2, h3, h4, h5, h6 {
+html {

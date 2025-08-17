@@ -1,0 +1,202 @@
+/* بطاقات التصنيفات المضغوطة جداً - مثل محتوى مخصص لك */
+
+.compact-category-card-mini {
+  /* تحسينات الأداء */
+  contain: layout style paint;
+  will-change: transform, box-shadow;
+  
+  /* تأثيرات التفاعل المحسنة */
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.compact-category-card-mini:active {
+  transform: scale(0.98);
+  transition-duration: 0.1s;
+}
+
+/* تحسينات خاصة للبطاقات المضغوطة */
+.compact-category-card-mini .line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* تحسينات للشاشات الصغيرة جداً */
+@media (max-width: 320px) {
+  .compact-category-card-mini {
+    margin: 0 -2px;
+  }
+  
+  .compact-category-card-mini .flex {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+  
+  .compact-category-card-mini .w-16 {
+    width: 56px;
+    height: 56px;
+  }
+  
+  .compact-category-card-mini .text-sm {
+    font-size: 13px;
+  }
+}
+
+/* تحسينات للشاشات المتوسطة */
+@media (min-width: 375px) and (max-width: 414px) {
+  .compact-category-card-mini .w-16 {
+    width: 64px;
+    height: 64px;
+  }
+}
+
+/* تحسينات للشاشات الكبيرة (قبل tablet) */
+@media (min-width: 414px) and (max-width: 640px) {
+  .compact-category-card-mini .w-16 {
+    width: 72px;
+    height: 72px;
+  }
+  
+  .compact-category-card-mini .text-sm {
+    font-size: 15px;
+  }
+}
+
+/* تحسينات النص العربي */
+.compact-category-card-mini {
+  direction: rtl;
+  text-align: right;
+  font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* تحسينات الصور */
+.compact-category-card-mini img {
+  transition: opacity 0.3s ease;
+}
+
+.compact-category-card-mini img[data-loaded="true"] {
+  opacity: 1;
+}
+
+/* تأثيرات الهوفر المحسنة للأجهزة التي تدعم اللمس */
+@media (hover: hover) and (pointer: fine) {
+  .compact-category-card-mini:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* تحسينات الأداء للتمرير */
+.category-cards-container .space-y-2 {
+  /* استخدام التسريع الهاردويري */
+  transform: translateZ(0);
+  -webkit-overflow-scrolling: touch;
+}
+
+/* تحسينات الـ dark mode */
+.dark .compact-category-card-mini {
+  border-color: rgba(75, 85, 99, 0.3);
+}
+
+.dark .compact-category-card-mini:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* تحسينات اللود والشيمر */
+.compact-category-card-mini .shimmer {
+  background: linear-gradient(90deg, 
+    rgba(255, 255, 255, 0) 0%, 
+    rgba(255, 255, 255, 0.1) 50%, 
+    rgba(255, 255, 255, 0) 100%);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.dark .compact-category-card-mini .shimmer {
+  background: linear-gradient(90deg, 
+    rgba(255, 255, 255, 0) 0%, 
+    rgba(255, 255, 255, 0.05) 50%, 
+    rgba(255, 255, 255, 0) 100%);
+}
+
+@keyframes shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: 200px 0; }
+}
+
+/* تحسينات إمكانية الوصول */
+.compact-category-card-mini:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* زر عرض المزيد */
+.show-more-button {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* تحسينات للانتقالات السلسة */
+.compact-category-card-mini * {
+  /* تسريع الرسوميات */
+  transform: translateZ(0);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* تحسينات الطباعة */
+@media print {
+  .compact-category-card-mini {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #e5e7eb;
+  }
+  
+  .compact-category-card-mini .w-16 {
+    width: 48px !important;
+    height: 48px !important;
+  }
+}
+
+/* تحسينات الاستجابة المتقدمة */
+@container (max-width: 350px) {
+  .compact-category-card-mini .flex {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+  }
+  
+  .compact-category-card-mini .w-16 {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+/* تحسينات خاصة للتمرير السريع */
+.category-cards-container {
+  scroll-snap-type: y mandatory;
+}
+
+.compact-category-card-mini {
+  scroll-snap-align: start;
+}
+
+/* تحسين المسافات بين البطاقات */
+.space-y-2 > .compact-category-card-mini + .compact-category-card-mini {
+  margin-top: 8px;
+}
+
+/* تحسينات للشاشات الطويلة */
+@media (max-height: 600px) {
+  .compact-category-card-mini .flex {
+    padding: 6px;
+  }
+  
+  .space-y-2 > .compact-category-card-mini + .compact-category-card-mini {
+    margin-top: 6px;
+  }
+}

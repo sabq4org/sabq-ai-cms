@@ -1,0 +1,64 @@
+
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 4;
+  direction: rtl !important;
+  display: -webkit-box;
+  font-family: var(--font-family-base) !important;
+  font-feature-settings: normal !important;
+  font-kerning: auto !important;
+  font-variant-ligatures: normal !important;
+  letter-spacing: normal !important;
+  line-clamp: 1;
+  line-clamp: 2;
+  line-clamp: 3;
+  line-clamp: 4;
+  overflow: hidden;
+  text-align: start !important;
+  text-justify: none !important;
+  text-overflow: ellipsis;
+  word-spacing: normal !important;
+.arabic-text,
+.bg-gradient-to-br *,
+.bg-gradient-to-r *,
+.bg-gray-800 *,
+.bg-white *,
+.btn,
+.button {
+.dark .bg-gray-800 * {
+.justify-start {
+.line-clamp-1 {
+.line-clamp-2 {
+.line-clamp-3 {
+.line-clamp-4 {
+.prose * {
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+.prose p,
+.text-arabic {
+.text-justify {
+[dir="rtl"] *,
+[style*="letter-spacing"] {
+[style*="word-spacing"] {
+}
+* {
+/* تأكيد أن النصوص لا تحتوي على تباعد مخصص */
+/* إصلاح للعناصر ذات الخلفيات الملونة أو المظلمة */
+/* تطبيق التنسيق الصحيح على جميع عناصر HTML */
+/* إضافات لتحديد عدد الأسطر المعروضة */
+/* إصلاح خاص للعناصر التفاعلية */
+/* تخصيص خاص للنصوص العربية */
+/* إصلاح لعناصر المقالات */
+/* منع أي تأثيرات justify غير مرغوب فيها */
+/* إصلاح خاص لعناصر Tailwind */
+/* إصلاح للروابط */
+/* قواعد CSS إضافية لضمان التنسيق الصحيح للنصوص العربية */
+a {
+button,
+h1, h2, h3, h4, h5, h6, p, span, div, a {

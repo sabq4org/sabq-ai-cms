@@ -1,0 +1,54 @@
+
+    text-align: center !important;
+  .lg\\:text-center {
+  .md\\:text-center {
+  .sm\\:text-center {
+  }
+  align-items: center !important;
+  align-self: center !important;
+  display: block !important;
+  justify-content: center !important;
+  justify-self: center !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  place-items: center !important;
+  text-align: center !important;
+  width: 100% !important;
+.center-fix {
+.container.mx-auto,
+.deep-analysis-widget .text-center * {
+.deep-analysis-widget .text-center,
+.flex.items-center {
+.flex.justify-center {
+.grid.place-items-center * {
+.max-w-3xl.mx-auto {
+.max-w-4xl.mx-auto,
+.max-w-5xl.mx-auto,
+.max-w-6xl.mx-auto,
+.max-w-7xl.mx-auto,
+.mx-auto {
+.place-items-center {
+.text-center h1,
+.text-center h2,
+.text-center h3 {
+.text-center p {
+}
+@media (max-width: 767px) {
+@media (min-width: 1024px) {
+@media (min-width: 768px) {
+/* إصلاح للعناصر التي تحتوي على أطفال متوسطين */
+/* إصلاحات خاصة للتوسيط والمحاذاة */
+/* إصلاح للعناصر المرنة المتوسطة */
+/* إصلاح التوسيط العام */
+/* إصلاح خاص للتابلت */
+/* إصلاح خاص للديسكتوب */
+/* إصلاح خاص للموبايل */
+/* إصلاح خاص للويدجت */
+/* إصلاح للعناوين المتوسطة */
+/* إصلاح للفقرات المتوسطة */
+/* إصلاح للكونتينرات المتوسطة */
+/* إصلاح Grid المتوسط */
+h1.text-center,
+h2.text-center,
+h3.text-center,
+p.text-center,

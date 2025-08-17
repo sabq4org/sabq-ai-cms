@@ -1,0 +1,168 @@
+
+   تحسينات الموبايل الشاملة - سبق الذكية
+      padding-bottom: env(safe-area-inset-bottom);
+    -webkit-overflow-scrolling: touch;
+    .bottom-navigation,
+    .fixed-bottom {
+    }
+    background: rgba(0, 0, 0, 0.85);
+    background: var(--background-color, #fff);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 0.5rem;
+    border-radius: 0.75rem;
+    border-radius: 1rem;
+    border-radius: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    color: white;
+    display: flex !important;
+    display: flex;
+    flex-direction: column !important;
+    flex-direction: row !important;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    flex: 1;
+    font-size: 0.625rem;
+    font-size: 0.75rem;
+    font-size: 0.875rem;
+    font-size: 1.125rem;
+    font-size: 1.25rem;
+    font-size: 1.5rem;
+    font-size: 16px; /* منع التكبير في iOS */
+    font-size: 1rem;
+    font-weight: bold;
+    gap: 0.5rem;
+    gap: 1rem;
+    grid-template-columns: 1fr !important;
+    grid-template-columns: 1fr;
+    height: 12rem;
+    height: 8rem;
+    line-height: 1.6;
+    margin-bottom: 0.25rem;
+    margin: 0 !important;
+    margin: 0;
+    margin: 0.5rem 1rem;
+    margin: 1rem !important;
+    max-width: 100vw !important;
+    max-width: 100vw;
+    min-width: 70px;
+    min-width: 80px;
+    object-fit: cover;
+    opacity: 0.9;
+    overflow-x: auto;
+    overflow-x: hidden;
+    overflow: hidden;
+    padding-bottom: 1rem !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    padding-top: 1rem !important;
+    padding: 0 !important;
+    padding: 0;
+    padding: 0.5rem 0.25rem;
+    padding: 0.5rem 1rem;
+    padding: 0.75rem 0.5rem;
+    padding: 0.75rem 1.5rem;
+    padding: 0.75rem 1rem;
+    padding: 0.75rem;
+    padding: 1.5rem !important;
+    padding: 1rem !important;
+    padding: 1rem;
+    position: relative;
+    position: sticky;
+    scroll-behavior: smooth;
+    text-align: center;
+    top: 0;
+    white-space: nowrap;
+    width: 100%;
+    width: 100vw !important;
+    width: 100vw;
+    width: calc(100vw - 2rem);
+    z-index: 50;
+   ======================================== */
+  .article-card {
+  .article-card img {
+  .article-card img,
+  .article-card,
+  .btn {
+  .button,
+  .card img,
+  .card,
+  .container {
+  .flex-row {
+  .grid {
+  .header {
+  .header,
+  .image-container {
+  .list-item,
+  .m-4 {
+  .m-6 {
+  .main-container,
+  .md\:flex-row {
+  .md\:grid-cols-2,
+  .md\:grid-cols-3,
+  .md\:grid-cols-4 {
+  .menu-item {
+  .p-4 {
+  .p-6 {
+  .p-8 {
+  .scroll-container {
+  .sm\:px-6 {
+  .sm\:py-4 {
+  .stat-box .label,
+  .stat-box .number,
+  .stat-box,
+  .statistic-item .label {
+  .statistic-item .value {
+  .statistic-item {
+  .statistics-row {
+  .stats-container,
+  .tab-container {
+  .tab-item {
+  .tab,
+  .tabs,
+  .text-base {
+  [class*="card"] {
+  [class*="card"] img {
+  }
+  @supports (padding: env(safe-area-inset-bottom)) {
+  * {
+  /* إزالة الهوامش الجانبية من الحاوي الرئيسي */
+  /* ضبط العرض الكامل للعناصر الرئيسية */
+  /* البطاقات بعرض كامل */
+  /* الصور داخل البطاقات */
+  /* تحسينات خاصة بالآيفون */
+  /* منع التمرير الأفقي */
+  /* التابات والأزرار */
+  /* الصفوف المرنة */
+  /* الهوامش والحشوات */
+  /* تحسينات الأداء */
+  /* تحسين التمرير */
+  /* تحسين الفورم */
+  /* تحسين الهيدر */
+  /* الإحصائيات - عرض أفقي */
+  /* الأزرار */
+  /* الشبكات */
+  /* القوائم */
+  /* النصوص */
+  /* Override Tailwind classes */
+  body {
+  button,
+  h1 {
+  h2 {
+  h3 {
+  header,
+  input,
+  main,
+  nav {
+  p,
+  select {
+  textarea,
+}
+} 
+@media (max-width: 350px) {
+@media (max-width: 768px) {
+@media (max-width: 768px) and (orientation: landscape) {
+/* إعدادات عامة للموبايل */
+/* شاشات صغيرة جداً */
+/* الوضع الأفقي */
+/* تحسينات Tailwind المخصصة */
+/* ========================================

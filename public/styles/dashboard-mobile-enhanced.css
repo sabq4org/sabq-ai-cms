@@ -1,0 +1,283 @@
+
+  
+    -moz-osx-font-smoothing: grayscale !important;
+    -webkit-font-smoothing: antialiased !important;
+    -webkit-overflow-scrolling: touch !important;
+   📱 1. تخطيط لوحة التحكم للموبايل
+   🔗 2. القائمة الجانبية للموبايل
+   📊 3. البطاقات الإحصائية للموبايل
+   📈 4. الرسوم البيانية للموبايل
+   📋 5. الجداول للموبايل
+   🎛️ 6. النماذج والمدخلات للموبايل
+   🔘 7. الأزرار للموبايل
+   📱 8. التنبيهات والإشعارات
+   🎯 9. تحسينات نهائية للأداء
+    align-items: center !important;
+    align-items: flex-start !important;
+    appearance: none !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e") !important;
+    background-position: left 0.75rem center !important;
+    background-repeat: no-repeat !important;
+    background-size: 1.5em 1.5em !important;
+    background: #064e3b !important;
+    background: #111827 !important;
+    background: #1e3a8a !important;
+    background: #1f2937 !important;
+    background: #2563eb !important;
+    background: #374151 !important;
+    background: #3b82f6 !important;
+    background: #450a0a !important;
+    background: #451a03 !important;
+    background: #4b5563 !important;
+    background: #e5e7eb !important;
+    background: #ecfdf5 !important;
+    background: #eff6ff !important;
+    background: #f3f4f6 !important;
+    background: #f8fafc !important;
+    background: #f9fafb !important;
+    background: #fef2f2 !important;
+    background: #fffbeb !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    background: white !important;
+    border-bottom-color: #374151 !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    border-color: #065f46 !important;
+    border-color: #1e40af !important;
+    border-color: #374151 !important;
+    border-color: #3b82f6 !important;
+    border-color: #4b5563 !important;
+    border-color: #60a5fa !important;
+    border-color: #78350f !important;
+    border-color: #7f1d1d !important;
+    border-radius: 0.5rem !important;
+    border-radius: 0.75rem !important;
+    border-radius: 1rem !important;
+    border-right-color: #374151 !important;
+    border-right: 1px solid #e5e7eb !important;
+    border: 1px solid #bbf7d0 !important;
+    border: 1px solid #bfdbfe !important;
+    border: 1px solid #d1d5db !important;
+    border: 1px solid #e5e7eb !important;
+    border: 1px solid #fecaca !important;
+    border: 1px solid #fed7aa !important;
+    border: none !important;
+    bottom: 0 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+    color: #059669 !important;
+    color: #111827 !important;
+    color: #166534 !important;
+    color: #1e40af !important;
+    color: #2563eb !important;
+    color: #374151 !important;
+    color: #60a5fa !important;
+    color: #6b7280 !important;
+    color: #6ee7b7 !important;
+    color: #92400e !important;
+    color: #93c5fd !important;
+    color: #991b1b !important;
+    color: #9ca3af !important;
+    color: #d1d5db !important;
+    color: #dc2626 !important;
+    color: #f87171 !important;
+    color: #f9fafb !important;
+    color: #fbbf24 !important;
+    color: white !important;
+    display: block !important;
+    display: flex !important;
+    display: none !important;
+    flex-direction: column !important;
+    flex-shrink: 0 !important;
+    flex: 1 !important;
+    font-size: 0.75rem !important;
+    font-size: 0.875rem !important;
+    font-size: 1.125rem !important;
+    font-size: 1rem !important;
+    font-size: 1rem !important; /* منع الـ zoom في iOS */
+    font-size: 2rem !important;
+    font-weight: 500 !important;
+    font-weight: 600 !important;
+    font-weight: 700 !important;
+    gap: 0.25rem !important;
+    gap: 0.5rem !important;
+    gap: 0.75rem !important;
+    gap: 1rem !important;
+    grid-template-columns: 1fr !important;
+    height: 1.25rem !important;
+    height: 1.5rem !important;
+    height: 1rem !important;
+    height: 3rem !important;
+    height: calc(100vh - 64px) !important;
+    justify-content: center !important;
+    justify-content: space-between !important;
+    left: 0 !important;
+    letter-spacing: 0.05em !important;
+    line-height: 1.5 !important;
+    margin-bottom: 0 !important;
+    margin-bottom: 0.25rem !important;
+    margin-bottom: 0.5rem !important;
+    margin-bottom: 1.5rem !important;
+    margin-bottom: 1rem !important;
+    margin-bottom: 2rem !important;
+    margin-right: 0 !important;
+    margin-top: 0.125rem !important;
+    margin: 0 !important;
+    min-height: 120px !important;
+    min-width: 300px !important;
+    opacity: 0 !important;
+    opacity: 1 !important;
+    outline: none !important;
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    overflow-y: hidden !important;
+    overflow: hidden !important;
+    padding-left: 3rem !important;
+    padding: 0 !important;
+    padding: 0 1rem !important;
+    padding: 0.25rem 0.75rem !important;
+    padding: 0.875rem !important;
+    padding: 1.5rem !important;
+    padding: 1rem !important;
+    position: fixed !important;
+    resize: vertical !important;
+    right: 0 !important;
+    scroll-behavior: smooth !important;
+    text-decoration: none !important;
+    text-rendering: optimizeSpeed !important;
+    text-transform: uppercase !important;
+    top: 64px !important;
+    transform: scale(0.95) !important;
+    transform: scale(0.98) !important;
+    transform: translateX(-100%) !important;
+    transform: translateX(0) !important;
+    transition-duration: 0.2s !important;
+    transition: all 0.2s !important;
+    transition: all 0.3s ease !important;
+    transition: transform 0.3s ease !important;
+    visibility: hidden !important;
+    visibility: visible !important;
+    width: 1.25rem !important;
+    width: 1.5rem !important;
+    width: 100% !important;
+    width: 1rem !important;
+    width: 280px !important;
+    width: 3rem !important;
+    will-change: opacity !important;
+    will-change: transform !important;
+    z-index: 998 !important;
+    z-index: 999 !important;
+   =============================== */
+  .alert {
+  .alert-content {
+  .alert-error {
+  .alert-icon {
+  .alert-info {
+  .alert-message {
+  .alert-success {
+  .alert-title {
+  .alert-warning {
+  .btn-group {
+  .btn-icon {
+  .btn-icon:active {
+  .btn-primary {
+  .btn-primary:active {
+  .btn-secondary {
+  .btn-secondary:active {
+  .chart-container {
+  .chart-header {
+  .chart-period {
+  .chart-title {
+  .dark .alert-error {
+  .dark .alert-info {
+  .dark .alert-success {
+  .dark .alert-warning {
+  .dark .btn-icon {
+  .dark .btn-icon:active {
+  .dark .btn-secondary {
+  .dark .btn-secondary:active {
+  .dark .chart-container {
+  .dark .chart-period {
+  .dark .chart-title {
+  .dark .dashboard-sidebar {
+  .dark .form-container {
+  .dark .form-input {
+  .dark .form-input:focus {
+  .dark .form-label {
+  .dark .form-select {
+  .dark .form-textarea {
+  .dark .mobile-table-card {
+  .dark .mobile-table-label {
+  .dark .mobile-table-value {
+  .dark .sidebar-nav-group-title {
+  .dark .sidebar-nav-item {
+  .dark .sidebar-nav-item:active {
+  .dark .sidebar-nav-item.active {
+  .dark .stats-card {
+  .dark .stats-card-icon {
+  .dark .stats-card-label {
+  .dark .stats-card-value {
+  .dark .table-container {
+  .dark .table-header {
+  .dark .table-title {
+  .dashboard-container {
+  .dashboard-main {
+  .dashboard-overlay {
+  .dashboard-overlay.show {
+  .dashboard-sidebar {
+  .dashboard-sidebar.open {
+  .desktop-only {
+  .form-container {
+  .form-group {
+  .form-input {
+  .form-input:focus {
+  .form-label {
+  .form-select {
+  .form-textarea {
+  .mobile-cards {
+  .mobile-table {
+  .mobile-table-card {
+  .mobile-table-card:last-child {
+  .mobile-table-label {
+  .mobile-table-row {
+  .mobile-table-row:last-child {
+  .mobile-table-value {
+  .recharts-surface {
+  .recharts-wrapper {
+  .sidebar-nav {
+  .sidebar-nav-group {
+  .sidebar-nav-group-title {
+  .sidebar-nav-item {
+  .sidebar-nav-item svg {
+  .sidebar-nav-item:active {
+  .sidebar-nav-item.active {
+  .stats-card {
+  .stats-card-change {
+  .stats-card-change svg {
+  .stats-card-change.negative {
+  .stats-card-change.positive {
+  .stats-card-header {
+  .stats-card-icon {
+  .stats-card-icon svg {
+  .stats-card-label {
+  .stats-card-value {
+  .stats-grid {
+  .table-container {
+  .table-header {
+  .table-title {
+  .will-change-opacity {
+  .will-change-transform {
+  }
+  * {
+  /* إخفاء العناصر غير الضرورية */
+  /* تحسين الرسوم البيانية للموبايل */
+  /* تحويل الجداول إلى بطاقات */
+  /* تحسين الانتقالات */
+  /* تحسين التمرير */
+  /* تحسين الخطوط */
+  /* تحسين الذاكرة */
+}
+} 
+@media (max-width: 768px) {
+/* 📊 تحسينات محسنة للوحة التحكم على الموبايل */
+/* ===============================

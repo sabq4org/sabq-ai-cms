@@ -1,0 +1,232 @@
+
+  
+    -moz-osx-font-smoothing: grayscale !important;
+    -moz-user-select: none !important;
+    -webkit-font-smoothing: antialiased !important;
+    -webkit-user-select: none !important;
+   📱 1. تخطيط المقال للموبايل
+   📱 10. تحسينات إضافية للموبايل
+   🌙 11. الوضع المظلم للمقال
+   🎯 12. تحسينات نهائية للقراءة
+   🖼️ 2. الصورة البارزة للموبايل
+   📝 3. محتوى المقال للموبايل
+   🖼️ 4. الصور داخل المقال
+   📊 5. الجداول للموبايل
+   🔗 6. الروابط والمراجع
+   💬 7. أزرار التفاعل للموبايل
+   📖 8. شريط التقدم في القراءة
+   🔤 9. تحسين الخطوط للموبايل
+    align-items: center !important;
+    backdrop-filter: blur(10px) !important;
+    background: #1e293b !important;
+    background: #1f2937 !important;
+    background: #374151 !important;
+    background: #e5e7eb !important;
+    background: #f1f5f9 !important;
+    background: #f3f4f6 !important;
+    background: #f8fafc !important;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6) !important;
+    background: linear-gradient(90deg, transparent, #374151, transparent) !important;
+    background: linear-gradient(90deg, transparent, #e5e7eb, transparent) !important;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.6)) !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    background: rgba(31, 41, 55, 0.95) !important;
+    background: transparent !important;
+    background: white !important;
+    border-bottom-color: #374151 !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    border-color: #374151 !important;
+    border-radius: 0 !important;
+    border-radius: 0 2px 2px 0 !important;
+    border-radius: 0.25rem !important;
+    border-radius: 0.5rem !important;
+    border-radius: 1rem !important;
+    border-right-color: #60a5fa !important;
+    border-right: 4px solid #3b82f6 !important;
+    border-top-color: #374151 !important;
+    border-top: 1px solid #e5e7eb !important;
+    border-top: 2px solid #e5e7eb !important;
+    border: 1px solid #e5e7eb !important;
+    border: none !important;
+    bottom: 0 !important;
+    box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+    color: #1d4ed8 !important;
+    color: #374151 !important;
+    color: #3b82f6 !important;
+    color: #60a5fa !important;
+    color: #6b7280 !important;
+    color: #93c5fd !important;
+    color: #9ca3af !important;
+    color: #e2e8f0 !important;
+    color: #f1f5f9 !important;
+    color: #f3f4f6 !important;
+    color: white !important;
+    content: " ↗" !important;
+    display: block !important;
+    display: flex !important;
+    flex-direction: column !important;
+    font-family: var(--font-family-base) !important;
+    font-size: 0.75rem !important;
+    font-size: 0.875rem !important;
+    font-size: 1.125rem !important;
+    font-size: 1.125rem !important; /* 18px - مريح للقراءة */
+    font-size: 1.25rem !important; /* 20px */
+    font-size: 1.375rem !important; /* 22px */
+    font-size: 1.5rem !important; /* 24px */
+    font-style: italic !important;
+    font-weight: 600 !important;
+    font-weight: 700 !important;
+    gap: 0.25rem !important;
+    gap: 0.5rem !important;
+    height: 1.25rem !important;
+    height: 100% !important;
+    height: 1rem !important;
+    height: 250px !important;
+    height: 2px !important;
+    height: 3px !important;
+    height: auto !important;
+    justify-content: space-around !important;
+    left: 0 !important;
+    line-height: 1.4 !important;
+    line-height: 1.6 !important;
+    line-height: 1.7 !important;
+    margin-bottom: 0 !important;
+    margin-bottom: 0.5rem !important;
+    margin-bottom: 1.5rem !important;
+    margin-bottom: 1rem !important;
+    margin-left: -1rem !important;
+    margin-right: -1rem !important;
+    margin-top: 0.5rem !important;
+    margin-top: 1.5rem !important;
+    margin: 0 -1rem 1rem -1rem !important;
+    margin: 0 !important;
+    margin: 1.5rem 0 !important;
+    margin: 1.5rem 0 0.75rem 0 !important;
+    margin: 2rem 0 !important;
+    margin: 2rem 0 1rem 0 !important;
+    min-width: 60px !important;
+    object-fit: cover !important;
+    opacity: 0.7 !important;
+    overflow-x: auto !important;
+    padding-bottom: 100px !important;
+    padding-right: 1.5rem !important;
+    padding-top: 1rem !important;
+    padding: 0 !important;
+    padding: 0.25rem 0.5rem !important;
+    padding: 0.5rem !important;
+    padding: 0.5rem 1rem !important;
+    padding: 0.75rem !important;
+    padding: 1rem !important;
+    position: absolute !important;
+    position: fixed !important;
+    position: relative !important;
+    right: 0 !important;
+    right: 1rem !important;
+    scroll-behavior: smooth !important;
+    text-align: center !important;
+    text-decoration-thickness: 2px !important;
+    text-decoration-thickness: 3px !important;
+    text-decoration: underline !important;
+    text-rendering: optimizeLegibility !important;
+    text-underline-offset: 2px !important;
+    top: 1rem !important;
+    top: 64px !important; /* تحت الهيدر */
+    transform: scale(0.95) !important;
+    transition: all 0.2s !important;
+    transition: width 0.1s ease !important;
+    user-select: none !important;
+    white-space: nowrap !important;
+    width: 1.25rem !important;
+    width: 100% !important;
+    width: 100vw !important;
+    width: 1rem !important;
+    will-change: transform !important;
+    word-break: break-word !important;
+    z-index: 1000 !important;
+    z-index: 999 !important;
+   =============================== */
+  .article-action-button {
+  .article-action-button svg {
+  .article-action-button:active {
+  .article-action-button.active {
+  .article-actions {
+  .article-category-badge {
+  .article-container {
+  .article-content {
+  .article-content > * + * {
+  .article-content a {
+  .article-content a:hover {
+  .article-content a[target="_blank"]::after {
+  .article-content b {
+  .article-content blockquote {
+  .article-content blockquote p {
+  .article-content code {
+  .article-content em,
+  .article-content figcaption {
+  .article-content figure {
+  .article-content h2 {
+  .article-content h3 {
+  .article-content hr {
+  .article-content i {
+  .article-content img {
+  .article-content li {
+  .article-content ol {
+  .article-content ol li::marker {
+  .article-content p {
+  .article-content strong,
+  .article-content table {
+  .article-content table td {
+  .article-content table th {
+  .article-content table th,
+  .article-content table thead {
+  .article-content ul li::marker {
+  .article-content ul,
+  .article-featured-image {
+  .article-header {
+  .article-image-container {
+  .article-image-overlay {
+  .article-meta {
+  .article-meta-item {
+  .article-meta-item svg {
+  .article-title {
+  .dark .article-action-button {
+  .dark .article-action-button:active {
+  .dark .article-action-button.active {
+  .dark .article-actions {
+  .dark .article-content {
+  .dark .article-content a {
+  .dark .article-content a:hover {
+  .dark .article-content blockquote {
+  .dark .article-content code {
+  .dark .article-content figcaption {
+  .dark .article-content h1,
+  .dark .article-content h2 {
+  .dark .article-content h2,
+  .dark .article-content h3 {
+  .dark .article-content hr {
+  .dark .article-content table {
+  .dark .article-content table td {
+  .dark .article-content table th {
+  .dark .article-content table th,
+  .dark .article-content table thead {
+  .dark .article-meta-item {
+  .dark .article-title {
+  .dark .reading-progress {
+  .reading-progress {
+  .reading-progress-bar {
+  }
+  /* إضافة مساحة في الأسفل لأزرار التفاعل */
+  /* تحسين المسافات للقراءة المريحة */
+  /* تحسين النقاط والقوائم */
+  /* منع التحديد العشوائي */
+  /* الروابط الخارجية */
+  /* تحسين الأداء */
+  /* تحسين الاقتباسات */
+  /* تحسين التمرير */
+  /* تحسين الفواصل */
+}
+} 
+@media (max-width: 768px) {
+/* 📰 تحسينات صفحة المقال للموبايل */
+/* ===============================

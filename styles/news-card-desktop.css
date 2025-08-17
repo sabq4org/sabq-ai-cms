@@ -1,0 +1,119 @@
+.category-pill {
+  @apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium;
+  /* Fallback للمتصفحات التي لا تدعم color-mix */
+  background-color: rgba(59, 130, 246, 0.14);
+  color: rgba(59, 130, 246, 0.7);
+  border: 1px solid rgba(59, 130, 246, 0.28);
+  /* Modern color-mix */
+  background-color: color-mix(in oklab, var(--cat) 14%, transparent);
+  color: color-mix(in oklab, var(--cat) 70%, currentColor);
+  border: 1px solid color-mix(in oklab, var(--cat) 28%, transparent);
+}
+.category-underline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  /* Fallback */
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.7), #3b82f6);
+  /* Modern */
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--cat) 70%, transparent),
+    var(--cat)
+  );
+  opacity: 0.95;
+  pointer-events: none;
+  z-index: 2;
+}
+
+article[data-category="world"] {
+  --cat: #3b82f6;
+}
+article[data-category="sports"] {
+  --cat: #22c55e;
+}
+article[data-category="tech"] {
+  --cat: #8b5cf6;
+}
+article[data-category="business"] {
+  --cat: #f59e0b;
+}
+article[data-category="local"] {
+  --cat: #06b6d4;
+}
+article[data-category="opinions"] {
+  --cat: #ef4444;
+}
+
+/* تصنيفات عربية إضافية */
+article[data-category="العالم"],
+article[data-category="أخبار-العالم"],
+article[data-category="أخبار العالم"],
+article[data-category="سياسة"],
+article[data-category="السياسة"],
+article[data-category="سياحة"],
+article[data-category="السياحة"] {
+  --cat: #3b82f6;
+}
+
+article[data-category="رياضة"],
+article[data-category="الرياضة"],
+article[data-category="رياضي"] {
+  --cat: #22c55e;
+}
+
+article[data-category="تقنية"],
+article[data-category="التقنية"],
+article[data-category="تكنولوجيا"],
+article[data-category="التكنولوجيا"],
+article[data-category="سيارات"],
+article[data-category="السيارات"],
+article[data-category="ميديا"],
+article[data-category="الميديا"] {
+  --cat: #8b5cf6;
+}
+
+article[data-category="اقتصاد"],
+article[data-category="الاقتصاد"],
+article[data-category="أعمال"],
+article[data-category="الأعمال"] {
+  --cat: #f59e0b;
+}
+
+article[data-category="محليات"],
+article[data-category="المحليات"],
+article[data-category="محلي"],
+article[data-category="محطات"],
+article[data-category="المحطات"],
+article[data-category="حياتنا"],
+article[data-category="حياة"],
+article[data-category="عام"],
+article[data-category="عامة"] {
+  --cat: #06b6d4;
+}
+
+/* لون افتراضي لجميع البطاقات */
+article {
+  --cat: #06b6d4;
+}
+
+/* تم إزالة كلاسات الاختبار */
+
+/* Line clamp backup إذا لم يعمل Tailwind */
+.line-clamp-4 {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+:root.dark .category-pill {
+  background-color: color-mix(in oklab, var(--cat) 10%, transparent);
+  color: color-mix(in oklab, var(--cat) 80%, #e5e7eb);
+  border-color: color-mix(in oklab, var(--cat) 24%, transparent);
+}
+:root.dark .category-underline {
+  opacity: 0.85;
+}

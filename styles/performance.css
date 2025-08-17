@@ -1,0 +1,148 @@
+/* تحسينات CSS للأداء */
+
+/* تحسين الخطوط */
+@font-face {
+  font-family: 'Cairo';
+  font-display: swap;
+  src: url('/fonts/cairo-variable.woff2') format('woff2');
+}
+
+/* تحسين التحميل */
+.loading-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* تحسين التحولات */
+.transition-optimized {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.transition-optimized:hover {
+  transform: translateY(-2px);
+}
+
+/* تحسين الشبكة */
+.grid-optimized {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  contain: layout;
+}
+
+/* تحسين الصور */
+.image-optimized {
+  object-fit: cover;
+  object-position: center;
+  background-color: #f3f4f6;
+  transition: opacity 0.3s ease;
+}
+
+.image-optimized[data-loaded="false"] {
+  opacity: 0;
+}
+
+.image-optimized[data-loaded="true"] {
+  opacity: 1;
+}
+
+/* تحسين الحاويات */
+.container-optimized {
+  contain: layout style paint;
+  content-visibility: auto;
+  contain-intrinsic-size: 0 500px;
+}
+
+/* تحسين التمرير */
+.scroll-optimized {
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+}
+
+/* تحسين النصوص */
+.text-optimized {
+  text-rendering: optimizeSpeed;
+  font-feature-settings: 'kern' 1;
+}
+
+/* تحسين الجداول */
+.table-optimized {
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+/* تحسين النموذج */
+.form-optimized {
+  contain: layout;
+}
+
+.form-optimized input,
+.form-optimized textarea,
+.form-optimized select {
+  contain: layout style;
+}
+
+/* تحسين القوائم */
+.list-optimized {
+  contain: layout;
+  transform: translateZ(0);
+}
+
+.list-optimized li {
+  contain: layout style;
+}
+
+/* تحسين البطاقات */
+.card-optimized {
+  contain: layout style paint;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* تحسين الرسوم المتحركة */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* تحسين الطباعة */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-break {
+    page-break-after: always;
+  }
+}
+
+/* تحسين الشاشات الصغيرة */
+@media (max-width: 768px) {
+  .mobile-optimized {
+    contain: layout;
+    transform: translateZ(0);
+  }
+}
+
+/* تحسين الوضع المظلم */
+@media (prefers-color-scheme: dark) {
+  .dark-optimized {
+    color-scheme: dark;
+  }
+}

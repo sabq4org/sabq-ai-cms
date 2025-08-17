@@ -1,0 +1,61 @@
+
+  
+    justify-content: center !important;
+    text-align: center !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  -webkit-font-smoothing: antialiased !important;
+  .desktop-center {
+  .mobile-center {
+  .text-center {
+  }
+  align-items: center !important;
+  direction: ltr;
+  direction: rtl;
+  font-family: var(--font-family-base) !important;
+  font-weight: 700 !important;
+  justify-content: center !important;
+  letter-spacing: normal !important;
+  line-height: 1.4 !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  text-align: center !important;
+  text-align: left !important;
+  text-align: right !important;
+  text-rendering: optimizeLegibility !important;
+  word-spacing: normal !important;
+.card-title, .analysis-card-title, .deep-analysis-title {
+.deep-analysis-widget .card-description {
+.deep-analysis-widget .card-title,
+.flex {
+.flex[dir="rtl"] {
+.grid {
+.grid[dir="rtl"] {
+.mx-auto {
+.text-center {
+.text-center h1,
+.text-center h2,
+.text-center h3,
+.text-center p,
+.text-center span {
+.text-center, .text-center * {
+.text-left {
+.text-right {
+}
+@media (max-width: 768px) {
+@media (min-width: 769px) {
+/* فرض استخدام الخط الصحيح على كل شيء */
+/* إصلاح شامل للخطوط العربية والمحاذاة */
+/* إصلاح عناصر التحليل العميق */
+/* إصلاح خاص للديسكتوب */
+/* إصلاح خاص للعناوين */
+/* إصلاح عام للتوسيط */
+/* إصلاح للعناصر المتداخلة */
+/* إصلاحات المحاذاة */
+/* إصلاح التباعد */
+/* إصلاح للموبايل */
+/* إصلاح Flexbox للعربية */
+/* إصلاح Grid */
+#deep-analysis-highlight .card-description,
+#deep-analysis-highlight .card-title,
+h1, h2, h3, h4, h5, h6, p, span, div, a, button, label {
+html, body, * {

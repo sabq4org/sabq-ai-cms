@@ -1,0 +1,228 @@
+/* تحسينات تخطيط المقال للموبايل */
+
+/* عام - تحسينات الخطوط العربية */
+.mobile-article-header {
+  font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  direction: rtl;
+  text-align: right;
+}
+
+/* العنوان الرئيسي */
+.mobile-article-title {
+  /* تحسين المسافات للعناوين الطويلة */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  -moz-hyphens: auto;
+  
+  /* تحسين التباعد */
+  letter-spacing: -0.01em;
+  
+  /* تحسين الأداء */
+  contain: layout style paint;
+}
+
+/* العنوان الفرعي */
+.mobile-article-subtitle {
+  /* منع bold للعناوين الفرعية */
+  font-weight: 400 !important;
+  
+  /* تحسين القراءة */
+  line-height: 1.6;
+  color: inherit;
+  
+  /* تحسين التباعد */
+  letter-spacing: 0;
+}
+
+/* حاوي المعلومات */
+.mobile-article-meta {
+  /* تحسين التخطيط */
+  align-items: flex-start;
+  gap: 12px;
+  
+  /* تحسين الاستجابة */
+  flex-wrap: wrap;
+}
+
+/* التصنيف */
+.mobile-article-category {
+  /* ضمان عدم التفاف */
+  flex-shrink: 0;
+  white-space: nowrap;
+  
+  /* تحسين الانتقالات */
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mobile-article-category:hover {
+  transform: scale(1.02);
+}
+
+/* معلومات النشر */
+.mobile-article-metadata {
+  /* تحسين التخطيط */
+  max-width: 180px;
+  min-width: 140px;
+  
+  /* تحسين النص */
+  font-variant-numeric: tabular-nums;
+  
+  /* تحسين الأداء */
+  contain: layout style;
+}
+
+/* الفواصل في معلومات النشر */
+.mobile-article-metadata .text-gray-300 {
+  opacity: 0.6;
+  margin: 0 2px;
+}
+
+/* تحسين التفاف النص في معلومات النشر */
+.mobile-article-metadata .flex-wrap {
+  line-height: 1.2;
+}
+
+/* الأيقونات */
+.mobile-article-icon {
+  /* تحسين الأيقونات */
+  flex-shrink: 0;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+/* تحسينات للشاشات الصغيرة جداً */
+@media (max-width: 320px) {
+  .mobile-article-title {
+    font-size: 20px !important;
+    line-height: 1.3;
+  }
+  
+  .mobile-article-subtitle {
+    font-size: 13px !important;
+  }
+  
+  .mobile-article-meta {
+    gap: 8px;
+  }
+  
+  .mobile-article-metadata {
+    max-width: 140px;
+    font-size: 10px !important;
+  }
+  
+  /* تحسين معلومات النشر للشاشات الصغيرة */
+  .mobile-article-metadata .flex-wrap {
+    gap: 4px !important;
+  }
+}
+
+/* تحسينات للشاشات المتوسطة */
+@media (min-width: 375px) and (max-width: 414px) {
+  .mobile-article-title {
+    font-size: 24px !important;
+  }
+  
+  .mobile-article-subtitle {
+    font-size: 14px !important;
+  }
+}
+
+/* تحسينات للشاشات الكبيرة (قبل tablet) */
+@media (min-width: 414px) and (max-width: 640px) {
+  .mobile-article-title {
+    font-size: 28px !important;
+  }
+  
+  .mobile-article-subtitle {
+    font-size: 15px !important;
+  }
+}
+
+/* تحسينات Dark Mode */
+@media (prefers-color-scheme: dark) {
+  .mobile-article-subtitle {
+    color: rgb(243 244 246) !important; /* gray-100 */
+  }
+  
+  .mobile-article-icon {
+    opacity: 0.8;
+  }
+}
+
+/* تحسينات إمكانية الوصول */
+@media (prefers-reduced-motion: reduce) {
+  .mobile-article-category {
+    transition: none;
+  }
+  
+  .mobile-article-category:hover {
+    transform: none;
+  }
+}
+
+/* تحسينات الطباعة */
+@media print {
+  .mobile-article-header {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .mobile-article-category {
+    border: 1px solid #ccc !important;
+    background: white !important;
+    color: black !important;
+  }
+}
+
+/* تحسينات الأداء العامة */
+.mobile-article-header * {
+  /* تسريع الرسوميات */
+  transform: translateZ(0);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* تحسين التمرير */
+.mobile-article-content {
+  /* منع layout shift */
+  contain: layout;
+  
+  /* تحسين التمرير */
+  scroll-behavior: smooth;
+}
+
+/* تحسينات خاصة بالعربية */
+.rtl-optimized {
+  /* تحسين اتجاه النص */
+  direction: rtl;
+  text-align: right;
+  
+  /* تحسين التباعد للعربية */
+  word-spacing: 0.1em;
+  
+  /* تحسين فواصل الأسطر */
+  line-break: auto;
+  word-break: keep-all;
+}
+
+/* Flexbox للعربية */
+.rtl-flex {
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+/* تحسينات الاستجابة المتقدمة */
+@container (max-width: 350px) {
+  .mobile-article-meta {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  
+  .mobile-article-metadata {
+    max-width: none;
+    align-self: flex-end;
+  }
+}

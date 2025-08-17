@@ -1,0 +1,177 @@
+/* Category Page Mobile Optimizations */
+
+/* Mobile Hero Section */
+@media (max-width: 768px) {
+  .category-hero {
+    height: 250px !important;
+  }
+  
+  .category-hero-content {
+    padding: 1rem !important;
+  }
+  
+  .category-hero h1 {
+    font-size: 1.5rem !important;
+    line-height: 2rem !important;
+  }
+  
+  .category-description {
+    font-size: 0.875rem !important;
+    line-height: 1.25rem !important;
+  }
+}
+
+/* Mobile Article Cards */
+@media (max-width: 768px) {
+  .mobile-article-card {
+    border-radius: 1rem !important;
+    padding: 1rem !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  .mobile-article-title {
+    font-size: 0.875rem !important;
+    line-height: 1.25rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  .mobile-article-meta {
+    font-size: 0.75rem !important;
+    color: #6b7280 !important;
+  }
+}
+
+/* Error States */
+.error-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.error-content {
+  text-align: center;
+  max-width: 28rem;
+  margin: 0 auto;
+}
+
+.error-icon {
+  width: 4rem;
+  height: 4rem;
+  margin: 0 auto 1rem auto;
+  color: #ef4444;
+}
+
+.error-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.error-message {
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.error-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.error-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.error-button-primary {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.error-button-primary:hover {
+  background-color: #2563eb;
+}
+
+.error-button-secondary {
+  background-color: #6b7280;
+  color: white;
+}
+
+.error-button-secondary:hover {
+  background-color: #4b5563;
+}
+
+/* Loading States */
+.loading-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f9fafb;
+}
+
+.loading-content {
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 3rem;
+  height: 3rem;
+  animation: spin 1s linear infinite;
+  color: #3b82f6;
+  margin: 0 auto 1rem auto;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  color: #6b7280;
+}
+
+/* Dark Mode Adjustments */
+@media (prefers-color-scheme: dark) {
+  .loading-container {
+    background-color: #111827;
+  }
+  
+  .error-container {
+    background-color: #111827;
+  }
+  
+  .error-title {
+    color: white;
+  }
+  
+  .error-message {
+    color: #d1d5db;
+  }
+  
+  .loading-text {
+    color: #d1d5db;
+  }
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 640px) {
+  .error-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .error-button {
+    justify-content: center;
+  }
+}

@@ -1,0 +1,55 @@
+/* تحسينات ترتيب العناصر للنسخة المحمولة */
+
+/* تحديد ترتيب العناصر للموبايل */
+@media (max-width: 768px) {
+  /* ترتيب العناصر الرئيسية في الصفحة الرئيسية */
+  .homepage-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* كلمات شائعة - ترتيب أعلى في الموبايل */
+  .mobile-word-cloud-section {
+    order: 3; /* بعد الأخبار المميزة والتصنيفات */
+    margin-bottom: 1rem;
+  }
+
+  /* مقترب - ترتيب أقل في الموبايل */
+  .mobile-trending-section {
+    order: 4;
+    margin-top: 1rem;
+  }
+
+  /* تحسين المسافات للنسخة المحمولة */
+  .mobile-section-spacing {
+    padding: 0.75rem 0;
+    margin: 0.5rem 0;
+  }
+
+  /* إضافة انتقالات سلسة */
+  .mobile-layout-transition {
+    transition: all 0.3s ease-in-out;
+  }
+}
+
+/* تحسينات إضافية للنسخة المحمولة */
+@media (max-width: 480px) {
+  .mobile-word-cloud-section {
+    padding: 0.5rem 0;
+  }
+  
+  .mobile-trending-section {
+    padding: 1rem 0;
+  }
+}
+
+/* التأكد من عدم تأثر النسخة العادية */
+@media (min-width: 769px) {
+  .desktop-word-cloud-section {
+    order: unset;
+  }
+  
+  .desktop-trending-section {
+    order: unset;
+  }
+}

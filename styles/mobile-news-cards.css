@@ -1,0 +1,69 @@
+/* بطاقات الأخبار للنسخة الخفيفة */
+.mobile-news-card {
+  /* إزالة التأثيرات الثقيلة */
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+/* عناوين الأخبار المحسنة */
+.mobile-news-card h2,
+.mobile-news-card h3,
+.mobile-news-card h4 {
+  /* استخدام font-weight أخف */
+  font-weight: 600 !important; /* semibold بدلاً من bold */
+  letter-spacing: -0.01em; /* تقليل المسافة بين الأحرف */
+}
+
+/* تحديد عدد الأسطر للعناوين */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* إخفاء التصنيفات في البطاقات */
+.mobile-news-card .category-badge,
+.mobile-news-card .category-tag,
+.mobile-news-card [class*="category"] {
+  display: none !important;
+}
+
+/* تحسين المسافات بعد إزالة التصنيف */
+.mobile-news-card .content-section {
+  padding-top: 0.75rem;
+}
+
+/* تحسين قابلية القراءة */
+.mobile-news-card {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* تحسين التباعد في البطاقات */
+.mobile-news-card-content {
+  line-height: 1.6;
+}
+
+/* تأثيرات hover خفيفة */
+.mobile-news-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* تحسينات الأداء */
+.mobile-news-card {
+  will-change: transform;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* دعم الوضع الليلي */
+@media (prefers-color-scheme: dark) {
+  .mobile-news-card {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  .mobile-news-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+} 

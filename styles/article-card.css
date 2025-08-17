@@ -1,0 +1,50 @@
+
+  
+    background-position: 0% 50%;
+    background-position: 100% 50%;
+    border-radius: 1rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.25);
+    opacity: .8;
+    opacity: 1;
+    transform: scale(0.98);
+  .article-card {
+  .article-card:active {
+  .article-card:hover {
+  }
+  0% {
+  0%, 100% {
+  100% {
+  50% {
+  animation: gradient 3s ease infinite;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  background-size: 200% 200%;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  transform: scale(1.1);
+  transform: translateY(-4px);
+  transform: translateY(0);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: color 0.2s ease-in-out;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+.article-card .image-container {
+.article-card .image-container img {
+.article-card {
+.article-card h3,
+.article-card h4 {
+.article-card:hover .image-container img {
+.article-card:hover {
+.featured-badge {
+.urgent-badge {
+}
+} 
+@keyframes gradient {
+@keyframes pulse {
+@media (max-width: 768px) {
+@media (prefers-color-scheme: dark) {
+/* Article Card Styles */
+/* Dark mode shadow */
+/* Featured badge gradient animation */
+/* Image hover effect */
+/* Mobile optimizations */
+/* Title hover effect */
+/* Urgent badge animation */

@@ -1,0 +1,121 @@
+
+  
+    color: #000000 !important;
+    color: #666666 !important;
+    color: #cccccc !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+  -moz-osx-font-smoothing: grayscale;
+  -moz-user-select: text;
+  -ms-overflow-style: none;
+  -ms-user-select: text;
+  -webkit-animation: fadeIn 0.3s ease-out;
+  -webkit-backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+  -webkit-overflow-scrolling: touch;
+  -webkit-transform: translateZ(0);
+  -webkit-user-select: text;
+  .dark .deep-analysis-summary {
+  .dark .deep-analysis-title {
+  .deep-analysis-summary {
+  .deep-analysis-title {
+  }
+  animation: fadeIn 0.3s ease-out;
+  backface-visibility: hidden;
+  background-clip: padding-box;
+  background-color: #2d3748 !important;
+  background-color: #38a169 !important;
+  background-color: #44337a !important;
+  background-color: #4a5568 !important;
+  background-color: #e53e3e !important;
+  background-color: #ed8936 !important;
+  background-color: #edf2f7 !important;
+  background-color: #f7fafc !important;
+  background-color: #faf5ff !important;
+  border-color: #718096;
+  border-color: #cbd5e0;
+  border-radius: 0.75rem;
+  border: 1px solid #4a5568;
+  border: 1px solid #7c3aed;
+  border: 1px solid #d6bcfa;
+  border: 1px solid #e2e8f0;
+  border: 2px solid transparent;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  color: #1a202c !important; /* أسود داكن للوضع العادي */
+  color: #2d3748 !important;
+  color: #4a5568 !important;
+  color: #4a5568 !important; /* رمادي متوسط للوضع العادي */
+  color: #553c9a !important;
+  color: #718096 !important;
+  color: #a0aec0 !important;
+  color: #e2e8f0 !important;
+  color: #e2e8f0 !important; /* رمادي فاتح للوضع الداكن */
+  color: #e9d5ff !important;
+  color: #f7fafc !important;
+  color: #ffffff !important; /* أبيض نقي للوضع الداكن */
+  color: white !important;
+  direction: rtl;
+  display: none;
+  font-family: var(--font-family-base) !important;
+  font-size: 0.875rem;
+  font-weight: 700;
+  from { opacity: 0; transform: translateY(10px); }
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  text-align: right;
+  text-rendering: optimizeLegibility;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  to { opacity: 1; transform: translateY(0); }
+  transform: translateZ(0);
+  transition: all 0.2s ease;
+  user-select: text;
+.analysis-category-tag {
+.analysis-category-tag.purple {
+.analysis-content {
+.analysis-interaction-button {
+.analysis-interaction-button:hover {
+.analysis-meta-text {
+.arabic-text {
+.dark .analysis-category-tag {
+.dark .analysis-category-tag.purple {
+.dark .analysis-interaction-button {
+.dark .analysis-interaction-button:hover {
+.dark .analysis-meta-text {
+.dark .deep-analysis-card-container {
+.dark .deep-analysis-card-container:hover {
+.dark .deep-analysis-summary {
+.dark .deep-analysis-title {
+.deep-analysis-card {
+.deep-analysis-card-container {
+.deep-analysis-card-container:hover {
+.deep-analysis-image {
+.deep-analysis-scroll-container {
+.deep-analysis-scroll-container::-webkit-scrollbar {
+.deep-analysis-summary {
+.deep-analysis-title {
+.quality-indicator {
+.quality-indicator.high {
+.quality-indicator.low {
+.quality-indicator.medium {
+}
+@-webkit-keyframes fadeIn {
+@keyframes fadeIn {
+@supports (-webkit-touch-callout: none) {
+/* تحسين ألوان النصوص لضمان التباين الجيد في Safari */
+/* إصلاح مشاكل التحديد والنسخ في Safari */
+/* تحسين عرض الوقت والتاريخ */
+/* إصلاح مشكلة الألوان في Safari مع webkit prefixes */
+/* تحسين الحدود والظلال لـ Safari */
+/* تحسين الخطوط العربية في Safari */
+/* تحسين الرسوم المتحركة لـ Safari */
+/* تحسين عرض الصور في Safari */
+/* تحسين أزرار التفاعل */
+/* تحسين ألوان التصنيفات */
+/* تحسين التمرير الأفقي */
+/* تحسين مؤشر الجودة */
+/* إصلاح مخصص لـ Safari على iOS */
+/* إصلاحات Safari للتحليل العميق - CSS محسن للتوافق */

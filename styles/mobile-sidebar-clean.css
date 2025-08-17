@@ -1,0 +1,230 @@
+/* تحسينات القائمة الجانبية النظيفة للموبايل */
+
+/* القائمة الجانبية - أقسام الموقع فقط */
+.mobile-sidebar-clean {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 85vw;
+  max-width: 320px;
+  height: 100vh;
+  background: white;
+  z-index: 50;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+  transform: translateX(100%);
+  transition: transform 0.3s ease-out;
+}
+
+.mobile-sidebar-clean.open {
+  transform: translateX(0);
+}
+
+/* الوضع الليلي */
+.dark .mobile-sidebar-clean {
+  background: #1a1a1a;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.5);
+}
+
+/* رأس القائمة */
+.sidebar-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.dark .sidebar-header {
+  border-bottom-color: #374151;
+}
+
+/* محتوى القائمة */
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 0;
+}
+
+/* عناصر القائمة */
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.5rem;
+  color: #374151;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  position: relative;
+  font-size: 0.95rem;
+}
+
+.sidebar-item:hover {
+  background: #f3f4f6;
+  color: #1f2937;
+}
+
+.sidebar-item.active {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.sidebar-item.active::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #2563eb;
+}
+
+/* الوضع الليلي للعناصر */
+.dark .sidebar-item {
+  color: #d1d5db;
+}
+
+.dark .sidebar-item:hover {
+  background: #374151;
+  color: #f3f4f6;
+}
+
+.dark .sidebar-item.active {
+  background: #1e3a8a;
+  color: #60a5fa;
+}
+
+/* الشارات */
+.sidebar-badge {
+  margin-right: auto;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.sidebar-badge.new {
+  background: #10b981;
+  color: white;
+}
+
+.sidebar-badge.highlight {
+  background: #ef4444;
+  color: white;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* قائمة المستخدم المنسدلة */
+.user-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0.5rem;
+  margin-top: 0.5rem;
+  width: 18rem;
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  opacity: 0;
+  transform: scale(0.95) translateY(-10px);
+  transition: all 0.2s ease-out;
+  pointer-events: none;
+}
+
+.user-dropdown.open {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  pointer-events: auto;
+}
+
+.dark .user-dropdown {
+  background: #1f2937;
+  border-color: #374151;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+/* رأس قائمة المستخدم */
+.user-dropdown-header {
+  padding: 1rem;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.dark .user-dropdown-header {
+  background: #111827;
+  border-bottom-color: #374151;
+}
+
+/* عناصر قائمة المستخدم */
+.user-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  color: #4b5563;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+}
+
+.user-dropdown-item:hover {
+  background: #f3f4f6;
+  color: #1f2937;
+}
+
+.dark .user-dropdown-item {
+  color: #d1d5db;
+}
+
+.dark .user-dropdown-item:hover {
+  background: #374151;
+  color: #f3f4f6;
+}
+
+/* زر تسجيل الخروج */
+.logout-button {
+  width: 100%;
+  margin: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logout-button:hover {
+  background: #dc2626;
+  transform: scale(1.02);
+}
+
+.logout-button:active {
+  transform: scale(0.98);
+}
+
+/* الأنيميشن */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* تحسينات الأداء */
+.mobile-sidebar-clean * {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* التوافق مع الشاشات الصغيرة */
+@media (max-width: 320px) {
+  .mobile-sidebar-clean {
+    width: 90vw;
+  }
+  
+  .sidebar-item {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+}

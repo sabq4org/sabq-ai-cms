@@ -1,0 +1,23 @@
+/* 🖼️ تحسينات الصور */
+.image-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.image-optimized {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.image-optimized:hover {
+  transform: scale(1.02);
+}
+
+@media (max-width: 768px) {
+  .image-container {
+    margin: 1rem 0;
+  }
+}

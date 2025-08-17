@@ -1,0 +1,233 @@
+/**
+ * 🎨 نمط لوحة تحكم SaaS احترافية - مستوحى من Altezza Travel CRM
+ * تصميم حديث مع ألوان متوازنة وتجربة مستخدم متقدمة
+ */
+
+:root {
+  /* الألوان الأساسية */
+  --saas-bg-primary: #f5f6fa; /* خلفية رئيسية */
+  --saas-sidebar-dark: #1a1e24; /* شريط جانبي داكن */
+  --saas-accent-yellow: #facc15; /* لون تمييز أصفر */
+  --saas-text-primary: #1f2937; /* نص أساسي */
+  --saas-text-secondary: #6b7280; /* نص ثانوي */
+  --saas-border-light: #e5e7eb; /* حدود خفيفة */
+
+  /* ألوان الحالة */
+  --saas-success: #22c55e; /* أخضر - مكتمل */
+  --saas-progress: #3b82f6; /* أزرق - جاري التنفيذ */
+  --saas-warning: #f97316; /* برتقالي - تحذير */
+  --saas-danger: #ef4444; /* أحمر - خطر */
+
+  /* الظلال والتأثيرات */
+  --saas-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --saas-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --saas-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* الخطوط والأحجام */
+  --saas-font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  --saas-border-radius: 0.5rem;
+  --saas-border-radius-lg: 0.75rem;
+}
+
+/* الشريط الجانبي الداكن */
+.saas-sidebar {
+  background-color: var(--saas-sidebar-dark);
+  color: #f9fafb;
+  font-family: var(--saas-font-family);
+}
+
+.saas-sidebar-item {
+  @apply flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200;
+}
+
+.saas-sidebar-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.saas-sidebar-item.active {
+  background-color: var(--saas-accent-yellow);
+  color: var(--saas-sidebar-dark);
+  font-weight: 600;
+}
+
+/* الخلفية الرئيسية */
+.saas-main-bg {
+  background-color: var(--saas-bg-primary);
+  min-height: 100vh;
+  font-family: var(--saas-font-family);
+}
+
+/* البطاقات */
+.saas-card {
+  @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+  border-radius: var(--saas-border-radius-lg);
+}
+
+.saas-card-header {
+  @apply flex items-center justify-between mb-4;
+}
+
+.saas-card-title {
+  @apply text-lg font-semibold text-gray-900;
+}
+
+/* الأزرار */
+.saas-btn-primary {
+  background-color: var(--saas-accent-yellow);
+  color: var(--saas-sidebar-dark);
+  @apply px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 hover:shadow-md;
+}
+
+.saas-btn-secondary {
+  @apply px-4 py-2 rounded-lg font-medium text-sm bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-200;
+}
+
+/* التبويبات */
+.saas-tabs {
+  @apply flex space-x-1 bg-gray-100 p-1 rounded-lg;
+}
+
+.saas-tab {
+  @apply px-4 py-2 text-sm font-medium rounded-md transition-all duration-200;
+}
+
+.saas-tab.active {
+  @apply bg-white shadow-sm text-gray-900;
+}
+
+.saas-tab:not(.active) {
+  @apply text-gray-600 hover:text-gray-900;
+}
+
+/* مؤشرات الحالة */
+.saas-status-badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.saas-status-success {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: var(--saas-success);
+}
+
+.saas-status-progress {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: var(--saas-progress);
+}
+
+.saas-status-warning {
+  background-color: rgba(249, 115, 22, 0.1);
+  color: var(--saas-warning);
+}
+
+.saas-status-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--saas-danger);
+}
+
+/* الإحصائيات */
+.saas-stat-card {
+  @apply bg-white rounded-lg p-6 border border-gray-200;
+  box-shadow: var(--saas-shadow-sm);
+}
+
+.saas-stat-number {
+  @apply text-2xl font-bold text-gray-900;
+}
+
+.saas-stat-label {
+  @apply text-sm text-gray-600;
+}
+
+.saas-stat-change {
+  @apply text-sm font-medium;
+}
+
+.saas-stat-change.positive {
+  color: var(--saas-success);
+}
+
+.saas-stat-change.negative {
+  color: var(--saas-danger);
+}
+
+/* الجداول */
+.saas-table {
+  @apply min-w-full bg-white;
+}
+
+.saas-table-header {
+  @apply bg-gray-50 border-b border-gray-200;
+}
+
+.saas-table-cell {
+  @apply px-6 py-4 text-sm;
+}
+
+.saas-table-cell.header {
+  @apply font-medium text-gray-900;
+}
+
+.saas-table-cell.body {
+  @apply text-gray-600;
+}
+
+/* التأثيرات المتقدمة */
+.saas-hover-lift {
+  @apply transition-all duration-200 hover:shadow-md hover:-translate-y-0.5;
+}
+
+.saas-focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2;
+}
+
+/* الرسوم المتحركة */
+@keyframes saas-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.saas-animate-in {
+  animation: saas-fade-in 0.3s ease-out;
+}
+
+/* التصميم المتجاوب */
+@media (max-width: 768px) {
+  .saas-card {
+    @apply p-4;
+  }
+
+  .saas-stat-card {
+    @apply p-4;
+  }
+
+  .saas-table-cell {
+    @apply px-4 py-3;
+  }
+}
+
+/* دعم الوضع المظلم (اختياري) */
+@media (prefers-color-scheme: dark) {
+  .saas-dark-support {
+    --saas-bg-primary: #111827;
+    --saas-text-primary: #f9fafb;
+    --saas-text-secondary: #d1d5db;
+    --saas-border-light: #374151;
+  }
+
+  .saas-dark-support .saas-card {
+    @apply bg-gray-800 border-gray-700;
+  }
+
+  .saas-dark-support .saas-stat-card {
+    @apply bg-gray-800 border-gray-700;
+  }
+}

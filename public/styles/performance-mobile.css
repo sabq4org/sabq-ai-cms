@@ -1,0 +1,273 @@
+
+  
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      animation: none !important;
+      background-position: -200% 0;
+      background-position: 200% 0;
+      scroll-behavior: auto !important;
+      transition-duration: 0.01ms !important;
+    --mobile-bg: #111827;
+    --mobile-bg: #ffffff;
+    --mobile-border: #374151;
+    --mobile-border: #e5e7eb;
+    --mobile-error: #ef4444;
+    --mobile-error: #f87171;
+    --mobile-primary: #3b82f6;
+    --mobile-primary: #60a5fa;
+    --mobile-secondary: #6b7280;
+    --mobile-secondary: #9ca3af;
+    --mobile-success: #10b981;
+    --mobile-success: #34d399;
+    --mobile-surface: #1f2937;
+    --mobile-surface: #f8fafc;
+    --mobile-warning: #f59e0b;
+    --mobile-warning: #fbbf24;
+    -moz-osx-font-smoothing: grayscale !important;
+    -ms-overflow-style: none !important;
+    -webkit-font-smoothing: antialiased !important;
+    -webkit-overflow-scrolling: touch !important;
+    -webkit-transform: translateZ(0) !important;
+    .animate-bounce {
+    .animate-pulse,
+    .animate-spin,
+    }
+    *,
+    *::after {
+    *::before,
+    0% {
+   🚀 1. تحسين الرسوم والتأثيرات
+   🎨 10. تحسين الألوان والمظاهر
+    100% {
+   ⚡ 11. تحسينات نهائية للأداء
+   🖼️ 2. تحسين الصور والوسائط
+   📱 3. تحسين التمرير والحركة
+   🧠 4. تحسين الذاكرة والمعالجة
+   🎯 5. تحسين الخطوط والنصوص
+   🔧 6. تحسين CSS Grid و Flexbox
+   📊 7. تحسين الجداول والقوائم
+   🌐 8. تحسين الشبكة والتحميل
+   🔋 9. تحسين استهلاك البطارية
+    align-items: center !important;
+    animation-duration: 1s !important;
+    animation-duration: 2s !important;
+    animation-play-state: paused !important;
+    animation: skeleton-loading 1.5s infinite !important;
+    backface-visibility: hidden !important;
+    background-attachment: scroll !important; /* منع fixed للأداء */
+    background-color: var(--mobile-primary) !important;
+    background-color: var(--mobile-surface) !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-size: 200% 100% !important;
+    background-size: cover !important;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%) !important;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%) !important;
+    border-collapse: collapse !important;
+    border-color: var(--mobile-border) !important;
+    border-radius: 0.75rem !important;
+    border-radius: 1rem !important;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+    color: var(--mobile-primary) !important;
+    contain-intrinsic-size: 0 400px !important;
+    contain-intrinsic-size: 400px 200px !important;
+    contain: content !important;
+    contain: layout style paint !important;
+    contain: strict !important;
+    content-visibility: auto !important;
+    content: url(data:image/webp;base64,UklGRh4AAABXRUJQVlA4TBEAAAAvAAAAAAfQ//73v/+BiOh/AAA=) !important;
+    decoding: async !important;
+    display: block !important;
+    display: flex !important;
+    display: grid !important;
+    display: none !important;
+    filter: blur(0) !important;
+    filter: blur(5px) !important;
+    flex-direction: column !important;
+    flex-wrap: wrap !important;
+    font-display: swap !important;
+    font-weight: 300 !important;
+    font-weight: 400 !important;
+    font-weight: 500 !important;
+    font-weight: 600 !important;
+    font-weight: 700 !important;
+    gap: 0.25rem !important;
+    gap: 0.5rem !important;
+    gap: 1.5rem !important;
+    gap: 1rem !important;
+    grid-template-columns: 1fr !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    height: 300px !important;
+    height: 400px !important;
+    image-rendering: -webkit-optimize-contrast !important;
+    image-rendering: crisp-edges !important;
+    justify-content: center !important;
+    line-height: 1.3 !important;
+    line-height: 1.6 !important;
+    loading: lazy !important;
+    opacity: 0 !important;
+    opacity: 1 !important;
+    overflow-x: auto !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overflow-y: hidden !important;
+    overflow: auto !important;
+    overscroll-behavior-y: contain !important;
+    overscroll-behavior: contain !important;
+    perspective: 1000px !important;
+    scrollbar-width: none !important;
+    text-rendering: optimizeSpeed !important;
+    transform: translate3d(0, 0, 0) !important;
+    transform: translateY(0) !important;
+    transform: translateY(20px) !important;
+    transform: translateZ(0) !important;
+    transition-duration: 0.1s !important;
+    transition-duration: 0.2s !important;
+    transition-duration: 0.3s !important;
+    transition-timing-function: ease-in !important;
+    transition-timing-function: ease-in-out !important;
+    transition-timing-function: ease-out !important;
+    transition: filter 0.3s !important;
+    transition: opacity 0.3s ease, transform 0.3s ease !important;
+    white-space: nowrap !important;
+    width: 100% !important;
+    will-change: auto !important;
+    will-change: transform !important;
+    will-change: transform, opacity !important;
+   =============================== */
+  :root {
+  .animate-bounce {
+  .animate-element,
+  .animate-element:not(:hover):not(:focus):not(.active) {
+  .animate-pulse {
+  .animate-spin {
+  .article-card,
+  .auto-refresh {
+  .battery-efficient {
+  .bg-image {
+  .bg-primary {
+  .bg-surface {
+  .border-default {
+  .card-grid {
+  .card-list {
+  .card,
+  .cpu-efficient {
+  .dark .skeleton {
+  .dark {
+  .data-table {
+  .data-table table {
+  .flex {
+  .flex-col {
+  .flex-wrap {
+  .font-bold {
+  .font-light {
+  .font-medium {
+  .font-normal {
+  .font-semibold {
+  .gap-1 {
+  .gap-2 {
+  .gap-4 {
+  .gap-6 {
+  .gradient-simple {
+  .grid {
+  .grid-2 {
+  .hardware-accelerate {
+  .image-optimize {
+  .items-center {
+  .justify-center {
+  .layer-promote {
+  .lazy-content {
+  .lazy-load {
+  .lazy-load.loaded {
+  .list-virtual {
+  .memory-efficient {
+  .network-efficient {
+  .no-repaint {
+  .page-idle .animate-pulse {
+  .performance-optimized {
+  .progressive-image {
+  .progressive-image.loaded {
+  .rounded-2xl {
+  .rounded-xl {
+  .scroll-x {
+  .scroll-x::-webkit-scrollbar {
+  .scroll-y {
+  .shadow {
+  .shadow-lg {
+  .shadow-sm {
+  .skeleton {
+  .stats-card {
+  .table-virtual {
+  .text-primary {
+  .transition-fast {
+  .transition-medium {
+  .transition-opacity {
+  .transition-slow {
+  .transition-transform,
+  .webp img {
+  }
+  @font-face {
+  @keyframes skeleton-loading {
+  @media (prefers-reduced-motion: reduce) {
+  * {
+  /* منع تحميل الصور الكبيرة غير المرئية */
+  /* إيقاف الحركات عند عدم التفاعل */
+  /* استخدام الألوان المحسنة */
+  /* تحسين أحجام الصور */
+  /* تحسين الألوان للعين */
+  /* تحسين التحميل التدريجي */
+  /* تحسين التمرير الأفقي */
+  /* تحسين التمرير العمودي */
+  /* تحسين الجداول الكبيرة */
+  /* تحسين الصور التدريجية */
+  /* تحسين الظلال للأداء */
+  /* تحسين القوائم الطويلة */
+  /* تحسين تحميل الصور */
+  /* تحسين تحميل المحتوى */
+  /* تحسين عرض البيانات */
+  /* تحسين عرض الخطوط */
+  /* تحسين للبطارية المنخفضة */
+  /* تقليل التحديثات المستمرة */
+  /* تقليل التدرجات المعقدة */
+  /* تقليل الحركات المستمرة */
+  /* منع الارتداد المفرط */
+  /* تحسين الانتقالات */
+  /* تحسين البطارية */
+  /* تحسين البطاقات */
+  /* تحسين التمرير */
+  /* تحسين الحركات */
+  /* تحسين الخلفيات */
+  /* تحسين الذاكرة */
+  /* تحسين الشبكة */
+  /* تحسين الطبقات */
+  /* تحسين المعالج */
+  /* تحسين شامل */
+  /* تقليل استخدام will-change */
+  /* تحسين border-radius */
+  /* تحسين contain للعناصر المستقلة */
+  /* تحسين content-visibility */
+  /* تحسين Flexbox */
+  /* تحسين font-display */
+  /* تقليل font-weight variations */
+  /* تحسين gap */
+  /* تحسين Grid للموبايل */
+  /* تحسين line-height للأداء */
+  /* تقليل repaint و reflow */
+  /* تحسين transform3d للتسريع الأجهزة */
+  /* استخدام WebP عند الإمكان */
+  /* إزالة will-change بعد انتهاء الحركة */
+  /* استخدام will-change فقط للعناصر المتحركة */
+  body {
+  h1, h2, h3, h4, h5, h6 {
+  img {
+  img[src*="w_1200"] {
+  img[src*="w_1920"],
+  p, span, div {
+}
+} 
+@media (max-width: 768px) {
+/* ⚡ تحسينات الأداء للموبايل */
+/* ===============================

@@ -1,0 +1,33 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <!-- خلفية متدرجة -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e3a8a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- الخلفية -->
+  <rect width="1200" height="630" fill="url(#bgGradient)"/>
+
+  <!-- العنوان الرئيسي -->
+  <text x="600" y="280" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="72" font-weight="bold">
+    صحيفة سبق الإلكترونية
+  </text>
+
+  <!-- الوصف -->
+  <text x="600" y="340" text-anchor="middle" fill="#e2e8f0" font-family="Arial, sans-serif" font-size="28">
+    أخبار السعودية والعالم
+  </text>
+
+  <!-- URL الموقع -->
+  <text x="600" y="400" text-anchor="middle" fill="#cbd5e1" font-family="Arial, sans-serif" font-size="24">
+    sabq.io
+  </text>
+
+  <!-- زخرفة بسيطة -->
+  <circle cx="200" cy="150" r="40" fill="rgba(255,255,255,0.1)"/>
+  <circle cx="1000" cy="480" r="50" fill="rgba(255,255,255,0.1)"/>
+  <circle cx="150" cy="500" r="30" fill="rgba(255,255,255,0.08)"/>
+  <circle cx="1050" cy="120" r="35" fill="rgba(255,255,255,0.08)"/>
+</svg>

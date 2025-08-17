@@ -1,0 +1,231 @@
+
+  
+    --bg-primary: #111827;
+    --bg-secondary: #1f2937;
+    --bg-tertiary: #374151;
+    --text-muted: #9ca3af;
+    --text-primary: #f9fafb;
+    --text-secondary: #e5e7eb;
+    background: linear-gradient(135deg, rgba(31, 41, 55, 0.9), rgba(17, 24, 39, 0.9));
+    background: rgba(31, 41, 55, 0.8);
+    border-color: rgba(55, 65, 81, 0.5);
+    opacity: 0;
+    opacity: 1;
+    transform: translateY(-10px);
+    transform: translateY(0);
+    transform: translateY(10px);
+    transform: translateY(20px);
+  --error-red: #ef4444;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-50: #f9fafb;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+  --gray-950: #030712;
+  --info-purple: #8b5cf6;
+  --primary-blue-100: #dbeafe;
+  --primary-blue-200: #bfdbfe;
+  --primary-blue-300: #93c5fd;
+  --primary-blue-400: #60a5fa;
+  --primary-blue-50: #eff6ff;
+  --primary-blue-500: #3b82f6;
+  --primary-blue-600: #2563eb;
+  --primary-blue-700: #1d4ed8;
+  --primary-blue-800: #1e40af;
+  --primary-blue-900: #1e3a8a;
+  --primary-blue-dark: #2563eb;
+  --primary-blue-light: #60a5fa;
+  --primary-blue: #3b82f6;
+  --radius-full: 9999px;
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+  --radius-xl: 24px;
+  --secondary-cyan-100: #cffafe;
+  --secondary-cyan-200: #a5f3fc;
+  --secondary-cyan-300: #67e8f9;
+  --secondary-cyan-400: #22d3ee;
+  --secondary-cyan-50: #ecfeff;
+  --secondary-cyan-500: #06b6d4;
+  --secondary-cyan-600: #0891b2;
+  --secondary-cyan-700: #0e7490;
+  --secondary-cyan-800: #155e75;
+  --secondary-cyan-900: #164e63;
+  --secondary-cyan-dark: #0891b2;
+  --secondary-cyan-light: #22d3ee;
+  --secondary-cyan: #06b6d4;
+  --shadow-colored: 0 20px 60px rgba(59, 130, 246, 0.15);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.12);
+  --shadow-md: 0 10px 40px rgba(0, 0, 0, 0.08);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --success-green: #10b981;
+  --warning-yellow: #f59e0b;
+  -webkit-backdrop-filter: blur(12px);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  :root {
+  .glass-effect {
+  .stat-card {
+  }
+  /* الألوان المساعدة */
+  /* الحواف المستديرة */
+  /* درجات الرمادي */
+  /* الأزرق - اللون الرئيسي */
+  /* السماوي - اللون الثانوي */
+  /* الظلال */
+  0%, 100% {
+  50% {
+  align-items: center;
+  animation: fadeIn 0.5s ease-out;
+  animation: float 3s ease-in-out infinite;
+  animation: slideUp 0.5s ease-out;
+  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
+  background-clip: text;
+  background: linear-gradient(135deg, #2563eb, #0891b2);
+  background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+  background: linear-gradient(135deg, #f9fafb, #f3f4f6);
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(249, 250, 251, 0.9));
+  background: linear-gradient(to right, #3b82f6, #06b6d4);
+  background: rgba(17, 24, 39, 0.7);
+  background: rgba(255, 255, 255, 0.8);
+  background: rgba(59, 130, 246, 0.05);
+  background: rgba(59, 130, 246, 0.1);
+  background: white;
+  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 2px solid #e5e7eb;
+  border-collapse: collapse;
+  border-color: #3b82f6;
+  border-color: #86efac;
+  border-color: #93c5fd;
+  border-color: #fca5a5;
+  border-color: #fcd34d;
+  border-radius: 20px;
+  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
+  border-radius: var(--radius-xl);
+  border: 1px solid #e5e7eb;
+  border: 1px solid rgba(229, 231, 235, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border: 1px solid transparent;
+  border: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 12px 24px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.25);
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.35);
+  box-shadow: var(--shadow-md);
+  color: #14532d;
+  color: #1e40af;
+  color: #374151;
+  color: #3b82f6;
+  color: #4b5563;
+  color: #713f12;
+  color: #7f1d1d;
+  color: white;
+  content: '';
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 12px;
+  font-size: 14px;
+  font-size: 16px;
+  font-weight: 500;
+  font-weight: 600;
+  font-weight: 700;
+  from {
+  gap: 4px;
+  gap: 8px;
+  height: 2px;
+  left: 0;
+  letter-spacing: 0.5px;
+  margin-bottom: 24px;
+  opacity: 0;
+  opacity: 1;
+  outline: none;
+  overflow: hidden;
+  padding: 12px 16px;
+  padding: 12px 24px;
+  padding: 16px 24px;
+  padding: 24px;
+  padding: 32px;
+  padding: 4px 12px;
+  position: absolute;
+  position: relative;
+  right: 0;
+  text-align: right;
+  text-transform: uppercase;
+  to {
+  top: 0;
+  transform: translateY(-2px);
+  transform: translateY(-4px);
+  transform: translateY(0);
+  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  transition: opacity 0.3s ease;
+  width: 100%;
+:root {
+.animate-fadeIn {
+.animate-float {
+.animate-slideUp {
+.badge {
+.badge-error {
+.badge-primary {
+.badge-success {
+.badge-warning {
+.btn-primary {
+.btn-primary:active {
+.btn-primary:hover {
+.btn-secondary {
+.btn-secondary:hover {
+.data-table {
+.data-table tbody tr {
+.data-table tbody tr:hover {
+.data-table td {
+.data-table th {
+.data-table thead {
+.data-table-container {
+.glass-effect {
+.glass-effect-dark {
+.gradient-primary {
+.gradient-text {
+.input-field {
+.input-field:focus {
+.section-container {
+.stat-card {
+.stat-card::before {
+.stat-card:hover {
+.stat-card:hover::before {
+}
+} 
+@keyframes fadeIn {
+@keyframes float {
+@keyframes slideUp {
+@media (prefers-color-scheme: dark) {
+/* 🎨 ألوان وأنماط تصميم جُرعة */
+/* تأثير الزجاج (Glass Morphism) */
+/* التدرج الرئيسي */
+/* تدرج النص */
+/* ====== متغيرات الألوان الأساسية ====== */
+/* ====== الفئات الأساسية ====== */
+/* ====== الوضع الليلي ====== */
+/* ====== بطاقات الإحصائيات ====== */
+/* ====== حقول الإدخال ====== */
+/* ====== الشارات (Badges) ====== */
+/* ====== الأزرار ====== */
+/* ====== الجداول ====== */
+/* ====== الحاويات ====== */
+/* ====== الحركات ====== */

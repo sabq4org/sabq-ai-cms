@@ -1,0 +1,183 @@
+
+  
+    -webkit-overflow-scrolling: touch !important;
+    backface-visibility: hidden;
+    bottom: 0 !important;
+    left: 0 !important;
+    opacity: 0;
+    opacity: 1;
+    overflow: hidden !important;
+    overscroll-behavior: contain !important;
+    position: fixed !important;
+    right: 0 !important;
+    top: 0 !important;
+    touch-action: none !important;
+    transform: translateY(0);
+    transform: translateY(100%);
+    transform: translateY(10px);
+    transform: translateY(20px);
+    transform: translateZ(0);
+    transition: transform 250ms ease-in;
+    transition: transform 300ms ease-out;
+    will-change: transform;
+  -moz-osx-font-smoothing: grayscale;
+  -moz-user-select: none;
+  -ms-overflow-style: none;  /* IE and Edge */
+  -ms-user-select: none;
+  -webkit-font-smoothing: antialiased;
+  -webkit-overflow-scrolling: touch !important;
+  -webkit-user-select: none;
+  .mobile-dropdown {
+  .mobile-dropdown-enter {
+  .mobile-dropdown-enter-active {
+  .mobile-dropdown-exit {
+  .mobile-dropdown-exit-active {
+  }
+  animation: fade-in 0.8s ease-out;
+  animation: fadeIn 200ms ease-out;
+  animation: fadeOut 150ms ease-in;
+  backface-visibility: hidden;
+  body.dropdown-open {
+  border-radius: 50% !important;
+  box-sizing: border-box;
+  display: none;  /* Chrome, Safari and Opera */
+  font-family: var(--font-family-base) !important;
+  from {
+  height: 100% !important;
+  height: 32px !important;
+  height: 56px !important;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  line-height: 1.6;
+  max-height: 32px !important;
+  max-height: 56px !important;
+  max-width: 32px !important;
+  max-width: 56px !important;
+  min-height: 32px !important;
+  min-height: 56px !important;
+  min-width: 32px !important;
+  min-width: 56px !important;
+  object-fit: cover !important;
+  opacity: 0;
+  opacity: 1;
+  overflow: hidden !important;
+  overscroll-behavior: contain !important;
+  pointer-events: auto;
+  pointer-events: none;
+  position: fixed !important;
+  scroll-behavior: smooth;
+  scrollbar-width: none;  /* Firefox */
+  text-rendering: optimizeLegibility;
+  to {
+  touch-action: none !important;
+  transform-box: border-box;
+  transform-box: content-box;
+  transform-box: fill-box;
+  transform-box: global;
+  transform-box: inherit;
+  transform-box: initial;
+  transform-box: local;
+  transform-box: margin-box;
+  transform-box: padding-box;
+  transform-box: revert-layer;
+  transform-box: revert;
+  transform-box: stroke-box;
+  transform-box: unset;
+  transform-box: view-box;
+  transform-origin: center;
+  transform-style: flat;
+  transform-style: preserve-3d;
+  transform: translateY(0) scale(1);
+  transform: translateY(10px) scale(0.95);
+  transform: translateZ(0);
+  transition: opacity 150ms ease-in, transform 150ms ease-in;
+  transition: opacity 200ms ease-out, transform 200ms ease-out;
+  user-select: none;
+  visibility: hidden;
+  visibility: visible;
+  width: 100% !important;
+  width: 32px !important;
+  width: 56px !important;
+  will-change: opacity;
+  will-change: transform, opacity;
+  will-change: transform;
+  z-index: 9998 !important;
+  z-index: 9999 !important;
+.animate-element {
+.animate-fade-in {
+.border-element {
+.box-element {
+.content-element {
+.dropdown-container {
+.dropdown-content {
+.dropdown-enter {
+.dropdown-enter-active {
+.dropdown-exit {
+.dropdown-exit-active {
+.dropdown-overlay {
+.fade-in {
+.fade-out {
+.fill-element {
+.fixed-element {
+.flat-element {
+.global-element {
+.hidden-element {
+.inherit-element {
+.initial-element {
+.local-element {
+.margin-element {
+.matrix-element {
+.no-select {
+.opacity-element {
+.origin-element {
+.padding-element {
+.perspective-element {
+.preserve-3d-element {
+.revert-element {
+.revert-layer-element {
+.rotate-element {
+.scale-element {
+.scrollbar-hide {
+.scrollbar-hide::-webkit-scrollbar {
+.skew-element {
+.sticky-element {
+.stroke-element {
+.transform-element {
+.transition-element {
+.translate-element {
+.unset-element {
+.user-avatar {
+.user-avatar-large {
+.visible-element {
+}
+} 
+@keyframes fade-in {
+@keyframes fadeIn {
+@keyframes fadeOut {
+@media (max-width: 768px) {
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+*,
+*::after {
+*::before,
+/* تحسين الأداء للعناصر المتحركة على الموبايل */
+/* حماية الصور الشخصية من التمدد */
+/* إزالة التأثيرات غير المرغوبة */
+/* إعدادات خاصة للقائمة المنسدلة */
+/* تحسين الأداء للعناصر الثابتة */
+/* تحسين الأداء للعناصر الشفافة */
+/* تحسين الأداء للعناصر المتحركة */
+/* تحسين الأداء للعناصر المثبتة */
+/* تحسين الأداء للعناصر المخفية */
+/* تحسين الأداء للعناصر المرئية */
+/* تحسين الأداء العام */
+/* تحسين الأداء للصور */
+/* تحسين التمرير للموبايل */
+/* تحسين الأنيميشن */
+/* تحسين z-index للقوائم */
+/* Fade in animation */
+/* Scrollbar hide */
+body {
+body.dropdown-open {
+html {

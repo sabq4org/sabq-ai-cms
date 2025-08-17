@@ -1,0 +1,58 @@
+/* أنماط منطقة الصورة والموجز للموبايل في صفحة المقال */
+
+/* التأكد من الارتفاع الثابت للصورة */
+.mobile-featured-image-container {
+  height: 200px;
+  overflow: hidden;
+}
+
+.mobile-featured-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* أنماط الموجز الذكي */
+.article-ai-summary {
+  height: 200px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* إخفاء شريط التمرير في الموجز */
+.article-ai-summary::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
+/* زر الصوت البسيط */
+.ai-summary-audio-button {
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.ai-summary-audio-button:hover {
+  background-color: rgba(139, 92, 246, 0.1);
+}
+
+/* تحسينات الاستجابة للشاشات الصغيرة جداً */
+@media (max-width: 360px) {
+  .mobile-article-image-summary {
+    flex-direction: column;
+  }
+  
+  .mobile-featured-image-container,
+  .article-ai-summary {
+    height: 150px;
+  }
+}
+
+/* RTL adjustments */
+[dir="rtl"] .ai-summary-audio-button {
+  left: auto;
+  right: 0.25rem;
+}

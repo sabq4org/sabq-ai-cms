@@ -1,0 +1,50 @@
+/* إلغاء تأثير الخط الأزرق تحت الروابط عند hover */
+a,
+a:hover,
+a:focus,
+a:active,
+a:visited,
+.link,
+.link:hover,
+[href],
+[href]:hover {
+  text-decoration: none !important;
+  text-underline-offset: 0 !important;
+  text-decoration-line: none !important;
+  text-decoration-style: none !important;
+  text-decoration-color: transparent !important;
+  border-bottom: none !important;
+}
+
+/* إلغاء underline من جميع الفئات المخصصة */
+.hover\:underline:hover,
+.group-hover\:underline:hover,
+.hover\:text-decoration-underline:hover {
+  text-decoration: none !important;
+}
+
+/* إلغاء underline من محرر Tiptap */
+.ProseMirror a:hover,
+.dark .ProseMirror a:hover,
+.tiptap a:hover {
+  text-decoration: none !important;
+}
+
+/* إلغاء underline من محتوى المقال */
+.article-content a:hover,
+.dark .article-content a:hover {
+  text-decoration: none !important;
+}
+
+/* إلغاء underline من روابط لوحة التحكم */
+.dashboard-link:hover,
+.dark .dashboard-link:hover {
+  text-decoration: none !important;
+}
+
+/* التأكد من عدم وجود أي border bottom يشبه underline */
+a::after,
+a::before {
+  border-bottom: none !important;
+  text-decoration: none !important;
+} 

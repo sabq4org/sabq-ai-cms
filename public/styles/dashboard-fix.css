@@ -1,0 +1,202 @@
+
+  
+    background: rgba(0, 0, 0, 0.5) !important;
+    bottom: 0 !important;
+    grid-template-columns: 1fr !important;
+    left: 0 !important;
+    margin-right: 0 !important;
+    position: fixed !important;
+    right: 0 !important;
+    top: 0 !important;
+    transform: translateX(0) !important;
+    transform: translateX(100%) !important;
+    z-index: 40 !important;
+  .dashboard-grid-2,
+  .dashboard-grid-3,
+  .dashboard-grid-4 {
+  .dashboard-main {
+  .dashboard-overlay {
+  .dashboard-sidebar {
+  .dashboard-sidebar.open {
+  }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+  align-items: center !important;
+  animation: spin 1s linear infinite !important;
+  background: #064e3b !important;
+  background: #111827 !important;
+  background: #1f2937 !important;
+  background: #374151 !important;
+  background: #4b5563 !important;
+  background: #7f1d1d !important;
+  background: #d1d5db !important;
+  background: #ecfdf5 !important;
+  background: #f9fafb !important;
+  background: #fef2f2 !important;
+  background: transparent !important;
+  background: white !important;
+  border-bottom-color: #374151 !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  border-collapse: collapse !important;
+  border-color: #059669 !important;
+  border-color: #3b82f6 !important;
+  border-color: #4b5563 !important;
+  border-color: #dc2626 !important;
+  border-left-color: #374151 !important;
+  border-left: 1px solid #e5e7eb !important;
+  border-radius: 0.375rem !important;
+  border-radius: 0.5rem !important;
+  border-radius: 3px !important;
+  border-radius: 50% !important;
+  border-top: 2px solid #3b82f6 !important;
+  border: 1px solid #a7f3d0 !important;
+  border: 1px solid #d1d5db !important;
+  border: 1px solid #fecaca !important;
+  border: 2px solid #e5e7eb !important;
+  border: none !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  color: #065f46 !important;
+  color: #111827 !important;
+  color: #2563eb !important;
+  color: #3b82f6 !important;
+  color: #60a5fa !important;
+  color: #93c5fd !important;
+  color: #991b1b !important;
+  color: #a7f3d0 !important;
+  color: #f9fafb !important;
+  color: #fecaca !important;
+  color: inherit !important;
+  color: white !important;
+  cursor: pointer !important;
+  display: flex !important;
+  display: grid !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  font-family: var(--font-family-base) !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  font-weight: 600 !important;
+  gap: 0.5rem !important;
+  gap: 1rem !important;
+  gap: 2rem !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  height: 1.25rem !important;
+  height: 100vh !important;
+  height: 2rem !important;
+  justify-content: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 1rem !important;
+  margin-right: 280px !important;
+  margin: 0.5rem 0 !important;
+  margin: 1rem 0 !important;
+  margin: 2rem 0 !important;
+  min-height: 100vh !important;
+  min-width: 280px !important;
+  outline: none !important;
+  overflow-y: auto !important;
+  overflow: hidden !important;
+  padding: 0.5rem 0.75rem !important;
+  padding: 0.5rem 1rem !important;
+  padding: 0.75rem 1rem !important;
+  padding: 1.5rem !important;
+  padding: 1rem !important;
+  padding: 2rem !important;
+  position: fixed !important;
+  position: sticky !important;
+  right: 0 !important;
+  text-align: right !important;
+  text-decoration: none !important;
+  top: 0 !important;
+  transform: translateX(0) !important;
+  transition: all 0.2s ease !important;
+  transition: color 0.2s ease !important;
+  transition: transform 0.3s ease !important;
+  width: 1.25rem !important;
+  width: 100% !important;
+  width: 280px !important;
+  width: 2rem !important;
+  width: 6px !important;
+  z-index: 40 !important;
+  z-index: 50 !important;
+.dark .dashboard-alert-error {
+.dark .dashboard-alert-success {
+.dark .dashboard-card {
+.dark .dashboard-form {
+.dark .dashboard-header {
+.dark .dashboard-input {
+.dark .dashboard-link {
+.dark .dashboard-link:hover {
+.dark .dashboard-main {
+.dark .dashboard-sidebar {
+.dark .dashboard-sidebar::-webkit-scrollbar-thumb {
+.dark .dashboard-table {
+.dark .dashboard-table td {
+.dark .dashboard-table th {
+.dark .dashboard-table th,
+.dark .dashboard-text {
+.dashboard-alert {
+.dashboard-alert-error {
+.dashboard-alert-success {
+.dashboard-button {
+.dashboard-card {
+.dashboard-flex {
+.dashboard-flex-col {
+.dashboard-form {
+.dashboard-gap {
+.dashboard-gap-lg {
+.dashboard-gap-sm {
+.dashboard-grid {
+.dashboard-grid-2 {
+.dashboard-grid-3 {
+.dashboard-grid-4 {
+.dashboard-header {
+.dashboard-icon {
+.dashboard-input {
+.dashboard-input:focus {
+.dashboard-items-center {
+.dashboard-justify-between {
+.dashboard-layout {
+.dashboard-link {
+.dashboard-link:hover {
+.dashboard-loading {
+.dashboard-main {
+.dashboard-sidebar {
+.dashboard-sidebar::-webkit-scrollbar {
+.dashboard-sidebar::-webkit-scrollbar-thumb {
+.dashboard-sidebar::-webkit-scrollbar-track {
+.dashboard-space {
+.dashboard-space-lg {
+.dashboard-space-sm {
+.dashboard-spinner {
+.dashboard-table {
+.dashboard-table td {
+.dashboard-table th {
+.dashboard-table th,
+.dashboard-text {
+}
+} 
+@keyframes spin {
+@media (max-width: 768px) {
+/* إصلاح مشكلة لوحة التحكم المكسورة */
+/* إصلاح التخطيط الأساسي */
+/* إصلاح القائمة الجانبية */
+/* إصلاح المحتوى الرئيسي */
+/* إصلاح الوضع الليلي */
+/* إصلاح الأزرار */
+/* إصلاح الأيقونات */
+/* إصلاح البطاقات */
+/* إصلاح التحميل */
+/* إصلاح التمرير */
+/* إصلاح التنبيهات */
+/* إصلاح الجداول */
+/* إصلاح الروابط */
+/* إصلاح الشبكة */
+/* إصلاح الفراغات */
+/* إصلاح المرونة */
+/* إصلاح الموبايل */
+/* إصلاح النصوص */
+/* إصلاح النماذج */
+/* إصلاح الهيدر */

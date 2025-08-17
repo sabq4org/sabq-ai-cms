@@ -1,0 +1,270 @@
+/* أنماط CSS لسحابة الكلمات في الصفحة الرئيسية */
+
+.home-word-cloud {
+  position: relative;
+  overflow: hidden;
+}
+
+.home-word-cloud::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.03) 0%,
+    rgba(16, 185, 129, 0.03) 25%,
+    rgba(245, 158, 11, 0.03) 50%,
+    rgba(139, 92, 246, 0.03) 75%,
+    rgba(236, 72, 153, 0.03) 100%
+  );
+  pointer-events: none;
+}
+
+.word-cloud-keyword {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  user-select: none;
+  text-decoration: none;
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+}
+
+.word-cloud-keyword:hover {
+  transform: translateY(-2px) scale(1.05);
+  filter: brightness(1.1);
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+}
+
+.word-cloud-keyword:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* تأثيرات خاصة للكلمات الكبيرة */
+.word-cloud-keyword.size-5,
+.word-cloud-keyword.size-4 {
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.word-cloud-keyword.size-5:hover {
+  transform: translateY(-3px) scale(1.08);
+}
+
+.word-cloud-keyword.size-4:hover {
+  transform: translateY(-2px) scale(1.06);
+}
+
+/* تأثير النبضة للكلمات الصاعدة */
+.word-cloud-keyword[data-trend="up"] {
+  animation: gentle-pulse 3s ease-in-out infinite;
+}
+
+@keyframes gentle-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+/* تأثير التلاشي للكلمات الهابطة */
+.word-cloud-keyword[data-trend="down"] {
+  opacity: 0.7;
+}
+
+.word-cloud-keyword[data-trend="down"]:hover {
+  opacity: 1;
+}
+
+/* أنماط الشارات */
+.keyword-count-badge {
+  font-size: 0.6em;
+  background: rgba(255, 255, 255, 0.9);
+  color: rgba(0, 0, 0, 0.7);
+  padding: 2px 6px;
+  border-radius: 999px;
+  margin-right: 0.25rem;
+  min-width: 20px;
+  text-align: center;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.dark .keyword-count-badge {
+  background: rgba(0, 0, 0, 0.6);
+  color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* أنماط أيقونات الاتجاه */
+.trend-icon {
+  margin-right: 0.25rem;
+  opacity: 0.8;
+}
+
+.trend-icon.up {
+  color: #10B981;
+  animation: trend-up 2s ease-in-out infinite;
+}
+
+.trend-icon.down {
+  color: #EF4444;
+  animation: trend-down 2s ease-in-out infinite;
+}
+
+@keyframes trend-up {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1px);
+  }
+}
+
+@keyframes trend-down {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(1px);
+  }
+}
+
+/* تحسينات للأجهزة المحمولة */
+@media (max-width: 768px) {
+  .word-cloud-keyword {
+    margin: 0.25rem;
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .word-cloud-keyword:hover {
+    transform: scale(1.03);
+  }
+  
+  .word-cloud-keyword.size-5,
+  .word-cloud-keyword.size-4 {
+    font-size: 1.5rem !important;
+  }
+  
+  .word-cloud-keyword.size-3 {
+    font-size: 1.25rem !important;
+  }
+  
+  .word-cloud-keyword.size-2 {
+    font-size: 1.1rem !important;
+  }
+  
+  .word-cloud-keyword.size-1 {
+    font-size: 1rem !important;
+  }
+}
+
+/* تحسينات إضافية للتجربة */
+.word-cloud-container {
+  perspective: 1000px;
+}
+
+.word-cloud-keyword {
+  transform-style: preserve-3d;
+}
+
+/* تأثير التحميل */
+.word-cloud-loading {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading-shimmer 1.5s infinite;
+}
+
+.dark .word-cloud-loading {
+  background: linear-gradient(90deg, #374151 25%, #4B5563 50%, #374151 75%);
+  background-size: 200% 100%;
+}
+
+@keyframes loading-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* تحسينات إمكانية الوصول */
+.word-cloud-keyword:focus {
+  outline: 2px solid #3B82F6;
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+
+.word-cloud-keyword:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* تحسينات للطباعة */
+@media print {
+  .word-cloud-keyword {
+    color: #000 !important;
+    background: none !important;
+    text-shadow: none !important;
+    transform: none !important;
+  }
+  
+  .trend-icon {
+    display: none;
+  }
+}
+
+/* تأثيرات متقدمة للتفاعل */
+@supports (backdrop-filter: blur(10px)) {
+  .word-cloud-keyword:hover {
+    backdrop-filter: blur(10px);
+  }
+}
+
+/* تحسينات للحركة المخفضة */
+@media (prefers-reduced-motion: reduce) {
+  .word-cloud-keyword {
+    transition: none;
+  }
+  
+  .word-cloud-keyword:hover {
+    transform: none;
+  }
+  
+  .gentle-pulse,
+  .trend-up,
+  .trend-down,
+  .loading-shimmer {
+    animation: none;
+  }
+}
+
+/* ألوان مخصصة للكلمات حسب الحجم */
+.word-cloud-keyword.size-5 {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.15) 100%);
+}
+
+.word-cloud-keyword.size-4 {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.15) 100%);
+}
+
+.word-cloud-keyword.size-3 {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.15) 100%);
+}
+
+.word-cloud-keyword.size-2 {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(124, 58, 237, 0.15) 100%);
+}
+
+.word-cloud-keyword.size-1 {
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(219, 39, 119, 0.15) 100%);
+}

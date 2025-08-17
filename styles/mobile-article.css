@@ -1,0 +1,37 @@
+/* 📱 تحسينات المقالات للأجهزة المحمولة */
+@media (max-width: 768px) {
+  /* ضمان أن يبدأ المحتوى من أعلى الهيدر تماماً */
+  html, body {
+    scroll-padding-top: 0 !important;
+  }
+
+  /* إزالة أي margin-top غير مقصود في غلاف المقال */
+  .article-page-wrapper,
+  .article-container,
+  main[role="main"] {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  /* منع أي anchor من دفع المحتوى للأسفل عند تحميل الصفحة */
+  [id] { scroll-margin-top: 0 !important; }
+  .article-mobile {
+    font-family: var(--font-family-base, 'IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', system-ui, sans-serif) !important;
+    padding: 1rem;
+  }
+
+  .article-mobile .title {
+    font-size: 1.5rem;
+    line-height: 1.3;
+    margin-bottom: 1rem;
+  }
+
+  .article-mobile .content {
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  .article-mobile .content p {
+    margin-bottom: 1.25rem;
+  }
+}

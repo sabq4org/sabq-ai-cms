@@ -1,0 +1,82 @@
+
+  background: #1f2937;
+  background: #4b5563;
+  background: #555;
+  background: #6b7280;
+  background: #888;
+  background: #f1f1f1;
+  border-collapse: collapse;
+  border-radius: 0.25rem;
+  border-radius: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  border: none;
+  box-sizing: border-box;
+  color-scheme: dark;
+  color: inherit;
+  cursor: pointer;
+  direction: rtl;
+  display: block;
+  display: grid;
+  font-family: var(--font-family-base) !important;
+  font-weight: bold;
+  gap: 1rem;
+  height: 8px;
+  height: auto;
+  line-height: 1.2;
+  line-height: 1.6;
+  list-style: none;
+  margin: 0 auto;
+  margin: 0;
+  max-width: 100%;
+  outline: none;
+  overflow-x: hidden;
+  overflow: hidden;
+  padding: 0 1rem;
+  padding: 0;
+  padding: 0.5rem;
+  text-align: right;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  width: 100%;
+  width: 8px;
+::-webkit-scrollbar {
+::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb:hover {
+::-webkit-scrollbar-track {
+.card, [class*="card"] {
+.container {
+.dark ::-webkit-scrollbar-thumb {
+.dark ::-webkit-scrollbar-thumb:hover {
+.dark ::-webkit-scrollbar-track {
+.dark {
+.grid {
+}
+} 
+* {
+/* إصلاحات التنسيق العامة */
+/* إصلاح اتجاه النص */
+/* إصلاح التنسيق الأساسي */
+/* إصلاح الوضع الليلي */
+/* الوضع الليلي للتمرير */
+/* إصلاح الأزرار */
+/* إصلاح البطاقات */
+/* إصلاح التمرير */
+/* إصلاح الجداول */
+/* إصلاح الحاويات */
+/* إصلاح الروابط */
+/* إصلاح الشبكة */
+/* إصلاح الصور */
+/* إصلاح القوائم */
+/* إصلاح النصوص */
+/* إصلاح النماذج */
+a {
+button, .button, [class*="btn"] {
+h1, h2, h3, h4, h5, h6 {
+html, body {
+html[dir="rtl"] {
+img {
+input, textarea, select {
+p {
+table {
+ul, ol {

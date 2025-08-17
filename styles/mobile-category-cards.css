@@ -1,0 +1,142 @@
+/* بطاقات التصنيفات المحمولة المحسنة */
+
+.compact-category-card {
+  /* تحسينات الأداء */
+  contain: layout style paint;
+  will-change: transform, box-shadow;
+  
+  /* تأثيرات التفاعل المحسنة */
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.compact-category-card:active {
+  transform: scale(0.98);
+  transition-duration: 0.1s;
+}
+
+/* تحسينات للشاشات الصغيرة جداً */
+@media (max-width: 320px) {
+  .compact-category-card {
+    margin: 0 -4px;
+  }
+  
+  .compact-category-card .card-padding {
+    padding: 8px 12px;
+  }
+  
+  .compact-category-card .card-image {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .compact-category-card .card-title {
+    font-size: 13px;
+    line-height: 1.3;
+  }
+  
+  .compact-category-card .card-meta {
+    font-size: 10px;
+  }
+}
+
+/* تحسينات للشاشات المتوسطة */
+@media (min-width: 375px) and (max-width: 414px) {
+  .compact-category-card .card-image {
+    width: 72px;
+    height: 72px;
+  }
+}
+
+/* تحسينات للشاشات الكبيرة (أقل من tablet) */
+@media (min-width: 414px) and (max-width: 767px) {
+  .compact-category-card .card-image {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .compact-category-card .card-title {
+    font-size: 16px;
+  }
+}
+
+/* تحسينات النص العربي */
+.compact-category-card .rtl-text {
+  direction: rtl;
+  text-align: right;
+  font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* تحسينات الصور */
+.compact-category-card .card-image img {
+  transition: opacity 0.3s ease;
+}
+
+.compact-category-card .card-image img[data-loaded="true"] {
+  opacity: 1;
+}
+
+/* تأثيرات الهوفر المحسنة للأجهزة التي تدعم اللمس */
+@media (hover: hover) and (pointer: fine) {
+  .compact-category-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+  
+  .compact-category-card:hover .card-arrow {
+    transform: translateX(-4px);
+    color: #3b82f6;
+  }
+}
+
+/* تحسينات الأداء للتمرير */
+.category-cards-container {
+  /* استخدام التسريع الهاردويري */
+  transform: translateZ(0);
+  -webkit-overflow-scrolling: touch;
+}
+
+/* تحسينات الـ dark mode */
+.dark .compact-category-card {
+  border-color: rgba(75, 85, 99, 0.3);
+}
+
+.dark .compact-category-card:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+/* تحسينات اللود والشيمر */
+.compact-category-card .shimmer {
+  background: linear-gradient(90deg, 
+    rgba(255, 255, 255, 0) 0%, 
+    rgba(255, 255, 255, 0.1) 50%, 
+    rgba(255, 255, 255, 0) 100%);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.dark .compact-category-card .shimmer {
+  background: linear-gradient(90deg, 
+    rgba(255, 255, 255, 0) 0%, 
+    rgba(255, 255, 255, 0.05) 50%, 
+    rgba(255, 255, 255, 0) 100%);
+}
+
+@keyframes shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: 200px 0; }
+}
+
+/* تحسينات إمكانية الوصول */
+.compact-category-card:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* تحسينات الطباعة */
+@media print {
+  .compact-category-card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #e5e7eb;
+  }
+}

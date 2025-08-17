@@ -1,0 +1,295 @@
+/* تحسينات سحابة الكلمات للأجهزة المحمولة */
+/* Mobile-specific enhancements for Word Cloud */
+
+/* ===== تحسينات عامة للجوال ===== */
+@media (max-width: 768px) {
+  /* الحاوي الرئيسي */
+  .home-word-cloud {
+    margin: 0 !important;
+    padding: 0 8px !important;
+  }
+
+  .home-word-cloud .max-w-7xl {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  /* الحاوي المدور */
+  .home-word-cloud > div > div {
+    border-radius: 12px !important;
+    margin: 0 8px !important;
+  }
+
+  /* العنوان للجوال */
+  .home-word-cloud .p-6.pb-3 {
+    padding: 16px !important;
+    padding-bottom: 12px !important;
+  }
+
+  .home-word-cloud h2 {
+    font-size: 1.25rem !important; /* text-xl -> text-lg */
+    line-height: 1.5 !important;
+  }
+
+  .home-word-cloud p {
+    font-size: 0.75rem !important; /* text-sm -> text-xs */
+    margin-top: 2px !important;
+  }
+
+  /* زر التحديث */
+  .home-word-cloud button {
+    padding: 8px !important;
+  }
+
+  /* منطقة سحابة الكلمات */
+  .home-word-cloud .word-cloud-container {
+    padding: 12px !important;
+  }
+
+  .home-word-cloud .word-cloud-container > div {
+    gap: 6px !important; /* تقليل المسافات */
+    padding: 12px 0 !important;
+  }
+
+  /* الكلمات المفتاحية للجوال */
+  .word-cloud-keyword {
+    padding: 6px 12px !important;
+    margin: 2px !important;
+    border-radius: 20px !important;
+    min-height: 32px !important;
+    font-size: 0.875rem !important; /* text-base -> text-sm */
+    line-height: 1.2 !important;
+    gap: 4px !important;
+  }
+
+  /* أحجام مخصصة للجوال */
+  .word-cloud-keyword.size-5 {
+    font-size: 1.125rem !important; /* text-lg */
+    padding: 8px 16px !important;
+    font-weight: 700 !important;
+  }
+
+  .word-cloud-keyword.size-4 {
+    font-size: 1rem !important; /* text-base */
+    padding: 7px 14px !important;
+    font-weight: 600 !important;
+  }
+
+  .word-cloud-keyword.size-3 {
+    font-size: 0.925rem !important; /* بين text-sm و text-base */
+    padding: 6px 12px !important;
+    font-weight: 500 !important;
+  }
+
+  .word-cloud-keyword.size-2 {
+    font-size: 0.875rem !important; /* text-sm */
+    padding: 5px 10px !important;
+    font-weight: 500 !important;
+  }
+
+  .word-cloud-keyword.size-1 {
+    font-size: 0.8rem !important;
+    padding: 4px 8px !important;
+    font-weight: 400 !important;
+  }
+
+  /* الأيقونات */
+  .word-cloud-keyword .trend-icon {
+    width: 12px !important;
+    height: 12px !important;
+  }
+
+  .word-cloud-keyword .keyword-count-badge {
+    font-size: 0.7rem !important;
+    padding: 1px 4px !important;
+    min-width: 16px !important;
+    height: 16px !important;
+    line-height: 14px !important;
+  }
+
+  /* تأثيرات الـ hover محسنة للجوال */
+  .word-cloud-keyword:hover {
+    transform: scale(1.05) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  .word-cloud-keyword:active {
+    transform: scale(0.95) !important;
+  }
+
+  /* التذييل */
+  .home-word-cloud > div > div > div:last-child {
+    padding: 8px 16px !important;
+    border-radius: 0 0 12px 12px !important;
+  }
+
+  .home-word-cloud > div > div > div:last-child .flex {
+    flex-direction: column !important;
+    gap: 8px !important;
+    align-items: flex-start !important;
+  }
+
+  .home-word-cloud > div > div > div:last-child .flex > div:first-child {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+  }
+
+  .home-word-cloud > div > div > div:last-child .text-xs {
+    font-size: 0.7rem !important;
+    align-self: flex-end !important;
+  }
+}
+
+/* ===== تحسينات للشاشات الصغيرة جداً (أقل من 480px) ===== */
+@media (max-width: 480px) {
+  /* تقليل الحجم أكثر */
+  .home-word-cloud {
+    padding: 0 4px !important;
+  }
+
+  .home-word-cloud > div > div {
+    margin: 0 4px !important;
+    border-radius: 8px !important;
+  }
+
+  .home-word-cloud .p-6.pb-3 {
+    padding: 12px !important;
+    padding-bottom: 8px !important;
+  }
+
+  .home-word-cloud h2 {
+    font-size: 1.125rem !important; /* text-lg -> محدود */
+  }
+
+  .word-cloud-keyword {
+    padding: 4px 8px !important;
+    margin: 1px !important;
+    font-size: 0.8rem !important;
+    min-height: 28px !important;
+  }
+
+  .word-cloud-keyword.size-5 {
+    font-size: 1rem !important;
+    padding: 6px 12px !important;
+  }
+
+  .word-cloud-keyword.size-4 {
+    font-size: 0.925rem !important;
+    padding: 5px 10px !important;
+  }
+
+  .word-cloud-keyword.size-3 {
+    font-size: 0.875rem !important;
+    padding: 4px 8px !important;
+  }
+
+  .word-cloud-keyword.size-2 {
+    font-size: 0.8rem !important;
+    padding: 3px 6px !important;
+  }
+
+  .word-cloud-keyword.size-1 {
+    font-size: 0.75rem !important;
+    padding: 2px 4px !important;
+  }
+
+  /* الأيقونات أصغر */
+  .word-cloud-keyword .trend-icon {
+    width: 10px !important;
+    height: 10px !important;
+  }
+
+  .word-cloud-keyword .keyword-count-badge {
+    font-size: 0.6rem !important;
+    padding: 0 2px !important;
+    min-width: 12px !important;
+    height: 12px !important;
+    line-height: 12px !important;
+  }
+}
+
+/* ===== تحسينات للاتجاه الأفقي على الجوال ===== */
+@media (max-width: 768px) and (orientation: landscape) {
+  .home-word-cloud .word-cloud-container {
+    padding: 8px !important;
+  }
+
+  .home-word-cloud .word-cloud-container > div {
+    padding: 8px 0 !important;
+  }
+
+  .word-cloud-keyword {
+    padding: 4px 10px !important;
+  }
+}
+
+/* ===== تحسينات للمس (Touch) ===== */
+@media (max-width: 768px) {
+  .word-cloud-keyword {
+    /* مساحة لمس مناسبة */
+    min-height: 32px !important;
+    min-width: 40px !important;
+    
+    /* منع التحديد */
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+    
+    /* تأثير الضغط */
+    transition: all 0.2s ease !important;
+  }
+
+  .word-cloud-keyword:active {
+    transform: scale(0.95) !important;
+    opacity: 0.8 !important;
+  }
+
+  /* تحسين الألوان للقراءة على الجوال */
+  .word-cloud-keyword {
+    background: rgba(255, 255, 255, 0.7) !important;
+    backdrop-filter: blur(5px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  }
+
+  .dark .word-cloud-keyword {
+    background: rgba(55, 65, 81, 0.8) !important;
+    border: 1px solid rgba(75, 85, 99, 0.5) !important;
+  }
+
+  .word-cloud-keyword:hover {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border-color: rgba(59, 130, 246, 0.5) !important;
+  }
+
+  .dark .word-cloud-keyword:hover {
+    background: rgba(75, 85, 99, 0.9) !important;
+    border-color: rgba(96, 165, 250, 0.5) !important;
+  }
+}
+
+/* ===== تحسينات إضافية للأداء ===== */
+@media (max-width: 768px) {
+  /* تبسيط التأثيرات للأداء */
+  .word-cloud-keyword {
+    will-change: transform !important;
+    transform: translateZ(0) !important; /* hardware acceleration */
+  }
+
+  /* إخفاء العناصر الزائدة في الشاشات الصغيرة */
+  .word-cloud-keyword.size-1 .keyword-count-badge {
+    display: none !important;
+  }
+
+  /* تحسين الأنيميشن */
+  .word-cloud-keyword {
+    animation-duration: 0.2s !important;
+  }
+
+  /* تحسين الخطوط */
+  .word-cloud-keyword {
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+  }
+}

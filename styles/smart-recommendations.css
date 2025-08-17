@@ -1,0 +1,179 @@
+/*
+ * 🎯 تصميم نظام التوصيات الذكي المتنوع
+ * كسر التشابه البصري وتحسين تجربة القراءة
+ */
+
+/* مكون الروابط الذكية */
+.smart-link-group {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.smart-link-group::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.3), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+.smart-link-group:hover::before {
+  transform: translateX(100%);
+}
+
+.smart-link-group:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* روابط المحتوى المتنوع */
+.smart-link-group .group:hover {
+  transform: translateX(4px);
+}
+
+/* التحسينات البصرية للأيقونات */
+.smart-link-group .w-8.h-8 {
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.smart-link-group:hover .w-8.h-8 {
+  transform: scale(1.1) rotate(5deg);
+}
+
+/* تأثيرات الرسوم المتحركة للنص */
+.smart-link-group h5 {
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.smart-link-group .group:hover h5 {
+  background: linear-gradient(135deg, #1f2937 0%, #3b82f6 50%, #1f2937 100%);
+  background-size: 200% 200%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-shimmer 2s ease-in-out infinite;
+}
+
+@keyframes gradient-shimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* تحسينات للأيقونة المنبثقة */
+.smart-link-group .opacity-0 {
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.smart-link-group .group:hover .opacity-0 {
+  transform: translateX(-3px) scale(1.1);
+}
+
+/* تحسينات الاستجابة للموبايل */
+@media (max-width: 768px) {
+  .smart-link-group {
+    margin-left: 1rem;
+    margin-right: 1rem;
+  }
+  
+  .smart-link-group:hover {
+    transform: translateY(-1px);
+  }
+  
+  .smart-link-group .group:hover {
+    transform: none;
+  }
+}
+
+/* تأثيرات إضافية للبطاقات العادية */
+.recommendation-card {
+  transition: all 0.3s ease;
+}
+
+.recommendation-card:hover {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* تحسين نظام الألوان للأنواع المختلفة */
+.smart-link-group.analysis-theme {
+  background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+  border-right-color: #8b5cf6;
+}
+
+.smart-link-group.opinion-theme {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-right-color: #10b981;
+}
+
+.smart-link-group.news-theme {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border-right-color: #3b82f6;
+}
+
+/* تحسين عرض المعلومات الإضافية */
+.smart-recommendation-block .text-xs {
+  font-family: var(--font-ibm-plex), 'IBM Plex Sans Arabic', Tajawal, 'Noto Sans Arabic', system-ui, sans-serif;
+  font-weight: 500;
+}
+
+/* تحسين العنوان الرئيسي */
+.smart-recommendation-block h2 {
+  background: linear-gradient(135deg, #1f2937 0%, #3b82f6 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* تحسين الصندوق التفسيري */
+.smart-recommendation-block .bg-gradient-to-r {
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+/* تحسين النصوص العربية */
+.smart-link-group * {
+  text-align: right;
+  direction: rtl;
+}
+
+.smart-link-group h4,
+.smart-link-group h5 {
+  font-family: var(--font-ibm-plex), 'IBM Plex Sans Arabic', Tajawal, 'Noto Sans Arabic', system-ui, sans-serif !important;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* تحسين المسافات والتخطيط */
+.smart-link-group .space-y-3 > * + * {
+  margin-top: 0.75rem;
+}
+
+.smart-link-group .flex.items-start {
+  align-items: flex-start;
+}
+
+/* تحسين حالة التركيز للوصولية */
+.smart-link-group a:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+
+/* تحسين حالة التحميل */
+.smart-recommendation-block .animate-pulse {
+  animation: pulse-custom 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-custom {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}

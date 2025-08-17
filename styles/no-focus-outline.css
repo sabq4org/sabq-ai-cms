@@ -1,0 +1,135 @@
+/* إلغاء جميع تأثيرات التركيز الزرقاء في التطبيق */
+
+/* القاعدة العامة - إلغاء جميع outlines */
+*,
+*::before,
+*::after {
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+/* إلغاء تأثيرات التركيز للهيدر */
+header a:focus,
+header a:focus-visible,
+header button:focus,
+header button:focus-visible,
+.header-link:focus,
+.header-link:focus-visible,
+.nav-item:focus,
+.nav-item:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  background-color: transparent !important;
+}
+
+/* إلغاء تأثيرات التركيز للأقسام في الهيدر */
+.category-link:focus,
+.category-link:focus-visible,
+[href*="/categories"]:focus,
+[href*="/categories"]:focus-visible,
+.dropdown-toggle:focus,
+.dropdown-toggle:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: transparent !important;
+}
+
+/* إلغاء تأثيرات التركيز لبطاقات الأخبار */
+.news-card:focus,
+.news-card:focus-visible,
+.article-card:focus,
+.article-card:focus-visible,
+[class*="card"]:focus,
+[class*="card"]:focus-visible,
+article:focus,
+article:focus-visible,
+article a:focus,
+article a:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: inherit !important;
+}
+
+/* إلغاء تأثيرات التركيز للروابط */
+a:focus,
+a:focus-visible,
+a:active,
+a:hover:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  text-decoration: none !important;
+}
+
+/* إلغاء تأثيرات التركيز من Tailwind */
+[class*="focus:"]:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* إلغاء ring من Tailwind */
+[class*="ring"]:focus,
+[class*="ring"]:focus-visible {
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+  box-shadow: none !important;
+}
+
+/* إلغاء تأثيرات التركيز للأزرار */
+button:focus,
+button:focus-visible,
+[type="button"]:focus,
+[type="button"]:focus-visible,
+[type="submit"]:focus,
+[type="submit"]:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* إلغاء تأثيرات التركيز للعناصر التفاعلية */
+[tabindex]:focus,
+[tabindex]:focus-visible,
+[role="button"]:focus,
+[role="button"]:focus-visible,
+[role="link"]:focus,
+[role="link"]:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* إلغاء تأثيرات التركيز للصور */
+img:focus,
+img:focus-visible,
+[class*="image"]:focus,
+[class*="image"]:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* التأكد من إلغاء جميع الحدود الزرقاء */
+*:focus {
+  border-color: inherit !important;
+  outline-color: transparent !important;
+}
+
+/* إلغاء تأثيرات التركيز للقوائم المنسدلة */
+.dropdown:focus-within,
+.dropdown-menu:focus,
+.dropdown-item:focus,
+select:focus,
+option:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: inherit !important;
+}
+
+/* إلغاء highlight للنص المحدد باللون الأزرق إذا لزم الأمر */
+::selection {
+  background-color: rgba(0, 0, 0, 0.1);
+  color: inherit;
+}
+
+::-moz-selection {
+  background-color: rgba(0, 0, 0, 0.1);
+  color: inherit;
+} 

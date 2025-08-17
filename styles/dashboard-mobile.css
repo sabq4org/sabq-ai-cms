@@ -1,0 +1,141 @@
+
+  
+    --border-color: #374151;
+    --border-color: #e5e7eb;
+    --card-bg: #1f2937;
+    --card-bg: #ffffff;
+    --text-primary: #111827;
+    --text-primary: #f3f4f6;
+    --text-secondary: #6b7280;
+    --text-secondary: #9ca3af;
+    -webkit-overflow-scrolling: touch;
+    background-color: transparent;
+    background: var(--card-bg);
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+    display: flex;
+    display: none !important;
+    display: none;
+    font-size: 0.5rem;
+    font-size: 0.625rem;
+    font-size: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    height: 0.75rem;
+    height: 1.25rem;
+    height: 1.5rem;
+    height: 1rem;
+    height: 2rem;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
+    margin-top: 1rem;
+    margin: 0;
+    min-height: 44px;
+    min-width: 44px;
+    min-width: 80px;
+    opacity: 0.8;
+    padding-top: 1rem;
+    padding: 0;
+    padding: 0.25rem 0;
+    padding: 0.375rem;
+    padding: 0.5rem 0.25rem;
+    padding: 0.5rem;
+    padding: 0.75rem;
+    padding: 1rem;
+    transition-duration: 200ms;
+    width: 0.75rem;
+    width: 1.25rem;
+    width: 1.5rem;
+    width: 100%;
+    width: 1rem;
+    width: 2rem;
+  -ms-overflow-style: none;
+  :not(.dark) {
+  .dark {
+  .hover\:bg-gray-50:hover,
+  .hover\:bg-gray-700:hover {
+  .nav-tab {
+  .nav-tab svg {
+  .nav-tabs {
+  .nav-tabs,
+  .shadow-md {
+  .shadow-sm {
+  .smart-system-card .icon {
+  .smart-system-card .icon-box {
+  .smart-system-card .status {
+  .smart-system-card .title {
+  .smart-system-card {
+  .stats-card .icon {
+  .stats-card .icon-wrapper {
+  .stats-card .subtitle {
+  .stats-card {
+  .table-mobile-card .detail-row {
+  .table-mobile-card {
+  .table-mobile-card h4 {
+  .transition-all {
+  }
+  * {
+  /* إخفاء النص الفرعي في الموبايل */
+  /* إخفاء النصوص الفرعية في الموبايل */
+  /* استخدام البطاقات بدلاً من الجداول */
+  /* تقليل المسافات في القائمة الجانبية */
+  /* إخفاء العناصر غير الضرورية */
+  /* تحسين زر تسجيل الخروج */
+  /* تقليل الظلال لتحسين الأداء */
+  /* تقليل حجم أزرار الأدوات */
+  /* إخفاء العنوان الفرعي */
+  /* تحسين أحجام النصوص */
+  /* تحسين المحتوى للطباعة */
+  /* تحسين حجم الأيقونات */
+  /* تقليل التأثيرات الانتقالية */
+  /* تقليل حجم الشعار */
+  /* زيادة مساحة اللمس */
+  /* تحسين الأيقونات */
+  /* تحسين التمرير */
+  /* استخدام active state بدلاً من hover */
+  /* إزالة hover effects في الأجهزة اللمسية */
+  /* تقليل padding في البطاقات */
+  a {
+  a:active {
+  aside > div:last-child {
+  aside nav .w-10 {
+  aside nav > div {
+  aside nav a {
+  aside nav button,
+  aside nav p:last-child {
+  aside,
+  button {
+  button,
+  button:active,
+  display: none;
+  header .logo {
+  header .subtitle {
+  header {
+  header button {
+  header button svg {
+  header,
+  main {
+  scrollbar-width: none;
+.scrollbar-hide {
+.scrollbar-hide::-webkit-scrollbar {
+}
+} 
+@media (hover: none) and (pointer: coarse) {
+@media (max-width: 640px) {
+@media (max-width: 768px) {
+@media print {
+/* إخفاء شريط التمرير في الموبايل */
+/* تحسينات لوحة التحكم للموبايل */
+/* تحسين القائمة الجانبية للموبايل */
+/* تحسين الوضع المظلم للموبايل */
+/* تحسين أزرار التنقل */
+/* تحسينات عامة للأداء */
+/* تحسين البطاقات الإحصائية */
+/* تحسين التفاعل باللمس */
+/* تحسين الجداول للموبايل */
+/* تحسين الطباعة للموبايل */
+/* تحسين النظام الذكي */
+/* تحسين Header للموبايل */

@@ -1,0 +1,116 @@
+/* 📊 شريط الإحصائيات المدمج - تصميم خفيف */
+
+.compact-stats-bar {
+  /* خفيف ومرن */
+  min-height: 44px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  
+  /* تأثيرات خفيفة */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.compact-stats-bar:hover {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* تحسين الأيقونات الصغيرة */
+.compact-stats-bar .lucide {
+  flex-shrink: 0;
+}
+
+/* تحسين الأرقام */
+.compact-stats-bar .font-bold {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+/* تحسين للشاشات الصغيرة */
+@media (max-width: 480px) {
+  .compact-stats-bar {
+    min-height: 40px;
+  }
+  
+  .compact-stats-bar .text-sm {
+    font-size: 0.8rem;
+  }
+  
+  .compact-stats-bar .text-xs {
+    font-size: 0.7rem;
+  }
+  
+  /* إخفاء بعض العناصر في الشاشات الصغيرة جداً */
+  .compact-stats-bar .space-x-6 {
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .compact-stats-bar .space-x-6 {
+    gap: 0.5rem;
+  }
+}
+
+/* تحسينات الأداء */
+.compact-stats-bar,
+.compact-stats-bar button,
+.compact-stats-bar .rounded-lg {
+  will-change: transform;
+}
+
+/* تحسين للوضع المظلم */
+.dark .compact-stats-bar {
+  background: rgba(17, 24, 39, 0.85);
+  border-color: rgba(75, 85, 99, 0.3);
+}
+
+/* تأثير hover للأزرار */
+.compact-stats-bar button:hover {
+  transform: scale(1.05);
+}
+
+.compact-stats-bar button:active {
+  transform: scale(0.95);
+}
+
+/* مؤشر الحالة المباشرة */
+.compact-stats-bar .animate-pulse {
+  animation: gentle-pulse 2s ease-in-out infinite;
+}
+
+@keyframes gentle-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* تحسين إمكانية الوصول */
+.compact-stats-bar button:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  border-radius: 0.375rem;
+}
+
+/* تقليل الحركة للمستخدمين الذين يفضلون ذلك */
+@media (prefers-reduced-motion: reduce) {
+  .compact-stats-bar,
+  .compact-stats-bar button {
+    transition: none;
+    animation: none;
+  }
+  
+  .compact-stats-bar .animate-pulse {
+    animation: none;
+  }
+}
+
+/* تحسين للطباعة */
+@media print {
+  .compact-stats-bar {
+    display: none;
+  }
+}

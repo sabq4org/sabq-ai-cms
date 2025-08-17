@@ -1,0 +1,196 @@
+/**
+ * إصلاحات بطاقة الأخبار المميزة
+ * Featured News Cards Fixes
+ *
+ * إصلاح مشكلة قص العنوان في السطر الثالث
+ * وتحسين موضع نبذة الخبر
+ */
+
+/* إصلاح العناوين ثلاثية الأسطر - منع القص من الأسفل */
+.line-clamp-3 {
+  display: -webkit-box !important;
+  -webkit-line-clamp: 3 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+
+  /* إضافة مساحة إضافية للسطر الثالث */
+  line-height: 1.4 !important; /* تقليل line-height لتوفير مساحة أكثر */
+  max-height: calc(1.4em * 3) !important; /* ضبط الارتفاع الأقصى بدقة */
+
+  /* ضمان عدم قص النص */
+  padding-bottom: 2px !important; /* مساحة إضافية في الأسفل */
+  margin-bottom: 0.75rem !important; /* تقليل المسافة السفلية */
+}
+
+/* تحسين خاص للعناوين في البطاقات المميزة */
+.featured-news-title,
+.hero-news-title {
+  line-height: 1.35 !important;
+  max-height: calc(1.35em * 3) !important;
+  padding-bottom: 3px !important;
+  margin-bottom: 0.5rem !important; /* تقليل المسافة أكثر */
+}
+
+/* إصلاح موضع نبذة الخبر - "تكة واحدة" */
+.news-excerpt,
+.article-excerpt,
+.news-summary {
+  margin-top: 0.25rem !important; /* تقليل المسافة العلوية */
+  margin-bottom: 0.75rem !important; /* تقليل المسافة السفلية */
+  padding-top: 0 !important; /* إزالة padding العلوي */
+}
+
+/* تحسين خاص للبطاقات المميزة */
+.featured-news-card .news-excerpt,
+.hero-news-card .news-excerpt {
+  margin-top: 0.125rem !important; /* "تكة واحدة" - مسافة أقل */
+  margin-bottom: 0.5rem !important;
+}
+
+/* إصلاح لمكونات UnifiedMobileNewsCard */
+.unified-mobile-card h3.line-clamp-2,
+.unified-mobile-card h3.line-clamp-3 {
+  line-height: 1.4 !important;
+  max-height: calc(1.4em * var(--lines, 2)) !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.unified-mobile-card .line-clamp-3 {
+  --lines: 3;
+}
+
+.unified-mobile-card .line-clamp-2 {
+  --lines: 2;
+}
+
+/* إصلاح للمكونات المحسنة */
+.enhanced-mobile-card h3 {
+  line-height: 1.35 !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.enhanced-mobile-card .line-clamp-3 {
+  max-height: calc(1.35em * 3) !important;
+  padding-bottom: 2px !important;
+}
+
+/* إصلاح عام لجميع البطاقات */
+.mobile-news-card h2,
+.mobile-news-card h3,
+.news-card h2,
+.news-card h3,
+.article-card h2,
+.article-card h3 {
+  line-height: 1.4 !important;
+  margin-bottom: 0.5rem !important;
+}
+
+/* تحسين المسافات بين العناصر */
+.news-card-content,
+.article-card-content {
+  gap: 0.5rem !important;
+}
+
+.news-card-content > *:not(:last-child),
+.article-card-content > *:not(:last-child) {
+  margin-bottom: 0.5rem !important;
+}
+
+/* إصلاح خاص للكاروسيل المميز */
+.featured-carousel h2.line-clamp-3 {
+  line-height: 1.3 !important;
+  max-height: calc(1.3em * 3) !important;
+  padding-bottom: 4px !important;
+}
+
+/* إصلاح للبطاقات الذكية */
+.smart-block h3.line-clamp-2,
+.smart-block h3.line-clamp-3 {
+  line-height: 1.4 !important;
+  margin-bottom: 0.5rem !important;
+}
+
+/* تحسين عام للنصوص المقصوصة */
+[class*="line-clamp-"] {
+  word-break: break-word !important;
+  hyphens: auto !important;
+  -webkit-hyphens: auto !important;
+  -moz-hyphens: auto !important;
+}
+
+/* إصلاح خاص للعناوين الطويلة */
+.long-title.line-clamp-3 {
+  line-height: 1.3 !important;
+  max-height: calc(1.3em * 3 + 4px) !important;
+}
+
+/* إصلاح للوضع المظلم */
+.dark .line-clamp-3,
+.dark .news-excerpt {
+  text-shadow: none !important;
+}
+
+/* تحسين التجاوب للشاشات الصغيرة */
+@media (max-width: 640px) {
+  .line-clamp-3 {
+    line-height: 1.35 !important;
+    max-height: calc(1.35em * 3 + 2px) !important;
+    font-size: 0.95em !important; /* تقليل حجم الخط قليلاً للموبايل */
+  }
+
+  .news-excerpt {
+    margin-top: 0.25rem !important;
+    margin-bottom: 0.5rem !important;
+    font-size: 0.875rem !important;
+  }
+}
+
+/* تحسين للشاشات المتوسطة */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .line-clamp-3 {
+    line-height: 1.4 !important;
+    max-height: calc(1.4em * 3) !important;
+  }
+}
+
+/* تحسين للشاشات الكبيرة */
+@media (min-width: 1025px) {
+  .line-clamp-3 {
+    line-height: 1.45 !important;
+    max-height: calc(1.45em * 3) !important;
+  }
+
+  .featured-news-title.line-clamp-3 {
+    line-height: 1.35 !important;
+    max-height: calc(1.35em * 3 + 3px) !important;
+  }
+}
+
+/* إصلاح لمشكلة overflow في الحاويات */
+.news-card,
+.article-card,
+.mobile-news-card {
+  overflow: visible !important;
+}
+
+.news-card-image-container,
+.article-card-image-container {
+  overflow: hidden !important; /* فقط الصورة تحتاج overflow hidden */
+}
+
+/* تحسين أداء CSS */
+.line-clamp-3,
+.news-excerpt {
+  will-change: auto;
+  contain: layout style;
+}
+
+/* إصلاح للطباعة */
+@media print {
+  .line-clamp-3 {
+    -webkit-line-clamp: unset !important;
+    max-height: unset !important;
+    overflow: visible !important;
+  }
+}

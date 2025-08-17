@@ -1,0 +1,266 @@
+
+  
+    background-position: -200% 0;
+    background-position: 0% 50%;
+    background-position: 100% 50%;
+    background-position: 200% 0;
+    border-color: transparent;
+    box-shadow: 0 0 20px currentColor;
+    box-shadow: 0 0 5px currentColor;
+    filter: brightness(1.3) drop-shadow(0 0 8px rgba(59, 130, 246, 0.6));
+    filter: brightness(1);
+    font-size: 0.75rem;
+    margin-bottom: 1rem;
+    min-width: 80px;
+    opacity: 0;
+    opacity: 0.5;
+    opacity: 1;
+    padding: 0.5rem;
+    transform: scale(1.1);
+    transform: scale(1);
+    transform: scale(2);
+    transform: scaleY(1.5);
+    transform: scaleY(1);
+    transform: translateX(-100%);
+    transform: translateX(0);
+    transform: translateY(-10px);
+    transform: translateY(-15px);
+    transform: translateY(-5px);
+    transform: translateY(-7px);
+    transform: translateY(0);
+    transform: translateY(20px);
+    width: 0;
+    width: 100%;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+  .author-card {
+  .interaction-button {
+  .opinion-card {
+  }
+  0% {
+  0% { transform: rotate(0deg); }
+  0%, 100% {
+  0%, 20%, 50%, 80%, 100% {
+  100% {
+  100% { transform: rotate(360deg); }
+  40% {
+  50% {
+  60% {
+  animation-delay: 0.1s;
+  animation-delay: 0.2s;
+  animation-delay: 0.3s;
+  animation-delay: 0.4s;
+  animation-play-state: paused;
+  animation: bounce 1s infinite;
+  animation: count-up 0.6s ease-out forwards;
+  animation: glow 2s ease-in-out infinite;
+  animation: gradient-shift 15s ease infinite;
+  animation: gradient-shift 3s ease infinite;
+  animation: podcast-pulse 2s ease-in-out infinite;
+  animation: pulse-red 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: ripple 2s infinite;
+  animation: rotate 2s linear infinite;
+  animation: share-bounce 0.6s ease;
+  animation: shimmer 1.5s infinite;
+  animation: slide-left 30s linear infinite;
+  animation: sound-wave 1s ease-in-out infinite;
+  animation: typing 3s steps(30) 1s forwards, blink 1s infinite;
+  animation: verified-shine 3s ease-in-out infinite;
+  background-color: rgb(31, 41, 55);
+  background-color: rgb(55, 65, 81);
+  background-color: rgba(59, 130, 246, 0.1);
+  background-size: 200% 100%;
+  background-size: 200% 200%;
+  background: inherit;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  background: linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899);
+  background: linear-gradient(45deg, #6366f1, #8b5cf6, #ec4899);
+  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  background: linear-gradient(to left, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+  background: linear-gradient(to right, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.3);
+  border-left: 3px solid;
+  border-radius: 50%;
+  border-radius: inherit;
+  bottom: -2px;
+  bottom: 0;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  color: white;
+  content: '';
+  content: '🔥';
+  display: none;
+  from {
+  height: 0;
+  height: 100%;
+  height: 200%;
+  height: 300px;
+  left: -100%;
+  left: -2px;
+  left: 0;
+  left: 100%;
+  left: 50%;
+  opacity: 0;
+  opacity: 1;
+  overflow: hidden;
+  pointer-events: none;
+  position: absolute;
+  position: relative;
+  right: -2px;
+  right: -5px;
+  right: 0;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  to {
+  top: -2px;
+  top: -5px;
+  top: 0;
+  top: 50%;
+  transform-origin: bottom;
+  transform: scale(0.95);
+  transform: scale(1.05);
+  transform: translate(-50%, -50%);
+  transform: translateX(4px);
+  transform: translateY(-10px);
+  transform: translateY(-2px);
+  transform: translateY(-4px) scale(1.05);
+  transform: translateY(0);
+  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: left 0.3s;
+  transition: left 0.5s ease;
+  transition: left 0.5s;
+  transition: opacity 0.3s ease;
+  transition: opacity 0.3s;
+  transition: width 0.4s ease, height 0.4s ease;
+  transition: width 0.6s, height 0.6s;
+  white-space: nowrap;
+  width: 0;
+  width: 100%;
+  width: 200%;
+  width: 300px;
+  width: 40px;
+  z-index: -1;
+  z-index: 1;
+.ai-recommendation {
+.ai-recommendation::before {
+.ai-recommendation:hover::before {
+.animate-pulse-red {
+.animated-gradient {
+.author-avatar {
+.author-avatar::before {
+.author-card {
+.author-card:hover .author-avatar {
+.author-card:hover .author-avatar::before {
+.author-card:hover {
+.authors-carousel {
+.authors-carousel::-webkit-scrollbar {
+.authors-carousel::after {
+.authors-carousel::before {
+.authors-carousel::before,
+.badge-verified {
+.btn-primary {
+.btn-primary::before {
+.btn-primary:hover::before {
+.dark .loading-skeleton {
+.dark .opinion-card {
+.dark .opinion-card:hover {
+.dropdown-enter {
+.dropdown-enter-active {
+.dropdown-exit {
+.dropdown-exit-active {
+.enhanced-interaction-button {
+.enhanced-interaction-button::before {
+.enhanced-interaction-button:active {
+.enhanced-interaction-button:hover::before {
+.filter-active {
+.interaction-button {
+.interaction-button::after {
+.interaction-button:active {
+.interaction-button:active::after {
+.loading-skeleton {
+.mood-indicator {
+.mood-indicator::before {
+.mood-indicator:hover::before {
+.online-status {
+.online-status::before {
+.opinion-card {
+.opinion-card::before {
+.opinion-card:hover {
+.opinion-card:hover::before {
+.podcast-indicator {
+.relevance-score {
+.search-suggestion {
+.search-suggestion:hover {
+.share-animation {
+.sidebar-widget {
+.sidebar-widget:hover {
+.sound-wave-bar {
+.sound-wave-bar:nth-child(2) {
+.sound-wave-bar:nth-child(3) {
+.sound-wave-bar:nth-child(4) {
+.stat-item {
+.stat-item:nth-child(1) {
+.stat-item:nth-child(2) {
+.stat-item:nth-child(3) {
+.stat-item:nth-child(4) {
+.trending-indicator {
+.trending-indicator::after {
+.trending-topics-scroll {
+.trending-topics-scroll:hover {
+.typing-text {
+}
+} 
+@keyframes blink {
+@keyframes bounce {
+@keyframes count-up {
+@keyframes glow {
+@keyframes gradient-shift {
+@keyframes podcast-pulse {
+@keyframes pulse-red {
+@keyframes ripple {
+@keyframes rotate {
+@keyframes share-bounce {
+@keyframes shimmer {
+@keyframes slide-left {
+@keyframes sound-wave {
+@keyframes typing {
+@keyframes verified-shine {
+@media (max-width: 768px) {
+/* تأثيرات أزرار التفاعل المطورة */
+/* تأثيرات شريط الكتّاب المطور */
+/* تأثير التدرج المتحرك للهيدر */
+/* حركة النبض للمحتوى الجديد */
+/* صفحة مقالات الرأي - التأثيرات والحركات */
+/* تأثيرات البحث اللحظي */
+/* تأثيرات الحالة المتصلة */
+/* تأثيرات الشريط الجانبي */
+/* تأثيرات القائمة المنسدلة */
+/* تأثيرات نسبة التوافق */
+/* تأثير التوصيات الذكية */
+/* حركة الموضوعات الساخنة */
+/* شريط الكتاب المتحرك */
+/* أزرار التفاعل */
+/* التصميم المتجاوب */
+/* بطاقات المقالات */
+/* تأثيرات الأزرار */
+/* تأثيرات البودكاست */
+/* تأثيرات الترند */
+/* تأثيرات الشارات */
+/* تأثيرات الفلاتر */
+/* تأثيرات المشاركة */
+/* تأثيرات المشاعر */
+/* تأثير الإحصائيات */
+/* تأثير البودكاست */
+/* تأثير التحميل */
+/* تأثير الكتابة */
+/* وضع الظلام */
+/* تأثير hover على بطاقات الكتاب */
