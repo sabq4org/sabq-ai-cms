@@ -2,6 +2,7 @@
 
 // مكون الإشعارات الذكية في الهيدر - سبق الذكية
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { BellIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { BellIcon as BellSolidIcon } from '@heroicons/react/24/solid';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,6 +15,8 @@ interface NotificationDropdownProps {
 export function NotificationDropdown({ className = '' }: NotificationDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const anchorRef = useRef<HTMLButtonElement>(null);
+  const [position, setPosition] = useState<{ top: number; right: number }>({ top: 0, right: 16 });
 
   const {
     notifications,
@@ -43,17 +46,30 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
    */
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node) && !anchorRef.current?.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };
 
+    const updatePosition = () => {
+      if (!anchorRef.current) return;
+      const rect = anchorRef.current.getBoundingClientRect();
+      const top = rect.bottom + window.scrollY + 8;
+      const right = Math.max(8, window.innerWidth - rect.right - window.scrollX);
+      setPosition({ top, right });
+    };
+
     if (isOpen) {
+      updatePosition();
       document.addEventListener('mousedown', handleClickOutside);
+      window.addEventListener('resize', updatePosition);
+      window.addEventListener('scroll', updatePosition, { passive: true });
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('resize', () => {});
+      window.removeEventListener('scroll', () => {} as any);
     };
   }, [isOpen]);
 
@@ -114,6 +130,7 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
     <div className={`relative ${className}`} ref={dropdownRef}>
       {/* زر الإشعارات */}
       <button
+        ref={anchorRef}
         onClick={() => setIsOpen(!isOpen)}
         className="relative p-2 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors duration-200"
         aria-label="الإشعارات"
@@ -139,27 +156,31 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
         {/* إخفاء مؤشر الاتصال لتفادي إرباك المستخدم */}
       </button>
 
-      {/* قائمة الإشعارات المنسدلة */}
-      <AnimatePresence>
-        {isOpen && (
-          <>
-            {/* طبقة إغلاق عند الضغط خارج الصندوق */}
-            <motion.div
-              className="fixed inset-0 z-40"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsOpen(false)}
-            />
-            <motion.div
-              initial={{ opacity: 0, y: -10, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.98 }}
-              transition={{ duration: 0.2 }}
-              className="absolute right-0 mt-2 w-[26rem] max-w-[90vw] bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 max-h-[75vh] overflow-hidden"
-              role="dialog"
-              aria-label="قائمة الإشعارات"
-            >
+      {/* قائمة الإشعارات المنسدلة عبر Portal لتجنب القص */}
+      {typeof document !== 'undefined' && createPortal(
+        (
+          <AnimatePresence>
+            {isOpen && (
+              <>
+                {/* طبقة إغلاق عند الضغط خارج الصندوق */}
+                <motion.div
+                  className="fixed inset-0 z-[9998]"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setIsOpen(false)}
+                />
+                <motion.div
+                  ref={dropdownRef}
+                  initial={{ opacity: 0, y: -10, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                  transition={{ duration: 0.2 }}
+                  className="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-[9999] max-h-[75vh] overflow-hidden"
+                  style={{ position: 'fixed', top: position.top, right: position.right, width: '26rem', maxWidth: '90vw' }}
+                  role="dialog"
+                  aria-label="قائمة الإشعارات"
+                >
             {/* رأس القائمة */}
             <div className="p-4 border-b border-gray-200 dark:border-gray-700 text-right bg-white/95 dark:bg-gray-900/90 backdrop-blur rtl:text-right">
               <div className="flex items-center justify-between">
@@ -352,10 +373,13 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                 </>
               )}
             </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
+        ),
+        document.body
+      )}
     </div>
   );
 }
