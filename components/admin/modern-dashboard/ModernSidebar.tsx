@@ -498,36 +498,55 @@ export default function ModernSidebar({
 
     const itemContent = (
       <div
-        className={cn(
-          "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200",
-          "hover:bg-blue-50 dark:hover:bg-blue-900/20 group",
-          "cursor-pointer select-none",
-          level > 0 && "mr-4",
-          active &&
-            "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300",
-          active && "shadow-sm border border-blue-200 dark:border-blue-700"
-        )}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          padding: '10px 12px',
+          borderRadius: '12px',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
+          userSelect: 'none',
+          marginRight: level > 0 ? '16px' : '0',
+          background: active ? 'hsl(var(--accent))' : 'transparent',
+          color: active ? 'white' : 'hsl(var(--fg))',
+          border: active ? '1px solid hsl(var(--accent))' : '1px solid transparent'
+        }}
+        onMouseEnter={(e) => {
+          if (!active) {
+            e.currentTarget.style.background = 'hsl(var(--accent) / 0.1)';
+            e.currentTarget.style.borderColor = 'hsl(var(--accent) / 0.3)';
+            e.currentTarget.style.color = 'hsl(var(--accent))';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!active) {
+            e.currentTarget.style.background = 'transparent';
+            e.currentTarget.style.borderColor = 'transparent';
+            e.currentTarget.style.color = 'hsl(var(--fg))';
+          }
+        }}
         onClick={() => hasChildren && toggleExpanded(item.id)}
       >
         <item.icon
-          className={cn(
-            "h-5 w-5 transition-colors",
-            active
-              ? "text-blue-600 dark:text-blue-400"
-              : "text-gray-500 dark:text-gray-400",
-            "group-hover:text-blue-600 dark:group-hover:text-blue-400"
-          )}
+          style={{
+            width: '20px',
+            height: '20px',
+            transition: 'color 0.2s ease',
+            color: 'inherit'
+          }}
         />
 
         {!isCollapsed ? (
           <>
             <span
-              className={cn(
-                "font-medium text-sm transition-colors flex-1",
-                active
-                  ? "text-blue-700 dark:text-blue-300"
-                  : "text-gray-700 dark:text-gray-300"
-              )}
+              style={{
+                fontWeight: '500',
+                fontSize: '14px',
+                transition: 'color 0.2s ease',
+                flex: 1,
+                color: 'inherit'
+              }}
             >
               {item.title}
             </span>
