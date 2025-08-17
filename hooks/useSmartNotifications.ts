@@ -424,7 +424,7 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
     setPage(1);
     setHasMore(false);
     // قطع الاتصال بـ WebSocket
-    if (wsRef.current) {
+    if (notificationManager.current) {
       disconnectFromNotifications();
     }
   }, [disconnectFromNotifications]);
