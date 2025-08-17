@@ -6,6 +6,7 @@ import { Menu, Search, Bell, User, X, Sun, Moon } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import SabqLogo from '@/components/SabqLogo';
+import NotificationBell from '@/components/Notifications/NotificationBell';
 
 interface EnhancedMobileHeaderProps {
   showSearch?: boolean;
@@ -121,18 +122,7 @@ export default function EnhancedMobileHeader({
 
               {/* الإشعارات */}
               {showNotifications && (
-                <Link
-                  href="/moment-by-moment"
-                  className="notification-button relative"
-                  aria-label="الإشعارات"
-                >
-                  <Bell className="w-5 h-5" />
-                  {newEventsCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center animate-pulse">
-                      {newEventsCount > 9 ? '9+' : newEventsCount}
-                    </span>
-                  )}
-                </Link>
+                <NotificationBell />
               )}
 
               {/* تبديل الوضع الليلي */}

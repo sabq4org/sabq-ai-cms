@@ -5,6 +5,7 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import NotificationBell from '@/components/Notifications/NotificationBell';
 import { 
   Menu, Search, Bell, User, X, Sun, Moon, Activity, 
   Home, Newspaper, Film, Settings, LogOut, ChevronDown, PenTool,
@@ -389,18 +390,7 @@ const MobileHeader = memo(({
 
               {/* الإشعارات */}
               {showNotifications && (
-                <Link
-                  href="/moment-by-moment"
-                  className="relative p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95 transition-all duration-200"
-                  aria-label={`الإشعارات ${newEventsCount > 0 ? `- ${newEventsCount} جديد` : ''}`}
-                >
-                  <Bell className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                  {newEventsCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center animate-pulse font-bold shadow-lg">
-                      {newEventsCount > 9 ? '9+' : newEventsCount}
-                    </span>
-                  )}
-                </Link>
+                <NotificationBell />
               )}
 
               {/* تبديل الوضع الليلي */}

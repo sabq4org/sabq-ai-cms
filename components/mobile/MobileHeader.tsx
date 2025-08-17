@@ -7,6 +7,7 @@ import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { Menu, Search, Bell, User, ChevronDown, Home, Newspaper, MessageSquare, Bookmark, Settings, LogOut, X, Sun, Moon, Activity } from 'lucide-react';
+import NotificationBell from '@/components/Notifications/NotificationBell';
 
 interface MobileHeaderProps {
   showSearch?: boolean;
@@ -140,18 +141,7 @@ export default function MobileHeader({
 
               {/* الإشعارات */}
               {showNotifications && (
-                <Link
-                  href="/moment-by-moment"
-                  className="relative p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                  aria-label="الإشعارات"
-                >
-                  <Bell className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                  {newEventsCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center animate-pulse">
-                      {newEventsCount > 9 ? '9+' : newEventsCount}
-                    </span>
-                  )}
-                </Link>
+                <NotificationBell />
               )}
 
               {/* تبديل الوضع الليلي */}
