@@ -192,12 +192,12 @@ export default function ModernDashboardHomeFullWidth() {
       }}>
         
         {/* رسالة الترحيب AI */}
-        <section style={{ marginBottom: '12px' }}>
+        <section style={{ marginBottom: '6px' }}>
           <div className="card card-accent" style={{ 
             textAlign: 'center',
             background: 'linear-gradient(135deg, hsl(var(--bg-card)) 0%, hsl(var(--accent) / 0.03) 100%)',
             border: '1px solid hsl(var(--accent) / 0.2)',
-            padding: '12px',
+            padding: '10px',
             borderLeftWidth: '4px'
           }}>
             <div style={{ fontSize: '28px', marginBottom: '6px' }}>🤖</div>
@@ -235,7 +235,7 @@ export default function ModernDashboardHomeFullWidth() {
         </section>
 
         {/* الإحصائيات بتصميم Manus UI */}
-        <section className="grid grid-4" style={{ marginBottom: '12px' }}>
+        <section className="grid grid-4" style={{ marginBottom: '8px' }}>
           {statsData.map((stat, index) => (
             <StatCard key={index} {...stat} />
           ))}
