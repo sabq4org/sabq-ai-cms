@@ -645,5 +645,6 @@ export default function ModernSidebar({
         </div>
       )}
     </div>
+    </>
   );
 }
