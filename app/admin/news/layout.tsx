@@ -14,52 +14,9 @@ export default function NewsLayout({
       {/* تحميل CSS Manus UI */}
       <link rel="stylesheet" href="/manus-ui.css" />
       
-      {/* هيكل صفحة نظيف مع Grid */}
-      <div className="min-h-screen" style={{ background: 'hsl(var(--bg))' }}>
-        {/* شبكة من عمودين: sidebar ثابت + محتوى يتمدد */}
-        <div className="grid gap-0 grid-cols-[minmax(260px,300px)_minmax(0,1fr)] lg:grid-cols-[minmax(280px,320px)_minmax(0,1fr)]">
-          
-          {/* الشريط الجانبي يمين في RTL تلقائياً */}
-          <aside className="sticky top-0 h-screen overflow-y-auto border-s" 
-                 style={{ 
-                   background: 'hsl(var(--bg-elevated))', 
-                   borderColor: 'hsl(var(--line))'
-                 }}>
-            <div className="px-4 py-6">
-              <div className="text-center mb-6">
-                <h2 className="text-lg font-bold" style={{ color: 'hsl(var(--fg))' }}>
-                  سبق الذكية
-                </h2>
-                <p className="text-sm" style={{ color: 'hsl(var(--muted))' }}>
-                  إدارة الأخبار
-                </p>
-              </div>
-              
-              {/* قائمة سريعة للملاحة */}
-              <nav className="space-y-2">
-                <a href="/admin" className="block p-3 rounded-lg hover:bg-opacity-10 hover:bg-blue-500 transition-colors" 
-                   style={{ color: 'hsl(var(--muted))' }}>
-                  ← الرئيسية
-                </a>
-                <div className="p-3 rounded-lg" 
-                     style={{ background: 'hsl(var(--accent) / 0.1)', color: 'hsl(var(--accent))' }}>
-                  📰 الأخبار
-                </div>
-                <a href="/admin/users" className="block p-3 rounded-lg hover:bg-opacity-10 hover:bg-blue-500 transition-colors"
-                   style={{ color: 'hsl(var(--muted))' }}>
-                  👥 المستخدمين
-                </a>
-              </nav>
-            </div>
-          </aside>
-
-          {/* منطقة المحتوى: أهم شيء min-w-0 عشان ما تنحشر */}
-          <main className="min-w-0">
-            <div className="mx-auto max-w-screen-2xl px-4 lg:px-6 py-6">
-              {children}
-            </div>
-          </main>
-        </div>
+      {/* تطبيق تصميم Manus UI على المحتوى فقط */}
+      <div style={{ background: 'hsl(var(--bg))', minHeight: '100vh' }}>
+        {children}
       </div>
       
       {/* CSS مخصص للبطاقات والتصميم */}
