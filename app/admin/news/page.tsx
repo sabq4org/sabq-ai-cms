@@ -1016,11 +1016,15 @@ function AdminNewsPageContent() {
             {/* بطاقات إحصائيات الأخبار بتصميم Manus UI */}
                 <section className="grid grid-4" style={{ marginBottom: '20px' }}>
               {/* بطاقة الأخبار المنشورة */}
-              <DesignComponents.StandardCard
-                className={`p-6 hover:shadow-lg transition-shadow cursor-pointer ${
-                  filterStatus === "published" ? "ring-2 ring-blue-500" : ""
-                }`}
+              <div 
+                className={`card card-success ${filterStatus === "published" ? "selected" : ""}`}
                 onClick={() => setFilterStatus("published")}
+                style={{ 
+                  cursor: 'pointer',
+                  background: filterStatus === "published" ? 'hsl(var(--accent-3))' : 'hsl(var(--bg-card))',
+                  color: filterStatus === "published" ? 'white' : 'hsl(var(--fg))',
+                  border: filterStatus === "published" ? '2px solid hsl(var(--accent-3))' : '1px solid hsl(var(--accent-3) / 0.3)'
+                }}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
