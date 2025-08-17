@@ -46,7 +46,18 @@ export default function SavedArticlesTab({ userId, darkMode = false }: SavedArti
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`/api/interactions/saved-articles?userId=${userId}&page=${pageNum}&limit=12`);
+      const token =
+        (typeof window !== 'undefined' && (localStorage.getItem('auth-token') || localStorage.getItem('sabq_at') || localStorage.getItem('access_token'))) || '';
+      const url = `/api/interactions/saved-articles?userId=${userId}&page=${pageNum}&limit=12&_=${Date.now()}`;
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        credentials: 'include',
+        cache: 'no-store',
+      });
       const data = await response.json();
 
       if (data.success) {

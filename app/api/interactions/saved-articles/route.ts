@@ -1,5 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import jwt from 'jsonwebtoken';
+
+function getUserIdFromRequest(request: NextRequest): string | null {
+  try {
+    const authHeader = request.headers.get('authorization') || request.headers.get('Authorization');
+    let token: string | null = null;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.slice(7);
+    }
+    if (!token) {
+      const c = request.cookies;
+      token = c.get('auth-token')?.value || c.get('sabq_at')?.value || c.get('access_token')?.value || c.get('token')?.value || c.get('jwt')?.value || null;
+    }
+    if (!token) return null;
+    const secret = process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET || 'your-super-secret-jwt-key';
+    const decoded: any = jwt.verify(token, secret);
+    const userId = decoded?.sub || decoded?.id || decoded?.userId || decoded?.user_id;
+    return userId ? String(userId) : null;
+  } catch {
+    return null;
+  }
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,7 +34,10 @@ export async function GET(request: NextRequest) {
     }
     
     const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
+    // أفضلية لاستخراج المستخدم من التوكن إذا كان متاحاً
+    const userIdFromToken = getUserIdFromRequest(request);
+    const userIdParam = searchParams.get('userId');
+    const userId = userIdFromToken || userIdParam;
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
 
