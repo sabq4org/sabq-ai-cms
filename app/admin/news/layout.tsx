@@ -207,5 +207,4 @@ export default function NewsLayout({
       </div>
     </>
   );
-}
-}
+} 
