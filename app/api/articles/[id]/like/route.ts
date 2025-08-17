@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma';
+import { requireAuthFromRequest } from '@/app/lib/auth'
 
 export async function POST(
   request: NextRequest,
@@ -7,10 +8,10 @@ export async function POST(
 ) {
   try {
     const articleId = params.id
-    
-    // في الواقع، ستحصل على user_id من JWT token أو session
-    // هنا نستخدم fake user لأغراض التجربة
-    const userId = request.headers.get('user-id') || 'demo-user-123'
+
+    // مصادقة المستخدم بشكل صحيح لتجنب أخطاء FK
+    const user = await requireAuthFromRequest(request)
+    const userId = user.id
 
     // التحقق من وجود المقال
     const article = await prisma.articles.findUnique({
@@ -24,12 +25,14 @@ export async function POST(
       )
     }
 
-    // فحص إذا كان المستخدم قد أعجب بالمقال مسبقاً
-    const existingLike = await prisma.interactions.findFirst({
+    // فحص إذا كان المستخدم قد أعجب بالمقال مسبقاً (باستخدام المفتاح الفريد)
+    const existingLike = await prisma.interactions.findUnique({
       where: {
-        article_id: articleId,
-        user_id: userId,
-        type: 'like'
+        user_id_article_id_type: {
+          user_id: userId,
+          article_id: articleId,
+          type: 'like'
+        }
       }
     })
 
@@ -38,33 +41,27 @@ export async function POST(
 
     if (existingLike) {
       // إلغاء الإعجاب
-      await prisma.interactions.delete({
-        where: { id: existingLike.id }
-      })
-      
-      await prisma.articles.update({
-        where: { id: articleId },
-        data: { likes: { decrement: 1 } }
-      })
-      
-      newLikesCount = article.likes - 1
+      await prisma.$transaction([
+        prisma.interactions.delete({ where: { id: existingLike.id } }),
+        prisma.articles.update({ where: { id: articleId }, data: { likes: { decrement: 1 } } }),
+      ])
+      // منع السالب
+      await prisma.articles.updateMany({ where: { id: articleId, likes: { lt: 0 } as any }, data: { likes: 0 } })
+      newLikesCount = Math.max(0, article.likes - 1)
       hasLiked = false
     } else {
       // إضافة إعجاب
-      await prisma.interactions.create({
-        data: {
-          id: `like_${articleId}_${userId}_${Date.now()}`,
-          article_id: articleId,
-          user_id: userId,
-          type: 'like'
-        }
-      })
-      
-      await prisma.articles.update({
-        where: { id: articleId },
-        data: { likes: { increment: 1 } }
-      })
-      
+      await prisma.$transaction([
+        prisma.interactions.create({
+          data: {
+            id: `like_${articleId}_${userId}_${Date.now()}`,
+            article_id: articleId,
+            user_id: userId,
+            type: 'like'
+          }
+        }),
+        prisma.articles.update({ where: { id: articleId }, data: { likes: { increment: 1 } } }),
+      ])
       newLikesCount = article.likes + 1
       hasLiked = true
     }
@@ -74,7 +71,11 @@ export async function POST(
       hasLiked
     })
 
-  } catch (error) {
+  } catch (error: any) {
+    const message = String(error?.message || '')
+    if (message.includes('Unauthorized')) {
+      return NextResponse.json({ error: 'غير مصرح' }, { status: 401 })
+    }
     console.error('Error handling like:', error)
     return NextResponse.json(
       { error: 'خطأ في معالجة الإعجاب' },
