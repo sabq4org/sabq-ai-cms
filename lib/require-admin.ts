@@ -14,39 +14,51 @@ interface AdminCheckResult {
 
 export async function requireAdmin(request: NextRequest): Promise<AdminCheckResult> {
   try {
-    // أولاً محاولة الحصول على المستخدم من الـ request
-    const authResult = await requireAuthFromRequest(request);
-    
-    if (authResult && !authResult.error && authResult.user) {
-      const user = authResult.user;
-      const role = user.roles?.[0] || user.role || "user";
-      const isAdmin = user.isAdmin === true || ["admin", "system_admin", "editor", "author"].includes(role);
-      
+    // أولاً: الحصول على المستخدم من الطلب مباشرة (تُعيد User وليس كائناً)
+    let user: any = null;
+    try {
+      user = await requireAuthFromRequest(request);
+    } catch (_) {
+      user = null;
+    }
+
+    if (user && user.id) {
+      const role: string = user.roles?.[0] || user.role || "user";
+      const isAdmin: boolean = user.isAdmin === true || ["admin", "system_admin", "editor", "author"].includes(role);
+
       if (!isAdmin) {
         return { authorized: false, error: "Insufficient permissions" };
       }
-      
-      return { 
-        authorized: true, 
-        user: { 
-          id: user.id, 
-          email: user.email, 
-          name: user.name, 
-          role 
-        } 
+
+      return {
+        authorized: true,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role,
+        },
       };
     }
-    
-    // إذا فشل، جرب getCurrentUser كـ fallback
-    const user = await getCurrentUser();
-    if (!user) return { authorized: false, error: "Unauthorized" };
-    
-    const role = (user as any).role || "user";
-    const isAdmin = (user as any).isAdmin === true || ["admin", "system_admin", "editor", "author"].includes(role);
-    
-    if (!isAdmin) return { authorized: false, error: "Insufficient permissions" };
-    
-    return { authorized: true, user: { id: user.id, email: user.email, name: user.name, role } };
+
+    // ثانياً: fallback إلى قراءة المستخدم من الكوكيز مباشرة
+    const fallbackUser = await getCurrentUser();
+    if (!fallbackUser) return { authorized: false, error: "Unauthorized" };
+
+    const fallbackRole: string = (fallbackUser as any).role || "user";
+    const fallbackIsAdmin: boolean = (fallbackUser as any).isAdmin === true || ["admin", "system_admin", "editor", "author"].includes(fallbackRole);
+
+    if (!fallbackIsAdmin) return { authorized: false, error: "Insufficient permissions" };
+
+    return {
+      authorized: true,
+      user: {
+        id: fallbackUser.id,
+        email: fallbackUser.email,
+        name: fallbackUser.name,
+        role: fallbackRole,
+      },
+    };
   } catch (error) {
     console.error("Error in requireAdmin:", error);
     return { authorized: false, error: "Authentication check failed" };
