@@ -40,6 +40,7 @@ body {
 [data-theme="dark"] {
   --bg: 222 47% 11%;
   --bg-card: 222 47% 14%;
+  --bg-elevated: 222 47% 8%;  /* خلفية أغمق للهيدر والقائمة */
   --fg: 213 31% 91%;
   --line: 217 33% 17%;
   --muted: 215 25% 65%;
@@ -136,7 +137,7 @@ body {
 }
 
 .manus-sidebar {
-  background: transparent !important;
+  background: hsl(var(--bg-elevated)) !important;
   border: none;
   padding: 24px 16px;
   transition: background 0.3s ease;

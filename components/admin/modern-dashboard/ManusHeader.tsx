@@ -58,7 +58,7 @@ export default function ManusHeader({ onMenuClick, showMenuButton = false }: Man
         left: 0,
         right: 0,
         height: '56px',
-        background: 'linear-gradient(135deg, hsl(var(--bg-card)) 0%, hsl(var(--bg)) 100%)',
+        background: 'hsl(var(--bg-elevated))',
         borderBottom: '1px solid hsl(var(--line))',
         zIndex: 1000,
         backdropFilter: 'blur(10px)',
