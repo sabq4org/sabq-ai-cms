@@ -1,5 +1,6 @@
-// استيراد لوحة التحكم الجديدة بتصميم Manus UI
-export { default } from './page-manus';
+"use client";
+
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { formatDashboardStat } from "@/lib/format-utils";
