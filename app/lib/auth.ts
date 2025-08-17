@@ -100,8 +100,12 @@ export async function getCurrentUser(): Promise<User | null> {
       payload = await verifyToken(tokenCookie.value);
     }
 
-    // إن لم نجد توكن صالح، نحاول استخدام كوكيز user كحل احتياطي (تحسين تجربة الإدارة)
+    // إن لم نجد توكن صالح
     if (!payload) {
+      const allowUserCookieFallback = (process.env.ALLOW_USER_COOKIE_FALLBACK || '').toLowerCase() === 'true';
+      if (!allowUserCookieFallback) {
+        return null;
+      }
       const userCookie = cookieStore.get("user");
       if (userCookie?.value) {
         try {

@@ -26,6 +26,11 @@ export default function NotificationBell() {
     try {
       const r = await fetch("/api/notifications?limit=10", { cache: "no-store", credentials: "include" });
       const j = await r.json();
+      if (r.status === 401) {
+        setItems([]);
+        setUnread(0);
+        return;
+      }
       if (j?.success && j.data) {
         const list: NotiItem[] = (j.data.notifications || []).map((n: any) => ({
           id: n.id,
