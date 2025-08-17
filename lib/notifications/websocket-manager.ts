@@ -66,7 +66,7 @@ export class NotificationManager {
         return { success: false, error: 'Token غير صحيح' };
       }
 
-      const userId = decoded.userId || decoded.id;
+      const userId = decoded.userId || decoded.id || decoded.sub || decoded.uid || decoded.user_id;
       const userName = decoded.name || decoded.username || 'مجهول';
 
       // تسجيل المستخدم

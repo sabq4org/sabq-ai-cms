@@ -1,14 +1,22 @@
 // API للإشعارات الذكية - سبق الذكية
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { getCurrentUser } from '@/app/lib/auth';
+import { getCurrentUser, requireAuthFromRequest } from '@/app/lib/auth';
 
 export const runtime = "nodejs";
 
 export async function GET(req: NextRequest) {
   try {
-    // المصادقة
-    const user = await getCurrentUser();
+    // المصادقة: تفضيل Authorization header ثم الكوكيز
+    let user: any = null;
+    try {
+      user = await requireAuthFromRequest(req);
+    } catch (_) {
+      user = null;
+    }
+    if (!user) {
+      user = await getCurrentUser();
+    }
     
     if (!user) {
       return NextResponse.json({
@@ -119,7 +127,15 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const user = await getCurrentUser();
+    let user: any = null;
+    try {
+      user = await requireAuthFromRequest(req);
+    } catch (_) {
+      user = null;
+    }
+    if (!user) {
+      user = await getCurrentUser();
+    }
     
     if (!user) {
       return NextResponse.json({
