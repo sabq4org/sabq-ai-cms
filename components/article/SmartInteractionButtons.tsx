@@ -38,6 +38,21 @@ export function SmartInteractionButtons({
   const [localStats, setLocalStats] = React.useState(initialStats);
   const [showShareMenu, setShowShareMenu] = React.useState(false);
 
+  // تثبيت العدادات عند التحميل من user-status (إن وُجدت)
+  React.useEffect(() => {
+    const handler = (e: any) => {
+      if (e?.detail?.articleId === articleId) {
+        setLocalStats((prev) => ({
+          ...prev,
+          likes: typeof e.detail.likes === 'number' ? e.detail.likes : prev.likes,
+          saves: typeof e.detail.saves === 'number' ? e.detail.saves : prev.saves,
+        }));
+      }
+    };
+    window.addEventListener('article-interactions-init', handler);
+    return () => window.removeEventListener('article-interactions-init', handler);
+  }, [articleId]);
+
   // معالج الإعجاب
   const handleLike = async () => {
     console.log('🔄 بدء عملية الإعجاب للمقال:', articleId);

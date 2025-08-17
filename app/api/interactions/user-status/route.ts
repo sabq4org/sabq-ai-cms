@@ -73,6 +73,12 @@ export async function GET(request: NextRequest) {
 
     const interactionTypes = userInteractions.map((i) => i.type);
 
+    // جلب عدّادات المقال المحدثة
+    const articleStats = await prisma.articles.findUnique({
+      where: { id: articleId },
+      select: { likes: true, saves: true },
+    });
+
     return NextResponse.json({
       success: true,
       isAuthenticated: true,
@@ -80,6 +86,8 @@ export async function GET(request: NextRequest) {
       saved: interactionTypes.includes("save"),
       hasLiked: interactionTypes.includes("like"),
       hasSaved: interactionTypes.includes("save"),
+      likesCount: articleStats?.likes || 0,
+      savesCount: articleStats?.saves || 0,
       interactions: {
         liked: interactionTypes.includes("like"),
         saved: interactionTypes.includes("save"),

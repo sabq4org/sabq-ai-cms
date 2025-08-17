@@ -49,6 +49,17 @@ export default function BasicLikeSave({
   useEffect(() => {
     if (!user || !articleId) return;
     fetchUserStatus();
+    // الاستماع لتثبيت العدادات من hook آخر
+    const onInit = (e: any) => {
+      try {
+        if (e?.detail?.articleId === articleId) {
+          if (typeof e.detail.likes === 'number') setLikes(e.detail.likes);
+          if (typeof e.detail.saves === 'number') setSaves(e.detail.saves);
+        }
+      } catch {}
+    };
+    window.addEventListener('article-interactions-init', onInit);
+    return () => window.removeEventListener('article-interactions-init', onInit);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, articleId]);
 
@@ -66,6 +77,8 @@ export default function BasicLikeSave({
       if (response.ok && data) {
         setLiked(!!(data.liked ?? data.hasLiked ?? data.interactions?.liked));
         setSaved(!!(data.saved ?? data.hasSaved ?? data.interactions?.saved));
+        if (typeof data.likesCount === 'number') setLikes(data.likesCount);
+        if (typeof data.savesCount === 'number') setSaves(data.savesCount);
       }
     } catch (error) {
       // تجاهل

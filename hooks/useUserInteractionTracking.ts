@@ -111,7 +111,12 @@ export function useUserInteractionTracking(articleId: string) {
     console.log('🔍 جلب حالة تفاعل المستخدم للمقال:', articleId);
     
     try {
-      const response = await fetch(`/api/interactions/user-status?articleId=${articleId}`);
+      const token =
+        (typeof window !== 'undefined' && (localStorage.getItem('auth-token') || localStorage.getItem('sabq_at') || localStorage.getItem('access_token'))) || '';
+      const response = await fetch(`/api/interactions/user-status?articleId=${articleId}` , {
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        credentials: 'include'
+      });
       
       if (response.ok) {
         const data = await response.json();
@@ -119,6 +124,19 @@ export function useUserInteractionTracking(articleId: string) {
         
         const liked = data?.liked || data?.hasLiked || false;
         const saved = data?.saved || data?.hasSaved || false;
+        // تثبيت العدادات إن وُجدت
+        if (typeof data?.likesCount === 'number' || typeof data?.savesCount === 'number') {
+          try {
+            const event = new CustomEvent('article-interactions-init', {
+              detail: {
+                articleId,
+                likes: data?.likesCount,
+                saves: data?.savesCount
+              }
+            });
+            window.dispatchEvent(event);
+          } catch {}
+        }
         
         setHasLiked(!!liked);
         setHasSaved(!!saved);
