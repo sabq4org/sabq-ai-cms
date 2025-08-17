@@ -995,10 +995,10 @@ function AdminNewsPageContent() {
                     خبر جديد
                   </Button>
                 </Link>
-              </div>
+                            </div>
             </div>
-          </DesignComponents.StandardCard>
-
+          </div>
+          
           {/* إحصائيات الأخبار */}
           <div>
             <DesignComponents.SectionHeader
