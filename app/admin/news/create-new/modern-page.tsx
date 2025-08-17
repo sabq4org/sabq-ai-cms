@@ -60,6 +60,7 @@ import {
   Brain,
 } from "lucide-react";
 import { MediaPickerButton } from "@/components/admin/media/MediaPickerButton";
+import FeaturedImageUpload from "@/components/FeaturedImageUpload";
 import { generateShortSlug } from "@/lib/slug";
 import { toast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
@@ -1112,7 +1113,7 @@ export default function ModernCreateNewsPage() {
                 </CardContent>
               </Card>
 
-              {/* Featured Image */}
+              {/* Featured Image - واجهة رفع سريعة وموثوقة مع خيار المكتبة */}
               <Card className={cardClassName}>
                 <CardHeader className="pb-4">
                   <CardTitle className="text-lg flex items-center gap-2">
@@ -1120,64 +1121,19 @@ export default function ModernCreateNewsPage() {
                     الصورة البارزة
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  {formData.featuredImage ? (
-                    <div className="relative group">
-                      <Image
-                        src={formData.featuredImage}
-                        alt="Featured"
-                        width={800}
-                        height={400}
-                        className="w-full h-80 object-cover rounded-xl"
-                      />
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center gap-3">
-                        <MediaPickerButton
-                          onSelect={(url) =>
-                            setFormData({ ...formData, featuredImage: url })
-                          }
-                          buttonText="تغيير الصورة"
-                          className="bg-white hover:bg-gray-50 text-gray-900 font-medium px-6 py-3 rounded-lg border border-gray-200"
-                        />
-                        <Button
-                          variant="secondary"
-                          size="default"
-                          onClick={() =>
-                            setFormData({ ...formData, featuredImage: "" })
-                          }
-                          className="bg-white hover:bg-gray-50 px-6 py-3 border border-gray-200"
-                        >
-                          <X className="w-5 h-5 ml-2" />
-                          حذف الصورة
-                        </Button>
-                      </div>
-                      <div className="absolute top-4 right-4">
-                        <Badge className="bg-green-500 text-white px-3 py-1">
-                          <CheckCircle className="w-4 h-4 mr-1" />
-                          تم اختيار الصورة
-                        </Badge>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-16 text-center">
-                      <ImageIcon className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-                      <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                        اختر الصورة البارزة للخبر
-                      </h3>
-                      <p className="text-gray-600 dark:text-gray-400 mb-6">
-                        الصورة البارزة تظهر في الصفحة الرئيسية ومشاركات السوشيال ميديا
-                      </p>
-                      <MediaPickerButton
-                        onSelect={(url) =>
-                          setFormData({ ...formData, featuredImage: url })
-                        }
-                        buttonText="اختر صورة من المكتبة"
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-base"
-                      />
-                      <p className="text-xs text-gray-500 mt-4">
-                        الحد الأقصى: 5MB • الصيغ المدعومة: JPG, PNG, WebP
-                      </p>
-                    </div>
-                  )}
+                <CardContent className="space-y-4">
+                  <FeaturedImageUpload
+                    value={formData.featuredImage}
+                    onChange={(url) => setFormData({ ...formData, featuredImage: url })}
+                    darkMode={false}
+                  />
+                  <div className="flex items-center justify-center">
+                    <MediaPickerButton
+                      onSelect={(url) => setFormData({ ...formData, featuredImage: url })}
+                      buttonText="أو اختر من مكتبة الوسائط (اختياري)"
+                      className="text-sm"
+                    />
+                  </div>
                 </CardContent>
               </Card>
             </div>

@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
+import { getAuthHeaders } from "@/lib/utils/auth-headers";
 import { cn } from "@/lib/utils";
 import {
   AlertCircle,
@@ -1304,28 +1305,34 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
       // استخدام النص المنظف
       contentText = cleanText.trim();
 
-      console.log("🚀 إرسال طلب التوليد:", {
-        contentLength: contentText.length,
-        contentPreview: contentText.substring(0, 100) + "...",
-        apiEndpoint: "/api/news/ai-generate",
-      });
-
-      const response = await fetch("/api/news/ai-generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          content: contentText,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "فشل في التوليد");
+      // المحاولة الأولى: المسار الحالي
+      let result: any = null;
+      try {
+        const response = await fetch("/api/news/ai-generate", {
+          method: "POST",
+          headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ content: contentText }),
+        });
+        if (response.ok) {
+          result = await response.json();
+        } else {
+          throw new Error("primary_generate_failed");
+        }
+      } catch (_) {
+        // المحاولة الثانية: مسار موحّد يعمل في صفحات أخرى
+        const alt = await fetch("/api/admin/ai/generate-content", {
+          method: "POST",
+          headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ content: contentText }),
+        });
+        if (!alt.ok) {
+          const err = await alt.json().catch(() => ({}));
+          throw new Error(err.error || "فشل في التوليد");
+        }
+        result = await alt.json();
       }
-
-      const result = await response.json();
 
       if (result.success) {
         // التحقق من وجود العنوان الرئيسي
