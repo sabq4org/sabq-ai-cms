@@ -1738,8 +1738,7 @@ function AdminNewsPageContent() {
                 </div>
               )}
             </div>
-          </DesignComponents.StandardCard>
-        </div>
+          </div>
         </div>
       </TooltipProvider>
     </>
