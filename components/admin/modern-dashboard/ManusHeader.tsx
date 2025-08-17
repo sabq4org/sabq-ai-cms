@@ -316,8 +316,7 @@ export default function ManusHeader({ onMenuClick, showMenuButton = false }: Man
         )}
       </header>
 
-      {/* مساحة للهيدر الثابت */}
-      <div style={{ height: searchOpen ? '120px' : '56px', transition: 'height 0.3s ease' }}></div>
+
     </>
   );
 }
