@@ -207,6 +207,17 @@ export default function MobileLiteLayout({
           background: transparent !important;
           border: none;
           box-shadow: none;
+          padding: 0;
+        }
+        
+        /* أيقونات الإشعارات بدون خلفية */
+        .header-actions :global(.notification-bell-button) {
+          background: transparent !important;
+          width: 36px;
+          height: 36px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
         /* زر الصورة الشخصية */
