@@ -13,17 +13,27 @@ export async function POST(req: NextRequest) {
     }
 
     if (saved) {
-      await prisma.$transaction([
-        prisma.UserInteractions.upsert({
-          where: { uniq_user_article_type: { user_id: user.id, article_id: articleId, interaction_type: "save" } as any },
-          update: {},
-          create: { user_id: user.id, article_id: articleId, interaction_type: "save" }
-        }),
-        prisma.articles.update({ where: { id: articleId }, data: { saves: { increment: 1 } } })
-      ]);
+      // التحقق إذا كان المستخدم قد حفظ المقال مسبقاً
+      const existingSave = await prisma.userInteractions.findFirst({
+        where: { user_id: user.id, article_id: articleId, interaction_type: "save" }
+      });
+
+      if (!existingSave) {
+        await prisma.$transaction([
+          prisma.userInteractions.create({ 
+            data: { 
+              id: `save_${user.id}_${articleId}_${Date.now()}`,
+              user_id: user.id, 
+              article_id: articleId, 
+              interaction_type: "save" 
+            } 
+          }),
+          prisma.articles.update({ where: { id: articleId }, data: { saves: { increment: 1 } } })
+        ]);
+      }
     } else {
       await prisma.$transaction([
-        prisma.UserInteractions.deleteMany({ where: { user_id: user.id, article_id: articleId, interaction_type: "save" } }),
+        prisma.userInteractions.deleteMany({ where: { user_id: user.id, article_id: articleId, interaction_type: "save" } }),
         prisma.articles.update({ where: { id: articleId }, data: { saves: { decrement: 1 } } })
       ]);
       await prisma.articles.updateMany({ where: { id: articleId, saves: { lt: 0 } as any }, data: { saves: 0 } });
