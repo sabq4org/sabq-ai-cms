@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import EnhancedDarkModeToggle from './EnhancedDarkModeToggle';
+import NotificationBellLight from '@/components/Notifications/NotificationBellLight';
 
 interface MobileLiteLayoutProps {
   children: React.ReactNode;
@@ -81,6 +82,9 @@ export default function MobileLiteLayout({
             </div>
             
             <div className="header-actions">
+              {/* أيقونة الإشعارات */}
+              <NotificationBellLight />
+              
               <EnhancedDarkModeToggle 
                 variant="compact" 
                 className="header-theme-toggle"
