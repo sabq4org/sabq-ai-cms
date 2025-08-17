@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { getAuthFetchOptions } from "@/lib/utils/auth-headers";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -376,11 +377,10 @@ export default function ModernCreateNewsPage() {
       
       console.log("المحتوى المرسل:", { type: typeof contentToSend, length: contentToSend.length, preview: contentToSend.substring(0, 100) });
       
-      const response = await fetch("/api/admin/ai/generate-content", {
+      const response = await fetch("/api/admin/ai/generate-content", getAuthFetchOptions({
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content: contentToSend }),
-      });
+      }));
 
       if (response.ok) {
         const data = await response.json();
@@ -429,10 +429,9 @@ export default function ModernCreateNewsPage() {
     setKeyTestResult(null);
     
     try {
-      const response = await fetch("/api/admin/ai/test-key", {
+      const response = await fetch("/api/admin/ai/test-key", getAuthFetchOptions({
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
+      }));
 
       const data = await response.json();
       

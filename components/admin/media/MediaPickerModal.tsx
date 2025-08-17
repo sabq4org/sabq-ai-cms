@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { getAuthHeaders } from "@/lib/utils/auth-headers";
 import {
   Dialog,
   DialogContent,
@@ -85,7 +86,10 @@ export function MediaPickerModal({
       setLoading(true);
       
       // Fetch folders
-      const foldersRes = await fetch("/api/admin/media/folders", { credentials: 'include' });
+      const foldersRes = await fetch("/api/admin/media/folders", { 
+        credentials: 'include',
+        headers: getAuthHeaders()
+      });
       if (!foldersRes.ok) throw new Error("Failed to fetch folders");
       const foldersData = await foldersRes.json();
       setFolders(foldersData.hierarchy);
@@ -101,7 +105,10 @@ export function MediaPickerModal({
       params.set("page", String(page));
       params.set("limit", String(limit));
 
-      const assetsRes = await fetch(`/api/admin/media/assets?${params}`, { credentials: 'include' });
+      const assetsRes = await fetch(`/api/admin/media/assets?${params}`, { 
+        credentials: 'include',
+        headers: getAuthHeaders()
+      });
       if (!assetsRes.ok) throw new Error("Failed to fetch assets");
       const assetsData = await assetsRes.json();
       
@@ -182,7 +189,7 @@ export function MediaPickerModal({
         const res = await fetch("/api/admin/media/upload", {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            ...getAuthHeaders(),
             "Accept": "application/json"
           },
           credentials: 'include',
