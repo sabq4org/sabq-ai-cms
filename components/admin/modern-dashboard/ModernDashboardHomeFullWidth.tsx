@@ -197,15 +197,15 @@ export default function ModernDashboardHomeFullWidth() {
             textAlign: 'center',
             background: 'hsl(var(--accent) / 0.05)',
             border: '1px solid hsl(var(--accent) / 0.2)',
-            padding: '24px'
+            padding: '20px'
           }}>
-            <div style={{ fontSize: '42px', marginBottom: '16px' }}>🤖</div>
-            <div className="card-title" style={{ fontSize: '24px', marginBottom: '8px' }}>
+            <div style={{ fontSize: '38px', marginBottom: '12px' }}>🤖</div>
+            <div className="card-title" style={{ fontSize: '22px', marginBottom: '6px' }}>
               مرحباً يا {user?.name || 'مدير النظام'} 
             </div>
             <div className="card-subtitle" style={{ 
-              marginBottom: '20px', 
-              fontSize: '16px', 
+              marginBottom: '16px', 
+              fontSize: '15px', 
               color: 'hsl(var(--accent))',
               cursor: 'pointer',
               transition: 'transform 0.2s ease'
@@ -234,14 +234,14 @@ export default function ModernDashboardHomeFullWidth() {
         </section>
 
         {/* الإحصائيات بتصميم Manus UI */}
-        <section className="grid grid-4" style={{ marginBottom: '32px' }}>
+        <section className="grid grid-4" style={{ marginBottom: '20px' }}>
           {statsData.map((stat, index) => (
             <StatCard key={index} {...stat} />
           ))}
         </section>
 
         {/* التبويبات */}
-        <section style={{ marginBottom: '32px' }}>
+        <section style={{ marginBottom: '20px' }}>
           <div className="card">
             <div className="card-header">
               <div className="card-title">📊 تحليلات مفصلة</div>
