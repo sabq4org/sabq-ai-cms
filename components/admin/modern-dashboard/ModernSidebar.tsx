@@ -596,55 +596,57 @@ export default function ModernSidebar({
   };
 
   return (
-    <>
-      <link rel="stylesheet" href="/manus-ui.css" />
-      
-      <div style={{
-        position: 'relative',
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        background: 'hsl(var(--bg))',
-        border: 'none'
-      }}>
-      {/* مقبض جانبي أنيق للتكبير/التصغير */}
-      {!isMobile && (
-        <button
-          type="button"
-          onClick={onToggle}
-          aria-label={isCollapsed ? "توسيع الشريط الجانبي" : "طي الشريط الجانبي"}
-          className={cn(
-            "hidden lg:flex items-center justify-center",
-            "absolute top-1/2 -translate-y-1/2 left-0 -translate-x-1/2 z-50",
-            "h-12 w-3 rounded-full",
-            "bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600",
-            "shadow"
-          )}
-        >
-          {isCollapsed ? (
-            <ChevronRight className="h-3 w-3 text-gray-600 dark:text-gray-300" />
-          ) : (
-            <ChevronLeft className="h-3 w-3 text-gray-600 dark:text-gray-300" />
-          )}
-        </button>
-      )}
+    <div style={{
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      background: 'hsl(var(--bg))'
+    }}>
 
-      {/* قائمة التنقل */}
-      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-        {customizedSidebarItems.map((item) => (
-          <SidebarItemComponent key={item.id} item={item} />
-        ))}
-      </nav>
-
-      {/* تذييل الشريط الجانبي */}
-      {!isCollapsed && (
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-          <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
-            سبق الذكية v2.0
+      {/* شعار مصغر للسايدبار */}
+      {isCollapsed && (
+        <div style={{ padding: '20px 0', textAlign: 'center' }}>
+          <div style={{
+            width: '32px',
+            height: '32px',
+            background: 'hsl(var(--accent))',
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            fontSize: '16px',
+            fontWeight: '700',
+            margin: '0 auto'
+          }}>
+            س
           </div>
         </div>
       )}
+
+      {/* قائمة التنقل بتصميم Manus UI */}
+      <nav style={{ 
+        flex: 1, 
+        padding: isCollapsed ? '16px 8px' : '16px',
+        overflowY: 'auto'
+      }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          {customizedSidebarItems.map((item) => (
+            <SidebarItemComponent key={item.id} item={item} />
+          ))}
+        </div>
+      </nav>
+
+      {/* معلومات مصغرة */}
+      {!isCollapsed && (
+        <div style={{
+          padding: '12px 16px',
+          borderTop: '1px solid hsl(var(--line))',
+          textAlign: 'center'
+        }}>
+          <div className="text-xs text-muted">Manus UI v2.0</div>
+        </div>
+      )}
     </div>
-    </>
   );
 }

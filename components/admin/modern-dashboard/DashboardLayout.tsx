@@ -1,6 +1,6 @@
 /**
- * لوحة التحكم الحديثة - تخطيط Manus UI فقط
- * Modern Dashboard Layout - Manus UI Only
+ * لوحة التحكم الحديثة - تخطيط مع هيدر كامل العرض
+ * Modern Dashboard Layout with Full-Width Header
  */
 
 "use client";
@@ -8,6 +8,7 @@
 import { cn } from "@/lib/utils";
 import dynamic from "next/dynamic";
 import React, { useEffect, useState } from "react";
+import ManusHeader from "./ManusHeader";
 
 // تحميل المكونات بشكل ديناميكي لتحسين الأداء
 const ModernSidebar = dynamic(() => import("./ModernSidebar"), {
@@ -24,8 +25,8 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({
   children,
-  pageTitle = "لوحة التحكم",
-  pageDescription = "إدارة منصة سبق الذكية",
+  pageTitle = "الإدارة",
+  pageDescription = "نظام إدارة المحتوى",
   className,
 }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -51,44 +52,63 @@ export default function DashboardLayout({
       {/* تحميل CSS Manus UI */}
       <link rel="stylesheet" href="/manus-ui.css" />
       
-      {/* تخطيط Manus UI البسيط - قائمة واحدة فقط */}
-      <div className="manus-layout">
-        {/* الشريط الجانبي الوحيد */}
-        <aside 
-          className="manus-sidebar" 
-          style={{ 
-            display: isMobile && !sidebarOpen ? 'none' : 'block',
-            position: isMobile ? 'fixed' : 'static',
-            zIndex: isMobile ? 1000 : 'auto'
-          }}
-        >
-          <ModernSidebar isCollapsed={!sidebarOpen} onToggle={toggleSidebar} isMobile={isMobile} />
-        </aside>
+      {/* الهيدر كامل العرض */}
+      <ManusHeader onMenuClick={toggleSidebar} showMenuButton={isMobile} />
+      
+      {/* التخطيط الرئيسي */}
+      <div style={{ 
+        display: 'grid',
+        gridTemplateColumns: !isMobile && sidebarOpen ? '280px 1fr' : !isMobile ? '80px 1fr' : '1fr',
+        minHeight: '100vh',
+        background: 'hsl(var(--bg))',
+        paddingTop: '70px',
+        transition: 'grid-template-columns 0.3s ease'
+      }}>
+        
+        {/* الشريط الجانبي للديسكتوب */}
+        {!isMobile && (
+          <aside style={{
+            background: 'hsl(var(--bg))',
+            borderLeft: '1px solid hsl(var(--line))',
+            padding: '24px 16px',
+            overflowY: 'auto',
+            position: 'fixed',
+            top: '70px',
+            right: 0,
+            width: sidebarOpen ? '280px' : '80px',
+            height: 'calc(100vh - 70px)',
+            zIndex: 900,
+            transition: 'width 0.3s ease'
+          }}>
+            <ModernSidebar isCollapsed={!sidebarOpen} onToggle={toggleSidebar} isMobile={isMobile} />
+          </aside>
+        )}
+
+        {/* الشريط الجانبي للجوال */}
+        {isMobile && sidebarOpen && (
+          <aside style={{
+            position: 'fixed',
+            top: '70px',
+            right: 0,
+            width: '280px',
+            height: 'calc(100vh - 70px)',
+            background: 'hsl(var(--bg))',
+            borderLeft: '1px solid hsl(var(--line))',
+            padding: '24px 16px',
+            overflowY: 'auto',
+            zIndex: 1000
+          }}>
+            <ModernSidebar isCollapsed={false} onToggle={toggleSidebar} isMobile={isMobile} />
+          </aside>
+        )}
 
         {/* المحتوى الرئيسي */}
-        <main className="manus-main">
-          {/* هيدر بسيط */}
-          <header className="manus-header">
-            <div>
-              <h1 className="heading-2" style={{ margin: 0 }}>{pageTitle}</h1>
-              <p className="text-sm text-muted">{pageDescription}</p>
-            </div>
-            <div style={{ display: 'flex', gap: '12px' }}>
-              {isMobile && (
-                <button 
-                  className="btn btn-sm"
-                  onClick={toggleSidebar}
-                >
-                  ☰
-                </button>
-              )}
-              <button className="btn btn-sm">🔔</button>
-              <button className="btn btn-sm">👤</button>
-            </div>
-          </header>
-
-          {/* محتوى الصفحة */}
-          <div className={cn("fade-in", className)} style={{ padding: '0' }}>
+        <main style={{
+          padding: '24px',
+          overflowY: 'auto',
+          minHeight: 'calc(100vh - 70px)'
+        }}>
+          <div className={cn("fade-in", className)}>
             {children}
           </div>
         </main>
@@ -98,7 +118,7 @@ export default function DashboardLayout({
           <div
             style={{
               position: 'fixed',
-              top: 0,
+              top: '70px',
               left: 0,
               right: 0,
               bottom: 0,
