@@ -216,6 +216,9 @@ export default function ManusHeader({ onMenuClick, showMenuButton = false }: Man
               ))}
             </div>
 
+            {/* زر الوضع الداكن */}
+            <DarkModeToggle />
+
             {/* قائمة المستخدم */}
             <div style={{ position: 'relative' }}>
               <button 
