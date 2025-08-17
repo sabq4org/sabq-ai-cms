@@ -1045,7 +1045,7 @@ function AdminNewsPageContent() {
                     <CheckCircle className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                   </div>
                 </div>
-                            </div>
+              </div>
               
               {/* بطاقة المسودات */}
               <DesignComponents.StandardCard
