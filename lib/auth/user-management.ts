@@ -9,8 +9,8 @@ const prisma = new PrismaClient();
 
 // JWT إعدادات
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key';
-const JWT_EXPIRES_IN = '15m';
-const REFRESH_TOKEN_EXPIRES_IN = '30d';
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d'; // تغيير من 15 دقيقة إلى 7 أيام
+const REFRESH_TOKEN_EXPIRES_IN = process.env.REFRESH_TOKEN_EXPIRES_IN || '60d'; // 60 يوم للـ refresh token
 
 // Zod schemas للتحقق من البيانات
 export const UserCreateSchema = z.object({
@@ -296,7 +296,7 @@ export class UserManagementService {
       });
 
       // إنشاء الرموز
-      const accessTtl = validatedData.remember_me ? '7d' : JWT_EXPIRES_IN;
+      const accessTtl = validatedData.remember_me ? '30d' : '7d'; // 30 يوم مع تذكرني، 7 أيام بدونها
       const accessToken = SecurityManager.createJWTToken({
         user_id: user.id,
         email: user.email,

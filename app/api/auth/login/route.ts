@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        maxAge: remember ? 7 * 24 * 60 * 60 : 15 * 60, // 7 أيام مع تذكرني، وإلا 15 دقيقة
+        maxAge: remember ? 30 * 24 * 60 * 60 : 7 * 24 * 60 * 60, // 30 يوم مع تذكرني، 7 أيام بدون
         path: '/',
         ...(cookieDomain ? { domain: cookieDomain } as any : {}),
       });
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
         httpOnly: false,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        maxAge: remember ? 60 * 60 * 24 * 14 : 60 * 60 * 24 * 7, // إطالة في حال تذكرني
+        maxAge: remember ? 30 * 24 * 60 * 60 : 7 * 24 * 60 * 60, // 30 يوم مع تذكرني، 7 أيام بدون
         path: '/',
         ...(cookieDomain ? { domain: cookieDomain } as any : {}),
       });
