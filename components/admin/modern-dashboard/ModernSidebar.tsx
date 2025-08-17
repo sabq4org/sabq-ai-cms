@@ -678,7 +678,7 @@ export default function ModernSidebar({
       {!isCollapsed && (
         <div style={{
           padding: '12px 16px',
-          borderTop: '1px solid hsl(var(--line))',
+
           textAlign: 'center'
         }}>
           <div style={{ 
