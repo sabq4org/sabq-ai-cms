@@ -226,8 +226,8 @@ export default function Header() {
                 )}
               </button>
 
-              {/* الإشعارات الذكية */}
-              <div className="hidden md:block">
+              {/* الإشعارات الذكية - متاحة على جميع الأحجام */}
+              <div className="block">
                 <NotificationDropdown />
               </div>
 
