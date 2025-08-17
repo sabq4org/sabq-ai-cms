@@ -14,6 +14,20 @@ export default function NotificationBell() {
   const [items, setItems] = useState<NotiItem[]>([]);
   const [unread, setUnread] = useState(0);
   const [open, setOpen] = useState(false);
+  const markAll = async () => {
+    try {
+      const r = await fetch('/api/notifications/mark-read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ markAll: true })
+      });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      setItems((prev) => prev.map(i => i));
+      setUnread(0);
+      await fetchNotifications();
+    } catch {}
+  };
 
   const mapLink = (n: any): string => {
     const data = n.data || {};
@@ -68,6 +82,10 @@ export default function NotificationBell() {
             <div className="p-4 text-sm text-gray-500">لا توجد إشعارات</div>
           ) : (
             <ul className="max-h-80 overflow-auto">
+              <li className="px-2 py-1 text-xs text-gray-500 flex items-center justify-between">
+                <span>{unread > 0 ? `${unread} غير مقروءة` : 'لا يوجد غير مقروء'}</span>
+                <button onClick={markAll} className="text-blue-600 hover:text-blue-800">تحديد الكل كمقروء</button>
+              </li>
               {items
                 .slice()
                 .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
@@ -79,6 +97,9 @@ export default function NotificationBell() {
                   </Link>
                 </li>
               ))}
+              <li className="px-2 py-2 text-center">
+                <button onClick={markAll} className="text-sm text-blue-600 hover:text-blue-800">تحديد الكل كمقروء</button>
+              </li>
             </ul>
           )}
         </div>

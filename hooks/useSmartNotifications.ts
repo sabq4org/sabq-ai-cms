@@ -194,7 +194,7 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
   const markAllAsRead = useCallback(async () => {
     try {
       const response = await fetch('/api/notifications/mark-read', {
-        method: 'PATCH',
+        method: 'POST',
         headers: {
           ...getAuthHeaders(),
           'Content-Type': 'application/json'
@@ -222,8 +222,9 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
         
         setUnreadCount(0);
         
-        if (result.data.updatedCount > 0) {
-          toast.success(`تم تحديد ${result.data.updatedCount} إشعار كمقروء`);
+        const updated = result.data?.updatedCount ?? result.data?.markedCount ?? 0;
+        if (updated > 0) {
+          toast.success(`تم تحديد ${updated} إشعار كمقروء`);
         }
         
       } else {
