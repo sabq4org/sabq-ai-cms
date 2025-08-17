@@ -52,31 +52,29 @@ export default function DashboardLayout({
       {/* تحميل CSS Manus UI */}
       <link rel="stylesheet" href="/manus-ui.css" />
       
-      {/* الهيدر كامل العرض */}
+      {/* الهيدر كامل العرض - ثابت في الأعلى */}
       <ManusHeader onMenuClick={toggleSidebar} showMenuButton={isMobile} />
       
       {/* التخطيط الرئيسي */}
-      <div style={{ 
-        display: 'grid',
-        gridTemplateColumns: !isMobile && sidebarOpen ? '280px 1fr' : !isMobile ? '80px 1fr' : '1fr',
+      <div style={{
         minHeight: '100vh',
         background: 'hsl(var(--bg))',
         paddingTop: '70px',
-        transition: 'grid-template-columns 0.3s ease'
+        display: 'flex'
       }}>
         
         {/* الشريط الجانبي للديسكتوب */}
         {!isMobile && (
           <aside style={{
-            background: 'hsl(var(--bg))',
-            borderLeft: '1px solid hsl(var(--line))',
-            padding: '24px 16px',
-            overflowY: 'auto',
             position: 'fixed',
             top: '70px',
             right: 0,
             width: sidebarOpen ? '280px' : '80px',
             height: 'calc(100vh - 70px)',
+            background: 'hsl(var(--bg))',
+            borderLeft: '1px solid hsl(var(--line))',
+            padding: '24px 16px',
+            overflowY: 'auto',
             zIndex: 900,
             transition: 'width 0.3s ease'
           }}>
@@ -104,9 +102,11 @@ export default function DashboardLayout({
 
         {/* المحتوى الرئيسي */}
         <main style={{
+          flex: 1,
+          marginRight: !isMobile ? (sidebarOpen ? '280px' : '80px') : '0',
           padding: '24px',
-          overflowY: 'auto',
-          minHeight: 'calc(100vh - 70px)'
+          minHeight: 'calc(100vh - 70px)',
+          transition: 'margin-right 0.3s ease'
         }}>
           <div className={cn("fade-in", className)}>
             {children}

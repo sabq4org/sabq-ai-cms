@@ -29,6 +29,21 @@ export default function ModernDashboardHomeFullWidth() {
   const { user } = useAuth();
   const [currentTheme, setCurrentTheme] = useState('blue');
   const [activeTab, setActiveTab] = useState('overview');
+  
+  // عبارات محفزة بروح AI
+  const aiMotivationalMessages = [
+    "🚀 معاً نبني مستقبل الذكاء الاصطناعي في الإعلام",
+    "⚡ نحول الأفكار إلى محتوى ذكي ومؤثر", 
+    "🎯 كل مقال قصة، وكل قصة تغيير",
+    "💡 الإبداع يلتقي بالذكاء الاصطناعي هنا",
+    "🌟 نصنع المحتوى الذي يشكل المستقبل",
+    "🔮 نرى ما لا يراه الآخرون في البيانات",
+    "🎨 نحول الأرقام إلى قصص ملهمة"
+  ];
+  
+  const [currentMessage, setCurrentMessage] = useState(() => 
+    aiMotivationalMessages[Math.floor(Math.random() * aiMotivationalMessages.length)]
+  );
 
   // ثيمات الألوان
   const themes = {
@@ -184,10 +199,24 @@ export default function ModernDashboardHomeFullWidth() {
             border: '1px solid hsl(var(--accent) / 0.2)',
             padding: '24px'
           }}>
-            <div style={{ fontSize: '32px', marginBottom: '12px' }}>🎨</div>
-            <div className="card-title">تصميم Manus UI مطبق</div>
-            <div className="card-subtitle" style={{ marginBottom: '20px' }}>
-              التصميم الثنائي الألوان يعمل مع الشريط الجانبي الأساسي
+            <div style={{ fontSize: '42px', marginBottom: '16px' }}>🤖</div>
+            <div className="card-title" style={{ fontSize: '24px', marginBottom: '8px' }}>
+              مرحباً يا {user?.name || 'مدير النظام'} 
+            </div>
+            <div className="card-subtitle" style={{ 
+              marginBottom: '20px', 
+              fontSize: '16px', 
+              color: 'hsl(var(--accent))',
+              cursor: 'pointer',
+              transition: 'transform 0.2s ease'
+            }}
+            onClick={() => {
+              const newMessage = aiMotivationalMessages[Math.floor(Math.random() * aiMotivationalMessages.length)];
+              setCurrentMessage(newMessage);
+            }}
+            title="اضغط للحصول على رسالة جديدة"
+            >
+              {currentMessage}
             </div>
             
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
