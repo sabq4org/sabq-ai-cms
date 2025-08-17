@@ -56,7 +56,8 @@ export async function POST(req: NextRequest) {
 
     const redis = getRedisClient();
     if (redis) {
-      await deleteKeysByPattern(redis, `user:feed:${user.id}:*`);
+      // لا تجعل مسح الكاش حاجزًا لوقت الاستجابة
+      deleteKeysByPattern(redis, `user:feed:${user.id}:*`).catch(() => {});
     }
 
     return NextResponse.json({ liked: !!like, ...result });

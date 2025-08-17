@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuthFromRequest } from "@/app/lib/auth";
+import prisma from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   try {
     const user = await requireAuthFromRequest(req);
-    const { PrismaClient } = await import("@prisma/client");
-    const prisma = new PrismaClient();
     const { articleId, saved } = await req.json();
 
     if (!articleId) {
@@ -40,8 +39,6 @@ export async function POST(req: NextRequest) {
     }
 
     const updated = await prisma.articles.findUnique({ where: { id: articleId }, select: { likes: true, saves: true } });
-
-    await prisma.$disconnect();
     return NextResponse.json({ saved: !!saved, likes: updated?.likes || 0, saves: updated?.saves || 0 });
   } catch (e: any) {
     if (String(e?.message || e).includes("Unauthorized")) {
