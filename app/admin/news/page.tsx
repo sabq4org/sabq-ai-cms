@@ -1196,7 +1196,7 @@ function AdminNewsPageContent() {
                     <Trash2 className="w-6 h-6 text-red-600 dark:text-red-400" />
                   </div>
                 </div>
-                                </div>
+              </DesignComponents.StandardCard>
             </section>
           </div>
 
