@@ -1045,8 +1045,8 @@ function AdminNewsPageContent() {
                     <CheckCircle className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                   </div>
                 </div>
-              </DesignComponents.StandardCard>
-
+                            </div>
+              
               {/* بطاقة المسودات */}
               <DesignComponents.StandardCard
                 className={`p-6 hover:shadow-lg transition-shadow cursor-pointer ${
