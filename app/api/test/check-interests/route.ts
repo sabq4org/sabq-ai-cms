@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
         OR: [
           { slug: 'local' },
           { slug: 'محليات' },
-          { name_ar: { contains: 'محليات' } },
+          { name: { contains: 'محليات' } },
           { name: { contains: 'local', mode: 'insensitive' } }
         ]
       }
@@ -70,7 +70,7 @@ export async function GET(req: NextRequest) {
       }
     });
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       user: {
         id: user.id,
         email: user.email,
@@ -79,12 +79,11 @@ export async function GET(req: NextRequest) {
       localCategory: localCategory ? {
         id: localCategory.id,
         name: localCategory.name,
-        name_ar: localCategory.name_ar,
         slug: localCategory.slug
       } : null,
       userInterests: userInterests.map(ui => ({
         category_id: ui.category_id,
-        category_name: ui.categories?.name_ar || ui.categories?.name,
+        category_name: ui.categories?.name,
         is_active: ui.is_active
       })),
       userPreferences: userPreferences ? {
@@ -95,6 +94,11 @@ export async function GET(req: NextRequest) {
       recentNotifications,
       isInterestedInLocal: userInterests.some(ui => ui.category_id === localCategory?.id)
     });
+    
+    // تعيين ترميز UTF-8 الصحيح
+    response.headers.set('Content-Type', 'application/json; charset=utf-8');
+    
+    return response;
   } catch (error) {
     console.error('خطأ في فحص الاهتمامات:', error);
     return NextResponse.json({ 
