@@ -992,7 +992,7 @@ function AdminNewsPageContent() {
                 </Link>
               </div>
             </div>
-          </DesignComponents.StandardCard>
+          </div>
 
           {/* إحصائيات الأخبار */}
           <div>
@@ -1045,7 +1045,7 @@ function AdminNewsPageContent() {
                     <CheckCircle className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                   </div>
                 </div>
-              </DesignComponents.StandardCard>
+              </div>
 
               {/* بطاقة المسودات */}
               <DesignComponents.StandardCard
@@ -1073,7 +1073,7 @@ function AdminNewsPageContent() {
                     <PauseCircle className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
                   </div>
                 </div>
-              </DesignComponents.StandardCard>
+              </div>
 
               {/* بطاقة المجدولة */}
               <DesignComponents.StandardCard
@@ -1101,7 +1101,7 @@ function AdminNewsPageContent() {
                     <Clock className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                   </div>
                 </div>
-              </DesignComponents.StandardCard>
+              </div>
 
               {/* بطاقة الأرشيف */}
               <DesignComponents.StandardCard
@@ -1129,7 +1129,7 @@ function AdminNewsPageContent() {
                     <XCircle className="w-6 h-6 text-orange-600 dark:text-orange-400" />
                   </div>
                 </div>
-              </DesignComponents.StandardCard>
+              </div>
 
               {/* بطاقة المحذوفة */}
               <DesignComponents.StandardCard
@@ -1157,7 +1157,7 @@ function AdminNewsPageContent() {
                     <Trash2 className="w-6 h-6 text-red-600 dark:text-red-400" />
                   </div>
                 </div>
-              </DesignComponents.StandardCard>
+              </div>
             </div>
           </div>
 
@@ -1557,7 +1557,7 @@ function AdminNewsPageContent() {
                 </div>
               )}
             </div>
-          </DesignComponents.StandardCard>
+          </div>
         </div>
       </TooltipProvider>
     </>
