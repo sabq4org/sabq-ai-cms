@@ -635,7 +635,8 @@ export default function ModernSidebar({
       display: 'flex',
       flexDirection: 'column',
       borderRadius: '0',
-      boxShadow: 'none'
+      boxShadow: 'none',
+      background: 'transparent'
     }}>
 
       {/* شعار مصغر للسايدبار */}

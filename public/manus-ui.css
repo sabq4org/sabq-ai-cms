@@ -136,7 +136,7 @@ body {
 }
 
 .manus-sidebar {
-  background: hsl(var(--bg-card)) !important;
+  background: transparent !important;
   border: none;
   padding: 24px 16px;
   transition: background 0.3s ease;
