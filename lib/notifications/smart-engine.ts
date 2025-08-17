@@ -383,7 +383,7 @@ export class SmartNotificationEngine {
     try {
       const userIds = new Set<string>();
 
-      // 1. البحث في الاهتمامات المحفوظة (المصدر الأساسي)
+      // 1. البحث في الاهتمامات المحفوظة فقط (المصدر الوحيد)
       const userInterests = await prisma.user_interests.findMany({
         where: {
           category_id: categoryId,
@@ -395,50 +395,8 @@ export class SmartNotificationEngine {
       userInterests.forEach(ui => userIds.add(ui.user_id));
       console.log(`🎯 المستخدمون المهتمون من الاهتمامات المحفوظة: ${userInterests.length}`);
 
-      // 2. البحث في التفاعلات السابقة (مصدر إضافي)
-      // نحتاج أولاً للحصول على معرفات المقالات في هذا التصنيف
-      const categoryArticles = await prisma.articles.findMany({
-        where: {
-          category_id: categoryId,
-          status: 'published'
-        },
-        select: { id: true },
-        take: 100 // نحدد عدد المقالات لتحسين الأداء
-      });
-
-      const articleIds = categoryArticles.map(a => a.id);
-
-      // ثم نبحث عن التفاعلات مع هذه المقالات
-      const interactions = articleIds.length > 0 ? await prisma.interactions.findMany({
-        where: {
-          article_id: { in: articleIds },
-          type: { in: ['like', 'save'] },
-          created_at: {
-            gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) // آخر 30 يوم
-          }
-        },
-        distinct: ['user_id'],
-        select: { user_id: true },
-        take: 50
-      }) : [];
-
-      interactions.forEach(i => userIds.add(i.user_id));
-      console.log(`👥 المستخدمون المهتمون من التفاعلات: ${interactions.length}`);
-
-      // 3. البحث في user_preferences كاحتياطي
-      const userPreferences = await prisma.user_preferences.findMany({
-        where: {
-          key: 'preferences',
-          value: {
-            path: ['interests'],
-            array_contains: categoryId
-          }
-        },
-        select: { user_id: true }
-      });
-
-      userPreferences.forEach(up => userIds.add(up.user_id));
-      console.log(`⚙️ المستخدمون المهتمون من التفضيلات: ${userPreferences.length}`);
+      // ملاحظة: تم إلغاء البحث في التفاعلات السابقة و user_preferences
+      // لضمان وصول الإشعارات فقط للمستخدمين الذين اختاروا الاهتمام صراحة
 
       const totalUsers = Array.from(userIds);
       console.log(`📊 إجمالي المستخدمين المهتمين بالتصنيف ${categoryId}: ${totalUsers.length}`);
