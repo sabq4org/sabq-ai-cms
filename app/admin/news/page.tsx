@@ -941,8 +941,11 @@ function AdminNewsPageContent() {
 
   return (
     <>
+      {/* تحميل CSS Manus UI */}
+      <link rel="stylesheet" href="/manus-ui.css" />
+      
       <TooltipProvider>
-        <div className="space-y-8">
+        <div style={{ padding: '0', background: 'hsl(var(--bg))', minHeight: '100vh' }}>
           {/* رسالة الترحيب */}
           <DesignComponents.StandardCard className="p-6 bg-gradient-to-l from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
             <div className="flex items-start gap-4">
