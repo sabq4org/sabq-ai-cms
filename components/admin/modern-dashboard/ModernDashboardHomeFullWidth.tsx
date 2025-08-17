@@ -195,7 +195,7 @@ export default function ModernDashboardHomeFullWidth() {
         <section style={{ marginBottom: '6px' }}>
           <div className="card card-accent" style={{ 
             textAlign: 'center',
-            background: 'linear-gradient(135deg, hsl(var(--bg-card)) 0%, hsl(var(--accent) / 0.03) 100%)',
+            background: 'hsl(var(--bg))',
             border: '1px solid hsl(var(--accent) / 0.2)',
             padding: '10px',
             borderLeftWidth: '4px'
