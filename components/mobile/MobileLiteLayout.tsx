@@ -7,7 +7,7 @@ import { User } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import EnhancedDarkModeToggle from './EnhancedDarkModeToggle';
-import NotificationBellLight from '@/components/Notifications/NotificationBellLight';
+import NotificationBell from '@/components/Notifications/NotificationBell';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface MobileLiteLayoutProps {
@@ -87,6 +87,8 @@ export default function MobileLiteLayout({
             </div>
             
             <div className="header-actions">
+              {/* الإشعارات الذكية الفعلية */}
+              <NotificationBell />
               {/* الاكتفاء بصورة الملف الشخصي بدون الاسم */}
               <Link
                 href={user ? '/profile' : '/login'}
