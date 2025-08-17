@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Bookmark, Clock, ExternalLink, Loader2, Trash2 } from 'lucide-react';
+import { getArticleLink } from '@/lib/utils';
+import { Bookmark, Clock, ExternalLink, Loader2, Trash2, BookOpen, User, Heart } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
 
@@ -45,7 +46,18 @@ export default function SavedArticlesTab({ userId, darkMode = false }: SavedArti
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`/api/interactions/saved-articles?userId=${userId}&page=${pageNum}&limit=12`);
+      const token =
+        (typeof window !== 'undefined' && (localStorage.getItem('auth-token') || localStorage.getItem('sabq_at') || localStorage.getItem('access_token'))) || '';
+      const url = `/api/interactions/saved-articles?userId=${userId}&page=${pageNum}&limit=12&_=${Date.now()}`;
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        credentials: 'include',
+        cache: 'no-store',
+      });
       const data = await response.json();
 
       if (data.success) {
@@ -72,11 +84,11 @@ export default function SavedArticlesTab({ userId, darkMode = false }: SavedArti
     try {
       const response = await fetch('/api/bookmarks', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth-token') || ''}` },
         body: JSON.stringify({
-          userId,
           itemId: articleId,
-          itemType: 'article'
+          itemType: 'article',
+          action: 'remove'
         })
       });
 
@@ -179,8 +191,10 @@ export default function SavedArticlesTab({ userId, darkMode = false }: SavedArti
         {articles.map((article) => (
           <div
             key={article.id}
-            className={`rounded-xl p-6 shadow-sm transition-all hover:shadow-md ${
-              darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+            className={`group rounded-xl p-6 shadow-sm transition-all hover:shadow-md border ${
+              darkMode 
+                ? 'bg-gray-800 border-blue-500/30 hover:border-blue-500/50' 
+                : 'bg-white border-blue-500/20 hover:border-blue-500/40'
             }`}
           >
             <div className="flex items-start justify-between mb-4">
@@ -195,13 +209,30 @@ export default function SavedArticlesTab({ userId, darkMode = false }: SavedArti
                 )}
                 
                 <Link
-                  href={`/article/${article.id}`}
+                  href={getArticleLink(article as any)}
                   className={`block font-semibold hover:text-blue-600 dark:hover:text-blue-400 line-clamp-2 ${
                     darkMode ? 'text-white' : 'text-gray-800'
                   }`}
                 >
                   {article.title}
                 </Link>
+                <p className={`text-sm mt-2 line-clamp-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  {article.excerpt || '—'}
+                </p>
+                <div className={`flex items-center gap-4 text-xs mt-3 ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                  <span className="flex items-center gap-1">
+                    <User className="w-3 h-3" />
+                    {article.authorName || '—'}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    {formatDate(article.published_at)}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Bookmark className="w-3 h-3 text-blue-500" />
+                    {formatDate(article.saved_at)}
+                  </span>
+                </div>
               </div>
               
               <button
@@ -210,7 +241,7 @@ export default function SavedArticlesTab({ userId, darkMode = false }: SavedArti
                 className={`p-2 rounded-lg transition-colors ${
                   removing === article.id
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'hover:bg-red-50 hover:text-red-600 text-gray-400'
+                    : darkMode ? 'hover:bg-blue-900/30 text-blue-400' : 'hover:bg-blue-50 text-blue-600'
                 }`}
                 title="إزالة من المحفوظات"
               >
@@ -222,38 +253,17 @@ export default function SavedArticlesTab({ userId, darkMode = false }: SavedArti
               </button>
             </div>
 
-            {article.excerpt && (
-              <p className={`text-sm line-clamp-3 mb-4 ${
-                darkMode ? 'text-gray-400' : 'text-gray-600'
-              }`}>
-                {article.excerpt}
-              </p>
-            )}
-
-            <div className="flex items-center justify-between text-xs">
-              <span className={`flex items-center gap-1 ${
-                darkMode ? 'text-gray-400' : 'text-gray-500'
-              }`}>
-                <Bookmark className="w-3 h-3 text-blue-500" />
-                {formatDate(article.saved_at)}
-              </span>
-              
-              <span className={`flex items-center gap-1 ${
-                darkMode ? 'text-gray-400' : 'text-gray-500'
-              }`}>
-                <Clock className="w-3 h-3" />
-                {formatDate(article.published_at)}
-              </span>
-            </div>
-
-            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
               <Link
-                href={`/article/${article.id}`}
+                href={getArticleLink(article as any)}
                 className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm font-medium"
               >
                 قراءة المقال
                 <ExternalLink className="w-3 h-3" />
               </Link>
+              <span className={`inline-flex items-center gap-1 text-xs ${darkMode ? 'text-blue-300' : 'text-blue-600'}`}>
+                <Bookmark className="w-3 h-3" /> محفوظ
+              </span>
             </div>
           </div>
         ))}

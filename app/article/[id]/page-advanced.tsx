@@ -151,8 +151,8 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
     try {
       await fetch("/api/interactions/like", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ articleId }),
+        headers: { "Content-Type": "application/json", 'Authorization': `Bearer ${localStorage.getItem('auth-token') || ''}` },
+        body: JSON.stringify({ articleId, like: !interaction.liked }),
       });
     } catch (error) {
       console.error("Error liking article:", error);
@@ -168,10 +168,10 @@ export default function ArticlePageEnhanced({ params }: PageProps) {
     }));
 
     try {
-      await fetch("/api/interactions/bookmark", {
+      await fetch("/api/bookmarks", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ articleId }),
+        headers: { "Content-Type": "application/json", 'Authorization': `Bearer ${localStorage.getItem('auth-token') || ''}` },
+        body: JSON.stringify({ articleId, saved: !interaction.saved }),
       });
     } catch (error) {
       console.error("Error saving article:", error);

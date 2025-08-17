@@ -1,7 +1,7 @@
 "use client";
 
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import {
   Activity,
@@ -35,8 +35,8 @@ export default function Header() {
   const { darkMode, mounted, toggleDarkMode } = useDarkModeContext();
   const { logoUrl, siteName, loading: settingsLoading } = useSiteSettings();
 
-  // Auth state
-  const { user, logout } = useAuth();
+  // Auth state (موحد)
+  const { user, logout, refreshUser } = useAuth();
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -45,6 +45,13 @@ export default function Header() {
   const headerElRef = useRef<HTMLElement>(null);
   const mobileUserBtnRef = useRef<HTMLButtonElement>(null);
   const [isMobileUserOpen, setIsMobileUserOpen] = useState(false);
+  const [userOpen, setUserOpen] = useState(false);
+  const userAnchorRef = useRef<HTMLAnchorElement | HTMLButtonElement | null>(null);
+
+  // بعد العودة من تسجيل الدخول، حاول تحديث المستخدم فوراً
+  useEffect(() => {
+    refreshUser?.().catch(() => {});
+  }, [refreshUser]);
 
   // فحص الأحداث الجديدة
   useEffect(() => {
@@ -136,7 +143,7 @@ export default function Header() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full relative">
           <div className="flex items-center justify-between h-full">
-            {/* الشعار الرسمي - محاذاة لليمين مع تحسينات المظهر */}
+            {/* الشعار */}
             <Link
               href="/"
               className="flex-shrink-0 relative z-50 hover:scale-105 transition-transform duration-200 header-logo-wrapper ml-auto"
@@ -159,7 +166,7 @@ export default function Header() {
               )}
             </Link>
 
-            {/* المينيو الرئيسية - Desktop - مع تحسين المسافات */}
+            {/* المينيو الرئيسية */}
             <nav className="hidden md:flex items-center space-x-6 rtl:space-x-reverse flex-1 justify-center">
               {navigationItems.map((item) => (
                 <Link
@@ -177,216 +184,94 @@ export default function Header() {
                 >
                   <item.icon className="w-4 h-4" />
                   {item.label && <span>{item.label}</span>}
-                  {/* شارة "جديد" للعناصر الجديدة */}
-                  {(item as any).isNew && (
-                    <span className="absolute -top-1 -left-1 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full font-bold animate-pulse">
-                      جديد
-                    </span>
-                  )}
                 </Link>
               ))}
             </nav>
 
             {/* أدوات الهيدر */}
-            <div className="flex items-center space-x-2 md:space-x-4 rtl:space-x-reverse">
-              {/* الجرس */}
-              <div className="hidden md:block">
-                <NotificationBell />
-              </div>
-              {/* أيقونة لحظة بلحظة */}
+            <div className="flex items-center space-x-2 md:space-x-4 rtl:space-x-reverse header-tools">
+              {/* زر لحظة بلحظة */}
               <Link
                 href="/moment-by-moment"
-                className={`relative p-2 rounded-lg transition-all duration-300 ${
+                className={`moment-by-moment-btn relative inline-flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-200 ${
                   darkMode
-                    ? "text-red-400 hover:text-red-300 hover:bg-blue-800/40"
-                    : "text-red-600 hover:text-red-700 hover:bg-blue-600/20"
+                    ? "text-red-300 hover:text-red-200 hover:bg-red-900/30 border border-red-800/50"
+                    : "text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200"
                 }`}
-                aria-label="لحظة بلحظة"
+                title="لحظة بلحظة"
               >
                 <Activity className="w-5 h-5" />
                 {newEventsCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center animate-pulse font-bold">
-                    {newEventsCount > 9 ? "9+" : newEventsCount}
+                  <span className="notification-badge absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {newEventsCount > 9 ? '9+' : newEventsCount}
                   </span>
                 )}
               </Link>
 
-              {/* الوضع الليلي */}
-              <ClientOnly
-                fallback={
-                  <button className="p-2 rounded-md transition-colors duration-200 text-gray-600 hover:text-gray-800">
-                    <Moon className="w-5 h-5" />
-                  </button>
-                }
+              {/* زر الوضع الليلي */}
+              <button
+                onClick={toggleDarkMode}
+                className={`dark-mode-btn inline-flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-200 ${
+                  darkMode
+                    ? "text-yellow-400 hover:text-yellow-300 hover:bg-yellow-900/20"
+                    : "text-gray-600 hover:text-gray-800 hover:bg-gray-100"
+                }`}
+                title={darkMode ? "تفعيل الوضع العادي" : "تفعيل الوضع الليلي"}
               >
+                {darkMode ? (
+                  <Sun className="w-5 h-5" />
+                ) : (
+                  <Moon className="w-5 h-5" />
+                )}
+              </button>
+
+              {/* الجرس */}
+              <div className="hidden md:block">
+                <NotificationBell />
+              </div>
+
+              {/* المستخدم أو تسجيل الدخول */}
+              {user ? (
                 <button
-                  onClick={toggleDarkMode}
-                  className={`p-2 rounded-lg transition-all duration-300 cursor-pointer ${
+                  ref={userAnchorRef as any}
+                  onClick={() => setUserOpen((v) => !v)}
+                  className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     darkMode
-                      ? "text-yellow-400 hover:text-yellow-300 hover:bg-blue-800/40"
-                      : "text-gray-600 hover:text-gray-800 hover:bg-blue-600/20"
+                      ? "text-blue-300 hover:text-white hover:bg-blue-800/40"
+                      : "text-blue-700 hover:text-blue-800 hover:bg-blue-100"
                   }`}
                 >
-                  {darkMode ? (
-                    <Sun className="w-5 h-5" />
-                  ) : (
-                    <Moon className="w-5 h-5" />
-                  )}
+                  <User className="w-4 h-4" />
+                  {user.name || "حسابي"}
                 </button>
-              </ClientOnly>
-
-              {/* معلومات المستخدم */}
-              {user ? (
-                <div className="relative hidden md:block" ref={dropdownRef}>
-                  <button
-                    onClick={handleDropdownToggle}
-                    className={`flex items-center space-x-2 rtl:space-x-reverse p-2 rounded-lg transition-all duration-300 ${
-                      darkMode
-                        ? "text-gray-300 hover:text-white hover:bg-blue-800/40"
-                        : "text-gray-700 hover:text-gray-900 hover:bg-blue-600/20"
-                    }`}
-                  >
-                    {user?.avatar ? (
-                      <Image
-                        src={user.avatar as string}
-                        alt={(user?.name as string) || "user"}
-                        width={32}
-                        height={32}
-                        className="user-avatar"
-                      />
-                    ) : (
-                      <User className="w-5 h-5" />
-                    )}
-                    <span className="hidden sm:inline text-sm font-medium">
-                      {user?.name || user?.email?.split("@")[0] || "مستخدم"}
-                    </span>
-                    <ChevronDown className="w-4 h-4" />
-                  </button>
-
-                  {isDropdownOpen && user && (
-                    <UserDropdown
-                      user={{
-                        id: user.id,
-                        name:
-                          user.name || user.email?.split("@")[0] || "مستخدم",
-                        email: user.email,
-                        avatar: user.avatar,
-                        role: user.role,
-                      }}
-                      onLogout={handleLogout}
-                      onClose={handleDropdownClose}
-                    />
-                  )}
-                </div>
               ) : (
                 <Link
                   href="/login"
-                  className={`flex items-center space-x-2 rtl:space-x-reverse px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                  className={`inline-flex items-center justify-center w-9 h-9 rounded-lg transition-colors ${
                     darkMode
-                      ? "text-gray-300 hover:text-white hover:bg-blue-800/40"
-                      : "text-gray-700 hover:text-gray-900 hover:bg-blue-600/20"
+                      ? "text-blue-300 hover:text-white hover:bg-blue-800/40"
+                      : "text-blue-700 hover:text-blue-800 hover:bg-blue-100"
                   }`}
+                  title="تسجيل الدخول"
                 >
-                  <LogIn className="w-4 h-4" />
-                  <span>تسجيل الدخول</span>
+                  <LogIn className="w-5 h-5" />
                 </Link>
               )}
-
-              {/* زر وقائمة ملف شخصي للموبايل فقط */}
-              {user && (
-                <div className="md:hidden relative">
-                  <UserMenuDrawer
-                    trigger={
-                      <button
-                        ref={mobileUserBtnRef}
-                        className={`p-2 rounded-lg transition-all duration-300 ${
-                          darkMode
-                            ? "text-gray-300 hover:text-white hover:bg-blue-800/40"
-                            : "text-gray-700 hover:text-gray-900 hover:bg-blue-600/20"
-                        }`}
-                        aria-label="قائمة المستخدم للموبايل"
-                        aria-haspopup="menu"
-                      >
-                        <span className="inline-flex items-center gap-1">
-                          <User className="w-5 h-5" />
-                          <ChevronDown className="w-3 h-3 opacity-70" />
-                        </span>
-                      </button>
-                    }
-                  />
-                </div>
-              )}
-
-              {/* المينيو المحمول */}
-              <button
-                onClick={toggleMobileMenu}
-                className={`md:hidden p-2 rounded-lg transition-all duration-300 ${
-                  darkMode
-                    ? "text-gray-400 hover:text-gray-200 hover:bg-blue-800/40"
-                    : "text-gray-600 hover:text-gray-800 hover:bg-blue-600/20"
-                }`}
-              >
-                <Menu className="w-5 h-5" />
-              </button>
             </div>
           </div>
-
-          {/* المينيو المحمول */}
-          {isMobileMenuOpen && (
-            <>
-              {/* Backdrop overlay */}
-              <div
-                className="fixed inset-0 bg-black/50 backdrop-blur-md z-40 md:hidden"
-                onClick={() => setIsMobileMenuOpen(false)}
-              />
-
-              <div
-                className={`md:hidden fixed top-[var(--header-height)] left-0 right-0 z-50 ${
-                  darkMode ? "bg-gray-900/98" : "bg-white/98"
-                } backdrop-blur-md shadow-2xl border-t ${
-                  darkMode ? "border-gray-800" : "border-gray-200"
-                }`}
-              >
-                <nav className="flex flex-col max-h-[calc(100vh-var(--header-height))] overflow-y-auto py-2">
-                  {navigationItems.map((item) => (
-                    <Link
-                      key={item.url}
-                      href={item.url}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className={`relative flex items-center space-x-2 rtl:space-x-reverse px-6 py-4 text-base font-medium transition-all duration-300 ${
-                        item.highlight
-                          ? darkMode
-                            ? "text-red-400 hover:text-red-300 hover:bg-blue-800/40"
-                            : "text-red-600 hover:text-red-700 hover:bg-blue-600/20"
-                          : darkMode
-                          ? "text-gray-300 hover:text-white hover:bg-blue-800/40"
-                          : "text-gray-700 hover:text-gray-900 hover:bg-blue-600/20"
-                      }`}
-                    >
-                      <item.icon className="w-4 h-4" />
-                      {item.label && <span>{item.label}</span>}
-                      {/* شارة "جديد" للعناصر الجديدة في المحمول */}
-                      {(item as any).isNew && (
-                        <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-bold animate-pulse">
-                          جديد
-                        </span>
-                      )}
-                    </Link>
-                  ))}
-
-                  {/* روابط إضافية للمحمول */}
-
-                </nav>
-              </div>
-            </>
-          )}
         </div>
       </header>
-      {/* مباعد أسفل الهيدر لضمان مسافة فارغة قبل المحتوى */}
-      <div
-        aria-hidden="true"
-        style={{ height: "var(--header-height, 64px)" }}
-      />
+
+      {/* قائمة المستخدم */}
+      {user && (
+        <UserDropdown
+          user={user as any}
+          onLogout={handleLogout}
+          anchorElement={userAnchorRef.current as any}
+          open={userOpen}
+          onClose={() => setUserOpen(false)}
+        />
+      )}
     </>
   );
 }

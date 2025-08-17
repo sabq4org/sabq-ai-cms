@@ -20,10 +20,18 @@
     margin-top: 0 !important;
   }
   
-  /* التأكد من أن المحتوى يبدأ مباشرة بعد الهيدر */
+  /* التأكد من أن المحتوى يبدأ مباشرة بعد الهيدر مع مسافة مريحة */
   main, .main-content {
     margin-top: 0 !important;
     padding-top: 0 !important;
+  }
+  
+  /* إضافة مسافة مريحة للأخبار المميزة */
+  .featured-news-section,
+  .featured-news-carousel,
+  .featured-news-mobile {
+    margin-top: 1rem !important;
+    padding-top: 0.5rem !important;
   }
 }
 

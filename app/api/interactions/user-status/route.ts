@@ -1,12 +1,40 @@
 import prisma from "@/lib/prisma";
 import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-interface JWTPayload {
-  userId: string;
-  email: string;
-}
+const getUserFromRequest = async (request: NextRequest) => {
+  try {
+    // 1) Authorization header
+    const authHeader = request.headers.get("authorization") || request.headers.get("Authorization");
+    let token: string | null = null;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      token = authHeader.slice(7);
+    }
+
+    // 2) Cookies fallback
+    if (!token) {
+      const c = request.cookies;
+      token =
+        c.get("auth-token")?.value ||
+        c.get("sabq_at")?.value ||
+        c.get("access_token")?.value ||
+        c.get("token")?.value ||
+        c.get("jwt")?.value ||
+        null;
+    }
+
+    if (!token) return null;
+
+    const secret = process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET || "your-super-secret-jwt-key";
+    const decoded: any = jwt.verify(token, secret);
+    const userId = decoded?.sub || decoded?.id || decoded?.userId || decoded?.user_id;
+    if (!userId) return null;
+
+    return { id: String(userId) };
+  } catch {
+    return null;
+  }
+};
 
 export async function GET(request: NextRequest) {
   try {
@@ -20,12 +48,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // التحقق من المستخدم
-    const cookieStore = await cookies();
-    const token = cookieStore.get("auth-token")?.value;
-
-    if (!token) {
-      // إرجاع حالة افتراضية للمستخدمين غير المسجلين
+    // التحقق من المستخدم (Authorization أولاً ثم الكوكيز)
+    const currentUser = await getUserFromRequest(request);
+    if (!currentUser) {
       return NextResponse.json({
         success: true,
         isAuthenticated: false,
@@ -38,45 +63,31 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    let userId: string;
-    try {
-      if (!process.env.JWT_SECRET) {
-        console.warn("JWT_SECRET not configured");
-        throw new Error("JWT configuration missing");
-      }
-      const decoded = jwt.verify(token, process.env.JWT_SECRET) as JWTPayload;
-      userId = decoded.userId;
-    } catch (error) {
-      console.log("JWT verification failed:", error);
-      return NextResponse.json({
-        success: true,
-        isAuthenticated: false,
-        interactions: {
-          liked: false,
-          saved: false,
-          shared: false,
-          hasComment: false,
-        },
-      });
-    }
-
-    // جلب تفاعلات المستخدم مع المقال
-    const interactions = await prisma.interactions.findMany({
+    const userInteractions = await prisma.interactions.findMany({
       where: {
-        user_id: userId,
-        article_id: articleId, // استخدام article_id بدلاً من target_id
+        user_id: currentUser.id,
+        article_id: articleId,
       },
-      select: {
-        type: true,
-      },
+      select: { type: true },
     });
 
-    // تحويل التفاعلات إلى كائن
-    const interactionTypes = interactions.map((i) => i.type);
+    const interactionTypes = userInteractions.map((i) => i.type);
+
+    // جلب عدّادات المقال المحدثة
+    const articleStats = await prisma.articles.findUnique({
+      where: { id: articleId },
+      select: { likes: true, saves: true },
+    });
 
     return NextResponse.json({
       success: true,
       isAuthenticated: true,
+      liked: interactionTypes.includes("like"),
+      saved: interactionTypes.includes("save"),
+      hasLiked: interactionTypes.includes("like"),
+      hasSaved: interactionTypes.includes("save"),
+      likesCount: articleStats?.likes || 0,
+      savesCount: articleStats?.saves || 0,
       interactions: {
         liked: interactionTypes.includes("like"),
         saved: interactionTypes.includes("save"),
@@ -93,7 +104,6 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// دعم POST أيضاً للتوافق مع بعض المكونات القديمة
 export async function POST(request: NextRequest) {
   return GET(request);
 }

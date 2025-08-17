@@ -136,16 +136,22 @@ select:focus-visible {
   }
 }
 
-/* التطبيق الموحّد للهيدر - تجنب التراكب */
+/* التطبيق الموحّد للهيدر - إضافة تباعد أعلى المحتوى مع مسافة إضافية */
 .page-content-wrapper {
-  padding-top: 0 !important; /* إزالة المسافة لجعل الشريط ملاصق للهيدر */
-  margin-top: 0 !important; /* إزالة الـ margin أيضاً */
+  padding-top: calc(var(--header-height) + 1.5rem) !important; /* إضافة 24px مسافة إضافية */
+  margin-top: 0 !important;
   min-height: 100vh;
   position: relative;
   z-index: 1;
 }
 
-/* أول عنصر في المحتوى يبدأ من الأعلى مباشرة */
+@media (max-width: 768px) {
+  .page-content-wrapper {
+    padding-top: calc(var(--mobile-header-height) + 1rem) !important; /* إضافة 16px للموبايل */
+  }
+}
+
+/* أول عنصر في المحتوى يبدأ من الأعلى مباشرة دون مضاعفة المسافة */
 .page-content-wrapper > * {
   position: relative;
 }
@@ -153,13 +159,11 @@ select:focus-visible {
 /* استثناء العناصر التي لها كلاس pulse-first-element */
 .page-content-wrapper > *:first-child:not(.pulse-first-element) {
   margin-top: 0 !important;
-  padding-top: 0 !important;
 }
 
 /* تخصيص عناصر pulse-first-element لتكون ملاصقة للهيدر */
 .page-content-wrapper > .pulse-first-element {
   margin-top: 0 !important;
-  padding-top: 0 !important;
 }
 
 @media (max-width: 768px) {
@@ -207,7 +211,7 @@ select:focus-visible {
   left: 0;
   right: 0;
   height: var(--header-height);
-  z-index: 9999; /* أعلى z-index للتأكد من بقائه فوق كل شيء */
+  z-index: 40; /* فوق المحتوى وأقل من المودال */
 }
 
 .sticky-header {
@@ -217,25 +221,13 @@ select:focus-visible {
   z-index: 50;
 }
 
-/* تصحيحات إضافية للصفحات الداخلية */
-.dashboard-page-header {
-  /* لا يحتاج padding لأن DashboardLayout يعالجه */
-  margin-bottom: 1.5rem;
-}
-
-/* تصحيح z-index conflicts */
-.fixed-header,
-.sticky-header {
-  z-index: 40; /* أقل من modals وdropdowns */
-}
-
 /* Modal و Dropdown z-indexes */
 .modal-overlay {
-  z-index: 50;
+  z-index: 60;
 }
 
 .dropdown-menu {
-  z-index: 45;
+  z-index: 55;
 }
 
 /* تصحيح للصفحات التي تستخدم scroll */

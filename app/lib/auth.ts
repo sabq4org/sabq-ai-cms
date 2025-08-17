@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
+import { NextRequest } from "next/server";
 
 export interface User {
   id: string;
@@ -220,6 +221,133 @@ export async function requireAuth(): Promise<User> {
     throw new Error("Unauthorized");
   }
   return user;
+}
+
+// Middleware للتحقق من المصادقة من طلب HTTP
+export async function requireAuthFromRequest(request: NextRequest): Promise<User> {
+  // للتطوير: التحقق من user-id header أولاً
+  const userIdHeader = request.headers.get('user-id');
+  if (userIdHeader) {
+    console.log('🔧 وضع التطوير: استخدام user-id من header:', userIdHeader);
+    // الحصول على المستخدم مباشرة من قاعدة البيانات
+    const { PrismaClient } = await import("@prisma/client");
+    const prisma = new PrismaClient();
+
+    // محاولة البحث بالايميل أولاً، ثم بالـ ID
+    let user = await prisma.users.findUnique({
+      where: { email: userIdHeader },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        is_admin: true,
+        avatar: true,
+      },
+    });
+
+    // إذا لم نجد بالايميل، نجرب البحث بالـ ID
+    if (!user) {
+      user = await prisma.users.findUnique({
+        where: { id: userIdHeader },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          role: true,
+          is_admin: true,
+          avatar: true,
+        },
+      });
+    }
+
+    await prisma.$disconnect();
+
+    if (!user) {
+      throw new Error("Unauthorized");
+    }
+
+    const superAdmins = (process.env.SUPER_ADMIN_EMAILS || "admin@sabq.ai")
+      .split(",")
+      .map((s) => s.trim().toLowerCase())
+      .filter(Boolean);
+    const isSuper = !!user.email && superAdmins.includes(user.email.toLowerCase());
+    
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name || "User",
+      role_id: user.is_admin ? 1 : 2,
+      status: "active",
+      avatar_url: user.avatar || undefined,
+      role: user.role,
+      isAdmin: user.is_admin || isSuper,
+    } as User & { role: string };
+  }
+
+  // محاولة جلب التوكن من Request
+  let token = request.cookies.get("sabq_at")?.value ||
+              request.cookies.get("auth-token")?.value ||
+              request.cookies.get("access_token")?.value ||
+              request.cookies.get("token")?.value ||
+              request.cookies.get("jwt")?.value;
+
+  // محاولة جلب من Authorization header
+  if (!token) {
+    const authHeader = request.headers.get('authorization');
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
+  }
+
+  if (!token) {
+    throw new Error("Unauthorized");
+  }
+
+  // التحقق من التوكن
+  const payload = await verifyToken(token);
+  if (!payload) {
+    throw new Error("Unauthorized");
+  }
+
+  // الحصول على المستخدم من قاعدة البيانات
+  const { PrismaClient } = await import("@prisma/client");
+  const prisma = new PrismaClient();
+
+  const user = await prisma.users.findUnique({
+    where: { id: payload.sub as string || payload.id || payload.userId },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      role: true,
+      is_admin: true,
+      avatar: true,
+    },
+  });
+
+  await prisma.$disconnect();
+
+  if (!user) {
+    throw new Error("Unauthorized");
+  }
+
+  const superAdmins = (process.env.SUPER_ADMIN_EMAILS || "admin@sabq.ai")
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  const isSuper = !!user.email && superAdmins.includes(user.email.toLowerCase());
+  
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name || "User",
+    role_id: user.is_admin ? 1 : 2,
+    status: "active",
+    avatar_url: user.avatar || undefined,
+    role: user.role,
+    isAdmin: user.is_admin || isSuper,
+  } as User & { role: string };
 }
 
 // Middleware للتحقق من صلاحية معينة

@@ -489,7 +489,10 @@ export const useGlobalStore = create<GlobalStore>()(
 
         // Initialization
         initialize: async () => {
-          set({ isLoading: true });
+          // اجعل initialize آمن للتكرار (idempotent)
+          const { isLoading, initializedFlag } = get() as any;
+          if (initializedFlag) return; // تم التهيئة مسبقًا
+          set({ isLoading: true, initializedFlag: true } as any);
           
           try {
             // Initialize connection status
@@ -528,7 +531,8 @@ export const useGlobalStore = create<GlobalStore>()(
             console.error('خطأ في تهيئة التطبيق:', error);
             set({ 
               error: 'خطأ في تهيئة التطبيق',
-              isLoading: false 
+              isLoading: false,
+              initializedFlag: false as any
             });
           }
         },

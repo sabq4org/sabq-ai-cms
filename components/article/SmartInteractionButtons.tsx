@@ -38,46 +38,84 @@ export function SmartInteractionButtons({
   const [localStats, setLocalStats] = React.useState(initialStats);
   const [showShareMenu, setShowShareMenu] = React.useState(false);
 
+  // تثبيت العدادات عند التحميل من user-status (إن وُجدت)
+  React.useEffect(() => {
+    const handler = (e: any) => {
+      if (e?.detail?.articleId === articleId) {
+        setLocalStats((prev) => ({
+          ...prev,
+          likes: typeof e.detail.likes === 'number' ? e.detail.likes : prev.likes,
+          saves: typeof e.detail.saves === 'number' ? e.detail.saves : prev.saves,
+        }));
+      }
+    };
+    window.addEventListener('article-interactions-init', handler);
+    return () => window.removeEventListener('article-interactions-init', handler);
+  }, [articleId]);
+
   // معالج الإعجاب
   const handleLike = async () => {
-    const prevLiked = hasLiked;
-    await toggleLike();
+    console.log('🔄 بدء عملية الإعجاب للمقال:', articleId);
+    
     try {
-      // جلب القيم المحدثة من الخادم
-      const res = await fetch('/api/interactions/like', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ articleId, like: !prevLiked }),
-      });
-      if (res.ok) {
-        const json = await res.json();
-        setLocalStats(prev => ({ ...prev, likes: json.likes ?? prev.likes }));
-      } else {
-        setLocalStats(prev => ({ ...prev, likes: prevLiked ? prev.likes - 1 : prev.likes + 1 }));
-      }
-    } catch {
-      setLocalStats(prev => ({ ...prev, likes: prevLiked ? prev.likes - 1 : prev.likes + 1 }));
+      const newLikeStatus = !hasLiked;
+      // تفاؤلي: تحديث فوري + قفل قصير
+      setLocalStats(prev => ({ 
+        ...prev, 
+        likes: newLikeStatus ? prev.likes + 1 : Math.max(0, prev.likes - 1)
+      }));
+      // طلب عبر الهوك (يرسل التوكن) مع requestId لمنع الازدواجية
+      await toggleLike();
+      setLocalStats(prev => ({ 
+        ...prev, 
+        likes: prev.likes
+      }));
+      console.log('✅ تم تبديل الإعجاب محليًا وأُرسل الطلب عبر hook');
+    } catch (error) {
+      console.error('❌ خطأ في الإعجاب:', error);
     }
   };
 
   // معالج الحفظ
   const handleSave = async () => {
-    const prevSaved = hasSaved;
-    await toggleSave();
+    console.log('💾 بدء عملية حفظ المقال:', articleId);
+    
     try {
+      const newSaveStatus = !hasSaved;
+      // إرسال الطلب مع التوكن
       const res = await fetch('/api/bookmarks', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ articleId, saved: !prevSaved }),
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('auth-token') || localStorage.getItem('sabq_at') || localStorage.getItem('access_token') || ''}`
+        },
+        body: JSON.stringify({ 
+          articleId, 
+          saved: newSaveStatus,
+          requestId: (globalThis.crypto?.randomUUID?.() || String(Date.now())) + ':' + articleId
+        }),
       });
+      
+      console.log('📊 استجابة API الحفظ:', res.status);
+      
       if (res.ok) {
-        const json = await res.json();
-        setLocalStats(prev => ({ ...prev, saves: json.saves ?? prev.saves }));
+        const data = await res.json();
+        console.log('✅ نجح الحفظ:', data);
+        
+        // تفاؤلي + تثبيت بالقيمة الفعلية
+        await toggleSave();
+        setLocalStats(prev => ({ 
+          ...prev, 
+          saves: typeof data.saves === 'number' ? data.saves : (newSaveStatus ? prev.saves + 1 : Math.max(0, prev.saves - 1))
+        }));
+        
+        console.log('✅ تم حفظ المقال بنجاح!');
       } else {
-        setLocalStats(prev => ({ ...prev, saves: prevSaved ? prev.saves - 1 : prev.saves + 1 }));
+        const error = await res.text();
+        console.error('❌ فشل الحفظ:', error);
       }
-    } catch {
-      setLocalStats(prev => ({ ...prev, saves: prevSaved ? prev.saves - 1 : prev.saves + 1 }));
+    } catch (error) {
+      console.error('❌ خطأ في الحفظ:', error);
     }
   };
 

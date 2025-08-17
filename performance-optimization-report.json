@@ -1,0 +1,144 @@
+{
+  "timestamp": "2025-08-17T06:08:58.099Z",
+  "beforeOptimization": {
+    "articleFound": false,
+    "userLikeFound": false,
+    "userSaveFound": false,
+    "likesCount": 0,
+    "savesCount": 0,
+    "articleInteractionsCount": 0
+  },
+  "afterOptimization": null,
+  "performanceLog": [
+    {
+      "timestamp": "2025-08-17T06:08:54.412Z",
+      "message": "🏃‍♂️ مقارنة الأداء الشاملة...",
+      "data": null
+    },
+    {
+      "timestamp": "2025-08-17T06:08:54.414Z",
+      "message": "📏 قياس الأداء قبل التحسين:",
+      "data": null
+    },
+    {
+      "timestamp": "2025-08-17T06:08:54.414Z",
+      "message": "🔍 تحليل أداء الاستعلامات الحالية...",
+      "data": null
+    },
+    {
+      "timestamp": "2025-08-17T06:08:54.414Z",
+      "message": "🚀 تنفيذ الاستعلامات المنفصلة...",
+      "data": null
+    },
+    {
+      "timestamp": "2025-08-17T06:08:55.476Z",
+      "message": "User Save Query: 1061ms",
+      "data": null
+    },
+    {
+      "timestamp": "2025-08-17T06:08:56.256Z",
+      "message": "Saves Count Query: 1841ms",
+      "data": null
+    },
+    {
+      "timestamp": "2025-08-17T06:08:56.263Z",
+      "message": "User Like Query: 1848ms",
+      "data": null
+    },
+    {
+      "timestamp": "2025-08-17T06:08:56.264Z",
+      "message": "Likes Count Query: 1849ms",
+      "data": null
+    },
+    {
+      "timestamp": "2025-08-17T06:08:56.264Z",
+      "message": "Article Query: 1850ms",
+      "data": null
+    },
+    {
+      "timestamp": "2025-08-17T06:08:56.264Z",
+      "message": "✅ نتائج الاستعلامات المنفصلة:",
+      "data": {
+        "articleFound": false,
+        "userLikeFound": false,
+        "userSaveFound": false,
+        "likesCount": 0,
+        "savesCount": 0,
+        "articleInteractionsCount": 0
+      }
+    },
+    {
+      "timestamp": "2025-08-17T06:08:56.265Z",
+      "message": "📈 إنشاء فهارس محسنة...",
+      "data": null
+    },
+    {
+      "timestamp": "2025-08-17T06:08:56.934Z",
+      "message": "✅ تم إنشاء الفهارس الإضافية بنجاح",
+      "data": null
+    },
+    {
+      "timestamp": "2025-08-17T06:08:56.934Z",
+      "message": "📊 تحديث إحصائيات الجداول...",
+      "data": null
+    },
+    {
+      "timestamp": "2025-08-17T06:08:57.430Z",
+      "message": "✅ تم تحديث الإحصائيات",
+      "data": null
+    },
+    {
+      "timestamp": "2025-08-17T06:08:57.430Z",
+      "message": "🧹 تنظيف التفاعلات المكررة...",
+      "data": null
+    },
+    {
+      "timestamp": "2025-08-17T06:08:57.874Z",
+      "message": "✅ لم يتم العثور على تفاعلات مكررة",
+      "data": null
+    },
+    {
+      "timestamp": "2025-08-17T06:08:57.874Z",
+      "message": "📏 قياس الأداء بعد التحسين:",
+      "data": null
+    },
+    {
+      "timestamp": "2025-08-17T06:08:57.875Z",
+      "message": "⚡ اختبار الاستعلام الموحد المحسن...",
+      "data": null
+    },
+    {
+      "timestamp": "2025-08-17T06:08:58.097Z",
+      "message": "Optimized Single Query: 222ms",
+      "data": null
+    },
+    {
+      "timestamp": "2025-08-17T06:08:58.097Z",
+      "message": "✅ نتيجة الاستعلام الموحد المحسن:",
+      "data": null
+    },
+    {
+      "timestamp": "2025-08-17T06:08:58.097Z",
+      "message": "🚀 إنشاء API سريع محسن...",
+      "data": null
+    },
+    {
+      "timestamp": "2025-08-17T06:08:58.099Z",
+      "message": "✅ تم إنشاء API سريع في /app/api/interactions/fast/route.ts",
+      "data": null
+    }
+  ],
+  "summary": {
+    "totalOperations": 22,
+    "optimizationsApplied": [
+      "Fixed column names (type instead of interaction_type)",
+      "Created optimized composite indexes",
+      "Updated table statistics",
+      "Removed duplicate interactions",
+      "Created fast single-query API with caching",
+      "Added proper error handling with request IDs",
+      "Implemented transaction-based updates"
+    ],
+    "improvements": "Could not calculate improvements"
+  }
+}

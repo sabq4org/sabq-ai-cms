@@ -1,0 +1,58 @@
+/* 📏 إصلاح المسافات بين الهيدر والمحتوى */
+
+/* إضافة مسافة مريحة بين الهيدر والمحتوى */
+.page-content-wrapper {
+  padding-top: calc(var(--header-height) + 1.5rem) !important; /* هيدر + 24px مسافة إضافية */
+}
+
+@media (max-width: 768px) {
+  .page-content-wrapper {
+    padding-top: calc(var(--mobile-header-height) + 1rem) !important; /* هيدر موبايل + 16px مسافة إضافية */
+  }
+}
+
+/* مسافة خاصة للأخبار المميزة في النسخة الخفيفة */
+@media (max-width: 768px) {
+  .featured-news-section,
+  .featured-news-carousel,
+  .featured-news-mobile {
+    margin-top: 0.5rem !important; /* مسافة إضافية صغيرة */
+  }
+  
+  /* إصلاح مسافة شريط الإحصائيات */
+  .compact-stats-bar,
+  .mobile-stats-bar {
+    margin-top: 0.25rem !important;
+  }
+}
+
+/* مسافة للصفحة الرئيسية */
+.homepage-wrapper {
+  padding-top: 0 !important; /* المسافة تأتي من page-content-wrapper */
+}
+
+/* مسافة للصفحات الداخلية */
+.article-page,
+.category-page,
+.author-page {
+  padding-top: 0 !important; /* المسافة تأتي من page-content-wrapper */
+}
+
+/* تأكيد المسافة للعناصر الأولى */
+.page-content-wrapper > *:first-child {
+  margin-top: 0 !important; /* لا نضاعف المسافة */
+}
+
+/* مسافة محسنة للشاشات الكبيرة */
+@media (min-width: 1024px) {
+  .page-content-wrapper {
+    padding-top: calc(var(--header-height) + 2rem) !important; /* 32px مسافة إضافية للديسكتوب */
+  }
+}
+
+/* مسافة محسنة للشاشات الصغيرة جداً */
+@media (max-width: 480px) {
+  .page-content-wrapper {
+    padding-top: calc(var(--mobile-header-height) + 0.75rem) !important; /* 12px للشاشات الصغيرة */
+  }
+}

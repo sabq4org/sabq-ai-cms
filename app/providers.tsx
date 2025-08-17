@@ -6,6 +6,11 @@ import { ThemeProvider } from '@/contexts/ThemeContext';
 import { DarkModeProvider } from '@/contexts/DarkModeContext';
 import { ThemeManagerProvider } from '@/contexts/ThemeManagerContext';
 import FilteredToaster from '@/components/FilteredToaster';
+import NextThemesProvider from './theme-provider'
+import { UserProvider } from '@/contexts/UserContext'
+import { QueryProvider } from './query-provider'
+import { Toaster } from 'react-hot-toast'
+// import UserInteractionInitializer from '@/components/UserInteractionInitializer';
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
@@ -13,6 +18,7 @@ export function Providers({ children }: { children: ReactNode }) {
       <DarkModeProvider>
         <ThemeManagerProvider>
           <AuthProvider>
+            {/* <UserInteractionInitializer /> */}
             {children}
             <FilteredToaster />
           </AuthProvider>

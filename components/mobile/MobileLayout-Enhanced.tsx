@@ -167,9 +167,9 @@ const MobileLayout = memo(({
       )}
       
       {/* المحتوى الرئيسي */}
-      <main className="mobile-main-content relative">
+      <main className="mobile-main-content relative" style={{ paddingTop: showHeader ? '8px' : undefined }}>
         {isMobile ? (
-          <div className={`${layoutConfig.content} ${layoutConfig.padding}`}>
+          <div className={`${layoutConfig.content} ${layoutConfig.padding} mt-2`}>
             <MobileOptimizer>
               {children}
             </MobileOptimizer>
