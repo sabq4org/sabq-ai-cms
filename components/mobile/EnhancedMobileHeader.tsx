@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Menu, Search, Bell, User, X, Sun, Moon } from 'lucide-react';
+import { Menu, Search, Bell, User, X, Sun, Moon, Activity } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import SabqLogo from '@/components/SabqLogo';
@@ -119,6 +119,20 @@ export default function EnhancedMobileHeader({
                   <Search className="w-5 h-5" />
                 </button>
               )}
+
+              {/* اللحظة بلحظة */}
+              <Link
+                href="/moment-by-moment"
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                aria-label="اللحظة بلحظة"
+              >
+                <Activity className="w-5 h-5 text-red-600 dark:text-red-400" />
+                {newEventsCount > 0 && (
+                  <span className="inline-flex items-center justify-center min-w-[16px] h-[16px] px-1 text-[10px] leading-none rounded-full bg-red-500 text-white ml-1">
+                    {newEventsCount > 9 ? '9+' : newEventsCount}
+                  </span>
+                )}
+              </Link>
 
               {/* الإشعارات */}
               {showNotifications && (
