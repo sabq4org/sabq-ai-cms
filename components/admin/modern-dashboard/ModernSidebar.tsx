@@ -510,19 +510,17 @@ export default function ModernSidebar({
           marginRight: level > 0 ? '16px' : '0',
           background: active ? 'hsl(var(--accent))' : 'transparent',
           color: active ? 'white' : 'hsl(var(--fg))',
-          border: active ? '1px solid hsl(var(--accent))' : '1px solid transparent'
+          border: 'none'
         }}
         onMouseEnter={(e) => {
           if (!active) {
             e.currentTarget.style.background = 'hsl(var(--accent) / 0.1)';
-            e.currentTarget.style.borderColor = 'hsl(var(--accent) / 0.3)';
             e.currentTarget.style.color = 'hsl(var(--accent))';
           }
         }}
         onMouseLeave={(e) => {
           if (!active) {
             e.currentTarget.style.background = 'transparent';
-            e.currentTarget.style.borderColor = 'transparent';
             e.currentTarget.style.color = 'hsl(var(--fg))';
           }
         }}
@@ -592,7 +590,7 @@ export default function ModernSidebar({
                 style={{
                   background: 'hsl(var(--bg-card))',
                   color: 'hsl(var(--fg))',
-                  border: '1px solid hsl(var(--line))',
+
                   fontWeight: '500'
                 }}
               >
