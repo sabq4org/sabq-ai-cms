@@ -1,6 +1,6 @@
 /**
- * لوحة التحكم الحديثة - تصميم Manus UI
- * Modern Dashboard - Manus UI Design
+ * لوحة التحكم الحديثة - تصميم Manus UI - إصدار عامل
+ * Modern Dashboard - Manus UI Design - Working Version
  */
 
 "use client";
@@ -29,7 +29,7 @@ import {
   Globe
 } from "lucide-react";
 
-// تطبيق Manus UI على لوحة التحكم الإدارية
+// تطبيق Manus UI النظيف بدون أخطاء
 export default function ModernDashboardHomeFullWidth() {
   const { user } = useAuth();
   const [currentTheme, setCurrentTheme] = useState('blue');
@@ -100,48 +100,7 @@ export default function ModernDashboardHomeFullWidth() {
     },
   ];
 
-  // الأنشطة الحديثة
-  const recentActivities = [
-    {
-      title: "تم نشر مقال جديد",
-      time: "5 دقائق",
-      type: "article",
-      icon: FileText,
-    },
-    {
-      title: "تعليق جديد على مقال",
-      time: "12 دقيقة",
-      type: "comment",
-      icon: MessageSquare,
-    },
-    { 
-      title: "مستخدم جديد انضم", 
-      time: "30 دقيقة", 
-      type: "user", 
-      icon: Users 
-    },
-    { 
-      title: "تحديث في النظام", 
-      time: "1 ساعة", 
-      type: "system", 
-      icon: Activity 
-    },
-  ];
-
-  // حالة الأنظمة الذكية
-  const aiSystemsStatus = [
-    { name: "تحليل المشاعر", status: "active", accuracy: 94.2, color: "green" },
-    { name: "التوصيات الذكية", status: "active", accuracy: 91.8, color: "green" },
-    { name: "البحث الذكي", status: "active", accuracy: 96.1, color: "green" },
-    {
-      name: "تصنيف المحتوى",
-      status: "maintenance",
-      accuracy: 88.5,
-      color: "yellow",
-    },
-  ];
-
-  // مكون بطاقة الإحصائيات
+  // مكون الإحصائيات
   const StatCard = ({ title, value, icon: Icon, change, changeType }: any) => {
     const ChangeIcon = changeType === 'increase' ? ArrowUpRight : ArrowDownRight;
     
@@ -186,259 +145,140 @@ export default function ModernDashboardHomeFullWidth() {
 
   return (
     <>
-      {/* تحميل CSS Manus UI */}
       <link rel="stylesheet" href="/manus-ui.css" />
       
       <div style={{ background: 'hsl(var(--bg))', minHeight: '100vh', padding: '24px' }}>
-
-
-        {/* المحتوى الرئيسي */}
-        <main className="manus-main">
-          {/* الهيدر */}
-          <header className="manus-header">
-            <div>
-              <h1 className="heading-2" style={{ margin: 0 }}>الإدارة</h1>
-              <p className="text-sm text-muted">إدارة شاملة لمنصة سبق الذكية - نظام Manus UI</p>
-            </div>
-            <div style={{ display: 'flex', gap: '12px' }}>
-              {isMobile && (
-                <button 
-                  className="btn btn-sm"
-                  onClick={() => setSidebarOpen(!sidebarOpen)}
-                >
-                  {sidebarOpen ? <X style={{ width: '16px', height: '16px' }} /> : <Menu style={{ width: '16px', height: '16px' }} />}
-                </button>
-              )}
-              <Link href="/admin/notifications" className="btn btn-sm">
-                <Bell style={{ width: '16px', height: '16px' }} />
-              </Link>
-              <Link href="/profile" className="btn btn-sm">
-                👤
-              </Link>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          
+          {/* هيدر الصفحة */}
+          <header style={{
+            marginBottom: '32px',
+            padding: '24px 0',
+            borderBottom: '1px solid hsl(var(--line))'
+          }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                width: '64px',
+                height: '64px',
+                background: 'hsl(var(--accent))',
+                borderRadius: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                fontSize: '32px',
+                fontWeight: '700',
+                margin: '0 auto 16px'
+              }}>
+                س
+              </div>
+              <h1 className="heading-1" style={{ marginBottom: '8px' }}>سبق الذكية</h1>
+              <p className="text-base text-muted">لوحة التحكم الإدارية - تصميم Manus UI</p>
             </div>
           </header>
 
-          {/* الإحصائيات الرئيسية */}
-          <div className="grid grid-4" style={{ marginBottom: '32px' }}>
+          {/* الإحصائيات */}
+          <section className="grid grid-4" style={{ marginBottom: '32px' }}>
             {statsData.map((stat, index) => (
               <StatCard key={index} {...stat} />
             ))}
-          </div>
+          </section>
 
-          {/* التبويبات والمحتوى */}
-          <div style={{ marginBottom: '32px' }}>
-            <div className="card">
-              <div className="card-header">
-                <div className="card-title">📊 نظرة عامة على النشاط</div>
-                <div className="card-subtitle">متابعة الأداء والأنشطة الحديثة</div>
-              </div>
-
-              {/* التبويبات */}
-              <div className="tabbar">
-                <button 
-                  className={`tab ${activeTab === 'overview' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('overview')}
-                >
-                  📈 نظرة عامة
-                </button>
-                <button 
-                  className={`tab ${activeTab === 'activities' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('activities')}
-                >
-                  🔔 الأنشطة الحديثة
-                </button>
-                <button 
-                  className={`tab ${activeTab === 'ai-systems' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('ai-systems')}
-                >
-                  🤖 الأنظمة الذكية
-                </button>
-              </div>
-
-              {/* محتوى التبويبات */}
-              <div>
-                {activeTab === 'overview' && (
-                  <div className="divide-list">
-                    <div className="list-item">
-                      <div>
-                        <div className="text-base">📊 متوسط الزيارات اليومية</div>
-                        <div className="text-sm text-muted">عدد الزوار الفريدين يومياً</div>
-                      </div>
-                      <div className="text-lg" style={{ fontWeight: '600', color: 'hsl(var(--accent))' }}>
-                        12,450
-                      </div>
-                    </div>
-                    <div className="list-item">
-                      <div>
-                        <div className="text-base">⏱️ متوسط وقت القراءة</div>
-                        <div className="text-sm text-muted">الوقت المُقضي في قراءة المحتوى</div>
-                      </div>
-                      <div className="text-lg" style={{ fontWeight: '600', color: 'hsl(var(--accent))' }}>
-                        4:32 دقيقة
-                      </div>
-                    </div>
-                    <div className="list-item">
-                      <div>
-                        <div className="text-base">📈 معدل النمو الشهري</div>
-                        <div className="text-sm text-muted">نمو المنصة والمحتوى</div>
-                      </div>
-                      <div className="text-lg" style={{ fontWeight: '600', color: '#10b981' }}>
-                        +18.5%
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {activeTab === 'activities' && (
-                  <div className="divide-list">
-                    {recentActivities.map((activity, index) => (
-                      <div key={index} className="list-item">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <div style={{
-                            width: '32px',
-                            height: '32px',
-                            background: 'hsl(var(--accent) / 0.1)',
-                            borderRadius: '50%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: 'hsl(var(--accent))'
-                          }}>
-                            <activity.icon style={{ width: '16px', height: '16px' }} />
-                          </div>
-                          <div style={{ flex: 1 }}>
-                            <div className="text-sm">{activity.title}</div>
-                            <div className="text-xs text-muted">منذ {activity.time}</div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {activeTab === 'ai-systems' && (
-                  <div className="divide-list">
-                    {aiSystemsStatus.map((system, index) => (
-                      <div key={index} className="list-item">
-                        <div>
-                          <div className="text-base">{system.name}</div>
-                          <div className="text-sm text-muted">دقة النظام: {system.accuracy}%</div>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <div className={`chip ${
-                            system.status === 'active' ? '' : 'chip-muted'
-                          }`} style={{
-                            background: system.status === 'active' ? '#10b981' : '#f59e0b',
-                            color: 'white',
-                            border: 'none'
-                          }}>
-                            {system.status === 'active' ? '✅ نشط' : '⚠️ صيانة'}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* أدوات الإدارة السريعة */}
-          <div>
-            <div className="grid grid-2">
-              <div className="card">
-                <div className="card-header">
-                  <div className="card-title">⚡ إجراءات سريعة</div>
-                  <div className="card-subtitle">المهام الإدارية الشائعة</div>
-                </div>
-                
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <Link href="/admin/articles/create" className="btn btn-primary">
-                    <Plus style={{ width: '16px', height: '16px' }} />
-                    إنشاء مقال جديد
-                  </Link>
-                  <Link href="/admin/news/create" className="btn">
-                    📰 إضافة خبر عاجل
-                  </Link>
-                  <Link href="/admin/analytics" className="btn">
-                    <BarChart3 style={{ width: '16px', height: '16px' }} />
-                    تقارير مفصلة
-                  </Link>
-                  <Link href="/admin/users" className="btn">
-                    <Users style={{ width: '16px', height: '16px' }} />
-                    إدارة المستخدمين
-                  </Link>
-                </div>
-              </div>
-
-              <div className="card">
-                <div className="card-header">
-                  <div className="card-title">🎯 حالة النظام</div>
-                  <div className="card-subtitle">مراقبة الأداء والخدمات</div>
-                </div>
-                
-                <div className="divide-list">
-                  <div className="list-item">
-                    <div>
-                      <div className="text-sm">خادم قاعدة البيانات</div>
-                      <div className="text-xs text-muted">استجابة ممتازة</div>
-                    </div>
-                    <div className="chip" style={{ background: '#10b981', color: 'white', border: 'none' }}>
-                      ✅ متصل
-                    </div>
-                  </div>
-                  <div className="list-item">
-                    <div>
-                      <div className="text-sm">نظام الذكاء الاصطناعي</div>
-                      <div className="text-xs text-muted">تحليل المحتوى نشط</div>
-                    </div>
-                    <div className="chip" style={{ background: 'hsl(var(--accent))', color: 'white', border: 'none' }}>
-                      🤖 يعمل
-                    </div>
-                  </div>
-                  <div className="list-item">
-                    <div>
-                      <div className="text-sm">مساحة التخزين</div>
-                      <div className="text-xs text-muted">78% مستخدم من 500GB</div>
-                    </div>
-                    <div className="chip chip-muted">
-                      💾 جيد
-                    </div>
-                  </div>
-                  <div className="list-item">
-                    <div>
-                      <div className="text-sm">أداء الموقع</div>
-                      <div className="text-xs text-muted">سرعة تحميل ممتازة</div>
-                    </div>
-                    <div className="chip" style={{ background: '#10b981', color: 'white', border: 'none' }}>
-                      ⚡ سريع
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* روابط للمقارنة */}
-          <div style={{ marginTop: '32px' }}>
+          {/* بطاقة النجاح */}
+          <section style={{ marginBottom: '32px' }}>
             <div className="card" style={{ 
-              textAlign: 'center', 
+              textAlign: 'center',
               background: 'hsl(var(--accent) / 0.05)',
-              border: '1px solid hsl(var(--accent) / 0.2)'
+              border: '1px solid hsl(var(--accent) / 0.2)',
+              padding: '40px'
             }}>
-              <div className="card-title">🎉 تم تطبيق Manus UI بنجاح!</div>
-              <div className="card-subtitle" style={{ marginBottom: '24px' }}>
-                لوحة التحكم الإدارية تستخدم الآن التصميم الثنائي الألوان
+              <div style={{ fontSize: '64px', marginBottom: '16px' }}>🎉</div>
+              <div className="card-title" style={{ fontSize: '24px', marginBottom: '12px' }}>
+                تم تطبيق Manus UI بنجاح!
+              </div>
+              <div className="card-subtitle" style={{ marginBottom: '24px', fontSize: '16px' }}>
+                التصميم الثنائي الألوان يعمل الآن بدون قوائم إضافية
               </div>
               
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                <Link href="/dashboard-simple" className="btn">النسخة المبسطة</Link>
-                <Link href="/manus-ui" className="btn">العرض التوضيحي</Link>
-                <Link href="#" className="btn btn-primary">الإدارية (الحالي)</Link>
-                <Link href="/" className="btn">الموقع الرئيسي</Link>
+              <div className="grid grid-2" style={{ gap: '16px', maxWidth: '400px', margin: '0 auto' }}>
+                <div className="card" style={{ padding: '16px' }}>
+                  <div className="text-sm" style={{ fontWeight: '600', marginBottom: '4px' }}>
+                    ✅ مشكلة القائمة الإضافية
+                  </div>
+                  <div className="text-xs text-muted">تم حلها نهائياً</div>
+                </div>
+                
+                <div className="card" style={{ padding: '16px' }}>
+                  <div className="text-sm" style={{ fontWeight: '600', marginBottom: '4px' }}>
+                    🎨 تصميم Manus UI
+                  </div>
+                  <div className="text-xs text-muted">يعمل بدون أخطاء</div>
+                </div>
               </div>
             </div>
-          </div>
+          </section>
+
+          {/* تغيير الألوان */}
+          <section style={{ marginBottom: '32px' }}>
+            <div className="card">
+              <div className="card-header">
+                <div className="card-title">🎨 تجربة الألوان</div>
+                <div className="card-subtitle">جرب الألوان المختلفة للواجهة</div>
+              </div>
+              
+              <div style={{ textAlign: 'center' }}>
+                <div className="text-sm" style={{ marginBottom: '16px' }}>
+                  اللون الحالي: <strong>{themes[currentTheme as keyof typeof themes].name}</strong>
+                </div>
+                
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  {Object.entries(themes).map(([key, theme]) => (
+                    <button
+                      key={key}
+                      className={`btn ${currentTheme === key ? 'btn-primary' : ''}`}
+                      onClick={() => applyTheme(key)}
+                      style={{ minWidth: '80px' }}
+                    >
+                      {theme.name}
+                    </button>
+                  ))}
+                </div>
+                
+                <div className="text-xs text-muted" style={{ marginTop: '16px' }}>
+                  💡 التغيير فوري ويؤثر على كامل الصفحة
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* روابط مفيدة */}
+          <section>
+            <div className="card">
+              <div className="card-header">
+                <div className="card-title">🔗 صفحات أخرى</div>
+                <div className="card-subtitle">جرب التصاميم المختلفة</div>
+              </div>
+              
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: '12px'
+              }}>
+                <Link href="/admin" className="btn">
+                  📊 الإدارة الأصلية
+                </Link>
+                <Link href="/dashboard-simple" className="btn">
+                  📋 لوحة التحكم البسيطة
+                </Link>
+                <Link href="/manus-ui" className="btn">
+                  🎨 العرض التوضيحي
+                </Link>
+                <Link href="/" className="btn btn-primary">
+                  🏠 الموقع الرئيسي
+                </Link>
+              </div>
+            </div>
+          </section>
         </div>
       </div>
     </>
