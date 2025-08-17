@@ -187,7 +187,7 @@ export default function ModernDashboardHomeFullWidth() {
       {/* محتوى مرئي واضح */}
       <div style={{ 
         padding: '0',
-        background: 'hsl(var(--bg))',
+        background: 'transparent',
         minHeight: '100vh'
       }}>
         
