@@ -236,12 +236,12 @@ export async function POST(request: NextRequest) {
 
       // إشعار المستخدمين المهتمين بالتصنيف (ذكاء) عند النشر مباشرة
       try {
-        if (article.categories?.id) {
+        if (article.categories?.id || article.category_id) {
           const { SmartNotificationEngine } = await import('@/lib/notifications/smart-engine');
           // غير متزامن حتى لا يؤخر الاستجابة
           setImmediate(() => {
             SmartNotificationEngine
-              .notifyNewArticleInCategory(article.id, article.categories!.id)
+              .notifyNewArticleInCategory(article.id, (article as any).category_id || (article as any).categories?.id)
               .catch((e: any) => console.warn('⚠️ فشل إشعار المهتمين:', e?.message || e));
           });
         }
