@@ -59,7 +59,7 @@ export default function DashboardLayout({
       <div style={{
         minHeight: '100vh',
         background: 'hsl(var(--bg))',
-        paddingTop: '70px',
+        paddingTop: '56px',
         display: 'flex'
       }}>
         
@@ -67,13 +67,13 @@ export default function DashboardLayout({
         {!isMobile && (
           <aside style={{
             position: 'fixed',
-            top: '70px',
+            top: '56px',
             right: 0,
             width: sidebarOpen ? '280px' : '80px',
-            height: 'calc(100vh - 70px)',
+            height: 'calc(100vh - 56px)',
             background: 'hsl(var(--bg))',
             borderLeft: '1px solid hsl(var(--line))',
-            padding: '24px 16px',
+            padding: '16px 12px',
             overflowY: 'auto',
             zIndex: 900,
             transition: 'width 0.3s ease'
@@ -86,13 +86,13 @@ export default function DashboardLayout({
         {isMobile && sidebarOpen && (
           <aside style={{
             position: 'fixed',
-            top: '70px',
+            top: '56px',
             right: 0,
             width: '280px',
-            height: 'calc(100vh - 70px)',
+            height: 'calc(100vh - 56px)',
             background: 'hsl(var(--bg))',
             borderLeft: '1px solid hsl(var(--line))',
-            padding: '24px 16px',
+            padding: '16px 12px',
             overflowY: 'auto',
             zIndex: 1000
           }}>
@@ -104,8 +104,8 @@ export default function DashboardLayout({
         <main style={{
           flex: 1,
           marginRight: !isMobile ? (sidebarOpen ? '280px' : '80px') : '0',
-          padding: '12px 24px 24px 24px',
-          minHeight: 'calc(100vh - 70px)',
+          padding: '8px 20px 20px 20px',
+          minHeight: 'calc(100vh - 56px)',
           transition: 'margin-right 0.3s ease'
         }}>
           <div className={cn("fade-in", className)}>
@@ -118,7 +118,7 @@ export default function DashboardLayout({
           <div
             style={{
               position: 'fixed',
-              top: '70px',
+              top: '56px',
               left: 0,
               right: 0,
               bottom: 0,
