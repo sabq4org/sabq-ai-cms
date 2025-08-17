@@ -58,7 +58,7 @@ export default function DashboardLayout({
       {/* التخطيط الرئيسي */}
       <div style={{
         minHeight: '100vh',
-        background: 'hsl(var(--bg))',
+        background: 'var(--bg-gradient)',
         paddingTop: '0px',
         display: 'flex'
       }}>
