@@ -1739,7 +1739,6 @@ function AdminNewsPageContent() {
               )}
             </div>
           </div>
-        </div>
       </TooltipProvider>
     </>
   );
