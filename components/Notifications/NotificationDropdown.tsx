@@ -8,6 +8,7 @@ import { BellIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { BellIcon as BellSolidIcon } from '@heroicons/react/24/solid';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSmartNotifications } from '@/hooks/useSmartNotifications';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface NotificationDropdownProps {
   className?: string;
@@ -19,6 +20,7 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
   const anchorRef = useRef<HTMLButtonElement>(null);
   const [position, setPosition] = useState<{ top: number; right: number }>({ top: 0, right: 16 });
   const [hiddenNotifications, setHiddenNotifications] = useState<Set<string>>(new Set());
+  const { user } = useAuth();
 
   const {
     notifications,
@@ -31,6 +33,7 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
     markAllAsRead,
     loadMore,
     clearError,
+    clearAllNotifications,
     isConnected
   } = useSmartNotifications();
 
@@ -47,6 +50,17 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
       }
     }
   }, [isOpen, notifications.length, fetchNotifications]);
+
+  /**
+   * تنظيف الإشعارات عند تسجيل الخروج
+   */
+  useEffect(() => {
+    if (!user) {
+      // المستخدم غير مسجل، امسح جميع الإشعارات
+      clearAllNotifications();
+      setIsOpen(false);
+    }
+  }, [user, clearAllNotifications]);
 
   /**
    * إغلاق القائمة عند النقر خارجها
@@ -132,6 +146,11 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
       day: 'numeric'
     });
   };
+
+  // لا تعرض الإشعارات للمستخدمين غير المسجلين
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>

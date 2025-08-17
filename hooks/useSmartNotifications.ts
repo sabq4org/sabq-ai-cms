@@ -411,6 +411,22 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
     return icons[type] || '🔔';
   };
 
+  /**
+   * تنظيف جميع الإشعارات (عند تسجيل الخروج)
+   */
+  const clearAllNotifications = useCallback(() => {
+    setNotifications([]);
+    setUnreadCount(0);
+    setStats({});
+    setError(null);
+    setPage(1);
+    setHasMore(false);
+    // قطع الاتصال بـ WebSocket
+    if (wsRef.current) {
+      disconnectFromNotifications();
+    }
+  }, [disconnectFromNotifications]);
+
   return {
     notifications,
     unreadCount,
@@ -426,6 +442,7 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
     sendNotification,
     clearError,
     loadMore,
+    clearAllNotifications,
     // Connection
     isConnected,
     connectToNotifications,

@@ -2,6 +2,7 @@
 import { Bell } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface NotiItem {
   id: string;
@@ -16,6 +17,7 @@ export default function NotificationBell() {
   const [items, setItems] = useState<NotiItem[]>([]);
   const [unread, setUnread] = useState(0);
   const [open, setOpen] = useState(false);
+  const { user } = useAuth();
   const markAll = async () => {
     try {
       const r = await fetch('/api/notifications/mark-read', {
@@ -65,10 +67,22 @@ export default function NotificationBell() {
   };
 
   useEffect(() => {
-    fetchNotifications();
-    const id = setInterval(fetchNotifications, 5000);
-    return () => clearInterval(id);
-  }, []);
+    if (user) {
+      fetchNotifications();
+      const id = setInterval(fetchNotifications, 5000);
+      return () => clearInterval(id);
+    } else {
+      // المستخدم غير مسجل، امسح جميع الإشعارات
+      setItems([]);
+      setUnread(0);
+      setOpen(false);
+    }
+  }, [user]);
+
+  // لا تعرض الإشعارات للمستخدمين غير المسجلين
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="relative rtl:text-right">
