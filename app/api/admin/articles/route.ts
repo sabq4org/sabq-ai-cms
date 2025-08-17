@@ -233,6 +233,21 @@ export async function POST(request: NextRequest) {
         console.error('⚠️ خطأ في مسح الكاش:', cacheError);
         // لا نفشل العملية بسبب الكاش
       }
+
+      // إشعار المستخدمين المهتمين بالتصنيف (ذكاء) عند النشر مباشرة
+      try {
+        if (article.categories?.id) {
+          const { SmartNotificationEngine } = await import('@/lib/notifications/smart-engine');
+          // غير متزامن حتى لا يؤخر الاستجابة
+          setImmediate(() => {
+            SmartNotificationEngine
+              .notifyNewArticleInCategory(article.id, article.categories!.id)
+              .catch((e: any) => console.warn('⚠️ فشل إشعار المهتمين:', e?.message || e));
+          });
+        }
+      } catch (notifyErr) {
+        console.warn('⚠️ خطأ أثناء تفعيل إشعار الاهتمامات:', (notifyErr as any)?.message || notifyErr);
+      }
     }
     
     return NextResponse.json({
