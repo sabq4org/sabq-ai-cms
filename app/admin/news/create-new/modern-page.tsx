@@ -551,7 +551,8 @@ export default function ModernCreateNewsPage() {
         author_id: formData.authorId,
         category_id: formData.categoryId,
         featured_image: formData.featuredImage,
-        keywords: formData.keywords,
+        keywords: formData.keywords, // للتخزين في metadata
+        seo_keywords: formData.keywords.length > 0 ? formData.keywords.join(", ") : null, // للعرض في الصفحة
         seo_title: formData.seoTitle || formData.title,
         seo_description: formData.seoDescription || formData.excerpt,
         is_breaking: formData.isBreaking,
@@ -559,7 +560,8 @@ export default function ModernCreateNewsPage() {
         // إذا كانت جدولة، لا نرسل published_at ولا نجبر الحالة على published
         status: action === "publish" ? (isScheduled ? "draft" : "published") : "draft",
         metadata: {
-          subtitle: formData.subtitle
+          subtitle: formData.subtitle,
+          keywords: formData.keywords // حفظ المصفوفة أيضاً في metadata
         }
       };
 

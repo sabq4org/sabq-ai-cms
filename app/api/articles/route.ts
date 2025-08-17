@@ -412,7 +412,7 @@ export async function POST(request: NextRequest) {
       featured_image: data.featured_image || null,
       seo_title: data.seo_title || null,
       seo_description: data.seo_description || null,
-      seo_keywords: data.seo_keywords || null,
+      seo_keywords: data.seo_keywords || (data.keywords && Array.isArray(data.keywords) ? data.keywords.join(", ") : null),
       created_at: new Date(),
       updated_at: new Date(),
       // سيتم تحديد published_at و scheduled_for أدناه حسب منطق الجدولة
