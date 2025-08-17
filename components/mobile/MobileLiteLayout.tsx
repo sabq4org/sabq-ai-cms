@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { User } from 'lucide-react';
+import { User, Menu, X } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import EnhancedDarkModeToggle from './EnhancedDarkModeToggle';
@@ -32,6 +32,7 @@ export default function MobileLiteLayout({
   const [isLoaded, setIsLoaded] = useState(false);
   const headerRef = useRef<HTMLElement | null>(null);
   const [headerHeight, setHeaderHeight] = useState<number>(0);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -81,33 +82,56 @@ export default function MobileLiteLayout({
       {showHeader && (
         <header className="mobile-lite-header" ref={headerRef}>
           <div className="header-content">
+            {/* زر القائمة الجانبية */}
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="menu-button"
+              aria-label="فتح القائمة"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+            
+            {/* الشعار */}
             <div className="header-brand">
               <h1 className="brand-title">سبق الذكية</h1>
               <span className="brand-subtitle">النسخة الخفيفة</span>
             </div>
             
             <div className="header-actions">
-              {/* الإشعارات الذكية الفعلية */}
+              {/* الإشعارات الذكية */}
               <NotificationBell />
-              {/* الاكتفاء بصورة الملف الشخصي بدون الاسم */}
-              <Link
-                href={user ? '/profile' : '/login'}
-                aria-label={user ? 'الملف الشخصي' : 'تسجيل الدخول'}
-                className="avatar-button"
-              >
-                {user?.avatar ? (
-                  <Image
-                    src={user.avatar}
-                    alt={user.name || 'الملف الشخصي'}
-                    width={36}
-                    height={36}
-                    className="avatar-img"
-                    unoptimized
-                  />
-                ) : (
-                  <User className="avatar-fallback" />
-                )}
-              </Link>
+              
+              {/* صورة الملف الشخصي فقط */}
+              {user ? (
+                <Link
+                  href="/profile"
+                  aria-label="الملف الشخصي"
+                  className="avatar-button"
+                >
+                  {user.avatar ? (
+                    <Image
+                      src={user.avatar}
+                      alt="الملف الشخصي"
+                      width={36}
+                      height={36}
+                      className="avatar-img"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="avatar-fallback-container">
+                      <User className="w-5 h-5" />
+                    </div>
+                  )}
+                </Link>
+              ) : (
+                <Link
+                  href="/login"
+                  aria-label="تسجيل الدخول"
+                  className="avatar-button"
+                >
+                  <User className="w-5 h-5" />
+                </Link>
+              )}
             </div>
           </div>
           
@@ -116,6 +140,56 @@ export default function MobileLiteLayout({
             <div className="progress-indicator" />
           </div>
         </header>
+      )}
+
+      {/* القائمة الجانبية */}
+      {sidebarOpen && (
+        <>
+          <div 
+            className="sidebar-overlay"
+            onClick={() => setSidebarOpen(false)}
+          />
+          <aside className="mobile-sidebar">
+            <div className="sidebar-header">
+              <h2 className="sidebar-title">القائمة الرئيسية</h2>
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="close-button"
+                aria-label="إغلاق القائمة"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <nav className="sidebar-nav">
+              <Link href="/" className="sidebar-link" onClick={() => setSidebarOpen(false)}>
+                الرئيسية
+              </Link>
+              <Link href="/categories" className="sidebar-link" onClick={() => setSidebarOpen(false)}>
+                الأقسام
+              </Link>
+              <Link href="/for-you" className="sidebar-link" onClick={() => setSidebarOpen(false)}>
+                لك
+              </Link>
+              <Link href="/trends" className="sidebar-link" onClick={() => setSidebarOpen(false)}>
+                الأكثر تداولاً
+              </Link>
+              <Link href="/audio-archive" className="sidebar-link" onClick={() => setSidebarOpen(false)}>
+                النشرات الصوتية
+              </Link>
+              {user && (
+                <>
+                  <hr className="sidebar-divider" />
+                  <Link href="/profile" className="sidebar-link" onClick={() => setSidebarOpen(false)}>
+                    الملف الشخصي
+                  </Link>
+                  <Link href="/settings" className="sidebar-link" onClick={() => setSidebarOpen(false)}>
+                    الإعدادات
+                  </Link>
+                </>
+              )}
+            </nav>
+          </aside>
+        </>
       )}
 
       {/* المحتوى الرئيسي */}
@@ -201,23 +275,44 @@ export default function MobileLiteLayout({
           gap: 8px;
         }
 
+        /* زر القائمة الجانبية */
+        .menu-button {
+          background: transparent;
+          border: none;
+          padding: 8px;
+          color: var(--text-primary);
+          cursor: pointer;
+          transition: opacity 0.2s;
+        }
+
+        .menu-button:hover {
+          opacity: 0.8;
+        }
+
         /* إلغاء الخلفيات البيضاء لأيقونات داخل الهيدر الخفيف */
         .header-actions :global(button),
         .header-actions :global(a) {
           background: transparent !important;
-          border: none;
-          box-shadow: none;
-          padding: 0;
+          border: none !important;
+          box-shadow: none !important;
+          padding: 0 !important;
         }
         
         /* أيقونات الإشعارات بدون خلفية */
         .header-actions :global(.notification-bell-button) {
           background: transparent !important;
+          border: none !important;
           width: 36px;
           height: 36px;
           display: flex;
           align-items: center;
           justify-content: center;
+          color: var(--text-primary) !important;
+        }
+
+        .header-actions :global(.notification-bell-button:hover) {
+          background: transparent !important;
+          opacity: 0.8;
         }
 
         /* زر الصورة الشخصية */
@@ -228,8 +323,8 @@ export default function MobileLiteLayout({
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          border: 1px solid var(--border-light);
           overflow: hidden;
+          background: transparent;
         }
 
         .avatar-img {
@@ -239,9 +334,14 @@ export default function MobileLiteLayout({
           border-radius: 9999px;
         }
 
-        .avatar-fallback {
-          width: 20px;
-          height: 20px;
+        .avatar-fallback-container {
+          width: 36px;
+          height: 36px;
+          border-radius: 9999px;
+          background: var(--bg-tertiary);
+          display: flex;
+          align-items: center;
+          justify-content: center;
           color: var(--text-primary);
         }
 
@@ -436,6 +536,107 @@ export default function MobileLiteLayout({
           .mobile-lite-footer {
             background: var(--bg-primary);
           }
+        }
+
+        /* القائمة الجانبية */
+        .sidebar-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.5);
+          backdrop-filter: blur(4px);
+          z-index: 150;
+          animation: fadeIn 0.2s ease;
+        }
+
+        .mobile-sidebar {
+          position: fixed;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          width: 280px;
+          max-width: 85vw;
+          background: var(--bg-primary);
+          box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+          z-index: 151;
+          display: flex;
+          flex-direction: column;
+          animation: slideInRight 0.3s ease;
+        }
+
+        .sidebar-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 16px;
+          border-bottom: 1px solid var(--border-light);
+        }
+
+        .sidebar-title {
+          font-size: 18px;
+          font-weight: 600;
+          color: var(--text-primary);
+          margin: 0;
+        }
+
+        .close-button {
+          background: transparent;
+          border: none;
+          padding: 8px;
+          color: var(--text-primary);
+          cursor: pointer;
+          transition: opacity 0.2s;
+        }
+
+        .close-button:hover {
+          opacity: 0.8;
+        }
+
+        .sidebar-nav {
+          flex: 1;
+          padding: 16px 0;
+          overflow-y: auto;
+        }
+
+        .sidebar-link {
+          display: block;
+          padding: 12px 24px;
+          color: var(--text-primary);
+          text-decoration: none;
+          font-size: 16px;
+          transition: background 0.2s;
+        }
+
+        .sidebar-link:hover {
+          background: var(--bg-secondary);
+        }
+
+        .sidebar-divider {
+          margin: 16px 24px;
+          border: none;
+          border-top: 1px solid var(--border-light);
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        @keyframes slideInRight {
+          from { transform: translateX(100%); }
+          to { transform: translateX(0); }
+        }
+
+        /* RTL للقائمة الجانبية */
+        [dir="rtl"] .mobile-sidebar {
+          right: auto;
+          left: 0;
+          box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+          animation: slideInLeft 0.3s ease;
+        }
+
+        @keyframes slideInLeft {
+          from { transform: translateX(-100%); }
+          to { transform: translateX(0); }
         }
       `}</style>
     </div>
