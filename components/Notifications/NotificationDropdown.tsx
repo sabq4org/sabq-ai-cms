@@ -323,7 +323,7 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                           
                           {/* النص التوضيحي بلون مختلف */}
                           {(notification as any).metadata?.categoryIntro && (
-                            <p className="text-xs text-blue-600 dark:text-blue-400 mb-1">
+                            <p className="text-[11px] text-blue-600 dark:text-blue-400 mb-1.5 opacity-90">
                               {(notification as any).metadata.categoryIntro}
                             </p>
                           )}
@@ -338,7 +338,6 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                                   : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100'
                               } leading-relaxed break-words block hover:underline`}
                               onClick={(e) => {
-                                e.stopPropagation();
                                 !notification.read_at && markAsRead(notification.id);
                               }}
                             >
