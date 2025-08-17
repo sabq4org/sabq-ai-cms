@@ -1139,7 +1139,6 @@ function AdminNewsPageContent() {
                     <Clock className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                   </div>
                 </div>
-              </div>
               </DesignComponents.StandardCard>
 
               {/* بطاقة الأرشيف */}
