@@ -149,8 +149,16 @@ export async function getCurrentUser(): Promise<User | null> {
     const { PrismaClient } = await import("@prisma/client");
     const prisma = new PrismaClient();
 
+    const userId = (payload?.sub as string) ?? payload?.id ?? payload?.userId ?? null;
+    const emailFromPayload = (payload?.email as string) ?? null;
+
+    if (!userId && !emailFromPayload) {
+      await prisma.$disconnect();
+      return null;
+    }
+
     const user = await prisma.users.findUnique({
-      where: { id: (payload.sub as string) || payload.id || payload.userId },
+      where: userId ? { id: userId } : { email: emailFromPayload! },
       select: {
         id: true,
         email: true,
@@ -314,8 +322,16 @@ export async function requireAuthFromRequest(request: NextRequest): Promise<User
   const { PrismaClient } = await import("@prisma/client");
   const prisma = new PrismaClient();
 
+  const userId = (payload?.sub as string) ?? payload?.id ?? payload?.userId ?? null;
+  const emailFromPayload = (payload?.email as string) ?? null;
+
+  if (!userId && !emailFromPayload) {
+    await prisma.$disconnect();
+    throw new Error("Unauthorized");
+  }
+
   const user = await prisma.users.findUnique({
-    where: { id: payload.sub as string || payload.id || payload.userId },
+    where: userId ? { id: userId } : { email: emailFromPayload! },
     select: {
       id: true,
       email: true,
