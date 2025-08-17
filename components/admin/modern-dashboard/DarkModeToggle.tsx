@@ -35,11 +35,9 @@ export default function DarkModeToggle() {
         const sidebars = document.querySelectorAll('.manus-sidebar, aside');
         sidebars.forEach(sidebar => {
           if (dark) {
-            (sidebar as HTMLElement).style.background = 'hsl(222 47% 14%)';
-            (sidebar as HTMLElement).style.borderColor = 'hsl(217 33% 17%)';
+            (sidebar as HTMLElement).style.background = 'hsl(222 47% 8%)'; // نفس الهيدر الداكن
           } else {
-            (sidebar as HTMLElement).style.background = 'white';
-            (sidebar as HTMLElement).style.borderColor = 'hsl(220 14% 88%)';
+            (sidebar as HTMLElement).style.background = 'hsl(220 14% 94%)'; // نفس الهيدر النهاري
           }
         });
         
