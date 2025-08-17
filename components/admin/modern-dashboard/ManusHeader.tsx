@@ -275,7 +275,7 @@ export default function ManusHeader({ onMenuClick, showMenuButton = false }: Man
         {searchOpen && (
           <div style={{
             position: 'absolute',
-            top: '70px',
+            top: '56px',
             left: 0,
             right: 0,
             background: 'hsl(var(--bg))',
@@ -311,7 +311,7 @@ export default function ManusHeader({ onMenuClick, showMenuButton = false }: Man
       </header>
 
       {/* مساحة للهيدر الثابت */}
-      <div style={{ height: searchOpen ? '140px' : '70px', transition: 'height 0.3s ease' }}></div>
+      <div style={{ height: searchOpen ? '120px' : '56px', transition: 'height 0.3s ease' }}></div>
     </>
   );
 }
