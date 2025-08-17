@@ -427,9 +427,10 @@ export class SmartNotificationEngine {
       // 3. البحث في user_preferences كاحتياطي
       const userPreferences = await prisma.user_preferences.findMany({
         where: {
-          preferences: {
+          key: 'preferences',
+          value: {
             path: ['interests'],
-            array_contains: [categoryId]
+            array_contains: categoryId
           }
         },
         select: { user_id: true }
