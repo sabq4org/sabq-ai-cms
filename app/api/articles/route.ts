@@ -687,6 +687,34 @@ export async function POST(request: NextRequest) {
 
     console.log("✅ تم إنشاء المقال بنجاح:", article.id);
 
+    // 🔔 إرسال إشعارات للمستخدمين المهتمين بالتصنيف (فقط للمقالات المنشورة)
+    if (article.status === 'published' && article.category_id) {
+      try {
+        console.log('🔔 إرسال إشعارات للمستخدمين المهتمين بالتصنيف...');
+        
+        // استيراد SmartNotificationEngine
+        const { SmartNotificationEngine } = await import('@/lib/notifications/smart-engine');
+        
+        // إرسال إشعارات غير مزامنة
+        setImmediate(() => {
+          SmartNotificationEngine.notifyNewArticleInCategory(article.id, article.category_id!)
+            .then(() => {
+              console.log('✅ تم إرسال إشعارات المقال الجديد بنجاح');
+            })
+            .catch((error) => {
+              console.error('❌ خطأ في إرسال إشعارات المقال الجديد:', error);
+            });
+        });
+        
+      } catch (error) {
+        console.error('❌ خطأ في تحميل محرك الإشعارات:', error);
+      }
+    } else if (article.status !== 'published') {
+      console.log('ℹ️ المقال غير منشور، تخطي الإشعارات');
+    } else if (!article.category_id) {
+      console.log('⚠️ المقال بدون تصنيف، تخطي الإشعارات');
+    }
+
     // ربط المقال بنظام القصص الذكي في الخلفية (لا نعطل النشر)
     if (typeof process !== 'undefined') {
       setImmediate(() => {
