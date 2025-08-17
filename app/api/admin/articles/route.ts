@@ -236,17 +236,24 @@ export async function POST(request: NextRequest) {
 
       // إشعار المستخدمين المهتمين بالتصنيف (ذكاء) عند النشر مباشرة
       try {
-        if (article.categories?.id || article.category_id) {
+        // المقال يعود مع categories كعلاقة، وليس category_id
+        const categoryId = article.categories?.id || final_category_id;
+        
+        if (categoryId) {
+          console.log('🔔 بدء إرسال إشعارات للمستخدمين المهتمين بالتصنيف:', categoryId);
           const { SmartNotificationEngine } = await import('@/lib/notifications/smart-engine');
           // غير متزامن حتى لا يؤخر الاستجابة
           setImmediate(() => {
             SmartNotificationEngine
-              .notifyNewArticleInCategory(article.id, (article as any).category_id || (article as any).categories?.id)
-              .catch((e: any) => console.warn('⚠️ فشل إشعار المهتمين:', e?.message || e));
+              .notifyNewArticleInCategory(article.id, categoryId)
+              .then(() => console.log('✅ تم إرسال الإشعارات بنجاح'))
+              .catch((e: any) => console.error('❌ فشل إشعار المهتمين:', e?.message || e));
           });
+        } else {
+          console.log('⚠️ لا يوجد تصنيف للمقال، تخطي الإشعارات');
         }
       } catch (notifyErr) {
-        console.warn('⚠️ خطأ أثناء تفعيل إشعار الاهتمامات:', (notifyErr as any)?.message || notifyErr);
+        console.error('❌ خطأ أثناء تفعيل إشعار الاهتمامات:', (notifyErr as any)?.message || notifyErr);
       }
     }
     
