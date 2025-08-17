@@ -1,73 +1,103 @@
-import { NextRequest, NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/require-admin";
+import { NextRequest, NextResponse } from 'next/server';
+import { requireAuthFromRequest } from '@/app/lib/auth';
+import { getOpenAIKey } from '@/lib/openai-config';
+import OpenAI from 'openai';
 
 export async function POST(request: NextRequest) {
   try {
-    // التحقق من صلاحيات المستخدم
-    const adminCheck = await requireAdmin(request);
-    if (!adminCheck.authorized) {
+    // التحقق من المصادقة
+    const authResult = await requireAuthFromRequest(request);
+    
+    if (!authResult || authResult.error) {
+      console.error('🚫 محاولة وصول غير مصرح بها لاختبار مفتاح OpenAI');
       return NextResponse.json(
-        { error: adminCheck.error || "غير مصرح لك بالوصول" },
+        { error: 'غير مصرح بالوصول' },
         { status: 401 }
       );
     }
 
-    const openaiApiKey = process.env.OPENAI_API_KEY;
-    if (!openaiApiKey || openaiApiKey === "sk-your-openai-api-key" || openaiApiKey.startsWith("sk-your-")) {
+    const user = authResult.user;
+    
+    // التحقق من صلاحيات المستخدم (يجب أن يكون محرر أو أدمن)
+    if (!user.roles?.includes('admin') && !user.roles?.includes('editor') && !user.roles?.includes('author')) {
+      console.error('🚫 المستخدم ليس لديه صلاحيات اختبار المفتاح:', user.email);
       return NextResponse.json(
-        { 
-          valid: false,
-          error: "مفتاح OpenAI API غير مضبوط أو يحتوي على قيمة وهمية",
-          details: "يرجى ضبط OPENAI_API_KEY في ملف .env.local"
-        },
-        { status: 200 }
+        { error: 'ليس لديك صلاحية لاختبار مفتاح OpenAI' },
+        { status: 403 }
       );
     }
 
-    // اختبار بسيط لصلاحية المفتاح
-    const response = await fetch("https://api.openai.com/v1/models", {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${openaiApiKey}`,
-      },
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      const availableModels = data.data?.length || 0;
-      
-      return NextResponse.json({
-        valid: true,
-        message: "مفتاح OpenAI API صحيح ويعمل بشكل طبيعي",
-        details: `يمكن الوصول إلى ${availableModels} نموذج`,
-        models: data.data?.slice(0, 5).map((model: any) => model.id) || []
-      });
-    } else {
-      const errorData = await response.text();
-      let errorMessage = "مفتاح OpenAI API غير صحيح";
-      
-      if (response.status === 401) {
-        errorMessage = "مفتاح OpenAI API غير صحيح أو منتهي الصلاحية";
-      } else if (response.status === 429) {
-        errorMessage = "تم تجاوز حد الاستخدام المسموح";
-      } else if (response.status === 403) {
-        errorMessage = "مفتاح OpenAI API لا يملك الصلاحيات المطلوبة";
-      }
-
+    console.log('🔑 بدء اختبار مفتاح OpenAI للمستخدم:', user.email);
+    
+    // الحصول على مفتاح OpenAI
+    const apiKey = await getOpenAIKey();
+    
+    if (!apiKey || apiKey.trim() === '') {
       return NextResponse.json({
         valid: false,
-        error: errorMessage,
-        details: errorData.substring(0, 200),
-        status: response.status
+        error: 'لم يتم العثور على مفتاح OpenAI',
+        details: 'يرجى إضافة مفتاح OpenAI من إعدادات الذكاء الاصطناعي في لوحة التحكم',
+        message: 'مفتاح OpenAI غير موجود'
       });
     }
 
-  } catch (error) {
-    console.error("خطأ في اختبار مفتاح OpenAI:", error);
-    return NextResponse.json({
-      valid: false,
-      error: "حدث خطأ أثناء اختبار المفتاح",
-      details: error instanceof Error ? error.message : "خطأ غير معروف"
-    });
+    // اختبار المفتاح بطلب بسيط
+    try {
+      const openai = new OpenAI({
+        apiKey: apiKey.trim()
+      });
+
+      // طلب بسيط لاختبار صلاحية المفتاح
+      const response = await openai.models.list();
+      
+      // إذا نجح الطلب، المفتاح صحيح
+      console.log('✅ مفتاح OpenAI صحيح، عدد النماذج المتاحة:', response.data.length);
+      
+      return NextResponse.json({
+        valid: true,
+        message: 'مفتاح OpenAI صحيح وجاهز للاستخدام',
+        details: `تم العثور على ${response.data.length} نموذج متاح`,
+        models: response.data.slice(0, 5).map(m => m.id) // أول 5 نماذج فقط
+      });
+      
+    } catch (openaiError: any) {
+      console.error('❌ خطأ في اختبار مفتاح OpenAI:', openaiError);
+      
+      // تحليل نوع الخطأ
+      if (openaiError.status === 401) {
+        return NextResponse.json({
+          valid: false,
+          error: 'مفتاح OpenAI غير صحيح',
+          details: 'يرجى التحقق من صحة المفتاح المدخل',
+          message: 'مفتاح غير صحيح أو منتهي الصلاحية'
+        });
+      } else if (openaiError.status === 429) {
+        return NextResponse.json({
+          valid: false,
+          error: 'تجاوز حد الاستخدام',
+          details: 'تم تجاوز حد استخدام API، يرجى التحقق من رصيد الحساب',
+          message: 'تجاوز حد الاستخدام المسموح'
+        });
+      } else {
+        return NextResponse.json({
+          valid: false,
+          error: 'خطأ في الاتصال بـ OpenAI',
+          details: openaiError.message || 'خطأ غير معروف',
+          message: 'فشل الاتصال بخدمة OpenAI'
+        });
+      }
+    }
+    
+  } catch (error: any) {
+    console.error('❌ خطأ في معالجة طلب اختبار المفتاح:', error);
+    return NextResponse.json(
+      { 
+        valid: false,
+        error: 'حدث خطأ في معالجة الطلب',
+        details: error.message || 'خطأ غير معروف',
+        message: 'خطأ في النظام'
+      },
+      { status: 500 }
+    );
   }
 }

@@ -7,11 +7,24 @@
  */
 
 import OpenAI from 'openai';
+import { getOpenAIKey } from '@/lib/openai-config';
 
-// إعداد OpenAI (يمكن استبداله بأي AI provider آخر)
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// متغير لحفظ عميل OpenAI
+let openaiClient: OpenAI | null = null;
+
+// دالة للحصول على عميل OpenAI مع lazy loading
+async function getOpenAIClient(): Promise<OpenAI> {
+  if (!openaiClient) {
+    const apiKey = await getOpenAIKey();
+    if (!apiKey) {
+      throw new Error('مفتاح OpenAI غير متوفر');
+    }
+    openaiClient = new OpenAI({
+      apiKey: apiKey,
+    });
+  }
+  return openaiClient;
+}
 
 interface ArticleContent {
   title: string;
@@ -24,6 +37,10 @@ interface AIGeneratedContent {
   readingTime: number;
   tags: string[];
   aiScore: number;
+  title?: string;
+  subtitle?: string;
+  seoTitle?: string;
+  seoDescription?: string;
 }
 
 /**
@@ -43,6 +60,7 @@ ${content}
 أعد الصياغة بصيغ متنوعة وتجنب تكرار نفس العبارات في كل محاولة.
 `;
 
+    const openai = await getOpenAIClient();
     const response = await openai.chat.completions.create({
       model: "gpt-4",
       messages: [
@@ -90,6 +108,7 @@ ${content}
 ["الاقتباس الأول", "الاقتباس الثاني", "الاقتباس الثالث"]
 `;
 
+    const openai = await getOpenAIClient();
     const response = await openai.chat.completions.create({
       model: "gpt-4",
       messages: [
@@ -154,6 +173,7 @@ ${content}
 ["السياسة", "الاقتصاد", "التكنولوجيا"]
 `;
 
+    const openai = await getOpenAIClient();
     const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [
@@ -249,6 +269,7 @@ export async function calculateArticleAIScore(content: string, title: string): P
 أرجع رقماً فقط من 0 إلى 45.
 `;
 
+    const openai = await getOpenAIClient();
     const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [
@@ -279,23 +300,110 @@ export async function calculateArticleAIScore(content: string, title: string): P
 }
 
 /**
+ * توليد عنوان للمقال
+ */
+export async function generateArticleTitle(content: string): Promise<string> {
+  try {
+    const openai = await getOpenAIClient();
+    const response = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "system",
+          content: "أنت محرر صحفي محترف متخصص في كتابة العناوين الجذابة والمختصرة."
+        },
+        {
+          role: "user",
+          content: `اكتب عنواناً جذاباً ومختصراً لهذا المقال (30-70 حرف):
+
+${content.substring(0, 500)}...
+
+العنوان يجب أن يكون:
+- جذاب ومثير للاهتمام
+- واضح ومباشر
+- يلخص الفكرة الرئيسية
+- بين 30-70 حرف
+
+أعد العنوان فقط دون أي تفسير.`
+        }
+      ],
+      max_tokens: 50,
+      temperature: 0.8,
+    });
+
+    return response.choices[0]?.message?.content?.trim() || "";
+  } catch (error) {
+    console.error('خطأ في توليد العنوان:', error);
+    return "";
+  }
+}
+
+/**
+ * توليد عنوان فرعي للمقال
+ */
+export async function generateArticleSubtitle(content: string, title: string): Promise<string> {
+  try {
+    const openai = await getOpenAIClient();
+    const response = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "system",
+          content: "أنت محرر صحفي محترف متخصص في كتابة العناوين الفرعية التوضيحية."
+        },
+        {
+          role: "user",
+          content: `اكتب عنواناً فرعياً توضيحياً لهذا المقال:
+
+العنوان الرئيسي: ${title}
+المحتوى: ${content.substring(0, 300)}...
+
+العنوان الفرعي يجب أن:
+- يضيف معلومات إضافية للعنوان الرئيسي
+- يكون بين 50-100 حرف
+- يوضح تفاصيل أكثر
+
+أعد العنوان الفرعي فقط دون أي تفسير.`
+        }
+      ],
+      max_tokens: 80,
+      temperature: 0.7,
+    });
+
+    return response.choices[0]?.message?.content?.trim() || "";
+  } catch (error) {
+    console.error('خطأ في توليد العنوان الفرعي:', error);
+    return "";
+  }
+}
+
+/**
  * توليد جميع المحتويات الذكية للمقال
  */
 export async function generateAllAIContent(article: ArticleContent): Promise<AIGeneratedContent> {
   try {
-    console.log(`🤖 بدء توليد المحتوى الذكي للمقال: ${article.title}`);
+    console.log(`🤖 بدء توليد المحتوى الذكي للمقال`);
+    
+    // توليد العنوان أولاً إذا لم يكن موجوداً
+    let title = article.title;
+    if (!title || title === 'عنوان مؤقت') {
+      title = await generateArticleTitle(article.content);
+    }
     
     // تشغيل جميع العمليات بالتوازي لتحسين الأداء
-    const [summary, quotes, tags, aiScore] = await Promise.all([
-      generateArticleSummary(article.content, article.title),
-      extractSmartQuotes(article.content, article.title),
-      generateArticleTags(article.content, article.title),
-      calculateArticleAIScore(article.content, article.title)
+    const [summary, quotes, tags, aiScore, subtitle] = await Promise.all([
+      generateArticleSummary(article.content, title),
+      extractSmartQuotes(article.content, title),
+      generateArticleTags(article.content, title),
+      calculateArticleAIScore(article.content, title),
+      generateArticleSubtitle(article.content, title)
     ]);
     
     const readingTime = calculateReadingTime(article.content);
     
     console.log(`✅ تم توليد المحتوى الذكي بنجاح:
+    - العنوان: ${title ? title.length + ' حرف' : 'لم يتم توليده'}
+    - العنوان الفرعي: ${subtitle ? subtitle.length + ' حرف' : 'لم يتم توليده'}
     - الملخص: ${summary.length} حرف
     - الاقتباسات: ${quotes.length} اقتباس
     - الكلمات المفتاحية: ${tags.length} كلمة
@@ -303,11 +411,15 @@ export async function generateAllAIContent(article: ArticleContent): Promise<AIG
     - النقاط: ${aiScore}/100`);
     
     return {
+      title: title !== article.title ? title : undefined,
+      subtitle,
       summary,
       quotes,
       readingTime,
       tags,
-      aiScore
+      aiScore,
+      seoTitle: title,
+      seoDescription: summary
     };
     
   } catch (error) {
