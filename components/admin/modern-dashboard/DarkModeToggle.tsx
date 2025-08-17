@@ -29,6 +29,34 @@ export default function DarkModeToggle() {
         document.body.style.background = 'linear-gradient(135deg, hsl(220 14% 96%) 0%, hsl(210 20% 98%) 100%)';
         document.body.style.color = 'hsl(220 13% 7%)';
       }
+      
+      // تطبيق الألوان مباشرة على الشريط الجانبي
+      setTimeout(() => {
+        const sidebars = document.querySelectorAll('.manus-sidebar, aside');
+        sidebars.forEach(sidebar => {
+          if (dark) {
+            (sidebar as HTMLElement).style.background = 'hsl(222 47% 14%)';
+            (sidebar as HTMLElement).style.borderColor = 'hsl(217 33% 17%)';
+          } else {
+            (sidebar as HTMLElement).style.background = 'white';
+            (sidebar as HTMLElement).style.borderColor = 'hsl(220 14% 88%)';
+          }
+        });
+        
+        // تطبيق على البطاقات
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+          if (dark) {
+            (card as HTMLElement).style.background = 'hsl(222 47% 14%)';
+            (card as HTMLElement).style.borderColor = 'hsl(217 33% 17%)';
+            (card as HTMLElement).style.color = 'hsl(213 31% 91%)';
+          } else {
+            (card as HTMLElement).style.background = 'white';
+            (card as HTMLElement).style.borderColor = 'hsl(220 14% 88%)';
+            (card as HTMLElement).style.color = 'hsl(220 13% 7%)';
+          }
+        });
+      }, 50);
     }
   };
 
