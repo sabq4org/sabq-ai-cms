@@ -142,16 +142,26 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
       {/* قائمة الإشعارات المنسدلة */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="fixed md:absolute md:right-0 right-2 mt-2 md:w-[26rem] w-[calc(100vw-1rem)] bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 max-h-[75vh] overflow-hidden md:mr-0 mr-2"
-            style={{ insetInlineEnd: '0', top: 'calc(100% + 8px)' }}
-          >
+          <>
+            {/* طبقة إغلاق عند الضغط خارج الصندوق */}
+            <motion.div
+              className="fixed inset-0 z-40"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsOpen(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, y: -10, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.98 }}
+              transition={{ duration: 0.2 }}
+              className="absolute right-0 mt-2 w-[26rem] max-w-[90vw] bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 max-h-[75vh] overflow-hidden"
+              role="dialog"
+              aria-label="قائمة الإشعارات"
+            >
             {/* رأس القائمة */}
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700 text-right">
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700 text-right bg-white/95 dark:bg-gray-900/90 backdrop-blur">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -202,7 +212,7 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
             </div>
 
             {/* قائمة الإشعارات */}
-            <div className="max-h-[60vh] overflow-y-auto">
+            <div className="max-h-[60vh] overflow-y-auto bg-white/95 dark:bg-gray-900/90">
               {loading && notifications.length === 0 ? (
                 <div className="p-6 text-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
@@ -315,7 +325,8 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                 </>
               )}
             </div>
-          </motion.div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </div>
