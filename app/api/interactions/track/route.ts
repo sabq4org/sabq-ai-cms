@@ -497,9 +497,31 @@ async function checkLimits(userId: string, articleId: string, interactionType: s
   }
 }
 
-// دالة تحديث نقاط الولاء المحسنة
+// دالة تحديث نقاط الولاء المحسنة - إصلاح لقاعدة البيانات
 async function updateLoyaltyPoints(userId: string, points: number, action: string, articleId?: string, description?: string): Promise<void> {
   try {
+    // حفظ في قاعدة البيانات Prisma بدلاً من ملف JSON
+    if (points !== 0) {
+      await prisma.loyalty_points.create({
+        data: {
+          id: `${userId}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          user_id: userId,
+          points: points,
+          action: action,
+          reference_id: articleId || null,
+          reference_type: articleId ? 'article' : null,
+          metadata: {
+            description: description || `${action} action`,
+            timestamp: new Date().toISOString()
+          },
+          created_at: new Date()
+        }
+      });
+      
+      console.log(`✅ نقاط الولاء محفوظة: ${userId} حصل على ${points} نقطة لـ ${action}`);
+    }
+    
+    // أيضاً حفظ في ملف JSON للتوافق مع النظام القديم
     const fileContent = await fs.readFile(loyaltyFilePath, 'utf-8');
     const data = JSON.parse(fileContent);
     
@@ -572,8 +594,10 @@ async function updateLoyaltyPoints(userId: string, points: number, action: strin
     }
 
     await fs.writeFile(loyaltyFilePath, JSON.stringify(data, null, 2));
+    
   } catch (error) {
     console.error('خطأ في تحديث نقاط الولاء:', error);
+    throw error; // إعادة رمي الخطأ لمعالجته في المستوى الأعلى
   }
 }
 
