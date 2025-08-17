@@ -127,4 +127,5 @@ export function getConnectionStatus(): string {
 }
 
 // تصدير دالة بدلاً من استدعائها مباشرة لتجنب إنشاء اتصال غير مرغوب فيه
+export { getRedisClient as RedisClient };
 export default getRedisClient;

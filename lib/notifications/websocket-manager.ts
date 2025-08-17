@@ -373,4 +373,6 @@ export class NotificationManager {
 }
 
 // تصدير المثيل الوحيد
+export const WebSocketManager = NotificationManager.getInstance();
+
 export default NotificationManager.getInstance();
