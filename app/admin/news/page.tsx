@@ -1427,16 +1427,34 @@ function AdminNewsPageContent() {
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <div className="inline-flex">
-                                    <Switch
-                                      checked={article.breaking || false}
-                                      onCheckedChange={() =>
-                                        toggleBreakingNews(
-                                          article.id,
-                                          article.breaking || false
-                                        )
-                                      }
-                                      className="data-[state=checked]:bg-red-600 dark:data-[state=checked]:bg-red-500 scale-75"
-                                    />
+                                    {/* مفتاح تبديل بنمط iOS */}
+                                    <div
+                                      onClick={() => toggleBreakingNews(article.id, article.breaking || false)}
+                                      style={{
+                                        position: 'relative',
+                                        width: '51px',
+                                        height: '31px',
+                                        background: article.breaking ? '#007AFF' : '#E5E5EA',
+                                        borderRadius: '15.5px',
+                                        cursor: 'pointer',
+                                        transition: 'background 0.3s ease',
+                                        display: 'inline-block'
+                                      }}
+                                    >
+                                      <div
+                                        style={{
+                                          position: 'absolute',
+                                          top: '2px',
+                                          right: article.breaking ? '2px' : '22px',
+                                          width: '27px',
+                                          height: '27px',
+                                          background: 'white',
+                                          borderRadius: '50%',
+                                          boxShadow: '0 3px 8px 0 rgba(0, 0, 0, 0.15), 0 3px 1px 0 rgba(0, 0, 0, 0.06)',
+                                          transition: 'right 0.3s ease'
+                                        }}
+                                      />
+                                    </div>
                                   </div>
                                 </TooltipTrigger>
                                 <TooltipContent>
