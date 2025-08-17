@@ -107,3 +107,4 @@ export async function GET(req: NextRequest) {
     }, { status: 500 });
   }
 }
+// Force rebuild: Sun Aug 17 20:34:44 +03 2025
