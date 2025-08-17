@@ -128,7 +128,7 @@ export default function DashboardLayout({
             onClick={() => setSidebarOpen(false)}
           />
         )}
-      }</div>
+      </div>
     </>
   );
 }
