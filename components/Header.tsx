@@ -194,7 +194,7 @@ export default function Header() {
               {/* زر لحظة بلحظة - يظهر على الشاشات المتوسطة فأعلى فقط */}
               <Link
                 href="/moment-by-moment"
-                className={`hidden md:inline-flex moment-by-moment-btn relative items-center justify-center w-9 h-9 rounded-lg transition-all duration-200 ${
+                className={`moment-by-moment-btn relative inline-flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-200 ${
                   darkMode
                     ? "text-red-300 hover:text-red-200 hover:bg-red-900/30 border border-red-800/50"
                     : "text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200"
