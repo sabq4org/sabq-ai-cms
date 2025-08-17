@@ -1082,11 +1082,15 @@ function AdminNewsPageContent() {
               </div>
               
               {/* بطاقة المسودات */}
-              <DesignComponents.StandardCard
-                className={`p-6 hover:shadow-lg transition-shadow cursor-pointer ${
-                  filterStatus === "draft" ? "ring-2 ring-blue-500" : ""
-                }`}
+              <div 
+                className={`card card-warning ${filterStatus === "draft" ? "selected" : ""}`}
                 onClick={() => setFilterStatus("draft")}
+                style={{ 
+                  cursor: 'pointer',
+                  background: filterStatus === "draft" ? 'hsl(var(--accent-4))' : 'hsl(var(--bg-card))',
+                  color: filterStatus === "draft" ? 'white' : 'hsl(var(--fg))',
+                  border: filterStatus === "draft" ? '2px solid hsl(var(--accent-4))' : '1px solid hsl(var(--accent-4) / 0.3)'
+                }}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
