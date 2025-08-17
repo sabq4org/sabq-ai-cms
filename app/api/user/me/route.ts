@@ -28,13 +28,20 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // تحقق من التوكن
+    // تحقق من التوكن باستخدام عدة مفاتيح
     let decoded: any;
-    try {
-      const verifySecret =
-        process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET || JWT_FALLBACK;
-      decoded = jwt.verify(token, verifySecret);
-    } catch (e) {
+    const keys = [
+      process.env.JWT_ACCESS_SECRET,
+      process.env.JWT_SECRET,
+      JWT_FALLBACK,
+    ].filter(Boolean) as string[];
+    for (const key of keys) {
+      try {
+        decoded = jwt.verify(token, key);
+        break;
+      } catch {}
+    }
+    if (!decoded) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 

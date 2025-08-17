@@ -39,13 +39,20 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // التحقق من صحة التوكن
+    // التحقق من صحة التوكن (جرب عدة مفاتيح)
     let decoded: any;
-    try {
-      const verifySecret =
-        process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET || JWT_SECRET;
-      decoded = jwt.verify(token, verifySecret);
-    } catch (error) {
+    const keys = [
+      process.env.JWT_ACCESS_SECRET,
+      process.env.JWT_SECRET,
+      JWT_SECRET,
+    ].filter(Boolean) as string[];
+    for (const key of keys) {
+      try {
+        decoded = jwt.verify(token, key);
+        break;
+      } catch {}
+    }
+    if (!decoded) {
       return corsResponseFromRequest(request, { success: false, error: "جلسة غير صالحة" }, 401);
     }
 

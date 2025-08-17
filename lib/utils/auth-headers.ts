@@ -16,6 +16,14 @@ export function getAuthHeaders(): HeadersInit {
       break;
     }
   }
+
+  // Fallback: محاولة من localStorage (واجهات الإدارة فقط)
+  try {
+    if (!token && typeof window !== 'undefined') {
+      const lsToken = localStorage.getItem('auth-token');
+      if (lsToken) token = lsToken;
+    }
+  } catch {}
   
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
