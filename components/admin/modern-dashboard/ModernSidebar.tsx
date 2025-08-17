@@ -552,22 +552,26 @@ export default function ModernSidebar({
             </span>
 
             {item.badge && (
-              <Badge
-                variant={item.badgeVariant || "default"}
-                className={cn(
-                  "text-xs px-2 py-0.5",
-                  item.isNew && "animate-pulse"
-                )}
+              <span
+                style={{
+                  fontSize: '11px',
+                  padding: '2px 8px',
+                  borderRadius: '12px',
+                  background: 'hsl(var(--accent) / 0.2)',
+                  color: 'hsl(var(--accent))',
+                  fontWeight: '600',
+                  animation: item.isNew ? 'pulse 2s infinite' : 'none'
+                }}
               >
                 {item.badge}
-              </Badge>
+              </span>
             )}
 
             {hasChildren && (
               isExpanded ? (
-                <Minus className={cn("h-4 w-4 text-gray-400")} />
+                <Minus style={{ width: '16px', height: '16px', color: 'hsl(var(--muted))' }} />
               ) : (
-                <Plus className={cn("h-4 w-4 text-gray-400")} />
+                <Plus style={{ width: '16px', height: '16px', color: 'hsl(var(--muted))' }} />
               )
             )}
           </>
@@ -583,7 +587,15 @@ export default function ModernSidebar({
               <TooltipTrigger asChild>
                 <Link href={item.href}>{itemContent}</Link>
               </TooltipTrigger>
-              <TooltipContent side="left" className="font-medium">
+              <TooltipContent 
+                side="left" 
+                style={{
+                  background: 'hsl(var(--bg))',
+                  color: 'hsl(var(--fg))',
+                  border: '1px solid hsl(var(--line))',
+                  fontWeight: '500'
+                }}
+              >
                 {item.title}
                 {item.badge && ` (${item.badge})`}
               </TooltipContent>
