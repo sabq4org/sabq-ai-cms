@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
         is_active: true
       },
       include: {
-        categories: true
+        category: true
       }
     });
 
@@ -83,7 +83,7 @@ export async function GET(req: NextRequest) {
       } : null,
       userInterests: userInterests.map(ui => ({
         category_id: ui.category_id,
-        category_name: ui.categories?.name,
+        category_name: ui.category?.name,
         is_active: ui.is_active
       })),
       userPreferences: userPreferences ? {
