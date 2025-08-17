@@ -65,7 +65,7 @@ export default function DashboardLayout({
         
         {/* الشريط الجانبي للديسكتوب */}
         {!isMobile && (
-          <aside className="manus-sidebar" style={{
+          <aside style={{
             position: 'fixed',
             top: '56px',
             right: 0,
@@ -74,8 +74,9 @@ export default function DashboardLayout({
             padding: '16px 12px',
             overflowY: 'auto',
             zIndex: 900,
-            transition: 'width 0.3s ease, background 0.3s ease',
-            borderLeft: '1px solid hsl(var(--line))'
+            transition: 'width 0.3s ease',
+            borderLeft: '1px solid hsl(var(--line))',
+            background: 'transparent'
           }}>
             <ModernSidebar isCollapsed={!sidebarOpen} onToggle={toggleSidebar} isMobile={isMobile} />
           </aside>
