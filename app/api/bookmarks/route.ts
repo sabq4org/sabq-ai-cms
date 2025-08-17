@@ -51,23 +51,48 @@ export async function POST(req: NextRequest) {
     else desiredSaved = !existing; // toggle
 
     if (desiredSaved && !existing) {
-      await prisma.$transaction([
-        prisma.interactions.create({
-          data: {
-            id: `save_${user.id}_${articleId}_${Date.now()}`,
-            user_id: user.id,
-            article_id: articleId,
-            type: 'save'
-          }
-        }),
-        prisma.articles.update({ where: { id: articleId }, data: { saves: { increment: 1 } } })
-      ]);
+      // حاول الكتابة في bookmarks مباشرة؛ عند الفشل استخدم interactions
+      try {
+        await prisma.$transaction(async (tx) => {
+          await tx.$executeRawUnsafe(
+            `INSERT INTO bookmarks (id, user_id, article_id, created_at) VALUES ($1, $2, $3, NOW()) ON CONFLICT (user_id, article_id) DO NOTHING`,
+            `bm_${user.id}_${articleId}_${Date.now()}`,
+            user.id,
+            articleId
+          );
+          await tx.articles.update({ where: { id: articleId }, data: { saves: { increment: 1 } } });
+        });
+      } catch {
+        await prisma.$transaction([
+          prisma.interactions.create({
+            data: {
+              id: `save_${user.id}_${articleId}_${Date.now()}`,
+              user_id: user.id,
+              article_id: articleId,
+              type: 'save'
+            }
+          }),
+          prisma.articles.update({ where: { id: articleId }, data: { saves: { increment: 1 } } })
+        ]);
+      }
     } else if (!desiredSaved && existing) {
-      await prisma.$transaction([
-        prisma.interactions.delete({ where: { id: existing.id } }),
-        prisma.articles.update({ where: { id: articleId }, data: { saves: { decrement: 1 } } })
-      ]);
-      await prisma.articles.updateMany({ where: { id: articleId, saves: { lt: 0 } as any }, data: { saves: 0 } });
+      try {
+        await prisma.$transaction(async (tx) => {
+          await tx.$executeRawUnsafe(
+            `DELETE FROM bookmarks WHERE user_id = $1 AND article_id = $2`,
+            user.id,
+            articleId
+          );
+          await tx.articles.update({ where: { id: articleId }, data: { saves: { decrement: 1 } } });
+          await tx.articles.updateMany({ where: { id: articleId, saves: { lt: 0 } as any }, data: { saves: 0 } });
+        });
+      } catch {
+        await prisma.$transaction([
+          prisma.interactions.delete({ where: { id: existing.id } }),
+          prisma.articles.update({ where: { id: articleId }, data: { saves: { decrement: 1 } } })
+        ]);
+        await prisma.articles.updateMany({ where: { id: articleId, saves: { lt: 0 } as any }, data: { saves: 0 } });
+      }
     }
 
     const updated = await prisma.articles.findUnique({ where: { id: articleId }, select: { likes: true, saves: true } });
