@@ -22,14 +22,14 @@ export async function GET(req: NextRequest) {
       }
     });
 
-    // جلب اهتمامات المستخدم
+    // جلب اهتمامات المستخدم - استخدام category وليس categories
     const userInterests = await prisma.user_interests.findMany({
       where: {
         user_id: user.id,
         is_active: true
       },
       include: {
-        category: true
+        category: true  // الحقل الصحيح هو category وليس categories
       }
     });
 
@@ -83,7 +83,7 @@ export async function GET(req: NextRequest) {
       } : null,
       userInterests: userInterests.map(ui => ({
         category_id: ui.category_id,
-        category_name: ui.category?.name,
+        category_name: ui.category?.name,  // استخدام category وليس categories
         is_active: ui.is_active
       })),
       userPreferences: userPreferences ? {
@@ -107,4 +107,3 @@ export async function GET(req: NextRequest) {
     }, { status: 500 });
   }
 }
-// Force rebuild: Sun Aug 17 20:34:44 +03 2025
