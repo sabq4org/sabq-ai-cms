@@ -440,6 +440,7 @@ export default function ModernDashboardHomeFullWidth() {
             </div>
           </div>
         </div>
+      </div>
     </>
   );
 }
