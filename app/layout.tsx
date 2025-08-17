@@ -45,6 +45,7 @@ import "../styles/remove-gap.css";
 import "../styles/header-spacing-fix.css";
 import "../styles/featured-news-spacing.css";
 import "../styles/header-content-spacing.css";
+import "../styles/header-enhancements.css";
 import "../styles/responsive-ui.css";
 import "../styles/saas-dashboard.css";
 import "../styles/scrollbar-hide.css";
