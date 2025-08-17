@@ -63,15 +63,15 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const userInteractions = await prisma.UserInteractions.findMany({
+    const userInteractions = await prisma.interactions.findMany({
       where: {
         user_id: currentUser.id,
         article_id: articleId,
       },
-      select: { interaction_type: true },
+      select: { type: true },
     });
 
-    const interactionTypes = userInteractions.map((i) => i.interaction_type);
+    const interactionTypes = userInteractions.map((i) => i.type);
 
     return NextResponse.json({
       success: true,

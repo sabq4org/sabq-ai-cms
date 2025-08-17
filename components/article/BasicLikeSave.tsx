@@ -128,7 +128,8 @@ export default function BasicLikeSave({
 
       const data = await response.json().catch(() => ({}));
       if (response.ok) {
-        setSaved(newSaveStatus);
+        // تثبيت الحالة والعداد من الخادم لضمان عدم رجوعها للصفر بعد التحديث
+        setSaved(!!(data.saved ?? newSaveStatus));
         setSaves(typeof data.saves === 'number' ? data.saves : (newSaveStatus ? saves + 1 : Math.max(0, saves - 1)));
       } else {
         alert('حدث خطأ في الحفظ');

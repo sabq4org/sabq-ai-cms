@@ -38,17 +38,32 @@ export default function LikedArticlesTab({ userId, darkMode = false }: LikedArti
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  // جلب الإعجابات
+  // جلب الإعجابات من API الموحد
   const fetchLikes = async (pageNum: number = 1, append: boolean = false) => {
     try {
       if (pageNum === 1) setLoading(true);
       else setLoadingMore(true);
 
-      const response = await fetch(`/api/user/likes?userId=${userId}&page=${pageNum}&limit=10`);
+      const response = await fetch(`/api/interactions/liked-articles?userId=${userId}&page=${pageNum}&limit=10`);
       const result = await response.json();
 
       if (result.success) {
-        const newLikes = result.data.likes || [];
+        const newLikes = (result.data.articles || []).map((a: any) => ({
+          id: a.interaction_id || `${a.id}_${a.liked_at || ''}`,
+          articleId: a.id,
+          likedAt: a.liked_at || a.created_at || new Date().toISOString(),
+          article: {
+            id: a.id,
+            title: a.title,
+            slug: a.slug,
+            excerpt: a.excerpt,
+            authorName: a.author_name || a.author?.name || '',
+            publishedAt: a.published_at,
+            featuredImage: a.featured_image,
+            categoryId: a.categories?.id,
+            readingTime: a.reading_time || 0,
+          }
+        }));
         
         if (append) {
           setLikes(prev => [...prev, ...newLikes]);
@@ -70,20 +85,21 @@ export default function LikedArticlesTab({ userId, darkMode = false }: LikedArti
     }
   };
 
-  // إزالة الإعجاب
+  // إزالة الإعجاب عبر API الموحد
   const removeLike = async (articleId: string) => {
     try {
-      const response = await fetch(`/api/user/likes?userId=${userId}&articleId=${articleId}`, {
-        method: 'DELETE'
+      const response = await fetch(`/api/interactions/like`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth-token') || ''}` },
+        body: JSON.stringify({ articleId, like: false })
       });
 
-      const result = await response.json();
-      
-      if (result.success) {
+      if (response.ok) {
         setLikes(prev => prev.filter(like => like.articleId !== articleId));
         toast.success('تم إزالة الإعجاب بنجاح');
       } else {
-        throw new Error(result.error || 'فشل في إزالة الإعجاب');
+        const t = await response.text();
+        throw new Error(t || 'فشل في إزالة الإعجاب');
       }
     } catch (error) {
       console.error('خطأ في إزالة الإعجاب:', error);

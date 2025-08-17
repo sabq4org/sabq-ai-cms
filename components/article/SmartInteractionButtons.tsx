@@ -44,36 +44,13 @@ export function SmartInteractionButtons({
     
     try {
       const newLikeStatus = !hasLiked;
-      
-      const res = await fetch('/api/interactions/like', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ 
-          articleId, 
-          like: newLikeStatus 
-        }),
-      });
-      
-      console.log('📊 استجابة API الإعجاب:', res.status);
-      
-      if (res.ok) {
-        const data = await res.json();
-        console.log('✅ نجح الإعجاب:', data);
-        
-        // تحديث الحالة المحلية
-        await toggleLike();
-        setLocalStats(prev => ({ 
-          ...prev, 
-          likes: data.likes || (newLikeStatus ? prev.likes + 1 : prev.likes - 1)
-        }));
-        
-        console.log('✅ تم الإعجاب بنجاح!');
-      } else {
-        const error = await res.text();
-        console.error('❌ فشل الإعجاب:', error);
-      }
+      // طلب واحد عبر hook المسؤول الذي يرسل التوكن
+      await toggleLike();
+      setLocalStats(prev => ({ 
+        ...prev, 
+        likes: newLikeStatus ? prev.likes + 1 : Math.max(0, prev.likes - 1)
+      }));
+      console.log('✅ تم تبديل الإعجاب محليًا وأُرسل الطلب عبر hook');
     } catch (error) {
       console.error('❌ خطأ في الإعجاب:', error);
     }
@@ -85,11 +62,12 @@ export function SmartInteractionButtons({
     
     try {
       const newSaveStatus = !hasSaved;
-      
+      // إرسال الطلب مع التوكن
       const res = await fetch('/api/bookmarks', {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('auth-token') || localStorage.getItem('sabq_at') || localStorage.getItem('access_token') || ''}`
         },
         body: JSON.stringify({ 
           articleId, 
@@ -103,11 +81,11 @@ export function SmartInteractionButtons({
         const data = await res.json();
         console.log('✅ نجح الحفظ:', data);
         
-        // تحديث الحالة المحلية
+        // تحديث الحالة المحلية فورًا ثم تثبيت الرقم بما عاد من الخادم
         await toggleSave();
         setLocalStats(prev => ({ 
           ...prev, 
-          saves: data.saves || (newSaveStatus ? prev.saves + 1 : prev.saves - 1)
+          saves: typeof data.saves === 'number' ? data.saves : (newSaveStatus ? prev.saves + 1 : Math.max(0, prev.saves - 1))
         }));
         
         console.log('✅ تم حفظ المقال بنجاح!');
