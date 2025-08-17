@@ -111,6 +111,7 @@ export async function POST(req: NextRequest) {
       data: {
         notification: updatedNotification,
         remainingUnread,
+        totalUnread: remainingUnread,
         action: 'mark_read'
       },
       message: 'تم تعليم الإشعار كمقروء'

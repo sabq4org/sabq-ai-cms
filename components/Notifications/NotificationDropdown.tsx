@@ -161,14 +161,14 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
               aria-label="قائمة الإشعارات"
             >
             {/* رأس القائمة */}
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700 text-right bg-white/95 dark:bg-gray-900/90 backdrop-blur">
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700 text-right bg-white/95 dark:bg-gray-900/90 backdrop-blur rtl:text-right">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 justify-end">
+                <div className="flex items-center gap-2 justify-end rtl:flex-row-reverse">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                     الإشعارات الذكية
                   </h3>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 rtl:flex-row-reverse">
                   {unreadCount > 0 && (
                     <button
                       onClick={markAllAsRead}
@@ -227,7 +227,16 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                 </div>
               ) : (
                 <>
-                  {notifications.map((notification) => (
+                  {notifications
+                    .slice()
+                    .sort((a, b) => {
+                      const weights: Record<string, number> = { urgent: 3, high: 2, medium: 1, low: 0 };
+                      const pa = weights[a.priority as keyof typeof weights] ?? 0;
+                      const pb = weights[b.priority as keyof typeof weights] ?? 0;
+                      if (pb !== pa) return pb - pa;
+                      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                    })
+                    .map((notification) => (
                     <motion.div
                       key={notification.id}
                       layout
@@ -254,7 +263,7 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                             } truncate`}>
                               {notification.title}
                             </h4>
-                            <div className="flex items-center gap-2 flex-shrink-0">
+                            <div className="flex items-center gap-2 flex-shrink-0 rtl:flex-row-reverse">
                               <span className={`text-xs ${getPriorityColor(notification.priority)}`}>
                                 ●
                               </span>
@@ -278,9 +287,19 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                             !notification.read_at 
                               ? 'text-gray-700 dark:text-gray-300' 
                               : 'text-gray-500 dark:text-gray-400'
-                          } line-clamp-2 leading-relaxed`}>
+                          } leading-relaxed break-words`}>
                             {notification.message}
                           </p>
+                          {((notification as any)?.metadata?.featuredImage || (notification as any)?.data?.featuredImage) && (
+                            <div className="mt-2">
+                              <img
+                                src={(notification as any).metadata?.featuredImage || (notification as any).data?.featuredImage}
+                                alt=""
+                                className="w-full h-28 object-cover rounded-md"
+                                loading="lazy"
+                              />
+                            </div>
+                          )}
                           
                           <div className="flex items-center justify-between mt-2">
                             <p className="text-xs text-gray-400 dark:text-gray-500">
@@ -314,6 +333,12 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                         className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
                         {loading ? 'جاري التحميل...' : 'تحميل المزيد'}
+                      </button>
+                      <button
+                        onClick={() => fetchNotifications(1, true)}
+                        className="ml-3 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+                      >
+                        تحديث الآن
                       </button>
                     </div>
                   )}

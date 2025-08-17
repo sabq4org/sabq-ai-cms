@@ -95,7 +95,12 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
       const result = await response.json();
 
       if (result.success) {
-        const newNotifications = result.data.notifications;
+        let newNotifications = result.data.notifications;
+        // توحيد الحقول: ضمان وجود data حتى لو أُرسلت كـ metadata
+        newNotifications = newNotifications.map((n: any) => ({
+          ...n,
+          data: n.data || n.metadata || {},
+        }));
         
         setNotifications(prev => 
           reset ? newNotifications : [...prev, ...newNotifications]
@@ -165,7 +170,11 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
           )
         );
         
-        setUnreadCount(result.data.newUnreadCount);
+        setUnreadCount(
+          typeof result.data?.totalUnread === 'number'
+            ? result.data.totalUnread
+            : (typeof result.data?.remainingUnread === 'number' ? result.data.remainingUnread : Math.max(0, unreadCount - 1))
+        );
         
       } else {
         throw new Error(result.error || 'فشل في تحديث الإشعار');

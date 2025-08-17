@@ -207,7 +207,8 @@ export async function POST(req: NextRequest) {
         message,
         priority,
         status: 'pending',
-        metadata: metadata || {},
+        // توحيد الحقل إلى data بدل metadata لضمان القراءة الصحيحة من الواجهات الأمامية
+        data: metadata || {},
         created_by: user.id
       }
     });
