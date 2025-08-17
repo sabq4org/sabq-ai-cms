@@ -234,7 +234,7 @@ export default function ModernDashboardHomeFullWidth() {
         </section>
 
         {/* الإحصائيات بتصميم Manus UI */}
-        <section className="grid grid-4" style={{ marginBottom: '16px' }}>
+        <section className="grid grid-4" style={{ marginBottom: '12px' }}>
           {statsData.map((stat, index) => (
             <StatCard key={index} {...stat} />
           ))}
