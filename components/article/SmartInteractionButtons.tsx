@@ -59,11 +59,16 @@ export function SmartInteractionButtons({
     
     try {
       const newLikeStatus = !hasLiked;
-      // طلب واحد عبر hook المسؤول الذي يرسل التوكن
-      await toggleLike();
+      // تفاؤلي: تحديث فوري + قفل قصير
       setLocalStats(prev => ({ 
         ...prev, 
         likes: newLikeStatus ? prev.likes + 1 : Math.max(0, prev.likes - 1)
+      }));
+      // طلب عبر الهوك (يرسل التوكن) مع requestId لمنع الازدواجية
+      await toggleLike();
+      setLocalStats(prev => ({ 
+        ...prev, 
+        likes: prev.likes
       }));
       console.log('✅ تم تبديل الإعجاب محليًا وأُرسل الطلب عبر hook');
     } catch (error) {
@@ -86,7 +91,8 @@ export function SmartInteractionButtons({
         },
         body: JSON.stringify({ 
           articleId, 
-          saved: newSaveStatus 
+          saved: newSaveStatus,
+          requestId: (globalThis.crypto?.randomUUID?.() || String(Date.now())) + ':' + articleId
         }),
       });
       
@@ -96,7 +102,7 @@ export function SmartInteractionButtons({
         const data = await res.json();
         console.log('✅ نجح الحفظ:', data);
         
-        // تحديث الحالة المحلية فورًا ثم تثبيت الرقم بما عاد من الخادم
+        // تفاؤلي + تثبيت بالقيمة الفعلية
         await toggleSave();
         setLocalStats(prev => ({ 
           ...prev, 
