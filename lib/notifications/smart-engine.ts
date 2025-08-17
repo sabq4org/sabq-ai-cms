@@ -73,6 +73,7 @@ export class SmartNotificationEngine {
   static async notifyNewArticleInCategory(articleId: string, categoryId: string): Promise<void> {
     try {
       console.log('📰 معالجة إشعارات مقال جديد في التصنيف:', categoryId);
+      console.log('🔍 معرف المقال:', articleId);
 
       // جلب المقال
       const article = await prisma.articles.findUnique({
@@ -93,8 +94,11 @@ export class SmartNotificationEngine {
 
       // إنشاء إشعارات للمستخدمين
       for (const userId of interestedUsers) {
-        const categoryName = (article as any).categories?.name || 'التصنيف المفضل';
+        // الحصول على اسم التصنيف من كائن categories (علاقة مفردة في Prisma)
+        const categoryName = article.categories?.name || 'التصنيف المفضل';
         const em = SmartNotificationEngine.pickCategoryEmoji(categoryName);
+        
+        console.log(`📧 إرسال إشعار للمستخدم ${userId} عن مقال في ${categoryName}`);
         
         await this.createNotification({
           userId,
