@@ -97,8 +97,12 @@ export default function SavedArticlesPage() {
         setLoadingMore(true);
       }
 
-      const userId = localStorage.getItem('user_id');
-      const response = await fetch(`/api/interactions/saved-articles?userId=${userId}&page=${pageNum}&limit=12`);
+      const token = localStorage.getItem('auth-token') || localStorage.getItem('sabq_at') || localStorage.getItem('access_token') || '';
+      const response = await fetch(`/api/interactions/saved-articles?page=${pageNum}&limit=12&_=${Date.now()}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        cache: 'no-store',
+        credentials: 'include'
+      });
       
       if (response.ok) {
         const data: ApiResponse = await response.json();
@@ -111,7 +115,6 @@ export default function SavedArticlesPage() {
           setHasMore(data.data.hasMore);
           setPage(pageNum);
           
-          // حساب الإحصائيات
           if (pageNum === 1) {
             calculateStats(data.data.articles, data.data.total);
           }
@@ -154,21 +157,20 @@ export default function SavedArticlesPage() {
   const handleRemoveBookmark = async (articleId: string) => {
     setRemoving(articleId);
     try {
-      const userId = localStorage.getItem('user_id');
+      const token = localStorage.getItem('auth-token') || localStorage.getItem('sabq_at') || localStorage.getItem('access_token') || '';
       const response = await fetch('/api/bookmarks', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({
-          userId,
           itemId: articleId,
           itemType: 'article',
-          saved: false
+          saved: false,
+          requestId: (globalThis.crypto?.randomUUID?.() || String(Date.now())) + ':' + articleId
         })
       });
 
       if (response.ok) {
         setSavedArticles(prev => prev.filter(article => article.id !== articleId));
-        // تحديث الإحصائيات
         setStats(prev => ({
           ...prev,
           totalSaved: Math.max(0, prev.totalSaved - 1)

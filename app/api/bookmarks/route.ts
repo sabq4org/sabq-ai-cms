@@ -1,45 +1,82 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuthFromRequest } from "@/app/lib/auth";
 import prisma from "@/lib/prisma";
+import getRedisClient from "@/lib/redis-client";
 
 export async function POST(req: NextRequest) {
   try {
     const user = await requireAuthFromRequest(req);
-    const { articleId, saved } = await req.json();
+    const body = await req.json();
+    let { articleId, saved, itemId, itemType, action } = body || {};
+
+    if (!articleId && itemType === 'article' && itemId) {
+      articleId = itemId;
+    }
 
     if (!articleId) {
       return NextResponse.json({ error: "Missing articleId" }, { status: 400 });
     }
 
-    if (saved) {
-      // التحقق إذا كان المستخدم قد حفظ المقال مسبقاً
-      const existingSave = await prisma.userInteractions.findFirst({
-        where: { user_id: user.id, article_id: articleId, interaction_type: "save" }
-      });
+    // التحقق من وجود المقال
+    const article = await prisma.articles.findUnique({ where: { id: articleId }, select: { id: true } });
+    if (!article) {
+      return NextResponse.json({ error: 'Article not found' }, { status: 404 });
+    }
 
-      if (!existingSave) {
-        await prisma.$transaction([
-          prisma.userInteractions.create({ 
-            data: { 
-              id: `save_${user.id}_${articleId}_${Date.now()}`,
-              user_id: user.id, 
-              article_id: articleId, 
-              interaction_type: "save" 
-            } 
-          }),
-          prisma.articles.update({ where: { id: articleId }, data: { saves: { increment: 1 } } })
-        ]);
+    // Idempotency عبر Redis
+    const redis = getRedisClient();
+    const requestId = (body?.requestId ? String(body.requestId) : null) || undefined;
+    const idemKey = requestId ? `idem:save:${user.id}:${articleId}:${requestId}` : undefined;
+    const respKey = requestId ? `idem:save:resp:${user.id}:${articleId}:${requestId}` : undefined;
+    if (redis && idemKey && respKey) {
+      const setRes = await (redis as any).set(idemKey, "1", "EX", 300, "NX");
+      if (!setRes) {
+        const cached = await (redis as any).get(respKey);
+        if (cached) return NextResponse.json(JSON.parse(cached));
       }
-    } else {
+    }
+
+    // الحالة الحالية (interactions fallback)
+    const existing = await prisma.interactions.findUnique({
+      where: {
+        user_id_article_id_type: { user_id: user.id, article_id: articleId, type: 'save' }
+      }
+    });
+
+    // تحديد الحالة المطلوبة
+    let desiredSaved: boolean;
+    if (typeof saved === 'boolean') desiredSaved = saved;
+    else if (action === 'add') desiredSaved = true;
+    else if (action === 'remove') desiredSaved = false;
+    else desiredSaved = !existing; // toggle
+
+    if (desiredSaved && !existing) {
       await prisma.$transaction([
-        prisma.userInteractions.deleteMany({ where: { user_id: user.id, article_id: articleId, interaction_type: "save" } }),
+        prisma.interactions.create({
+          data: {
+            id: `save_${user.id}_${articleId}_${Date.now()}`,
+            user_id: user.id,
+            article_id: articleId,
+            type: 'save'
+          }
+        }),
+        prisma.articles.update({ where: { id: articleId }, data: { saves: { increment: 1 } } })
+      ]);
+    } else if (!desiredSaved && existing) {
+      await prisma.$transaction([
+        prisma.interactions.delete({ where: { id: existing.id } }),
         prisma.articles.update({ where: { id: articleId }, data: { saves: { decrement: 1 } } })
       ]);
       await prisma.articles.updateMany({ where: { id: articleId, saves: { lt: 0 } as any }, data: { saves: 0 } });
     }
 
     const updated = await prisma.articles.findUnique({ where: { id: articleId }, select: { likes: true, saves: true } });
-    return NextResponse.json({ saved: !!saved, likes: updated?.likes || 0, saves: updated?.saves || 0 });
+
+    const payload = { saved: desiredSaved, likes: updated?.likes || 0, saves: updated?.saves || 0 };
+    if (redis && respKey) {
+      try { await (redis as any).set(respKey, JSON.stringify(payload), "EX", 300); } catch {}
+    }
+    return NextResponse.json(payload);
   } catch (e: any) {
     if (String(e?.message || e).includes("Unauthorized")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
