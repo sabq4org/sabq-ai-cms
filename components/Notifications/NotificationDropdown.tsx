@@ -177,6 +177,13 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                       تحديد الكل كمقروء
                     </button>
                   )}
+                  <button
+                    onClick={() => fetchNotifications(1, true)}
+                    className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+                    title="تحديث الآن"
+                  >
+                    تحديث الآن
+                  </button>
                   {error && (
                     <button
                       onClick={clearError}
