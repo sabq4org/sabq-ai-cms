@@ -995,7 +995,7 @@ function AdminNewsPageContent() {
                     خبر جديد
                   </Button>
                 </Link>
-                            </div>
+              </div>
             </div>
           </div>
           
