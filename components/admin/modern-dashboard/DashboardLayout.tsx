@@ -65,17 +65,16 @@ export default function DashboardLayout({
         
         {/* الشريط الجانبي للديسكتوب */}
         {!isMobile && (
-          <aside style={{
+          <aside className="manus-sidebar" style={{
             position: 'fixed',
             top: '56px',
             right: 0,
             width: sidebarOpen ? '280px' : '80px',
             height: 'calc(100vh - 56px)',
-            background: 'transparent',
             padding: '16px 12px',
             overflowY: 'auto',
             zIndex: 900,
-            transition: 'width 0.3s ease'
+            transition: 'width 0.3s ease, background 0.3s ease'
           }}>
             <ModernSidebar isCollapsed={!sidebarOpen} onToggle={toggleSidebar} isMobile={isMobile} />
           </aside>
@@ -83,13 +82,12 @@ export default function DashboardLayout({
 
         {/* الشريط الجانبي للجوال */}
         {isMobile && sidebarOpen && (
-          <aside style={{
+          <aside className="manus-sidebar" style={{
             position: 'fixed',
             top: '56px',
             right: 0,
             width: '280px',
             height: 'calc(100vh - 56px)',
-            background: 'hsl(var(--bg-card))',
             borderLeft: '1px solid hsl(var(--line))',
             padding: '16px 12px',
             overflowY: 'auto',

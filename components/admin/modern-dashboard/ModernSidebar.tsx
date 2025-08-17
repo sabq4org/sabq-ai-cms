@@ -632,11 +632,10 @@ export default function ModernSidebar({
   };
 
   return (
-    <div style={{
+    <div className="manus-sidebar" style={{
       height: '100%',
       display: 'flex',
       flexDirection: 'column',
-      background: 'hsl(var(--bg-card))',
       borderRadius: '0 12px 12px 0',
       boxShadow: 'var(--card-shadow)'
     }}>
