@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { getArticleLink } from '@/lib/utils';
 import { Bookmark, Clock, ExternalLink, Loader2, Trash2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
@@ -72,11 +73,11 @@ export default function SavedArticlesTab({ userId, darkMode = false }: SavedArti
     try {
       const response = await fetch('/api/bookmarks', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth-token') || ''}` },
         body: JSON.stringify({
-          userId,
           itemId: articleId,
-          itemType: 'article'
+          itemType: 'article',
+          action: 'remove'
         })
       });
 
@@ -195,7 +196,7 @@ export default function SavedArticlesTab({ userId, darkMode = false }: SavedArti
                 )}
                 
                 <Link
-                  href={`/article/${article.id}`}
+                  href={getArticleLink(article as any)}
                   className={`block font-semibold hover:text-blue-600 dark:hover:text-blue-400 line-clamp-2 ${
                     darkMode ? 'text-white' : 'text-gray-800'
                   }`}
@@ -248,7 +249,7 @@ export default function SavedArticlesTab({ userId, darkMode = false }: SavedArti
 
             <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
               <Link
-                href={`/article/${article.id}`}
+                href={getArticleLink(article as any)}
                 className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm font-medium"
               >
                 قراءة المقال
