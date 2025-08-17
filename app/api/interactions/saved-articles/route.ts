@@ -94,16 +94,27 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        articles: articlesWithInteraction,
-        total: totalSaved,
-        page,
-        totalPages: Math.ceil(totalSaved / limit),
-        hasMore: page * limit < totalSaved
+    return new NextResponse(
+      JSON.stringify({
+        success: true,
+        data: {
+          articles: articlesWithInteraction,
+          total: totalSaved,
+          page,
+          totalPages: Math.ceil(totalSaved / limit),
+          hasMore: page * limit < totalSaved
+        }
+      }),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
       }
-    });
+    );
 
   } catch (error) {
     console.error('Error fetching saved articles:', error);
