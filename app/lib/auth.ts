@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { NextRequest } from "next/server";
 
 export interface User {
@@ -141,8 +141,19 @@ export async function getCurrentUser(): Promise<User | null> {
           // تجاهُل أي خطأ في التحليل والاعتماد على مسار التوكن فقط
         }
       }
+
+      // محاولة أخيرة: قراءة Authorization header (Bearer ...) لدعم العملاء الذين يرسلون التوكن في الهيدر
+      if (!payload) {
+        const hdrs = await headers();
+        const authHeader = hdrs.get("authorization");
+        if (authHeader && authHeader.startsWith("Bearer ")) {
+          const bearer = authHeader.substring(7);
+          payload = await verifyToken(bearer);
+        }
+      }
+
       // لا يوجد أي تعريف للمستخدم
-      return null;
+      if (!payload) return null;
     }
 
     // استعلام قاعدة البيانات للحصول على بيانات المستخدم الكاملة
