@@ -1167,7 +1167,6 @@ function AdminNewsPageContent() {
                     <XCircle className="w-6 h-6 text-orange-600 dark:text-orange-400" />
                   </div>
                 </div>
-              </div>
               </DesignComponents.StandardCard>
 
               {/* بطاقة المحذوفة */}
