@@ -1168,6 +1168,7 @@ function AdminNewsPageContent() {
                   </div>
                 </div>
               </div>
+              </DesignComponents.StandardCard>
 
               {/* بطاقة المحذوفة */}
               <DesignComponents.StandardCard
