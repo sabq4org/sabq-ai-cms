@@ -398,9 +398,7 @@ export class SmartNotificationEngine {
       const interactions = await prisma.interactions.findMany({
         where: {
           articles: {
-            categories: {
-              some: { id: categoryId }
-            }
+            category_id: categoryId
           },
           type: { in: ['like', 'save'] },
           created_at: {
