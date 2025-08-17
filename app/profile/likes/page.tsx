@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { 
-  Bookmark, 
+  Heart, 
   Calendar, 
   Eye, 
   Clock, 
@@ -13,23 +13,22 @@ import {
   Filter,
   ArrowLeft,
   Loader2,
-  BookmarkX,
+  HeartOff,
   TrendingUp,
   BookOpen,
-  Archive,
   Star
 } from 'lucide-react';
 import { formatRelativeDate, formatFullDate } from '@/lib/date-utils';
 import { getImageUrl } from '@/lib/utils';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
-interface SavedArticle {
+interface LikedArticle {
   id: string;
   title: string;
   excerpt: string;
   featured_image: string;
   published_at: string;
-  saved_at: string;
+  liked_at: string;
   views: number;
   likes: number;
   saves: number;
@@ -50,7 +49,7 @@ interface SavedArticle {
 interface ApiResponse {
   success: boolean;
   data: {
-    articles: SavedArticle[];
+    articles: LikedArticle[];
     total: number;
     page: number;
     totalPages: number;
@@ -59,16 +58,16 @@ interface ApiResponse {
   error?: string;
 }
 
-export default function SavedArticlesPage() {
+export default function LikesPage() {
   const router = useRouter();
   const { darkMode } = useDarkModeContext();
-  const [savedArticles, setSavedArticles] = useState<SavedArticle[]>([]);
+  const [likedArticles, setLikedArticles] = useState<LikedArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [removing, setRemoving] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<'saved_date' | 'published_date' | 'popularity'>('saved_date');
+  const [sortBy, setSortBy] = useState<'liked_date' | 'published_date' | 'popularity'>('liked_date');
   const [showFilters, setShowFilters] = useState(false);
-  const [stats, setStats] = useState({ totalSaved: 0, thisMonth: 0, mostSavedCategory: '' });
+  const [stats, setStats] = useState({ totalLikes: 0, thisMonth: 0, mostLikedCategory: '' });
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -82,14 +81,14 @@ export default function SavedArticlesPage() {
     const userData = localStorage.getItem('user');
 
     if (!userId || userId === 'anonymous' || !userData) {
-      router.push('/login?redirect=/profile/saved');
+      router.push('/login?redirect=/profile/likes');
       return;
     }
 
-    fetchSavedArticles();
+    fetchLikedArticles();
   };
 
-  const fetchSavedArticles = async (pageNum = 1, reset = true) => {
+  const fetchLikedArticles = async (pageNum = 1, reset = true) => {
     try {
       if (pageNum === 1) {
         setLoading(true);
@@ -98,15 +97,19 @@ export default function SavedArticlesPage() {
       }
 
       const userId = localStorage.getItem('user_id');
-      const response = await fetch(`/api/interactions/saved-articles?userId=${userId}&page=${pageNum}&limit=12`);
+      const response = await fetch(`/api/users/me/likes?page=${pageNum}&limit=12&search=${encodeURIComponent(searchQuery)}&sortBy=${sortBy}`, {
+        headers: {
+          'user-id': userId || ''
+        }
+      });
       
       if (response.ok) {
         const data: ApiResponse = await response.json();
         if (data.success && data.data) {
           if (reset) {
-            setSavedArticles(data.data.articles);
+            setLikedArticles(data.data.articles);
           } else {
-            setSavedArticles(prev => [...prev, ...data.data.articles]);
+            setLikedArticles(prev => [...prev, ...data.data.articles]);
           }
           setHasMore(data.data.hasMore);
           setPage(pageNum);
@@ -118,20 +121,20 @@ export default function SavedArticlesPage() {
         }
       }
     } catch (error) {
-      console.error('Error fetching saved articles:', error);
+      console.error('Error fetching liked articles:', error);
     } finally {
       setLoading(false);
       setLoadingMore(false);
     }
   };
 
-  const calculateStats = (articles: SavedArticle[], total: number) => {
+  const calculateStats = (articles: LikedArticle[], total: number) => {
     const thisMonthStart = new Date();
     thisMonthStart.setDate(1);
     thisMonthStart.setHours(0, 0, 0, 0);
     
-    const thisMonthSaved = articles.filter(article => 
-      new Date(article.saved_at) >= thisMonthStart
+    const thisMonthLikes = articles.filter(article => 
+      new Date(article.liked_at) >= thisMonthStart
     ).length;
 
     const categoryCount = articles.reduce((acc, article) => {
@@ -141,53 +144,60 @@ export default function SavedArticlesPage() {
       return acc;
     }, {} as Record<string, number>);
 
-    const mostSavedCategory = Object.entries(categoryCount)
+    const mostLikedCategory = Object.entries(categoryCount)
       .sort(([,a], [,b]) => b - a)[0]?.[0] || '';
 
     setStats({
-      totalSaved: total,
-      thisMonth: thisMonthSaved,
-      mostSavedCategory
+      totalLikes: total,
+      thisMonth: thisMonthLikes,
+      mostLikedCategory
     });
   };
 
-  const handleRemoveBookmark = async (articleId: string) => {
+  const handleRemoveLike = async (articleId: string) => {
     setRemoving(articleId);
     try {
       const userId = localStorage.getItem('user_id');
-      const response = await fetch('/api/bookmarks', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId,
-          itemId: articleId,
-          itemType: 'article',
-          saved: false
-        })
+      const response = await fetch(`/api/users/me/likes?articleId=${articleId}`, {
+        method: 'DELETE',
+        headers: { 
+          'Content-Type': 'application/json',
+          'user-id': userId || ''
+        }
       });
 
       if (response.ok) {
-        setSavedArticles(prev => prev.filter(article => article.id !== articleId));
+        setLikedArticles(prev => prev.filter(article => article.id !== articleId));
         // تحديث الإحصائيات
         setStats(prev => ({
           ...prev,
-          totalSaved: Math.max(0, prev.totalSaved - 1)
+          totalLikes: Math.max(0, prev.totalLikes - 1)
         }));
       }
     } catch (error) {
-      console.error('Error removing bookmark:', error);
+      console.error('Error removing like:', error);
     } finally {
       setRemoving(null);
     }
   };
 
+  // إعادة جلب البيانات عند تغيير البحث أو الترتيب
+  useEffect(() => {
+    if (loading) return; // تجنب الاستدعاء المتكرر أثناء التحميل الأولي
+    const timeoutId = setTimeout(() => {
+      fetchLikedArticles(1, true);
+    }, 500); // تأخير للبحث المباشر
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, sortBy]);
+
   const loadMore = () => {
     if (hasMore && !loadingMore) {
-      fetchSavedArticles(page + 1, false);
+      fetchLikedArticles(page + 1, false);
     }
   };
 
-  const filteredArticles = savedArticles
+  const filteredArticles = likedArticles
     .filter(article => 
       article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       article.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -195,8 +205,8 @@ export default function SavedArticlesPage() {
     )
     .sort((a, b) => {
       switch (sortBy) {
-        case 'saved_date':
-          return new Date(b.saved_at).getTime() - new Date(a.saved_at).getTime();
+        case 'liked_date':
+          return new Date(b.liked_at).getTime() - new Date(a.liked_at).getTime();
         case 'published_date':
           return new Date(b.published_at).getTime() - new Date(a.published_at).getTime();
         case 'popularity':
@@ -211,9 +221,9 @@ export default function SavedArticlesPage() {
       <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
         <div className="flex items-center justify-center h-screen">
           <div className="text-center">
-            <Loader2 className="w-12 h-12 animate-spin text-blue-500 mx-auto mb-4" />
+            <Loader2 className="w-12 h-12 animate-spin text-red-500 mx-auto mb-4" />
             <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              جاري تحميل المحفوظات...
+              جاري تحميل المقالات المعجب بها...
             </p>
           </div>
         </div>
@@ -244,13 +254,13 @@ export default function SavedArticlesPage() {
                 <h1 className={`text-2xl font-bold ${
                   darkMode ? 'text-white' : 'text-gray-900'
                 } flex items-center gap-2`}>
-                  <Bookmark className="w-7 h-7 text-blue-500" />
-                  محفوظاتي
+                  <Heart className="w-7 h-7 text-red-500" />
+                  المقالات المعجب بها
                 </h1>
                 <p className={`text-sm ${
                   darkMode ? 'text-gray-400' : 'text-gray-600'
                 }`}>
-                  {stats.totalSaved} مقال • {stats.thisMonth} هذا الشهر
+                  {stats.totalLikes} مقال • {stats.thisMonth} هذا الشهر
                 </p>
               </div>
             </div>
@@ -272,30 +282,30 @@ export default function SavedArticlesPage() {
             showFilters ? 'block' : 'hidden md:grid'
           }`}>
             <div className={`p-3 rounded-lg ${
-              darkMode ? 'bg-gray-800' : 'bg-blue-50'
+              darkMode ? 'bg-gray-800' : 'bg-red-50'
             }`}>
               <div className="flex items-center gap-2">
-                <Archive className="w-4 h-4 text-blue-500" />
+                <Heart className="w-4 h-4 text-red-500" />
                 <span className={`text-xs font-medium ${
-                  darkMode ? 'text-gray-400' : 'text-blue-600'
+                  darkMode ? 'text-gray-400' : 'text-red-600'
                 }`}>
-                  إجمالي المحفوظات
+                  إجمالي الإعجابات
                 </span>
               </div>
               <p className={`text-lg font-bold ${
                 darkMode ? 'text-white' : 'text-gray-900'
               }`}>
-                {stats.totalSaved}
+                {stats.totalLikes}
               </p>
             </div>
 
             <div className={`p-3 rounded-lg ${
-              darkMode ? 'bg-gray-800' : 'bg-green-50'
+              darkMode ? 'bg-gray-800' : 'bg-blue-50'
             }`}>
               <div className="flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-green-500" />
+                <TrendingUp className="w-4 h-4 text-blue-500" />
                 <span className={`text-xs font-medium ${
-                  darkMode ? 'text-gray-400' : 'text-green-600'
+                  darkMode ? 'text-gray-400' : 'text-blue-600'
                 }`}>
                   هذا الشهر
                 </span>
@@ -308,12 +318,12 @@ export default function SavedArticlesPage() {
             </div>
 
             <div className={`p-3 rounded-lg ${
-              darkMode ? 'bg-gray-800' : 'bg-purple-50'
+              darkMode ? 'bg-gray-800' : 'bg-green-50'
             }`}>
               <div className="flex items-center gap-2">
-                <Star className="w-4 h-4 text-purple-500" />
+                <Star className="w-4 h-4 text-green-500" />
                 <span className={`text-xs font-medium ${
-                  darkMode ? 'text-gray-400' : 'text-purple-600'
+                  darkMode ? 'text-gray-400' : 'text-green-600'
                 }`}>
                   التصنيف المفضل
                 </span>
@@ -321,7 +331,7 @@ export default function SavedArticlesPage() {
               <p className={`text-sm font-bold ${
                 darkMode ? 'text-white' : 'text-gray-900'
               } truncate`}>
-                {stats.mostSavedCategory || 'غير محدد'}
+                {stats.mostLikedCategory || 'غير محدد'}
               </p>
             </div>
           </div>
@@ -334,35 +344,35 @@ export default function SavedArticlesPage() {
               }`} />
               <input
                 type="text"
-                placeholder="ابحث في المحفوظات..."
+                placeholder="ابحث في المقالات المعجب بها..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={`w-full pr-10 pl-4 py-2.5 rounded-xl border transition-colors ${
                   darkMode 
                     ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500' 
                     : 'bg-white border-gray-200 text-gray-900 placeholder-gray-400'
-                } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                } focus:outline-none focus:ring-2 focus:ring-red-500`}
               />
             </div>
 
             <div className="flex gap-2 flex-wrap">
               <button
-                onClick={() => setSortBy('saved_date')}
+                onClick={() => setSortBy('liked_date')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  sortBy === 'saved_date'
-                    ? 'bg-blue-500 text-white'
+                  sortBy === 'liked_date'
+                    ? 'bg-red-500 text-white'
                     : darkMode 
                       ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' 
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                تاريخ الحفظ
+                تاريخ الإعجاب
               </button>
               <button
                 onClick={() => setSortBy('published_date')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   sortBy === 'published_date'
-                    ? 'bg-blue-500 text-white'
+                    ? 'bg-red-500 text-white'
                     : darkMode 
                       ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' 
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -374,7 +384,7 @@ export default function SavedArticlesPage() {
                 onClick={() => setSortBy('popularity')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   sortBy === 'popularity'
-                    ? 'bg-blue-500 text-white'
+                    ? 'bg-red-500 text-white'
                     : darkMode 
                       ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' 
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -391,23 +401,23 @@ export default function SavedArticlesPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {filteredArticles.length === 0 ? (
           <div className="text-center py-16">
-            <BookmarkX className={`w-16 h-16 mx-auto mb-4 ${
+            <HeartOff className={`w-16 h-16 mx-auto mb-4 ${
               darkMode ? 'text-gray-700' : 'text-gray-300'
             }`} />
             <h3 className={`text-lg font-semibold mb-2 ${
               darkMode ? 'text-white' : 'text-gray-900'
             }`}>
-              لا توجد مقالات محفوظة
+              لا توجد مقالات معجب بها
             </h3>
             <p className={`text-sm mb-6 ${
               darkMode ? 'text-gray-400' : 'text-gray-600'
             }`}>
-              {searchQuery ? 'لم يتم العثور على نتائج للبحث' : 'ابدأ بحفظ المقالات التي تهمك لقراءتها لاحقاً'}
+              {searchQuery ? 'لم يتم العثور على نتائج للبحث' : 'ابدأ بالإعجاب بالمقالات التي تهمك'}
             </p>
             {!searchQuery && (
               <Link
                 href="/"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
               >
                 <BookOpen className="w-4 h-4" />
                 تصفح المقالات
@@ -446,12 +456,12 @@ export default function SavedArticlesPage() {
                         </span>
                       ))}
                     </div>
-                    {/* عدد الحفظ */}
+                    {/* عدد الإعجابات */}
                     <div className="absolute bottom-3 left-3">
                       <div className="flex items-center gap-1 px-2 py-1 bg-black/50 backdrop-blur-sm rounded-lg">
-                        <Bookmark className="w-3.5 h-3.5 text-blue-500 fill-blue-500" />
+                        <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500" />
                         <span className="text-white text-xs font-medium">
-                          {article.saves}
+                          {article.likes}
                         </span>
                       </div>
                     </div>
@@ -460,7 +470,7 @@ export default function SavedArticlesPage() {
                   {/* محتوى المقال */}
                   <div className="p-4">
                     <Link href={`/article/${article.id}`}>
-                      <h3 className={`font-bold text-lg mb-2 line-clamp-2 hover:text-blue-500 transition-colors ${
+                      <h3 className={`font-bold text-lg mb-2 line-clamp-2 hover:text-red-500 transition-colors ${
                         darkMode ? 'text-white' : 'text-gray-900'
                       }`}>
                         {article.title}
@@ -497,19 +507,19 @@ export default function SavedArticlesPage() {
                       </span>
                     </div>
 
-                    {/* معلومات الحفظ وزر الحذف */}
+                    {/* معلومات الإعجاب وزر الإلغاء */}
                     <div className={`flex items-center justify-between pt-3 border-t ${
                       darkMode ? 'border-gray-700' : 'border-gray-100'
                     }`}>
                       <span className={`text-xs flex items-center gap-1 ${
                         darkMode ? 'text-gray-500' : 'text-gray-400'
                       }`}>
-                        <Bookmark className="w-3.5 h-3.5 text-blue-500 fill-blue-500" />
-                        حُفظ {formatRelativeDate(article.saved_at)}
+                        <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500" />
+                        أعجبت به {formatRelativeDate(article.liked_at)}
                       </span>
 
                       <button
-                        onClick={() => handleRemoveBookmark(article.id)}
+                        onClick={() => handleRemoveLike(article.id)}
                         disabled={removing === article.id}
                         className={`p-1.5 rounded-lg transition-colors ${
                           removing === article.id
@@ -518,12 +528,12 @@ export default function SavedArticlesPage() {
                               ? 'hover:bg-gray-700 text-red-400' 
                               : 'hover:bg-red-50 text-red-600'
                         }`}
-                        title="إزالة من المحفوظات"
+                        title="إلغاء الإعجاب"
                       >
                         {removing === article.id ? (
                           <Loader2 className="w-4 h-4 animate-spin" />
                         ) : (
-                          <BookmarkX className="w-4 h-4" />
+                          <HeartOff className="w-4 h-4" />
                         )}
                       </button>
                     </div>
@@ -541,7 +551,7 @@ export default function SavedArticlesPage() {
                   className={`px-8 py-3 rounded-lg font-medium transition-colors ${
                     loadingMore
                       ? 'opacity-50 cursor-not-allowed'
-                      : 'bg-blue-500 hover:bg-blue-600'
+                      : 'bg-red-500 hover:bg-red-600'
                   } text-white`}
                 >
                   {loadingMore ? (
@@ -560,4 +570,4 @@ export default function SavedArticlesPage() {
       </div>
     </div>
   );
-} 
+}
