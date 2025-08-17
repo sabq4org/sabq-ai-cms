@@ -610,7 +610,12 @@ export default function ModernSidebar({
             )}
 
             {hasChildren && isExpanded && !isCollapsed && (
-              <div className="mt-1 space-y-1">
+              <div style={{ 
+                marginTop: '8px', 
+                display: 'flex', 
+                flexDirection: 'column', 
+                gap: '4px' 
+              }}>
                 {item.children?.map((child) => (
                   <SidebarItemComponent
                     key={child.id}
@@ -675,7 +680,13 @@ export default function ModernSidebar({
           borderTop: '1px solid hsl(var(--line))',
           textAlign: 'center'
         }}>
-          <div className="text-xs text-muted">Manus UI v2.0</div>
+          <div style={{ 
+            fontSize: '11px', 
+            color: 'hsl(var(--muted))',
+            fontWeight: '500'
+          }}>
+            Manus UI v2.0
+          </div>
         </div>
       )}
     </div>
