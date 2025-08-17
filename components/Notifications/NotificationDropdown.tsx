@@ -117,7 +117,7 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
         onClick={() => setIsOpen(!isOpen)}
         className="relative p-2 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors duration-200"
         aria-label="الإشعارات"
-        title={`الإشعارات ${!isConnected ? '(غير متصل)' : ''}`}
+        title={`الإشعارات`}
       >
         {unreadCount > 0 ? (
           <BellSolidIcon className="h-6 w-6 text-blue-600" />
@@ -136,10 +136,7 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
           </motion.span>
         )}
 
-        {/* مؤشر حالة الاتصال */}
-        {!isConnected && (
-          <div className="absolute -bottom-1 -right-1 h-3 w-3 bg-gray-400 rounded-full border-2 border-white dark:border-gray-800" />
-        )}
+        {/* إخفاء مؤشر الاتصال لتفادي إرباك المستخدم */}
       </button>
 
       {/* قائمة الإشعارات المنسدلة */}
@@ -150,10 +147,11 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="absolute right-0 mt-2 w-96 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 max-h-96 overflow-hidden"
+            className="fixed md:absolute md:right-0 right-2 mt-2 md:w-[26rem] w-[calc(100vw-1rem)] bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 max-h-[75vh] overflow-hidden md:mr-0 mr-2"
+            style={{ insetInlineEnd: '0', top: 'calc(100% + 8px)' }}
           >
             {/* رأس القائمة */}
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700 text-right">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -192,19 +190,19 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                 </div>
               </div>
               {unreadCount > 0 && (
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 text-right">
                   لديك {unreadCount} إشعار غير مقروء
                 </p>
               )}
               {error && (
-                <p className="text-sm text-red-600 dark:text-red-400 mt-1 p-2 bg-red-50 dark:bg-red-900/20 rounded">
+                <p className="text-sm text-red-600 dark:text-red-400 mt-1 p-2 bg-red-50 dark:bg-red-900/20 rounded text-right">
                   {error}
                 </p>
               )}
             </div>
 
             {/* قائمة الإشعارات */}
-            <div className="max-h-80 overflow-y-auto">
+            <div className="max-h-[60vh] overflow-y-auto">
               {loading && notifications.length === 0 ? (
                 <div className="p-6 text-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
@@ -228,7 +226,7 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                     <motion.div
                       key={notification.id}
                       layout
-                      className={`p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-all duration-200 ${
+                      className={`p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-all duration-200 text-right ${
                         !notification.read_at 
                           ? 'bg-blue-50 dark:bg-blue-900/20 border-l-4 border-l-blue-500' 
                           : ''
@@ -237,7 +235,7 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                     >
                       <div className="flex items-start gap-3">
                         {/* أيقونة نوع الإشعار */}
-                        <div className="text-2xl flex-shrink-0 animate-pulse">
+                        <div className="text-2xl flex-shrink-0 animate-pulse ml-2">
                           {getNotificationIcon(notification.type)}
                         </div>
 

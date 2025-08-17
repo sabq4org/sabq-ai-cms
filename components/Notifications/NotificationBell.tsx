@@ -48,7 +48,7 @@ export default function NotificationBell() {
   }, []);
 
   return (
-    <div className="relative">
+    <div className="relative rtl:text-right">
       <button onClick={() => setOpen((v) => !v)} className="relative p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
         <Bell className="w-5 h-5" />
         {(unread || items.length) > 0 && (
@@ -58,7 +58,7 @@ export default function NotificationBell() {
         )}
       </button>
       {open && (
-        <div className="absolute left-0 mt-2 w-72 rounded-2xl shadow-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-2 z-50">
+        <div className="fixed md:absolute md:left-auto md:right-0 left-2 right-2 md:w-80 w-[calc(100vw-1rem)] mt-2 rounded-2xl shadow-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-2 z-50">
           {items.length === 0 ? (
             <div className="p-4 text-sm text-gray-500">لا توجد إشعارات</div>
           ) : (
