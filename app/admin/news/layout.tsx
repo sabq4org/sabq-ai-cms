@@ -25,34 +25,42 @@ export default function NewsLayout({
         }}
       >
         <style jsx global>{`
-          /* تعريف نظام Grid للبطاقات */
+          /* تعريف نظام Grid للبطاقات محسن */
           .grid {
-            display: grid;
-            gap: 16px;
+            display: grid !important;
+            gap: 20px !important;
+            width: 100% !important;
+            margin-bottom: 24px !important;
           }
           
           .grid-2 {
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(2, 1fr) !important;
           }
           
           .grid-3 {
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(3, 1fr) !important;
           }
           
           .grid-4 {
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(4, 1fr) !important;
           }
           
-          /* Responsive Grid */
-          @media (max-width: 1200px) {
+          /* Responsive Grid محسن */
+          @media (max-width: 1400px) {
             .grid-4 {
-              grid-template-columns: repeat(2, 1fr);
+              grid-template-columns: repeat(3, 1fr) !important;
             }
           }
           
-          @media (max-width: 768px) {
+          @media (max-width: 1024px) {
+            .grid-4 {
+              grid-template-columns: repeat(2, 1fr) !important;
+            }
+          }
+          
+          @media (max-width: 640px) {
             .grid-4, .grid-3, .grid-2 {
-              grid-template-columns: 1fr;
+              grid-template-columns: 1fr !important;
             }
           }
 
@@ -60,46 +68,65 @@ export default function NewsLayout({
           .card, [class*="StandardCard"] {
             background: hsl(var(--bg-card)) !important;
             border: 1px solid hsl(var(--line)) !important;
-            border-radius: 12px !important;
-            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1) !important;
-            transition: all 0.2s ease !important;
-            padding: 20px !important;
+            border-radius: 16px !important;
+            box-shadow: 0 2px 8px 0 rgb(0 0 0 / 0.08), 0 1px 4px -1px rgb(0 0 0 / 0.06) !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            padding: 24px !important;
             display: flex !important;
             flex-direction: column !important;
             justify-content: space-between !important;
-            min-height: 120px !important;
+            min-height: 140px !important;
+            position: relative !important;
+            overflow: hidden !important;
           }
           
           .card:hover, [class*="StandardCard"]:hover {
-            transform: translateY(-1px) !important;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+            transform: translateY(-4px) scale(1.02) !important;
+            box-shadow: 0 10px 25px 0 rgb(0 0 0 / 0.1), 0 4px 12px -2px rgb(0 0 0 / 0.05) !important;
           }
           
-          /* البطاقات المختارة */
+          /* البطاقات المختارة مع تأثيرات أفضل */
           .card.selected {
-            border-color: hsl(var(--accent)) !important;
-            box-shadow: 0 0 0 2px hsl(var(--accent) / 0.2) !important;
+            border-color: transparent !important;
+            box-shadow: 0 4px 20px 0 rgb(0 0 0 / 0.15), 0 0 0 2px hsl(var(--accent) / 0.3) !important;
+            transform: translateY(-2px) !important;
           }
           
-          /* أنواع البطاقات المختلفة */
+          /* أنواع البطاقات المختلفة مع gradients */
           .card-success.selected {
-            background: hsl(var(--accent-3)) !important;
+            background: linear-gradient(135deg, hsl(var(--accent-3)) 0%, hsl(var(--accent-3) / 0.8) 100%) !important;
             color: white !important;
           }
           
           .card-warning.selected {
-            background: hsl(var(--accent-4)) !important;
+            background: linear-gradient(135deg, hsl(var(--accent-4)) 0%, hsl(var(--accent-4) / 0.8) 100%) !important;
             color: white !important;
           }
           
           .card-info.selected {
-            background: hsl(var(--accent-2)) !important;
+            background: linear-gradient(135deg, hsl(var(--accent-2)) 0%, hsl(var(--accent-2) / 0.8) 100%) !important;
             color: white !important;
           }
           
           .card-danger.selected {
-            background: hsl(var(--accent-5)) !important;
+            background: linear-gradient(135deg, hsl(var(--accent-5)) 0%, hsl(var(--accent-5) / 0.8) 100%) !important;
             color: white !important;
+          }
+          
+          /* تحسين النصوص داخل البطاقات */
+          .card .heading-2 {
+            font-size: 28px !important;
+            font-weight: 700 !important;
+            margin: 8px 0 !important;
+            line-height: 1.2 !important;
+          }
+          
+          .card .chip {
+            font-size: 11px !important;
+            font-weight: 600 !important;
+            padding: 6px 12px !important;
+            border-radius: 20px !important;
+            backdrop-filter: blur(10px) !important;
           }
           
           /* تطبيق ألوان Manus UI على النصوص */
@@ -119,32 +146,60 @@ export default function NewsLayout({
           .border-gray-200 { border-color: hsl(var(--line)) !important; }
           .border-gray-300 { border-color: hsl(var(--line)) !important; }
           
-          /* Input fields */
+          /* تحسين المساحات والتخطيط العام */
+          section {
+            margin-bottom: 32px !important;
+          }
+          
+          /* Input fields محسنة */
           input, select, textarea {
             background: hsl(var(--bg-card)) !important;
             border: 1px solid hsl(var(--line)) !important;
             color: hsl(var(--fg)) !important;
+            border-radius: 8px !important;
+            padding: 12px 16px !important;
+            transition: all 0.2s ease !important;
           }
           
           input:focus, select:focus, textarea:focus {
             border-color: hsl(var(--accent)) !important;
             box-shadow: 0 0 0 3px hsl(var(--accent) / 0.1) !important;
+            outline: none !important;
           }
           
-          /* الجداول */
+          /* الجداول محسنة */
           table {
             background: hsl(var(--bg-card)) !important;
             border: 1px solid hsl(var(--line)) !important;
+            border-radius: 12px !important;
+            overflow: hidden !important;
           }
           
           th, td {
             border-color: hsl(var(--line)) !important;
+            padding: 12px 16px !important;
           }
           
-          /* وضع الظلام */
+          th {
+            background: hsl(var(--bg-elevated)) !important;
+            font-weight: 600 !important;
+          }
+          
+          /* وضع الظلام محسن */
           .dark .card, .dark [class*="StandardCard"] {
             background: hsl(var(--bg-card)) !important;
             border-color: hsl(var(--line)) !important;
+          }
+          
+          /* تحسين الأزرار */
+          button {
+            border-radius: 8px !important;
+            font-weight: 500 !important;
+            transition: all 0.2s ease !important;
+          }
+          
+          button:hover {
+            transform: translateY(-1px) !important;
           }
         `}</style>
         
@@ -152,4 +207,5 @@ export default function NewsLayout({
       </div>
     </>
   );
+}
 }
