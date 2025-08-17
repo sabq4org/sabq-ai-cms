@@ -108,6 +108,7 @@ export const useMediaUpload = (): UseMediaUploadReturn => {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(uploadData)
       });
 

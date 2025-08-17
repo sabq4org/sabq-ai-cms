@@ -379,6 +379,8 @@ export default function ModernCreateNewsPage() {
       const response = await fetch("/api/admin/ai/generate-content", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: 'include',
+        cache: 'no-store',
         body: JSON.stringify({ content: contentToSend }),
       });
 
@@ -432,6 +434,7 @@ export default function ModernCreateNewsPage() {
       const response = await fetch("/api/admin/ai/test-key", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: 'include',
       });
 
       const data = await response.json();
@@ -582,6 +585,7 @@ export default function ModernCreateNewsPage() {
           "Cache-Control": "no-cache",
           "Pragma": "no-cache"
         },
+        credentials: 'include',
         body: JSON.stringify(payload),
         signal: controller.signal,
       });
