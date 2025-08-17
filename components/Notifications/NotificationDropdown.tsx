@@ -163,15 +163,10 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
             {/* رأس القائمة */}
             <div className="p-4 border-b border-gray-200 dark:border-gray-700 text-right bg-white/95 dark:bg-gray-900/90 backdrop-blur">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 justify-end">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                     الإشعارات الذكية
                   </h3>
-                  {!isConnected && (
-                    <span className="text-xs text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
-                      غير متصل
-                    </span>
-                  )}
                 </div>
                 <div className="flex items-center gap-2">
                   {unreadCount > 0 && (
@@ -243,7 +238,7 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                       }`}
                       onClick={() => !notification.read_at && markAsRead(notification.id)}
                     >
-                      <div className="flex items-start gap-3">
+                      <div className="flex flex-row-reverse items-start gap-3">
                         {/* أيقونة نوع الإشعار */}
                         <div className="text-2xl flex-shrink-0 animate-pulse ml-2">
                           {getNotificationIcon(notification.type)}
