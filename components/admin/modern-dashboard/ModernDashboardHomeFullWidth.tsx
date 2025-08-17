@@ -189,111 +189,8 @@ export default function ModernDashboardHomeFullWidth() {
       {/* تحميل CSS Manus UI */}
       <link rel="stylesheet" href="/manus-ui.css" />
       
-      <div className="manus-layout">
-        {/* الشريط الجانبي */}
-        <aside 
-          className="manus-sidebar" 
-          style={{ 
-            display: isMobile && !sidebarOpen ? 'none' : 'block',
-            position: isMobile ? 'fixed' : 'static',
-            zIndex: isMobile ? 1000 : 'auto',
-            height: isMobile ? '100vh' : 'auto'
-          }}
-        >
-          {/* شعار المنصة */}
-          <div style={{ marginBottom: '32px' }}>
-            <div style={{
-              width: '48px',
-              height: '48px',
-              background: 'hsl(var(--accent))',
-              borderRadius: '12px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontSize: '24px',
-              fontWeight: '700',
-              marginBottom: '12px'
-            }}>
-              س
-            </div>
-            <h1 className="heading-3" style={{ margin: 0 }}>سبق الذكية</h1>
-            <p className="text-xs text-muted">Manus UI</p>
-          </div>
+      <div style={{ background: 'hsl(var(--bg))', minHeight: '100vh', padding: '24px' }}>
 
-          {/* التنقل الرئيسي */}
-          <nav>
-            <div className="divide-list">
-              <div className="list-item" style={{ padding: '12px 0' }}>
-                <Link href="/admin/modern" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
-                  <Home style={{ width: '16px', height: '16px' }} />
-                  لوحة التحكم
-                </Link>
-              </div>
-              <div className="list-item" style={{ padding: '12px 0' }}>
-                <Link href="/admin/articles" className="btn" style={{ width: '100%', justifyContent: 'center' }}>
-                  <FileText style={{ width: '16px', height: '16px' }} />
-                  إدارة المقالات
-                </Link>
-              </div>
-              <div className="list-item" style={{ padding: '12px 0' }}>
-                <Link href="/admin/analytics" className="btn" style={{ width: '100%', justifyContent: 'center' }}>
-                  <BarChart3 style={{ width: '16px', height: '16px' }} />
-                  التحليلات
-                </Link>
-              </div>
-              <div className="list-item" style={{ padding: '12px 0' }}>
-                <Link href="/admin/users" className="btn" style={{ width: '100%', justifyContent: 'center' }}>
-                  <Users style={{ width: '16px', height: '16px' }} />
-                  المستخدمون
-                </Link>
-              </div>
-              <div className="list-item" style={{ padding: '12px 0' }}>
-                <Link href="/admin/settings" className="btn" style={{ width: '100%', justifyContent: 'center' }}>
-                  <Settings style={{ width: '16px', height: '16px' }} />
-                  الإعدادات
-                </Link>
-              </div>
-            </div>
-          </nav>
-
-          <div className="divider"></div>
-
-          {/* تغيير الثيم */}
-          <div>
-            <h3 className="heading-3" style={{ fontSize: '14px', marginBottom: '16px' }}>🎨 لون الواجهة</h3>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
-              {Object.entries(themes).map(([key, theme]) => (
-                <button
-                  key={key}
-                  className={`btn btn-xs ${currentTheme === key ? 'btn-primary' : ''}`}
-                  onClick={() => applyTheme(key)}
-                  style={{ minWidth: '60px', fontSize: '11px' }}
-                >
-                  {theme.name}
-                </button>
-              ))}
-            </div>
-            <div className="text-xs text-muted" style={{ textAlign: 'center' }}>
-              💡 تغيير فوري بدون إعادة تحميل
-            </div>
-          </div>
-
-          {/* معلومات المستخدم */}
-          {user && (
-            <div style={{ marginTop: 'auto' }}>
-              <div className="divider"></div>
-              <div className="card" style={{ padding: '12px', marginBottom: 0 }}>
-                <div className="text-sm" style={{ fontWeight: '600' }}>
-                  {user.name || 'المدير'}
-                </div>
-                <div className="text-xs text-muted">
-                  متصل
-                </div>
-              </div>
-            </div>
-          )}
-        </aside>
 
         {/* المحتوى الرئيسي */}
         <main className="manus-main">
@@ -322,14 +219,14 @@ export default function ModernDashboardHomeFullWidth() {
           </header>
 
           {/* الإحصائيات الرئيسية */}
-          <section className="grid grid-4" style={{ marginBottom: '32px' }}>
+          <div className="grid grid-4" style={{ marginBottom: '32px' }}>
             {statsData.map((stat, index) => (
               <StatCard key={index} {...stat} />
             ))}
-          </section>
+          </div>
 
           {/* التبويبات والمحتوى */}
-          <section style={{ marginBottom: '32px' }}>
+          <div style={{ marginBottom: '32px' }}>
             <div className="card">
               <div className="card-header">
                 <div className="card-title">📊 نظرة عامة على النشاط</div>
@@ -444,10 +341,10 @@ export default function ModernDashboardHomeFullWidth() {
                 )}
               </div>
             </div>
-          </section>
+          </div>
 
           {/* أدوات الإدارة السريعة */}
-          <section>
+          <div>
             <div className="grid grid-2">
               <div className="card">
                 <div className="card-header">
@@ -520,10 +417,10 @@ export default function ModernDashboardHomeFullWidth() {
                 </div>
               </div>
             </div>
-          </section>
+          </div>
 
           {/* روابط للمقارنة */}
-          <section style={{ marginTop: '32px' }}>
+          <div style={{ marginTop: '32px' }}>
             <div className="card" style={{ 
               textAlign: 'center', 
               background: 'hsl(var(--accent) / 0.05)',
@@ -541,25 +438,8 @@ export default function ModernDashboardHomeFullWidth() {
                 <Link href="/" className="btn">الموقع الرئيسي</Link>
               </div>
             </div>
-          </section>
-        </main>
-
-        {/* طبقة تراكب للجوال */}
-        {isMobile && sidebarOpen && (
-          <div
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'rgba(0, 0, 0, 0.5)',
-              zIndex: 999
-            }}
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
-      </div>
+          </div>
+        </div>
     </>
   );
 }
