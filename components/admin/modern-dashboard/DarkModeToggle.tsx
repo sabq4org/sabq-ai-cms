@@ -23,10 +23,10 @@ export default function DarkModeToggle() {
       
       // تطبيق الألوان فوراً على body
       if (dark) {
-        document.body.style.background = 'linear-gradient(135deg, hsl(222 47% 11%) 0%, hsl(222 47% 9%) 100%)';
+        document.body.style.background = 'hsl(222 47% 11%)';
         document.body.style.color = 'hsl(213 31% 91%)';
       } else {
-        document.body.style.background = 'linear-gradient(135deg, hsl(220 14% 96%) 0%, hsl(210 20% 98%) 100%)';
+        document.body.style.background = 'hsl(220 14% 96%)';
         document.body.style.color = 'hsl(220 13% 7%)';
       }
       
