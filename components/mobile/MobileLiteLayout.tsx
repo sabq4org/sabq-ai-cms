@@ -34,6 +34,11 @@ export default function MobileLiteLayout({
   const [headerHeight, setHeaderHeight] = useState<number>(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user } = useAuth();
+  
+  // تسجيل لفحص حالة المستخدم
+  useEffect(() => {
+    console.log('MobileLiteLayout - User:', user);
+  }, [user]);
 
   useEffect(() => {
     setIsLoaded(true);
@@ -308,11 +313,17 @@ export default function MobileLiteLayout({
           align-items: center;
           justify-content: center;
           color: var(--text-primary) !important;
+          padding: 0 !important;
+          border-radius: 0 !important;
         }
 
         .header-actions :global(.notification-bell-button:hover) {
-          background: transparent !important;
-          opacity: 0.8;
+          background: rgba(0, 0, 0, 0.05) !important;
+          opacity: 1;
+        }
+
+        .header-actions :global(.notification-bell-button svg) {
+          color: var(--text-primary) !important;
         }
 
         /* زر الصورة الشخصية */
