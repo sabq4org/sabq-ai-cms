@@ -1334,9 +1334,9 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
         result = await alt.json();
       }
 
-      if (result.success) {
+      if (result && (result.success || result.title || result.summary || result.excerpt || result.keywords)) {
         // التحقق من وجود العنوان الرئيسي
-        if (!result.title || result.title.trim() === "") {
+        if (!result.title || String(result.title).trim() === "") {
           console.warn("⚠️ العنوان الرئيسي فارغ في الاستجابة:", result);
           toast.error(
             "تم التوليد ولكن العنوان الرئيسي مفقود. يرجى المحاولة مرة أخرى."
@@ -1347,14 +1347,14 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
         // تطبيق النتائج على النموذج
         setFormData((prev) => ({
           ...prev,
-          title: result.title.trim(),
+          title: String(result.title).trim(),
           subtitle:
-            result.subtitle && result.subtitle.trim() !== ""
-              ? result.subtitle.trim()
+            result.subtitle && String(result.subtitle).trim() !== ""
+              ? String(result.subtitle).trim()
               : prev.subtitle,
           excerpt:
-            result.summary && result.summary.trim() !== ""
-              ? result.summary.trim()
+            (result.summary || result.excerpt) && String(result.summary || result.excerpt).trim() !== ""
+              ? String(result.summary || result.excerpt).trim()
               : prev.excerpt,
           keywords:
             Array.isArray(result.keywords) && result.keywords.length > 0
@@ -1378,7 +1378,29 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
           fullResult: result,
         });
       } else {
-        throw new Error("فشل في التوليد");
+        // Fallback محلي سريع
+        const localText = contentText;
+        const localTitle = localText.split(/[\n\.\!\؟\!]/).find((s) => s.trim().length > 20) || localText.substring(0, 80);
+        const words = localText
+          .replace(/[^\u0600-\u06FF\s]/g, ' ')
+          .split(/\s+/)
+          .filter((w) => w.length > 3);
+        const freq = Object.create(null) as Record<string, number>;
+        for (const w of words) freq[w] = (freq[w] || 0) + 1;
+        const localKeywords = Object.entries(freq)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 8)
+          .map(([w]) => w);
+        const localExcerpt = localText.substring(0, 220) + (localText.length > 220 ? '...' : '');
+
+        setFormData((prev) => ({
+          ...prev,
+          title: localTitle.trim(),
+          excerpt: localExcerpt.trim(),
+          keywords: prev.keywords?.length ? prev.keywords : localKeywords,
+        }));
+
+        toast.success('تم التوليد محلياً بسرعة (احتياطي)');
       }
     } catch (error) {
       console.error("❌ خطأ في التوليد التلقائي:", error);
