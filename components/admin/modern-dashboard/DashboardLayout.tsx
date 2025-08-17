@@ -76,7 +76,7 @@ export default function DashboardLayout({
             zIndex: 900,
             transition: 'width 0.3s ease',
             borderLeft: '1px solid hsl(var(--line))',
-            background: 'hsl(220 14% 94%)'
+            background: 'hsl(var(--bg))'
           }}>
             <ModernSidebar isCollapsed={!sidebarOpen} onToggle={toggleSidebar} isMobile={isMobile} />
           </aside>
@@ -94,7 +94,7 @@ export default function DashboardLayout({
             overflowY: 'auto',
             zIndex: 1000,
             borderLeft: '1px solid hsl(var(--line))',
-            background: 'hsl(220 14% 94%)'
+            background: 'hsl(var(--bg))'
           }}>
             <ModernSidebar isCollapsed={false} onToggle={toggleSidebar} isMobile={isMobile} />
           </aside>

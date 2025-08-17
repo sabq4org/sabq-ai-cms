@@ -144,16 +144,11 @@ body {
 }
 
 .manus-sidebar {
-  background: hsl(220 14% 94%) !important;
+  background: hsl(var(--bg)) !important;
   border: none;
   padding: 24px 16px;
   transition: background 0.3s ease;
   overflow-y: auto;
-}
-
-/* وضع داكن للشريط الجانبي */
-[data-theme="dark"] .manus-sidebar {
-  background: hsl(222 47% 8%) !important;
 }
 
 .manus-main {
