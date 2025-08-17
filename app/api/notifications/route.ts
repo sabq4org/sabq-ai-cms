@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
           status: true,
           read_at: true,
           created_at: true,
-          metadata: true
+          data: true
         }
       }),
       
@@ -86,16 +86,16 @@ export async function GET(req: NextRequest) {
     ]);
 
     // إحصائيات إضافية
-    const stats = await prisma.smartNotifications.groupBy({
-      by: ['type'],
-      where: {
-        user_id: user.id,
-        read_at: null
-      },
-      _count: {
-        type: true
-      }
+    // حساب الإحصائيات يدوياً بسبب تغيرات Prisma/pg حول groupBy في بعض النُسَخ
+    const unreadByType = await prisma.smartNotifications.findMany({
+      where: { user_id: user.id, read_at: null },
+      select: { type: true }
     });
+    const stats = unreadByType.reduce((acc: Record<string, number>, row: any) => {
+      const k = row.type as string;
+      acc[k] = (acc[k] || 0) + 1;
+      return acc;
+    }, {});
 
     return NextResponse.json({
       success: true,
@@ -108,10 +108,7 @@ export async function GET(req: NextRequest) {
           hasMore: offset + notifications.length < totalCount
         },
         unreadCount,
-        stats: stats.reduce((acc, stat) => {
-          acc[stat.type] = stat._count.type;
-          return acc;
-        }, {} as Record<string, number>)
+        stats
       }
     });
 
