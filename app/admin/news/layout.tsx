@@ -25,6 +25,37 @@ export default function NewsLayout({
         }}
       >
         <style jsx global>{`
+          /* تعريف نظام Grid للبطاقات */
+          .grid {
+            display: grid;
+            gap: 16px;
+          }
+          
+          .grid-2 {
+            grid-template-columns: repeat(2, 1fr);
+          }
+          
+          .grid-3 {
+            grid-template-columns: repeat(3, 1fr);
+          }
+          
+          .grid-4 {
+            grid-template-columns: repeat(4, 1fr);
+          }
+          
+          /* Responsive Grid */
+          @media (max-width: 1200px) {
+            .grid-4 {
+              grid-template-columns: repeat(2, 1fr);
+            }
+          }
+          
+          @media (max-width: 768px) {
+            .grid-4, .grid-3, .grid-2 {
+              grid-template-columns: 1fr;
+            }
+          }
+
           /* تطبيق تصميم Manus UI على البطاقات الموجودة */
           .card, [class*="StandardCard"] {
             background: hsl(var(--bg-card)) !important;
@@ -32,11 +63,43 @@ export default function NewsLayout({
             border-radius: 12px !important;
             box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1) !important;
             transition: all 0.2s ease !important;
+            padding: 20px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
+            min-height: 120px !important;
           }
           
           .card:hover, [class*="StandardCard"]:hover {
             transform: translateY(-1px) !important;
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+          }
+          
+          /* البطاقات المختارة */
+          .card.selected {
+            border-color: hsl(var(--accent)) !important;
+            box-shadow: 0 0 0 2px hsl(var(--accent) / 0.2) !important;
+          }
+          
+          /* أنواع البطاقات المختلفة */
+          .card-success.selected {
+            background: hsl(var(--accent-3)) !important;
+            color: white !important;
+          }
+          
+          .card-warning.selected {
+            background: hsl(var(--accent-4)) !important;
+            color: white !important;
+          }
+          
+          .card-info.selected {
+            background: hsl(var(--accent-2)) !important;
+            color: white !important;
+          }
+          
+          .card-danger.selected {
+            background: hsl(var(--accent-5)) !important;
+            color: white !important;
           }
           
           /* تطبيق ألوان Manus UI على النصوص */
