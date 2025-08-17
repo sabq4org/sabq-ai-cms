@@ -7,6 +7,7 @@ import {
   ReactNode,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 
@@ -59,6 +60,8 @@ export function useAuth() {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  // يمنع تكرار التنفيذ في وضع التطوير (React StrictMode)
+  const didInitRef = useRef(false);
 
   const fetchUserFromAPI = async (): Promise<User | null> => {
     try {
@@ -121,6 +124,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    if (didInitRef.current) return;
+    didInitRef.current = true;
     loadUserFromCookie();
   }, []);
 
