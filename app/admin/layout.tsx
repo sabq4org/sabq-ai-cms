@@ -16,32 +16,13 @@ export default function AdminLayout({
     return <div className="min-h-screen bg-gray-50">{children}</div>;
   }
 
-  // لمنع انحشار المحتوى في صفحات الأخبار، نلف المحتوى بداخل حاوية RTL نظيفة
-  const isNews = pathname?.startsWith("/admin/news");
-
   return (
     <SidebarPreferencesProvider>
       <DashboardLayout
         pageTitle="لوحة الإدارة"
         pageDescription="إدارة منصة سبق الذكية"
       >
-        {isNews ? (
-          <div style={{
-            width: "100%",
-            display: "block",
-            marginInline: "auto",
-          }}>
-            <div style={{
-              maxWidth: "1536px", // ~ max-w-screen-2xl
-              marginInline: "auto",
-              paddingInline: "16px",
-            }}>
-              <main style={{ minWidth: 0 }}>{children}</main>
-            </div>
-          </div>
-        ) : (
-          children
-        )}
+        {children}
       </DashboardLayout>
     </SidebarPreferencesProvider>
   );

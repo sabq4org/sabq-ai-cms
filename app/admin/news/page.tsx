@@ -945,7 +945,14 @@ function AdminNewsPageContent() {
       <link rel="stylesheet" href="/manus-ui.css" />
       
       <TooltipProvider>
-        <div style={{ padding: '0', background: 'transparent', minHeight: '100vh' }}>
+        <div style={{ 
+          padding: '0 24px', 
+          background: 'transparent', 
+          minHeight: '100vh',
+          width: '100%',
+          maxWidth: '1600px',
+          margin: '0 auto'
+        }}>
           {/* رسالة الترحيب بتصميم Manus UI */}
           <div className="card card-accent" style={{ 
             marginBottom: '20px',
