@@ -29,6 +29,7 @@ import UserDropdown from "./UserDropdown";
 import MobileUserDropdown from "./mobile/UserDropdown";
 import UserMenuDrawer from "./mobile/UserMenuDrawer";
 import NotificationBell from "@/components/Notifications/NotificationBell";
+import { NotificationDropdown } from "@/components/Notifications/NotificationDropdown";
 
 export default function Header() {
   const router = useRouter();
@@ -225,9 +226,9 @@ export default function Header() {
                 )}
               </button>
 
-              {/* الجرس */}
+              {/* الإشعارات الذكية */}
               <div className="hidden md:block">
-                <NotificationBell />
+                <NotificationDropdown />
               </div>
 
               {/* المستخدم أو تسجيل الدخول */}
