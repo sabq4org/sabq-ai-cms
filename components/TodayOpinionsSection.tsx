@@ -267,10 +267,19 @@ export default function TodayOpinionsSection({
   };
 
   const handleLike = async (articleId: string) => {
-    // منطق الإعجاب
+    // منطق الإعجاب عبر نظام التفاعلات الموحد
     try {
-      await fetch(`/api/articles/${articleId}/like`, { method: "POST" });
-      // تحديث حالة الإعجاب
+      const token =
+        (typeof window !== "undefined" && localStorage.getItem("auth-token")) ||
+        undefined;
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+      await fetch(`/api/interactions/like`, {
+        method: "POST",
+        credentials: "include",
+        headers,
+        body: JSON.stringify({ articleId, like: true }),
+      });
     } catch (error) {
       console.error("خطأ في الإعجاب:", error);
     }

@@ -64,6 +64,22 @@ export default function ArticleStats({
 
   const [isLoading, setIsLoading] = useState(false);
 
+  function getAuthToken(): string | null {
+    try {
+      if (typeof window !== "undefined") {
+        const ls = localStorage.getItem("auth-token");
+        if (ls) return ls;
+      }
+      if (typeof document !== "undefined") {
+        const match = document.cookie
+          .split("; ")
+          .find((row) => row.startsWith("auth-token="));
+        if (match) return decodeURIComponent(match.split("=")[1]);
+      }
+    } catch {}
+    return null;
+  }
+
   // جلب الإحصائيات من API
   useEffect(() => {
     fetchStats();
@@ -87,24 +103,41 @@ export default function ArticleStats({
     setIsLoading(true);
 
     try {
-      const response = await fetch(`/api/articles/${articleId}/like`, {
+      const newLikeState = !stats.userInteractions.hasLiked;
+      // تفاؤليًا
+      setStats((prev) => ({
+        ...prev,
+        likes: Math.max(0, prev.likes + (newLikeState ? 1 : -1)),
+        userInteractions: { ...prev.userInteractions, hasLiked: newLikeState },
+      }));
+
+      const token = getAuthToken();
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      const response = await fetch(`/api/interactions/like`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        headers,
+        body: JSON.stringify({ articleId, like: newLikeState }),
       });
 
-      if (response.ok) {
-        const newStats = await response.json();
-        setStats((prev) => ({
-          ...prev,
-          likes: newStats.likes,
-          userInteractions: {
-            ...prev.userInteractions,
-            hasLiked: newStats.hasLiked,
-          },
-        }));
-      }
+      if (!response.ok) throw new Error("Failed to like");
+
+      const data = await response.json();
+      setStats((prev) => ({
+        ...prev,
+        likes: typeof data.likes === "number" ? data.likes : prev.likes,
+        userInteractions: { ...prev.userInteractions, hasLiked: !!data.liked },
+      }));
     } catch (error) {
       console.error("Error liking article:", error);
+      // تراجع
+      setStats((prev) => ({
+        ...prev,
+        likes: Math.max(0, prev.likes + (prev.userInteractions.hasLiked ? -1 : 1)),
+        userInteractions: { ...prev.userInteractions, hasLiked: !prev.userInteractions.hasLiked },
+      }));
     } finally {
       setIsLoading(false);
     }
