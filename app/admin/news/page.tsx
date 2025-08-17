@@ -1013,8 +1013,8 @@ function AdminNewsPageContent() {
               }
             />
 
-            {/* بطاقات إحصائيات الأخبار */}
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+            {/* بطاقات إحصائيات الأخبار بتصميم Manus UI */}
+                <section className="grid grid-4" style={{ marginBottom: '20px' }}>
               {/* بطاقة الأخبار المنشورة */}
               <DesignComponents.StandardCard
                 className={`p-6 hover:shadow-lg transition-shadow cursor-pointer ${
