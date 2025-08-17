@@ -1,0 +1,122 @@
+# Digital Ocean Production Dockerfile
+# Last updated: 2025-07-23 15:40:00 - MAIN BRANCH DEPLOYMENT
+# Force Deploy Trigger: v2.0.4-main-deploy
+FROM node:20-alpine AS base
+
+# تثبيت التبعيات الضرورية
+FROM base AS deps
+RUN apk add --no-cache libc6-compat python3 make g++ vips-dev curl
+WORKDIR /app
+
+# نسخ ملفات الحزم
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+
+# تثبيت التبعيات
+RUN npm config set ignore-scripts true && \
+    if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+    elif [ -f package-lock.json ]; then npm install --legacy-peer-deps --ignore-scripts; \
+    elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile; \
+    else echo "Lockfile not found." && exit 1; \
+    fi && \
+    npm config set ignore-scripts false
+
+# مرحلة البناء
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# متغيرات البيئة للبناء
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+ENV SKIP_EMAIL_VERIFICATION=true
+ENV BUILDING=true
+
+# متغيرات وهمية للبناء
+ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy?schema=public"
+ENV NEXTAUTH_SECRET="build-secret"
+ENV JWT_SECRET="build-jwt"
+ENV NEXTAUTH_URL="http://localhost:3000"
+ENV OPENAI_API_KEY=""
+ENV CLOUDINARY_CLOUD_NAME="dummy"
+ENV CLOUDINARY_API_KEY="dummy"
+ENV CLOUDINARY_API_SECRET="dummy"
+
+# إنشاء مجلد Prisma Client
+RUN mkdir -p lib/generated
+
+# تحضير Prisma للإنتاج
+RUN echo "🚀 تحضير Prisma للإنتاج..." && \
+    if [ -f "scripts/prepare-prisma-for-production.js" ]; then \
+        node scripts/prepare-prisma-for-production.js; \
+    fi
+
+# توليد Prisma Client
+RUN echo "🔧 توليد Prisma Client..." && \
+    npx prisma generate && \
+    echo "✅ تم توليد Prisma Client"
+
+# بناء التطبيق
+RUN echo "🏗️ بناء Next.js..." && \
+    if [ -f "scripts/digitalocean-build-v5.js" ]; then \
+        chmod +x scripts/digitalocean-build-v5.js && \
+        node scripts/digitalocean-build-v5.js; \
+    else \
+        npx next build; \
+    fi
+
+# التحقق من BUILD_ID
+RUN echo "🆔 فحص BUILD_ID..." && \
+    if [ ! -f ".next/BUILD_ID" ]; then \
+        echo "❌ BUILD_ID مفقود! بناء مباشر..." && \
+        npx next build; \
+    fi && \
+    echo "✅ BUILD_ID: $(cat .next/BUILD_ID 2>/dev/null || echo 'none')"
+
+# صورة الإنتاج
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+
+# إنشاء مستخدم nodejs
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# نسخ الملفات العامة
+COPY --from=builder /app/public ./public
+
+# إنشاء مجلد .next
+RUN mkdir .next && chown nextjs:nodejs .next
+
+# نسخ ملفات التطبيق
+COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=nextjs:nodejs /app/next.config.js ./next.config.js
+
+# نسخ ملفات Prisma
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/lib/generated ./lib/generated
+
+# نسخ ملفات التشغيل إذا وجدت
+COPY --from=builder --chown=nextjs:nodejs /app/ ./
+
+# إعداد الصلاحيات
+RUN if [ -f "./start.sh" ]; then chmod +x ./start.sh; fi
+
+# التبديل للمستخدم nextjs
+USER nextjs
+
+# عرض البورت
+EXPOSE 3000
+
+# Health check للـ Digital Ocean
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:3000/api/health || exit 1
+
+# أمر التشغيل
+CMD if [ -f "./start.sh" ]; then sh ./start.sh; else npx next start -H 0.0.0.0 -p ${PORT}; fi

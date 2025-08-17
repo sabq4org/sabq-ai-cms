@@ -1,0 +1,135 @@
+{
+  "users": [
+    {
+      "id": "user-1750229554450-9uudnk37n",
+      "name": "علي عبده",
+      "email": "sabq@icloud.com",
+      "password": "$2b$10$GLInZzLrd0JCqiLthGf3PeciOgDxBQn3FPtSXgtTk4UZjJHBCptgO",
+      "email_verified": false,
+      "isVerified": false,
+      "status": "active",
+      "role": "regular",
+      "loyaltyPoints": 140,
+      "created_at": "2025-06-18T06:52:34.450Z",
+      "updated_at": "2025-06-18T06:52:34.450Z"
+    },
+    {
+      "id": "user-1750236579398-3h4rt6gu7",
+      "name": "علي عبده",
+      "email": "ali@alhazm.org",
+      "password": "$2b$10$jRGECJRuNmwPS.owEfJbUuqWq7w9VwTXG2SzHVfS8t7swalHFvQGK",
+      "email_verified": true,
+      "created_at": "2025-06-18T08:49:39.398Z",
+      "updated_at": "2025-06-24T10:31:04.134Z",
+      "avatar": "/uploads/avatars/avatar_user-1750236579398-3h4rt6gu7_1750237004741.jpg",
+      "status": "active",
+      "role": "admin",
+      "isVerified": true,
+      "loyaltyPoints": 1250
+    },
+    {
+      "id": "user-1750594786667-pwihpdx51",
+      "name": "علي عبده",
+      "email": "aliabdu@sabq.org",
+      "password": "$2b$10$dfgtNXO89PZd/sUI/Riy0.fD.eayCly.XRMlgtoRjiSLuA.tkxxNe",
+      "email_verified": true,
+      "created_at": "2025-06-22T12:19:46.667Z",
+      "updated_at": "2025-06-22T12:19:53.623Z"
+    },
+    {
+      "id": "user-1750693026418-zdcy23jow",
+      "name": "علي الحازمي",
+      "email": "ali@sabq.org",
+      "password": "$2b$10$nfZS6TaLKmr3oQLEhR68luA7xb0cd5IqOlG97y1yeKasFBNP9q3G6",
+      "email_verified": true,
+      "created_at": "2025-06-23T15:37:06.418Z",
+      "updated_at": "2025-06-23T17:37:15.859Z",
+      "avatar": "/uploads/avatars/1750700235661-c69077ae-ff31-44b6-8fce-fe0f63952b3e.JPG"
+    },
+    {
+      "id": "user-1750971835628-62x5mjjrs",
+      "name": "علي اسماعيل",
+      "email": "sabq@me.com",
+      "password": "$2b$10$eAE7gjQuEauBMZ94gqOYg.P5ovZ3uzr4UASnoASdVv4v/LQelyLfK",
+      "email_verified": false,
+      "created_at": "2025-06-26T21:03:55.628Z",
+      "updated_at": "2025-06-26T21:03:55.628Z"
+    },
+    {
+      "id": "user-1750971941987-hwe0tms7i",
+      "name": "سعود الحازمي",
+      "email": "aalhazmi@sju.org.sa",
+      "password": "$2b$10$s9Vaew0DiUYxOqmwRc3uR.qQjk7DXXGwUcvp28YDRONpZhf7fZS4q",
+      "email_verified": false,
+      "created_at": "2025-06-26T21:05:41.987Z",
+      "updated_at": "2025-06-26T21:05:41.987Z"
+    },
+    {
+      "id": "fb891596-5b72-47ab-8a13-39e0647108ed",
+      "name": "مستخدم تجريبي",
+      "email": "test@example.com",
+      "password": "$2b$10$RIjJeyq7MjTfo.7Lh9K3Z.ED.qZIPF32oqh6Y9dtEebFFx7bwQtoG",
+      "email_verified": true,
+      "isVerified": true,
+      "status": "active",
+      "role": "editor",
+      "loyaltyPoints": 164,
+      "created_at": "2025-06-28T20:02:04.914Z",
+      "updated_at": "2025-06-28T20:02:04.914Z"
+    },
+    {
+      "id": "user-1751708794742-ufndvynal",
+      "name": "مدير سبق",
+      "email": "admin@sabq.org",
+      "password": "$2b$10$lF8UV5ZrpHtkrQnzxLt.7.r9ZeSeH813HQjdlgeNBbXds9cPQY4Qq",
+      "email_verified": true,
+      "created_at": "2025-07-05T09:46:34.742Z",
+      "updated_at": "2025-07-05T09:46:46.238Z"
+    },
+    {
+      "id": "user-1751817632502-it0exfx3o",
+      "name": "مستخدم تجريبي",
+      "email": "test@sabq.com",
+      "password": "$2b$10$7ZWQSUmLCsSibs8XY.lrFOzs3QczixQ3iuJvVnzClbO9UEqhyErwS",
+      "email_verified": false,
+      "created_at": "2025-07-06T16:00:32.502Z",
+      "updated_at": "2025-07-06T16:00:32.502Z"
+    },
+    {
+      "id": "user-1751817699036-dp5uozre6",
+      "name": "مدير النظام",
+      "email": "admin@sabq.com",
+      "password": "$2b$10$JUB7F59QqMFNtywVwvyZVuQ8fOdZ.gSIiId.O5YlQg6bjzOJsWufC",
+      "email_verified": false,
+      "created_at": "2025-07-06T16:01:39.036Z",
+      "updated_at": "2025-07-06T16:01:39.036Z"
+    },
+    {
+      "id": "user-1751817827062-gden3snhi",
+      "name": "مستخدم جديد",
+      "email": "newuser@sabq.com",
+      "password": "$2b$10$wayvnGMMXV2nHmIOT.Ba0u3CPVuCTmCLclWp0W9F3seIomAqvZCKq",
+      "email_verified": false,
+      "created_at": "2025-07-06T16:03:47.062Z",
+      "updated_at": "2025-07-06T16:03:47.062Z"
+    },
+    {
+      "id": "user-1751817917321-jvlu2ztmm",
+      "name": "اختبار نهائي",
+      "email": "test-final@sabq.com",
+      "password": "$2b$10$rQzI3.Ru/Gew3lZH9VniGezaXtwBRfwPCJK8Stjlv8Khe1L2ccrvK",
+      "email_verified": false,
+      "created_at": "2025-07-06T16:05:17.321Z",
+      "updated_at": "2025-07-06T16:05:17.322Z"
+    },
+    {
+      "id": "user-1751819450407-i8yc3eawl",
+      "name": "اختبار سبق",
+      "email": "sabq-test@example.com",
+      "password": "$2b$10$FYLs7UYYy/1I8H6WBqz6puP5JqjJRtuCtIYWQsaL6uqt.gOpOV1Du",
+      "email_verified": false,
+      "created_at": "2025-07-06T16:30:50.407Z",
+      "updated_at": "2025-07-06T16:30:50.407Z"
+    }
+  ]
+}

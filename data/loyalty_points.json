@@ -1,0 +1,112 @@
+{
+  "points": [
+    {
+      "id": "points-1750229554453-6iavqdqww",
+      "user_id": "user-1750229554450-9uudnk37n",
+      "points": 50,
+      "action": "registration_bonus",
+      "description": "نقاط ترحيبية للتسجيل (معلقة حتى التحقق)",
+      "pending": true,
+      "created_at": "2025-06-18T06:52:34.453Z"
+    },
+    {
+      "id": "points-1750236579401-ox38i08vq",
+      "user_id": "user-1750236579398-3h4rt6gu7",
+      "points": 50,
+      "action": "registration_bonus",
+      "description": "نقاط ترحيبية للتسجيل (معلقة حتى التحقق)",
+      "pending": false,
+      "created_at": "2025-06-18T08:49:39.401Z"
+    },
+    {
+      "id": "points-1750594786669-v9o1jlcki",
+      "user_id": "user-1750594786667-pwihpdx51",
+      "points": 50,
+      "action": "registration_bonus",
+      "description": "نقاط ترحيبية للتسجيل (معلقة حتى التحقق)",
+      "pending": false,
+      "created_at": "2025-06-22T12:19:46.669Z"
+    },
+    {
+      "id": "points-1750693026420-wqy6iksbj",
+      "user_id": "user-1750693026418-zdcy23jow",
+      "points": 50,
+      "action": "registration_bonus",
+      "description": "نقاط ترحيبية للتسجيل (معلقة حتى التحقق)",
+      "pending": false,
+      "created_at": "2025-06-23T15:37:06.420Z"
+    },
+    {
+      "id": "points-1750971836852-fe15zk9im",
+      "user_id": "user-1750971835628-62x5mjjrs",
+      "points": 50,
+      "action": "registration_bonus",
+      "description": "نقاط ترحيبية للتسجيل (معلقة حتى التحقق)",
+      "pending": true,
+      "created_at": "2025-06-26T21:03:56.852Z"
+    },
+    {
+      "id": "points-1750971942959-x37w83efl",
+      "user_id": "user-1750971941987-hwe0tms7i",
+      "points": 50,
+      "action": "registration_bonus",
+      "description": "نقاط ترحيبية للتسجيل (معلقة حتى التحقق)",
+      "pending": true,
+      "created_at": "2025-06-26T21:05:42.959Z"
+    },
+    {
+      "id": "points-1751708795749-6dxgsq0qy",
+      "user_id": "user-1751708794742-ufndvynal",
+      "points": 50,
+      "action": "registration_bonus",
+      "description": "نقاط ترحيبية للتسجيل (معلقة حتى التحقق)",
+      "pending": false,
+      "created_at": "2025-07-05T09:46:35.749Z"
+    },
+    {
+      "id": "points-1751817662850-jqcpryvf3",
+      "user_id": "user-1751817632502-it0exfx3o",
+      "points": 50,
+      "action": "registration_bonus",
+      "description": "نقاط ترحيبية للتسجيل (معلقة حتى التحقق)",
+      "pending": true,
+      "created_at": "2025-07-06T16:01:02.850Z"
+    },
+    {
+      "id": "points-1751817729110-aj78bn7uj",
+      "user_id": "user-1751817699036-dp5uozre6",
+      "points": 50,
+      "action": "registration_bonus",
+      "description": "نقاط ترحيبية للتسجيل (معلقة حتى التحقق)",
+      "pending": true,
+      "created_at": "2025-07-06T16:02:09.110Z"
+    },
+    {
+      "id": "points-1751817857134-mkqzeaipx",
+      "user_id": "user-1751817827062-gden3snhi",
+      "points": 50,
+      "action": "registration_bonus",
+      "description": "نقاط ترحيبية للتسجيل (معلقة حتى التحقق)",
+      "pending": true,
+      "created_at": "2025-07-06T16:04:17.134Z"
+    },
+    {
+      "id": "points-1751817947391-mi9asp36d",
+      "user_id": "user-1751817917321-jvlu2ztmm",
+      "points": 50,
+      "action": "registration_bonus",
+      "description": "نقاط ترحيبية للتسجيل (معلقة حتى التحقق)",
+      "pending": true,
+      "created_at": "2025-07-06T16:05:47.391Z"
+    },
+    {
+      "id": "points-1751819480619-vm96i0xoq",
+      "user_id": "user-1751819450407-i8yc3eawl",
+      "points": 50,
+      "action": "registration_bonus",
+      "description": "نقاط ترحيبية للتسجيل (معلقة حتى التحقق)",
+      "pending": true,
+      "created_at": "2025-07-06T16:31:20.619Z"
+    }
+  ]
+}

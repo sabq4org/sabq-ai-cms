@@ -1,0 +1,152 @@
+/* ألوان التصنيفات الجديدة - مجموعة هادئة ومريحة للعين */
+.category-color-sky-blue {
+  background-color: #E0F2FE !important;
+  color: #0C4A6E !important;
+}
+
+.category-color-light-green {
+  background-color: #ECFDF5 !important;
+  color: #064E3B !important;
+}
+
+.category-color-sand-yellow {
+  background-color: #FEF9C3 !important;
+  color: #92400E !important;
+}
+
+.category-color-vanilla-orange {
+  background-color: #FFF7ED !important;
+  color: #9A3412 !important;
+}
+
+.category-color-light-gray {
+  background-color: #F3F4F6 !important;
+  color: #374151 !important;
+}
+
+.category-color-light-pink {
+  background-color: #FDF2F8 !important;
+  color: #831843 !important;
+}
+
+.category-color-light-purple {
+  background-color: #FAF5FF !important;
+  color: #581C87 !important;
+}
+
+.category-color-soft-turquoise {
+  background-color: #F0FDFA !important;
+  color: #134E4A !important;
+}
+
+.category-color-light-blue {
+  background-color: #EFF6FF !important;
+  color: #1E40AF !important;
+}
+
+.category-color-emerald-green {
+  background-color: #F0FDF4 !important;
+  color: #14532D !important;
+}
+
+.category-color-golden-yellow {
+  background-color: #FFFBEB !important;
+  color: #92400E !important;
+}
+
+.category-color-warm-gray {
+  background-color: #F9FAFB !important;
+  color: #374151 !important;
+}
+
+/* تحسينات للأزرار */
+.color-swatch {
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.color-swatch:hover {
+  transform: scale(1.1);
+  border-color: #3B82F6;
+}
+
+.color-swatch.selected {
+  transform: scale(1.1);
+  border-color: #3B82F6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* معاينة اللون */
+.color-preview {
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  border: 1px solid #E5E7EB;
+}
+
+.color-preview .color-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* حقل إدخال اللون */
+.color-input-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.color-input-preview {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: 2px solid #D1D5DB;
+  cursor: pointer;
+}
+
+/* مربعات الألوان */
+.color-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.color-swatch-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: 2px solid #E5E7EB;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  position: relative;
+}
+
+.color-swatch-button:hover {
+  transform: scale(1.1);
+  border-color: #9CA3AF;
+}
+
+.color-swatch-button.selected {
+  transform: scale(1.1);
+  border-color: #3B82F6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.color-swatch-button.selected::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  background-color: white;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+} 

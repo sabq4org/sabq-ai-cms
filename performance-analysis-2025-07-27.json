@@ -1,0 +1,28 @@
+{
+  "timestamp": "2025-07-27T09:48:32.336Z",
+  "analysis": {
+    "memory_usage": {
+      "rss": 88391680,
+      "heapTotal": 23937024,
+      "heapUsed": 18918112,
+      "external": 1831896,
+      "arrayBuffers": 16619
+    },
+    "performance_metrics": {
+      "queries": [],
+      "connections": [],
+      "errors": [],
+      "performance": {
+        "dailyStats": {},
+        "weeklyTrends": {},
+        "bottlenecks": []
+      }
+    },
+    "recommendations": [
+      "مراقبة الاستعلامات البطيئة",
+      "تحسين Connection Pool",
+      "إضافة فهارس مناسبة",
+      "استخدام كاش للبيانات المتكررة"
+    ]
+  }
+}

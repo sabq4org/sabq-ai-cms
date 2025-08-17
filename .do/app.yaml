@@ -1,0 +1,112 @@
+name: sabq-ai-cms
+region: fra
+services:
+- name: web
+  dockerfile_path: Dockerfile.digitalocean
+  source_dir: /
+  github:
+    repo: sabq4org/sabq-ai-cms
+    branch: main
+    deploy_on_push: true
+    auto_deploy: true
+  build_command: |
+    echo "🚀 Starting DigitalOcean build..." && \
+    export BUILDING=true && \
+    export SKIP_EMAIL_VERIFICATION=true && \
+    export NODE_ENV=production && \
+    export NEXT_TELEMETRY_DISABLED=1 && \
+    echo "✅ Build environment set"
+  run_command: |
+    echo "🚀 Starting application..." && \
+    if [ ! -f ".next/BUILD_ID" ]; then \
+      echo "❌ BUILD_ID missing! Building now..." && \
+      rm -rf .next && \
+      npx prisma generate && \
+      npx next build; \
+    fi && \
+    echo "✅ Build ID: $(cat .next/BUILD_ID 2>/dev/null || echo 'none')" && \
+    exec npx next start -H 0.0.0.0 -p ${PORT:-3000}
+  environment_slug: node-js
+  instance_count: 1
+  instance_size_slug: professional-xs
+  http_port: 3000
+  health_check:
+    http_path: /api/health
+    initial_delay_seconds: 60
+    period_seconds: 30
+    timeout_seconds: 10
+    success_threshold: 1
+    failure_threshold: 3
+  envs:
+  # الإعدادات الأساسية
+  - key: NODE_ENV
+    value: "production"
+    scope: RUN_TIME
+  - key: NEXT_TELEMETRY_DISABLED
+    value: "1"
+  - key: SKIP_EMAIL_VERIFICATION
+    value: "true"
+  - key: PORT
+    value: "3000"
+  
+  # قاعدة البيانات (استخدم DigitalOcean Secrets)
+  - key: DATABASE_URL
+    value: "${DATABASE_URL}"
+    scope: RUN_TIME
+    type: SECRET
+  - key: NEXTAUTH_URL  
+    value: "${APP_URL}"
+    scope: RUN_TIME
+  - key: NEXTAUTH_SECRET
+    value: "${NEXTAUTH_SECRET}"
+    scope: RUN_TIME
+    type: SECRET
+  - key: JWT_SECRET
+    value: "${JWT_SECRET}" 
+    scope: RUN_TIME
+    type: SECRET
+    
+  # Cloudinary
+  - key: NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+    value: "${CLOUDINARY_CLOUD_NAME}"
+    scope: RUN_TIME
+  - key: NEXT_PUBLIC_CLOUDINARY_API_KEY
+    value: "${CLOUDINARY_API_KEY}"
+    scope: RUN_TIME
+  - key: CLOUDINARY_API_SECRET
+    value: "${CLOUDINARY_API_SECRET}"
+    scope: RUN_TIME
+    type: SECRET
+  - key: OPENAI_API_KEY
+    value: "${OPENAI_API_KEY}"
+    scope: RUN_TIME
+    type: SECRET
+  - key: EMAIL_HOST
+    value: "${EMAIL_HOST}"
+    scope: RUN_TIME
+  - key: EMAIL_PORT
+    value: "${EMAIL_PORT}"
+    scope: RUN_TIME
+  - key: EMAIL_USER
+    value: "${EMAIL_USER}"
+    scope: RUN_TIME
+  - key: EMAIL_PASS
+    value: "${EMAIL_PASS}"
+    scope: RUN_TIME
+    type: SECRET
+  - key: REDIS_URL
+    value: "${REDIS_URL}"
+    scope: RUN_TIME
+    type: SECRET
+    
+  # معلومات التطبيق
+  - key: APP_VERSION
+    value: "0.2.2"
+  - key: APP_NAME
+    value: "sabq-ai-cms"
+    
+  # إعدادات Node.js
+  - key: NODE_OPTIONS
+    value: "--max-old-space-size=1024"
+  - key: PRISMA_CLI_BINARY_TARGETS
+    value: '["debian-openssl-3.0.x"]' 

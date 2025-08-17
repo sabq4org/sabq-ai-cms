@@ -1,0 +1,15 @@
+{
+  "timestamp": "١٧‏/٨‏/٢٠٢٥، ١٢:٥٠:٣٠ م",
+  "summary": {
+    "lightHeaderIssue": "تم الفحص",
+    "imageUploadIssue": "مطلوب فحص",
+    "aiGenerationIssue": "مطلوب فحص",
+    "databaseConnection": true,
+    "cloudinaryConnection": false,
+    "openaiConnection": false
+  },
+  "recommendations": [
+    "إعادة ضبط إعدادات Cloudinary لرفع الصور",
+    "إعادة ضبط إعدادات OpenAI للتوليد التلقائي"
+  ]
+}

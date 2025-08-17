@@ -1,0 +1,51 @@
+[
+  {
+    "user_id": "test-user",
+    "category_id": "category-tech",
+    "source": "manual",
+    "created_at": "2025-07-07T07:08:58.983Z",
+    "updated_at": "2025-07-07T07:08:58.983Z"
+  },
+  {
+    "user_id": "test-user",
+    "category_id": "category-sports",
+    "source": "manual",
+    "created_at": "2025-07-07T07:08:58.983Z",
+    "updated_at": "2025-07-07T07:08:58.983Z"
+  },
+  {
+    "user_id": "27e3bdc6-68a5-459a-9f11-15ddd9a46aac",
+    "category_id": "category-tech",
+    "source": "manual",
+    "created_at": "2025-07-07T07:12:22.378Z",
+    "updated_at": "2025-07-07T07:12:22.378Z"
+  },
+  {
+    "user_id": "27e3bdc6-68a5-459a-9f11-15ddd9a46aac",
+    "category_id": "category-sports",
+    "source": "manual",
+    "created_at": "2025-07-07T07:12:22.378Z",
+    "updated_at": "2025-07-07T07:12:22.378Z"
+  },
+  {
+    "user_id": "27e3bdc6-68a5-459a-9f11-15ddd9a46aac",
+    "category_id": "category-culture",
+    "source": "manual",
+    "created_at": "2025-07-07T07:12:22.378Z",
+    "updated_at": "2025-07-07T07:12:22.378Z"
+  },
+  {
+    "user_id": "27e3bdc6-68a5-459a-9f11-15ddd9a46aac",
+    "category_id": "category-opinion",
+    "source": "manual",
+    "created_at": "2025-07-07T07:12:22.378Z",
+    "updated_at": "2025-07-07T07:12:22.378Z"
+  },
+  {
+    "user_id": "27e3bdc6-68a5-459a-9f11-15ddd9a46aac",
+    "category_id": "category-politics",
+    "source": "manual",
+    "created_at": "2025-07-07T07:12:22.378Z",
+    "updated_at": "2025-07-07T07:12:22.378Z"
+  }
+]

@@ -1,0 +1,366 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# testing
+/coverage
+
+# vercel
+.vercel-build-trigger
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# uploads
+/public/uploads/
+/uploads/
+/public/temp-podcasts/
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# local env files
+.env*.local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.production
+production.env
+
+# vercel
+.vercel
+vercel-deploy-trigger-*.txt
+
+# digitalocean
+.do/deploy.template.yaml
+.env.production
+
+# Private files
+PRIVATE_ENV_VARS.txt
+.env
+.env.local
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# turbopack
+.turbo
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+
+# Logs
+logs/
+*.log
+dev.log
+server.log
+server-log.txt
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+dev.db
+
+# Backups
+*.backup
+*.bak
+*.backup_*
+__dev__/
+backups/
+
+# Production data protection
+data/production/
+data/mock/
+data/seed/
+data/test/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Package manager locks (optional - uncomment if you want to exclude)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Prisma
+/lib/generated/prisma
+/prisma/migrations/
+*.db
+*.db-journal
+.env.test
+
+# Duplicate folder
+sabq-ai-cms/
+deploy-*.tar.gz
+.env.production
+PRIVATE_ENV_VALUES.txt
+
+# New files from the code block
+cookies.txt
+
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Database backups and sensitive files
+*.sql
+*.sqlite
+*.db
+backup_*.sql
+auto_backup_*.sql
+schema_backup_*.prisma
+
+# Production database URLs (extra protection)
+.env.production
+.env.prod
+production.env
+prod.env
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# nyc test coverage
+.nyc_output
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+
+# next.js build output
+.next
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+
+# Storybook build outputs
+.out
+.storybook-out
+
+# Temporary folders
+tmp/
+temp/
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Prisma
+prisma/migrations/
+!prisma/migrations/.gitkeep
+
+# Uploads (if any local uploads exist)
+public/uploads/
+uploads/
+
+# Cloudinary (if any local cache)
+.cloudinary/
+
+# Build outputs
+build/
+dist/
+out/
+
+# Test coverage
+coverage/
+
+# Local development
+.local/
+.env.local
+
+# Public folder - exclude uploads only
+public/uploads/
+
+# Legacy patterns
+# تجاهل أي ملفات تحميل محلية
+public/uploads/
+# ملفات الاختبار المؤقتة
+test-cloudinary-upload.html
+test-cloudinary-settings.html
+test-vercel-cloudinary.html
+public/test-vercel-cloudinary.html
+
+# Additional patterns for cleanup
+# Environment backup files
+.env.*backup*
+.env.digitalocean*
+.env.do.*
+.env.supabase*
+.env.temp*
+.env.prod*
+
+# Old reports and documentation (archived)
+*_REPORT.md
+*_STATUS*.md
+*_SUMMARY.md
+*_GUIDE.md
+*_SETUP.md
+*_FIX*.md
+
+# Shell scripts (except essential ones)
+*.sh
+!start.sh
+!start-dev.sh
+!create-env.sh
+
+# Patches
+*.patch
+
+# Version files (temporary)
+.version
+version.json
+
+# App platform configs
+.do-app-platform.yaml
+app.json
+
+# Old audio files (if not tracked)
+public/audio/*.mp3
+
+# Temporary JSON data files
+data/audio-podcasts.json
+
+# Build logs
+*build.log
+*deploy.log
+
+# Archives created during cleanup
+**/archive/
+**/Archive/
+**/archives/
+**/Archives/
+
+# Temporary test files
+test-*.html
+test-*.tsx
+test-*.ts
+test-*.js
+
+# Backup files pattern
+*.bak
+*.backup
+*.old
+*.orig
+*.tmp
+*.temp
+
+# IDE specific
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# تقارير التحليل
+/reports/*.json
+/reports/*.txt
+!/reports/.gitkeep
+
+# سجلات الأخطاء
+/logs/*.log
+!/logs/.gitkeep
+
+# Sensitive files
+AMPLIFY_ENV_COPY_PASTE.txt
+aws-s3-env-variables.txt
+*-env-variables.txt
+
+# Security: Files with exposed keys
+*.s3.js
+aws-s3-env-variables.txt
+create-s3-bucket.js
+test-s3-direct.js
+make-bucket-public.js
+check-s3-connection.js
+test-comprehensive-upload.js
+AWS_S3_*_REPORT.md
+aws-s3-env-variables-secure.txt
+smart_notifications_system/

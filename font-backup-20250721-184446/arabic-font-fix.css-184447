@@ -1,0 +1,105 @@
+/* إصلاح شامل للخطوط العربية والمحاذاة */
+
+/* فرض استخدام الخط الصحيح على كل شيء */
+html, body, * {
+  font-family: var(--font-ibm-plex-arabic), 'IBM Plex Sans Arabic', system-ui, -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+/* إصلاحات المحاذاة */
+.text-center {
+  text-align: center !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.text-right {
+  text-align: right !important;
+}
+
+.text-left {
+  text-align: left !important;
+}
+
+/* إصلاح التباعد */
+h1, h2, h3, h4, h5, h6, p, span, div, a, button, label {
+  word-spacing: normal !important;
+  letter-spacing: normal !important;
+  text-rendering: optimizeLegibility !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* إصلاح خاص للعناوين */
+.card-title, .analysis-card-title, .deep-analysis-title {
+  font-weight: 700 !important;
+  line-height: 1.4 !important;
+}
+
+/* إصلاح Flexbox للعربية */
+.flex {
+  direction: ltr;
+}
+
+.flex[dir="rtl"] {
+  direction: rtl;
+}
+
+/* إصلاح Grid */
+.grid {
+  direction: ltr;
+}
+
+.grid[dir="rtl"] {
+  direction: rtl;
+}
+
+/* إصلاح للموبايل */
+@media (max-width: 768px) {
+  .text-center {
+    text-align: center !important;
+  }
+  
+  .mobile-center {
+    text-align: center !important;
+    justify-content: center !important;
+  }
+}
+
+/* إصلاح خاص للديسكتوب */
+@media (min-width: 769px) {
+  .desktop-center {
+    text-align: center !important;
+    justify-content: center !important;
+  }
+}
+
+/* إصلاح عناصر التحليل العميق */
+#deep-analysis-highlight .card-title,
+#deep-analysis-highlight .card-description,
+.deep-analysis-widget .card-title,
+.deep-analysis-widget .card-description {
+  word-spacing: normal !important;
+  letter-spacing: normal !important;
+  font-family: var(--font-ibm-plex-arabic), 'IBM Plex Sans Arabic', system-ui, sans-serif !important;
+}
+
+/* إصلاح عام للتوسيط */
+.mx-auto {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.text-center, .text-center * {
+  text-align: center !important;
+}
+
+/* إصلاح للعناصر المتداخلة */
+.text-center h1,
+.text-center h2,
+.text-center h3,
+.text-center p,
+.text-center span {
+  text-align: center !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}

@@ -1,0 +1,22 @@
+{
+  "thresholds": {
+    "query_time_warning": 1000,
+    "query_time_critical": 5000,
+    "success_rate_warning": 95,
+    "success_rate_critical": 90,
+    "active_connections_warning": 15,
+    "active_connections_critical": 20,
+    "slow_queries_warning": 10,
+    "slow_queries_critical": 25
+  },
+  "monitoring": {
+    "check_interval": 30,
+    "alert_cooldown": 300,
+    "max_consecutive_failures": 3
+  },
+  "notifications": {
+    "email_enabled": false,
+    "slack_enabled": false,
+    "log_enabled": true
+  }
+}

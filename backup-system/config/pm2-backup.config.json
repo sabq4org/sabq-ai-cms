@@ -1,0 +1,68 @@
+{
+  "apps": [
+    {
+      "name": "sabq-backup-daily",
+      "script": "./backup-system/scripts/backup-orchestrator.js",
+      "args": ["scheduled"],
+      "instances": 1,
+      "exec_mode": "fork",
+      "cron_restart": "0 2 * * *",
+      "autorestart": false,
+      "watch": false,
+      "max_memory_restart": "2G",
+      "env": {
+        "NODE_ENV": "production",
+        "BACKUP_TYPE": "full",
+        "LOG_LEVEL": "info"
+      },
+      "error_file": "./logs/backup-error.log",
+      "out_file": "./logs/backup-out.log",
+      "log_file": "./logs/backup-combined.log",
+      "time": true,
+      "merge_logs": true
+    },
+    {
+      "name": "sabq-backup-weekly",
+      "script": "./backup-system/scripts/backup-orchestrator.js",
+      "args": ["scheduled", "--type=weekly"],
+      "instances": 1,
+      "exec_mode": "fork",
+      "cron_restart": "0 3 * * 0",
+      "autorestart": false,
+      "watch": false,
+      "max_memory_restart": "4G",
+      "env": {
+        "NODE_ENV": "production",
+        "BACKUP_TYPE": "full",
+        "RETENTION_DAYS": "90",
+        "LOG_LEVEL": "info"
+      },
+      "error_file": "./logs/backup-weekly-error.log",
+      "out_file": "./logs/backup-weekly-out.log",
+      "log_file": "./logs/backup-weekly-combined.log",
+      "time": true,
+      "merge_logs": true
+    },
+    {
+      "name": "sabq-backup-database-hourly",
+      "script": "./backup-system/scripts/database-backup.js",
+      "args": ["scheduled"],
+      "instances": 1,
+      "exec_mode": "fork",
+      "cron_restart": "0 */6 * * *",
+      "autorestart": false,
+      "watch": false,
+      "max_memory_restart": "1G",
+      "env": {
+        "NODE_ENV": "production",
+        "BACKUP_TYPE": "incremental",
+        "LOG_LEVEL": "info"
+      },
+      "error_file": "./logs/backup-db-error.log",
+      "out_file": "./logs/backup-db-out.log",
+      "log_file": "./logs/backup-db-combined.log",
+      "time": true,
+      "merge_logs": true
+    }
+  ]
+}

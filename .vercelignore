@@ -1,0 +1,69 @@
+# Git
+.git
+.github
+.gitignore
+
+# Development files
+.env.local
+.env.development
+.env.test
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+coverage
+.nyc_output
+
+# Misc
+.DS_Store
+*.pem
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local env files
+.env*.local
+
+# Backups
+*.backup
+*-backup.*
+*.bak
+backups/
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Scripts (optional)
+scripts/test-*
+scripts/backup-*
+
+# Data files
+data/*.json
+data/exports/
+data/backups/
+
+# Cache
+.cache
+*.cache
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# IDE
+.vscode/
+.idea/
+
+# Reports (optional)
+reports/

@@ -1,0 +1,43 @@
+# Kubernetes Namespace for Sabq AI CMS
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sabq-ai-cms
+  labels:
+    name: sabq-ai-cms
+    environment: production
+    app: sabq-ai-cms
+  annotations:
+    description: "Sabq AI CMS production environment"
+---
+# Resource Quota
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: sabq-ai-cms-quota
+  namespace: sabq-ai-cms
+spec:
+  hard:
+    requests.cpu: "4"
+    requests.memory: 8Gi
+    limits.cpu: "8"
+    limits.memory: 16Gi
+    persistentvolumeclaims: "10"
+    pods: "20"
+    services: "10"
+---
+# Limit Range
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: sabq-ai-cms-limits
+  namespace: sabq-ai-cms
+spec:
+  limits:
+  - default:
+      cpu: 500m
+      memory: 512Mi
+    defaultRequest:
+      cpu: 100m
+      memory: 128Mi
+    type: Container

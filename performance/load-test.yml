@@ -1,0 +1,191 @@
+# Artillery.js Load Testing Configuration for Sabq AI CMS
+config:
+  target: 'http://localhost:3000'
+  phases:
+    # Warm-up phase
+    - duration: 60
+      arrivalRate: 5
+      name: "Warm-up"
+    
+    # Load testing phase
+    - duration: 300
+      arrivalRate: 20
+      name: "Load testing"
+    
+    # Stress testing phase
+    - duration: 120
+      arrivalRate: 50
+      name: "Stress testing"
+    
+    # Spike testing phase
+    - duration: 60
+      arrivalRate: 100
+      name: "Spike testing"
+
+  processor: "./performance/processors.js"
+  
+  # Performance thresholds
+  ensure:
+    # Response time should be under 200ms for 95th percentile
+    - p95: 200
+    # Error rate should be under 1%
+    - maxErrorRate: 1
+    # Minimum requests per second
+    - minVusersPerSec: 10
+
+  # Default headers
+  defaults:
+    headers:
+      'Accept': 'application/json, text/html'
+      'Accept-Language': 'ar-SA,ar;q=0.9,en;q=0.8'
+      'User-Agent': 'Artillery Load Test'
+
+# Test scenarios
+scenarios:
+  # Homepage load test
+  - name: "Homepage Performance"
+    weight: 30
+    flow:
+      - get:
+          url: "/"
+          expect:
+            - statusCode: 200
+            - contentType: "text/html"
+      - think: 2
+      
+      # Check smart recommendations load
+      - get:
+          url: "/api/recommendations"
+          headers:
+            'Content-Type': 'application/json'
+          expect:
+            - statusCode: [200, 304]
+      - think: 1
+
+  # Article browsing
+  - name: "Article Browsing"
+    weight: 25
+    flow:
+      # Browse to news section
+      - get:
+          url: "/news"
+          expect:
+            - statusCode: 200
+      - think: 3
+      
+      # Read specific article
+      - get:
+          url: "/news/{{ $randomString() }}"
+          expect:
+            - statusCode: [200, 404]
+      - think: 10
+      
+      # Load article interactions
+      - get:
+          url: "/api/articles/{{ $randomString() }}/interactions"
+          expect:
+            - statusCode: [200, 404]
+
+  # Search functionality
+  - name: "Search Performance"
+    weight: 20
+    flow:
+      - get:
+          url: "/api/search?q={{ searchQuery }}"
+          beforeRequest: "generateSearchQuery"
+          expect:
+            - statusCode: 200
+            - hasProperty: "results"
+      - think: 2
+      
+      # Follow search result
+      - get:
+          url: "/news/{{ $randomString() }}"
+          expect:
+            - statusCode: [200, 404]
+
+  # User interactions
+  - name: "User Interactions"
+    weight: 15
+    flow:
+      # Like an article
+      - post:
+          url: "/api/articles/{{ $randomString() }}/like"
+          json:
+            action: "toggle"
+          expect:
+            - statusCode: [200, 401, 404]
+      - think: 1
+      
+      # Save an article
+      - post:
+          url: "/api/articles/{{ $randomString() }}/save"
+          json:
+            action: "toggle"
+          expect:
+            - statusCode: [200, 401, 404]
+      - think: 1
+      
+      # Share an article
+      - post:
+          url: "/api/articles/{{ $randomString() }}/share"
+          json:
+            platform: "twitter"
+          expect:
+            - statusCode: [200, 401, 404]
+
+  # API endpoints stress test
+  - name: "API Stress Test"
+    weight: 10
+    flow:
+      # Test notifications API
+      - get:
+          url: "/api/notifications"
+          expect:
+            - statusCode: [200, 401]
+      - think: 0.5
+      
+      # Test analytics API
+      - post:
+          url: "/api/analytics/track"
+          json:
+            event: "page_view"
+            data:
+              page: "/performance-test"
+              timestamp: "{{ $timestamp }}"
+          expect:
+            - statusCode: [200, 201, 401]
+      - think: 0.5
+      
+      # Test categories API
+      - get:
+          url: "/api/categories"
+          expect:
+            - statusCode: 200
+            - hasProperty: "categories"
+
+# Custom functions and variables
+variables:
+  searchQueries:
+    - "تقنية"
+    - "رياضة"
+    - "أخبار"
+    - "الذكاء الاصطناعي"
+    - "كرة القدم"
+    - "اقتصاد"
+    - "صحة"
+    - "سياحة"
+
+# Metrics to collect
+metrics:
+  - name: "response_time_95th"
+    value: "{{ response.timings.phases.total }}"
+    percentile: 95
+  
+  - name: "response_time_99th"
+    value: "{{ response.timings.phases.total }}"
+    percentile: 99
+  
+  - name: "error_rate"
+    value: "{{ response.statusCode >= 400 ? 1 : 0 }}"
+    aggregate: "rate"

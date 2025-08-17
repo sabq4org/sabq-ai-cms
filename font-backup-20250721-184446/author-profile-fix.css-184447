@@ -1,0 +1,117 @@
+/* إصلاح طارئ لمشكلة تكرار صور البروفايل */
+/* Emergency Fix for Duplicate Profile Images */
+
+/* 1. إخفاء الصور المكررة */
+/* Hide duplicate author images */
+.author-page img[src="/placeholder.jpg"]:not(:first-of-type),
+.opinion-authors-page img[src="/placeholder.jpg"]:not(:first-of-type),
+img.duplicate-avatar,
+.author-bg-image.duplicate {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* 2. تحديد حجم صور البروفايل */
+/* Limit profile image sizes */
+.author-profile img,
+.opinion-author-card img {
+  max-width: 120px !important;
+  max-height: 120px !important;
+  width: auto !important;
+  height: auto !important;
+  object-fit: cover !important;
+  border-radius: 50% !important;
+}
+
+/* 3. إصلاح الخلفيات الزائدة */
+/* Fix overflow backgrounds */
+.author-header-bg,
+.profile-cover-section {
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+.author-header-bg img:not(.author-avatar),
+.profile-cover-section img:not(.profile-pic) {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  z-index: 0 !important;
+}
+
+/* 4. صور البروفايل الأساسية */
+/* Primary profile images */
+.author-avatar,
+.profile-pic,
+img.rounded-full {
+  position: relative !important;
+  z-index: 10 !important;
+  border: 4px solid white !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* 5. حل خاص لصفحة قادة الرأي */
+/* Opinion authors page specific fix */
+.opinion-authors-grid .author-card img {
+  width: 64px !important;
+  height: 64px !important;
+  min-width: 64px !important;
+  min-height: 64px !important;
+}
+
+/* 6. منع تطبيق صور الخلفية على العناصر الخاطئة */
+/* Prevent background images on wrong elements */
+div:has(> img.rounded-full) {
+  background-image: none !important;
+}
+
+section:has(.author-avatar) > div:first-child::before,
+section:has(.author-avatar) > div:first-child::after {
+  background-image: none !important;
+  content: none !important;
+}
+
+/* 7. إصلاحات للموبايل */
+/* Mobile specific fixes */
+@media (max-width: 768px) {
+  .author-profile img,
+  .opinion-author-card img {
+    max-width: 80px !important;
+    max-height: 80px !important;
+  }
+  
+  .opinion-authors-grid .author-card img {
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+  }
+}
+
+/* 8. تنظيف عام */
+/* General cleanup */
+img[alt=""]:empty,
+img:not([alt]),
+img[src="#"],
+img[src*="placeholder"]:not(.intentional-placeholder) {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* 9. تحسين الأداء */
+/* Performance optimization */
+img {
+  contain: layout style paint;
+  will-change: auto;
+}
+
+/* 10. حل نهائي - إخفاء أي صورة زائدة بناءً على الموقع */
+/* Final solution - Hide extra images based on position */
+.author-header img:nth-of-type(n+2):not(.badge-icon),
+.profile-section img:nth-of-type(n+2):not(.social-icon) {
+  display: none !important;
+} 

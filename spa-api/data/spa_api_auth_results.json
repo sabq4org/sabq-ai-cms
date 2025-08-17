@@ -1,0 +1,114 @@
+[
+  {
+    "method_name": "X-API-Key في الهيدر",
+    "status_code": 401,
+    "response_time": 0.559,
+    "response_size": 0,
+    "response_text": "",
+    "headers_sent": {
+      "X-API-Key": "owuDXImzoEIyRUJ4564zZ2O9WKGn44456353459bOOdfgdfxfV7qsvkEn5drAssdgfsdgdfgfdE3Q8drNupAHpHMTlljEkfjfjkfjkfjkf894jksjds456d56i327893289kj89389d889jkjkjkdk49043656d5asklskGGP",
+      "Content-Type": "application/json"
+    },
+    "success": false,
+    "timestamp": "2025-07-09T06:20:32.117825"
+  },
+  {
+    "method_name": "Authorization Bearer",
+    "status_code": 401,
+    "response_time": 0.562,
+    "response_size": 0,
+    "response_text": "",
+    "headers_sent": {
+      "Authorization": "Bearer owuDXImzoEIyRUJ4564zZ2O9WKGn44456353459bOOdfgdfxfV7qsvkEn5drAssdgfsdgdfgfdE3Q8drNupAHpHMTlljEkfjfjkfjkfjkf894jksjds456d56i327893289kj89389d889jkjkjkdk49043656d5asklskGGP",
+      "Content-Type": "application/json"
+    },
+    "success": false,
+    "timestamp": "2025-07-09T06:20:33.680667"
+  },
+  {
+    "method_name": "Authorization API Key",
+    "status_code": 401,
+    "response_time": 0.546,
+    "response_size": 0,
+    "response_text": "",
+    "headers_sent": {
+      "Authorization": "ApiKey owuDXImzoEIyRUJ4564zZ2O9WKGn44456353459bOOdfgdfxfV7qsvkEn5drAssdgfsdgdfgfdE3Q8drNupAHpHMTlljEkfjfjkfjkfjkf894jksjds456d56i327893289kj89389d889jkjkjkdk49043656d5asklskGGP",
+      "Content-Type": "application/json"
+    },
+    "success": false,
+    "timestamp": "2025-07-09T06:20:35.227132"
+  },
+  {
+    "method_name": "Customer Key في الهيدر",
+    "status_code": 401,
+    "response_time": 0.557,
+    "response_size": 0,
+    "response_text": "",
+    "headers_sent": {
+      "X-Customer-Key": "olU7cUWPqYGizEUMkau0iUw2xgMkLiJMrUcP6pweIWMp04mlNcW7pF/J12loX6YWHfw/kdQP4E7SPysGCzgK027taWDp11dvC2BYtE+W1nOSzqhHC2wPXz/LBqfSdbqSMxx0ur8Py4NVsPeq2PgQL4UqeXNak1qBknm45pbAW+4=",
+      "Content-Type": "application/json"
+    },
+    "success": false,
+    "timestamp": "2025-07-09T06:20:36.785132"
+  },
+  {
+    "method_name": "API Key + Customer Key",
+    "status_code": 401,
+    "response_time": 0.557,
+    "response_size": 0,
+    "response_text": "",
+    "headers_sent": {
+      "X-API-Key": "owuDXImzoEIyRUJ4564zZ2O9WKGn44456353459bOOdfgdfxfV7qsvkEn5drAssdgfsdgdfgfdE3Q8drNupAHpHMTlljEkfjfjkfjkfjkf894jksjds456d56i327893289kj89389d889jkjkjkdk49043656d5asklskGGP",
+      "X-Customer-Key": "olU7cUWPqYGizEUMkau0iUw2xgMkLiJMrUcP6pweIWMp04mlNcW7pF/J12loX6YWHfw/kdQP4E7SPysGCzgK027taWDp11dvC2BYtE+W1nOSzqhHC2wPXz/LBqfSdbqSMxx0ur8Py4NVsPeq2PgQL4UqeXNak1qBknm45pbAW+4=",
+      "Content-Type": "application/json"
+    },
+    "success": false,
+    "timestamp": "2025-07-09T06:20:38.342663"
+  },
+  {
+    "method_name": "Authorization Bearer Customer Key",
+    "status_code": 401,
+    "response_time": 0.597,
+    "response_size": 0,
+    "response_text": "",
+    "headers_sent": {
+      "Authorization": "Bearer olU7cUWPqYGizEUMkau0iUw2xgMkLiJMrUcP6pweIWMp04mlNcW7pF/J12loX6YWHfw/kdQP4E7SPysGCzgK027taWDp11dvC2BYtE+W1nOSzqhHC2wPXz/LBqfSdbqSMxx0ur8Py4NVsPeq2PgQL4UqeXNak1qBknm45pbAW+4=",
+      "Content-Type": "application/json"
+    },
+    "success": false,
+    "timestamp": "2025-07-09T06:20:39.940131"
+  },
+  {
+    "method_name": "Basic Auth (API Key)",
+    "status_code": 401,
+    "response_time": 0.608,
+    "response_size": 0,
+    "response_text": "",
+    "headers_sent": {
+      "Authorization": "Basic b3d1RFhJbXpvRUl5UlVKNDU2NHpaMk85V0tHbjQ0NDU2MzUzNDU5Yk9PZGZnZGZ4ZlY3cXN2a0VuNWRyQXNzZGdmc2RnZGZnZmRFM1E4ZHJOdXBBSHBITVRsbGpFa2ZqZmprZmprZmprZjg5NGprc2pkczQ1NmQ1NmkzMjc4OTMyODlrajg5Mzg5ZDg4OWpramtqa2RrNDkwNDM2NTZkNWFza2xza0dHUDo=",
+      "Content-Type": "application/json"
+    },
+    "success": false,
+    "timestamp": "2025-07-09T06:20:41.548985"
+  },
+  {
+    "method_name": "Custom SPA Headers",
+    "status_code": 401,
+    "response_time": 0.592,
+    "response_size": 0,
+    "response_text": "",
+    "headers_sent": {
+      "X-SPA-API-Key": "owuDXImzoEIyRUJ4564zZ2O9WKGn44456353459bOOdfgdfxfV7qsvkEn5drAssdgfsdgdfgfdE3Q8drNupAHpHMTlljEkfjfjkfjkfjkf894jksjds456d56i327893289kj89389d889jkjkjkdk49043656d5asklskGGP",
+      "X-SPA-Client-Key": "olU7cUWPqYGizEUMkau0iUw2xgMkLiJMrUcP6pweIWMp04mlNcW7pF/J12loX6YWHfw/kdQP4E7SPysGCzgK027taWDp11dvC2BYtE+W1nOSzqhHC2wPXz/LBqfSdbqSMxx0ur8Py4NVsPeq2PgQL4UqeXNak1qBknm45pbAW+4=",
+      "Content-Type": "application/json"
+    },
+    "success": false,
+    "timestamp": "2025-07-09T06:20:43.141105"
+  },
+  {
+    "method_name": "API Key في Query Parameter",
+    "status_code": 401,
+    "success": false,
+    "timestamp": "2025-07-09T06:20:44.698216"
+  }
+]

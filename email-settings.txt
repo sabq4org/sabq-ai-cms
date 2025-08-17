@@ -1,0 +1,20 @@
+# إعدادات البريد الإلكتروني لعملية التحقق
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_SECURE=true
+SMTP_USER=ai@sabq.org
+SMTP_PASS=MyY&RXSne=Wb2gM>
+EMAIL_FROM_NAME=صحيفة سبق
+EMAIL_FROM_ADDRESS=ai@sabq.org
+
+# تفعيل التحقق عبر البريد الإلكتروني
+ENABLE_EMAIL_VERIFICATION=true
+SKIP_EMAIL_VERIFICATION=false
+
+# إعدادات البريد الوارد
+IMAP_HOST=imap.gmail.com
+IMAP_PORT=993
+IMAP_SECURE=true
+
+# تمكين تصحيح الأخطاء في البريد الإلكتروني
+EMAIL_DEBUG=true

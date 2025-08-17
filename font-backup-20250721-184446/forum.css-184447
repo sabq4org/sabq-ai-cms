@@ -1,0 +1,352 @@
+/* أساليب RTL لمنتدى سبق - محدث بشكل جذري */
+
+/* إعدادات أساسية قوية لـ RTL */
+* {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+/* استثناءات للأرقام والرموز */
+[dir="ltr"],
+.ltr {
+  direction: ltr !important;
+  text-align: left !important;
+}
+
+/* تحسينات RTL عامة */
+html[dir="rtl"],
+body[dir="rtl"],
+[dir="rtl"] {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+/* إصلاح Flexbox لـ RTL */
+[dir="rtl"] .flex {
+  direction: rtl !important;
+}
+
+[dir="rtl"] .flex-row {
+  flex-direction: row !important;
+}
+
+[dir="rtl"] .flex-row-reverse {
+  flex-direction: row-reverse !important;
+}
+
+/* إصلاح Grid لـ RTL */
+[dir="rtl"] .grid {
+  direction: rtl !important;
+}
+
+/* تحسين المسافات والهوامش */
+[dir="rtl"] .ml-2 { margin-left: 0.5rem !important; margin-right: 0 !important; }
+[dir="rtl"] .mr-2 { margin-right: 0.5rem !important; margin-left: 0 !important; }
+[dir="rtl"] .pl-4 { padding-left: 1rem !important; padding-right: 0 !important; }
+[dir="rtl"] .pr-4 { padding-right: 1rem !important; padding-left: 0 !important; }
+
+/* تحسين الأيقونات */
+[dir="rtl"] svg {
+  margin-left: 0.5rem !important;
+  margin-right: 0 !important;
+}
+
+[dir="rtl"] button svg:first-child,
+[dir="rtl"] a svg:first-child {
+  margin-left: 0.5rem !important;
+  margin-right: 0 !important;
+}
+
+[dir="rtl"] button svg:last-child,
+[dir="rtl"] a svg:last-child {
+  margin-right: 0.5rem !important;
+  margin-left: 0 !important;
+}
+
+/* تحسين حقول الإدخال */
+[dir="rtl"] input,
+[dir="rtl"] textarea,
+[dir="rtl"] select {
+  text-align: right !important;
+  direction: rtl !important;
+  padding-right: 2.5rem !important;
+  padding-left: 0.75rem !important;
+}
+
+/* إصلاح موضع أيقونات البحث */
+[dir="rtl"] .relative svg.absolute {
+  right: 0.75rem !important;
+  left: auto !important;
+}
+
+/* تحسين البطاقات */
+[dir="rtl"] .card,
+[dir="rtl"] [role="card"] {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+/* تحسين القوائم */
+[dir="rtl"] ul,
+[dir="rtl"] ol {
+  padding-right: 1.5rem !important;
+  padding-left: 0 !important;
+  list-style-position: inside !important;
+}
+
+/* تحسين الأزرار */
+[dir="rtl"] button,
+[dir="rtl"] .btn {
+  text-align: center !important;
+}
+
+/* تحسين عرض الأرقام */
+[dir="rtl"] [dir="ltr"],
+[dir="rtl"] .number,
+[dir="rtl"] .number-display,
+[dir="rtl"] .price,
+[dir="rtl"] .date,
+[dir="rtl"] .time {
+  direction: ltr !important;
+  unicode-bidi: embed !important;
+  display: inline-block !important;
+  text-align: left !important;
+}
+
+/* تحسين الشبكات */
+[dir="rtl"] .grid-cols-1,
+[dir="rtl"] .grid-cols-2,
+[dir="rtl"] .grid-cols-3,
+[dir="rtl"] .grid-cols-4 {
+  direction: rtl !important;
+}
+
+/* تحسين المحاذاة */
+[dir="rtl"] .text-left { text-align: right !important; }
+[dir="rtl"] .text-right { text-align: left !important; }
+[dir="rtl"] .text-center { text-align: center !important; }
+
+/* تحسين الحدود */
+[dir="rtl"] .border-l { border-left: 0 !important; border-right-width: 1px !important; }
+[dir="rtl"] .border-r { border-right: 0 !important; border-left-width: 1px !important; }
+
+/* تحسين التموضع المطلق */
+[dir="rtl"] .left-0 { left: auto !important; right: 0 !important; }
+[dir="rtl"] .right-0 { right: auto !important; left: 0 !important; }
+[dir="rtl"] .left-3 { left: auto !important; right: 0.75rem !important; }
+[dir="rtl"] .right-3 { right: auto !important; left: 0.75rem !important; }
+
+/* تحسين الظلال */
+[dir="rtl"] .shadow-sm,
+[dir="rtl"] .shadow,
+[dir="rtl"] .shadow-md,
+[dir="rtl"] .shadow-lg {
+  box-shadow: -2px 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* تحسين القوائم المنسدلة */
+[dir="rtl"] .dropdown,
+[dir="rtl"] [role="menu"] {
+  right: 0 !important;
+  left: auto !important;
+  text-align: right !important;
+}
+
+/* تحسين الرسوم المتحركة */
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+[dir="rtl"] .animate-slide-in {
+  animation: slideInFromRight 0.3s ease-out;
+}
+
+/* تحسينات خاصة بالمنتدى */
+[dir="rtl"] .forum-container {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+[dir="rtl"] .topic-item {
+  direction: rtl !important;
+}
+
+[dir="rtl"] .author-info {
+  flex-direction: row !important;
+}
+
+[dir="rtl"] .stats-group {
+  flex-direction: row !important;
+}
+
+/* تحسينات الموبايل */
+@media (max-width: 768px) {
+  [dir="rtl"] .mobile-menu {
+    right: 0 !important;
+    left: auto !important;
+  }
+  
+  [dir="rtl"] .flex-col {
+    align-items: stretch !important;
+  }
+}
+
+/* إصلاحات نهائية قوية */
+body[dir="rtl"] *:not([dir="ltr"]) {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+/* تأكد من أن Container يحترم RTL */
+[dir="rtl"] .container,
+[dir="rtl"] .max-w-7xl,
+[dir="rtl"] .mx-auto {
+  direction: rtl !important;
+}
+
+/* إصلاح أي عناصر عنيدة */
+[dir="rtl"] > * {
+  direction: inherit !important;
+  text-align: inherit !important;
+} 
+
+/* Forum Styles */
+.forum-container {
+  min-height: 100vh;
+}
+
+/* Category Sidebar Styles */
+.category-button {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.category-button::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: currentColor;
+  transform: scaleY(0);
+  transition: transform 0.3s ease;
+}
+
+.category-button:hover::before {
+  transform: scaleY(1);
+}
+
+.category-button.selected::before {
+  transform: scaleY(1);
+}
+
+/* Category Color Dot Animation */
+.category-color-dot {
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.category-button:hover .category-color-dot {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Category Badge Styles */
+.category-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 9999px;
+  transition: all 0.2s ease;
+}
+
+.category-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Topic Card Hover Effects */
+.topic-card {
+  transition: all 0.3s ease;
+}
+
+.topic-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Forum Stats Animation */
+.forum-stat-item {
+  transition: all 0.2s ease;
+}
+
+.forum-stat-item:hover {
+  transform: translateX(-4px);
+}
+
+/* Loading Animation */
+@keyframes shimmer {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
+}
+
+.loading-shimmer {
+  animation-duration: 1s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
+  animation-name: shimmer;
+  animation-timing-function: linear;
+  background: linear-gradient(to right, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
+  background-size: 800px 104px;
+  position: relative;
+}
+
+/* Dark Mode Loading */
+.dark .loading-shimmer {
+  background: linear-gradient(to right, #374151 0%, #4b5563 20%, #374151 40%, #374151 100%);
+}
+
+/* Category Grid for Mobile */
+@media (max-width: 768px) {
+  .categories-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+  
+  .category-button {
+    padding: 0.75rem;
+  }
+  
+  .category-button span {
+    font-size: 0.875rem;
+  }
+}
+
+/* RTL Support */
+[dir="rtl"] .category-button::before {
+  left: auto;
+  right: 0;
+}
+
+[dir="rtl"] .category-button {
+  border-left: none;
+  border-right: 4px solid;
+}
+
+[dir="rtl"] .forum-stat-item:hover {
+  transform: translateX(4px);
+} 

@@ -1,0 +1,128 @@
+[
+  {
+    "endpoint_name": "GetStatus",
+    "path": "/ClientAppV1/GetStatus",
+    "method": "GET",
+    "status_code": 401,
+    "response_time": 0.561,
+    "response_size": 0,
+    "headers": {
+      "Transfer-Encoding": "chunked",
+      "Server": "Microsoft-IIS/10.0",
+      "X-Powered-By": "ASP.NET",
+      "Date": "Wed, 09 Jul 2025 10:19:27 GMT",
+      "Strict-Transport-Security": "max-age=300000000; includeSubDomains; preload"
+    },
+    "response_text": "",
+    "success": false,
+    "timestamp": "2025-07-09T06:19:27.239366"
+  },
+  {
+    "endpoint_name": "GetBaskets",
+    "path": "/ClientAppV1/GetBaskets",
+    "method": "GET",
+    "status_code": 401,
+    "response_time": 0.548,
+    "response_size": 0,
+    "headers": {
+      "Transfer-Encoding": "chunked",
+      "Server": "Microsoft-IIS/10.0",
+      "X-Powered-By": "ASP.NET",
+      "Date": "Wed, 09 Jul 2025 10:19:27 GMT",
+      "Strict-Transport-Security": "max-age=300000000; includeSubDomains; preload"
+    },
+    "response_text": "",
+    "success": false,
+    "timestamp": "2025-07-09T06:19:28.787730"
+  },
+  {
+    "endpoint_name": "GetNextNews",
+    "path": "/ClientAppV1/GetNextNews",
+    "method": "GET",
+    "status_code": 401,
+    "response_time": 0.55,
+    "response_size": 0,
+    "headers": {
+      "Transfer-Encoding": "chunked",
+      "Server": "Microsoft-IIS/10.0",
+      "X-Powered-By": "ASP.NET",
+      "Date": "Wed, 09 Jul 2025 10:19:30 GMT",
+      "Strict-Transport-Security": "max-age=300000000; includeSubDomains; preload"
+    },
+    "response_text": "",
+    "success": false,
+    "timestamp": "2025-07-09T06:19:30.338647"
+  },
+  {
+    "endpoint_name": "GetAllClassifications",
+    "path": "/ClientAppV1/GetStatus",
+    "method": "GET",
+    "status_code": 401,
+    "response_time": 0.55,
+    "response_size": 0,
+    "headers": {
+      "Transfer-Encoding": "chunked",
+      "Server": "Microsoft-IIS/10.0",
+      "X-Powered-By": "ASP.NET",
+      "Date": "Wed, 09 Jul 2025 10:19:31 GMT",
+      "Strict-Transport-Security": "max-age=300000000; includeSubDomains; preload"
+    },
+    "response_text": "",
+    "success": false,
+    "timestamp": "2025-07-09T06:19:31.889060"
+  },
+  {
+    "endpoint_name": "GetAllSiteSections",
+    "path": "/ClientAppV1/GetAllSiteSections",
+    "method": "GET",
+    "status_code": 401,
+    "response_time": 0.561,
+    "response_size": 0,
+    "headers": {
+      "Transfer-Encoding": "chunked",
+      "Server": "Microsoft-IIS/10.0",
+      "X-Powered-By": "ASP.NET",
+      "Date": "Wed, 09 Jul 2025 10:19:32 GMT",
+      "Strict-Transport-Security": "max-age=300000000; includeSubDomains; preload"
+    },
+    "response_text": "",
+    "success": false,
+    "timestamp": "2025-07-09T06:19:33.450570"
+  },
+  {
+    "endpoint_name": "GetAllPriorities",
+    "path": "/ClientAppV1/GetAllPriorities",
+    "method": "GET",
+    "status_code": 401,
+    "response_time": 0.569,
+    "response_size": 0,
+    "headers": {
+      "Transfer-Encoding": "chunked",
+      "Server": "Microsoft-IIS/10.0",
+      "X-Powered-By": "ASP.NET",
+      "Date": "Wed, 09 Jul 2025 10:19:34 GMT",
+      "Strict-Transport-Security": "max-age=300000000; includeSubDomains; preload"
+    },
+    "response_text": "",
+    "success": false,
+    "timestamp": "2025-07-09T06:19:35.020752"
+  },
+  {
+    "endpoint_name": "GetAllRegions",
+    "path": "/ClientAppV1/GetAllRegions",
+    "method": "GET",
+    "status_code": 401,
+    "response_time": 0.557,
+    "response_size": 0,
+    "headers": {
+      "Transfer-Encoding": "chunked",
+      "Server": "Microsoft-IIS/10.0",
+      "X-Powered-By": "ASP.NET",
+      "Date": "Wed, 09 Jul 2025 10:19:36 GMT",
+      "Strict-Transport-Security": "max-age=300000000; includeSubDomains; preload"
+    },
+    "response_text": "",
+    "success": false,
+    "timestamp": "2025-07-09T06:19:36.582500"
+  }
+]
