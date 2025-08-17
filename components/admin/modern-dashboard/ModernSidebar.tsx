@@ -590,7 +590,7 @@ export default function ModernSidebar({
               <TooltipContent 
                 side="left" 
                 style={{
-                  background: 'hsl(var(--bg))',
+                  background: 'hsl(var(--bg-card))',
                   color: 'hsl(var(--fg))',
                   border: '1px solid hsl(var(--line))',
                   fontWeight: '500'
