@@ -71,8 +71,7 @@ export default function DashboardLayout({
             right: 0,
             width: sidebarOpen ? '280px' : '80px',
             height: 'calc(100vh - 56px)',
-            background: 'hsl(var(--bg))',
-            borderLeft: '1px solid hsl(var(--line))',
+            background: 'transparent',
             padding: '16px 12px',
             overflowY: 'auto',
             zIndex: 900,
@@ -90,11 +89,12 @@ export default function DashboardLayout({
             right: 0,
             width: '280px',
             height: 'calc(100vh - 56px)',
-            background: 'hsl(var(--bg))',
+            background: 'hsl(var(--bg-card))',
             borderLeft: '1px solid hsl(var(--line))',
             padding: '16px 12px',
             overflowY: 'auto',
-            zIndex: 1000
+            zIndex: 1000,
+            boxShadow: '-4px 0 12px hsla(var(--shadow) / 0.15)'
           }}>
             <ModernSidebar isCollapsed={false} onToggle={toggleSidebar} isMobile={isMobile} />
           </aside>
