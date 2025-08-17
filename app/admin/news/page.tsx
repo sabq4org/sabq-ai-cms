@@ -1031,23 +1031,52 @@ function AdminNewsPageContent() {
                   border: filterStatus === "published" ? '2px solid hsl(var(--accent-3))' : '1px solid hsl(var(--accent-3) / 0.3)'
                 }}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ flex: 1 }}>
+                    <div className="text-sm" style={{ 
+                      color: filterStatus === "published" ? 'rgba(255,255,255,0.8)' : 'hsl(var(--muted))',
+                      marginBottom: '8px'
+                    }}>
                       الأخبار المنشورة
-                    </p>
-                    <div className="flex items-center gap-3 mt-2">
-                      <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div className="heading-2" style={{ 
+                        color: filterStatus === "published" ? 'white' : 'hsl(var(--accent-3))',
+                        marginBottom: '0',
+                        fontSize: '24px'
+                      }}>
                         {formatNumber(stats?.published || 0)}
-                      </p>
-                      <div className="flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-full text-blue-700 bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400">
-                        <CheckCircle className="w-3 h-3" />
+                      </div>
+                      <div className="chip" style={{
+                        background: filterStatus === "published" ? 'rgba(255,255,255,0.2)' : 'hsl(var(--accent-3) / 0.1)',
+                        color: filterStatus === "published" ? 'white' : 'hsl(var(--accent-3))',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        padding: '4px 8px',
+                        borderRadius: '12px',
+                        fontSize: '12px',
+                        fontWeight: '500'
+                      }}>
+                        <CheckCircle style={{ width: '12px', height: '12px' }} />
                         نشط
                       </div>
                     </div>
                   </div>
-                  <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-blue-100 dark:bg-blue-900/30">
-                    <CheckCircle className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                  <div style={{
+                    width: '48px',
+                    height: '48px',
+                    background: filterStatus === "published" ? 'rgba(255,255,255,0.2)' : 'hsl(var(--accent-3) / 0.1)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <CheckCircle style={{ 
+                      width: '24px', 
+                      height: '24px', 
+                      color: filterStatus === "published" ? 'white' : 'hsl(var(--accent-3))'
+                    }} />
                   </div>
                 </div>
               </div>
