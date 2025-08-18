@@ -1,8 +1,6 @@
 "use client";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import React, { useRef, useState } from "react";
 // تم إزالة DashboardLayout - تستخدم الصفحة layout.tsx الأساسي
 import {
@@ -236,41 +234,75 @@ export default function LogoManagerPage() {
 
   if (loading) {
     return (
-      <div className="p-6 flex items-center justify-center h-64">
+      <div 
+        className="p-6 flex items-center justify-center h-64"
+        style={{ 
+          backgroundColor: 'hsl(var(--bg))',
+          color: 'hsl(var(--fg))'
+        }}
+      >
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">جاري تحميل إعدادات اللوجو...</p>
+          <div 
+            className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4"
+            style={{ borderColor: 'hsl(var(--accent))' }}
+          ></div>
+          <p style={{ color: 'hsl(var(--text-muted))' }}>جاري تحميل إعدادات اللوجو...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* العنوان */}
-      <div className="flex items-center gap-4">
-        <div className="p-3 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-600 shadow-lg">
-          <Palette className="w-8 h-8 text-white" />
-        </div>
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-            إدارة لوجو الموقع
-          </h1>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">
-            رفع وإدارة لوجو صحيفة سبق الإلكترونية
-          </p>
+    <div 
+      className="space-y-6"
+      style={{ 
+        backgroundColor: 'hsl(var(--bg))',
+        color: 'hsl(var(--fg))',
+        padding: '24px'
+      }}
+    >
+      {/* رسالة ترحيب بتصميم Manus UI */}
+      <div className="card card-accent">
+        <div className="card-header">
+          <div className="flex items-center gap-4">
+            <div 
+              className="p-3 rounded-2xl shadow-lg"
+              style={{ 
+                background: 'linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-hover)))'
+              }}
+            >
+              <Palette className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <h1 className="heading-2">إدارة لوجو الموقع</h1>
+              <p className="text-muted mt-1">
+                رفع وإدارة لوجو صحيفة سبق الإلكترونية
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-2 mt-4">
+            <span className="chip">إدارة الهوية البصرية</span>
+            <span className="chip">رفع ملفات</span>
+            <span className="chip">معاينة مباشرة</span>
+          </div>
         </div>
       </div>
 
       {/* اللوجو الحالي */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <div className="card">
+        <div className="card-header">
+          <div className="card-title flex items-center gap-2">
             <Eye className="w-5 h-5" />
             اللوجو الحالي
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+          </div>
+        </div>
+        <div 
+          className="p-6"
+          style={{ 
+            backgroundColor: 'hsl(var(--card-bg))',
+            borderTop: '1px solid hsl(var(--border))'
+          }}
+        >
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <LogoPreview
               src={currentLogoUrl}
@@ -291,20 +323,38 @@ export default function LogoManagerPage() {
               height={32}
             />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* رفع لوجو جديد */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <div className="card">
+        <div className="card-header">
+          <div className="card-title flex items-center gap-2">
             <Upload className="w-5 h-5" />
             رفع لوجو جديد
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+          </div>
+        </div>
+        <div 
+          className="p-6 space-y-4"
+          style={{ 
+            backgroundColor: 'hsl(var(--card-bg))',
+            borderTop: '1px solid hsl(var(--border))'
+          }}
+        >
           {/* منطقة الرفع */}
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
+          <div 
+            className="border-2 border-dashed rounded-lg p-8 text-center transition-colors"
+            style={{ 
+              borderColor: 'hsl(var(--border))',
+              backgroundColor: 'hsl(var(--bg-subtle))'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'hsl(var(--accent))';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'hsl(var(--border))';
+            }}
+          >
             <input
               type="file"
               ref={fileInputRef}
@@ -315,28 +365,43 @@ export default function LogoManagerPage() {
             />
 
             <div className="space-y-4">
-              <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
-                <ImageIcon className="w-8 h-8 text-gray-400" />
+              <div 
+                className="mx-auto w-16 h-16 rounded-full flex items-center justify-center"
+                style={{ backgroundColor: 'hsl(var(--bg-muted))' }}
+              >
+                <ImageIcon className="w-8 h-8" style={{ color: 'hsl(var(--text-muted))' }} />
               </div>
 
               <div>
-                <p className="text-lg font-semibold text-gray-700">
+                <p 
+                  className="text-lg font-semibold"
+                  style={{ color: 'hsl(var(--fg))' }}
+                >
                   اختر لوجو جديد
                 </p>
-                <p className="text-sm text-gray-500 mt-1">
+                <p 
+                  className="text-sm mt-1"
+                  style={{ color: 'hsl(var(--text-muted))' }}
+                >
                   PNG، SVG، JPG - حد أقصى 5MB
                 </p>
               </div>
 
-              <Button
+              <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
-                variant="outline"
-                size="lg"
+                className="btn btn-outline"
+                style={{ 
+                  padding: '12px 24px',
+                  fontSize: '16px'
+                }}
               >
                 {uploading ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                    <div 
+                      className="animate-spin rounded-full h-4 w-4 border-b-2 mr-2"
+                      style={{ borderColor: 'hsl(var(--accent))' }}
+                    ></div>
                     جاري الرفع...
                   </>
                 ) : (
@@ -345,7 +410,7 @@ export default function LogoManagerPage() {
                     اختيار ملف
                   </>
                 )}
-              </Button>
+              </button>
             </div>
           </div>
 
@@ -400,66 +465,102 @@ export default function LogoManagerPage() {
 
               {/* أزرار التحكم */}
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Button
+                <button
                   onClick={handleSaveLogo}
-                  className="bg-green-600 hover:bg-green-700 text-white"
-                  size="lg"
+                  className="btn"
+                  style={{ 
+                    backgroundColor: 'hsl(var(--success))',
+                    color: 'white',
+                    padding: '12px 24px',
+                    fontSize: '16px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.opacity = '0.9';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.opacity = '1';
+                  }}
                 >
                   <Save className="w-4 h-4 mr-2" />
                   حفظ اللوجو الجديد
-                </Button>
+                </button>
 
-                <Button onClick={handleReset} variant="outline" size="lg">
+                <button 
+                  onClick={handleReset} 
+                  className="btn btn-outline"
+                  style={{ 
+                    padding: '12px 24px',
+                    fontSize: '16px'
+                  }}
+                >
                   <RotateCcw className="w-4 h-4 mr-2" />
                   إعادة تعيين
-                </Button>
+                </button>
               </div>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* معلومات إضافية */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <div className="card">
+        <div className="card-header">
+          <div className="card-title flex items-center gap-2">
             <AlertCircle className="w-5 h-5" />
             معلومات مهمة
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3 text-sm text-gray-600">
+          </div>
+        </div>
+        <div 
+          className="p-6"
+          style={{ 
+            backgroundColor: 'hsl(var(--card-bg))',
+            borderTop: '1px solid hsl(var(--border))'
+          }}
+        >
+          <div className="space-y-3 text-sm" style={{ color: 'hsl(var(--text-muted))' }}>
             <div className="flex items-start gap-2">
-              <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+              <div 
+                className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
+                style={{ backgroundColor: 'hsl(var(--accent))' }}
+              ></div>
               <p>
-                <strong>الأحجام المناسبة:</strong> يُفضل أن يكون اللوجو بأبعاد
+                <strong style={{ color: 'hsl(var(--fg))' }}>الأحجام المناسبة:</strong> يُفضل أن يكون اللوجو بأبعاد
                 140×45 بكسل أو مضاعفاتها
               </p>
             </div>
             <div className="flex items-start gap-2">
-              <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+              <div 
+                className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
+                style={{ backgroundColor: 'hsl(var(--accent))' }}
+              ></div>
               <p>
-                <strong>الصيغ المدعومة:</strong> PNG (مُفضل للشفافية)، SVG
+                <strong style={{ color: 'hsl(var(--fg))' }}>الصيغ المدعومة:</strong> PNG (مُفضل للشفافية)، SVG
                 (للجودة العالية)، JPG
               </p>
             </div>
             <div className="flex items-start gap-2">
-              <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+              <div 
+                className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
+                style={{ backgroundColor: 'hsl(var(--accent))' }}
+              ></div>
               <p>
-                <strong>الخلفية:</strong> يُنصح باستخدام خلفية شفافة (PNG)
+                <strong style={{ color: 'hsl(var(--fg))' }}>الخلفية:</strong> يُنصح باستخدام خلفية شفافة (PNG)
                 للتوافق مع الوضع الليلي
               </p>
             </div>
             <div className="flex items-start gap-2">
-              <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+              <div 
+                className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
+                style={{ backgroundColor: 'hsl(var(--warning))' }}
+              ></div>
               <p>
-                <strong>ملاحظة تقنية:</strong> بعد الحفظ، قد تحتاج لتحديث الصفحة
+                <strong style={{ color: 'hsl(var(--fg))' }}>ملاحظة تقنية:</strong> بعد الحفظ، قد تحتاج لتحديث الصفحة
                 لرؤية اللوجو الجديد
               </p>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
