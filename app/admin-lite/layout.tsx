@@ -27,15 +27,13 @@ export default function AdminLiteLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <html dir="rtl">
-      <head>
-        <link rel="stylesheet" href="/manus-ui.css" />
-        <style>{`
-          .no-scrollbar::-webkit-scrollbar { display: none; }
-          .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        `}</style>
-      </head>
-      <body style={{ background: "hsl(var(--bg))", color: "hsl(var(--fg))" }}>
+    <>
+      <style jsx>{`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
+      
+      <div style={{ background: "hsl(var(--bg))", color: "hsl(var(--fg))", minHeight: "100vh" }}>
         {/* Sticky, swipeable header */}
         <header
           className="sticky top-0 z-40 border-b backdrop-blur supports-[backdrop-filter]:bg-white/60"
@@ -130,8 +128,8 @@ export default function AdminLiteLayout({ children }: { children: React.ReactNod
             </Link>
           </div>
         </nav>
-      </body>
-    </html>
+      </div>
+    </>
   );
 }
 

@@ -195,11 +195,23 @@ export default function AdminMobileLayout({ children }: { children: React.ReactN
               
               <motion.aside
                 className="mobile-sidebar"
-                initial={{ x: "100%" }}
+                initial={{ x: "-100%" }}
                 animate={{ x: 0 }}
-                exit={{ x: "100%" }}
+                exit={{ x: "-100%" }}
                 transition={{ type: "spring", damping: 30, stiffness: 300 }}
                 {...swipeHandlers}
+                style={{
+                  position: "fixed",
+                  top: 0,
+                  right: 0,
+                  width: "85%",
+                  maxWidth: "320px",
+                  height: "100vh",
+                  background: "hsl(var(--bg-elevated))",
+                  boxShadow: "-2px 0 10px rgba(0, 0, 0, 0.1)",
+                  zIndex: 1001,
+                  overflowY: "auto"
+                }}
               >
                 {/* رأس القائمة */}
                 <div style={{

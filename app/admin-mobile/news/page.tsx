@@ -418,16 +418,13 @@ function NewsCard({
         )}
 
         {/* المحتوى */}
-        <div style={{ minWidth: 0 }}>
+        <div style={{ minWidth: 0, flex: 1 }}>
           <h3 style={{
-            fontSize: "15px",
+            fontSize: "14px",
             fontWeight: "600",
-            marginBottom: "6px",
-            lineHeight: "1.4",
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden"
+            marginBottom: "8px",
+            lineHeight: "1.5",
+            color: "hsl(var(--fg))"
           }}>
             {article.title}
           </h3>
@@ -459,11 +456,12 @@ function NewsCard({
             {/* التصنيف */}
             {article.category && (
               <span style={{
-                fontSize: "12px",
-                padding: "4px 8px",
-                borderRadius: "12px",
+                fontSize: "11px",
+                padding: "3px 6px",
+                borderRadius: "10px",
                 background: `${article.category.color || "#6B7280"}20`,
-                color: article.category.color || "#6B7280"
+                color: article.category.color || "#6B7280",
+                fontWeight: "500"
               }}>
                 {article.category.name}
               </span>
@@ -474,19 +472,23 @@ function NewsCard({
           <div style={{
             display: "flex",
             alignItems: "center",
-            gap: "12px",
-            fontSize: "12px",
-            color: "hsl(var(--muted))"
+            gap: "8px",
+            fontSize: "11px",
+            color: "hsl(var(--muted))",
+            marginTop: "4px"
           }}>
-            <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-              <Clock size={12} />
+            <span style={{ display: "flex", alignItems: "center", gap: "3px" }}>
+              <Clock size={11} />
               {timeAgo(article.published_at || article.created_at)}
             </span>
             {article.views !== undefined && (
-              <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                <Eye size={12} />
-                {article.views.toLocaleString()}
-              </span>
+              <>
+                <span>•</span>
+                <span style={{ display: "flex", alignItems: "center", gap: "3px" }}>
+                  <Eye size={11} />
+                  {article.views.toLocaleString()}
+                </span>
+              </>
             )}
           </div>
         </div>
