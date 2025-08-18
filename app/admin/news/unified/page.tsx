@@ -1617,24 +1617,19 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
         </Alert>
       )}
 
-      {/* المحتوى الرئيسي */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* القسم الرئيسي (75%) */}
-        <div className="lg:col-span-3 space-y-6">
-          {/* العنوان والموجز */}
-          <Card
-            className={cn(
-              "shadow-lg border-0 backdrop-blur-sm",
-              darkMode ? "bg-slate-800/90" : "bg-white/90"
-            )}
-          >
-            <CardContent className="p-6 space-y-6">
+        {/* المحتوى الرئيسي */}
+        <div className="grid grid-3" style={{ gap: '32px', alignItems: 'start' }}>
+          {/* العمود الرئيسي (67%) */}
+          <div style={{ gridColumn: '1 / 3', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            
+            {/* العنوان والموجز */}
+            <div className="card">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               <div>
-                <Label
-                  htmlFor="title"
-                  className="text-sm font-medium mb-2 flex items-center gap-2"
-                >
-                  العنوان الرئيسي *
+                <div>
+                  <label className="label" htmlFor="title">
+                    العنوان الرئيسي *
+                  </label>
                   <Button
                     size="sm"
                     variant="ghost"
@@ -1664,23 +1659,25 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                     </div>
                   )}
                 </Label>
-                <Input
-                  id="title"
-                  value={formData.title}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      title: e.target.value,
-                    }))
-                  }
-                  placeholder="أدخل عنوان الخبر..."
-                  className={cn(
-                    "text-lg font-semibold shadow-sm",
-                    darkMode
-                      ? "bg-slate-700 border-slate-600"
-                      : "bg-white border-slate-200"
-                  )}
-                />
+                  <input
+                    id="title"
+                    type="text"
+                    value={formData.title}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
+                    placeholder="أدخل عنوان الخبر..."
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      border: '1px solid hsl(var(--line))',
+                      borderRadius: '8px',
+                      background: 'hsl(var(--bg-card))',
+                      color: 'hsl(var(--fg))',
+                      fontSize: '18px',
+                      fontWeight: '600',
+                      marginTop: '8px'
+                    }}
+                  />
+                </div>
 
                 {/* اقتراحات العناوين الذكية التلقائية */}
                 {aiAutoSuggestions.titleSuggestions.length > 0 && (
