@@ -74,12 +74,6 @@ const sidebarItems: SidebarItem[] = [
     children: [
       { id: "news", title: "الأخبار", icon: Newspaper, href: "/admin/news" },
       {
-        id: "new-news",
-        title: "إضافة خبر جديد",
-        icon: Plus,
-        href: "/admin/modern/news/unified",
-      },
-      {
         id: "articles",
         title: "المقالات",
         icon: FileText,

@@ -140,7 +140,7 @@ export default function MobileNewsCard({ article, onToggleBreaking, onDelete }: 
       {/* الإجراءات */}
       <div className="news-card-actions">
         <Link
-          href={`/admin/modern/news/unified?id=${article.id}`}
+          href={`/admin/news/unified?id=${article.id}`}
           className="news-card-action-btn"
           title="تعديل"
         >

@@ -1537,7 +1537,7 @@ function AdminNewsPageContent() {
                         ? "لا توجد أخبار مؤرشفة"
                         : "لا توجد أخبار في هذا القسم"}
                     </p>
-                    <Link href="/admin/modern/news/unified">
+                    <Link href="/admin/news/unified">
                       <button className="btn btn-primary">
                         <Plus className="w-4 h-4 ml-2" />
                         إنشاء خبر جديد
