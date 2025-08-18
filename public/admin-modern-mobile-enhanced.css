@@ -75,8 +75,27 @@
   
   /* إطار الصفحة الرئيسي */
   .news-page-container {
-    padding: 8px !important;
+    padding: 0 !important;
     margin: 0 !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+  
+  /* تعديل padding الداخلي */
+  .news-page-container > div > div {
+    padding: 12px !important;
+  }
+  
+  /* منع التمرير الأفقي */
+  main {
+    overflow-x: hidden !important;
+  }
+  
+  /* ضبط عرض المحتوى */
+  .page-content {
+    max-width: 100vw;
+    overflow-x: hidden;
   }
 
   /* بطاقات الأخبار - تصميم جديد مبسط */
@@ -85,11 +104,20 @@
     border: 1px solid hsl(var(--line));
     border-radius: 12px;
     padding: 12px;
-    margin-bottom: 8px;
+    margin: 0 auto 8px;
     display: flex;
     gap: 12px;
     align-items: flex-start;
     transition: all 0.2s ease;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* قائمة الأخبار على الموبايل */
+  .news-list-mobile {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100%;
   }
 
   .news-card-mobile:active {
@@ -265,6 +293,33 @@
     flex: 1;
   }
 
+  /* إصلاحات عرض صفحة الأخبار */
+  #__next,
+  #__next > div,
+  .layout-container {
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+  
+  /* ضبط البطاقات الرئيسية */
+  .card {
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  
+  /* ضبط الجداول على الموبايل */
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* إصلاح الأزرار العائمة */
+  .fixed,
+  .sticky {
+    max-width: 100vw;
+  }
+
   /* ====================================
      4. تحسينات عامة
      General Improvements
@@ -334,6 +389,25 @@
     padding: 16px !important;
     text-align: center;
   }
+  
+  /* بطاقات الإحصائيات في صفحة الأخبار */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    margin-bottom: 16px !important;
+  }
+  
+  .stats-grid .card {
+    padding: 12px !important;
+  }
+  
+  .stats-grid .heading-3 {
+    font-size: 20px !important;
+  }
+  
+  .stats-grid .text-muted {
+    font-size: 12px !important;
+  }
 
   .stat-value {
     font-size: 24px !important;
@@ -357,6 +431,34 @@
   .dropdown-menu {
     width: calc(100vw - 24px);
     max-width: 300px;
+  }
+  
+  /* شريط البحث والفلاتر */
+  .search-bar {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  
+  .search-bar > * {
+    width: 100% !important;
+  }
+  
+  /* أزرار الفلاتر */
+  .filter-buttons {
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: 8px;
+    padding-bottom: 8px;
+  }
+  
+  .filter-buttons::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .filter-buttons button {
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   /* ====================================

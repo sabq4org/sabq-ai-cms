@@ -1115,7 +1115,7 @@ function AdminNewsPageContent() {
   };
 
   return (
-    <>
+    <div className="news-page-container">
       {/* تحميل CSS Manus UI */}
       <link rel="stylesheet" href="/manus-ui.css" />
       
@@ -1880,7 +1880,7 @@ function AdminNewsPageContent() {
           </div>
         </div>
       </TooltipProvider>
-    </>
+    </div>
   );
 }
 
