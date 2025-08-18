@@ -29,6 +29,18 @@ export default function ManusHeader({ onMenuClick, showMenuButton = false }: Man
   const [searchOpen, setSearchOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [currentTheme, setCurrentTheme] = useState('blue');
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // التحقق من حجم الشاشة
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // ثيمات الألوان
   const themes = {
@@ -231,15 +243,17 @@ export default function ManusHeader({ onMenuClick, showMenuButton = false }: Man
 
             {/* تغيير الثيم السريع */}
             <div 
-              className="theme-colors-scroll hidden md:flex"
+              className="theme-colors-scroll"
               style={{ 
                 display: 'flex', 
-                gap: '6px',
+                gap: '8px',
                 overflowX: 'auto',
                 WebkitOverflowScrolling: 'touch',
                 scrollbarWidth: 'none',
                 msOverflowStyle: 'none',
-                maxWidth: '250px'
+                maxWidth: isMobile ? '180px' : '250px',
+                padding: '4px 8px',
+                margin: '0 -8px'
               }}
             >
 

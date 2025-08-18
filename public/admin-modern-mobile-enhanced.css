@@ -14,19 +14,53 @@
     padding: 8px 12px;
   }
 
-  /* إخفاء النصوص الطويلة */
-  .manus-header span:not(.essential-text) {
+  /* إخفاء النصوص غير الضرورية على الموبايل */
+  .header-title,
+  .header-subtitle {
+    display: none !important;
+  }
+  
+  /* إخفاء نص المستخدم والاحتفاظ بالأيقونة فقط */
+  .manus-header button span:not([aria-hidden]) {
     display: none;
+  }
+  
+  /* إظهار الأيقونات فقط */
+  .manus-header svg {
+    display: block !important;
   }
 
   /* تحسين أزرار الألوان */
   .theme-colors-scroll {
     display: flex !important;
-    padding: 0 8px;
+    -webkit-overflow-scrolling: touch;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
   
   .theme-colors-scroll::-webkit-scrollbar {
     display: none;
+  }
+  
+  /* جعل منطقة التمرير أكبر للمس */
+  .theme-colors-scroll::before,
+  .theme-colors-scroll::after {
+    content: '';
+    flex: 0 0 8px;
+  }
+  
+  /* إزالة مؤشر التمرير المكرر */
+  .theme-colors-scroll::before {
+    display: none;
+  }
+  
+  /* تحسين مساحة اللمس */
+  .theme-colors-scroll button {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 
   /* الشعار أصغر */
