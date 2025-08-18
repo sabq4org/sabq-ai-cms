@@ -266,6 +266,74 @@ export default function ManusNewsCreatePage() {
 
       toast.success("🤖 بدء التوليد الشامل...");
 
+      // المحاولة الأولى: استخدام API الذكي الموحد للحصول على مخرجات كاملة
+      try {
+        const categoryName = categories.find((c) => c.id === formData.categoryId)?.name_ar ||
+          categories.find((c) => c.id === formData.categoryId)?.name || "";
+
+        const smartRes = await fetch("/api/ai/smart-editor", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title_hint: formData.title || "",
+            raw_content: cleanText,
+            category: categoryName,
+            entities: [],
+            published_at: new Date().toISOString(),
+          }),
+        });
+
+        if (smartRes.ok) {
+          const smartData = await smartRes.json();
+          const variant = Array.isArray(smartData.variants) && smartData.variants.length > 0
+            ? smartData.variants[0]
+            : null;
+
+          if (variant) {
+            setFormData((prev) => ({
+              ...prev,
+              title: variant.title || prev.title,
+              // نستخدم الموجز الذكي كما هو (قد يكون أطول من 160 حرف)
+              excerpt: variant.smart_summary || prev.excerpt,
+              // دمج الكلمات والوسوم إن توفرت
+              keywords: [
+                ...new Set([
+                  ...prev.keywords,
+                  ...(Array.isArray(variant.keywords) ? variant.keywords : []),
+                  ...(Array.isArray(variant.tags) ? variant.tags : []),
+                ]),
+              ],
+              seoTitle: variant.seo_title || prev.seoTitle || variant.title || prev.title,
+              seoDescription: variant.meta_description || prev.seoDescription || (variant.smart_summary ? String(variant.smart_summary).slice(0, 160) : prev.seoDescription),
+            }));
+
+            setRecentlyGenerated({
+              title: !!variant.title,
+              excerpt: !!variant.smart_summary,
+              keywords: (Array.isArray(variant.keywords) && variant.keywords.length > 0) || (Array.isArray(variant.tags) && variant.tags.length > 0),
+              seo: !!(variant.seo_title || variant.meta_description),
+            });
+
+            toast.success(
+              "🎉 تم التوليد التلقائي بنجاح!\n\n📝 العنوان الرئيسي\n📄 الموجز الذكي\n🏷️ الكلمات المفتاحية\n🔍 عناصر SEO\n\n✅ تحقق من الحقول أعلاه لرؤية النتائج",
+              { duration: 6000 }
+            );
+
+            // إزالة المؤشرات بعد 5 ثوان
+            setTimeout(() => {
+              setRecentlyGenerated({ title: false, excerpt: false, keywords: false, seo: false });
+            }, 5000);
+
+            setIsAILoading(false);
+            return; // لا نكمل لباقي المحاولات إذا نجح الذكي الموحد
+          }
+        } else {
+          console.warn("smart-editor API returned status:", smartRes.status);
+        }
+      } catch (e) {
+        console.warn("محاولة smart-editor فشلت، الانتقال لبدائل:", e);
+      }
+
             // طلبات متوازية مع APIs متعددة للضمان
       const [titleResponse, excerptResponse, keywordsResponse] = await Promise.allSettled([
         // توليد العنوان - جرب APIs متعددة
