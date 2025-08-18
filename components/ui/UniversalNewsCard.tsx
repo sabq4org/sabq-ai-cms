@@ -171,7 +171,7 @@ export default function UniversalNewsCard({
           </div>
 
           {/* المحتوى */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 rounded-xl transition-colors group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 px-2 py-1">
             {/* التصنيف والشارات */}
             <div className="flex items-center gap-2 mb-2 flex-wrap">
               {category && (
@@ -374,7 +374,7 @@ export default function UniversalNewsCard({
         </div>
 
         {/* المحتوى */}
-        <div className="p-6 flex-1 flex flex-col">
+        <div className="p-6 flex-1 flex flex-col rounded-xl transition-colors group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20">
           {/* التصنيف والشارات */}
           <div className="flex items-center gap-2 mb-3 flex-wrap">
             {category && (

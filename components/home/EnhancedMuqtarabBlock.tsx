@@ -554,7 +554,7 @@ export default function EnhancedMuqtarabBlock({
         </div>
 
         {/* محتوى البطاقة */}
-        <CardContent className="p-4 space-y-3">
+        <CardContent className="p-4 space-y-3 rounded-xl transition-colors group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20">
           {/* عنوان المقال */}
           <Link
             href={article.link}

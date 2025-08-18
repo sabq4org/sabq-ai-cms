@@ -131,7 +131,7 @@ export default function NewsCard({ news, viewMode = "grid" }: NewsCardProps) {
           </div>
 
           {/* Content */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 rounded-xl transition-colors group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 px-3 py-2">
             {/* Enhanced Category & AI Badges */}
             <div className="flex items-center gap-2 mb-3 flex-wrap">
               {category && (
@@ -248,7 +248,7 @@ export default function NewsCard({ news, viewMode = "grid" }: NewsCardProps) {
         </div>
 
         {/* Content */}
-        <div className="p-4 flex-1 flex flex-col">
+        <div className="p-4 flex-1 flex flex-col rounded-xl transition-colors group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20">
           {/* Enhanced Category & AI Badges */}
           <div className="flex items-center gap-2 mb-3 flex-wrap">
             {category && (
