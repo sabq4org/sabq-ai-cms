@@ -157,13 +157,23 @@
      ==================================== */
   
   /* إطار الصفحة الرئيسي */
-  .news-page-container {
-    padding: 0 !important;
-    margin: 0 !important;
-    width: 100% !important;
-    max-width: 100vw !important;
-    overflow-x: hidden !important;
-  }
+.news-page-container {
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+/* ضمان استخدام كامل العرض للصفحة */
+.admin-page,
+#__next > div > main,
+.layout-main {
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
   
   /* تعديل padding الداخلي */
   .news-page-container > div > div {

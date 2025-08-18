@@ -1115,7 +1115,7 @@ function AdminNewsPageContent() {
   };
 
   return (
-    <div className="news-page-container">
+    <div className="news-page-container" style={{ width: '100%', maxWidth: '100%', margin: 0, padding: 0 }}>
       {/* تحميل CSS Manus UI */}
       <link rel="stylesheet" href="/manus-ui.css" />
       
@@ -1123,7 +1123,8 @@ function AdminNewsPageContent() {
         <div className="space-y-8" style={{ 
           background: 'hsl(var(--bg))', 
           minHeight: '100vh',
-          padding: '24px'
+          padding: '0',
+          width: '100%'
         }}>
           {/* رسالة الترحيب */}
           <div className="card card-accent" style={{
