@@ -312,8 +312,8 @@ export default function AdvancedAudioEnhancePage() {
   });
 
   return (
-    <div style={{ minHeight: '100vh', background: 'hsl(var(--bg))', padding: '40px 20px' }} dir="rtl">
-      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+    <div style={{ minHeight: '100vh', background: 'hsl(var(--bg))', padding: '0', width: '100%' }} dir="rtl">
+      <div style={{ width: '100%' }}>
         {/* رسالة الترحيب */}
         <div className="card card-accent" style={{ marginBottom: '32px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
