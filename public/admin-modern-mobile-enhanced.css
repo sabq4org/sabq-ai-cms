@@ -1,0 +1,405 @@
+/**
+ * تحسينات الموبايل المتقدمة لـ Admin Modern
+ * Enhanced Mobile Improvements for Admin Modern
+ */
+
+/* ====================================
+   1. تحسينات الهيدر للموبايل
+   Mobile Header Enhancements
+   ==================================== */
+
+@media (max-width: 768px) {
+  /* تحسين الهيدر */
+  .manus-header {
+    padding: 8px 12px;
+  }
+
+  /* إخفاء النصوص الطويلة */
+  .manus-header span:not(.essential-text) {
+    display: none;
+  }
+
+  /* تحسين أزرار الألوان */
+  .theme-colors-scroll {
+    display: flex !important;
+    padding: 0 8px;
+  }
+
+  /* الشعار أصغر */
+  .manus-header .logo {
+    font-size: 16px;
+  }
+
+  /* ====================================
+     2. تحسينات صفحة الأخبار
+     News Page Improvements
+     ==================================== */
+  
+  /* إطار الصفحة الرئيسي */
+  .news-page-container {
+    padding: 8px !important;
+    margin: 0 !important;
+  }
+
+  /* بطاقات الأخبار - تصميم جديد مبسط */
+  .news-card-mobile {
+    background: hsl(var(--bg-card));
+    border: 1px solid hsl(var(--line));
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 8px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    transition: all 0.2s ease;
+  }
+
+  .news-card-mobile:active {
+    transform: scale(0.98);
+    background: hsl(var(--bg-elevated));
+  }
+
+  /* صورة الخبر */
+  .news-card-image {
+    width: 80px;
+    height: 80px;
+    min-width: 80px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: hsl(var(--bg-elevated));
+  }
+
+  /* محتوى الخبر */
+  .news-card-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .news-card-title {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 6px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .news-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 12px;
+    color: hsl(var(--muted));
+  }
+
+  .news-card-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  /* إجراءات الخبر */
+  .news-card-actions {
+    display: flex;
+    gap: 4px;
+  }
+
+  .news-card-action-btn {
+    padding: 6px;
+    border-radius: 6px;
+    background: transparent;
+    border: none;
+    color: hsl(var(--muted));
+    transition: all 0.2s ease;
+  }
+
+  .news-card-action-btn:active {
+    background: hsl(var(--accent) / 0.1);
+    color: hsl(var(--accent));
+  }
+
+  /* إزالة الجداول على الموبايل */
+  table.news-table {
+    display: none;
+  }
+
+  /* عرض قائمة بدلاً من الجدول */
+  .news-list-mobile {
+    display: block !important;
+  }
+
+  /* ====================================
+     3. صفحة إضافة/تعديل الخبر
+     Add/Edit News Page
+     ==================================== */
+  
+  /* حاوية النموذج */
+  .news-form-container {
+    padding: 12px;
+    max-width: 100%;
+  }
+
+  /* حقول النموذج */
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-label {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .form-input,
+  .form-textarea,
+  .form-select {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px; /* منع zoom على iOS */
+    border: 1px solid hsl(var(--line));
+    border-radius: 8px;
+    background: hsl(var(--bg-card));
+    transition: all 0.2s ease;
+  }
+
+  .form-input:focus,
+  .form-textarea:focus,
+  .form-select:focus {
+    border-color: hsl(var(--accent));
+    outline: none;
+    box-shadow: 0 0 0 3px hsl(var(--accent) / 0.1);
+  }
+
+  /* محرر النصوص */
+  .editor-container {
+    border: 1px solid hsl(var(--line));
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .editor-toolbar {
+    background: hsl(var(--bg-elevated));
+    border-bottom: 1px solid hsl(var(--line));
+    padding: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .editor-toolbar button {
+    padding: 8px;
+    border: none;
+    background: transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .editor-toolbar button:active {
+    background: hsl(var(--accent) / 0.2);
+  }
+
+  .editor-content {
+    min-height: 200px;
+    padding: 12px;
+    font-size: 16px;
+  }
+
+  /* أزرار الإجراءات */
+  .form-actions {
+    position: sticky;
+    bottom: 0;
+    background: hsl(var(--bg));
+    border-top: 1px solid hsl(var(--line));
+    padding: 12px;
+    display: flex;
+    gap: 8px;
+    margin: 0 -12px;
+  }
+
+  .form-actions .btn {
+    flex: 1;
+  }
+
+  /* ====================================
+     4. تحسينات عامة
+     General Improvements
+     ==================================== */
+  
+  /* إزالة الحاويات المتداخلة */
+  .card .card {
+    border: none;
+    box-shadow: none;
+    margin: 0;
+    padding: 8px;
+    background: transparent;
+  }
+
+  /* تحسين البطاقات */
+  .card {
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+
+  .card-header {
+    padding: 0 0 8px 0;
+    border-bottom: 1px solid hsl(var(--line));
+    margin-bottom: 12px;
+  }
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  /* الأزرار */
+  .btn {
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .btn:active {
+    transform: scale(0.95);
+  }
+
+  /* التبويبات */
+  .tabs-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    margin: 0 -12px;
+    padding: 0 12px;
+  }
+
+  .tabs-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab-item {
+    white-space: nowrap;
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+
+  /* الإحصائيات */
+  .stat-card {
+    padding: 16px !important;
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 24px !important;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .stat-label {
+    font-size: 13px;
+    color: hsl(var(--muted));
+  }
+
+  /* التنبيهات */
+  .alert {
+    padding: 12px;
+    font-size: 14px;
+    border-radius: 8px;
+  }
+
+  /* القوائم المنسدلة */
+  .dropdown-menu {
+    width: calc(100vw - 24px);
+    max-width: 300px;
+  }
+
+  /* ====================================
+     5. تحسينات الأداء
+     Performance Improvements
+     ==================================== */
+  
+  /* تقليل الظلال */
+  * {
+    box-shadow: none !important;
+  }
+
+  .card,
+  .btn,
+  .news-card-mobile {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+  }
+
+  /* تبسيط الحركات */
+  * {
+    animation-duration: 0.2s !important;
+    transition-duration: 0.2s !important;
+  }
+
+  /* إخفاء العناصر الثقيلة */
+  .desktop-only,
+  .chart-container,
+  .heavy-component {
+    display: none !important;
+  }
+
+  /* ====================================
+     6. تحسينات RTL
+     RTL Improvements
+     ==================================== */
+  
+  [dir="rtl"] {
+    .news-card-mobile {
+      flex-direction: row-reverse;
+    }
+
+    .form-actions {
+      flex-direction: row-reverse;
+    }
+
+    .news-card-meta {
+      flex-direction: row-reverse;
+    }
+  }
+}
+
+/* ====================================
+   شاشات صغيرة جداً
+   Extra Small Screens
+   ==================================== */
+
+@media (max-width: 380px) {
+  /* تصغير المسافات أكثر */
+  .news-page-container,
+  .news-form-container {
+    padding: 6px !important;
+  }
+
+  .card {
+    padding: 10px;
+  }
+
+  /* صور أصغر */
+  .news-card-image {
+    width: 60px;
+    height: 60px;
+    min-width: 60px;
+  }
+
+  /* خطوط أصغر */
+  .news-card-title {
+    font-size: 14px;
+  }
+
+  .btn {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+}

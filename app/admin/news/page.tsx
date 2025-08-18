@@ -59,6 +59,7 @@ import React, {
   useState,
 } from "react";
 import toast from "react-hot-toast";
+import MobileNewsCard from "@/components/admin/modern-dashboard/MobileNewsCard";
 
 // دالة تنسيق الأرقام (محدثة للأرقام الغربية)
 const formatNumber = (num: number): string => {
@@ -1536,7 +1537,7 @@ function AdminNewsPageContent() {
                         ? "لا توجد أخبار مؤرشفة"
                         : "لا توجد أخبار في هذا القسم"}
                     </p>
-                    <Link href="/admin/news/unified">
+                    <Link href="/admin/modern/news/unified">
                       <button className="btn btn-primary">
                         <Plus className="w-4 h-4 ml-2" />
                         إنشاء خبر جديد
@@ -1545,7 +1546,21 @@ function AdminNewsPageContent() {
                   </div>
                 </div>
               ) : (
-                <div className="overflow-x-auto flex-1">
+                <>
+                  {/* عرض البطاقات على الموبايل */}
+                  <div className="news-list-mobile md:hidden">
+                    {filteredArticles.map((article) => (
+                      <MobileNewsCard
+                        key={article.id}
+                        article={article}
+                        onToggleBreaking={handleToggleBreaking}
+                        onDelete={handleDelete}
+                      />
+                    ))}
+                  </div>
+
+                  {/* عرض الجدول على الديسكتوب */}
+                  <div className="overflow-x-auto flex-1 hidden md:block">
                   <Table>
                     <TableHeader style={{ background: 'hsl(var(--bg-card))', borderBottom: '1px solid hsl(var(--line))' }}>
                       <TableRow>
@@ -1858,7 +1873,8 @@ function AdminNewsPageContent() {
                       })}
                     </TableBody>
                   </Table>
-                </div>
+                  </div>
+                </>
               )}
             </div>
           </div>

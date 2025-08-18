@@ -54,6 +54,7 @@ export default function DashboardLayout({
       <link rel="stylesheet" href="/manus-ui.css" />
       {/* تحميل تحسينات الموبايل */}
       <link rel="stylesheet" href="/admin-modern-mobile.css" />
+      <link rel="stylesheet" href="/admin-modern-mobile-enhanced.css" />
       
       {/* الهيدر كامل العرض - ثابت في الأعلى */}
       <ManusHeader onMenuClick={toggleSidebar} showMenuButton={isMobile} />

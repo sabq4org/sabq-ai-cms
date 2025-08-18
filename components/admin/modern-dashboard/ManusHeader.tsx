@@ -230,7 +230,28 @@ export default function ManusHeader({ onMenuClick, showMenuButton = false }: Man
             </button>
 
             {/* تغيير الثيم السريع */}
-            <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }} className="hidden lg:flex">
+            <div 
+              className="theme-colors-scroll hidden md:flex"
+              style={{ 
+                display: 'flex', 
+                gap: '6px',
+                overflowX: 'auto',
+                WebkitOverflowScrolling: 'touch',
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+                maxWidth: '250px'
+              }}
+            >
+              <style jsx>{`
+                .theme-colors-scroll::-webkit-scrollbar {
+                  display: none;
+                }
+                @media (max-width: 768px) {
+                  .theme-colors-scroll {
+                    display: flex !important;
+                  }
+                }
+              `}</style>
               {visibleThemeKeys.map((key) => {
                 const theme = themes[key];
                 const isActive = currentTheme === key;
@@ -243,26 +264,47 @@ export default function ManusHeader({ onMenuClick, showMenuButton = false }: Man
                     aria-label={`تغيير إلى ${theme.name}`}
                     title={`تغيير إلى ${theme.name}`}
                     style={{ 
-                      padding: '6px 8px',
-                      fontSize: '12px',
-                      minWidth: 'auto',
+                      padding: '4px',
+                      minWidth: '32px',
+                      width: '32px',
+                      height: '32px',
                       display: 'inline-flex',
                       alignItems: 'center',
-                      gap: '6px'
+                      justifyContent: 'center',
+                      border: 'none',
+                      background: 'transparent'
                     }}
                   >
                     <span
                       aria-hidden
                       style={{
                         display: 'inline-block',
-                        width: '14px',
-                        height: '14px',
+                        width: '24px',
+                        height: '24px',
                         borderRadius: '50%',
                         background: `hsl(${theme.accent})`,
-                        border: isActive ? '2px solid rgba(255,255,255,0.9)' : '1px solid hsl(var(--line))',
-                        boxShadow: isActive ? '0 0 0 2px hsl(var(--accent) / 0.5)' : 'none'
+                        border: isActive ? '3px solid white' : '2px solid transparent',
+                        boxShadow: isActive ? `0 0 0 2px hsl(${theme.accent})` : '0 1px 3px rgba(0,0,0,0.2)',
+                        position: 'relative'
                       }}
-                    />
+                    >
+                      {isActive && (
+                        <svg 
+                          style={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
+                            transform: 'translate(-50%, -50%)',
+                            width: '12px',
+                            height: '12px'
+                          }}
+                          fill="white" 
+                          viewBox="0 0 20 20"
+                        >
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </span>
                   </button>
                 );
               })}
