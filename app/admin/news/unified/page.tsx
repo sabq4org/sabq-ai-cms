@@ -771,7 +771,7 @@ export default function ManusNewsCreatePage() {
   }, []);
 
   // حفظ المقال
-  const handleSave = async (status: "draft" | "published") => {
+  const handleSave = async (status: "draft" | "published" | "scheduled") => {
     try {
       setSaving(true);
 
@@ -812,6 +812,18 @@ export default function ManusNewsCreatePage() {
           external_link: formData.externalLink || null,
         },
       };
+
+      // دعم الجدولة: عند اختيار النشر المجدول نمرّر وقت الجدولة إلى الـ API
+      if ((status === "scheduled" || formData.publishType === "scheduled")) {
+        if (!formData.scheduledDate) {
+          toast.error("يرجى تحديد التاريخ والوقت للجدولة أولاً");
+          setSaving(false);
+          return;
+        }
+        // يقرأ الـ API الحقول scheduled_for أو publish_at أو publishAt
+        (articleData as any).scheduled_for = formData.scheduledDate;
+        (articleData as any).publish_at = formData.scheduledDate;
+      }
 
       if (!articleData.category_id) {
         toast.error("خطأ: يجب اختيار تصنيف للمقال");
@@ -1032,27 +1044,35 @@ export default function ManusNewsCreatePage() {
                 </button>
 
                 <button
-        onClick={() => {
-          if (completionScore < 60) {
+                  onClick={() => {
+                    if (completionScore < 60) {
                       toast.error(`المقال غير مكتمل بما يكفي للنشر (${completionScore}%). يرجى إكمال البيانات المطلوبة.`);
-            return;
-          }
-          handleSave("published");
-        }}
-        disabled={saving || loading}
+                      return;
+                    }
+                    if (formData.publishType === "scheduled") {
+                      if (!formData.scheduledDate) {
+                        toast.error("يرجى تحديد التاريخ والوقت للجدولة أولاً");
+                        return;
+                      }
+                      handleSave("scheduled");
+                    } else {
+                      handleSave("published");
+                    }
+                  }}
+                  disabled={saving || loading}
                   className="btn btn-primary"
-      >
-        {saving ? (
-          <>
-            <Loader2 className="w-4 h-4 animate-spin" />
-            جاري النشر...
-              </>
-            ) : (
-              <>
-                <Send className="w-4 h-4" />
-                نشر فوري
-              </>
-            )}
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      {formData.publishType === "scheduled" ? "جاري الجدولة..." : "جاري النشر..."}
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      {formData.publishType === "scheduled" ? "نشر مجدول" : "نشر فوري"}
+                    </>
+                  )}
                 </button>
     </div>
         </div>
