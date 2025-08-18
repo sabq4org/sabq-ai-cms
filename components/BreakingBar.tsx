@@ -31,7 +31,11 @@ function getTimeAgoString(dateIso?: string | null): string {
   }
 }
 
-export default function BreakingBar() {
+interface BreakingBarProps {
+  variant?: 'sticky' | 'inline';
+}
+
+export default function BreakingBar({ variant = 'sticky' }: BreakingBarProps = {}) {
   const pathname = usePathname();
 
   // أخفِ الشريط في مسارات الإدارة ولوحات التحكم
@@ -108,13 +112,16 @@ export default function BreakingBar() {
       role="region"
       aria-live="polite"
       style={{
-        position: 'sticky',
-        top: 'var(--header-height, var(--mobile-header-height, 56px))', // متكيف للموبايل
-        zIndex: 39, // أقل من الهيدر الرئيسي
+        position: variant === 'inline' ? 'relative' : 'sticky',
+        top: variant === 'inline' ? 'auto' : 'var(--header-height, var(--mobile-header-height, 56px))',
+        zIndex: 39,
         background: 'linear-gradient(90deg, rgba(239,68,68,0.08), rgba(239,68,68,0.04))',
         borderBottom: '1px solid rgba(239,68,68,0.3)',
+        borderTop: variant === 'inline' ? '1px solid rgba(239,68,68,0.2)' : 'none',
         backdropFilter: 'blur(8px)',
         marginBottom: '0',
+        borderRadius: variant === 'inline' ? '8px' : '0',
+        overflow: 'hidden',
       }}
       className="breaking-bar-container"
     >

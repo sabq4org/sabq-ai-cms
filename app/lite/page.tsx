@@ -3,18 +3,26 @@
 import MobileLiteLayout from '@/components/mobile/MobileLiteLayout';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { MobileStats } from '@/components/mobile/MobileOptimizer';
+import BreakingBar from '@/components/BreakingBar';
 
 export default function LitePage() {
   const [articles, setArticles] = useState<any[]>([]);
+  const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // جلب آخر الأخبار
-    fetch('/api/articles?limit=20')
-      .then(res => res.json())
-      .then(data => {
-        if (data.articles) {
-          setArticles(data.articles);
+    // جلب آخر الأخبار والإحصائيات
+    Promise.all([
+      fetch('/api/articles?limit=20').then(res => res.json()),
+      fetch('/api/stats/summary').then(res => res.json())
+    ])
+      .then(([articlesData, statsData]) => {
+        if (articlesData.articles) {
+          setArticles(articlesData.articles);
+        }
+        if (statsData.success) {
+          setStats(statsData);
         }
         setLoading(false);
       })
@@ -25,8 +33,29 @@ export default function LitePage() {
     <MobileLiteLayout>
       <div className="space-y-4">
         <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-          آخر الأخبار
+          سبق الذكية - النسخة الخفيفة
         </h2>
+        
+        {/* إحصائيات سريعة */}
+        {stats && (
+          <MobileStats 
+            stats={[
+              { label: 'الأخبار', value: stats.totalArticles || articles.length },
+              { label: 'اليوم', value: stats.todayArticles || 0 },
+              { label: 'عاجل', value: stats.breakingNews || 0 },
+              { label: 'المشاهدات', value: `${Math.floor((stats.totalViews || 0) / 1000)}ك` }
+            ]}
+          />
+        )}
+        
+        {/* شريط الخبر العاجل - يظهر تحت الإحصائيات */}
+        <div style={{ margin: '16px -16px 0 -16px' }}>
+          <BreakingBar variant="inline" />
+        </div>
+        
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mt-6 mb-4">
+          آخر الأخبار
+        </h3>
         
         {loading ? (
           <div className="text-center py-8">
