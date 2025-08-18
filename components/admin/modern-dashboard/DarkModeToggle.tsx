@@ -19,7 +19,17 @@ export default function DarkModeToggle() {
 
   const applyTheme = (dark: boolean) => {
     if (typeof document !== 'undefined') {
+      // تطبيق data-theme attribute
       document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      
+      // تطبيق class للتوافق
+      if (dark) {
+        document.documentElement.classList.add('dark');
+        document.body.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.body.classList.remove('dark');
+      }
       
       // تطبيق الألوان فوراً على body
       if (dark) {

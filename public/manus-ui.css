@@ -43,28 +43,139 @@ body {
   min-height: 100vh;
 }
 
-/* وضع داكن */
-[data-theme="dark"] {
+/* وضع داكن - محسّن */
+[data-theme="dark"],
+.dark {
   --bg: 222 47% 11%;
   --bg-card: 222 47% 14%;
-  --bg-elevated: 222 47% 8%;  /* خلفية أغمق للهيدر والقائمة */
+  --bg-elevated: 222 47% 8%;
   --fg: 213 31% 91%;
+  --accent: 212 90% 60%;    /* أزرق أفتح للوضع الداكن */
+  --accent-2: 262 83% 68%;  /* بنفسجي أفتح */
+  --accent-3: 142 71% 55%;  /* أخضر أفتح */
+  --accent-4: 25 95% 63%;   /* برتقالي أفتح */
+  --accent-5: 0 84% 70%;    /* أحمر أفتح */
   --line: 217 33% 17%;
   --muted: 215 25% 65%;
+  --shadow: 0 0% 0%;
+  --accent-hover: 212 90% 65%;
+  --accent-light: 212 90% 20%;
+  --line-strong: 217 33% 22%;
   --bg-gradient: linear-gradient(135deg, hsl(222 47% 11%) 0%, hsl(222 47% 9%) 100%);
   --card-shadow: 0 1px 3px hsla(0 0% 0% / 0.3), 0 1px 2px hsla(0 0% 0% / 0.2);
   --card-shadow-hover: 0 4px 6px hsla(0 0% 0% / 0.3), 0 2px 4px hsla(0 0% 0% / 0.2);
 }
 
-[data-theme="dark"] body {
+[data-theme="dark"] body,
+.dark body {
   background: hsl(var(--bg)) !important;
   color: hsl(var(--fg)) !important;
 }
 
-[data-theme="dark"] .manus-layout::before {
+[data-theme="dark"] .manus-layout::before,
+.dark .manus-layout::before {
   background-image: 
     radial-gradient(circle at 1px 1px, hsl(var(--line)) 1px, transparent 0);
-  opacity: 0.5;
+  opacity: 0.3;
+}
+
+/* تحسينات إضافية للوضع الداكن */
+[data-theme="dark"] .card,
+.dark .card {
+  background: hsl(var(--bg-card)) !important;
+  border-color: hsl(var(--line)) !important;
+  color: hsl(var(--fg)) !important;
+}
+
+[data-theme="dark"] .btn,
+.dark .btn {
+  background: hsl(var(--bg-elevated)) !important;
+  border-color: hsl(var(--line)) !important;
+  color: hsl(var(--fg)) !important;
+}
+
+[data-theme="dark"] .btn:hover,
+.dark .btn:hover {
+  background: hsl(var(--bg-card)) !important;
+  border-color: hsl(var(--line-strong)) !important;
+}
+
+[data-theme="dark"] .btn-primary,
+.dark .btn-primary {
+  background: hsl(var(--accent)) !important;
+  border-color: hsl(var(--accent)) !important;
+  color: white !important;
+}
+
+[data-theme="dark"] .input,
+[data-theme="dark"] .select,
+[data-theme="dark"] .textarea,
+.dark .input,
+.dark .select,
+.dark .textarea {
+  background: hsl(var(--bg)) !important;
+  border-color: hsl(var(--line)) !important;
+  color: hsl(var(--fg)) !important;
+}
+
+[data-theme="dark"] .input:focus,
+[data-theme="dark"] .select:focus,
+[data-theme="dark"] .textarea:focus,
+.dark .input:focus,
+.dark .select:focus,
+.dark .textarea:focus {
+  border-color: hsl(var(--accent)) !important;
+  background: hsl(var(--bg-card)) !important;
+}
+
+[data-theme="dark"] .chip,
+.dark .chip {
+  background: hsl(var(--bg-elevated)) !important;
+  border-color: hsl(var(--line)) !important;
+  color: hsl(var(--fg)) !important;
+}
+
+[data-theme="dark"] .label,
+.dark .label {
+  color: hsl(var(--muted)) !important;
+}
+
+[data-theme="dark"] .heading-1,
+[data-theme="dark"] .heading-2,
+[data-theme="dark"] .heading-3,
+.dark .heading-1,
+.dark .heading-2,
+.dark .heading-3 {
+  color: hsl(var(--fg)) !important;
+}
+
+[data-theme="dark"] .text-muted,
+.dark .text-muted {
+  color: hsl(var(--muted)) !important;
+}
+
+[data-theme="dark"] .table-container table,
+.dark .table-container table {
+  background: hsl(var(--bg-card)) !important;
+}
+
+[data-theme="dark"] .table-container th,
+.dark .table-container th {
+  background: hsl(var(--bg-elevated)) !important;
+  color: hsl(var(--fg)) !important;
+  border-color: hsl(var(--line)) !important;
+}
+
+[data-theme="dark"] .table-container td,
+.dark .table-container td {
+  background: hsl(var(--bg-card)) !important;
+  color: hsl(var(--fg)) !important;
+  border-color: hsl(var(--line)) !important;
+}
+
+[data-theme="dark"] .table-container tr:hover td,
+.dark .table-container tr:hover td {
+  background: hsl(var(--bg-elevated)) !important;
 }
 
 /* نظام التخطيط - Layout System */
@@ -548,16 +659,152 @@ body {
   }
 }
 
+/* تحسينات إضافية للوضع الداكن - التبويبات والعناصر الأخرى */
+[data-theme="dark"] .tabbar,
+.dark .tabbar {
+  background: hsl(var(--bg-elevated)) !important;
+}
+
+[data-theme="dark"] .tab,
+.dark .tab {
+  color: hsl(var(--muted)) !important;
+}
+
+[data-theme="dark"] .tab.active,
+.dark .tab.active {
+  background: hsl(var(--bg-card)) !important;
+  color: hsl(var(--accent)) !important;
+  border-color: hsl(var(--accent)) !important;
+}
+
+[data-theme="dark"] .tab:hover:not(.active),
+.dark .tab:hover:not(.active) {
+  background: hsl(var(--bg)) !important;
+  color: hsl(var(--fg)) !important;
+}
+
+/* الهيدر في الوضع الداكن */
+[data-theme="dark"] .manus-header,
+.dark .manus-header {
+  background: hsl(var(--bg-elevated)) !important;
+  border-color: hsl(var(--line)) !important;
+}
+
+/* الشريط الجانبي في الوضع الداكن */
+[data-theme="dark"] .manus-sidebar,
+.dark .manus-sidebar {
+  background: hsl(var(--bg-elevated)) !important;
+  border-color: hsl(var(--line)) !important;
+}
+
+[data-theme="dark"] .sidebar-link,
+.dark .sidebar-link {
+  color: hsl(var(--fg)) !important;
+}
+
+[data-theme="dark"] .sidebar-link:hover,
+.dark .sidebar-link:hover {
+  background: hsl(var(--bg-card)) !important;
+  color: hsl(var(--accent)) !important;
+}
+
+[data-theme="dark"] .sidebar-link.active,
+.dark .sidebar-link.active {
+  background: hsl(var(--accent-light)) !important;
+  color: hsl(var(--accent)) !important;
+}
+
+/* التنبيهات في الوضع الداكن */
+[data-theme="dark"] .alert,
+.dark .alert {
+  background: hsl(var(--bg-card)) !important;
+  border-color: hsl(var(--line)) !important;
+  color: hsl(var(--fg)) !important;
+}
+
+[data-theme="dark"] .alert-danger,
+.dark .alert-danger {
+  background: hsl(var(--accent-5) / 0.1) !important;
+  border-color: hsl(var(--accent-5)) !important;
+  color: hsl(var(--accent-5)) !important;
+}
+
+[data-theme="dark"] .alert-success,
+.dark .alert-success {
+  background: hsl(var(--accent-3) / 0.1) !important;
+  border-color: hsl(var(--accent-3)) !important;
+  color: hsl(var(--accent-3)) !important;
+}
+
+/* المفاتيح في الوضع الداكن */
+[data-theme="dark"] .toggle-base,
+.dark .toggle-base {
+  background: hsl(var(--bg)) !important;
+  border-color: hsl(var(--line)) !important;
+}
+
+[data-theme="dark"] .toggle-base.active,
+.dark .toggle-base.active {
+  background: hsl(var(--accent)) !important;
+  border-color: hsl(var(--accent)) !important;
+}
+
+/* البطاقات الإحصائية */
+[data-theme="dark"] .stat-value,
+.dark .stat-value {
+  color: hsl(var(--accent)) !important;
+}
+
+/* عناصر النماذج الإضافية */
+[data-theme="dark"] .radio-item,
+.dark .radio-item {
+  background: hsl(var(--bg)) !important;
+  border-color: hsl(var(--line)) !important;
+}
+
+[data-theme="dark"] .radio-item:hover,
+.dark .radio-item:hover {
+  background: hsl(var(--bg-card)) !important;
+  border-color: hsl(var(--accent)) !important;
+}
+
+[data-theme="dark"] .checkbox,
+.dark .checkbox {
+  background: hsl(var(--bg)) !important;
+  border-color: hsl(var(--line)) !important;
+}
+
+[data-theme="dark"] .checkbox:checked,
+.dark .checkbox:checked {
+  background: hsl(var(--accent)) !important;
+  border-color: hsl(var(--accent)) !important;
+}
+
+/* القوائم المنسدلة */
+[data-theme="dark"] .dropdown-menu,
+.dark .dropdown-menu {
+  background: hsl(var(--bg-card)) !important;
+  border-color: hsl(var(--line)) !important;
+  box-shadow: 0 4px 20px hsla(0 0% 0% / 0.5) !important;
+}
+
+[data-theme="dark"] .dropdown-item:hover,
+.dark .dropdown-item:hover {
+  background: hsl(var(--bg-elevated)) !important;
+}
+
 /* الوضع المظلم - اختياري */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: 220 13% 9%;
-    --fg: 0 0% 95%;
+    --bg: 222 47% 11%;
+    --bg-card: 222 47% 14%;
+    --bg-elevated: 222 47% 8%;
+    --fg: 213 31% 91%;
     --accent: 212 90% 60%;
-    --line: 220 14% 20%;
-    --muted: 220 9% 60%;
-    --accent-light: 212 90% 15%;
-    --line-strong: 220 14% 25%;
+    --line: 217 33% 17%;
+    --muted: 215 25% 65%;
+    --accent-light: 212 90% 20%;
+    --line-strong: 217 33% 22%;
   }
 }
 
