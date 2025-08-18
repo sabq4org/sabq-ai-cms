@@ -1,28 +1,29 @@
 "use client";
 
-import { DesignComponents } from "@/components/design-system/DesignSystemGuide";
-import { Button } from "@/components/ui/button";
-import { formatDashboardStat } from "@/lib/format-utils";
-import { cn } from "@/lib/utils";
-import {
-  ArrowUpRight,
-  Calendar,
-  Download,
-  Edit,
-  Eye,
-  FileText,
-  Filter,
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import { 
+  Plus, 
+  Search, 
+  Filter, 
+  Eye, 
+  Edit, 
+  Trash2, 
   Folder,
   FolderOpen,
+  FileText,
+  Target,
+  ArrowUpRight,
   Hash,
-  Plus,
-  Search,
+  Calendar,
+  Download,
+  ChevronRight,
   Sparkles,
   Tag,
-  Target,
-  Trash2,
+  X,
+  AlertCircle
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
 
 interface Category {
   id: string;
@@ -58,40 +59,54 @@ function getContrastColor(hex: string): string {
   return luminance > 0.6 ? "#111827" : "#ffffff"; // أسود داكن أو أبيض
 }
 
-const CategoriesPage = () => {
+export default function CategoriesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; category: Category | null }>({ 
+    open: false, 
+    category: null 
+  });
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const res = await fetch("/api/categories", { cache: "no-store" });
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        const data = await res.json();
-        const raw = data.categories || data.data || [];
-        const mapped: Category[] = (raw as any[]).map((c) => ({
-          id: String(c.id),
-          name: c.name_ar || c.name || "",
-          description: c.description || "",
-          articleCount: Number(c.articles_count ?? c.articleCount ?? 0),
-          createdAt: c.created_at || c.createdAt || new Date().toISOString(),
-          status: c.is_active === false ? "inactive" : "active",
-          color: c.color || c?.metadata?.color_hex || "#3B82F6",
-        }));
-        setCategories(mapped);
-      } catch (e) {
-        setError("تعذر جلب التصنيفات");
-        setCategories([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch("/api/categories", { 
+        cache: "no-store",
+        credentials: "include"
+      });
+      
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      
+      const data = await res.json();
+      const raw = data.categories || data.data || [];
+      
+      const mapped: Category[] = raw.map((c: any) => ({
+        id: String(c.id),
+        name: c.name_ar || c.name || "",
+        description: c.description || "",
+        articleCount: Number(c.articles_count ?? c.articleCount ?? 0),
+        createdAt: c.created_at || c.createdAt || new Date().toISOString(),
+        status: c.is_active === false ? "inactive" : "active",
+        color: c.color || c?.metadata?.color_hex || "#3B82F6",
+      }));
+      
+      setCategories(mapped);
+    } catch (e) {
+      console.error("Error fetching categories:", e);
+      setError("تعذر جلب التصنيفات");
+      toast.error("حدث خطأ في جلب التصنيفات");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const formatNumber = (num: number) => {
     if (num >= 1000) return `${(num / 1000).toFixed(1)}ك`;
@@ -119,38 +134,35 @@ const CategoriesPage = () => {
 
   const stats = getCategoryStats();
 
-  // دالة تعديل التصنيف
   const handleEditCategory = (category: Category) => {
-    // يمكنك هنا فتح نافذة modal للتعديل أو التوجيه لصفحة التعديل
-    console.log("تعديل التصنيف:", category);
-    // مثال: التوجيه لصفحة التعديل
     window.location.href = `/admin/categories/edit/${category.id}`;
   };
 
-  // دالة حذف التصنيف
   const handleDeleteCategory = async (categoryId: string) => {
-    if (!confirm("هل أنت متأكد من حذف هذا التصنيف؟")) {
-      return;
-    }
-
     try {
       const response = await fetch(`/api/categories/${categoryId}`, {
         method: 'DELETE',
+        credentials: 'include'
       });
 
       if (response.ok) {
-        // إعادة تحميل التصنيفات
         const updatedCategories = categories.filter(cat => cat.id !== categoryId);
         setCategories(updatedCategories);
-        alert("تم حذف التصنيف بنجاح");
+        toast.success("تم حذف التصنيف بنجاح");
+        setDeleteModal({ open: false, category: null });
       } else {
-        alert("فشل حذف التصنيف");
+        toast.error("فشل حذف التصنيف");
       }
     } catch (error) {
       console.error("خطأ في حذف التصنيف:", error);
-      alert("حدث خطأ أثناء حذف التصنيف");
+      toast.error("حدث خطأ أثناء حذف التصنيف");
     }
   };
+
+  const filteredCategories = categories.filter(cat => 
+    cat.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    cat.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const statsCards = [
     {
@@ -189,258 +201,458 @@ const CategoriesPage = () => {
 
   return (
     <>
-      <div className="space-y-8">
+      <style jsx>{`
+        .loading-spinner {
+          width: 40px;
+          height: 40px;
+          border: 3px solid hsl(var(--line));
+          border-top-color: hsl(var(--accent));
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+        
+        .card:hover {
+          border-color: hsl(var(--accent) / 0.3);
+        }
+        
+        .btn-ghost:hover {
+          background: hsl(var(--accent) / 0.1);
+        }
+        
+        .btn-ghost:active {
+          transform: scale(0.95);
+        }
+        
+        input.input {
+          transition: all 0.2s ease;
+        }
+        
+        input.input:focus {
+          border-color: hsl(var(--accent));
+          box-shadow: 0 0 0 3px hsl(var(--accent) / 0.1);
+        }
+      `}</style>
+      
+      <div style={{ background: "hsl(var(--bg))", minHeight: "100vh" }}>
+      <div style={{ padding: "24px", maxWidth: "1400px", margin: "0 auto" }}>
         {loading && (
-          <DesignComponents.StandardCard className="p-6">
-            <div className="text-sm text-gray-600 dark:text-gray-300">جاري التحميل...</div>
-          </DesignComponents.StandardCard>
-        )}
-        {error && (
-          <DesignComponents.StandardCard className="p-6">
-            <div className="text-sm text-red-600 dark:text-red-400">{error}</div>
-          </DesignComponents.StandardCard>
-        )}
-        {/* رسالة الترحيب الاحترافية */}
-        <DesignComponents.StandardCard className="p-6 bg-gradient-to-l from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border-blue-200 dark:border-blue-800">
-          <div className="flex items-start gap-4">
-            <div className="flex-shrink-0 w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
-              <Tag className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div className="flex-1">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                إدارة التصنيفات
-              </h2>
-              <p className="text-gray-700 dark:text-gray-300 mb-4">
-                تنظيم وإدارة فئات المحتوى بطريقة احترافية ومنظمة
-              </p>
-              <div className="flex gap-3">
-                <DesignComponents.StatusIndicator
-                  status="success"
-                  text={`${stats.active} فئة نشطة`}
-                />
-                <DesignComponents.StatusIndicator
-                  status="info"
-                  text={`${formatDashboardStat(stats.totalArticles)} مقال`}
-                />
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-sm text-gray-500 dark:text-gray-400">
-                آخر تحديث
-              </div>
-              <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                {new Date().toLocaleTimeString("ar-SA", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </div>
-            </div>
+          <div className="card" style={{ padding: "48px", textAlign: "center" }}>
+            <div className="loading-spinner" style={{ margin: "0 auto 16px" }} />
+            <p style={{ color: "hsl(var(--muted))" }}>جاري تحميل التصنيفات...</p>
           </div>
-        </DesignComponents.StandardCard>
+        )}
+        {!loading && (
+          <>
+            {/* رسالة الترحيب */}
+            <div className="card card-accent" style={{ marginBottom: "32px" }}>
+              <div style={{ display: "flex", alignItems: "start", gap: "20px" }}>
+                <div style={{
+                  width: "64px",
+                  height: "64px",
+                  background: "linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-hover)))",
+                  borderRadius: "16px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0
+                }}>
+                  <Tag style={{ width: "32px", height: "32px", color: "white" }} />
+                </div>
+                
+                <div style={{ flex: 1 }}>
+                  <h1 className="heading-1" style={{ marginBottom: "8px" }}>إدارة التصنيفات</h1>
+                  <p className="text-lg text-muted" style={{ marginBottom: "16px" }}>
+                    تنظيم وإدارة فئات المحتوى بطريقة احترافية ومنظمة
+                  </p>
+                  <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                    <span className="chip" style={{ 
+                      background: "hsl(var(--success) / 0.1)", 
+                      color: "hsl(var(--success))",
+                      border: "1px solid hsl(var(--success) / 0.2)"
+                    }}>
+                      <Folder style={{ width: "14px", height: "14px" }} />
+                      {stats.active} فئة نشطة
+                    </span>
+                    <span className="chip" style={{ 
+                      background: "hsl(var(--info) / 0.1)", 
+                      color: "hsl(var(--info))",
+                      border: "1px solid hsl(var(--info) / 0.2)"
+                    }}>
+                      <FileText style={{ width: "14px", height: "14px" }} />
+                      {formatNumber(stats.totalArticles)} مقال
+                    </span>
+                  </div>
+                </div>
+                
+                <div style={{ textAlign: "left" }}>
+                  <div className="text-sm text-muted" style={{ marginBottom: "4px" }}>آخر تحديث</div>
+                  <div className="heading-3" style={{ color: "hsl(var(--accent))" }}>
+                    {new Date().toLocaleTimeString("ar-SA", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
 
-        {/* الإحصائيات الرئيسية */}
-        <div>
-          <DesignComponents.SectionHeader
-            title="إحصائيات التصنيفات"
-            description="نظرة سريعة على أداء التصنيفات"
-            action={
-              <DesignComponents.ActionBar>
-                <Button variant="outline" size="sm">
-                  <Filter className="w-4 h-4 ml-2" />
-                  تصفية
-                </Button>
-                <Button size="sm">
-                  <Plus className="w-4 h-4 ml-2" />
-                  إضافة فئة
-                </Button>
-              </DesignComponents.ActionBar>
-            }
-          />
+            {/* الإحصائيات */}
+            <div style={{ marginBottom: "32px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                <div>
+                  <h2 className="heading-2" style={{ marginBottom: "4px" }}>إحصائيات التصنيفات</h2>
+                  <p className="text-muted">نظرة سريعة على أداء التصنيفات</p>
+                </div>
+                <div style={{ display: "flex", gap: "12px" }}>
+                  <button className="btn btn-outline" onClick={() => setFilterOpen(!filterOpen)}>
+                    <Filter style={{ width: "16px", height: "16px" }} />
+                    تصفية
+                  </button>
+                  <Link href="/admin/categories/new" className="btn btn-primary">
+                    <Plus style={{ width: "16px", height: "16px" }} />
+                    إضافة فئة
+                  </Link>
+                </div>
+              </div>
 
-          <DesignComponents.DynamicGrid minItemWidth="280px" className="mb-8">
-            {statsCards.map((stat, index) => {
-              const Icon = stat.icon;
-              const ChangeIcon = ArrowUpRight;
-              return (
-                <DesignComponents.StandardCard
-                  key={index}
-                  className="p-6 hover:shadow-lg transition-shadow"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                        {stat.title}
-                      </p>
-                      <div className="flex items-center gap-3 mt-2">
-                        <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                          {stat.value}
-                        </p>
-                        <div className="flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-full text-green-700 bg-green-100 dark:bg-green-900/30 dark:text-green-400">
-                          <ChangeIcon className="w-3 h-3" />
-                          {stat.change}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "20px" }}>
+                {[
+                  {
+                    title: "إجمالي الفئات",
+                    value: stats.total,
+                    icon: Folder,
+                    change: "+2",
+                    color: "#3B82F6",
+                    bgColor: "#3B82F6"
+                  },
+                  {
+                    title: "الفئات النشطة",
+                    value: stats.active,
+                    icon: FolderOpen,
+                    change: "+1",
+                    color: "#10B981",
+                    bgColor: "#10B981"
+                  },
+                  {
+                    title: "إجمالي المقالات",
+                    value: formatNumber(stats.totalArticles),
+                    icon: FileText,
+                    change: "+12%",
+                    color: "#8B5CF6",
+                    bgColor: "#8B5CF6"
+                  },
+                  {
+                    title: "متوسط المقالات",
+                    value: stats.average,
+                    icon: Target,
+                    change: "+5%",
+                    color: "#F59E0B",
+                    bgColor: "#F59E0B"
+                  }
+                ].map((stat, index) => {
+                  const Icon = stat.icon;
+                  return (
+                    <div key={index} className="card" style={{ padding: "24px" }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <div style={{ flex: 1 }}>
+                          <p className="text-sm text-muted" style={{ marginBottom: "8px" }}>
+                            {stat.title}
+                          </p>
+                          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                            <div className="heading-2" style={{ color: stat.color }}>
+                              {stat.value}
+                            </div>
+                            <span className="chip" style={{
+                              background: `${stat.bgColor}20`,
+                              color: stat.color,
+                              border: `1px solid ${stat.bgColor}30`,
+                              fontSize: "12px",
+                              padding: "4px 8px"
+                            }}>
+                              <ArrowUpRight style={{ width: "12px", height: "12px" }} />
+                              {stat.change}
+                            </span>
+                          </div>
+                        </div>
+                        <div style={{
+                          width: "56px",
+                          height: "56px",
+                          background: `${stat.bgColor}15`,
+                          borderRadius: "12px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center"
+                        }}>
+                          <Icon style={{ width: "28px", height: "28px", color: stat.color }} />
                         </div>
                       </div>
                     </div>
-                    <div
-                      className={cn(
-                        "w-12 h-12 rounded-lg flex items-center justify-center",
-                        stat.color === "blue" &&
-                          "bg-blue-100 dark:bg-blue-900/30",
-                        stat.color === "green" &&
-                          "bg-green-100 dark:bg-green-900/30",
-                        stat.color === "purple" &&
-                          "bg-purple-100 dark:bg-purple-900/30",
-                        stat.color === "orange" &&
-                          "bg-orange-100 dark:bg-orange-900/30"
-                      )}
-                    >
-                      <Icon
-                        className={cn(
-                          "w-6 h-6",
-                          stat.color === "blue" &&
-                            "text-blue-600 dark:text-blue-400",
-                          stat.color === "green" &&
-                            "text-green-600 dark:text-green-400",
-                          stat.color === "purple" &&
-                            "text-purple-600 dark:text-purple-400",
-                          stat.color === "orange" &&
-                            "text-orange-600 dark:text-orange-400"
-                        )}
-                      />
-                    </div>
-                  </div>
-                </DesignComponents.StandardCard>
-              );
-            })}
-          </DesignComponents.DynamicGrid>
-        </div>
+                  );
+                })}
+              </div>
+            </div>
 
-        {/* قائمة التصنيفات */}
-        <div>
-          <DesignComponents.SectionHeader
-            title="قائمة التصنيفات"
-            description="جميع التصنيفات المتاحة في النظام"
-            action={
-              <DesignComponents.ActionBar>
-                <Button variant="outline" size="sm">
-                  <Search className="w-4 h-4 ml-2" />
-                  بحث
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Download className="w-4 h-4 ml-2" />
-                  تصدير
-                </Button>
-              </DesignComponents.ActionBar>
-            }
-          />
-
-           <DesignComponents.DynamicGrid minItemWidth="350px">
-            {categories.map((category) => (
-              <DesignComponents.StandardCard
-                key={category.id}
-                className="p-6 hover:shadow-lg transition-all"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={cn(
-                        "w-10 h-10 rounded-lg flex items-center justify-center border",
-                        "border-gray-200 dark:border-gray-700"
-                      )}
-                      style={{ backgroundColor: category.color }}
-                    >
-                      <Hash
-                        className="w-5 h-5"
-                        style={{ color: getContrastColor(category.color) }}
-                      />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                        {category.name}
-                      </h3>
-                      <DesignComponents.StatusIndicator
-                        status={
-                          category.status === "active" ? "success" : "warning"
-                        }
-                        text={category.status === "active" ? "نشط" : "غير نشط"}
-                      />
-                    </div>
-                  </div>
-                  <DesignComponents.ActionBar>
-                    <button 
-                      onClick={() => handleEditCategory(category)}
-                      className="text-gray-400 hover:text-blue-600 p-1 transition-colors"
-                      title="تعديل التصنيف"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button 
-                      onClick={() => handleDeleteCategory(category.id)}
-                      className="text-gray-400 hover:text-red-600 p-1 transition-colors"
-                      title="حذف التصنيف"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </DesignComponents.ActionBar>
+            {/* شريط البحث والفلتر */}
+            <div style={{ marginBottom: "24px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                <div>
+                  <h2 className="heading-2" style={{ marginBottom: "4px" }}>قائمة التصنيفات</h2>
+                  <p className="text-muted">جميع التصنيفات المتاحة في النظام</p>
                 </div>
+                <div style={{ display: "flex", gap: "12px" }}>
+                  <button className="btn btn-outline">
+                    <Download style={{ width: "16px", height: "16px" }} />
+                    تصدير
+                  </button>
+                </div>
+              </div>
 
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                  {category.description}
-                </p>
+              {/* شريط البحث */}
+              <div style={{ marginBottom: "20px", position: "relative" }}>
+                <Search style={{
+                  position: "absolute",
+                  right: "16px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  width: "20px",
+                  height: "20px",
+                  color: "hsl(var(--muted))"
+                }} />
+                <input
+                  type="text"
+                  placeholder="البحث في التصنيفات..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="input"
+                  style={{
+                    width: "100%",
+                    paddingRight: "48px",
+                    fontSize: "16px"
+                  }}
+                />
+              </div>
+            </div>
 
-                <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-1">
-                      <FileText className="w-4 h-4 text-gray-400" />
-                      <span className="text-gray-600 dark:text-gray-400">
-                        {formatDashboardStat(category.articleCount)} مقال
-                      </span>
-                    </div>
-                    {category.createdAt && (
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4 text-gray-400" />
-                        <span className="text-gray-600 dark:text-gray-400">
-                          {new Date(category.createdAt).toLocaleDateString("ar-SA")}
+            {/* قائمة التصنيفات */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))", gap: "20px" }}>
+              {filteredCategories.map((category) => (
+                <div 
+                  key={category.id} 
+                  className="card" 
+                  style={{ 
+                    padding: "24px", 
+                    transition: "all 0.2s ease",
+                    cursor: "pointer"
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow = "0 8px 24px rgba(0, 0, 0, 0.08)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "";
+                  }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "16px" }}>
+                    <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+                      <div style={{
+                        width: "48px",
+                        height: "48px",
+                        background: category.color,
+                        borderRadius: "12px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        border: "1px solid hsl(var(--line))"
+                      }}>
+                        <Hash style={{ 
+                          width: "24px", 
+                          height: "24px", 
+                          color: getContrastColor(category.color) 
+                        }} />
+                      </div>
+                      <div>
+                        <h3 className="heading-3" style={{ marginBottom: "4px" }}>{category.name}</h3>
+                        <span className={`chip ${category.status === "active" ? "chip-success" : "chip-warning"}`}>
+                          {category.status === "active" ? "نشط" : "غير نشط"}
                         </span>
                       </div>
-                    )}
+                    </div>
+                    <div style={{ display: "flex", gap: "8px" }}>
+                      <button 
+                        onClick={() => handleEditCategory(category)}
+                        className="btn btn-sm btn-ghost"
+                        title="تعديل التصنيف"
+                      >
+                        <Edit style={{ width: "16px", height: "16px" }} />
+                      </button>
+                      <button 
+                        onClick={() => setDeleteModal({ open: true, category })}
+                        className="btn btn-sm btn-ghost"
+                        style={{ color: "hsl(var(--danger))" }}
+                        title="حذف التصنيف"
+                      >
+                        <Trash2 style={{ width: "16px", height: "16px" }} />
+                      </button>
+                    </div>
                   </div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => window.location.href = `/admin/categories/${category.id}`}
-                  >
-                    <Eye className="w-4 h-4" />
-                  </Button>
-                </div>
-              </DesignComponents.StandardCard>
-            ))}
-          </DesignComponents.DynamicGrid>
-        </div>
 
-        {/* رسالة النجاح */}
-        <DesignComponents.StandardCard className="p-6 bg-gradient-to-l from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-800">
-          <div className="flex items-center gap-4">
-            <div className="flex-shrink-0 w-12 h-12 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center">
-              <Sparkles className="w-6 h-6 text-green-600 dark:text-green-400" />
+                  <p className="text-muted" style={{ marginBottom: "16px", minHeight: "44px" }}>
+                    {category.description || "لا يوجد وصف"}
+                  </p>
+
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={{ display: "flex", gap: "16px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                        <FileText style={{ width: "14px", height: "14px", color: "hsl(var(--muted))" }} />
+                        <span className="text-sm text-muted">
+                          {formatNumber(category.articleCount)} مقال
+                        </span>
+                      </div>
+                      {category.createdAt && (
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                          <Calendar style={{ width: "14px", height: "14px", color: "hsl(var(--muted))" }} />
+                          <span className="text-sm text-muted">
+                            {new Date(category.createdAt).toLocaleDateString("ar-SA")}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <Link 
+                      href={`/admin/categories/${category.id}`}
+                      className="btn btn-sm btn-ghost"
+                    >
+                      <Eye style={{ width: "16px", height: "16px" }} />
+                      عرض
+                    </Link>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
-                تنظيم ممتاز للمحتوى!
-              </h3>
-              <p className="text-gray-700 dark:text-gray-300">
-                التصنيفات منظمة بشكل جيد مع توزيع متوازن للمقالات
-              </p>
+
+            {/* رسالة إرشادية */}
+            {filteredCategories.length === 0 && (
+              <div className="card" style={{ padding: "48px", textAlign: "center", marginTop: "32px" }}>
+                <AlertCircle style={{ width: "48px", height: "48px", color: "hsl(var(--muted))", margin: "0 auto 16px" }} />
+                <h3 className="heading-3" style={{ marginBottom: "8px" }}>لا توجد تصنيفات</h3>
+                <p className="text-muted" style={{ marginBottom: "24px" }}>
+                  {searchTerm ? "لا توجد نتائج تطابق البحث" : "لم يتم إنشاء أي تصنيفات بعد"}
+                </p>
+                {!searchTerm && (
+                  <Link href="/admin/categories/new" className="btn btn-primary">
+                    <Plus style={{ width: "16px", height: "16px" }} />
+                    إنشاء أول تصنيف
+                  </Link>
+                )}
+              </div>
+            )}
+
+            {/* رسالة النجاح */}
+            {categories.length > 0 && (
+              <div className="card" style={{ 
+                marginTop: "32px",
+                background: "linear-gradient(135deg, hsl(var(--success) / 0.05), hsl(var(--success) / 0.1))",
+                border: "1px solid hsl(var(--success) / 0.2)"
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "20px", padding: "24px" }}>
+                  <div style={{
+                    width: "56px",
+                    height: "56px",
+                    background: "hsl(var(--success) / 0.15)",
+                    borderRadius: "14px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
+                  }}>
+                    <Sparkles style={{ width: "28px", height: "28px", color: "hsl(var(--success))" }} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <h3 className="heading-3" style={{ marginBottom: "4px" }}>تنظيم ممتاز للمحتوى!</h3>
+                    <p className="text-muted">التصنيفات منظمة بشكل جيد مع توزيع متوازن للمقالات</p>
+                  </div>
+                  <span className="chip chip-success">
+                    منظم بكفاءة
+                  </span>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* نافذة تأكيد الحذف */}
+        {deleteModal.open && deleteModal.category && (
+          <div style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+            padding: "20px"
+          }}>
+            <div className="card" style={{
+              maxWidth: "480px",
+              width: "100%",
+              padding: "32px",
+              position: "relative"
+            }}>
+              <button
+                onClick={() => setDeleteModal({ open: false, category: null })}
+                className="btn btn-sm btn-ghost"
+                style={{ position: "absolute", top: "16px", left: "16px" }}
+              >
+                <X style={{ width: "20px", height: "20px" }} />
+              </button>
+
+              <div style={{ textAlign: "center" }}>
+                <div style={{
+                  width: "64px",
+                  height: "64px",
+                  background: "hsl(var(--danger) / 0.1)",
+                  borderRadius: "16px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  margin: "0 auto 24px"
+                }}>
+                  <Trash2 style={{ width: "32px", height: "32px", color: "hsl(var(--danger))" }} />
+                </div>
+
+                <h3 className="heading-2" style={{ marginBottom: "12px" }}>حذف التصنيف</h3>
+                <p className="text-muted" style={{ marginBottom: "24px" }}>
+                  هل أنت متأكد من حذف تصنيف "{deleteModal.category.name}"؟ 
+                  <br />
+                  سيتم نقل جميع المقالات ({deleteModal.category.articleCount} مقال) إلى "غير مصنف"
+                </p>
+
+                <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
+                  <button
+                    onClick={() => setDeleteModal({ open: false, category: null })}
+                    className="btn btn-outline"
+                  >
+                    إلغاء
+                  </button>
+                  <button
+                    onClick={() => handleDeleteCategory(deleteModal.category!.id)}
+                    className="btn"
+                    style={{ background: "hsl(var(--danger))", color: "white" }}
+                  >
+                    <Trash2 style={{ width: "16px", height: "16px" }} />
+                    تأكيد الحذف
+                  </button>
+                </div>
+              </div>
             </div>
-            <DesignComponents.StatusIndicator
-              status="success"
-              text="منظم بكفاءة"
-            />
           </div>
-        </DesignComponents.StandardCard>
+        )}
       </div>
+    </div>
     </>
   );
-};
+}
 
-export default CategoriesPage;
+
