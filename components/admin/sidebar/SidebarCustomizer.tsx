@@ -375,77 +375,74 @@ export default function SidebarCustomizer() {
 
       {/* إحصائيات سريعة */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div 
-          className="p-4 rounded-xl"
-          style={{ 
-            backgroundColor: 'hsla(var(--accent), 0.1)',
-            border: '1px solid hsla(var(--accent), 0.2)'
-          }}
-        >
-          <div className="flex items-center gap-3">
-            <div 
-              className="w-10 h-10 rounded-lg flex items-center justify-center"
-              style={{ backgroundColor: 'hsl(var(--accent-4))' }}
-            >
-              <LayoutDashboard className="w-5 h-5" style={{ color: 'hsl(var(--accent))' }} />
+        <div className="card">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{
+              width: '48px',
+              height: '48px',
+              background: 'hsl(var(--accent) / 0.1)',
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'hsl(var(--accent))'
+            }}>
+              <LayoutDashboard style={{ width: '24px', height: '24px' }} />
             </div>
-            <div>
-              <p className="text-2xl font-bold" style={{ color: 'hsl(var(--accent))' }}>
+            
+            <div style={{ flex: 1 }}>
+              <div className="text-xs text-muted" style={{ marginBottom: '4px' }}>إجمالي العناصر</div>
+              <div className="heading-3" style={{ margin: '4px 0', color: 'hsl(var(--accent))' }}>
                 {items.length}
-              </p>
-              <p className="text-sm" style={{ color: 'hsl(var(--text-muted))' }}>
-                إجمالي العناصر
-              </p>
+              </div>
             </div>
           </div>
         </div>
 
-        <div 
-          className="p-4 rounded-xl"
-          style={{ 
-            backgroundColor: 'hsla(var(--success), 0.1)',
-            border: '1px solid hsla(var(--success), 0.2)'
-          }}
-        >
-          <div className="flex items-center gap-3">
-            <div 
-              className="w-10 h-10 rounded-lg flex items-center justify-center"
-              style={{ backgroundColor: 'hsla(var(--success), 0.2)' }}
-            >
-              <Eye className="w-5 h-5" style={{ color: 'hsl(var(--success))' }} />
+        <div className="card">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{
+              width: '48px',
+              height: '48px',
+              background: 'hsl(var(--accent) / 0.1)',
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'hsl(var(--accent))'
+            }}>
+              <Eye style={{ width: '24px', height: '24px' }} />
             </div>
-            <div>
-              <p className="text-2xl font-bold" style={{ color: 'hsl(var(--success))' }}>
+            
+            <div style={{ flex: 1 }}>
+              <div className="text-xs text-muted" style={{ marginBottom: '4px' }}>العناصر الظاهرة</div>
+              <div className="heading-3" style={{ margin: '4px 0', color: 'hsl(var(--accent))' }}>
                 {items.length - hiddenItems.length}
-              </p>
-              <p className="text-sm" style={{ color: 'hsl(var(--text-muted))' }}>
-                العناصر الظاهرة
-              </p>
+              </div>
             </div>
           </div>
         </div>
 
-        <div 
-          className="p-4 rounded-xl"
-          style={{ 
-            backgroundColor: 'hsla(var(--warning), 0.1)',
-            border: '1px solid hsla(var(--warning), 0.2)'
-          }}
-        >
-          <div className="flex items-center gap-3">
-            <div 
-              className="w-10 h-10 rounded-lg flex items-center justify-center"
-              style={{ backgroundColor: 'hsla(var(--warning), 0.2)' }}
-            >
-              <EyeOff className="w-5 h-5" style={{ color: 'hsl(var(--warning))' }} />
+        <div className="card">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{
+              width: '48px',
+              height: '48px',
+              background: 'hsl(var(--accent) / 0.1)',
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'hsl(var(--accent))'
+            }}>
+              <EyeOff style={{ width: '24px', height: '24px' }} />
             </div>
-            <div>
-              <p className="text-2xl font-bold" style={{ color: 'hsl(var(--warning))' }}>
+            
+            <div style={{ flex: 1 }}>
+              <div className="text-xs text-muted" style={{ marginBottom: '4px' }}>العناصر المخفية</div>
+              <div className="heading-3" style={{ margin: '4px 0', color: 'hsl(var(--accent))' }}>
                 {hiddenItems.length}
-              </p>
-              <p className="text-sm" style={{ color: 'hsl(var(--text-muted))' }}>
-                العناصر المخفية
-              </p>
+              </div>
             </div>
           </div>
         </div>

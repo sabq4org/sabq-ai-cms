@@ -77,83 +77,137 @@ export default function SidebarSettingsPage() {
             {/* الإحصائيات */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
               {/* إحصائية 1: العناصر النشطة */}
-              <div 
-                className="p-4 rounded-xl"
-                style={{ 
-                  backgroundColor: 'hsla(var(--accent), 0.1)',
-                  border: '1px solid hsla(var(--accent), 0.2)'
-                }}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm" style={{ color: 'hsl(var(--text-muted))' }}>
-                    العناصر النشطة
-                  </span>
-                  <ArrowUpRight className="w-4 h-4" style={{ color: 'hsl(var(--success))' }} />
-                </div>
-                <div className="text-2xl font-bold" style={{ color: 'hsl(var(--fg))' }}>
-                  {stats.activeItems}
+              <div className="card" style={{ cursor: 'pointer' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div style={{
+                    width: '48px',
+                    height: '48px',
+                    background: 'hsl(var(--accent) / 0.1)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'hsl(var(--accent))'
+                  }}>
+                    <Zap style={{ width: '24px', height: '24px' }} />
+                  </div>
+                  
+                  <div style={{ flex: 1 }}>
+                    <div className="text-xs text-muted" style={{ marginBottom: '4px' }}>العناصر النشطة</div>
+                    <div className="heading-3" style={{ margin: '4px 0', color: 'hsl(var(--accent))' }}>
+                      {stats.activeItems}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <ArrowUpRight style={{ 
+                        width: '14px', 
+                        height: '14px',
+                        color: '#10b981'
+                      }} />
+                      <span className="text-xs" style={{ color: '#10b981' }}>
+                        +8.2%
+                      </span>
+                      <span className="text-xs text-muted">من الأسبوع الماضي</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               {/* إحصائية 2: العناصر المخفية */}
-              <div 
-                className="p-4 rounded-xl"
-                style={{ 
-                  backgroundColor: 'hsla(var(--warning), 0.1)',
-                  border: '1px solid hsla(var(--warning), 0.2)'
-                }}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm" style={{ color: 'hsl(var(--text-muted))' }}>
-                    العناصر المخفية
-                  </span>
-                  <ArrowDownRight className="w-4 h-4" style={{ color: 'hsl(var(--warning))' }} />
-                </div>
-                <div className="text-2xl font-bold" style={{ color: 'hsl(var(--fg))' }}>
-                  {stats.hiddenItems}
+              <div className="card" style={{ cursor: 'pointer' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div style={{
+                    width: '48px',
+                    height: '48px',
+                    background: 'hsl(var(--accent) / 0.1)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'hsl(var(--accent))'
+                  }}>
+                    <ArrowDownRight style={{ width: '24px', height: '24px' }} />
+                  </div>
+                  
+                  <div style={{ flex: 1 }}>
+                    <div className="text-xs text-muted" style={{ marginBottom: '4px' }}>العناصر المخفية</div>
+                    <div className="heading-3" style={{ margin: '4px 0', color: 'hsl(var(--accent))' }}>
+                      {stats.hiddenItems}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <ArrowDownRight style={{ 
+                        width: '14px', 
+                        height: '14px',
+                        color: '#ef4444'
+                      }} />
+                      <span className="text-xs" style={{ color: '#ef4444' }}>
+                        -2.1%
+                      </span>
+                      <span className="text-xs text-muted">من الأسبوع الماضي</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               {/* إحصائية 3: الترتيب المخصص */}
-              <div 
-                className="p-4 rounded-xl"
-                style={{ 
-                  backgroundColor: 'hsla(var(--success), 0.1)',
-                  border: '1px solid hsla(var(--success), 0.2)'
-                }}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm" style={{ color: 'hsl(var(--text-muted))' }}>
-                    ترتيب مخصص
-                  </span>
-                  <Zap className="w-4 h-4" style={{ color: 'hsl(var(--success))' }} />
-                </div>
-                <div className="text-lg font-bold" style={{ color: 'hsl(var(--success))' }}>
-                  {stats.customOrder ? 'مفعّل' : 'معطّل'}
+              <div className="card" style={{ cursor: 'pointer' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div style={{
+                    width: '48px',
+                    height: '48px',
+                    background: 'hsl(var(--accent) / 0.1)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'hsl(var(--accent))'
+                  }}>
+                    <Shield style={{ width: '24px', height: '24px' }} />
+                  </div>
+                  
+                  <div style={{ flex: 1 }}>
+                    <div className="text-xs text-muted" style={{ marginBottom: '4px' }}>ترتيب مخصص</div>
+                    <div className="heading-3" style={{ margin: '4px 0', color: 'hsl(var(--accent))' }}>
+                      {stats.customOrder ? 'مفعّل' : 'معطّل'}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span className="text-xs" style={{ color: '#10b981' }}>
+                        {stats.customOrder ? '✓ نشط' : '○ غير نشط'}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               {/* إحصائية 4: آخر تحديث */}
-              <div 
-                className="p-4 rounded-xl"
-                style={{ 
-                  backgroundColor: 'hsla(var(--info), 0.1)',
-                  border: '1px solid hsla(var(--info), 0.2)'
-                }}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm" style={{ color: 'hsl(var(--text-muted))' }}>
-                    آخر تحديث
-                  </span>
-                  <Clock className="w-4 h-4" style={{ color: 'hsl(var(--info))' }} />
-                </div>
-                <div className="text-lg font-bold" style={{ color: 'hsl(var(--fg))' }}>
-                  {stats.lastUpdate}
+              <div className="card" style={{ cursor: 'pointer' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div style={{
+                    width: '48px',
+                    height: '48px',
+                    background: 'hsl(var(--accent) / 0.1)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'hsl(var(--accent))'
+                  }}>
+                    <Clock style={{ width: '24px', height: '24px' }} />
+                  </div>
+                  
+                  <div style={{ flex: 1 }}>
+                    <div className="text-xs text-muted" style={{ marginBottom: '4px' }}>آخر تحديث</div>
+                    <div className="heading-3" style={{ margin: '4px 0', color: 'hsl(var(--accent))' }}>
+                      {stats.lastUpdate}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span className="text-xs text-muted">تم التحديث مؤخراً</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
+            </div>
           </div>
-        </div>
 
           {/* شريط التنبيه */}
           <div 
@@ -167,13 +221,13 @@ export default function SidebarSettingsPage() {
               <div className="flex items-center gap-3">
                 <Info className="w-5 h-5" style={{ color: 'hsl(var(--info))' }} />
                 <div className="flex-1">
-                  <p 
+                  <p
                     className="text-sm font-medium"
                     style={{ color: 'hsl(var(--fg))' }}
                   >
                     هذه الميزة متاحة للمديرين فقط
                   </p>
-                  <p 
+                  <p
                     className="text-xs"
                     style={{ color: 'hsl(var(--text-muted))' }}
                   >
@@ -186,7 +240,7 @@ export default function SidebarSettingsPage() {
                 </div>
               </div>
             </div>
-          </div>
+        </div>
 
         {/* المكون الرئيسي للتخصيص */}
         <div className="card mb-6">
@@ -200,7 +254,7 @@ export default function SidebarSettingsPage() {
               borderTop: '1px solid hsl(var(--border))'
             }}
           >
-            <SidebarCustomizer />
+        <SidebarCustomizer />
           </div>
         </div>
 
@@ -301,7 +355,7 @@ export default function SidebarSettingsPage() {
           </div>
         </div>
       </div>
-      </div>
+    </div>
     </>
   );
 }
