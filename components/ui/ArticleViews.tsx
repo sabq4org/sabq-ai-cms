@@ -1,5 +1,5 @@
 import React from 'react';
-import { Eye } from 'lucide-react';
+import { Eye, BarChart3 } from 'lucide-react';
 
 interface ArticleViewsProps {
   count: number;
@@ -53,17 +53,45 @@ export default function ArticleViews({
 
   return (
     <div className={finalClasses}>
-      <Eye className={`${iconSizes[size]} flex-shrink-0`} />
+      {/* أيقونة محسنة للمشاهدات */}
+      {count > 300 ? (
+        <div className="relative flex items-center">
+          <BarChart3 className={`${iconSizes[size]} flex-shrink-0 text-orange-500`} />
+          <span 
+            className="absolute -top-0.5 -right-0.5 text-orange-500 text-[8px] animate-pulse" 
+            style={{ fontSize: size === 'xs' ? '6px' : size === 'sm' ? '8px' : '10px' }}
+          >
+            🔥
+          </span>
+        </div>
+      ) : (
+        <div className="relative">
+          <svg 
+            className={`${iconSizes[size]} flex-shrink-0`} 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2"
+          >
+            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </div>
+      )}
+      
       <span className="font-medium">
         {formatViewsNumber(count)}
         {showLabel && variant !== 'minimal' && ' مشاهدة'}
       </span>
-      {count > 300 && (
+      
+      {/* أيقونة النار الإضافية للمشاهدات العالية جداً */}
+      {count > 1000 && (
         <span 
-          className="text-orange-500 animate-pulse flex-shrink-0" 
-          title="مقال رائج - أكثر من 300 مشاهدة"
+          className="text-red-500 animate-bounce flex-shrink-0 ml-1" 
+          title={`مقال شائع جداً - ${formatViewsNumber(count)} مشاهدة`}
+          style={{ fontSize: size === 'xs' ? '10px' : size === 'sm' ? '12px' : '14px' }}
         >
-          🔥
+          🔥🔥
         </span>
       )}
     </div>
