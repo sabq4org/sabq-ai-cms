@@ -99,19 +99,19 @@ const StatCard = ({
         <div style={{
           width: '48px',
           height: '48px',
-          background: `${color}10`,
+          background: 'hsl(var(--accent) / 0.1)',
           borderRadius: '12px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: color
+          color: 'hsl(var(--accent))'
         }}>
           <Icon style={{ width: '24px', height: '24px' }} />
         </div>
         
         <div style={{ flex: 1 }}>
           <div className="text-xs text-muted" style={{ marginBottom: '4px' }}>{title}</div>
-          <div className="heading-3" style={{ margin: '4px 0', color: color }}>
+          <div className="heading-3" style={{ margin: '4px 0', color: 'hsl(var(--accent))' }}>
             {value}
           </div>
           {trend && (

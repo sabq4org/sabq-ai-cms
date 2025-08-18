@@ -189,77 +189,77 @@ const AngleImageUploader = ({
   );
 };
 
-// مكون بطاقة إحصائية
-const StatCard = ({
-  title,
-  value,
-  icon: Icon,
-  color,
-  trend,
-}: {
-  title: string;
-  value: string | number;
-  icon: any;
-  color: string;
-  trend?: { value: number; label: string };
-}) => {
-  const getColorHsl = (colorName: string) => {
-    const colors: Record<string, string> = {
-      'bg-blue-500': 'hsl(var(--accent))',
-      'bg-green-500': '#10b981',
-      'bg-purple-500': '#8b5cf6',
-      'bg-orange-500': '#f97316'
+  // مكون بطاقة إحصائية
+  const StatCard = ({
+    title,
+    value,
+    icon: Icon,
+    color,
+    trend,
+  }: {
+    title: string;
+    value: string | number;
+    icon: any;
+    color: string;
+    trend?: { value: number; label: string };
+  }) => {
+    const getColorHsl = (colorName: string) => {
+      const colors: Record<string, string> = {
+        'bg-blue-500': 'hsl(var(--accent))',
+        'bg-green-500': '#10b981',
+        'bg-purple-500': '#8b5cf6',
+        'bg-orange-500': '#f97316'
+      };
+      return colors[colorName] || colorName;
     };
-    return colors[colorName] || colorName;
-  };
 
-  return (
-    <div className="card" style={{ cursor: 'pointer' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-        <div style={{
-          width: '48px',
-          height: '48px',
-          background: `${getColorHsl(color)}10`,
-          borderRadius: '12px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: getColorHsl(color)
-        }}>
-          <Icon style={{ width: '24px', height: '24px' }} />
-        </div>
-        
-        <div style={{ flex: 1 }}>
-          <div className="text-xs text-muted" style={{ marginBottom: '4px' }}>{title}</div>
-          <div className="heading-3" style={{ margin: '4px 0', color: getColorHsl(color) }}>
-            {value}
+    return (
+      <div className="card" style={{ cursor: 'pointer' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            background: 'hsl(var(--accent) / 0.1)',
+            borderRadius: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'hsl(var(--accent))'
+          }}>
+            <Icon style={{ width: '24px', height: '24px' }} />
           </div>
-          {trend && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              {trend.value >= 0 ? (
-                <ArrowUpRight style={{ 
-                  width: '14px', 
-                  height: '14px',
-                  color: '#10b981'
-                }} />
-              ) : (
-                <ArrowDownRight style={{ 
-                  width: '14px', 
-                  height: '14px',
-                  color: '#ef4444'
-                }} />
-              )}
-              <span className="text-xs" style={{ color: trend.value >= 0 ? '#10b981' : '#ef4444' }}>
-                {Math.abs(trend.value)}%
-              </span>
-              <span className="text-xs text-muted">{trend.label}</span>
+          
+          <div style={{ flex: 1 }}>
+            <div className="text-xs text-muted" style={{ marginBottom: '4px' }}>{title}</div>
+            <div className="heading-3" style={{ margin: '4px 0', color: 'hsl(var(--accent))' }}>
+              {value}
             </div>
-          )}
+            {trend && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                {trend.value >= 0 ? (
+                  <ArrowUpRight style={{ 
+                    width: '14px', 
+                    height: '14px',
+                    color: '#10b981'
+                  }} />
+                ) : (
+                  <ArrowDownRight style={{ 
+                    width: '14px', 
+                    height: '14px',
+                    color: '#ef4444'
+                  }} />
+                )}
+                <span className="text-xs" style={{ color: trend.value >= 0 ? '#10b981' : '#ef4444' }}>
+                  {Math.abs(trend.value)}%
+                </span>
+                <span className="text-xs text-muted">{trend.label}</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
 
 // مكون بطاقة المقال
 const ArticleCard = ({
