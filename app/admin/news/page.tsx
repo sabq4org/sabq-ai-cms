@@ -388,7 +388,7 @@ function AdminNewsPageContent() {
               title.includes("demo") ||
               title.includes("example");
 
-            return !isTestArticle && article.status !== "scheduled";
+            return !isTestArticle;
           });
 
         // ترتيب الأخبار حسب التاريخ (الأحدث أولاً) مع حماية من undefined
@@ -414,19 +414,21 @@ function AdminNewsPageContent() {
           status: filterStatus,
         });
 
-        setArticles(sortedArticles);
+        // إذا كان الفلتر الحالي "scheduled"، لا ترتب حسب published_at
+        const finalArticles = filterStatus === 'scheduled' ? data.articles.filter((a: any)=> a?.status === 'scheduled') : sortedArticles;
+        setArticles(finalArticles);
         console.log(`🧹 بعد الفلترة:`, {
           originalCount: data.articles?.length || 0,
           filteredCount: cleanArticles.length,
-          finalCount: sortedArticles.length,
+          finalCount: finalArticles.length,
           status: filterStatus,
         });
         console.log(
-          `✅ تم جلب ${sortedArticles.length} خبر بحالة: ${filterStatus}`
+          `✅ تم جلب ${finalArticles.length} خبر بحالة: ${filterStatus}`
         );
 
         // حساب الإحصائيات من المقالات المُحملة
-        calculateStats(sortedArticles);
+        calculateStats(finalArticles);
       }
     } catch (error) {
       const errorMessage =
@@ -546,7 +548,7 @@ function AdminNewsPageContent() {
             title.includes("تجربة") ||
             title.includes("demo") ||
             title.includes("example");
-          return !isTestArticle && article.status !== "scheduled";
+          return !isTestArticle;
         });
 
         const stats = {
@@ -561,6 +563,7 @@ function AdminNewsPageContent() {
           ).length,
           deleted: cleanArticles.filter((a: any) => a && a.status === "deleted")
             .length,
+          scheduled: cleanArticles.filter((a: any) => a && a.status === "scheduled").length,
           breaking: cleanArticles.filter((a: any) => a && a.breaking).length,
         };
 
@@ -602,6 +605,7 @@ function AdminNewsPageContent() {
       published: validArticles.filter((a) => a.status === "published").length,
       draft: validArticles.filter((a) => a.status === "draft").length,
       archived: validArticles.filter((a) => a.status === "archived").length,
+      scheduled: validArticles.filter((a) => a.status === "scheduled").length,
       deleted: 0, // لا يوجد حالة deleted في النظام الحالي
       breaking: validArticles.filter((a) => a.breaking).length,
     };
