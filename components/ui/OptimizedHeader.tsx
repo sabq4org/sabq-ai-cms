@@ -163,7 +163,20 @@ export default function OptimizedHeader() {
                   <Settings size={20} />
                   <span>لوحة التحكم</span>
                 </Link>
-                <button className="mobile-logout-btn">
+                <button 
+                  className="mobile-logout-btn"
+                  onClick={async () => {
+                    try {
+                      // إضافة منطق تسجيل الخروج
+                      localStorage.removeItem('auth-token');
+                      localStorage.removeItem('user');
+                      setIsMenuOpen(false);
+                      window.location.href = '/';
+                    } catch (error) {
+                      console.error('خطأ في تسجيل الخروج:', error);
+                    }
+                  }}
+                >
                   <LogOut size={20} />
                   <span>تسجيل الخروج</span>
                 </button>

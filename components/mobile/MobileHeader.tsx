@@ -6,6 +6,9 @@ import Link from 'next/link';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 import { Menu, Search, Bell, User, ChevronDown, Home, Newspaper, MessageSquare, Bookmark, Settings, LogOut, X, Sun, Moon, Activity } from 'lucide-react';
 import NotificationBell from '@/components/Notifications/NotificationBell';
 
@@ -21,6 +24,8 @@ export default function MobileHeader({
   showUserMenu = true 
 }: MobileHeaderProps) {
   const { darkMode, mounted, toggleDarkMode } = useDarkModeContext();
+  const { user, logout } = useAuth();
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [newEventsCount, setNewEventsCount] = useState(0);
@@ -40,6 +45,19 @@ export default function MobileHeader({
     { label: 'التصنيفات', url: '/categories', icon: Bookmark },
     { label: 'المحفوظات', url: '/bookmarks', icon: Bookmark },
   ];
+
+  // وظيفة تسجيل الخروج
+  const handleLogout = async () => {
+    try {
+      await logout();
+      setMobileMenuOpen(false);
+      router.push('/');
+      toast.success('تم تسجيل الخروج بنجاح');
+    } catch (error) {
+      console.error('خطأ في تسجيل الخروج:', error);
+      toast.error('حدث خطأ أثناء تسجيل الخروج');
+    }
+  };
 
   // فحص الأحداث الجديدة
   useEffect(() => {
@@ -283,10 +301,7 @@ export default function MobileHeader({
                   <span className="text">الإعدادات</span>
                 </Link>
                 <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    // إضافة منطق تسجيل الخروج هنا
-                  }}
+                  onClick={handleLogout}
                   className="mobile-nav-item danger w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 min-h-[44px]"
                 >
                   <LogOut className="icon flex-shrink-0 w-5 h-5 ml-3" />
