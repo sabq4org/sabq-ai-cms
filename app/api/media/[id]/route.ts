@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/auth-options";
+import jwt from "jsonwebtoken";
 
 export const runtime = "nodejs";
+
+const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-this-in-production";
 
 // PATCH /api/media/:id - تحديث بيانات الوسائط
 export async function PATCH(
@@ -11,10 +12,30 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    // التحقق من المصادقة
+    let token = request.cookies.get("sabq_at")?.value ||
+      request.cookies.get("auth-token")?.value ||
+      request.cookies.get("access_token")?.value;
+
+    if (!token) {
+      const authHeader = request.headers.get("authorization");
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        token = authHeader.substring(7);
+      }
+    }
+
+    if (!token) {
       return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
     }
+
+    let decoded: any;
+    try {
+      decoded = jwt.verify(token, JWT_SECRET);
+    } catch (error) {
+      return NextResponse.json({ error: "رمز مصادقة غير صالح" }, { status: 401 });
+    }
+
+    const userId = decoded.userId || decoded.id;
 
     const data = await request.json();
     const { id } = params;
@@ -32,8 +53,8 @@ export async function PATCH(
     }
 
     // التحقق من الصلاحيات
-    const userRole = (session.user as any).role;
-    const isOwner = media.uploaderId === session.user.id;
+    const userRole = decoded.role;
+    const isOwner = media.uploaderId === userId;
     const canEdit = isOwner || ["admin", "editor"].includes(userRole);
 
     if (!canEdit) {
@@ -80,10 +101,30 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    // التحقق من المصادقة
+    let token = request.cookies.get("sabq_at")?.value ||
+      request.cookies.get("auth-token")?.value ||
+      request.cookies.get("access_token")?.value;
+
+    if (!token) {
+      const authHeader = request.headers.get("authorization");
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        token = authHeader.substring(7);
+      }
+    }
+
+    if (!token) {
       return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
     }
+
+    let decoded: any;
+    try {
+      decoded = jwt.verify(token, JWT_SECRET);
+    } catch (error) {
+      return NextResponse.json({ error: "رمز مصادقة غير صالح" }, { status: 401 });
+    }
+
+    const userId = decoded.userId || decoded.id;
 
     const { id } = params;
 
@@ -100,8 +141,8 @@ export async function DELETE(
     }
 
     // التحقق من الصلاحيات
-    const userRole = (session.user as any).role;
-    const isOwner = media.uploaderId === session.user.id;
+    const userRole = decoded.role;
+    const isOwner = media.uploaderId === userId;
     const canDelete = isOwner || userRole === "admin";
 
     if (!canDelete) {

@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/auth-options";
+import jwt from "jsonwebtoken";
 
 export const runtime = "nodejs";
+
+const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-this-in-production";
 
 // استخراج الكلمات المفتاحية والكيانات من النص
 function extractKeywords(text: string, language: string = "ar"): string[] {
@@ -75,9 +76,27 @@ function extractEntities(text: string): string[] {
 // POST /api/media/search-ai - البحث الذكي بناءً على محتوى النص
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    // التحقق من المصادقة
+    let token = request.cookies.get("sabq_at")?.value ||
+      request.cookies.get("auth-token")?.value ||
+      request.cookies.get("access_token")?.value;
+
+    if (!token) {
+      const authHeader = request.headers.get("authorization");
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        token = authHeader.substring(7);
+      }
+    }
+
+    if (!token) {
       return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
+    }
+
+    let decoded: any;
+    try {
+      decoded = jwt.verify(token, JWT_SECRET);
+    } catch (error) {
+      return NextResponse.json({ error: "رمز مصادقة غير صالح" }, { status: 401 });
     }
 
     const { contentText, language = "ar" } = await request.json();

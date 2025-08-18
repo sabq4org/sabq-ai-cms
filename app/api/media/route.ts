@@ -1,17 +1,38 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/auth-options";
+import jwt from "jsonwebtoken";
 
 export const runtime = "nodejs";
 
 // GET /api/media - جلب قائمة الوسائط
+const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-this-in-production";
+
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    // التحقق من المصادقة
+    let token = request.cookies.get("sabq_at")?.value ||
+      request.cookies.get("auth-token")?.value ||
+      request.cookies.get("access_token")?.value;
+
+    if (!token) {
+      const authHeader = request.headers.get("authorization");
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        token = authHeader.substring(7);
+      }
+    }
+
+    if (!token) {
       return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
     }
+
+    let decoded: any;
+    try {
+      decoded = jwt.verify(token, JWT_SECRET);
+    } catch (error) {
+      return NextResponse.json({ error: "رمز مصادقة غير صالح" }, { status: 401 });
+    }
+
+    const userId = decoded.userId || decoded.id;
 
     const { searchParams } = new URL(request.url);
     
@@ -139,10 +160,30 @@ export async function GET(request: NextRequest) {
 // POST /api/media - رفع وسائط جديدة
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    // التحقق من المصادقة
+    let token = request.cookies.get("sabq_at")?.value ||
+      request.cookies.get("auth-token")?.value ||
+      request.cookies.get("access_token")?.value;
+
+    if (!token) {
+      const authHeader = request.headers.get("authorization");
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        token = authHeader.substring(7);
+      }
+    }
+
+    if (!token) {
       return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
     }
+
+    let decoded: any;
+    try {
+      decoded = jwt.verify(token, JWT_SECRET);
+    } catch (error) {
+      return NextResponse.json({ error: "رمز مصادقة غير صالح" }, { status: 401 });
+    }
+
+    const userId = decoded.userId || decoded.id;
 
     const data = await request.json();
     
@@ -174,7 +215,7 @@ export async function POST(request: NextRequest) {
         mimeType: data.mimeType,
         tags: data.tags || [],
         license: data.license || "all_rights",
-        uploaderId: session.user.id,
+        uploaderId: userId,
         url: data.url,
         thumbnailUrl: data.thumbnailUrl,
         cloudinaryId: data.cloudinaryId,
