@@ -53,7 +53,14 @@
     "loyalty:migrate": "node scripts/migrate-loyalty-points-to-db.js",
     "loyalty:diagnose": "node scripts/fix-loyalty-system.js diagnose",
     "loyalty:fix": "node scripts/fix-loyalty-system.js fix",
-    "loyalty:test": "node scripts/fix-loyalty-system.js test"
+    "loyalty:test": "node scripts/fix-loyalty-system.js test",
+    "ai:test": "node scripts/test-openai-connection.js",
+    "ai:test-substring": "node scripts/test-substring-fix.js",
+    "ai:test-summary": "node scripts/test-smart-summary-improvement.js",
+    "ui:test-breaking": "node scripts/test-breaking-news-toggle.js",
+    "ui:test-red": "node scripts/test-breaking-news-red-color.js",
+    "ui:test-persist": "node scripts/test-breaking-news-persistence.js",
+    "ui:test-colors": "node scripts/test-news-counter-colors.js"
   },
   "dependencies": {
     "@aws-sdk/client-ses": "^3.856.0",

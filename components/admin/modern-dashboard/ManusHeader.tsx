@@ -17,6 +17,7 @@ import {
   Users
 } from "lucide-react";
 import DarkModeToggle from './DarkModeToggle';
+import { ManusPreferredSourceButton } from '@/components/ui/PreferredSourceButton';
 
 interface ManusHeaderProps {
   onMenuClick?: () => void;
@@ -31,18 +32,41 @@ export default function ManusHeader({ onMenuClick, showMenuButton = false }: Man
 
   // ثيمات الألوان
   const themes = {
-    blue: { accent: '212 90% 50%', name: 'الأزرق', emoji: '🔵' },
-    green: { accent: '142 71% 45%', name: 'الأخضر', emoji: '🟢' },
-    purple: { accent: '262 83% 58%', name: 'البنفسجي', emoji: '🟣' },
-    orange: { accent: '25 95% 53%', name: 'البرتقالي', emoji: '🟠' },
-    red: { accent: '0 84% 60%', name: 'الأحمر', emoji: '🔴' },
-  };
+    // الأساسية الحالية
+    blue:   { accent: '212 90% 50%', name: 'الأزرق',     emoji: '🔵' },
+    green:  { accent: '142 71% 45%', name: 'الأخضر',     emoji: '🟢' },
+    purple: { accent: '262 83% 58%', name: 'البنفسجي',   emoji: '🟣' },
+    // ألوان إضافية
+    teal:   { accent: '174 72% 45%', name: 'الفيروزي',   emoji: '🟦' },
+    amber:  { accent: '39 92% 50%',  name: 'الكهرماني',  emoji: '🟨' },
+    rose:   { accent: '340 82% 58%', name: 'الوردي',     emoji: '🌸' },
+    // ألوان متوفرة لكن مخفية افتراضياً (يمكن استخدامها لاحقاً)
+    orange: { accent: '25 95% 53%',  name: 'البرتقالي',  emoji: '🟠' },
+    red:    { accent: '0 84% 60%',   name: 'الأحمر',     emoji: '🔴' },
+  } as const;
 
-  // تطبيق الثيم
+  // مفاتيح الألوان التي نعرضها في الهيدر (٦ ألوان)
+  const visibleThemeKeys: Array<keyof typeof themes> = [
+    'blue', 'green', 'purple', 'teal', 'amber', 'rose'
+  ];
+
+  // تطبيق الثيم مع ضبط المتغيرات المشتقة
   const applyTheme = (theme: string) => {
     const themeData = themes[theme as keyof typeof themes];
     if (themeData) {
-      document.documentElement.style.setProperty('--accent', themeData.accent);
+      const accent = themeData.accent; // صيغة: "H S% L%"
+      const parts = accent.split(' ');
+      const h = parts[0] || '212';
+      const s = parts[1] || '90%';
+      const l = parts[2] || '50%';
+      const lNum = parseFloat(l.replace('%', ''));
+      const hoverL = Math.max(0, Math.min(100, lNum - 5));
+      const accentHover = `${h} ${s} ${hoverL}%`;
+      const accentLight = `${h} ${s} 96%`;
+
+      document.documentElement.style.setProperty('--accent', accent);
+      document.documentElement.style.setProperty('--accent-hover', accentHover);
+      document.documentElement.style.setProperty('--accent-light', accentLight);
       setCurrentTheme(theme);
     }
   };
@@ -118,24 +142,35 @@ export default function ManusHeader({ onMenuClick, showMenuButton = false }: Man
             </Link>
           </div>
 
-          {/* الوسط - التنقل السريع (للشاشات الكبيرة) */}
-          <nav style={{ display: 'flex', gap: '8px' }} className="hidden md:flex">
-            <Link href="/admin/modern" className="btn btn-sm">
+          {/* الوسط - الوصول السريع (للشاشات الكبيرة) */}
+          <nav style={{ display: 'flex', gap: '8px', alignItems: 'center' }} className="hidden md:flex">
+            <Link href="/admin" className="btn btn-sm">
               🏠 الرئيسية
+            </Link>
+            <Link href="/admin/news" className="btn btn-sm">
+              📰 الأخبار
             </Link>
             <Link href="/admin/articles" className="btn btn-sm">
               📝 المقالات
             </Link>
-            <Link href="/admin/analytics" className="btn btn-sm">
-              📊 التحليلات
+            <Link href="/admin/muqtarab" className="btn btn-sm">
+              🧩 مقترب
             </Link>
-            <Link href="/admin/users" className="btn btn-sm">
-              👥 المستخدمون
+            <Link href="/admin/deep-analysis" className="btn btn-sm">
+              🧠 عمق
+            </Link>
+            <Link href="/admin/news/unified" className="btn btn-sm btn-primary" style={{ background: 'hsl(var(--accent))', color: 'white' }}>
+              ＋
             </Link>
           </nav>
 
           {/* الجانب الأيسر - الأدوات والمستخدم */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            
+            {/* زر Google Preferred Source */}
+            <div className="hidden md:block">
+              <ManusPreferredSourceButton size="small" />
+            </div>
             
             {/* شريط البحث */}
             <div style={{ position: 'relative' }}>
@@ -198,22 +233,42 @@ export default function ManusHeader({ onMenuClick, showMenuButton = false }: Man
             </button>
 
             {/* تغيير الثيم السريع */}
-            <div style={{ display: 'flex', gap: '4px' }} className="hidden lg:flex">
-              {Object.entries(themes).slice(0, 3).map(([key, theme]) => (
-                <button
-                  key={key}
-                  className={currentTheme === key ? 'btn-primary' : 'btn'}
-                  onClick={() => applyTheme(key)}
-                  style={{ 
-                    padding: '6px 8px',
-                    fontSize: '12px',
-                    minWidth: 'auto'
-                  }}
-                  title={`تغيير إلى ${theme.name}`}
-                >
-                  {theme.emoji}
-                </button>
-              ))}
+            <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }} className="hidden lg:flex">
+              {visibleThemeKeys.map((key) => {
+                const theme = themes[key];
+                const isActive = currentTheme === key;
+                return (
+                  <button
+                    key={key}
+                    className={isActive ? 'btn btn-primary btn-xs' : 'btn btn-xs'}
+                    onClick={() => applyTheme(key)}
+                    aria-pressed={isActive}
+                    aria-label={`تغيير إلى ${theme.name}`}
+                    title={`تغيير إلى ${theme.name}`}
+                    style={{ 
+                      padding: '6px 8px',
+                      fontSize: '12px',
+                      minWidth: 'auto',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px'
+                    }}
+                  >
+                    <span
+                      aria-hidden
+                      style={{
+                        display: 'inline-block',
+                        width: '14px',
+                        height: '14px',
+                        borderRadius: '50%',
+                        background: `hsl(${theme.accent})`,
+                        border: isActive ? '2px solid rgba(255,255,255,0.9)' : '1px solid hsl(var(--line))',
+                        boxShadow: isActive ? '0 0 0 2px hsl(var(--accent) / 0.5)' : 'none'
+                      }}
+                    />
+                  </button>
+                );
+              })}
             </div>
 
             {/* زر الوضع الداكن */}

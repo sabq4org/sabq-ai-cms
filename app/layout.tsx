@@ -10,6 +10,7 @@ import GlobalErrorHandler from "../components/GlobalErrorHandler";
 import ReactErrorRecovery from "../components/ReactErrorRecovery";
 import StructuredData from "../components/StructuredData";
 import ContentWrapper from "../components/layout/ContentWrapper";
+import BreakingBar from "@/components/BreakingBar";
 import "../styles/compact-stats.css";
 import "../styles/enhanced-dark-mode-mobile.css";
 import "../styles/enhanced-mobile-stats.css";
@@ -304,6 +305,8 @@ export default function RootLayout({
                     <Providers>
                       <GlobalErrorHandler />
                       <ConditionalHeader />
+                      {/* شريط عاجل رشيق يظهر فقط في الواجهات العامة */}
+                      <BreakingBar />
                       {/* تم تعطيل مراقب قاعدة البيانات مؤقتًا لإصلاح المشكلة */}
                       <ContentWrapper>{children}</ContentWrapper>
                     </Providers>

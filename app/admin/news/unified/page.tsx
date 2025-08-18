@@ -218,7 +218,9 @@ export default function ManusNewsCreatePage() {
       console.log("🔍 فحص المحرر:", {
         editorExists: !!editorRef.current,
         editorMethods: editorRef.current ? Object.keys(editorRef.current) : [],
-        formDataContent: formData.content?.substring(0, 100) || "فارغ"
+        formDataContent: (formData.content && typeof formData.content === 'string') 
+          ? formData.content.substring(0, 100) 
+          : (formData.content ? "محتوى غير نصي" : "فارغ")
       });
 
       // طرق متعددة للحصول على المحتوى
@@ -236,20 +238,23 @@ export default function ManusNewsCreatePage() {
       }
       
       // fallback للمحتوى المحفوظ
-      if (!contentText && formData.content) {
+      if (!contentText && formData.content && typeof formData.content === 'string') {
         contentText = formData.content;
         console.log("✅ استخدام formData.content:", contentText.length);
       }
 
       // تنظيف HTML للحصول على النص الخام
-      let cleanText = contentText
-        .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
-        .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
-        .replace(/<[^>]*>/g, " ")
-        .replace(/&nbsp;/g, " ")
-        .replace(/&[a-z]+;/gi, " ")
-        .replace(/\s+/g, " ")
-        .trim();
+      let cleanText = "";
+      if (contentText && typeof contentText === 'string') {
+        cleanText = contentText
+          .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+          .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+          .replace(/<[^>]*>/g, " ")
+          .replace(/&nbsp;/g, " ")
+          .replace(/&[a-z]+;/gi, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
       
       // إذا لم نحصل على محتوى كافٍ، جرب النص المباشر من editorRef
       if (cleanText.length < 50 && editorRef.current?.editor?.getText) {
@@ -258,10 +263,10 @@ export default function ManusNewsCreatePage() {
       }
 
       console.log("📝 المحتوى النهائي:", {
-        originalLength: contentText.length,
-        cleanedLength: cleanText.length,
-        preview: cleanText.substring(0, 100),
-        fullText: cleanText.substring(0, 500) // عرض أكثر للتشخيص
+        originalLength: contentText ? contentText.length : 0,
+        cleanedLength: cleanText ? cleanText.length : 0,
+        preview: cleanText && cleanText.length > 0 ? cleanText.substring(0, 100) : "فارغ",
+        fullText: cleanText && cleanText.length > 0 ? cleanText.substring(0, 500) : "لا يوجد محتوى"
       });
 
       if (cleanText.length < 50) {
@@ -303,16 +308,16 @@ export default function ManusNewsCreatePage() {
                     if (variant) {
             console.log("✅ variant موجود:", variant);
             
-            // نسخة مصغرة من الموجز للعرض
+            // نسخة مصغرة من الموجز للعرض (400 حرف)
             const displayExcerpt = variant.smart_summary 
-              ? String(variant.smart_summary).slice(0, 160).trim() + (variant.smart_summary.length > 160 ? "..." : "") 
+              ? String(variant.smart_summary).slice(0, 400).trim() + (variant.smart_summary.length > 400 ? "..." : "") 
               : "";
               
             setFormData((prev) => ({
               ...prev,
               title: variant.title || prev.title,
               subtitle: variant.subtitle || prev.subtitle,
-              // قصّ الموجز إلى 160 حرف لتحديث الحقل دائماً بشكل مناسب للعرض
+              // قصّ الموجز إلى 400 حرف لتحديث الحقل دائماً بشكل مناسب للعرض
               excerpt: displayExcerpt || prev.excerpt,
               // دمج الكلمات والوسوم إن توفرت
               keywords: [

@@ -10,6 +10,7 @@ import {
   Send,
 } from "lucide-react";
 import { useState } from "react";
+import PreferredSourceButton from "@/components/ui/PreferredSourceButton";
 
 interface SocialSharingButtonsProps {
   article: {
@@ -54,6 +55,13 @@ export default function SocialSharingButtons({
       <span className="text-sm font-medium text-gray-600 dark:text-gray-400 ml-2">
         مشاركة:
       </span>
+      
+      {/* زر Google Preferred Source */}
+      <PreferredSourceButton 
+        size="small" 
+        variant="ghost"
+        className="!h-10 !w-auto"
+      />
 
       {/* WhatsApp */}
       <button

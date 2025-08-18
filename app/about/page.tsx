@@ -9,6 +9,7 @@ import {
   MapPin, Trophy, Clock, Sparkles
 } from 'lucide-react';
 import Link from 'next/link';
+import PreferredSourceButton from '@/components/ui/PreferredSourceButton';
 
 export default function AboutPageEnhanced() {
   const currentYear = new Date().getFullYear();
@@ -268,7 +269,7 @@ export default function AboutPageEnhanced() {
             <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
               تابع آخر الأخبار والتطورات مع سبق، صحيفتك الإلكترونية الأولى
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link 
                 href="/" 
                 className="bg-white text-blue-600 px-8 py-3 rounded-full font-semibold hover:bg-blue-50 transition-colors"
@@ -281,6 +282,15 @@ export default function AboutPageEnhanced() {
               >
                 اشترك الآن
               </Link>
+              
+              {/* زر Google Preferred Source */}
+              <div className="mt-4 sm:mt-0">
+                <PreferredSourceButton 
+                  size="medium" 
+                  variant="ghost"
+                  className="bg-white/10 hover:bg-white/20 text-white border-white/30 hover:border-white/50"
+                />
+              </div>
             </div>
           </div>
         </div>

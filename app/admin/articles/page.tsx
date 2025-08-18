@@ -428,60 +428,65 @@ const ArticlesAdminPage = () => {
   ]);
 
   return (
-    <div
-      className={cn(
-        "min-h-screen p-6",
-        darkMode ? "bg-gray-900" : "bg-gray-50"
-      )}
-    >
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div>
-            <h1
-              className={cn(
-                "text-3xl font-bold mb-2",
-                darkMode ? "text-white" : "text-gray-900"
-              )}
-            >
-              إدارة المقالات
-            </h1>
-            <p
-              className={cn(
-                "text-sm",
-                darkMode ? "text-gray-400" : "text-gray-600"
-              )}
-            >
-              نظام إدارة مقالات قادة الرأي مع الذكاء الاصطناعي
-            </p>
+    <>
+      <link rel="stylesheet" href="/manus-ui.css" />
+      <div style={{ 
+        minHeight: '100vh', 
+        background: 'hsl(var(--bg))', 
+        padding: '24px',
+        color: 'hsl(var(--fg))'
+      }}>
+      {/* رسالة الترحيب */}
+      <div className="card card-accent" style={{ marginBottom: '32px' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            background: 'hsl(var(--accent) / 0.1)',
+            borderRadius: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'hsl(var(--accent))'
+          }}>
+            <FileText style={{ width: '24px', height: '24px' }} />
           </div>
-
-          <div className="flex gap-3">
+          <div style={{ flex: 1 }}>
+            <h2 className="heading-2" style={{ marginBottom: '8px' }}>
+              نظام إدارة المقالات المتطور
+            </h2>
+            <p className="text-muted" style={{ marginBottom: '16px' }}>
+              إدارة شاملة لمقالات قادة الرأي مع أدوات ذكية مدعومة بالذكاء الاصطناعي
+            </p>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <div className="chip">
+                ✅ {stats.published} مقال منشور
+              </div>
+              <div className="chip chip-muted">
+                📊 {stats.total} إجمالي
+              </div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '12px' }}>
             <button
               onClick={loadArticles}
-              className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-lg transition-colors",
-                darkMode
-                  ? "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                  : "bg-white text-gray-700 hover:bg-gray-50 border"
-              )}
+              className="btn"
             >
-              <RefreshCw className="w-4 h-4" />
+              <RefreshCw style={{ width: '16px', height: '16px', marginLeft: '8px' }} />
               تحديث
             </button>
 
-            <Link
-              href="/admin/articles/new"
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              مقال جديد
+            <Link href="/admin/articles/new">
+              <button className="btn btn-primary">
+                <Plus style={{ width: '16px', height: '16px', marginLeft: '8px' }} />
+                مقال جديد
+              </button>
             </Link>
           </div>
         </div>
       </div>
 
-      {/* Stats */}
+      {/* بطاقات الإحصائيات */}
       <div className="grid grid-cols-2 lg:grid-cols-7 gap-6 mb-8">
         {[
           {
@@ -528,96 +533,77 @@ const ArticlesAdminPage = () => {
             special: true,
           },
         ].map((stat, index) => (
-          <div
-            key={index}
-            className={cn(
-              "p-6 rounded-xl border",
-              darkMode
-                ? "bg-gray-800 border-gray-700"
-                : "bg-white border-gray-200"
-            )}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p
-                  className={cn(
-                    "text-2xl font-bold",
-                    darkMode ? "text-white" : "text-gray-900"
-                  )}
-                >
-                  {stat.value}
-                </p>
-                <p
-                  className={cn(
-                    "text-sm",
-                    darkMode ? "text-gray-400" : "text-gray-600"
-                  )}
-                >
-                  {stat.label}
-                </p>
+          <div key={index} className="card" style={{ cursor: 'pointer' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{
+                width: '48px',
+                height: '48px',
+                background: 'hsl(var(--accent) / 0.1)',
+                borderRadius: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'hsl(var(--accent))'
+              }}>
+                <stat.icon style={{ width: '24px', height: '24px' }} />
               </div>
-              <stat.icon
-                className={cn(
-                  "w-8 h-8",
-                  stat.color === "blue"
-                    ? "text-blue-500"
-                    : stat.color === "green"
-                    ? "text-green-500"
-                    : stat.color === "yellow"
-                    ? "text-yellow-500"
-                    : stat.color === "red"
-                    ? "text-red-500"
-                    : stat.color === "orange"
-                    ? "text-orange-500"
-                    : stat.color === "purple"
-                    ? "text-purple-500"
-                    : stat.color === "gold"
-                    ? currentOpinionLeader
-                      ? "text-yellow-500"
-                      : "text-gray-400"
-                    : "text-gray-500"
-                )}
-              />
+              
+              <div style={{ flex: 1 }}>
+                <div className="text-xs text-muted" style={{ marginBottom: '4px' }}>{stat.label}</div>
+                <div className="heading-3" style={{ margin: '4px 0', color: 'hsl(var(--accent))' }}>
+                  {stat.value}
+                </div>
+              </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Filters */}
-      <div
-        className={cn(
-          "p-6 rounded-xl border mb-6",
-          darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
-        )}
-      >
+      {/* أدوات البحث والفلترة */}
+      <div className="card" style={{ marginBottom: '24px' }}>
+        <div className="card-header">
+          <h3 className="card-title">البحث والفلترة</h3>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          {/* البحث */}
+          <div style={{ position: 'relative' }}>
+            <Search style={{ 
+              position: 'absolute', 
+              right: '12px', 
+              top: '50%', 
+              transform: 'translateY(-50%)', 
+              color: 'hsl(var(--muted))', 
+              width: '16px', 
+              height: '16px' 
+            }} />
             <input
               type="text"
               placeholder="البحث في المقالات..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className={cn(
-                "w-full pr-10 pl-4 py-2 rounded-lg border",
-                darkMode
-                  ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-              )}
+              style={{
+                width: '100%',
+                padding: '12px 40px 12px 12px',
+                border: '1px solid hsl(var(--line))',
+                borderRadius: '8px',
+                background: 'hsl(var(--bg-card))',
+                color: 'hsl(var(--fg))',
+                textAlign: 'right'
+              }}
             />
           </div>
 
-          {/* Status Filter */}
+          {/* فلتر الحالة */}
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value as any)}
-            className={cn(
-              "px-4 py-2 rounded-lg border",
-              darkMode
-                ? "bg-gray-700 border-gray-600 text-white"
-                : "bg-white border-gray-300 text-gray-900"
-            )}
+            style={{
+              padding: '12px 16px',
+              border: '1px solid hsl(var(--line))',
+              borderRadius: '8px',
+              background: 'hsl(var(--bg-card))',
+              color: 'hsl(var(--fg))'
+            }}
           >
             <option value="all">جميع الحالات</option>
             <option value="published">منشورة</option>
@@ -625,16 +611,17 @@ const ArticlesAdminPage = () => {
             <option value="archived">مؤرشفة</option>
           </select>
 
-          {/* Author Filter */}
+          {/* فلتر الكاتب */}
           <select
             value={filterAuthor}
             onChange={(e) => setFilterAuthor(e.target.value)}
-            className={cn(
-              "px-4 py-2 rounded-lg border",
-              darkMode
-                ? "bg-gray-700 border-gray-600 text-white"
-                : "bg-white border-gray-300 text-gray-900"
-            )}
+            style={{
+              padding: '12px 16px',
+              border: '1px solid hsl(var(--line))',
+              borderRadius: '8px',
+              background: 'hsl(var(--bg-card))',
+              color: 'hsl(var(--fg))'
+            }}
           >
             <option value="all">جميع الكتّاب</option>
             {authors.map((author) => (
@@ -644,7 +631,7 @@ const ArticlesAdminPage = () => {
             ))}
           </select>
 
-          {/* Sort */}
+          {/* الترتيب */}
           <select
             value={`${sortBy}-${sortOrder}`}
             onChange={(e) => {
@@ -652,12 +639,13 @@ const ArticlesAdminPage = () => {
               setSortBy(field as any);
               setSortOrder(order as any);
             }}
-            className={cn(
-              "px-4 py-2 rounded-lg border",
-              darkMode
-                ? "bg-gray-700 border-gray-600 text-white"
-                : "bg-white border-gray-300 text-gray-900"
-            )}
+            style={{
+              padding: '12px 16px',
+              border: '1px solid hsl(var(--line))',
+              borderRadius: '8px',
+              background: 'hsl(var(--bg-card))',
+              color: 'hsl(var(--fg))'
+            }}
           >
             <option value="created_at-desc">الأحدث أولاً</option>
             <option value="created_at-asc">الأقدم أولاً</option>
@@ -670,156 +658,132 @@ const ArticlesAdminPage = () => {
         </div>
       </div>
 
-      {/* Articles List */}
+      {/* قائمة المقالات */}
       {loading ? (
-        <div className="flex justify-center items-center py-12">
-          <RefreshCw className="w-8 h-8 animate-spin text-blue-500" />
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '48px 0' }}>
+          <RefreshCw style={{ width: '32px', height: '32px', color: 'hsl(var(--accent))' }} className="animate-spin" />
         </div>
       ) : filteredArticles.length === 0 ? (
-        <div
-          className={cn(
-            "p-12 rounded-xl border text-center",
-            darkMode
-              ? "bg-gray-800 border-gray-700"
-              : "bg-white border-gray-200"
-          )}
-        >
-          <FileText
-            className={cn(
-              "w-16 h-16 mx-auto mb-4",
-              darkMode ? "text-gray-600" : "text-gray-400"
-            )}
-          />
-          <h3
-            className={cn(
-              "text-xl font-bold mb-2",
-              darkMode ? "text-white" : "text-gray-900"
-            )}
-          >
+        <div className="card" style={{ textAlign: 'center', padding: '48px 24px' }}>
+          <FileText style={{ width: '64px', height: '64px', color: 'hsl(var(--muted))', margin: '0 auto 16px' }} />
+          <h3 className="heading-3" style={{ marginBottom: '8px' }}>
             لا توجد مقالات
           </h3>
-          <p
-            className={cn(
-              "text-sm mb-6",
-              darkMode ? "text-gray-400" : "text-gray-600"
-            )}
-          >
+          <p className="text-muted" style={{ marginBottom: '24px' }}>
             ابدأ بكتابة أول مقال لك
           </p>
-          <Link
-            href="/admin/articles/new"
-            className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            إنشاء مقال جديد
+          <Link href="/admin/articles/new">
+            <button className="btn btn-primary">
+              <Plus style={{ width: '16px', height: '16px', marginLeft: '8px' }} />
+              إنشاء مقال جديد
+            </button>
           </Link>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div style={{ display: 'grid', gap: '16px' }}>
           {filteredArticles.map((article) => (
-            <div
-              key={article.id}
-              className={cn(
-                "p-6 rounded-xl border transition-all hover:shadow-lg",
-                darkMode
-                  ? "bg-gray-800 border-gray-700 hover:bg-gray-750"
-                  : "bg-white border-gray-200 hover:shadow-md"
-              )}
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-3">
-                    <h3
-                      className={cn(
-                        "text-lg font-bold",
-                        darkMode ? "text-white" : "text-gray-900"
-                      )}
-                    >
+            <div key={article.id} className="card interactive">
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', flexWrap: 'wrap' }}>
+                    <h3 className="heading-3" style={{ marginBottom: '0' }}>
                       {article.title}
                     </h3>
 
                     {/* شارة قائد الرأي اليوم */}
                     {currentOpinionLeader === article.id && (
-                      <span className="flex items-center gap-1 px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
-                        <Crown className="w-3 h-3" />
+                      <div className="chip" style={{
+                        background: 'rgba(251, 191, 36, 0.1)',
+                        color: '#d97706',
+                        border: '1px solid rgba(251, 191, 36, 0.3)'
+                      }}>
+                        <Crown style={{ width: '12px', height: '12px', marginLeft: '4px' }} />
                         قائد رأي اليوم
-                      </span>
+                      </div>
                     )}
 
                     {/* شارة المقال المميز والعاجل */}
                     {article.featured && (
-                      <span className="flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-full bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-lg">
-                        <span className="animate-pulse">🔥</span>
+                      <div className="chip" style={{
+                        background: 'linear-gradient(to right, #ef4444, #f97316)',
+                        color: 'white',
+                        border: 'none',
+                        boxShadow: '0 4px 6px -1px rgba(239, 68, 68, 0.25)'
+                      }}>
+                        <span style={{ animation: 'pulse 2s infinite' }}>🔥</span>
                         خبر عاجل
-                      </span>
+                      </div>
                     )}
 
-                    <span
-                      className={cn(
-                        "px-2 py-1 text-xs rounded-full",
-                        article.status === "published"
-                          ? "bg-green-100 text-green-800"
+                    <div
+                      className="chip"
+                      style={{
+                        background: article.status === "published" 
+                          ? 'hsl(var(--accent-3) / 0.1)' 
                           : article.status === "draft"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-gray-100 text-gray-800"
-                      )}
+                          ? 'hsl(var(--accent-4) / 0.1)'
+                          : 'hsl(var(--line) / 0.3)',
+                        color: article.status === "published"
+                          ? 'hsl(var(--accent-3))'
+                          : article.status === "draft"
+                          ? 'hsl(var(--accent-4))'
+                          : 'hsl(var(--muted))',
+                        border: `1px solid ${article.status === "published" 
+                          ? 'hsl(var(--accent-3) / 0.2)' 
+                          : article.status === "draft"
+                          ? 'hsl(var(--accent-4) / 0.2)'
+                          : 'hsl(var(--line))'}`
+                      }}
                     >
                       {article.status === "published"
                         ? "منشور"
                         : article.status === "draft"
                         ? "مسودة"
                         : "مؤرشف"}
-                    </span>
+                    </div>
                   </div>
 
                   {article.excerpt && (
-                    <p
-                      className={cn(
-                        "text-sm mb-3 line-clamp-2",
-                        darkMode ? "text-gray-400" : "text-gray-600"
-                      )}
-                    >
+                    <p className="text-sm text-muted" style={{ marginBottom: '12px', lineHeight: '1.5' }}>
                       {article.excerpt}
                     </p>
                   )}
 
-                  <div className="flex items-center gap-6 text-sm">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '24px', fontSize: '14px', color: 'hsl(var(--muted))' }}>
                     {article.article_author && (
-                      <div className="flex items-center gap-2">
-                        <User className="w-4 h-4" />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <User style={{ width: '16px', height: '16px' }} />
                         <span>{article.article_author.full_name}</span>
                         {article.article_author.title && (
-                          <span className="text-gray-400">
+                          <span style={{ color: 'hsl(var(--muted))' }}>
                             ({article.article_author.title})
                           </span>
                         )}
                       </div>
                     )}
 
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Calendar style={{ width: '16px', height: '16px' }} />
                       <span>
-                        {new Date(article.created_at).toLocaleDateString(
-                          "ar-SA"
-                        )}
+                        {new Date(article.created_at).toLocaleDateString("ar-SA")}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <Eye className="w-4 h-4" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Eye style={{ width: '16px', height: '16px' }} />
                       <span>{article.views.toLocaleString()}</span>
                     </div>
 
                     {article.ai_score && (
-                      <div className="flex items-center gap-2">
-                        <Brain className="w-4 h-4" />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Brain style={{ width: '16px', height: '16px' }} />
                         <span>{Math.round(article.ai_score * 100)}%</span>
                       </div>
                     )}
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   {/* زر الخبر العاجل/المميز */}
                   {article.status === "published" && (
                     <button
@@ -830,14 +794,16 @@ const ArticlesAdminPage = () => {
                         )
                       }
                       disabled={updatingFeatured === article.id}
-                      className={cn(
-                        "flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-all relative shadow-lg",
-                        article.featured
-                          ? "bg-gradient-to-r from-red-500 to-orange-500 text-white hover:from-red-600 hover:to-orange-600 scale-105 shadow-red-200"
-                          : "bg-gradient-to-r from-gray-400 to-gray-500 text-white hover:from-blue-500 hover:to-purple-500",
-                        updatingFeatured === article.id &&
-                          "opacity-50 cursor-not-allowed"
-                      )}
+                      className={article.featured ? "btn btn-sm" : "btn btn-sm"}
+                      style={{
+                        background: article.featured 
+                          ? 'linear-gradient(to right, #ef4444, #f97316)'
+                          : 'hsl(var(--bg-card))',
+                        color: article.featured ? 'white' : 'hsl(var(--fg))',
+                        border: article.featured ? 'none' : '1px solid hsl(var(--line))',
+                        opacity: updatingFeatured === article.id ? 0.5 : 1,
+                        cursor: updatingFeatured === article.id ? 'not-allowed' : 'pointer'
+                      }}
                       title={
                         article.featured
                           ? "إلغاء تمييز كخبر عاجل"
@@ -846,9 +812,8 @@ const ArticlesAdminPage = () => {
                     >
                       {article.featured ? (
                         <>
-                          <span className="animate-pulse">🔥</span>
+                          <span style={{ animation: 'pulse 2s infinite' }}>🔥</span>
                           <span>عاجل</span>
-                          <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-600 rounded-full animate-pulse"></span>
                         </>
                       ) : (
                         <>
@@ -865,68 +830,65 @@ const ArticlesAdminPage = () => {
                       <button
                         onClick={() => setAsOpinionLeader(article.id)}
                         disabled={settingOpinionLeader === article.id}
-                        className={cn(
-                          "p-2 rounded-lg transition-colors relative",
-                          currentOpinionLeader === article.id
-                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                            : darkMode
-                            ? "hover:bg-gray-700 text-gray-400 hover:text-yellow-500"
-                            : "hover:bg-gray-100 text-gray-600 hover:text-yellow-600",
-                          settingOpinionLeader === article.id &&
-                            "opacity-50 cursor-not-allowed"
-                        )}
+                        className="btn btn-sm"
+                        style={{
+                          background: currentOpinionLeader === article.id
+                            ? 'rgba(251, 191, 36, 0.1)'
+                            : 'hsl(var(--bg-card))',
+                          color: currentOpinionLeader === article.id
+                            ? '#d97706'
+                            : 'hsl(var(--muted))',
+                          border: currentOpinionLeader === article.id
+                            ? '1px solid rgba(251, 191, 36, 0.3)'
+                            : '1px solid hsl(var(--line))',
+                          opacity: settingOpinionLeader === article.id ? 0.5 : 1,
+                          cursor: settingOpinionLeader === article.id ? 'not-allowed' : 'pointer',
+                          position: 'relative'
+                        }}
                         title={
                           currentOpinionLeader === article.id
                             ? "قائد رأي اليوم الحالي"
                             : "تعيين كقائد رأي اليوم"
                         }
                       >
-                        <Crown
-                          className={cn(
-                            "w-4 h-4",
-                            currentOpinionLeader === article.id &&
-                              "text-yellow-600"
-                          )}
-                        />
+                        <Crown style={{ width: '16px', height: '16px' }} />
                         {currentOpinionLeader === article.id && (
-                          <span className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                          <span style={{
+                            position: 'absolute',
+                            top: '-4px',
+                            right: '-4px',
+                            width: '8px',
+                            height: '8px',
+                            background: '#eab308',
+                            borderRadius: '50%'
+                          }}></span>
                         )}
                       </button>
                     )}
 
-                  <Link
-                    href={`/admin/articles/edit/${article.id}`}
-                    className={cn(
-                      "p-2 rounded-lg transition-colors",
-                      darkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
-                    )}
-                  >
-                    <Edit className="w-4 h-4" />
+                  <Link href={`/admin/articles/edit/${article.id}`}>
+                    <button className="btn btn-sm">
+                      <Edit style={{ width: '16px', height: '16px' }} />
+                    </button>
                   </Link>
 
                   <button
                     onClick={() => handleDeleteClick(article)}
                     disabled={deletingArticle === article.id}
-                    className={cn(
-                      "p-2 rounded-lg transition-colors",
-                      deletingArticle === article.id
-                        ? "opacity-50 cursor-not-allowed"
-                        : darkMode
-                        ? "hover:bg-red-900/20 text-red-400 hover:text-red-300"
-                        : "hover:bg-red-50 text-red-600 hover:text-red-700"
-                    )}
+                    className="btn btn-sm"
+                    style={{
+                      color: '#ef4444',
+                      borderColor: 'hsl(var(--line))',
+                      opacity: deletingArticle === article.id ? 0.5 : 1,
+                      cursor: deletingArticle === article.id ? 'not-allowed' : 'pointer'
+                    }}
                     title="حذف المقال نهائياً"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 style={{ width: '16px', height: '16px' }} />
                   </button>
 
-                  <button
-                    className={cn(
-                      "p-2 rounded-lg transition-colors",
-                      darkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
-                    )}
-                  >
-                    <MoreHorizontal className="w-4 h-4" />
+                  <button className="btn btn-sm">
+                    <MoreHorizontal style={{ width: '16px', height: '16px' }} />
                   </button>
                 </div>
               </div>
@@ -937,109 +899,95 @@ const ArticlesAdminPage = () => {
 
       {/* Modal تأكيد الحذف */}
       {deleteModalOpen && articleToDelete && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div
-            className={cn(
-              "max-w-md w-full mx-4 rounded-lg p-6",
-              darkMode ? "bg-gray-800" : "bg-white"
-            )}
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 rounded-lg bg-red-100 dark:bg-red-900/20">
-                <Trash2 className="w-6 h-6 text-red-600" />
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 50
+        }}>
+          <div style={{
+            maxWidth: '448px',
+            width: '100%',
+            margin: '0 16px',
+            borderRadius: '12px',
+            padding: '24px',
+            background: 'hsl(var(--bg-card))',
+            border: '1px solid hsl(var(--line))',
+            color: 'hsl(var(--fg))'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+              <div style={{
+                padding: '8px',
+                borderRadius: '8px',
+                background: 'hsl(0 60% 95%)'
+              }}>
+                <Trash2 style={{ width: '24px', height: '24px', color: '#dc2626' }} />
               </div>
               <div>
-                <h3
-                  className={cn(
-                    "text-lg font-bold",
-                    darkMode ? "text-white" : "text-gray-900"
-                  )}
-                >
+                <h3 className="heading-3" style={{ marginBottom: '4px' }}>
                   تأكيد حذف المقال
                 </h3>
-                <p
-                  className={cn(
-                    "text-sm",
-                    darkMode ? "text-gray-400" : "text-gray-600"
-                  )}
-                >
+                <p className="text-sm text-muted">
                   هذا الإجراء لا يمكن التراجع عنه
                 </p>
               </div>
             </div>
 
-            <div
-              className={cn(
-                "p-4 rounded-lg mb-6",
-                darkMode
-                  ? "bg-red-900/10 border border-red-800"
-                  : "bg-red-50 border border-red-200"
-              )}
-            >
-              <p
-                className={cn(
-                  "text-sm mb-2",
-                  darkMode ? "text-red-200" : "text-red-800"
-                )}
-              >
+            <div style={{
+              padding: '16px',
+              borderRadius: '8px',
+              marginBottom: '24px',
+              background: 'hsl(0 60% 95%)',
+              border: '1px solid hsl(0 60% 85%)'
+            }}>
+              <p style={{ fontSize: '14px', marginBottom: '8px', color: '#7f1d1d' }}>
                 <strong>سيتم حذف المقال التالي نهائياً:</strong>
               </p>
-              <p
-                className={cn(
-                  "font-medium mb-3",
-                  darkMode ? "text-white" : "text-gray-900"
-                )}
-              >
+              <p style={{ fontWeight: '500', marginBottom: '12px', color: 'hsl(var(--fg))' }}>
                 "{articleToDelete.title}"
               </p>
-              <ul
-                className={cn(
-                  "text-xs space-y-1",
-                  darkMode ? "text-red-300" : "text-red-700"
-                )}
-              >
-                <li>• سيتم حذف المقال والمحتوى نهائياً</li>
-                <li>• سيتم حذف جميع التعليقات والإعجابات</li>
-                <li>• سيتم إزالة المقال من قوائم المستخدمين المحفوظة</li>
+              <ul style={{ fontSize: '12px', color: '#991b1b', listStyle: 'none', padding: 0 }}>
+                <li style={{ marginBottom: '4px' }}>• سيتم حذف المقال والمحتوى نهائياً</li>
+                <li style={{ marginBottom: '4px' }}>• سيتم حذف جميع التعليقات والإعجابات</li>
+                <li style={{ marginBottom: '4px' }}>• سيتم إزالة المقال من قوائم المستخدمين المحفوظة</li>
                 <li>• لا يمكن استرداد هذه البيانات لاحقاً</li>
               </ul>
             </div>
 
-            <div className="flex gap-3 justify-end">
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
               <button
                 onClick={() => {
                   setDeleteModalOpen(false);
                   setArticleToDelete(null);
                 }}
                 disabled={deletingArticle === articleToDelete.id}
-                className={cn(
-                  "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
-                  darkMode
-                    ? "bg-gray-700 hover:bg-gray-600 text-gray-300"
-                    : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                )}
+                className="btn"
               >
                 إلغاء
               </button>
               <button
                 onClick={handleDeleteConfirm}
                 disabled={deletingArticle === articleToDelete.id}
-                className={cn(
-                  "px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2",
-                  deletingArticle === articleToDelete.id
-                    ? "opacity-50 cursor-not-allowed bg-red-600"
-                    : "bg-red-600 hover:bg-red-700",
-                  "text-white"
-                )}
+                className="btn"
+                style={{
+                  background: '#ef4444',
+                  color: 'white',
+                  borderColor: '#ef4444',
+                  opacity: deletingArticle === articleToDelete.id ? 0.5 : 1,
+                  cursor: deletingArticle === articleToDelete.id ? 'not-allowed' : 'pointer'
+                }}
               >
                 {deletingArticle === articleToDelete.id ? (
                   <>
-                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <RefreshCw style={{ width: '16px', height: '16px', marginLeft: '8px' }} className="animate-spin" />
                     جاري الحذف...
                   </>
                 ) : (
                   <>
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 style={{ width: '16px', height: '16px', marginLeft: '8px' }} />
                     حذف نهائي
                   </>
                 )}
@@ -1048,7 +996,8 @@ const ArticlesAdminPage = () => {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 };
 

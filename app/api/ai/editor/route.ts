@@ -15,13 +15,23 @@ let openai: OpenAI | null = null;
 function getOpenAIClient(): OpenAI | null {
   if (!openai) {
     const apiKey = process.env.OPENAI_AI_EDITOR_KEY || process.env.OPENAI_API_KEY;
-    if (apiKey && apiKey !== 'sk-...' && apiKey.length > 20) {
+    
+    // تحقق محسن من صحة المفتاح
+    if (apiKey && 
+        apiKey !== 'sk-...' && 
+        apiKey !== 'sk-your-openai-api-key' && 
+        apiKey.length > 20 && 
+        apiKey.startsWith('sk-')) {
       try {
         openai = new OpenAI({ apiKey });
+        console.log('✅ تم تهيئة عميل OpenAI بنجاح');
       } catch (error) {
-        console.error('Failed to initialize OpenAI client:', error);
+        console.error('❌ فشل في تهيئة عميل OpenAI:', error);
         return null;
       }
+    } else {
+      console.warn('⚠️ مفتاح OpenAI غير صحيح أو مفقود');
+      return null;
     }
   }
   return openai;
@@ -192,8 +202,14 @@ export async function POST(request: NextRequest) {
     // استدعاء OpenAI
     const openai = getOpenAIClient();
     if (!openai) {
+      console.error('❌ لا يمكن الاتصال بـ OpenAI - المفتاح غير صحيح أو مفقود');
       return NextResponse.json(
-        { success: false, error: 'فشل في الاتصال بـ OpenAI' },
+        { 
+          success: false, 
+          error: 'فشل في الاتصال بـ OpenAI - تأكد من صحة المفتاح',
+          mock: true,
+          result: getMockResponse(service, content)
+        },
         { status: 500 }
       );
     }

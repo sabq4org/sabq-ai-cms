@@ -354,173 +354,168 @@ export default function DeepAnalysisPage() {
   };
   return (
     <>
-      <div
-        className={`transition-colors duration-300 ${
-          darkMode ? "bg-gray-900" : ""
-        }`}
-      >
-        {/* عنوان وتعريف الصفحة المحسن */}
-        <div className="mb-6 sm:mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-            <div>
-              <h1
-                className={`text-2xl sm:text-3xl font-bold mb-2 transition-colors duration-300 ${
-                  darkMode ? "text-white" : "text-gray-800"
-                }`}
-              >
-                🧠 التحليل العميق المتقدم
-              </h1>
-              <p
-                className={`text-sm sm:text-base transition-colors duration-300 ${
-                  darkMode ? "text-gray-300" : "text-gray-600"
-                }`}
-              >
-                منصة ذكية لإنتاج وإدارة التحليلات العميقة بتقنيات الذكاء
-                الاصطناعي المتطورة
-              </p>
+      <link rel="stylesheet" href="/manus-ui.css" />
+      <div style={{ 
+        minHeight: '100vh', 
+        background: 'hsl(var(--bg))', 
+        padding: '24px',
+        color: 'hsl(var(--fg))'
+      }}>
+        {/* رسالة الترحيب */}
+        <div className="card card-accent" style={{ marginBottom: '32px' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+            <div style={{
+              width: '48px',
+              height: '48px',
+              background: 'hsl(var(--accent) / 0.1)',
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'hsl(var(--accent))'
+            }}>
+              <Brain style={{ width: '24px', height: '24px' }} />
             </div>
-            <div className="flex items-center gap-2">
-              <Badge
-                variant="secondary"
-                className="bg-background text-foreground"
+            <div style={{ flex: 1 }}>
+              <h2 className="heading-2" style={{ marginBottom: '8px' }}>
+                🧠 التحليل العميق المتقدم
+              </h2>
+              <p className="text-muted" style={{ marginBottom: '16px' }}>
+                منصة ذكية لإنتاج وإدارة التحليلات العميقة بتقنيات الذكاء الاصطناعي المتطورة
+              </p>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <div className="chip">
+                  <Sparkles style={{ width: '12px', height: '12px', marginLeft: '4px' }} />
+                  AI-Powered
+                </div>
+                <div className="chip chip-muted">
+                  <Globe style={{ width: '12px', height: '12px', marginLeft: '4px' }} />
+                  {stats.published} منشور
+                </div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                className="btn"
+                onClick={() => router.push("/admin/deep-analysis/analytics")}
               >
-                <Sparkles className="w-3 h-3 mr-1" />
-                AI-Powered
-              </Badge>
-              <Badge
-                variant="outline"
-                className={darkMode ? "border-gray-600" : ""}
+                <BarChart3 style={{ width: '16px', height: '16px', marginLeft: '8px' }} />
+                التحليلات
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={() => router.push("/admin/deep-analysis/create")}
               >
-                <Globe className="w-3 h-3 mr-1" />
-                {stats.published} منشور
-              </Badge>
+                <Plus style={{ width: '16px', height: '16px', marginLeft: '8px' }} />
+                إنشاء تحليل جديد
+              </button>
             </div>
           </div>
+        </div>
 
           {/* شريط المؤشرات السريعة */}
-          <div
-            className={`rounded-xl p-3 border ${
-              darkMode
-                ? "bg-gray-800/50 border-gray-700"
-                : "bg-gray-50 border-gray-200"
-            }`}
-          >
-            <div className="flex items-center justify-between text-xs sm:text-sm">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1">
-                  <CheckCircle
-                    className={`w-4 h-4 ${
-                      stats.published > 0 ? "text-green-500" : "text-gray-400"
-                    }`}
-                  />
-                  <span
-                    className={darkMode ? "text-gray-300" : "text-gray-600"}
-                  >
+          <div className="card" style={{ marginBottom: '32px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <CheckCircle style={{
+                    width: '16px',
+                    height: '16px',
+                    color: stats.published > 0 ? '#10b981' : 'hsl(var(--muted))'
+                  }} />
+                  <span className="text-muted">
                     {stats.published} منشور
                   </span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Clock
-                    className={`w-4 h-4 ${
-                      stats.draft > 0 ? "text-yellow-500" : "text-gray-400"
-                    }`}
-                  />
-                  <span
-                    className={darkMode ? "text-gray-300" : "text-gray-600"}
-                  >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <Clock style={{
+                    width: '16px',
+                    height: '16px',
+                    color: stats.draft > 0 ? '#f59e0b' : 'hsl(var(--muted))'
+                  }} />
+                  <span className="text-muted">
                     {stats.draft} مسودة
                   </span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <TrendingUp
-                    className={`w-4 h-4 ${
-                      stats.thisWeek > 0 ? "text-blue-500" : "text-gray-400"
-                    }`}
-                  />
-                  <span
-                    className={darkMode ? "text-gray-300" : "text-gray-600"}
-                  >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <TrendingUp style={{
+                    width: '16px',
+                    height: '16px',
+                    color: stats.thisWeek > 0 ? 'hsl(var(--accent))' : 'hsl(var(--muted))'
+                  }} />
+                  <span className="text-muted">
                     {stats.thisWeek} هذا الأسبوع
                   </span>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <div
-                  className={`w-16 h-1.5 rounded-full overflow-hidden ${
-                    darkMode ? "bg-gray-700" : "bg-gray-200"
-                  }`}
-                >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{
+                  width: '64px',
+                  height: '6px',
+                  borderRadius: '3px',
+                  overflow: 'hidden',
+                  background: 'hsl(var(--line))'
+                }}>
                   <div
-                    className="h-full bg-primary"
-                    style={{ width: `${stats.avgQuality}%` }}
+                    style={{
+                      height: '100%',
+                      background: 'hsl(var(--accent))',
+                      width: `${stats.avgQuality}%`
+                    }}
                   />
                 </div>
-                <span
-                  className={`text-xs font-medium ${
-                    darkMode ? "text-gray-300" : "text-gray-600"
-                  }`}
-                >
+                <span className="text-xs text-muted" style={{ fontWeight: '500' }}>
                   {stats.avgQuality}% جودة
                 </span>
               </div>
             </div>
           </div>
-        </div>
         {/* قسم النظام الذكي المحسن */}
-        <div className="mb-6 sm:mb-8">
-          <div
-            className={`rounded-2xl p-4 sm:p-6 border transition-colors duration-300 ${
-              darkMode
-                ? "bg-gradient-to-br from-purple-900/40 to-indigo-900/40 border-purple-700/50"
-                : "bg-gradient-to-br from-purple-50 to-indigo-50 border-purple-100"
-            }`}
-          >
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center shadow-lg">
-                  <Brain className="text-primary-foreground w-6 h-6" />
-                </div>
-                <div>
-                  <h2
-                    className={`text-lg sm:text-xl font-bold transition-colors duration-300 ${
-                      darkMode ? "text-white" : "text-gray-800"
-                    }`}
-                  >
-                    🚀 محرك التحليل الذكي المتطور
-                  </h2>
-                  <p
-                    className={`text-xs sm:text-sm transition-colors duration-300 ${
-                      darkMode ? "text-gray-300" : "text-gray-600"
-                    }`}
-                  >
-                    تحليل متقدم للمحتوى باستخدام GPT-4 ونماذج الذكاء الاصطناعي
-                    المتطورة
-                  </p>
-                </div>
+        <div className="card" style={{ 
+          marginBottom: '32px',
+          background: 'linear-gradient(135deg, hsl(var(--accent) / 0.05), hsl(var(--accent-2) / 0.03))',
+          border: '1px solid hsl(var(--accent) / 0.15)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{
+                width: '48px',
+                height: '48px',
+                background: 'hsl(var(--accent))',
+                borderRadius: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 4px 6px -1px hsl(var(--accent) / 0.25)'
+              }}>
+                <Brain style={{ color: 'white', width: '24px', height: '24px' }} />
               </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    router.push("/dashboard/deep-analysis/analytics")
-                  }
-                  className={`${
-                    darkMode ? "border-gray-600 hover:bg-gray-700" : ""
-                  }`}
-                >
-                  <BarChart3 className="h-4 w-4 ml-2" />
-                  التحليلات
-                </Button>
-                <Button
-                  onClick={() => router.push("/dashboard/deep-analysis/create")}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg"
-                >
-                  <Plus className="h-4 w-4 ml-2" />
-                  إنشاء تحليل جديد
-                </Button>
+              <div>
+                <h2 className="heading-2" style={{ marginBottom: '4px' }}>
+                  🚀 محرك التحليل الذكي المتطور
+                </h2>
+                <p className="text-sm text-muted">
+                  تحليل متقدم للمحتوى باستخدام GPT-4 ونماذج الذكاء الاصطناعي المتطورة
+                </p>
               </div>
             </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button
+                className="btn btn-sm"
+                onClick={() => router.push("/admin/deep-analysis/analytics")}
+              >
+                <BarChart3 style={{ width: '16px', height: '16px', marginLeft: '8px' }} />
+                التحليلات
+              </button>
+              <button
+                className="btn btn-sm btn-primary"
+                onClick={() => router.push("/admin/deep-analysis/create")}
+              >
+                <Plus style={{ width: '16px', height: '16px', marginLeft: '8px' }} />
+                إنشاء تحليل جديد
+              </button>
+            </div>
+          </div>
 
             {/* مؤشرات الأداء الذكية */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4">
@@ -2150,7 +2145,6 @@ export default function DeepAnalysisPage() {
             </div>
           </div>
         </div>
-      </div>
     </>
   );
 }

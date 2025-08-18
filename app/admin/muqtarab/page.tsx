@@ -32,7 +32,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-// مكون بطاقة إحصائية
+// مكون بطاقة إحصائية - Manus UI
 const StatCard = ({
   title,
   value,
@@ -47,33 +47,48 @@ const StatCard = ({
   trend?: { value: number; label: string };
 }) => {
   return (
-    <Card>
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-gray-600">{title}</p>
-            <p className="text-2xl font-bold text-gray-900">{value}</p>
-            {trend && (
-              <p
-                className={`text-xs ${
-                  trend.value >= 0 ? "text-green-600" : "text-red-600"
-                }`}
-              >
-                {trend.value >= 0 ? "↗" : "↘"} {Math.abs(trend.value)}%{" "}
-                {trend.label}
-              </p>
-            )}
-          </div>
-          <div className={`p-3 rounded-xl ${color}`}>
-            <Icon className="w-6 h-6 text-white" />
-          </div>
+    <div className="card" style={{ cursor: 'pointer' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <div style={{
+          width: '48px',
+          height: '48px',
+          background: 'hsl(var(--accent) / 0.1)',
+          borderRadius: '12px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'hsl(var(--accent))'
+        }}>
+          <Icon style={{ width: '24px', height: '24px' }} />
         </div>
-      </CardContent>
-    </Card>
+        
+        <div style={{ flex: 1 }}>
+          <div className="text-xs text-muted" style={{ marginBottom: '4px' }}>{title}</div>
+          <div className="heading-3" style={{ margin: '4px 0', color: 'hsl(var(--accent))' }}>
+            {value}
+          </div>
+          {trend && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ 
+                width: '14px', 
+                height: '14px',
+                color: trend.value >= 0 ? '#10b981' : '#ef4444'
+              }}>
+                {trend.value >= 0 ? "↗" : "↘"}
+              </span>
+              <span className="text-xs" style={{ color: trend.value >= 0 ? '#10b981' : '#ef4444' }}>
+                {Math.abs(trend.value)}%
+              </span>
+              <span className="text-xs text-muted">{trend.label}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 };
 
-// مكون بطاقة الزاوية
+// مكون بطاقة الزاوية - Manus UI
 const AngleCard = ({
   angle,
   handleDeleteClick,
@@ -82,113 +97,136 @@ const AngleCard = ({
   handleDeleteClick: (angle: Angle) => void;
 }) => {
   return (
-    <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-blue-200">
-      <CardContent className="p-0">
-        {/* صورة الغلاف */}
-        <div
-          className="h-48 bg-gradient-to-br from-blue-500 to-purple-600 relative overflow-hidden rounded-t-lg"
-          style={{
-            background: angle.themeColor
-              ? `linear-gradient(135deg, ${angle.themeColor}, ${angle.themeColor}80)`
-              : undefined,
-          }}
-        >
-          {angle.coverImage && (
-            <img
-              src={angle.coverImage}
-              alt={angle.title}
-              className="w-full h-full object-cover"
-            />
+    <div className="card interactive">
+      {/* صورة الغلاف */}
+      <div
+        style={{
+          height: '192px',
+          background: angle.themeColor
+            ? `linear-gradient(135deg, ${angle.themeColor}, ${angle.themeColor}80)`
+            : 'linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-2)))',
+          position: 'relative',
+          overflow: 'hidden',
+          borderRadius: '12px',
+          marginBottom: '16px'
+        }}
+      >
+        {angle.coverImage && (
+          <img
+            src={angle.coverImage}
+            alt={angle.title}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        )}
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.2)' }} />
+        <div style={{ position: 'absolute', top: '16px', left: '16px', display: 'flex', gap: '8px' }}>
+          {angle.isFeatured && (
+            <div className="chip" style={{
+              background: 'rgba(251, 191, 36, 0.9)',
+              color: 'white',
+              border: 'none'
+            }}>
+              <Star style={{ width: '12px', height: '12px', marginLeft: '4px' }} />
+              مميزة
+            </div>
           )}
-          <div className="absolute inset-0 bg-black/20" />
-          <div className="absolute top-4 left-4 flex gap-2">
-            {angle.isFeatured && (
-              <Badge className="bg-yellow-500/90 text-white">
-                <Star className="w-3 h-3 ml-1" />
-                مميزة
-              </Badge>
-            )}
-            <Badge
-              variant={angle.isPublished ? "default" : "secondary"}
-              className={
-                angle.isPublished
-                  ? "bg-green-500/90 text-white"
-                  : "bg-gray-500/90 text-white"
-              }
+          <div
+            className="chip"
+            style={{
+              background: angle.isPublished ? 'rgba(34, 197, 94, 0.9)' : 'rgba(107, 114, 128, 0.9)',
+              color: 'white',
+              border: 'none'
+            }}
+          >
+            {angle.isPublished ? "منشورة" : "مسودة"}
+          </div>
+        </div>
+      </div>
+
+      {/* محتوى البطاقة */}
+      <div>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '12px' }}>
+          <h3 className="heading-3" style={{ color: 'hsl(var(--fg))', marginBottom: '0' }}>
+            {angle.title}
+          </h3>
+          <div style={{
+            width: '32px',
+            height: '32px',
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'hsl(var(--line))'
+          }}>
+            <BookOpen style={{ width: '16px', height: '16px', color: 'hsl(var(--muted))' }} />
+          </div>
+        </div>
+
+        <p className="text-sm text-muted" style={{ marginBottom: '16px', lineHeight: '1.5' }}>
+          {angle.description}
+        </p>
+
+        {/* إحصائيات */}
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between', 
+          marginBottom: '16px',
+          fontSize: '14px',
+          color: 'hsl(var(--muted))'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <BookOpen style={{ width: '16px', height: '16px' }} />
+              <span>{angle.articlesCount || 0} مقال</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <Eye style={{ width: '16px', height: '16px' }} />
+              <span>{angle.totalViews || 0} مشاهدة</span>
+            </div>
+          </div>
+          <div className="text-xs text-muted">
+            {new Date(angle.createdAt).toLocaleDateString("ar-SA")}
+          </div>
+        </div>
+
+        {/* المؤلف والإجراءات */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{
+              width: '24px',
+              height: '24px',
+              borderRadius: '50%',
+              background: 'hsl(var(--line))',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <Users style={{ width: '12px', height: '12px', color: 'hsl(var(--muted))' }} />
+            </div>
+            <span className="text-sm text-muted">
+              {angle.author?.name || "غير محدد"}
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Link href={`/admin/muqtarab/angles/${angle.id}`}>
+              <button className="btn btn-sm btn-primary">
+                إدارة
+              </button>
+            </Link>
+
+            <button
+              className="btn btn-sm"
+              onClick={() => handleDeleteClick(angle)}
+              style={{ color: '#ef4444', borderColor: 'hsl(var(--line))' }}
             >
-              {angle.isPublished ? "منشورة" : "مسودة"}
-            </Badge>
+              <Trash2 style={{ width: '16px', height: '16px' }} />
+            </button>
           </div>
         </div>
-
-        {/* محتوى البطاقة */}
-        <div className="p-6">
-          <div className="flex items-start justify-between mb-3">
-            <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
-              {angle.title}
-            </h3>
-            <div className="text-right">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-100">
-                <BookOpen className="w-4 h-4 text-gray-600" />
-              </div>
-            </div>
-          </div>
-
-          <p className="text-gray-600 text-sm line-clamp-3 mb-4">
-            {angle.description}
-          </p>
-
-          {/* إحصائيات */}
-          <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1">
-                <BookOpen className="w-4 h-4" />
-                <span>{angle.articlesCount || 0} مقال</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Eye className="w-4 h-4" />
-                <span>{angle.totalViews || 0} مشاهدة</span>
-              </div>
-            </div>
-            <div className="text-xs text-gray-400">
-              {new Date(angle.createdAt).toLocaleDateString("ar-SA")}
-            </div>
-          </div>
-
-          {/* المؤلف */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center">
-                <Users className="w-3 h-3 text-gray-600" />
-              </div>
-              <span className="text-sm text-gray-600">
-                {angle.author?.name || "غير محدد"}
-              </span>
-            </div>
-
-            <div className="flex gap-2">
-              <Link href={`/admin/muqtarab/angles/${angle.id}`}>
-                <Button
-                  size="sm"
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  إدارة
-                </Button>
-              </Link>
-
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleDeleteClick(angle)}
-                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
@@ -350,47 +388,82 @@ export default function MuqtaribDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
-          <p className="text-gray-600">جاري تحميل لوحة تحكم مُقترب...</p>
+      <>
+        <link rel="stylesheet" href="/manus-ui.css" />
+        <div style={{ 
+          minHeight: '100vh', 
+          background: 'hsl(var(--bg))', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center' 
+        }}>
+          <div style={{ textAlign: 'center' }}>
+            <Loader2 style={{ width: '32px', height: '32px', color: 'hsl(var(--accent))' }} className="animate-spin mx-auto mb-4" />
+            <p style={{ color: 'hsl(var(--muted))' }}>جاري تحميل لوحة تحكم مُقترب...</p>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* شريط التنقل العلوي */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-gray-900">مُقترب</h1>
-              <Badge className="bg-blue-100 text-blue-800">
-                نظام إدارة الزوايا
-              </Badge>
+    <>
+      <link rel="stylesheet" href="/manus-ui.css" />
+      <div style={{ 
+        minHeight: '100vh', 
+        background: 'hsl(var(--bg))', 
+        padding: '24px',
+        color: 'hsl(var(--fg))'
+      }}>
+        {/* رسالة الترحيب */}
+        <div className="card card-accent" style={{ marginBottom: '32px' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+            <div style={{
+              width: '48px',
+              height: '48px',
+              background: 'hsl(var(--accent) / 0.1)',
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'hsl(var(--accent))'
+            }}>
+              <BookOpen style={{ width: '24px', height: '24px' }} />
             </div>
-
-            <div className="flex gap-3">
+            <div style={{ flex: 1 }}>
+              <h2 className="heading-2" style={{ marginBottom: '8px' }}>
+                نظام إدارة مُقترب المتطور
+              </h2>
+              <p className="text-muted" style={{ marginBottom: '16px' }}>
+                إدارة شاملة للزوايا والمحتوى التحليلي مع أدوات ذكية لتنظيم المقالات
+              </p>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <div className="chip">
+                  ✅ {stats.publishedAngles} زاوية منشورة
+                </div>
+                <div className="chip chip-muted">
+                  📊 {stats.totalArticles} مقال إجمالي
+                </div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '12px' }}>
               <Link href="/admin/muqtarab/angles/new">
-                <Button className="bg-blue-600 hover:bg-blue-700">
-                  <Plus className="w-4 h-4 ml-2" />
+                <button className="btn btn-primary">
+                  <Plus style={{ width: '16px', height: '16px', marginLeft: '8px' }} />
                   إنشاء زاوية جديدة
-                </Button>
+                </button>
               </Link>
 
-              <Button variant="outline">
-                <Settings className="w-4 h-4 ml-2" />
+              <button className="btn">
+                <Settings style={{ width: '16px', height: '16px', marginLeft: '8px' }} />
                 إعدادات
-              </Button>
+              </button>
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="p-6">
-        <div className="max-w-7xl mx-auto space-y-8">
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <div style={{ display: 'grid', gap: '32px' }}>
           {/* بطاقات الإحصائيات */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <StatCard
@@ -425,106 +498,113 @@ export default function MuqtaribDashboard() {
           </div>
 
           {/* أدوات البحث والفلترة */}
-          <Card>
-            <CardHeader>
-              <CardTitle>إدارة الزوايا</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-                <div className="flex gap-4 flex-1">
+          <div className="card">
+            <div className="card-header">
+              <h3 className="card-title">إدارة الزوايا</h3>
+            </div>
+            <div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ display: 'flex', gap: '16px', flex: 1, alignItems: 'center', flexWrap: 'wrap' }}>
                   {/* البحث */}
-                  <div className="relative flex-1 max-w-md">
-                    <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                    <Input
+                  <div style={{ position: 'relative', flex: 1, maxWidth: '400px' }}>
+                    <Search style={{ 
+                      position: 'absolute', 
+                      right: '12px', 
+                      top: '50%', 
+                      transform: 'translateY(-50%)', 
+                      color: 'hsl(var(--muted))', 
+                      width: '16px', 
+                      height: '16px' 
+                    }} />
+                    <input
                       placeholder="البحث في الزوايا..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pr-10 text-right"
+                      style={{
+                        width: '100%',
+                        padding: '12px 40px 12px 12px',
+                        border: '1px solid hsl(var(--line))',
+                        borderRadius: '8px',
+                        background: 'hsl(var(--bg-card))',
+                        color: 'hsl(var(--fg))',
+                        textAlign: 'right'
+                      }}
                     />
                   </div>
 
                   {/* فلتر الحالة */}
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant={filterPublished === null ? "default" : "outline"}
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                      className={filterPublished === null ? "btn btn-primary btn-sm" : "btn btn-sm"}
                       onClick={() => setFilterPublished(null)}
                     >
                       الكل
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={filterPublished === true ? "default" : "outline"}
+                    </button>
+                    <button
+                      className={filterPublished === true ? "btn btn-primary btn-sm" : "btn btn-sm"}
                       onClick={() => setFilterPublished(true)}
                     >
                       منشورة
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={
-                        filterPublished === false ? "default" : "outline"
-                      }
+                    </button>
+                    <button
+                      className={filterPublished === false ? "btn btn-primary btn-sm" : "btn btn-sm"}
                       onClick={() => setFilterPublished(false)}
                     >
                       مسودات
-                    </Button>
+                    </button>
                   </div>
                 </div>
 
                 {/* أدوات العرض */}
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant={viewMode === "grid" ? "default" : "outline"}
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    className={viewMode === "grid" ? "btn btn-primary btn-sm" : "btn btn-sm"}
                     onClick={() => setViewMode("grid")}
                   >
-                    <Grid3X3 className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant={viewMode === "list" ? "default" : "outline"}
+                    <Grid3X3 style={{ width: '16px', height: '16px' }} />
+                  </button>
+                  <button
+                    className={viewMode === "list" ? "btn btn-primary btn-sm" : "btn btn-sm"}
                     onClick={() => setViewMode("list")}
                   >
-                    <List className="w-4 h-4" />
-                  </Button>
+                    <List style={{ width: '16px', height: '16px' }} />
+                  </button>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* قائمة الزوايا */}
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-900">
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+              <h2 className="heading-2">
                 الزوايا ({filteredAngles.length})
               </h2>
               {searchTerm && (
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted">
                   نتائج البحث عن: "{searchTerm}"
                 </p>
               )}
             </div>
 
             {filteredAngles.length === 0 ? (
-              <Card>
-                <CardContent className="text-center py-12">
-                  <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    لا توجد زوايا
-                  </h3>
-                  <p className="text-gray-500 mb-6">
-                    {searchTerm
-                      ? "لم يتم العثور على زوايا تطابق البحث"
-                      : "ابدأ بإنشاء أول زاوية لك"}
-                  </p>
-                  <Link href="/admin/muqtarab/angles/new">
-                    <Button className="bg-blue-600 hover:bg-blue-700">
-                      <Plus className="w-4 h-4 ml-2" />
-                      إنشاء زاوية جديدة
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
+              <div className="card" style={{ textAlign: 'center', padding: '48px 24px' }}>
+                <BookOpen style={{ width: '48px', height: '48px', color: 'hsl(var(--muted))', margin: '0 auto 16px' }} />
+                <h3 className="heading-3" style={{ marginBottom: '8px' }}>
+                  لا توجد زوايا
+                </h3>
+                <p className="text-muted" style={{ marginBottom: '24px' }}>
+                  {searchTerm
+                    ? "لم يتم العثور على زوايا تطابق البحث"
+                    : "ابدأ بإنشاء أول زاوية لك"}
+                </p>
+                <Link href="/admin/muqtarab/angles/new">
+                  <button className="btn btn-primary">
+                    <Plus style={{ width: '16px', height: '16px', marginLeft: '8px' }} />
+                    إنشاء زاوية جديدة
+                  </button>
+                </Link>
+              </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredAngles.map((angle) => (
@@ -537,35 +617,46 @@ export default function MuqtaribDashboard() {
               </div>
             )}
           </div>
+          </div>
         </div>
       </div>
 
       {/* Modal تأكيد الحذف */}
       <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
-        <DialogContent>
+        <DialogContent style={{
+          background: 'hsl(var(--bg-card))',
+          border: '1px solid hsl(var(--line))',
+          color: 'hsl(var(--fg))'
+        }}>
           <DialogHeader>
-            <DialogTitle className="text-xl text-red-600">
+            <DialogTitle style={{ fontSize: '20px', color: '#ef4444' }}>
               تأكيد حذف الزاوية
             </DialogTitle>
           </DialogHeader>
 
-          <div className="py-4">
-            <p className="text-gray-700 mb-4">
+          <div style={{ padding: '16px 0' }}>
+            <p style={{ color: 'hsl(var(--fg))', marginBottom: '16px' }}>
               هل أنت متأكد من حذف الزاوية{" "}
-              <strong className="text-gray-900">
+              <strong style={{ color: 'hsl(var(--accent))' }}>
                 "{angleToDelete?.title}"
               </strong>
               ؟
             </p>
 
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-              <div className="flex items-start gap-3">
-                <Trash2 className="w-5 h-5 text-red-600 mt-0.5" />
+            <div style={{
+              background: 'hsl(0 60% 95%)',
+              border: '1px solid hsl(0 60% 85%)',
+              borderRadius: '8px',
+              padding: '16px',
+              marginBottom: '16px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                <Trash2 style={{ width: '20px', height: '20px', color: '#dc2626', marginTop: '2px' }} />
                 <div>
-                  <p className="text-red-800 font-medium mb-1">تحذير مهم</p>
-                  <ul className="text-red-700 text-sm space-y-1">
-                    <li>• سيتم حذف الزاوية نهائياً</li>
-                    <li>• سيتم حذف جميع المقالات المرتبطة بها</li>
+                  <p style={{ color: '#7f1d1d', fontWeight: '500', marginBottom: '4px' }}>تحذير مهم</p>
+                  <ul style={{ color: '#991b1b', fontSize: '14px', listStyle: 'none', padding: 0 }}>
+                    <li style={{ marginBottom: '4px' }}>• سيتم حذف الزاوية نهائياً</li>
+                    <li style={{ marginBottom: '4px' }}>• سيتم حذف جميع المقالات المرتبطة بها</li>
                     <li>• لا يمكن التراجع عن هذا الإجراء</li>
                   </ul>
                 </div>
@@ -573,34 +664,35 @@ export default function MuqtaribDashboard() {
             </div>
           </div>
 
-          <DialogFooter className="gap-2">
-            <Button
-              variant="outline"
+          <DialogFooter style={{ gap: '8px' }}>
+            <button
+              className="btn"
               onClick={() => setDeleteModalOpen(false)}
               disabled={deleting}
             >
               إلغاء
-            </Button>
-            <Button
-              variant="destructive"
+            </button>
+            <button
+              className="btn"
               onClick={handleDeleteConfirm}
               disabled={deleting}
+              style={{ background: '#ef4444', color: 'white', borderColor: '#ef4444' }}
             >
               {deleting ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin ml-2" />
+                  <Loader2 style={{ width: '16px', height: '16px', marginLeft: '8px' }} className="animate-spin" />
                   جاري الحذف...
                 </>
               ) : (
                 <>
-                  <Trash2 className="w-4 h-4 ml-2" />
+                  <Trash2 style={{ width: '16px', height: '16px', marginLeft: '8px' }} />
                   حذف نهائي
                 </>
               )}
-            </Button>
+            </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }

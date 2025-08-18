@@ -516,8 +516,8 @@ function NewspaperHomePage({
           "/api/news?status=published&limit=20&sort=published_at&order=desc"
         );
         const json = await res.json();
-        // 💡 API الجديد يرجع { success: true, data: [...] }
-        const list = json.success ? json.data || [] : [];
+        // 💡 قبول كلا الصيغتين: { success, articles: [...] } أو { success, data: [...] }
+        const list = json.success ? (json.articles ?? json.data ?? []) : [];
         // تعيين المقالات للعرض في بلوك "محتوى مخصص لك"
         setArticles(list);
         if (list.length === 0) {

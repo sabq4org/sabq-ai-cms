@@ -171,6 +171,78 @@ function AdminNewsPageContent() {
   const [filterStatus, setFilterStatus] = useState("published");
   const [categories, setCategories] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
+  // تتبع حالة عرض عاجل بشكل تفاؤلي لمنع وميض الحالة عند أي إعادة جلب
+  const [optimisticBreaking, setOptimisticBreaking] = useState<Record<string, boolean>>({});
+  const [updatingBreaking, setUpdatingBreaking] = useState<Record<string, boolean>>({});
+
+  // تخزين مؤقت للحالات التفاؤلية عبر إعادة التركيب/إعادة التحميل القصيرة
+  const PENDING_BREAKING_KEY = 'sabq-admin-pending-breaking';
+  const PENDING_TTL_MS = 15000; // 15 ثانية
+
+  const loadPendingBreaking = () => {
+    try {
+      if (typeof window === 'undefined') return {} as Record<string, boolean>;
+      const raw = sessionStorage.getItem(PENDING_BREAKING_KEY);
+      if (!raw) return {} as Record<string, boolean>;
+      const parsed = JSON.parse(raw) as Record<string, { value: boolean; expires: number }>;
+      const now = Date.now();
+      const result: Record<string, boolean> = {};
+      const cleaned: Record<string, { value: boolean; expires: number }> = {};
+      Object.entries(parsed).forEach(([id, entry]) => {
+        if (entry && typeof entry.expires === 'number' && entry.expires > now) {
+          result[id] = entry.value;
+          cleaned[id] = entry;
+        }
+      });
+      // تنظيف المنتهية
+      sessionStorage.setItem(PENDING_BREAKING_KEY, JSON.stringify(cleaned));
+      return result;
+    } catch {
+      return {} as Record<string, boolean>;
+    }
+  };
+
+  const savePendingBreaking = (map: Record<string, boolean>) => {
+    try {
+      if (typeof window === 'undefined') return;
+      const now = Date.now();
+      const store: Record<string, { value: boolean; expires: number }> = {};
+      Object.entries(map).forEach(([id, value]) => {
+        store[id] = { value, expires: now + PENDING_TTL_MS };
+      });
+      sessionStorage.setItem(PENDING_BREAKING_KEY, JSON.stringify(store));
+    } catch {}
+  };
+
+  const upsertPendingBreaking = (id: string, value: boolean) => {
+    try {
+      if (typeof window === 'undefined') return;
+      const raw = sessionStorage.getItem(PENDING_BREAKING_KEY);
+      const now = Date.now();
+      const data: Record<string, { value: boolean; expires: number }> = raw ? JSON.parse(raw) : {};
+      data[id] = { value, expires: now + PENDING_TTL_MS };
+      sessionStorage.setItem(PENDING_BREAKING_KEY, JSON.stringify(data));
+    } catch {}
+  };
+
+  const removePendingBreaking = (id: string) => {
+    try {
+      if (typeof window === 'undefined') return;
+      const raw = sessionStorage.getItem(PENDING_BREAKING_KEY);
+      if (!raw) return;
+      const data: Record<string, { value: boolean; expires: number }> = JSON.parse(raw);
+      delete data[id];
+      sessionStorage.setItem(PENDING_BREAKING_KEY, JSON.stringify(data));
+    } catch {}
+  };
+
+  // استرجاع الحالات التفاؤلية من التخزين المؤقت عند التحميل
+  useEffect(() => {
+    const pending = loadPendingBreaking();
+    if (Object.keys(pending).length > 0) {
+      setOptimisticBreaking((prev) => ({ ...pending, ...prev }));
+    }
+  }, []);
 
   // إحصائيات
   const [stats, setStats] = useState({
@@ -282,6 +354,8 @@ function AdminNewsPageContent() {
               ...article,
               published_at: article.published_at || article.created_at,
               status: article.status || "draft",
+              // توحيد حقل العاجل: API العام يعيد is_breaking بينما الواجهة تستخدم breaking
+              breaking: (article as any).breaking ?? (article as any).is_breaking ?? false,
             };
 
             // معالجة بيانات التصنيف بطريقة أكثر متانة
@@ -601,6 +675,30 @@ function AdminNewsPageContent() {
     articleId: string,
     currentStatus: boolean
   ) => {
+    // منع النقر المزدوج أثناء التحديث
+    if (updatingBreaking[articleId]) {
+      return;
+    }
+
+    // تعيين حالة تفاؤلية مستقرة لواجهة المستخدم تمنع فقدان الحالة المرئية
+    setOptimisticBreaking((prev) => {
+      const next = { ...prev, [articleId]: !currentStatus };
+      // حفظ في التخزين المؤقت لضمان الاستقرار عند أي إعادة تركيب عابرة
+      savePendingBreaking(next);
+      upsertPendingBreaking(articleId, !currentStatus);
+      return next;
+    });
+    setUpdatingBreaking((prev) => ({ ...prev, [articleId]: true }));
+
+    // تحديث فوري للواجهة (optimistic update)
+    setArticles(prevArticles => 
+      prevArticles.map(article => 
+        article.id === articleId 
+          ? { ...article, breaking: !currentStatus }
+          : article
+      )
+    );
+
     try {
       const response = await fetch("/api/admin/toggle-breaking", {
         method: "POST",
@@ -612,6 +710,28 @@ function AdminNewsPageContent() {
       });
 
       if (response.ok) {
+        const result = await response.json();
+        
+        // تحديث البيانات بالمعلومات الفعلية من الخادم
+        if (result.success && result.article) {
+          const confirmed = Boolean(result.article.breaking);
+          setOptimisticBreaking((prev) => {
+            const next = { ...prev, [articleId]: confirmed };
+            savePendingBreaking(next);
+            return next;
+          });
+          removePendingBreaking(articleId);
+          setArticles(prevArticles => 
+            prevArticles.map(article => 
+              article.id === articleId 
+                ? { ...article, breaking: confirmed }
+                : confirmed
+                  ? { ...article, breaking: false } // ضمان مزامنة الواجهة مع منطق الخادم (خبر عاجل واحد فقط)
+                  : article
+            )
+          );
+        }
+        
         toast.success(
           !currentStatus
             ? "🚨 تم تفعيل الخبر العاجل!\n✅ المقال أصبح خبراً عاجلاً ويظهر بأولوية عالية"
@@ -626,9 +746,36 @@ function AdminNewsPageContent() {
             },
           }
         );
-        fetchArticles();
         calculateStatsFromAll(); // تحديث الإحصائيات بعد تغيير حالة العاجل
+        setUpdatingBreaking((prev) => {
+          const copy = { ...prev };
+          delete copy[articleId];
+          return copy;
+        });
       } else {
+        // استرجاع الحالة السابقة في حالة الفشل
+        setArticles(prevArticles => 
+          prevArticles.map(article => 
+            article.id === articleId 
+              ? { ...article, breaking: currentStatus }
+              : article
+          )
+        );
+        setOptimisticBreaking((prev) => {
+          const next = { ...prev, [articleId]: currentStatus };
+          savePendingBreaking(next);
+          return next;
+        });
+        removePendingBreaking(articleId);
+        setUpdatingBreaking((prev) => {
+          const copy = { ...prev };
+          delete copy[articleId];
+          return copy;
+        });
+        
+        const errorData = await response.json().catch(() => ({}));
+        console.error("فشل في تحديث حالة العاجل:", errorData);
+        
         toast.error("🔧 خطأ في تحديث الحالة\n❌ فشل في تحديث حالة الخبر العاجل، يرجى المحاولة مرة أخرى", {
           duration: 8000,
           style: {
@@ -640,6 +787,25 @@ function AdminNewsPageContent() {
         });
       }
     } catch (error) {
+      // استرجاع الحالة السابقة في حالة الخطأ
+      setArticles(prevArticles => 
+        prevArticles.map(article => 
+          article.id === articleId 
+            ? { ...article, breaking: currentStatus }
+            : article
+        )
+      );
+      setOptimisticBreaking((prev) => {
+        const next = { ...prev, [articleId]: currentStatus };
+        savePendingBreaking(next);
+        return next;
+      });
+      removePendingBreaking(articleId);
+      setUpdatingBreaking((prev) => {
+        const copy = { ...prev };
+        delete copy[articleId];
+        return copy;
+      });
       console.error("خطأ في تبديل الخبر العاجل:", error);
       toast.error("🔧 خطأ في النظام\n❌ حدث خطأ تقني في تحديث حالة الخبر العاجل", {
         duration: 8000,
@@ -1312,7 +1478,19 @@ function AdminNewsPageContent() {
                           ? "❌ الأخبار المحذوفة"
                           : `📝 ${filterStatus}`}
                       </Badge>
-                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                      <span className={`text-sm font-medium ${
+                        filterStatus === "published"
+                          ? "text-green-600 dark:text-green-400"
+                          : filterStatus === "draft"
+                          ? "text-yellow-600 dark:text-yellow-400"
+                          : filterStatus === "archived"
+                          ? "text-orange-600 dark:text-orange-400"
+                          : filterStatus === "scheduled"
+                          ? "text-blue-600 dark:text-blue-400"
+                          : filterStatus === "deleted"
+                          ? "text-red-600 dark:text-red-400"
+                          : "text-gray-500 dark:text-gray-400"
+                      }`}>
                         ({filteredArticles.length} خبر)
                       </span>
                     </>
@@ -1433,17 +1611,19 @@ function AdminNewsPageContent() {
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <div className="inline-flex">
-                                    {/* مفتاح تبديل بنمط iOS */}
+                                    {/* مفتاح تبديل بنمط iOS - مصغر */}
                                     <div
                                       onClick={() => toggleBreakingNews(article.id, article.breaking || false)}
                                       style={{
                                         position: 'relative',
-                                        width: '51px',
-                                        height: '31px',
-                                        background: article.breaking ? '#007AFF' : '#E5E5EA',
-                                        borderRadius: '15.5px',
+                                        width: '38px',  // أصغر من 51px
+                                        height: '22px', // أصغر من 31px
+                                        // استخدم الحالة التفاؤلية إن وجدت لمنع الوميض عند إعادة الجلب
+                                        background: (optimisticBreaking[article.id] ?? article.breaking) ? '#EF4444' : '#E5E5EA',
+                                        borderRadius: '11px', // نصف الارتفاع
                                         cursor: 'pointer',
-                                        transition: 'background 0.3s ease',
+                                        transition: 'background 0.3s ease, opacity 0.2s ease',
+                                        opacity: updatingBreaking[article.id] ? 0.8 : 1,
                                         display: 'inline-block'
                                       }}
                                     >
@@ -1451,12 +1631,12 @@ function AdminNewsPageContent() {
                                         style={{
                                           position: 'absolute',
                                           top: '2px',
-                                          left: article.breaking ? '22px' : '2px',
-                                          width: '27px',
-                                          height: '27px',
+                                          left: (optimisticBreaking[article.id] ?? article.breaking) ? '18px' : '2px',
+                                          width: '18px',  // أصغر من 27px
+                                          height: '18px', // أصغر من 27px
                                           background: 'white',
                                           borderRadius: '50%',
-                                          boxShadow: '0 3px 8px 0 rgba(0, 0, 0, 0.15), 0 3px 1px 0 rgba(0, 0, 0, 0.06)',
+                                          boxShadow: '0 2px 4px 0 rgba(0, 0, 0, 0.15), 0 2px 1px 0 rgba(0, 0, 0, 0.06)', // ظل أقل
                                           transition: 'left 0.3s ease'
                                         }}
                                       />
@@ -1465,7 +1645,7 @@ function AdminNewsPageContent() {
                                 </TooltipTrigger>
                                 <TooltipContent>
                                   <p>
-                                    {article.breaking
+                                    {(optimisticBreaking[article.id] ?? article.breaking)
                                       ? "إلغاء العاجل"
                                       : "تفعيل كعاجل"}
                                   </p>
