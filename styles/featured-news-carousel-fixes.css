@@ -75,7 +75,8 @@
 }
 
 /* تأكيد وضوح عناصر التفاعل */
-.featured-carousel button {
+/* لا تفرض تلوين عام لكل الأزرار داخل الكاروسيل حتى لا تؤثر على أزرار المصغرات */
+.featured-carousel .nav-button {
   opacity: 1;
   background-color: rgba(0, 0, 0, 0.5);
   color: white;

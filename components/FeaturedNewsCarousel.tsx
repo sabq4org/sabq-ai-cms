@@ -233,16 +233,9 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
           </div>
         </div>
       </Link>
-      {/* مؤشرات و أزرار التنقل - موحدة لجميع الشاشات */}
+      {/* مؤشرات الكاروسيل (صور فقط بدون أزرار يمين/يسار) */}
       <div className="flex mt-4 justify-center items-center px-4" aria-label="مؤشرات الكاروسيل">
         <div className="flex items-center gap-3">
-          <button 
-            onClick={(e) => { e.preventDefault(); handlePrevious(); }} 
-            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-300 shadow-sm" 
-            aria-label="الخبر السابق"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
           <div className="flex justify-center items-center gap-3 px-2">
             {articles.map((article, idx) => (
               <button
@@ -255,7 +248,6 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                 }`}
                 aria-label={`الانتقال إلى الخبر ${idx + 1}: ${article.title}`}
                 aria-current={idx === currentIndex}
-                title={article.title}
               >
                 {article.featured_image ? (
                   <img
@@ -271,11 +263,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                   />
                 ) : null}
                 {/* Fallback للصور المفقودة */}
-                <div className={`${article.featured_image ? 'hidden' : 'flex'} w-full h-full items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800`}>
-                  <span className="text-xs font-bold text-blue-600 dark:text-blue-300">
-                    {article.title.split(' ').slice(0, 2).join(' ')}
-                  </span>
-                </div>
+                <div className={`${article.featured_image ? 'hidden' : 'block'} w-full h-full bg-gray-200 dark:bg-gray-700`}></div>
                 {/* تدرج لوني ناعم */}
                 <div className={`absolute inset-0 transition-opacity duration-300 ${
                   idx === currentIndex 
@@ -289,13 +277,6 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
               </button>
             ))}
           </div>
-          <button 
-            onClick={(e) => { e.preventDefault(); handleNext(); }} 
-            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-300 shadow-sm" 
-            aria-label="الخبر التالي"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
         </div>
       </div>
     </div>
