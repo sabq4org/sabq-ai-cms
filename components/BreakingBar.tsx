@@ -109,22 +109,24 @@ export default function BreakingBar() {
       aria-live="polite"
       style={{
         position: 'sticky',
-        top: 'var(--header-height, 64px)', // يبدأ بعد الهيدر الرئيسي
+        top: 'var(--header-height, var(--mobile-header-height, 56px))', // متكيف للموبايل
         zIndex: 39, // أقل من الهيدر الرئيسي
-        background: 'linear-gradient(90deg, rgba(239,68,68,0.06), transparent)',
-        borderBottom: '1px solid rgba(239,68,68,0.25)',
-        backdropFilter: 'blur(6px)',
-        marginBottom: '0', // إزالة أي margin سفلي
+        background: 'linear-gradient(90deg, rgba(239,68,68,0.08), rgba(239,68,68,0.04))',
+        borderBottom: '1px solid rgba(239,68,68,0.3)',
+        backdropFilter: 'blur(8px)',
+        marginBottom: '0',
       }}
+      className="breaking-bar-container"
     >
       <div
         style={{
           maxWidth: '1200px',
           margin: '0 auto',
-          padding: '8px 16px',
+          padding: '6px 12px', // تقليل padding للموبايل
           display: 'flex',
           alignItems: 'center',
-          gap: '12px',
+          gap: '8px', // تقليل gap للموبايل
+          minHeight: '40px', // حد أدنى للارتفاع
         }}
       >
         {/* شارة عاجل */}
@@ -152,36 +154,48 @@ export default function BreakingBar() {
           />
         </div>
 
-        {/* العنوان المختصر */}
-        <div style={{
-          flex: 1,
-          minWidth: 0,
-          color: 'hsl(var(--fg, 220 13% 7%))',
-          fontWeight: 600,
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-        }}>
+        {/* العنوان المختصر - محسن للموبايل */}
+        <div 
+          className="breaking-title"
+          style={{
+            flex: 1,
+            minWidth: 0,
+            color: 'hsl(var(--fg, 220 13% 7%))',
+            fontWeight: 600,
+            fontSize: '14px',
+            lineHeight: 1.3,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
           {first.title}
         </div>
 
-        {/* منذ */}
-        <div style={{
-          fontSize: 12,
-          color: 'hsl(var(--muted, 220 9% 46%))',
-          whiteSpace: 'nowrap',
-        }}>
+        {/* منذ - responsive */}
+        <div 
+          className="breaking-time"
+          style={{
+            fontSize: '12px',
+            color: 'hsl(var(--muted, 220 9% 46%))',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+          }}
+        >
           {getTimeAgoString(first.published_at)}
         </div>
 
-        {/* زر التفاصيل */}
+        {/* زر التفاصيل - محسن للموبايل */}
         <Link
           href={href}
-          className="btn btn-sm"
+          className="btn btn-sm breaking-details-btn"
           style={{
             background: '#ef4444',
             color: 'white',
             borderColor: 'rgba(239,68,68,0.9)',
+            padding: '4px 8px',
+            fontSize: '12px',
+            flexShrink: 0,
           }}
         >
           التفاصيل
@@ -191,7 +205,7 @@ export default function BreakingBar() {
         <button
           type="button"
           aria-label="إخفاء الشريط"
-          className="btn btn-sm"
+          className="btn btn-sm breaking-close-btn"
           onClick={() => {
             try {
               if (typeof window !== 'undefined') {
@@ -205,12 +219,94 @@ export default function BreakingBar() {
             background: 'transparent',
             border: '1px solid hsl(var(--line, 220 14% 88%))',
             color: 'hsl(var(--muted, 220 9% 46%))',
-            padding: '6px 10px',
+            padding: '4px 8px',
+            fontSize: '12px',
+            flexShrink: 0,
           }}
         >
-          إغلاق
+          ✕
         </button>
       </div>
+      
+      {/* CSS محسن للموبايل */}
+      <style jsx>{`
+        .breaking-bar-container {
+          transition: all 0.3s ease;
+        }
+        
+        /* تحسينات للموبايل */
+        @media (max-width: 768px) {
+          .breaking-bar-container {
+            position: sticky !important;
+            top: var(--mobile-header-height, 56px) !important;
+          }
+          
+          .breaking-title {
+            font-size: 13px !important;
+            display: -webkit-box !important;
+            -webkit-line-clamp: 2 !important;
+            -webkit-box-orient: vertical !important;
+            white-space: normal !important;
+            line-height: 1.2 !important;
+          }
+          
+          .breaking-time {
+            font-size: 10px !important;
+          }
+        }
+        
+        /* تحسينات للشاشات الصغيرة جداً */
+        @media (max-width: 480px) {
+          .breaking-bar-container > div {
+            padding: 4px 8px !important;
+            gap: 6px !important;
+          }
+          
+          .breaking-title {
+            font-size: 12px !important;
+            -webkit-line-clamp: 1 !important;
+          }
+          
+          .breaking-time {
+            display: none !important; /* إخفاء الوقت في الشاشات الصغيرة */
+          }
+        }
+        
+        /* تحسينات للشاشات الصغيرة جداً */
+        @media (max-width: 360px) {
+          .breaking-bar-container > div {
+            padding: 3px 6px !important;
+            gap: 4px !important;
+          }
+          
+          .breaking-title {
+            font-size: 11px !important;
+          }
+          
+          .breaking-details-btn,
+          .breaking-close-btn {
+            padding: 3px 6px !important;
+            font-size: 10px !important;
+          }
+          
+          .breaking-close-btn {
+            width: 24px !important;
+            height: 24px !important;
+            padding: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+          }
+        }
+        
+        /* تحسين الشارة للموبايل */
+        @media (max-width: 480px) {
+          .chip {
+            font-size: 10px !important;
+            padding: 2px 6px !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
