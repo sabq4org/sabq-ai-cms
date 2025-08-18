@@ -495,30 +495,81 @@ export default function ManusNewsCreatePage() {
             seo: false,
           });
         }, 5000);
-      } else {
-        // Fallback محلي إذا فشلت APIs
-        console.log("🔄 تطبيق Fallback محلي...");
+            } else {
+        // Fallback محلي ذكي إذا فشلت جميع APIs
+        console.log("🔄 تطبيق Fallback محلي ذكي...");
         
-        const localTitle = cleanText.split(/[.!؟\n]/)[0]?.trim().substring(0, 80) || "عنوان مولد محلياً";
-        const localExcerpt = cleanText.substring(0, 140) + (cleanText.length > 140 ? '...' : '');
+        // توليد عنوان ذكي محلياً
+        const sentences = cleanText.split(/[.!؟\n]+/).filter(s => s.trim().length > 20);
+        let localTitle = "";
         
-        // استخراج كلمات مفتاحية محلياً
+        if (sentences.length > 0) {
+          // أخذ أول جملة مفيدة وتحسينها
+          const firstSentence = sentences[0].trim();
+          // إزالة كلمات الربط من البداية
+          localTitle = firstSentence
+            .replace(/^(في|من|على|إلى|مع|عن|حول|ضد|بعد|قبل|أثناء|خلال)\s+/i, '')
+            .substring(0, 70);
+          
+          // إضافة كلمات قوية إذا لم تكن موجودة
+          if (!localTitle.includes('يكشف') && !localTitle.includes('يؤكد') && !localTitle.includes('يعلن')) {
+            localTitle = `تقرير: ${localTitle}`;
+          }
+        } else {
+          localTitle = "تقرير إخباري جديد";
+        }
+
+        // توليد موجز ذكي محلياً
+        const paragraphs = cleanText.split(/\n+/).filter(p => p.trim().length > 30);
+        let localExcerpt = "";
+        
+        if (paragraphs.length > 0) {
+          // أخذ أفضل فقرة للموجز
+          const bestParagraph = paragraphs[0].trim();
+          localExcerpt = bestParagraph.substring(0, 130);
+          
+          // إضافة نقاط أساسية من باقي الفقرات
+          if (paragraphs.length > 1) {
+            const keyPoints = paragraphs.slice(1, 3).map(p => {
+              const words = p.trim().split(' ');
+              return words.slice(0, 8).join(' ');
+            }).join(', ');
+            
+            if (localExcerpt.length + keyPoints.length < 150) {
+              localExcerpt += `, ${keyPoints}`;
+            }
+          }
+          
+          localExcerpt += '...';
+        } else {
+          localExcerpt = cleanText.substring(0, 130) + '...';
+        }
+
+        // استخراج كلمات مفتاحية ذكية محلياً
         const words = cleanText
           .replace(/[^\u0600-\u06FF\s]/g, ' ')
           .split(/\s+/)
-          .filter((w) => w.length > 3);
+          .filter((w) => w.length > 3)
+          .filter((w) => !['الذي', 'التي', 'التي', 'الذين', 'اللذان', 'اللتان', 'بحيث', 'حتى', 'كيف', 'متى', 'أين'].includes(w));
+        
         const freq: Record<string, number> = {};
         words.forEach(w => freq[w] = (freq[w] || 0) + 1);
+        
         const localKeywords = Object.entries(freq)
           .sort(([,a], [,b]) => b - a)
-          .slice(0, 6)
-          .map(([word]) => word);
+          .slice(0, 8)
+          .map(([word]) => word)
+          .filter(word => word.length > 2);
 
-          setFormData((prev) => ({
-            ...prev,
+        // توليد عنوان فرعي من المحتوى
+        const secondSentence = sentences[1]?.trim().substring(0, 45) || "";
+        const localSubtitle = secondSentence ? `${secondSentence}...` : `تفاصيل حول ${localTitle.substring(0, 30)}...`;
+
+        setFormData((prev) => ({
+          ...prev,
           title: localTitle,
           excerpt: localExcerpt,
-          subtitle: `${localTitle.substring(0, 50)}...`,
+          subtitle: localSubtitle,
           keywords: [...new Set([...prev.keywords, ...localKeywords])],
           seoTitle: localTitle,
           seoDescription: localExcerpt,
@@ -531,7 +582,10 @@ export default function ManusNewsCreatePage() {
           seo: true,
         });
 
-        toast.success("✨ تم التوليد محلياً بنجاح!\n📝 العنوان والموجز والكلمات المفتاحية", { duration: 4000 });
+        toast.success(
+          "✨ تم التوليد المحلي الذكي بنجاح!\n📝 العنوان الرئيسي\n📄 الموجز\n🏷️ الكلمات المفتاحية\n📋 العنوان الفرعي\n🔍 عناصر SEO", 
+          { duration: 6000 }
+        );
         
         setTimeout(() => {
           setRecentlyGenerated({
