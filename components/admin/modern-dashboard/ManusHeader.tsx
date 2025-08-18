@@ -135,21 +135,34 @@ export default function ManusHeader({ onMenuClick, showMenuButton = false }: Man
                 س
               </div>
               <div>
-                <h1 style={{ 
-                  margin: 0, 
-                  fontSize: '18px', 
-                  fontWeight: '600',
-                  color: 'hsl(var(--fg))'
-                }}>
-                  سبق الذكية
-                </h1>
-                <p style={{ 
-                  margin: 0, 
-                  fontSize: '12px', 
-                  color: 'hsl(var(--muted))'
-                }}>
-                  لوحة التحكم الإدارية
-                </p>
+                {isMobile ? (
+                  <span style={{ 
+                    fontSize: '20px', 
+                    fontWeight: '700',
+                    color: 'hsl(var(--accent))',
+                    letterSpacing: '-0.5px'
+                  }}>
+                    سبق
+                  </span>
+                ) : (
+                  <>
+                    <h1 style={{ 
+                      margin: 0, 
+                      fontSize: '18px', 
+                      fontWeight: '600',
+                      color: 'hsl(var(--fg))'
+                    }}>
+                      سبق الذكية
+                    </h1>
+                    <p style={{ 
+                      margin: 0, 
+                      fontSize: '12px', 
+                      color: 'hsl(var(--muted))'
+                    }}>
+                      لوحة التحكم الإدارية
+                    </p>
+                  </>
+                )}
               </div>
             </Link>
           </div>
@@ -177,9 +190,25 @@ export default function ManusHeader({ onMenuClick, showMenuButton = false }: Man
           </nav>
 
           {/* الجانب الأيسر - الأدوات والمستخدم */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '8px' : '12px' }}>
+            {/* زر القائمة للموبايل */}
+            {showMenuButton && (
+              <button 
+                onClick={onMenuClick}
+                className="btn btn-sm"
+                style={{ 
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '8px',
+                  width: '36px',
+                  height: '36px'
+                }}
+              >
+                <Menu style={{ width: '20px', height: '20px' }} />
+              </button>
+            )}
             
-
             
             {/* شريط البحث */}
             <div style={{ position: 'relative' }}>
