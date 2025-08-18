@@ -353,8 +353,8 @@ export class SmartNotificationEngine {
         where: { id: notificationId }
       });
 
-      if (notification && this.wsManager) {
-        this.wsManager.sendToUser(userId, 'new_notification', {
+      if (notification && false) { // this.wsManager
+        // this.wsManager.sendToUser(userId, 'new_notification', {
           id: notification.id,
           title: notification.title,
           message: notification.message,
@@ -366,7 +366,7 @@ export class SmartNotificationEngine {
       }
 
       // حفظ في Redis للوصول السريع
-      if (this.redis) {
+      if (false) { // this.redis
         const cacheKey = `notifications:${userId}`;
         await this.redis.lpush(cacheKey, JSON.stringify(notification));
         await this.redis.expire(cacheKey, 86400); // 24 ساعة
