@@ -138,6 +138,12 @@ export default function AdminMobileLayout({ children }: { children: React.ReactN
     <>
       <link rel="stylesheet" href="/manus-ui.css" />
       
+      {/* Meta tags للموبايل */}
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+      <meta name="theme-color" content="hsl(var(--bg))" />
+      <meta name="apple-mobile-web-app-capable" content="yes" />
+      <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+      
       <div className="admin-mobile-container" style={{ minHeight: "100vh", background: "hsl(var(--bg))" }}>
         {/* الهيدر الثابت */}
         <header className="admin-header">

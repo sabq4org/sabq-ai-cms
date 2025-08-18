@@ -75,9 +75,16 @@
 }
 
 /* الجسم الأساسي - موبايل */
+html {
+  height: 100%;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
   padding: 0;
+  height: 100%;
   font-size: var(--font-base);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -91,6 +98,7 @@ html,
 body {
   overflow-x: hidden;
   width: 100%;
+  max-width: 100%;
 }
 
 /* ====================================
@@ -739,4 +747,48 @@ body {
 
 .safe-area-right {
   padding-right: env(safe-area-inset-right, 0);
+}
+
+/* ====================================
+   إصلاحات Safari و Safe Area
+   Safari & Safe Area Fixes
+   ==================================== */
+
+/* إصلاح مشاكل Safari على iOS */
+@supports (-webkit-touch-callout: none) {
+  /* iOS-specific styles */
+  .mobile-news-page,
+  .admin-mobile-container {
+    min-height: -webkit-fill-available;
+  }
+  
+  /* منع التكبير على iOS */
+  input[type="text"],
+  input[type="search"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="number"],
+  input[type="password"],
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* إصلاح مشاكل الـ safe area */
+@supports (padding: max(0px)) {
+  .mobile-news-page,
+  .admin-mobile-container {
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+  }
+  
+  .search-filter-bar,
+  .admin-header {
+    padding-top: max(12px, env(safe-area-inset-top));
+  }
+  
+  .news-list-container,
+  .bottom-navigation {
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+  }
 }
