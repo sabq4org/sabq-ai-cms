@@ -290,8 +290,6 @@ export default function RootLayout({
         {/* Development Authentication Injection - حقن التوثيق للتطوير */}
         <script src="/dev-auth-inject.js" defer></script>
         
-        {/* Clean Colors for Official Interface - الألوان النظيفة للواجهة الرسمية */}
-        <link rel="stylesheet" href="/official-clean-colors.css" />
 
       </head>
       <body
