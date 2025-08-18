@@ -1,6 +1,7 @@
 "use client";
 
 import FeaturedImageUpload from "@/components/FeaturedImageUpload";
+import { MediaPickerModal } from "@/components/admin/media/MediaPickerModal";
 import {
   Calendar,
   CheckCircle,
@@ -54,6 +55,7 @@ export default function ManusNewsCreatePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const editorRef = useRef<any>(null);
+  const [openMediaPicker, setOpenMediaPicker] = useState(false);
 
   // الحصول على معرف المقال من URL
   const articleId = searchParams.get("id");
@@ -1727,6 +1729,21 @@ export default function ManusNewsCreatePage() {
                 onChange={(url) => setFormData((prev) => ({ ...prev, featuredImage: url }))}
                 darkMode={false}
               />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px' }}>
+                <button
+                  type="button"
+                  className="btn btn-sm"
+                  onClick={() => setOpenMediaPicker(true)}
+                  style={{
+                    background: 'hsl(var(--bg-card))',
+                    border: '1px solid hsl(var(--line))',
+                  }}
+                >
+                  <ImageIcon className="w-4 h-4" />
+                  اختيار من مكتبة الصور
+                </button>
+                <span className="text-muted" style={{ fontSize: '12px' }}>أو ارفع صورة جديدة من الأعلى</span>
+              </div>
             </div>
 
           {/* الكلمات المفتاحية */}
@@ -1892,6 +1909,20 @@ export default function ManusNewsCreatePage() {
             border: '1px solid hsl(var(--line))'
           },
         }}
+      />
+      <MediaPickerModal
+        open={openMediaPicker}
+        onClose={() => setOpenMediaPicker(false)}
+        onSelect={(asset: any) => {
+          setFormData((prev) => ({
+            ...prev,
+            featuredImage: asset.cloudinaryUrl,
+            featuredImageCaption: asset.altText || (asset.metadata?.altText || prev.featuredImageCaption),
+          }));
+          setOpenMediaPicker(false);
+        }}
+        title="اختر صورة من مكتبة الوسائط"
+        acceptedTypes={["image/"]}
       />
     </>
   );
