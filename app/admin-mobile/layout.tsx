@@ -35,13 +35,21 @@ export default function AdminMobileLayout({ children }: { children: React.ReactN
 
   // تحميل CSS الخاص بالموبايل
   useEffect(() => {
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = '/admin-mobile-first.css';
-    document.head.appendChild(link);
+    // تحميل CSS الأساسي
+    const link1 = document.createElement('link');
+    link1.rel = 'stylesheet';
+    link1.href = '/admin-mobile-first.css';
+    document.head.appendChild(link1);
+    
+    // تحميل CSS الإصلاحات
+    const link2 = document.createElement('link');
+    link2.rel = 'stylesheet';
+    link2.href = '/styles/admin-mobile-news-fix.css';
+    document.head.appendChild(link2);
     
     return () => {
-      document.head.removeChild(link);
+      document.head.removeChild(link1);
+      document.head.removeChild(link2);
     };
   }, []);
 

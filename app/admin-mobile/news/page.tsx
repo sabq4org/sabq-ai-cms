@@ -161,7 +161,11 @@ export default function AdminMobileNewsPage() {
   };
 
   return (
-    <div className="mobile-news-page" dir="rtl">
+    <div className="mobile-news-page" dir="rtl" style={{
+      width: "100%",
+      minHeight: "100vh",
+      position: "relative"
+    }}>
       {/* شريط البحث والفلتر */}
       <div style={{
         position: "sticky",
