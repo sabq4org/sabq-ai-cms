@@ -24,6 +24,10 @@
     display: flex !important;
     padding: 0 8px;
   }
+  
+  .theme-colors-scroll::-webkit-scrollbar {
+    display: none;
+  }
 
   /* الشعار أصغر */
   .manus-header .logo {

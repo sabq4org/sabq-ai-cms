@@ -1553,8 +1553,8 @@ function AdminNewsPageContent() {
                       <MobileNewsCard
                         key={article.id}
                         article={article}
-                        onToggleBreaking={handleToggleBreaking}
-                        onDelete={handleDelete}
+                        onToggleBreaking={toggleBreakingNews}
+                        onDelete={deleteArticle}
                       />
                     ))}
                   </div>

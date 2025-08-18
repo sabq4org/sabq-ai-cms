@@ -242,16 +242,7 @@ export default function ManusHeader({ onMenuClick, showMenuButton = false }: Man
                 maxWidth: '250px'
               }}
             >
-              <style jsx>{`
-                .theme-colors-scroll::-webkit-scrollbar {
-                  display: none;
-                }
-                @media (max-width: 768px) {
-                  .theme-colors-scroll {
-                    display: flex !important;
-                  }
-                }
-              `}</style>
+
               {visibleThemeKeys.map((key) => {
                 const theme = themes[key];
                 const isActive = currentTheme === key;

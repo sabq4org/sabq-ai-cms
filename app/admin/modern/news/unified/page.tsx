@@ -25,7 +25,8 @@ import {
   Globe,
   Sparkles,
   Loader2,
-  Calendar
+  Calendar,
+  Folder
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 
