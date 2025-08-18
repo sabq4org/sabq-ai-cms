@@ -983,23 +983,29 @@ function AdminNewsPageContent() {
               </div>
               <div className="flex gap-3">
                 <Link href="/admin/news/smart-editor">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border-blue-200 text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-300 dark:hover:bg-blue-900/20"
+                  <button
+                    className="btn"
+                    style={{
+                      background: 'hsl(var(--bg-card))',
+                      border: '1px solid hsl(var(--line))',
+                      color: 'hsl(var(--fg))'
+                    }}
                   >
                     <Sparkles className="w-4 h-4 ml-2" />
                     المحرر الذكي
-                  </Button>
+                  </button>
                 </Link>
                 <Link href="/admin/news/unified">
-                  <Button
-                    className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600"
-                    size="sm"
+                  <button
+                    className="btn btn-primary"
+                    style={{
+                      background: 'hsl(var(--accent))',
+                      color: 'white'
+                    }}
                   >
                     <Plus className="w-4 h-4 ml-2" />
                     خبر جديد
-                  </Button>
+                  </button>
                 </Link>
               </div>
             </div>
@@ -1011,16 +1017,16 @@ function AdminNewsPageContent() {
               title="إحصائيات الأخبار"
               description="نظرة عامة على حالة المحتوى الإخباري"
               action={
-                <DesignComponents.ActionBar>
-                  <Button variant="outline" size="sm">
+                <div className="flex gap-2">
+                  <button className="btn btn-sm" style={{ border: '1px solid hsl(var(--line))' }}>
                     <Filter className="w-4 h-4 ml-2" />
                     تصفية
-                  </Button>
-                  <Button size="sm">
+                  </button>
+                  <button className="btn btn-sm btn-primary">
                     <Download className="w-4 h-4 ml-2" />
                     تصدير
-                  </Button>
-                </DesignComponents.ActionBar>
+                  </button>
+                </div>
               }
             />
 
@@ -1347,10 +1353,10 @@ function AdminNewsPageContent() {
                         : "لا توجد أخبار في هذا القسم"}
                     </p>
                     <Link href="/admin/news/unified">
-                      <Button className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600">
+                      <button className="btn btn-primary">
                         <Plus className="w-4 h-4 ml-2" />
                         إنشاء خبر جديد
-                      </Button>
+                      </button>
                     </Link>
                   </div>
                 </div>
@@ -1468,19 +1474,21 @@ function AdminNewsPageContent() {
                             </TableCell>
 
                             <TableCell className="py-1 text-center">
-                              <Badge
-                                variant="outline"
-                                className={`text-xs ${
-                                  article.status === "published"
-                                    ? "bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700"
+                              <div
+                                className="chip"
+                                style={{
+                                  background: article.status === "published" 
+                                    ? 'hsl(var(--accent) / 0.1)' 
                                     : article.status === "draft"
-                                    ? "bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300 border-yellow-300 dark:border-yellow-700"
-                                    : article.status === "archived"
-                                    ? "bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 border-orange-300 dark:border-orange-700"
-                                    : article.status === "deleted"
-                                    ? "bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-red-300 dark:border-red-700"
-                                    : "bg-gray-50 dark:bg-gray-900/20 text-muted border-gray-300 dark:border-gray-700"
-                                }`}
+                                    ? 'hsl(var(--muted) / 0.2)'
+                                    : 'hsl(var(--line) / 0.3)',
+                                  color: article.status === "published"
+                                    ? 'hsl(var(--accent))'
+                                    : 'hsl(var(--fg))',
+                                  border: `1px solid ${article.status === "published" 
+                                    ? 'hsl(var(--accent) / 0.2)' 
+                                    : 'hsl(var(--line))'}`
+                                }}
                               >
                                 {article.status === "published" && "✅ منشورة"}
                                 {article.status === "draft" && "✏️ مسودة"}
@@ -1488,16 +1496,20 @@ function AdminNewsPageContent() {
                                 {!["published", "draft", "archived"].includes(
                                   article.status
                                 ) && `📝 ${article.status}`}
-                              </Badge>
+                              </div>
                             </TableCell>
 
                             <TableCell className="py-1 text-center">
-                              <Badge
-                                variant="outline"
-                                className="text-xs border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30"
+                              <div
+                                className="chip"
+                                style={{
+                                  background: 'hsl(var(--accent) / 0.05)',
+                                  color: 'hsl(var(--accent))',
+                                  border: '1px solid hsl(var(--accent) / 0.15)'
+                                }}
                               >
                                 {getCategoryName(article)}
-                              </Badge>
+                              </div>
                             </TableCell>
 
                             <TableCell className="py-1 text-center">
@@ -1523,18 +1535,27 @@ function AdminNewsPageContent() {
                             <TableCell className="py-1">
                               <DropdownMenu modal={false}>
                                 <DropdownMenuTrigger asChild>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="h-7 px-2 text-xs bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                  <button
+                                    className="btn btn-sm"
+                                    style={{
+                                      background: 'hsl(var(--bg-card))',
+                                      border: '1px solid hsl(var(--line))',
+                                      padding: '4px 12px'
+                                    }}
                                   >
                                     <MoreVertical className="w-3 h-3 ml-1" />
                                     إجراءات
-                                  </Button>
+                                  </button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent
                                   align="end"
-                                  className="w-56 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+                                  className="w-56"
+                                  style={{
+                                    background: 'hsl(var(--bg-card))',
+                                    border: '1px solid hsl(var(--line))',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 4px 6px -1px hsl(var(--fg) / 0.1), 0 2px 4px -2px hsl(var(--fg) / 0.1)'
+                                  }}
                                 >
                                   <DropdownMenuItem
                                     onClick={() => {
@@ -1548,9 +1569,13 @@ function AdminNewsPageContent() {
                                             }`;
                                       router.push(path);
                                     }}
-                                    className="py-3 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                    style={{
+                                      padding: '12px 16px',
+                                      color: 'hsl(var(--fg))'
+                                    }}
+                                    className="hover:bg-accent/5"
                                   >
-                                    <Eye className="w-4 h-4 ml-3 text-blue-600 dark:text-blue-400" />
+                                    <Eye className="w-4 h-4 ml-3" style={{ color: 'hsl(var(--accent))' }} />
                                     <span className="font-medium">
                                       عرض الخبر
                                     </span>
