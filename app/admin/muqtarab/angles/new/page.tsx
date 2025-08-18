@@ -1,11 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
+import React, { useEffect, useState } from "react";
 import { CreateAngleForm } from "@/types/muqtarab";
 import {
   ArrowLeft,
@@ -17,52 +12,166 @@ import {
   Send,
   Sparkles,
   Upload,
+  X,
+  Check,
+  AlertCircle
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-// مكونات إضافية للواجهة
-const IconSelector = ({
+// مكون رفع الصور
+const ImageUploader = ({
   value,
   onChange,
 }: {
   value?: string;
-  onChange: (icon: string) => void;
+  onChange: (url: string) => void;
 }) => {
-  const icons = [
-    "BookOpen",
-    "PenTool",
-    "Brain",
-    "Lightbulb",
-    "Target",
-    "Star",
-    "Heart",
-    "Zap",
-    "Coffee",
-    "Music",
-  ];
+  const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+
+  const handleFileUpload = async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("يرجى اختيار ملف صورة صحيح");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("حجم الصورة يجب أن يكون أقل من 5 ميجابايت");
+      return;
+    }
+
+    try {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("type", "muqtarab-cover");
+
+      const response = await fetch("/api/upload/cloudinary", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        onChange(data.url);
+        toast.success("تم رفع الصورة بنجاح");
+      } else {
+        toast.error("فشل في رفع الصورة");
+      }
+    } catch (error) {
+      console.error("خطأ في رفع الصورة:", error);
+      toast.error("حدث خطأ في رفع الصورة");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const files = Array.from(e.dataTransfer.files);
+    if (files[0]) {
+      handleFileUpload(files[0]);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleFileUpload(file);
+    }
+  };
 
   return (
-    <div className="grid grid-cols-5 gap-2">
-      {icons.map((icon) => (
-        <button
-          key={icon}
-          type="button"
-          onClick={() => onChange(icon)}
-          className={`p-3 rounded-lg border-2 transition-all hover:border-blue-400 ${
-            value === icon ? "border-blue-500 bg-blue-50" : "border-gray-200"
-          }`}
-        >
-          <Sparkles className="w-5 h-5 mx-auto" />
-          <span className="text-xs mt-1 block">{icon}</span>
-        </button>
-      ))}
+    <div>
+      {value && (
+        <div style={{ position: 'relative', marginBottom: '16px' }}>
+          <Image
+            src={value}
+            alt="صورة الغلاف"
+            width={400}
+            height={200}
+            style={{ 
+              width: '100%', 
+              height: '200px', 
+              objectFit: 'cover', 
+              borderRadius: '12px',
+              border: '1px solid hsl(var(--line))'
+            }}
+          />
+          <button
+            type="button"
+            onClick={() => onChange("")}
+            className="btn btn-sm"
+            style={{
+              position: 'absolute',
+              top: '12px',
+              right: '12px',
+              background: 'hsl(var(--danger))',
+              color: 'white',
+              padding: '6px',
+              borderRadius: '8px'
+            }}
+          >
+            <X style={{ width: '16px', height: '16px' }} />
+          </button>
+        </div>
+      )}
+
+      <div
+        className="card"
+        style={{
+          border: dragOver ? '2px dashed hsl(var(--accent))' : '2px dashed hsl(var(--line))',
+          background: dragOver ? 'hsl(var(--accent) / 0.05)' : 'hsl(var(--muted) / 0.05)',
+          padding: '40px',
+          textAlign: 'center',
+          transition: 'all 0.2s ease',
+          position: 'relative'
+        }}
+        onDrop={handleDrop}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragOver(true);
+        }}
+        onDragLeave={() => setDragOver(false)}
+      >
+        {uploading ? (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+            <Loader2 className="animate-spin" style={{ width: '32px', height: '32px', color: 'hsl(var(--accent))' }} />
+            <span className="text-muted">جاري رفع الصورة...</span>
+          </div>
+        ) : (
+          <>
+            <Upload style={{ width: '48px', height: '48px', margin: '0 auto 16px', color: 'hsl(var(--muted))' }} />
+            <div style={{ marginBottom: '8px' }}>
+              <p className="text-muted" style={{ marginBottom: '4px' }}>
+                اسحب وأفلت صورة هنا أو انقر لاختيار صورة
+              </p>
+              <p className="text-xs text-muted">PNG، JPG، GIF حتى 5MB</p>
+            </div>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileSelect}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                opacity: 0,
+                cursor: 'pointer'
+              }}
+            />
+          </>
+        )}
+      </div>
     </div>
   );
 };
 
+// مكون اختيار اللون
 const ColorPicker = ({
   value,
   onChange,
@@ -82,108 +191,125 @@ const ColorPicker = ({
   ];
 
   return (
-    <div className="flex gap-2 flex-wrap">
+    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
       {colors.map((color) => (
         <button
           key={color}
           type="button"
           onClick={() => onChange(color)}
-          className={`w-8 h-8 rounded-full border-2 transition-all ${
-            value === color ? "border-gray-400 scale-110" : "border-gray-200"
-          }`}
-          style={{ backgroundColor: color }}
+          style={{
+            width: '32px',
+            height: '32px',
+            borderRadius: '50%',
+            backgroundColor: color,
+            border: value === color ? '3px solid hsl(var(--fg))' : '2px solid hsl(var(--line))',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            transform: value === color ? 'scale(1.1)' : 'scale(1)'
+          }}
         />
       ))}
-      <div className="flex items-center">
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <input
           type="color"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-8 h-8 rounded-full border-2 border-gray-200 cursor-pointer"
+          style={{
+            width: '32px',
+            height: '32px',
+            borderRadius: '50%',
+            border: '2px solid hsl(var(--line))',
+            cursor: 'pointer'
+          }}
         />
+        <span className="text-xs text-muted">مخصص</span>
       </div>
     </div>
   );
 };
 
+// مكون معاينة الزاوية
 const AnglePreview = ({ formData }: { formData: CreateAngleForm }) => {
   return (
-    <Card className="sticky top-6">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Eye className="w-5 h-5" />
+    <div className="card" style={{ position: 'sticky', top: '100px' }}>
+      <div className="card-header">
+        <h3 className="card-title">
+          <Eye style={{ width: '20px', height: '20px' }} />
           معاينة الزاوية
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+        </h3>
+      </div>
+      <div style={{ padding: '24px' }}>
         {/* معاينة الغلاف */}
-        <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden">
+        <div style={{
+          aspectRatio: '16/9',
+          background: formData.coverImage ? 'transparent' : 'linear-gradient(135deg, hsl(var(--muted) / 0.1), hsl(var(--muted) / 0.2))',
+          borderRadius: '12px',
+          overflow: 'hidden',
+          marginBottom: '20px',
+          position: 'relative'
+        }}>
           {formData.coverImage ? (
-            <div className="w-full h-full relative">
-              <Image
-                src={formData.coverImage}
-                alt="غلاف الزاوية"
-                fill={true}
-                sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-cover"
-                onError={() => {
-                  console.error("خطأ في تحميل صورة المعاينة");
-                  setFormData((prev) => ({
-                    ...prev,
-                    coverImage: "/images/placeholder-angle.jpg",
-                  }));
-                }}
-              />
-            </div>
+            <Image
+              src={formData.coverImage}
+              alt="غلاف الزاوية"
+              fill={true}
+              sizes="(max-width: 768px) 100vw, 50vw"
+              style={{ objectFit: 'cover' }}
+            />
           ) : (
-            <div className="flex items-center justify-center h-full text-gray-400">
-              <ImageIcon className="w-12 h-12" />
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100%',
+              color: 'hsl(var(--muted))'
+            }}>
+              <ImageIcon style={{ width: '48px', height: '48px' }} />
             </div>
           )}
         </div>
 
         {/* معاينة المحتوى */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{ backgroundColor: formData.themeColor }}
-            >
-              <Sparkles className="w-4 h-4 text-white" />
-            </div>
-            <h3
-              className="font-bold text-lg"
-              style={{ color: formData.themeColor }}
-            >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+          <div
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '12px',
+              backgroundColor: formData.themeColor,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <Sparkles style={{ width: '20px', height: '20px', color: 'white' }} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <h3 className="heading-3" style={{ color: formData.themeColor, marginBottom: '4px' }}>
               {formData.title || "عنوان الزاوية"}
             </h3>
-            {formData.isFeatured && (
-              <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">
-                مميزة
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              {formData.isFeatured && (
+                <span className="chip" style={{ 
+                  background: '#fbbf24', 
+                  color: '#78350f',
+                  border: '1px solid #f59e0b'
+                }}>
+                  مميزة
+                </span>
+              )}
+              <span className={`chip ${formData.isPublished ? 'chip-success' : 'chip-warning'}`}>
+                {formData.isPublished ? 'منشورة' : 'مسودة'}
               </span>
-            )}
-          </div>
-
-          <p className="text-gray-600 text-sm">
-            {formData.description || "وصف الزاوية سيظهر هنا..."}
-          </p>
-
-          <div className="flex items-center gap-2 text-xs text-gray-500">
-            <span>بقلم: المؤلف</span>
-            <span>•</span>
-            <span
-              className={`px-2 py-1 rounded-full ${
-                formData.isPublished
-                  ? "bg-green-100 text-green-800"
-                  : "bg-gray-100 text-gray-800"
-              }`}
-            >
-              {formData.isPublished ? "منشورة" : "مسودة"}
-            </span>
+            </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+
+        <p className="text-muted" style={{ lineHeight: '1.6' }}>
+          {formData.description || "وصف الزاوية سيظهر هنا..."}
+        </p>
+      </div>
+    </div>
   );
 };
 
@@ -196,7 +322,7 @@ export default function CreateAnglePage() {
     description: "",
     icon: "",
     themeColor: "#3B82F6",
-    authorId: "", // سيتم تعيينه من المستخدم الحالي
+    authorId: "",
     coverImage: "",
     isFeatured: false,
     isPublished: false,
@@ -254,10 +380,8 @@ export default function CreateAnglePage() {
 
         // التحقق من وجود معرف الزاوية قبل التوجيه
         if (data.angle && data.angle.id) {
-          console.log("تم إنشاء الزاوية بمعرف:", data.angle.id);
           router.push(`/admin/muqtarab/angles/${data.angle.id}`);
         } else {
-          console.error("معرف الزاوية غير موجود في الاستجابة:", data);
           // توجيه إلى صفحة قائمة الزوايا بدلاً من ذلك
           router.push("/admin/muqtarab");
         }
@@ -273,340 +397,268 @@ export default function CreateAnglePage() {
     }
   };
 
-  const handleImageUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    // التحقق من نوع الملف
-    if (!file.type.startsWith("image/")) {
-      toast.error("يرجى اختيار ملف صورة صحيح");
-      return;
-    }
-
-    // التحقق من حجم الملف (5MB max)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("حجم الصورة يجب أن يكون أقل من 5 ميجابايت");
-      return;
-    }
-
-    // إظهار toast للتحميل
-    const loadingToast = toast.loading("جاري رفع الصورة...");
-
-    try {
-      setLoading(true);
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("type", "muqtarab-cover"); // Use a specific type for Muqtarab covers
-
-      const response = await fetch("/api/upload/cloudinary", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        toast.dismiss(loadingToast);
-        setFormData((prev) => ({ ...prev, coverImage: data.url }));
-        toast.success("تم رفع الصورة بنجاح");
-        console.log("✅ تم رفع الصورة بنجاح:", data.url);
-      } else {
-        toast.dismiss(loadingToast);
-        const errorMessage = data.error || "فشل في رفع الصورة";
-        console.error("❌ خطأ في رفع الصورة:", data);
-        toast.error(errorMessage);
-      }
-    } catch (error: any) {
-      toast.dismiss(loadingToast);
-      console.error("❌ استثناء في رفع الصورة:", error);
-      toast.error(error?.message || "حدث خطأ غير متوقع في رفع الصورة");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* شريط التنقل العلوي */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-        <div className="px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => router.push("/admin/muqtarab")}
-                className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
-              >
-                <ArrowLeft className="w-4 h-4 ml-2" />
-                العودة لمُقترب
-              </Button>
-              <span className="text-gray-400">/</span>
-              <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                إنشاء زاوية جديدة
-              </h1>
+    <div style={{ minHeight: '100vh', background: 'hsl(var(--bg))', padding: '40px 20px' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        {/* رسالة الترحيب */}
+        <div className="card card-accent" style={{ marginBottom: '32px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <div style={{
+              width: '56px',
+              height: '56px',
+              background: 'linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-hover)))',
+              borderRadius: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <Sparkles style={{ width: '28px', height: '28px', color: 'white' }} />
             </div>
+            <div style={{ flex: 1 }}>
+              <h1 className="heading-2" style={{ marginBottom: '4px' }}>
+                إنشاء زاوية جديدة في مُقترب
+              </h1>
+              <p className="text-muted" style={{ fontSize: '14px' }}>
+                أضف زاوية جديدة للكتابة والتعبير عن أفكارك المميزة
+              </p>
+            </div>
+            <button 
+              onClick={() => router.push("/admin/muqtarab")}
+              className="btn btn-outline"
+            >
+              <ArrowLeft style={{ width: '16px', height: '16px' }} />
+              العودة لمُقترب
+            </button>
           </div>
         </div>
-      </div>
 
-      <div className="p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* نموذج الإدخال */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* المعلومات الأساسية */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>المعلومات الأساسية</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="title">عنوان الزاوية *</Label>
-                    <Input
-                      id="title"
-                      placeholder="مثال: تقنيات الذكاء الاصطناعي"
-                      value={formData.title}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          title: e.target.value,
-                        }))
-                      }
-                      className="text-right"
-                    />
-                  </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '32px' }}>
+          {/* نموذج الإدخال */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* المعلومات الأساسية */}
+            <div className="card">
+              <div className="card-header">
+                <h3 className="card-title">المعلومات الأساسية</h3>
+              </div>
+              <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div>
+                  <label className="label" style={{ marginBottom: '8px', display: 'block' }}>
+                    عنوان الزاوية *
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="مثال: تقنيات الذكاء الاصطناعي"
+                    value={formData.title}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        title: e.target.value,
+                      }))
+                    }
+                    className="input"
+                    style={{ width: '100%' }}
+                  />
+                </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="slug">رابط الزاوية</Label>
-                    <Input
-                      id="slug"
-                      placeholder="يتم إنشاؤه تلقائياً من العنوان"
-                      value={formData.slug}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          slug: e.target.value,
-                        }))
-                      }
-                      className="text-left dir-ltr"
-                    />
-                    <p className="text-xs text-gray-500">
-                      سيكون الرابط: /muqtarib/{formData.slug}
-                    </p>
-                  </div>
+                <div>
+                  <label className="label" style={{ marginBottom: '8px', display: 'block' }}>
+                    رابط الزاوية
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="يتم إنشاؤه تلقائياً من العنوان"
+                    value={formData.slug}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        slug: e.target.value,
+                      }))
+                    }
+                    className="input"
+                    style={{ width: '100%', direction: 'ltr' }}
+                  />
+                  <p className="text-xs text-muted" style={{ marginTop: '4px' }}>
+                    سيكون الرابط: /muqtarab/{formData.slug}
+                  </p>
+                </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="description">وصف الزاوية *</Label>
-                    <Textarea
-                      id="description"
-                      placeholder="وصف مختصر يوضح محتوى وهدف هذه الزاوية..."
-                      value={formData.description}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          description: e.target.value,
-                        }))
-                      }
-                      className="min-h-24 text-right"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* التصميم والهوية البصرية */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Palette className="w-5 h-5" />
-                    التصميم والهوية البصرية
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-3">
-                    <Label>أيقونة الزاوية</Label>
-                    <IconSelector
-                      value={formData.icon}
-                      onChange={(icon) =>
-                        setFormData((prev) => ({ ...prev, icon }))
-                      }
-                    />
-                  </div>
-
-                  <div className="space-y-3">
-                    <Label>اللون المميز للزاوية</Label>
-                    <ColorPicker
-                      value={formData.themeColor}
-                      onChange={(color) =>
-                        setFormData((prev) => ({ ...prev, themeColor: color }))
-                      }
-                    />
-                  </div>
-
-                  <div className="space-y-3">
-                    <Label>صورة الغلاف</Label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                      {formData.coverImage ? (
-                        <div className="space-y-4">
-                          {/* استخدام next/image بدلاً من img المعتاد */}
-                          <div className="relative mx-auto h-32 w-64 rounded-lg overflow-hidden">
-                            <Image
-                              src={formData.coverImage}
-                              alt="غلاف الزاوية"
-                              fill={true}
-                              sizes="256px"
-                              className="object-cover rounded-lg"
-                              onError={() => {
-                                console.error("خطأ في تحميل الصورة");
-                                // تعيين صورة بديلة
-                                setFormData((prev: CreateAngleForm) => ({
-                                  ...prev,
-                                  coverImage: "/images/placeholder-angle.jpg",
-                                }));
-                              }}
-                            />
-                          </div>
-                          <div className="flex gap-2 justify-center">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() =>
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  coverImage: undefined,
-                                }))
-                              }
-                            >
-                              إزالة الصورة
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                const input = document.getElementById(
-                                  "cover-upload"
-                                ) as HTMLInputElement;
-                                if (input) input.click();
-                              }}
-                            >
-                              تغيير الصورة
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="space-y-4">
-                          <Upload className="w-12 h-12 mx-auto text-gray-400" />
-                          <div>
-                            <p className="text-sm text-gray-600">
-                              اسحب وأفلت الصورة هنا أو
-                            </p>
-                            <Label
-                              htmlFor="cover-upload"
-                              className="cursor-pointer text-blue-600 hover:text-blue-700"
-                            >
-                              اختر ملف
-                            </Label>
-                            <input
-                              id="cover-upload"
-                              type="file"
-                              accept="image/jpeg,image/png,image/gif,image/webp"
-                              onChange={handleImageUpload}
-                              className="hidden"
-                            />
-                          </div>
-                          <p className="text-xs text-gray-500">
-                            PNG, JPG أو GIF (أقصى حجم: 5MB)
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* إعدادات النشر */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>إعدادات النشر</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="featured">زاوية مميزة</Label>
-                      <p className="text-sm text-gray-500">
-                        ستظهر في القسم المميز بالصفحة الرئيسية
-                      </p>
-                    </div>
-                    <Switch
-                      id="featured"
-                      checked={formData.isFeatured}
-                      onCheckedChange={(checked) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          isFeatured: checked,
-                        }))
-                      }
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="published">نشر فوري</Label>
-                      <p className="text-sm text-gray-500">
-                        جعل الزاوية متاحة للجمهور
-                      </p>
-                    </div>
-                    <Switch
-                      id="published"
-                      checked={formData.isPublished}
-                      onCheckedChange={(checked) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          isPublished: checked,
-                        }))
-                      }
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* أزرار الحفظ */}
-              <div className="flex gap-4">
-                <Button
-                  onClick={() => handleSubmit(false)}
-                  disabled={loading}
-                  variant="outline"
-                  className="flex-1"
-                >
-                  {loading ? (
-                    <Loader2 className="w-4 h-4 ml-2 animate-spin" />
-                  ) : (
-                    <Save className="w-4 h-4 ml-2" />
-                  )}
-                  حفظ كمسودة
-                </Button>
-                <Button
-                  onClick={() => handleSubmit(true)}
-                  disabled={loading}
-                  className="flex-1"
-                >
-                  {loading ? (
-                    <Loader2 className="w-4 h-4 ml-2 animate-spin" />
-                  ) : (
-                    <Send className="w-4 h-4 ml-2" />
-                  )}
-                  نشر الزاوية
-                </Button>
+                <div>
+                  <label className="label" style={{ marginBottom: '8px', display: 'block' }}>
+                    وصف الزاوية *
+                  </label>
+                  <textarea
+                    placeholder="وصف مختصر يوضح محتوى وهدف هذه الزاوية..."
+                    value={formData.description}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
+                    }
+                    className="input"
+                    style={{ width: '100%', minHeight: '120px', resize: 'vertical' }}
+                  />
+                </div>
               </div>
             </div>
 
-            {/* معاينة الزاوية */}
-            <div className="lg:col-span-1">
-              <AnglePreview formData={formData} />
+            {/* التصميم والهوية البصرية */}
+            <div className="card">
+              <div className="card-header">
+                <h3 className="card-title">
+                  <Palette style={{ width: '20px', height: '20px' }} />
+                  التصميم والهوية البصرية
+                </h3>
+              </div>
+              <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                <div>
+                  <label className="label" style={{ marginBottom: '12px', display: 'block' }}>
+                    اللون المميز للزاوية
+                  </label>
+                  <ColorPicker
+                    value={formData.themeColor}
+                    onChange={(color) =>
+                      setFormData((prev) => ({ ...prev, themeColor: color }))
+                    }
+                  />
+                </div>
+
+                <div>
+                  <label className="label" style={{ marginBottom: '12px', display: 'block' }}>
+                    صورة الغلاف
+                  </label>
+                  <ImageUploader
+                    value={formData.coverImage}
+                    onChange={(url) =>
+                      setFormData((prev) => ({ ...prev, coverImage: url }))
+                    }
+                  />
+                </div>
+              </div>
             </div>
+
+            {/* إعدادات النشر */}
+            <div className="card">
+              <div className="card-header">
+                <h3 className="card-title">إعدادات النشر</h3>
+              </div>
+              <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <label className="label">زاوية مميزة</label>
+                    <p className="text-xs text-muted">ستظهر في القسم المميز بالصفحة الرئيسية</p>
+                  </div>
+                  <div
+                    onClick={() => setFormData((prev) => ({ ...prev, isFeatured: !prev.isFeatured }))}
+                    style={{
+                      width: '48px',
+                      height: '28px',
+                      background: formData.isFeatured ? 'hsl(var(--accent))' : '#E5E5EA',
+                      borderRadius: '14px',
+                      position: 'relative',
+                      transition: 'background 0.3s ease',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '2px',
+                        right: formData.isFeatured ? '2px' : '22px',
+                        width: '24px',
+                        height: '24px',
+                        background: 'white',
+                        borderRadius: '50%',
+                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+                        transition: 'right 0.3s ease'
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <label className="label">نشر فوري</label>
+                    <p className="text-xs text-muted">جعل الزاوية متاحة للجمهور</p>
+                  </div>
+                  <div
+                    onClick={() => setFormData((prev) => ({ ...prev, isPublished: !prev.isPublished }))}
+                    style={{
+                      width: '48px',
+                      height: '28px',
+                      background: formData.isPublished ? 'hsl(var(--accent))' : '#E5E5EA',
+                      borderRadius: '14px',
+                      position: 'relative',
+                      transition: 'background 0.3s ease',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '2px',
+                        right: formData.isPublished ? '2px' : '22px',
+                        width: '24px',
+                        height: '24px',
+                        background: 'white',
+                        borderRadius: '50%',
+                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+                        transition: 'right 0.3s ease'
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* أزرار الحفظ */}
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <button
+                onClick={() => handleSubmit(false)}
+                disabled={loading}
+                className="btn btn-outline"
+                style={{ flex: 1 }}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="animate-spin" style={{ width: '16px', height: '16px' }} />
+                    جاري الحفظ...
+                  </>
+                ) : (
+                  <>
+                    <Save style={{ width: '16px', height: '16px' }} />
+                    حفظ كمسودة
+                  </>
+                )}
+              </button>
+              <button
+                onClick={() => handleSubmit(true)}
+                disabled={loading}
+                className="btn"
+                style={{ 
+                  flex: 1,
+                  background: 'hsl(var(--accent))',
+                  color: 'white'
+                }}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="animate-spin" style={{ width: '16px', height: '16px' }} />
+                    جاري النشر...
+                  </>
+                ) : (
+                  <>
+                    <Send style={{ width: '16px', height: '16px' }} />
+                    نشر الزاوية
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* معاينة الزاوية */}
+          <div>
+            <AnglePreview formData={formData} />
           </div>
         </div>
       </div>

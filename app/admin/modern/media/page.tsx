@@ -1,23 +1,37 @@
-/**
- * صفحة مكتبة الوسائط المحسّنة مع الذكاء الاصطناعي
- * Enhanced Media Library Page with AI Integration
- */
-
 "use client";
 
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import Image from "next/image";
-import { useState, useEffect, useMemo, useCallback } from "react";
-import { Search, Upload, Grid, List, Folder, RefreshCw, Download, Filter, Image as ImageIcon, Video, Music, FileText, FolderOpen, Trash2, MoreVertical, X, Sparkles, Eye, Edit, Copy, ArrowLeft, Plus, Check } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { DesignComponents } from "@/components/design-system/DesignSystemGuide";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { useToast } from "@/components/ui/use-toast";
-import { cn } from "@/lib/utils";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import AdvancedImageUpload from "@/components/admin/media/AdvancedImageUpload";
-import SmartMediaPicker from "@/components/admin/media/SmartMediaPicker";
+import { 
+  Search, 
+  Upload, 
+  Grid, 
+  List, 
+  Folder, 
+  RefreshCw, 
+  Download, 
+  Filter, 
+  Image as ImageIcon, 
+  Video, 
+  Music, 
+  FileText, 
+  FolderOpen, 
+  Trash2, 
+  MoreVertical, 
+  X, 
+  Sparkles, 
+  Eye, 
+  Edit, 
+  Copy, 
+  ArrowLeft, 
+  Plus, 
+  Check,
+  ArrowUpRight,
+  Zap,
+  HardDrive,
+  Clock
+} from "lucide-react";
+import { toast } from "react-hot-toast";
 
 interface MediaAsset {
   id: string;
@@ -65,6 +79,291 @@ interface MediaFolder {
   };
 }
 
+// مكون بطاقة إحصائية
+const StatCard = ({
+  title,
+  value,
+  icon: Icon,
+  color,
+  trend,
+}: {
+  title: string;
+  value: string | number;
+  icon: any;
+  color: string;
+  trend?: { value: number; label: string };
+}) => {
+  return (
+    <div className="card" style={{ cursor: 'pointer' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <div style={{
+          width: '48px',
+          height: '48px',
+          background: `${color}10`,
+          borderRadius: '12px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: color
+        }}>
+          <Icon style={{ width: '24px', height: '24px' }} />
+        </div>
+        
+        <div style={{ flex: 1 }}>
+          <div className="text-xs text-muted" style={{ marginBottom: '4px' }}>{title}</div>
+          <div className="heading-3" style={{ margin: '4px 0', color: color }}>
+            {value}
+          </div>
+          {trend && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <ArrowUpRight style={{ 
+                width: '14px', 
+                height: '14px',
+                color: '#10b981'
+              }} />
+              <span className="text-xs" style={{ color: '#10b981' }}>
+                {trend.value}%
+              </span>
+              <span className="text-xs text-muted">{trend.label}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// مكون بطاقة الوسائط
+const MediaCard = ({
+  asset,
+  isSelected,
+  onSelect,
+  onPreview,
+  viewMode
+}: {
+  asset: MediaAsset;
+  isSelected: boolean;
+  onSelect: () => void;
+  onPreview: () => void;
+  viewMode: "grid" | "list";
+}) => {
+  const getTypeIcon = () => {
+    switch (asset.type) {
+      case "IMAGE": return ImageIcon;
+      case "VIDEO": return Video;
+      case "AUDIO": return Music;
+      case "DOCUMENT": return FileText;
+      default: return FileText;
+    }
+  };
+
+  const TypeIcon = getTypeIcon();
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  if (viewMode === "list") {
+    return (
+      <div 
+        className="card"
+        style={{
+          padding: '16px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '16px',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
+          border: isSelected ? '2px solid hsl(var(--accent))' : '1px solid hsl(var(--line))'
+        }}
+        onClick={onSelect}
+      >
+        <div style={{
+          width: '48px',
+          height: '48px',
+          borderRadius: '8px',
+          overflow: 'hidden',
+          background: 'hsl(var(--muted) / 0.1)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0
+        }}>
+          {asset.type === "IMAGE" && asset.thumbnailUrl ? (
+            <Image
+              src={asset.thumbnailUrl}
+              alt={asset.originalName}
+              width={48}
+              height={48}
+              style={{ objectFit: 'cover' }}
+            />
+          ) : (
+            <TypeIcon style={{ width: '24px', height: '24px', color: 'hsl(var(--muted))' }} />
+          )}
+        </div>
+
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="text-sm" style={{ fontWeight: '600', marginBottom: '4px' }}>
+            {asset.originalName}
+          </div>
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+            <span className="text-xs text-muted">{formatFileSize(asset.size)}</span>
+            {asset.width && asset.height && (
+              <span className="text-xs text-muted">{asset.width} × {asset.height}</span>
+            )}
+            <span className="text-xs text-muted">
+              {new Date(asset.createdAt).toLocaleDateString('ar-SA')}
+            </span>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              onPreview();
+            }}
+            className="btn btn-sm btn-ghost"
+          >
+            <Eye style={{ width: '16px', height: '16px' }} />
+          </button>
+          <button className="btn btn-sm btn-ghost">
+            <MoreVertical style={{ width: '16px', height: '16px' }} />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div 
+      className="card"
+      style={{
+        cursor: 'pointer',
+        transition: 'all 0.2s ease',
+        border: isSelected ? '2px solid hsl(var(--accent))' : '1px solid hsl(var(--line))',
+        padding: '0'
+      }}
+      onClick={onSelect}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-2px)';
+        e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.08)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.boxShadow = '';
+      }}
+    >
+      <div style={{
+        aspectRatio: '1',
+        background: 'hsl(var(--muted) / 0.05)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+        borderBottom: '1px solid hsl(var(--line))'
+      }}>
+        {asset.type === "IMAGE" && asset.thumbnailUrl ? (
+          <Image
+            src={asset.thumbnailUrl}
+            alt={asset.originalName}
+            width={200}
+            height={200}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        ) : (
+          <TypeIcon style={{ width: '48px', height: '48px', color: 'hsl(var(--muted))' }} />
+        )}
+      </div>
+
+      <div style={{ padding: '12px' }}>
+        <div className="text-sm" style={{ 
+          fontWeight: '600', 
+          marginBottom: '4px',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap'
+        }}>
+          {asset.originalName}
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span className="text-xs text-muted">{formatFileSize(asset.size)}</span>
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              onPreview();
+            }}
+            className="btn btn-xs btn-ghost"
+          >
+            <Eye style={{ width: '14px', height: '14px' }} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// مكون بطاقة المجلد
+const FolderCard = ({
+  folder,
+  onClick
+}: {
+  folder: MediaFolder;
+  onClick: () => void;
+}) => {
+  return (
+    <div 
+      className="card"
+      style={{
+        cursor: 'pointer',
+        transition: 'all 0.2s ease',
+        padding: '20px'
+      }}
+      onClick={onClick}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-2px)';
+        e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.08)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.boxShadow = '';
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <div style={{
+          width: '48px',
+          height: '48px',
+          background: 'hsl(var(--accent) / 0.1)',
+          borderRadius: '12px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <Folder style={{ width: '24px', height: '24px', color: 'hsl(var(--accent))' }} />
+        </div>
+        <div style={{ flex: 1 }}>
+          <div className="heading-3" style={{ marginBottom: '4px' }}>{folder.name}</div>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <span className="text-xs text-muted">
+              {folder._count.assets} ملف
+            </span>
+            {folder._count.subfolders > 0 && (
+              <span className="text-xs text-muted">
+                {folder._count.subfolders} مجلد
+              </span>
+            )}
+          </div>
+        </div>
+        <ArrowLeft style={{ width: '20px', height: '20px', color: 'hsl(var(--muted))' }} />
+      </div>
+    </div>
+  );
+};
+
 export default function MediaLibraryPage() {
   const [allAssets, setAllAssets] = useState<MediaAsset[]>([]);
   const [allFolders, setAllFolders] = useState<MediaFolder[]>([]);
@@ -76,14 +375,13 @@ export default function MediaLibraryPage() {
   const [filterType, setFilterType] = useState<string | null>(null);
   const [selectedAssets, setSelectedAssets] = useState<string[]>([]);
   const [showUpload, setShowUpload] = useState(false);
-  const [showSmartPicker, setShowSmartPicker] = useState(false);
-  const { toast } = useToast();
+  const [previewAsset, setPreviewAsset] = useState<MediaAsset | null>(null);
 
-  // Debounced search effect - تقليل الوقت لجعل البحث أسرع
+  // Debounced search
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
-    }, 300); // تقليل من 500 إلى 300ms
+    }, 300);
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
@@ -93,7 +391,6 @@ export default function MediaLibraryPage() {
     try {
       setLoading(true);
       
-      // Fetch folders and assets in parallel
       const [foldersResponse, assetsResponse] = await Promise.all([
         fetch("/api/admin/media/folders", { credentials: 'include' }),
         fetch("/api/admin/media/assets", { credentials: 'include' })
@@ -110,26 +407,22 @@ export default function MediaLibraryPage() {
       }
     } catch (error) {
       console.error("Error fetching data:", error);
-      toast({
-        title: "خطأ",
-        description: "فشل في تحميل البيانات",
-        variant: "destructive",
-      });
+      toast.error("فشل في تحميل البيانات");
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, []);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  // Filter data based on search and filters - تحسين البحث ليكون أكثر فعالية
+  // Filter data
   const { filteredAssets, filteredFolders } = useMemo(() => {
     let assets = allAssets;
     let folders = allFolders;
 
-    // Apply search filter - تحسين البحث ليشمل الوسوم والأوصاف
+    // Apply search filter
     if (debouncedSearchQuery.trim()) {
       const searchLower = debouncedSearchQuery.toLowerCase().trim();
       
@@ -159,7 +452,6 @@ export default function MediaLibraryPage() {
       assets = assets.filter(asset => asset.folderId === selectedFolder);
       folders = folders.filter(folder => folder.parentId === selectedFolder);
     } else {
-      // Show only root folders when no folder is selected
       folders = folders.filter(folder => !folder.parentId);
     }
 
@@ -171,7 +463,7 @@ export default function MediaLibraryPage() {
     return { filteredAssets: assets, filteredFolders: folders };
   }, [allAssets, allFolders, debouncedSearchQuery, selectedFolder, filterType]);
 
-  // Get current folder path for breadcrumb
+  // Get current folder path
   const currentFolderPath = useMemo(() => {
     if (!selectedFolder) return [{ id: null, name: "الجذر" }];
     
@@ -192,603 +484,333 @@ export default function MediaLibraryPage() {
     return path;
   }, [selectedFolder, allFolders]);
 
-  // Format file size
-  function formatFileSize(bytes: number): string {
+  // Calculate stats
+  const stats = useMemo(() => {
+    const totalSize = allAssets.reduce((sum, asset) => sum + asset.size, 0);
+    const imageCount = allAssets.filter(a => a.type === "IMAGE").length;
+    const videoCount = allAssets.filter(a => a.type === "VIDEO").length;
+    const docCount = allAssets.filter(a => a.type === "DOCUMENT").length;
+    
+    return {
+      totalAssets: allAssets.length,
+      totalSize,
+      imageCount,
+      videoCount,
+      docCount,
+      folderCount: allFolders.length
+    };
+  }, [allAssets, allFolders]);
+
+  const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return '0 B';
     const k = 1024;
     const sizes = ['B', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  }
-
-  // Get statistics
-  const stats = useMemo(() => {
-    const totalAssets = filteredAssets.length;
-    const totalFolders = filteredFolders.length;
-    const imageCount = filteredAssets.filter((a: MediaAsset) => a.type === "IMAGE").length;
-    const videoCount = filteredAssets.filter((a: MediaAsset) => a.type === "VIDEO").length;
-    const audioCount = filteredAssets.filter((a: MediaAsset) => a.type === "AUDIO").length;
-    const documentCount = filteredAssets.filter((a: MediaAsset) => a.type === "DOCUMENT").length;
-    const totalSize = filteredAssets.reduce((sum: number, asset: MediaAsset) => sum + asset.size, 0);
-
-    return {
-      totalAssets,
-      totalFolders,
-      imageCount,
-      videoCount,
-      audioCount,
-      documentCount,
-      totalSize: formatFileSize(totalSize),
-    };
-  }, [filteredAssets, filteredFolders]);
-
-  // Get media type icon
-  const getMediaTypeIcon = (type: string) => {
-    switch (type) {
-      case "IMAGE": return ImageIcon;
-      case "VIDEO": return Video;
-      case "AUDIO": return Music;
-      case "DOCUMENT": return FileText;
-      default: return FileText;
-    }
-  };
-
-  // Get media type color
-  const getMediaTypeColor = (type: string) => {
-    switch (type) {
-      case "IMAGE": return "text-green-600 bg-green-100 dark:bg-green-900/30 dark:text-green-400";
-      case "VIDEO": return "text-blue-600 bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400";
-      case "AUDIO": return "text-purple-600 bg-purple-100 dark:bg-purple-900/30 dark:text-purple-400";
-      case "DOCUMENT": return "text-orange-600 bg-orange-100 dark:bg-orange-900/30 dark:text-orange-400";
-      default: return "text-gray-600 bg-gray-100 dark:bg-gray-900/30 dark:text-gray-400";
-    }
-  };
-
-  // Handle asset selection
-  const handleAssetSelect = (assetId: string) => {
-    setSelectedAssets(prev => {
-      if (prev.includes(assetId)) {
-        return prev.filter(id => id !== assetId);
-      } else {
-        return [...prev, assetId];
-      }
-    });
-  };
-
-  // Handle upload complete
-  const handleUploadComplete = (uploadedAssets: MediaAsset[]) => {
-    setAllAssets(prev => [...uploadedAssets, ...prev]);
-    setShowUpload(false);
-    toast({
-      title: "تم رفع الصور بنجاح",
-      description: `تم رفع ${uploadedAssets.length} صورة`,
-    });
-  };
-
-  // Handle smart picker selection
-  const handleSmartPickerSelection = (selectedImages: MediaAsset[]) => {
-    setSelectedAssets(selectedImages.map(img => img.id));
-    setShowSmartPicker(false);
-    toast({
-      title: "تم اختيار الصور",
-      description: `تم اختيار ${selectedImages.length} صورة`,
-    });
   };
 
   return (
-    <div className="w-full max-w-none space-y-6">
-      {/* رسالة الترحيب */}
-      <DesignComponents.StandardCard className="w-full max-w-none p-6 bg-gradient-to-l from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 border-purple-200 dark:border-purple-800">
-        <div className="flex items-start gap-4">
-          <div className="flex-shrink-0 w-12 h-12 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center">
-            <FolderOpen className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-          </div>
-          <div className="flex-1">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
-              مكتبة الوسائط
-            </h2>
-            <p className="text-gray-700 dark:text-gray-300 mb-4">
-              إدارة وتنظيم جميع ملفات الوسائط الخاصة بك
-            </p>
-            <div className="flex gap-3">
-              <DesignComponents.StatusIndicator
-                status="success"
-                text={`${stats.totalAssets} ملف`}
-              />
-              <DesignComponents.StatusIndicator
-                status="info"
-                text={`${stats.totalFolders} مجلد`}
-              />
-              <DesignComponents.StatusIndicator
-                status="warning"
-                text={stats.totalSize}
-              />
-            </div>
-          </div>
-          <div className="text-right">
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              آخر تحديث
-            </div>
-            <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-              {new Date().toLocaleDateString("ar-SA")}
-            </div>
-          </div>
-        </div>
-      </DesignComponents.StandardCard>
-
-      {/* شريط الأدوات */}
-      <div className="w-full max-w-none">
-        <DesignComponents.SectionHeader
-          title="إدارة الملفات"
-          description="رفع وتنظيم وإدارة ملفات الوسائط"
-          action={
-            <DesignComponents.ActionBar>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setShowSmartPicker(true)}
-              >
-                <Sparkles className="w-4 h-4 ml-2" />
-                اختيار ذكي
-              </Button>
-              <Button variant="outline" size="sm">
-                <Filter className="w-4 h-4 ml-2" />
-                تصفية
-              </Button>
-              <Button variant="outline" size="sm">
-                <Download className="w-4 h-4 ml-2" />
-                تصدير
-              </Button>
-              <Button 
-                size="sm"
-                onClick={() => setShowUpload(true)}
-              >
-                <Upload className="w-4 h-4 ml-2" />
-                رفع ملف
-              </Button>
-            </DesignComponents.ActionBar>
-          }
-        />
-
-        {/* شريط التنقل */}
-        {selectedFolder && (
-          <div className="w-full max-w-none mb-4">
-            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setSelectedFolder(null)}
-                className="gap-2"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                العودة للجذر
-              </Button>
-              <span>/</span>
-              {currentFolderPath.slice(1).map((folder, index) => (
-                <div key={folder.id || "root"} className="flex items-center gap-2">
-                  {index > 0 && <span>/</span>}
-                  <button
-                    onClick={() => setSelectedFolder(folder.id)}
-                    className={cn(
-                      "hover:text-blue-600 dark:hover:text-blue-400 transition-colors",
-                      index === currentFolderPath.length - 2 && "text-gray-900 dark:text-gray-100 font-medium"
-                    )}
-                  >
-                    {folder.name}
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* شريط البحث والتحكم المحسّن */}
-        <div className="w-full max-w-none flex flex-col sm:flex-row gap-4 mb-6">
-          <div className="flex-1 relative">
-            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <Input
-              placeholder="البحث في الملفات والمجلدات... (اسم الملف، الوصف، الوسوم)"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pr-10 pl-10"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
-            {/* مؤشر البحث النشط */}
-            {debouncedSearchQuery && debouncedSearchQuery !== searchQuery && (
-              <div className="absolute left-10 top-1/2 transform -translate-y-1/2 text-gray-400">
-                <div className="w-3 h-3 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+    <div style={{ minHeight: '100vh', background: 'hsl(var(--bg))', padding: '40px 20px' }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        {/* رسالة الترحيب */}
+        <div className="card card-accent" style={{ marginBottom: '32px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+              <div style={{
+                width: '56px',
+                height: '56px',
+                background: 'linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-hover)))',
+                borderRadius: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <ImageIcon style={{ width: '28px', height: '28px', color: 'white' }} />
               </div>
-            )}
-          </div>
-          <div className="flex gap-2">
-            <select
-              value={filterType || ""}
-              onChange={(e) => setFilterType(e.target.value || null)}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-sm min-w-[120px]"
-            >
-              <option value="">جميع الأنواع</option>
-              <option value="IMAGE">صور ({stats.imageCount})</option>
-              <option value="VIDEO">فيديو ({stats.videoCount})</option>
-              <option value="AUDIO">صوت ({stats.audioCount})</option>
-              <option value="DOCUMENT">مستندات ({stats.documentCount})</option>
-            </select>
-            <Button
-              variant={viewMode === "grid" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setViewMode("grid")}
-              title="عرض شبكي"
-            >
-              <Grid className="w-4 h-4" />
-            </Button>
-            <Button
-              variant={viewMode === "list" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setViewMode("list")}
-              title="عرض قائمة"
-            >
-              <List className="w-4 h-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={fetchData}
-              disabled={loading}
-              title="تحديث"
-            >
-              <RefreshCw className={cn("w-4 h-4", loading && "animate-spin")} />
-            </Button>
-          </div>
-        </div>
-
-        {/* نتائج البحث */}
-        {debouncedSearchQuery && (
-          <div className="w-full max-w-none mb-4">
-            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
-              <Search className="w-4 h-4" />
-              <span>
-                نتائج البحث عن "{debouncedSearchQuery}": 
-                <strong className="text-gray-900 dark:text-gray-100 ml-1">
-                  {filteredAssets.length + filteredFolders.length} نتيجة
-                </strong>
-              </span>
-              <button
-                onClick={() => setSearchQuery("")}
-                className="mr-auto text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-              >
-                مسح البحث
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* الإحصائيات */}
-      <div className="w-full max-w-none grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-        <DesignComponents.StandardCard className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-              <FolderOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div>
-              <div className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                {stats.totalFolders}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                مجلد
-              </div>
-            </div>
-          </div>
-        </DesignComponents.StandardCard>
-
-        <DesignComponents.StandardCard className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
-              <ImageIcon className="w-5 h-5 text-green-600 dark:text-green-400" />
-            </div>
-            <div>
-              <div className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                {stats.imageCount}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                صورة
-              </div>
-            </div>
-          </div>
-        </DesignComponents.StandardCard>
-
-        <DesignComponents.StandardCard className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-              <Video className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div>
-              <div className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                {stats.videoCount}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                فيديو
-              </div>
-            </div>
-          </div>
-        </DesignComponents.StandardCard>
-
-        <DesignComponents.StandardCard className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
-              <Music className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-            </div>
-            <div>
-              <div className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                {stats.audioCount}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                صوت
-              </div>
-            </div>
-          </div>
-        </DesignComponents.StandardCard>
-
-        <DesignComponents.StandardCard className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
-              <FileText className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-            </div>
-            <div>
-              <div className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                {stats.documentCount}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                مستند
-              </div>
-            </div>
-          </div>
-        </DesignComponents.StandardCard>
-
-        <DesignComponents.StandardCard className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center">
-              <FolderOpen className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-            </div>
-            <div>
-              <div className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                {stats.totalAssets}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                إجمالي
-              </div>
-            </div>
-          </div>
-        </DesignComponents.StandardCard>
-      </div>
-
-      {/* المحتوى الرئيسي */}
-      <DesignComponents.StandardCard className="w-full max-w-none">
-        <ScrollArea className="h-[70vh] p-6">
-          {loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-              {Array.from({ length: 16 }).map((_, i) => (
-                <div key={i} className="aspect-[4/3] bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {/* المجلدات */}
-              {filteredFolders.length > 0 && (
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-                    <Folder className="w-5 h-5" />
-                    المجلدات ({filteredFolders.length})
-                  </h3>
-                  <div className={cn(
-                    "grid gap-4 mb-6",
-                    viewMode === "grid" 
-                      ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8"
-                      : "grid-cols-1"
-                  )}>
-                    {filteredFolders.map((folder: MediaFolder) => (
-                      <Card 
-                        key={folder.id} 
-                        className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-2 hover:border-blue-200 dark:hover:border-blue-800"
-                        onClick={() => setSelectedFolder(folder.id)}
-                      >
-                        <CardContent className="p-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center group-hover:bg-blue-200 dark:group-hover:bg-blue-800/40 transition-colors">
-                              <Folder className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="font-medium text-gray-900 dark:text-gray-100 truncate">
-                                {folder.name}
-                              </div>
-                              <div className="text-sm text-gray-500 dark:text-gray-400">
-                                {folder._count.assets} ملف
-                              </div>
-                            </div>
-                            <MoreVertical className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* الملفات */}
               <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                    <ImageIcon className="w-5 h-5" />
-                    الملفات ({filteredAssets.length})
-                  </h3>
-                  {selectedAssets.length > 0 && (
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary" className="gap-1">
-                        <Check className="w-3 h-3" />
-                        {selectedAssets.length} محدد
-                      </Badge>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setSelectedAssets([])}
-                      >
-                        إلغاء التحديد
-                      </Button>
-                    </div>
-                  )}
-                </div>
-                <div className={cn(
-                  "grid gap-4",
-                  viewMode === "grid" 
-                    ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8"
-                    : "grid-cols-1"
-                )}>
-                  {filteredAssets.map((asset: MediaAsset) => {
-                    const TypeIcon = getMediaTypeIcon(asset.type);
-                    const isSelected = selectedAssets.includes(asset.id);
-                    return (
-                      <Card 
-                        key={asset.id} 
-                        className={cn(
-                          "group cursor-pointer transition-all duration-200 border-2",
-                          isSelected 
-                            ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" 
-                            : "border-transparent hover:border-gray-200 dark:hover:border-gray-700 hover:shadow-lg"
-                        )}
-                        onClick={() => handleAssetSelect(asset.id)}
-                      >
-                        <CardContent className="p-0">
-                          <div className="relative aspect-[4/3] overflow-hidden rounded-t-lg">
-                            {asset.type === "IMAGE" ? (
-                              <Image
-                                src={asset.thumbnailUrl || asset.cloudinaryUrl}
-                                alt={asset.metadata?.altText || asset.originalName}
-                                fill
-                                className="object-cover object-center group-hover:scale-105 transition-transform duration-200"
-                                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                                <TypeIcon className={cn("w-12 h-12", getMediaTypeColor(asset.type))} />
-                              </div>
-                            )}
-                            
-                            {/* مؤشر الاختيار */}
-                            <div className="absolute top-2 right-2">
-                              <div className={cn(
-                                "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors",
-                                isSelected
-                                  ? "bg-blue-500 border-blue-500 text-white"
-                                  : "bg-white/80 border-gray-300 group-hover:border-blue-400"
-                              )}>
-                                {isSelected && <Check className="w-4 h-4" />}
-                              </div>
-                            </div>
+                <h1 className="heading-2" style={{ marginBottom: '4px' }}>
+                  مكتبة الوسائط الذكية
+                </h1>
+                <p className="text-muted" style={{ fontSize: '14px' }}>
+                  إدارة وتنظيم جميع ملفات الوسائط بذكاء اصطناعي
+                </p>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                onClick={() => setShowUpload(true)}
+                className="btn"
+                style={{ background: 'hsl(var(--accent))', color: 'white' }}
+              >
+                <Upload style={{ width: '16px', height: '16px' }} />
+                رفع ملفات
+              </button>
+              <button
+                onClick={fetchData}
+                className="btn btn-outline"
+              >
+                <RefreshCw style={{ width: '16px', height: '16px' }} />
+                تحديث
+              </button>
+            </div>
+          </div>
+        </div>
 
-                            {/* نوع الملف */}
-                            <div className="absolute top-2 left-2">
-                              <Badge variant="secondary" className={cn("text-xs", getMediaTypeColor(asset.type))}>
-                                {asset.type}
-                              </Badge>
-                            </div>
+        {/* بطاقات الإحصائيات */}
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+          gap: '16px',
+          marginBottom: '32px'
+        }}>
+          <StatCard
+            title="إجمالي الملفات"
+            value={stats.totalAssets}
+            icon={FileText}
+            color="hsl(var(--accent))"
+            trend={{ value: 12, label: "هذا الشهر" }}
+          />
+          <StatCard
+            title="المساحة المستخدمة"
+            value={formatFileSize(stats.totalSize)}
+            icon={HardDrive}
+            color="#10b981"
+          />
+          <StatCard
+            title="الصور"
+            value={stats.imageCount}
+            icon={ImageIcon}
+            color="#8b5cf6"
+          />
+          <StatCard
+            title="الفيديوهات"
+            value={stats.videoCount}
+            icon={Video}
+            color="#f97316"
+          />
+        </div>
 
-                            {/* أزرار الإجراءات عند Hover */}
-                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                              <div className="flex gap-2">
-                                <Button size="sm" variant="secondary">
-                                  <Eye className="w-4 h-4" />
-                                </Button>
-                                <Button size="sm" variant="secondary">
-                                  <Edit className="w-4 h-4" />
-                                </Button>
-                                <Button size="sm" variant="secondary">
-                                  <Copy className="w-4 h-4" />
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div className="p-3">
-                            <div className="font-medium text-sm text-gray-900 dark:text-gray-100 truncate mb-1">
-                              {asset.originalName}
-                            </div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                              {formatFileSize(asset.size)}
-                              {asset.width && asset.height && (
-                                <> • {asset.width}×{asset.height}</>
-                              )}
-                            </div>
-                            {asset.metadata?.altText && (
-                              <div className="text-xs text-gray-600 dark:text-gray-400 truncate">
-                                {asset.metadata.altText}
-                              </div>
-                            )}
-                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                              {new Date(asset.createdAt).toLocaleDateString("ar-SA")}
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
+        {/* شريط الأدوات */}
+        <div className="card" style={{ marginBottom: '24px', padding: '16px' }}>
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
+            {/* بحث */}
+            <div style={{ flex: 1, minWidth: '250px', position: 'relative' }}>
+              <Search style={{ 
+                position: 'absolute', 
+                right: '12px', 
+                top: '50%', 
+                transform: 'translateY(-50%)',
+                width: '20px',
+                height: '20px',
+                color: 'hsl(var(--muted))'
+              }} />
+              <input
+                type="text"
+                placeholder="ابحث في الملفات..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="input"
+                style={{ width: '100%', paddingRight: '40px' }}
+              />
+            </div>
+
+            {/* فلاتر */}
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={() => setFilterType(null)}
+                className={`btn ${!filterType ? '' : 'btn-outline'}`}
+                style={!filterType ? { background: 'hsl(var(--accent))', color: 'white' } : {}}
+              >
+                الكل
+              </button>
+              <button
+                onClick={() => setFilterType("IMAGE")}
+                className={`btn ${filterType === "IMAGE" ? '' : 'btn-outline'}`}
+                style={filterType === "IMAGE" ? { background: 'hsl(var(--accent))', color: 'white' } : {}}
+              >
+                <ImageIcon style={{ width: '16px', height: '16px' }} />
+                صور
+              </button>
+              <button
+                onClick={() => setFilterType("VIDEO")}
+                className={`btn ${filterType === "VIDEO" ? '' : 'btn-outline'}`}
+                style={filterType === "VIDEO" ? { background: 'hsl(var(--accent))', color: 'white' } : {}}
+              >
+                <Video style={{ width: '16px', height: '16px' }} />
+                فيديو
+              </button>
+              <button
+                onClick={() => setFilterType("DOCUMENT")}
+                className={`btn ${filterType === "DOCUMENT" ? '' : 'btn-outline'}`}
+                style={filterType === "DOCUMENT" ? { background: 'hsl(var(--accent))', color: 'white' } : {}}
+              >
+                <FileText style={{ width: '16px', height: '16px' }} />
+                مستندات
+              </button>
+            </div>
+
+            {/* عرض */}
+            <div style={{ display: 'flex', gap: '4px' }}>
+              <button
+                onClick={() => setViewMode("grid")}
+                className={`btn btn-sm ${viewMode === "grid" ? '' : 'btn-ghost'}`}
+                style={viewMode === "grid" ? { background: 'hsl(var(--accent))', color: 'white' } : {}}
+              >
+                <Grid style={{ width: '16px', height: '16px' }} />
+              </button>
+              <button
+                onClick={() => setViewMode("list")}
+                className={`btn btn-sm ${viewMode === "list" ? '' : 'btn-ghost'}`}
+                style={viewMode === "list" ? { background: 'hsl(var(--accent))', color: 'white' } : {}}
+              >
+                <List style={{ width: '16px', height: '16px' }} />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Breadcrumb */}
+        {currentFolderPath.length > 1 && (
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '16px' }}>
+            {currentFolderPath.map((item, index) => (
+              <React.Fragment key={item.id || 'root'}>
+                <button
+                  onClick={() => setSelectedFolder(item.id)}
+                  className="text-sm text-muted hover:text-foreground"
+                  style={{ cursor: 'pointer' }}
+                >
+                  {item.name}
+                </button>
+                {index < currentFolderPath.length - 1 && (
+                  <span className="text-muted">/</span>
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+        )}
+
+        {/* المحتوى */}
+        {loading ? (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '80px' }}>
+            <div className="animate-spin">
+              <RefreshCw style={{ width: '32px', height: '32px', color: 'hsl(var(--accent))' }} />
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* المجلدات */}
+            {filteredFolders.length > 0 && (
+              <div style={{ marginBottom: '32px' }}>
+                <h2 className="heading-3" style={{ marginBottom: '16px' }}>المجلدات</h2>
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', 
+                  gap: '16px' 
+                }}>
+                  {filteredFolders.map(folder => (
+                    <FolderCard
+                      key={folder.id}
+                      folder={folder}
+                      onClick={() => setSelectedFolder(folder.id)}
+                    />
+                  ))}
                 </div>
               </div>
+            )}
 
-              {/* رسالة فارغة */}
-              {!loading && filteredAssets.length === 0 && filteredFolders.length === 0 && (
-                <div className="text-center py-12">
-                  <FolderOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                    {searchQuery ? "لم يتم العثور على نتائج" : "لا توجد ملفات"}
-                  </h3>
-                  <p className="text-gray-500 dark:text-gray-400 mb-4">
-                    {searchQuery 
-                      ? `لا توجد ملفات تحتوي على "${searchQuery}"`
-                      : "ابدأ برفع ملفات جديدة أو إنشاء مجلدات"
-                    }
-                  </p>
-                  {searchQuery ? (
-                    <Button
-                      variant="outline"
-                      onClick={() => setSearchQuery("")}
-                    >
-                      <X className="w-4 h-4 ml-2" />
-                      مسح البحث
-                    </Button>
-                  ) : (
-                    <Button onClick={() => setShowUpload(true)}>
-                      <Upload className="w-4 h-4 ml-2" />
-                      رفع ملف
-                    </Button>
-                  )}
+            {/* الملفات */}
+            {filteredAssets.length > 0 ? (
+              <div>
+                <h2 className="heading-3" style={{ marginBottom: '16px' }}>
+                  الملفات ({filteredAssets.length})
+                </h2>
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: viewMode === "grid" 
+                    ? 'repeat(auto-fill, minmax(200px, 1fr))' 
+                    : '1fr', 
+                  gap: '16px' 
+                }}>
+                  {filteredAssets.map(asset => (
+                    <MediaCard
+                      key={asset.id}
+                      asset={asset}
+                      isSelected={selectedAssets.includes(asset.id)}
+                      onSelect={() => {
+                        setSelectedAssets(prev => 
+                          prev.includes(asset.id)
+                            ? prev.filter(id => id !== asset.id)
+                            : [...prev, asset.id]
+                        );
+                      }}
+                      onPreview={() => setPreviewAsset(asset)}
+                      viewMode={viewMode}
+                    />
+                  ))}
                 </div>
-              )}
-            </div>
-          )}
-        </ScrollArea>
-      </DesignComponents.StandardCard>
+              </div>
+            ) : (
+              <div className="card" style={{ padding: '80px', textAlign: 'center' }}>
+                <ImageIcon style={{ width: '64px', height: '64px', margin: '0 auto 16px', color: 'hsl(var(--muted))' }} />
+                <h3 className="heading-3" style={{ marginBottom: '8px' }}>لا توجد ملفات</h3>
+                <p className="text-muted">ابدأ برفع بعض الملفات إلى مكتبتك</p>
+              </div>
+            )}
+          </>
+        )}
+      </div>
 
-      {/* مودال رفع الصور */}
-      <AdvancedImageUpload
-        open={showUpload}
-        onOpenChange={setShowUpload}
-        onUploadComplete={handleUploadComplete}
-        selectedFolder={selectedFolder}
-      />
-
-      {/* مودال الاختيار الذكي */}
-      <SmartMediaPicker
-        open={showSmartPicker}
-        onOpenChange={setShowSmartPicker}
-        onSelectImages={handleSmartPickerSelection}
-        multiSelect={true}
-      />
+      {/* Preview Modal */}
+      {previewAsset && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0, 0, 0, 0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '20px'
+        }} onClick={() => setPreviewAsset(null)}>
+          <div style={{ position: 'relative', maxWidth: '90vw', maxHeight: '90vh' }}>
+            <button
+              onClick={() => setPreviewAsset(null)}
+              className="btn btn-sm"
+              style={{
+                position: 'absolute',
+                top: '-40px',
+                right: 0,
+                background: 'white',
+                color: 'black'
+              }}
+            >
+              <X style={{ width: '16px', height: '16px' }} />
+            </button>
+            
+            {previewAsset.type === "IMAGE" ? (
+              <Image
+                src={previewAsset.cloudinaryUrl}
+                alt={previewAsset.originalName}
+                width={previewAsset.width || 800}
+                height={previewAsset.height || 600}
+                style={{ 
+                  maxWidth: '100%',
+                  maxHeight: '80vh',
+                  width: 'auto',
+                  height: 'auto',
+                  borderRadius: '8px'
+                }}
+              />
+            ) : (
+              <div className="card" style={{ padding: '40px', textAlign: 'center' }}>
+                <FileText style={{ width: '64px', height: '64px', margin: '0 auto 16px', color: 'hsl(var(--muted))' }} />
+                <h3 className="heading-3">{previewAsset.originalName}</h3>
+                <p className="text-muted">{formatFileSize(previewAsset.size)}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
