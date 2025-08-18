@@ -250,10 +250,10 @@ export default function AdminMobileDashboard() {
       <section style={{ marginBottom: "24px", overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
         <div style={{ 
           display: "flex", 
-          gap: "12px", 
-          paddingBottom: "8px",
+          gap: "8px", 
+          paddingBottom: "6px",
           minWidth: "fit-content",
-          padding: "0 20px"
+          padding: "0 16px"
         }}>
           {/* الزوار النشطون */}
           <LiveIndicator
@@ -295,7 +295,7 @@ export default function AdminMobileDashboard() {
       </section>
 
       {/* الإجراءات السريعة */}
-      <section style={{ marginBottom: "24px", padding: "0 20px" }}>
+      <section style={{ marginBottom: "16px", padding: "0 16px" }}>
         <h2 style={{ 
           fontSize: "16px", 
           fontWeight: "600", 
@@ -309,7 +309,7 @@ export default function AdminMobileDashboard() {
           إجراءات سريعة
         </h2>
         
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px" }}>
           {quickActions.map((action, index) => (
             <Link key={action.href} href={action.href} style={{ textDecoration: "none" }}>
               <motion.div
@@ -320,16 +320,16 @@ export default function AdminMobileDashboard() {
                 style={{
                   background: `linear-gradient(135deg, ${action.gradient.split(' ')[1]}, ${action.gradient.split(' ')[3]})`,
                   color: "white",
-                  borderRadius: "12px",
-                  padding: "20px",
+                  borderRadius: "10px",
+                  padding: "12px 8px",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
                   justifyContent: "center",
-                  minHeight: "100px",
+                  minHeight: "84px",
                   position: "relative",
                   overflow: "hidden",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.08)"
                 }}
               >
                 <div style={{
@@ -342,8 +342,8 @@ export default function AdminMobileDashboard() {
                   borderRadius: "50%"
                 }} />
                 
-                <action.icon size={28} style={{ marginBottom: "8px", position: "relative", zIndex: 1 }} />
-                <span style={{ fontSize: "14px", fontWeight: "600", position: "relative", zIndex: 1 }}>
+                <action.icon size={22} style={{ marginBottom: "6px", position: "relative", zIndex: 1 }} />
+                <span style={{ fontSize: "12px", fontWeight: "600", position: "relative", zIndex: 1, textAlign: "center" }}>
                   {action.title}
                 </span>
               </motion.div>
@@ -353,7 +353,7 @@ export default function AdminMobileDashboard() {
       </section>
 
       {/* آخر الأخبار */}
-      <section style={{ padding: "0 20px" }}>
+      <section style={{ padding: "0 16px" }}>
         <div style={{ 
           display: "flex", 
           alignItems: "center", 
@@ -432,7 +432,7 @@ export default function AdminMobileDashboard() {
             </Link>
           </motion.div>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
             {recentArticles.slice(0, 3).map((article, index) => (
               <motion.div
                 key={article.id}

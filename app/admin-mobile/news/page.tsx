@@ -161,7 +161,7 @@ export default function AdminMobileNewsPage() {
   };
 
   return (
-    <div className="mobile-news-page">
+    <div className="mobile-news-page" dir="rtl">
       {/* شريط البحث والفلتر */}
       <div style={{
         position: "sticky",
@@ -268,7 +268,7 @@ export default function AdminMobileNewsPage() {
       </div>
 
       {/* قائمة الأخبار */}
-      <div style={{ padding: "16px" }}>
+      <div style={{ padding: "8px 12px" }}>
         {loading && articles.length === 0 ? (
           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
             {[...Array(5)].map((_, i) => (
@@ -284,7 +284,7 @@ export default function AdminMobileNewsPage() {
           <EmptyState status={selectedStatus} />
         ) : (
           <>
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            <div style={{ display: "flex", flexDirection: "column" }}>
               {articles.map((article) => (
                 <NewsCard
                   key={article.id}
@@ -299,7 +299,7 @@ export default function AdminMobileNewsPage() {
 
             {/* مؤشر التحميل */}
             {hasMore && (
-              <div ref={loadMoreRef} style={{ textAlign: "center", padding: "20px" }}>
+              <div ref={loadMoreRef} style={{ textAlign: "center", padding: "16px" }}>
                 <div className="loading-spinner" />
               </div>
             )}
@@ -366,33 +366,31 @@ function NewsCard({
       whileTap={{ scale: 0.98 }}
       className="news-card-mobile"
       style={{
-        background: "hsl(var(--bg-card))",
-        border: "1px solid hsl(var(--line))",
-        borderRadius: "12px",
-        overflow: "hidden",
+        background: "transparent",
+        borderBottom: "1px solid hsl(var(--line))",
+        overflow: "visible",
         position: "relative"
       }}
     >
       <div style={{
         display: "flex",
         gap: "12px",
-        padding: "16px",
+        padding: "12px 0",
         alignItems: "flex-start",
         width: "100%"
       }}>
         {/* الصورة المصغرة */}
         <div style={{
-          width: "80px",
-          height: "80px",
+          width: "64px",
+          height: "64px",
           borderRadius: "8px",
           overflow: "hidden",
-          background: "hsl(var(--bg))",
-          flexShrink: 0,
-          border: "1px solid hsl(var(--line))"
+          background: "hsl(var(--accent) / 0.08)",
+          flexShrink: 0
         }}>
-          {article.thumbnail_url ? (
+          {((article as any).thumbnail_url || (article as any).image_url || (article as any).thumbnail || (article as any).image || (article as any).cover_url) ? (
             <img
-              src={article.thumbnail_url}
+              src={(article as any).thumbnail_url || (article as any).image_url || (article as any).thumbnail || (article as any).image || (article as any).cover_url}
               alt={article.title}
               style={{
                 width: "100%",
@@ -436,12 +434,12 @@ function NewsCard({
         </div>
 
         {/* المحتوى */}
-        <div style={{ flex: 1, minWidth: 0, paddingRight: "8px" }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
           {/* العنوان */}
           <h3 style={{
-            fontSize: "14px",
-            fontWeight: "600",
-            marginBottom: "4px",
+            fontSize: "15px",
+            fontWeight: "700",
+            marginBottom: "6px",
             lineHeight: "1.4",
             color: "hsl(var(--fg))",
             display: "-webkit-box",
@@ -449,7 +447,7 @@ function NewsCard({
             WebkitBoxOrient: "vertical",
             overflow: "hidden"
           }}>
-            {article.title}
+            {(article as any).main_title || article.title}
           </h3>
 
           {/* السطر الأول: الحالة والتصنيف */}
@@ -540,7 +538,7 @@ function NewsCard({
           style={{
             background: "transparent",
             border: "none",
-            padding: "8px",
+            padding: "4px",
             cursor: "pointer",
             color: "hsl(var(--muted))",
             borderRadius: "8px",
@@ -553,7 +551,7 @@ function NewsCard({
             e.currentTarget.style.background = "transparent";
           }}
         >
-          <MoreVertical size={18} />
+          <MoreVertical size={16} />
         </button>
       </div>
 
@@ -579,7 +577,7 @@ function NewsCard({
             }}
           >
             <Link
-              href={`/admin-mobile/news/create?id=${article.id}`}
+              href={`/admin/news/edit/${article.id}`}
               style={{
                 width: "40px",
                 height: "40px",
@@ -593,7 +591,7 @@ function NewsCard({
                 boxShadow: "0 2px 8px rgba(0,0,0,0.15)"
               }}
             >
-              <Edit size={18} />
+              <Edit size={16} />
             </Link>
             <button
               onClick={onToggleBreaking}
