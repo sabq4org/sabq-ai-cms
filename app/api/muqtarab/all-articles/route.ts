@@ -3,44 +3,51 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-// كاش في الذاكرة للأداء الفائق
-let allArticlesCache: any = null;
-let allArticlesCacheTimestamp = 0;
-const CACHE_DURATION = 30000; // 30 ثانية
+// كاش في الذاكرة للأداء الفائق (مفاتيح حسب المعاملات)
+type CacheEntry = { ts: number; data: any; etag: string };
+const cacheStore: Map<string, CacheEntry> = new Map();
+const CACHE_DURATION = 300000; // 300 ثانية (5 دقائق)
 
 export async function GET(request: NextRequest) {
   try {
     console.log("🚀 [All Muqtarab Articles - Fast] بدء جلب المقالات...");
 
-    // تحقق من الكاش أولاً
-    const now = Date.now();
-    if (allArticlesCache && now - allArticlesCacheTimestamp < CACHE_DURATION) {
-      console.log("⚡ [All Articles Cache] إرجاع من الكاش");
-      const res = NextResponse.json(allArticlesCache);
-      res.headers.set("X-Cache", "HIT");
-      res.headers.set(
-        "X-Cache-Age",
-        `${Math.floor((now - allArticlesCacheTimestamp) / 1000)}s`
-      );
-      return res;
-    }
-
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "20"); // زيادة الحد الافتراضي إلى 20
+    const limit = parseInt(searchParams.get("limit") || "16");
     const sortBy = searchParams.get("sortBy") || "newest";
+    const category = searchParams.get("category") || undefined;
+    const featured = searchParams.get("featured") === "true";
+
+    // مفتاح الكاش حسب المعاملات
+    const cacheKey = `page=${page}&limit=${limit}&sortBy=${sortBy}&category=${category || ''}&featured=${featured}`;
+    const now = Date.now();
+    const cached = cacheStore.get(cacheKey);
+    if (cached && now - cached.ts < CACHE_DURATION) {
+      console.log("⚡ [All Articles Cache] HIT", cacheKey);
+      const res = NextResponse.json(cached.data);
+      res.headers.set("ETag", cached.etag);
+      res.headers.set("X-Cache", "HIT");
+      res.headers.set("X-Cache-Age", `${Math.floor((now - cached.ts) / 1000)}s`);
+      res.headers.set("Cache-Control", "public, max-age=300, stale-while-revalidate=300");
+      res.headers.set("CDN-Cache-Control", "public, s-maxage=300, stale-while-revalidate=300");
+      return res;
+    }
 
     const skip = (page - 1) * limit;
     const startTime = Date.now();
 
     let orderBy: any = { publish_at: "desc" };
-    if (sortBy === "popular") {
-      orderBy = { view_count: "desc" };
-    }
+    if (sortBy === "popular") orderBy = { view_count: "desc" };
+    if (sortBy === "featured") orderBy = { is_featured: "desc" };
 
     const where: any = {
       status: "published",
       publish_at: { lte: new Date() },
+      ...(featured ? { is_featured: true } : {}),
+      ...(category
+        ? { corner: { slug: category } } // تصفية حسب الزاوية إذا وُجدت
+        : {}),
     };
 
     // استعلام محسن جداً
@@ -141,9 +148,9 @@ export async function GET(request: NextRequest) {
       },
     };
 
-    // حفظ في الكاش
-    allArticlesCache = responseData;
-    allArticlesCacheTimestamp = now;
+    // حفظ في الكاش بالمفتاح
+    const etag = `"muqtarab-${page}-${limit}-${sortBy}-${category || ''}-${featured}-${totalCount}"`;
+    cacheStore.set(cacheKey, { ts: now, data: responseData, etag });
 
     console.log(
       `✅ [All Articles] تم جلب ${formattedArticles.length} مقال في ${
@@ -152,11 +159,9 @@ export async function GET(request: NextRequest) {
     );
 
     const res = NextResponse.json(responseData);
-    res.headers.set(
-      "Cache-Control",
-      "public, max-age=30, stale-while-revalidate=60"
-    );
-    res.headers.set("CDN-Cache-Control", "public, s-maxage=120");
+    res.headers.set("Cache-Control", "public, max-age=300, stale-while-revalidate=300");
+    res.headers.set("CDN-Cache-Control", "public, s-maxage=300, stale-while-revalidate=300");
+    res.headers.set("ETag", etag);
     res.headers.set("X-Cache", "MISS");
     res.headers.set("X-Response-Time", `${Date.now() - now}ms`);
 
