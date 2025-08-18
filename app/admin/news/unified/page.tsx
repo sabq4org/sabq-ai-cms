@@ -300,14 +300,20 @@ export default function ManusNewsCreatePage() {
             ? smartData.variants[0]
             : null;
 
-          if (variant) {
+                    if (variant) {
             console.log("✅ variant موجود:", variant);
+            
+            // نسخة مصغرة من الموجز للعرض
+            const displayExcerpt = variant.smart_summary 
+              ? String(variant.smart_summary).slice(0, 160).trim() + (variant.smart_summary.length > 160 ? "..." : "") 
+              : "";
+              
             setFormData((prev) => ({
-        ...prev,
+              ...prev,
               title: variant.title || prev.title,
               subtitle: variant.subtitle || prev.subtitle,
               // قصّ الموجز إلى 160 حرف لتحديث الحقل دائماً بشكل مناسب للعرض
-              excerpt: (variant.smart_summary ? String(variant.smart_summary).slice(0, 160).trim() : prev.excerpt),
+              excerpt: displayExcerpt || prev.excerpt,
               // دمج الكلمات والوسوم إن توفرت
               keywords: [
                 ...new Set([
