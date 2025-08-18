@@ -41,16 +41,23 @@ export default function AdminMobileLayout({ children }: { children: React.ReactN
     link1.href = '/admin-mobile-first.css';
     document.head.appendChild(link1);
     
-    // تحميل CSS الإصلاحات
-    const link2 = document.createElement('link');
-    link2.rel = 'stylesheet';
-    link2.href = '/styles/admin-mobile-news-fix.css';
-    document.head.appendChild(link2);
-    
-    return () => {
-      document.head.removeChild(link1);
-      document.head.removeChild(link2);
-    };
+          // تحميل CSS الإصلاحات
+      const link2 = document.createElement('link');
+      link2.rel = 'stylesheet';
+      link2.href = '/styles/admin-mobile-news-fix.css';
+      document.head.appendChild(link2);
+
+      // تحميل CSS الإصلاحات الحرجة
+      const link3 = document.createElement('link');
+      link3.rel = 'stylesheet';
+      link3.href = '/admin-mobile-critical-fixes.css';
+      document.head.appendChild(link3);
+
+      return () => {
+        document.head.removeChild(link1);
+        document.head.removeChild(link2);
+        document.head.removeChild(link3);
+      };
   }, []);
 
   // نظام الألوان
