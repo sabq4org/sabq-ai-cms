@@ -1,0 +1,314 @@
+/**
+ * تطبيق الألوان النظيفة على الواجهة الرسمية
+ * Clean Colors for Official Interface
+ */
+
+/* ====================================
+   الألوان النظيفة - Clean Colors
+   ==================================== */
+:root {
+  /* تحديث الألوان الأساسية */
+  --primary: #0066cc !important;           /* الأزرق الأساسي */
+  --primary-hover: #0052a3 !important;     /* الأزرق عند التحويم */
+  --secondary: #6c757d !important;         /* الرمادي */
+  --success: #28a745 !important;          /* الأخضر */
+  --danger: #dc3545 !important;           /* الأحمر */
+  --warning: #ffc107 !important;          /* الأصفر */
+  --info: #17a2b8 !important;             /* الأزرق الفاتح */
+  
+  /* ألوان الخلفيات */
+  --background: #ffffff !important;        /* الخلفية الرئيسية */
+  --surface: #f8f9fa !important;          /* خلفية السطح */
+  --card-bg: #ffffff !important;          /* خلفية البطاقات */
+  
+  /* ألوان النصوص */
+  --text-primary: #212529 !important;      /* النص الأساسي */
+  --text-secondary: #6c757d !important;    /* النص الثانوي */
+  --text-muted: #6c757d !important;       /* النص الباهت */
+  
+  /* ألوان الحدود */
+  --border-color: #e9ecef !important;      /* لون الحدود */
+  --border-light: #f1f3f5 !important;      /* حدود فاتحة */
+  
+  /* الظلال */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05) !important;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.1) !important;
+}
+
+/* الوضع الداكن */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary: #4dabf7 !important;
+    --primary-hover: #339af0 !important;
+    --background: #1a1a1a !important;
+    --surface: #2d2d2d !important;
+    --card-bg: #2d2d2d !important;
+    --text-primary: #e9ecef !important;
+    --text-secondary: #adb5bd !important;
+    --text-muted: #868e96 !important;
+    --border-color: #343a40 !important;
+    --border-light: #495057 !important;
+  }
+}
+
+.dark {
+  --primary: #4dabf7 !important;
+  --primary-hover: #339af0 !important;
+  --background: #1a1a1a !important;
+  --surface: #2d2d2d !important;
+  --card-bg: #2d2d2d !important;
+  --text-primary: #e9ecef !important;
+  --text-secondary: #adb5bd !important;
+  --text-muted: #868e96 !important;
+  --border-color: #343a40 !important;
+  --border-light: #495057 !important;
+}
+
+/* ====================================
+   تطبيق الألوان على العناصر
+   ==================================== */
+
+/* الخلفية العامة */
+body {
+  background-color: var(--background) !important;
+  color: var(--text-primary) !important;
+}
+
+/* الهيدر */
+header,
+.header,
+nav,
+.navbar {
+  background-color: var(--background) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+/* الروابط */
+a {
+  color: var(--primary) !important;
+}
+
+a:hover {
+  color: var(--primary-hover) !important;
+}
+
+/* الأزرار */
+.btn-primary,
+.bg-blue-600,
+.bg-blue-500 {
+  background-color: var(--primary) !important;
+  border-color: var(--primary) !important;
+}
+
+.btn-primary:hover,
+.bg-blue-600:hover,
+.bg-blue-500:hover,
+.hover\:bg-blue-700:hover,
+.hover\:bg-blue-600:hover {
+  background-color: var(--primary-hover) !important;
+  border-color: var(--primary-hover) !important;
+}
+
+/* البطاقات */
+.card,
+.bg-white,
+.rounded-lg,
+.rounded-xl {
+  background-color: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+/* النصوص */
+.text-gray-500,
+.text-gray-600,
+.text-muted {
+  color: var(--text-secondary) !important;
+}
+
+.text-gray-700,
+.text-gray-800,
+.text-gray-900 {
+  color: var(--text-primary) !important;
+}
+
+/* الحدود */
+.border,
+.border-gray-200,
+.border-gray-300,
+.divide-gray-200 > * {
+  border-color: var(--border-color) !important;
+}
+
+/* الخلفيات الثانوية */
+.bg-gray-50,
+.bg-gray-100 {
+  background-color: var(--surface) !important;
+}
+
+/* الظلال */
+.shadow-sm {
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.shadow {
+  box-shadow: var(--shadow) !important;
+}
+
+.shadow-lg,
+.shadow-xl {
+  box-shadow: var(--shadow-lg) !important;
+}
+
+/* ====================================
+   تعديلات خاصة بالموقع
+   ==================================== */
+
+/* شريط الأخبار العاجلة */
+.breaking-news,
+.bg-red-600,
+.bg-red-500 {
+  background-color: var(--danger) !important;
+}
+
+/* التصنيفات */
+.category-badge {
+  background-color: var(--surface) !important;
+  color: var(--primary) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+/* التنبيهات */
+.alert-success,
+.bg-green-500,
+.bg-green-600 {
+  background-color: var(--success) !important;
+}
+
+.alert-warning,
+.bg-yellow-500,
+.bg-yellow-600 {
+  background-color: var(--warning) !important;
+}
+
+.alert-info,
+.bg-blue-400,
+.bg-cyan-500 {
+  background-color: var(--info) !important;
+}
+
+/* الإحصائيات */
+.stat-card {
+  background-color: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+/* القوائم المنسدلة */
+.dropdown-menu,
+[role="menu"] {
+  background-color: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+/* الحقول والنماذج */
+input,
+textarea,
+select,
+.form-control {
+  background-color: var(--background) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus,
+.form-control:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1) !important;
+}
+
+/* الجداول */
+table {
+  background-color: var(--card-bg) !important;
+}
+
+th {
+  background-color: var(--surface) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+td {
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+tr:hover {
+  background-color: var(--surface) !important;
+}
+
+/* الفوتر */
+footer {
+  background-color: var(--surface) !important;
+  border-top: 1px solid var(--border-color) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* ====================================
+   تجاوز أنماط Tailwind
+   ==================================== */
+
+/* إزالة الألوان الزاهية */
+.bg-purple-600,
+.bg-purple-500,
+.bg-indigo-600,
+.bg-indigo-500,
+.bg-pink-600,
+.bg-pink-500 {
+  background-color: var(--primary) !important;
+}
+
+.text-purple-600,
+.text-purple-500,
+.text-indigo-600,
+.text-indigo-500,
+.text-pink-600,
+.text-pink-500 {
+  color: var(--primary) !important;
+}
+
+/* تنظيف الألوان المتعددة */
+.from-blue-500,
+.from-purple-500,
+.from-pink-500,
+.from-indigo-500 {
+  --tw-gradient-from: var(--primary) !important;
+}
+
+.to-blue-600,
+.to-purple-600,
+.to-pink-600,
+.to-indigo-600 {
+  --tw-gradient-to: var(--primary-hover) !important;
+}
+
+/* حالات الهوفر */
+.hover\:text-blue-600:hover,
+.hover\:text-blue-700:hover {
+  color: var(--primary-hover) !important;
+}
+
+/* إزالة التأثيرات الزائدة */
+.backdrop-blur-sm,
+.backdrop-blur-md,
+.backdrop-blur-lg {
+  backdrop-filter: none !important;
+}
+
+/* تبسيط الانتقالات */
+.transition-all {
+  transition-property: background-color, border-color, color !important;
+  transition-duration: 200ms !important;
+}
