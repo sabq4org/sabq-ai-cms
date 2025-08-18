@@ -1,13 +1,13 @@
 /* 📏 إصلاح المسافات بين الهيدر والمحتوى */
 
-/* إضافة مسافة مريحة بين الهيدر والمحتوى */
+/* إضافة مسافة مناسبة بين الهيدر والمحتوى */
 .page-content-wrapper {
-  padding-top: calc(var(--header-height) + 1.5rem) !important; /* هيدر + 24px مسافة إضافية */
+  padding-top: calc(var(--header-height, 64px) + 0.5rem) !important; /* هيدر + 8px مسافة بسيطة */
 }
 
 @media (max-width: 768px) {
   .page-content-wrapper {
-    padding-top: calc(var(--mobile-header-height) + 1rem) !important; /* هيدر موبايل + 16px مسافة إضافية */
+    padding-top: calc(var(--mobile-header-height, 56px) + 0.5rem) !important; /* هيدر موبايل + 8px مسافة بسيطة */
   }
 }
 
@@ -46,13 +46,13 @@
 /* مسافة محسنة للشاشات الكبيرة */
 @media (min-width: 1024px) {
   .page-content-wrapper {
-    padding-top: calc(var(--header-height) + 2rem) !important; /* 32px مسافة إضافية للديسكتوب */
+    padding-top: calc(var(--header-height, 64px) + 0.75rem) !important; /* 12px مسافة مناسبة للديسكتوب */
   }
 }
 
 /* مسافة محسنة للشاشات الصغيرة جداً */
 @media (max-width: 480px) {
   .page-content-wrapper {
-    padding-top: calc(var(--mobile-header-height) + 0.75rem) !important; /* 12px للشاشات الصغيرة */
+    padding-top: calc(var(--mobile-header-height, 56px) + 0.25rem) !important; /* 4px للشاشات الصغيرة */
   }
 }

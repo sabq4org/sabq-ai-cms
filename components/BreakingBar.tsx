@@ -109,11 +109,12 @@ export default function BreakingBar() {
       aria-live="polite"
       style={{
         position: 'sticky',
-        top: 0,
-        zIndex: 40,
+        top: 'var(--header-height, 64px)', // يبدأ بعد الهيدر الرئيسي
+        zIndex: 39, // أقل من الهيدر الرئيسي
         background: 'linear-gradient(90deg, rgba(239,68,68,0.06), transparent)',
         borderBottom: '1px solid rgba(239,68,68,0.25)',
         backdropFilter: 'blur(6px)',
+        marginBottom: '0', // إزالة أي margin سفلي
       }}
     >
       <div
