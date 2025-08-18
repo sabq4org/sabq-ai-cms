@@ -21,17 +21,22 @@ export async function GET(request: NextRequest) {
     const featured = searchParams.get("featured");
     const breaking = searchParams.get("breaking");
     const includeCategories = searchParams.get("include_categories") === "true";
+    const minimal = searchParams.get("minimal") === "true";
+    const includeCommentCounts = searchParams.get("include_comment_counts") === "true";
 
     const skip = (page - 1) * limit;
 
-    console.log("📰 [News API] جلب الأخبار مع المعاملات:", {
-      page,
-      limit,
-      status,
-      categoryId,
-      categorySlug,
-      articleType,
-    });
+    if (process.env.NODE_ENV !== 'production') {
+      console.log("📰 [News API] جلب الأخبار مع المعاملات:", {
+        page,
+        limit,
+        status,
+        categoryId,
+        categorySlug,
+        articleType,
+        minimal,
+      });
+    }
 
     // بناء فلتر نوع المحتوى: الأخبار = استبعاد الرأي والتحليل والمقابلات
     const typeFilter =
@@ -99,51 +104,81 @@ export async function GET(request: NextRequest) {
     const orderBy: any = {};
     orderBy[sort] = order;
 
-    console.log("🔍 [News API] شروط البحث:", where);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log("🔍 [News API] شروط البحث:", where);
+    }
 
-    // جلب المقالات مع العلاقات
+    // جلب المقالات مع العلاقات/الحقول المطلوبة فقط
     const articles = await prisma.articles.findMany({
       where,
-      include: {
-        categories: true,
-        author: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-        article_author: {
-          select: {
-            id: true,
-            full_name: true,
-            email: true,
-            bio: true,
-          },
-        },
-      },
+      ...(minimal
+        ? {
+            select: {
+              id: true,
+              slug: true,
+              title: true,
+              featured_image: true,
+              status: true,
+              article_type: true,
+              content_type: true,
+              published_at: true,
+              created_at: true,
+              updated_at: true,
+              views: true,
+              reading_time: true,
+              featured: true,
+              breaking: true,
+              category_id: true,
+              author_id: true,
+              article_author_id: true,
+              ...(includeCategories
+                ? {
+                    categories: {
+                      select: { id: true, name: true, slug: true, color: true },
+                    },
+                  }
+                : {}),
+              author: { select: { id: true, name: true } },
+              article_author: { select: { id: true, full_name: true } },
+            },
+          }
+        : {
+            include: {
+              categories: includeCategories,
+              author: {
+                select: { id: true, name: true, email: true },
+              },
+              article_author: {
+                select: { id: true, full_name: true, email: true, bio: true },
+              },
+            },
+          }),
       orderBy,
       skip,
       take: limit,
     });
 
-    console.log(`✅ [News API] تم جلب ${articles.length} مقال`);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`✅ [News API] تم جلب ${articles.length} مقال`);
+    }
 
-    // جلب عدد التعليقات الموافق عليها بشكل مجمّع
-    const articleIds = articles.map((a) => a.id).filter(Boolean) as string[];
+    // جلب عدد التعليقات الموافق عليها بشكل مجمّع (اختياري)
     let commentsCountsMap = new Map<string, number>();
-    if (articleIds.length > 0) {
-      try {
-        const grouped = await prisma.comments.groupBy({
-          by: ["article_id"],
-          where: { article_id: { in: articleIds }, status: "approved" },
-          _count: { _all: true },
-        });
-        commentsCountsMap = new Map(
-          grouped.map((g: any) => [g.article_id, g._count?._all || 0])
-        );
-      } catch (e) {
-        console.error("⚠️ فشل جلب عدد التعليقات المجمّع:", e);
+    if (includeCommentCounts) {
+      const articleIds = (articles as any[]).map((a) => a.id).filter(Boolean) as string[];
+      if (articleIds.length > 0) {
+        try {
+          const grouped = await prisma.comments.groupBy({
+            by: ["article_id"],
+            where: { article_id: { in: articleIds }, status: "approved" },
+            _count: { _all: true },
+          });
+          commentsCountsMap = new Map(
+            grouped.map((g: any) => [g.article_id, g._count?._all || 0])
+          );
+        } catch (e) {
+          console.error("⚠️ فشل جلب عدد التعليقات المجمّع:", e);
+        }
       }
     }
 
@@ -158,8 +193,7 @@ export async function GET(request: NextRequest) {
         slug: article.slug,
         id: article.id,
         title: article.title,
-        content: article.content,
-        summary: article.summary,
+        ...(minimal ? {} : { content: (article as any).content, summary: (article as any).summary }),
         image: article.featured_image,
         image_url: article.featured_image,
         status: article.status,
@@ -177,12 +211,12 @@ export async function GET(request: NextRequest) {
         reading_time: article.reading_time,
 
         // معلومات التصنيف
-        category: article.categories
+        category: (article as any).categories
           ? {
-              id: article.categories.id,
-              name: article.categories.name,
-              slug: article.categories.slug,
-              color: article.categories.color,
+              id: (article as any).categories.id,
+              name: (article as any).categories.name,
+              slug: (article as any).categories.slug,
+              color: (article as any).categories.color,
             }
           : null,
 
@@ -191,8 +225,7 @@ export async function GET(request: NextRequest) {
           ? {
               id: selectedAuthor.id,
               name: authorName,
-              email: selectedAuthor.email,
-              bio: article.article_author?.bio,
+              ...(minimal ? {} : { email: (selectedAuthor as any).email, bio: (article as any).article_author?.bio }),
               avatar_url: null,
             }
           : null,

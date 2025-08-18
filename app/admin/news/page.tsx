@@ -280,13 +280,15 @@ function AdminNewsPageContent() {
       }
 
       console.log(`📡 استدعاء API الجديد: /api/news?${params}`);
-      const response = await fetch(`/api/news?${params}`, {
+      const controller = new AbortController();
+      const response = await fetch(`/api/news?${params}&minimal=true&include_comment_counts=false`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
           "Cache-Control": "no-cache",
         },
+        signal: controller.signal,
       });
       console.log(`📊 حالة الاستجابة: ${response.status}`);
       console.log(`📊 Content-Type: ${response.headers.get("content-type")}`);
