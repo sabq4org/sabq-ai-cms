@@ -183,6 +183,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     Cookies.remove("user");
     Cookies.remove("auth-token");
     Cookies.remove("token");
+    Cookies.remove("access_token");
+    Cookies.remove("refresh_token");
 
     // إزالة من localStorage أيضاً
     if (typeof window !== "undefined") {

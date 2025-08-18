@@ -134,6 +134,8 @@ export function useAuth() {
     Cookies.remove('user');
     Cookies.remove('auth-token');
     Cookies.remove('token');
+    Cookies.remove('access_token');
+    Cookies.remove('refresh_token');
   }, [updateAuthState]);
 
   // تحميل البيانات عند بدء التطبيق

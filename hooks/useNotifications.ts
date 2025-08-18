@@ -79,12 +79,29 @@ export const useNotifications = () => {
     notificationService.remove(id);
   }, []);
 
-  const markAsRead = useCallback((id: string) => {
-    notificationService.markAsRead(id);
+  const markAsRead = useCallback(async (id: string) => {
+    try {
+      // تحديث تفاؤلي
+      notificationService.markAsRead(id);
+      // حفظ في الخادم
+      await fetch('/api/notifications/mark-read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ notification_ids: [id] })
+      });
+    } catch (e) {
+      console.error('markAsRead failed:', e);
+    }
   }, []);
 
-  const markAllAsRead = useCallback(() => {
-    notificationService.markAllAsRead();
+  const markAllAsRead = useCallback(async () => {
+    try {
+      notificationService.markAllAsRead();
+      await fetch('/api/notifications/mark-all-read', { method: 'POST', credentials: 'include' });
+    } catch (e) {
+      console.error('markAllAsRead failed:', e);
+    }
   }, []);
 
   const clear = useCallback(() => {
