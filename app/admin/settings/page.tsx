@@ -457,14 +457,68 @@ export default function SettingsPage() {
 
   return (
     <>
-      {showSuccessMessage && (
-        <div className="fixed top-4 right-4 bg-green-500 text-white p-4 rounded-xl shadow-xl z-50 flex items-center gap-2 animate-pulse">
-          <CheckCircle className="w-5 h-5" />
-          تم حفظ الإعدادات بنجاح!
-        </div>
-      )}
+      <link rel="stylesheet" href="/manus-ui.css" />
+      <div style={{ 
+        minHeight: '100vh', 
+        background: 'hsl(var(--bg))', 
+        padding: '24px',
+        color: 'hsl(var(--fg))'
+      }}>
+        {showSuccessMessage && (
+          <div style={{
+            position: 'fixed',
+            top: '16px',
+            right: '16px',
+            background: 'hsl(var(--accent-3))',
+            color: 'white',
+            padding: '16px',
+            borderRadius: '12px',
+            boxShadow: '0 8px 16px rgba(0,0,0,0.15)',
+            zIndex: 50,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }} className="animate-pulse">
+            <CheckCircle style={{ width: '20px', height: '20px' }} />
+            تم حفظ الإعدادات بنجاح!
+          </div>
+        )}
 
-      <div className="space-y-6">
+        {/* رسالة الترحيب */}
+        <div className="card card-accent" style={{ marginBottom: '32px' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+            <div style={{
+              width: '48px',
+              height: '48px',
+              background: 'hsl(var(--accent) / 0.1)',
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'hsl(var(--accent))'
+            }}>
+              <Building style={{ width: '24px', height: '24px' }} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <h2 className="heading-2" style={{ marginBottom: '8px' }}>
+                إعدادات النظام المتقدمة
+              </h2>
+              <p className="text-muted" style={{ marginBottom: '16px' }}>
+                تحكم كامل في إعدادات الموقع والذكاء الاصطناعي والخدمات المتصلة
+              </p>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <div className="chip">
+                  🔧 إعدادات شاملة
+                </div>
+                <div className="chip chip-muted">
+                  🤖 ذكاء اصطناعي
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-6">
         {/* Navigation Tabs */}
         <TabsEnhanced
           tabs={tabs}
@@ -472,64 +526,38 @@ export default function SettingsPage() {
           onTabChange={setActiveTab}
         />
         {/* محتوى التبويبات */}
-        <div
-          className={`rounded-2xl shadow-sm border transition-colors duration-300 ${
-            darkMode
-              ? "bg-gray-800 border-gray-700"
-              : "bg-white border-gray-100"
-          }`}
-        >
-          <div className="p-6">
+        <div className="card">
+          <div style={{ padding: '24px' }}>
             {/* 🏷️ تبويب الهوية */}
             {activeTab === "identity" && (
-              <div className="space-y-6">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                    <Building className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <h3
-                      className={`text-xl font-bold transition-colors duration-300 ${
-                        darkMode ? "text-white" : "text-gray-800"
-                      }`}
-                    >
-                      🏷️ إعدادات الهوية
-                    </h3>
-                    <p
-                      className={`text-sm transition-colors duration-300 ${
-                        darkMode ? "text-gray-400" : "text-gray-500"
-                      }`}
-                    >
-                      الهوية البصرية والمعلومات الأساسية للصحيفة
-                    </p>
-                  </div>
+              <div style={{ display: 'grid', gap: '24px' }}>
+                <div className="card-header">
+                  <h3 className="card-title">🏷️ إعدادات الهوية</h3>
+                  <p className="text-muted">
+                    تخصيص اسم الموقع والوصف والشعار والهوية البصرية
+                  </p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label
-                      className={`block text-sm font-medium mb-2 transition-colors duration-300 ${
-                        darkMode ? "text-gray-300" : "text-gray-700"
-                      }`}
-                    >
+                    <label className="label">
                       اسم الصحيفة
                     </label>
                     <input
                       type="text"
                       value={siteName}
                       onChange={(e) => setSiteName(e.target.value)}
-                      className={`w-full px-4 py-3 rounded-xl border transition-all duration-300 ${
-                        darkMode
-                          ? "bg-gray-700 border-gray-600 text-white"
-                          : "bg-white border-gray-300 text-gray-900"
-                      } focus:ring-2 focus:ring-blue-500`}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        border: '1px solid hsl(var(--line))',
+                        borderRadius: '8px',
+                        background: 'hsl(var(--bg-card))',
+                        color: 'hsl(var(--fg))',
+                      }}
                     />
                   </div>
                   <div>
-                    <label
-                      className={`block text-sm font-medium mb-2 transition-colors duration-300 ${
-                        darkMode ? "text-gray-300" : "text-gray-700"
-                      }`}
-                    >
+                    <label className="label">
                       الرابط الأساسي
                     </label>
                     <input
@@ -541,11 +569,14 @@ export default function SettingsPage() {
                           baseUrl: e.target.value,
                         })
                       }
-                      className={`w-full px-4 py-3 rounded-xl border transition-all duration-300 ${
-                        darkMode
-                          ? "bg-gray-700 border-gray-600 text-white"
-                          : "bg-white border-gray-300 text-gray-900"
-                      } focus:ring-2 focus:ring-blue-500`}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        border: '1px solid hsl(var(--line))',
+                        borderRadius: '8px',
+                        background: 'hsl(var(--bg-card))',
+                        color: 'hsl(var(--fg))',
+                      }}
                     />
                   </div>
                   <div>
