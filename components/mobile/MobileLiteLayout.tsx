@@ -231,6 +231,15 @@ export default function MobileLiteLayout({
       )}
 
       <style jsx>{`
+        /* إزالة أي فراغ علوي وضمان عرض 100% */
+        :global(html, body, #__next, #__next > div) {
+          margin: 0 !important;
+          padding: 0 !important;
+          width: 100% !important;
+          max-width: 100% !important;
+          overflow-x: hidden !important;
+        }
+
         .mobile-lite-layout {
           min-height: 100vh;
           display: flex;
@@ -239,6 +248,8 @@ export default function MobileLiteLayout({
           color: var(--text-primary);
           transition: background-color 0.3s ease, color 0.3s ease;
           position: relative;
+          width: 100%;
+          max-width: 100%;
         }
 
         /* Header محسن */
@@ -259,6 +270,7 @@ export default function MobileLiteLayout({
           justify-content: space-between;
           padding: 12px 16px;
           max-width: 100%;
+          gap: 8px;
         }
 
         .header-brand {
@@ -285,7 +297,17 @@ export default function MobileLiteLayout({
           display: flex;
           align-items: center;
           gap: 8px;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: none;
+          white-space: nowrap;
+          touch-action: pan-x;
+          max-width: 50%;
         }
+
+        .header-actions::-webkit-scrollbar { display: none; }
+
+        .header-actions :global(*) { flex-shrink: 0; }
 
         /* زر القائمة الجانبية */
         .menu-button {
@@ -388,11 +410,14 @@ export default function MobileLiteLayout({
           flex-direction: column;
           min-height: 0;
           padding-top: calc(var(--ml-header-h, 56px) + env(safe-area-inset-top, 0px));
+          width: 100%;
+          max-width: 100%;
         }
 
         .main-content {
           flex: 1;
-          padding: 8px 16px 16px 16px; /* تقليل padding العلوي من 16px إلى 8px */
+          padding: 0; /* إزالة الفراغات الجانبية لضمان 100% */
+          width: 100%;
           max-width: 100%;
           overflow-x: hidden;
         }
