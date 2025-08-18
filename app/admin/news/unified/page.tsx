@@ -381,37 +381,84 @@ export default function ManusNewsCreatePage() {
             </div>
             
             <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-              {/* شريط التقدم */}
-              <div style={{ width: '160px' }}>
+              {/* شريط التقدم المحسن */}
+              <div className="card" style={{ 
+                width: '200px', 
+                padding: '16px',
+                background: completionScore >= 60 
+                  ? 'hsl(var(--accent) / 0.05)' 
+                  : 'hsl(46 91% 95%)', /* لون أصفر فاتح للتحذير */
+                border: `1px solid ${completionScore >= 60 
+                  ? 'hsl(var(--accent) / 0.2)' 
+                  : 'hsl(46 91% 80%)'}`
+              }}>
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '8px',
+                  marginBottom: '8px'
+                }}>
+                  <span style={{ 
+                    fontSize: '14px', 
+                    fontWeight: '600',
+                    color: completionScore >= 60 ? 'hsl(var(--accent))' : 'hsl(46 91% 40%)'
+                  }}>
+                    {completionScore}% مكتمل
+                  </span>
+                  <div
+                    style={{
+                      width: '12px',
+                      height: '12px',
+                      borderRadius: '50%',
+                      background: completionScore >= 60 ? 'hsl(var(--accent))' : '#f59e0b'
+                    }}
+                  />
+                </div>
+                
                 <div
                   style={{
                     width: '100%',
-                    height: '8px',
+                    height: '6px',
                     background: 'hsl(var(--line))',
-                    borderRadius: '4px',
-                    overflow: 'hidden'
+                    borderRadius: '3px',
+                    overflow: 'hidden',
+                    marginBottom: '8px'
                   }}
                 >
                   <div
                     style={{
                       width: `${completionScore}%`,
                       height: '100%',
-                      background: completionScore >= 60 ? 'hsl(var(--accent))' : '#f59e0b',
-                      transition: 'width 0.3s ease'
+                      background: completionScore >= 60 
+                        ? 'linear-gradient(to right, hsl(var(--accent)), hsl(var(--accent-2)))' 
+                        : 'linear-gradient(to right, #f59e0b, #f97316)',
+                      transition: 'width 0.5s ease',
+                      borderRadius: '3px'
                     }}
                   />
                 </div>
-                <p
-                  style={{
-                    fontSize: '12px',
-                    margin: '4px 0 0 0',
+                
+                {completionScore < 60 && (
+                  <p style={{
+                    fontSize: '11px',
+                    color: 'hsl(46 91% 40%)',
                     fontWeight: '500',
-                    color: completionScore >= 60 ? 'hsl(var(--accent))' : '#f59e0b'
-                  }}
-                >
-                  {completionScore}% مكتمل
-                  {completionScore < 60 && ` (يجب ${60 - completionScore}% إضافية للنشر)`}
-                </p>
+                    margin: 0
+                  }}>
+                    يجب {60 - completionScore}% إضافية للنشر
+                  </p>
+                )}
+                
+                {completionScore >= 60 && (
+                  <p style={{
+                    fontSize: '11px',
+                    color: 'hsl(var(--accent))',
+                    fontWeight: '500',
+                    margin: 0
+                  }}>
+                    ✅ جاهز للنشر
+                  </p>
+                )}
               </div>
 
               {/* أزرار النشر */}
@@ -572,52 +619,110 @@ export default function ManusNewsCreatePage() {
               </div>
             </div>
 
-            {/* محرر المحتوى */}
-            <div className="card">
-              <div className="card-header">
-                <div className="card-title">
-                  <FileText className="w-5 h-5" />
-                  محتوى الخبر *
-                </div>
-                
-                <button
-                  onClick={generateFromContent}
-                  disabled={isAILoading}
-                  className="btn btn-sm"
-                  style={{
-                    background: 'linear-gradient(to right, hsl(var(--accent)), hsl(var(--accent-2)))',
-                    color: 'white',
-                    marginRight: 'auto'
-                  }}
-                >
-                  {isAILoading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      جاري التوليد...
-                    </>
-                  ) : (
-                    <>
-                      <Wand2 className="w-4 h-4" />
-                      🤖 توليد تلقائي
-                    </>
-                  )}
-                </button>
-              </div>
-              
-              <div style={{
-                minHeight: '400px',
-                borderRadius: '8px',
-                background: 'hsl(var(--bg-card))',
-                border: '1px solid hsl(var(--line))'
-              }}>
-                <Editor
-                  ref={editorRef}
-                  content={formData.content}
-                  onChange={handleContentChange}
-                  placeholder="اكتب محتوى الخبر هنا..."
-                />
-              </div>
-            </div>
+                         {/* محرر المحتوى */}
+             <div className="card">
+               <div className="card-header">
+                 <div className="card-title">
+                   <FileText className="w-5 h-5" />
+                   محتوى الخبر *
+                 </div>
+                 
+                 <button
+                   onClick={generateFromContent}
+                   disabled={isAILoading}
+                   className="btn btn-sm"
+                   style={{
+                     background: 'linear-gradient(to right, hsl(var(--accent)), hsl(var(--accent-2)))',
+                     color: 'white',
+                     marginRight: 'auto'
+                   }}
+                 >
+                   {isAILoading ? (
+                     <>
+                       <Loader2 className="w-4 h-4 animate-spin" />
+                       جاري التوليد...
+                     </>
+                   ) : (
+                     <>
+                       <Wand2 className="w-4 h-4" />
+                       🤖 توليد تلقائي
+                     </>
+                   )}
+                 </button>
+               </div>
+               
+               {/* العبارة الإرشادية */}
+               <div 
+                 className="card"
+                 style={{
+                   background: 'linear-gradient(135deg, hsl(var(--accent) / 0.03), hsl(var(--accent-2) / 0.03))',
+                   border: '1px solid hsl(var(--accent) / 0.15)',
+                   padding: '16px',
+                   margin: '0 0 16px 0',
+                   borderRadius: '12px'
+                 }}
+               >
+                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                   <div
+                     style={{
+                       width: '28px',
+                       height: '28px',
+                       borderRadius: '50%',
+                       background: 'linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-2)))',
+                       display: 'flex',
+                       alignItems: 'center',
+                       justifyContent: 'center',
+                       flexShrink: 0
+                     }}
+                   >
+                     <span style={{ fontSize: '14px' }}>💡</span>
+                   </div>
+                   <div style={{ flex: 1 }}>
+                     <div style={{ 
+                       fontSize: '13px', 
+                       fontWeight: '600',
+                       color: 'hsl(var(--accent))',
+                       marginBottom: '4px'
+                     }}>
+                       نصيحة ذكية
+                     </div>
+                     <p style={{ 
+                       fontSize: '12px', 
+                       color: 'hsl(var(--fg))',
+                       lineHeight: '1.5',
+                       margin: 0
+                     }}>
+                       اكتب محتوى الخبر (50+ حرف) ثم اضغط 
+                       <span style={{ 
+                         background: 'hsl(var(--accent) / 0.1)',
+                         padding: '2px 6px',
+                         borderRadius: '4px',
+                         fontWeight: '600',
+                         color: 'hsl(var(--accent))',
+                         margin: '0 4px'
+                       }}>
+                         🤖 توليد تلقائي
+                       </span>
+                       لإنشاء العنوان والموجز والكلمات المفتاحية تلقائياً
+                     </p>
+                   </div>
+                 </div>
+               </div>
+               
+               <div style={{
+                 minHeight: '400px',
+                 borderRadius: '8px',
+                 background: 'hsl(var(--bg-card))',
+                 border: '1px solid hsl(var(--line))'
+               }}>
+                 <Editor
+                   ref={editorRef}
+                   content={formData.content}
+                   onChange={handleContentChange}
+                   placeholder="ابدأ بكتابة محتوى الخبر هنا... استخدم محرر النصوص الغني لتنسيق المحتوى"
+                 />
+               </div>
+             </div>
           </div>
 
           {/* الشريط الجانبي (33%) */}
