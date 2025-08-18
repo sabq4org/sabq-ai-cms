@@ -433,7 +433,8 @@ const ArticlesAdminPage = () => {
       <div style={{ 
         minHeight: '100vh', 
         background: 'hsl(var(--bg))', 
-        padding: '24px',
+        padding: '0',
+        width: '100%',
         color: 'hsl(var(--fg))'
       }}>
       {/* رسالة الترحيب */}

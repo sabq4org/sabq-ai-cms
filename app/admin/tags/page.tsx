@@ -134,7 +134,8 @@ export default function TagsManagement() {
       <div style={{ 
         background: 'hsl(var(--bg))', 
         minHeight: '100vh',
-        padding: '24px'
+        padding: '0',
+        width: '100%'
       }}>
         <div className="card" style={{ padding: '48px', textAlign: 'center' }}>
           <div className="loading-spinner" style={{ margin: '0 auto 16px' }} />
@@ -182,8 +183,8 @@ export default function TagsManagement() {
         }
       `}</style>
       
-      <div style={{ background: 'hsl(var(--bg))', minHeight: '100vh' }}>
-        <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto' }}>
+      <div style={{ background: 'hsl(var(--bg))', minHeight: '100vh', width: '100%' }}>
+        <div style={{ padding: '0', width: '100%' }}>
           {/* رسالة الترحيب */}
           <div className="card card-accent" style={{ marginBottom: '32px' }}>
             <div style={{ display: 'flex', alignItems: 'start', gap: '20px' }}>

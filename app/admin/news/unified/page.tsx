@@ -917,7 +917,8 @@ export default function ManusNewsCreatePage() {
       <div style={{ 
         background: 'hsl(var(--bg))', 
         minHeight: '100vh', 
-        padding: '24px',
+        padding: '0',
+        width: '100%',
         color: 'hsl(var(--fg))'
       }}>
         {/* هيدر الصفحة */}

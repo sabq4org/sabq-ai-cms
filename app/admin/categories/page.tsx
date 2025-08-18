@@ -241,8 +241,8 @@ export default function CategoriesPage() {
         }
       `}</style>
       
-      <div style={{ background: "hsl(var(--bg))", minHeight: "100vh" }}>
-      <div style={{ padding: "24px", maxWidth: "1400px", margin: "0 auto" }}>
+      <div style={{ background: "hsl(var(--bg))", minHeight: "100vh", width: "100%" }}>
+      <div style={{ padding: "0", width: "100%" }}>
         {loading && (
           <div className="card" style={{ padding: "48px", textAlign: "center" }}>
             <div className="loading-spinner" style={{ margin: "0 auto 16px" }} />
