@@ -30,7 +30,7 @@ import MobileUserDropdown from "./mobile/UserDropdown";
 import UserMenuDrawer from "./mobile/UserMenuDrawer";
 import NotificationBell from "@/components/Notifications/NotificationBell";
 import { NotificationDropdown } from "@/components/Notifications/NotificationDropdown";
-import PreferredSourceButton from "@/components/ui/PreferredSourceButton";
+
 
 export default function Header() {
   const router = useRouter();
@@ -190,14 +190,7 @@ export default function Header() {
 
             {/* أدوات الهيدر */}
             <div className="flex items-center space-x-1 md:space-x-3 rtl:space-x-reverse header-tools">
-              {/* زر Google Preferred Source */}
-              <div className="hidden md:block">
-                <PreferredSourceButton 
-                  size="small" 
-                  variant={darkMode ? "ghost" : "default"}
-                  className={darkMode ? "text-gray-300 hover:text-white" : ""}
-                />
-              </div>
+
 
               {/* زر لحظة بلحظة - يظهر على الشاشات المتوسطة فأعلى فقط */}
               <Link

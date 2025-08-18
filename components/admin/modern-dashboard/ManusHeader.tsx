@@ -17,7 +17,7 @@ import {
   Users
 } from "lucide-react";
 import DarkModeToggle from './DarkModeToggle';
-import { ManusPreferredSourceButton } from '@/components/ui/PreferredSourceButton';
+
 
 interface ManusHeaderProps {
   onMenuClick?: () => void;
@@ -167,10 +167,7 @@ export default function ManusHeader({ onMenuClick, showMenuButton = false }: Man
           {/* الجانب الأيسر - الأدوات والمستخدم */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             
-            {/* زر Google Preferred Source */}
-            <div className="hidden md:block">
-              <ManusPreferredSourceButton size="small" />
-            </div>
+
             
             {/* شريط البحث */}
             <div style={{ position: 'relative' }}>
