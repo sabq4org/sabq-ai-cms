@@ -56,21 +56,66 @@ export default function AdvancedSettingsPage() {
   });
 
   return (
-    <div className="space-y-6">
-        {/* تحذير */}
-        <Card className="border-orange-200 bg-orange-50 dark:bg-orange-900/20">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <AlertTriangle className="h-5 w-5 text-orange-600" />
-              <div>
-                <h3 className="font-medium text-orange-800 dark:text-orange-200">تحذير مهم</h3>
-                <p className="text-sm text-orange-700 dark:text-orange-300">
-                  هذه الإعدادات للمستخدمين المتقدمين فقط. تغيير هذه الإعدادات قد يؤثر على أداء النظام.
-                </p>
+    <>
+      <link rel="stylesheet" href="/manus-ui.css" />
+      <div style={{ 
+        minHeight: '100vh', 
+        background: 'hsl(var(--bg))', 
+        padding: '24px',
+        color: 'hsl(var(--fg))'
+      }}>
+        {/* رسالة الترحيب */}
+        <div className="card card-accent" style={{ marginBottom: '32px' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+            <div style={{
+              width: '48px',
+              height: '48px',
+              background: 'hsl(var(--accent) / 0.1)',
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'hsl(var(--accent))'
+            }}>
+              <Settings style={{ width: '24px', height: '24px' }} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <h2 className="heading-2" style={{ marginBottom: '8px' }}>
+                الإعدادات المتقدمة
+              </h2>
+              <p className="text-muted" style={{ marginBottom: '16px' }}>
+                إعدادات النظام المتقدمة للمطورين والمديرين المتخصصين
+              </p>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <div className="chip">
+                  ⚙️ إعدادات متقدمة
+                </div>
+                <div className="chip chip-muted">
+                  🔧 للمطورين
+                </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+
+        {/* تحذير */}
+        <div className="card" style={{ 
+          marginBottom: '24px',
+          background: 'hsl(var(--accent-4) / 0.05)',
+          border: '1px solid hsl(var(--accent-4) / 0.2)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <AlertTriangle style={{ width: '20px', height: '20px', color: 'hsl(var(--accent-4))' }} />
+            <div>
+              <h3 style={{ fontWeight: '500', color: 'hsl(var(--accent-4))', marginBottom: '4px' }}>تحذير مهم</h3>
+              <p className="text-sm text-muted">
+                هذه الإعدادات للمستخدمين المتقدمين فقط. تغيير هذه الإعدادات قد يؤثر على أداء النظام.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-6">
 
         <Tabs defaultValue="api" className="w-full">
           <TabsList className="grid w-full grid-cols-4">
@@ -81,18 +126,18 @@ export default function AdvancedSettingsPage() {
           </TabsList>
 
           <TabsContent value="api" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Globe className="h-5 w-5" />
+            <div className="card">
+              <div className="card-header">
+                <h3 className="card-title">
+                  <Globe style={{ width: '20px', height: '20px', marginLeft: '8px' }} />
                   إعدادات API
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
+                </h3>
+              </div>
+              <div style={{ padding: '0 24px 24px 24px', display: 'grid', gap: '24px' }}>
                 {/* تحديد المعدل */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="rate-limit">تحديد معدل الطلبات</Label>
+                <div style={{ display: 'grid', gap: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <label className="label">تحديد معدل الطلبات</label>
                     <Switch
                       id="rate-limit"
                       checked={apiSettings.rateLimitEnabled}
@@ -104,25 +149,39 @@ export default function AdvancedSettingsPage() {
                   {apiSettings.rateLimitEnabled && (
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="max-requests">الحد الأقصى للطلبات/دقيقة</Label>
-                        <Input
-                          id="max-requests"
+                        <label className="label">الحد الأقصى للطلبات/دقيقة</label>
+                        <input
                           type="number"
                           value={apiSettings.maxRequestsPerMinute}
                           onChange={(e) => 
                             setApiSettings({...apiSettings, maxRequestsPerMinute: parseInt(e.target.value)})
                           }
+                          style={{
+                            width: '100%',
+                            padding: '12px',
+                            border: '1px solid hsl(var(--line))',
+                            borderRadius: '8px',
+                            background: 'hsl(var(--bg-card))',
+                            color: 'hsl(var(--fg))',
+                          }}
                         />
                       </div>
                       <div>
-                        <Label htmlFor="timeout">انتهاء المهلة (ثانية)</Label>
-                        <Input
-                          id="timeout"
+                        <label className="label">انتهاء المهلة (ثانية)</label>
+                        <input
                           type="number"
                           value={apiSettings.timeoutSeconds}
                           onChange={(e) => 
                             setApiSettings({...apiSettings, timeoutSeconds: parseInt(e.target.value)})
                           }
+                          style={{
+                            width: '100%',
+                            padding: '12px',
+                            border: '1px solid hsl(var(--line))',
+                            borderRadius: '8px',
+                            background: 'hsl(var(--bg-card))',
+                            color: 'hsl(var(--fg))',
+                          }}
                         />
                       </div>
                     </div>
@@ -344,16 +403,18 @@ export default function AdvancedSettingsPage() {
         </Tabs>
 
         {/* أزرار الحفظ */}
-        <div className="flex justify-between">
-          <Button variant="outline">
-            <RefreshCw className="h-4 w-4 mr-2" />
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
+          <button className="btn">
+            <RefreshCw style={{ width: '16px', height: '16px', marginLeft: '8px' }} />
             إعادة تعيين
-          </Button>
-          <Button className="bg-blue-600 hover:bg-blue-700">
-            <Save className="h-4 w-4 mr-2" />
+          </button>
+          <button className="btn btn-primary">
+            <Save style={{ width: '16px', height: '16px', marginLeft: '8px' }} />
             حفظ الإعدادات
-          </Button>
+          </button>
+        </div>
         </div>
       </div>
+    </>)
   );
 }

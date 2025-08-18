@@ -246,31 +246,59 @@ export default function LogoManagerPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* العنوان */}
-      <div className="flex items-center gap-4">
-        <div className="p-3 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-600 shadow-lg">
-          <Palette className="w-8 h-8 text-white" />
+    <>
+      <link rel="stylesheet" href="/manus-ui.css" />
+      <div style={{ 
+        minHeight: '100vh', 
+        background: 'hsl(var(--bg))', 
+        padding: '24px',
+        color: 'hsl(var(--fg))'
+      }}>
+        {/* رسالة الترحيب */}
+        <div className="card card-accent" style={{ marginBottom: '32px' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+            <div style={{
+              width: '48px',
+              height: '48px',
+              background: 'linear-gradient(135deg, hsl(var(--accent-2)), hsl(var(--accent)))',
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white'
+            }}>
+              <Palette style={{ width: '24px', height: '24px' }} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <h2 className="heading-2" style={{ marginBottom: '8px' }}>
+                إدارة لوجو الموقع
+              </h2>
+              <p className="text-muted" style={{ marginBottom: '16px' }}>
+                رفع وإدارة لوجو صحيفة سبق الإلكترونية مع معاينة فورية
+              </p>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <div className="chip">
+                  🖼️ معاينة فورية
+                </div>
+                <div className="chip chip-muted">
+                  ☁️ رفع سحابي
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-            إدارة لوجو الموقع
-          </h1>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">
-            رفع وإدارة لوجو صحيفة سبق الإلكترونية
-          </p>
-        </div>
-      </div>
+
+        <div className="space-y-6">
 
       {/* اللوجو الحالي */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Eye className="w-5 h-5" />
+      <div className="card">
+        <div className="card-header">
+          <h3 className="card-title">
+            <Eye style={{ width: '20px', height: '20px', marginLeft: '8px' }} />
             اللوجو الحالي
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+          </h3>
+        </div>
+        <div style={{ padding: '0 24px 24px 24px' }}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <LogoPreview
               src={currentLogoUrl}
@@ -291,18 +319,18 @@ export default function LogoManagerPage() {
               height={32}
             />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* رفع لوجو جديد */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Upload className="w-5 h-5" />
+      <div className="card">
+        <div className="card-header">
+          <h3 className="card-title">
+            <Upload style={{ width: '20px', height: '20px', marginLeft: '8px' }} />
             رفع لوجو جديد
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+          </h3>
+        </div>
+        <div style={{ padding: '0 24px 24px 24px', display: 'grid', gap: '16px' }}>
           {/* منطقة الرفع */}
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
             <input
@@ -328,24 +356,23 @@ export default function LogoManagerPage() {
                 </p>
               </div>
 
-              <Button
+              <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
-                variant="outline"
-                size="lg"
+                className="btn btn-primary"
               >
                 {uploading ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                     جاري الرفع...
                   </>
                 ) : (
                   <>
-                    <Upload className="w-4 h-4 mr-2" />
+                    <Upload style={{ width: '16px', height: '16px', marginLeft: '8px' }} />
                     اختيار ملف
                   </>
                 )}
-              </Button>
+              </button>
             </div>
           </div>
 
@@ -399,67 +426,73 @@ export default function LogoManagerPage() {
               </div>
 
               {/* أزرار التحكم */}
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Button
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                <button
                   onClick={handleSaveLogo}
-                  className="bg-green-600 hover:bg-green-700 text-white"
-                  size="lg"
+                  className="btn"
+                  style={{
+                    background: 'hsl(var(--accent-3))',
+                    color: 'white',
+                    borderColor: 'hsl(var(--accent-3))'
+                  }}
                 >
-                  <Save className="w-4 h-4 mr-2" />
+                  <Save style={{ width: '16px', height: '16px', marginLeft: '8px' }} />
                   حفظ اللوجو الجديد
-                </Button>
+                </button>
 
-                <Button onClick={handleReset} variant="outline" size="lg">
-                  <RotateCcw className="w-4 h-4 mr-2" />
+                <button onClick={handleReset} className="btn">
+                  <RotateCcw style={{ width: '16px', height: '16px', marginLeft: '8px' }} />
                   إعادة تعيين
-                </Button>
+                </button>
               </div>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* معلومات إضافية */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <AlertCircle className="w-5 h-5" />
+      <div className="card">
+        <div className="card-header">
+          <h3 className="card-title">
+            <AlertCircle style={{ width: '20px', height: '20px', marginLeft: '8px' }} />
             معلومات مهمة
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3 text-sm text-gray-600">
-            <div className="flex items-start gap-2">
-              <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+          </h3>
+        </div>
+        <div style={{ padding: '0 24px 24px 24px' }}>
+          <div style={{ display: 'grid', gap: '12px', fontSize: '14px' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+              <div style={{ width: '8px', height: '8px', background: 'hsl(var(--accent))', borderRadius: '50%', marginTop: '8px', flexShrink: 0 }}></div>
               <p>
                 <strong>الأحجام المناسبة:</strong> يُفضل أن يكون اللوجو بأبعاد
                 140×45 بكسل أو مضاعفاتها
               </p>
             </div>
-            <div className="flex items-start gap-2">
-              <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+              <div style={{ width: '8px', height: '8px', background: 'hsl(var(--accent))', borderRadius: '50%', marginTop: '8px', flexShrink: 0 }}></div>
               <p>
                 <strong>الصيغ المدعومة:</strong> PNG (مُفضل للشفافية)، SVG
                 (للجودة العالية)، JPG
               </p>
             </div>
-            <div className="flex items-start gap-2">
-              <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+              <div style={{ width: '8px', height: '8px', background: 'hsl(var(--accent))', borderRadius: '50%', marginTop: '8px', flexShrink: 0 }}></div>
               <p>
                 <strong>الخلفية:</strong> يُنصح باستخدام خلفية شفافة (PNG)
                 للتوافق مع الوضع الليلي
               </p>
             </div>
-            <div className="flex items-start gap-2">
-              <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+              <div style={{ width: '8px', height: '8px', background: 'hsl(var(--accent-4))', borderRadius: '50%', marginTop: '8px', flexShrink: 0 }}></div>
               <p>
                 <strong>ملاحظة تقنية:</strong> بعد الحفظ، قد تحتاج لتحديث الصفحة
                 لرؤية اللوجو الجديد
               </p>
             </div>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </div>
+        </div>
+      </div>
+    </>)
   );
 }

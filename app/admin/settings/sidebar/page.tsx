@@ -31,184 +31,135 @@ export default function SidebarSettingsPage() {
   const { darkMode } = useDarkModeContext();
 
   return (
-    <div
-      className={`min-h-screen transition-colors duration-300 ${
-        darkMode ? "bg-gray-900" : "bg-gray-50"
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* العنوان الرئيسي */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <div
-              className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                darkMode ? "bg-blue-900/30" : "bg-blue-100"
-              }`}
-            >
-              <Settings
-                className={`w-6 h-6 ${
-                  darkMode ? "text-blue-400" : "text-blue-600"
-                }`}
-              />
+    <>
+      <link rel="stylesheet" href="/manus-ui.css" />
+      <div style={{ 
+        minHeight: '100vh', 
+        background: 'hsl(var(--bg))', 
+        padding: '24px',
+        color: 'hsl(var(--fg))'
+      }}>
+        {/* رسالة الترحيب */}
+        <div className="card card-accent" style={{ marginBottom: '32px' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+            <div style={{
+              width: '48px',
+              height: '48px',
+              background: 'hsl(var(--accent) / 0.1)',
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'hsl(var(--accent))'
+            }}>
+              <Settings style={{ width: '24px', height: '24px' }} />
             </div>
-            <div>
-              <h1
-                className={`text-3xl font-bold ${
-                  darkMode ? "text-white" : "text-gray-900"
-                }`}
-              >
+            <div style={{ flex: 1 }}>
+              <h2 className="heading-2" style={{ marginBottom: '8px' }}>
                 إعدادات الشريط الجانبي
-              </h1>
-              <p
-                className={`text-base ${
-                  darkMode ? "text-gray-400" : "text-gray-600"
-                }`}
-              >
+              </h2>
+              <p className="text-muted" style={{ marginBottom: '16px' }}>
                 خصص ترتيب وظهور عناصر الشريط الجانبي في لوحة التحكم
               </p>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <div className="chip">
+                  🎛️ تخصيص متقدم
+                </div>
+                <div className="chip chip-muted">
+                  ⚡ تطبيق فوري
+                </div>
+              </div>
             </div>
           </div>
-
-          {/* شريط التنبيه */}
-          <Card
-            className={`border-blue-200 ${
-              darkMode ? "bg-blue-900/10 border-blue-800" : "bg-blue-50"
-            }`}
-          >
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <Info
-                  className={`w-5 h-5 ${
-                    darkMode ? "text-blue-400" : "text-blue-600"
-                  }`}
-                />
-                <div className="flex-1">
-                  <p
-                    className={`text-sm font-medium ${
-                      darkMode ? "text-blue-300" : "text-blue-800"
-                    }`}
-                  >
-                    هذه الميزة متاحة للمديرين فقط
-                  </p>
-                  <p
-                    className={`text-xs ${
-                      darkMode ? "text-blue-400" : "text-blue-600"
-                    }`}
-                  >
-                    التغييرات ستؤثر على حسابك فقط وليس على المستخدمين الآخرين
-                  </p>
-                </div>
-                <Badge variant="secondary" className="text-xs">
-                  <Zap className="w-3 h-3 ml-1" />
-                  مدير النظام
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
         </div>
 
-        <Separator className="mb-8" />
+        {/* شريط التنبيه */}
+        <div className="card" style={{ 
+          marginBottom: '24px',
+          background: 'hsl(var(--accent) / 0.05)',
+          border: '1px solid hsl(var(--accent) / 0.2)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <Info style={{ width: '20px', height: '20px', color: 'hsl(var(--accent))' }} />
+            <div style={{ flex: 1 }}>
+              <p style={{ fontSize: '14px', fontWeight: '500', color: 'hsl(var(--accent))', marginBottom: '4px' }}>
+                هذه الميزة متاحة للمديرين فقط
+              </p>
+              <p className="text-xs text-muted">
+                التغييرات ستؤثر على حسابك فقط وليس على المستخدمين الآخرين
+              </p>
+            </div>
+            <div className="chip" style={{ background: 'hsl(var(--accent) / 0.1)', color: 'hsl(var(--accent))' }}>
+              <Zap style={{ width: '12px', height: '12px', marginLeft: '4px' }} />
+              مدير النظام
+            </div>
+          </div>
+        </div>
 
         {/* المكون الرئيسي للتخصيص */}
         <SidebarCustomizer />
 
         {/* معلومات إضافية */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card
-            className={
-              darkMode
-                ? "bg-gray-800 border-gray-700"
-                : "bg-white border-gray-200"
-            }
-          >
-            <CardHeader>
-              <CardTitle
-                className={`text-lg ${
-                  darkMode ? "text-white" : "text-gray-900"
-                }`}
-              >
-                💡 نصائح للاستخدام
-              </CardTitle>
-              <CardDescription
-                className={darkMode ? "text-gray-400" : "text-gray-600"}
-              >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6" style={{ marginTop: '32px' }}>
+          <div className="card">
+            <div className="card-header">
+              <h3 className="card-title">💡 نصائح للاستخدام</h3>
+              <p className="text-muted">
                 نصائح لتحسين تجربة استخدام الشريط الجانبي
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul
-                className={`space-y-2 text-sm ${
-                  darkMode ? "text-gray-300" : "text-gray-700"
-                }`}
-              >
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-500 font-bold">•</span>
+              </p>
+            </div>
+            <div style={{ padding: '0 24px 24px 24px' }}>
+              <ul style={{ display: 'grid', gap: '8px', fontSize: '14px' }}>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                  <span style={{ color: 'hsl(var(--accent))', fontWeight: 'bold' }}>•</span>
                   اسحب العناصر من الأيقونة المخططة لإعادة ترتيبها
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-green-500 font-bold">•</span>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                  <span style={{ color: 'hsl(var(--accent-3))', fontWeight: 'bold' }}>•</span>
                   استخدم المفتاح لإظهار أو إخفاء العناصر
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-500 font-bold">•</span>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                  <span style={{ color: 'hsl(var(--accent-2))', fontWeight: 'bold' }}>•</span>
                   احفظ التغييرات لتطبيقها على حسابك
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-orange-500 font-bold">•</span>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                  <span style={{ color: 'hsl(var(--accent-4))', fontWeight: 'bold' }}>•</span>
                   يمكنك إعادة تعيين الإعدادات للوضع الافتراضي
                 </li>
               </ul>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          <Card
-            className={
-              darkMode
-                ? "bg-gray-800 border-gray-700"
-                : "bg-white border-gray-200"
-            }
-          >
-            <CardHeader>
-              <CardTitle
-                className={`text-lg ${
-                  darkMode ? "text-white" : "text-gray-900"
-                }`}
-              >
-                🔒 الخصوصية والأمان
-              </CardTitle>
-              <CardDescription
-                className={darkMode ? "text-gray-400" : "text-gray-600"}
-              >
+          <div className="card">
+            <div className="card-header">
+              <h3 className="card-title">🔒 الخصوصية والأمان</h3>
+              <p className="text-muted">
                 معلومات حول أمان وخصوصية إعداداتك
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul
-                className={`space-y-2 text-sm ${
-                  darkMode ? "text-gray-300" : "text-gray-700"
-                }`}
-              >
-                <li className="flex items-start gap-2">
-                  <span className="text-green-500 font-bold">✓</span>
+              </p>
+            </div>
+            <div style={{ padding: '0 24px 24px 24px' }}>
+              <ul style={{ display: 'grid', gap: '8px', fontSize: '14px' }}>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                  <span style={{ color: 'hsl(var(--accent-3))', fontWeight: 'bold' }}>✓</span>
                   التفضيلات محفوظة بشكل آمن في الخادم
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-green-500 font-bold">✓</span>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                  <span style={{ color: 'hsl(var(--accent-3))', fontWeight: 'bold' }}>✓</span>
                   لا تؤثر على تجربة المستخدمين الآخرين
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-green-500 font-bold">✓</span>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                  <span style={{ color: 'hsl(var(--accent-3))', fontWeight: 'bold' }}>✓</span>
                   يمكن استردادها عند تسجيل الدخول من أي جهاز
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-500 font-bold">ℹ</span>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                  <span style={{ color: 'hsl(var(--accent))', fontWeight: 'bold' }}>ℹ</span>
                   تحديث الصفحة مطلوب لرؤية التغييرات
                 </li>
               </ul>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </>)
   );
 }
