@@ -1530,142 +1530,222 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-700">
-        <div className="text-center space-y-4">
-          <Loader2 className="w-10 h-10 animate-spin mx-auto text-blue-600" />
-          <p className="text-slate-600 dark:text-slate-400">
-            جاري تحميل البيانات...
-          </p>
+      <>
+        <link rel="stylesheet" href="/manus-ui.css" />
+        <div style={{ 
+          minHeight: '100vh',
+          background: 'hsl(var(--bg))',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <div style={{ textAlign: 'center', color: 'hsl(var(--fg))' }}>
+            <Loader2 className="w-10 h-10 animate-spin mx-auto" style={{ color: 'hsl(var(--accent))' }} />
+            <p style={{ marginTop: '16px', color: 'hsl(var(--muted))' }}>جاري تحميل البيانات...</p>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <DesignComponents.SectionHeader
-        title={isEditMode ? "تعديل الخبر" : "إنشاء خبر"}
-        description="أدخل تفاصيل الخبر، أضف الصورة والكلمات المفتاحية ثم انشر"
-        action={
-          <div className="flex items-center gap-4">
-            <div className="w-40">
-              <Progress
-                value={completionScore}
-                className={cn(
-                  "h-2 transition-all",
-                  completionScore >= 60
-                    ? "[&>div]:bg-emerald-500"
-                    : "[&>div]:bg-orange-500"
-                )}
-              />
-              <p
-                className={cn(
-                  "text-xs mt-1 font-medium",
-                  completionScore >= 60 ? "text-emerald-600" : "text-orange-600"
-                )}
-              >
-                {completionScore}% مكتمل
-                {completionScore < 60 &&
-                  ` (يجب ${60 - completionScore}% إضافية للنشر)`}
+    <>
+      <link rel="stylesheet" href="/manus-ui.css" />
+      
+      <div style={{ 
+        background: 'hsl(var(--bg))', 
+        minHeight: '100vh', 
+        padding: '24px',
+        color: 'hsl(var(--fg))'
+      }}>
+        {/* هيدر الصفحة */}
+        <div className="card card-accent" style={{ marginBottom: '32px' }}>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '16px'
+          }}>
+            <div>
+              <h1 className="heading-2" style={{ margin: 0 }}>
+                {isEditMode ? "تعديل الخبر" : "إنشاء خبر"}
+              </h1>
+              <p className="text-muted" style={{ margin: '8px 0 0 0' }}>
+                أدخل تفاصيل الخبر، أضف الصورة والكلمات المفتاحية ثم انشر
               </p>
             </div>
-            <DesignComponents.ActionBar>
-              <PublishButtons position="top" />
-            </DesignComponents.ActionBar>
-          </div>
-        }
-      />
-
-      {/* رسالة النجاح أو الخطأ */}
-      {message.type && (
-        <Alert
-          className={cn(
-            "mb-2 shadow-lg",
-            message.type === "success"
-              ? "border-emerald-200 bg-emerald-50 dark:bg-emerald-900/20"
-              : "border-red-200 bg-red-50 dark:bg-red-900/20"
-          )}
-        >
-          {message.type === "success" ? (
-            <CheckCircle className="h-4 w-4 text-emerald-600" />
-          ) : (
-            <AlertCircle className="h-4 w-4 text-red-600" />
-          )}
-          <AlertDescription
-            className={cn(
-              "text-sm font-medium",
-              message.type === "success" ? "text-emerald-800" : "text-red-800"
-            )}
-          >
-            {message.text}
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {/* المحتوى الرئيسي */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* القسم الرئيسي (75%) */}
-        <div className="lg:col-span-3 space-y-6">
-          {/* العنوان والموجز */}
-          <Card
-            className={cn(
-              "shadow-lg border-0 backdrop-blur-sm",
-              darkMode ? "bg-slate-800/90" : "bg-white/90"
-            )}
-          >
-            <CardContent className="p-6 space-y-6">
-              <div>
-                <Label
-                  htmlFor="title"
-                  className="text-sm font-medium mb-2 flex items-center gap-2"
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+              {/* شريط التقدم */}
+              <div style={{ width: '160px' }}>
+                <div
+                  style={{
+                    width: '100%',
+                    height: '8px',
+                    background: 'hsl(var(--line))',
+                    borderRadius: '4px',
+                    overflow: 'hidden'
+                  }}
                 >
-                  العنوان الرئيسي *
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => suggestWithAI("title")}
-                    disabled={
-                      isAILoading || (!formData.content && !formData.excerpt)
+                  <div
+                    style={{
+                      width: `${completionScore}%`,
+                      height: '100%',
+                      background: completionScore >= 60 ? 'hsl(var(--accent))' : '#f59e0b',
+                      transition: 'width 0.3s ease'
+                    }}
+                  />
+                </div>
+                <p
+                  style={{
+                    fontSize: '12px',
+                    margin: '4px 0 0 0',
+                    fontWeight: '500',
+                    color: completionScore >= 60 ? 'hsl(var(--accent))' : '#f59e0b'
+                  }}
+                >
+                  {completionScore}% مكتمل
+                  {completionScore < 60 && ` (يجب ${60 - completionScore}% إضافية للنشر)`}
+                </p>
+              </div>
+
+              {/* أزرار النشر */}
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button
+                  onClick={() => handleSave("draft")}
+                  disabled={saving}
+                  className="btn"
+                  style={{
+                    background: 'hsl(var(--bg-card))',
+                    border: '1px solid hsl(var(--line))'
+                  }}
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      جاري الحفظ...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4" />
+                      حفظ مسودة
+                    </>
+                  )}
+                </button>
+
+                <button
+                  onClick={() => {
+                    if (completionScore < 60) {
+                      toast.error(`المقال غير مكتمل بما يكفي للنشر (${completionScore}%). يرجى إكمال البيانات المطلوبة.`);
+                      return;
                     }
-                    className={cn(
-                      "h-6 px-2 gap-1 transition-all",
-                      isAILoading && "animate-pulse"
-                    )}
+                    handleSave("published");
+                  }}
+                  disabled={saving || loading}
+                  className="btn btn-primary"
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      جاري النشر...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      نشر فوري
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* رسالة النجاح أو الخطأ */}
+        {message.type && (
+          <div 
+            className="card"
+            style={{
+              marginBottom: '24px',
+              background: message.type === "success" 
+                ? 'hsl(120 60% 95%)' 
+                : 'hsl(0 60% 95%)',
+              border: `1px solid ${message.type === "success" ? 'hsl(120 60% 80%)' : 'hsl(0 60% 80%)'}`,
+              padding: '16px'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              {message.type === "success" ? (
+                <CheckCircle className="h-5 w-5" style={{ color: 'hsl(120 60% 40%)' }} />
+              ) : (
+                <AlertCircle className="h-5 w-5" style={{ color: 'hsl(0 60% 40%)' }} />
+              )}
+              <span style={{ 
+                fontSize: '14px', 
+                fontWeight: '500',
+                color: message.type === "success" ? 'hsl(120 60% 30%)' : 'hsl(0 60% 30%)'
+              }}>
+                {message.text}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* المحتوى الرئيسي */}
+        <div className="grid grid-3" style={{ gap: '32px', alignItems: 'start' }}>
+          {/* العمود الرئيسي (67%) */}
+          <div style={{ gridColumn: '1 / 3', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            
+            {/* العنوان والموجز */}
+            <div className="card">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                <div>
+                  <label className="label" htmlFor="title">
+                    العنوان الرئيسي *
+                  </label>
+                  <button
+                    className="btn btn-sm"
+                    onClick={() => suggestWithAI("title")}
+                    disabled={isAILoading || (!formData.content && !formData.excerpt)}
+                    style={{
+                      background: 'hsl(var(--bg-card))',
+                      border: '1px solid hsl(var(--line))',
+                      marginRight: '8px'
+                    }}
                     title={
                       !formData.content && !formData.excerpt
                         ? "يجب إدخال المحتوى أو الموجز أولاً"
                         : "توليد عنوان بالذكاء الاصطناعي"
                     }
                   >
-                    <Sparkles
-                      className={cn("w-3 h-3", isAILoading && "animate-spin")}
-                    />
+                    <Sparkles className="w-3 h-3" />
                     اقتراح
-                  </Button>
+                  </button>
                   {aiAutoSuggestions.isGenerating && (
                     <div className="flex items-center gap-1 text-blue-500">
                       <div className="animate-spin w-3 h-3 border border-blue-500 border-t-transparent rounded-full"></div>
                       <span className="text-xs">الذكاء الاصطناعي يعمل...</span>
                     </div>
                   )}
-                </Label>
-                <Input
-                  id="title"
-                  value={formData.title}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      title: e.target.value,
-                    }))
-                  }
-                  placeholder="أدخل عنوان الخبر..."
-                  className={cn(
-                    "text-lg font-semibold shadow-sm",
-                    darkMode
-                      ? "bg-slate-700 border-slate-600"
-                      : "bg-white border-slate-200"
-                  )}
-                />
+                  <input
+                    id="title"
+                    type="text"
+                    value={formData.title}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
+                    placeholder="أدخل عنوان الخبر..."
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      border: '1px solid hsl(var(--line))',
+                      borderRadius: '8px',
+                      background: 'hsl(var(--bg-card))',
+                      color: 'hsl(var(--fg))',
+                      fontSize: '18px',
+                      fontWeight: '600',
+                      marginTop: '8px'
+                    }}
+                  />
 
                 {/* اقتراحات العناوين الذكية التلقائية */}
                 {aiAutoSuggestions.titleSuggestions.length > 0 && (
@@ -1711,74 +1791,68 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                 )}
               </div>
 
-              <div>
-                <Label htmlFor="subtitle" className="text-sm font-medium mb-2">
-                  العنوان الفرعي
-                </Label>
-                <Input
-                  id="subtitle"
-                  value={formData.subtitle}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      subtitle: e.target.value,
-                    }))
-                  }
-                  placeholder="عنوان فرعي اختياري..."
-                  className={cn(
-                    "shadow-sm",
-                    darkMode
-                      ? "bg-slate-700 border-slate-600"
-                      : "bg-white border-slate-200"
-                  )}
-                />
-              </div>
+                </div>
 
-              <div>
-                <Label
-                  htmlFor="excerpt"
-                  className="text-sm font-medium mb-2 flex items-center gap-2"
-                >
-                  موجز الخبر *
-                  <Button
-                    size="sm"
-                    variant="ghost"
+                <div>
+                  <label className="label" htmlFor="subtitle">
+                    العنوان الفرعي
+                  </label>
+                  <input
+                    id="subtitle"
+                    type="text"
+                    value={formData.subtitle}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, subtitle: e.target.value }))}
+                    placeholder="عنوان فرعي اختياري..."
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      border: '1px solid hsl(var(--line))',
+                      borderRadius: '8px',
+                      background: 'hsl(var(--bg-card))',
+                      color: 'hsl(var(--fg))'
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label className="label" htmlFor="excerpt">
+                    موجز الخبر *
+                  </label>
+                  <button
+                    className="btn btn-sm"
                     onClick={() => suggestWithAI("excerpt")}
                     disabled={isAILoading || !formData.content}
-                    className={cn(
-                      "h-6 px-2 gap-1 transition-all",
-                      isAILoading && "animate-pulse"
-                    )}
+                    style={{
+                      background: 'hsl(var(--bg-card))',
+                      border: '1px solid hsl(var(--line))',
+                      marginRight: '8px'
+                    }}
                     title={
                       !formData.content
                         ? "يجب إدخال المحتوى أولاً"
                         : "توليد موجز بالذكاء الاصطناعي"
                     }
                   >
-                    <Sparkles
-                      className={cn("w-3 h-3", isAILoading && "animate-spin")}
-                    />
+                    <Sparkles className="w-3 h-3" />
                     اقتراح
-                  </Button>
-                </Label>
-                <Textarea
-                  id="excerpt"
-                  value={formData.excerpt}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      excerpt: e.target.value,
-                    }))
-                  }
-                  placeholder="اكتب موجزاً مختصراً للخبر..."
-                  rows={3}
-                  className={cn(
-                    "shadow-sm",
-                    darkMode
-                      ? "bg-slate-700 border-slate-600"
-                      : "bg-white border-slate-200"
-                  )}
-                />
+                  </button>
+                  <textarea
+                    id="excerpt"
+                    value={formData.excerpt}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, excerpt: e.target.value }))}
+                    placeholder="اكتب موجزاً مختصراً للخبر..."
+                    rows={3}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      border: '1px solid hsl(var(--line))',
+                      borderRadius: '8px',
+                      background: 'hsl(var(--bg-card))',
+                      color: 'hsl(var(--fg))',
+                      resize: 'vertical',
+                      marginTop: '8px'
+                    }}
+                  />
 
                 {/* اقتراح الموجز التلقائي */}
                 {aiAutoSuggestions.excerptSuggestion && (
@@ -1819,33 +1893,29 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                   </div>
                 )}
               </div>
-            </CardContent>
-          </Card>
+              </div>
+            </div>
 
-          {/* محرر المحتوى */}
-          <Card
-            className={cn(
-              "shadow-lg border-0 backdrop-blur-sm",
-              darkMode ? "bg-slate-800/90" : "bg-white/90"
-            )}
-          >
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <FileText className="w-5 h-5" />
-                محتوى الخبر *{/* زر التوليد التلقائي */}
-                <Button
+            {/* محرر المحتوى */}
+            <div className="card">
+              <div className="card-header">
+                <div className="card-title">
+                  <FileText className="w-5 h-5" />
+                  محتوى الخبر *
+                </div>
+                {/* زر التوليد التلقائي */}
+                <button
                   onClick={() => {
                     console.log("🔔 تم الضغط على زر التوليد التلقائي");
                     generateFromContent();
                   }}
                   disabled={isAILoading}
-                  size="sm"
-                  className={cn(
-                    "gap-2 ml-auto shadow-md hover:shadow-lg transition-all",
-                    darkMode
-                      ? "bg-purple-700 hover:bg-purple-600 text-white border-purple-600"
-                      : "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
-                  )}
+                  className="btn btn-sm"
+                  style={{
+                    background: 'linear-gradient(to right, hsl(var(--accent)), hsl(var(--accent-2)))',
+                    color: 'white',
+                    marginRight: 'auto'
+                  }}
                 >
                   {isAILoading ? (
                     <>
@@ -1858,33 +1928,34 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                       🤖 توليد تلقائي
                     </>
                   )}
-                </Button>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {/* رسالة توضيحية للتوليد التلقائي */}
-              <Alert
-                className={cn(
-                  "mb-4 border-0 shadow-sm",
-                  darkMode
-                    ? "bg-purple-900/20 text-purple-200"
-                    : "bg-purple-50 text-purple-800"
-                )}
-              >
-                <Sparkles className="h-4 w-4" />
-                <AlertDescription className="text-sm">
-                  💡 <strong>نصيحة:</strong> اكتب محتوى الخبر (50+ حرف) ثم اضغط
-                  "🤖 توليد تلقائي" لإنشاء العنوان والموجز والكلمات المفتاحية
-                  تلقائياً
-                </AlertDescription>
-              </Alert>
+                </button>
+              </div>
+              
+              <div style={{
+                minHeight: '400px',
+                borderRadius: '8px',
+                background: 'hsl(var(--bg-card))',
+                border: '1px solid hsl(var(--line))'
+              }}>
+                {/* رسالة توضيحية للتوليد التلقائي */}
+                <div 
+                  className="card"
+                  style={{
+                    background: 'hsl(var(--accent) / 0.05)',
+                    border: '1px solid hsl(var(--accent) / 0.2)',
+                    padding: '12px',
+                    margin: '16px 0'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Sparkles className="h-4 w-4" style={{ color: 'hsl(var(--accent))' }} />
+                    <span style={{ fontSize: '14px', color: 'hsl(var(--fg))' }}>
+                      💡 <strong>نصيحة:</strong> اكتب محتوى الخبر (50+ حرف) ثم اضغط
+                      "🤖 توليد تلقائي" لإنشاء العنوان والموجز والكلمات المفتاحية تلقائياً
+                    </span>
+                  </div>
+                </div>
 
-              <div
-                className={cn(
-                  "min-h-[400px] rounded-lg",
-                  darkMode ? "bg-slate-700" : "bg-slate-50"
-                )}
-              >
                 <Editor
                   ref={editorRef}
                   content={formData.content}
@@ -1892,133 +1963,89 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                   placeholder="اكتب محتوى الخبر هنا... (يجب أن يكون 50 حرف على الأقل لاستخدام التوليد التلقائي)"
                 />
               </div>
-            </CardContent>
-          </Card>
+            </div>
         </div>
 
-        {/* الشريط الجانبي (25%) */}
-        <div className="space-y-6">
-          {/* نوع الخبر */}
-          <Card
-            className={cn(
-              "shadow-lg border-0 backdrop-blur-sm",
-              darkMode
-                ? "bg-red-900/20 border-red-800"
-                : "bg-red-50/90 border-red-200"
-            )}
-          >
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Zap className="w-4 h-4" />
-                نوع الخبر
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <label
-                  className={cn(
-                    "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all shadow-sm",
-                    formData.isBreaking
-                      ? darkMode
-                        ? "bg-red-800/50 border-2 border-red-500"
-                        : "bg-red-100 border-2 border-red-500"
-                      : darkMode
-                      ? "bg-slate-700 hover:bg-slate-600 border-2 border-transparent"
-                      : "bg-white hover:bg-slate-50 border-2 border-slate-200"
-                  )}
-                >
+          {/* الشريط الجانبي (33%) */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            
+            {/* نوع الخبر */}
+            <div className="card">
+              <div className="card-header">
+                <div className="card-title">
+                  <Zap className="w-4 h-4" />
+                  نوع الخبر
+                </div>
+              </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <label style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '12px', 
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: `2px solid ${formData.isBreaking ? 'hsl(var(--accent))' : 'hsl(var(--line))'}`,
+                  background: formData.isBreaking ? 'hsl(var(--accent) / 0.05)' : 'hsl(var(--bg-card))',
+                  cursor: 'pointer'
+                }}>
                   <input
                     type="checkbox"
                     checked={formData.isBreaking}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        isBreaking: e.target.checked,
-                      }))
-                    }
-                    className="text-red-600"
+                    onChange={(e) => setFormData((prev) => ({ ...prev, isBreaking: e.target.checked }))}
+                    style={{ accentColor: 'hsl(var(--accent))' }}
                   />
-                  <Zap
-                    className={cn(
-                      "w-5 h-5",
-                      formData.isBreaking ? "text-red-600" : "text-slate-400"
-                    )}
-                  />
-                  <span className="font-medium text-red-600">عاجل</span>
+                  <Zap className="w-5 h-5" style={{ color: formData.isBreaking ? 'hsl(var(--accent))' : 'hsl(var(--muted))' }} />
+                  <span style={{ fontWeight: '500', color: formData.isBreaking ? 'hsl(var(--accent))' : 'hsl(var(--fg))' }}>عاجل</span>
                 </label>
 
-                <label
-                  className={cn(
-                    "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all shadow-sm",
-                    formData.isFeatured
-                      ? darkMode
-                        ? "bg-yellow-800/50 border-2 border-yellow-500"
-                        : "bg-yellow-100 border-2 border-yellow-500"
-                      : darkMode
-                      ? "bg-slate-700 hover:bg-slate-600 border-2 border-transparent"
-                      : "bg-white hover:bg-slate-50 border-2 border-slate-200"
-                  )}
-                >
+                <label style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '12px', 
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: `2px solid ${formData.isFeatured ? '#f59e0b' : 'hsl(var(--line))'}`,
+                  background: formData.isFeatured ? 'rgba(245, 158, 11, 0.05)' : 'hsl(var(--bg-card))',
+                  cursor: 'pointer'
+                }}>
                   <input
                     type="checkbox"
                     checked={formData.isFeatured}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        isFeatured: e.target.checked,
-                      }))
-                    }
-                    className="text-yellow-600"
+                    onChange={(e) => setFormData((prev) => ({ ...prev, isFeatured: e.target.checked }))}
+                    style={{ accentColor: '#f59e0b' }}
                   />
-                  <Star
-                    className={cn(
-                      "w-5 h-5",
-                      formData.isFeatured ? "text-yellow-600" : "text-slate-400"
-                    )}
-                  />
-                  <span className="font-medium text-yellow-600">مميز</span>
+                  <Star className="w-5 h-5" style={{ color: formData.isFeatured ? '#f59e0b' : 'hsl(var(--muted))' }} />
+                  <span style={{ fontWeight: '500', color: formData.isFeatured ? '#f59e0b' : 'hsl(var(--fg))' }}>مميز</span>
                 </label>
               </div>
-            </CardContent>
-          </Card>
+            </div>
 
-          {/* المؤلف والتصنيف */}
-          <Card
-            className={cn(
-              "shadow-lg border-0 backdrop-blur-sm",
-              darkMode
-                ? "bg-slate-800/90 border-slate-700"
-                : "bg-slate-50/90 border-slate-200"
-            )}
-          >
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <User className="w-4 h-4" />
-                المراسل والتصنيف
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="reporter" className="text-sm mb-2">
-                  المراسل *
-                </Label>
-                <select
-                  id="reporter"
-                  value={formData.authorId}
-                  onChange={(e) => {
-                    console.log("تم اختيار المراسل:", e.target.value);
-                    setFormData((prev) => ({
-                      ...prev,
-                      authorId: e.target.value,
-                    }));
-                  }}
-                  className={cn(
-                    "w-full p-2 border rounded-lg shadow-sm",
-                    darkMode
-                      ? "bg-slate-700 border-slate-600 text-white"
-                      : "bg-white border-slate-200"
-                  )}
-                >
+            {/* المراسل والتصنيف */}
+            <div className="card">
+              <div className="card-header">
+                <div className="card-title">
+                  <User className="w-4 h-4" />
+                  المراسل والتصنيف
+                </div>
+              </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <label className="label" htmlFor="reporter">المراسل *</label>
+                  <select
+                    id="reporter"
+                    value={formData.authorId}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, authorId: e.target.value }))}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      border: '1px solid hsl(var(--line))',
+                      borderRadius: '8px',
+                      background: 'hsl(var(--bg-card))',
+                      color: 'hsl(var(--fg))'
+                    }}
+                  >
                   <option value="">اختر المراسل</option>
                   {loading && <option disabled>جاري التحميل...</option>}
                   {!loading && (!reporters || reporters.length === 0) && (
@@ -2036,27 +2063,23 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
                 </select>
               </div>
 
-              <div>
-                <Label htmlFor="category" className="text-sm mb-2">
-                  التصنيف *
-                </Label>
-                <select
-                  id="category"
-                  value={formData.categoryId}
-                  onChange={(e) => {
-                    console.log("تم اختيار التصنيف:", e.target.value);
-                    setFormData((prev) => ({
-                      ...prev,
-                      categoryId: e.target.value,
-                    }));
-                  }}
-                  className={cn(
-                    "w-full p-2 border rounded-lg shadow-sm",
-                    darkMode
-                      ? "bg-slate-700 border-slate-600 text-white"
-                      : "bg-white border-slate-200"
-                  )}
-                >
+                </div>
+
+                <div>
+                  <label className="label" htmlFor="category">التصنيف *</label>
+                  <select
+                    id="category"
+                    value={formData.categoryId}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, categoryId: e.target.value }))}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      border: '1px solid hsl(var(--line))',
+                      borderRadius: '8px',
+                      background: 'hsl(var(--bg-card))',
+                      color: 'hsl(var(--fg))'
+                    }}
+                  >
                   <option value="">اختر التصنيف</option>
                   {loading && <option disabled>جاري التحميل...</option>}
                   {!loading && (!categories || categories.length === 0) && (
