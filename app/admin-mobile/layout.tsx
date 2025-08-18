@@ -35,33 +35,34 @@ export default function AdminMobileLayout({ children }: { children: React.ReactN
 
   // تحميل CSS الخاص بالموبايل
   useEffect(() => {
+    const v = `v=${Date.now()}`;
     // تحميل CSS الأساسي
     const link1 = document.createElement('link');
     link1.rel = 'stylesheet';
-    link1.href = '/admin-mobile-first.css';
+    link1.href = `/admin-mobile-first.css?${v}`;
     document.head.appendChild(link1);
     
           // تحميل CSS الإصلاحات
       const link2 = document.createElement('link');
       link2.rel = 'stylesheet';
-      link2.href = '/styles/admin-mobile-news-fix.css';
+      link2.href = `/styles/admin-mobile-news-fix.css?${v}`;
       document.head.appendChild(link2);
 
       // تحميل CSS الإصلاحات الحرجة
       const link3 = document.createElement('link');
       link3.rel = 'stylesheet';
-      link3.href = '/admin-mobile-critical-fixes.css';
+      link3.href = `/admin-mobile-critical-fixes.css?${v}`;
       document.head.appendChild(link3);
 
       // تحميل CSS إصلاحات التخطيط
       const link4 = document.createElement('link');
       link4.rel = 'stylesheet';
-      link4.href = '/mobile-layout-fixes.css';
+      link4.href = `/mobile-layout-fixes.css?${v}`;
       document.head.appendChild(link4);
 
       // تحميل JavaScript محسن التخطيط
       const script = document.createElement('script');
-      script.src = '/mobile-layout-enhancer.js';
+      script.src = `/mobile-layout-enhancer.js?${v}`;
       script.defer = true;
       document.head.appendChild(script);
 
