@@ -2,7 +2,6 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useSidebarPreferences } from "@/contexts/SidebarPreferencesContext";
 import { useToast } from "@/hooks/use-toast";
@@ -169,12 +168,34 @@ function SortableItem({
           </Badge>
         )}
 
-        {/* مفتاح التبديل */}
-        <Switch
-          checked={!isHidden}
-          onCheckedChange={() => onToggleVisibility(id)}
-          className="data-[state=checked]:bg-blue-600"
-        />
+        {/* مفتاح التبديل بنمط iOS - مطابق لصفحة الأخبار */}
+        <div
+          onClick={() => onToggleVisibility(id)}
+          style={{
+            position: 'relative',
+            width: '38px',
+            height: '22px',
+            background: !isHidden ? 'hsl(var(--accent))' : '#E5E5EA',
+            borderRadius: '11px',
+            cursor: 'pointer',
+            transition: 'background 0.3s ease',
+            display: 'inline-block'
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              top: '2px',
+              left: !isHidden ? '18px' : '2px',
+              width: '18px',
+              height: '18px',
+              background: 'white',
+              borderRadius: '50%',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+              transition: 'left 0.3s ease'
+            }}
+          />
+        </div>
       </div>
     </div>
   );
