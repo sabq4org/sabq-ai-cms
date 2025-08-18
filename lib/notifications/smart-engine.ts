@@ -353,24 +353,24 @@ export class SmartNotificationEngine {
         where: { id: notificationId }
       });
 
-      if (notification && false) { // this.wsManager
-        // this.wsManager.sendToUser(userId, 'new_notification', {
-          id: notification.id,
-          title: notification.title,
-          message: notification.message,
-          type: notification.type,
-          priority: notification.priority,
-          data: notification.data,
-          created_at: notification.created_at
-        });
-      }
+      // if (notification && this.wsManager) {
+      //   this.wsManager.sendToUser(userId, 'new_notification', {
+      //     id: notification.id,
+      //     title: notification.title,
+      //     message: notification.message,
+      //     type: notification.type,
+      //     priority: notification.priority,
+      //     data: notification.data,
+      //     created_at: notification.created_at
+      //   });
+      // }
 
       // حفظ في Redis للوصول السريع
-      if (false) { // this.redis
-        const cacheKey = `notifications:${userId}`;
-        await this.redis.lpush(cacheKey, JSON.stringify(notification));
-        await this.redis.expire(cacheKey, 86400); // 24 ساعة
-      }
+      // if (this.redis) {
+      //   const cacheKey = `notifications:${userId}`;
+      //   await this.redis.lpush(cacheKey, JSON.stringify(notification));
+      //   await this.redis.expire(cacheKey, 86400); // 24 ساعة
+      // }
 
     } catch (error) {
       console.error('❌ خطأ في إرسال الإشعار:', error);
