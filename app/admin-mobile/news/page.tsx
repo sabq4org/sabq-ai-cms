@@ -17,7 +17,9 @@ import {
   TrendingUp,
   AlertCircle,
   Calendar,
-  Image as ImageIcon
+  Image as ImageIcon,
+  MessageSquare,
+  Zap
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSwipeable } from "react-swipeable";
@@ -372,20 +374,20 @@ function NewsCard({
       }}
     >
       <div style={{
-        display: "grid",
-        gridTemplateColumns: article.thumbnail_url ? "80px 1fr" : "1fr",
+        display: "flex",
         gap: "12px",
-        padding: "12px"
+        padding: "12px",
+        alignItems: "center"
       }}>
         {/* الصورة المصغرة */}
         {article.thumbnail_url && (
           <div style={{
-            width: "80px",
-            height: "80px",
+            width: "64px",
+            height: "64px",
             borderRadius: "8px",
             overflow: "hidden",
             background: "hsl(var(--bg))",
-            position: "relative"
+            flexShrink: 0
           }}>
             <img
               src={article.thumbnail_url}
@@ -399,67 +401,70 @@ function NewsCard({
                 e.currentTarget.style.display = "none";
               }}
             />
-            {article.breaking && (
-              <div style={{
-                position: "absolute",
-                top: "4px",
-                right: "4px",
-                background: "#EF4444",
-                color: "white",
-                padding: "2px 6px",
-                borderRadius: "4px",
-                fontSize: "10px",
-                fontWeight: "600"
-              }}>
-                عاجل
-              </div>
-            )}
           </div>
         )}
 
         {/* المحتوى */}
-        <div style={{ minWidth: 0, flex: 1 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {/* العنوان */}
           <h3 style={{
             fontSize: "14px",
             fontWeight: "600",
-            marginBottom: "8px",
-            lineHeight: "1.5",
-            color: "hsl(var(--fg))"
+            marginBottom: "4px",
+            lineHeight: "1.4",
+            color: "hsl(var(--fg))",
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden"
           }}>
             {article.title}
           </h3>
 
-          {/* البيانات الوصفية */}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "8px" }}>
-            {/* الحالة */}
+          {/* السطر الأول: الحالة والتصنيف */}
+          <div style={{ 
+            display: "flex", 
+            alignItems: "center", 
+            gap: "6px", 
+            marginBottom: "4px",
+            flexWrap: "wrap"
+          }}>
             <span style={{
               display: "inline-flex",
               alignItems: "center",
-              gap: "4px",
-              fontSize: "12px",
-              padding: "4px 8px",
-              borderRadius: "12px",
-              background: `${getStatusColor(article.status)}20`,
+              gap: "3px",
+              fontSize: "11px",
+              padding: "2px 6px",
+              borderRadius: "10px",
+              background: `${getStatusColor(article.status)}15`,
               color: getStatusColor(article.status),
               fontWeight: "500"
             }}>
-              {article.status === "published" && <Check size={12} />}
-              {article.status === "draft" && <Edit size={12} />}
-              {article.status === "scheduled" && <Clock size={12} />}
-              {article.status === "archived" && <X size={12} />}
               {article.status === "published" ? "منشور" :
                article.status === "draft" ? "مسودة" :
                article.status === "scheduled" ? "مجدول" :
                article.status === "archived" ? "مؤرشف" : article.status}
             </span>
+            
+            {article.breaking && (
+              <span style={{
+                fontSize: "11px",
+                padding: "2px 6px",
+                borderRadius: "10px",
+                background: "#EF444415",
+                color: "#EF4444",
+                fontWeight: "600"
+              }}>
+                عاجل
+              </span>
+            )}
 
-            {/* التصنيف */}
             {article.category && (
               <span style={{
                 fontSize: "11px",
-                padding: "3px 6px",
+                padding: "2px 6px",
                 borderRadius: "10px",
-                background: `${article.category.color || "#6B7280"}20`,
+                background: `${article.category.color || "#6B7280"}15`,
                 color: article.category.color || "#6B7280",
                 fontWeight: "500"
               }}>
@@ -468,100 +473,133 @@ function NewsCard({
             )}
           </div>
 
-          {/* معلومات إضافية */}
+          {/* السطر الثاني: الوقت والمشاهدات */}
           <div style={{
             display: "flex",
             alignItems: "center",
             gap: "8px",
             fontSize: "11px",
-            color: "hsl(var(--muted))",
-            marginTop: "4px"
+            color: "hsl(var(--muted))"
           }}>
-            <span style={{ display: "flex", alignItems: "center", gap: "3px" }}>
-              <Clock size={11} />
-              {timeAgo(article.published_at || article.created_at)}
-            </span>
+            <span>{timeAgo(article.published_at || article.created_at)}</span>
             {article.views !== undefined && (
               <>
                 <span>•</span>
                 <span style={{ display: "flex", alignItems: "center", gap: "3px" }}>
-                  <Eye size={11} />
-                  {article.views.toLocaleString()}
+                  <Eye size={10} />
+                  {article.views > 999 ? `${Math.floor(article.views/1000)}k` : article.views}
+                </span>
+              </>
+            )}
+            {article.comments_count !== undefined && article.comments_count > 0 && (
+              <>
+                <span>•</span>
+                <span style={{ display: "flex", alignItems: "center", gap: "3px" }}>
+                  <MessageSquare size={10} />
+                  {article.comments_count}
                 </span>
               </>
             )}
           </div>
         </div>
 
-        {/* زر القائمة */}
+        {/* زر الإجراءات */}
         <button
           onClick={onSelect}
-          className="btn-mobile btn-sm"
           style={{
-            position: "absolute",
-            top: "12px",
-            left: "12px",
             background: "transparent",
-            padding: "4px",
-            minWidth: "32px",
-            minHeight: "32px"
+            border: "none",
+            padding: "8px",
+            cursor: "pointer",
+            color: "hsl(var(--muted))",
+            borderRadius: "8px",
+            transition: "all 0.2s ease"
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "hsl(var(--accent) / 0.1)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "transparent";
           }}
         >
-          <MoreVertical size={16} />
+          <MoreVertical size={18} />
         </button>
       </div>
 
-      {/* قائمة الإجراءات */}
+      {/* Swipe Actions - إجراءات سريعة */}
       <AnimatePresence>
         {isSelected && (
           <motion.div
-            initial={{ height: 0 }}
-            animate={{ height: "auto" }}
-            exit={{ height: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             style={{
-              overflow: "hidden",
-              borderTop: "1px solid hsl(var(--line))"
-            }}
-          >
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(4, 1fr)",
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "linear-gradient(to left, transparent, hsl(var(--bg-card) / 0.95) 30%)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "flex-end",
               gap: "8px",
               padding: "12px"
-            }}>
-              <Link
-                href={`/news/${article.slug || article.id}`}
-                className="action-button"
-                style={{ color: "#3B82F6" }}
-              >
-                <Eye size={18} />
-                <span>عرض</span>
-              </Link>
-              <Link
-                href={`/admin/news/unified?id=${article.id}`}
-                className="action-button"
-                style={{ color: "#10B981" }}
-              >
-                <Edit size={18} />
-                <span>تعديل</span>
-              </Link>
-              <button
-                onClick={onToggleBreaking}
-                className="action-button"
-                style={{ color: article.breaking ? "#F59E0B" : "#8B5CF6" }}
-              >
-                <AlertCircle size={18} />
-                <span>{article.breaking ? "عادي" : "عاجل"}</span>
-              </button>
-              <button
-                onClick={onDelete}
-                className="action-button"
-                style={{ color: "#EF4444" }}
-              >
-                <Trash2 size={18} />
-                <span>حذف</span>
-              </button>
-            </div>
+            }}
+          >
+            <Link
+              href={`/admin/news/unified?id=${article.id}`}
+              style={{
+                width: "40px",
+                height: "40px",
+                background: "#10B981",
+                color: "white",
+                borderRadius: "50%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                textDecoration: "none",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.15)"
+              }}
+            >
+              <Edit size={18} />
+            </Link>
+            <button
+              onClick={onToggleBreaking}
+              style={{
+                width: "40px",
+                height: "40px",
+                background: article.breaking ? "#F59E0B" : "#8B5CF6",
+                color: "white",
+                borderRadius: "50%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                border: "none",
+                cursor: "pointer",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.15)"
+              }}
+            >
+              <Zap size={18} />
+            </button>
+            <button
+              onClick={onDelete}
+              style={{
+                width: "40px",
+                height: "40px",
+                background: "#EF4444",
+                color: "white",
+                borderRadius: "50%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                border: "none",
+                cursor: "pointer",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.15)"
+              }}
+            >
+              <Trash2 size={18} />
+            </button>
           </motion.div>
         )}
       </AnimatePresence>

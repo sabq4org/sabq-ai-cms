@@ -195,9 +195,9 @@ export default function AdminMobileLayout({ children }: { children: React.ReactN
               
               <motion.aside
                 className="mobile-sidebar"
-                initial={{ x: "-100%" }}
+                initial={{ x: "100%" }}
                 animate={{ x: 0 }}
-                exit={{ x: "-100%" }}
+                exit={{ x: "100%" }}
                 transition={{ type: "spring", damping: 30, stiffness: 300 }}
                 {...swipeHandlers}
                 style={{
@@ -205,140 +205,120 @@ export default function AdminMobileLayout({ children }: { children: React.ReactN
                   top: 0,
                   right: 0,
                   width: "85%",
-                  maxWidth: "320px",
+                  maxWidth: "280px",
                   height: "100vh",
                   background: "hsl(var(--bg-elevated))",
-                  boxShadow: "-2px 0 10px rgba(0, 0, 0, 0.1)",
+                  boxShadow: "-4px 0 20px rgba(0, 0, 0, 0.1)",
                   zIndex: 1001,
-                  overflowY: "auto"
+                  overflowY: "auto",
+                  display: "flex",
+                  flexDirection: "column"
                 }}
               >
-                {/* رأس القائمة */}
+                {/* رأس القائمة المبسط */}
                 <div style={{
-                  padding: "20px",
-                  borderBottom: "1px solid hsl(var(--line))",
-                  background: "hsl(var(--bg-card))"
+                  padding: "16px",
+                  borderBottom: "1px solid hsl(var(--line))"
                 }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
-                    <h2 style={{ margin: 0, fontSize: "18px", fontWeight: "600" }}>القائمة الرئيسية</h2>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <div style={{
+                        width: "32px",
+                        height: "32px",
+                        background: "hsl(var(--accent))",
+                        borderRadius: "50%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "white",
+                        fontSize: "14px",
+                        fontWeight: "bold"
+                      }}>
+                        {(user?.name || "م")[0]}
+                      </div>
+                      <div>
+                        <div style={{ fontSize: "14px", fontWeight: "600" }}>{user?.name || "المسؤول"}</div>
+                        <div style={{ fontSize: "11px", color: "hsl(var(--muted))" }}>لوحة التحكم</div>
+                      </div>
+                    </div>
                     <button
                       onClick={() => setSidebarOpen(false)}
-                      className="btn-mobile btn-sm"
-                      style={{ background: "transparent", padding: "4px" }}
+                      style={{
+                        background: "transparent",
+                        border: "none",
+                        padding: "8px",
+                        cursor: "pointer",
+                        color: "hsl(var(--muted))"
+                      }}
                     >
                       <X size={20} />
                     </button>
                   </div>
-                  
-                  {/* معلومات المستخدم */}
-                  <div style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "12px",
-                    padding: "12px",
-                    background: "hsl(var(--bg))",
-                    borderRadius: "8px"
-                  }}>
-                    <div style={{
-                      width: "40px",
-                      height: "40px",
-                      background: "hsl(var(--accent))",
-                      borderRadius: "50%",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: "white"
-                    }}>
-                      <User size={20} />
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: "600", fontSize: "14px" }}>{user?.name || "المسؤول"}</div>
-                      <div style={{ fontSize: "12px", color: "hsl(var(--muted))" }}>{user?.email || "admin@sabq.org"}</div>
-                    </div>
-                  </div>
                 </div>
 
-                {/* عناصر التنقل */}
-                <nav style={{ padding: "12px" }}>
-                  {navigationItems.map((item) => (
-                    <Link
-                      key={item.path}
-                      href={item.path}
-                      onClick={() => setSidebarOpen(false)}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "12px",
-                        padding: "14px",
-                        marginBottom: "4px",
-                        borderRadius: "8px",
-                        textDecoration: "none",
-                        color: isActive(item.path) ? "white" : "hsl(var(--fg))",
-                        background: isActive(item.path) ? item.color : "transparent",
-                        transition: "all 0.2s ease"
-                      }}
-                    >
-                      <item.icon size={20} />
-                      <span style={{ fontSize: "15px", fontWeight: isActive(item.path) ? "600" : "400" }}>
-                        {item.label}
-                      </span>
-                      {isActive(item.path) && (
-                        <ChevronLeft size={16} style={{ marginLeft: "auto" }} />
-                      )}
-                    </Link>
-                  ))}
-                  
-                  {/* زر إنشاء جديد */}
-                  <Link
-                    href="/admin/news/unified"
-                    onClick={() => setSidebarOpen(false)}
-                    className="btn-mobile"
-                    style={{
-                      background: "hsl(var(--accent))",
-                      color: "white",
-                      width: "100%",
-                      marginTop: "16px",
-                      justifyContent: "center"
-                    }}
-                  >
-                    <Plus size={20} />
-                    <span>إنشاء خبر جديد</span>
-                  </Link>
+                {/* عناصر التنقل المبسطة */}
+                <nav style={{ flex: 1, padding: "8px" }}>
+                  {[
+                    { path: "/admin-mobile", label: "الرئيسية", icon: Home },
+                    { path: "/admin-mobile/news", label: "الأخبار", icon: Newspaper },
+                    { path: "/admin/articles", label: "المقالات", icon: FileText },
+                    { path: "/admin/analytics", label: "التحليلات", icon: BarChart3 },
+                    { path: "/admin/settings", label: "الإعدادات", icon: Settings }
+                  ].map((item) => {
+                    const Icon = item.icon;
+                    const active = isActive(item.path);
+                    return (
+                      <Link
+                        key={item.path}
+                        href={item.path}
+                        onClick={() => setSidebarOpen(false)}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "12px",
+                          padding: "12px 16px",
+                          marginBottom: "2px",
+                          borderRadius: "8px",
+                          textDecoration: "none",
+                          color: active ? "hsl(var(--accent))" : "hsl(var(--fg))",
+                          background: active ? "hsl(var(--accent) / 0.1)" : "transparent",
+                          transition: "all 0.2s ease"
+                        }}
+                      >
+                        <Icon size={20} />
+                        <span style={{ fontSize: "14px", fontWeight: active ? "600" : "400" }}>
+                          {item.label}
+                        </span>
+                      </Link>
+                    );
+                  })}
                 </nav>
 
-                {/* الإحصائيات السريعة */}
-                <div style={{ padding: "20px", borderTop: "1px solid hsl(var(--line))" }}>
-                  <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px", color: "hsl(var(--muted))" }}>
-                    إحصائيات سريعة
-                  </h3>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
-                    <div className="stat-card-mini">
-                      <Zap size={16} color="#3B82F6" />
-                      <div>
-                        <div style={{ fontSize: "18px", fontWeight: "600" }}>234</div>
-                        <div style={{ fontSize: "11px", color: "hsl(var(--muted))" }}>خبر اليوم</div>
-                      </div>
-                    </div>
-                    <div className="stat-card-mini">
-                      <TrendingUp size={16} color="#10B981" />
-                      <div>
-                        <div style={{ fontSize: "18px", fontWeight: "600" }}>89%</div>
-                        <div style={{ fontSize: "11px", color: "hsl(var(--muted))" }}>نسبة النشر</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+
 
                 {/* تسجيل الخروج */}
-                <div style={{ padding: "20px", marginTop: "auto" }}>
+                <div style={{ padding: "16px", borderTop: "1px solid hsl(var(--line))" }}>
                   <button
                     onClick={handleLogout}
-                    className="btn-mobile"
                     style={{
-                      background: "hsl(var(--danger) / 0.1)",
-                      color: "hsl(var(--danger))",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "12px",
+                      padding: "12px 16px",
                       width: "100%",
-                      justifyContent: "center"
+                      background: "transparent",
+                      border: "none",
+                      borderRadius: "8px",
+                      color: "hsl(var(--danger))",
+                      fontSize: "14px",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease"
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "hsl(var(--danger) / 0.1)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "transparent";
                     }}
                   >
                     <LogOut size={20} />
@@ -358,6 +338,38 @@ export default function AdminMobileLayout({ children }: { children: React.ReactN
         }}>
           {children}
         </main>
+
+        {/* زر عائم لإنشاء خبر جديد */}
+        <Link
+          href="/admin/news/unified"
+          style={{
+            position: "fixed",
+            bottom: "80px",
+            left: "20px",
+            width: "56px",
+            height: "56px",
+            background: "hsl(var(--accent))",
+            color: "white",
+            borderRadius: "50%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+            zIndex: 999,
+            textDecoration: "none",
+            transition: "all 0.3s ease"
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "scale(1.1)";
+            e.currentTarget.style.boxShadow = "0 6px 20px rgba(0, 0, 0, 0.25)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "scale(1)";
+            e.currentTarget.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.15)";
+          }}
+        >
+          <Plus size={24} />
+        </Link>
 
         {/* التنقل السفلي */}
         <nav className="bottom-navigation safe-area-bottom">
