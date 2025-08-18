@@ -119,8 +119,9 @@ export default function AdminMobileLayout({ children }: { children: React.ReactN
   const bottomNavItems = navigationItems.slice(0, 5);
 
   const handleLogout = async () => {
-    await logout();
-    router.push("/");
+    try { await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }); } catch {}
+    try { await logout(); } catch {}
+    router.replace('/');
   };
 
   const isActive = (path: string) => pathname?.startsWith(path);

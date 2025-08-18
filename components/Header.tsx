@@ -91,14 +91,12 @@ export default function Header() {
 
   const handleLogout = async () => {
     try {
-      await logout();
-      setIsDropdownOpen(false);
-      router.push("/");
-      toast.success("تم تسجيل الخروج بنجاح");
-    } catch (error) {
-      console.error("خطأ في تسجيل الخروج:", error);
-      toast.error("حدث خطأ أثناء تسجيل الخروج");
-    }
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    } catch {}
+    try { await logout(); } catch {}
+    try { setIsDropdownOpen(false); } catch {}
+    try { toast.success("تم تسجيل الخروج بنجاح"); } catch {}
+    router.replace("/");
   };
 
   const handleDropdownToggle = () => {

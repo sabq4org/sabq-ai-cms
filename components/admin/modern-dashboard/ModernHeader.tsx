@@ -94,14 +94,9 @@ export default function ModernHeader({
   );
 
   const handleLogout = async () => {
-    try {
-      await logout();
-      // سيقوم AuthContext بإعادة التوجيه إلى "/"، وإن أردنا صفحة دخول الإدارة:
-      // router.replace("/admin/login");
-    } catch (e) {
-      // لا شيء؛ سجل فقط في وحدة التحكم
-      console.error("Logout failed", e);
-    }
+    try { await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }); } catch {}
+    try { await logout(); } catch {}
+    router.replace('/');
   };
 
   return (

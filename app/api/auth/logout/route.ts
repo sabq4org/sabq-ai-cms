@@ -28,6 +28,9 @@ export async function POST(request: NextRequest) {
     // حذف cookies
     response.cookies.delete('access_token');
     response.cookies.delete('refresh_token');
+    // حذف كوكيز إضافية قد تُستخدم على الواجهة
+    response.cookies.delete('auth-token');
+    response.cookies.delete('user');
 
     return response;
 
@@ -45,6 +48,8 @@ export async function POST(request: NextRequest) {
 
     response.cookies.delete('access_token');
     response.cookies.delete('refresh_token');
+    response.cookies.delete('auth-token');
+    response.cookies.delete('user');
 
     return response;
   }

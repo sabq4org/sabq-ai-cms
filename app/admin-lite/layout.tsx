@@ -1,11 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
+import { LogOut } from "lucide-react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Home, Newspaper, FileText, BarChart3, Settings } from "lucide-react";
 import React from "react";
 
 export default function AdminLiteLayout({ children }: { children: React.ReactNode }) {
+  const { logout } = useAuth();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const status = searchParams.get("status") || "all";
@@ -126,6 +129,17 @@ export default function AdminLiteLayout({ children }: { children: React.ReactNod
               />
               <span style={{ color: isActiveBottom("/admin/settings") ? "hsl(var(--accent))" : "hsl(var(--muted))" }}>الإعدادات</span>
             </Link>
+            <button
+              className="flex flex-col items-center py-2"
+              onClick={async () => {
+                try { await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }); } catch {}
+                try { await logout(); } catch {}
+                window.location.replace('/');
+              }}
+            >
+              <LogOut className="w-5 h-5" style={{ color: "hsl(var(--danger))" }} />
+              <span style={{ color: "hsl(var(--danger))" }}>خروج</span>
+            </button>
           </div>
         </nav>
       </div>
