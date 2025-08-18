@@ -1587,9 +1587,13 @@ function AdminNewsPageContent() {
                                         `/admin/news/unified?id=${article.id}`
                                       )
                                     }
-                                    className="py-3 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                    style={{
+                                      padding: '12px 16px',
+                                      color: 'hsl(var(--fg))'
+                                    }}
+                                    className="hover:bg-accent/5"
                                   >
-                                    <Edit className="w-4 h-4 ml-3 text-yellow-600 dark:text-yellow-400" />
+                                    <Edit className="w-4 h-4 ml-3" style={{ color: 'hsl(var(--muted))' }} />
                                     <span className="font-medium">
                                       تعديل الخبر
                                     </span>
@@ -1601,10 +1605,14 @@ function AdminNewsPageContent() {
                                         `/admin/news/smart-editor?id=${article.id}`
                                       )
                                     }
-                                    className="py-3 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                    style={{
+                                      padding: '12px 16px',
+                                      color: 'hsl(var(--accent))'
+                                    }}
+                                    className="hover:bg-accent/5"
                                   >
-                                    <FileText className="w-4 h-4 ml-3 text-blue-600 dark:text-blue-400" />
-                                    <span className="font-medium text-blue-600 dark:text-blue-400">
+                                    <FileText className="w-4 h-4 ml-3" style={{ color: 'hsl(var(--accent))' }} />
+                                    <span className="font-medium">
                                       المحرر الذكي ✨
                                     </span>
                                   </DropdownMenuItem>
@@ -1612,10 +1620,14 @@ function AdminNewsPageContent() {
                                   {article.status === "draft" && (
                                     <DropdownMenuItem
                                       onClick={() => publishArticle(article.id)}
-                                      className="py-3 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                      style={{
+                                        padding: '12px 16px',
+                                        color: 'hsl(var(--accent))'
+                                      }}
+                                      className="hover:bg-accent/5"
                                     >
-                                  <PlayCircle className="w-4 h-4 ml-3 text-blue-600 dark:text-blue-400" />
-                                      <span className="font-medium text-blue-600 dark:text-blue-400">
+                                      <PlayCircle className="w-4 h-4 ml-3" style={{ color: 'hsl(var(--accent))' }} />
+                                      <span className="font-medium">
                                         نشر الخبر
                                       </span>
                                     </DropdownMenuItem>
@@ -1624,22 +1636,30 @@ function AdminNewsPageContent() {
                                   {article.status === "published" && (
                                     <DropdownMenuItem
                                       onClick={() => archiveArticle(article.id)}
-                                      className="py-3 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                      style={{
+                                        padding: '12px 16px',
+                                        color: 'hsl(var(--muted))'
+                                      }}
+                                      className="hover:bg-accent/5"
                                     >
-                                      <PauseCircle className="w-4 h-4 ml-3 text-orange-600 dark:text-orange-400" />
-                                      <span className="font-medium text-orange-600 dark:text-orange-400">
+                                      <PauseCircle className="w-4 h-4 ml-3" style={{ color: 'hsl(var(--muted))' }} />
+                                      <span className="font-medium">
                                         أرشفة الخبر
                                       </span>
                                     </DropdownMenuItem>
                                   )}
 
-                                  <DropdownMenuSeparator />
+                                  <DropdownMenuSeparator style={{ backgroundColor: 'hsl(var(--line))', margin: '4px 0' }} />
 
                                   <DropdownMenuItem
                                     onClick={() => deleteArticle(article.id)}
-                                    className="py-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                    style={{
+                                      padding: '12px 16px',
+                                      color: '#dc2626'
+                                    }}
+                                    className="hover:bg-red-50 dark:hover:bg-red-900/20"
                                   >
-                                    <Trash2 className="w-4 h-4 ml-3" />
+                                    <Trash2 className="w-4 h-4 ml-3" style={{ color: '#dc2626' }} />
                                     <span className="font-medium">
                                       حذف الخبر
                                     </span>
