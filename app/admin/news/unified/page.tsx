@@ -1558,64 +1558,139 @@ export default function UnifiedNewsCreatePageUltraEnhanced() {
         padding: '24px',
         color: 'hsl(var(--fg))'
       }} className="space-y-6">
-      <DesignComponents.SectionHeader
-        title={isEditMode ? "تعديل الخبر" : "إنشاء خبر"}
-        description="أدخل تفاصيل الخبر، أضف الصورة والكلمات المفتاحية ثم انشر"
-        action={
-          <div className="flex items-center gap-4">
-            <div className="w-40">
-              <Progress
-                value={completionScore}
-                className={cn(
-                  "h-2 transition-all",
-                  completionScore >= 60
-                    ? "[&>div]:bg-emerald-500"
-                    : "[&>div]:bg-orange-500"
-                )}
-              />
-              <p
-                className={cn(
-                  "text-xs mt-1 font-medium",
-                  completionScore >= 60 ? "text-emerald-600" : "text-orange-600"
-                )}
-              >
-                {completionScore}% مكتمل
-                {completionScore < 60 &&
-                  ` (يجب ${60 - completionScore}% إضافية للنشر)`}
+        {/* هيدر الصفحة */}
+        <div className="card card-accent" style={{ marginBottom: '32px' }}>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '16px'
+          }}>
+            <div>
+              <h1 className="heading-2" style={{ margin: 0 }}>
+                {isEditMode ? "تعديل الخبر" : "إنشاء خبر"}
+              </h1>
+              <p className="text-muted" style={{ margin: '8px 0 0 0' }}>
+                أدخل تفاصيل الخبر، أضف الصورة والكلمات المفتاحية ثم انشر
               </p>
             </div>
-            <DesignComponents.ActionBar>
-              <PublishButtons position="top" />
-            </DesignComponents.ActionBar>
-          </div>
-        }
-      />
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+              {/* شريط التقدم */}
+              <div style={{ width: '160px' }}>
+                <div
+                  style={{
+                    width: '100%',
+                    height: '8px',
+                    background: 'hsl(var(--line))',
+                    borderRadius: '4px',
+                    overflow: 'hidden'
+                  }}
+                >
+                  <div
+                    style={{
+                      width: `${completionScore}%`,
+                      height: '100%',
+                      background: completionScore >= 60 ? 'hsl(var(--accent))' : '#f59e0b',
+                      transition: 'width 0.3s ease'
+                    }}
+                  />
+                </div>
+                <p
+                  style={{
+                    fontSize: '12px',
+                    margin: '4px 0 0 0',
+                    fontWeight: '500',
+                    color: completionScore >= 60 ? 'hsl(var(--accent))' : '#f59e0b'
+                  }}
+                >
+                  {completionScore}% مكتمل
+                  {completionScore < 60 && ` (يجب ${60 - completionScore}% إضافية للنشر)`}
+                </p>
+              </div>
 
-      {/* رسالة النجاح أو الخطأ */}
-      {message.type && (
-        <Alert
-          className={cn(
-            "mb-2 shadow-lg",
-            message.type === "success"
-              ? "border-emerald-200 bg-emerald-50 dark:bg-emerald-900/20"
-              : "border-red-200 bg-red-50 dark:bg-red-900/20"
-          )}
-        >
-          {message.type === "success" ? (
-            <CheckCircle className="h-4 w-4 text-emerald-600" />
-          ) : (
-            <AlertCircle className="h-4 w-4 text-red-600" />
-          )}
-          <AlertDescription
-            className={cn(
-              "text-sm font-medium",
-              message.type === "success" ? "text-emerald-800" : "text-red-800"
-            )}
+              {/* أزرار النشر */}
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button
+                  onClick={() => handleSave("draft")}
+                  disabled={saving}
+                  className="btn"
+                  style={{
+                    background: 'hsl(var(--bg-card))',
+                    border: '1px solid hsl(var(--line))'
+                  }}
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      جاري الحفظ...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4" />
+                      حفظ مسودة
+                    </>
+                  )}
+                </button>
+
+                <button
+                  onClick={() => {
+                    if (completionScore < 60) {
+                      toast.error(`المقال غير مكتمل بما يكفي للنشر (${completionScore}%). يرجى إكمال البيانات المطلوبة.`);
+                      return;
+                    }
+                    handleSave("published");
+                  }}
+                  disabled={saving || loading}
+                  className="btn btn-primary"
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      جاري النشر...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      نشر فوري
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* رسالة النجاح أو الخطأ */}
+        {message.type && (
+          <div 
+            className="card"
+            style={{
+              marginBottom: '24px',
+              background: message.type === "success" 
+                ? 'hsl(120 60% 95%)' 
+                : 'hsl(0 60% 95%)',
+              border: `1px solid ${message.type === "success" ? 'hsl(120 60% 80%)' : 'hsl(0 60% 80%)'}`,
+              padding: '16px'
+            }}
           >
-            {message.text}
-          </AlertDescription>
-        </Alert>
-      )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              {message.type === "success" ? (
+                <CheckCircle className="h-5 w-5" style={{ color: 'hsl(120 60% 40%)' }} />
+              ) : (
+                <AlertCircle className="h-5 w-5" style={{ color: 'hsl(0 60% 40%)' }} />
+              )}
+              <span style={{ 
+                fontSize: '14px', 
+                fontWeight: '500',
+                color: message.type === "success" ? 'hsl(120 60% 30%)' : 'hsl(0 60% 30%)'
+              }}>
+                {message.text}
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* المحتوى الرئيسي */}
         <div className="grid grid-3" style={{ gap: '32px', alignItems: 'start' }}>
