@@ -146,13 +146,14 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
   const markAsRead = useCallback(async (notificationId: string) => {
     try {
       const response = await fetch('/api/notifications/mark-read', {
-        method: 'PATCH',
+        method: 'POST',
         headers: {
           ...getAuthHeaders(),
           'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify({
-          notificationIds: [notificationId]
+          notificationId: notificationId
         })
       });
 
@@ -201,6 +202,7 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
           ...getAuthHeaders(),
           'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify({
           markAll: true
         })

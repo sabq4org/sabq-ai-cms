@@ -309,14 +309,22 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                           ? 'bg-blue-50 dark:bg-blue-900/20 border-l-4 border-l-blue-500' 
                           : ''
                       }`}
-                      onClick={(e) => {
+                      onClick={async (e) => {
                         // تحديد كمقروء إذا لم يكن كذلك
                         if (!notification.read_at) {
-                          markAsRead(notification.id);
+                          try {
+                            await markAsRead(notification.id);
+                            // إخفاء الإشعار محلياً فقط بعد نجاح التحديث
+                            setHiddenNotifications(prev => new Set([...prev, notification.id]));
+                          } catch (error) {
+                            console.error('فشل في تحديد الإشعار كمقروء:', error);
+                            // لا نخفي الإشعار في حالة الفشل
+                            return;
+                          }
+                        } else {
+                          // إذا كان مقروء مسبقاً، يمكن إخفاؤه محلياً
+                          setHiddenNotifications(prev => new Set([...prev, notification.id]));
                         }
-                        
-                        // إخفاء الإشعار من القائمة
-                        setHiddenNotifications(prev => new Set([...prev, notification.id]));
                         
                         // الانتقال للرابط إذا كان موجود
                         if (notification.link && !e.defaultPrevented) {
@@ -348,9 +356,15 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                               </span>
                               {!notification.read_at && (
                                 <button
-                                  onClick={(e) => {
+                                  onClick={async (e) => {
                                     e.stopPropagation();
-                                    markAsRead(notification.id);
+                                    try {
+                                      await markAsRead(notification.id);
+                                      // إخفاء الإشعار محلياً بعد نجاح التحديث
+                                      setHiddenNotifications(prev => new Set([...prev, notification.id]));
+                                    } catch (error) {
+                                      console.error('فشل في تحديد الإشعار كمقروء:', error);
+                                    }
                                   }}
                                   className="text-blue-600 hover:text-blue-800 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 p-1 rounded transition-colors"
                                   aria-label="تحديد كمقروء"
@@ -378,8 +392,14 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                                   ? 'text-gray-900 dark:text-white font-medium hover:text-blue-600 dark:hover:text-blue-400' 
                                   : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100'
                               } leading-relaxed break-words block hover:underline`}
-                              onClick={(e) => {
-                                !notification.read_at && markAsRead(notification.id);
+                              onClick={async (e) => {
+                                if (!notification.read_at) {
+                                  try {
+                                    await markAsRead(notification.id);
+                                  } catch (error) {
+                                    console.error('فشل في تحديد الإشعار كمقروء:', error);
+                                  }
+                                }
                               }}
                             >
                               {notification.message}

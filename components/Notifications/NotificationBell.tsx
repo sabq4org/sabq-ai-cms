@@ -27,10 +27,32 @@ export default function NotificationBell() {
         body: JSON.stringify({ markAll: true })
       });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      setItems((prev) => prev.map(i => i));
+      
+      // تحديث الحالة المحلية فوراً
       setUnread(0);
+      
+      // إعادة جلب الإشعارات للتأكد من التحديث
       await fetchNotifications();
-    } catch {}
+    } catch (error) {
+      console.error('فشل في تحديد جميع الإشعارات كمقروءة:', error);
+    }
+  };
+
+  const markSingle = async (notificationId: string) => {
+    try {
+      const r = await fetch('/api/notifications/mark-read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ notificationId })
+      });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      
+      // إعادة جلب الإشعارات للتأكد من التحديث
+      await fetchNotifications();
+    } catch (error) {
+      console.error('فشل في تحديد الإشعار كمقروء:', error);
+    }
   };
 
   const mapLink = (n: any): string => {
@@ -118,7 +140,15 @@ export default function NotificationBell() {
                 .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
                 .map((n) => (
                 <li key={n.id} className="p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 text-right rtl:text-right">
-                  <Link href={n.link} className="block" onClick={() => setOpen(false)}>
+                  <Link 
+                    href={n.link} 
+                    className="block" 
+                    onClick={async () => {
+                      // تحديد الإشعار كمقروء عند النقر عليه
+                      await markSingle(n.id);
+                      setOpen(false);
+                    }}
+                  >
                     <div className="text-sm font-medium text-gray-900 dark:text-gray-100 break-words">{n.title}</div>
                     {n.metadata?.categoryIntro && (
                       <div className="text-[11px] text-blue-600 dark:text-blue-400 mt-0.5">{n.metadata.categoryIntro}</div>
