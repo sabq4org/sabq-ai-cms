@@ -313,8 +313,8 @@ export default function MobileHeader({
         </>
       )}
 
-      {/* مساحة للهيدر الثابت */}
-      <div className="h-16" />
+      {/* مساحة للهيدر الثابت - مقللة */}
+      <div className="h-14" />
     </>
   );
 }
@@ -365,7 +365,7 @@ export function SimpleMobileHeader() {
           </div>
         </div>
       </div>
-      <div className="h-16" />
+      <div className="h-14" />
     </>
   );
 }

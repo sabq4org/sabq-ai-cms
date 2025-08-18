@@ -60,15 +60,22 @@ export default function MobileLiteLayout({
     const measure = () => {
       if (showHeader && headerRef.current) {
         const rect = headerRef.current.getBoundingClientRect();
-        setHeaderHeight(Math.ceil(rect.height));
+        // تحديد حد أقصى لارتفاع الهيدر لتجنب المساحات الكبيرة
+        const measuredHeight = Math.ceil(rect.height);
+        const maxHeight = 64; // حد أقصى 64px
+        setHeaderHeight(Math.min(measuredHeight, maxHeight));
       } else {
         setHeaderHeight(0);
       }
     };
-    measure();
+    
+    // تأخير القياس قليلاً للتأكد من اكتمال التحميل
+    const timer = setTimeout(measure, 100);
+    
     window.addEventListener('resize', measure);
     window.addEventListener('orientationchange', measure as any);
     return () => {
+      clearTimeout(timer);
       window.removeEventListener('resize', measure);
       window.removeEventListener('orientationchange', measure as any);
     };
@@ -380,12 +387,12 @@ export default function MobileLiteLayout({
           display: flex;
           flex-direction: column;
           min-height: 0;
-          padding-top: calc(var(--ml-header-h, 56px) + env(safe-area-inset-top));
+          padding-top: calc(var(--ml-header-h, 56px) + env(safe-area-inset-top, 0px));
         }
 
         .main-content {
           flex: 1;
-          padding: 16px;
+          padding: 8px 16px 16px 16px; /* تقليل padding العلوي من 16px إلى 8px */
           max-width: 100%;
           overflow-x: hidden;
         }
@@ -433,7 +440,7 @@ export default function MobileLiteLayout({
         @media (max-width: 480px) {
           .header-content,
           .footer-content {
-            padding: 10px 12px;
+            padding: 8px 12px; /* تقليل padding الهيدر */
           }
 
           .brand-title {
@@ -445,7 +452,11 @@ export default function MobileLiteLayout({
           }
 
           .main-content {
-            padding: 12px;
+            padding: 4px 12px 12px 12px; /* تقليل padding العلوي أكثر للشاشات الصغيرة */
+          }
+
+          .mobile-lite-main {
+            padding-top: calc(var(--ml-header-h, 48px) + env(safe-area-inset-top, 0px)); /* تقليل ارتفاع الهيدر للشاشات الصغيرة */
           }
         }
 

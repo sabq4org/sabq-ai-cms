@@ -466,7 +466,7 @@ const MobileHeader = memo(({
       />
 
       {/* مساحة للهيدر الثابت */}
-      <div className="h-16" />
+      <div className="h-14" />
     </>
   );
 });
@@ -505,7 +505,7 @@ export const SimpleMobileHeader = memo(() => {
           </div>
         </div>
       </header>
-      <div className="h-16" />
+      <div className="h-14" />
     </>
   );
 });
