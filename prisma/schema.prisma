@@ -884,6 +884,7 @@ model users {
   UserDetailedPreferences  UserDetailedPreferences[]
   UserInteractions         UserInteractions[]
   user_recommendations     UserRecommendations[]
+  uploadedMedia            Media[]
   UserSessions             UserSessions[]
   user_settings            UserSettings[]
   created_ads              ads[]                     @relation("AdCreator")
@@ -2286,4 +2287,51 @@ enum ads_placement {
   sidebar_top
   sidebar_bottom
   footer_banner
+}
+
+model Media {
+  id            String   @id @default(cuid())
+  filename      String
+  title         String?
+  alt           String?
+  description   String?
+  width         Int
+  height        Int
+  aspectRatio   MediaAspectRatio @default(other)
+  sizeBytes     Int
+  mimeType      String
+  tags          String[]
+  license       MediaLicense? @default(all_rights)
+  uploaderId    String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  usageCount    Int      @default(0)
+  aiVectors     Float[]
+  exif          Json?
+  url           String
+  thumbnailUrl  String?
+  cloudinaryId  String?
+  
+  uploader      users    @relation(fields: [uploaderId], references: [id])
+  
+  @@index([createdAt])
+  @@index([tags])
+  @@index([aspectRatio])
+  @@index([uploaderId])
+  @@index([mimeType])
+}
+
+enum MediaAspectRatio {
+  ratio_3_4
+  ratio_4_3
+  ratio_16_9
+  ratio_1_1
+  other
+}
+
+enum MediaLicense {
+  all_rights
+  editorial
+  royalty_free
+  public_domain
 }

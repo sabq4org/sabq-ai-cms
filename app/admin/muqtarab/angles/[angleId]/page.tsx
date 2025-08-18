@@ -189,20 +189,20 @@ const AngleImageUploader = ({
   );
 };
 
-  // مكون بطاقة إحصائية
-  const StatCard = ({
-    title,
-    value,
-    icon: Icon,
-    color,
-    trend,
-  }: {
-    title: string;
-    value: string | number;
-    icon: any;
-    color: string;
-    trend?: { value: number; label: string };
-  }) => {
+// مكون بطاقة إحصائية
+const StatCard = ({
+  title,
+  value,
+  icon: Icon,
+  color,
+  trend,
+}: {
+  title: string;
+  value: string | number;
+  icon: any;
+  color: string;
+  trend?: { value: number; label: string };
+}) => {
     const getColorHsl = (colorName: string) => {
       const colors: Record<string, string> = {
         'bg-blue-500': 'hsl(var(--accent))',
@@ -213,7 +213,7 @@ const AngleImageUploader = ({
       return colors[colorName] || colorName;
     };
 
-    return (
+  return (
       <div className="card" style={{ cursor: 'pointer' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div style={{
@@ -253,7 +253,7 @@ const AngleImageUploader = ({
                   {Math.abs(trend.value)}%
                 </span>
                 <span className="text-xs text-muted">{trend.label}</span>
-              </div>
+          </div>
             )}
           </div>
         </div>
@@ -290,7 +290,7 @@ const ArticleCard = ({
 
   const sentiment = getSentimentColor(article.sentiment);
 
-  return (
+    return (
     <div className="card" style={{ padding: '24px', transition: 'all 0.2s ease' }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'translateY(-2px)';
@@ -301,10 +301,10 @@ const ArticleCard = ({
         e.currentTarget.style.boxShadow = '';
       }}>
       <div style={{ display: 'flex', gap: '20px' }}>
-        {article.coverImage && (
-          <Image
-            src={article.coverImage}
-            alt={article.title}
+                {article.coverImage && (
+                  <Image
+                    src={article.coverImage}
+                    alt={article.title}
             width={80}
             height={80}
             style={{ 
@@ -357,37 +357,37 @@ const ArticleCard = ({
               >
                 <Trash2 style={{ width: '16px', height: '16px' }} />
               </button>
-            </div>
-          </div>
+                    </div>
+                  </div>
 
-          {article.excerpt && (
+                  {article.excerpt && (
             <p className="text-muted" style={{ marginBottom: '12px', lineHeight: '1.6' }}>
-              {article.excerpt}
-            </p>
-          )}
+                      {article.excerpt}
+                    </p>
+                  )}
 
           <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Users style={{ width: '14px', height: '14px', color: 'hsl(var(--muted))' }} />
               <span className="text-sm text-muted">{article.author?.name}</span>
-            </div>
+                    </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Calendar style={{ width: '14px', height: '14px', color: 'hsl(var(--muted))' }} />
               <span className="text-sm text-muted">{formatDate(article.createdAt)}</span>
-            </div>
+                    </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Eye style={{ width: '14px', height: '14px', color: 'hsl(var(--muted))' }} />
               <span className="text-sm text-muted">{article.views || 0} مشاهدة</span>
-            </div>
-            {article.readingTime && (
+                    </div>
+                    {article.readingTime && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <Clock style={{ width: '14px', height: '14px', color: 'hsl(var(--muted))' }} />
                 <span className="text-sm text-muted">{article.readingTime} دقيقة</span>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                </div>
     </div>
   );
 };
@@ -650,7 +650,7 @@ export default function AngleDashboardPage() {
               <div>
                 <h1 className="heading-2" style={{ marginBottom: '4px' }}>
                   إدارة زاوية: {angle.title}
-                </h1>
+              </h1>
                 <p className="text-muted" style={{ fontSize: '14px' }}>
                   {angle.description}
                 </p>
@@ -683,17 +683,17 @@ export default function AngleDashboardPage() {
                 <Settings style={{ width: '16px', height: '16px' }} />
                 إعدادات
               </button>
-            </div>
           </div>
         </div>
+      </div>
 
         {/* معلومات الزاوية */}
         <div className="card" style={{ marginBottom: '32px' }}>
           <div style={{ display: 'flex', gap: '24px', alignItems: 'start' }}>
-            {angle.coverImage ? (
-              <Image
-                src={angle.coverImage}
-                alt={angle.title}
+                {angle.coverImage ? (
+                  <Image
+                    src={angle.coverImage}
+                    alt={angle.title}
                 width={120}
                 height={120}
                 style={{ 
@@ -703,8 +703,8 @@ export default function AngleDashboardPage() {
                   objectFit: 'cover',
                   border: '1px solid hsl(var(--line))'
                 }}
-              />
-            ) : (
+                  />
+                ) : (
               <div style={{
                 width: '120px',
                 height: '120px',
@@ -715,8 +715,8 @@ export default function AngleDashboardPage() {
                 justifyContent: 'center'
               }}>
                 <Sparkles style={{ width: '48px', height: '48px', color: 'white' }} />
-              </div>
-            )}
+                  </div>
+                )}
 
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
@@ -725,68 +725,68 @@ export default function AngleDashboardPage() {
                 <span className="text-muted">•</span>
                 <Calendar style={{ width: '16px', height: '16px', color: 'hsl(var(--muted))' }} />
                 <span className="text-muted">
-                  {new Date(angle.createdAt).toLocaleDateString("ar-SA")}
-                </span>
-              </div>
+                        {new Date(angle.createdAt).toLocaleDateString("ar-SA")}
+                      </span>
+                    </div>
               <Link href={`/muqtarab/${angle.slug}`}>
                 <button className="btn btn-outline" style={{ marginTop: '16px' }}>
                   <Eye style={{ width: '16px', height: '16px' }} />
-                  مشاهدة الزاوية
+                        مشاهدة الزاوية
                 </button>
-              </Link>
-            </div>
-          </div>
-        </div>
+                    </Link>
+                  </div>
+                </div>
+              </div>
 
-        {/* بطاقات الإحصائيات */}
+          {/* بطاقات الإحصائيات */}
         <div style={{ 
           display: 'grid', 
           gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
           gap: '16px',
           marginBottom: '32px'
         }}>
-          <StatCard
-            title="المقالات المنشورة"
-            value={angle.articlesCount || 0}
-            icon={BookOpen}
-            color="bg-blue-500"
-          />
+            <StatCard
+              title="المقالات المنشورة"
+              value={angle.articlesCount || 0}
+              icon={BookOpen}
+              color="bg-blue-500"
+            />
 
-          <StatCard
-            title="إجمالي المشاهدات"
-            value={angle.totalViews || 0}
-            icon={Eye}
-            color="bg-green-500"
-          />
+            <StatCard
+              title="إجمالي المشاهدات"
+              value={angle.totalViews || 0}
+              icon={Eye}
+              color="bg-green-500"
+            />
 
-          <StatCard
-            title="متوسط وقت القراءة"
-            value={`${Math.round((angle as any).avgReadingTime || 5)} دقيقة`}
-            icon={Clock}
-            color="bg-purple-500"
-          />
+            <StatCard
+              title="متوسط وقت القراءة"
+              value={`${Math.round((angle as any).avgReadingTime || 5)} دقيقة`}
+              icon={Clock}
+              color="bg-purple-500"
+            />
 
-          <StatCard
-            title="مؤشر النشاط"
-            value="85%"
-            icon={TrendingUp}
-            color="bg-orange-500"
-            trend={{ value: 12, label: "هذا الشهر" }}
-          />
-        </div>
+            <StatCard
+              title="مؤشر النشاط"
+              value="85%"
+              icon={TrendingUp}
+              color="bg-orange-500"
+              trend={{ value: 12, label: "هذا الشهر" }}
+            />
+          </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '32px' }}>
-          {/* قائمة المقالات */}
+            {/* قائمة المقالات */}
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
               <h2 className="heading-2">المقالات ({articles.length})</h2>
-              <Link href={`/admin/muqtarab/angles/${angleId}/articles/new`}>
+                <Link href={`/admin/muqtarab/angles/${angleId}/articles/new`}>
                 <button className="btn btn-outline">
                   <Plus style={{ width: '16px', height: '16px' }} />
-                  مقال جديد
+                    مقال جديد
                 </button>
-              </Link>
-            </div>
+                </Link>
+              </div>
 
             {articlesLoading ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -826,11 +826,11 @@ export default function AngleDashboardPage() {
                 ))}
               </div>
             )}
-          </div>
+            </div>
 
-          {/* الشريط الجانبي */}
+            {/* الشريط الجانبي */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            {/* النشاط الحديث */}
+              {/* النشاط الحديث */}
             <div className="card">
               <div className="card-header">
                 <h3 className="card-title">
@@ -874,7 +874,7 @@ export default function AngleDashboardPage() {
               </div>
             </div>
 
-            {/* إعدادات سريعة */}
+              {/* إعدادات سريعة */}
             <div className="card">
               <div className="card-header">
                 <h3 className="card-title">
@@ -889,7 +889,7 @@ export default function AngleDashboardPage() {
                   style={{ width: '100%', justifyContent: 'flex-start' }}
                 >
                   <Edit style={{ width: '16px', height: '16px' }} />
-                  تعديل معلومات الزاوية
+                        تعديل معلومات الزاوية
                 </button>
                 <button className="btn btn-outline" style={{ width: '100%', justifyContent: 'flex-start' }}>
                   <BarChart3 style={{ width: '16px', height: '16px' }} />
@@ -936,54 +936,54 @@ export default function AngleDashboardPage() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              {/* العنوان */}
+                        {/* العنوان */}
               <div>
                 <label className="label" style={{ marginBottom: '8px', display: 'block' }}>العنوان*</label>
                 <input
                   type="text"
-                  value={editFormData.title}
+                            value={editFormData.title}
                   onChange={(e) => handleEditFormChange("title", e.target.value)}
                   className="input"
                   style={{ width: '100%' }}
-                  placeholder="أدخل عنوان الزاوية"
-                />
-              </div>
+                            placeholder="أدخل عنوان الزاوية"
+                          />
+                        </div>
 
-              {/* الرابط */}
+                        {/* الرابط */}
               <div>
                 <label className="label" style={{ marginBottom: '8px', display: 'block' }}>الرابط (slug)*</label>
                 <input
                   type="text"
-                  value={editFormData.slug}
+                            value={editFormData.slug}
                   onChange={(e) => handleEditFormChange("slug", e.target.value)}
                   className="input"
                   style={{ width: '100%', direction: 'ltr' }}
-                  placeholder="رابط-الزاوية"
-                />
+                            placeholder="رابط-الزاوية"
+                          />
                 <p className="text-xs text-muted" style={{ marginTop: '4px' }}>
                   سيكون الرابط: /muqtarab/{editFormData.slug}
-                </p>
-              </div>
+                          </p>
+                        </div>
 
-              {/* الوصف */}
+                        {/* الوصف */}
               <div>
                 <label className="label" style={{ marginBottom: '8px', display: 'block' }}>الوصف*</label>
                 <textarea
-                  value={editFormData.description}
+                            value={editFormData.description}
                   onChange={(e) => handleEditFormChange("description", e.target.value)}
                   className="input"
                   style={{ width: '100%', minHeight: '100px', resize: 'vertical' }}
-                  placeholder="وصف مختصر عن الزاوية"
-                />
-              </div>
+                            placeholder="وصف مختصر عن الزاوية"
+                          />
+                        </div>
 
-              {/* اللون المميز */}
+                        {/* اللون المميز */}
               <div>
                 <label className="label" style={{ marginBottom: '8px', display: 'block' }}>اللون المميز</label>
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                   <input
-                    type="color"
-                    value={editFormData.themeColor}
+                              type="color"
+                              value={editFormData.themeColor}
                     onChange={(e) => handleEditFormChange("themeColor", e.target.value)}
                     style={{
                       width: '60px',
@@ -995,31 +995,31 @@ export default function AngleDashboardPage() {
                   />
                   <input
                     type="text"
-                    value={editFormData.themeColor}
+                              value={editFormData.themeColor}
                     onChange={(e) => handleEditFormChange("themeColor", e.target.value)}
                     className="input"
                     style={{ flex: 1, direction: 'ltr' }}
-                    placeholder="#3B82F6"
-                  />
-                </div>
-              </div>
+                              placeholder="#3B82F6"
+                            />
+                          </div>
+                        </div>
 
-              {/* صورة الغلاف */}
+                        {/* صورة الغلاف */}
               <div>
                 <label className="label" style={{ marginBottom: '8px', display: 'block' }}>صورة الغلاف</label>
-                <AngleImageUploader
+                          <AngleImageUploader
                   onImageUpload={(imageUrl) => handleEditFormChange("coverImage", imageUrl)}
-                  currentImage={editFormData.coverImage}
-                />
-              </div>
+                            currentImage={editFormData.coverImage}
+                          />
+                        </div>
 
-              {/* الإعدادات */}
+                        {/* الإعدادات */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
                     <label className="label">زاوية مميزة</label>
                     <p className="text-xs text-muted">إظهار الزاوية في القسم المميز</p>
-                  </div>
+                            </div>
                   <div
                     onClick={() => handleEditFormChange("isFeatured", !editFormData.isFeatured)}
                     style={{
@@ -1046,13 +1046,13 @@ export default function AngleDashboardPage() {
                       }}
                     />
                   </div>
-                </div>
+                          </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
                     <label className="label">نشر الزاوية</label>
                     <p className="text-xs text-muted">جعل الزاوية مرئية للقراء</p>
-                  </div>
+                            </div>
                   <div
                     onClick={() => handleEditFormChange("isPublished", !editFormData.isPublished)}
                     style={{
@@ -1079,20 +1079,20 @@ export default function AngleDashboardPage() {
                       }}
                     />
                   </div>
-                </div>
-              </div>
-            </div>
+                          </div>
+                        </div>
+                      </div>
 
             <div style={{ display: 'flex', gap: '12px', marginTop: '32px' }}>
               <button
-                onClick={() => setEditModalOpen(false)}
-                disabled={editLoading}
+                          onClick={() => setEditModalOpen(false)}
+                          disabled={editLoading}
                 className="btn btn-outline"
-              >
-                إلغاء
+                        >
+                          إلغاء
               </button>
               <button
-                onClick={handleUpdateAngle}
+                          onClick={handleUpdateAngle}
                 disabled={editLoading || !editFormData.title || !editFormData.slug || !editFormData.description}
                 className="btn"
                 style={{ 
@@ -1101,13 +1101,13 @@ export default function AngleDashboardPage() {
                   flex: 1,
                   opacity: editLoading || !editFormData.title || !editFormData.slug || !editFormData.description ? 0.6 : 1
                 }}
-              >
-                {editLoading ? (
-                  <>
+                        >
+                          {editLoading ? (
+                            <>
                     <Loader2 className="animate-spin" style={{ width: '16px', height: '16px' }} />
-                    جاري التحديث...
-                  </>
-                ) : (
+                              جاري التحديث...
+                            </>
+                          ) : (
                   'حفظ التغييرات'
                 )}
               </button>
@@ -1148,7 +1148,7 @@ export default function AngleDashboardPage() {
               </div>
               <h2 className="heading-2" style={{ marginBottom: '8px' }}>تأكيد حذف المقال</h2>
               <p className="text-muted">هل أنت متأكد من حذف المقال التالي؟</p>
-            </div>
+      </div>
 
             <div className="card" style={{ 
               background: 'hsl(var(--muted) / 0.05)',
@@ -1157,38 +1157,38 @@ export default function AngleDashboardPage() {
               marginBottom: '24px'
             }}>
               <h4 className="heading-3" style={{ marginBottom: '8px' }}>{articleToDelete.title}</h4>
-              {articleToDelete.excerpt && (
+                {articleToDelete.excerpt && (
                 <p className="text-sm text-muted" style={{ marginBottom: '8px' }}>
-                  {articleToDelete.excerpt}
-                </p>
-              )}
+                    {articleToDelete.excerpt}
+                  </p>
+                )}
               <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                 <span className="text-xs text-muted">المؤلف: {articleToDelete.author?.name}</span>
                 <span className="text-xs text-muted">•</span>
                 <span className="text-xs text-muted">{articleToDelete.isPublished ? "منشور" : "مسودة"}</span>
+                </div>
               </div>
-            </div>
 
             <div className="alert alert-danger" style={{ marginBottom: '24px' }}>
               <AlertCircle style={{ width: '16px', height: '16px' }} />
               هذا الإجراء لا يمكن التراجع عنه
-            </div>
+          </div>
 
             <div style={{ display: 'flex', gap: '12px' }}>
               <button
-                onClick={() => {
-                  setDeleteArticleModalOpen(false);
-                  setArticleToDelete(null);
-                }}
-                disabled={deletingArticle}
+              onClick={() => {
+                setDeleteArticleModalOpen(false);
+                setArticleToDelete(null);
+              }}
+              disabled={deletingArticle}
                 className="btn btn-outline"
                 style={{ flex: 1 }}
-              >
-                إلغاء
+            >
+              إلغاء
               </button>
               <button
-                onClick={handleDeleteArticleConfirm}
-                disabled={deletingArticle}
+              onClick={handleDeleteArticleConfirm}
+              disabled={deletingArticle}
                 className="btn"
                 style={{ 
                   background: 'hsl(var(--danger))', 
@@ -1196,18 +1196,18 @@ export default function AngleDashboardPage() {
                   flex: 1,
                   opacity: deletingArticle ? 0.6 : 1
                 }}
-              >
-                {deletingArticle ? (
-                  <>
+            >
+              {deletingArticle ? (
+                <>
                     <Loader2 className="animate-spin" style={{ width: '16px', height: '16px' }} />
-                    جاري الحذف...
-                  </>
-                ) : (
-                  <>
+                  جاري الحذف...
+                </>
+              ) : (
+                <>
                     <Trash2 style={{ width: '16px', height: '16px' }} />
-                    حذف المقال
-                  </>
-                )}
+                  حذف المقال
+                </>
+              )}
               </button>
             </div>
           </div>
