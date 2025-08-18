@@ -1,7 +1,7 @@
 // محرك الإشعارات الذكية - سبق الذكية
 import prisma from '@/lib/prisma';
-import { RedisClient } from '@/lib/redis-client';
-import { WebSocketManager } from './websocket-manager';
+// import { RedisClient } from '@/lib/redis-client';
+// import { WebSocketManager } from './websocket-manager';
 
 export interface SmartNotificationData {
   userId: string;
@@ -19,8 +19,8 @@ export interface SmartNotificationData {
 }
 
 export class SmartNotificationEngine {
-  private static redis = RedisClient;
-  private static wsManager = WebSocketManager;
+  // private static redis = RedisClient;
+  // private static wsManager = WebSocketManager;
 
   /**
    * تولید إشعار ذكي جديد
