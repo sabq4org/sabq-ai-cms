@@ -112,6 +112,8 @@ export default function CategoriesPage() {
     if (num >= 1000) return `${(num / 1000).toFixed(1)}ك`;
     return num.toString();
   };
+  
+  const formatDashboardStat = formatNumber; // alias للتوافق
 
   const getCategoryStats = () => {
     const totalCategories = categories.length;
