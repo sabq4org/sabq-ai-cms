@@ -2,18 +2,20 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { 
+import {
   Plus, 
   Search, 
   Filter, 
   Eye, 
-  Edit, 
+  Edit,
   Trash2, 
   Folder,
   FolderOpen,
   FileText,
   Target,
   ArrowUpRight,
+  ArrowDownRight,
+  TrendingUp,
   Hash,
   Calendar,
   Download,
@@ -75,38 +77,38 @@ export default function CategoriesPage() {
   }, []);
 
   const fetchCategories = async () => {
-    try {
-      setLoading(true);
-      setError(null);
+      try {
+        setLoading(true);
+        setError(null);
       const res = await fetch("/api/categories", { 
         cache: "no-store",
         credentials: "include"
       });
       
-      if (!res.ok) throw new Error("HTTP " + res.status);
+        if (!res.ok) throw new Error("HTTP " + res.status);
       
-      const data = await res.json();
-      const raw = data.categories || data.data || [];
+        const data = await res.json();
+        const raw = data.categories || data.data || [];
       
       const mapped: Category[] = raw.map((c: any) => ({
-        id: String(c.id),
-        name: c.name_ar || c.name || "",
-        description: c.description || "",
-        articleCount: Number(c.articles_count ?? c.articleCount ?? 0),
-        createdAt: c.created_at || c.createdAt || new Date().toISOString(),
-        status: c.is_active === false ? "inactive" : "active",
-        color: c.color || c?.metadata?.color_hex || "#3B82F6",
-      }));
+          id: String(c.id),
+          name: c.name_ar || c.name || "",
+          description: c.description || "",
+          articleCount: Number(c.articles_count ?? c.articleCount ?? 0),
+          createdAt: c.created_at || c.createdAt || new Date().toISOString(),
+          status: c.is_active === false ? "inactive" : "active",
+          color: c.color || c?.metadata?.color_hex || "#3B82F6",
+        }));
       
-      setCategories(mapped);
-    } catch (e) {
+        setCategories(mapped);
+      } catch (e) {
       console.error("Error fetching categories:", e);
-      setError("تعذر جلب التصنيفات");
+        setError("تعذر جلب التصنيفات");
       toast.error("حدث خطأ في جلب التصنيفات");
-    } finally {
-      setLoading(false);
-    }
-  };
+      } finally {
+        setLoading(false);
+      }
+    };
 
   const formatNumber = (num: number) => {
     if (num >= 1000) return `${(num / 1000).toFixed(1)}ك`;
@@ -263,13 +265,13 @@ export default function CategoriesPage() {
                   flexShrink: 0
                 }}>
                   <Tag style={{ width: "32px", height: "32px", color: "white" }} />
-                </div>
+            </div>
                 
                 <div style={{ flex: 1 }}>
                   <h1 className="heading-1" style={{ marginBottom: "8px" }}>إدارة التصنيفات</h1>
                   <p className="text-lg text-muted" style={{ marginBottom: "16px" }}>
-                    تنظيم وإدارة فئات المحتوى بطريقة احترافية ومنظمة
-                  </p>
+                تنظيم وإدارة فئات المحتوى بطريقة احترافية ومنظمة
+              </p>
                   <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
                     <span className="chip" style={{ 
                       background: "hsl(var(--success) / 0.1)", 
@@ -287,114 +289,184 @@ export default function CategoriesPage() {
                       <FileText style={{ width: "14px", height: "14px" }} />
                       {formatNumber(stats.totalArticles)} مقال
                     </span>
-                  </div>
-                </div>
+              </div>
+            </div>
                 
                 <div style={{ textAlign: "left" }}>
                   <div className="text-sm text-muted" style={{ marginBottom: "4px" }}>آخر تحديث</div>
                   <div className="heading-3" style={{ color: "hsl(var(--accent))" }}>
-                    {new Date().toLocaleTimeString("ar-SA", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </div>
-                </div>
+                {new Date().toLocaleTimeString("ar-SA", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
               </div>
+            </div>
+          </div>
             </div>
 
             {/* الإحصائيات */}
             <div style={{ marginBottom: "32px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-                <div>
+        <div>
                   <h2 className="heading-2" style={{ marginBottom: "4px" }}>إحصائيات التصنيفات</h2>
                   <p className="text-muted">نظرة سريعة على أداء التصنيفات</p>
                 </div>
                 <div style={{ display: "flex", gap: "12px" }}>
                   <button className="btn btn-outline" onClick={() => setFilterOpen(!filterOpen)}>
                     <Filter style={{ width: "16px", height: "16px" }} />
-                    تصفية
+                  تصفية
                   </button>
                   <Link href="/admin/categories/new" className="btn btn-primary">
                     <Plus style={{ width: "16px", height: "16px" }} />
-                    إضافة فئة
+                  إضافة فئة
                   </Link>
                 </div>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "20px" }}>
-                {[
-                  {
-                    title: "إجمالي الفئات",
-                    value: stats.total,
-                    icon: Folder,
-                    change: "+2",
-                    color: "#3B82F6",
-                    bgColor: "#3B82F6"
-                  },
-                  {
-                    title: "الفئات النشطة",
-                    value: stats.active,
-                    icon: FolderOpen,
-                    change: "+1",
-                    color: "#10B981",
-                    bgColor: "#10B981"
-                  },
-                  {
-                    title: "إجمالي المقالات",
-                    value: formatNumber(stats.totalArticles),
-                    icon: FileText,
-                    change: "+12%",
-                    color: "#8B5CF6",
-                    bgColor: "#8B5CF6"
-                  },
-                  {
-                    title: "متوسط المقالات",
-                    value: stats.average,
-                    icon: Target,
-                    change: "+5%",
-                    color: "#F59E0B",
-                    bgColor: "#F59E0B"
-                  }
-                ].map((stat, index) => {
-                  const Icon = stat.icon;
-                  return (
-                    <div key={index} className="card" style={{ padding: "24px" }}>
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <div style={{ flex: 1 }}>
-                          <p className="text-sm text-muted" style={{ marginBottom: "8px" }}>
-                            {stat.title}
-                          </p>
-                          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                            <div className="heading-2" style={{ color: stat.color }}>
-                              {stat.value}
-                            </div>
-                            <span className="chip" style={{
-                              background: `${stat.bgColor}20`,
-                              color: stat.color,
-                              border: `1px solid ${stat.bgColor}30`,
-                              fontSize: "12px",
-                              padding: "4px 8px"
-                            }}>
-                              <ArrowUpRight style={{ width: "12px", height: "12px" }} />
-                              {stat.change}
-                            </span>
-                          </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+                {/* بطاقة إجمالي الفئات */}
+                <div className="card" style={{ cursor: 'pointer' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <div style={{
+                      width: '48px',
+                      height: '48px',
+                      background: 'hsl(var(--accent) / 0.1)',
+                      borderRadius: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'hsl(var(--accent))'
+                    }}>
+                      <Folder style={{ width: '24px', height: '24px' }} />
+                    </div>
+                    
+                    <div style={{ flex: 1 }}>
+                      <div className="text-xs text-muted" style={{ marginBottom: '4px' }}>إجمالي الفئات</div>
+                      <div className="heading-3" style={{ margin: '4px 0', color: 'hsl(var(--accent))' }}>
+                        {formatDashboardStat(stats.total)}
                         </div>
-                        <div style={{
-                          width: "56px",
-                          height: "56px",
-                          background: `${stat.bgColor}15`,
-                          borderRadius: "12px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center"
-                        }}>
-                          <Icon style={{ width: "28px", height: "28px", color: stat.color }} />
-                        </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <ArrowUpRight style={{ 
+                          width: '14px', 
+                          height: '14px',
+                          color: '#10b981'
+                        }} />
+                        <span className="text-xs" style={{ color: '#10b981' }}>
+                          +12.5%
+                        </span>
+                        <span className="text-xs text-muted">من الشهر الماضي</span>
                       </div>
                     </div>
-                  );
-                })}
+                  </div>
+                </div>
+
+                {/* بطاقة الفئات النشطة */}
+                <div className="card" style={{ cursor: 'pointer' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <div style={{
+                      width: '48px',
+                      height: '48px',
+                      background: 'hsl(var(--accent) / 0.1)',
+                      borderRadius: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'hsl(var(--accent))'
+                    }}>
+                      <FolderOpen style={{ width: '24px', height: '24px' }} />
+                    </div>
+                    
+                    <div style={{ flex: 1 }}>
+                      <div className="text-xs text-muted" style={{ marginBottom: '4px' }}>الفئات النشطة</div>
+                      <div className="heading-3" style={{ margin: '4px 0', color: 'hsl(var(--accent))' }}>
+                        {formatDashboardStat(stats.active)}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <ArrowUpRight style={{ 
+                          width: '14px', 
+                          height: '14px',
+                          color: '#10b981'
+                        }} />
+                        <span className="text-xs" style={{ color: '#10b981' }}>
+                          +8.3%
+                        </span>
+                        <span className="text-xs text-muted">من الأسبوع الماضي</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* بطاقة إجمالي المقالات */}
+                <div className="card" style={{ cursor: 'pointer' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <div style={{
+                      width: '48px',
+                      height: '48px',
+                      background: 'hsl(var(--accent) / 0.1)',
+                      borderRadius: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'hsl(var(--accent))'
+                    }}>
+                      <FileText style={{ width: '24px', height: '24px' }} />
+        </div>
+
+                    <div style={{ flex: 1 }}>
+                      <div className="text-xs text-muted" style={{ marginBottom: '4px' }}>إجمالي المقالات</div>
+                      <div className="heading-3" style={{ margin: '4px 0', color: 'hsl(var(--accent))' }}>
+                        {formatDashboardStat(stats.totalArticles)}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <ArrowDownRight style={{ 
+                          width: '14px', 
+                          height: '14px',
+                          color: '#ef4444'
+                        }} />
+                        <span className="text-xs" style={{ color: '#ef4444' }}>
+                          -2.1%
+                        </span>
+                        <span className="text-xs text-muted">من الشهر الماضي</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* بطاقة متوسط المقالات */}
+                <div className="card" style={{ cursor: 'pointer' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <div style={{
+                      width: '48px',
+                      height: '48px',
+                      background: 'hsl(var(--accent) / 0.1)',
+                      borderRadius: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'hsl(var(--accent))'
+                    }}>
+                      <Target style={{ width: '24px', height: '24px' }} />
+                    </div>
+                    
+                    <div style={{ flex: 1 }}>
+                      <div className="text-xs text-muted" style={{ marginBottom: '4px' }}>متوسط المقالات</div>
+                      <div className="heading-3" style={{ margin: '4px 0', color: 'hsl(var(--accent))' }}>
+                        {formatDashboardStat(stats.average)}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <TrendingUp style={{ 
+                          width: '14px', 
+                          height: '14px',
+                          color: '#f59e0b'
+                        }} />
+                        <span className="text-xs" style={{ color: '#f59e0b' }}>
+                          عالي النشاط
+                        </span>
+                        <span className="text-xs text-muted">• لكل فئة</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -484,23 +556,23 @@ export default function CategoriesPage() {
                       </div>
                     </div>
                     <div style={{ display: "flex", gap: "8px" }}>
-                      <button 
-                        onClick={() => handleEditCategory(category)}
+                    <button 
+                      onClick={() => handleEditCategory(category)}
                         className="btn btn-sm btn-ghost"
-                        title="تعديل التصنيف"
-                      >
+                      title="تعديل التصنيف"
+                    >
                         <Edit style={{ width: "16px", height: "16px" }} />
-                      </button>
-                      <button 
+                    </button>
+                    <button 
                         onClick={() => setDeleteModal({ open: true, category })}
                         className="btn btn-sm btn-ghost"
                         style={{ color: "hsl(var(--danger))" }}
-                        title="حذف التصنيف"
-                      >
+                      title="حذف التصنيف"
+                    >
                         <Trash2 style={{ width: "16px", height: "16px" }} />
-                      </button>
+                    </button>
                     </div>
-                  </div>
+                </div>
 
                   <p className="text-muted" style={{ marginBottom: "16px", minHeight: "44px" }}>
                     {category.description || "لا يوجد وصف"}
@@ -512,17 +584,17 @@ export default function CategoriesPage() {
                         <FileText style={{ width: "14px", height: "14px", color: "hsl(var(--muted))" }} />
                         <span className="text-sm text-muted">
                           {formatNumber(category.articleCount)} مقال
-                        </span>
-                      </div>
-                      {category.createdAt && (
+                      </span>
+                    </div>
+                    {category.createdAt && (
                         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                           <Calendar style={{ width: "14px", height: "14px", color: "hsl(var(--muted))" }} />
                           <span className="text-sm text-muted">
-                            {new Date(category.createdAt).toLocaleDateString("ar-SA")}
-                          </span>
-                        </div>
-                      )}
-                    </div>
+                          {new Date(category.createdAt).toLocaleDateString("ar-SA")}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                     <Link 
                       href={`/admin/categories/${category.id}`}
                       className="btn btn-sm btn-ghost"
@@ -532,8 +604,8 @@ export default function CategoriesPage() {
                     </Link>
                   </div>
                 </div>
-              ))}
-            </div>
+            ))}
+        </div>
 
             {/* رسالة إرشادية */}
             {filteredCategories.length === 0 && (
@@ -552,7 +624,7 @@ export default function CategoriesPage() {
               </div>
             )}
 
-            {/* رسالة النجاح */}
+        {/* رسالة النجاح */}
             {categories.length > 0 && (
               <div className="card" style={{ 
                 marginTop: "32px",
@@ -622,7 +694,7 @@ export default function CategoriesPage() {
                   margin: "0 auto 24px"
                 }}>
                   <Trash2 style={{ width: "32px", height: "32px", color: "hsl(var(--danger))" }} />
-                </div>
+            </div>
 
                 <h3 className="heading-2" style={{ marginBottom: "12px" }}>حذف التصنيف</h3>
                 <p className="text-muted" style={{ marginBottom: "24px" }}>
@@ -652,7 +724,7 @@ export default function CategoriesPage() {
           </div>
         )}
       </div>
-    </div>
+      </div>
     </>
   );
 }
