@@ -31,6 +31,7 @@ export default function AdminMobileLayout({ children }: { children: React.ReactN
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [notifications, setNotifications] = useState(5); // عدد الإشعارات
+  const [currentTheme, setCurrentTheme] = useState<'blue' | 'green' | 'purple' | 'red' | 'amber' | 'teal'>('blue');
 
   // تحميل CSS الخاص بالموبايل
   useEffect(() => {
@@ -42,6 +43,60 @@ export default function AdminMobileLayout({ children }: { children: React.ReactN
     return () => {
       document.head.removeChild(link);
     };
+  }, []);
+
+  // نظام الألوان
+  const themes = {
+    blue: {
+      accent: '217 91% 60%',
+      accentHover: '217 91% 50%',
+      accentLight: '217 91% 95%'
+    },
+    green: {
+      accent: '142 76% 36%',
+      accentHover: '142 76% 26%',
+      accentLight: '142 76% 95%'
+    },
+    purple: {
+      accent: '262 83% 58%',
+      accentHover: '262 83% 48%',
+      accentLight: '262 83% 95%'
+    },
+    red: {
+      accent: '0 84% 60%',
+      accentHover: '0 84% 50%',
+      accentLight: '0 84% 95%'
+    },
+    amber: {
+      accent: '38 92% 50%',
+      accentHover: '38 92% 40%',
+      accentLight: '38 92% 95%'
+    },
+    teal: {
+      accent: '173 80% 40%',
+      accentHover: '173 80% 30%',
+      accentLight: '173 80% 95%'
+    }
+  };
+
+  // تطبيق الثيم
+  useEffect(() => {
+    const theme = themes[currentTheme];
+    const root = document.documentElement;
+    root.style.setProperty('--accent', theme.accent);
+    root.style.setProperty('--accent-hover', theme.accentHover);
+    root.style.setProperty('--accent-light', theme.accentLight);
+    
+    // حفظ في localStorage
+    localStorage.setItem('admin-mobile-theme', currentTheme);
+  }, [currentTheme]);
+
+  // استرجاع الثيم المحفوظ
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('admin-mobile-theme');
+    if (savedTheme && savedTheme in themes) {
+      setCurrentTheme(savedTheme as any);
+    }
   }, []);
 
   // إعدادات السحب للقائمة الجانبية
@@ -294,7 +349,39 @@ export default function AdminMobileLayout({ children }: { children: React.ReactN
                   })}
                 </nav>
 
-
+                {/* اختيار الألوان */}
+                <div style={{ padding: "16px", borderTop: "1px solid hsl(var(--line))" }}>
+                  <h4 style={{ fontSize: "12px", fontWeight: "600", color: "hsl(var(--muted))", marginBottom: "12px" }}>
+                    اختر لون التطبيق
+                  </h4>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px" }}>
+                    {Object.keys(themes).map((theme) => (
+                      <button
+                        key={theme}
+                        onClick={() => setCurrentTheme(theme as any)}
+                        style={{
+                          width: "100%",
+                          height: "36px",
+                          borderRadius: "8px",
+                          border: currentTheme === theme ? "2px solid hsl(var(--accent))" : "1px solid hsl(var(--line))",
+                          background: `hsl(${themes[theme as keyof typeof themes].accent})`,
+                          cursor: "pointer",
+                          transition: "all 0.2s ease",
+                          position: "relative"
+                        }}
+                      >
+                        {currentTheme === theme && (
+                          <div style={{
+                            position: "absolute",
+                            inset: "2px",
+                            borderRadius: "6px",
+                            border: "2px solid white"
+                          }} />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
                 {/* تسجيل الخروج */}
                 <div style={{ padding: "16px", borderTop: "1px solid hsl(var(--line))" }}>
@@ -341,7 +428,7 @@ export default function AdminMobileLayout({ children }: { children: React.ReactN
 
         {/* زر عائم لإنشاء خبر جديد */}
         <Link
-          href="/admin/news/unified"
+          href="/admin-mobile/news/create"
           style={{
             position: "fixed",
             bottom: "80px",

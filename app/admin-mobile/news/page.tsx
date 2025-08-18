@@ -376,19 +376,21 @@ function NewsCard({
       <div style={{
         display: "flex",
         gap: "12px",
-        padding: "12px",
-        alignItems: "center"
+        padding: "16px",
+        alignItems: "flex-start",
+        width: "100%"
       }}>
         {/* الصورة المصغرة */}
-        {article.thumbnail_url && (
-          <div style={{
-            width: "64px",
-            height: "64px",
-            borderRadius: "8px",
-            overflow: "hidden",
-            background: "hsl(var(--bg))",
-            flexShrink: 0
-          }}>
+        <div style={{
+          width: "80px",
+          height: "80px",
+          borderRadius: "8px",
+          overflow: "hidden",
+          background: "hsl(var(--bg))",
+          flexShrink: 0,
+          border: "1px solid hsl(var(--line))"
+        }}>
+          {article.thumbnail_url ? (
             <img
               src={article.thumbnail_url}
               alt={article.title}
@@ -398,14 +400,43 @@ function NewsCard({
                 objectFit: "cover"
               }}
               onError={(e) => {
-                e.currentTarget.style.display = "none";
+                const parent = e.currentTarget.parentElement;
+                if (parent) {
+                  parent.innerHTML = `
+                    <div style="
+                      width: 100%;
+                      height: 100%;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      background: hsl(var(--muted) / 0.1);
+                    ">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--muted))" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                        <polyline points="21 15 16 10 5 21"/>
+                      </svg>
+                    </div>
+                  `;
+                }
               }}
             />
-          </div>
-        )}
+          ) : (
+            <div style={{
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: "hsl(var(--muted) / 0.1)"
+            }}>
+              <ImageIcon size={24} style={{ color: "hsl(var(--muted))" }} />
+            </div>
+          )}
+        </div>
 
         {/* المحتوى */}
-        <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ flex: 1, minWidth: 0, paddingRight: "8px" }}>
           {/* العنوان */}
           <h3 style={{
             fontSize: "14px",
@@ -548,7 +579,7 @@ function NewsCard({
             }}
           >
             <Link
-              href={`/admin/news/unified?id=${article.id}`}
+              href={`/admin-mobile/news/create?id=${article.id}`}
               style={{
                 width: "40px",
                 height: "40px",
