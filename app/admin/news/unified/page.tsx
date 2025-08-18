@@ -293,8 +293,8 @@ export default function ManusNewsCreatePage() {
             setFormData((prev) => ({
               ...prev,
               title: variant.title || prev.title,
-              // نستخدم الموجز الذكي كما هو (قد يكون أطول من 160 حرف)
-              excerpt: variant.smart_summary || prev.excerpt,
+              // قصّ الموجز إلى 160 حرف لتحديث الحقل دائماً بشكل مناسب للعرض
+              excerpt: (variant.smart_summary ? String(variant.smart_summary).slice(0, 160).trim() : prev.excerpt),
               // دمج الكلمات والوسوم إن توفرت
               keywords: [
                 ...new Set([
@@ -304,7 +304,7 @@ export default function ManusNewsCreatePage() {
                 ]),
               ],
               seoTitle: variant.seo_title || prev.seoTitle || variant.title || prev.title,
-              seoDescription: variant.meta_description || prev.seoDescription || (variant.smart_summary ? String(variant.smart_summary).slice(0, 160) : prev.seoDescription),
+              seoDescription: variant.meta_description ? String(variant.meta_description).slice(0, 160).trim() : (prev.seoDescription || (variant.smart_summary ? String(variant.smart_summary).slice(0, 160).trim() : prev.seoDescription)),
             }));
 
             setRecentlyGenerated({

@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
 // ملاحظة: لو عندك طبقة خدمة، انقل المنطق هناك واستدعِها من هنا.
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
+const API_KEY = process.env.OPENAI_API_KEY;
+const hasOpenAI = !!(API_KEY && API_KEY.length > 10);
+const openai = hasOpenAI ? new OpenAI({ apiKey: API_KEY! }) : null as any;
 
 // قائمة بسيطة لتصفية الأفعال الممنوعة من keywords احتياطياً
 const FORBIDDEN_VERBS = [
@@ -61,6 +63,75 @@ export async function POST(req: NextRequest) {
 
     if (!raw_content || (typeof raw_content === 'string' && raw_content.trim().length < 30)) {
       return NextResponse.json({ error: 'المحتوى قصير جداً' }, { status: 400 });
+    }
+
+    // دوال مساعدة للتوليد المحلي الذكي عند غياب OpenAI
+    const normalize = (s: string) => (s || '').replace(/\s+/g, ' ').trim();
+    const sentences = (s: string) => normalize(s).split(/[.!؟\n]+/).map(t => t.trim()).filter(t => t.length > 0);
+    const clamp = (s: string, max: number) => (s.length > max ? s.slice(0, max).trim() : s.trim());
+    const stripStart = (s: string) => s.replace(/^(في|من|على|إلى|مع|عن|حول|ضد|بعد|قبل|أثناء|خلال)\s+/i, '').trim();
+    const AR_STOP = new Set(['في','من','إلى','على','و','ثم','أو','بل','لكن','كما','عن','مع','قد','قد','هذا','هذه','ذلك','تلك','التي','الذي','الذين','اللاتي','اللواتي','هناك','هنا','كان','كانت','يكون','تم','قد','قد','ما','لم','لن','إن','أن','أو']);
+    const tokenize = (s: string) => s
+      .replace(/[^\u0600-\u06FFA-Za-z0-9\s]/g, ' ')
+      .split(/\s+/)
+      .map(w => w.trim())
+      .filter(w => w.length > 1 && !AR_STOP.has(w));
+    const freqKeywords = (s: string, minLen = 3) => {
+      const f: Record<string, number> = {};
+      for (const w of tokenize(s)) {
+        if (w.length < minLen) continue;
+        f[w] = (f[w] || 0) + 1;
+      }
+      return Object.entries(f).sort((a,b) => b[1]-a[1]).map(([w]) => w);
+    };
+    const buildLocalTitle = (text: string, hint: string) => {
+      const sents = sentences(text);
+      let title = stripStart(sents[0] || hint || '');
+      if (title.length === 0) title = 'تقرير إخباري';
+      return clamp(title, 70);
+    };
+    const buildLocalSummary = (text: string) => {
+      const sents = sentences(text);
+      let acc = '';
+      for (const s of sents) {
+        if ((acc + ' ' + s).length <= 420) acc = (acc ? acc + ' ' : '') + s;
+        if (acc.length >= 380) break;
+      }
+      if (acc.length < 380) acc = clamp(text, 420);
+      if (acc.length > 420) acc = clamp(acc, 420);
+      return acc;
+    };
+    const buildLocalKeywords = (text: string) => {
+      const base = filterKeywords(freqKeywords(text).slice(0, 12));
+      return base.slice(0, 10);
+    };
+    const buildLocalTags = (kws: string[]) => kws.slice(0, Math.min(8, Math.max(5, kws.length)));
+    const buildLocalSeoTitle = (title: string) => clamp(title, 60);
+    const buildLocalMeta = (summary: string) => clamp(summary, 160);
+    const buildLocalSlug = (title: string) => normalize(title)
+      .replace(/["'`،,؛:]/g, '')
+      .replace(/\s+/g, '-')
+      .toLowerCase();
+    const buildLocalVariant = () => {
+      const title = buildLocalTitle(raw_content, title_hint);
+      const smart_summary = buildLocalSummary(raw_content);
+      const keywords = buildLocalKeywords(raw_content);
+      const tags = buildLocalTags(keywords);
+      return {
+        title,
+        smart_summary,
+        keywords,
+        slug: buildLocalSlug(title),
+        seo_title: buildLocalSeoTitle(title !== title_hint ? title : `${title}`),
+        meta_description: buildLocalMeta(smart_summary),
+        tags,
+      } as any;
+    };
+
+    // في حال عدم توفر OpenAI، أعد مخرجات محلية ذكية
+    if (!hasOpenAI) {
+      const variant = buildLocalVariant();
+      return NextResponse.json({ count: 1, variants: [variant], local: true });
     }
 
     const prompt = `
@@ -146,12 +217,21 @@ export async function POST(req: NextRequest) {
     // إزالة المقترحات المتشابهة جداً بحسب العنوان
     const uniqueDrafts = uniqBy(drafts, (d: any) => (d.title || '').trim());
 
-    return NextResponse.json({
-      count: uniqueDrafts.length,
-      variants: uniqueDrafts,
-    });
+    // إن فشل النموذج بإرجاع JSON صالح، ضمن نتيجة واحدة على الأقل محلياً
+    const variants = uniqueDrafts.length > 0 ? uniqueDrafts : [buildLocalVariant()];
+    return NextResponse.json({ count: variants.length, variants });
   } catch (error: any) {
     console.error('❌ خطأ في smart-editor:', error);
-    return NextResponse.json({ error: 'فشل في توليد المحتوى الذكي' }, { status: 500 });
+    // عودة محلية ذكية عند أي خطأ
+    const variant = {
+      title: 'تقرير إخباري',
+      smart_summary: 'ملخص موجز للمحتوى قيد المعالجة.',
+      keywords: [],
+      slug: 'taqrir-ikhbari',
+      seo_title: 'تقرير إخباري',
+      meta_description: 'ملخص موجز للمحتوى',
+      tags: []
+    };
+    return NextResponse.json({ count: 1, variants: [variant], error: true }, { status: 200 });
   }
 }
