@@ -1,8 +1,6 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
@@ -338,16 +336,15 @@ export default function SidebarCustomizer() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
+          <button
+            className="btn btn-outline flex items-center gap-2"
             onClick={resetToDefault}
-            className="flex items-center gap-2"
           >
             <RotateCcw className="w-4 h-4" />
             إعادة تعيين
-          </Button>
+          </button>
 
-          <Button
+          <button
             onClick={() => {
               if (mounted && !saving) {
                 savePreferences().catch((error) => {
@@ -356,11 +353,21 @@ export default function SidebarCustomizer() {
               }
             }}
             disabled={saving || !mounted}
-            className="flex items-center gap-2"
+            className={`btn flex items-center gap-2 ${saving || !mounted ? "opacity-50" : ""}`}
+            style={{ 
+              backgroundColor: 'hsl(var(--accent))',
+              color: 'white'
+            }}
+            onMouseEnter={(e) => {
+              if (!saving && mounted) e.currentTarget.style.backgroundColor = 'hsl(var(--accent-hover))';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'hsl(var(--accent))';
+            }}
           >
             <Save className="w-4 h-4" />
             {saving ? "جاري الحفظ..." : "حفظ التغييرات"}
-          </Button>
+          </button>
         </div>
       </div>
 
@@ -368,103 +375,103 @@ export default function SidebarCustomizer() {
 
       {/* إحصائيات سريعة */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card
-          className={
-            darkMode
-              ? "bg-gray-800 border-gray-700"
-              : "bg-white border-gray-200"
-          }
+        <div 
+          className="p-4 rounded-xl"
+          style={{ 
+            backgroundColor: 'hsla(var(--accent), 0.1)',
+            border: '1px solid hsla(var(--accent), 0.2)'
+          }}
         >
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                <LayoutDashboard className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                  {items.length}
-                </p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  إجمالي العناصر
-                </p>
-              </div>
+          <div className="flex items-center gap-3">
+            <div 
+              className="w-10 h-10 rounded-lg flex items-center justify-center"
+              style={{ backgroundColor: 'hsl(var(--accent-4))' }}
+            >
+              <LayoutDashboard className="w-5 h-5" style={{ color: 'hsl(var(--accent))' }} />
             </div>
-          </CardContent>
-        </Card>
+            <div>
+              <p className="text-2xl font-bold" style={{ color: 'hsl(var(--accent))' }}>
+                {items.length}
+              </p>
+              <p className="text-sm" style={{ color: 'hsl(var(--text-muted))' }}>
+                إجمالي العناصر
+              </p>
+            </div>
+          </div>
+        </div>
 
-        <Card
-          className={
-            darkMode
-              ? "bg-gray-800 border-gray-700"
-              : "bg-white border-gray-200"
-          }
+        <div 
+          className="p-4 rounded-xl"
+          style={{ 
+            backgroundColor: 'hsla(var(--success), 0.1)',
+            border: '1px solid hsla(var(--success), 0.2)'
+          }}
         >
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
-                <Eye className="w-5 h-5 text-green-600 dark:text-green-400" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                  {items.length - hiddenItems.length}
-                </p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  العناصر الظاهرة
-                </p>
-              </div>
+          <div className="flex items-center gap-3">
+            <div 
+              className="w-10 h-10 rounded-lg flex items-center justify-center"
+              style={{ backgroundColor: 'hsla(var(--success), 0.2)' }}
+            >
+              <Eye className="w-5 h-5" style={{ color: 'hsl(var(--success))' }} />
             </div>
-          </CardContent>
-        </Card>
+            <div>
+              <p className="text-2xl font-bold" style={{ color: 'hsl(var(--success))' }}>
+                {items.length - hiddenItems.length}
+              </p>
+              <p className="text-sm" style={{ color: 'hsl(var(--text-muted))' }}>
+                العناصر الظاهرة
+              </p>
+            </div>
+          </div>
+        </div>
 
-        <Card
-          className={
-            darkMode
-              ? "bg-gray-800 border-gray-700"
-              : "bg-white border-gray-200"
-          }
+        <div 
+          className="p-4 rounded-xl"
+          style={{ 
+            backgroundColor: 'hsla(var(--warning), 0.1)',
+            border: '1px solid hsla(var(--warning), 0.2)'
+          }}
         >
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
-                <EyeOff className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                  {hiddenItems.length}
-                </p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  العناصر المخفية
-                </p>
-              </div>
+          <div className="flex items-center gap-3">
+            <div 
+              className="w-10 h-10 rounded-lg flex items-center justify-center"
+              style={{ backgroundColor: 'hsla(var(--warning), 0.2)' }}
+            >
+              <EyeOff className="w-5 h-5" style={{ color: 'hsl(var(--warning))' }} />
             </div>
-          </CardContent>
-        </Card>
+            <div>
+              <p className="text-2xl font-bold" style={{ color: 'hsl(var(--warning))' }}>
+                {hiddenItems.length}
+              </p>
+              <p className="text-sm" style={{ color: 'hsl(var(--text-muted))' }}>
+                العناصر المخفية
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* قائمة العناصر القابلة للترتيب */}
-      <Card
-        className={
-          darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
-        }
-      >
-        <CardHeader>
-          <CardTitle
-            className={`flex items-center gap-2 ${
-              darkMode ? "text-white" : "text-gray-900"
-            }`}
-          >
+      <div className="card">
+        <div className="card-header">
+          <div className="card-title flex items-center gap-2">
             <GripVertical className="w-5 h-5" />
             ترتيب عناصر الشريط الجانبي
-          </CardTitle>
-          <p
-            className={`text-sm ${
-              darkMode ? "text-gray-400" : "text-gray-600"
-            }`}
+          </div>
+          <p 
+            className="text-sm mt-2"
+            style={{ color: 'hsl(var(--text-muted))' }}
           >
             اسحب العناصر لإعادة ترتيبها واستخدم المفتاح لإظهار أو إخفاء العناصر
           </p>
-        </CardHeader>
-        <CardContent>
+        </div>
+        <div 
+          className="p-6"
+          style={{ 
+            backgroundColor: 'hsl(var(--card-bg))',
+            borderTop: '1px solid hsl(var(--border))'
+          }}
+        >
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -489,8 +496,8 @@ export default function SidebarCustomizer() {
               </div>
             </SortableContext>
           </DndContext>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
