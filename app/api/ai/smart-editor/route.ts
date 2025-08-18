@@ -57,9 +57,13 @@ function uniqBy<T>(arr: T[], key: (t: T) => string) {
 }
 
 export async function POST(req: NextRequest) {
+  let raw_content = '';
+  let title_hint = '';
+  let category = '';
+  
   try {
     const body = await req.json();
-    const { title_hint = '', raw_content = '', category = '', entities = [], published_at = '' } = body;
+    ({ title_hint = '', raw_content = '', category = '' } = body);
     
     console.log("📥 smart-editor received:", { 
       title_hint: title_hint?.substring(0, 50), 
@@ -96,13 +100,19 @@ export async function POST(req: NextRequest) {
       const patterns = [
         /\d+[\s\u200F]*(مليون|مليار|ألف|بالمئة|بالمائة|%)/g,
         /[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*/g, // أسماء إنجليزية
-        /(?:الرئيس|الوزير|الأمير|الملك|الشيخ|الدكتور|المهندس)\s+\S+\s+\S+/g,
-        /(?:شركة|مؤسسة|هيئة|وزارة|جامعة|مدينة)\s+\S+/g,
+        /(?:الرئيس|الوزير|الأمير|الملك|الشيخ|الدكتور|المهندس|وزير|وزارة)\s+\S+/g,
+        /(?:شركة|مؤسسة|هيئة|وزارة|جامعة|مدينة|قطاع|مشروع)\s+\S+/g,
+        /المملكة|السعودية|رؤية\s+\d+/g,
       ];
       const found = new Set<string>();
       patterns.forEach(p => {
         const matches = text.match(p) || [];
-        matches.forEach(m => found.add(m.trim()));
+        matches.forEach(m => {
+          const cleaned = m.trim();
+          if (cleaned.length > 2) {
+            found.add(cleaned);
+          }
+        });
       });
       return Array.from(found);
     };
@@ -122,9 +132,19 @@ export async function POST(req: NextRequest) {
         title = `${numbers[0]} ${mainKeyword} في ${cat || 'القطاع'}`;
       }
       // إذا وجدنا شخصية مهمة
-      else if (entities.length > 0 && (entities[0].includes('الرئيس') || entities[0].includes('الوزير'))) {
-        const action = keywords.find(k => k.length > 3) || 'يعلن';
-        title = `${entities[0]} ${action} ${keywords[1] || 'قرارات جديدة'}`;
+      else if (entities.length > 0) {
+        const personEntity = entities.find(e => 
+          e.includes('الرئيس') || e.includes('الوزير') || e.includes('وزير') || 
+          e.includes('الأمير') || e.includes('الملك') || e.includes('الدكتور')
+        );
+        if (personEntity) {
+          const action = keywords.find(k => k.length > 3 && !FORBIDDEN_VERBS.includes(k)) || 'يطلق';
+          const object = keywords.find(k => k !== action && k.length > 3) || 'مبادرة جديدة';
+          title = `${personEntity} ${action} ${object}`;
+        } else if (entities[0]) {
+          // كيان آخر (شركة، مشروع، إلخ)
+          title = `${entities[0]} ${keywords[0] || 'في تطور جديد'}`;
+        }
       }
       // عنوان من الجملة الأولى محسّن
       else if (sents.length > 0) {
@@ -198,7 +218,7 @@ export async function POST(req: NextRequest) {
       
       // فلترة وترتيب حسب الأهمية
       return filterKeywords(combined)
-        .filter(k => k.length > 2 && !FORBIDDEN_VERBS.includes(k))
+        .filter(k => k.length > 2 && !FORBIDDEN_VERBS.some(v => k === v || k.startsWith(v)))
         .slice(0, 10);
     };
 
@@ -245,32 +265,51 @@ export async function POST(req: NextRequest) {
     };
 
     const buildLocalVariant = () => {
-      const title = buildLocalTitle(raw_content, title_hint, category);
-      const smart_summary = buildLocalSummary(raw_content);
-      const keywords = buildLocalKeywords(raw_content);
-      const subtitle = buildLocalSubtitle(raw_content, title);
-      const tags = buildLocalTags(keywords);
-      const seo_title = buildLocalSeoTitle(title, keywords);
-      const meta_description = buildLocalMeta(smart_summary, keywords);
-      
-      console.log("🔨 توليد محلي:", { title, subtitle, keywords_count: keywords.length, summary_length: smart_summary.length });
-      
-      return {
-        title,
-        subtitle,
-        smart_summary,
-        keywords,
-        slug: buildLocalSlug(title),
-        seo_title,
-        meta_description,
-        tags,
-      } as any;
+      try {
+        console.log("🔨 بدء buildLocalVariant...");
+        const title = buildLocalTitle(raw_content, title_hint, category);
+        console.log("✅ title:", title);
+        
+        const smart_summary = buildLocalSummary(raw_content);
+        console.log("✅ summary length:", smart_summary.length);
+        
+        const keywords = buildLocalKeywords(raw_content);
+        console.log("✅ keywords:", keywords);
+        
+        const subtitle = buildLocalSubtitle(raw_content, title);
+        const tags = buildLocalTags(keywords);
+        const seo_title = buildLocalSeoTitle(title, keywords);
+        const meta_description = buildLocalMeta(smart_summary, keywords);
+        
+        console.log("🔨 توليد محلي نجح:", { title, subtitle, keywords_count: keywords.length, summary_length: smart_summary.length });
+        
+        return {
+          title,
+          subtitle,
+          smart_summary,
+          keywords,
+          slug: buildLocalSlug(title),
+          seo_title,
+          meta_description,
+          tags,
+        } as any;
+      } catch (e: any) {
+        console.error("❌ خطأ في buildLocalVariant:", e.message, e.stack);
+        throw e;
+      }
     };
 
     // في حال عدم توفر OpenAI، أعد مخرجات محلية ذكية
     if (!hasOpenAI) {
-      const variant = buildLocalVariant();
-      return NextResponse.json({ count: 1, variants: [variant], local: true });
+      console.log("⚠️ لا يوجد OpenAI key، استخدام التوليد المحلي");
+      try {
+        const variant = buildLocalVariant();
+        console.log("📤 نتيجة التوليد المحلي:", variant);
+        return NextResponse.json({ count: 1, variants: [variant], local: true });
+      } catch (localError: any) {
+        console.error("❌ خطأ في التوليد المحلي:", localError.message);
+        throw localError; // سيذهب إلى catch الرئيسي
+      }
     }
 
     const prompt = `
@@ -361,23 +400,58 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ count: variants.length, variants });
   } catch (error: any) {
     console.error('❌ خطأ في smart-editor:', error);
+    console.log('📊 تفاصيل الخطأ:', {
+      message: error.message,
+      stack: error.stack?.split('\n')[0],
+      hasContent: !!raw_content,
+      contentLength: raw_content?.length
+    });
+    
     // عودة محلية ذكية عند أي خطأ
     try {
+      console.log("🔄 محاولة buildLocalVariant في حالة الخطأ...");
       const variant = buildLocalVariant();
       return NextResponse.json({ count: 1, variants: [variant], error: true, local: true }, { status: 200 });
-    } catch (fallbackError) {
-      // آخر محاولة بسيطة
-      const variant = {
-        title: 'خبر جديد',
-        subtitle: 'تفاصيل الخبر',
-        smart_summary: 'موجز الخبر يحتوي على أهم المعلومات والتفاصيل المتعلقة بالموضوع. يتضمن الخبر معلومات مهمة وتطورات جديدة في المجال المعني.',
-        keywords: ['أخبار', 'تطورات', 'جديد'],
-        slug: 'khabar-jadid',
-        seo_title: 'خبر جديد - آخر التطورات',
-        meta_description: 'اقرأ آخر الأخبار والتطورات الجديدة في هذا الموضوع المهم',
-        tags: ['عاجل', 'جديد', 'تطورات']
-      };
-      return NextResponse.json({ count: 1, variants: [variant], error: true, fallback: true }, { status: 200 });
+    } catch (fallbackError: any) {
+      console.error("❌ فشل buildLocalVariant:", fallbackError.message);
+      
+      // محاولة توليد بسيط من المحتوى
+      try {
+        const simpleSents = raw_content.split(/[.!؟\n]+/).filter((s: string) => s.trim().length > 10);
+        const simpleTitle = simpleSents[0]?.trim().substring(0, 60) || 'خبر جديد';
+        const simpleSummary = raw_content.substring(0, 400).trim() || 'موجز الخبر';
+        const simpleWords = raw_content.match(/[\u0600-\u06FF]+/g)?.filter((w: string) => w.length > 3).slice(0, 5) || ['أخبار'];
+        
+        const variant = {
+          title: simpleTitle,
+          subtitle: simpleSents[1]?.trim().substring(0, 80) || 'تفاصيل الخبر',
+          smart_summary: simpleSummary,
+          keywords: simpleWords,
+          slug: 'news-' + Date.now(),
+          seo_title: simpleTitle.substring(0, 60),
+          meta_description: simpleSummary.substring(0, 160),
+          tags: simpleWords.slice(0, 3)
+        };
+        
+        console.log("✅ توليد بسيط نجح:", variant);
+        return NextResponse.json({ count: 1, variants: [variant], error: true, simple: true }, { status: 200 });
+        
+      } catch (lastError) {
+        console.error("❌ فشل حتى التوليد البسيط:", lastError);
+        
+        // آخر محاولة بقيم ثابتة
+        const variant = {
+          title: 'خبر جديد',
+          subtitle: 'تفاصيل الخبر',
+          smart_summary: 'موجز الخبر يحتوي على أهم المعلومات والتفاصيل المتعلقة بالموضوع. يتضمن الخبر معلومات مهمة وتطورات جديدة في المجال المعني.',
+          keywords: ['أخبار', 'تطورات', 'جديد'],
+          slug: 'khabar-jadid',
+          seo_title: 'خبر جديد - آخر التطورات',
+          meta_description: 'اقرأ آخر الأخبار والتطورات الجديدة في هذا الموضوع المهم',
+          tags: ['عاجل', 'جديد', 'تطورات']
+        };
+        return NextResponse.json({ count: 1, variants: [variant], error: true, fallback: true }, { status: 200 });
+      }
     }
   }
 }

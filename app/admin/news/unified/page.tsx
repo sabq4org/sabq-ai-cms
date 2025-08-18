@@ -242,17 +242,26 @@ export default function ManusNewsCreatePage() {
       }
 
       // تنظيف HTML للحصول على النص الخام
-      const cleanText = contentText
+      let cleanText = contentText
         .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
         .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
         .replace(/<[^>]*>/g, " ")
+        .replace(/&nbsp;/g, " ")
+        .replace(/&[a-z]+;/gi, " ")
         .replace(/\s+/g, " ")
         .trim();
+      
+      // إذا لم نحصل على محتوى كافٍ، جرب النص المباشر من editorRef
+      if (cleanText.length < 50 && editorRef.current?.editor?.getText) {
+        cleanText = editorRef.current.editor.getText() || cleanText;
+        console.log("📝 استخدام getText مباشرة:", cleanText.length);
+      }
 
       console.log("📝 المحتوى النهائي:", {
         originalLength: contentText.length,
         cleanedLength: cleanText.length,
-        preview: cleanText.substring(0, 100)
+        preview: cleanText.substring(0, 100),
+        fullText: cleanText.substring(0, 500) // عرض أكثر للتشخيص
       });
 
       if (cleanText.length < 50) {
