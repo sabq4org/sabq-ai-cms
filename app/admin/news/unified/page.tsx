@@ -316,7 +316,7 @@ export default function ManusNewsCreatePage() {
               : "";
               
             setFormData((prev) => ({
-              ...prev,
+        ...prev,
               title: variant.title || prev.title,
               subtitle: variant.subtitle || prev.subtitle,
               // قصّ الموجز إلى 400 حرف لتحديث الحقل دائماً بشكل مناسب للعرض
@@ -1044,11 +1044,11 @@ export default function ManusNewsCreatePage() {
                 </button>
 
                 <button
-                  onClick={() => {
-                    if (completionScore < 60) {
+        onClick={() => {
+          if (completionScore < 60) {
                       toast.error(`المقال غير مكتمل بما يكفي للنشر (${completionScore}%). يرجى إكمال البيانات المطلوبة.`);
-                      return;
-                    }
+            return;
+          }
                     if (formData.publishType === "scheduled") {
                       if (!formData.scheduledDate) {
                         toast.error("يرجى تحديد التاريخ والوقت للجدولة أولاً");
@@ -1056,23 +1056,23 @@ export default function ManusNewsCreatePage() {
                       }
                       handleSave("scheduled");
                     } else {
-                      handleSave("published");
+          handleSave("published");
                     }
-                  }}
-                  disabled={saving || loading}
+        }}
+        disabled={saving || loading}
                   className="btn btn-primary"
-                >
-                  {saving ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
+      >
+        {saving ? (
+          <>
+            <Loader2 className="w-4 h-4 animate-spin" />
                       {formData.publishType === "scheduled" ? "جاري الجدولة..." : "جاري النشر..."}
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4" />
+              </>
+            ) : (
+              <>
+                <Send className="w-4 h-4" />
                       {formData.publishType === "scheduled" ? "نشر مجدول" : "نشر فوري"}
-                    </>
-                  )}
+              </>
+            )}
                 </button>
     </div>
         </div>
@@ -1750,7 +1750,7 @@ export default function ManusNewsCreatePage() {
                 darkMode={false}
               />
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px' }}>
-                <button
+                          <button
                   type="button"
                   className="btn btn-sm"
                   onClick={() => setOpenMediaPicker(true)}
@@ -1761,10 +1761,10 @@ export default function ManusNewsCreatePage() {
                 >
                   <ImageIcon className="w-4 h-4" />
                   اختيار من مكتبة الصور
-                </button>
+                          </button>
                 <span className="text-muted" style={{ fontSize: '12px' }}>أو ارفع صورة جديدة من الأعلى</span>
-              </div>
-            </div>
+                  </div>
+                </div>
 
           {/* الكلمات المفتاحية */}
              <div className="card">
@@ -1943,6 +1943,8 @@ export default function ManusNewsCreatePage() {
         }}
         title="اختر صورة من مكتبة الوسائط"
         acceptedTypes={["image/"]}
+        articleContent={formData.content}
+        articleTitle={formData.title}
       />
     </>
   );
