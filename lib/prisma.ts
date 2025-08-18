@@ -58,6 +58,6 @@ export async function withPrisma<T>(operation: (prisma: PrismaClient) => Promise
   }
 }
 
-// التصدير
+// التصدير - named export و default export
 export { prisma };
 export default prisma;

@@ -3,6 +3,25 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 
+// مكون بطاقة الإحصائيات
+function StatCard({ title, value, change, icon }: { title: string; value: string; change: string; icon: string }) {
+  const isPositive = change.startsWith('+');
+  
+  return (
+    <div className="card">
+      <div className="card-header">
+        <div className="card-title">{icon} {title}</div>
+      </div>
+      <div style={{ fontSize: '28px', fontWeight: '700', marginBottom: '8px' }}>
+        {value}
+      </div>
+      <div className={`text-sm ${isPositive ? 'text-success' : 'text-error'}`}>
+        {change} من الشهر الماضي
+      </div>
+    </div>
+  );
+}
+
 // لوحة التحكم النهائية - تعمل بدون أي مشاكل
 export default function SabqAdmin() {
   const [currentTheme, setCurrentTheme] = useState('blue');
@@ -24,6 +43,14 @@ export default function SabqAdmin() {
       setCurrentTheme(theme);
     }
   };
+
+  // بيانات الإحصائيات
+  const statsData = [
+    { title: 'المقالات', value: '1,234', change: '+12%', icon: '📝' },
+    { title: 'المشاهدات', value: '45.6K', change: '+23%', icon: '👁️' },
+    { title: 'المستخدمون', value: '892', change: '+5%', icon: '👥' },
+    { title: 'التعليقات', value: '2,456', change: '+18%', icon: '💬' }
+  ];
 
   return (
     <>

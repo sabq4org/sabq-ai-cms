@@ -1,5 +1,5 @@
 // Simple in-memory batched view increment system
-import { prisma } from '@/lib/prisma-simple'
+import { prisma } from '@/lib/prisma'
 
 interface PendingIncrement { id: string; count: number }
 
