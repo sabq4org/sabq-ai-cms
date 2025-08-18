@@ -53,10 +53,24 @@ export default function AdminMobileLayout({ children }: { children: React.ReactN
       link3.href = '/admin-mobile-critical-fixes.css';
       document.head.appendChild(link3);
 
+      // تحميل CSS إصلاحات التخطيط
+      const link4 = document.createElement('link');
+      link4.rel = 'stylesheet';
+      link4.href = '/mobile-layout-fixes.css';
+      document.head.appendChild(link4);
+
+      // تحميل JavaScript محسن التخطيط
+      const script = document.createElement('script');
+      script.src = '/mobile-layout-enhancer.js';
+      script.defer = true;
+      document.head.appendChild(script);
+
       return () => {
         document.head.removeChild(link1);
         document.head.removeChild(link2);
         document.head.removeChild(link3);
+        document.head.removeChild(link4);
+        document.head.removeChild(script);
       };
   }, []);
 
@@ -192,7 +206,7 @@ export default function AdminMobileLayout({ children }: { children: React.ReactN
             </div>
 
             {/* الأدوات */}
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <div className="header-tools scrollable-horizontal" style={{ display: "flex", alignItems: "center", gap: "8px", overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
               <button 
                 className="btn-mobile btn-sm"
                 style={{ background: "transparent", padding: "8px", position: "relative" }}
