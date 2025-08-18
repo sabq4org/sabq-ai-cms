@@ -245,7 +245,7 @@ export default function ArticleCard({
 
   // Grid View - البطاقة الافتراضية
   return (
-    <Link href={getArticleLink(article)} className="block h-full">
+    <Link href={getArticleLink(article)} className="group block h-full">
       <article
         className={cn(
           "relative rounded-2xl shadow-md overflow-hidden h-full flex flex-col",
@@ -282,7 +282,7 @@ export default function ArticleCard({
         </div>
 
         {/* Content */}
-        <div className="p-4 flex-1 flex flex-col">
+        <div className="p-4 flex-1 flex flex-col rounded-xl transition-colors group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20">
           {/* لابل التصنيف */}
           <div className="mb-2">
             {category && <span className="category-pill">{category.name}</span>}
