@@ -285,14 +285,18 @@ export default function ManusNewsCreatePage() {
 
         if (smartRes.ok) {
           const smartData = await smartRes.json();
+          console.log("🔍 استجابة smart-editor:", smartData);
+          
           const variant = Array.isArray(smartData.variants) && smartData.variants.length > 0
             ? smartData.variants[0]
             : null;
 
           if (variant) {
+            console.log("✅ variant موجود:", variant);
             setFormData((prev) => ({
-              ...prev,
+        ...prev,
               title: variant.title || prev.title,
+              subtitle: variant.subtitle || prev.subtitle,
               // قصّ الموجز إلى 160 حرف لتحديث الحقل دائماً بشكل مناسب للعرض
               excerpt: (variant.smart_summary ? String(variant.smart_summary).slice(0, 160).trim() : prev.excerpt),
               // دمج الكلمات والوسوم إن توفرت
@@ -633,8 +637,8 @@ export default function ManusNewsCreatePage() {
         const secondSentence = sentences[1]?.trim().substring(0, 45) || "";
         const localSubtitle = secondSentence ? `${secondSentence}...` : `تفاصيل حول ${localTitle.substring(0, 30)}...`;
 
-        setFormData((prev) => ({
-          ...prev,
+          setFormData((prev) => ({
+            ...prev,
           title: localTitle,
           excerpt: localExcerpt,
           subtitle: localSubtitle,

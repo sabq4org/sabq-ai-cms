@@ -60,6 +60,13 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { title_hint = '', raw_content = '', category = '', entities = [], published_at = '' } = body;
+    
+    console.log("📥 smart-editor received:", { 
+      title_hint: title_hint?.substring(0, 50), 
+      content_length: raw_content?.length,
+      category,
+      has_openai: hasOpenAI 
+    });
 
     if (!raw_content || (typeof raw_content === 'string' && raw_content.trim().length < 30)) {
       return NextResponse.json({ error: 'المحتوى قصير جداً' }, { status: 400 });
@@ -84,46 +91,178 @@ export async function POST(req: NextRequest) {
       }
       return Object.entries(f).sort((a,b) => b[1]-a[1]).map(([w]) => w);
     };
-    const buildLocalTitle = (text: string, hint: string) => {
+    // استخراج الكيانات المهمة (أسماء، أماكن، أرقام)
+    const extractEntities = (text: string) => {
+      const patterns = [
+        /\d+[\s\u200F]*(مليون|مليار|ألف|بالمئة|بالمائة|%)/g,
+        /[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*/g, // أسماء إنجليزية
+        /(?:الرئيس|الوزير|الأمير|الملك|الشيخ|الدكتور|المهندس)\s+\S+\s+\S+/g,
+        /(?:شركة|مؤسسة|هيئة|وزارة|جامعة|مدينة)\s+\S+/g,
+      ];
+      const found = new Set<string>();
+      patterns.forEach(p => {
+        const matches = text.match(p) || [];
+        matches.forEach(m => found.add(m.trim()));
+      });
+      return Array.from(found);
+    };
+
+    const buildLocalTitle = (text: string, hint: string, cat: string) => {
       const sents = sentences(text);
-      let title = stripStart(sents[0] || hint || '');
-      if (title.length === 0) title = 'تقرير إخباري';
+      const entities = extractEntities(text);
+      const keywords = freqKeywords(text).slice(0, 5);
+      
+      // محاولة بناء عنوان ذكي
+      let title = '';
+      
+      // إذا وجدنا أرقام أو نسب مهمة
+      const numbers = text.match(/\d+[\s\u200F]*(مليون|مليار|ألف|بالمئة|بالمائة|%)/);
+      if (numbers && numbers.length > 0) {
+        const mainKeyword = keywords[0] || 'تطور';
+        title = `${numbers[0]} ${mainKeyword} في ${cat || 'القطاع'}`;
+      }
+      // إذا وجدنا شخصية مهمة
+      else if (entities.length > 0 && (entities[0].includes('الرئيس') || entities[0].includes('الوزير'))) {
+        const action = keywords.find(k => k.length > 3) || 'يعلن';
+        title = `${entities[0]} ${action} ${keywords[1] || 'قرارات جديدة'}`;
+      }
+      // عنوان من الجملة الأولى محسّن
+      else if (sents.length > 0) {
+        let firstSent = stripStart(sents[0]);
+        // إضافة كلمة قوية في البداية إذا لم تكن موجودة
+        const strongStarts = ['عاجل:', 'حصري:', 'تطور:', 'إنجاز:', 'قرار:'];
+        const hasStrong = strongStarts.some(s => firstSent.startsWith(s));
+        if (!hasStrong && firstSent.length < 50) {
+          title = `تطور: ${firstSent}`;
+        } else {
+          title = firstSent;
+        }
+      } else {
+        title = hint || 'خبر عاجل في ' + (cat || 'آخر المستجدات');
+      }
+      
       return clamp(title, 70);
     };
+
     const buildLocalSummary = (text: string) => {
       const sents = sentences(text);
-      let acc = '';
-      for (const s of sents) {
-        if ((acc + ' ' + s).length <= 420) acc = (acc ? acc + ' ' : '') + s;
-        if (acc.length >= 380) break;
+      const entities = extractEntities(text);
+      const keywords = freqKeywords(text).slice(0, 8);
+      
+      // بناء موجز ذكي
+      let summary = '';
+      
+      // البداية: السياق العام
+      const context = sents[0] || text.substring(0, 100);
+      summary = stripStart(context);
+      
+      // إضافة التفاصيل المهمة
+      if (entities.length > 0) {
+        summary += `. وتضمن الحدث مشاركة ${entities.slice(0, 2).join(' و')}`;
       }
-      if (acc.length < 380) acc = clamp(text, 420);
-      if (acc.length > 420) acc = clamp(acc, 420);
-      return acc;
+      
+      // إضافة الأرقام إن وجدت
+      const numbers = text.match(/\d+[\s\u200F]*(مليون|مليار|ألف|بالمئة|بالمائة|%)/);
+      if (numbers && numbers.length > 0) {
+        summary += ` بقيمة ${numbers[0]}`;
+      }
+      
+      // إضافة النتائج أو التأثير
+      if (sents.length > 2) {
+        const impact = sents[sents.length - 1];
+        if (impact.length < 150) {
+          summary += `. ${impact}`;
+        }
+      }
+      
+      // التأكد من الطول المناسب
+      if (summary.length < 380) {
+        // إضافة مزيد من التفاصيل
+        for (let i = 1; i < sents.length && summary.length < 380; i++) {
+          const sent = sents[i];
+          if (sent.length < 100 && !summary.includes(sent.substring(0, 20))) {
+            summary += `. ${sent}`;
+          }
+        }
+      }
+      
+      return clamp(summary, 420);
     };
+
     const buildLocalKeywords = (text: string) => {
-      const base = filterKeywords(freqKeywords(text).slice(0, 12));
-      return base.slice(0, 10);
+      const entities = extractEntities(text);
+      const baseKeywords = freqKeywords(text).slice(0, 15);
+      
+      // دمج الكيانات مع الكلمات المفتاحية
+      const combined = [...new Set([...entities, ...baseKeywords])];
+      
+      // فلترة وترتيب حسب الأهمية
+      return filterKeywords(combined)
+        .filter(k => k.length > 2 && !FORBIDDEN_VERBS.includes(k))
+        .slice(0, 10);
     };
-    const buildLocalTags = (kws: string[]) => kws.slice(0, Math.min(8, Math.max(5, kws.length)));
-    const buildLocalSeoTitle = (title: string) => clamp(title, 60);
-    const buildLocalMeta = (summary: string) => clamp(summary, 160);
-    const buildLocalSlug = (title: string) => normalize(title)
-      .replace(/["'`،,؛:]/g, '')
-      .replace(/\s+/g, '-')
-      .toLowerCase();
+
+    const buildLocalSubtitle = (text: string, title: string) => {
+      const sents = sentences(text);
+      // العنوان الفرعي من الجملة الثانية أو تفصيل للعنوان
+      if (sents.length > 1) {
+        return clamp(stripStart(sents[1]), 80);
+      }
+      return `تفاصيل ${title.substring(0, 40)}`;
+    };
+
+    const buildLocalTags = (kws: string[]) => {
+      // اختيار أهم 5-8 وسوم
+      return kws
+        .filter(k => k.length > 2)
+        .slice(0, 8);
+    };
+
+    const buildLocalSeoTitle = (title: string, keywords: string[]) => {
+      // عنوان SEO محسّن مع كلمات مفتاحية
+      const mainKw = keywords[0] || '';
+      if (title.length <= 50 && mainKw) {
+        return `${title} | ${mainKw}`;
+      }
+      return clamp(title, 60);
+    };
+
+    const buildLocalMeta = (summary: string, keywords: string[]) => {
+      // وصف ميتا جذاب مع كلمات مفتاحية
+      let meta = clamp(summary, 140);
+      if (keywords.length > 0 && meta.length < 150) {
+        meta += ` - ${keywords.slice(0, 2).join(', ')}`;
+      }
+      return clamp(meta, 160);
+    };
+
+    const buildLocalSlug = (title: string) => {
+      return normalize(title)
+        .replace(/[^\u0600-\u06FFA-Za-z0-9\s]/g, '')
+        .replace(/\s+/g, '-')
+        .substring(0, 50)
+        .toLowerCase();
+    };
+
     const buildLocalVariant = () => {
-      const title = buildLocalTitle(raw_content, title_hint);
+      const title = buildLocalTitle(raw_content, title_hint, category);
       const smart_summary = buildLocalSummary(raw_content);
       const keywords = buildLocalKeywords(raw_content);
+      const subtitle = buildLocalSubtitle(raw_content, title);
       const tags = buildLocalTags(keywords);
+      const seo_title = buildLocalSeoTitle(title, keywords);
+      const meta_description = buildLocalMeta(smart_summary, keywords);
+      
+      console.log("🔨 توليد محلي:", { title, subtitle, keywords_count: keywords.length, summary_length: smart_summary.length });
+      
       return {
         title,
+        subtitle,
         smart_summary,
         keywords,
         slug: buildLocalSlug(title),
-        seo_title: buildLocalSeoTitle(title !== title_hint ? title : `${title}`),
-        meta_description: buildLocalMeta(smart_summary),
+        seo_title,
+        meta_description,
         tags,
       } as any;
     };
@@ -223,15 +362,22 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error('❌ خطأ في smart-editor:', error);
     // عودة محلية ذكية عند أي خطأ
-    const variant = {
-      title: 'تقرير إخباري',
-      smart_summary: 'ملخص موجز للمحتوى قيد المعالجة.',
-      keywords: [],
-      slug: 'taqrir-ikhbari',
-      seo_title: 'تقرير إخباري',
-      meta_description: 'ملخص موجز للمحتوى',
-      tags: []
-    };
-    return NextResponse.json({ count: 1, variants: [variant], error: true }, { status: 200 });
+    try {
+      const variant = buildLocalVariant();
+      return NextResponse.json({ count: 1, variants: [variant], error: true, local: true }, { status: 200 });
+    } catch (fallbackError) {
+      // آخر محاولة بسيطة
+      const variant = {
+        title: 'خبر جديد',
+        subtitle: 'تفاصيل الخبر',
+        smart_summary: 'موجز الخبر يحتوي على أهم المعلومات والتفاصيل المتعلقة بالموضوع. يتضمن الخبر معلومات مهمة وتطورات جديدة في المجال المعني.',
+        keywords: ['أخبار', 'تطورات', 'جديد'],
+        slug: 'khabar-jadid',
+        seo_title: 'خبر جديد - آخر التطورات',
+        meta_description: 'اقرأ آخر الأخبار والتطورات الجديدة في هذا الموضوع المهم',
+        tags: ['عاجل', 'جديد', 'تطورات']
+      };
+      return NextResponse.json({ count: 1, variants: [variant], error: true, fallback: true }, { status: 200 });
+    }
   }
 }
