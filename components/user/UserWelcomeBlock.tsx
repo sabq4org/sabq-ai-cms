@@ -198,13 +198,13 @@ export default function UserWelcomeBlock() {
         ) : (
           <div style={{
             marginTop: '16px',
-            fontSize: '13px',
+            fontSize: '12px',
             color: 'hsl(var(--muted))',
             display: 'flex',
             alignItems: 'center',
             gap: '4px'
           }}>
-            <Sparkles style={{ width: '14px', height: '14px', color: '#7C3AED' }} />
+            <Sparkles style={{ width: '12px', height: '12px', color: '#7C3AED' }} />
             للحصول على محتوى مخصص لك{' '}
             <a 
               href="/login" 
