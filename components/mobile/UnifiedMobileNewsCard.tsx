@@ -186,14 +186,15 @@ export default function UnifiedMobileNewsCard({
 
           {/* Content */}
           <div className="p-4">
-            {/* Category */}
+            {/* Category Label */}
             {(article.category_name || article.category?.name) && (
-              <div className="mb-2">
+              <div className="mb-3">
                 <span 
-                  className="text-xs font-semibold px-2 py-1 rounded-md"
+                  className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold border"
                   style={{
-                    backgroundColor: getCategoryColor() + "20",
+                    backgroundColor: getCategoryColor() + "15",
                     color: getCategoryColor(),
+                    borderColor: getCategoryColor() + "40",
                   }}
                 >
                   {article.category_name || article.category?.name}
@@ -317,14 +318,20 @@ export default function UnifiedMobileNewsCard({
 
             {/* Content */}
             <div className="flex-1">
-              {/* Category */}
+              {/* Category Label */}
               {(article.category_name || article.category?.name) && (
-                <span 
-                  className="text-xs font-semibold mb-1 inline-block"
-                  style={{ color: getCategoryColor() }}
-                >
-                  {article.category_name || article.category?.name}
-                </span>
+                <div className="mb-2">
+                  <span 
+                    className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold border"
+                    style={{
+                      backgroundColor: getCategoryColor() + "15",
+                      color: getCategoryColor(),
+                      borderColor: getCategoryColor() + "40",
+                    }}
+                  >
+                    {article.category_name || article.category?.name}
+                  </span>
+                </div>
               )}
 
               {/* Title */}

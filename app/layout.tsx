@@ -4,6 +4,7 @@ import UserHeader from "@/components/user/UserHeader";
 import Footer from "@/components/Footer";
 import { Providers } from "./providers";
 import "./globals.css";
+import "../styles/news-card-desktop.css";
 
 const ibmPlexArabic = IBM_Plex_Sans_Arabic({
   subsets: ["arabic"],

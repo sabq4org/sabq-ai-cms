@@ -126,10 +126,10 @@ export default function SmartContentNewsCard({
             )}
           </div>
 
-          {/* Category if available */}
+          {/* Category Label */}
           {article.category_name && (
-            <div className="mb-2">
-              <span className="text-xs font-semibold text-purple-600 dark:text-purple-400 uppercase tracking-wider">
+            <div className="mb-3">
+              <span className="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
                 {article.category_name}
               </span>
             </div>
@@ -263,10 +263,10 @@ export default function SmartContentNewsCard({
             </div>
           )}
           
-          {/* Category if available */}
+          {/* Category Label */}
           {article.category_name && (
-            <div className="mb-2">
-              <span className="text-xs font-semibold text-purple-600 dark:text-purple-400">
+            <div className="mb-3">
+              <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
                 {article.category_name}
               </span>
             </div>
