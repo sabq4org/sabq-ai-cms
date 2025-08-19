@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { withRetry } from "@/lib/prisma-helper";
 
 export const runtime = "nodejs";
 
@@ -43,7 +44,7 @@ export async function GET(request: NextRequest) {
       orderBy.views = "desc";
     }
 
-    const articles = await prisma.articles.findMany({
+    const articles = await withRetry(async () => prisma.articles.findMany({
       where,
       take: limit,
       orderBy,
@@ -59,7 +60,7 @@ export async function GET(request: NextRequest) {
           select: { id: true, name: true, slug: true, color: true },
         },
       },
-    });
+    }));
 
     const formatted = articles.map((a: any) => ({
       id: String(a.id),

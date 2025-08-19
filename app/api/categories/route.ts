@@ -1,11 +1,12 @@
 import prisma from "@/lib/prisma";
+import { withRetry } from "@/lib/prisma-helper";
 import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
 export async function GET(request: NextRequest) {
   try {
-    const categories = await prisma.categories.findMany({
+    const categories = await withRetry(async () => prisma.categories.findMany({
       where: {
         is_active: true,
       },
@@ -23,7 +24,7 @@ export async function GET(request: NextRequest) {
           },
         },
       },
-    });
+    }));
 
     // إضافة عدد المقالات إلى كل تصنيف
     const categoriesWithCount = categories.map((category) => ({
