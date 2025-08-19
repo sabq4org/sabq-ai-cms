@@ -1,32 +1,40 @@
 import { PrismaClient } from "@prisma/client";
 import prisma from "./prisma";
-import { checkDatabaseHealth, resetPrismaConnection } from "./prisma-production";
+import { checkDatabaseHealth } from "./prisma-production";
 
 // معالج اتصال محسّن مع إعادة محاولة
+let prismaConnectingPromise: Promise<void> | null = null;
 export async function ensurePrismaConnection(client: PrismaClient = prisma, retries = 3): Promise<void> {
-  for (let i = 0; i < retries; i++) {
-    try {
-      // محاولة استعلام بسيط للتأكد من الاتصال
-      await client.$queryRaw`SELECT 1`;
-      return; // نجح الاتصال
-    } catch (error: any) {
-      console.log(`محاولة الاتصال ${i + 1}/${retries}...`);
-      
-      if (error.message?.includes("Engine is not yet connected")) {
-        // محاولة إعادة الاتصال
-        try {
-          await client.$connect();
-          await new Promise(resolve => setTimeout(resolve, 100 * (i + 1))); // تأخير متزايد
-          continue;
-        } catch (connectError) {
-          console.error("فشل الاتصال:", connectError);
+  // منع اتصالات متوازية إلى المحرك
+  if (prismaConnectingPromise) {
+    await prismaConnectingPromise;
+    return;
+  }
+  
+  prismaConnectingPromise = (async () => {
+    for (let i = 0; i < retries; i++) {
+      try {
+        await client.$queryRaw`SELECT 1`;
+        return; // نجح الاتصال
+      } catch (error: any) {
+        if (error.message?.includes("Engine is not yet connected") || error.code === 'P1017') {
+          try {
+            await client.$connect();
+            await new Promise(resolve => setTimeout(resolve, 100 * (i + 1)));
+            continue;
+          } catch (connectError) {
+            // لا نطبع بشدة، فقط نُمهل ونعيد المحاولة
+          }
         }
-      }
-      
-      if (i === retries - 1) {
-        throw error; // آخر محاولة فاشلة
+        if (i === retries - 1) throw error;
+        await new Promise(resolve => setTimeout(resolve, 200 * (i + 1)));
       }
     }
+  })();
+  try {
+    await prismaConnectingPromise;
+  } finally {
+    prismaConnectingPromise = null;
   }
 }
 
@@ -43,8 +51,7 @@ export async function withRetry<T>(
       if (attempt > 0) {
         const health = await checkDatabaseHealth(prisma);
         if (!health.connected) {
-          console.log(`محاولة إعادة تعيين الاتصال (${attempt + 1}/${maxRetries})...`);
-          await resetPrismaConnection(prisma);
+          await ensurePrismaConnection(prisma, 2);
         }
       }
       
@@ -58,8 +65,9 @@ export async function withRetry<T>(
           error.message?.includes("Connection terminated") ||
           error.code === "P1001" ||
           error.code === "P1017") {
-        console.log(`إعادة محاولة العملية (${attempt + 1}/${maxRetries}) - خطأ: ${error.message}`);
+        // إعادة محاولة هادئة
         await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+        await ensurePrismaConnection(prisma, 2);
         continue;
       }
       
