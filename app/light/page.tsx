@@ -1,11 +1,9 @@
 "use client";
 
-import LightLayout from "@/components/layouts/LightLayout";
 import NewsCard from "@/components/NewsCard";
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
-import "@/styles/light-layout.css";
 
 // بيانات تجريبية للعرض
 const sampleNews = [
@@ -69,8 +67,7 @@ export default function LightPage() {
   }, []);
 
   return (
-    <LightLayout>
-      <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto">
         {/* Page Header */}
         <div className="mb-8 text-center">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
@@ -208,7 +205,6 @@ export default function LightPage() {
             <p className="text-gray-600 dark:text-gray-400">نظام ألوان ديناميكي قابل للتخصيص</p>
           </div>
         </div>
-      </div>
-    </LightLayout>
+    </div>
   );
 }
