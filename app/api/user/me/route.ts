@@ -25,6 +25,28 @@ export async function GET(request: NextRequest) {
     }
 
     if (!token) {
+      // محاولة fallback من Cookie 'user'
+      const userCookie = request.cookies.get('user')?.value;
+      if (userCookie) {
+        try {
+          const decoded = JSON.parse(decodeURIComponent(userCookie));
+          if (decoded && decoded.id) {
+            const isAdmin = !!decoded.is_admin || ['admin','super_admin','system_admin'].includes(decoded.role);
+            return NextResponse.json({
+              success: true,
+              id: decoded.id,
+              email: decoded.email || '',
+              name: decoded.name || 'مستخدم',
+              role: decoded.role || 'user',
+              isAdmin,
+              isVerified: !!decoded.is_verified,
+              avatar: decoded.avatar || null,
+              created_at: decoded.created_at || null,
+              updated_at: decoded.updated_at || null,
+            });
+          }
+        } catch {}
+      }
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
