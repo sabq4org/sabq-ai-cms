@@ -39,6 +39,55 @@
   border-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.25) !important;
 }
 
+/* Theme light background for hover effects */
+.bg-theme-light {
+  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.08) !important;
+}
+
+/* Dark mode theme light background */
+.dark .bg-theme-light {
+  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.12) !important;
+}
+
+/* Muted foreground text colors */
+.text-muted-foreground {
+  color: #6b7280; /* gray-500 */
+}
+
+.dark .text-muted-foreground {
+  color: #9ca3af; /* gray-400 */
+}
+
+/* Stronger hover effect for debugging */
+.group:hover .group-hover\:bg-theme-light {
+  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.1) !important;
+}
+
+.dark .group:hover .group-hover\:bg-theme-light {
+  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.15) !important;
+}
+
+/* مقترب: إزالة تأثيرات الروابط والأيقونات لتطابق بطاقات الأخبار */
+.muqtarab-card-container a:hover h3,
+.muqtarab-card-container .group:hover h3 {
+  color: inherit !important;
+  transition: none !important;
+}
+
+.muqtarab-card-container svg {
+  color: inherit !important;
+}
+
+/* إزالة تأثير hover الأزرق من الخلفية إذا لم يكن مطلوباً */
+.muqtarab-card-container .group:hover .group-hover\:bg-theme-light {
+  background-color: transparent !important;
+}
+
+/* إزالة جميع transitions من بطاقات مقترب */
+.muqtarab-card-container * {
+  transition: none !important;
+}
+
 * {
   box-sizing: border-box;
   padding: 0;

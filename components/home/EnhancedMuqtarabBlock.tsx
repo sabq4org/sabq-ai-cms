@@ -19,7 +19,8 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import ArticleViews from "@/components/ui/ArticleViews";
 
 // تعريف الواجهات
 interface AngleArticle {
@@ -272,19 +273,39 @@ export default function EnhancedMuqtarabBlock({
     </div>
   );
 
-  // مكون البطاقة المميزة - تصميم مختلف للديسكتوب والهواتف
+  // مكون البطاقة المميزة - مع نظام الألوان المتغيرة الاحترافي
   const FeaturedArticleCard = ({ article }: { article: AngleArticle }) => {
-    const themeColor = article.angle?.themeColor || "#6366f1";
     const displaySrc = isValidImageSrc(article.coverImage)
       ? (article.coverImage as string)
       : "/images/default-article.jpg";
 
+    // إعداد CSS variables للألوان الديناميكية
+    const customStyles = React.useMemo(() => {
+      if (article.angle?.themeColor) {
+        const hex = article.angle.themeColor.replace('#', '');
+        const rgb = hex.match(/.{2}/g)?.map(h => parseInt(h, 16)).join(' ') || '59 130 246';
+        
+        return {
+          '--theme-primary': article.angle.themeColor,
+          '--theme-primary-rgb': rgb,
+        } as React.CSSProperties;
+      }
+      return {};
+    }, [article.angle?.themeColor]);
+
     return (
-      <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-0 shadow-sm dark:bg-gray-800/50 dark:hover:bg-gray-800/80 relative">
-        {/* خط ملامس بلون الزاوية في الأسفل */}
+      <Card 
+        className="group overflow-hidden transition-all duration-300 border-0 dark:bg-gray-800/50 relative"
+        style={customStyles}
+      >
+        {/* خط ملامس بلون الزاوية في الأسفل - يستخدم CSS variables */}
         <div
           className="absolute bottom-0 left-0 right-0 h-1 transition-all duration-300 group-hover:h-1.5"
-          style={{ backgroundColor: themeColor }}
+          style={{ 
+            backgroundColor: article.angle?.themeColor 
+              ? 'var(--theme-primary)' 
+              : 'var(--theme-primary, #6366f1)' 
+          }}
         ></div>
 
         {/* تصميم الديسكتوب - نصف صورة ونصف محتوى */}
@@ -305,18 +326,22 @@ export default function EnhancedMuqtarabBlock({
 
             {/* شارة مميز كبيرة - يسار */}
             <div className="absolute top-4 left-4">
-              <Badge className="bg-gradient-to-r from-yellow-500 to-amber-600 text-white px-3 py-1.5 text-sm font-bold shadow-lg">
+              <Badge className="bg-gradient-to-r from-yellow-500 to-amber-600 text-white px-3 py-1.5 text-sm font-bold">
                 <Star className="w-4 h-4 mr-1.5" />
                 مقال مميز
               </Badge>
             </div>
 
-            {/* ليبل الزاوية بلونها - فوق يمين */}
+            {/* ليبل الزاوية بلونها - فوق يمين - مع CSS variables */}
             <div
-              className="absolute top-4 right-4 px-3 py-1.5 rounded-full text-white font-bold text-sm shadow-lg"
+              className="absolute top-4 right-4 px-3 py-1.5 rounded-full text-white font-bold text-sm transition-all duration-300"
               style={{
-                backgroundColor: themeColor,
-                boxShadow: `0 4px 15px ${themeColor}40`,
+                backgroundColor: article.angle?.themeColor 
+                  ? 'var(--theme-primary)' 
+                  : 'var(--theme-primary, #6366f1)',
+                boxShadow: article.angle?.themeColor 
+                  ? 'none'
+                  : 'none',
               }}
             >
               {article.angle.icon && (
@@ -420,12 +445,16 @@ export default function EnhancedMuqtarabBlock({
               )}
             </div>
 
-            {/* ليبل الزاوية بلونها */}
+            {/* ليبل الزاوية بلونها - مع CSS variables */}
             <div
-              className="absolute top-3 right-3 px-2 py-1 rounded-full text-white text-xs font-medium shadow-md"
+              className="absolute top-3 right-3 px-2 py-1 rounded-full text-white text-xs font-medium transition-all duration-300"
               style={{
-                backgroundColor: themeColor,
-                boxShadow: `0 2px 8px ${themeColor}40`,
+                backgroundColor: article.angle?.themeColor 
+                  ? 'var(--theme-primary)' 
+                  : 'var(--theme-primary, #6366f1)',
+                boxShadow: article.angle?.themeColor 
+                  ? 'none'
+                  : 'none',
               }}
             >
               {article.angle.icon && (
@@ -497,152 +526,83 @@ export default function EnhancedMuqtarabBlock({
     );
   };
 
-  // مكون بطاقة المقال العادية
+  // مكون بطاقة المقال العادية - نسخة مطابقة تماماً لبطاقات الأخبار
   const ArticleCard = ({ article }: { article: AngleArticle }) => {
-    const themeColor = article.angle?.themeColor || "#6366f1";
     const displaySrc = isValidImageSrc(article.coverImage)
       ? (article.coverImage as string)
       : "/images/default-article.jpg";
 
     return (
-      <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-0 shadow-sm dark:bg-gray-800/50 dark:hover:bg-gray-800/80 relative">
-        {/* خط ملامس بلون الزاوية في الأسفل */}
-        <div
-          className="absolute bottom-0 left-0 right-0 h-1 transition-all duration-300 group-hover:h-1.5"
-          style={{ backgroundColor: themeColor }}
-        ></div>
-
-        {/* صورة المقال */}
-        <div className="relative h-36 sm:h-48 overflow-hidden rounded-xl">
-          <Image
-            src={displaySrc}
-            alt={article.title}
-            fill={true}
-            className="object-cover object-center transition-transform duration-300 group-hover:scale-105"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            priority={false}
-          />
-
-          {/* شارات الحالة */}
-          <div className="absolute top-3 left-3 flex gap-2">
+      <Link href={article.link} className="block">
+        <article
+          dir="rtl"
+          className="h-full rounded-2xl overflow-hidden flex flex-col bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+        >
+          {/* صورة المقال */}
+          <div className="relative h-48 overflow-hidden">
+            <Image
+              src={displaySrc}
+              alt={article.title}
+              fill={true}
+              className="w-full h-full object-cover transition-transform duration-500"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              priority={false}
+            />
+            
+            {/* شارة مميز */}
             {article.isFeatured && (
-              <Badge className="bg-yellow-500/90 text-white text-xs px-2 py-1">
-                <Star className="w-3 h-3 mr-1" />
-                مميز
-              </Badge>
-            )}
-            {article.isRecent && (
-              <Badge className="bg-green-500/90 text-white text-xs px-2 py-1">
-                جديد
-              </Badge>
+              <div className="absolute top-3 left-3">
+                <span className="flex items-center gap-1 px-3 py-1 bg-yellow-600 text-white text-xs font-bold rounded-full shadow-lg">
+                  <Star className="w-3 h-3" />
+                  مميز
+                </span>
+              </div>
             )}
           </div>
 
-          {/* ليبل الزاوية بلونها */}
-          <div
-            className="absolute top-3 right-3 px-2 py-1 rounded-full text-white text-xs font-medium shadow-md"
-            style={{
-              backgroundColor: themeColor,
-              boxShadow: `0 2px 8px ${themeColor}40`,
-            }}
-          >
-            {article.angle.icon && (
-              <span className="mr-1">{article.angle.icon}</span>
-            )}
-            {article.angle.title}
-          </div>
-        </div>
+          {/* محتوى البطاقة */}
+          <div className="p-4 flex-1 flex flex-col">
+            {/* لابل التصنيف */}
+            <div className="mb-2">
+              <span className="category-pill">{article.angle.title}</span>
+            </div>
 
-        {/* محتوى البطاقة */}
-        <CardContent className="p-4 space-y-3 rounded-xl transition-colors group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20">
-          {/* عنوان المقال */}
-          <Link
-            href={article.link}
-            className="block group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
-          >
-            <h3 className="font-bold text-lg leading-tight line-clamp-2 mb-2">
+            {/* العنوان */}
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-4 mb-3 leading-snug flex-1">
               {article.title}
             </h3>
-          </Link>
 
-          {/* مقتطف المقال */}
-          <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2 leading-relaxed">
-            {article.excerpt}
-          </p>
-
-          {/* معلومات إضافية */}
-          <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-            <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1">
-                <Clock className="w-3 h-3" />
-                {article.readingTime} دقائق
-              </span>
-              <span className="flex items-center gap-1">
-                <Eye className="w-3 h-3" />
-                {article.views.toLocaleString()}
-              </span>
+            {/* سطر واحد: التاريخ + المشاهدات */}
+            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mt-auto">
+              <time
+                dateTime={article.publishDate}
+                className="inline-flex items-center gap-1"
+              >
+                <Calendar className="w-4 h-4" />
+                {new Date(article.publishDate).toLocaleDateString("ar-SA", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                })}
+              </time>
+              <span className="mx-1">•</span>
+              <ArticleViews 
+                count={article.views ?? 0} 
+                variant="minimal" 
+                size="sm" 
+                showLabel={false}
+              />
             </div>
-
-            <time className="text-xs">
-              {new Date(article.publishDate).toLocaleDateString("ar-SA", {
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-              })}
-            </time>
           </div>
-
-          {/* معلومات المؤلف */}
-          <div className="flex items-center gap-2 pt-2 border-t border-gray-100 dark:border-gray-700">
-            <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-              {article.author.avatar ? (
-                <Image
-                  src={article.author.avatar}
-                  alt={article.author.name}
-                  width={24}
-                  height={24}
-                  className="rounded-full"
-                />
-              ) : (
-                <User className="w-3 h-3 text-gray-500" />
-              )}
-            </div>
-            <span className="text-xs font-medium">{article.author.name}</span>
-          </div>
-
-          {/* التصنيفات - مخفية من الواجهة */}
-          {/* تم إخفاء الكلمات المفتاحية من واجهة المستخدم */}
-          {/* {article.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1">
-              {article.tags.slice(0, 3).map((tag) => (
-                <Badge
-                  key={tag}
-                  variant="secondary"
-                  className="text-xs px-2 py-0.5"
-                  style={{
-                    backgroundColor: `${themeColor}10`,
-                    color: themeColor,
-                  }}
-                >
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          )} */}
-        </CardContent>
-      </Card>
+        </article>
+      </Link>
     );
   };
 
   // عرض التحميل
   if (loading && !refreshing) {
     return (
-      <div
-        className={cn(
-          "bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10 rounded-2xl p-8",
-          className
-        )}
-      >
+      <div className={cn("muqtarab-card-container", className)}>
         {showHeader && (
           <div className="flex items-center justify-between mb-6">
             <Skeleton className="h-8 w-32" />
@@ -655,18 +615,13 @@ export default function EnhancedMuqtarabBlock({
   }
 
   return (
-    <div
-      className={cn(
-        "bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10 rounded-2xl p-8",
-        className
-      )}
-    >
+    <div className={cn("muqtarab-card-container", className)}>
       {/* رأس القسم */}
       {showHeader && (
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl">
-              <Sparkles className="w-6 h-6 text-white" />
+            <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-xl">
+              <Sparkles className="w-6 h-6 text-gray-600 dark:text-gray-300" />
             </div>
             <div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">

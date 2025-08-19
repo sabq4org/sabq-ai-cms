@@ -16,6 +16,7 @@ import {
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import MuqtarabCard from "./MuqtarabCard";
+import "@/styles/muqtarab-cards.css";
 
 interface MuqtarabArticle {
   id: string;
@@ -100,11 +101,22 @@ export default function MuqtarabBlock({ className }: MuqtarabBlockProps) {
   const [articles, setArticles] = useState<MuqtarabArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const [heroArticle, setHeroArticle] = useState<HeroArticle | null>(null);
   const [heroLoading, setHeroLoading] = useState(true);
   const [angleArticle, setAngleArticle] = useState<AngleArticle | null>(null);
   const [angleLoading, setAngleLoading] = useState(true);
+
+  // فئات مقترب المختلفة
+  const categories = [
+    { value: null, name: "الكل", emoji: "📚" },
+    { value: "analysis", name: "تحليل", emoji: "🔍" },
+    { value: "opinion", name: "رأي", emoji: "💭" },
+    { value: "research", name: "بحث", emoji: "🧪" },
+    { value: "technology", name: "تقنية", emoji: "💡" },
+    { value: "society", name: "مجتمع", emoji: "👥" },
+  ];
 
   // جلب البطاقة المميزة (Hero Article)
   const fetchHeroArticle = async () => {
@@ -276,9 +288,9 @@ export default function MuqtarabBlock({ className }: MuqtarabBlockProps) {
 
   if (loading) {
     return (
-      <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/10 dark:to-pink-900/10 rounded-2xl p-8">
+      <div className="muqtarab-card-container">
         <div className="flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
       </div>
     );
@@ -287,11 +299,8 @@ export default function MuqtarabBlock({ className }: MuqtarabBlockProps) {
   return (
     <div
       className={cn(
-        "bg-gradient-to-br from-gray-100 via-blue-50 to-gray-100",
-        "dark:from-gray-800 dark:via-gray-700/50 dark:to-gray-800",
-        "rounded-2xl overflow-hidden",
-        "border border-gray-300 dark:border-gray-600",
-        "shadow-lg",
+        
+        "muqtarab-card-container",
         className
       )}
     >
@@ -302,11 +311,11 @@ export default function MuqtarabBlock({ className }: MuqtarabBlockProps) {
           <div className="flex items-center justify-between mb-2 sm:mb-3">
             {/* العنوان مع أيقونة مبسطة */}
             <div className="flex items-center gap-2">
-              <div className="w-2 h-6 bg-gradient-to-b from-blue-500 to-purple-600 rounded-full"></div>
+              <div className="w-2 h-6 bg-gradient-to-b from-gray-400 to-gray-600 dark:from-gray-300 dark:to-gray-500 rounded-full"></div>
               <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 dark:text-white">
                 مقترَب
               </h2>
-              <Sparkles className="w-4 h-4 text-blue-500" />
+              <Sparkles className="w-4 h-4 text-gray-500 dark:text-gray-400" />
             </div>
 
             {/* أيقونات مبسطة */}
@@ -439,7 +448,7 @@ export default function MuqtarabBlock({ className }: MuqtarabBlockProps) {
           !angleArticle &&
           articles.length === 0 && (
             <div className="text-center py-12">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-gray-100 to-blue-100 dark:from-gray-800 dark:to-blue-900/20 flex items-center justify-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
                 <div className="text-3xl">🧠</div>
               </div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
@@ -470,7 +479,7 @@ export default function MuqtarabBlock({ className }: MuqtarabBlockProps) {
 // مكون بطاقة مقال الزاوية
 function AngleArticleCard({ angleArticle }: { angleArticle: AngleArticle }) {
   return (
-    <div className="relative bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 aspect-square">
+    <div className="relative bg-gray-50 dark:bg-gray-800 rounded-xl overflow-hidden transition-all duration-300 border border-gray-200 dark:border-gray-700 aspect-square">
       {/* الثلث العلوي - الصورة */}
       <div className="relative h-1/3 overflow-hidden">
         {angleArticle.coverImage ? (

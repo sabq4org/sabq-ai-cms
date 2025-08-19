@@ -9,27 +9,21 @@
   display: none !important;
 }
 
-/* تطبيق نمط بطاقات الأخبار على بطاقات مقترب */
+/* تعطيل أي تداخل يفرض حدود/خلفية/ظلال على .group داخل مقترب */
 .muqtarab-card-container .group {
-  border: 1px solid #e5e7eb !important;
-  border-radius: 1rem !important;
-  background: white !important;
-  transition: all 0.3s ease !important;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 .dark .muqtarab-card-container .group {
-  border-color: #374151 !important;
-  background: #1f2937 !important;
+  background: transparent !important;
 }
 
 .muqtarab-card-container .group:hover {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
-  border-color: #d1d5db !important;
+  box-shadow: none !important;
 }
 
 .dark .muqtarab-card-container .group:hover {
-  border-color: #4b5563 !important;
 }
 
 /* تطبيق ألوان الثيم على الليبلات */
@@ -39,24 +33,39 @@
   border: 1px solid rgba(var(--theme-primary-rgb, 59 130 246), 0.2) !important;
 }
 
-/* إعادة تنسيق حاوية الإحصائيات */
+/* تعطيل أي إعادة تنسيق لخطوط الفصل حتى لا تختلف عن بطاقة الأخبار */
 .muqtarab-card-container .border-t {
-  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.05);
-  padding: 8px;
-  border-radius: 8px;
-  margin-top: 8px;
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+  margin-top: 0;
 }
 
-/* أيقونات بلون الثيم - فقط للأيقونات الصغيرة */
+/* أيقونات تتبع نظام الألوان المتغيرة مثل بطاقات الأخبار */
 .muqtarab-card-container .text-xs svg,
 .muqtarab-card-container .text-sm svg {
-  color: var(--theme-primary);
+  color: inherit !important;
 }
 
-/* تحسين hover للعناوين */
-.muqtarab-card-container h3:hover {
-  color: var(--theme-primary) !important;
+/* إزالة تأثير hover أزرق من الروابط */
+.muqtarab-card-container a:hover,
+.muqtarab-card-container a:hover h3,
+.muqtarab-card-container .group:hover h3 {
+  color: inherit !important;
 }
+
+/* إزالة تأثير transition من الروابط */
+.muqtarab-card-container a,
+.muqtarab-card-container .group {
+  transition: none !important;
+}
+
+/* إلغاء أي تأثير hover على العناوين داخل مقترب لمطابقة بطاقات الأخبار */
+.muqtarab-card-container h3:hover {
+  color: inherit !important;
+}
+
+
 
 /* إزالة الخطوط الملونة من جميع المتغيرات */
 .muqtarab-card-container .absolute.h-1,
@@ -67,15 +76,15 @@
   display: none !important;
 }
 
-/* تنسيق موحد للهيدر */
+/* إلغاء خط الفصل في الهيدر لعرض البلوك بدون حاوية */
 .muqtarab-card-container > div > div:first-child {
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: none;
   padding-bottom: 1rem;
   margin-bottom: 1.5rem;
 }
 
 .dark .muqtarab-card-container > div > div:first-child {
-  border-color: #374151;
+  border-color: transparent;
 }
 
 /* تطبيق عرض موحد مع البلوكات الأخرى */
@@ -94,22 +103,7 @@
   transition: color 0.3s ease;
 }
 
-/* تطبيق أنماط category-pill على ليبلات الزوايا */
+/* الاعتماد على .category-pill العالمية مثل بطاقة الأخبار */
 .muqtarab-card-container div[class*="rounded-full"][class*="font-bold"] {
-  display: inline-flex !important;
-  align-items: center !important;
-  border-radius: 9999px !important;
-  padding: 0.25rem 0.625rem !important;
-  font-size: 0.75rem !important;
-  font-weight: 500 !important;
-  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.1) !important;
-  color: var(--theme-primary) !important;
-  border: 1px solid rgba(var(--theme-primary-rgb, 59 130 246), 0.2) !important;
-  transition: all 0.3s ease !important;
-  box-shadow: none !important;
-}
-
-.muqtarab-card-container div[class*="rounded-full"][class*="font-bold"]:hover {
-  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.2) !important;
-  border-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.3) !important;
+  all: unset;
 }

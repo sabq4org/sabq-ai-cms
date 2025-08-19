@@ -214,7 +214,7 @@ export default function SimpleMuqtarabBlock() {
               <Link
                 key={angle.id}
                 href={`/muqtarab/${angle.slug}`}
-                className="group bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-lg hover:border-indigo-300 dark:hover:border-indigo-600 transition-all duration-200"
+                className="group bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-600 transition-all duration-200"
               >
                 <div className="flex items-center gap-3 mb-3">
                   {angle.icon ? (

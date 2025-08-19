@@ -3,9 +3,12 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { Clock, Eye, Star, User } from "lucide-react";
+import { Calendar, Clock, Eye, Star, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import "@/styles/muqtarab-cards.css";
+import "@/styles/news-card-desktop.css";
+import ArticleViews from "@/components/ui/ArticleViews";
 
 interface MuqtarabCardProps {
   article: {
@@ -46,7 +49,7 @@ export default function MuqtarabCard({
   className,
 }: MuqtarabCardProps) {
   const themeColor = article.angle?.themeColor || "var(--theme-primary, #6366f1)";
-  const articleLink = article.link || `/muqtarab/articles/${article.slug}`;
+  const articleLink = article.link || `/muqtarab/${article.slug}`;
 
   const isValidImageSrc = (src?: string) => {
     if (!src) return false;
@@ -72,13 +75,7 @@ export default function MuqtarabCard({
   // مكون بطاقة المقال المميز الكبير
   if (variant === "large") {
     return (
-      <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-0 shadow-sm dark:bg-gray-800/50 dark:hover:bg-gray-800/80 relative">
-        {/* خط ملامس بلون الزاوية في الأسفل */}
-        <div
-          className="absolute bottom-0 left-0 right-0 h-1 transition-all duration-300 group-hover:h-1.5"
-          style={{ backgroundColor: themeColor }}
-        />
-
+      <Card className="group overflow-hidden transition-all duration-300 border border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 relative bg-gray-50">
         {/* تصميم الديسكتوب - نصف صورة ونصف محتوى */}
         <div className="hidden md:grid md:grid-cols-2 gap-0">
           {/* صورة المقال */}
@@ -98,7 +95,7 @@ export default function MuqtarabCard({
             {/* شارة مميز كبيرة - يسار */}
             {article.isFeatured && (
               <div className="absolute top-4 left-4">
-                <Badge className="bg-gradient-to-r from-yellow-500 to-amber-600 text-white px-3 py-1.5 text-sm font-bold shadow-lg">
+                <Badge className="bg-gradient-to-r from-yellow-500 to-amber-600 text-white px-3 py-1.5 text-sm font-bold">
                   <Star className="w-4 h-4 mr-1.5" />
                   مقال مميز
                 </Badge>
@@ -106,18 +103,19 @@ export default function MuqtarabCard({
             )}
 
             {/* ليبل الزاوية بلونها - فوق يمين */}
-            <div
-              className="absolute top-4 right-4 px-3 py-1.5 rounded-full text-white font-bold text-sm shadow-lg"
+            <Badge
+              className="absolute top-4 right-4 px-3 py-1.5 font-bold text-sm border-0"
               style={{
-                backgroundColor: themeColor,
-                boxShadow: `0 4px 15px ${themeColor}40`,
+                backgroundColor: `${themeColor}15`,
+                color: themeColor,
+                border: `1px solid ${themeColor}30`
               }}
             >
               {article.angle.icon && (
                 <span className="mr-1.5">{article.angle.icon}</span>
               )}
               {article.angle.title}
-            </div>
+            </Badge>
           </div>
 
           {/* محتوى البطاقة للديسكتوب */}
@@ -184,7 +182,7 @@ export default function MuqtarabCard({
 
         {/* تصميم الهواتف - صورة كاملة مع overlay */}
         <div className="md:hidden">
-          <div className="relative h-48 overflow-hidden">
+          <div className="relative h-48 overflow-hidden rounded-xl">
             <Image
               src={displaySrc}
               alt={article.title}
@@ -200,7 +198,7 @@ export default function MuqtarabCard({
             {/* شارة مميز - يسار */}
             {article.isFeatured && (
               <div className="absolute top-3 left-3">
-                <Badge className="bg-gradient-to-r from-yellow-500 to-amber-600 text-white px-2 py-1 text-xs font-bold shadow-md">
+                <Badge className="bg-gradient-to-r from-yellow-500 to-amber-600 text-white px-2 py-1 text-xs font-bold">
                   <Star className="w-3 h-3 mr-1" />
                   مميز
                 </Badge>
@@ -208,18 +206,19 @@ export default function MuqtarabCard({
             )}
 
             {/* ليبل الزاوية - يمين */}
-            <div
-              className="absolute top-3 right-3 px-2 py-1 rounded-full text-white text-xs font-medium shadow-md"
+            <Badge
+              className="absolute top-3 right-3 px-2 py-1 text-xs font-medium border-0"
               style={{
-                backgroundColor: themeColor,
-                boxShadow: `0 2px 8px ${themeColor}40`,
+                backgroundColor: `${themeColor}20`,
+                color: themeColor,
+                border: `1px solid ${themeColor}40`
               }}
             >
               {article.angle.icon && (
                 <span className="mr-1">{article.angle.icon}</span>
               )}
               {article.angle.title}
-            </div>
+            </Badge>
           </div>
 
           {/* محتوى البطاقة للهواتف */}
@@ -284,138 +283,57 @@ export default function MuqtarabCard({
     );
   }
 
-  // مكون بطاقة المقال العادية (medium و small)
+  // مكون بطاقة المقال العادية (medium و small) - مطابق لبطاقة الأخبار حرفياً في الحجم وتأثير hover
   return (
-    <Card
-      className={cn(
-        "group overflow-hidden hover:shadow-xl transition-all duration-300 border-0 shadow-sm dark:bg-gray-800/50 dark:hover:bg-gray-800/80 relative",
-        className
-      )}
-    >
-      {/* خط ملامس بلون الزاوية في الأسفل */}
-      <div
-        className="absolute bottom-0 left-0 right-0 h-1 transition-all duration-300 group-hover:h-1.5"
-        style={{ backgroundColor: themeColor }}
-      />
-
-      {/* صورة المقال */}
-      <div
-        className={cn("relative overflow-hidden rounded-xl", getImageHeight())}
+    <Link href={articleLink} className={cn("block h-full", className)}>
+      <article
+        className={cn(
+          "relative overflow-hidden h-full flex flex-col",
+          "bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl"
+        )}
+        dir="rtl"
       >
-        <Image
-          src={displaySrc}
-          alt={article.title}
-          fill={true}
-          className="object-cover object-center transition-transform duration-300 group-hover:scale-105"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          priority={false}
-        />
-
-        {/* شارات الحالة */}
-        <div className="absolute top-3 left-3 flex gap-2">
-          {article.isFeatured && (
-            <Badge className="bg-yellow-500/90 text-white text-xs px-2 py-1">
-              <Star className="w-3 h-3 mr-1" />
-              مميز
-            </Badge>
-          )}
-          {article.isRecent && (
-            <Badge className="bg-green-500/90 text-white text-xs px-2 py-1">
-              جديد
-            </Badge>
-          )}
+        {/* صورة المقال */}
+        <div className="relative h-48 bg-gray-100 dark:bg-gray-700 overflow-hidden">
+          <Image
+            src={displaySrc}
+            alt={article.title}
+            fill={true}
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            priority={false}
+          />
         </div>
 
-        {/* ليبل الزاوية بلونها */}
-        <div
-          className="absolute top-3 right-3 px-2 py-1 rounded-full text-white text-xs font-medium shadow-md"
-          style={{
-            backgroundColor: themeColor,
-            boxShadow: `0 2px 8px ${themeColor}40`,
-          }}
-        >
-          {article.angle.icon && (
-            <span className="mr-1">{article.angle.icon}</span>
-          )}
-          {article.angle.title}
-        </div>
-      </div>
+        {/* المحتوى */}
+        <div className="p-4 flex-1 flex flex-col">
+          {/* لابل التصنيف */}
+          <div className="mb-2">
+            <span className="category-pill">{article.angle.title}</span>
+          </div>
 
-      {/* محتوى البطاقة */}
-      <CardContent
-        className={cn("p-4 space-y-3", variant === "small" && "p-3 space-y-2")}
-      >
-        {/* عنوان المقال */}
-        <Link
-          href={articleLink}
-          className="block group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
-        >
-          <h3
-            className={cn(
-              "font-bold leading-tight line-clamp-2 mb-2",
-              variant === "small" ? "text-sm" : "text-lg"
-            )}
-          >
+          {/* العنوان - حجم مطابق */}
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-4 mb-3 leading-snug">
             {article.title}
           </h3>
-        </Link>
 
-        {/* مقتطف المقال - فقط للأحجام المتوسطة */}
-        {variant !== "small" && (
-          <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2 leading-relaxed">
-            {article.excerpt}
-          </p>
-        )}
-
-        {/* معلومات إضافية */}
-        <div
-          className={cn(
-            "flex items-center justify-between text-gray-500 dark:text-gray-400",
-            variant === "small" ? "text-xs" : "text-xs"
-          )}
-        >
-          <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1">
-              <Clock className="w-3 h-3" />
-              {article.readingTime} دقائق
-            </span>
-            <span className="flex items-center gap-1">
-              <Eye className="w-3 h-3" />
-              {article.views.toLocaleString()}
-            </span>
-          </div>
-
-          {variant !== "small" && (
-            <time className="text-xs">
-              {new Date(article.publishDate).toLocaleDateString("ar-SA", {
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-              })}
-            </time>
-          )}
-        </div>
-
-        {/* معلومات المؤلف - فقط للأحجام المتوسطة */}
-        {variant !== "small" && (
-          <div className="flex items-center gap-2 pt-2 border-t border-gray-100 dark:border-gray-700">
-            <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-              {article.author.avatar ? (
-                <Image
-                  src={article.author.avatar}
-                  alt={article.author.name}
-                  width={24}
-                  height={24}
-                  className="rounded-full"
-                />
-              ) : (
-                <User className="w-3 h-3 text-gray-500" />
-              )}
+          {/* سطر واحد: التاريخ + المشاهدات */}
+          <div className="mt-auto">
+            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+              <time dateTime={article.publishDate} className="inline-flex items-center gap-1">
+                <Calendar className="w-4 h-4" />
+                {new Date(article.publishDate).toLocaleDateString("ar-SA", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                })}
+              </time>
+              <span className="mx-1">•</span>
+              <ArticleViews count={article.views || 0} variant="minimal" size="sm" showLabel={false} />
             </div>
-            <span className="text-xs font-medium">{article.author.name}</span>
           </div>
-        )}
-      </CardContent>
-    </Card>
+        </div>
+      </article>
+    </Link>
   );
 }

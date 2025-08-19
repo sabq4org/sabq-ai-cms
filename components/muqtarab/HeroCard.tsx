@@ -67,7 +67,7 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
       <div className={`relative w-full group ${className}`}>
         <Link href={`/muqtarab/${heroArticle.angle.slug}/${heroArticle.id}`}>
           {/* التصميم الجديد للموبايل - overlay */}
-          <div className="relative w-full h-[240px] rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300">
+          <div className="relative w-full h-[240px] rounded-xl overflow-hidden transition-all duration-300">
             {/* الصورة الخلفية */}
             <div className="absolute inset-0">
               {isValidImageSrc(heroArticle.coverImage) ? (
@@ -100,7 +100,7 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
 
             {/* شارة "مقال مميز" - يسار */}
             <div className="absolute top-3 left-3">
-              <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 shadow-lg backdrop-blur-sm">
+              <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 backdrop-blur-sm">
                 <span className="mr-1">⭐</span>
                 مميز
               </Badge>
@@ -172,7 +172,7 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
     <div className={`relative w-full group ${className}`}>
       <Link href={`/muqtarab/${heroArticle.angle.slug}/${heroArticle.id}`}>
         {/* التصميم الأصلي للديسكتوب - تخطيط جانبي */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden transition-all duration-300 border border-gray-100 dark:border-gray-700">
           <div className="flex">
             {/* الجانب الأيسر - قسم الصورة (نصف المساحة) */}
             <div className="relative w-1/2 h-64 flex-shrink-0 overflow-hidden">
@@ -205,7 +205,7 @@ export function HeroCard({ heroArticle, className = "" }: HeroCardProps) {
 
               {/* شارة مميز على الصورة */}
               <div className="absolute top-3 left-3">
-                <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 shadow-lg">
+                <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0">
                   <span className="mr-1">⭐</span>
                   مميز
                 </Badge>
