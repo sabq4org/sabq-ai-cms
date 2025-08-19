@@ -282,7 +282,12 @@ export default function ArticleCard({
         </div>
 
         {/* Content */}
-        <div className="p-4 flex-1 flex flex-col rounded-xl transition-colors group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20">
+                  <div 
+            className="p-4 flex-1 flex flex-col rounded-xl transition-colors"
+            style={{
+              '--hover-bg': 'color-mix(in oklab, var(--theme-primary) 5%, transparent)',
+            } as React.CSSProperties}
+          >
           {/* لابل التصنيف */}
           <div className="mb-2">
             {category && <span className="category-pill">{category.name}</span>}

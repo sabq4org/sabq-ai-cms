@@ -1,13 +1,20 @@
 .category-pill {
   @apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium;
-  /* Fallback للمتصفحات التي لا تدعم color-mix */
-  background-color: rgba(59, 130, 246, 0.14);
-  color: rgba(59, 130, 246, 0.7);
-  border: 1px solid rgba(59, 130, 246, 0.28);
-  /* Modern color-mix */
-  background-color: color-mix(in oklab, var(--cat) 14%, transparent);
-  color: color-mix(in oklab, var(--cat) 70%, currentColor);
-  border: 1px solid color-mix(in oklab, var(--cat) 28%, transparent);
+  /* استخدام متغيرات الثيم */
+  background-color: color-mix(in oklab, var(--theme-primary) 14%, transparent);
+  color: var(--theme-primary);
+  border: 1px solid color-mix(in oklab, var(--theme-primary) 28%, transparent);
+  transition: all 0.3s ease;
+}
+
+.category-pill:hover {
+  background-color: color-mix(in oklab, var(--theme-primary) 20%, transparent);
+  border-color: color-mix(in oklab, var(--theme-primary) 40%, transparent);
+}
+
+/* تطبيق hover للبطاقات */
+article .p-4:hover {
+  background-color: color-mix(in oklab, var(--theme-primary) 5%, transparent);
 }
 /* تم إزالة الإطار الملون السفلي
 .category-underline {
@@ -109,9 +116,9 @@ article {
 }
 
 :root.dark .category-pill {
-  background-color: color-mix(in oklab, var(--cat) 10%, transparent);
-  color: color-mix(in oklab, var(--cat) 80%, #e5e7eb);
-  border-color: color-mix(in oklab, var(--cat) 24%, transparent);
+  background-color: color-mix(in oklab, var(--theme-primary) 10%, transparent);
+  color: color-mix(in oklab, var(--theme-primary) 80%, #e5e7eb);
+  border-color: color-mix(in oklab, var(--theme-primary) 24%, transparent);
 }
 /* :root.dark .category-underline {
   opacity: 0.85;

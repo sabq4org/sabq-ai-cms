@@ -43,41 +43,7 @@ export default function SmartContentNewsCard({
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  // دالة تحديد لون التصنيف
-  const getCategoryColor = () => {
-    const categoryColors: Record<string, string> = {
-      // تصنيفات عربية
-      "رياضة": "#22c55e",
-      "الرياضة": "#22c55e",
-      "تقنية": "#8b5cf6",
-      "التقنية": "#8b5cf6",
-      "اقتصاد": "#f59e0b",
-      "الاقتصاد": "#f59e0b",
-      "سياسة": "#ef4444",
-      "السياسة": "#ef4444",
-      "ثقافة": "#ec4899",
-      "الثقافة": "#ec4899",
-      "صحة": "#10b981",
-      "الصحة": "#10b981",
-      "علوم": "#06b6d4",
-      "العلوم": "#06b6d4",
-      "محليات": "#3b82f6",
-      "المحليات": "#3b82f6",
-      // تصنيفات إنجليزية
-      "sports": "#22c55e",
-      "tech": "#8b5cf6",
-      "technology": "#8b5cf6",
-      "business": "#f59e0b",
-      "politics": "#ef4444",
-      "culture": "#ec4899",
-      "health": "#10b981",
-      "science": "#06b6d4",
-      "local": "#3b82f6",
-    };
-    
-    const categoryName = article.category_name?.toLowerCase() || "";
-    return categoryColors[categoryName] || "#3b82f6"; // اللون الافتراضي
-  };
+
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -151,15 +117,20 @@ export default function SmartContentNewsCard({
               <span 
                 className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold border"
                 style={{
-                  backgroundColor: getCategoryColor() + "15",
-                  color: getCategoryColor(),
-                  borderColor: getCategoryColor() + "40",
+                  backgroundColor: 'color-mix(in oklab, var(--theme-primary) 14%, transparent)',
+                  color: 'var(--theme-primary)',
+                  borderColor: 'color-mix(in oklab, var(--theme-primary) 28%, transparent)',
                 }}
               >
                 {article.category_name}
               </span>
             )}
-            <span className="text-xs font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white inline-flex items-center gap-1 px-2.5 py-1 rounded-full">
+            <span 
+              className="text-xs font-bold text-white inline-flex items-center gap-1 px-2.5 py-1 rounded-full"
+              style={{
+                background: 'linear-gradient(to right, var(--theme-primary), var(--theme-secondary))',
+              }}
+            >
               <Sparkles className="w-3 h-3" />
               مخصص{article.score ? ` | ${Math.round(article.score * 100)}%` : ''}
             </span>
@@ -167,7 +138,7 @@ export default function SmartContentNewsCard({
 
           {/* Content */}
           <Link href={`/article/${article.slug}`}>
-            <h3 className="text-lg font-bold mb-2 line-clamp-2 group-hover:text-purple-600 dark:text-white dark:group-hover:text-purple-400 transition-colors">
+            <h3 className="text-lg font-bold mb-2 line-clamp-2 dark:text-white hover:text-[var(--theme-primary)] dark:hover:text-[var(--theme-primary)] transition-colors">
               {article.title}
             </h3>
           </Link>
@@ -272,22 +243,27 @@ export default function SmartContentNewsCard({
               <span 
                 className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold border"
                 style={{
-                  backgroundColor: getCategoryColor() + "15",
-                  color: getCategoryColor(),
-                  borderColor: getCategoryColor() + "40",
+                  backgroundColor: 'color-mix(in oklab, var(--theme-primary) 14%, transparent)',
+                  color: 'var(--theme-primary)',
+                  borderColor: 'color-mix(in oklab, var(--theme-primary) 28%, transparent)',
                 }}
               >
                 {article.category_name}
               </span>
             )}
-            <span className="text-xs font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white inline-flex items-center gap-1 px-2 py-0.5 rounded-full">
+            <span 
+              className="text-xs font-bold text-white inline-flex items-center gap-1 px-2 py-0.5 rounded-full"
+              style={{
+                background: 'linear-gradient(to right, var(--theme-primary), var(--theme-secondary))',
+              }}
+            >
               <Sparkles className="w-3 h-3" />
               مخصص{article.score ? ` | ${Math.round(article.score * 100)}%` : ''}
             </span>
           </div>
 
           <Link href={`/article/${article.slug}`}>
-            <h3 className="text-base font-bold mb-2 line-clamp-2 dark:text-white hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
+            <h3 className="text-base font-bold mb-2 line-clamp-2 dark:text-white hover:text-[var(--theme-primary)] dark:hover:text-[var(--theme-primary)] transition-colors">
               {article.title}
             </h3>
           </Link>
