@@ -17,14 +17,10 @@ export default function ConditionalHeader() {
     return null;
   }
 
-  // إخفاء الهيدر في لوحة التحكم والأدمن
-  const shouldHideHeader =
-    pathname?.startsWith("/dashboard") ||
-    pathname?.startsWith("/admin") ||
-    pathname?.startsWith("/new-ui") ||
-    false;
+  // إظهار الهيدر القديم فقط في صفحة old
+  const shouldShowOldHeader = pathname?.startsWith("/old");
 
-  if (shouldHideHeader) {
+  if (!shouldShowOldHeader) {
     return null;
   }
 

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { Sparkles, Award, Brain, Target, TrendingUp } from 'lucide-react';
+import { Sparkles, Award, Brain, Target } from 'lucide-react';
 
 const greetings = [
   "أهلاً وسهلاً",
@@ -102,13 +102,30 @@ export default function UserWelcomeBlock() {
             <span style={{ fontSize: '24px' }}>👋</span>
           </h2>
           
-          <p style={{
+          <div style={{
             fontSize: '14px',
             color: 'hsl(var(--muted))',
-            marginBottom: '12px'
+            marginBottom: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+            flexWrap: 'wrap'
           }}>
-            {formatDate()}
-          </p>
+            <span>{formatDate()}</span>
+            {user && (
+              <>
+                <span style={{ color: 'hsl(var(--line))' }}>•</span>
+                <span style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '6px'
+                }}>
+                  <Award style={{ width: '14px', height: '14px', color: '#FFA500' }} />
+                  لديك <strong style={{ color: 'hsl(var(--fg))', fontWeight: '600' }}>1,250</strong> نقطة ولاء
+                </span>
+              </>
+            )}
+          </div>
         </div>
 
         {/* الاقتباس التحفيزي */}
@@ -158,162 +175,24 @@ export default function UserWelcomeBlock() {
           </div>
         </div>
 
-        {/* نقاط الولاء ومعلومات AI */}
+        {/* معلومات AI المخصصة - أكثر إيجازاً */}
         <div style={{
-          marginTop: '20px',
-          padding: '16px',
-          background: 'linear-gradient(135deg, rgba(221, 214, 254, 0.1) 0%, rgba(221, 214, 254, 0.05) 100%)',
-          borderRadius: '12px',
-          border: '1px solid hsl(var(--line) / 0.5)'
+          marginTop: '16px',
+          display: 'flex',
+          gap: '12px',
+          fontSize: '13px',
+          color: 'hsl(var(--muted))',
+          flexWrap: 'wrap'
         }}>
-          {/* نقاط الولاء */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: '16px'
-          }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px'
-            }}>
-              <div style={{
-                width: '36px',
-                height: '36px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
-                borderRadius: '8px',
-                color: 'white'
-              }}>
-                <Award style={{ width: '20px', height: '20px' }} />
-              </div>
-              <div>
-                <p style={{
-                  fontSize: '14px',
-                  color: 'hsl(var(--muted))',
-                  margin: 0
-                }}>
-                  نقاط الولاء
-                </p>
-                <p style={{
-                  fontSize: '24px',
-                  fontWeight: '700',
-                  color: 'hsl(var(--fg))',
-                  margin: 0
-                }}>
-                  1,250 نقطة
-                </p>
-              </div>
-            </div>
-            
-            <div style={{
-              padding: '6px 12px',
-              background: 'linear-gradient(135deg, #E0E7FF 0%, #C7D2FE 100%)',
-              borderRadius: '6px',
-              fontSize: '12px',
-              fontWeight: '600',
-              color: '#4C1D95'
-            }}>
-              مستوى ذهبي
-            </div>
-          </div>
-
-          {/* معلومات AI من الملف الشخصي */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '12px'
-          }}>
-            {/* اهتمامات مخصصة */}
-            <div style={{
-              padding: '12px',
-              background: 'hsl(var(--bg) / 0.8)',
-              borderRadius: '10px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px'
-            }}>
-              <Brain style={{ width: '18px', height: '18px', color: '#7C3AED' }} />
-              <div style={{ flex: 1 }}>
-                <p style={{
-                  fontSize: '12px',
-                  color: 'hsl(var(--muted))',
-                  margin: 0
-                }}>
-                  اهتماماتك المحددة
-                </p>
-                <p style={{
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  color: 'hsl(var(--fg))',
-                  margin: '2px 0 0 0'
-                }}>
-                  التقنية، الاقتصاد، الرياضة
-                </p>
-              </div>
-            </div>
-
-            {/* دقة التوصيات */}
-            <div style={{
-              padding: '12px',
-              background: 'hsl(var(--bg) / 0.8)',
-              borderRadius: '10px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px'
-            }}>
-              <Target style={{ width: '18px', height: '18px', color: '#7C3AED' }} />
-              <div style={{ flex: 1 }}>
-                <p style={{
-                  fontSize: '12px',
-                  color: 'hsl(var(--muted))',
-                  margin: 0
-                }}>
-                  دقة التوصيات
-                </p>
-                <p style={{
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  color: 'hsl(var(--fg))',
-                  margin: '2px 0 0 0'
-                }}>
-                  92% توافق
-                </p>
-              </div>
-            </div>
-
-            {/* نشاط القراءة */}
-            <div style={{
-              padding: '12px',
-              background: 'hsl(var(--bg) / 0.8)',
-              borderRadius: '10px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px'
-            }}>
-              <TrendingUp style={{ width: '18px', height: '18px', color: '#7C3AED' }} />
-              <div style={{ flex: 1 }}>
-                <p style={{
-                  fontSize: '12px',
-                  color: 'hsl(var(--muted))',
-                  margin: 0
-                }}>
-                  نشاط القراءة
-                </p>
-                <p style={{
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  color: 'hsl(var(--fg))',
-                  margin: '2px 0 0 0'
-                }}>
-                  45 دقيقة يومياً
-                </p>
-              </div>
-            </div>
-          </div>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <Brain style={{ width: '14px', height: '14px', color: '#7C3AED' }} />
+            اهتماماتك: <strong style={{ color: 'hsl(var(--fg))' }}>التقنية، الاقتصاد، الرياضة</strong>
+          </span>
+          <span style={{ color: 'hsl(var(--line))' }}>•</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <Target style={{ width: '14px', height: '14px', color: '#7C3AED' }} />
+            دقة التوصيات: <strong style={{ color: 'hsl(var(--fg))' }}>92%</strong>
+          </span>
         </div>
 
 
