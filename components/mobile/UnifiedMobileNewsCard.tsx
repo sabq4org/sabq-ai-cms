@@ -191,11 +191,7 @@ export default function UnifiedMobileNewsCard({
               <div className="mb-3">
                 <span 
                   className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold border"
-                  style={{
-                    backgroundColor: 'color-mix(in oklab, var(--theme-primary) 14%, transparent)',
-                    color: 'var(--theme-primary)',
-                    borderColor: 'color-mix(in oklab, var(--theme-primary) 28%, transparent)',
-                  }}
+                  className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold category-pill"
                 >
                   {article.category_name || article.category?.name}
                 </span>
@@ -204,7 +200,7 @@ export default function UnifiedMobileNewsCard({
 
             {/* Title */}
             <Link href={`/article/${article.slug}`}>
-              <h3 className="text-lg font-bold mb-2 line-clamp-2 dark:text-white hover:text-[var(--theme-primary)] dark:hover:text-[var(--theme-primary)] transition-colors">
+              <h3 className="text-lg font-bold mb-2 line-clamp-2 dark:text-white theme-hover-text transition-colors">
                 {article.title}
               </h3>
             </Link>

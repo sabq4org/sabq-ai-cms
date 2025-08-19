@@ -13,8 +13,50 @@
 }
 
 /* تطبيق hover للبطاقات */
-article .p-4:hover {
-  background-color: color-mix(in oklab, var(--theme-primary) 5%, transparent);
+article .group:hover .p-4 {
+  background-color: rgba(var(--theme-primary-rgb), 0.05);
+}
+
+/* تعريف متغيرات RGB للثيمات */
+:root {
+  --theme-primary-rgb: 30, 64, 175; /* الأزرق الافتراضي */
+}
+
+.theme-emerald {
+  --theme-primary-rgb: 5, 150, 105;
+}
+
+.theme-purple {
+  --theme-primary-rgb: 124, 58, 237;
+}
+
+.theme-rose {
+  --theme-primary-rgb: 225, 29, 72;
+}
+
+.theme-orange {
+  --theme-primary-rgb: 234, 88, 12;
+}
+
+/* شارة المحتوى الذكي */
+.smart-badge {
+  background: linear-gradient(to right, var(--theme-primary), var(--theme-secondary, var(--theme-primary)));
+  transition: all 0.3s ease;
+}
+
+.smart-badge:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* تأثير hover للنصوص */
+.theme-hover-text:hover {
+  color: var(--theme-primary);
+}
+
+/* خلفية hover للبطاقات */
+.bg-theme-light {
+  background-color: rgba(var(--theme-primary-rgb), 0.05);
 }
 /* تم إزالة الإطار الملون السفلي
 .category-underline {

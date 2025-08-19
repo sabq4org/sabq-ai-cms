@@ -116,21 +116,12 @@ export default function SmartContentNewsCard({
             {article.category_name && (
               <span 
                 className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold border"
-                style={{
-                  backgroundColor: 'color-mix(in oklab, var(--theme-primary) 14%, transparent)',
-                  color: 'var(--theme-primary)',
-                  borderColor: 'color-mix(in oklab, var(--theme-primary) 28%, transparent)',
-                }}
+                className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold category-pill"
               >
                 {article.category_name}
               </span>
             )}
-            <span 
-              className="text-xs font-bold text-white inline-flex items-center gap-1 px-2.5 py-1 rounded-full"
-              style={{
-                background: 'linear-gradient(to right, var(--theme-primary), var(--theme-secondary))',
-              }}
-            >
+            <span className="smart-badge text-xs font-bold text-white inline-flex items-center gap-1 px-2.5 py-1 rounded-full">
               <Sparkles className="w-3 h-3" />
               مخصص{article.score ? ` | ${Math.round(article.score * 100)}%` : ''}
             </span>
@@ -138,7 +129,7 @@ export default function SmartContentNewsCard({
 
           {/* Content */}
           <Link href={`/article/${article.slug}`}>
-            <h3 className="text-lg font-bold mb-2 line-clamp-2 dark:text-white hover:text-[var(--theme-primary)] dark:hover:text-[var(--theme-primary)] transition-colors">
+            <h3 className="text-lg font-bold mb-2 line-clamp-2 dark:text-white theme-hover-text transition-colors">
               {article.title}
             </h3>
           </Link>
@@ -242,28 +233,19 @@ export default function SmartContentNewsCard({
             {article.category_name && (
               <span 
                 className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold border"
-                style={{
-                  backgroundColor: 'color-mix(in oklab, var(--theme-primary) 14%, transparent)',
-                  color: 'var(--theme-primary)',
-                  borderColor: 'color-mix(in oklab, var(--theme-primary) 28%, transparent)',
-                }}
+                className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold category-pill"
               >
                 {article.category_name}
               </span>
             )}
-            <span 
-              className="text-xs font-bold text-white inline-flex items-center gap-1 px-2 py-0.5 rounded-full"
-              style={{
-                background: 'linear-gradient(to right, var(--theme-primary), var(--theme-secondary))',
-              }}
-            >
+            <span className="smart-badge text-xs font-bold text-white inline-flex items-center gap-1 px-2 py-0.5 rounded-full">
               <Sparkles className="w-3 h-3" />
               مخصص{article.score ? ` | ${Math.round(article.score * 100)}%` : ''}
             </span>
           </div>
 
           <Link href={`/article/${article.slug}`}>
-            <h3 className="text-base font-bold mb-2 line-clamp-2 dark:text-white hover:text-[var(--theme-primary)] dark:hover:text-[var(--theme-primary)] transition-colors">
+            <h3 className="text-base font-bold mb-2 line-clamp-2 dark:text-white theme-hover-text transition-colors">
               {article.title}
             </h3>
           </Link>
