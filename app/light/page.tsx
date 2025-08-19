@@ -4,6 +4,7 @@ import LightLayout from "@/components/layouts/LightLayout";
 import NewsCard from "@/components/NewsCard";
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
+import Link from "next/link";
 import "@/styles/light-layout.css";
 
 // بيانات تجريبية للعرض
@@ -97,6 +98,41 @@ export default function LightPage() {
           <p className="text-gray-700 dark:text-gray-300">
             يتغير لون الواجهة بناءً على تفضيلاتك. جرب تغيير اللون من إعدادات الموقع!
           </p>
+        </div>
+
+        {/* Login/Register CTA Block */}
+        <div 
+          className="mb-8 p-4 rounded-xl text-center border"
+          style={{
+            backgroundColor: 'var(--theme-primary, #3B82F6)05',
+            borderColor: 'var(--theme-primary, #3B82F6)20',
+          }}
+        >
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+            للحصول على محتوى مخصص لك سجل دخولك أو أنشئ حساباً جديداً
+          </p>
+          <div className="flex items-center justify-center gap-3">
+            <Link
+              href="/login"
+              className="px-4 py-2 rounded-lg text-sm font-medium transition-all hover:scale-105"
+              style={{
+                backgroundColor: 'var(--theme-primary, #3B82F6)',
+                color: 'white',
+              }}
+            >
+              تسجيل دخول
+            </Link>
+            <Link
+              href="/register"
+              className="px-4 py-2 rounded-lg text-sm font-medium transition-all hover:scale-105 border"
+              style={{
+                borderColor: 'var(--theme-primary, #3B82F6)',
+                color: 'var(--theme-primary, #3B82F6)',
+              }}
+            >
+              إنشاء حساب
+            </Link>
+          </div>
         </div>
 
         {/* News Grid */}
