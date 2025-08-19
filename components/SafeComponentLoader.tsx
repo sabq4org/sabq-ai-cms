@@ -50,14 +50,11 @@ export function SafeComponentLoader({
           throw new Error(`Component ${name} does not have a valid export`);
         }
 
-        // التحقق من نوع المكون
+        // التحقق من نوع المكون - يجب أن يكون function فقط
         const ComponentType = module.default;
-        if (
-          typeof ComponentType !== "function" &&
-          typeof ComponentType !== "object"
-        ) {
+        if (typeof ComponentType !== "function") {
           throw new Error(
-            `Component ${name} default export is not a valid React component`
+            `Component ${name} default export is not a valid React component (got ${typeof ComponentType})`
           );
         }
 

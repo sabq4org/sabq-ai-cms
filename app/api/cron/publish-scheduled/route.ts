@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import prisma from '@/lib/prisma';
+import { withRetry } from '@/lib/prisma-helper';
 
 /**
  * Cron job لنشر الأخبار المجدولة
@@ -22,24 +23,26 @@ export async function GET(request: NextRequest) {
     console.log(`🕐 [${now.toISOString()}] بدء فحص الأخبار المجدولة...`);
 
     // البحث عن الأخبار المجدولة التي حان وقت نشرها
-    const scheduledArticles = await prisma.articles.findMany({
-      where: {
-        status: 'scheduled',
-        scheduled_for: {
-          lte: now // أقل من أو يساوي الوقت الحالي
+    const scheduledArticles = await withRetry(async () => 
+      prisma.articles.findMany({
+        where: {
+          status: 'scheduled',
+          scheduled_for: {
+            lte: now // أقل من أو يساوي الوقت الحالي
+          }
+        },
+        select: {
+          id: true,
+          title: true,
+          scheduled_for: true,
+          author_id: true,
+          category_id: true
+        },
+        orderBy: {
+          scheduled_for: 'asc'
         }
-      },
-      select: {
-        id: true,
-        title: true,
-        scheduled_for: true,
-        author_id: true,
-        category_id: true
-      },
-      orderBy: {
-        scheduled_for: 'asc'
-      }
-    });
+      })
+    );
 
     if (scheduledArticles.length === 0) {
       console.log('✅ لا توجد أخبار مجدولة للنشر في الوقت الحالي');
@@ -63,34 +66,36 @@ export async function GET(request: NextRequest) {
         console.log(`📝 معالجة: "${article.title}" (مجدول لـ ${article.scheduled_for?.toISOString()})`);
 
         // تحديث حالة الخبر إلى منشور
-        const updatedArticle = await prisma.articles.update({
-          where: { id: article.id },
-          data: {
-            status: 'published',
-            published_at: now,
-            updated_at: now,
-            // إزالة scheduled_for أو الاحتفاظ بها للتاريخ
-            // scheduled_for: null
-          },
-          select: {
-            id: true,
-            title: true,
-            slug: true,
-            published_at: true,
-            author: {
-              select: {
-                name: true,
-                email: true
-              }
+        const updatedArticle = await withRetry(async () => 
+          prisma.articles.update({
+            where: { id: article.id },
+            data: {
+              status: 'published',
+              published_at: now,
+              updated_at: now,
+              // إزالة scheduled_for أو الاحتفاظ بها للتاريخ
+              // scheduled_for: null
             },
-            categories: {
-              select: {
-                name: true,
-                slug: true
+            select: {
+              id: true,
+              title: true,
+              slug: true,
+              published_at: true,
+              author: {
+                select: {
+                  name: true,
+                  email: true
+                }
+              },
+              categories: {
+                select: {
+                  name: true,
+                  slug: true
+                }
               }
             }
-          }
-        });
+          })
+        );
 
         publishedCount++;
         

@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { withRetry } from "@/lib/prisma-helper";
 import { ensureUniqueSlug, resolveContentType } from "@/lib/slug";
 import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
@@ -122,7 +123,8 @@ export async function GET(request: NextRequest) {
     }
 
     // جلب المقالات أولاً (بدون content_type لتوافق قاعدة البيانات الحالية)
-    const articles = await prisma.articles.findMany({
+    const articles = await withRetry(async () => 
+      prisma.articles.findMany({
       where,
       skip,
       take: limit,
@@ -164,8 +166,8 @@ export async function GET(request: NextRequest) {
         author: {
           select: { id: true, name: true, email: true, avatar: true },
         },
-      },
-    });
+      })
+    );
 
     // حساب العدد بنفس شروط where بالضبط
     let totalCount = 0;
