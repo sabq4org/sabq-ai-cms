@@ -96,7 +96,7 @@ export default function SmartContentNewsCard({
         
         {/* Image First - Unified Design */}
         {article.featured_image && !imageError && (
-          <Link href={`/article/${article.slug}`}>
+          <Link href={`/news/${article.slug}`}>
             <div className="relative h-48 rounded-t-2xl overflow-hidden">
               <Image
                 src={article.featured_image}
@@ -125,7 +125,7 @@ export default function SmartContentNewsCard({
           </div>
 
           {/* Content */}
-          <Link href={`/article/${article.slug}`}>
+          <Link href={`/news/${article.slug}`}>
             <h3 className="text-lg font-bold mb-2 line-clamp-2 dark:text-white theme-hover-text transition-colors">
               {article.title}
             </h3>
@@ -203,7 +203,7 @@ export default function SmartContentNewsCard({
       <div className="relative">
         {/* Image First - Unified Design */}
         {article.featured_image && !imageError && (
-          <Link href={`/article/${article.slug}`}>
+          <Link href={`/news/${article.slug}`}>
             <div className="relative h-48 w-full">
               <Image
                 src={article.featured_image}
@@ -238,7 +238,7 @@ export default function SmartContentNewsCard({
             </span>
           </div>
 
-          <Link href={`/article/${article.slug}`}>
+          <Link href={`/news/${article.slug}`}>
             <h3 className="text-base font-bold mb-2 line-clamp-2 dark:text-white theme-hover-text transition-colors">
               {article.title}
             </h3>

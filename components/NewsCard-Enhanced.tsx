@@ -98,8 +98,8 @@ export default function NewsCard({ news, viewMode = "grid" }: NewsCardProps) {
 
   // Article link
   const getArticleLink = (news: any) => {
-    if (news.slug) return `/article/${news.slug}`;
-    if (news.id) return `/article/${news.id}`;
+    if (news.slug) return `/news/${news.slug}`;
+    if (news.id) return `/news/${news.id}`;
     return "#";
   };
 

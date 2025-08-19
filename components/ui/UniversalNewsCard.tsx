@@ -78,8 +78,8 @@ export default function UniversalNewsCard({
 
   // رابط المقال
   const getArticleLink = (article: any) => {
-    if (article.slug) return `/article/${article.slug}`;
-    if (article.id) return `/article/${article.id}`;
+    if (article.slug) return `/news/${article.slug}`;
+    if (article.id) return `/news/${article.id}`;
     return "#";
   };
 

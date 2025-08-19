@@ -265,7 +265,7 @@ export function getSmartArticleLink(article: any): string {
   }
 
   // جميع المقالات الأخرى تذهب للتصميم العادي (إزالة smart-page مؤقتاً لحل المشاكل)
-  return `/article/${identifier}`;
+  return `/news/${identifier}`;
 }
 
 // Force rebuild - 2025-01-04
