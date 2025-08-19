@@ -1,0 +1,152 @@
+/* Unified Mobile News Card Styles */
+.unified-mobile-card {
+  @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow;
+  margin-bottom: 1rem;
+}
+
+.unified-mobile-card.featured {
+  @apply shadow-md;
+}
+
+.unified-mobile-card-compact {
+  @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow;
+  margin-bottom: 0.5rem;
+}
+
+.unified-mobile-card-smart {
+  @apply bg-white dark:bg-gray-800;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Smart Content Mobile Card Styles */
+.smart-content-mobile-card {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.smart-content-mobile-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+  .mobile-news-container {
+    padding: 0 0.5rem;
+  }
+
+  .unified-mobile-card,
+  .unified-mobile-card-compact,
+  .unified-mobile-card-smart,
+  .smart-content-mobile-card {
+    border-radius: 1rem;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  /* Full-width cards on mobile */
+  .mobile-news-container > * {
+    width: 100%;
+  }
+
+  /* Optimize touch targets */
+  .unified-mobile-card button,
+  .smart-content-mobile-card button {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Smooth scrolling for category filters */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Animation classes */
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.smart-content-mobile-card {
+  animation: slideInLeft 0.5s ease-out;
+}
+
+/* Dark mode adjustments */
+.dark .unified-mobile-card,
+.dark .unified-mobile-card-compact,
+.dark .unified-mobile-card-smart,
+.dark .smart-content-mobile-card {
+  @apply bg-gray-800 text-gray-100;
+}
+
+.dark .unified-mobile-card:hover,
+.dark .smart-content-mobile-card:hover {
+  @apply shadow-lg shadow-gray-900/50;
+}
+
+/* Gradient overlays for smart cards */
+.smart-content-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.1) 0%,
+    rgba(236, 72, 153, 0.1) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.smart-content-card:hover::before {
+  opacity: 1;
+}
+
+/* Loading states */
+.card-skeleton {
+  @apply animate-pulse;
+}
+
+.card-skeleton .skeleton-image {
+  @apply bg-gray-200 dark:bg-gray-700 rounded-lg;
+}
+
+.card-skeleton .skeleton-text {
+  @apply bg-gray-200 dark:bg-gray-700 rounded;
+  height: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.card-skeleton .skeleton-text.title {
+  height: 1.5rem;
+  width: 80%;
+}
+
+.card-skeleton .skeleton-text.excerpt {
+  width: 100%;
+}
+
+.card-skeleton .skeleton-text.meta {
+  width: 40%;
+  height: 0.75rem;
+}

@@ -1,10 +1,9 @@
 "use client";
 
 import ArticleCard from "@/components/ArticleCard";
-import Footer from "@/components/Footer";
-// import SmartContentNewsCard from "@/components/mobile/SmartContentNewsCard";
-// import UnifiedMobileNewsCard from "@/components/mobile/UnifiedMobileNewsCard";
-// import "@/components/mobile/mobile-news.css";
+import SmartContentNewsCard from "@/components/mobile/SmartContentNewsCard";
+import UnifiedMobileNewsCard from "@/components/mobile/UnifiedMobileNewsCard";
+import "@/components/mobile/mobile-news.css";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import type { RecommendedArticle } from "@/lib/ai-recommendations";
 import { generatePersonalizedRecommendations } from "@/lib/ai-recommendations";
@@ -536,17 +535,14 @@ export default function NewsPage() {
 
   return (
     <>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen">
         {/* Hero Section */}
-        <section className="relative py-16 bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full blur-3xl bg-blue-200/30 dark:bg-blue-900/20" />
-            <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full blur-3xl bg-purple-200/30 dark:bg-purple-900/20" />
-          </div>
+        <section className="relative py-16">
+
 
           <div className="relative max-w-7xl mx-auto px-4 md:px-6">
             <div className="text-center">
-              <div className="inline-flex items-center justify-center w-20 h-20 mb-6 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-2xl">
+              <div className="inline-flex items-center justify-center w-20 h-20 mb-6 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600">
                 <Newspaper className="w-10 h-10 text-white" />
               </div>
 
@@ -560,7 +556,7 @@ export default function NewsPage() {
 
               {/* إحصائيات الأخبار */}
               {stats && !statsLoading && (
-                <div className="mt-6 inline-flex flex-wrap justify-center items-center gap-4 md:gap-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl px-4 md:px-6 py-3 shadow-lg">
+                <div className="mt-6 inline-flex flex-wrap justify-center items-center gap-4 md:gap-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl px-4 md:px-6 py-3">
                   <div className="text-center px-2">
                     <div className="flex items-center gap-2">
                       <Newspaper className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -631,14 +627,14 @@ export default function NewsPage() {
         </section>
 
         {/* Categories Filter */}
-        <div className="sticky top-0 z-40 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
+        <div className="sticky top-0 z-40 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
           <div className="max-w-7xl mx-auto px-4 md:px-6">
             <div className="flex items-center gap-2 py-4 overflow-x-auto scrollbar-hide">
               <button
                 onClick={() => setSelectedCategory(null)}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap ${
                   selectedCategory === null
-                    ? "bg-blue-600 text-white shadow-lg"
+                    ? "bg-blue-600 text-white"
                     : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                 }`}
               >
@@ -650,7 +646,7 @@ export default function NewsPage() {
                   onClick={() => setSelectedCategory(category.id)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap ${
                     selectedCategory === category.id
-                      ? "text-white shadow-lg"
+                      ? "text-white"
                       : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                   }`}
                   style={{
@@ -807,7 +803,6 @@ export default function NewsPage() {
         </div>
       </div>
 
-      <Footer />
     </>
   );
 }

@@ -170,7 +170,7 @@ export default function ArticleCard({
       <Link href={getArticleLink(article)} className="block">
         <article
           className={cn(
-            "relative rounded-3xl shadow-lg p-6 flex gap-6",
+            "relative rounded-3xl p-6 flex gap-6",
             isBreaking
               ? "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800 border"
               : "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 border"
@@ -248,7 +248,7 @@ export default function ArticleCard({
     <Link href={getArticleLink(article)} className="group block h-full">
       <article
         className={cn(
-          "relative rounded-2xl shadow-md overflow-hidden h-full flex flex-col",
+          "relative rounded-2xl overflow-hidden h-full flex flex-col",
           isBreaking
             ? "bg-red-50 dark:bg-red-950/20 ring-2 ring-red-500 ring-opacity-50 border-red-200 dark:border-red-800 border"
             : "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 border"
@@ -272,7 +272,7 @@ export default function ArticleCard({
             <div className="absolute top-3 right-3">
               <Badge
                 variant="destructive"
-                className="text-xs font-bold animate-pulse shadow-lg"
+                className="text-xs font-bold animate-pulse"
               >
                 <Zap className="w-3 h-3 ml-1" />
                 عاجل
