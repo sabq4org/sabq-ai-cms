@@ -64,27 +64,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const didInitRef = useRef(false);
 
   const fetchUserFromAPI = async (): Promise<User | null> => {
+    const token = Cookies.get("auth-token");
+    const headers: Record<string, string> = {};
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    // المحاولة الأولى: /api/auth/me
     try {
-      const token = Cookies.get("auth-token");
-      const headers: Record<string, string> = {};
-      if (token) headers["Authorization"] = `Bearer ${token}`;
+      const resp = await fetch("/api/auth/me", { headers, credentials: "include" });
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data.success && data.user) return data.user;
+      }
+    } catch {}
 
-      const response = await fetch("/api/auth/me", {
-        headers,
-        credentials: "include",
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && data.user) {
-          return data.user;
+    // المحاولة الثانية: /api/user/me
+    try {
+      const resp2 = await fetch("/api/user/me", { headers, credentials: "include" });
+      if (resp2.ok) {
+        const data2 = await resp2.json();
+        if (data2 && (data2.id || (data2.success && data2.id))) {
+          return {
+            id: data2.id,
+            name: data2.name || "مستخدم",
+            email: data2.email || "",
+            role: data2.role || "user",
+            is_admin: data2.isAdmin || data2.is_admin || false,
+            isVerified: data2.isVerified || data2.is_verified || false,
+          } as User;
         }
       }
-      return null;
-    } catch (error) {
-      console.error("خطأ في جلب بيانات المستخدم من API:", error);
-      return null;
-    }
+    } catch {}
+
+    // المحاولة الثالثة: Cookie 'user'
+    try {
+      const cookie = Cookies.get("user");
+      if (cookie) {
+        const decoded = JSON.parse(decodeURIComponent(cookie));
+        if (decoded && decoded.id) {
+          return {
+            id: decoded.id,
+            name: decoded.name || "مستخدم",
+            email: decoded.email || "",
+            role: decoded.role || "user",
+            is_admin: !!decoded.is_admin,
+            isVerified: !!decoded.is_verified,
+          } as User;
+        }
+      }
+    } catch {}
+
+    return null;
   };
 
   const loadUserFromCookie = async () => {

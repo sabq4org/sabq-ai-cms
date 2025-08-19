@@ -87,10 +87,15 @@ export async function GET(req: NextRequest) {
 
     // إحصائيات إضافية
     // حساب الإحصائيات يدوياً بسبب تغيرات Prisma/pg حول groupBy في بعض النُسَخ
-    const unreadByType = await prisma.smartNotifications.findMany({
-      where: { user_id: user.id, read_at: null },
-      select: { type: true }
-    });
+    let unreadByType: any[] = [];
+    try {
+      unreadByType = await prisma.smartNotifications.findMany({
+        where: { user_id: user.id, read_at: null },
+        select: { type: true }
+      });
+    } catch {
+      unreadByType = [];
+    }
     const stats = unreadByType.reduce((acc: Record<string, number>, row: any) => {
       const k = row.type as string;
       acc[k] = (acc[k] || 0) + 1;
