@@ -1,0 +1,115 @@
+/* أنماط بطاقات مقترب - متوافقة مع نظام الثيمات */
+
+/* إزالة الخطوط الملونة من بطاقات مقترب */
+.muqtarab-card-container div[class*="absolute"][style*="backgroundColor"] {
+  display: none !important;
+}
+
+.muqtarab-card-container div[class*="absolute"][style*="background"] {
+  display: none !important;
+}
+
+/* تطبيق نمط بطاقات الأخبار على بطاقات مقترب */
+.muqtarab-card-container .group {
+  border: 1px solid #e5e7eb !important;
+  border-radius: 1rem !important;
+  background: white !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+.dark .muqtarab-card-container .group {
+  border-color: #374151 !important;
+  background: #1f2937 !important;
+}
+
+.muqtarab-card-container .group:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+  border-color: #d1d5db !important;
+}
+
+.dark .muqtarab-card-container .group:hover {
+  border-color: #4b5563 !important;
+}
+
+/* تطبيق ألوان الثيم على الليبلات */
+.muqtarab-card-container div[style*="backgroundColor"][class*="rounded-full"] {
+  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.1) !important;
+  color: var(--theme-primary) !important;
+  border: 1px solid rgba(var(--theme-primary-rgb, 59 130 246), 0.2) !important;
+}
+
+/* إعادة تنسيق حاوية الإحصائيات */
+.muqtarab-card-container .border-t {
+  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.05);
+  padding: 8px;
+  border-radius: 8px;
+  margin-top: 8px;
+}
+
+/* أيقونات بلون الثيم - فقط للأيقونات الصغيرة */
+.muqtarab-card-container .text-xs svg,
+.muqtarab-card-container .text-sm svg {
+  color: var(--theme-primary);
+}
+
+/* تحسين hover للعناوين */
+.muqtarab-card-container h3:hover {
+  color: var(--theme-primary) !important;
+}
+
+/* إزالة الخطوط الملونة من جميع المتغيرات */
+.muqtarab-card-container .absolute.h-1,
+.muqtarab-card-container .absolute.h-0\.5,
+.muqtarab-card-container .absolute.w-0\.5,
+.muqtarab-card-container .absolute.h-1\.5,
+.muqtarab-card-container .absolute[class*="h-"][class*="transition"] {
+  display: none !important;
+}
+
+/* تنسيق موحد للهيدر */
+.muqtarab-card-container > div > div:first-child {
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.dark .muqtarab-card-container > div > div:first-child {
+  border-color: #374151;
+}
+
+/* تطبيق عرض موحد مع البلوكات الأخرى */
+.muqtarab-block-wrapper {
+  width: 100%;
+}
+
+/* تحسين التباعد */
+.muqtarab-card-container .grid {
+  gap: 1.5rem;
+}
+
+/* إضافة لون الثيم للعناوين عند hover */
+.muqtarab-card-container a:hover h3 {
+  color: var(--theme-primary) !important;
+  transition: color 0.3s ease;
+}
+
+/* تطبيق أنماط category-pill على ليبلات الزوايا */
+.muqtarab-card-container div[class*="rounded-full"][class*="font-bold"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  border-radius: 9999px !important;
+  padding: 0.25rem 0.625rem !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.1) !important;
+  color: var(--theme-primary) !important;
+  border: 1px solid rgba(var(--theme-primary-rgb, 59 130 246), 0.2) !important;
+  transition: all 0.3s ease !important;
+  box-shadow: none !important;
+}
+
+.muqtarab-card-container div[class*="rounded-full"][class*="font-bold"]:hover {
+  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.2) !important;
+  border-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.3) !important;
+}

@@ -40,13 +40,7 @@ export default function Page() {
       <FeaturedNewsBlock />
       
       {/* بلوك مقترب - أسفل بطاقات الأخبار */}
-      <div style={{ 
-        marginTop: '48px', 
-        marginBottom: '32px',
-        maxWidth: '1400px',
-        margin: '48px auto 32px',
-        padding: '0 16px'
-      }}>
+      <div className="muqtarab-block-wrapper muqtarab-card-container mt-12">
         <MuqtarabBlock
           limit={8}
           showPagination={false}

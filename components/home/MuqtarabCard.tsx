@@ -45,7 +45,7 @@ export default function MuqtarabCard({
   variant = "medium",
   className,
 }: MuqtarabCardProps) {
-  const themeColor = article.angle?.themeColor || "#6366f1";
+  const themeColor = article.angle?.themeColor || "var(--theme-primary, #6366f1)";
   const articleLink = article.link || `/muqtarab/articles/${article.slug}`;
 
   const isValidImageSrc = (src?: string) => {
