@@ -11,9 +11,9 @@ import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { ArticleData } from "@/lib/article-api";
 import {
-  handlePrismaError,
-  isPrismaConnectionError,
-} from "@/lib/prisma-error-handler";
+  isConnectionError,
+  logClientError,
+} from "@/lib/client-error-handler";
 import "@/styles/mobile-article-layout.css";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -198,7 +198,7 @@ export default function ArticleClientComponent({
                 "⚠️ فشل في جلب المقال من مسار الطوارئ:",
                 emergencyError
               );
-              handlePrismaError(emergencyError, "طوارئ المقال");
+              logClientError(emergencyError, "طوارئ المقال");
               // يتابع للمحاولة العادية في حالة فشل مسار الطوارئ
             }
           }
@@ -233,13 +233,13 @@ export default function ArticleClientComponent({
               if (
                 errorData?.error &&
                 errorData?.details &&
-                isPrismaConnectionError({ message: errorData.details })
+                isConnectionError({ message: errorData.details })
               ) {
                 console.error(
                   "خطأ في اتصال قاعدة البيانات:",
                   errorData.details
                 );
-                handlePrismaError({ message: errorData.details }, "جلب المقال");
+                logClientError({ message: errorData.details }, "جلب المقال");
                 setDbConnectionError(errorData.details);
 
                 // المحاولة بالوضع الطارئ في حالة عدم المحاولة سابقًا
@@ -264,9 +264,9 @@ export default function ArticleClientComponent({
         } catch (error: any) {
           if (error.name === "AbortError") {
             console.warn("تحذير: انتهت مهلة تحميل المقال");
-          } else if (isPrismaConnectionError(error)) {
+          } else if (isConnectionError(error)) {
             console.error("خطأ في اتصال قاعدة البيانات:", error.message);
-            handlePrismaError(error, "جلب المقال في catch");
+            logClientError(error, "جلب المقال في catch");
             setDbConnectionError(error.message);
           } else {
             console.warn(

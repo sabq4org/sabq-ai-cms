@@ -1,5 +1,10 @@
 import { PrismaClient, LogLevel } from "@prisma/client";
 
+// التأكد من أننا في بيئة Node.js وليس المتصفح
+if (typeof window !== 'undefined') {
+  throw new Error('PrismaClient cannot be used in browser environment');
+}
+
 // استخدام global variable بطريقة أفضل
 declare global {
   var __prisma: PrismaClient | undefined;
