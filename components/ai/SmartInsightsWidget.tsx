@@ -264,7 +264,7 @@ export default function SmartInsightsWidget() {
 
       {/* المؤشر الحالي - flex-1 ليملأ المساحة */}
       <div className="flex-1 flex flex-col">
-        <Link href={`/article/${currentInsight.slug}`} className="block group flex-1">
+        <Link href={`/news/${currentInsight.slug}`} className="block group flex-1">
           <div className="space-y-3 h-full flex flex-col">
             {/* العنوان مع المؤشر */}
             <div className="flex items-start gap-3">

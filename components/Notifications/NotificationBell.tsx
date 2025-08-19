@@ -60,8 +60,8 @@ export default function NotificationBell() {
     // استخدام الرابط المباشر إذا كان موجود
     if (data.link) return data.link;
     // Fallback للطرق القديمة
-    if (data.articleId) return `/article/${data.articleId}`;
-    if (data.entityType === 'article' && data.entityId) return `/article/${data.entityId}`;
+    if (data.articleId) return `/news/${data.articleId}`;
+    if (data.entityType === 'article' && data.entityId) return `/news/${data.entityId}`;
     return "/profile/notifications";
   };
 

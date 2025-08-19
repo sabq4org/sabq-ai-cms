@@ -115,7 +115,7 @@ export default function UnifiedMobileNewsCard({
   if (variant === "compact") {
     return (
       <div className={`unified-mobile-card-compact ${darkMode ? "dark" : ""}`}>
-        <Link href={`/article/${article.slug}`} className="flex gap-3 p-3">
+        <Link href={`/news/${article.slug}`} className="flex gap-3 p-3">
           <div className="flex-1">
             <h3 className="text-sm font-semibold line-clamp-2 mb-1 dark:text-white">
               {article.title}
@@ -170,7 +170,7 @@ export default function UnifiedMobileNewsCard({
 
           {/* Image */}
           {article.featured_image && !imageError && (
-            <Link href={`/article/${article.slug}`}>
+            <Link href={`/news/${article.slug}`}>
               <div className="relative h-48 w-full">
                 <Image
                   src={article.featured_image}
@@ -196,7 +196,7 @@ export default function UnifiedMobileNewsCard({
             )}
 
             {/* Title */}
-            <Link href={`/article/${article.slug}`}>
+            <Link href={`/news/${article.slug}`}>
               <h3 className="text-lg font-bold mb-2 line-clamp-2 dark:text-white theme-hover-text transition-colors">
                 {article.title}
               </h3>
@@ -292,7 +292,7 @@ export default function UnifiedMobileNewsCard({
           </div>
         )}
 
-        <Link href={`/article/${article.slug}`} className="block">
+        <Link href={`/news/${article.slug}`} className="block">
           <div className={`flex ${variant === "featured" ? "flex-col" : "gap-3"} p-4`}>
             {/* Image */}
             {article.featured_image && !imageError && (

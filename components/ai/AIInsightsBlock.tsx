@@ -214,7 +214,7 @@ export default function AIInsightsBlock() {
                           {ind.label}
                         </span>
                         <Link
-                          href={`/article/${item.slug}`}
+                          href={`/news/${item.slug}`}
                           className="truncate text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400"
                         >
                           {item.title}

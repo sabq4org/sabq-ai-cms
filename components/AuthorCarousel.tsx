@@ -349,7 +349,7 @@ export default function AuthorCarousel({ authors, onAuthorSelect }: AuthorCarous
                     آخر مقال
                   </h4>
                   <Link 
-                    href={`/article/${selectedAuthor.latest_article.id}`}
+                    href={`/news/${selectedAuthor.latest_article.id}`}
                     className="text-blue-600 dark:text-blue-400 hover:underline text-sm line-clamp-2"
                   >
                     {selectedAuthor.latest_article.title}

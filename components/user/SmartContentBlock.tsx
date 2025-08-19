@@ -200,7 +200,7 @@ export default function SmartContentBlock({
             {articles.slice(0, 20).map((article) => (
               <Link
                 key={article.id}
-                href={`/articles/${article.slug}`}
+                href={`/news/${article.slug}`}
                 style={{ textDecoration: 'none' }}
               >
                 <div style={{

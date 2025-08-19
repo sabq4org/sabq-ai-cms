@@ -51,7 +51,7 @@ export function RealDataArticleCard({ article }: RealDataArticleCardProps) {
       )}
       
       <div className="p-6">
-        <Link href={`/article/${article.id}`}>
+        <Link href={`/news/${article.id}`}>
           <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2 hover:text-blue-600 transition-colors">
             {article.title}
           </h3>

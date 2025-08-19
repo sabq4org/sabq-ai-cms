@@ -50,7 +50,7 @@ export default function SmartContentNewsCard({
       try {
         await navigator.share({
           title: article.title,
-          url: window.location.origin + `/article/${article.slug}`,
+          url: window.location.origin + `/news/${article.slug}`,
         });
       } catch (error) {
         console.error("Error sharing:", error);

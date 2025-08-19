@@ -109,7 +109,7 @@ const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({ article }) => {
   };
 
   const getArticleLink = (article: FeaturedArticle) => {
-    return `/article/${article.id}`;
+    return `/news/${article.id}`;
   };
 
   // معالجة تحميل الصورة

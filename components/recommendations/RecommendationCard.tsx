@@ -84,7 +84,7 @@ export function RecommendationCard({
       if (navigator.share) {
         await navigator.share({
           title: recommendation.title,
-          url: `/article/${recommendation.article_id}`
+          url: `/news/${recommendation.article_id}`
         });
       } else {
         // نسخ الرابط للحافظة
@@ -188,7 +188,7 @@ export function RecommendationCard({
         className
       )}
     >
-      <Link href={`/article/${recommendation.article_id}`} onClick={handleView}>
+      <Link href={`/news/${recommendation.article_id}`} onClick={handleView}>
         <div className="space-y-3">
           {/* الرأس مع الصورة */}
           {recommendation.thumbnail && variant !== 'compact' && (

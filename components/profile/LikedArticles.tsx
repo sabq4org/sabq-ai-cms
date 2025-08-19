@@ -164,7 +164,7 @@ export default function LikedArticles({ userId, darkMode = false }: LikedArticle
               <div className="flex items-start gap-3">
                 <div className="flex-1 min-w-0">
                   <Link
-                    href={`/article/${article.id}`}
+                    href={`/news/${article.id}`}
                     className={`font-medium hover:text-blue-600 dark:hover:text-blue-400 line-clamp-2 ${
                       darkMode ? 'text-white' : 'text-gray-800'
                     }`}

@@ -730,7 +730,7 @@ export const ArticleList: React.FC<ArticleListProps> = ({
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => window.open(`/article/${article.id}`, '_blank')}
+                                    onClick={() => window.open(`/news/${article.id}`, '_blank')}
                                     className={`hover:bg-green-100 dark:hover:bg-green-900/20`}
                                   >
                                     <ExternalLink className="h-4 w-4 text-green-600" />

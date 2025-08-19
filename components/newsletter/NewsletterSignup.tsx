@@ -354,7 +354,7 @@ export default function NewsletterSignup({
                 {latestArticles.map((article) => (
                   <Link
                     key={article.id}
-                    href={`/article/${article.id}`}
+                    href={`/news/${article.id}`}
                     className="block group"
                   >
                     <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">

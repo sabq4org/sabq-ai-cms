@@ -101,7 +101,7 @@ export function RecommendationSidebar({
       transition={{ delay: index * 0.1 }}
     >
       <Link 
-        href={`/article/${recommendation.article_id}`}
+        href={`/news/${recommendation.article_id}`}
         onClick={() => handleRecommendationClick(recommendation)}
         className="block group"
       >

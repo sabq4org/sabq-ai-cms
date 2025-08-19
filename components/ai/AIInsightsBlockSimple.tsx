@@ -161,7 +161,7 @@ export default function AIInsightsBlockSimple() {
         {insights.slice(0, 3).map((insight) => (
           <div key={insight.id} className="relative">
             <Link 
-              href={`/article/${insight.slug}`} 
+              href={`/news/${insight.slug}`} 
               className="block group"
               onMouseEnter={() => setHoveredId(insight.id)}
               onMouseLeave={() => setHoveredId(null)}

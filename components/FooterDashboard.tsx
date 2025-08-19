@@ -230,7 +230,7 @@ export default function FooterDashboard() {
               {insights.todayRecommendation.title}
             </p>
             <Link 
-              href={`/article/${insights.todayRecommendation.id}`}
+              href={`/news/${insights.todayRecommendation.id}`}
               className="inline-flex items-center gap-1 text-sm text-blue-400 hover:text-blue-300"
             >
               <span>اقرأ الآن</span>
@@ -331,7 +331,7 @@ export default function FooterDashboard() {
                 📌 {insights.todayRecommendation.reason}
               </p>
               <Link 
-                href={`/article/${insights.todayRecommendation.id}`}
+                href={`/news/${insights.todayRecommendation.id}`}
                 className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
               >
                 <span>اقرأ الآن</span>

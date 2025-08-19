@@ -84,7 +84,7 @@ export function FeaturedNewsBlock({
           <div className="lg:col-span-6">
             <div className="flex flex-col h-full">
               <div className="relative overflow-hidden rounded-lg mb-3" style={{ minHeight: isDesktop ? '300px' : '180px' }}>
-                <Link href={`/article/${firstArticle.slug}`}>
+                <Link href={`/news/${firstArticle.slug}`}>
                   <OptimizedImage
                     src={getThumbnailUrl(firstArticle.imageUrl)}
                     alt={firstArticle.title || "صورة الخبر"}
@@ -101,7 +101,7 @@ export function FeaturedNewsBlock({
                 </Link>
               </div>
               <div className="flex-grow">
-                <Link href={`/article/${firstArticle.slug}`}>
+                <Link href={`/news/${firstArticle.slug}`}>
                   <h3 className="text-xl lg:text-2xl font-bold hover:text-primary-900 line-clamp-3 mb-2">
                     {firstArticle.title}
                   </h3>
@@ -131,7 +131,7 @@ export function FeaturedNewsBlock({
               className="flex flex-col lg:flex-row gap-3 lg:items-center border-b border-gray-100 pb-4 last:border-0 last:pb-0"
             >
               <div className="relative lg:w-1/3 overflow-hidden rounded-lg" style={{ minHeight: '120px' }}>
-                <Link href={`/article/${article.slug}`}>
+                <Link href={`/news/${article.slug}`}>
                   <OptimizedImage
                     src={getThumbnailUrl(article.imageUrl)}
                     alt={article.title || "صورة الخبر"}
@@ -147,7 +147,7 @@ export function FeaturedNewsBlock({
                 </Link>
               </div>
               <div className="lg:w-2/3">
-                <Link href={`/article/${article.slug}`}>
+                <Link href={`/news/${article.slug}`}>
                   <h3 className="text-lg font-bold hover:text-primary-900 line-clamp-2 mb-2">
                     {article.title}
                   </h3>

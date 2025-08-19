@@ -194,7 +194,7 @@ export function CarouselBlock({ block, articles }: CarouselBlockProps) {
               borderColor: `${primaryColor}20`
             }}
           >
-            <Link href={`/article/${currentArticle.id}`} className="carousel-article-link">
+            <Link href={`/news/${currentArticle.id}`} className="carousel-article-link">
               <span 
                 className="carousel-category"
                 style={{

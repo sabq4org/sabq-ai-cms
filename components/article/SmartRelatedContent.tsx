@@ -63,7 +63,7 @@ const HorizontalCard: React.FC<{ article: SmartArticle; darkMode?: boolean }> = 
   article, 
   darkMode = false 
 }) => (
-  <Link href={`/article/${article.id}`} className="group block">
+  <Link href={`/news/${article.id}`} className="group block">
     <div className={`flex gap-3 p-3 rounded-lg border transition-all duration-300 hover:shadow-md ${
       darkMode 
         ? 'bg-gray-800 border-gray-700 hover:border-gray-600' 

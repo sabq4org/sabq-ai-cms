@@ -166,7 +166,7 @@ export function AlHilalWorldCupBlock({
         {displayArticles.map((article, index) => (
           <Link
             key={article.id}
-            href={`/article/${article.id}`}
+            href={`/news/${article.id}`}
             className="block"
           >
             <div 

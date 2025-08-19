@@ -316,7 +316,7 @@ export default function DashboardFooter({ userId, onInteraction }: DashboardFoot
                 {recommendations.map((rec: any) => (
                   <a
                     key={rec.article.id}
-                    href={`/article/${rec.article.id}`}
+                    href={`/news/${rec.article.id}`}
                     onClick={() => onInteraction?.('recommendation_click', { articleId: rec.article.id })}
                     className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
                   >
