@@ -328,7 +328,7 @@ export default function ArticleCard({
             </div>
           </div>
         </div>
-        <div className="category-underline" aria-hidden />
+
       </article>
     </Link>
   );

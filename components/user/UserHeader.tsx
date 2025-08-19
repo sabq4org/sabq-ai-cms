@@ -137,7 +137,10 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
   
   // تطبيق الثيم الافتراضي عند التحميل
   React.useEffect(() => {
-    applyTheme(currentTheme);
+    // تأخير قليل للتأكد من تحميل DOM
+    setTimeout(() => {
+      applyTheme(currentTheme);
+    }, 100);
   }, []);
 
   return (
