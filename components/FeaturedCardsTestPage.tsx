@@ -9,7 +9,7 @@ import FeaturedNewsCard, {
   CompactNewsCard,
   HeroNewsCard,
 } from "@/components/FeaturedNewsCardEnhanced";
-import UnifiedMobileNewsCard from "@/components/mobile/UnifiedMobileNewsCard";
+// import UnifiedMobileNewsCard from "@/components/mobile/UnifiedMobileNewsCard";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 
 // بيانات تجريبية للاختبار

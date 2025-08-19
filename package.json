@@ -60,7 +60,8 @@
     "ui:test-breaking": "node scripts/test-breaking-news-toggle.js",
     "ui:test-red": "node scripts/test-breaking-news-red-color.js",
     "ui:test-persist": "node scripts/test-breaking-news-persistence.js",
-    "ui:test-colors": "node scripts/test-news-counter-colors.js"
+    "ui:test-colors": "node scripts/test-news-counter-colors.js",
+    "notifications:test": "node scripts/test-notification-persistence.js"
   },
   "dependencies": {
     "@aws-sdk/client-ses": "^3.856.0",

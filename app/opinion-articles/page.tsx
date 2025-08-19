@@ -1,7 +1,7 @@
 "use client";
 
 import Footer from "@/components/Footer";
-import OpinionArticleCard from "@/components/mobile/OpinionArticleCard";
+// import OpinionArticleCard from "@/components/mobile/OpinionArticleCard";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { cn } from "@/lib/utils";
 import {

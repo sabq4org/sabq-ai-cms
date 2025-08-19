@@ -290,13 +290,6 @@ export default function RootLayout({
         {/* Development Authentication Injection - حقن التوثيق للتطوير */}
         <script src="/dev-auth-inject.js" defer></script>
         
-        {/* Universal Mobile CSS Fixes - إصلاحات CSS شاملة للموبايل */}
-        <link rel="stylesheet" href="/admin-mobile-universal.css?v=1" />
-        <link rel="stylesheet" href="/admin-mobile-critical-fixes.css?v=1" />
-        
-        {/* Mobile Viewport JavaScript Fixes - إصلاحات JavaScript للموبايل */}
-        <script src="/mobile-viewport-fix.js?v=1" defer></script>
-        
 
       </head>
       <body

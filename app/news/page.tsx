@@ -2,9 +2,9 @@
 
 import ArticleCard from "@/components/ArticleCard";
 import Footer from "@/components/Footer";
-import SmartContentNewsCard from "@/components/mobile/SmartContentNewsCard";
-import UnifiedMobileNewsCard from "@/components/mobile/UnifiedMobileNewsCard";
-import "@/components/mobile/mobile-news.css";
+// import SmartContentNewsCard from "@/components/mobile/SmartContentNewsCard";
+// import UnifiedMobileNewsCard from "@/components/mobile/UnifiedMobileNewsCard";
+// import "@/components/mobile/mobile-news.css";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import type { RecommendedArticle } from "@/lib/ai-recommendations";
 import { generatePersonalizedRecommendations } from "@/lib/ai-recommendations";

@@ -11,10 +11,16 @@ export async function POST(_request: NextRequest) {
       return NextResponse.json({ success: false, message: 'غير مصرح' }, { status: 401 });
     }
 
-    // تحديث جماعي عبر Prisma
-    await prisma.smartNotification.updateMany({
-      where: { user_id: user.id, read_at: null },
-      data: { read_at: new Date(), status: 'READ' as any },
+        // تحديد جميع الإشعارات كمقروءة
+    const result = await prisma.smartNotifications.updateMany({
+      where: {
+        user_id: user.id,
+        read_at: null
+      },
+      data: {
+        read_at: new Date(),
+        status: 'read'
+      }
     });
 
     return NextResponse.json({ success: true });

@@ -1,6 +1,6 @@
 "use client";
 
-import CompactCategoryCardMini from "@/components/mobile/CompactCategoryCardMini";
+// import CompactCategoryCardMini from "@/components/mobile/CompactCategoryCardMini";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { getArticleLink } from "@/lib/utils";
 import "@/styles/compact-category-cards-mini.css";

@@ -5,9 +5,9 @@ import Footer from "@/components/Footer";
 import FooterDashboard from "@/components/FooterDashboard";
 import PageWrapper from "@/components/PageWrapper";
 import { SmartSlot } from "@/components/home/SmartSlot";
-import CompactStatsBar from "@/components/mobile/CompactStatsBar";
-import EnhancedMobileNewsCard from "@/components/mobile/EnhancedMobileNewsCard";
-import SmartContentNewsCard from "@/components/mobile/SmartContentNewsCard";
+// import CompactStatsBar from "@/components/mobile/CompactStatsBar";
+// import EnhancedMobileNewsCard from "@/components/mobile/EnhancedMobileNewsCard";
+// import SmartContentNewsCard from "@/components/mobile/SmartContentNewsCard";
 
 import AdBanner from "@/components/ads/AdBanner";
 import CloudImage from "@/components/ui/CloudImage";
@@ -75,7 +75,7 @@ const MuqtarabBlock = dynamic(
 
 // استيراد المكون الجديد الخفيف
 import LightFeaturedStrip from "@/components/featured/LightFeaturedStrip";
-import MobileFeaturedNews from "@/components/mobile/MobileFeaturedNews";
+// import MobileFeaturedNews from "@/components/mobile/MobileFeaturedNews";
 // إضافة استيراد ديناميكي للكاروسيل لسطح المكتب
 const FeaturedNewsCarousel = dynamic(
   () =>

@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { getCurrentUser, logActions } from '@/lib/log-activity'
 import { useTheme } from '@/contexts/ThemeContext'
-import { DashboardMobileLayout } from '@/components/mobile/MobileLayout'
+// import { DashboardMobileLayout } from '@/components/mobile/MobileLayout'
 import { 
   Bell,
   User,
