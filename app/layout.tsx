@@ -10,6 +10,8 @@ const notoKufiArabic = Noto_Kufi_Arabic({
   weight: ["200", "300", "400", "500", "600", "700", "800", "900"],
   variable: "--font-noto-kufi-arabic",
   display: "swap",
+  preload: true,
+  fallback: ["Arial", "sans-serif"]
 });
 
 export const metadata: Metadata = {
@@ -30,7 +32,6 @@ export const metadata: Metadata = {
     title: "صحيفة سبق الذكية",
     description: "آخر الأخبار والتحليلات من المملكة العربية السعودية والعالم",
   },
-  viewport: "width=device-width, initial-scale=1, maximum-scale=5",
   robots: {
     index: true,
     follow: true,
@@ -39,6 +40,12 @@ export const metadata: Metadata = {
       follow: true,
     },
   },
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({
@@ -53,6 +60,22 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="stylesheet" href="/manus-ui.css" />
+        <style dangerouslySetInnerHTML={{ __html: `
+          :root {
+            --font-noto-kufi-arabic: ${notoKufiArabic.style.fontFamily};
+          }
+          body {
+            font-family: var(--font-noto-kufi-arabic), -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Arial', sans-serif;
+          }
+          .social-link:hover {
+            background: hsl(var(--accent)) !important;
+            color: white !important;
+            border-color: hsl(var(--accent)) !important;
+          }
+          .footer-link:hover {
+            color: hsl(var(--accent)) !important;
+          }
+        `}} />
       </head>
       <body className={`${notoKufiArabic.className} antialiased`} suppressHydrationWarning>
         <Providers>

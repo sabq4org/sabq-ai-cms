@@ -134,16 +134,7 @@ export default function UserFooter() {
                     color: 'hsl(var(--muted))',
                     transition: 'all 0.2s ease'
                   }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'hsl(var(--accent))';
-                    e.currentTarget.style.color = 'white';
-                    e.currentTarget.style.borderColor = 'hsl(var(--accent))';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'hsl(var(--bg))';
-                    e.currentTarget.style.color = 'hsl(var(--muted))';
-                    e.currentTarget.style.borderColor = 'hsl(var(--line))';
-                  }}
+                  className="social-link"
                   aria-label={social.name}
                 >
                   {social.icon}
@@ -174,12 +165,7 @@ export default function UserFooter() {
                         textDecoration: 'none',
                         transition: 'color 0.2s ease'
                       }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.color = 'hsl(var(--accent))';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.color = 'hsl(var(--muted))';
-                      }}
+                      className="footer-link"
                     >
                       {link.label}
                     </Link>
@@ -223,12 +209,7 @@ export default function UserFooter() {
                   color: 'hsl(var(--muted))',
                   textDecoration: 'none'
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = 'hsl(var(--accent))';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = 'hsl(var(--muted))';
-                }}
+                className="footer-link"
               >
                 سياسة الخصوصية
               </Link>
@@ -239,12 +220,7 @@ export default function UserFooter() {
                   color: 'hsl(var(--muted))',
                   textDecoration: 'none'
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = 'hsl(var(--accent))';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = 'hsl(var(--muted))';
-                }}
+                className="footer-link"
               >
                 شروط الاستخدام
               </Link>
@@ -255,12 +231,7 @@ export default function UserFooter() {
                   color: 'hsl(var(--muted))',
                   textDecoration: 'none'
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = 'hsl(var(--accent))';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = 'hsl(var(--muted))';
-                }}
+                className="footer-link"
               >
                 سياسة الكوكيز
               </Link>
