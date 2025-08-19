@@ -610,18 +610,7 @@ function NewspaperHomePage({
 
       articlesToRender.forEach((article, index) => {
         // إضافة بطاقة الخبر العادية
-        if (isMobileView) {
-          mixedContent.push(
-            <EnhancedMobileNewsCard
-              key={article.id}
-              news={article}
-              darkMode={darkMode}
-              variant="full-width"
-            />
-          );
-        } else {
-          mixedContent.push(<NewsCard key={article.id} news={article} />);
-        }
+        mixedContent.push(<NewsCard key={article.id} news={article} />);
 
         // إضافة البطاقات المخصصة بتوزيع متوازن
         // توزيع البطاقات المخصصة: بعد الأخبار 3، 6، 9، 13، 17
@@ -750,23 +739,7 @@ function NewspaperHomePage({
         {/* 2. الأخبار المميزة (Featured Articles) 🌟 */}
         {!featuredLoading && featuredArticle.length > 0 && (
           <div className={`${isMobileView ? "pt-2 pb-4" : "pt-4 pb-6"}`}>
-            {isMobileView ? (
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <MobileFeaturedNews
-                  items={(featuredArticle || []).map((a: any) => ({
-                    id: a.id,
-                    title: a.title,
-                    imageUrl: a.featured_image,
-                    href: getArticleLink(a),
-                    category: a.category?.name || a.category_name || undefined,
-                    publishedAt: a.published_at || a.created_at,
-                  }))}
-                  withSwipe={true}
-                />
-              </div>
-            ) : (
-              <FeaturedNewsCarousel articles={featuredArticle} />
-            )}
+            <FeaturedNewsCarousel articles={featuredArticle} />
           </div>
         )}
 
