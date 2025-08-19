@@ -533,13 +533,13 @@ export default function EnhancedMuqtarabBlock({
       : "/images/default-article.jpg";
 
     return (
-      <Link href={article.link} className="block">
+      <Link href={article.link} className="group block">
         <article
           dir="rtl"
-          className="h-full rounded-2xl overflow-hidden flex flex-col bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+          className="h-full rounded-2xl overflow-hidden shadow-sm transition-all duration-300 flex flex-col bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
         >
           {/* صورة المقال */}
-          <div className="relative h-48 overflow-hidden">
+          <div className="relative h-40 sm:h-48 overflow-hidden">
             <Image
               src={displaySrc}
               alt={article.title}
@@ -568,9 +568,9 @@ export default function EnhancedMuqtarabBlock({
             </div>
 
             {/* العنوان */}
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-4 mb-3 leading-snug flex-1">
+            <h4 className="font-semibold text-lg mb-3 line-clamp-4 leading-snug flex-1">
               {article.title}
-            </h3>
+            </h4>
 
             {/* سطر واحد: التاريخ + المشاهدات */}
             <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mt-auto">

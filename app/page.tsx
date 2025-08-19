@@ -30,7 +30,6 @@ export default function Page() {
 
   return (
     <div style={{ padding: '20px 0' }}>
-      <h1>صفحة الاختبار تعمل!</h1>
       <UserWelcomeBlock />
       
       {/* بلوك المحتوى الذكي */}

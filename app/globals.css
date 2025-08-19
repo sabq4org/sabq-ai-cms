@@ -7,13 +7,71 @@
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
   
-  /* Default theme colors */
-  --theme-primary: hsl(212 90% 50%);
-  --theme-secondary: hsl(212 90% 45%);
+  /* نظام الألوان المتغيرة - الألوان الافتراضية */
+  --theme-primary: #3b82f6;
+  --theme-secondary: #2563eb;
   --theme-primary-rgb: 59 130 246;
+  --theme-primary-hover: #2563eb;
+  --theme-primary-light: rgba(59, 130, 246, 0.1);
+  --theme-primary-lighter: rgba(59, 130, 246, 0.05);
 }
 
-/* Category pill styles */
+/* نظام الألوان المتغيرة - مجموعة الألوان المختلفة */
+[data-theme="blue"] {
+  --theme-primary: #3b82f6;
+  --theme-secondary: #2563eb;
+  --theme-primary-rgb: 59 130 246;
+  --theme-primary-hover: #2563eb;
+  --theme-primary-light: rgba(59, 130, 246, 0.1);
+  --theme-primary-lighter: rgba(59, 130, 246, 0.05);
+}
+
+[data-theme="green"] {
+  --theme-primary: #10b981;
+  --theme-secondary: #059669;
+  --theme-primary-rgb: 16 185 129;
+  --theme-primary-hover: #059669;
+  --theme-primary-light: rgba(16, 185, 129, 0.1);
+  --theme-primary-lighter: rgba(16, 185, 129, 0.05);
+}
+
+[data-theme="purple"] {
+  --theme-primary: #8b5cf6;
+  --theme-secondary: #7c3aed;
+  --theme-primary-rgb: 139 92 246;
+  --theme-primary-hover: #7c3aed;
+  --theme-primary-light: rgba(139, 92, 246, 0.1);
+  --theme-primary-lighter: rgba(139, 92, 246, 0.05);
+}
+
+[data-theme="pink"] {
+  --theme-primary: #ec4899;
+  --theme-secondary: #db2777;
+  --theme-primary-rgb: 236 72 153;
+  --theme-primary-hover: #db2777;
+  --theme-primary-light: rgba(236, 72, 153, 0.1);
+  --theme-primary-lighter: rgba(236, 72, 153, 0.05);
+}
+
+[data-theme="orange"] {
+  --theme-primary: #f59e0b;
+  --theme-secondary: #d97706;
+  --theme-primary-rgb: 245 158 11;
+  --theme-primary-hover: #d97706;
+  --theme-primary-light: rgba(245, 158, 11, 0.1);
+  --theme-primary-lighter: rgba(245, 158, 11, 0.05);
+}
+
+[data-theme="red"] {
+  --theme-primary: #ef4444;
+  --theme-secondary: #dc2626;
+  --theme-primary-rgb: 239 68 68;
+  --theme-primary-hover: #dc2626;
+  --theme-primary-light: rgba(239, 68, 68, 0.1);
+  --theme-primary-lighter: rgba(239, 68, 68, 0.05);
+}
+
+/* Category pill styles - متوافقة مع نظام الألوان الجديد */
 .category-pill {
   display: inline-flex !important;
   align-items: center !important;
@@ -21,32 +79,40 @@
   padding: 0.25rem 0.625rem !important;
   font-size: 0.75rem !important;
   font-weight: 500 !important;
-  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.1) !important;
+  background-color: var(--theme-primary-light) !important;
   color: var(--theme-primary) !important;
-  border: 1px solid rgba(var(--theme-primary-rgb, 59 130 246), 0.2) !important;
+  border: 1px solid rgba(var(--theme-primary-rgb), 0.2) !important;
   transition: all 0.3s ease !important;
 }
 
 .category-pill:hover {
-  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.2) !important;
-  border-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.3) !important;
+  background-color: rgba(var(--theme-primary-rgb), 0.2) !important;
+  border-color: rgba(var(--theme-primary-rgb), 0.3) !important;
 }
 
 /* Dark mode category pill */
 .dark .category-pill {
-  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.15) !important;
+  background-color: rgba(var(--theme-primary-rgb), 0.15) !important;
   color: var(--theme-primary) !important;
-  border-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.25) !important;
+  border-color: rgba(var(--theme-primary-rgb), 0.25) !important;
 }
 
 /* Theme light background for hover effects */
 .bg-theme-light {
-  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.08) !important;
+  background-color: var(--theme-primary-lighter) !important;
+}
+
+.group:hover .bg-theme-light {
+  background-color: var(--theme-primary-light) !important;
 }
 
 /* Dark mode theme light background */
 .dark .bg-theme-light {
-  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.12) !important;
+  background-color: rgba(var(--theme-primary-rgb), 0.08) !important;
+}
+
+.dark .group:hover .bg-theme-light {
+  background-color: rgba(var(--theme-primary-rgb), 0.12) !important;
 }
 
 /* Muted foreground text colors */
