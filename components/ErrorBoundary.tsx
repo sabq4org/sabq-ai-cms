@@ -2,6 +2,7 @@
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home, Bug } from 'lucide-react';
+import { handleReactError } from '@/lib/client-error-handler';
 
 interface Props {
   children: ReactNode;
@@ -30,6 +31,9 @@ class ErrorBoundary extends Component<Props, State> {
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
+    
+    // استخدام المعالج الجديد
+    handleReactError(error, errorInfo);
     
     this.setState({
       error,

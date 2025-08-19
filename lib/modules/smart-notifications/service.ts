@@ -20,7 +20,8 @@ import {
   DELIVERY_CHANNELS
 } from './types';
 
-const prisma = new PrismaClient();
+// تجنب إنشاء Prisma في المتصفح
+const prisma = typeof window === 'undefined' ? new PrismaClient() : ({} as any);
 
 export class SmartNotificationsService {
   private deliveryProviders: Map<DeliveryChannel, any> = new Map();

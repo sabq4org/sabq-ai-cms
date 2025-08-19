@@ -1,22 +1,54 @@
 // API محسّن لتحديد الإشعارات كمقروءة - حل مشكلة الثبات
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { getCurrentUser } from '@/app/lib/auth';
+import { getCurrentUser, requireAuthFromRequest } from '@/app/lib/auth';
 
 export const runtime = "nodejs";
+
+// إعدادات CORS للسماح بإرسال credentials
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Access-Control-Allow-Credentials': 'true',
+};
+
+export async function OPTIONS() {
+  return NextResponse.json({}, { headers: corsHeaders });
+}
 
 // تحديد إشعار واحد أو عدة إشعارات كمقروءة
 export async function POST(req: NextRequest) {
   try {
-    const user = await getCurrentUser();
+    // تجربة طرق مصادقة متعددة
+    let user: any = null;
+    
+    // الطريقة الأولى: من الهيدر
+    try {
+      user = await requireAuthFromRequest(req);
+    } catch (_) {
+      // فشلت، نجرب الطريقة الثانية
+    }
+    
+    // الطريقة الثانية: من الكوكيز
+    if (!user) {
+      try {
+        user = await getCurrentUser();
+      } catch (_) {
+        // فشلت أيضاً
+      }
+    }
     
     if (!user) {
+      console.log('❌ فشل في المصادقة في /api/notifications/mark-as-read');
       return NextResponse.json({
         success: false,
         error: 'مطلوب تسجيل الدخول',
         code: 'UNAUTHORIZED'
-      }, { status: 401 });
+      }, { status: 401, headers: corsHeaders });
     }
+
+    console.log(`✅ نجحت المصادقة للمستخدم: ${user.email} (${user.id})`);
 
     const body = await req.json();
     const { notificationId, notificationIds, markAll = false } = body;
@@ -72,7 +104,7 @@ export async function POST(req: NextRequest) {
         success: false,
         error: 'مطلوب معرف الإشعار أو تحديد العملية',
         code: 'INVALID_REQUEST'
-      }, { status: 400 });
+      }, { status: 400, headers: corsHeaders });
     }
 
     // جلب عدد الإشعارات غير المقروءة المحدث
@@ -96,7 +128,7 @@ export async function POST(req: NextRequest) {
       message: result.count > 0 
         ? `تم تحديد ${result.count} إشعار كمقروء` 
         : 'لا توجد إشعارات جديدة للتحديد'
-    });
+    }, { headers: corsHeaders });
 
   } catch (error) {
     console.error('❌ خطأ في تحديد الإشعارات كمقروءة:', error);
@@ -106,21 +138,37 @@ export async function POST(req: NextRequest) {
       error: 'حدث خطأ في النظام',
       code: 'SERVER_ERROR',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
-    }, { status: 500 });
+    }, { status: 500, headers: corsHeaders });
   }
 }
 
 // جلب حالة الإشعارات
 export async function GET(req: NextRequest) {
   try {
-    const user = await getCurrentUser();
+    // تجربة طرق مصادقة متعددة
+    let user: any = null;
+    
+    try {
+      user = await requireAuthFromRequest(req);
+    } catch (_) {
+      // فشلت، نجرب الطريقة الثانية
+    }
     
     if (!user) {
+      try {
+        user = await getCurrentUser();
+      } catch (_) {
+        // فشلت أيضاً
+      }
+    }
+    
+    if (!user) {
+      console.log('❌ فشل في المصادقة في GET /api/notifications/mark-as-read');
       return NextResponse.json({
         success: false,
         error: 'مطلوب تسجيل الدخول',
         code: 'UNAUTHORIZED'
-      }, { status: 401 });
+      }, { status: 401, headers: corsHeaders });
     }
 
     const { searchParams } = new URL(req.url);
@@ -146,7 +194,7 @@ export async function GET(req: NextRequest) {
           success: false,
           error: 'الإشعار غير موجود',
           code: 'NOT_FOUND'
-        }, { status: 404 });
+        }, { status: 404, headers: corsHeaders });
       }
 
       return NextResponse.json({
@@ -158,7 +206,7 @@ export async function GET(req: NextRequest) {
           isClicked: !!notification.clicked_at,
           readAt: notification.read_at
         }
-      });
+      }, { headers: corsHeaders });
 
     } else {
       // جلب إحصائيات عامة
@@ -182,7 +230,7 @@ export async function GET(req: NextRequest) {
           read: readCount,
           timestamp: new Date().toISOString()
         }
-      });
+      }, { headers: corsHeaders });
     }
 
   } catch (error) {
@@ -192,6 +240,6 @@ export async function GET(req: NextRequest) {
       success: false,
       error: 'حدث خطأ في النظام',
       code: 'SERVER_ERROR'
-    }, { status: 500 });
+    }, { status: 500, headers: corsHeaders });
   }
 }

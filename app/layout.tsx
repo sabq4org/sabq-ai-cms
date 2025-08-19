@@ -287,8 +287,10 @@ export default function RootLayout({
         {/* CSS Selector & JavaScript Error Fixes - إصلاح أخطاء CSS و JavaScript */}
         <script src="/selector-fix.js" defer></script>
         
-        {/* Development Authentication Injection - حقن التوثيق للتطوير */}
-        <script src="/dev-auth-inject.js" defer></script>
+        {/* Development Authentication Injection - محذوف في الإنتاج */}
+        {process.env.NODE_ENV !== 'production' ? (
+          <script src="/dev-auth-inject.js" defer></script>
+        ) : null}
         
 
       </head>

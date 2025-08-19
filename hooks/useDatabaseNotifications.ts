@@ -1,5 +1,6 @@
 // Hook محسّن لإدارة إشعارات قاعدة البيانات مع ضمان الثبات
 import { useState, useEffect, useCallback } from 'react';
+import { safeErrorHandler, handleAPIError } from '@/lib/client-error-handler';
 
 interface DatabaseNotification {
   id: string;
@@ -45,7 +46,8 @@ export const useDatabaseNotifications = () => {
           'Content-Type': 'application/json',
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache'
-        }
+        },
+        credentials: 'include' // ضروري لإرسال الكوكيز
       });
 
       if (!response.ok) {
@@ -67,6 +69,7 @@ export const useDatabaseNotifications = () => {
 
     } catch (err) {
       console.error('❌ خطأ في جلب الإشعارات:', err);
+      handleAPIError('/api/notifications', err);
       setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع');
     } finally {
       setLoading(false);
@@ -103,6 +106,7 @@ export const useDatabaseNotifications = () => {
           'Content-Type': 'application/json',
           'Cache-Control': 'no-cache'
         },
+        credentials: 'include', // ضروري لإرسال الكوكيز
         body: JSON.stringify({ notificationId })
       });
 
@@ -132,6 +136,7 @@ export const useDatabaseNotifications = () => {
 
     } catch (err) {
       console.error('❌ خطأ في تحديد الإشعار كمقروء:', err);
+      handleAPIError('/api/notifications/mark-as-read', err);
       setError(err instanceof Error ? err.message : 'فشل في تحديد الإشعار كمقروء');
       
       // إعادة تحميل البيانات للتأكد من الحالة الصحيحة
@@ -175,6 +180,7 @@ export const useDatabaseNotifications = () => {
           'Content-Type': 'application/json',
           'Cache-Control': 'no-cache'
         },
+        credentials: 'include', // ضروري لإرسال الكوكيز
         body: JSON.stringify({ markAll: true })
       });
 
@@ -196,6 +202,7 @@ export const useDatabaseNotifications = () => {
 
     } catch (err) {
       console.error('❌ خطأ في تحديد جميع الإشعارات كمقروءة:', err);
+      handleAPIError('/api/notifications/mark-as-read', err);
       setError(err instanceof Error ? err.message : 'فشل في تحديد جميع الإشعارات كمقروءة');
       
       // إعادة تحميل البيانات للتأكد من الحالة الصحيحة
@@ -210,7 +217,8 @@ export const useDatabaseNotifications = () => {
       const response = await fetch(`/api/notifications/mark-as-read?id=${notificationId}`, {
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate'
-        }
+        },
+        credentials: 'include' // ضروري لإرسال الكوكيز
       });
 
       const result = await response.json();

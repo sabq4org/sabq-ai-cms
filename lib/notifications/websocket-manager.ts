@@ -285,6 +285,9 @@ export class NotificationManager {
    */
   private async saveNotificationToDatabase(notification: PendingNotification): Promise<void> {
     try {
+      if (typeof window !== 'undefined') {
+        return; // تجنب استخدام Prisma في المتصفح
+      }
       const { default: prisma } = await import('@/lib/prisma');
 
       await prisma.smartNotifications.create({
@@ -312,6 +315,9 @@ export class NotificationManager {
    */
   private async getUserNotifications(userId: string, limit: number = 20): Promise<any[]> {
     try {
+      if (typeof window !== 'undefined') {
+        return []; // تجنب استخدام Prisma في المتصفح
+      }
       const { default: prisma } = await import('@/lib/prisma');
 
       const notifications = await prisma.smartNotifications.findMany({
@@ -333,6 +339,9 @@ export class NotificationManager {
    */
   async markNotificationAsRead(notificationId: string, userId: string): Promise<boolean> {
     try {
+      if (typeof window !== 'undefined') {
+        return false; // تجنب استخدام Prisma في المتصفح
+      }
       const { default: prisma } = await import('@/lib/prisma');
 
       await prisma.smartNotifications.update({
@@ -360,6 +369,9 @@ export class NotificationManager {
    */
   async markAllNotificationsAsRead(userId: string): Promise<boolean> {
     try {
+      if (typeof window !== 'undefined') {
+        return false; // تجنب استخدام Prisma في المتصفح
+      }
       const { default: prisma } = await import('@/lib/prisma');
 
       await prisma.smartNotifications.updateMany({

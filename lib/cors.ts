@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export function addCorsHeaders(response: NextResponse): NextResponse {
   response.headers.set('Access-Control-Allow-Origin', '*');
   response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  response.headers.set('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Authorization, Accept, Cookie');
+  response.headers.set('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Authorization, Accept, Cookie, user-id, x-user-id, User-Id, X-User-Id, x-device-id, X-Device-Id');
   response.headers.set('Access-Control-Allow-Credentials', 'true');
   response.headers.set('Vary', 'Origin');
   return response;
@@ -48,7 +48,7 @@ function setCorsForOrigin(response: NextResponse, origin: string | null): NextRe
   const value = allowed ? (origin as string) : (getAllowedOrigins()[0] || '*');
   response.headers.set('Access-Control-Allow-Origin', value);
   response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  response.headers.set('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Authorization, Accept, Cookie');
+  response.headers.set('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Authorization, Accept, Cookie, user-id, x-user-id, User-Id, X-User-Id, x-device-id, X-Device-Id');
   response.headers.set('Access-Control-Allow-Credentials', 'true');
   response.headers.set('Vary', 'Origin');
   return response;
@@ -67,7 +67,7 @@ export function handleOptions(): NextResponse {
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'X-Requested-With, Content-Type, Authorization, Accept, Cookie',
+      'Access-Control-Allow-Headers': 'X-Requested-With, Content-Type, Authorization, Accept, Cookie, user-id, x-user-id, User-Id, X-User-Id, x-device-id, X-Device-Id',
       'Access-Control-Allow-Credentials': 'true',
       'Access-Control-Max-Age': '86400',
       'Vary': 'Origin',

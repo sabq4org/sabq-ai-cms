@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 
 // التحقق من صلاحيات الإدارة
 async function checkAdminAuth(request: NextRequest) {

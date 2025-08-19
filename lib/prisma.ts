@@ -63,6 +63,14 @@ export async function withPrisma<T>(operation: (prisma: PrismaClient) => Promise
   }
 }
 
+// دالة آمنة للحصول على Prisma Client (للاستخدام في جميع أنحاء التطبيق)
+function getPrismaClient(): PrismaClient {
+  if (typeof window !== 'undefined') {
+    throw new Error('PrismaClient cannot be used in browser environment');
+  }
+  return prisma;
+}
+
 // التصدير - named export و default export
-export { prisma };
+export { prisma, getPrismaClient };
 export default prisma;

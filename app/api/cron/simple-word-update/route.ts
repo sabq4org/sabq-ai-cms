@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getPrismaClient } from "@/lib/prisma";
+
+const prisma = getPrismaClient();
 
 // نسخة مبسطة من المهمة المجدولة لاختبار النظام
 export async function GET(request: NextRequest) {

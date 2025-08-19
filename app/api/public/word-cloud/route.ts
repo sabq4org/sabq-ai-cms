@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getPrismaClient } from "@/lib/prisma";
+
+const prisma = getPrismaClient();
 
 // API سحابة الكلمات التفاعلية
 export async function GET(request: NextRequest) {

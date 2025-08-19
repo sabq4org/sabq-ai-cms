@@ -119,8 +119,12 @@ export async function getCurrentUser(): Promise<User | null> {
             }
           })();
           const parsed = JSON.parse(decoded);
-          const { PrismaClient } = await import("@prisma/client");
-          const prisma = new PrismaClient();
+          // استيراد Prisma بطريقة آمنة للبراوزر
+          if (typeof window !== 'undefined') {
+            console.warn('Cannot access database from browser environment');
+            return null;
+          }
+          const prisma = (await import("@/lib/prisma")).default;
           let user = null as any;
           if (parsed?.id) {
             user = await prisma.users.findUnique({
@@ -176,8 +180,11 @@ export async function getCurrentUser(): Promise<User | null> {
     }
 
     // استعلام قاعدة البيانات للحصول على بيانات المستخدم الكاملة
-    const { PrismaClient } = await import("@prisma/client");
-    const prisma = new PrismaClient();
+    if (typeof window !== 'undefined') {
+      console.warn('Cannot access database from browser environment');
+      return null;
+    }
+    const prisma = (await import("@/lib/prisma")).default;
 
     const payloadId = (payload?.sub as string) || payload?.id || payload?.userId || payload?.uid || payload?.user?.id || payload?.user_id;
     const payloadEmail = payload?.email || payload?.user?.email;
@@ -277,8 +284,10 @@ export async function requireAuthFromRequest(request: NextRequest): Promise<User
   if (userIdHeader) {
     console.log('🔧 وضع التطوير: استخدام user-id من header:', userIdHeader);
     // الحصول على المستخدم مباشرة من قاعدة البيانات
-    const { PrismaClient } = await import("@prisma/client");
-    const prisma = new PrismaClient();
+    if (typeof window !== 'undefined') {
+      throw new Error('Cannot access database from browser environment');
+    }
+    const prisma = (await import("@/lib/prisma")).default;
 
     // محاولة البحث بالايميل أولاً، ثم بالـ ID
     let user = await prisma.users.findUnique({
@@ -358,8 +367,10 @@ export async function requireAuthFromRequest(request: NextRequest): Promise<User
   }
 
   // الحصول على المستخدم من قاعدة البيانات
-  const { PrismaClient } = await import("@prisma/client");
-  const prisma = new PrismaClient();
+  if (typeof window !== 'undefined') {
+    throw new Error('Cannot access database from browser environment');
+  }
+  const prisma = (await import("@/lib/prisma")).default;
 
   const pid = (payload?.sub as string) || payload?.id || payload?.userId || payload?.uid || payload?.user?.id || payload?.user_id;
   const pemail = payload?.email || payload?.user?.email;
@@ -435,8 +446,10 @@ export async function getEffectiveUserRoleById(
   userId: string
 ): Promise<string> {
   try {
-    const { PrismaClient } = await import("@prisma/client");
-    const prisma = new PrismaClient();
+    if (typeof window !== 'undefined') {
+      throw new Error('Cannot access database from browser environment');
+    }
+    const prisma = (await import("@/lib/prisma")).default;
 
     const user = await prisma.users.findUnique({
       where: { id: userId },

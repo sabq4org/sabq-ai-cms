@@ -32,9 +32,10 @@ export async function GET(request: NextRequest) {
     }
 
     if (!token) {
+      // سماح بالرد الفارغ بدلاً من خطأ إذا كان المصدر غير مصرّح أو CORS منع الوصول
       return corsResponseFromRequest(
         request,
-        { success: false, error: "لم يتم العثور على معلومات المصادقة" },
+        { success: false, error: "Unauthorized" },
         401
       );
     }
