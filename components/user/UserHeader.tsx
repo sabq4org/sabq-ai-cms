@@ -112,9 +112,33 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
       document.documentElement.style.setProperty('--accent', accent);
       document.documentElement.style.setProperty('--accent-hover', accentHover);
       document.documentElement.style.setProperty('--accent-light', accentLight);
+      
+      // إضافة متغيرات للثيم المتغير
+      document.documentElement.style.setProperty('--theme-primary', `hsl(${accent})`);
+      document.documentElement.style.setProperty('--theme-secondary', `hsl(${accentHover})`);
+      
+      // إضافة متغيرات RGB
+      const hslToRgb = (h: number, s: number, l: number) => {
+        s /= 100;
+        l /= 100;
+        const k = (n: number) => (n + h / 30) % 12;
+        const a = s * Math.min(l, 1 - l);
+        const f = (n: number) =>
+          l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+        return [255 * f(0), 255 * f(8), 255 * f(4)].map(Math.round);
+      };
+      
+      const [r, g, b] = hslToRgb(parseInt(h), parseInt(s), parseInt(l.replace('%', '')));
+      document.documentElement.style.setProperty('--theme-primary-rgb', `${r} ${g} ${b}`);
+      
       setCurrentTheme(theme);
     }
   };
+  
+  // تطبيق الثيم الافتراضي عند التحميل
+  React.useEffect(() => {
+    applyTheme(currentTheme);
+  }, []);
 
   return (
     <>

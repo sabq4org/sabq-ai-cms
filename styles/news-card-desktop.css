@@ -1,28 +1,61 @@
 .category-pill {
   @apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium;
-  @apply bg-primary/10 text-primary border border-primary/20;
-  @apply transition-all hover:bg-primary/20 hover:border-primary/30;
+  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.1);
+  color: var(--theme-primary);
+  border: 1px solid rgba(var(--theme-primary-rgb, 59 130 246), 0.2);
+  transition: all 0.3s ease;
+}
+
+.category-pill:hover {
+  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.2);
+  border-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.3);
+}
+
+/* إضافة متغيرات RGB للثيمات */
+:root {
+  --theme-primary-rgb: 59 130 246; /* الأزرق الافتراضي */
+}
+
+.theme-emerald {
+  --theme-primary-rgb: 5 150 105;
+}
+
+.theme-purple {
+  --theme-primary-rgb: 124 58 237;
+}
+
+.theme-rose {
+  --theme-primary-rgb: 225 29 72;
+}
+
+.theme-orange {
+  --theme-primary-rgb: 234 88 12;
 }
 
 /* تطبيق hover للبطاقات */
 article .group:hover .p-4 {
-  @apply bg-primary/5;
+  background-color: rgba(var(--theme-primary-rgb), 0.05);
 }
 
 /* شارة المحتوى الذكي */
 .smart-badge {
-  @apply bg-gradient-to-r from-primary to-primary/80;
-  @apply transition-all hover:scale-105 hover:shadow-md;
+  background: linear-gradient(to right, var(--theme-primary), var(--theme-secondary, var(--theme-primary)));
+  transition: all 0.3s ease;
+}
+
+.smart-badge:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* تأثير hover للنصوص */
-.theme-hover-text {
-  @apply hover:text-primary transition-colors;
+.theme-hover-text:hover {
+  color: var(--theme-primary);
 }
 
 /* خلفية hover للبطاقات */
 .bg-theme-light {
-  @apply bg-primary/5;
+  background-color: rgba(var(--theme-primary-rgb), 0.05);
 }
 /* تم إزالة الإطار الملون السفلي
 .category-underline {
@@ -124,8 +157,10 @@ article {
 }
 
 /* Dark mode styles */
-:root.dark .category-pill {
-  @apply bg-primary/10 text-primary border-primary/20;
+.dark .category-pill {
+  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.1);
+  color: var(--theme-primary);
+  border-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.2);
 }
 /* :root.dark .category-underline {
   opacity: 0.85;

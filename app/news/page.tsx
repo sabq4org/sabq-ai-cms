@@ -634,9 +634,12 @@ export default function NewsPage() {
                 onClick={() => setSelectedCategory(null)}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap ${
                   selectedCategory === null
-                    ? "bg-primary text-white"
+                    ? "text-white"
                     : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                 }`}
+                style={{
+                  backgroundColor: selectedCategory === null ? 'var(--theme-primary)' : undefined,
+                }}
 
               >
                 جميع الأخبار
@@ -647,9 +650,12 @@ export default function NewsPage() {
                   onClick={() => setSelectedCategory(category.id)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap ${
                     selectedCategory === category.id
-                      ? "bg-primary text-white"
+                      ? "text-white"
                       : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                   }`}
+                  style={{
+                    backgroundColor: selectedCategory === category.id ? 'var(--theme-primary)' : undefined,
+                  }}
 
                 >
                   {category.name || category.name_ar}
