@@ -784,7 +784,16 @@ export default function NewsPage() {
                   <button
                     onClick={loadMore}
                     disabled={loading || isLoadingMore}
-                    className="inline-flex items-center gap-2 px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="inline-flex items-center gap-2 px-8 py-3 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{
+                      backgroundColor: 'var(--theme-primary)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.filter = 'brightness(0.9)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.filter = 'brightness(1)';
+                    }}
                   >
                     {loading || isLoadingMore ? (
                       <>

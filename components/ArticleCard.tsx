@@ -214,7 +214,7 @@ export default function ArticleCard({
                 dateTime={publishDate}
                 className="inline-flex items-center gap-1"
               >
-                <Calendar className="w-4 h-4" />
+                <Calendar className="w-4 h-4" style={{color: 'var(--theme-primary)'}} />
                 {formatDateNumeric(publishDate)}
               </time>
               <span className="mx-1">•</span>
@@ -304,7 +304,7 @@ export default function ArticleCard({
                 dateTime={publishDate}
                 className="inline-flex items-center gap-1"
               >
-                <Calendar className="w-4 h-4" />
+                <Calendar className="w-4 h-4" style={{color: 'var(--theme-primary)'}} />
                 {formatDateNumeric(publishDate)}
               </time>
               <span className="mx-1">•</span>

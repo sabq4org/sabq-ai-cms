@@ -114,14 +114,11 @@ export default function SmartContentNewsCard({
           {/* Category and AI Labels */}
           <div className="flex items-center gap-2 mb-4 flex-wrap">
             {article.category_name && (
-              <span 
-                className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold border"
-                className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold category-pill"
-              >
+              <span className="category-pill">
                 {article.category_name}
               </span>
             )}
-            <span className="smart-badge text-xs font-bold text-white inline-flex items-center gap-1 px-2.5 py-1 rounded-full">
+            <span className="text-xs font-bold text-white inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-purple-500 to-pink-500">
               <Sparkles className="w-3 h-3" />
               مخصص{article.score ? ` | ${Math.round(article.score * 100)}%` : ''}
             </span>
@@ -141,17 +138,17 @@ export default function SmartContentNewsCard({
           )}
 
           {/* Footer */}
-          <div className="flex items-center justify-between mt-4">
-            <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+          <div className="flex items-center justify-between mt-4 p-3 rounded-lg" style={{backgroundColor: 'rgba(var(--theme-primary-rgb), 0.05)'}}>
+            <div className="flex items-center gap-4 text-sm">
               {article.reading_time && (
                 <div className="flex items-center gap-1">
-                  <Clock className="w-4 h-4" />
+                  <Clock className="w-4 h-4" style={{color: 'var(--theme-primary)'}} />
                   <span>{article.reading_time} دقائق</span>
                 </div>
               )}
               {article.views !== undefined && (
                 <div className="flex items-center gap-1">
-                  <Eye className="w-4 h-4" />
+                  <Eye className="w-4 h-4" style={{color: 'var(--theme-primary)'}} />
                   <span>{article.views}</span>
                 </div>
               )}
@@ -231,14 +228,11 @@ export default function SmartContentNewsCard({
           {/* Category and AI Labels */}
           <div className="flex items-center gap-2 mb-3 flex-wrap">
             {article.category_name && (
-              <span 
-                className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold border"
-                className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold category-pill"
-              >
+              <span className="category-pill">
                 {article.category_name}
               </span>
             )}
-            <span className="smart-badge text-xs font-bold text-white inline-flex items-center gap-1 px-2 py-0.5 rounded-full">
+            <span className="text-xs font-bold text-white inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500">
               <Sparkles className="w-3 h-3" />
               مخصص{article.score ? ` | ${Math.round(article.score * 100)}%` : ''}
             </span>
@@ -257,22 +251,22 @@ export default function SmartContentNewsCard({
           )}
 
           {/* Meta Info */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400">
+          <div className="flex items-center justify-between p-3 rounded-lg" style={{backgroundColor: 'rgba(var(--theme-primary-rgb), 0.05)'}}>
+            <div className="flex items-center gap-3 text-xs">
               {article.category_name && (
-                <span className="font-medium text-purple-600 dark:text-purple-400">
+                <span className="font-medium" style={{color: 'var(--theme-primary)'}}>
                   {article.category_name}
                 </span>
               )}
               {article.reading_time && (
                 <div className="flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
+                  <Clock className="w-3 h-3" style={{color: 'var(--theme-primary)'}} />
                   <span>{article.reading_time}د</span>
                 </div>
               )}
               {article.views !== undefined && (
                 <div className="flex items-center gap-1">
-                  <Eye className="w-3 h-3" />
+                  <Eye className="w-3 h-3" style={{color: 'var(--theme-primary)'}} />
                   <span>{article.views}</span>
                 </div>
               )}

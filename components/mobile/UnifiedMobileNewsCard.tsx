@@ -120,7 +120,7 @@ export default function UnifiedMobileNewsCard({
             <h3 className="text-sm font-semibold line-clamp-2 mb-1 dark:text-white">
               {article.title}
             </h3>
-            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+            <div className="flex items-center gap-2 text-xs p-2 rounded-lg" style={{backgroundColor: 'rgba(var(--theme-primary-rgb), 0.05)'}}>
               <span>{getRelativeTime(article.published_at || article.created_at)}</span>
               {views > 0 && (
                 <>
@@ -189,10 +189,7 @@ export default function UnifiedMobileNewsCard({
             {/* Category Label */}
             {(article.category_name || article.category?.name) && (
               <div className="mb-3">
-                <span 
-                  className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold border"
-                  className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold category-pill"
-                >
+                <span className="category-pill">
                   {article.category_name || article.category?.name}
                 </span>
               </div>
@@ -214,14 +211,14 @@ export default function UnifiedMobileNewsCard({
 
             {/* Meta Info */}
             <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+              <div className="flex items-center gap-3 text-xs p-2 rounded-lg" style={{backgroundColor: 'rgba(var(--theme-primary-rgb), 0.05)'}}>
                 {(article.author_name || article.author?.name) && (
                   <span className="font-medium">{article.author_name || article.author?.name}</span>
                 )}
                 <span>{getRelativeTime(article.published_at || article.created_at)}</span>
                 {article.reading_time && (
                   <div className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
+                    <Clock className="w-3 h-3" style={{color: 'var(--theme-primary)'}} />
                     <span>{article.reading_time} دقائق</span>
                   </div>
                 )}
@@ -245,7 +242,7 @@ export default function UnifiedMobileNewsCard({
                   <span>{article.comments_count || 0}</span>
                 </div>
                 <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-                  <Eye className="w-4 h-4" />
+                  <Eye className="w-4 h-4" style={{color: 'var(--theme-primary)'}} />
                   <span>{views}</span>
                 </div>
               </div>
@@ -345,7 +342,7 @@ export default function UnifiedMobileNewsCard({
               )}
 
               {/* Meta Info */}
-              <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+              <div className="flex items-center gap-2 text-xs p-2 rounded-lg" style={{backgroundColor: 'rgba(var(--theme-primary-rgb), 0.05)'}}>
                 {(article.author_name || article.author?.name) && (
                   <>
                     <span>{article.author_name || article.author?.name}</span>
