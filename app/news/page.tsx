@@ -1,6 +1,6 @@
 "use client";
 
-import ArticleCard from "@/components/ArticleCard";
+import NewsCard from "@/components/NewsCard";
 import SmartContentNewsCard from "@/components/mobile/SmartContentNewsCard";
 import UnifiedMobileNewsCard from "@/components/mobile/UnifiedMobileNewsCard";
 import "@/components/mobile/mobile-news.css";
@@ -433,9 +433,9 @@ export default function NewsPage() {
         );
       } else {
         mixedContent.push(
-          <ArticleCard
+          <NewsCard
             key={article.id}
-            article={{
+            news={{
               ...article,
               category:
                 article.category ||
