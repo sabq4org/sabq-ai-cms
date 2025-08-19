@@ -11,26 +11,23 @@ export function buildPath({
   publishedAt?: Date | string | null;
   useDatedNewsPath?: boolean;
 }): string {
-  if (contentType === "NEWS") {
-    if (useDatedNewsPath && publishedAt) {
-      const d = new Date(publishedAt);
-      const yyyy = String(d.getUTCFullYear());
-      const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
-      const dd = String(d.getUTCDate()).padStart(2, "0");
-      return `/news/${yyyy}/${mm}/${dd}/${slug}`;
-    }
-    return `/news/${slug}`;
+  if (useDatedNewsPath && publishedAt) {
+    const d = new Date(publishedAt);
+    const yyyy = String(d.getUTCFullYear());
+    const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
+    const dd = String(d.getUTCDate()).padStart(2, "0");
+    return `/news/${yyyy}/${mm}/${dd}/${slug}`;
   }
-  return `/article/${slug}`;
+  // تحويل جميع الروابط إلى /news/
+  return `/news/${slug}`;
 }
 
 export function linkTo(item: {
   slug: string;
   contentType: ContentType;
 }): string {
-  return item.contentType === "NEWS"
-    ? `/news/${item.slug}`
-    : `/article/${item.slug}`;
+  // تحويل جميع الروابط إلى /news/ بدلاً من /article/
+  return `/news/${item.slug}`;
 }
 
 export function getSiteUrl(): string {
