@@ -59,7 +59,6 @@ interface LightHeaderProps {
 
 export default function LightHeader({ className = '' }: LightHeaderProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [showColorPicker, setShowColorPicker] = useState(false);
   const [currentTheme, setCurrentTheme] = useState(themes[0]);
   const { darkMode, toggleDarkMode, mounted } = useDarkModeContext();
   const { logoUrl, siteName, loading: settingsLoading } = useSiteSettings();
@@ -94,7 +93,6 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
     setCurrentTheme(theme);
     applyThemeToDOM(theme);
     localStorage.setItem('theme-color', theme.id);
-    setShowColorPicker(false);
   };
 
   // عناصر القائمة الجانبية
@@ -134,7 +132,7 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
       <header className={`sticky top-0 z-50 w-full border-b bg-white/95 dark:bg-gray-900/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-900/60 ${className}`}>
         <div className="container flex h-14 items-center justify-between px-4">
           {/* الجانب الأيمن: زر القائمة + اللوجو */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             {/* زر القائمة الجانبية */}
             <button
               onClick={() => setIsSidebarOpen(true)}
@@ -144,8 +142,8 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
               <Menu className="w-5 h-5 text-gray-700 dark:text-gray-200" />
             </button>
 
-            {/* اللوجو الأصلي */}
-            <Link href="/" className="flex items-center gap-2 group">
+            {/* اللوجو الأصلي - متحرك يميناً */}
+            <Link href="/" className="flex items-center group mr-2">
               {settingsLoading ? (
                 <div className="w-24 h-8 bg-gray-200 dark:bg-gray-700 animate-pulse rounded" />
               ) : (
@@ -162,75 +160,11 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
                   </div>
                 )
               )}
-              <span className="text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded-full">
-                خفيف
-              </span>
             </Link>
           </div>
 
-          {/* الجانب الأيسر: نظام الألوان + الوضع الليلي + الملف الشخصي */}
+          {/* الجانب الأيسر: الوضع الليلي + الملف الشخصي */}
           <div className="flex items-center gap-2">
-            {/* نظام الألوان المتغيرة */}
-            <div className="relative">
-              <button
-                onClick={() => setShowColorPicker(!showColorPicker)}
-                className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 active:scale-95"
-                aria-label="تغيير اللون"
-                title="تغيير لون الموقع"
-              >
-                <div className="relative">
-                  <div 
-                    className="w-5 h-5 rounded-full border-2 border-white shadow-sm"
-                    style={{ backgroundColor: currentTheme.color }}
-                  />
-                  <Palette className="w-3 h-3 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
-                </div>
-              </button>
-
-              {/* قائمة الألوان المطورة */}
-              {showColorPicker && (
-                <div className="absolute left-0 top-12 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-4 z-50 min-w-[280px]">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Palette className="w-4 h-4 text-gray-600 dark:text-gray-300" />
-                    <span className="text-sm font-semibold text-gray-900 dark:text-white">اختر لون الموقع</span>
-                  </div>
-                  
-                  <div className="grid grid-cols-3 gap-3">
-                    {themes.map((theme) => (
-                      <button
-                        key={theme.id}
-                        onClick={() => applyTheme(theme)}
-                        className={`group relative p-3 rounded-lg border-2 transition-all duration-200 hover:scale-105 ${
-                          currentTheme.id === theme.id 
-                            ? 'border-gray-900 dark:border-white bg-gray-50 dark:bg-gray-700' 
-                            : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
-                        }`}
-                      >
-                        <div 
-                          className="w-8 h-8 rounded-full mx-auto mb-2 shadow-md"
-                          style={{ backgroundColor: theme.color }}
-                        />
-                        <div className="text-xs font-medium text-gray-700 dark:text-gray-200 text-center">
-                          {theme.name}
-                        </div>
-                        {currentTheme.id === theme.id && (
-                          <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-green-500 flex items-center justify-center">
-                            <div className="w-2 h-2 bg-white rounded-full"></div>
-                          </div>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-
-                  <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
-                    <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-                      اللون الحالي: <span className="font-medium">{currentTheme.name}</span>
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-
             {/* تبديل الوضع الليلي */}
             <button
               onClick={toggleDarkMode}
@@ -366,14 +300,6 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
             </div>
           </div>
         </>
-      )}
-
-      {/* إغلاق قائمة الألوان عند النقر خارجها */}
-      {showColorPicker && (
-        <div 
-          className="fixed inset-0 z-40"
-          onClick={() => setShowColorPicker(false)}
-        />
       )}
     </>
   );
