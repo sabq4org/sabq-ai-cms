@@ -706,7 +706,7 @@ export default function NewsPage() {
 
               {/* إحصائيات الأخبار */}
               {stats && !statsLoading && (
-                <div className="mt-6 inline-flex flex-wrap justify-center items-center gap-4 md:gap-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl px-4 md:px-6 py-3">
+                <div className="mt-6 inline-flex flex-wrap justify-center items-center gap-4 md:gap-6 rounded-2xl px-4 md:px-6 py-3">
                   <div className="text-center px-2">
                     <div className="flex items-center gap-2">
                       <Newspaper className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -777,7 +777,7 @@ export default function NewsPage() {
         </section>
 
         {/* Categories Filter */}
-        <div className="sticky top-0 z-40 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
+        <div className="sticky top-0 z-40 border-b border-gray-200 dark:border-gray-700">
           <div className="max-w-7xl mx-auto px-4 md:px-6">
             <div className="flex items-center gap-2 py-4 overflow-x-auto scrollbar-hide">
               <button
@@ -818,7 +818,7 @@ export default function NewsPage() {
         {/* Content Section */}
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
           {/* Results Count & Controls */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 mb-6">
+          <div className="p-4 mb-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div className="flex items-center gap-2">
                 <Newspaper className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -839,7 +839,7 @@ export default function NewsPage() {
                     setSortBy(e.target.value as "newest" | "views");
                     setPage(1);
                   }}
-                  className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="newest">الأحدث</option>
                   <option value="views">الأكثر مشاهدة</option>
@@ -847,12 +847,12 @@ export default function NewsPage() {
 
                 {/* View Mode Toggle - مخفي في الموبايل */}
                 {!isMobile && (
-                  <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+                  <div className="flex items-center rounded-lg p-1">
                     <button
                       onClick={() => setViewMode("grid")}
                       className={`p-2 rounded transition-colors ${
                         viewMode === "grid"
-                          ? "bg-white dark:bg-gray-600 shadow-sm text-blue-600 dark:text-blue-400"
+                          ? "shadow-sm text-blue-600 dark:text-blue-400"
                           : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
                       }`}
                       title="عرض شبكي"
@@ -863,7 +863,7 @@ export default function NewsPage() {
                       onClick={() => setViewMode("list")}
                       className={`p-2 rounded transition-colors ${
                         viewMode === "list"
-                          ? "bg-white dark:bg-gray-600 shadow-sm text-blue-600 dark:text-blue-400"
+                          ? "shadow-sm text-blue-600 dark:text-blue-400"
                           : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
                       }`}
                       title="عرض قائمة"
@@ -878,7 +878,7 @@ export default function NewsPage() {
 
           {/* Error State */}
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 mb-6">
+            <div className="border border-red-200 dark:border-red-800 rounded-xl p-6 mb-6">
               <div className="flex items-center gap-3">
                 <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
                 <p className="text-red-700 dark:text-red-300">{error}</p>
@@ -896,7 +896,7 @@ export default function NewsPage() {
             </div>
           ) : articles.length === 0 ? (
             // Empty State
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-12 text-center">
+            <div className="p-12 text-center">
               <Newspaper className="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
                 لا توجد أخبار
