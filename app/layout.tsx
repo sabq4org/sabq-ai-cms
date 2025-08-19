@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans_Arabic } from "next/font/google";
-import UserHeader from "@/components/user/UserHeader";
+import ResponsiveLayout from "@/components/responsive/ResponsiveLayout";
 import Footer from "@/components/Footer";
 import { Providers } from "./providers";
 import "./globals.css";
@@ -96,28 +96,10 @@ export default function RootLayout({
       </head>
       <body className={`${ibmPlexArabic.className} antialiased`} suppressHydrationWarning>
         <Providers>
-          <div style={{ 
-            minHeight: '100vh',
-            background: '#f5f5f5',
-            paddingTop: '72px',
-            display: 'flex',
-            flexDirection: 'column',
-            position: 'relative',
-            zIndex: 1
-          }}>
-            <UserHeader />
-            <main style={{
-              flex: 1,
-              padding: '16px',
-              maxWidth: '1400px',
-              margin: '0 auto',
-              width: '100%',
-              background: 'transparent'
-            }}>
-              {children}
-            </main>
-            <Footer />
-          </div>
+          <ResponsiveLayout>
+            {children}
+          </ResponsiveLayout>
+          <Footer />
         </Providers>
       </body>
     </html>
