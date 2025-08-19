@@ -4,6 +4,7 @@ import LightLayout from "@/components/layouts/LightLayout";
 import NewsCard from "@/components/NewsCard";
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
+import "@/styles/light-layout.css";
 
 // بيانات تجريبية للعرض
 const sampleNews = [
