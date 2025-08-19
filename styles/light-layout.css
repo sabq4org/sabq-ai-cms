@@ -1,0 +1,133 @@
+/* Light Layout Styles */
+
+/* Smooth transitions for theme changes */
+.light-layout * {
+  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Custom scrollbar for side menu */
+.light-layout-menu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.light-layout-menu::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.light-layout-menu::-webkit-scrollbar-thumb {
+  background: var(--theme-primary, #3B82F6);
+  opacity: 0.3;
+  border-radius: 3px;
+}
+
+.light-layout-menu::-webkit-scrollbar-thumb:hover {
+  opacity: 0.5;
+}
+
+/* Menu item hover effect */
+.menu-item-hover {
+  position: relative;
+  overflow: hidden;
+}
+
+.menu-item-hover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--theme-primary, #3B82F6);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.menu-item-hover:hover::before {
+  opacity: 0.1;
+}
+
+/* Adaptive border colors */
+.theme-border {
+  border-color: color-mix(in srgb, var(--theme-primary, #3B82F6) 20%, transparent);
+}
+
+/* Adaptive background colors */
+.theme-bg-light {
+  background-color: color-mix(in srgb, var(--theme-primary, #3B82F6) 10%, transparent);
+}
+
+.theme-bg-medium {
+  background-color: color-mix(in srgb, var(--theme-primary, #3B82F6) 20%, transparent);
+}
+
+/* Mobile menu animation */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.slide-in {
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+.slide-out {
+  animation: slideOut 0.3s ease-in forwards;
+}
+
+/* RTL Support */
+[dir="rtl"] .slide-in {
+  animation: slideInRTL 0.3s ease-out forwards;
+}
+
+[dir="rtl"] .slide-out {
+  animation: slideOutRTL 0.3s ease-in forwards;
+}
+
+@keyframes slideInRTL {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutRTL {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+/* Focus styles for accessibility */
+.light-layout button:focus-visible,
+.light-layout a:focus-visible {
+  outline: 2px solid var(--theme-primary, #3B82F6);
+  outline-offset: 2px;
+}
+
+/* Responsive typography */
+@media (max-width: 640px) {
+  .light-layout h1 {
+    font-size: 1.875rem;
+  }
+  
+  .light-layout h2 {
+    font-size: 1.5rem;
+  }
+}
