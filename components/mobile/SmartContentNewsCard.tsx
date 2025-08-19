@@ -92,6 +92,22 @@ export default function SmartContentNewsCard({
           className={`absolute inset-0 bg-gradient-to-br ${getCardBackground()} opacity-50`}
         />
         
+        {/* Image First - Unified Design */}
+        {article.featured_image && !imageError && (
+          <Link href={`/article/${article.slug}`}>
+            <div className="relative h-48 rounded-t-2xl overflow-hidden">
+              <Image
+                src={article.featured_image}
+                alt={article.title}
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                onError={() => setImageError(true)}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+            </div>
+          </Link>
+        )}
+        
         <div className="relative p-6">
           {/* Header with AI Badge */}
           <div className="flex items-center justify-between mb-4">
@@ -110,6 +126,15 @@ export default function SmartContentNewsCard({
             )}
           </div>
 
+          {/* Category if available */}
+          {article.category_name && (
+            <div className="mb-2">
+              <span className="text-xs font-semibold text-purple-600 dark:text-purple-400 uppercase tracking-wider">
+                {article.category_name}
+              </span>
+            </div>
+          )}
+
           {/* Content */}
           <Link href={`/article/${article.slug}`}>
             <h3 className="text-lg font-bold mb-2 line-clamp-2 group-hover:text-purple-600 dark:text-white dark:group-hover:text-purple-400 transition-colors">
@@ -121,19 +146,6 @@ export default function SmartContentNewsCard({
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
               {article.excerpt}
             </p>
-          )}
-
-          {/* Image if available */}
-          {article.featured_image && !imageError && (
-            <div className="relative h-48 mb-4 rounded-lg overflow-hidden">
-              <Image
-                src={article.featured_image}
-                alt={article.title}
-                fill
-                className="object-cover"
-                onError={() => setImageError(true)}
-              />
-            </div>
           )}
 
           {/* Footer */}
@@ -200,29 +212,68 @@ export default function SmartContentNewsCard({
       />
 
       <div className="relative">
-        {/* AI Badge */}
-        <div className="px-4 pt-4 pb-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 text-white">
-                {getTypeIcon()}
+        {/* Image First - Unified Design */}
+        {article.featured_image && !imageError && (
+          <Link href={`/article/${article.slug}`}>
+            <div className="relative h-48 w-full">
+              <Image
+                src={article.featured_image}
+                alt={article.title}
+                fill
+                className="object-cover"
+                onError={() => setImageError(true)}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+              
+              {/* AI Badge on Image */}
+              <div className="absolute top-3 right-3">
+                <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-purple-500/90 backdrop-blur-sm text-white">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span className="text-xs font-medium">محتوى ذكي</span>
+                </div>
               </div>
-              <span className="text-xs font-medium text-purple-600 dark:text-purple-400">
-                محتوى ذكي مخصص لك
-              </span>
+              
+              {article.image_caption && (
+                <div className="absolute bottom-0 left-0 right-0 p-3">
+                  <p className="text-xs text-white font-medium">{article.image_caption}</p>
+                </div>
+              )}
             </div>
-            {article.score && (
-              <div className="text-xs font-medium text-gray-600 dark:text-gray-400">
-                {Math.round(article.score * 100)}%
-              </div>
-            )}
-          </div>
-        </div>
+          </Link>
+        )}
 
         {/* Content */}
-        <div className="px-4 pb-4">
+        <div className="px-4 pt-4 pb-4">
+          {/* AI Badge if no image */}
+          {!article.featured_image && (
+            <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-1.5">
+                <div className="p-1 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 text-white">
+                  <Sparkles className="w-3 h-3" />
+                </div>
+                <span className="text-xs font-medium text-purple-600 dark:text-purple-400">
+                  محتوى ذكي مخصص لك
+                </span>
+              </div>
+              {article.score && (
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {Math.round(article.score * 100)}%
+                </span>
+              )}
+            </div>
+          )}
+          
+          {/* Category if available */}
+          {article.category_name && (
+            <div className="mb-2">
+              <span className="text-xs font-semibold text-purple-600 dark:text-purple-400">
+                {article.category_name}
+              </span>
+            </div>
+          )}
+
           <Link href={`/article/${article.slug}`}>
-            <h3 className="text-base font-bold mb-2 line-clamp-2 dark:text-white">
+            <h3 className="text-base font-bold mb-2 line-clamp-2 dark:text-white hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
               {article.title}
             </h3>
           </Link>
@@ -231,24 +282,6 @@ export default function SmartContentNewsCard({
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
               {article.excerpt}
             </p>
-          )}
-
-          {/* Image for full variant */}
-          {variant === "full" && article.featured_image && !imageError && (
-            <div className="relative h-40 mb-3 rounded-lg overflow-hidden">
-              <Image
-                src={article.featured_image}
-                alt={article.title}
-                fill
-                className="object-cover"
-                onError={() => setImageError(true)}
-              />
-              {article.image_caption && (
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
-                  <p className="text-xs text-white">{article.image_caption}</p>
-                </div>
-              )}
-            </div>
           )}
 
           {/* Meta Info */}
@@ -306,3 +339,4 @@ export default function SmartContentNewsCard({
     </motion.div>
   );
 }
+
