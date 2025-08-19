@@ -70,16 +70,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // المحاولة الأولى: /api/auth/me
     try {
-      const resp = await fetch("/api/auth/me", { headers, credentials: "include" });
+      const resp = await fetch("/api/auth/me", { 
+        headers, 
+        credentials: "include",
+        mode: "cors"
+      });
       if (resp.ok) {
         const data = await resp.json();
         if (data.success && data.user) return data.user;
       }
-    } catch {}
+    } catch (err) {
+      console.log("خطأ في جلب بيانات المستخدم من API:", err);
+    }
 
     // المحاولة الثانية: /api/user/me
     try {
-      const resp2 = await fetch("/api/user/me", { headers, credentials: "include" });
+      const resp2 = await fetch("/api/user/me", { 
+        headers, 
+        credentials: "include",
+        mode: "cors"
+      });
       if (resp2.ok) {
         const data2 = await resp2.json();
         if (data2 && (data2.id || (data2.success && data2.id))) {
@@ -93,7 +103,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           } as User;
         }
       }
-    } catch {}
+    } catch (err2) {
+      console.log("خطأ في جلب بيانات المستخدم من /api/user/me:", err2);
+    }
 
     // المحاولة الثالثة: Cookie 'user'
     try {

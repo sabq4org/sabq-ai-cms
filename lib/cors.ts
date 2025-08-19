@@ -82,8 +82,8 @@ export function corsResponseFromRequest(request: NextRequest, data: any, status:
   return setCorsForOrigin(response, origin);
 }
 
-export function handleOptionsForRequest(request: NextRequest): NextResponse {
-  const origin = request.headers.get('origin');
+export function handleOptionsForRequest(request?: NextRequest): NextResponse {
+  const origin = request?.headers.get('origin') || null;
   const response = new NextResponse(null, { status: 200 });
   return setCorsForOrigin(response, origin);
 }

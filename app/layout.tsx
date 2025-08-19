@@ -272,8 +272,11 @@ export default function RootLayout({
         {/* Emergency React Fix - Secondary Protection */}
         <script src="/emergency-react-fix.js" defer></script>
 
+        {/* CORS and Auth Fixes - يجب أن يكون أولاً */}
+        <script src="/fix-cors-auth.js?v=1"></script>
+        
         {/* Production Error Fixes */}
-        <script src="/production-error-fixes.js?v=1" defer></script>
+        <script src="/production-error-fixes.js?v=2" defer></script>
 
         {/* Mobile light version JS (global, non-intrusive) */}
         <script src="/assets/js/mobile_interactions.js" defer></script>
