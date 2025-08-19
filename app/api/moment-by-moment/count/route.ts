@@ -26,15 +26,21 @@ export async function GET(request: NextRequest) {
     const articlesCount = await prisma.articles.count({
       where: {
         status: 'published',
-        OR: [
-          { published_at: { gte: oneHourAgo } },
-          { created_at: { gte: oneHourAgo } },
-        ],
-        OR: [
-          // المعيار القياسي
-          { content_type: 'NEWS' as any },
-          // توافق مع الحقول/القيم القديمة (String)
-          { article_type: { in: ['news','article','breaking','NEWS','ARTICLE','BREAKING'] } as any },
+        AND: [
+          {
+            OR: [
+              { published_at: { gte: oneHourAgo } },
+              { created_at: { gte: oneHourAgo } },
+            ],
+          },
+          {
+            OR: [
+              // المعيار القياسي
+              { content_type: 'NEWS' as any },
+              // توافق مع الحقول/القيم القديمة (String)
+              { article_type: { in: ['news','article','breaking','NEWS','ARTICLE','BREAKING'] } as any },
+            ],
+          },
         ],
       },
     });
