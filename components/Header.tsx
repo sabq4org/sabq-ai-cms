@@ -78,12 +78,6 @@ export default function Header() {
   const navigationItems = [
     { url: "/", label: "الرئيسية", icon: Home, highlight: false },
     { url: "/news", label: "الأخبار", icon: Newspaper, highlight: false },
-    {
-      url: "/opinion-articles",
-      label: "المقالات",
-      icon: Edit,
-      highlight: false,
-    },
     { url: "/categories", label: "الأقسام", icon: Folder, highlight: false },
     { url: "/muqtarab", label: "مُقترب", icon: Target, highlight: false },
     { url: "/insights/deep", label: "عمق", icon: Brain, highlight: false },

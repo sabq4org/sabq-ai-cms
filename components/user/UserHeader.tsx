@@ -18,7 +18,9 @@ import {
   TrendingUp,
   Newspaper,
   Brain,
-  Grid
+  Grid,
+  Folder,
+  Target
 } from "lucide-react";
 import DarkModeToggle from '@/components/admin/modern-dashboard/DarkModeToggle';
 import Image from 'next/image';
@@ -199,15 +201,15 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
               <Newspaper style={{ width: '16px', height: '16px', marginLeft: '6px' }} />
               الأخبار
             </Link>
-            <Link href="/articles" className="btn btn-sm">
-              <TrendingUp style={{ width: '16px', height: '16px', marginLeft: '6px' }} />
-              تحليلات
+            <Link href="/categories" className="btn btn-sm">
+              <Folder style={{ width: '16px', height: '16px', marginLeft: '6px' }} />
+              الأقسام
             </Link>
             <Link href="/muqtarab" className="btn btn-sm">
-              <Grid style={{ width: '16px', height: '16px', marginLeft: '6px' }} />
+              <Target style={{ width: '16px', height: '16px', marginLeft: '6px' }} />
               مقترب
             </Link>
-            <Link href="/deep-analysis" className="btn btn-sm">
+            <Link href="/insights/deep" className="btn btn-sm">
               <Brain style={{ width: '16px', height: '16px', marginLeft: '6px' }} />
               عمق
             </Link>
