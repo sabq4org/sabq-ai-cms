@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { withRetry } from "@/lib/prisma-helper";
 import jwt from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -73,20 +74,22 @@ export async function GET(request: NextRequest) {
     }
 
     // اجلب المستخدم
-    const user = await prisma.users.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        role: true,
-        is_admin: true,
-        is_verified: true,
-        avatar: true,
-        created_at: true,
-        updated_at: true,
-      },
-    });
+    const user = await withRetry(async () => 
+      await prisma.users.findUnique({
+        where: { id: userId },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          role: true,
+          is_admin: true,
+          is_verified: true,
+          avatar: true,
+          created_at: true,
+          updated_at: true,
+        },
+      })
+    );
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });

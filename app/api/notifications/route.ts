@@ -1,6 +1,7 @@
 // API للإشعارات الذكية - سبق الذكية
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { withRetry } from '@/lib/prisma-helper';
 import { getCurrentUser, requireAuthFromRequest } from '@/app/lib/auth';
 
 export const runtime = "nodejs";
@@ -54,36 +55,38 @@ export async function GET(req: NextRequest) {
     }
 
     // جلب الإشعارات
-    const [notifications, totalCount, unreadCount] = await Promise.all([
-      prisma.smartNotifications.findMany({
-        where: whereClause,
-        orderBy: { created_at: 'desc' },
-        skip: offset,
-        take: limitNum,
-        select: {
-          id: true,
-          type: true,
-          title: true,
-          message: true,
-          priority: true,
-          status: true,
-          read_at: true,
-          created_at: true,
-          data: true
-        }
-      }),
-      
-      prisma.smartNotifications.count({
-        where: whereClause
-      }),
-      
-      prisma.smartNotifications.count({
-        where: {
-          user_id: user.id,
-          read_at: null
-        }
-      })
-    ]);
+    const [notifications, totalCount, unreadCount] = await withRetry(async () => 
+      await Promise.all([
+        prisma.smartNotifications.findMany({
+          where: whereClause,
+          orderBy: { created_at: 'desc' },
+          skip: offset,
+          take: limitNum,
+          select: {
+            id: true,
+            type: true,
+            title: true,
+            message: true,
+            priority: true,
+            status: true,
+            read_at: true,
+            created_at: true,
+            data: true
+          }
+        }),
+        
+        prisma.smartNotifications.count({
+          where: whereClause
+        }),
+        
+        prisma.smartNotifications.count({
+          where: {
+            user_id: user.id,
+            read_at: null
+          }
+        })
+      ])
+    );
 
     // إحصائيات إضافية
     // حساب الإحصائيات يدوياً بسبب تغيرات Prisma/pg حول groupBy في بعض النُسَخ
@@ -190,10 +193,12 @@ export async function POST(req: NextRequest) {
     }
 
     // التحقق من وجود المستخدم المستهدف
-    const targetUser = await prisma.users.findUnique({
-      where: { id: targetUserId },
-      select: { id: true, name: true, email: true }
-    });
+    const targetUser = await withRetry(async () => 
+      await prisma.users.findUnique({
+        where: { id: targetUserId },
+        select: { id: true, name: true, email: true }
+      })
+    );
 
     if (!targetUser) {
       return NextResponse.json({
@@ -204,30 +209,34 @@ export async function POST(req: NextRequest) {
     }
 
     // إنشاء الإشعار
-    const notification = await prisma.smartNotifications.create({
-      data: {
-        user_id: targetUserId,
-        type,
-        title,
-        message,
-        priority,
-        status: 'pending',
-        // توحيد الحقل إلى data بدل metadata لضمان القراءة الصحيحة من الواجهات الأمامية
-        data: metadata || {},
-        created_by: user.id
-      }
-    });
+    const notification = await withRetry(async () => 
+      await prisma.smartNotifications.create({
+        data: {
+          user_id: targetUserId,
+          type,
+          title,
+          message,
+          priority,
+          status: 'pending',
+          // توحيد الحقل إلى data بدل metadata لضمان القراءة الصحيحة من الواجهات الأمامية
+          data: metadata || {},
+          created_by: user.id
+        }
+      })
+    );
 
     // إرسال فوري إذا كان مطلوباً (يمكن تطوير هذا لاحقاً)
     if (sendImmediate) {
       // TODO: تكامل مع نظام الإشعارات الفورية
-      await prisma.smartNotifications.update({
-        where: { id: notification.id },
-        data: { 
-          status: 'sent',
-          sent_at: new Date()
-        }
-      });
+            await withRetry(async () => 
+        await prisma.smartNotifications.update({
+          where: { id: notification.id },
+          data: { 
+            status: 'sent', 
+            sent_at: new Date() 
+          }
+        })
+      );
     }
 
     return NextResponse.json({
