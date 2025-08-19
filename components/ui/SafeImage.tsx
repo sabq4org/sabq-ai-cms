@@ -57,8 +57,10 @@ export default function SafeImage({
   const [fallbackAttempted, setFallbackAttempted] = useState<boolean>(false);
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     // إذا لم يكن هناك src، استخدم الصورة الافتراضية
     if (!src) {
       setImageSrc(LOCAL_FALLBACK_IMAGES[fallbackType]);
@@ -151,9 +153,7 @@ export default function SafeImage({
           fill
           src={imageSrc}
           alt={alt}
-          className={`${
-            isLoading ? "opacity-0" : "opacity-100"
-          } transition-opacity duration-300 object-cover`}
+          className="object-cover"
           onError={handleError}
           onLoad={handleLoad}
           priority={priority}
@@ -165,9 +165,7 @@ export default function SafeImage({
           height={height}
           src={imageSrc}
           alt={alt}
-          className={`${
-            isLoading ? "opacity-0" : "opacity-100"
-          } transition-opacity duration-300`}
+          className="object-cover"
           onError={handleError}
           onLoad={handleLoad}
           priority={priority}

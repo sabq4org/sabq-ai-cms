@@ -37,9 +37,11 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [currentTheme, setCurrentTheme] = useState('blue');
   const [isMobile, setIsMobile] = useState(false);
+  const [mounted, setMounted] = useState(false);
   
-  // التحقق من حجم الشاشة
+  // التحقق من حجم الشاشة ومنع مشاكل Hydration
   React.useEffect(() => {
+    setMounted(true);
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
@@ -145,6 +147,39 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
     }, 100);
   }, []);
 
+  // عدم عرض أي شيء حتى يتم mount الكامل لمنع hydration errors
+  if (!mounted) {
+    return (
+      <header style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: '72px',
+        background: 'rgba(255, 255, 255, 0.95)',
+        borderBottom: '1px solid #e5e7eb',
+        zIndex: 1000,
+        backdropFilter: 'blur(10px)',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          height: '100%',
+          padding: '0 16px',
+          maxWidth: '1400px',
+          margin: '0 auto',
+          width: '100%'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <span style={{ fontSize: '18px', fontWeight: 'bold' }}>سبق الذكية</span>
+          </div>
+        </div>
+      </header>
+    );
+  }
+
   return (
     <>
       <link rel="stylesheet" href="/manus-ui.css" />
@@ -183,11 +218,14 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
             
             {/* الشعار */}
             <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
-              <SabqLogo 
-                width={120} 
-                height={40}
-                className="h-10 w-auto"
-              />
+                          <Image
+              src="/logo.png"
+              alt="شعار سبق"
+              width={120}
+              height={40}
+              className="h-10 w-auto object-contain"
+              priority
+            />
             </Link>
           </div>
 
@@ -229,9 +267,9 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
             </button>
 
             {/* الإشعارات */}
-            {user && (
-              <button className="btn btn-sm" title="الإشعارات">
-                <Bell style={{ width: '18px', height: '18px' }} />
+            <button className="btn btn-sm" title="الإشعارات">
+              <Bell style={{ width: '18px', height: '18px' }} />
+              {user && (
                 <span className="chip" style={{
                   background: 'hsl(var(--accent))',
                   color: 'white',
@@ -243,8 +281,8 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
                 }}>
                   3
                 </span>
-              </button>
-            )}
+              )}
+            </button>
 
             {/* تغيير الثيم السريع */}
             <div 
