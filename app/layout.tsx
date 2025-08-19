@@ -273,7 +273,7 @@ export default function RootLayout({
         <script src="/emergency-react-fix.js" defer></script>
 
         {/* Production Error Fixes */}
-        <script src="/production-error-fixes.js" defer></script>
+        <script src="/production-error-fixes.js?v=1" defer></script>
 
         {/* Mobile light version JS (global, non-intrusive) */}
         <script src="/assets/js/mobile_interactions.js" defer></script>
@@ -285,7 +285,7 @@ export default function RootLayout({
         <script src="/mobile-sidebar-enhancements.js" defer></script>
         
         {/* CSS Selector & JavaScript Error Fixes - إصلاح أخطاء CSS و JavaScript */}
-        <script src="/selector-fix.js" defer></script>
+        <script src="/selector-fix.js?v=1" defer></script>
         
         {/* Development Authentication Injection - محذوف في الإنتاج */}
         {process.env.NODE_ENV !== 'production' ? (

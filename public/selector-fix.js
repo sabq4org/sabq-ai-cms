@@ -85,19 +85,11 @@
     });
   }
   
-  // إصلاح مشاكل 401 authentication
+  // إصلاح مشاكل 401/404 لمسارات الهوية: لا نحولها إلى 200 لتجنب لخبطة الحالة
   function fixAuthErrors() {
-    // منع تكرار طلبات المصادقة الفاشلة
     const originalFetch = window.fetch;
     window.fetch = function(...args) {
-      return originalFetch.apply(this, args)
-        .catch(error => {
-          if (error.message && error.message.includes('401')) {
-            console.warn('تم تجاهل خطأ المصادقة:', error);
-            return new Response('{}', { status: 200 });
-          }
-          throw error;
-        });
+      return originalFetch.apply(this, args).then(resp => resp).catch(err => { throw err; });
     };
   }
   

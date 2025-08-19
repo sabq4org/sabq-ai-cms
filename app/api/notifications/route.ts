@@ -190,7 +190,7 @@ export async function POST(req: NextRequest) {
     }
 
     // التحقق من وجود المستخدم المستهدف
-    const targetUser = await prisma.user.findUnique({
+    const targetUser = await prisma.users.findUnique({
       where: { id: targetUserId },
       select: { id: true, name: true, email: true }
     });

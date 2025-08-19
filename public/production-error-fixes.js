@@ -137,5 +137,24 @@ if (typeof window !== "undefined") {
   `;
   document.head.appendChild(style);
 
+  // 7. إصلاح فشل تحميل CSS chunks بسبب @charset/@import
+  document.addEventListener('error', function (event) {
+    const el = event.target;
+    if (el && el.tagName === 'LINK' && el.rel === 'stylesheet') {
+      try {
+        const href = el.href || '';
+        if (href.includes('/_next/static/css/')) {
+          // إعادة محاولة التحميل مع query لتجاوز الكاش
+          setTimeout(() => {
+            const retry = document.createElement('link');
+            retry.rel = 'stylesheet';
+            retry.href = href.split('?')[0] + '?retry=' + Date.now();
+            document.head.appendChild(retry);
+          }, 200);
+        }
+      } catch {}
+    }
+  }, true);
+
   console.log("✅ تم تطبيق إصلاحات أخطاء الإنتاج بنجاح");
 }
