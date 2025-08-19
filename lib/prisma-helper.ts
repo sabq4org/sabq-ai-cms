@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import prisma from "./prisma";
+import { checkDatabaseHealth, resetPrismaConnection } from "./prisma-production";
 
 // معالج اتصال محسّن مع إعادة محاولة
 export async function ensurePrismaConnection(client: PrismaClient = prisma, retries = 3): Promise<void> {
@@ -38,9 +39,13 @@ export async function withRetry<T>(
   
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
-      // تأكد من الاتصال قبل العملية
+      // فحص صحة الاتصال قبل العملية
       if (attempt > 0) {
-        await ensurePrismaConnection(prisma, 1);
+        const health = await checkDatabaseHealth(prisma);
+        if (!health.connected) {
+          console.log(`محاولة إعادة تعيين الاتصال (${attempt + 1}/${maxRetries})...`);
+          await resetPrismaConnection(prisma);
+        }
       }
       
       return await operation();
@@ -50,8 +55,10 @@ export async function withRetry<T>(
       // إذا كان خطأ اتصال، انتظر قبل إعادة المحاولة
       if (error.message?.includes("Engine is not yet connected") ||
           error.message?.includes("ECONNREFUSED") ||
-          error.code === "P1001") {
-        console.log(`إعادة محاولة العملية (${attempt + 1}/${maxRetries})...`);
+          error.message?.includes("Connection terminated") ||
+          error.code === "P1001" ||
+          error.code === "P1017") {
+        console.log(`إعادة محاولة العملية (${attempt + 1}/${maxRetries}) - خطأ: ${error.message}`);
         await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
         continue;
       }
