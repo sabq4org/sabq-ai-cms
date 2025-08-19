@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { withRetry } from "@/lib/prisma-helper";
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -23,27 +24,29 @@ export async function GET(request: NextRequest) {
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
 
     // عدد المقالات الجديدة (خلال آخر ساعة) مع توافق لأنواع المحتوى وكتابة مختلفة
-    const articlesCount = await prisma.articles.count({
-      where: {
-        status: 'published',
-        AND: [
-          {
-            OR: [
-              { published_at: { gte: oneHourAgo } },
-              { created_at: { gte: oneHourAgo } },
-            ],
-          },
-          {
-            OR: [
-              // المعيار القياسي
-              { content_type: 'NEWS' as any },
-              // توافق مع الحقول/القيم القديمة (String)
-              { article_type: { in: ['news','article','breaking','NEWS','ARTICLE','BREAKING'] } as any },
-            ],
-          },
-        ],
-      },
-    });
+    const articlesCount = await withRetry(async () => 
+      prisma.articles.count({
+        where: {
+          status: 'published',
+          AND: [
+            {
+              OR: [
+                { published_at: { gte: oneHourAgo } },
+                { created_at: { gte: oneHourAgo } },
+              ],
+            },
+            {
+              OR: [
+                // المعيار القياسي
+                { content_type: 'NEWS' as any },
+                // توافق مع الحقول/القيم القديمة (String)
+                { article_type: { in: ['news','article','breaking','NEWS','ARTICLE','BREAKING'] } as any },
+              ],
+            },
+          ],
+        },
+      })
+    );
 
     // تحديث الكاش
     cache = {

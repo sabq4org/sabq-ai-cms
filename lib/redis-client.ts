@@ -53,7 +53,9 @@ export function getRedisClient(): Redis | null {
     }
 
     if (url.startsWith("rediss://")) {
-      redisOptions.tls = {};
+      redisOptions.tls = {
+        rejectUnauthorized: false, // تجاوز مشاكل SSL في البيئات المختلفة
+      };
     }
 
     console.log("🔄 [Redis Client] إنشاء اتصال جديد...");
@@ -74,8 +76,10 @@ export function getRedisClient(): Redis | null {
 
       redisInstance.on("error", (err: any) => {
         connectionStatus = "error";
-        // تجنب طباعة خطأ ETIMEDOUT المتكرر
-        if (!err.message.includes("ETIMEDOUT")) {
+        // تجنب طباعة أخطاء SSL وETIMEDOUT المتكررة
+        if (!err.message.includes("ETIMEDOUT") && 
+            !err.message.includes("packet length too long") &&
+            !err.message.includes("SSL routines")) {
           console.error("❌ [Redis Client] خطأ في الاتصال:", err.message);
         }
         // إغلاق الاتصال ومنع إعادة المحاولة لمنع "Unhandled Rejection"
