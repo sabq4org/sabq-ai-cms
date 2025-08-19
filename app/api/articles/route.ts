@@ -123,51 +123,52 @@ export async function GET(request: NextRequest) {
     }
 
     // جلب المقالات أولاً (بدون content_type لتوافق قاعدة البيانات الحالية)
-    const articles = await withRetry(async () => 
-      prisma.articles.findMany({
-      where,
-      skip,
-      take: limit,
-      orderBy,
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        content: true,
-        excerpt: true,
-        author_id: true,
-        article_author_id: true,
-        category_id: true,
-        status: true,
-        featured: true,
-        breaking: true,
-        featured_image: true,
-        seo_title: true,
-        seo_description: true,
-        seo_keywords: true,
-        created_at: true,
-        updated_at: true,
-        published_at: true,
-        metadata: true,
-        article_type: true,
-        content_type: true, // Ensure this field is always fetched
-        views: true,
-        reading_time: true,
-        summary: true,
-        likes: true,
-        saves: true,
-        shares: true,
-        allow_comments: true,
-        social_image: true,
-        audio_summary_url: true,
-        categories: {
-          select: { id: true, name: true, slug: true, color: true },
+    const articles = await withRetry(async () => {
+      return prisma.articles.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy,
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          content: true,
+          excerpt: true,
+          author_id: true,
+          article_author_id: true,
+          category_id: true,
+          status: true,
+          featured: true,
+          breaking: true,
+          featured_image: true,
+          seo_title: true,
+          seo_description: true,
+          seo_keywords: true,
+          created_at: true,
+          updated_at: true,
+          published_at: true,
+          metadata: true,
+          article_type: true,
+          content_type: true, // Ensure this field is always fetched
+          views: true,
+          reading_time: true,
+          summary: true,
+          likes: true,
+          saves: true,
+          shares: true,
+          allow_comments: true,
+          social_image: true,
+          audio_summary_url: true,
+          categories: {
+            select: { id: true, name: true, slug: true, color: true },
+          },
+          author: {
+            select: { id: true, name: true, email: true, avatar: true },
+          },
         },
-        author: {
-          select: { id: true, name: true, email: true, avatar: true },
-        },
-      }
-    ));
+      });
+    });
 
     // حساب العدد بنفس شروط where بالضبط
     let totalCount = 0;
