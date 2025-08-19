@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { usePathname } from "next/navigation";
 
 // النسخة الكاملة (للديسكتوب)
@@ -16,47 +16,67 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
 
+  // تحسين فحص الجهاز
+  const checkDevice = useCallback(() => {
+    const width = window.innerWidth;
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    
+    // اعتبر الجهاز محمول إذا كانت الشاشة صغيرة أو إذا كان جهاز لمس
+    const newIsMobile = width < 768 || (isTouchDevice && width < 1024);
+    setIsMobile(prev => prev !== newIsMobile ? newIsMobile : prev);
+  }, []);
+
   useEffect(() => {
     setMounted(true);
-    
-    // فحص حجم الشاشة ونوع الجهاز
-    const checkDevice = () => {
-      const width = window.innerWidth;
-      const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-      
-      // اعتبر الجهاز محمول إذا كانت الشاشة صغيرة أو إذا كان جهاز لمس
-      setIsMobile(width < 768 || (isTouchDevice && width < 1024));
+    checkDevice();
+
+    // تحسين الأداء مع debounce
+    let timeoutId: NodeJS.Timeout;
+    const debouncedResize = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(checkDevice, 100);
     };
 
-    checkDevice();
-    window.addEventListener('resize', checkDevice);
+    window.addEventListener('resize', debouncedResize, { passive: true });
 
-    return () => window.removeEventListener('resize', checkDevice);
-  }, []);
+    return () => {
+      window.removeEventListener('resize', debouncedResize);
+      clearTimeout(timeoutId);
+    };
+  }, [checkDevice]);
+
+  // تحسين شاشة التحميل
+  const LoadingSpinner = useMemo(() => (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+    </div>
+  ), []);
+
+  // مؤشر التطوير (محسن للأداء)
+  const DevIndicator = useMemo(() => {
+    if (process.env.NODE_ENV !== 'development') return null;
+    
+    return (
+      <div className={`fixed top-2 left-2 z-50 px-2 py-1 text-white text-xs rounded-full ${
+        isMobile ? 'bg-green-500' : 'bg-blue-500'
+      }`}>
+        {isMobile ? '📱 موبايل' : '💻 ديسكتوب'}
+      </div>
+    );
+  }, [isMobile]);
 
   // عدم عرض أي شيء قبل التأكد من حجم الشاشة
   if (!mounted) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: 'var(--theme-primary, #3b82f6)' }}></div>
-      </div>
-    );
+    return LoadingSpinner;
   }
 
   // النسخة الخفيفة للهواتف والتابلت
   if (isMobile) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        {/* مؤشر النسخة الخفيفة للتطوير */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className="fixed top-2 left-2 z-50 px-2 py-1 bg-green-500 text-white text-xs rounded-full">
-            📱 موبايل - النسخة الخفيفة
-          </div>
-        )}
-        
+        {DevIndicator}
         <LightHeader />
         <main className="container mx-auto px-4 py-6">
-          {/* تمرير معلومة أن الجهاز محمول */}
           <div data-device="mobile">
             {children}
           </div>
@@ -76,13 +96,7 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
       position: 'relative',
       zIndex: 1
     }}>
-      {/* مؤشر النسخة الكاملة للتطوير */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="fixed top-2 left-2 z-50 px-2 py-1 bg-blue-500 text-white text-xs rounded-full">
-          💻 ديسكتوب - النسخة الكاملة
-        </div>
-      )}
-      
+      {DevIndicator}
       <UserHeader />
       <main style={{
         flex: 1,
@@ -92,7 +106,6 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
         width: '100%',
         background: 'transparent'
       }}>
-        {/* تمرير معلومة أن الجهاز ديسكتوب */}
         <div data-device="desktop">
           {children}
         </div>

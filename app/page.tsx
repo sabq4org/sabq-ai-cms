@@ -5,10 +5,10 @@ import ResponsiveHome from "@/components/responsive/ResponsiveHome";
 import UserWelcomeBlock from "@/components/user/UserWelcomeBlock";
 import FeaturedNewsBlock from "@/components/user/FeaturedNewsBlock";
 import SmartContentBlock from "@/components/user/SmartContentBlock";
-import { useEffect } from "react";
+import { useEffect, useMemo, Suspense } from "react";
 import dynamic from "next/dynamic";
 
-// استيراد بلوك مقترب بشكل ديناميكي
+// استيراد بلوك مقترب بشكل ديناميكي مع تحسين التحميل
 const MuqtarabBlock = dynamic(
   () => import("@/components/home/EnhancedMuqtarabBlock"),
   {
@@ -19,26 +19,57 @@ const MuqtarabBlock = dynamic(
   }
 );
 
+// مكون شاشة التحميل المحسن
+const LoadingScreen = () => (
+  <div className="flex items-center justify-center py-20">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+  </div>
+);
+
 export default function Page() {
   const { isMobile, mounted } = useDeviceType();
 
   useEffect(() => {
-    // التأكد من تحميل CSS variables
-    const root = document.documentElement;
-    const hasCSS = getComputedStyle(root).getPropertyValue('--bg');
-    if (!hasCSS) {
-      console.error('CSS variables not loaded! Check manus-ui.css');
+    // تحسين فحص CSS
+    if (mounted) {
+      const root = document.documentElement;
+      const hasCSS = getComputedStyle(root).getPropertyValue('--bg');
+      if (!hasCSS) {
+        console.warn('CSS variables might not be loaded');
+      }
     }
-    console.log('Page component loaded successfully', { isMobile, mounted });
-  }, [isMobile, mounted]);
+  }, [mounted]);
+
+  // محتوى الديسكتوب محسن مع useMemo
+  const DesktopContent = useMemo(() => (
+    <div style={{ padding: '20px 0' }}>
+      <Suspense fallback={<div className="h-32 animate-pulse bg-gray-200 rounded" />}>
+        <UserWelcomeBlock />
+      </Suspense>
+      
+      <Suspense fallback={<div className="h-48 animate-pulse bg-gray-200 rounded mt-6" />}>
+        <SmartContentBlock />
+      </Suspense>
+      
+      <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded mt-6" />}>
+        <FeaturedNewsBlock />
+      </Suspense>
+      
+      <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded mt-6" />}>
+        <MuqtarabBlock
+          limit={8}
+          showPagination={false}
+          showFilters={false}
+          viewMode="grid"
+          className="mt-12"
+        />
+      </Suspense>
+    </div>
+  ), []);
 
   // عرض شاشة تحميل أثناء التحقق من نوع الجهاز
   if (!mounted) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: 'var(--theme-primary, #3b82f6)' }}></div>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   // النسخة المحمولة
@@ -47,24 +78,5 @@ export default function Page() {
   }
 
   // النسخة الكاملة للديسكتوب
-  return (
-    <div style={{ padding: '20px 0' }}>
-      <UserWelcomeBlock />
-      
-      {/* بلوك المحتوى الذكي */}
-      <SmartContentBlock />
-      
-      {/* بلوك الأخبار المميزة */}
-      <FeaturedNewsBlock />
-      
-      {/* بلوك مقترب - أسفل بطاقات الأخبار */}
-      <MuqtarabBlock
-        limit={8}
-        showPagination={false}
-        showFilters={false}
-        viewMode="grid"
-        className="mt-12"
-      />
-    </div>
-  );
+  return DesktopContent;
 }
