@@ -137,7 +137,19 @@ export default function ModernDashboardHomeFullWidth() {
   ];
 
   // مكون بطاقة الإحصائيات بتصميم Manus UI
-  const StatCard = ({ title, value, icon: Icon, change, changeType }: any) => {
+  const StatCard = ({ 
+    title, 
+    value, 
+    icon: Icon, 
+    change, 
+    changeType 
+  }: {
+    title: string;
+    value: string | number;
+    icon: React.ComponentType<any>;
+    change?: number;
+    changeType?: 'increase' | 'decrease';
+  }) => {
     const ChangeIcon = changeType === 'increase' ? ArrowUpRight : ArrowDownRight;
     
     return (

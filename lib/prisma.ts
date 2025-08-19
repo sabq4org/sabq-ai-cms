@@ -12,25 +12,36 @@ declare global {
 
 // إعدادات محسّنة لمنع connection pool timeout
 const prismaOptions = {
-  log: (process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"]) as LogLevel[],
+  log: (process.env.NODE_ENV === "development" ? ["query", "info", "warn", "error"] : ["error"]) as LogLevel[],
   errorFormat: "pretty" as const,
 };
 
-// إنشاء instance واحد فقط مع إعدادات محسّنة
-const prisma =
-  globalThis.__prisma ??
-  new PrismaClient(prismaOptions);
+let prisma: PrismaClient;
+
+if (process.env.NODE_ENV === "production") {
+  prisma = new PrismaClient(prismaOptions);
+} else {
+  if (!global.__prisma) {
+    global.__prisma = new PrismaClient(prismaOptions);
+  }
+  prisma = global.__prisma;
+}
 
 // معالجة أفضل للاتصال
-async function initConnection(client: PrismaClient) {
+async function connectPrisma() {
   try {
-    await client.$connect();
-    console.log("✅ Prisma connected successfully");
-  } catch (e: any) {
-    console.warn("⚠️ Prisma connection warning:", e.message);
-    // تجاهل؛ سيتم إعادة المحاولة عند أول استعلام
+    await prisma.$connect();
+    console.log("✅ Prisma connected successfully.");
+  } catch (error) {
+    console.error("🔴 Failed to connect to Prisma:", error);
+    // In case of a connection error, we might want to exit the process
+    // to allow for a restart by the environment manager (like Docker or PM2).
+    process.exit(1);
   }
 }
+
+connectPrisma();
+
 
 // معالجة إغلاق الاتصال بشكل صحيح
 process.on("beforeExit", async () => {
@@ -44,14 +55,6 @@ process.on("SIGINT", async () => {
   process.exit(0);
 });
 
-if (process.env.NODE_ENV === "production") {
-  // تشغيل اتصال مبكر في الإنتاج
-  initConnection(prisma).catch(console.error);
-}
-
-if (process.env.NODE_ENV !== "production") {
-  globalThis.__prisma = prisma;
-}
 
 // دالة مساعدة للاستعلامات مع معالجة الأخطاء
 export async function withPrisma<T>(operation: (prisma: PrismaClient) => Promise<T>): Promise<T> {
@@ -72,5 +75,5 @@ function getPrismaClient(): PrismaClient {
 }
 
 // التصدير - named export و default export
-export { prisma, getPrismaClient };
+export { prisma };
 export default prisma;

@@ -34,7 +34,7 @@ const StatCard = ({
 }: {
   title: string;
   value: string | number;
-  icon: any;
+  icon: React.ComponentType<any>;
   trend?: { value: number; label: string };
   color?: string;
 }) => {

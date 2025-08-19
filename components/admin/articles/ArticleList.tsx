@@ -6,7 +6,21 @@
 
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Button }   const StatsCard = ({
+    title,
+    value,
+    subtitle,
+    icon: Icon,
+    bgColor,
+    iconColor
+  }: {
+    title: string;
+    value: string | number;
+    subtitle: string;
+    icon: React.ComponentType<any>;
+    bgColor: string;
+    iconColor: string;
+  }) => (nts/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { LoadingSpinner, SkeletonCard } from '@/components/ui/loading';
@@ -237,7 +251,7 @@ export const ArticleList: React.FC<ArticleListProps> = ({
     title: string;
     value: string | number;
     subtitle: string;
-    icon: any;
+    icon: React.ComponentType<any>;
     bgColor: string;
     iconColor: string;
   }) => (

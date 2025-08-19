@@ -191,7 +191,7 @@ export default function ModernAnalytics() {
     title: string;
     value: string | number;
     subtitle?: string;
-    icon: any;
+    icon: React.ComponentType<any>;
     bgColor: string;
     iconColor: string;
     change?: number;

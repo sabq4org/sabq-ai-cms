@@ -61,7 +61,7 @@ interface EditUserData {
   newPassword?: string;
 }
 // خريطة أيقونات مستويات الولاء
-const loyaltyIconMap: Record<string, any> = {
+const loyaltyIconMap: Record<string, React.ComponentType<any>> = {
   'برونزي': Medal,
   'فضي': Award,
   'ذهبي': BadgeCheck,

@@ -1,1 +1,60 @@
-import { Metadata } from "next";// ISR: إعادة التحقق كل 60 ثانية للصفحة الرئيسيةexport const revalidate = 60;// Metadata للصفحة الرئيسيةexport const metadata: Metadata = {  title: "صحيفة سبق الالكترونية AI - الصفحة الرئيسية",  description:    "موقع صحيفة سبق الإلكترونية الرسمي - آخر الأخبار والمقالات من المملكة العربية السعودية والعالم بتقنية الذكاء الاصطناعي",  keywords: [    "سبق",    "صحيفة سبق",    "أخبار السعودية",    "أخبار المملكة",    "الأخبار",    "صحافة",    "إعلام",    "تقنية",    "ذكاء اصطناعي",  ],  authors: [{ name: "فريق صحيفة سبق الإلكترونية" }],  creator: "صحيفة سبق الإلكترونية",  publisher: "صحيفة سبق الإلكترونية",  formatDetection: {    email: false,    address: false,    telephone: false,  },  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "https://sabq.io"),  alternates: {    canonical: "/",  },  openGraph: {    type: "website",    locale: "ar_SA",    url: "/",    title: "صحيفة سبق الالكترونية AI - الصفحة الرئيسية",    description:      "موقع صحيفة سبق الإلكترونية الرسمي - آخر الأخبار والمقالات من المملكة العربية السعودية والعالم بتقنية الذكاء الاصطناعي",    siteName: "صحيفة سبق الإلكترونية",  },  twitter: {    card: "summary_large_image",    title: "صحيفة سبق الالكترونية AI - الصفحة الرئيسية",    description:      "موقع صحيفة سبق الإلكترونية الرسمي - آخر الأخبار والمقالات من المملكة العربية السعودية والعالم بتقنية الذكاء الاصطناعي",  },  robots: {    index: true,    follow: true,    googleBot: {      index: true,      follow: true,      "max-video-preview": -1,      "max-image-preview": "large",      "max-snippet": -1,    },  },};export default function HomePage() {  return (    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">      <div className="container mx-auto px-4 py-8">        <div className="text-center">          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">            صحيفة سبق الإلكترونية          </h1>          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">            آخر الأخبار والمقالات من المملكة العربية السعودية والعالم          </p>          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 max-w-2xl mx-auto">            <h2 className="text-2xl font-semibold mb-4">مرحباً بكم</h2>            <p className="text-gray-600 dark:text-gray-300">              تم إزالة المحتوى المحمول مؤقتاً أثناء عملية التنظيف.              سيتم إعادة تطوير الصفحة الرئيسية قريباً.            </p>            <div className="mt-6">              <a                 href="/dashboard"                 className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"              >                الانتقال إلى لوحة التحكم              </a>            </div>          </div>        </div>      </div>    </div>  );}
+import PageClient from "./page-client";
+import { Metadata } from "next";
+
+async function safeFetch(url: string, options: RequestInit = {}) {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
+      ...options,
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) {
+      console.warn(`Failed to fetch ${url}: ${res.statusText}`);
+      return null;
+    }
+    return res.json();
+  } catch (error) {
+    console.error(`Error fetching ${url}:`, error);
+    return null;
+  }
+}
+export const metadata: Metadata = {
+  title: "صحيفة سبق الالكترونية AI - الصفحة الرئيسية",
+  description:
+    "موقع صحيفة سبق الإلكترونية الرسمي - آخر الأخبار والمقالات من المملكة العربية السعودية والعالم بتقنية الذكاء الاصطناعي",
+};
+
+export default async function Page() {
+  const [
+    articlesData,
+    categoriesData,
+    statsData,
+    deepAnalysesData,
+    featuredArticlesData,
+  ] = await Promise.all([
+    safeFetch("/api/news?status=published&limit=20&sort=published_at&order=desc"),
+    safeFetch("/api/categories?is_active=true"),
+    safeFetch("/api/stats/homepage"),
+    safeFetch("/api/deep-analyses?limit=3&sortBy=views&sortOrder=desc"),
+    safeFetch("/api/featured-news-carousel"),
+  ]);
+
+  const articles = articlesData?.articles || articlesData?.data || [];
+  const categories = categoriesData?.data || categoriesData?.categories || [];
+  const stats = statsData || {
+    activeReaders: null,
+    dailyArticles: null,
+    loading: false,
+  };
+  const deepAnalyses = deepAnalysesData?.analyses || [];
+  const featuredArticles = featuredArticlesData?.articles || [];
+
+  return (
+    <PageClient
+      initialArticles={articles}
+      initialCategories={categories}
+      initialStats={stats}
+      initialDeepAnalyses={deepAnalyses}
+      initialFeaturedArticles={featuredArticles}
+    />
+  );
+}

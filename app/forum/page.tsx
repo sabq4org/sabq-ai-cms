@@ -251,7 +251,7 @@ export default function SabqForum() {
         const data = await response.json();
         if (data.categories) {
           // ربط الأيقونات بناءً على slug الفئة
-          const iconMap: { [key: string]: any } = {
+          const iconMap: { [key: string]: React.ComponentType<any> } = {
             'general': MessageCircle,
             'requests': Lightbulb,
             'bugs': Bug,

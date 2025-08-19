@@ -17,7 +17,6 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import MobileOpinionCard from "./mobile/MobileOpinionCard";
 
 // أيقونات أندية الكتاب
 const writerClubColors = {
@@ -567,19 +566,7 @@ export default function TodayOpinionsSection({
         </div>
 
         {/* بطاقات الآراء المُضغوطة والأنيقة */}
-        {isMobile ? (
-          // عرض الموبايل - قائمة عمودية
-          <div className="space-y-3">
-            {opinionArticles.slice(0, 5).map((article) => (
-              <MobileOpinionCard
-                key={article.id}
-                article={article}
-                darkMode={darkMode}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
             {opinionArticles.slice(0, 5).map((article) => (
               <div
                 key={article.id}
@@ -770,7 +757,6 @@ export default function TodayOpinionsSection({
               </div>
             ))}
           </div>
-        )}
 
         {/* رابط عرض المزيد */}
         <div className="text-center mt-12">

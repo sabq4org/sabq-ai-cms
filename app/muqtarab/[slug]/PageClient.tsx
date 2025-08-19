@@ -135,7 +135,7 @@ export default function PageClient({ initialAngle, initialArticles }: PageClient
 
 function AngleHeader({ angle }: { angle: Angle }) {
   const getAngleIcon = (iconName?: string | null) => {
-    const iconMap: Record<string, any> = {
+    const iconMap: Record<string, React.ComponentType<any>> = {
       cpu: Cpu,
       brain: Brain,
       zap: Zap,

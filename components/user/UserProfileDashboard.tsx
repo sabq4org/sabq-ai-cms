@@ -134,7 +134,19 @@ export default function UserProfileDashboard() {
     return badges[level as keyof typeof badges] || badges.beginner;
   };
 
-  const StatCard = ({ title, value, icon: Icon, color, trend }: any) => (
+  const StatCard = ({ 
+    title, 
+    value, 
+    icon: Icon, 
+    color, 
+    trend 
+  }: {
+    title: string;
+    value: string | number;
+    icon: React.ComponentType<any>;
+    color: string;
+    trend?: { value: number; label: string };
+  }) => (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all">
       <div className="flex items-center justify-between">
         <div>

@@ -74,7 +74,7 @@ interface Article {
   is_breaking?: boolean;
 }
 // أيقونات التصنيفات
-const categoryIcons: { [key: string]: any } = {
+const categoryIcons: { [key: string]: React.ComponentType<any> } = {
   تقنية: Laptop,
   رياضة: Trophy,
   اقتصاد: TrendingUp,
