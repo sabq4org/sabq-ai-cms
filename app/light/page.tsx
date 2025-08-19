@@ -108,13 +108,13 @@ export default function LightPage() {
             borderColor: 'var(--theme-primary, #3B82F6)20',
           }}
         >
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+          <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
             للحصول على محتوى مخصص لك سجل دخولك أو أنشئ حساباً جديداً
           </p>
           <div className="flex items-center justify-center gap-3">
             <Link
               href="/login"
-              className="px-4 py-2 rounded-lg text-sm font-medium transition-all hover:scale-105"
+              className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:scale-105"
               style={{
                 backgroundColor: 'var(--theme-primary, #3B82F6)',
                 color: 'white',
