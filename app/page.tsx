@@ -40,14 +40,13 @@ export default function Page() {
       <FeaturedNewsBlock />
       
       {/* بلوك مقترب - أسفل بطاقات الأخبار */}
-      <div className="muqtarab-block-wrapper muqtarab-card-container mt-12">
-        <MuqtarabBlock
-          limit={8}
-          showPagination={false}
-          showFilters={false}
-          viewMode="grid"
-        />
-      </div>
+      <MuqtarabBlock
+        limit={8}
+        showPagination={false}
+        showFilters={false}
+        viewMode="grid"
+        className="mt-12"
+      />
     </div>
   );
 }
