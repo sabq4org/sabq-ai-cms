@@ -214,4 +214,5 @@ export const awardPoints = async (
   }
 };
 
-export default { showLoyaltyToast, showLevelUpToast, awardPoints }; 
+// تجنب تصدير كائن كـ default حتى لا يُستخدم كمكون React
+export const LoyaltyToast = { showLoyaltyToast, showLevelUpToast, awardPoints };

@@ -525,7 +525,8 @@ export const DashboardIcons = {
   Users,
 };
 
-export default {
+// لا تقم بتصدير كائن كـ default حتى لا يُستخدم كمكون React بالخطأ
+export const DashboardComponents = {
   StatsCard,
   PageHeader,
   DataTable,
