@@ -27,7 +27,6 @@
 
 .smart-content-mobile-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 /* Mobile-specific styles */
@@ -95,8 +94,7 @@
   @apply bg-gray-800 text-gray-100;
 }
 
-.dark .unified-mobile-card:hover,
-.dark .smart-content-mobile-card:hover {
+.dark .unified-mobile-card:hover {
   @apply shadow-lg shadow-gray-900/50;
 }
 

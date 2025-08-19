@@ -207,7 +207,7 @@ export default function NewsCard({ news, viewMode = "grid" }: NewsCardProps) {
               />
             </div>
           </div>
-          <div className="category-underline" aria-hidden />
+
         </article>
       </Link>
     );

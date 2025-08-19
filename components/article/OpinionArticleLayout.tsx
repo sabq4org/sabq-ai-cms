@@ -400,8 +400,8 @@ export default function OpinionArticleLayout({
                       </div>
                     </div>
                   </div>
-                  {/* خط سفلي بلون التصنيف */}
-                  <div className="category-underline" aria-hidden />
+
+
                 </header>
 
                 {/* المحتوى الرئيسي */}

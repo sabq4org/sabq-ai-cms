@@ -120,7 +120,7 @@ export default function SmartContentNewsCard({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: position * 0.1 }}
-        className={`smart-content-card group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 ${
+        className={`smart-content-card group relative overflow-hidden rounded-2xl transition-all duration-300 ${
           darkMode ? "bg-gray-800" : "bg-white"
         }`}
       >
@@ -235,7 +235,7 @@ export default function SmartContentNewsCard({
       transition={{ duration: 0.5, delay: position * 0.1 }}
       className={`smart-content-mobile-card relative overflow-hidden ${
         darkMode ? "bg-gray-800" : "bg-white"
-      } rounded-2xl shadow-lg mb-4`}
+      } rounded-2xl mb-4`}
     >
       <div
         className={`absolute inset-0 bg-gradient-to-br ${getCardBackground()} opacity-30`}

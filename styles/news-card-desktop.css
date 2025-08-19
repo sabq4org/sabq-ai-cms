@@ -9,15 +9,14 @@
   color: color-mix(in oklab, var(--cat) 70%, currentColor);
   border: 1px solid color-mix(in oklab, var(--cat) 28%, transparent);
 }
+/* تم إزالة الإطار الملون السفلي
 .category-underline {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
   height: 4px;
-  /* Fallback */
   background: linear-gradient(90deg, rgba(59, 130, 246, 0.7), #3b82f6);
-  /* Modern */
   background: linear-gradient(
     90deg,
     color-mix(in oklab, var(--cat) 70%, transparent),
@@ -26,7 +25,7 @@
   opacity: 0.95;
   pointer-events: none;
   z-index: 2;
-}
+} */
 
 article[data-category="world"] {
   --cat: #3b82f6;
@@ -114,6 +113,6 @@ article {
   color: color-mix(in oklab, var(--cat) 80%, #e5e7eb);
   border-color: color-mix(in oklab, var(--cat) 24%, transparent);
 }
-:root.dark .category-underline {
+/* :root.dark .category-underline {
   opacity: 0.85;
-}
+} */
