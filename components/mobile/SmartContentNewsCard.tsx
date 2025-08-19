@@ -43,6 +43,42 @@ export default function SmartContentNewsCard({
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [imageError, setImageError] = useState(false);
 
+  // دالة تحديد لون التصنيف
+  const getCategoryColor = () => {
+    const categoryColors: Record<string, string> = {
+      // تصنيفات عربية
+      "رياضة": "#22c55e",
+      "الرياضة": "#22c55e",
+      "تقنية": "#8b5cf6",
+      "التقنية": "#8b5cf6",
+      "اقتصاد": "#f59e0b",
+      "الاقتصاد": "#f59e0b",
+      "سياسة": "#ef4444",
+      "السياسة": "#ef4444",
+      "ثقافة": "#ec4899",
+      "الثقافة": "#ec4899",
+      "صحة": "#10b981",
+      "الصحة": "#10b981",
+      "علوم": "#06b6d4",
+      "العلوم": "#06b6d4",
+      "محليات": "#3b82f6",
+      "المحليات": "#3b82f6",
+      // تصنيفات إنجليزية
+      "sports": "#22c55e",
+      "tech": "#8b5cf6",
+      "technology": "#8b5cf6",
+      "business": "#f59e0b",
+      "politics": "#ef4444",
+      "culture": "#ec4899",
+      "health": "#10b981",
+      "science": "#06b6d4",
+      "local": "#3b82f6",
+    };
+    
+    const categoryName = article.category_name?.toLowerCase() || "";
+    return categoryColors[categoryName] || "#3b82f6"; // اللون الافتراضي
+  };
+
   const handleShare = async () => {
     if (navigator.share) {
       try {
@@ -112,7 +148,14 @@ export default function SmartContentNewsCard({
           {/* Category and AI Labels */}
           <div className="flex items-center gap-2 mb-4 flex-wrap">
             {article.category_name && (
-              <span className="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+              <span 
+                className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold border"
+                style={{
+                  backgroundColor: getCategoryColor() + "15",
+                  color: getCategoryColor(),
+                  borderColor: getCategoryColor() + "40",
+                }}
+              >
                 {article.category_name}
               </span>
             )}
@@ -226,7 +269,14 @@ export default function SmartContentNewsCard({
           {/* Category and AI Labels */}
           <div className="flex items-center gap-2 mb-3 flex-wrap">
             {article.category_name && (
-              <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+              <span 
+                className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold border"
+                style={{
+                  backgroundColor: getCategoryColor() + "15",
+                  color: getCategoryColor(),
+                  borderColor: getCategoryColor() + "40",
+                }}
+              >
                 {article.category_name}
               </span>
             )}
