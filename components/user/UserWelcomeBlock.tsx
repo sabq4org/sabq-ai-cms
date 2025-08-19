@@ -175,25 +175,74 @@ export default function UserWelcomeBlock() {
           </div>
         </div>
 
-        {/* معلومات AI المخصصة - أكثر إيجازاً */}
-        <div style={{
-          marginTop: '16px',
-          display: 'flex',
-          gap: '12px',
-          fontSize: '13px',
-          color: 'hsl(var(--muted))',
-          flexWrap: 'wrap'
-        }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <Brain style={{ width: '14px', height: '14px', color: '#7C3AED' }} />
-            اهتماماتك: <strong style={{ color: 'hsl(var(--fg))' }}>التقنية، الاقتصاد، الرياضة</strong>
-          </span>
-          <span style={{ color: 'hsl(var(--line))' }}>•</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <Target style={{ width: '14px', height: '14px', color: '#7C3AED' }} />
-            دقة التوصيات: <strong style={{ color: 'hsl(var(--fg))' }}>92%</strong>
-          </span>
-        </div>
+        {/* معلومات AI المخصصة أو دعوة للتسجيل */}
+        {user ? (
+          <div style={{
+            marginTop: '16px',
+            display: 'flex',
+            gap: '12px',
+            fontSize: '13px',
+            color: 'hsl(var(--muted))',
+            flexWrap: 'wrap'
+          }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <Brain style={{ width: '14px', height: '14px', color: '#7C3AED' }} />
+              اهتماماتك: <strong style={{ color: 'hsl(var(--fg))' }}>التقنية، الاقتصاد، الرياضة</strong>
+            </span>
+            <span style={{ color: 'hsl(var(--line))' }}>•</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <Target style={{ width: '14px', height: '14px', color: '#7C3AED' }} />
+              دقة التوصيات: <strong style={{ color: 'hsl(var(--fg))' }}>92%</strong>
+            </span>
+          </div>
+        ) : (
+          <div style={{
+            marginTop: '16px',
+            fontSize: '13px',
+            color: 'hsl(var(--muted))',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px'
+          }}>
+            <Sparkles style={{ width: '14px', height: '14px', color: '#7C3AED' }} />
+            للحصول على محتوى مخصص لك{' '}
+            <a 
+              href="/login" 
+              style={{ 
+                color: 'hsl(var(--accent))', 
+                textDecoration: 'none',
+                fontWeight: '600',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.textDecoration = 'underline';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.textDecoration = 'none';
+              }}
+            >
+              سجل دخولك
+            </a>
+            {' '}أو{' '}
+            <a 
+              href="/register" 
+              style={{ 
+                color: 'hsl(var(--accent))', 
+                textDecoration: 'none',
+                fontWeight: '600',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.textDecoration = 'underline';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.textDecoration = 'none';
+              }}
+            >
+              أنشئ حساباً جديداً
+            </a>
+          </div>
+        )}
 
 
       </div>

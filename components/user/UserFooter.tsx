@@ -79,8 +79,8 @@ export default function UserFooter() {
 
   return (
     <footer style={{
-      borderTop: '1px solid hsl(var(--line))',
-      background: 'hsl(var(--bg-elevated))',
+      borderTop: '1px solid #e5e7eb',
+      background: '#ffffff',
       marginTop: '60px'
     }}>
       {/* الفوتر الرئيسي */}

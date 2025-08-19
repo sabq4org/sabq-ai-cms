@@ -41,20 +41,31 @@ export default function SmartContentBlock({
 
   const fetchSmartContent = async () => {
     try {
+      console.log('🔄 جلب المحتوى الذكي...');
       const response = await fetch('/api/articles?limit=20&sort=published_at&order=desc');
+      console.log('📡 حالة الاستجابة:', response.status);
+      
       if (response.ok) {
         const data = await response.json();
+        console.log('📦 البيانات المستلمة:', data);
+        console.log('📊 عدد المقالات:', data.articles?.length || 0);
+        
         // إضافة خصائص ذكية لبعض المقالات (6 مقالات فقط)
         const articlesWithAI = (data.articles || []).map((article: Article, index: number) => ({
           ...article,
           isPersonalized: index < 6, // أول 6 مقالات فقط مخصصة
           confidence: index < 6 ? Math.floor(Math.random() * 20) + 80 : undefined // نسبة ثقة 80-99%
         }));
+        
+        console.log('✅ تم تعيين المقالات:', articlesWithAI.length);
         setArticles(articlesWithAI);
+      } else {
+        console.error('❌ فشل في جلب المقالات:', response.status);
       }
     } catch (error) {
-      console.error('Error fetching smart content:', error);
+      console.error('❌ Error fetching smart content:', error);
     } finally {
+      console.log('🏁 تم الانتهاء من التحميل');
       setIsLoading(false);
     }
   };

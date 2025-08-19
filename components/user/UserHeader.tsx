@@ -47,6 +47,40 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // إغلاق القوائم المنسدلة عند النقر خارجها
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // إغلاق قائمة المستخدم
+      if (userMenuOpen) {
+        const userMenuElement = document.getElementById('user-menu');
+        const userButtonElement = document.getElementById('user-menu-button');
+        if (userMenuElement && userButtonElement && 
+            !userMenuElement.contains(event.target as Node) && 
+            !userButtonElement.contains(event.target as Node)) {
+          setUserMenuOpen(false);
+        }
+      }
+      
+      // إغلاق قائمة البحث
+      if (searchOpen) {
+        const searchElement = document.getElementById('search-menu');
+        const searchButtonElement = document.getElementById('search-button');
+        if (searchElement && searchButtonElement && 
+            !searchElement.contains(event.target as Node) && 
+            !searchButtonElement.contains(event.target as Node)) {
+          setSearchOpen(false);
+        }
+      }
+    };
+
+    if (userMenuOpen || searchOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [userMenuOpen, searchOpen]);
+
   // ثيمات الألوان
   const themes = {
     blue:   { accent: '212 90% 50%', name: 'الأزرق',     emoji: '🔵' },
@@ -92,19 +126,21 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
         left: 0,
         right: 0,
         height: '72px',
-        background: 'hsl(var(--bg-elevated))',
-        borderBottom: '1px solid hsl(var(--line))',
+        background: 'rgba(255, 255, 255, 0.95)',
+        borderBottom: '1px solid #e5e7eb',
         zIndex: 1000,
         backdropFilter: 'blur(10px)',
-        boxShadow: '0 1px 3px hsla(var(--shadow) / 0.1)'
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
       }}>
         <div style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           height: '100%',
-          padding: '0 20px',
-          maxWidth: '100%'
+          padding: '0 16px',
+          maxWidth: '1400px',
+          margin: '0 auto',
+          width: '100%'
         }}>
           
           {/* الجانب الأيمن - الشعار */}
@@ -155,6 +191,7 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
             
             {/* زر البحث */}
             <button 
+              id="search-button"
               className="btn btn-sm"
               onClick={() => setSearchOpen(!searchOpen)}
               title="البحث"
@@ -260,6 +297,7 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
             {user ? (
               <div style={{ position: 'relative' }}>
                 <button 
+                  id="user-menu-button"
                   className="btn btn-sm"
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
@@ -274,17 +312,19 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
                 </button>
                 
                 {userMenuOpen && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '45px',
-                    right: '-20px',
-                    width: '220px',
-                    background: 'hsl(var(--bg))',
-                    border: '1px solid hsl(var(--line))',
-                    borderRadius: '12px',
-                    padding: '8px',
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
-                  }}>
+                  <div 
+                    id="user-menu"
+                    style={{
+                      position: 'absolute',
+                      top: '45px',
+                      right: '-20px',
+                      width: '220px',
+                      background: 'hsl(var(--bg))',
+                      border: '1px solid hsl(var(--line))',
+                      borderRadius: '12px',
+                      padding: '8px',
+                      boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+                    }}>
                     <div className="divide-list">
                       <div className="list-item" style={{ padding: '8px 0' }}>
                         <Link href="/profile" className="btn" style={{ width: '100%', justifyContent: 'flex-start' }}>
@@ -343,15 +383,17 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
 
         {/* شريط البحث الموسع */}
         {searchOpen && (
-          <div style={{
-            position: 'absolute',
-            top: '72px',
-            left: 0,
-            right: 0,
-            background: 'hsl(var(--bg-elevated))',
-            borderBottom: '1px solid hsl(var(--line))',
-            padding: '16px 24px'
-          }}>
+          <div 
+            id="search-menu"
+            style={{
+              position: 'absolute',
+              top: '72px',
+              left: 0,
+              right: 0,
+              background: 'hsl(var(--bg-elevated))',
+              borderBottom: '1px solid hsl(var(--line))',
+              padding: '16px 24px'
+            }}>
             <div style={{ maxWidth: '600px', margin: '0 auto' }}>
               <input
                 type="text"

@@ -1,17 +1,15 @@
 import type { Metadata } from "next";
-import { Noto_Kufi_Arabic } from "next/font/google";
+import { IBM_Plex_Sans_Arabic } from "next/font/google";
 import UserHeader from "@/components/user/UserHeader";
-import UserFooter from "@/components/user/UserFooter";
+import Footer from "@/components/Footer";
 import { Providers } from "./providers";
 import "./globals.css";
 
-const notoKufiArabic = Noto_Kufi_Arabic({
+const ibmPlexArabic = IBM_Plex_Sans_Arabic({
   subsets: ["arabic"],
-  weight: ["200", "300", "400", "500", "600", "700", "800", "900"],
-  variable: "--font-noto-kufi-arabic",
-  display: "swap",
-  preload: true,
-  fallback: ["Arial", "sans-serif"]
+  weight: ["100", "200", "300", "400", "500", "600", "700"],
+  variable: "--font-ibm-plex-arabic",
+  display: "swap"
 });
 
 export const metadata: Metadata = {
@@ -54,30 +52,27 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ar" dir="rtl" className={notoKufiArabic.variable}>
+    <html lang="ar" dir="rtl" className={ibmPlexArabic.variable}>
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="stylesheet" href="/manus-ui.css" />
         <style dangerouslySetInnerHTML={{ __html: `
-          :root {
-            --font-noto-kufi-arabic: ${notoKufiArabic.style.fontFamily};
-          }
           body {
-            font-family: var(--font-noto-kufi-arabic), -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Arial', sans-serif;
+            font-family: ${ibmPlexArabic.style.fontFamily}, Arial, sans-serif;
           }
           .social-link:hover {
-            background: hsl(var(--accent)) !important;
+            background: #0066cc !important;
             color: white !important;
-            border-color: hsl(var(--accent)) !important;
+            border-color: #0066cc !important;
           }
           .footer-link:hover {
-            color: hsl(var(--accent)) !important;
+            color: #0066cc !important;
           }
         `}} />
       </head>
-      <body className={`${notoKufiArabic.className} antialiased`} suppressHydrationWarning>
+      <body className={`${ibmPlexArabic.className} antialiased`} suppressHydrationWarning>
         <Providers>
           <div style={{ 
             minHeight: '100vh',
@@ -99,7 +94,7 @@ export default function RootLayout({
             }}>
               {children}
             </main>
-            <UserFooter />
+            <Footer />
           </div>
         </Providers>
       </body>

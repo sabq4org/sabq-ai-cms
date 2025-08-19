@@ -45,18 +45,26 @@ export default function FeaturedNewsBlock({
       // جلب الأخبار المميزة
       fetchFeaturedNews();
     }
-  }, [articles]);
+  }, []); // Empty dependency array - only run once on mount
 
   const fetchFeaturedNews = async () => {
     try {
+      console.log('🔥 جلب الأخبار المميزة...');
       const response = await fetch('/api/news?featured=true&limit=6&sort=views&order=desc');
+      console.log('📡 حالة الاستجابة:', response.status);
+      
       if (response.ok) {
         const data = await response.json();
-        setNewsArticles(data.news || []);
+        console.log('📦 البيانات المستلمة:', data);
+        console.log('📊 عدد الأخبار:', data.articles?.length || 0);
+        setNewsArticles(data.articles || []);
+      } else {
+        console.error('❌ فشل في جلب الأخبار:', response.status);
       }
     } catch (error) {
-      console.error('Error fetching featured news:', error);
+      console.error('❌ Error fetching featured news:', error);
     } finally {
+      console.log('🏁 تم الانتهاء من التحميل');
       setIsLoading(false);
     }
   };

@@ -70,7 +70,7 @@ export default function Footer() {
   return (
     <footer className="border-t bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800">
       {/* Desktop Footer */}
-      <div className="hidden lg:block container mx-auto px-6 py-16">
+      <div className="hidden lg:block" style={{ maxWidth: '1400px', margin: '0 auto', padding: '48px 16px' }}>
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
           {/* عمود الشعار والوصف - 3 أعمدة */}
           <div className="md:col-span-3 order-last md:order-none">
@@ -132,7 +132,7 @@ export default function Footer() {
       </div>
 
       {/* Mobile Footer */}
-      <div className="lg:hidden container mx-auto px-4 py-8">
+      <div className="lg:hidden" style={{ maxWidth: '1400px', margin: '0 auto', padding: '32px 16px' }}>
         <div className="grid grid-cols-1 gap-6">
           {/* الأقسام أولاً */}
           <div className="order-first">
