@@ -43,46 +43,16 @@ export default function Page() {
       <div style={{ 
         marginTop: '48px', 
         marginBottom: '32px',
+        maxWidth: '1400px',
+        margin: '48px auto 32px',
         padding: '0 16px'
       }}>
-        <div style={{
-          background: 'white',
-          borderRadius: '16px',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-          overflow: 'hidden',
-          maxWidth: '1400px',
-          margin: '0 auto'
-        }}>
-          <div style={{
-            padding: '24px',
-            borderBottom: '1px solid #e5e7eb'
-          }}>
-            <h2 style={{
-              fontSize: '28px',
-              fontWeight: 'bold',
-              color: '#111827',
-              marginBottom: '8px'
-            }}>
-              مُقترب
-            </h2>
-            <p style={{
-              color: '#6b7280',
-              fontSize: '16px'
-            }}>
-              زوايا فكرية متنوعة ورؤى تحليلية معمقة
-            </p>
-          </div>
-          <div style={{
-            padding: '24px'
-          }}>
-            <MuqtarabBlock
-              limit={8}
-              showPagination={false}
-              showFilters={false}
-              viewMode="grid"
-            />
-          </div>
-        </div>
+        <MuqtarabBlock
+          limit={8}
+          showPagination={false}
+          showFilters={false}
+          viewMode="grid"
+        />
       </div>
     </div>
   );
