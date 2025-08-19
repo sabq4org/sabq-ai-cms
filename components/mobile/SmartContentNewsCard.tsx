@@ -109,31 +109,18 @@ export default function SmartContentNewsCard({
         )}
         
         <div className="relative p-6">
-          {/* Header with AI Badge */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 text-white">
-                {getTypeIcon()}
-              </div>
-              <span className="text-sm font-medium text-purple-600 dark:text-purple-400">
-                محتوى مخصص بالذكاء الاصطناعي
-              </span>
-            </div>
-            {article.score && (
-              <div className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                {Math.round(article.score * 100)}% ملاءمة
-              </div>
-            )}
-          </div>
-
-          {/* Category Label */}
-          {article.category_name && (
-            <div className="mb-3">
+          {/* Category and AI Labels */}
+          <div className="flex items-center gap-2 mb-4 flex-wrap">
+            {article.category_name && (
               <span className="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
                 {article.category_name}
               </span>
-            </div>
-          )}
+            )}
+            <span className="text-xs font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white inline-flex items-center gap-1 px-2.5 py-1 rounded-full">
+              <Sparkles className="w-3 h-3" />
+              مخصص{article.score ? ` | ${Math.round(article.score * 100)}%` : ''}
+            </span>
+          </div>
 
           {/* Content */}
           <Link href={`/article/${article.slug}`}>
@@ -225,14 +212,6 @@ export default function SmartContentNewsCard({
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
               
-              {/* AI Badge on Image */}
-              <div className="absolute top-3 right-3">
-                <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-purple-500/90 backdrop-blur-sm text-white">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span className="text-xs font-medium">محتوى ذكي</span>
-                </div>
-              </div>
-              
               {article.image_caption && (
                 <div className="absolute bottom-0 left-0 right-0 p-3">
                   <p className="text-xs text-white font-medium">{article.image_caption}</p>
@@ -244,33 +223,18 @@ export default function SmartContentNewsCard({
 
         {/* Content */}
         <div className="px-4 pt-4 pb-4">
-          {/* AI Badge if no image */}
-          {!article.featured_image && (
-            <div className="flex items-center gap-2 mb-3">
-              <div className="flex items-center gap-1.5">
-                <div className="p-1 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 text-white">
-                  <Sparkles className="w-3 h-3" />
-                </div>
-                <span className="text-xs font-medium text-purple-600 dark:text-purple-400">
-                  محتوى ذكي مخصص لك
-                </span>
-              </div>
-              {article.score && (
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  {Math.round(article.score * 100)}%
-                </span>
-              )}
-            </div>
-          )}
-          
-          {/* Category Label */}
-          {article.category_name && (
-            <div className="mb-3">
+          {/* Category and AI Labels */}
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
+            {article.category_name && (
               <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
                 {article.category_name}
               </span>
-            </div>
-          )}
+            )}
+            <span className="text-xs font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white inline-flex items-center gap-1 px-2 py-0.5 rounded-full">
+              <Sparkles className="w-3 h-3" />
+              مخصص{article.score ? ` | ${Math.round(article.score * 100)}%` : ''}
+            </span>
+          </div>
 
           <Link href={`/article/${article.slug}`}>
             <h3 className="text-base font-bold mb-2 line-clamp-2 dark:text-white hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
