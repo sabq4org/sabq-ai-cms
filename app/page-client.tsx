@@ -396,7 +396,7 @@ function NewspaperHomePage({
           {/* صورة المقال */}
           <div className="relative h-40 sm:h-48 overflow-hidden">
             <CloudImage
-              src={news?.image || null}
+              src={news?.image || news?.featured_image || news?.image_url || null}
               alt={news?.title || "صورة المقال"}
               fill
               className="w-full h-full object-cover transition-transform duration-500"
@@ -455,8 +455,7 @@ function NewspaperHomePage({
             </div>
           </div>
 
-          {/* خط سفلي بلون التصنيف */}
-          <div className="category-underline" aria-hidden />
+
         </article>
       </Link>
     );

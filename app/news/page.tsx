@@ -407,8 +407,9 @@ export default function NewsPage() {
     [categories]
   );
 
-  // NewsCard component - نفس التنسيق المستخدم في الصفحة الرئيسية
+  // NewsCard component - نسخة طبق الأصل من الصفحة الرئيسية
   const NewsCard = ({ news }: { news: any }) => {
+    const [imageLoading, setImageLoading] = useState(true);
 
     // Category mapping for consistent styling
     const categoryMap: Record<string, string> = {
@@ -486,7 +487,7 @@ export default function NewsPage() {
           {/* صورة المقال */}
           <div className="relative h-40 sm:h-48 overflow-hidden">
             <CloudImage
-              src={news?.featured_image || news?.image || news?.image_url || null}
+              src={news?.image || news?.featured_image || news?.image_url || null}
               alt={news?.title || "صورة المقال"}
               fill
               className="w-full h-full object-cover transition-transform duration-500"
@@ -545,8 +546,7 @@ export default function NewsPage() {
             </div>
           </div>
 
-          {/* خط سفلي بلون التصنيف */}
-          <div className="category-underline" aria-hidden />
+
         </article>
       </Link>
     );
