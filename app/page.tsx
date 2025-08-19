@@ -3,15 +3,31 @@ import { Metadata } from "next";
 
 async function safeFetch(url: string, options: RequestInit = {}) {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
+    const apiBase = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BASE_URL;
+
+    // For server-side calls, we might not have a base URL.
+    // We construct a full URL if apiBase is available, otherwise we assume it's a server-internal call.
+    const fetchUrl = apiBase ? `${apiBase}${url}` : new URL(url, 'http://localhost:3000');
+    
+    const res = await fetch(fetchUrl, {
       ...options,
       next: { revalidate: 60 },
     });
-    if (!res.ok) {
-      console.warn(`Failed to fetch ${url}: ${res.statusText}`);
+
+    if (res.status === 204 || res.headers.get('content-length') === '0') {
       return null;
     }
-    return res.json();
+
+    const contentType = res.headers.get("content-type");
+    if (contentType && contentType.indexOf("application/json") !== -1) {
+      return res.json();
+    } else {
+      // Handle non-JSON responses if necessary
+      console.warn(`Response is not JSON, received: ${contentType}`);
+      return null;
+    }
   } catch (error) {
     console.error(`Error fetching ${url}:`, error);
     return null;
