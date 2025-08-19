@@ -13,10 +13,12 @@ export default function Page() {
     if (!hasCSS) {
       console.error('CSS variables not loaded! Check manus-ui.css');
     }
+    console.log('Page component loaded successfully');
   }, []);
 
   return (
     <div style={{ padding: '20px 0' }}>
+      <h1>صفحة الاختبار تعمل!</h1>
       <UserWelcomeBlock />
       
       {/* بلوك المحتوى الذكي */}

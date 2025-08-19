@@ -3,7 +3,6 @@ import { Noto_Kufi_Arabic } from "next/font/google";
 import UserHeader from "@/components/user/UserHeader";
 import UserFooter from "@/components/user/UserFooter";
 import { Providers } from "./providers";
-import ClientThemeWrapper from "@/components/ClientThemeWrapper";
 import "./globals.css";
 
 const notoKufiArabic = Noto_Kufi_Arabic({
@@ -57,30 +56,28 @@ export default function RootLayout({
       </head>
       <body className={`${notoKufiArabic.className} antialiased`} suppressHydrationWarning>
         <Providers>
-          <ClientThemeWrapper>
-            <div style={{ 
-              minHeight: '100vh',
-              background: 'hsl(var(--bg-elevated))',
-              paddingTop: '72px',
-              display: 'flex',
-              flexDirection: 'column',
-              position: 'relative',
-              zIndex: 1
+          <div style={{ 
+            minHeight: '100vh',
+            background: '#f5f5f5',
+            paddingTop: '72px',
+            display: 'flex',
+            flexDirection: 'column',
+            position: 'relative',
+            zIndex: 1
+          }}>
+            <UserHeader />
+            <main style={{
+              flex: 1,
+              padding: '16px',
+              maxWidth: '1400px',
+              margin: '0 auto',
+              width: '100%',
+              background: 'transparent'
             }}>
-              <UserHeader />
-              <main style={{
-                flex: 1,
-                padding: '16px',
-                maxWidth: '1400px',
-                margin: '0 auto',
-                width: '100%',
-                background: 'transparent'
-              }}>
-                {children}
-              </main>
-              <UserFooter />
-            </div>
-          </ClientThemeWrapper>
+              {children}
+            </main>
+            <UserFooter />
+          </div>
         </Providers>
       </body>
     </html>
