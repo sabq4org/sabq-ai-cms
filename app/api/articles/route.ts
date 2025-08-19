@@ -166,8 +166,8 @@ export async function GET(request: NextRequest) {
         author: {
           select: { id: true, name: true, email: true, avatar: true },
         },
-      })
-    );
+      }
+    ));
 
     // حساب العدد بنفس شروط where بالضبط
     let totalCount = 0;
