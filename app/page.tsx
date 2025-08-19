@@ -1,7 +1,6 @@
 "use client";
 
 import { useDeviceType } from "@/hooks/useDeviceType";
-import ResponsiveHome from "@/components/responsive/ResponsiveHome";
 import UserWelcomeBlock from "@/components/user/UserWelcomeBlock";
 import FeaturedNewsBlock from "@/components/user/FeaturedNewsBlock";
 import SmartContentBlock from "@/components/user/SmartContentBlock";
@@ -40,6 +39,33 @@ export default function Page() {
     }
   }, [mounted]);
 
+  // محتوى الموبايل - نفس المحتوى لكن مُحسن للموبايل
+  const MobileContent = useMemo(() => (
+    <div className="px-4 py-6">
+      <Suspense fallback={<div className="h-32 animate-pulse bg-gray-200 rounded" />}>
+        <UserWelcomeBlock />
+      </Suspense>
+      
+      <Suspense fallback={<div className="h-48 animate-pulse bg-gray-200 rounded mt-6" />}>
+        <SmartContentBlock />
+      </Suspense>
+      
+      <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded mt-6" />}>
+        <FeaturedNewsBlock />
+      </Suspense>
+      
+      <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded mt-6" />}>
+        <MuqtarabBlock
+          limit={8}
+          showPagination={false}
+          showFilters={false}
+          viewMode="grid"
+          className="mt-12"
+        />
+      </Suspense>
+    </div>
+  ), []);
+
   // محتوى الديسكتوب محسن مع useMemo
   const DesktopContent = useMemo(() => (
     <div style={{ padding: '20px 0' }}>
@@ -72,9 +98,9 @@ export default function Page() {
     return <LoadingScreen />;
   }
 
-  // النسخة المحمولة
+  // النسخة المحمولة - نفس المحتوى الأصلي مع تخطيط محسن للموبايل
   if (isMobile) {
-    return <ResponsiveHome isMobile={true} />;
+    return MobileContent;
   }
 
   // النسخة الكاملة للديسكتوب
