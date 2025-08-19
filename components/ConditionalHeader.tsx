@@ -21,6 +21,7 @@ export default function ConditionalHeader() {
   const shouldHideHeader =
     pathname?.startsWith("/dashboard") ||
     pathname?.startsWith("/admin") ||
+    pathname?.startsWith("/new-ui") ||
     false;
 
   if (shouldHideHeader) {

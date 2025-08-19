@@ -281,12 +281,6 @@ export default function RootLayout({
         {/* Mobile light version JS (global, non-intrusive) */}
         <script src="/assets/js/mobile_interactions.js" defer></script>
         
-        {/* Mobile Lite Version Fixes - إصلاحات النسخة الخفيفة */}
-        <script src="/mobile-lite-fixes.js" defer></script>
-        
-        {/* Mobile Sidebar Enhancements - تحسينات القائمة الجانبية للجوال */}
-        <script src="/mobile-sidebar-enhancements.js" defer></script>
-        
         {/* CSS Selector & JavaScript Error Fixes - إصلاح أخطاء CSS و JavaScript */}
         <script src="/selector-fix.js?v=1" defer></script>
         
