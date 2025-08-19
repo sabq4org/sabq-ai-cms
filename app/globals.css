@@ -6,6 +6,27 @@
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
+  
+  /* Primary color for Tailwind CSS */
+  --primary: 217 91% 60%;
+  --primary-foreground: 0 0% 98%;
+}
+
+/* Apply theme colors when theme classes are present */
+.theme-emerald {
+  --primary: 160 84% 39%;
+}
+
+.theme-purple {
+  --primary: 263 70% 50%;
+}
+
+.theme-rose {
+  --primary: 347 77% 50%;
+}
+
+.theme-orange {
+  --primary: 25 95% 53%;
 }
 
 * {

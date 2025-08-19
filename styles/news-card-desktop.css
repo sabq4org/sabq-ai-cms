@@ -1,62 +1,28 @@
 .category-pill {
   @apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium;
-  /* استخدام متغيرات الثيم */
-  background-color: color-mix(in oklab, var(--theme-primary) 14%, transparent);
-  color: var(--theme-primary);
-  border: 1px solid color-mix(in oklab, var(--theme-primary) 28%, transparent);
-  transition: all 0.3s ease;
-}
-
-.category-pill:hover {
-  background-color: color-mix(in oklab, var(--theme-primary) 20%, transparent);
-  border-color: color-mix(in oklab, var(--theme-primary) 40%, transparent);
+  @apply bg-primary/10 text-primary border border-primary/20;
+  @apply transition-all hover:bg-primary/20 hover:border-primary/30;
 }
 
 /* تطبيق hover للبطاقات */
 article .group:hover .p-4 {
-  background-color: rgba(var(--theme-primary-rgb), 0.05);
-}
-
-/* تعريف متغيرات RGB للثيمات */
-:root {
-  --theme-primary-rgb: 30, 64, 175; /* الأزرق الافتراضي */
-}
-
-.theme-emerald {
-  --theme-primary-rgb: 5, 150, 105;
-}
-
-.theme-purple {
-  --theme-primary-rgb: 124, 58, 237;
-}
-
-.theme-rose {
-  --theme-primary-rgb: 225, 29, 72;
-}
-
-.theme-orange {
-  --theme-primary-rgb: 234, 88, 12;
+  @apply bg-primary/5;
 }
 
 /* شارة المحتوى الذكي */
 .smart-badge {
-  background: linear-gradient(to right, var(--theme-primary), var(--theme-secondary, var(--theme-primary)));
-  transition: all 0.3s ease;
-}
-
-.smart-badge:hover {
-  transform: scale(1.05);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  @apply bg-gradient-to-r from-primary to-primary/80;
+  @apply transition-all hover:scale-105 hover:shadow-md;
 }
 
 /* تأثير hover للنصوص */
-.theme-hover-text:hover {
-  color: var(--theme-primary);
+.theme-hover-text {
+  @apply hover:text-primary transition-colors;
 }
 
 /* خلفية hover للبطاقات */
 .bg-theme-light {
-  background-color: rgba(var(--theme-primary-rgb), 0.05);
+  @apply bg-primary/5;
 }
 /* تم إزالة الإطار الملون السفلي
 .category-underline {
@@ -157,10 +123,9 @@ article {
   overflow: hidden;
 }
 
+/* Dark mode styles */
 :root.dark .category-pill {
-  background-color: color-mix(in oklab, var(--theme-primary) 10%, transparent);
-  color: color-mix(in oklab, var(--theme-primary) 80%, #e5e7eb);
-  border-color: color-mix(in oklab, var(--theme-primary) 24%, transparent);
+  @apply bg-primary/10 text-primary border-primary/20;
 }
 /* :root.dark .category-underline {
   opacity: 0.85;
