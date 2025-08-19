@@ -1,25 +1,30 @@
 "use client";
 
-import NewsCard from "@/components/NewsCard";
 import SmartContentNewsCard from "@/components/mobile/SmartContentNewsCard";
 import UnifiedMobileNewsCard from "@/components/mobile/UnifiedMobileNewsCard";
 import "@/components/mobile/mobile-news.css";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import type { RecommendedArticle } from "@/lib/ai-recommendations";
 import { generatePersonalizedRecommendations } from "@/lib/ai-recommendations";
+import CloudImage from "@/components/ui/CloudImage";
+import { formatDateNumeric } from "@/lib/date-utils";
+import { getArticleLink } from "@/lib/utils";
 import "@/styles/smart-content-cards.css";
 import "@/styles/unified-mobile-news.css";
 import {
   AlertTriangle,
   ArrowLeft,
   Bookmark,
+  Clock,
   Eye,
   Grid3X3,
   Heart,
   List,
   Loader2,
+  MessageSquare,
   Newspaper,
 } from "lucide-react";
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import "../categories/categories-fixes.css";
 import "./news-styles.css";
@@ -401,6 +406,151 @@ export default function NewsPage() {
     },
     [categories]
   );
+
+  // NewsCard component - نفس التنسيق المستخدم في الصفحة الرئيسية
+  const NewsCard = ({ news }: { news: any }) => {
+
+    // Category mapping for consistent styling
+    const categoryMap: Record<string, string> = {
+      // إنجليزية أساسية
+      world: "world",
+      sports: "sports",
+      tech: "tech",
+      technology: "tech",
+      business: "business",
+      economy: "business",
+      local: "local",
+      news: "local",
+      politics: "world",
+      travel: "world",
+      cars: "tech",
+      media: "tech",
+      opinion: "opinions",
+      // تطابقات عربية
+      العالم: "world",
+      "أخبار-العالم": "world",
+      "أخبار العالم": "world",
+      رياضة: "sports",
+      الرياضة: "sports",
+      رياضي: "sports",
+      تقنية: "tech",
+      التقنية: "tech",
+      تكنولوجيا: "tech",
+      التكنولوجيا: "tech",
+      اقتصاد: "business",
+      الاقتصاد: "business",
+      أعمال: "business",
+      الأعمال: "business",
+      محليات: "local",
+      المحليات: "local",
+      محلي: "local",
+      محطات: "local",
+      المحطات: "local",
+      حياتنا: "local",
+      حياة: "local",
+      سياحة: "world",
+      السياحة: "world",
+      سيارات: "tech",
+      السيارات: "tech",
+      ميديا: "tech",
+      الميديا: "tech",
+      عام: "local",
+      عامة: "local",
+    };
+
+    const categoryName =
+      news.category?.name ||
+      news.categories?.name ||
+      news.category ||
+      news.categories ||
+      "عام";
+    const rawCategorySlug =
+      categoryName?.toLowerCase?.() || categoryName || "عام";
+    const mappedCategory = categoryMap[rawCategorySlug] || rawCategorySlug;
+
+    return (
+      <Link href={getArticleLink(news)} className="group block">
+        <article
+          dir="rtl"
+          data-category={mappedCategory}
+          className={`h-full rounded-2xl overflow-hidden shadow-sm transition-all duration-300 flex flex-col ${
+            news.breaking || news.is_breaking
+              ? darkMode
+                ? "bg-red-950/30 border border-red-800/70"
+                : "bg-red-50 border border-red-200"
+              : darkMode
+              ? "bg-gray-800 border border-gray-700"
+              : "bg-white border border-gray-200"
+          }`}
+        >
+          {/* صورة المقال */}
+          <div className="relative h-40 sm:h-48 overflow-hidden">
+            <CloudImage
+              src={news?.featured_image || news?.image || news?.image_url || null}
+              alt={news?.title || "صورة المقال"}
+              fill
+              className="w-full h-full object-cover transition-transform duration-500"
+              fallbackType="article"
+              priority={false}
+            />
+            {/* شارة عاجل */}
+            {(news.breaking || news.is_breaking) && (
+              <div className="absolute top-3 right-3">
+                <span className="flex items-center gap-1 px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full animate-pulse shadow-lg">
+                  ⚡ عاجل
+                </span>
+              </div>
+            )}
+          </div>
+          {/* محتوى البطاقة */}
+          <div className="p-4 flex-1 flex flex-col">
+            {/* لابل التصنيف */}
+            <div className="mb-2">
+              <span className="category-pill">{categoryName}</span>
+            </div>
+
+            {/* العنوان */}
+            <h4 className="font-semibold text-lg mb-3 line-clamp-4 leading-snug flex-1">
+              {news.title}
+            </h4>
+
+            {/* سطر واحد: التاريخ + المشاهدات */}
+            <div className="flex items-center gap-2 text-sm text-muted-foreground mt-auto">
+              <time
+                dateTime={news.published_at || news.created_at}
+                className="inline-flex items-center gap-1"
+              >
+                <Clock className="w-4 h-4" />
+                {formatDateNumeric(news.published_at || news.created_at)}
+              </time>
+              <span className="mx-1">•</span>
+              <span className="inline-flex items-center gap-1">
+                👁️{" "}
+                {new Intl.NumberFormat("ar", { notation: "compact" }).format(
+                  news.views ?? news.views_count ?? 0
+                )}
+              </span>
+              {typeof news.comments_count === "number" &&
+                news.comments_count > 0 && (
+                  <>
+                    <span className="mx-1">•</span>
+                    <span className="inline-flex items-center gap-1">
+                      <MessageSquare className="w-4 h-4" />
+                      {new Intl.NumberFormat("ar", {
+                        notation: "compact",
+                      }).format(news.comments_count)}
+                    </span>
+                  </>
+                )}
+            </div>
+          </div>
+
+          {/* خط سفلي بلون التصنيف */}
+          <div className="category-underline" aria-hidden />
+        </article>
+      </Link>
+    );
+  };
 
   // دمج البطاقات المخصصة مع بطاقات الأخبار
   const renderMixedContent = useCallback(() => {
