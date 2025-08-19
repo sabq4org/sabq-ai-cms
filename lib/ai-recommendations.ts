@@ -126,7 +126,9 @@ async function getUserBehaviorData(userId?: string): Promise<UserBehavior> {
 
   try {
     // استخدام API الجديد
-    const baseUrl = typeof window !== 'undefined' ? window.location.origin : process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    const baseUrl = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     const response = await fetch(`${baseUrl}/api/user-behavior?userId=${userId}`, {
       method: "GET",
       headers: {
@@ -409,7 +411,9 @@ async function fetchRecentQualityArticles(
   limit: number
 ): Promise<RecommendedArticle[]> {
   try {
-    const baseUrl = typeof window !== 'undefined' ? window.location.origin : process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    const baseUrl = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     const response = await fetch(
       `${baseUrl}/api/news?limit=${limit * 2}&status=published&sort=published_at&order=desc`,
       {
@@ -694,9 +698,12 @@ async function fetchArticlesByType(
     // إنشاء الـ query string للأنواع
     const typesQuery = dbTypes.length > 0 ? `&types=${dbTypes.join(",")}` : "";
 
+    const baseUrl = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     // جلب المقالات المنشورة مع تصفية محسنة
     const response = await fetch(
-      `/api/articles?exclude=${excludeId}&limit=${
+      `${baseUrl}/api/articles?exclude=${excludeId}&limit=${
         limit * 3
       }&status=published&sortBy=published_at&order=desc${typesQuery}`
     );
@@ -822,7 +829,9 @@ async function fetchArticlesByCategories(
   excludeId: string
 ): Promise<RecommendedArticle[]> {
   try {
-    const baseUrl = typeof window !== 'undefined' ? window.location.origin : process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    const baseUrl = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     // استخدام أول تصنيف فقط حالياً لأن API لا يدعم تصنيفات متعددة
     const categoryParam = categories[0] ? `&category=${encodeURIComponent(categories[0])}` : '';
     const response = await fetch(
@@ -887,10 +896,13 @@ async function findSimilarToInteracted(
   if (likedIds.length === 0) return [];
 
   try {
+    const baseUrl = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     // جلب مقالات من نفس فئات المقالات التي أعجب بها
     const idsQuery = likedIds.slice(0, 5).join(","); // أول 5 مقالات
     const response = await fetch(
-      `/api/articles/similar?ids=${idsQuery}&exclude=${excludeId}&limit=6`
+      `${baseUrl}/api/articles/similar?ids=${idsQuery}&exclude=${excludeId}&limit=6`
     );
 
     if (!response.ok) return [];
@@ -939,7 +951,9 @@ async function fetchTrendingArticles(
 ): Promise<RecommendedArticle[]> {
   try {
     // استخدام API الأخبار بدلاً من المقالات للحصول على أحدث المحتوى
-    const baseUrl = typeof window !== 'undefined' ? window.location.origin : process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    const baseUrl = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     const response = await fetch(
       `${baseUrl}/api/news?limit=10&status=published&sort=published_at&order=desc&breaking=false&featured=false`,
       {
@@ -993,13 +1007,16 @@ async function fetchSemanticallySimilarArticles(
   tags: string[]
 ): Promise<RecommendedArticle[]> {
   try {
+    const baseUrl = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     // استخدام العلامات للبحث عن محتوى مشابه
     const tagsQuery = tags
       .slice(0, 3)
       .map((tag) => `tag=${encodeURIComponent(tag)}`)
       .join("&");
     const response = await fetch(
-      `/api/articles?${tagsQuery}&exclude=${articleId}&limit=6&status=published`
+      `${baseUrl}/api/articles?${tagsQuery}&exclude=${articleId}&limit=6&status=published`
     );
 
     if (!response.ok) return [];
