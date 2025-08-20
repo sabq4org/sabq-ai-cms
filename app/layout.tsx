@@ -7,6 +7,7 @@ import "./globals.css";
 import "../styles/news-card-desktop.css";
 import "../styles/theme-manager.css";
 import "../styles/muqtarab-cards.css";
+import "./old-style-demo/old-style.css";
 
 const ibmPlexArabic = IBM_Plex_Sans_Arabic({
   subsets: ["arabic"],

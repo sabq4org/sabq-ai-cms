@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Sparkles, Eye, Calendar, Clock } from 'lucide-react';
+import OldStyleNewsBlock from '@/components/old-style/OldStyleNewsBlock';
 
 interface Article {
   id: string;
@@ -34,9 +35,25 @@ export default function SmartContentBlock({
 }: SmartContentBlockProps) {
   const [articles, setArticles] = useState<Article[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
 
   useEffect(() => {
     fetchSmartContent();
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      try {
+        const width = window.innerWidth;
+        const isTouch = 'ontouchstart' in window || (navigator as any).maxTouchPoints > 0;
+        setIsMobile(width < 768 || (isTouch && width < 1024));
+      } catch {
+        setIsMobile(false);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize, { passive: true } as any);
+    return () => window.removeEventListener('resize', handleResize as any);
   }, []);
 
   const fetchSmartContent = async () => {
@@ -90,6 +107,80 @@ export default function SmartContentBlock({
     }
     return views.toString();
   };
+
+  // في النسخة الخفيفة (الموبايل): نعرض بطاقات الطراز القديم فقط
+  if (isMobile) {
+    if (isLoading) {
+      return (
+        <div style={{ padding: '16px 0' }}>
+          <div className="h-7 bg-gray-200 rounded w-1/4 mb-4 animate-pulse"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="bg-gray-200 rounded-lg h-80 animate-pulse"></div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div style={{ padding: '16px 0' }}>
+        {/* عبارات رأس البلوك كما هي */}
+        <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+          <h2 style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            color: 'hsl(var(--fg))',
+            marginBottom: '10px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px'
+          }}>
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '32px',
+              height: '32px',
+              background: 'linear-gradient(135deg, #DDD6FE 0%, #C7D2FE 100%)',
+              borderRadius: '8px',
+              color: '#5B21B6',
+              fontSize: '16px',
+              border: '1px solid #E0E7FF'
+            }}>
+              <Sparkles className="w-5 h-5" />
+            </span>
+            {title}
+          </h2>
+          <h3 style={{
+            fontSize: '18px',
+            fontWeight: 600,
+            color: '#7C3AED',
+            marginBottom: '6px'
+          }}>
+            {subtitle}
+          </h3>
+          <p style={{
+            fontSize: '12px',
+            color: 'hsl(var(--muted))',
+            maxWidth: '600px',
+            margin: '0 auto',
+            lineHeight: 1.6
+          }}>
+            {description}
+          </p>
+        </div>
+        <OldStyleNewsBlock
+          // نمرر البيانات الحقيقية مباشرة (تحوي image/featured_image/published_at)
+          articles={articles as unknown as any[]}
+          title={title}
+          showTitle={false}
+          columns={3}
+          className="mb-4"
+        />
+      </div>
+    );
+  }
 
   return (
     <div style={{

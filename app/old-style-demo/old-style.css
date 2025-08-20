@@ -1,0 +1,348 @@
+/* تصميم الأخبار بالطراز القديم - Old Style News Block */
+
+.old-style-news-block {
+  width: 100%;
+  margin-bottom: 32px;
+}
+
+/* رأس القسم */
+.old-style-news-header {
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.old-style-news-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 8px 0;
+  padding-right: 12px;
+  position: relative;
+}
+
+.old-style-news-title::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 24px;
+  background: #3b82f6;
+  border-radius: 2px;
+}
+
+.old-style-title-line {
+  height: 2px;
+  background: linear-gradient(90deg, #3b82f6 0%, transparent 100%);
+  width: 100%;
+  margin-top: 8px;
+}
+
+/* شبكة الأخبار */
+.old-style-news-grid {
+  display: grid;
+  gap: 20px;
+}
+
+/* بطاقة الخبر */
+.old-style-news-card {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
+  transition: transform 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  box-shadow: none;
+}
+
+.old-style-news-card:hover {
+  transform: translateY(-2px);
+}
+
+/* حاوي الصورة */
+.old-style-news-image-container {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  background: #f3f4f6;
+  border-radius: 8px;
+}
+
+/* لايبل جديد فوق الصورة بمحاذاة الحد العلوي الأيمن */
+/* إزالة نمط التراكب إذا وجد */
+.old-style-news-new-badge--overlay { display: none; }
+
+.old-style-news-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+  border-radius: 8px;
+}
+
+.old-style-news-card:hover .old-style-news-image {
+  transform: scale(1.05);
+}
+
+/* الشريط السفلي: المشاهدات ووقت القراءة في سطر واحد */
+.old-style-news-bottom-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: nowrap;
+}
+
+/* تصنيف المقال */
+.old-style-news-category-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(59, 130, 246, 0.9);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  backdrop-filter: blur(4px);
+  z-index: 2;
+}
+
+/* محتوى البطاقة */
+.old-style-news-content {
+  padding: 8px 16px 16px;
+}
+
+/* الشريط العلوي: لايبل جديد + التاريخ */
+.old-style-news-top-bar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.old-style-news-badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* لايبل "جديد" الأخضر مع شعلة نار حقيقية */
+.old-style-news-new-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #10b981;
+  color: #ffffff;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.old-style-news-custom-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #be185d; /* وردي غامق */
+  color: #ffffff;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* شعلة النار الحقيقية المتحركة */
+/* أيقونة الشعلة (SVG) مع وميض وتوهج */
+.old-style-flame-icon {
+  width: 14px;
+  height: 14px;
+  color: #ff6b00;
+  filter: drop-shadow(0 0 4px rgba(255, 107, 0, 0.6));
+  animation: flamePulse 1.6s ease-in-out infinite;
+}
+
+@keyframes flamePulse {
+  0% { transform: scale(1); opacity: 0.95; }
+  50% { transform: scale(1.12); opacity: 1; }
+  100% { transform: scale(0.98); opacity: 0.97; }
+}
+
+/* التاريخ */
+.old-style-news-date {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* عنوان المقال */
+.old-style-news-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: #1f2937;
+  margin: 0 0 12px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.old-style-news-card:hover .old-style-news-card-title {
+  color: #3b82f6;
+}
+
+/* مقتطف المقال */
+.old-style-news-excerpt {
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.6;
+  margin: 0 0 12px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* معلومات إضافية */
+.old-style-news-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  border-top: 1px solid #f3f4f6;
+  padding-top: 12px;
+  margin-top: auto;
+}
+
+.old-style-news-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #9ca3af;
+  white-space: nowrap;
+}
+
+.old-style-icon {
+  width: 14px;
+  height: 14px;
+  stroke-width: 1.5;
+}
+
+/* الحالة الفارغة */
+.old-style-empty-state {
+  text-align: center;
+  padding: 48px 20px;
+  color: #9ca3af;
+  background: #f9fafb;
+  border: 1px dashed #d1d5db;
+  border-radius: 8px;
+}
+
+/* التجاوب مع الأجهزة المختلفة */
+@media (max-width: 1024px) {
+  .old-style-news-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .old-style-news-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px;
+  }
+  
+  .old-style-news-title {
+    font-size: 20px;
+  }
+  
+  .old-style-news-card {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+  }
+  
+  .old-style-news-image-container {
+    width: 120px;
+    height: 120px;
+    flex-shrink: 0;
+  }
+  
+  .old-style-news-content {
+    flex: 1;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .old-style-news-card-title {
+    font-size: 15px;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    margin-bottom: 8px;
+  }
+  
+  .old-style-news-meta {
+    margin-top: auto;
+    border-top: none;
+    padding-top: 0;
+    gap: 12px;
+  }
+  
+  .old-style-news-category-badge {
+    top: 8px;
+    right: 8px;
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+}
+
+/* الوضع الليلي */
+@media (prefers-color-scheme: dark) {
+  .old-style-news-card {
+    background: transparent;
+    border: none;
+    color: #f9fafb;
+  }
+  
+  .old-style-news-card:hover {
+  }
+  
+  .old-style-news-title {
+    color: #f9fafb;
+  }
+  
+  .old-style-news-card-title {
+    color: #f9fafb;
+  }
+  
+  .old-style-news-card:hover .old-style-news-card-title {
+    color: #60a5fa;
+  }
+  
+  .old-style-news-excerpt {
+    color: #d1d5db;
+  }
+  
+  .old-style-news-meta {
+    border-top-color: #374151;
+  }
+  
+  .old-style-news-meta-item {
+    color: #9ca3af;
+  }
+  
+  .old-style-empty-state {
+    background: #1f2937;
+    border-color: #374151;
+    color: #9ca3af;
+  }
+}
