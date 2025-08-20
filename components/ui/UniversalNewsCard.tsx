@@ -152,8 +152,8 @@ export default function UniversalNewsCard({
           className={cn(
             "flex gap-3 p-3 rounded-xl transition-all duration-300 hover:shadow-md",
             isBreaking
-              ? "bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800"
-              : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700",
+              ? "bg-red-50 dark:bg-[rgba(255,255,255,0.04)] border border-red-200 dark:border-red-700/60"
+              : "bg-white dark:bg-[rgba(255,255,255,0.04)] border border-gray-200 dark:border-gray-700",
             className
           )}
         >
@@ -237,8 +237,8 @@ export default function UniversalNewsCard({
           className={cn(
             "rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 flex gap-6",
             isBreaking
-              ? "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800 border"
-              : "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 border",
+              ? "bg-red-50 dark:bg-[rgba(255,255,255,0.04)] border-red-200 dark:border-red-700/60 border"
+              : "bg-gray-50 dark:bg-[rgba(255,255,255,0.04)] border-gray-200 dark:border-gray-700 border",
             className
           )}
         >
@@ -353,8 +353,8 @@ export default function UniversalNewsCard({
         className={cn(
           "rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden h-full flex flex-col",
           isBreaking
-            ? "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800 border"
-            : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 border",
+            ? "bg-red-50 dark:bg-[rgba(255,255,255,0.04)] border-red-200 dark:border-red-700/60 border"
+            : "bg-white dark:bg-[rgba(255,255,255,0.04)] border-gray-200 dark:border-gray-700 border",
           className
         )}
       >

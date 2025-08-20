@@ -84,7 +84,7 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
   // النسخة الخفيفة للهواتف والتابلت
   if (isMobile) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
         {DevIndicator}
         {/* إخفاء هيدر النسخة الخفيفة في صفحات الإدارة */}
         {!pathname.startsWith('/admin') && <LightHeader />}

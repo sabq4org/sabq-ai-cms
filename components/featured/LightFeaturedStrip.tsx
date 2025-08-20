@@ -69,10 +69,10 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
                 className={`relative rounded-2xl overflow-hidden border transition-all duration-300 h-full flex flex-col shadow-sm hover:shadow-lg ${
                   isBreaking
                     ? (darkMode
-                        ? 'bg-red-900/20 border-red-800 hover:border-red-500/60'
+                        ? 'bg-[rgba(255,255,255,0.04)] border-red-700/60 hover:border-red-500/70'
                         : 'bg-red-50 border-red-200 hover:border-red-300')
                     : (darkMode
-                        ? 'bg-gray-800/70 border-gray-700 hover:border-blue-500/60 hover:shadow-blue-900/30'
+                        ? 'bg-[rgba(255,255,255,0.04)] border-gray-700 hover:border-gray-500/70'
                         : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-blue-100')
                 }`}
               >

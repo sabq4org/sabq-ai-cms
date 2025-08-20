@@ -238,7 +238,7 @@ export default function SmartInsightsWidget() {
     <div className="max-w-6xl mx-auto mb-8">
       <div
         className="relative overflow-hidden border rounded-xl border-gray-200 dark:border-gray-700 p-5 transition-all duration-300 h-full flex flex-col"
-        style={{ background: darkMode ? 'hsl(var(--accent) / 0.08)' : 'hsl(var(--accent) / 0.06)' }}
+        style={{ background: darkMode ? 'rgba(255,255,255,0.04)' : 'hsl(var(--accent) / 0.06)' }}
       >
       {/* خط جانبي ملون ديناميكي */}
       <div className={`absolute top-0 right-0 w-1 h-full ${config.accent.replace('border-l-', 'bg-')} transition-colors duration-500`}></div>
