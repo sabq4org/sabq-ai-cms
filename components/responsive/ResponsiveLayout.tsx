@@ -99,9 +99,7 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
 
   // النسخة الكاملة للديسكتوب واللابتوب
   return (
-    <div style={{ 
-      minHeight: '100vh',
-      background: '#f5f5f5',
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900" style={{ 
       paddingTop: '72px',
       display: 'flex',
       flexDirection: 'column',
