@@ -40,6 +40,17 @@ const SmartInsightsWidget = dynamic(
   }
 );
 
+// استيراد بلوك الأخبار المميزة من النسخة القديمة لاستخدامه في النسخة الكاملة فقط
+const OldFeaturedHero = dynamic(
+  () => import("@/components/old/OldFeaturedHero"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-64 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />
+    ),
+  }
+);
+
 // (تم حذف الأخبار المميزة من النسخة الكاملة)
 
 // مكون شاشة التحميل المحسن
@@ -106,7 +117,10 @@ export default function Page() {
           <WelcomeMetaStrip />
         </Suspense>
       </div>
-      {/* تمت إزالة الأخبار المميزة من النسخة الكاملة */}
+      {/* الأخبار المميزة من النسخة القديمة - النسخة الكاملة فقط */}
+      <Suspense fallback={<div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse mb-4" />}> 
+        <OldFeaturedHero />
+      </Suspense>
       <Suspense fallback={<div className="h-24 animate-pulse bg-gray-200 rounded mt-4" />}>
         <div className="mt-4">
           <SmartInsightsWidget />
