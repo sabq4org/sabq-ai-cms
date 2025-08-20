@@ -1,7 +1,6 @@
 "use client";
 
 import { isEmergencyArticleSupported } from "@/app/emergency-articles";
-import Footer from "@/components/Footer";
 import ReporterLink from "@/components/ReporterLink";
 import ArticleFeaturedImage from "@/components/article/ArticleFeaturedImage";
 import MobileFeaturedImage from "@/components/article/MobileFeaturedImage";
@@ -571,7 +570,7 @@ export default function ArticleClientComponent({
                 {/* غلاف عنوان/عنوان فرعي مع توافق الوضع الداكن */}
                 <div className="text-right">
                   {/* العنوان - تحسين المسافات والهوامش */}
-                  <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-3 text-gray-900 dark:text-white leading-tight tracking-tight article-title-overlay bg-transparent">{/* زيادة حجم الخط للموبايل أكثر */}
+                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-3 text-gray-900 dark:text-white leading-tight tracking-tight article-title-overlay bg-transparent">{/* تقليل العنوان قليلاً على الديسكتوب */}
                     {article.title}
                   </h1>
 
@@ -925,8 +924,6 @@ export default function ArticleClientComponent({
           </div>
         </div>
       </main>
-
-      <Footer />
     </>
   );
 }
