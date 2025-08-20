@@ -606,12 +606,8 @@ function SmartPersonalizedContentInner({
   // حالة التحميل
   if (loading) {
     return (
-      <section
-        className={`w-full py-6 md:py-8 px-3 md:px-4 ${
-          darkMode ? "bg-gray-800" : "bg-gray-50"
-        }`}
-      >
-        <div className="max-w-4xl mx-auto">
+      <section className={"w-full py-6 md:py-8 px-3 md:px-4 bg-transparent"}>
+        <div className="w-full">
           <div className="flex items-center justify-center py-8">
             <div className="flex items-center gap-3">
               <div className="animate-spin">
@@ -638,12 +634,8 @@ function SmartPersonalizedContentInner({
   // عرض رسالة التحضير في حالة الخطأ وعدم وجود توصيات
   if (!recommendations.length && error && error.includes("يتم التحضير")) {
     return (
-      <section
-        className={`w-full py-6 md:py-8 px-3 md:px-4 ${
-          darkMode ? "bg-gray-800" : "bg-gray-50"
-        }`}
-      >
-        <div className="max-w-4xl mx-auto">
+      <section className={"w-full py-6 md:py-8 px-3 md:px-4 bg-transparent"}>
+        <div className="w-full">
           <div
             className={`text-center py-8 px-6 rounded-2xl border-2 border-dashed ${
               darkMode
@@ -697,12 +689,8 @@ function SmartPersonalizedContentInner({
   }
 
   return (
-    <section
-      className={`w-full py-6 md:py-8 px-3 md:px-4 ${
-        darkMode ? "bg-gray-800" : "bg-gray-50"
-      }`}
-    >
-      <div className="max-w-4xl mx-auto">
+    <section className={"w-full py-6 md:py-8 px-3 md:px-4 bg-transparent"}>
+      <div className="w-full">
         {/* عنوان القسم الذكي - توسيط، أيقونة بالأعلى، ألوان متغيرة */}
         <div className="mb-6 flex flex-col items-center text-center">
           <div className="mb-2">
