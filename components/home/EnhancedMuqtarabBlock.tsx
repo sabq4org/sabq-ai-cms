@@ -699,7 +699,8 @@ export default function EnhancedMuqtarabBlock({
                 مُقترب
               </h2>
               <p
-                style={{ fontSize: '14px', fontWeight: 600, color: 'hsl(var(--accent))' }}
+                className="font-semibold"
+                style={{ fontSize: '14px', color: 'hsl(var(--accent))' }}
               >
                 مقالات إبداعية من جميع الزوايا
               </p>

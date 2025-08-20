@@ -331,30 +331,31 @@ export default function DeepAnalysisBlock({
           <div className="text-center max-w-3xl mx-auto">
             <div className="flex flex-col items-center gap-3">
               <div
-                className={
-                  darkMode
-                    ? "p-4 bg-white/20 backdrop-blur-sm rounded-full ring-2 ring-white/30"
-                    : "p-4 bg-purple-100 rounded-full ring-2 ring-purple-200"
-                }
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '36px',
+                  height: '36px',
+                  background: 'linear-gradient(135deg, hsl(var(--accent) / 0.15) 0%, hsl(var(--accent) / 0.05) 100%)',
+                  borderRadius: '10px',
+                  color: 'hsl(var(--accent))',
+                  fontSize: '18px',
+                  border: '1px solid hsl(var(--accent) / 0.25)'
+                }}
               >
-                <Brain
-                  className={darkMode ? "w-8 h-8 text-white" : "w-8 h-8 text-purple-700"}
-                />
+                <Brain className="w-5 h-5" />
               </div>
               <h2
-                className={`text-xl sm:text-2xl font-bold card-title ${
-                  darkMode ? "text-white" : "text-gray-900"
-                }`}
-                style={{ wordSpacing: "normal", letterSpacing: "normal" }}
+                className={`text-xl md:text-2xl font-bold card-title`}
+                style={{ wordSpacing: 'normal', letterSpacing: 'normal', color: 'hsl(var(--fg))' }}
               >
                 التحليل العميق من سبق
               </h2>
             </div>
             <p
-              className={`text-base sm:text-lg mt-2 card-description ${
-                darkMode ? "text-blue-50" : "text-gray-600"
-              }`}
-              style={{ wordSpacing: "normal", letterSpacing: "normal" }}
+              className="mt-1 font-semibold text-[14px] md:text-[20px]"
+              style={{ color: 'hsl(var(--accent))', wordSpacing: 'normal', letterSpacing: 'normal' }}
             >
               رؤى استراتيجية ودراسات معمقة بالذكاء الاصطناعي
             </p>
