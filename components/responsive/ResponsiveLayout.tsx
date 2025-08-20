@@ -16,6 +16,7 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const isAdminLogin = pathname?.startsWith("/admin/login");
+  const isUserAuthPage = pathname === "/login" || pathname === "/register";
 
   // تحسين فحص الجهاز
   const checkDevice = useCallback(() => {
@@ -71,10 +72,10 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
     return LoadingSpinner;
   }
 
-  // صفحة دخول الإدارة: بدون هيدر/فوتر أو حاويات إضافية
-  if (isAdminLogin) {
+  // صفحات الدخول: إدارة + العضو (لا هيدر/فوتر)
+  if (isAdminLogin || isUserAuthPage) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900" data-page="admin-login">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900" data-page={isAdminLogin ? "admin-login" : "user-auth"}>
         {children}
       </div>
     );

@@ -103,7 +103,7 @@ export default function RootLayout({
           <ResponsiveLayout>
             {children}
           </ResponsiveLayout>
-          {/* إخفاء فوتر واجهة الموقع تلقائيًا في مسارات /admin/** */}
+          {/* إخفاء فوتر واجهة الموقع تلقائيًا في مسارات /admin/** وأيضًا /login و /register */}
           <FooterGate>
             <Footer />
           </FooterGate>
