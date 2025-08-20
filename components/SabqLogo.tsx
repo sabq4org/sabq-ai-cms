@@ -68,6 +68,7 @@ export default function SabqLogo({
         alt="شعار صحيفة سبق"
         width={width}
         height={height}
+        sizes={`${width}px`}
         className={`${className || "object-contain"} ${isWhite ? "brightness-0 invert" : ""} ${isDarkMode && !logoDarkUrl && !isWhite ? "dark:invert dark:brightness-0" : ""}`}
         priority={false}
         loading="lazy"

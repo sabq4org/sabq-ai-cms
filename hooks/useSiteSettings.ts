@@ -22,7 +22,7 @@ export function useSiteSettings() {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const response = await fetch('/api/settings');
+        const response = await fetch('/api/settings', { cache: 'no-store' });
         const data = await response.json();
         
         if (data.success && data.data) {
