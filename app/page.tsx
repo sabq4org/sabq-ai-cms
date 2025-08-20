@@ -81,9 +81,11 @@ export default function Page() {
         </Suspense>
       </div>
       {/* الأخبار المميزة من النسخة القديمة */}
-      <Suspense fallback={<div className="h-52 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse mb-4" />}> 
-        <FeaturedNewsFromOld />
-      </Suspense>
+      <div className="max-w-6xl mx-auto">
+        <Suspense fallback={<div className="h-52 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse mb-4" />}> 
+          <FeaturedNewsFromOld />
+        </Suspense>
+      </div>
       <Suspense fallback={<div className="h-24 animate-pulse bg-gray-200 rounded mt-4" />}>
         <div className="mt-4">
           <SmartInsightsWidget />
@@ -119,9 +121,11 @@ export default function Page() {
         </Suspense>
       </div>
       {/* الأخبار المميزة من النسخة القديمة */}
-      <Suspense fallback={<div className="h-52 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse mb-4" />}> 
-        <FeaturedNewsFromOld />
-      </Suspense>
+      <div className="max-w-6xl mx-auto">
+        <Suspense fallback={<div className="h-52 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse mb-4" />}> 
+          <FeaturedNewsFromOld />
+        </Suspense>
+      </div>
       <Suspense fallback={<div className="h-24 animate-pulse bg-gray-200 rounded mt-4" />}>
         <div className="mt-4">
           <SmartInsightsWidget />

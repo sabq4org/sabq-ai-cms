@@ -67,7 +67,7 @@ const FeaturedNewsCard = memo(
           href={getArticleLink(article)}
           className={`block w-full ${className}`}
         >
-          <article className="group relative overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-[1.02]">
+          <article className="group relative overflow-hidden rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
             {/* الصورة الخلفية */}
             <div className="relative h-64 sm:h-80 lg:h-96 w-full overflow-hidden">
               <CloudImage

@@ -126,9 +126,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
     >
       <Link href={getArticleLink(currentArticle)} className="group block" aria-live="polite">
         <div
-          className={`relative overflow-hidden transition-all duration-500 group-hover:shadow-2xl ${
-            darkMode ? "bg-gray-800 hover:bg-gray-800" : "bg-white hover:bg-white"
-          } rounded-3xl`}
+          className={`relative overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl`}
         >
           <div
             className={`grid grid-cols-1 lg:grid-cols-12`}
@@ -145,7 +143,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                   fill
                   priority
                   sizes="(max-width:1024px) 100vw, 50vw"
-                  className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                  className="object-cover object-center"
                 />
               ) : (
                 <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
