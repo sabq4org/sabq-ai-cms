@@ -173,6 +173,11 @@ export default function OldStyleNewsBlock({
                     </div>
                   )}
                 </div>
+                {!isNewsNew(article.published_at) && (
+                  <span className="old-style-news-date">
+                    {formatGregorianDate(article.published_at)}
+                  </span>
+                )}
               </div>
 
               {/* العنوان */}
