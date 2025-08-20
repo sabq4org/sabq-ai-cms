@@ -40,16 +40,7 @@ const SmartInsightsWidget = dynamic(
   }
 );
 
-// استيراد الأخبار المميزة (hero) من النسخة القديمة أسفل الهيدر
-const FeaturedNewsFromOld = dynamic(
-  () => import("@/components/old/OldFeaturedHero"),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="w-full h-80 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse mb-4" />
-    ),
-  }
-);
+// (تم حذف الأخبار المميزة من النسخة الكاملة)
 
 // مكون شاشة التحميل المحسن
 const LoadingScreen = () => (
@@ -80,17 +71,12 @@ export default function Page() {
           <WelcomeMetaStrip />
         </Suspense>
       </div>
-      {/* الأخبار المميزة من النسخة القديمة */}
-      <div className="max-w-6xl mx-auto px-2 sm:px-4">
-        <Suspense fallback={<div className="h-52 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse mb-4" />}> 
-          <FeaturedNewsFromOld />
+      {/* المؤشرات الذكية */}
+      <div className="max-w-6xl mx-auto px-2 sm:px-4 mb-6">
+        <Suspense fallback={<div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />}>
+          <SmartInsightsWidget />
         </Suspense>
       </div>
-      <Suspense fallback={<div className="h-24 animate-pulse bg-gray-200 rounded mt-4" />}>
-        <div className="mt-4">
-          <SmartInsightsWidget />
-        </div>
-      </Suspense>
       
       <Suspense fallback={<div className="h-48 animate-pulse bg-gray-200 rounded mt-6" />}>
         <SmartContentBlock />
@@ -120,12 +106,7 @@ export default function Page() {
           <WelcomeMetaStrip />
         </Suspense>
       </div>
-      {/* الأخبار المميزة من النسخة القديمة */}
-      <div className="max-w-6xl mx-auto px-4">
-        <Suspense fallback={<div className="h-52 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse mb-4" />}> 
-          <FeaturedNewsFromOld />
-        </Suspense>
-      </div>
+      {/* تمت إزالة الأخبار المميزة من النسخة الكاملة */}
       <Suspense fallback={<div className="h-24 animate-pulse bg-gray-200 rounded mt-4" />}>
         <div className="mt-4">
           <SmartInsightsWidget />
