@@ -27,6 +27,7 @@ import {
 // تطبيق Manus UI مع الاحتفاظ بالوظائف الأصلية
 export default function ModernDashboardHomeFullWidth() {
   const { user } = useAuth();
+  const isAdmin = !!(user && (user.is_admin || user.role === 'admin' || user.role === 'super_admin' || user.role === 'system_admin'));
   const [currentTheme, setCurrentTheme] = useState('blue');
   const [activeTab, setActiveTab] = useState('overview');
   
@@ -214,7 +215,7 @@ export default function ModernDashboardHomeFullWidth() {
           }}>
             <div style={{ fontSize: '28px', marginBottom: '6px' }}>🤖</div>
             <div className="card-title" style={{ fontSize: '18px', marginBottom: '3px', lineHeight: '1.2' }}>
-              مرحباً يا {user?.name || 'مدير النظام'} 
+              مرحباً يا {user?.name || 'مستخدم'} 
             </div>
             <div className="card-subtitle" style={{ 
               marginBottom: '10px', 
@@ -229,7 +230,7 @@ export default function ModernDashboardHomeFullWidth() {
             }}
             title="اضغط للحصول على رسالة جديدة"
             >
-              {currentMessage}
+              {isAdmin ? currentMessage : 'وضع عرض محدود للمستخدمين غير الإداريين'}
             </div>
             
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>

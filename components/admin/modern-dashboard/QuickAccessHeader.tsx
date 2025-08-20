@@ -49,6 +49,7 @@ export default function QuickAccessHeader({
   const [notifications] = useState(3);
   const searchRef = useRef<HTMLInputElement>(null);
   const { user, logout } = useAuth();
+  const isAdmin = !!(user && (user.is_admin || ['admin','super_admin','system_admin'].includes(user.role)));
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -107,37 +108,37 @@ export default function QuickAccessHeader({
           {/* اليسار: وصلات سريعة + إجراءات (قابلة للتمرير على الجوال) */}
           <div className="admin-header flex items-center gap-1 sm:gap-2 overflow-x-auto">
             <Link href="/admin/news">
-              <Button variant="ghost" size="sm" className="gap-1">
+              <Button variant="ghost" size="sm" className="gap-1" disabled={!isAdmin} title={!isAdmin ? 'يتطلب صلاحيات إدارية' : undefined}>
                 <Newspaper className="h-5 w-5" />
                 <span className="hidden lg:inline text-sm">الأخبار</span>
               </Button>
             </Link>
             <Link href="/admin/modern/articles">
-              <Button variant="ghost" size="sm" className="gap-1">
+              <Button variant="ghost" size="sm" className="gap-1" disabled={!isAdmin} title={!isAdmin ? 'يتطلب صلاحيات إدارية' : undefined}>
                 <FileText className="h-5 w-5" />
                 <span className="hidden lg:inline text-sm">المقالات</span>
               </Button>
             </Link>
             <Link href="/admin/modern/analytics">
-              <Button variant="ghost" size="sm" className="gap-1">
+              <Button variant="ghost" size="sm" className="gap-1" disabled={!isAdmin} title={!isAdmin ? 'يتطلب صلاحيات إدارية' : undefined}>
                 <BarChart3 className="h-5 w-5" />
                 <span className="hidden lg:inline text-sm">التحليلات</span>
               </Button>
             </Link>
             <Link href="/admin/stories">
-              <Button variant="ghost" size="sm" className="gap-1">
+              <Button variant="ghost" size="sm" className="gap-1" disabled={!isAdmin} title={!isAdmin ? 'يتطلب صلاحيات إدارية' : undefined}>
                 <Bot className="h-5 w-5" />
                 <span className="hidden lg:inline text-sm">القصص الذكية</span>
               </Button>
             </Link>
             <Link href="/admin/modern/settings">
-              <Button variant="ghost" size="sm" className="gap-1">
+              <Button variant="ghost" size="sm" className="gap-1" disabled={!isAdmin} title={!isAdmin ? 'يتطلب صلاحيات إدارية' : undefined}>
                 <Settings className="h-5 w-5" />
                 <span className="hidden lg:inline text-sm">الإعدادات</span>
               </Button>
             </Link>
             <Link href="/admin/ai-editor">
-              <Button variant="ghost" size="sm" className="gap-1">
+              <Button variant="ghost" size="sm" className="gap-1" disabled={!isAdmin} title={!isAdmin ? 'يتطلب صلاحيات إدارية' : undefined}>
                 <Bot className="h-5 w-5" />
                 <span className="hidden xl:inline text-sm">أنظمة AI</span>
               </Button>
