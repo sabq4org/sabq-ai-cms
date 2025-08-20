@@ -17,6 +17,17 @@ const MuqtarabBlock = dynamic(
   }
 );
 
+// استيراد بلوك التحليل العميق بشكل ديناميكي
+const DeepAnalysisBlock = dynamic(
+  () => import("@/components/DeepAnalysisBlock"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-64 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />
+    ),
+  }
+);
+
 // مكون شاشة التحميل المحسن
 const LoadingScreen = () => (
   <div className="flex items-center justify-center py-20">
@@ -49,6 +60,10 @@ export default function Page() {
         <SmartContentBlock />
       </Suspense>
       
+      <Suspense fallback={<div className="h-64 animate-pulse bg-gray-200 rounded mt-6" />}>
+        <DeepAnalysisBlock maxItems={3} className="mt-10" />
+      </Suspense>
+      
       <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded mt-6" />}>
         <MuqtarabBlock
           limit={8}
@@ -70,6 +85,10 @@ export default function Page() {
       
       <Suspense fallback={<div className="h-48 animate-pulse bg-gray-200 rounded mt-6" />}>
         <SmartContentBlock />
+      </Suspense>
+      
+      <Suspense fallback={<div className="h-64 animate-pulse bg-gray-200 rounded mt-6" />}>
+        <DeepAnalysisBlock maxItems={3} className="mt-12" />
       </Suspense>
       
       <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded mt-6" />}>
