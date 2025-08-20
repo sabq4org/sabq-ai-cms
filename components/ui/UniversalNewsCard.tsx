@@ -172,32 +172,36 @@ export default function UniversalNewsCard({
 
           {/* المحتوى */}
           <div className="flex-1 min-w-0 rounded-xl transition-colors group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 px-2 py-1">
-            {/* التصنيف والشارات */}
+            {/* التصنيف أو ليبل عاجل */}
             <div className="flex items-center gap-2 mb-2 flex-wrap">
-              {category && (
-                <Badge
-                  variant="secondary"
-                  className={cn(
-                    "text-xs font-bold px-2 py-0.5 rounded-full border",
-                    categoryStyle.bgClass,
-                    categoryStyle.textClass,
-                    categoryStyle.borderClass
-                  )}
-                >
-                  {categoryStyle.emoji} {category.name}
-                </Badge>
-              )}
-
-              {isBreaking && (
-                <Badge className="bg-red-600 text-white text-xs px-2 py-0.5 animate-pulse">
+              {isBreaking ? (
+                <Badge className="bg-red-600 text-white text-xs px-2 py-0.5">
                   <Zap className="w-3 h-3 mr-1" />
                   عاجل
                 </Badge>
+              ) : (
+                category && (
+                  <Badge
+                    variant="secondary"
+                    className={cn(
+                      "text-xs font-bold px-2 py-0.5 rounded-full border",
+                      categoryStyle.bgClass,
+                      categoryStyle.textClass,
+                      categoryStyle.borderClass
+                    )}
+                  >
+                    {categoryStyle.emoji} {category.name}
+                  </Badge>
+                )
               )}
             </div>
 
             {/* العنوان */}
-            <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-2 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+            <h3 className={cn(
+              "text-sm font-bold mb-2 line-clamp-2 transition-colors",
+              isBreaking ? "text-red-700 dark:text-red-400" : "text-gray-900 dark:text-white",
+              "group-hover:text-blue-600 dark:group-hover:text-blue-400"
+            )}>
               {article.title}
             </h3>
 
@@ -253,27 +257,27 @@ export default function UniversalNewsCard({
 
           {/* المحتوى */}
           <div className="flex-1 min-w-0">
-            {/* التصنيف والشارات */}
+            {/* التصنيف أو ليبل عاجل + شارات أخرى */}
             <div className="flex items-center gap-2 mb-3 flex-wrap">
-              {category && (
-                <Badge
-                  variant="secondary"
-                  className={cn(
-                    "text-xs font-bold px-3 py-1 rounded-full border",
-                    categoryStyle.bgClass,
-                    categoryStyle.textClass,
-                    categoryStyle.borderClass
-                  )}
-                >
-                  {categoryStyle.emoji} {category.name}
-                </Badge>
-              )}
-
-              {isBreaking && (
-                <Badge className="bg-red-600 text-white text-sm px-3 py-1 animate-pulse">
+              {isBreaking ? (
+                <Badge className="bg-red-600 text-white text-sm px-3 py-1">
                   <Zap className="w-4 h-4 mr-1" />
                   عاجل
                 </Badge>
+              ) : (
+                category && (
+                  <Badge
+                    variant="secondary"
+                    className={cn(
+                      "text-xs font-bold px-3 py-1 rounded-full border",
+                      categoryStyle.bgClass,
+                      categoryStyle.textClass,
+                      categoryStyle.borderClass
+                    )}
+                  >
+                    {categoryStyle.emoji} {category.name}
+                  </Badge>
+                )
               )}
 
               {isPersonalized && (
@@ -292,7 +296,11 @@ export default function UniversalNewsCard({
             </div>
 
             {/* العنوان */}
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+            <h2 className={cn(
+              "text-xl font-bold mb-3 line-clamp-2 transition-colors",
+              isBreaking ? "text-red-700 dark:text-red-400" : "text-gray-900 dark:text-white",
+              "group-hover:text-blue-600 dark:group-hover:text-blue-400"
+            )}>
               {article.title}
             </h2>
 
@@ -361,34 +369,31 @@ export default function UniversalNewsCard({
             fallbackType="article"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
-
-          {/* شارات على الصورة */}
-          <div className="absolute top-3 right-3 flex gap-2">
-            {isBreaking && (
-              <Badge className="bg-red-600 text-white text-xs px-2 py-1 animate-pulse">
-                <Zap className="w-3 h-3 mr-1" />
-                عاجل
-              </Badge>
-            )}
-          </div>
         </div>
 
         {/* المحتوى */}
         <div className="p-6 flex-1 flex flex-col rounded-xl transition-colors group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20">
-          {/* التصنيف والشارات */}
+          {/* التصنيف أو ليبل عاجل + شارات أخرى */}
           <div className="flex items-center gap-2 mb-3 flex-wrap">
-            {category && (
-              <Badge
-                variant="secondary"
-                className={cn(
-                  "text-xs font-bold px-3 py-1 rounded-full border",
-                  categoryStyle.bgClass,
-                  categoryStyle.textClass,
-                  categoryStyle.borderClass
-                )}
-              >
-                {categoryStyle.emoji} {category.name}
+            {isBreaking ? (
+              <Badge className="bg-red-600 text-white text-xs px-2 py-1">
+                <Zap className="w-3 h-3 mr-1" />
+                عاجل
               </Badge>
+            ) : (
+              category && (
+                <Badge
+                  variant="secondary"
+                  className={cn(
+                    "text-xs font-bold px-3 py-1 rounded-full border",
+                    categoryStyle.bgClass,
+                    categoryStyle.textClass,
+                    categoryStyle.borderClass
+                  )}
+                >
+                  {categoryStyle.emoji} {category.name}
+                </Badge>
+              )
             )}
 
             {isPersonalized && (
@@ -407,7 +412,11 @@ export default function UniversalNewsCard({
           </div>
 
           {/* العنوان */}
-          <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-3 line-clamp-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors flex-1">
+          <h2 className={cn(
+            "text-lg sm:text-xl font-bold mb-3 line-clamp-3 transition-colors flex-1",
+            isBreaking ? "text-red-700 dark:text-red-400" : "text-gray-900 dark:text-white",
+            "group-hover:text-blue-600 dark:group-hover:text-blue-400"
+          )}>
             {article.title}
           </h2>
 
