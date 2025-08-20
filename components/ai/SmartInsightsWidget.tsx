@@ -223,9 +223,19 @@ export default function SmartInsightsWidget() {
   const config = getInsightConfig(currentInsight.insightTag);
 
   return (
-    <div className="bg-gradient-to-br from-slate-50/80 via-white/90 to-slate-100/60 dark:from-slate-800/80 dark:via-slate-800/90 dark:to-slate-900/60 rounded-2xl p-5 border border-slate-200/50 dark:border-slate-700/50 shadow-lg backdrop-blur-sm transition-all duration-500 hover:shadow-xl h-full flex flex-col relative overflow-hidden">
+    <div
+      className="rounded-2xl p-5 border shadow-lg backdrop-blur-sm transition-all duration-500 hover:shadow-xl h-full flex flex-col relative overflow-hidden"
+      style={{
+        background:
+          "linear-gradient(135deg, hsl(var(--accent) / 0.10) 0%, hsl(var(--accent) / 0.04) 100%)",
+        borderColor: "hsl(var(--accent) / 0.25)",
+      }}
+    >
       {/* خط جانبي ملون ديناميكي */}
-      <div className={`absolute top-0 right-0 w-1 h-full ${config.accent.replace('border-l-', 'bg-')} transition-colors duration-500`}></div>
+      <div
+        className="absolute top-0 right-0 w-1 h-full transition-colors duration-500"
+        style={{ backgroundColor: "hsl(var(--accent))" }}
+      />
       {/* Header مع عنوان أكبر */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
@@ -247,18 +257,20 @@ export default function SmartInsightsWidget() {
         
         {/* 3 بطاقات صغيرة مع تدرجات وأيقونات */}
         <div className="grid grid-cols-3 gap-2 mt-3">
-          <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/30 rounded-lg p-2 text-center">
-            <div className="text-sm mb-1">🧠</div>
-            <div className="text-xs font-medium text-blue-700 dark:text-blue-300">تحليل فوري</div>
-          </div>
-          <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/30 rounded-lg p-2 text-center">
-            <div className="text-sm mb-1">📊</div>
-            <div className="text-xs font-medium text-green-700 dark:text-green-300">اتجاهات ذكية</div>
-          </div>
-          <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/30 rounded-lg p-2 text-center">
-            <div className="text-sm mb-1">⚡</div>
-            <div className="text-xs font-medium text-purple-700 dark:text-purple-300">تحديث مستمر</div>
-          </div>
+          {[{ i: "🧠", t: "تحليل فوري" }, { i: "📊", t: "اتجاهات ذكية" }, { i: "⚡", t: "تحديث مستمر" }].map((k, idx) => (
+            <div
+              key={idx}
+              className="rounded-lg p-2 text-center"
+              style={{
+                background: "linear-gradient(135deg, hsl(var(--accent) / 0.12) 0%, hsl(var(--accent) / 0.06) 100%)",
+                color: "hsl(var(--accent))",
+                border: "1px solid hsl(var(--accent) / 0.25)",
+              }}
+            >
+              <div className="text-sm mb-1">{k.i}</div>
+              <div className="text-xs font-medium">{k.t}</div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -279,16 +291,21 @@ export default function SmartInsightsWidget() {
             {/* التصنيف والمقاييس */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className={`text-sm font-medium px-3 py-1.5 rounded-full ${config.bg} ${config.color} border border-current/20`}>
+                <span
+                  className="text-sm font-medium px-3 py-1.5 rounded-full"
+                  style={{
+                    background: "hsl(var(--accent) / 0.15)",
+                    color: "hsl(var(--accent))",
+                    border: "1px solid hsl(var(--accent) / 0.30)",
+                  }}
+                >
                   {currentInsight.insightTag}
                 </span>
               </div>
               
               <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
                 {/* Mini Chart */}
-                <div className={`${config.color}`}>
-                  {generateMiniChart(currentInsight.trendingScore)}
-                </div>
+                <div style={{ color: "hsl(var(--accent))" }}>{generateMiniChart(currentInsight.trendingScore)}</div>
                 
                 {/* المقياس الرئيسي */}
                 <div className="flex items-center gap-1.5">
@@ -317,7 +334,13 @@ export default function SmartInsightsWidget() {
 
             {/* التحليل الذكي - flex-1 للمساحة المتبقية */}
             <div className="flex-1 flex flex-col justify-center">
-              <div className="text-sm text-slate-600 dark:text-slate-400 bg-white/60 dark:bg-slate-700/60 rounded-xl p-4 border border-slate-200/50 dark:border-slate-600/50 backdrop-blur-sm">
+              <div
+                className="text-sm text-slate-600 dark:text-slate-300 rounded-xl p-4 backdrop-blur-sm"
+                style={{
+                  background: "hsl(var(--accent) / 0.06)",
+                  border: "1px solid hsl(var(--accent) / 0.25)",
+                }}
+              >
                 <div className="flex items-start gap-2">
                   <span className="text-lg">💡</span>
                   <div className="leading-relaxed">
@@ -331,45 +354,21 @@ export default function SmartInsightsWidget() {
       </div>
 
       {/* مؤشرات النقاط والتحكم - 5 نقاط ملونة دائماً */}
-      <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-200/50 dark:border-slate-600/50">
+      <div
+        className="flex items-center justify-between mt-4 pt-3"
+        style={{ borderTop: "1px solid hsl(var(--accent) / 0.25)" }}
+      >
         <div className="flex gap-1.5">
           {Array.from({ length: 5 }, (_, index) => {
             const insight = insights[index];
-            const dotConfig = insight ? getInsightConfig(insight.insightTag) : getInsightConfig('');
-            const isActive = index === currentIndex && insight;
+            const isActive = index === currentIndex && !!insight;
             const hasData = !!insight;
-            
-            // ألوان افتراضية للنقاط حسب الترتيب
-            const defaultColors = [
-              'bg-red-400/40 dark:bg-red-500/40',      // أحمر
-              'bg-blue-400/40 dark:bg-blue-500/40',    // أزرق  
-              'bg-green-400/40 dark:bg-green-500/40',  // أخضر
-              'bg-yellow-400/40 dark:bg-yellow-500/40', // أصفر
-              'bg-purple-400/40 dark:bg-purple-500/40'  // بنفسجي
-            ];
-            
-            let dotClasses = '';
-            if (hasData) {
-              const dotColor = dotConfig.color.replace('text-', 'bg-');
-              // تحسين الألوان للوضع الفاتح والمظلم
-              const dotColorMuted = dotColor.replace('-600', '-400/70'); // تحسين للوضع الفاتح
-              const dotColorMutedDark = dotColor.replace('-600', '-500/50'); // للوضع المظلم
-              
-              dotClasses = isActive 
-                ? `${dotColor} shadow-sm ring-2 ring-white/50 dark:ring-slate-800/50`
-                : `${dotColorMuted} dark:${dotColorMutedDark} hover:scale-105`;
-            } else {
-              // ألوان أوضح للنقاط الافتراضية في الوضع الفاتح
-              const lightColors = [
-                'bg-red-400/70 dark:bg-red-500/40',      // أحمر
-                'bg-blue-400/70 dark:bg-blue-500/40',    // أزرق  
-                'bg-green-400/70 dark:bg-green-500/40',  // أخضر
-                'bg-yellow-400/70 dark:bg-yellow-500/40', // أصفر
-                'bg-purple-400/70 dark:bg-purple-500/40'  // بنفسجي
-              ];
-              dotClasses = lightColors[index] || 'bg-slate-400/60 dark:bg-slate-600/40';
-            }
-            
+            const dotStyle: React.CSSProperties = {
+              backgroundColor: isActive
+                ? "hsl(var(--accent))"
+                : "hsl(var(--accent) / 0.5)",
+              boxShadow: isActive ? "0 0 0 2px rgba(255,255,255,0.5)" : undefined,
+            };
             return (
               <button
                 key={index}
@@ -377,7 +376,8 @@ export default function SmartInsightsWidget() {
                 disabled={!hasData}
                 className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                   hasData ? 'hover:scale-110 cursor-pointer' : 'cursor-default'
-                } ${dotClasses}`}
+                }`}
+                style={dotStyle}
                 title={insight?.insightTag || `المؤشر ${index + 1}`}
               />
             );
