@@ -136,7 +136,7 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
             {/* زر القائمة الجانبية */}
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 active:scale-95"
+              className="p-2 bg-transparent rounded-none transition-all duration-200 active:scale-95 focus:outline-none focus:ring-0 hover:bg-transparent"
               aria-label="فتح القائمة"
             >
               <Menu className="w-5 h-5 text-gray-700 dark:text-gray-200" />
@@ -168,7 +168,7 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
             {/* تبديل الوضع الليلي */}
             <button
               onClick={toggleDarkMode}
-              className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 active:scale-95"
+              className="p-2 bg-transparent rounded-none transition-all duration-200 active:scale-95 focus:outline-none focus:ring-0 hover:bg-transparent"
               aria-label="تبديل الوضع الليلي"
               title={darkMode ? 'التبديل للوضع النهاري' : 'التبديل للوضع الليلي'}
             >
@@ -181,7 +181,7 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
 
             {/* الملف الشخصي */}
             <button 
-              className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 active:scale-95"
+              className="p-2 bg-transparent rounded-none transition-all duration-200 active:scale-95 focus:outline-none focus:ring-0 hover:bg-transparent"
               title="الملف الشخصي"
             >
               <User className="w-5 h-5 text-gray-700 dark:text-gray-200" />
