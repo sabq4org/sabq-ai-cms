@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Menu, User, Moon, Sun, Home, Newspaper, Grid3X3, Sparkles, Brain, Palette } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { useSiteSettings } from '@/hooks/useSiteSettings';
+import { useAuth } from '@/hooks/useAuth';
 
 // نظام الألوان المتغيرة المطور
 const themes = [
@@ -59,9 +60,11 @@ interface LightHeaderProps {
 
 export default function LightHeader({ className = '' }: LightHeaderProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [currentTheme, setCurrentTheme] = useState(themes[0]);
   const { darkMode, toggleDarkMode, mounted } = useDarkModeContext();
   const { logoUrl, siteName, loading: settingsLoading } = useSiteSettings();
+  const { user, isLoggedIn, logout } = useAuth();
 
   // تحميل اللون المحفوظ عند التحميل
   useEffect(() => {
@@ -222,15 +225,47 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
               )}
             </button>
 
-            {/* الملف الشخصي → فتح صفحة تسجيل الدخول (النسخة الخفيفة) */}
-            <Link
-              href={typeof window !== 'undefined' ? `/login?next=${encodeURIComponent(window.location.pathname + window.location.search + window.location.hash)}` : '/login'}
-              className="p-2 bg-transparent rounded-none transition-all duration-200 active:scale-95 focus:outline-none focus:ring-0 hover:bg-transparent"
-              title="تسجيل الدخول"
-              aria-label="تسجيل الدخول"
-            >
-              <User className="w-5 h-5 text-gray-700 dark:text-gray-200" />
-            </Link>
+            {/* الملف الشخصي */}
+            {!isLoggedIn ? (
+              <Link
+                href={typeof window !== 'undefined' ? `/login?next=${encodeURIComponent(window.location.pathname + window.location.search + window.location.hash)}` : '/login'}
+                className="p-2 bg-transparent rounded-none transition-all duration-200 active:scale-95 focus:outline-none focus:ring-0 hover:bg-transparent"
+                title="تسجيل الدخول"
+                aria-label="تسجيل الدخول"
+              >
+                <User className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+              </Link>
+            ) : (
+              <div className="relative">
+                <button
+                  onClick={() => setUserMenuOpen(v => !v)}
+                  className="p-2 bg-transparent rounded-none transition-all duration-200 active:scale-95 focus:outline-none focus:ring-0 hover:bg-transparent"
+                  aria-label="قائمة المستخدم"
+                  title={user?.name || 'قائمة المستخدم'}
+                >
+                  <User className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+                </button>
+                {userMenuOpen && (
+                  <div className="absolute top-10 left-0 min-w-[180px] rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-xl z-50">
+                    <div className="py-2 text-sm">
+                      <Link href="/profile" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">الملف الشخصي</Link>
+                      <Link href="/favorites" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">المفضلة</Link>
+                      <Link href="/bookmarks" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">المحفوظات</Link>
+                      <button
+                        onClick={async () => {
+                          try { await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }); } catch {}
+                          logout();
+                          setUserMenuOpen(false);
+                        }}
+                        className="w-full text-right px-4 py-2 text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                      >
+                        تسجيل الخروج
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </header>
