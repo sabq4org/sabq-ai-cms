@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cache } from '@/lib/redis';
 import prisma from '@/lib/prisma';
 
-export const dynamic = 'force-dynamic';
+// فعّل الكاش مع SWR للاستجابة الفورية وتحديث دوري
+export const dynamic = 'force-static';
 
 interface ArticleInsight {
   id: string;
@@ -240,15 +241,15 @@ export async function GET(request: NextRequest) {
   try {
     const insights = await calculateSmartInsights();
     
-    return NextResponse.json({
+    const res = NextResponse.json({
       success: true,
       data: insights,
       timestamp: new Date().toISOString()
-    }, {
-      headers: {
-        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60',
-      }
     });
+    res.headers.set('Cache-Control', 'public, s-maxage=120, stale-while-revalidate=300');
+    res.headers.set('CDN-Cache-Control', 'max-age=120');
+    res.headers.set('Vercel-CDN-Cache-Control', 'max-age=120');
+    return res;
   } catch (error) {
     console.error('Smart AI Insights error:', error);
     return NextResponse.json(

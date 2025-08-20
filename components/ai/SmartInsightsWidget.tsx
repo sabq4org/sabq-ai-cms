@@ -32,16 +32,12 @@ export default function SmartInsightsWidget() {
 
   const fetchInsights = async () => {
     try {
-      const response = await fetch('/api/ai-insights', {
-        cache: 'no-store'
-      });
+      const response = await fetch('/api/ai-insights', { next: { revalidate: 120 } });
       
       if (!response.ok) throw new Error('Failed to fetch insights');
       
       const data = await response.json();
       if (data.success && data.data) {
-        // تأخير قصير لضمان رؤية النقاط الملونة
-        await new Promise(resolve => setTimeout(resolve, 1000));
         setInsights(data.data);
         setError(null);
       } else {
@@ -57,10 +53,8 @@ export default function SmartInsightsWidget() {
 
   useEffect(() => {
     fetchInsights();
-    
-    // تحديث كل 10 دقائق
-    const interval = setInterval(fetchInsights, 10 * 60 * 1000);
-    
+    // تحديث كل 5 دقائق
+    const interval = setInterval(fetchInsights, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -153,10 +147,10 @@ export default function SmartInsightsWidget() {
 
   if (loading) {
     return (
-      <div className="max-w-6xl mx-auto mb-8">
+      <div className="max-w-6xl mx-auto mb-8" aria-busy="true" aria-live="polite">
         <div
           className="relative overflow-hidden border rounded-xl border-gray-200 dark:border-gray-700 p-5 h-full flex flex-col"
-          style={{ background: darkMode ? 'hsl(var(--accent) / 0.08)' : 'hsl(var(--accent) / 0.06)' }}
+          style={{ background: darkMode ? 'hsl(var(--bg-elevated))' : 'hsl(var(--accent) / 0.06)' }}
         >
           <div className="animate-pulse space-y-4 flex-1">
             <div className="space-y-2">
