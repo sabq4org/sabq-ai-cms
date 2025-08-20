@@ -73,25 +73,68 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
     }
   }, []);
 
-  // تطبيق اللون على DOM
-  const applyThemeToDOM = (theme: typeof themes[0]) => {
+  // تحويل Hex إلى HSL (لضبط متغيرات --accent كما في النسخة الكاملة)
+  const hexToHsl = (hex: string) => {
+    let r = 0, g = 0, b = 0;
+    const clean = hex.replace('#', '');
+    if (clean.length === 3) {
+      r = parseInt(clean[0] + clean[0], 16);
+      g = parseInt(clean[1] + clean[1], 16);
+      b = parseInt(clean[2] + clean[2], 16);
+    } else if (clean.length === 6) {
+      r = parseInt(clean.substring(0, 2), 16);
+      g = parseInt(clean.substring(2, 4), 16);
+      b = parseInt(clean.substring(4, 6), 16);
+    }
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h = 0, s = 0; let l = (max + min) / 2;
+    if (max !== min) {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+      }
+      h /= 6;
+    }
+    return {
+      h: Math.round(h * 360),
+      s: Math.round(s * 100),
+      l: Math.round(l * 100),
+    };
+  };
+
+  const setThemeVars = (theme: typeof themes[0]) => {
     const root = document.documentElement;
-    
     // إزالة جميع data-theme attributes
     themes.forEach(t => root.removeAttribute(`data-theme-${t.id}`));
-    
     // تطبيق theme الجديد
     root.setAttribute('data-theme', theme.id);
     root.style.setProperty('--theme-primary', theme.color);
     root.style.setProperty('--theme-primary-rgb', theme.rgb);
     root.style.setProperty('--theme-primary-light', `rgba(${theme.rgb}, 0.1)`);
     root.style.setProperty('--theme-primary-lighter', `rgba(${theme.rgb}, 0.05)`);
+
+    // ضبط متغيرات النسخة الكاملة (--accent*) لضمان توافق البلوكات القديمة
+    const { h, s, l } = hexToHsl(theme.color);
+    const hoverL = Math.max(0, Math.min(100, l - 5));
+    const lightL = 96; // كما في النسخة الكاملة تقريباً
+    root.style.setProperty('--accent', `${h} ${s}% ${l}%`);
+    root.style.setProperty('--accent-hover', `${h} ${s}% ${hoverL}%`);
+    root.style.setProperty('--accent-light', `${h} ${s}% ${lightL}%`);
+  };
+
+  // تطبيق اللون على DOM
+  const applyThemeToDOM = (theme: typeof themes[0]) => {
+    setThemeVars(theme);
   };
 
   // تطبيق اللون المختار
   const applyTheme = (theme: typeof themes[0]) => {
     setCurrentTheme(theme);
-    applyThemeToDOM(theme);
+    setThemeVars(theme);
     localStorage.setItem('theme-color', theme.id);
   };
 
