@@ -9,6 +9,7 @@ type FeaturedArticle = {
   slug?: string;
   featured_image?: string;
   published_at?: string;
+  views?: number;
   category?: { id: string; name: string; slug?: string; color?: string; icon?: string } | null;
   author?: { id?: string; name?: string } | null;
 };
@@ -35,6 +36,7 @@ export default function OldFeaturedHero() {
           slug: a.slug,
           featured_image: a.featured_image,
           published_at: a.published_at,
+          views: a.views,
           category: a.categories
             ? { id: a.categories.id, name: a.categories.name, slug: a.categories.slug, color: a.categories.color }
             : null,

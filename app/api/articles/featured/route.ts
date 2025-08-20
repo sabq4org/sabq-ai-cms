@@ -29,6 +29,7 @@ export async function GET(request: NextRequest) {
           slug: true,
           featured_image: true,
           published_at: true,
+          views: true,
           categories: { select: { id: true, name: true, slug: true, color: true } },
         },
       })
