@@ -212,8 +212,23 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
             </div>
             <div className={`hidden lg:flex ${halfWidth ? 'lg:col-span-6 xl:col-span-6' : 'lg:col-span-5 xl:col-span-4'} p-4 lg:p-6 flex-col justify-between overflow-hidden`} style={{ height: `${containerHeight}px` }}>
               {/* عنوان الخبر لنسخة الديسكتوب (يبقى مرئياً في العمود النصي) */}
+              {/* ليبل التصنيف فوق العنوان */}
+              {currentArticle.category?.name && (
+                <div className="mb-2">
+                  <span
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium"
+                    style={{
+                      backgroundColor: currentArticle.category?.color || 'hsl(var(--accent))',
+                      color: '#fff',
+                    }}
+                  >
+                    <span className="text-sm">{currentArticle.category?.icon || '📰'}</span>
+                    <span>{currentArticle.category?.name}</span>
+                  </span>
+                </div>
+              )}
               <h2
-                className={`text-xl lg:text-2xl xl:text-3xl font-bold mb-4 leading-tight line-clamp-3 ${titleClassName ?? 'text-white'}`}
+                className={`text-lg lg:text-xl xl:text-2xl font-bold mb-4 leading-tight line-clamp-3 ${titleClassName ?? 'text-white'}`}
               >
                 {currentArticle.title}
               </h2>
