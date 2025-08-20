@@ -32,28 +32,30 @@ export default function WelcomeMetaStrip() {
       style={{
         display: 'flex',
         justifyContent: 'flex-end',
-        alignItems: 'center',
-        gap: '12px',
-        fontSize: '14px',
+        alignItems: 'flex-start',
+        gap: '16px',
         color: 'hsl(var(--muted))',
         marginBottom: '10px',
         flexWrap: 'wrap',
       }}
     >
-      <span style={{ color: 'hsl(var(--fg))', fontWeight: 700 }}>
-        {getTimeBasedGreeting(now)}{user ? ` يا ${user.name}` : ''} <span style={{ fontSize: 18 }}>👋</span>
-      </span>
-      <span style={{ color: 'hsl(var(--line))' }}>•</span>
-      <span>{formatDate(now)}</span>
       {user && (
-        <>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <span style={{ color: 'hsl(var(--line))' }}>•</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Award style={{ width: '14px', height: '14px', color: '#FFA500' }} />
+          <Award style={{ width: '14px', height: '14px', color: '#FFA500' }} />
+          <span>
             لديك <strong style={{ color: 'hsl(var(--fg))', fontWeight: 600 }}>1,250</strong> نقطة ولاء
           </span>
-        </>
+        </div>
       )}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textAlign: 'right' }}>
+        <span style={{ color: 'hsl(var(--fg))', fontWeight: 800, fontSize: 'clamp(22px, 3.5vw, 32px)' }}>
+          {getTimeBasedGreeting(now)}{user ? ` يا ${user.name}` : ''} <span style={{ fontSize: 22 }}>👋</span>
+        </span>
+        <span style={{ fontSize: 'clamp(12px, 2.5vw, 14px)', marginTop: '4px' }}>
+          {formatDate(now)}
+        </span>
+      </div>
     </div>
   );
 }
