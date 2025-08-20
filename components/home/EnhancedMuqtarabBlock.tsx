@@ -532,6 +532,28 @@ export default function EnhancedMuqtarabBlock({
       ? (article.coverImage as string)
       : "/images/default-article.jpg";
 
+    const isNew = (): boolean => {
+      if (article.isRecent) return true;
+      try {
+        const d = new Date(article.publishDate);
+        return Date.now() - d.getTime() <= 24 * 60 * 60 * 1000;
+      } catch {
+        return false;
+      }
+    };
+
+    const formatGregorianDate = (dateString: string) => {
+      const d = new Date(dateString);
+      try {
+        return d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      } catch {
+        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const yy = d.getFullYear();
+        return `${dd}/${mm}/${yy}`;
+      }
+    };
+
     return (
       <Link href={article.link} className="group block">
         <article
@@ -562,9 +584,26 @@ export default function EnhancedMuqtarabBlock({
 
           {/* محتوى البطاقة */}
           <div className="p-4 flex-1 flex flex-col">
-            {/* لابل التصنيف */}
-            <div className="mb-2">
-              <span className="category-pill">{article.angle.title}</span>
+            {/* الشريط العلوي: جديد + اسم الزاوية بجوار بعض */
+            <div className="mb-2 flex items-center gap-2">
+              {isNew() && (
+                <div className="old-style-news-new-badge">
+                  <span className="old-style-fire-emoji" aria-hidden>🔥</span>
+                  <span>جديد</span>
+                  <span className="old-style-news-date-inline">{formatGregorianDate(article.publishDate)}</span>
+                </div>
+              )}
+              <div
+                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md"
+                style={{
+                  backgroundColor: (article.angle?.themeColor || '#6366f1'),
+                  color: '#ffffff',
+                  border: `1px solid ${article.angle?.themeColor || '#6366f1'}`,
+                }}
+              >
+                {article.angle?.icon && <span className="mr-0.5">{article.angle.icon}</span>}
+                <span>{article.angle?.title}</span>
+              </div>
             </div>
 
             {/* العنوان */}
