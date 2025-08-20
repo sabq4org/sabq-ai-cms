@@ -60,7 +60,7 @@ interface FeaturedNewsCarouselProps {
 const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
   articles,
   autoPlayInterval = 5000, // 5 ثواني افتراضياً
-  heights = { mobile: 220, mobileLg: 260, desktop: 320 },
+  heights = { mobile: 260, mobileLg: 320, desktop: 460 },
   showBadge = false,
   containerClassName,
 }) => {
@@ -108,9 +108,23 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
       hasImage: !!currentArticle.featured_image
     });
   }
-  const mobileH = heights.mobile || 220;
+  const mobileH = heights.mobile || 260;
   const mobileLgH = heights.mobileLg || mobileH;
   const desktopH = heights.desktop || mobileLgH;
+  const [containerHeight, setContainerHeight] = useState<number>(desktopH);
+
+  useEffect(() => {
+    const computeHeight = () => {
+      try {
+        const w = window.innerWidth;
+        const h = w >= 1024 ? desktopH : (w >= 640 ? mobileLgH : mobileH);
+        setContainerHeight(h);
+      } catch {}
+    };
+    computeHeight();
+    window.addEventListener('resize', computeHeight);
+    return () => window.removeEventListener('resize', computeHeight);
+  }, [desktopH, mobileLgH, mobileH]);
 
   return (
     <div
@@ -134,11 +148,11 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
         >
           <div
             className={`grid grid-cols-1 lg:grid-cols-12`}
-            style={{ height: `${desktopH}px` }}
+            style={{ height: `${containerHeight}px` }}
           >
             <div
               className="col-span-1 lg:col-span-7 xl:col-span-8 relative overflow-hidden rounded-xl lg:rounded-r-2xl lg:rounded-l-none"
-              style={{ height: `${desktopH}px` }}
+              style={{ height: `${containerHeight}px` }}
             >
               {(currentArticle.featured_image) ? (
                 <OptimizedImage
@@ -192,7 +206,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                 </div>
               )}
             </div>
-            <div className="hidden lg:flex lg:col-span-5 xl:col-span-4 p-4 lg:p-6 flex-col justify-between overflow-hidden" style={{ height: `${desktopH}px` }}>
+            <div className="hidden lg:flex lg:col-span-5 xl:col-span-4 p-4 lg:p-6 flex-col justify-between overflow-hidden" style={{ height: `${containerHeight}px` }}>
               {/* عنوان الخبر لنسخة الديسكتوب (يبقى مرئياً في العمود النصي) */}
               <h2
                 className={`text-xl lg:text-2xl xl:text-3xl font-bold mb-4 leading-tight line-clamp-3 text-white`}
