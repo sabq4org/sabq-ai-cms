@@ -40,13 +40,13 @@ const SmartInsightsWidget = dynamic(
   }
 );
 
-// استيراد الأخبار المميزة من النسخة القديمة بشكل ديناميكي
+// استيراد الأخبار المميزة (hero) من النسخة القديمة أسفل الهيدر
 const FeaturedNewsFromOld = dynamic(
-  () => import("@/components/user/FeaturedNewsBlock"),
+  () => import("@/components/old/OldFeaturedHero"),
   {
     ssr: false,
     loading: () => (
-      <div className="w-full h-52 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse mb-4" />
+      <div className="w-full h-80 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse mb-4" />
     ),
   }
 );
