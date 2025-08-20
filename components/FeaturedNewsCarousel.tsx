@@ -160,7 +160,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
             style={{ height: `${containerHeight}px` }}
           >
             <div
-              className={`col-span-1 ${halfWidth ? 'lg:col-span-6 xl:col-span-6' : 'lg:col-span-7 xl:col-span-8'} relative overflow-hidden rounded-xl lg:rounded-r-2xl lg:rounded-l-none`}
+              className={`col-span-1 ${halfWidth ? 'lg:col-span-6 xl:col-span-6' : 'lg:col-span-7 xl:col-span-8'} relative overflow-hidden rounded-xl lg:rounded-r-2xl lg:rounded-l-none ${isBreaking ? 'ring-2 ring-red-600 dark:ring-red-500' : ''}`}
               style={{ height: `${containerHeight}px` }}
             >
               {(currentArticle.featured_image) ? (
