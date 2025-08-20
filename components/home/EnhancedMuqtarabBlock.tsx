@@ -584,7 +584,7 @@ export default function EnhancedMuqtarabBlock({
 
           {/* محتوى البطاقة */}
           <div className="p-4 flex-1 flex flex-col">
-            {/* الشريط العلوي: جديد + اسم الزاوية بجوار بعض */
+            {/* الشريط العلوي: جديد + اسم الزاوية بجوار بعض */}
             <div className="mb-2 flex items-center gap-2">
               {isNew() && (
                 <div className="old-style-news-new-badge">
