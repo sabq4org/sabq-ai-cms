@@ -241,9 +241,9 @@ export default function MuqtarabCard({
               <div
                 className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md"
                 style={{
-                  color: themeColor as any,
-                  border: `1px solid ${themeColor}`,
-                  background: 'transparent'
+                  backgroundColor: themeColor as any,
+                  color: '#ffffff',
+                  border: `1px solid ${themeColor}`
                 }}
               >
                 {article.angle.icon && <span className="mr-0.5">{article.angle.icon}</span>}
@@ -350,9 +350,9 @@ export default function MuqtarabCard({
             <div
               className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md"
               style={{
-                color: themeColor as any,
-                border: `1px solid ${themeColor}`,
-                background: 'transparent'
+                backgroundColor: themeColor as any,
+                color: '#ffffff',
+                border: `1px solid ${themeColor}`
               }}
             >
               {article.angle.icon && <span className="mr-0.5">{article.angle.icon}</span>}
