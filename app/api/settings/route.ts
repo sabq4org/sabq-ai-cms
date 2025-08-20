@@ -1,53 +1,49 @@
 import prisma from "@/lib/prisma";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
 
-// GET /api/settings
-export async function GET() {
+async function readFileSettingsFallback(): Promise<{ logoUrl?: string; logoDarkUrl?: string; siteName?: string; } | null> {
   try {
-    // 1) حاول القراءة من قاعدة البيانات وجمع الأقسام المتاحة
-    let general: any = {};
-    let identity: any = {};
+    const settingsPath = path.join(process.cwd(), "public", "site-settings.json");
+    const content = await fs.readFile(settingsPath, "utf8");
+    const json = JSON.parse(content);
+    return { logoUrl: json.logoUrl, logoDarkUrl: json.logoDarkUrl, siteName: json.siteName };
+  } catch {
+    return null;
+  }
+}
+
+// GET /api/settings
+export async function GET(_req: NextRequest) {
+  try {
+    const settingsObject: Record<string, any> = {};
+
+    // 1) قراءة من قاعدة البيانات
     try {
-      const rows = await prisma.site_settings.findMany({});
+      const rows = await prisma.site_settings.findMany();
       for (const row of rows) {
-        if (row.section === "general") general = { ...(row.data as any) };
-        if (row.section === "identity") identity = { ...(row.data as any) };
+        settingsObject[row.section] = row.data;
       }
     } catch (dbErr) {
-      console.warn("⚠️ فشل قراءة إعدادات الموقع من قاعدة البيانات؛ سنجرب الملف.", dbErr);
+      console.warn("⚠️ فشل قراءة إعدادات DB:", dbErr);
     }
 
-    // 2) fallback: قراءة من ملف public/site-settings.json إن وُجد
-    try {
-      const settingsPath = path.join(process.cwd(), "public", "site-settings.json");
-      const raw = await fs.readFile(settingsPath, "utf8");
-      const fileJson = JSON.parse(raw);
-      general = { ...fileJson, ...general };
-      if (!identity.siteName && general.siteName) identity.siteName = general.siteName;
-      if (!general.logoUrl && fileJson.logoUrl) general.logoUrl = fileJson.logoUrl;
-      if (!general.logoDarkUrl && fileJson.logoDarkUrl) general.logoDarkUrl = fileJson.logoDarkUrl;
-    } catch {
-      // ملف غير موجود؛ تجاهل
-    }
-
-    // 3) قيم افتراضية آمنة
-    const data = {
-      general: {
-        logoUrl: general.logoUrl || "/logo.png",
-        logoDarkUrl: general.logoDarkUrl || general.logoUrl || "/logo.png",
-        siteName: general.siteName || "صحيفة سبق الإلكترونية",
-      },
-      identity: {
-        logo: identity.logo || general.logoUrl || "/logo.png",
-        logoDarkUrl: identity.logoDarkUrl || general.logoDarkUrl || "/logo.png",
-        siteName: identity.siteName || general.siteName || "صحيفة سبق الإلكترونية",
-      },
+    // 2) دمج احتياطي من الملف
+    const fallback = await readFileSettingsFallback();
+    const general = {
+      logoUrl: settingsObject.general?.logoUrl || fallback?.logoUrl || "/logo.png",
+      logoDarkUrl: settingsObject.general?.logoDarkUrl || fallback?.logoDarkUrl || settingsObject.general?.logoUrl || "/logo.png",
+      siteName: settingsObject.general?.siteName || fallback?.siteName || "صحيفة سبق الإلكترونية",
+    };
+    const identity = {
+      logo: settingsObject.identity?.logo || general.logoUrl,
+      logoDarkUrl: settingsObject.identity?.logoDarkUrl || general.logoDarkUrl,
+      siteName: settingsObject.identity?.siteName || general.siteName,
     };
 
-    const res = NextResponse.json({ success: true, data });
-    res.headers.set("Cache-Control", "no-store, max-age=0");
+    const res = NextResponse.json({ success: true, data: { general, identity } });
+    res.headers.set("Cache-Control", "no-store");
     return res;
   } catch (error) {
     console.error("❌ /api/settings error:", error);
@@ -55,126 +51,32 @@ export async function GET() {
   }
 }
 
-import prisma from "@/lib/prisma";
-import { promises as fs } from "fs";
-import { NextRequest, NextResponse } from "next/server";
-import path from "path";
-
-// جلب جميع الإعدادات
-export async function GET(request: NextRequest) {
-  try {
-    // 1) محاولة القراءة من قاعدة البيانات
-    try {
-      const settings = await prisma.site_settings.findMany();
-      const settingsObject: Record<string, any> = {};
-      for (const setting of settings) {
-        settingsObject[setting.section] = setting.data;
-      }
-      // إذا وُجد شعار في قسم general فنعيده مباشرة
-      if (settingsObject.general?.logoUrl) {
-        return NextResponse.json({ success: true, data: settingsObject });
-      }
-      // وإلا نتابع لقراءة الملف كاحتياطي
-      const fallback = await readFileSettingsFallback();
-      if (fallback) {
-        settingsObject.general = {
-          ...(settingsObject.general || {}),
-          ...fallback,
-        };
-      }
-      return NextResponse.json({ success: true, data: settingsObject });
-    } catch (dbError) {
-      console.warn(
-        "⚠️ تعذر قراءة الإعدادات من قاعدة البيانات، سيتم استخدام الاحتياطي من الملف إن وُجد.",
-        dbError
-      );
-      const fallback = await readFileSettingsFallback();
-      return NextResponse.json({
-        success: true,
-        data: fallback ? { general: fallback } : {},
-      });
-    }
-  } catch (error) {
-    console.error("خطأ في جلب الإعدادات:", error);
-    return NextResponse.json(
-      { success: false, error: "خطأ في جلب الإعدادات" },
-      { status: 500 }
-    );
-  }
-}
-
-async function readFileSettingsFallback(): Promise<{
-  logoUrl?: string;
-  logoDarkUrl?: string;
-} | null> {
-  try {
-    const settingsPath = path.join(
-      process.cwd(),
-      "public",
-      "site-settings.json"
-    );
-    const content = await fs.readFile(settingsPath, "utf8");
-    const json = JSON.parse(content);
-    return { logoUrl: json.logoUrl, logoDarkUrl: json.logoDarkUrl };
-  } catch {
-    return null;
-  }
-}
-
-// حفظ الإعدادات
+// POST /api/settings
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-
-    // حفظ كل قسم من الإعدادات
     const sections = Object.keys(body);
-    const results = [];
+    const results: Array<{ section: string; status: string }> = [];
 
     for (const section of sections) {
-      try {
-        const existingSetting = await prisma.site_settings.findFirst({
-          where: { section },
+      const existing = await prisma.site_settings.findFirst({ where: { section } });
+      if (existing) {
+        await prisma.site_settings.update({
+          where: { id: existing.id },
+          data: { data: body[section], updated_at: new Date() },
         });
-
-        if (existingSetting) {
-          // تحديث الإعدادات الموجودة
-          const updated = await prisma.site_settings.update({
-            where: { id: existingSetting.id },
-            data: {
-              data: body[section],
-              updated_at: new Date(),
-            },
-          });
-          results.push({ section, status: "updated" });
-        } else {
-          // إنشاء إعدادات جديدة
-          const created = await prisma.site_settings.create({
-            data: {
-              id: `${section}-${Date.now()}`,
-              section,
-              data: body[section],
-              created_at: new Date(),
-              updated_at: new Date(),
-            },
-          });
-          results.push({ section, status: "created" });
-        }
-      } catch (sectionError) {
-        console.error(`خطأ في حفظ قسم ${section}:`, sectionError);
-        results.push({ section, status: "error", error: sectionError });
+        results.push({ section, status: "updated" });
+      } else {
+        await prisma.site_settings.create({
+          data: { id: `${section}-${Date.now()}`, section, data: body[section], created_at: new Date(), updated_at: new Date() },
+        });
+        results.push({ section, status: "created" });
       }
     }
 
-    return NextResponse.json({
-      success: true,
-      message: "تم حفظ الإعدادات بنجاح",
-      results,
-    });
+    return NextResponse.json({ success: true, message: "تم حفظ الإعدادات بنجاح", results });
   } catch (error) {
     console.error("خطأ في حفظ الإعدادات:", error);
-    return NextResponse.json(
-      { success: false, error: "خطأ في حفظ الإعدادات" },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: "خطأ في حفظ الإعدادات" }, { status: 500 });
   }
 }
