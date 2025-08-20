@@ -261,19 +261,19 @@ export default function SmartInsightsWidget() {
           🎯 مؤشرات ذكية
         </h2>
         
-        {/* 3 بطاقات صغيرة مع تدرجات وأيقونات */}
+        {/* 3 بطاقات صغيرة بخلفية رمادية وحدود خفيفة */}
         <div className="grid grid-cols-3 gap-2 mt-3">
-          <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/30 rounded-lg p-2 text-center">
+          <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-2 text-center">
             <div className="text-sm mb-1">🧠</div>
-            <div className="text-xs font-medium text-blue-700 dark:text-blue-300">اتجاه فوري</div>
+            <div className="text-xs font-medium text-slate-700 dark:text-slate-200">اتجاه فوري</div>
           </div>
-          <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/30 rounded-lg p-2 text-center">
+          <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-2 text-center">
             <div className="text-sm mb-1">📊</div>
-            <div className="text-xs font-medium text-green-700 dark:text-green-300">اتجاهات ذكية</div>
+            <div className="text-xs font-medium text-slate-700 dark:text-slate-200">اتجاهات ذكية</div>
           </div>
-          <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/30 rounded-lg p-2 text-center">
+          <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-2 text-center">
             <div className="text-sm mb-1">⚡</div>
-            <div className="text-xs font-medium text-purple-700 dark:text-purple-300">تحديث مستمر</div>
+            <div className="text-xs font-medium text-slate-700 dark:text-slate-200">تحديث مستمر</div>
           </div>
         </div>
       </div>
@@ -331,7 +331,7 @@ export default function SmartInsightsWidget() {
 
             {/* التحليل الذكي - flex-1 للمساحة المتبقية */}
             <div className="flex-1 flex flex-col justify-center">
-              <div className="text-sm text-slate-600 dark:text-slate-400 bg-white/60 dark:bg-slate-700/60 rounded-xl p-4 border border-slate-200/50 dark:border-slate-600/50 backdrop-blur-sm">
+              <div className="text-sm text-slate-600 dark:text-slate-400 bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
                 <div className="flex items-start gap-2">
                   <span className="text-lg">💡</span>
                   <div className="leading-relaxed">
