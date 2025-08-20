@@ -28,7 +28,7 @@ export default function ArticleFeaturedImage({
       return (
         <div className={`relative w-full ${className || ''}`}>
           {/* حاوية بنسبة 16:9 للحفاظ على النسبة عبر جميع الشاشات */}
-          <div className="relative w-full aspect-[16/9] overflow-hidden rounded-lg shadow-lg bg-gray-50 dark:bg-gray-900">
+          <div className="relative w-full aspect-[16/9] overflow-hidden rounded-xl shadow-lg bg-gray-50 dark:bg-gray-900">
             <OptimizedImage
               src={imageUrl}
               alt={title}
@@ -62,7 +62,7 @@ export default function ArticleFeaturedImage({
       return (
         <div className={`article-featured-image relative w-full overflow-hidden bg-gray-900 dark:bg-black ${className || ''}`}>
           {/* صورة الخلفية المموهة بنسبة ثابتة */}
-          <div className="relative w-full aspect-[16/9]">
+          <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden">
             <OptimizedImage
               src={imageUrl}
               alt=""
@@ -106,7 +106,7 @@ export default function ArticleFeaturedImage({
       return (
         <div className="article-featured-image w-full bg-gray-100 dark:bg-gray-800">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="relative overflow-hidden shadow-xl aspect-[16/9] rounded-lg">
+            <div className="relative overflow-hidden shadow-xl aspect-[16/9] rounded-xl">
               <OptimizedImage
                 src={imageUrl}
                 alt={title}
@@ -142,7 +142,7 @@ export default function ArticleFeaturedImage({
       return (
         <div className="article-featured-image relative w-full">
           {/* تحويل الارتفاعات الثابتة إلى نسبة أبعاد ثابتة ومتجاوبة */}
-          <div className="relative w-full aspect-[16/9] overflow-hidden bg-gray-200 dark:bg-gray-800 rounded-lg">
+          <div className="relative w-full aspect-[16/9] overflow-hidden bg-gray-200 dark:bg-gray-800 rounded-xl">
             <OptimizedImage
               src={imageUrl}
               alt={title}

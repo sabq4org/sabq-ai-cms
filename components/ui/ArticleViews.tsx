@@ -53,39 +53,41 @@ export default function ArticleViews({
 
   return (
     <div className={finalClasses}>
-      {/* أيقونة محسنة للمشاهدات */}
-      {count > 300 ? (
-        <div className="relative flex items-center">
-          <BarChart3 className={`${iconSizes[size]} flex-shrink-0 text-orange-500`} />
-          <span 
-            className="absolute -top-0.5 -right-0.5 text-orange-500 text-[8px] animate-pulse" 
-            style={{ fontSize: size === 'xs' ? '6px' : size === 'sm' ? '8px' : '10px' }}
-          >
-            🔥
-          </span>
-        </div>
-      ) : (
-        <div className="relative">
-          <svg 
-            className={`${iconSizes[size]} flex-shrink-0`} 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2"
-          >
-            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
-            <circle cx="12" cy="12" r="3"/>
-          </svg>
-        </div>
+      {/* أيقونات: نخفيها تماماً في النمط المصغر */}
+      {variant !== 'minimal' && (
+        count > 300 ? (
+          <div className="relative flex items-center">
+            <BarChart3 className={`${iconSizes[size]} flex-shrink-0 text-orange-500`} />
+            <span 
+              className="absolute -top-0.5 -right-0.5 text-orange-500 text-[8px] animate-pulse" 
+              style={{ fontSize: size === 'xs' ? '6px' : size === 'sm' ? '8px' : '10px' }}
+            >
+              🔥
+            </span>
+          </div>
+        ) : (
+          <div className="relative">
+            <svg 
+              className={`${iconSizes[size]} flex-shrink-0`} 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2"
+            >
+              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </div>
+        )
       )}
-      
+
       <span className="font-medium">
         {formatViewsNumber(count)}
         {showLabel && variant !== 'minimal' && ' مشاهدة'}
       </span>
-      
-      {/* أيقونة النار الإضافية للمشاهدات العالية جداً */}
-      {count > 1000 && (
+
+      {/* أيقونة النار الإضافية للمشاهدات العالية جداً - معطلة في النمط المصغر */}
+      {variant !== 'minimal' && count > 1000 && (
         <span 
           className="text-red-500 animate-bounce flex-shrink-0 ml-1" 
           title={`مقال شائع جداً - ${formatViewsNumber(count)} مشاهدة`}
