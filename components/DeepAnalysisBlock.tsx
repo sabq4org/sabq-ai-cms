@@ -337,7 +337,8 @@ export default function DeepAnalysisBlock({
   return (
     <div
       id="deep-analysis-highlight"
-      className={`py-10 md:py-12 relative overflow-hidden bg-gray-50 dark:bg-gray-900/30 ${className}`}
+      className={`py-12 md:py-14 relative overflow-hidden bg-gray-100 dark:bg-gray-800 ${className}`}
+      style={{ marginLeft: 'calc(50% - 50vw)', marginRight: 'calc(50% - 50vw)' }}
     >
       {/* العنوان والوصف - محصور في container */}
       {showTitle && (
