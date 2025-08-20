@@ -750,13 +750,82 @@ export default function ManusNewsCreatePage() {
           }
         }
 
-        // تعيين القيم الافتراضية
-        if (defaultCategoryId || defaultReporterId) {
+        // تعيين القيم الافتراضية (فقط في وضع الإنشاء)
+        if ((defaultCategoryId || defaultReporterId) && !isEditMode) {
           setFormData((prev) => ({
-              ...prev,
-              ...(defaultCategoryId && { categoryId: defaultCategoryId }),
-              ...(defaultReporterId && { authorId: defaultReporterId }),
+            ...prev,
+            ...(defaultCategoryId && { categoryId: defaultCategoryId }),
+            ...(defaultReporterId && { authorId: defaultReporterId }),
           }));
+        }
+
+        // في وضع التعديل: جلب بيانات المقال الحالية وملء الحقول
+        if (isEditMode && articleId) {
+          try {
+            const articleRes = await fetch(`/api/articles/${articleId}?all=true`);
+            if (articleRes.ok) {
+              const articleJson: any = await articleRes.json();
+              const article: any = articleJson.data || articleJson.article || articleJson;
+
+              const metadata = (() => {
+                try {
+                  return typeof article.metadata === "string"
+                    ? JSON.parse(article.metadata)
+                    : article.metadata || {};
+                } catch {
+                  return {} as any;
+                }
+              })();
+
+              const derivedKeywords = Array.isArray(article.keywords)
+                ? article.keywords
+                : Array.isArray(metadata?.keywords)
+                ? metadata.keywords
+                : typeof metadata?.keywords === "string"
+                ? metadata.keywords
+                    .split(",")
+                    .map((s: string) => s.trim())
+                    .filter(Boolean)
+                : [];
+
+              setFormData((prev) => ({
+                ...prev,
+                title: article.title || "",
+                subtitle: metadata?.subtitle || article.subtitle || "",
+                excerpt: article.excerpt || article.summary || "",
+                content: article.content || "",
+                authorId:
+                  article.article_author_id || article.author_id || prev.authorId || "",
+                categoryId:
+                  article.category_id || article.category?.id || prev.categoryId || "",
+                type: metadata?.type || prev.type,
+                featuredImage: article.featured_image || "",
+                featuredImageCaption: metadata?.image_caption || "",
+                gallery: Array.isArray(metadata?.gallery) ? metadata.gallery : [],
+                externalLink: metadata?.external_link || "",
+                keywords: derivedKeywords,
+                seoTitle: article.seo_title || "",
+                seoDescription: article.seo_description || "",
+                publishType: article.scheduled_for ? "scheduled" : "now",
+                scheduledDate: article.scheduled_for || "",
+                isBreaking: article.breaking || article.is_breaking || false,
+                isFeatured: article.featured || article.is_featured || false,
+                status: article.status || prev.status,
+              }));
+
+              // تحديث المحرر إن توفر
+              try {
+                if (editorRef.current && article.content) {
+                  editorRef.current.setContent(article.content);
+                }
+              } catch {}
+            } else {
+              toast.error("فشل في تحميل بيانات الخبر للتعديل");
+            }
+          } catch (e) {
+            console.error("❌ خطأ في جلب بيانات المقال للتعديل:", e);
+            toast.error("حدث خطأ أثناء جلب بيانات الخبر");
+          }
         }
 
           } catch (error) {
