@@ -238,7 +238,7 @@ export default function SmartInsightsWidget() {
     <div className="max-w-6xl mx-auto mb-8">
       <div
         className="relative overflow-hidden border rounded-xl border-gray-200 dark:border-gray-700 p-5 transition-all duration-300 h-full flex flex-col"
-        style={{ background: darkMode ? 'rgba(255,255,255,0.04)' : 'hsl(var(--accent) / 0.06)' }}
+        style={{ background: darkMode ? 'hsl(var(--bg-elevated))' : 'hsl(var(--accent) / 0.06)' }}
       >
       {/* خط جانبي ملون ديناميكي */}
       <div className={`absolute top-0 right-0 w-1 h-full ${config.accent.replace('border-l-', 'bg-')} transition-colors duration-500`}></div>
@@ -263,17 +263,17 @@ export default function SmartInsightsWidget() {
         
         {/* 3 بطاقات صغيرة بخلفية رمادية وحدود خفيفة */}
         <div className="grid grid-cols-3 gap-2 mt-3">
-          <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-2 text-center">
+          <div className="bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-lg p-2 text-center">
             <div className="text-sm mb-1">🧠</div>
-            <div className="text-xs font-medium text-slate-700 dark:text-slate-200">اتجاه فوري</div>
+            <div className="text-xs font-medium text-slate-700 dark:text-slate-100">اتجاه فوري</div>
           </div>
-          <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-2 text-center">
+          <div className="bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-lg p-2 text-center">
             <div className="text-sm mb-1">📊</div>
-            <div className="text-xs font-medium text-slate-700 dark:text-slate-200">اتجاهات ذكية</div>
+            <div className="text-xs font-medium text-slate-700 dark:text-slate-100">اتجاهات ذكية</div>
           </div>
-          <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-2 text-center">
+          <div className="bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-lg p-2 text-center">
             <div className="text-sm mb-1">⚡</div>
-            <div className="text-xs font-medium text-slate-700 dark:text-slate-200">تحديث مستمر</div>
+            <div className="text-xs font-medium text-slate-700 dark:text-slate-100">تحديث مستمر</div>
           </div>
         </div>
       </div>

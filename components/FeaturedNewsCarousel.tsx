@@ -152,7 +152,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
           style={{
             background: isBreaking
               ? (darkMode ? 'hsla(0, 72%, 45%, 0.18)' : 'hsla(0, 84%, 60%, 0.12)')
-              : (darkMode ? 'hsl(var(--accent) / 0.08)' : 'hsl(var(--accent) / 0.06)')
+              : (darkMode ? 'hsl(var(--bg-elevated))' : 'hsl(var(--accent) / 0.06)')
           }}
         >
           <div

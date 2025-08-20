@@ -233,11 +233,11 @@ export default function SmartContentBlock({
         position: 'absolute',
         top: '-100px',
         left: '-100px',
-        width: '200px',
-        height: '200px',
-        background: 'radial-gradient(circle, rgba(221, 214, 254, 0.3) 0%, transparent 70%)',
+        width: '220px',
+        height: '220px',
+        background: 'radial-gradient(circle, hsl(var(--accent) / 0.10) 0%, transparent 70%)',
         borderRadius: '50%',
-        filter: 'blur(40px)',
+        filter: 'blur(42px)',
         pointerEvents: 'none'
       }} />
       
@@ -245,11 +245,11 @@ export default function SmartContentBlock({
         position: 'absolute',
         bottom: '-100px',
         right: '-100px',
-        width: '200px',
-        height: '200px',
-        background: 'radial-gradient(circle, rgba(221, 214, 254, 0.3) 0%, transparent 70%)',
+        width: '220px',
+        height: '220px',
+        background: 'radial-gradient(circle, hsl(var(--accent) / 0.10) 0%, transparent 70%)',
         borderRadius: '50%',
-        filter: 'blur(40px)',
+        filter: 'blur(42px)',
         pointerEvents: 'none'
       }} />
 
@@ -314,6 +314,7 @@ export default function SmartContentBlock({
             {[1, 2, 3, 4].map((i) => (
               <div key={i} style={{
                 background: 'hsl(var(--bg-elevated))',
+                border: '1px solid hsl(var(--line) / 0.6)',
                 borderRadius: '12px',
                 overflow: 'hidden',
                 height: '320px',
@@ -335,9 +336,9 @@ export default function SmartContentBlock({
               >
                 {(() => {
                   const isBreaking = Boolean((article as any).breaking || (article as any).is_breaking || (article as any)?.metadata?.breaking);
-                  const baseBg = isBreaking ? 'hsla(0, 84%, 60%, 0.12)' : 'hsl(var(--bg-elevated))';
-                  const hoverBg = isBreaking ? 'hsla(0, 84%, 60%, 0.18)' : 'hsl(var(--accent) / 0.05)';
-                  const baseBorder = isBreaking ? '1px solid rgba(220, 38, 38, 0.35)' : '1px solid hsl(var(--line))';
+                  const baseBg = isBreaking ? 'hsla(0, 78%, 55%, 0.14)' : 'hsl(var(--bg-elevated))';
+                  const hoverBg = isBreaking ? 'hsla(0, 78%, 55%, 0.22)' : 'hsl(var(--accent) / 0.06)';
+                  const baseBorder = isBreaking ? '1px solid hsl(0 72% 45% / 0.45)' : '1px solid hsl(var(--line))';
                   return (
                     <div style={{
                       background: baseBg,
