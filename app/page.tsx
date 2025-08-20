@@ -122,7 +122,7 @@ export default function Page() {
         <OldFeaturedHero />
       </Suspense>
       <Suspense fallback={<div className="h-24 animate-pulse bg-gray-200 rounded mt-4" />}>
-        <div className="mt-4">
+        <div className="max-w-6xl mx-auto px-4 mt-4">
           <SmartInsightsWidget />
         </div>
       </Suspense>
