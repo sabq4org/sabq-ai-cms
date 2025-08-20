@@ -347,14 +347,14 @@ export default function DeepAnalysisBlock({
                 <Brain className="w-5 h-5" />
               </div>
               <h2
-                className={`text-xl md:text-2xl font-bold card-title`}
+                className={`text-lg md:text-xl font-bold card-title`}
                 style={{ wordSpacing: 'normal', letterSpacing: 'normal', color: 'hsl(var(--fg))' }}
               >
                 التحليل العميق من سبق
               </h2>
             </div>
             <p
-              className="mt-1 font-semibold text-[14px] md:text-[20px]"
+              className="mt-1 font-semibold text-[16px] md:text-[20px]"
               style={{ color: 'hsl(var(--accent))', wordSpacing: 'normal', letterSpacing: 'normal' }}
             >
               رؤى استراتيجية ودراسات معمقة بالذكاء الاصطناعي
