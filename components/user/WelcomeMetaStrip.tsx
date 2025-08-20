@@ -47,7 +47,6 @@ export default function WelcomeMetaStrip() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '6px', flexWrap: 'wrap' }}>
           {user && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ color: 'hsl(var(--line))' }}>•</span>
               <Award style={{ width: '14px', height: '14px', color: '#FFA500' }} />
               <span>
                 لديك <strong style={{ color: 'hsl(var(--fg))', fontWeight: 600 }}>1,250</strong> نقطة ولاء
