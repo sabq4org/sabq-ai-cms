@@ -125,35 +125,39 @@ export default function SmartContentBlock({
     return (
       <div style={{ padding: '16px 0' }}>
         {/* عبارات رأس البلوك كما هي */}
-        <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-          <h2 style={{
-            fontSize: '24px',
-            fontWeight: 700,
-            color: 'hsl(var(--fg))',
-            marginBottom: '10px',
+        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+          {/* أيقونة البلوك في الأعلى في المنتصف */}
+          <div style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '8px'
+            marginBottom: '8px'
           }}>
             <span style={{
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
-              width: '32px',
-              height: '32px',
+              width: '36px',
+              height: '36px',
               background: 'linear-gradient(135deg, #DDD6FE 0%, #C7D2FE 100%)',
-              borderRadius: '8px',
+              borderRadius: '10px',
               color: '#5B21B6',
-              fontSize: '16px',
+              fontSize: '18px',
               border: '1px solid #E0E7FF'
             }}>
               <Sparkles className="w-5 h-5" />
             </span>
+          </div>
+          <h2 style={{
+            fontSize: '20px',
+            fontWeight: 700,
+            color: 'hsl(var(--fg))',
+            marginBottom: '6px'
+          }}>
             {title}
           </h2>
           <h3 style={{
-            fontSize: '18px',
+            fontSize: '14px',
             fontWeight: 600,
             color: '#7C3AED',
             marginBottom: '6px'
@@ -176,7 +180,7 @@ export default function SmartContentBlock({
           title={title}
           showTitle={false}
           columns={3}
-          className="mb-4"
+          className="mt-6 mb-4"
         />
       </div>
     );
