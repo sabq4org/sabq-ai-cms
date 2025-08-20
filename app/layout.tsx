@@ -100,13 +100,8 @@ export default function RootLayout({
           <ResponsiveLayout>
             {children}
           </ResponsiveLayout>
-          {/* إخفاء الفوتر في صفحة دخول الإدارة */}
-          {/* سيتم تجاوز الهيدر بالفعل من ResponsiveLayout */}
-          {typeof window === 'undefined' ? (
-            <Footer />
-          ) : (
-            (window.location.pathname.startsWith('/admin/login')) ? null : <Footer />
-          )}
+          {/* الفوتر يعرض دائماً؛ إخفاءه يتم داخل ResponsiveLayout لمسار /admin/login */}
+          <Footer />
         </Providers>
       </body>
     </html>

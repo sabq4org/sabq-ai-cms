@@ -17,15 +17,6 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
   const pathname = usePathname();
   const isAdminLogin = pathname?.startsWith("/admin/login");
 
-  // صفحة دخول الإدارة: بدون هيدر/فوتر أو حاويات إضافية
-  if (isAdminLogin) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900" data-page="admin-login">
-        {children}
-      </div>
-    );
-  }
-
   // تحسين فحص الجهاز
   const checkDevice = useCallback(() => {
     const width = window.innerWidth;
@@ -78,6 +69,15 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
   // عدم عرض أي شيء قبل التأكد من حجم الشاشة
   if (!mounted) {
     return LoadingSpinner;
+  }
+
+  // صفحة دخول الإدارة: بدون هيدر/فوتر أو حاويات إضافية
+  if (isAdminLogin) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900" data-page="admin-login">
+        {children}
+      </div>
+    );
   }
 
   // النسخة الخفيفة للهواتف والتابلت
