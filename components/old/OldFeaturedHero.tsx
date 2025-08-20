@@ -64,6 +64,7 @@ export default function OldFeaturedHero() {
       containerClassName="max-w-6xl mx-auto px-4 mb-6"
       heights={{ mobile: 220, mobileLg: 260, desktop: 360 }}
       titleClassName="text-black dark:text-white"
+      halfWidth={true}
     />
   );
 }

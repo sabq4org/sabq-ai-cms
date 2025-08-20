@@ -56,6 +56,7 @@ interface FeaturedNewsCarouselProps {
   showBadge?: boolean;
   containerClassName?: string;
   titleClassName?: string;
+  halfWidth?: boolean; // يجعل الصورة نصف عرض البلوك على الديسكتوب
 }
 
 const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
@@ -65,6 +66,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
   showBadge = false,
   containerClassName,
   titleClassName,
+  halfWidth = false,
 }) => {
   const { darkMode } = useDarkModeContext();
   const { index: currentIndex, setIndex: setCurrentIndex, next: handleNext, prev: handlePrevious, isReducedMotion } = useFeaturedCarousel({
@@ -153,7 +155,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
             style={{ height: `${containerHeight}px` }}
           >
             <div
-              className="col-span-1 lg:col-span-7 xl:col-span-8 relative overflow-hidden rounded-xl lg:rounded-r-2xl lg:rounded-l-none"
+              className={`col-span-1 ${halfWidth ? 'lg:col-span-6 xl:col-span-6' : 'lg:col-span-7 xl:col-span-8'} relative overflow-hidden rounded-xl lg:rounded-r-2xl lg:rounded-l-none`}
               style={{ height: `${containerHeight}px` }}
             >
               {(currentArticle.featured_image) ? (
@@ -208,7 +210,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                 </div>
               )}
             </div>
-            <div className="hidden lg:flex lg:col-span-5 xl:col-span-4 p-4 lg:p-6 flex-col justify-between overflow-hidden" style={{ height: `${containerHeight}px` }}>
+            <div className={`hidden lg:flex ${halfWidth ? 'lg:col-span-6 xl:col-span-6' : 'lg:col-span-5 xl:col-span-4'} p-4 lg:p-6 flex-col justify-between overflow-hidden`} style={{ height: `${containerHeight}px` }}>
               {/* عنوان الخبر لنسخة الديسكتوب (يبقى مرئياً في العمود النصي) */}
               <h2
                 className={`text-xl lg:text-2xl xl:text-3xl font-bold mb-4 leading-tight line-clamp-3 ${titleClassName ?? 'text-white'}`}
