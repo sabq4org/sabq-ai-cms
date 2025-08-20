@@ -330,18 +330,30 @@ export default function DeepAnalysisBlock({
         <div className="max-w-7xl mx-auto px-4 relative z-10 mb-8">
           <div className="text-center max-w-3xl mx-auto">
             <div className="flex flex-col items-center gap-3">
-              <div className="p-4 bg-white/20 backdrop-blur-sm rounded-full shadow-2xl ring-2 ring-white/30">
-                <Brain className="w-8 h-8 text-white drop-shadow-lg" />
+              <div
+                className={
+                  darkMode
+                    ? "p-4 bg-white/20 backdrop-blur-sm rounded-full ring-2 ring-white/30"
+                    : "p-4 bg-purple-100 rounded-full ring-2 ring-purple-200"
+                }
+              >
+                <Brain
+                  className={darkMode ? "w-8 h-8 text-white" : "w-8 h-8 text-purple-700"}
+                />
               </div>
               <h2
-                className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg card-title"
+                className={`text-2xl sm:text-3xl font-bold card-title ${
+                  darkMode ? "text-white" : "text-gray-900"
+                }`}
                 style={{ wordSpacing: "normal", letterSpacing: "normal" }}
               >
                 التحليل العميق من سبق
               </h2>
             </div>
             <p
-              className="text-base sm:text-lg mt-2 text-blue-50 drop-shadow card-description"
+              className={`text-base sm:text-lg mt-2 card-description ${
+                darkMode ? "text-blue-50" : "text-gray-600"
+              }`}
               style={{ wordSpacing: "normal", letterSpacing: "normal" }}
             >
               رؤى استراتيجية ودراسات معمقة بالذكاء الاصطناعي
@@ -423,13 +435,13 @@ export default function DeepAnalysisBlock({
                       <div className="flex items-center gap-1.5">
                         {/* نوع التحليل مدمج */}
                         <div
-                          className={`flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full ${
+                          className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${
                             darkMode
                               ? "bg-gradient-to-r from-purple-900/30 to-blue-900/30 text-purple-300 border border-purple-700/50"
                               : "bg-gradient-to-r from-purple-50 to-blue-50 text-purple-700 border border-purple-200"
                           }`}
                         >
-                          <Brain className="w-3.5 h-3.5" />
+                          <Brain className="w-4 h-4 shrink-0" />
                           <span className="font-semibold">
                             {analysisType.label}
                           </span>
