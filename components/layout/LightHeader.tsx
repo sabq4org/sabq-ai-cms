@@ -265,7 +265,7 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
               </nav>
 
               {/* نظام الألوان في القائمة */}
-              <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+              <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
                 <div className="flex items-center gap-2 mb-3">
                   <Palette className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                   <h3 className="text-sm font-semibold text-gray-900 dark:text-white">نظام الألوان</h3>
