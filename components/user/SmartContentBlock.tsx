@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Sparkles, Eye, Calendar, Clock } from 'lucide-react';
 import OldStyleNewsBlock from '@/components/old-style/OldStyleNewsBlock';
+import { useUserInterests } from '@/hooks/useUserInterests';
 
 interface Article {
   id: string;
@@ -36,6 +37,7 @@ export default function SmartContentBlock({
   const [articles, setArticles] = useState<Article[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
+  const { interests, hasInterests } = useUserInterests();
 
   useEffect(() => {
     fetchSmartContent();
@@ -67,15 +69,37 @@ export default function SmartContentBlock({
         console.log('📦 البيانات المستلمة:', data);
         console.log('📊 عدد المقالات:', data.articles?.length || 0);
         
-        // إضافة خصائص ذكية لبعض المقالات (6 مقالات فقط)
-        const articlesWithAI = (data.articles || []).map((article: Article, index: number) => ({
-          ...article,
-          isPersonalized: index < 6, // أول 6 مقالات فقط مخصصة
-          confidence: index < 6 ? Math.floor(Math.random() * 20) + 80 : undefined // نسبة ثقة 80-99%
-        }));
-        
-        console.log('✅ تم تعيين المقالات:', articlesWithAI.length);
-        setArticles(articlesWithAI);
+        // بناء مجموعة اهتمامات المستخدم (أسماء/سلاجز) للمطابقة
+        const interestKeys = new Set<string>(
+          (interests || [])
+            .map((it) => (it.category?.slug || it.categoryName || '').toString().trim().toLowerCase())
+            .filter(Boolean)
+        );
+
+        const normalized = (s?: string) => (s || '').toString().trim().toLowerCase();
+
+        // وسم المقالات كمخصصة فقط عند تطابق الاهتمام مع التصنيف/الكلمات المفتاحية
+        const enriched: Article[] = (data.articles || []).map((article: any) => {
+          const categorySlug = normalized(article?.category?.slug) || normalized(article?.category?.name);
+          const keywords: string[] = Array.isArray(article?.keywords)
+            ? (article.keywords as string[])
+            : typeof article?.seo_keywords === 'string'
+              ? (article.seo_keywords as string).split(',').map((k: string) => normalized(k))
+              : [];
+
+          const hasCategoryMatch = interestKeys.size > 0 && categorySlug && interestKeys.has(categorySlug);
+          const hasKeywordMatch = interestKeys.size > 0 && keywords.some((k) => interestKeys.has(k));
+          const isPersonalized = hasCategoryMatch || hasKeywordMatch;
+
+          return {
+            ...article,
+            isPersonalized,
+            confidence: isPersonalized ? Math.floor(Math.random() * 10) + 85 : undefined,
+          } as Article;
+        });
+
+        console.log('✅ تم تعيين المقالات:', enriched.length);
+        setArticles(enriched);
       } else {
         console.error('❌ فشل في جلب المقالات:', response.status);
       }
@@ -122,6 +146,14 @@ export default function SmartContentBlock({
         </div>
       );
     }
+    // تمرير is_custom فقط للعناصر المخصصة فعلاً
+    const oldStyleArticles = (articles as any[]).map((a: any) => ({
+      ...a,
+      is_custom: a.isPersonalized === true,
+      published_at: a.published_at || a.publishedAt || a.created_at || a.createdAt,
+      reading_time: a.readTime || a.reading_time,
+    }));
+
     return (
       <div style={{ padding: '16px 0' }}>
         {/* عبارات رأس البلوك كما هي */}
@@ -175,8 +207,8 @@ export default function SmartContentBlock({
           </p>
         </div>
         <OldStyleNewsBlock
-          // نمرر البيانات الحقيقية مباشرة (تحوي image/featured_image/published_at)
-          articles={articles as unknown as any[]}
+          // تمرير is_custom الحقيقي فقط للمقالات المخصصة
+          articles={oldStyleArticles as unknown as any[]}
           title={title}
           showTitle={false}
           columns={3}
