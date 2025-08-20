@@ -419,7 +419,7 @@ export default function DeepAnalysisBlock({
                     darkMode
                       ? "bg-gray-800/90 backdrop-blur-sm hover:bg-gray-800/95 border-gray-700 hover:border-gray-600"
                       : "bg-white/95 backdrop-blur-sm hover:bg-white border-white/20 hover:border-white/40"
-                  } rounded-2xl shadow-lg hover:shadow-2xl overflow-hidden border transition-all duration-300 transform hover:scale-[1.01] hover:translate-y-[-2px]`}
+                  } rounded-2xl overflow-hidden border transition-all duration-300 transform hover:scale-[1.01] hover:translate-y-[-2px]`}
                 >
                   <div className="relative p-4 h-full flex flex-col">
                     {/* رأس البطاقة - مضغوط جداً */}
@@ -613,7 +613,7 @@ export default function DeepAnalysisBlock({
       <div className="text-center mt-8">
         <Link
           href="/insights/deep"
-          className={`inline-flex items-center gap-3 px-8 py-4 font-medium text-sm rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl group ${
+          className={`inline-flex items-center gap-3 px-8 py-4 font-medium text-sm rounded-full transition-all duration-300 transform hover:scale-105 group ${
             darkMode
               ? "bg-white/10 hover:bg-white/20 text-white border border-white/20"
               : "bg-white/90 hover:bg-white text-gray-800 border border-white/30"
