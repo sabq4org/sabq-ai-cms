@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserInterests } from '@/hooks/useUserInterests';
 import { Sparkles, Award, Brain, Target } from 'lucide-react';
 
 const greetings = [
@@ -25,6 +26,7 @@ const motivationalQuotes = [
 
 export default function UserWelcomeBlock() {
   const { user } = useAuth();
+  const { getInterestNames, hasInterests, loading: interestsLoading } = useUserInterests();
   const [currentQuote, setCurrentQuote] = useState(motivationalQuotes[0]);
   const [currentGreeting, setCurrentGreeting] = useState(greetings[0]);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -60,15 +62,32 @@ export default function UserWelcomeBlock() {
     return currentTime.toLocaleDateString('ar-SA', options);
   };
 
+  // كشف النسخة الخفيفة (موبايل)
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
+  useEffect(() => {
+    const handle = () => {
+      try {
+        const w = window.innerWidth;
+        const touch = 'ontouchstart' in window || (navigator as any).maxTouchPoints > 0;
+        setIsMobile(w < 768 || (touch && w < 1024));
+      } catch {
+        setIsMobile(false);
+      }
+    };
+    handle();
+    window.addEventListener('resize', handle, { passive: true } as any);
+    return () => window.removeEventListener('resize', handle as any);
+  }, []);
+
   return (
     <div 
       className="welcome-block"
       style={{
         background: 'linear-gradient(135deg, hsl(var(--accent) / 0.1) 0%, hsl(var(--accent) / 0.05) 100%)',
         border: '1px solid hsl(var(--accent) / 0.2)',
-        borderRadius: '16px',
-        padding: '24px',
-        marginBottom: '24px',
+        borderRadius: isMobile ? '12px' : '16px',
+        padding: isMobile ? '16px' : '24px',
+        marginBottom: isMobile ? '16px' : '24px',
         position: 'relative',
         overflow: 'hidden'
       }}
@@ -90,25 +109,25 @@ export default function UserWelcomeBlock() {
         {/* الترحيب والتاريخ */}
         <div style={{ marginBottom: '16px' }}>
           <h2 style={{
-            fontSize: '28px',
-            fontWeight: '700',
+            fontSize: isMobile ? '22px' : '28px',
+            fontWeight: 700,
             color: 'hsl(var(--fg))',
-            marginBottom: '8px',
+            marginBottom: isMobile ? '6px' : '8px',
             display: 'flex',
             alignItems: 'center',
-            gap: '12px'
+            gap: '10px'
           }}>
             {getTimeBasedGreeting()}{user ? ` يا ${user.name}` : ''}
             <span style={{ fontSize: '24px' }}>👋</span>
           </h2>
           
           <div style={{
-            fontSize: '14px',
+            fontSize: isMobile ? '12px' : '14px',
             color: 'hsl(var(--muted))',
-            marginBottom: '12px',
+            marginBottom: isMobile ? '10px' : '12px',
             display: 'flex',
             alignItems: 'center',
-            gap: '16px',
+            gap: '12px',
             flexWrap: 'wrap'
           }}>
             <span>{formatDate()}</span>
@@ -132,28 +151,28 @@ export default function UserWelcomeBlock() {
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '12px',
-          padding: '16px',
+          gap: isMobile ? '10px' : '12px',
+          padding: isMobile ? '12px' : '16px',
           background: 'hsl(var(--bg) / 0.8)',
-          borderRadius: '12px',
+          borderRadius: isMobile ? '10px' : '12px',
           backdropFilter: 'blur(10px)'
         }}>
           <div style={{
-            width: '40px',
-            height: '40px',
+            width: isMobile ? '36px' : '40px',
+            height: isMobile ? '36px' : '40px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: '24px',
             background: 'hsl(var(--accent) / 0.1)',
-            borderRadius: '10px'
+            borderRadius: isMobile ? '8px' : '10px'
           }}>
             {currentQuote.emoji}
           </div>
           
           <div style={{ flex: 1 }}>
             <p style={{
-              fontSize: '16px',
+              fontSize: isMobile ? '14px' : '16px',
               color: 'hsl(var(--fg))',
               fontWeight: '500',
               margin: 0,
@@ -162,7 +181,7 @@ export default function UserWelcomeBlock() {
               {currentQuote.text}
             </p>
             <p style={{
-              fontSize: '12px',
+              fontSize: isMobile ? '11px' : '12px',
               color: 'hsl(var(--muted))',
               marginTop: '4px',
               display: 'flex',
@@ -178,16 +197,32 @@ export default function UserWelcomeBlock() {
         {/* معلومات AI المخصصة أو دعوة للتسجيل */}
         {user ? (
           <div style={{
-            marginTop: '16px',
+            marginTop: isMobile ? '12px' : '16px',
             display: 'flex',
-            gap: '12px',
-            fontSize: '13px',
+            gap: isMobile ? '10px' : '12px',
+            fontSize: isMobile ? '12px' : '13px',
             color: 'hsl(var(--muted))',
             flexWrap: 'wrap'
           }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <Brain style={{ width: '14px', height: '14px', color: '#7C3AED' }} />
-              اهتماماتك: <strong style={{ color: 'hsl(var(--fg))' }}>التقنية، الاقتصاد، الرياضة</strong>
+              اهتماماتك: <strong style={{ color: hasInterests ? 'hsl(var(--fg))' : '#7C3AED' }}>
+                {interestsLoading ? 'جاري التحميل...' : (
+                  hasInterests ? getInterestNames() : (
+                    <a 
+                      href="/profile" 
+                      style={{ 
+                        color: '#7C3AED', 
+                        textDecoration: 'underline',
+                        cursor: 'pointer'
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      حدد اهتماماتك الآن
+                    </a>
+                  )
+                )}
+              </strong>
             </span>
             <span style={{ color: 'hsl(var(--line))' }}>•</span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -196,6 +231,7 @@ export default function UserWelcomeBlock() {
             </span>
           </div>
         ) : (
+          // عرض رسالة للمستخدمين غير مسجلين الدخول
           <div style={{
             marginTop: '16px',
             fontSize: '12px',
@@ -205,7 +241,7 @@ export default function UserWelcomeBlock() {
             gap: '4px'
           }}>
             <Sparkles style={{ width: '12px', height: '12px', color: '#7C3AED' }} />
-            للحصول على محتوى مخصص لك{' '}
+            للحصول على محتوى مخصص حسب اهتماماتك{' '}
             <a 
               href="/login" 
               style={{ 
