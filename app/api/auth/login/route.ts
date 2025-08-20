@@ -69,30 +69,64 @@ export async function POST(request: NextRequest) {
     if (result.access_token && result.refresh_token) {
       const cookieDomain = process.env.COOKIE_DOMAIN || process.env.NEXT_PUBLIC_COOKIE_DOMAIN || (process.env.NODE_ENV === 'production' ? '.sabq.io' : undefined);
       const remember = validationResult.data.remember_me === true;
+      // توليد CSRF token بسيط
+      const csrfToken = Math.random().toString(36).slice(2);
 
+      // كوكيز موحدة: sabq_at (access) + sabq_rt (refresh)
+      response.cookies.set('sabq_at', result.access_token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 15 * 60, // 15 دقيقة
+        path: '/',
+        ...(cookieDomain ? { domain: cookieDomain } as any : {}),
+      });
+
+      // إبقاء كوكي متوافق للواجهة الحالية (قابل للإزالة لاحقًا)
       response.cookies.set('access_token', result.access_token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        maxAge: remember ? 30 * 24 * 60 * 60 : 7 * 24 * 60 * 60, // 30 يوم مع تذكرني، 7 أيام بدون
+        maxAge: 15 * 60,
         path: '/',
         ...(cookieDomain ? { domain: cookieDomain } as any : {}),
       });
 
+      // auth-token (غير HttpOnly) للاستخدام المؤقت في الواجهة القديمة – سيزال لاحقًا
       response.cookies.set('auth-token', result.access_token, {
         httpOnly: false,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        maxAge: remember ? 30 * 24 * 60 * 60 : 7 * 24 * 60 * 60, // 30 يوم مع تذكرني، 7 أيام بدون
+        maxAge: remember ? 30 * 24 * 60 * 60 : 7 * 24 * 60 * 60,
         path: '/',
         ...(cookieDomain ? { domain: cookieDomain } as any : {}),
       });
 
-      response.cookies.set('refresh_token', result.refresh_token, {
+      response.cookies.set('sabq_rt', result.refresh_token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
         maxAge: remember ? 60 * 24 * 60 * 60 : 30 * 24 * 60 * 60, // 60 يوم مع تذكرني
+        path: '/',
+        ...(cookieDomain ? { domain: cookieDomain } as any : {}),
+      });
+
+      // إبقاء refresh_token لأغراض التوافق مع بعض المسارات القديمة
+      response.cookies.set('refresh_token', result.refresh_token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: remember ? 60 * 24 * 60 * 60 : 30 * 24 * 60 * 60,
+        path: '/',
+        ...(cookieDomain ? { domain: cookieDomain } as any : {}),
+      });
+
+      // تعيين CSRF token غير HttpOnly
+      response.cookies.set('csrf-token', csrfToken, {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: remember ? 60 * 24 * 60 * 60 : 30 * 24 * 60 * 60,
         path: '/',
         ...(cookieDomain ? { domain: cookieDomain } as any : {}),
       });

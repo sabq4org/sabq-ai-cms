@@ -4,8 +4,8 @@ import { UserManagementService } from '@/lib/auth/user-management';
 
 export async function POST(request: NextRequest) {
   try {
-    // الحصول على refresh token من cookies أو body
-    let refreshToken = request.cookies.get('refresh_token')?.value;
+    // الحصول على refresh token من cookies أو body (أولوية للكوكيز الموحدة)
+    let refreshToken = request.cookies.get('sabq_rt')?.value || request.cookies.get('refresh_token')?.value;
     
     if (!refreshToken) {
       const body = await request.json();
@@ -44,13 +44,20 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
 
-    // تحديث access token cookie
+    // تحديث access token cookie (موحد + متوافق)
     if (result.access_token) {
-      response.cookies.set('access_token', result.access_token, {
+      response.cookies.set('sabq_at', result.access_token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
         maxAge: 15 * 60, // 15 دقيقة
+        path: '/'
+      });
+      response.cookies.set('access_token', result.access_token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 15 * 60,
         path: '/'
       });
     }

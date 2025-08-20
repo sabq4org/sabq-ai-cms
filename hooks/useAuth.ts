@@ -110,12 +110,11 @@ export function useAuth() {
   // تسجيل الدخول
   const login = useCallback((user: User) => {
     updateAuthState(user);
-    
-    // حفظ في localStorage و Cookies
     if (typeof window !== 'undefined') {
       localStorage.setItem('user', JSON.stringify(user));
       localStorage.setItem('user_id', user.id);
-      Cookies.set('user', JSON.stringify(user), { expires: 7 });
+      // لا نخزن أسرار؛ Cookie 'user' تبقى للاستخدام غير الحساس فقط
+      Cookies.set('user', JSON.stringify(user), { expires: 7, sameSite: 'lax' });
     }
   }, [updateAuthState]);
 
@@ -132,10 +131,7 @@ export function useAuth() {
     }
     
     Cookies.remove('user');
-    Cookies.remove('auth-token');
-    Cookies.remove('token');
-    Cookies.remove('access_token');
-    Cookies.remove('refresh_token');
+    // لا نتلاعب بالكوكيز HttpOnly من العميل
   }, [updateAuthState]);
 
   // تحميل البيانات عند بدء التطبيق

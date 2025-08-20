@@ -64,17 +64,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const didInitRef = useRef(false);
 
   const fetchUserFromAPI = async (): Promise<User | null> => {
-    const token = Cookies.get("auth-token");
+    // لا نعتمد على auth-token غير الآمن، نستخدم الكوكيز HttpOnly فقط عبر credentials: 'include'
     const headers: Record<string, string> = {};
-    if (token) headers["Authorization"] = `Bearer ${token}`;
 
     // المحاولة الأولى: /api/auth/me
     try {
-      const resp = await fetch("/api/auth/me", { 
-        headers, 
-        credentials: "include",
-        mode: "cors"
-      });
+      const resp = await fetch("/api/auth/me", { headers, credentials: "include", cache: 'no-store' });
       if (resp.ok) {
         const data = await resp.json();
         if (data.success && data.user) return data.user;
@@ -85,11 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // المحاولة الثانية: /api/user/me
     try {
-      const resp2 = await fetch("/api/user/me", { 
-        headers, 
-        credentials: "include",
-        mode: "cors"
-      });
+      const resp2 = await fetch("/api/user/me", { headers, credentials: "include", cache: 'no-store' });
       if (resp2.ok) {
         const data2 = await resp2.json();
         if (data2 && (data2.id || (data2.success && data2.id))) {
@@ -107,23 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log("خطأ في جلب بيانات المستخدم من /api/user/me:", err2);
     }
 
-    // المحاولة الثالثة: Cookie 'user'
-    try {
-      const cookie = Cookies.get("user");
-      if (cookie) {
-        const decoded = JSON.parse(decodeURIComponent(cookie));
-        if (decoded && decoded.id) {
-          return {
-            id: decoded.id,
-            name: decoded.name || "مستخدم",
-            email: decoded.email || "",
-            role: decoded.role || "user",
-            is_admin: !!decoded.is_admin,
-            isVerified: !!decoded.is_verified,
-          } as User;
-        }
-      }
-    } catch {}
+    // لا مزيد من fallback إلى Cookie 'user' كمصدر مصادقة
 
     return null;
   };
@@ -168,18 +143,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (didInitRef.current) return;
     didInitRef.current = true;
     loadUserFromCookie();
+    // تجديد صامت دوري + إعادة تحقق عند التركيز والاتصال
+    let refreshInterval: any;
+    const doSilentRefresh = async () => {
+      try {
+        await fetch('/api/auth/refresh', { method: 'POST', credentials: 'include' });
+        await refreshUser();
+      } catch {}
+    };
+    refreshInterval = setInterval(doSilentRefresh, 10 * 60 * 1000); // كل 10 دقائق
+    const onFocus = () => refreshUser();
+    const onReconnect = () => refreshUser();
+    window.addEventListener('focus', onFocus);
+    window.addEventListener('online', onReconnect);
+    return () => {
+      clearInterval(refreshInterval);
+      window.removeEventListener('focus', onFocus);
+      window.removeEventListener('online', onReconnect);
+    };
   }, []);
 
   const login = async (token: string) => {
     try {
       console.log('🔑 بدء تسجيل الدخول بالتوكن');
       
-      // حفظ التوكن أولاً
-      Cookies.set("auth-token", token, {
-        expires: 7,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: "lax",
-      });
+      // لا نخزن التوكن في كوكي غير HttpOnly؛ نترك ضبط الكوكيز لمسار /api/auth/login
       
       // جلب بيانات المستخدم من API
       const userData = await fetchUserFromAPI();
@@ -194,11 +182,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             localStorage.setItem("user_id", String(userData.id));
           }
         }
-      } else {
-        // إذا فشل جلب البيانات، جرب decode التوكن كبديل
-        const decodedUser = jwtDecode<User>(token);
-        setUser(decodedUser);
-        console.log('⚠️ تم استخدام decode كبديل');
       }
       
       setLoading(false);
@@ -220,12 +203,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     setUser(null);
-    // إزالة جميع الكوكيز المتعلقة بالمصادقة
+    // إزالة أي أثر عميل فقط
     Cookies.remove("user");
-    Cookies.remove("auth-token");
-    Cookies.remove("token");
-    Cookies.remove("access_token");
-    Cookies.remove("refresh_token");
 
     // إزالة من localStorage أيضاً
     if (typeof window !== "undefined") {
@@ -241,6 +220,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const refreshUser = async () => {
+    // محاولة تجديد صامت إذا لزم
+    try {
+      await fetch('/api/auth/refresh', { method: 'POST', credentials: 'include' });
+    } catch {}
     const userData = await fetchUserFromAPI();
     if (userData) {
       setUser(userData);
