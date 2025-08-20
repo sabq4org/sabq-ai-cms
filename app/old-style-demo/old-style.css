@@ -346,3 +346,45 @@
     color: #9ca3af;
   }
 }
+
+/* دعم الوضع الليلي عند تفعيل فئة .dark من الواجهة */
+.dark .old-style-news-card {
+  background: transparent;
+  border: none;
+  color: #f9fafb;
+}
+
+.dark .old-style-news-title {
+  color: #f9fafb;
+}
+
+.dark .old-style-news-card-title {
+  color: #f9fafb;
+}
+
+.dark .old-style-news-card:hover .old-style-news-card-title {
+  color: #60a5fa;
+}
+
+.dark .old-style-news-excerpt {
+  color: #d1d5db;
+}
+
+.dark .old-style-news-meta {
+  border-top-color: #374151;
+}
+
+.dark .old-style-news-meta-item {
+  color: #9ca3af;
+}
+
+.dark .old-style-empty-state {
+  background: #1f2937;
+  border-color: #374151;
+  color: #9ca3af;
+}
+
+/* خلفية مناسبة لحاوية الصور في الوضع الليلي */
+.dark .old-style-news-image-container {
+  background: #111827;
+}

@@ -116,7 +116,7 @@ export default function SmartContentBlock({
           <div className="h-7 bg-gray-200 rounded w-1/4 mb-4 animate-pulse"></div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-gray-200 rounded-lg h-80 animate-pulse"></div>
+              <div key={i} className="bg-gray-200 dark:bg-gray-800 rounded-lg h-80 animate-pulse"></div>
             ))}
           </div>
         </div>
