@@ -105,13 +105,13 @@ export default function Page() {
           </div>
         }
       > 
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 mt-8">
+        <div className="max-w-6xl mx-auto mt-8">
           <SmartInsightsWidget />
         </div>
       </Suspense>
       
       <Suspense fallback={<div className="h-48 animate-pulse bg-gray-200 rounded mt-6" />}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="max-w-6xl mx-auto">
           <SmartContentBlock />
         </div>
       </Suspense>
@@ -121,7 +121,7 @@ export default function Page() {
       </Suspense>
       
       <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded mt-6" />}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="max-w-6xl mx-auto">
           <MuqtarabBlock
             limit={8}
             showPagination={false}
