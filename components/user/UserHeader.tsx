@@ -221,9 +221,9 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
                           <Image
               src="/logo.png"
               alt="شعار سبق"
-              width={120}
-              height={40}
-              className="h-10 w-auto object-contain"
+              width={200}
+              height={48}
+              className="h-12 md:h-12 w-auto object-contain mix-blend-multiply dark:mix-blend-normal"
               priority
             />
             </Link>

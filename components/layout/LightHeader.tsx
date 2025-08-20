@@ -150,7 +150,7 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
   // منع التحميل قبل mount للتجنب hydration errors
   if (!mounted || settingsLoading) {
     return (
-      <header className={`sticky top-0 z-50 w-full border-b bg-gray-200/95 dark:bg-gray-950/90 backdrop-blur supports-[backdrop-filter]:bg-gray-200/70 dark:supports-[backdrop-filter]:bg-gray-950/60 ${className}`}>
+      <header className={`sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-gray-200/95 dark:bg-gray-950/90 backdrop-blur supports-[backdrop-filter]:bg-gray-200/70 dark:supports-[backdrop-filter]:bg-gray-950/60 ${className}`}>
         <div className="container flex h-14 items-center justify-between px-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-gray-200 animate-pulse" />
@@ -172,7 +172,7 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
   return (
     <>
       {/* الهيدر الرئيسي */}
-      <header className={`sticky top-0 z-50 w-full border-b bg-gray-200/95 dark:bg-gray-950/90 backdrop-blur supports-[backdrop-filter]:bg-gray-200/70 dark:supports-[backdrop-filter]:bg-gray-950/60 ${className}`}>
+      <header className={`sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-gray-200/95 dark:bg-gray-950/90 backdrop-blur supports-[backdrop-filter]:bg-gray-200/70 dark:supports-[backdrop-filter]:bg-gray-950/60 ${className}`}>
         <div className="container flex h-14 items-center justify-between px-4">
           {/* الجانب الأيمن: زر القائمة + اللوجو */}
           <div className="flex items-center gap-0">
@@ -188,15 +188,15 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
             {/* اللوجو الأصلي - متحرك يميناً */}
             <Link href="/" className="flex items-center group -mr-2">
               {settingsLoading ? (
-                <div className="w-24 h-8 bg-gray-200 dark:bg-gray-700 animate-pulse rounded" />
+                <div className="w-[140px] md:w-[200px] h-10 md:h-12 bg-gray-200 dark:bg-gray-700 animate-pulse rounded" />
               ) : (
                 logoUrl && (
-                  <div className="relative w-24 h-8 transition-all duration-200 group-hover:scale-105">
+                  <div className="relative h-10 md:h-12 w-[140px] md:w-[200px] transition-all duration-200 group-hover:scale-105">
                     <Image
                       src={logoUrl}
                       alt={siteName || "سبق"}
                       fill
-                      className="object-contain drop-shadow-sm group-hover:drop-shadow-md transition-all duration-200"
+                      className="object-contain drop-shadow-sm group-hover:drop-shadow-md transition-all duration-200 mix-blend-multiply dark:mix-blend-normal"
                       priority
                       unoptimized={logoUrl.startsWith("http")}
                     />
