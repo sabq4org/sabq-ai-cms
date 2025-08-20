@@ -126,7 +126,8 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
     >
       <Link href={getArticleLink(currentArticle)} className="group block" aria-live="polite">
         <div
-          className={`relative overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl`}
+          className={`relative overflow-hidden bg-white dark:bg-gray-800 border rounded-xl`}
+          style={{ borderColor: 'hsl(var(--accent) / 0.35)' }}
         >
           <div
             className={`grid grid-cols-1 lg:grid-cols-12`}
@@ -146,7 +147,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                   className="object-cover object-center"
                 />
               ) : (
-                <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
+                <div className="absolute inset-0 w-full h-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, hsl(var(--accent) / 0.35), hsl(var(--accent) / 0.15))' }}>
                   <span className="text-6xl">📰</span>
                 </div>
               )}
@@ -191,7 +192,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
             <div className="hidden lg:flex lg:col-span-6 p-4 lg:p-6 flex-col justify-between overflow-hidden" style={{ height: `${desktopH}px` }}>
               {/* عنوان الخبر لنسخة الديسكتوب (يبقى مرئياً في العمود النصي) */}
               <h2
-                className={`text-xl lg:text-2xl xl:text-3xl font-bold mb-4 leading-tight line-clamp-3 transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400 ${
+                className={`text-xl lg:text-2xl xl:text-3xl font-bold mb-4 leading-tight line-clamp-3 transition-colors group-hover:text-[hsl(var(--accent))] ${
                   darkMode ? "text-white" : "text-gray-900"
                 }`}
               >
@@ -247,7 +248,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                 onClick={() => setCurrentIndex(idx)}
                 className={`relative overflow-hidden rounded-lg transition-all duration-300 ease-in-out cursor-pointer ${
                   idx === currentIndex 
-                    ? "w-16 h-9 ring-2 ring-blue-500 dark:ring-blue-400 shadow-lg z-10" 
+                    ? "w-16 h-9 ring-2 ring-[hsl(var(--accent))] shadow-lg z-10" 
                     : "w-10 h-9 hover:w-12 hover:h-9 opacity-50 hover:opacity-70 hover:shadow-md"
                 }`}
                 aria-label={`الانتقال إلى الخبر ${idx + 1}: ${article.title}`}
@@ -269,11 +270,12 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                 {/* Fallback للصور المفقودة */}
                 <div className={`${article.featured_image ? 'hidden' : 'block'} w-full h-full bg-gray-200 dark:bg-gray-700`}></div>
                 {/* تدرج لوني ناعم */}
-                <div className={`absolute inset-0 transition-opacity duration-300 ${
-                  idx === currentIndex 
-                    ? "bg-blue-500/15" 
-                    : "bg-black/40 hover:bg-black/25"
-                }`}></div>
+                <div
+                  className={`absolute inset-0 transition-opacity duration-300 ${
+                    idx === currentIndex ? "" : "bg-black/40 hover:bg-black/25"
+                  }`}
+                  style={{ background: idx === currentIndex ? 'hsl(var(--accent) / 0.15)' : undefined }}
+                ></div>
                 {/* مؤشر النشاط */}
                 {idx === currentIndex && (
                   <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 dark:bg-blue-400"></div>
