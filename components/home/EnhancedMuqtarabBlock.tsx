@@ -619,7 +619,7 @@ export default function EnhancedMuqtarabBlock({
       {/* رأس القسم */}
       {showHeader && (
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          {/* رأس موحد بأسلوب بلك الأخبار مع نظام الألوان المتغيرة */
+          {/* رأس موحد بأسلوب بلك الأخبار مع نظام الألوان المتغيرة */}
           <div className="flex-1">
             <div className="flex flex-col items-center md:items-start text-center md:text-right">
               <div className="flex items-center justify-center md:justify-start mb-2">
