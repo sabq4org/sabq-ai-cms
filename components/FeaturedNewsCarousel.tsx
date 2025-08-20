@@ -168,7 +168,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                 className="md:hidden absolute left-4 right-4 z-20"
                 style={{ bottom: '12px', top: 'auto', transform: 'translateZ(0)' }}
               >
-                <div className="flex items-center gap-2 mb-1 text-[11px] text-white/90">
+                <div className="flex items-center gap-2 mb-1 text-[11px] text-white">
                   <span className="text-sm">{currentArticle.category?.icon || '📰'}</span>
                   <span className="font-medium">{currentArticle.category?.name || 'أخبار'}</span>
                   <span className="opacity-80">•</span>
