@@ -619,15 +619,36 @@ export default function EnhancedMuqtarabBlock({
       {/* رأس القسم */}
       {showHeader && (
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-xl">
-              <Sparkles className="w-6 h-6 text-gray-600 dark:text-gray-300" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+          {/* رأس موحد بأسلوب بلك الأخبار مع نظام الألوان المتغيرة */
+          <div className="flex-1">
+            <div className="flex flex-col items-center md:items-start text-center md:text-right">
+              <div className="flex items-center justify-center md:justify-start mb-2">
+                <span
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '36px',
+                    height: '36px',
+                    background: 'linear-gradient(135deg, hsl(var(--accent) / 0.15) 0%, hsl(var(--accent) / 0.05) 100%)',
+                    borderRadius: '10px',
+                    color: 'hsl(var(--accent))',
+                    fontSize: '18px',
+                    border: '1px solid hsl(var(--accent) / 0.25)'
+                  }}
+                >
+                  <Sparkles className="w-5 h-5" />
+                </span>
+              </div>
+              <h2
+                className="font-bold"
+                style={{ fontSize: '20px', color: 'hsl(var(--fg))', marginBottom: '6px' }}
+              >
                 مُقترب
               </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-300">
+              <p
+                style={{ fontSize: '14px', fontWeight: 600, color: 'hsl(var(--accent))' }}
+              >
                 مقالات إبداعية من جميع الزوايا
               </p>
             </div>
