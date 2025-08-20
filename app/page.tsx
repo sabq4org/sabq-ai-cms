@@ -87,8 +87,8 @@ export default function Page() {
 
   // محتوى الموبايل - نفس المحتوى لكن مُحسن للموبايل
   const MobileContent = useMemo(() => (
-    <div className="px-2 sm:px-4 py-6">
-      <div className="max-w-6xl mx-auto px-2 sm:px-4">
+    <div className="py-6">
+      <div className="max-w-6xl mx-auto">
         <Suspense fallback={<div className="h-6" />}>
           <WelcomeMetaStrip />
         </Suspense>
@@ -111,7 +111,7 @@ export default function Page() {
       </Suspense>
       
       <Suspense fallback={<div className="h-48 animate-pulse bg-gray-200 rounded mt-6" />}>
-        <div className="max-w-6xl mx-auto px-4">
+        <div className="max-w-6xl mx-auto">
           <SmartContentBlock />
         </div>
       </Suspense>
@@ -121,7 +121,7 @@ export default function Page() {
       </Suspense>
       
       <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded mt-6" />}>
-        <div className="max-w-6xl mx-auto px-4">
+        <div className="max-w-6xl mx-auto">
           <MuqtarabBlock
             limit={8}
             showPagination={false}
