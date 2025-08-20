@@ -25,12 +25,26 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
 
-    // حذف cookies
-    response.cookies.delete('access_token');
-    response.cookies.delete('refresh_token');
-    // حذف كوكيز إضافية قد تُستخدم على الواجهة
-    response.cookies.delete('auth-token');
-    response.cookies.delete('user');
+    // حذف cookies (مع دعم الدومين لضمان المسح)
+    const cookieDomain = process.env.COOKIE_DOMAIN || process.env.NEXT_PUBLIC_COOKIE_DOMAIN || (process.env.NODE_ENV === 'production' ? '.sabq.io' : undefined);
+    const deleteCookie = (name: string) => {
+      response.cookies.set(name, '', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 0,
+        path: '/',
+        ...(cookieDomain ? { domain: cookieDomain } as any : {}),
+      });
+    };
+    // HttpOnly
+    deleteCookie('sabq_at');
+    deleteCookie('sabq_rt');
+    deleteCookie('access_token');
+    deleteCookie('refresh_token');
+    // واجهة غير حساسة
+    response.cookies.set('auth-token', '', { httpOnly: false, maxAge: 0, path: '/', ...(cookieDomain ? { domain: cookieDomain } as any : {}) });
+    response.cookies.set('user', '', { httpOnly: false, maxAge: 0, path: '/', ...(cookieDomain ? { domain: cookieDomain } as any : {}) });
 
     return response;
 

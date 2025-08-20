@@ -216,7 +216,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       sessionStorage.clear(); // تنظيف جميع بيانات الجلسة
     }
 
-    window.location.href = "/"; // العودة للصفحة الرئيسية بدلاً من صفحة تسجيل الدخول
+    // لا نعيد التوجيه هنا لتجنب تضارب مع واجهة الإدارة؛ دَع المستدعي يقرر
   };
 
   const refreshUser = async () => {

@@ -187,7 +187,9 @@ export default function QuickAccessHeader({
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => router.push("/profile")}>الملف الشخصي</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push("/admin/modern/settings")}>
+                  الملف الشخصي
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => router.push("/admin/modern/settings")}>الإعدادات</DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
@@ -320,7 +322,9 @@ export default function QuickAccessHeader({
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => router.push("/profile")}>الملف الشخصي</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/admin/modern/settings")}>
+                الملف الشخصي
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => router.push("/admin/modern/settings")}>الإعدادات</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem

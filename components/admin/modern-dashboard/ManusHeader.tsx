@@ -377,7 +377,7 @@ export default function ManusHeader({ onMenuClick, showMenuButton = false }: Man
                 }}>
                   <div className="divide-list">
                     <div className="list-item" style={{ padding: '8px 0' }}>
-                      <Link href="/profile" className="btn" style={{ width: '100%', justifyContent: 'flex-start' }}>
+                      <Link href="/admin/modern/settings" className="btn" style={{ width: '100%', justifyContent: 'flex-start' }}>
                         <User style={{ width: '16px', height: '16px' }} />
                         الملف الشخصي
                       </Link>
@@ -391,7 +391,11 @@ export default function ManusHeader({ onMenuClick, showMenuButton = false }: Man
                     <div className="list-item" style={{ padding: '8px 0' }}>
                       <button 
                         className="btn" 
-                        onClick={logout}
+                        onClick={async () => {
+                          try { await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }); } catch {}
+                          try { await logout(); } catch {}
+                          window.location.replace('/admin/login');
+                        }}
                         style={{ width: '100%', justifyContent: 'flex-start', color: '#ef4444' }}
                       >
                         <LogOut style={{ width: '16px', height: '16px' }} />
