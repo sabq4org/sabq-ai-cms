@@ -28,6 +28,17 @@ const DeepAnalysisBlock = dynamic(
   }
 );
 
+// استيراد المؤشرات الذكية بشكل ديناميكي
+const SmartInsightsWidget = dynamic(
+  () => import("@/components/ai/SmartInsightsWidget"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-40 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />
+    ),
+  }
+);
+
 // مكون شاشة التحميل المحسن
 const LoadingScreen = () => (
   <div className="flex items-center justify-center py-20">
@@ -55,6 +66,11 @@ export default function Page() {
       <Suspense fallback={<div className="h-32 animate-pulse bg-gray-200 rounded" />}>
         <UserWelcomeBlock />
       </Suspense>
+      <Suspense fallback={<div className="h-24 animate-pulse bg-gray-200 rounded mt-4" />}>
+        <div className="mt-4">
+          <SmartInsightsWidget />
+        </div>
+      </Suspense>
       
       <Suspense fallback={<div className="h-48 animate-pulse bg-gray-200 rounded mt-6" />}>
         <SmartContentBlock />
@@ -81,6 +97,11 @@ export default function Page() {
     <div style={{ padding: '20px 0' }}>
       <Suspense fallback={<div className="h-32 animate-pulse bg-gray-200 rounded" />}>
         <UserWelcomeBlock />
+      </Suspense>
+      <Suspense fallback={<div className="h-24 animate-pulse bg-gray-200 rounded mt-4" />}>
+        <div className="mt-4">
+          <SmartInsightsWidget />
+        </div>
       </Suspense>
       
       <Suspense fallback={<div className="h-48 animate-pulse bg-gray-200 rounded mt-6" />}>
