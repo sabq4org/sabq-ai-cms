@@ -558,22 +558,21 @@ export default function EnhancedMuqtarabBlock({
       <Link href={article.link} className="group block">
         <article
           dir="rtl"
-          className="h-full rounded-2xl overflow-hidden shadow-sm transition-all duration-300 flex flex-col bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+          className="h-full rounded-2xl shadow-sm transition-all duration-300 flex flex-row md:flex-col bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
         >
           {/* صورة المقال */}
-          <div className="relative h-40 sm:h-48 overflow-hidden">
+          <div className="relative w-28 h-28 md:w-full md:h-40 sm:md:h-48 overflow-hidden m-3 md:m-0 rounded-xl md:rounded-none">
             <Image
               src={displaySrc}
               alt={article.title}
               fill={true}
-              className="w-full h-full object-cover transition-transform duration-500"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-cover"
+              sizes="(max-width: 768px) 112px, (max-width: 1200px) 50vw, 33vw"
               priority={false}
             />
-            
             {/* شارة مميز */}
             {article.isFeatured && (
-              <div className="absolute top-3 left-3">
+              <div className="hidden md:block absolute top-3 left-3">
                 <span className="flex items-center gap-1 px-3 py-1 bg-yellow-600 text-white text-xs font-bold rounded-full shadow-lg">
                   <Star className="w-3 h-3" />
                   مميز
@@ -583,7 +582,7 @@ export default function EnhancedMuqtarabBlock({
           </div>
 
           {/* محتوى البطاقة */}
-          <div className="p-4 flex-1 flex flex-col">
+          <div className="p-3 md:p-4 flex-1 flex flex-col">
             {/* الشريط العلوي: جديد + اسم الزاوية بجوار بعض */}
             <div className="mb-2 flex items-center gap-2">
               {isNew() && (
@@ -607,12 +606,12 @@ export default function EnhancedMuqtarabBlock({
             </div>
 
             {/* العنوان */}
-            <h4 className="font-semibold text-lg mb-3 line-clamp-4 leading-snug flex-1">
+            <h4 className="font-semibold text-base md:text-lg mb-2 md:mb-3 line-clamp-3 leading-snug flex-1">
               {article.title}
             </h4>
 
             {/* سطر واحد: التاريخ + المشاهدات */}
-            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mt-auto">
+            <div className="flex items-center gap-2 text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-auto">
               <time
                 dateTime={article.publishDate}
                 className="inline-flex items-center gap-1"

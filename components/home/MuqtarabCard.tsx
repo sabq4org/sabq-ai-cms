@@ -319,25 +319,25 @@ export default function MuqtarabCard({
     <Link href={articleLink} className={cn("block h-full", className)}>
       <article
         className={cn(
-          "relative overflow-hidden h-full flex flex-col",
+          "relative overflow-hidden h-full flex flex-row md:flex-col",
           "bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl"
         )}
         dir="rtl"
       >
         {/* صورة المقال */}
-        <div className="relative h-48 bg-gray-100 dark:bg-gray-700 overflow-hidden">
+        <div className="relative w-28 h-28 md:w-full md:h-48 bg-gray-100 dark:bg-gray-700 overflow-hidden m-3 md:m-0 rounded-xl md:rounded-none">
           <Image
             src={displaySrc}
             alt={article.title}
             fill={true}
             className="object-cover"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            sizes="(max-width: 768px) 112px, (max-width: 1200px) 50vw, 33vw"
             priority={false}
           />
         </div>
 
         {/* المحتوى */}
-        <div className="p-4 flex-1 flex flex-col">
+        <div className="p-3 md:p-4 flex-1 flex flex-col">
           {/* الشريط العلوي: جديد + اسم الزاوية جنب بعض */}
           <div className="mb-2 flex items-center gap-2">
             {isNew() && (
@@ -361,7 +361,7 @@ export default function MuqtarabCard({
           </div>
 
           {/* العنوان - حجم مطابق */}
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-4 mb-3 leading-snug">
+          <h3 className="text-base md:text-lg font-bold text-gray-900 dark:text-white line-clamp-3 mb-2 md:mb-3 leading-snug">
             {article.title}
           </h3>
 
