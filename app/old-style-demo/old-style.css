@@ -119,7 +119,7 @@
 /* الشريط العلوي: لايبل جديد + التاريخ */
 .old-style-news-top-bar {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   margin-bottom: 8px;
 }
@@ -184,7 +184,8 @@
 /* التاريخ بجانب لايبل جديد */
 .old-style-news-date-inline {
   margin-right: 6px;
-  font-size: 11px;
+  font-size: 11px; /* توحيد الحجم */
+  line-height: 1;
   opacity: 0.95;
   color: #9ca3af; /* نفس لون المشاهدة */
 }

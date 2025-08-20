@@ -154,17 +154,14 @@ export default function OldStyleNewsBlock({
 
             {/* محتوى المقال */}
             <div className="old-style-news-content">
-              {/* شريط المعلومات العلوي: لايبل جديد + التاريخ بجواره */}
+              {/* الشريط العلوي: شارات + التاريخ بجانب الشارات وعلى يمين البطاقة */}
               <div className="old-style-news-top-bar">
                 <div className="old-style-news-badges">
                   {isNewsNew(article.published_at) && (
-                    <>
-                      <div className="old-style-news-new-badge">
-                        <span className="old-style-fire-emoji" aria-hidden>🔥</span>
-                        <span>جديد</span>
-                      </div>
-                      <span className="old-style-news-date-inline">{formatGregorianDate(article.published_at)}</span>
-                    </>
+                    <div className="old-style-news-new-badge">
+                      <span className="old-style-fire-emoji" aria-hidden>🔥</span>
+                      <span>جديد</span>
+                    </div>
                   )}
                   {article.is_custom && (
                     <div className="old-style-news-custom-badge">
@@ -172,12 +169,9 @@ export default function OldStyleNewsBlock({
                       <span>مخصص</span>
                     </div>
                   )}
+                  {/* التاريخ يظهر دائمًا بجانب الشارات، وبحجم موحّد */}
+                  <span className="old-style-news-date-inline">{formatGregorianDate(article.published_at)}</span>
                 </div>
-                {!isNewsNew(article.published_at) && (
-                  <span className="old-style-news-date">
-                    {formatGregorianDate(article.published_at)}
-                  </span>
-                )}
               </div>
 
               {/* العنوان */}
