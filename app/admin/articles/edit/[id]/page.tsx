@@ -85,8 +85,9 @@ const EditArticlePage = () => {
   const fetchArticleData = async () => {
     try {
       setInitialLoading(true);
-      const response = await fetch(`/api/articles/${articleId}`);
-      const data = await response.json();
+      const response = await fetch(`/api/articles/${articleId}?all=true`, { credentials: 'include' });
+      const json = await response.json();
+      const data = json?.data || json; // دعم غلاف API { ok, data }
       
       if (response.ok && data) {
         let parsedTags = [];
