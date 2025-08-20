@@ -344,7 +344,6 @@ export default function MuqtarabCard({
               <div className="old-style-news-new-badge">
                 <span className="old-style-fire-emoji" aria-hidden>🔥</span>
                 <span>جديد</span>
-                <span className="old-style-news-date-inline">{formatGregorianDate(article.publishDate)}</span>
               </div>
             )}
             <div
@@ -358,6 +357,7 @@ export default function MuqtarabCard({
               {article.angle.icon && <span className="mr-0.5">{article.angle.icon}</span>}
               <span>{article.angle.title}</span>
             </div>
+            <span className="old-style-news-date-inline">{formatGregorianDate(article.publishDate)}</span>
           </div>
 
           {/* العنوان - حجم مطابق */}
