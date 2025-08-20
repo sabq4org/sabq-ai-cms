@@ -494,13 +494,13 @@ export default function DeepAnalysisBlock({
                     </div>
 
                     {/* الصورة والمحتوى */}
-                    <div className="flex gap-3 mb-3">
+                    <div className="flex gap-4 mb-3 items-start">
                       {/* الصورة المصغرة إن وجدت */}
                       {(item.featuredImage ||
                         item.metadata?.featuredImage) && (
                         <div className="flex-shrink-0">
                           <div
-                            className={`relative w-16 h-16 rounded-lg overflow-hidden ${
+                            className={`relative w-20 h-20 md:w-24 md:h-24 rounded-lg overflow-hidden ${
                               darkMode ? "bg-gray-700" : "bg-gray-200"
                             }`}
                           >
@@ -520,40 +520,19 @@ export default function DeepAnalysisBlock({
                       )}
 
                       <div className="flex-1 min-w-0">
-                        {/* التصنيف */}
-                        <div className="flex items-center gap-2 mb-1">
-                          <span
-                            className={`inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded-md ${
-                              darkMode
-                                ? "text-blue-300 bg-blue-900/20 border border-blue-700/30"
-                                : "text-blue-700 bg-blue-50 border border-blue-200"
-                            }`}
-                          >
-                            {categoryName}
-                          </span>
-                          {/* نقاط الجودة */}
-                          {analysisScore && analysisScore > 85 && (
-                            <span
-                              className={`inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
-                                darkMode
-                                  ? "text-green-300 bg-green-900/20"
-                                  : "text-green-700 bg-green-50"
-                              }`}
-                            >
-                              <Award className="w-3 h-3" />
-                              {analysisScore}%
-                            </span>
-                          )}
-                        </div>
-
                         {/* العنوان */}
                         <h3
-                          className={`text-sm font-bold mb-1.5 leading-tight line-clamp-2 ${
+                          className={`text-base md:text-lg font-bold leading-snug line-clamp-2 mb-1 ${
                             darkMode ? "text-white" : "text-gray-900"
                           } group-hover:text-purple-400 transition-colors`}
                         >
                           {title}
                         </h3>
+
+                        {/* التصنيف أسفل العنوان بنمط موحّد مع الأخبار */}
+                        <div className="mt-1 mb-1">
+                          <span className="category-pill">{categoryName}</span>
+                        </div>
 
                         {/* الملخص */}
                         <p
