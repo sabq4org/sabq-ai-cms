@@ -7,6 +7,7 @@ import SabqLogo from "@/components/SabqLogo";
 export default function AdminLogin() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const denied = searchParams?.get("denied") === '1';
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -80,6 +81,11 @@ export default function AdminLogin() {
         {/* الجانب الأيمن - نموذج الدخول */}
         <div className="w-full max-w-md mx-auto lg:pt-0">
           <div className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm rounded-xl p-6">
+            {denied && (
+              <div className="mb-4 rounded-lg border border-yellow-300 bg-yellow-50 text-yellow-800 text-sm p-3">
+                🛑 هذه المنطقة للإداريين فقط — واضح إنك لطيف بس الصلاحيات غير كافية. إن كنت تظن أن هذا خطأ، تواصل مع الإدارة.
+              </div>
+            )}
             <div className="text-center space-y-2 pb-4">
               <div className="lg:hidden mb-4">
                 <SabqLogo className="mx-auto" width={140} height={48} />

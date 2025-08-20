@@ -85,7 +85,8 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {DevIndicator}
-        <LightHeader />
+        {/* إخفاء هيدر النسخة الخفيفة في صفحات الإدارة */}
+        {!pathname.startsWith('/admin') && <LightHeader />}
         <main className="container mx-auto px-4 py-6">
           <div data-device="mobile">
             {children}
@@ -107,7 +108,8 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
       zIndex: 1
     }}>
       {DevIndicator}
-      <UserHeader />
+      {/* إخفاء هيدر الموقع في صفحات الإدارة */}
+      {!pathname.startsWith('/admin') && <UserHeader />}
       <main style={{
         flex: 1,
         padding: '16px',
