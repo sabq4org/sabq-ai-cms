@@ -158,11 +158,13 @@ export default function OldStyleNewsBlock({
               <div className="old-style-news-top-bar">
                 <div className="old-style-news-badges">
                   {isNewsNew(article.published_at) && (
-                    <div className="old-style-news-new-badge">
-                      <span className="old-style-fire-emoji" aria-hidden>🔥</span>
-                      <span>جديد</span>
+                    <>
+                      <div className="old-style-news-new-badge">
+                        <span className="old-style-fire-emoji" aria-hidden>🔥</span>
+                        <span>جديد</span>
+                      </div>
                       <span className="old-style-news-date-inline">{formatGregorianDate(article.published_at)}</span>
-                    </div>
+                    </>
                   )}
                   {article.is_custom && (
                     <div className="old-style-news-custom-badge">
