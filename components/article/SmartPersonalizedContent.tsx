@@ -139,6 +139,7 @@ const SmartRecommendationCard: React.FC<{
   index: number;
 }> = ({ article, darkMode, index }) => {
   const ctaPhrase = getCallToActionPhrases(article.type, index);
+  const typeLabel = article.type === "مقالة" ? "خبر" : article.type;
 
   // كشف حجم الشاشة للتصميم المتجاوب
   const [isMobileScreen, setIsMobileScreen] = React.useState(false);
@@ -159,12 +160,8 @@ const SmartRecommendationCard: React.FC<{
       <div
         className={`relative ${isMobileScreen ? "h-32" : "h-full"} flex ${
           isMobileScreen ? "flex-row" : "flex-col"
-        } rounded-xl border-2 border-b-4 ${getBottomBorderColor(
-          article.type
-        )} transition-all duration-300 hover:shadow-xl overflow-hidden ${
-          darkMode
-            ? "bg-gray-800 border-gray-700 hover:border-gray-600"
-            : "bg-white border-gray-200 hover:border-blue-200"
+        } rounded-none border overflow-hidden ${
+          darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
         }`}
       >
         {/* الصورة الرئيسية */}
@@ -194,7 +191,7 @@ const SmartRecommendationCard: React.FC<{
                   article.type
                 )}`}
               >
-                {article.type}
+                {typeLabel}
               </span>
             </div>
           )}
@@ -237,7 +234,7 @@ const SmartRecommendationCard: React.FC<{
                 <span className="text-xs sm:text-sm">
                   {getTypeIcon(article.type)}
                 </span>
-                {article.type}
+                {typeLabel}
               </span>
               {isMobileScreen && article.confidence >= 80 && (
                 <span className="text-[10px] text-green-600 dark:text-green-400 font-medium">
@@ -706,46 +703,43 @@ function SmartPersonalizedContentInner({
       }`}
     >
       <div className="max-w-4xl mx-auto">
-        {/* عنوان القسم الذكي */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <Brain
-                className={`w-6 h-6 ${
-                  darkMode ? "text-blue-400" : "text-blue-600"
-                }`}
-              />
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
-            </div>
-            <div>
-              <h2
-                className={`text-lg font-bold ${
-                  darkMode ? "text-white" : "text-gray-900"
-                }`}
-              >
-                مخصص لك بذكاء
-              </h2>
-              <p
-                className={`text-sm ${
-                  darkMode ? "text-gray-400" : "text-gray-600"
-                }`}
-              >
-                محتوى مختار بناءً على اهتماماتك وسلوكك في القراءة
-              </p>
-            </div>
+        {/* عنوان القسم الذكي - توسيط، أيقونة بالأعلى، ألوان متغيرة */}
+        <div className="mb-6 flex flex-col items-center text-center">
+          <div className="mb-2">
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '36px',
+                height: '36px',
+                background: 'linear-gradient(135deg, hsl(var(--accent) / 0.15) 0%, hsl(var(--accent) / 0.05) 100%)',
+                borderRadius: '10px',
+                color: 'hsl(var(--accent))',
+                border: '1px solid hsl(var(--accent) / 0.25)'
+              }}
+            >
+              <Brain className="w-5 h-5" />
+            </span>
           </div>
-
-          {/* زر التحديث اليدوي */}
+          <h2 className={darkMode ? "text-white font-bold" : "text-gray-900 font-bold"} style={{ fontSize: '20px', marginBottom: '6px' }}>
+            مخصص لك بذكاء
+          </h2>
+          <p style={{ fontSize: '14px', fontWeight: 600, color: 'hsl(var(--accent))' }}>
+            محتوى مختار بناءً على اهتماماتك وسلوكك في القراءة
+          </p>
+          {/* زر التحديث اليدوي - يطبق عليه نظام الألوان */}
           <button
             onClick={() => fetchPersonalizedRecommendations()}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-              darkMode
-                ? "bg-gray-700 hover:bg-gray-600 text-gray-300"
-                : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-            }`}
-            title={`آخر تحديث: ${lastUpdateTime.toLocaleTimeString("ar-SA")}`}
+            className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium border"
+            style={{
+              background: 'var(--theme-primary-light)',
+              borderColor: 'rgba(var(--theme-primary-rgb), 0.3)',
+              color: 'hsl(var(--accent))'
+            }}
+            title={`آخر تحديث: ${lastUpdateTime.toLocaleTimeString('ar-SA')}`}
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className="w-4 h-4" /> تحديث
           </button>
         </div>
 
@@ -767,11 +761,11 @@ function SmartPersonalizedContentInner({
         <div className={`grid grid-cols-1 md:grid-cols-2 gap-4`}>
           {/* إحصائيات الدقة */}
           <div
-            className={`p-4 rounded-lg border ${
-              darkMode
-                ? "bg-gray-700/50 border-gray-600"
-                : "bg-blue-50 border-blue-200"
-            }`}
+            className="p-4 rounded-lg border"
+            style={{
+              background: 'linear-gradient(135deg, var(--theme-primary-lighter) 0%, var(--theme-primary-light) 100%)',
+              borderColor: 'rgba(var(--theme-primary-rgb), 0.3)'
+            }}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -780,22 +774,14 @@ function SmartPersonalizedContentInner({
                     darkMode ? "text-yellow-400" : "text-yellow-500"
                   }`}
                 />
-                <span
-                  className={`text-sm font-medium ${
-                    darkMode ? "text-gray-300" : "text-gray-700"
-                  }`}
-                >
+                <span className="text-sm font-medium" style={{ color: 'var(--theme-text)' }}>
                   دقة التوصيات
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 {recommendations.length > 0 && (
                   <>
-                    <div
-                      className={`text-sm font-bold ${
-                        darkMode ? "text-green-400" : "text-green-600"
-                      }`}
-                    >
+                    <div className="text-sm font-bold" style={{ color: 'var(--theme-primary)' }}>
                       {Math.round(
                         recommendations.reduce(
                           (acc, article) => acc + article.confidence,
@@ -804,15 +790,10 @@ function SmartPersonalizedContentInner({
                       )}
                       %
                     </div>
-                    <div
-                      className={`w-16 h-2 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden`}
-                    >
+                    <div className="w-16 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(var(--theme-primary-rgb), 0.15)' }}>
                       <div
-                        className={`h-full transition-all duration-1000 ${
-                          darkMode
-                            ? "bg-gradient-to-r from-emerald-500 to-cyan-500"
-                            : "bg-gradient-to-r from-green-400 to-blue-500"
-                        }`}
+                        className="h-full transition-all duration-1000"
+                        style={{ background: 'linear-gradient(to right, var(--theme-secondary), var(--theme-primary))' }}
                         style={{
                           width: `${Math.round(
                             recommendations.reduce(
