@@ -222,13 +222,15 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
               )}
             </button>
 
-            {/* الملف الشخصي */}
-            <button 
+            {/* الملف الشخصي → فتح صفحة تسجيل الدخول (النسخة الخفيفة) */}
+            <Link
+              href={typeof window !== 'undefined' ? `/login?next=${encodeURIComponent(window.location.pathname + window.location.search + window.location.hash)}` : '/login'}
               className="p-2 bg-transparent rounded-none transition-all duration-200 active:scale-95 focus:outline-none focus:ring-0 hover:bg-transparent"
-              title="الملف الشخصي"
+              title="تسجيل الدخول"
+              aria-label="تسجيل الدخول"
             >
               <User className="w-5 h-5 text-gray-700 dark:text-gray-200" />
-            </button>
+            </Link>
           </div>
         </div>
       </header>
