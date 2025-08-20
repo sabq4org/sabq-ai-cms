@@ -12,6 +12,8 @@ interface Article {
   title: string;
   slug: string;
   image?: string;
+  breaking?: boolean;
+  is_breaking?: boolean;
   category?: {
     name: string;
     slug: string;
@@ -21,6 +23,7 @@ interface Article {
   readTime?: number;
   isPersonalized?: boolean;
   confidence?: number;
+  metadata?: any;
 }
 
 interface SmartContentBlockProps {
@@ -330,25 +333,31 @@ export default function SmartContentBlock({
                 href={`/news/${article.slug}`}
                 style={{ textDecoration: 'none' }}
               >
-                <div style={{
-                  background: 'hsl(var(--bg-elevated))',
-                  border: '1px solid hsl(var(--line))',
-                  borderRadius: '16px',
-                  overflow: 'hidden',
-                  transition: 'all 0.3s ease',
-                  cursor: 'pointer',
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-4px)';
-                  e.currentTarget.style.background = 'hsl(var(--accent) / 0.05)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.background = 'hsl(var(--bg-elevated))';
-                }}>
+                {(() => {
+                  const isBreaking = Boolean((article as any).breaking || (article as any).is_breaking || (article as any)?.metadata?.breaking);
+                  const baseBg = isBreaking ? 'hsla(0, 84%, 60%, 0.12)' : 'hsl(var(--bg-elevated))';
+                  const hoverBg = isBreaking ? 'hsla(0, 84%, 60%, 0.18)' : 'hsl(var(--accent) / 0.05)';
+                  const baseBorder = isBreaking ? '1px solid rgba(220, 38, 38, 0.35)' : '1px solid hsl(var(--line))';
+                  return (
+                    <div style={{
+                      background: baseBg,
+                      border: baseBorder,
+                      borderRadius: '16px',
+                      overflow: 'hidden',
+                      transition: 'all 0.3s ease',
+                      cursor: 'pointer',
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-4px)';
+                      e.currentTarget.style.background = hoverBg;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.background = baseBg;
+                    }}>
                   {/* صورة الخبر */}
                   <div style={{
                     position: 'relative',
@@ -377,23 +386,49 @@ export default function SmartContentBlock({
                         <Sparkles className="w-12 h-12" />
                       </div>
                     )}
-                    
-                    {/* التصنيف */}
-                    {article.category && (
-                      <div style={{
-                        position: 'absolute',
-                        top: '12px',
-                        right: '12px',
-                        background: 'hsl(var(--accent))',
-                        color: 'white',
-                        padding: '4px 12px',
-                        borderRadius: '6px',
-                        fontSize: '12px',
-                        fontWeight: '600'
-                      }}>
-                        {article.category.name}
-                      </div>
-                    )}
+                    {/* ليبل عاجل يحل محل التصنيف عند العاجل */}
+                    {(() => {
+                      const isBreaking = Boolean((article as any).breaking || (article as any).is_breaking || (article as any)?.metadata?.breaking);
+                      if (isBreaking) {
+                        return (
+                          <div style={{
+                            position: 'absolute',
+                            top: '12px',
+                            right: '12px',
+                            background: '#dc2626',
+                            color: 'white',
+                            padding: '4px 12px',
+                            borderRadius: '9999px',
+                            fontSize: '12px',
+                            fontWeight: 800,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px'
+                          }}>
+                            <span style={{ fontSize: '12px' }}>⚡</span>
+                            عاجل
+                          </div>
+                        );
+                      }
+                      if (article.category) {
+                        return (
+                          <div style={{
+                            position: 'absolute',
+                            top: '12px',
+                            right: '12px',
+                            background: 'hsl(var(--accent))',
+                            color: 'white',
+                            padding: '4px 12px',
+                            borderRadius: '6px',
+                            fontSize: '12px',
+                            fontWeight: 600
+                          }}>
+                            {article.category.name}
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
                     
                     {/* ليبل مخصص لك */}
                     {article.isPersonalized && (
@@ -448,8 +483,8 @@ export default function SmartContentBlock({
                     {/* عنوان الخبر */}
                     <h3 style={{
                       fontSize: '16px',
-                      fontWeight: '600',
-                      color: 'hsl(var(--fg))',
+                      fontWeight: 600,
+                      color: ((article as any).breaking || (article as any).is_breaking || (article as any)?.metadata?.breaking) ? '#b91c1c' : 'hsl(var(--fg))',
                       marginBottom: '12px',
                       lineHeight: '1.5',
                       display: '-webkit-box',
@@ -490,7 +525,9 @@ export default function SmartContentBlock({
                       )}
                     </div>
                   </div>
-                </div>
+                    </div>
+                  );
+                })()}
               </Link>
             ))}
           </div>
