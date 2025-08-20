@@ -43,7 +43,8 @@ export async function GET(_req: NextRequest) {
     };
 
     const res = NextResponse.json({ success: true, data: { general, identity } });
-    res.headers.set("Cache-Control", "no-store");
+    // إعدادات الموقع تُحدّث نادرًا، اسمح بكاش CDN قصير مع SWR
+    res.headers.set("Cache-Control", "public, max-age=0, s-maxage=120, stale-while-revalidate=600");
     return res;
   } catch (error) {
     console.error("❌ /api/settings error:", error);

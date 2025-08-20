@@ -15,7 +15,9 @@ export async function GET(request: NextRequest) {
   // التحقق من الكاش أولاً
   const cached = articleCache.get(cacheKey);
   if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
-    console.log("✅ إرجاع المقالات من الكاش");
+    if (process.env.NODE_ENV !== 'production') {
+      console.log("✅ إرجاع المقالات من الكاش");
+    }
     return NextResponse.json(cached.data, {
       headers: {
         "Content-Type": "application/json",
@@ -26,9 +28,11 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    console.log("🔍 بداية معالجة طلب المقالات");
-    console.log("prisma:", typeof prisma);
-    console.log("prisma.articles:", typeof prisma?.articles);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log("🔍 بداية معالجة طلب المقالات");
+      console.log("prisma:", typeof prisma);
+      console.log("prisma.articles:", typeof prisma?.articles);
+    }
 
     const page = parseInt(searchParams.get("page") || "1");
     const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 200);
