@@ -100,12 +100,12 @@ export default function Page() {
       {/* المؤشرات الذكية */}
       <Suspense
         fallback={
-          <div className="max-w-6xl mx-auto px-4 mt-8">
+          <div className="max-w-6xl mx-auto mt-8">
             <div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />
           </div>
         }
       > 
-        <div className="max-w-6xl mx-auto px-4 mt-8">
+        <div className="max-w-6xl mx-auto mt-8">
           <SmartInsightsWidget />
         </div>
       </Suspense>
