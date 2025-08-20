@@ -126,8 +126,11 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
     >
       <Link href={getArticleLink(currentArticle)} className="group block" aria-live="polite">
         <div
-          className={`relative overflow-hidden bg-white dark:bg-gray-800 border rounded-xl`}
-          style={{ borderColor: 'hsl(var(--accent) / 0.35)' }}
+          className={`relative overflow-hidden border rounded-xl`}
+          style={{
+            borderColor: 'hsl(var(--accent) / 0.35)',
+            background: darkMode ? 'hsl(var(--accent) / 0.08)' : 'hsl(var(--accent) / 0.06)'
+          }}
         >
           <div
             className={`grid grid-cols-1 lg:grid-cols-12`}
