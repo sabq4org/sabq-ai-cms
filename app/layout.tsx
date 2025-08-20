@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { IBM_Plex_Sans_Arabic } from "next/font/google";
 import ResponsiveLayout from "@/components/responsive/ResponsiveLayout";
 import Footer from "@/components/Footer";
+import FooterGate from "@/components/layout/FooterGate";
+import { usePathname } from "next/navigation";
 import { Providers } from "./providers";
 import "./globals.css";
 import "../styles/news-card-desktop.css";
@@ -55,6 +57,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // ملاحظة: hook لا يمكن استخدامه هنا لأنه ملف سيرفري. سنستخدم فحصاً بسيطاً داخل ResponsiveLayout.
   return (
     <html lang="ar" dir="rtl" className={ibmPlexArabic.variable}>
       <head>
@@ -100,8 +103,10 @@ export default function RootLayout({
           <ResponsiveLayout>
             {children}
           </ResponsiveLayout>
-          {/* الفوتر يعرض دائماً؛ إخفاءه يتم داخل ResponsiveLayout لمسار /admin/login */}
-          <Footer />
+          {/* إخفاء فوتر واجهة الموقع تلقائيًا في مسارات /admin/** */}
+          <FooterGate>
+            <Footer />
+          </FooterGate>
         </Providers>
       </body>
     </html>
