@@ -106,21 +106,7 @@ export default function UserWelcomeBlock() {
       }} />
 
       <div style={{ position: 'relative', zIndex: 1 }}>
-        {/* الترحيب فقط (تم نقل شريط التاريخ/الولاء لخارج البلوك) */}
-        <div style={{ marginBottom: '16px' }}>
-          <h2 style={{
-            fontSize: isMobile ? '22px' : '28px',
-            fontWeight: 700,
-            color: 'hsl(var(--fg))',
-            marginBottom: isMobile ? '6px' : '8px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px'
-          }}>
-            {getTimeBasedGreeting()}{user ? ` يا ${user.name}` : ''}
-            <span style={{ fontSize: '24px' }}>👋</span>
-          </h2>
-        </div>
+        {/* تمت إزالة عنوان الترحيب - أصبح خارج البلوك ضمن WelcomeMetaStrip */}
 
         {/* الاقتباس التحفيزي */}
         <div style={{

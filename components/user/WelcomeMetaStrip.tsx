@@ -19,6 +19,13 @@ export default function WelcomeMetaStrip() {
       day: 'numeric',
     });
 
+  const getTimeBasedGreeting = (d: Date) => {
+    const hour = d.getHours();
+    if (hour < 12) return 'صباح الخير';
+    if (hour < 18) return 'مساء الخير';
+    return 'مساء الخير';
+  };
+
   return (
     <div
       className="welcome-meta-strip"
@@ -33,6 +40,10 @@ export default function WelcomeMetaStrip() {
         flexWrap: 'wrap',
       }}
     >
+      <span style={{ color: 'hsl(var(--fg))', fontWeight: 700 }}>
+        {getTimeBasedGreeting(now)}{user ? ` يا ${user.name}` : ''} <span style={{ fontSize: 18 }}>👋</span>
+      </span>
+      <span style={{ color: 'hsl(var(--line))' }}>•</span>
       <span>{formatDate(now)}</span>
       {user && (
         <>
