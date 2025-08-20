@@ -407,7 +407,9 @@ export default function NewsPage() {
     [categories]
   );
 
-  // NewsCard component - نسخة طبق الأصل من الصفحة الرئيسية
+
+
+  // NewsCard component - من الصفحة الرئيسية
   const NewsCard = ({ news }: { news: any }) => {
     const [imageLoading, setImageLoading] = useState(true);
 
@@ -545,8 +547,6 @@ export default function NewsPage() {
                 )}
             </div>
           </div>
-
-
         </article>
       </Link>
     );
@@ -582,40 +582,8 @@ export default function NewsPage() {
           />
         );
       } else {
-        mixedContent.push(
-          <NewsCard
-            key={article.id}
-            news={{
-              ...article,
-              category:
-                article.category ||
-                (article.category_id
-                  ? {
-                      id: article.category_id.toString(),
-                      name:
-                        article.category_name ||
-                        getCategoryName(article.category_id),
-                      slug: "",
-                      color: getCategoryColor(article.category_id),
-                      icon: null,
-                    }
-                  : null),
-              author:
-                article.author ||
-                (article.author_name
-                  ? {
-                      id: article.author_id || "",
-                      name: article.author_name,
-                      email: "",
-                    }
-                  : null),
-              views: article.views || article.views_count || 0,
-              featured: article.featured || article.is_featured || false,
-              breaking: article.breaking || article.is_breaking || false,
-            }}
-            viewMode={viewMode}
-          />
-        );
+        // استخدام NewsCard للديسكتوب
+        mixedContent.push(<NewsCard key={article.id} news={article} />);
       }
 
       // إضافة البطاقات المخصصة بتوزيع متوازن
@@ -909,14 +877,14 @@ export default function NewsPage() {
             </div>
           ) : (
             <>
-              {/* Articles Grid/List with Smart Content - محسن للموبايل */}
+              {/* Articles Grid with NewsCard */}
               {isMobile ? (
-                // عرض الموبايل - قائمة كاملة العرض مع المحتوى المخصص
+                // عرض الموبايل - قائمة كاملة العرض
                 <div className="mobile-news-container space-y-4">
                   {renderMixedContent()}
                 </div>
               ) : (
-                // عرض سطح المكتب - الشبكة مع المحتوى المخصص
+                // عرض سطح المكتب - الشبكة
                 <div
                   className={
                     viewMode === "grid"
