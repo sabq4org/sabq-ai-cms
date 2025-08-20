@@ -182,14 +182,14 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
             {/* زر القائمة الجانبية */}
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="p-2 bg-transparent rounded-none transition-all duration-200 active:scale-95 focus:outline-none focus:ring-0 hover:bg-transparent"
+              className="px-1.5 py-2 bg-transparent rounded-none transition-all duration-200 active:scale-95 focus:outline-none focus:ring-0 hover:bg-transparent"
               aria-label="فتح القائمة"
             >
               <Menu className="w-5 h-5 text-gray-700 dark:text-gray-200" />
             </button>
 
             {/* اللوجو الأصلي - متحرك يميناً */}
-            <Link href="/" className="flex items-center group -mr-2">
+            <Link href="/" className="flex items-center group -mr-2 -ml-1">
               {settingsLoading ? (
                 <div className="w-[140px] md:w-[200px] h-10 md:h-12 bg-gray-200 dark:bg-gray-700 animate-pulse rounded" />
               ) : (
