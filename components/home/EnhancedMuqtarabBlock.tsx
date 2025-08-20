@@ -612,26 +612,20 @@ export default function EnhancedMuqtarabBlock({
               {article.title}
             </h4>
 
-            {/* سطر واحد: التاريخ + المشاهدات */}
-            <div className="flex items-center gap-2 text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-auto">
-              <time
-                dateTime={article.publishDate}
-                className="inline-flex items-center gap-1"
-              >
-                <Calendar className="w-4 h-4" />
-                {new Date(article.publishDate).toLocaleDateString("ar-SA", {
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                })}
-              </time>
-              <span className="mx-1">•</span>
-              <ArticleViews 
-                count={article.views ?? 0} 
-                variant="minimal" 
-                size="sm" 
-                showLabel={false}
-              />
+            {/* شريط المشاهدات ووقت القراءة فقط (بدون تاريخ هجري) */}
+            <div className="mt-auto">
+              <div className="old-style-news-bottom-bar">
+                <div className="old-style-news-meta-item">
+                  <Eye className="old-style-icon" />
+                  <span>{(article.views ?? 0).toLocaleString()} مشاهدة</span>
+                </div>
+                {article.readingTime && (
+                  <div className="old-style-news-meta-item">
+                    <Clock className="old-style-icon" />
+                    <span>{article.readingTime} د قراءة</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </article>
