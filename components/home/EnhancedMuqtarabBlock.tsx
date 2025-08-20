@@ -586,19 +586,37 @@ export default function EnhancedMuqtarabBlock({
             {/* الشريط العلوي: جديد + اسم الزاوية بجوار بعض */}
             <div className="mb-2 flex items-center gap-2">
               {isNew() && (
-                <div className="old-style-news-new-badge">
+                <div
+                  className="old-style-news-new-badge"
+                  style={{
+                    minWidth: 78,
+                    height: 24,
+                    lineHeight: '24px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '11px',
+                    borderRadius: 12,
+                    padding: '0 8px',
+                  }}
+                >
                   <span className="old-style-fire-emoji" aria-hidden>🔥</span>
                   <span>جديد</span>
                 </div>
               )}
               <div
-                className="inline-flex items-center gap-1 px-2 py-1 font-semibold"
+                className="inline-flex items-center gap-1 font-semibold"
                 style={{
                   backgroundColor: (article.angle?.themeColor || '#6366f1'),
                   color: '#ffffff',
                   border: `1px solid ${article.angle?.themeColor || '#6366f1'}`,
-                  borderRadius: '12px',
-                  fontSize: '11px'
+                  minWidth: 78,
+                  height: 24,
+                  lineHeight: '24px',
+                  padding: '0 8px',
+                  borderRadius: 12,
+                  fontSize: '11px',
+                  justifyContent: 'center'
                 }}
               >
                 {article.angle?.icon && <span className="mr-0.5">{article.angle.icon}</span>}

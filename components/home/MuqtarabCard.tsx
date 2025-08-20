@@ -341,17 +341,37 @@ export default function MuqtarabCard({
           {/* الشريط العلوي: جديد + اسم الزاوية جنب بعض */}
           <div className="mb-2 flex items-center gap-2">
             {isNew() && (
-              <div className="old-style-news-new-badge">
+              <div
+                className="old-style-news-new-badge"
+                style={{
+                  minWidth: 78,
+                  height: 24,
+                  lineHeight: '24px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '11px',
+                  borderRadius: 12,
+                  padding: '0 8px',
+                }}
+              >
                 <span className="old-style-fire-emoji" aria-hidden>🔥</span>
                 <span>جديد</span>
               </div>
             )}
             <div
-              className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md"
+              className="inline-flex items-center gap-1 font-semibold"
               style={{
                 backgroundColor: themeColor as any,
                 color: '#ffffff',
-                border: `1px solid ${themeColor}`
+                border: `1px solid ${themeColor}`,
+                minWidth: 78,
+                height: 24,
+                lineHeight: '24px',
+                padding: '0 8px',
+                borderRadius: 12,
+                fontSize: '11px',
+                justifyContent: 'center'
               }}
             >
               {article.angle.icon && <span className="mr-0.5">{article.angle.icon}</span>}
