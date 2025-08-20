@@ -223,7 +223,7 @@ export default function SmartInsightsWidget() {
   const config = getInsightConfig(currentInsight.insightTag);
 
   return (
-    <div className="bg-gradient-to-br from-slate-50/80 via-white/90 to-slate-100/60 dark:from-slate-800/80 dark:via-slate-800/90 dark:to-slate-900/60 rounded-2xl p-5 border border-slate-200/50 dark:border-slate-700/50 shadow-lg backdrop-blur-sm transition-all duration-500 hover:shadow-xl h-full flex flex-col relative overflow-hidden">
+    <div className="bg-gradient-to-br from-slate-50/80 via-white/90 to-slate-100/60 dark:from-slate-800/80 dark:via-slate-800/90 dark:to-slate-900/60 rounded-2xl p-5 border border-gray-200 dark:border-gray-700 backdrop-blur-sm transition-all duration-300 h-full flex flex-col relative overflow-hidden">
       {/* خط جانبي ملون ديناميكي */}
       <div className={`absolute top-0 right-0 w-1 h-full ${config.accent.replace('border-l-', 'bg-')} transition-colors duration-500`}></div>
       {/* Header مع عنوان أكبر */}
