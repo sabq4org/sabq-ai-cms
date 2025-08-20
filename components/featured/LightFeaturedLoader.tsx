@@ -9,6 +9,7 @@ interface FeaturedArticleLite {
   slug?: string;
   featured_image?: string;
   published_at?: string;
+  breaking?: boolean;
   category?: { id: string; name: string; slug?: string; color?: string; icon?: string } | null;
 }
 
@@ -29,6 +30,7 @@ export default function LightFeaturedLoader({ heading = "الأخبار المم
           slug: a.slug,
           featured_image: a.featured_image,
           published_at: a.published_at,
+          breaking: a.breaking || a.is_breaking || false,
           category: a.categories ? { id: a.categories.id, name: a.categories.name, slug: a.categories.slug, color: a.categories.color } : null,
         }));
         if (mounted) setArticles(list);
