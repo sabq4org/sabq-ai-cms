@@ -693,8 +693,8 @@ export default function EnhancedMuqtarabBlock({
                 </span>
               </div>
               <h2
-                className="font-bold"
-                style={{ fontSize: '20px', color: 'hsl(var(--fg))', marginBottom: '6px' }}
+                className="font-bold text-xl md:text-2xl"
+                style={{ color: 'hsl(var(--fg))', marginBottom: '6px' }}
               >
                 مُقترب
               </h2>

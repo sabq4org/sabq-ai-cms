@@ -342,7 +342,7 @@ export default function DeepAnalysisBlock({
                 />
               </div>
               <h2
-                className={`text-2xl sm:text-3xl font-bold card-title ${
+                className={`text-xl sm:text-2xl font-bold card-title ${
                   darkMode ? "text-white" : "text-gray-900"
                 }`}
                 style={{ wordSpacing: "normal", letterSpacing: "normal" }}
