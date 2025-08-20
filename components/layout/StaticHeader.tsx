@@ -57,7 +57,7 @@ export function StaticHeader() {
   }, []);
 
   return (
-    <div className="bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-50 transition-colors duration-300">
+    <div className="bg-gray-100 dark:bg-gray-950 shadow-sm sticky top-0 z-50 transition-colors duration-300">
       <div className="container mx-auto px-4">
         {/* الشريط العلوي */}
         <div className="py-2 border-b border-gray-200 dark:border-gray-700">
