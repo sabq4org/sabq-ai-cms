@@ -586,7 +586,7 @@ export default function ArticleClientComponent({
                 <div className="article-meta-info flex flex-wrap items-center justify-end gap-3 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-4 text-right border-0">
                   {/* المراسل */}
                   {article.author && (
-                    <div className="inline-flex items-center gap-1.5 sm:gap-2">
+                    <div className="inline-flex items-center gap-1.5 sm:gap-2 w-full justify-end mb-2">
                       <ReporterLink
                         author={article.author as any}
                         size="sm"
@@ -658,7 +658,7 @@ export default function ArticleClientComponent({
                         />
                       </div>
                     )}
-                    <div className="flex items-center gap-1.5 flex-wrap">{/* تقليل gap */}
+                    <div className="mt-2 flex items-center gap-1.5 flex-wrap">{/* زيادة مسافة بين اسم المراسل وبيانات النشر */}
                       <div className="flex items-center gap-1.5">
                         <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
                         <SafeDateDisplay
