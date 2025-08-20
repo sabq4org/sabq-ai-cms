@@ -87,7 +87,7 @@ export default function UserWelcomeBlock() {
         border: '1px solid hsl(var(--accent) / 0.2)',
         borderRadius: isMobile ? '12px' : '16px',
         padding: isMobile ? '16px' : '24px',
-        marginBottom: isMobile ? '16px' : '24px',
+        marginBottom: isMobile ? '28px' : '36px',
         position: 'relative',
         overflow: 'hidden'
       }}

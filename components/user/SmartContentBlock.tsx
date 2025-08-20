@@ -155,7 +155,7 @@ export default function SmartContentBlock({
     }));
 
     return (
-      <div style={{ padding: '16px 0' }}>
+      <div style={{ padding: '16px 0', marginTop: '28px' }}>
         {/* عبارات رأس البلوك كما هي */}
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
           {/* أيقونة البلوك في الأعلى في المنتصف */}
