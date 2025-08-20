@@ -98,8 +98,16 @@ export default function Page() {
         <LightFeaturedLoader heading="الأخبار المميزة" limit={10} />
       </Suspense>
       {/* المؤشرات الذكية */}
-      <Suspense fallback={<div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />}> 
-        <SmartInsightsWidget />
+      <Suspense
+        fallback={
+          <div className="max-w-6xl mx-auto px-4 mt-8">
+            <div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />
+          </div>
+        }
+      > 
+        <div className="max-w-6xl mx-auto px-4 mt-8">
+          <SmartInsightsWidget />
+        </div>
       </Suspense>
       
       <Suspense fallback={<div className="h-48 animate-pulse bg-gray-200 rounded mt-6" />}>
@@ -138,8 +146,16 @@ export default function Page() {
       <Suspense fallback={<div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse mb-4" />}> 
         <OldFeaturedHero />
       </Suspense>
-      <Suspense fallback={<div className="h-24 animate-pulse bg-gray-200 rounded mt-4" />}>
-        <SmartInsightsWidget />
+      <Suspense
+        fallback={
+          <div className="max-w-6xl mx-auto px-4 mt-10">
+            <div className="h-24 animate-pulse bg-gray-200 rounded" />
+          </div>
+        }
+      >
+        <div className="max-w-6xl mx-auto px-4 mt-10">
+          <SmartInsightsWidget />
+        </div>
       </Suspense>
       
       <Suspense fallback={<div className="h-48 animate-pulse bg-gray-200 rounded mt-6" />}>
