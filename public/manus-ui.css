@@ -303,6 +303,17 @@ body {
   overflow: auto;
 }
 
+/* إزالة أي حشوات أفقية عامة في صفحات لوحة التحكم الحديثة لضمان عرض كامل */
+.admin-modern-main,
+.admin-modern-main > *,
+.admin-modern-main > * > * {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  max-width: 100% !important;
+}
+
 .manus-header {
   background: hsl(var(--bg));
   border-bottom: 1px solid hsl(var(--line));

@@ -121,7 +121,7 @@ export default function DashboardLayout({
         )}
 
         {/* المحتوى الرئيسي */}
-        <main style={{
+        <main className="admin-modern-main" style={{
           flex: 1,
           marginRight: !isMobile ? (sidebarOpen ? '280px' : '80px') : '0',
           padding: '0px 0px 16px 0px',

@@ -212,7 +212,7 @@ export default function ModernArticlesNew() {
       pageTitle="إدارة المقالات"
       pageDescription="إدارة وتحرير المحتوى الإعلامي"
     >
-      <div className="space-y-8 w-full max-w-none px-4 lg:px-6 xl:px-8 2xl:px-10">
+      <div className="space-y-8 w-full max-w-none">
         {/* رسالة الترحيب الاحترافية */}
         <DesignComponents.StandardCard className="p-6 bg-gradient-to-l from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
           <div className="flex items-start gap-4">
