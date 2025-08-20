@@ -40,6 +40,17 @@ const SmartInsightsWidget = dynamic(
   }
 );
 
+// استيراد الأخبار المميزة من النسخة القديمة بشكل ديناميكي
+const FeaturedNewsFromOld = dynamic(
+  () => import("@/components/user/FeaturedNewsBlock"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-52 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse mb-4" />
+    ),
+  }
+);
+
 // مكون شاشة التحميل المحسن
 const LoadingScreen = () => (
   <div className="flex items-center justify-center py-20">
@@ -66,6 +77,10 @@ export default function Page() {
     <div className="px-4 py-6">
       <Suspense fallback={<div className="h-6" />}>
         <WelcomeMetaStrip />
+      </Suspense>
+      {/* الأخبار المميزة من النسخة القديمة */}
+      <Suspense fallback={<div className="h-52 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse mb-4" />}> 
+        <FeaturedNewsFromOld />
       </Suspense>
       <Suspense fallback={<div className="h-32 animate-pulse bg-gray-200 rounded" />}>
         <UserWelcomeBlock />
@@ -101,6 +116,10 @@ export default function Page() {
     <div style={{ padding: '20px 0' }}>
       <Suspense fallback={<div className="h-6" />}>
         <WelcomeMetaStrip />
+      </Suspense>
+      {/* الأخبار المميزة من النسخة القديمة */}
+      <Suspense fallback={<div className="h-52 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse mb-4" />}> 
+        <FeaturedNewsFromOld />
       </Suspense>
       <Suspense fallback={<div className="h-32 animate-pulse bg-gray-200 rounded" />}>
         <UserWelcomeBlock />
