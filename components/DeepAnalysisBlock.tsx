@@ -341,7 +341,7 @@ export default function DeepAnalysisBlock({
     >
       {/* العنوان والوصف - محصور في container */}
       {showTitle && (
-        <div className="max-w-6xl mx-auto px-4 relative z-10 mb-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10 mb-8">
           <div className="text-center max-w-3xl mx-auto">
             <div className="flex flex-col items-center gap-3">
               <div
@@ -378,7 +378,7 @@ export default function DeepAnalysisBlock({
       )}
 
       {/* البطاقات - محدودة العرض مثل باقي المحتوى */}
-      <div className="relative z-10 max-w-6xl mx-auto px-4">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6">
         {/* البطاقات - فصل بين الموبايل والديسكتوب */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
             {displayInsights.slice(0, maxItems).map((item) => {

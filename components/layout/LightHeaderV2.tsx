@@ -107,7 +107,7 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
   if (!mounted) {
     return (
       <header className={`sticky top-0 z-50 w-full border-b bg-white/95 dark:bg-gray-900/95 backdrop-blur ${className}`}>
-        <div className="container flex h-14 items-center justify-between px-4">
+        <div className="container flex h-14 items-center justify-between px-4 sm:px-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-gray-200 animate-pulse" />
             <div className="flex items-center gap-2">
@@ -129,7 +129,7 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
     <>
       {/* الهيدر الرئيسي */}
       <header className={`sticky top-0 z-50 w-full border-b bg-white/95 dark:bg-gray-900/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-900/60 ${className}`}>
-        <div className="container flex h-14 items-center justify-between px-4">
+        <div className="container flex h-14 items-center justify-between px-4 sm:px-6">
           {/* الجانب الأيمن: زر القائمة + اللوجو */}
           <div className="flex items-center gap-3">
             {/* زر القائمة الجانبية */}

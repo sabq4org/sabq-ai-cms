@@ -8,7 +8,7 @@ export default function HomePage() {
     <main className="min-h-screen bg-gray-50">
       {/* الهيدر البسيط */}
       <header className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-4 sm:px-6 py-4">
           <h1 className="text-2xl font-bold text-gray-900">
             سبق الذكية - النسخة الخفيفة مع التصميم القديم
           </h1>
@@ -16,7 +16,7 @@ export default function HomePage() {
       </header>
 
       {/* المحتوى الرئيسي */}
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 sm:px-6 py-8">
         
         {/* قسم الأخبار الرئيسية */}
         <section className="mb-12">
@@ -55,7 +55,7 @@ export default function HomePage() {
 
       {/* الفوتر البسيط */}
       <footer className="bg-gray-800 text-white py-8 mt-16">
-        <div className="container mx-auto px-4 text-center">
+        <div className="container mx-auto px-4 sm:px-6 text-center">
           <p>&copy; 2025 سبق الذكية. جميع الحقوق محفوظة.</p>
         </div>
       </footer>

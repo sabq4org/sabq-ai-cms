@@ -8,7 +8,7 @@ export default function LightTestPage() {
       <LightHeader />
       
       {/* المحتوى الرئيسي */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 sm:px-6 py-8">
         {/* مؤشر النسخة الخفيفة */}
         <div className="mb-8 p-6 rounded-2xl border-2" style={{
           borderColor: 'var(--theme-primary, #3B82F6)',

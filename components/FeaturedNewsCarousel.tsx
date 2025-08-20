@@ -305,7 +305,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
         </div>
       </Link>
       {/* مؤشرات الكاروسيل (صور فقط بدون أزرار يمين/يسار) */}
-      <div className="flex mt-4 justify-center items-center px-4" aria-label="مؤشرات الكاروسيل">
+      <div className="flex mt-4 justify-center items-center px-4 sm:px-6" aria-label="مؤشرات الكاروسيل">
         <div className="flex items-center gap-3">
           <div className="flex justify-center items-center gap-3 px-2">
             {articles.map((article, idx) => (

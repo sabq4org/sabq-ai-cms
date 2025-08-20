@@ -416,7 +416,7 @@ export default function ArticleClientComponent({
     return (
       <div className="min-h-[100svh]">
         <div className="pt-[var(--mobile-header-height)] sm:pt-[var(--header-height)] lg:pt-20">
-          <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-4 py-4 sm:py-6 lg:py-8">
+          <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-4 sm:px-6 py-4 sm:py-6 lg:py-8">
             <div className="animate-pulse space-y-4 loading-skeleton">
               <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg w-3/4"></div>
               <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded-lg w-1/2"></div>
@@ -632,7 +632,7 @@ export default function ArticleClientComponent({
               </div>
 
               {/* Mobile Header */}
-              <div className="sm:hidden px-4 py-6 bg-transparent transition-colors duration-300">
+              <div className="sm:hidden px-4 sm:px-6 py-6 bg-transparent transition-colors duration-300">
                 {/* العنوان الرئيسي */}
                 <h1 className="text-2xl font-bold leading-tight text-gray-900 dark:text-white mb-2">{/* تصغير العنوان للموبايل تكة واحدة */}
                   {article.title}

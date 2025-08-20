@@ -88,7 +88,7 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
         {DevIndicator}
         {/* إخفاء هيدر النسخة الخفيفة في صفحات الإدارة */}
         {!pathname.startsWith('/admin') && <LightHeader />}
-        <main className="mx-auto px-2.5 sm:px-3.5 py-6" style={{ maxWidth: '72rem' }}>
+        <main className="mx-auto px-4 sm:px-6 py-6" style={{ maxWidth: '72rem' }}>
           <div data-device="mobile">
             {children}
           </div>
@@ -111,7 +111,7 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
       {!pathname.startsWith('/admin') && <UserHeader />}
       <main style={{
         flex: 1,
-        padding: '16px',
+        padding: '16px 24px',
         maxWidth: '72rem',
         margin: '0 auto',
         width: '100%',
