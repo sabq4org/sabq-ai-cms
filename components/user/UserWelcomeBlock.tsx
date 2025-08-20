@@ -106,7 +106,7 @@ export default function UserWelcomeBlock() {
       }} />
 
       <div style={{ position: 'relative', zIndex: 1 }}>
-        {/* الترحيب والتاريخ */}
+        {/* الترحيب فقط (تم نقل شريط التاريخ/الولاء لخارج البلوك) */}
         <div style={{ marginBottom: '16px' }}>
           <h2 style={{
             fontSize: isMobile ? '22px' : '28px',
@@ -120,31 +120,6 @@ export default function UserWelcomeBlock() {
             {getTimeBasedGreeting()}{user ? ` يا ${user.name}` : ''}
             <span style={{ fontSize: '24px' }}>👋</span>
           </h2>
-          
-          <div style={{
-            fontSize: isMobile ? '12px' : '14px',
-            color: 'hsl(var(--muted))',
-            marginBottom: isMobile ? '10px' : '12px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            flexWrap: 'wrap'
-          }}>
-            <span>{formatDate()}</span>
-            {user && (
-              <>
-                <span style={{ color: 'hsl(var(--line))' }}>•</span>
-                <span style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '6px'
-                }}>
-                  <Award style={{ width: '14px', height: '14px', color: '#FFA500' }} />
-                  لديك <strong style={{ color: 'hsl(var(--fg))', fontWeight: '600' }}>1,250</strong> نقطة ولاء
-                </span>
-              </>
-            )}
-          </div>
         </div>
 
         {/* الاقتباس التحفيزي */}

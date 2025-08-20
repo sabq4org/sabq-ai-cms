@@ -2,6 +2,7 @@
 
 import { useDeviceType } from "@/hooks/useDeviceType";
 import UserWelcomeBlock from "@/components/user/UserWelcomeBlock";
+import WelcomeMetaStrip from "@/components/user/WelcomeMetaStrip";
 import SmartContentBlock from "@/components/user/SmartContentBlock";
 import { useEffect, useMemo, Suspense } from "react";
 import dynamic from "next/dynamic";
@@ -63,6 +64,9 @@ export default function Page() {
   // محتوى الموبايل - نفس المحتوى لكن مُحسن للموبايل
   const MobileContent = useMemo(() => (
     <div className="px-4 py-6">
+      <Suspense fallback={<div className="h-6" />}>
+        <WelcomeMetaStrip />
+      </Suspense>
       <Suspense fallback={<div className="h-32 animate-pulse bg-gray-200 rounded" />}>
         <UserWelcomeBlock />
       </Suspense>
@@ -95,6 +99,9 @@ export default function Page() {
   // محتوى الديسكتوب محسن مع useMemo
   const DesktopContent = useMemo(() => (
     <div style={{ padding: '20px 0' }}>
+      <Suspense fallback={<div className="h-6" />}>
+        <WelcomeMetaStrip />
+      </Suspense>
       <Suspense fallback={<div className="h-32 animate-pulse bg-gray-200 rounded" />}>
         <UserWelcomeBlock />
       </Suspense>
