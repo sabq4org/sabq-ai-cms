@@ -74,14 +74,14 @@ export default function Page() {
 
   // محتوى الموبايل - نفس المحتوى لكن مُحسن للموبايل
   const MobileContent = useMemo(() => (
-    <div className="px-4 py-6">
-      <div className="max-w-6xl mx-auto px-4">
+    <div className="px-2 sm:px-4 py-6">
+      <div className="max-w-6xl mx-auto px-2 sm:px-4">
         <Suspense fallback={<div className="h-6" />}>
           <WelcomeMetaStrip />
         </Suspense>
       </div>
       {/* الأخبار المميزة من النسخة القديمة */}
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-6xl mx-auto px-2 sm:px-4">
         <Suspense fallback={<div className="h-52 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse mb-4" />}> 
           <FeaturedNewsFromOld />
         </Suspense>
@@ -121,7 +121,7 @@ export default function Page() {
         </Suspense>
       </div>
       {/* الأخبار المميزة من النسخة القديمة */}
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-6xl mx-auto px-4">
         <Suspense fallback={<div className="h-52 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse mb-4" />}> 
           <FeaturedNewsFromOld />
         </Suspense>
