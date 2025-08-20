@@ -51,6 +51,17 @@ const OldFeaturedHero = dynamic(
   }
 );
 
+// استيراد شريط الأخبار المميزة للنسخة الخفيفة
+const LightFeaturedLoader = dynamic(
+  () => import("@/components/featured/LightFeaturedLoader"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-36 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />
+    ),
+  }
+);
+
 // (تم حذف الأخبار المميزة من النسخة الكاملة)
 
 // مكون شاشة التحميل المحسن
@@ -82,9 +93,15 @@ export default function Page() {
           <WelcomeMetaStrip />
         </Suspense>
       </div>
+      {/* الأخبار المميزة - النسخة الخفيفة */}
+      <div className="max-w-6xl mx-auto px-2 sm:px-4 mb-4">
+        <Suspense fallback={<div className="h-36 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />}> 
+          <LightFeaturedLoader heading="الأخبار المميزة" limit={10} />
+        </Suspense>
+      </div>
       {/* المؤشرات الذكية */}
       <div className="max-w-6xl mx-auto px-2 sm:px-4 mb-6">
-        <Suspense fallback={<div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />}>
+        <Suspense fallback={<div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />}> 
           <SmartInsightsWidget />
         </Suspense>
       </div>
