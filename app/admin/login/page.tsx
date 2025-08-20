@@ -26,7 +26,6 @@ export default function AdminLogin() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const next = searchParams?.get("next") || "/admin";
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
