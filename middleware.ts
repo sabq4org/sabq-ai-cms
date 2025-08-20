@@ -241,5 +241,6 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|public/).*)"],
+  // استثناء جميع مسارات Next الداخلية تمامًا حتى لا نعترض ملفات الحِزم أو بيانات RSC
+  matcher: ["/((?!_next/|favicon.ico|public/).*)"],
 };
