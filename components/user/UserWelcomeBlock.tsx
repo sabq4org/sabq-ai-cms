@@ -83,8 +83,8 @@ export default function UserWelcomeBlock() {
     <div 
       className="welcome-block"
       style={{
-        background: 'linear-gradient(135deg, hsl(var(--accent) / 0.1) 0%, hsl(var(--accent) / 0.05) 100%)',
-        border: '1px solid hsl(var(--accent) / 0.2)',
+        background: 'linear-gradient(135deg, var(--theme-primary-light) 0%, var(--theme-primary-lighter) 100%)',
+        border: '1px solid rgba(var(--theme-primary-rgb), 0.2)',
         borderRadius: isMobile ? '12px' : '16px',
         padding: isMobile ? '16px' : '24px',
         marginBottom: isMobile ? '16px' : '24px',
@@ -99,7 +99,7 @@ export default function UserWelcomeBlock() {
         right: '-20%',
         width: '300px',
         height: '300px',
-        background: `radial-gradient(circle, hsl(var(--accent) / 0.15) 0%, transparent 70%)`,
+        background: `radial-gradient(circle, rgba(var(--theme-primary-rgb), 0.15) 0%, transparent 70%)`,
         borderRadius: '50%',
         filter: 'blur(60px)',
         pointerEvents: 'none'
@@ -111,7 +111,7 @@ export default function UserWelcomeBlock() {
           <h2 style={{
             fontSize: isMobile ? '22px' : '28px',
             fontWeight: 700,
-            color: 'hsl(var(--fg))',
+            color: 'var(--theme-text)',
             marginBottom: isMobile ? '6px' : '8px',
             display: 'flex',
             alignItems: 'center',
@@ -123,7 +123,7 @@ export default function UserWelcomeBlock() {
           
           <div style={{
             fontSize: isMobile ? '12px' : '14px',
-            color: 'hsl(var(--muted))',
+            color: 'var(--theme-text-secondary)',
             marginBottom: isMobile ? '10px' : '12px',
             display: 'flex',
             alignItems: 'center',
@@ -133,14 +133,14 @@ export default function UserWelcomeBlock() {
             <span>{formatDate()}</span>
             {user && (
               <>
-                <span style={{ color: 'hsl(var(--line))' }}>•</span>
+                <span style={{ color: 'var(--theme-border)' }}>•</span>
                 <span style={{ 
                   display: 'flex', 
                   alignItems: 'center', 
                   gap: '6px'
                 }}>
-                  <Award style={{ width: '14px', height: '14px', color: '#FFA500' }} />
-                  لديك <strong style={{ color: 'hsl(var(--fg))', fontWeight: '600' }}>1,250</strong> نقطة ولاء
+                  <Award style={{ width: '14px', height: '14px', color: 'var(--theme-warning)' }} />
+                  لديك <strong style={{ color: 'var(--theme-text)', fontWeight: '600' }}>1,250</strong> نقطة ولاء
                 </span>
               </>
             )}
@@ -153,7 +153,8 @@ export default function UserWelcomeBlock() {
           alignItems: 'center',
           gap: isMobile ? '10px' : '12px',
           padding: isMobile ? '12px' : '16px',
-          background: 'hsl(var(--bg) / 0.8)',
+          background: 'var(--theme-surface)',
+          border: '1px solid var(--theme-border)',
           borderRadius: isMobile ? '10px' : '12px',
           backdropFilter: 'blur(10px)'
         }}>
@@ -164,7 +165,7 @@ export default function UserWelcomeBlock() {
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: '24px',
-            background: 'hsl(var(--accent) / 0.1)',
+            background: 'var(--theme-primary-light)',
             borderRadius: isMobile ? '8px' : '10px'
           }}>
             {currentQuote.emoji}
@@ -173,7 +174,7 @@ export default function UserWelcomeBlock() {
           <div style={{ flex: 1 }}>
             <p style={{
               fontSize: isMobile ? '14px' : '16px',
-              color: 'hsl(var(--fg))',
+              color: 'var(--theme-text)',
               fontWeight: '500',
               margin: 0,
               lineHeight: '1.6'
@@ -182,13 +183,13 @@ export default function UserWelcomeBlock() {
             </p>
             <p style={{
               fontSize: isMobile ? '11px' : '12px',
-              color: 'hsl(var(--muted))',
+              color: 'var(--theme-text-secondary)',
               marginTop: '4px',
               display: 'flex',
               alignItems: 'center',
               gap: '4px'
             }}>
-              <Sparkles style={{ width: '12px', height: '12px' }} />
+              <Sparkles style={{ width: '12px', height: '12px', color: 'var(--theme-primary)' }} />
               حكمة اليوم
             </p>
           </div>
@@ -201,18 +202,18 @@ export default function UserWelcomeBlock() {
             display: 'flex',
             gap: isMobile ? '10px' : '12px',
             fontSize: isMobile ? '12px' : '13px',
-            color: 'hsl(var(--muted))',
+            color: 'var(--theme-text-secondary)',
             flexWrap: 'wrap'
           }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Brain style={{ width: '14px', height: '14px', color: '#7C3AED' }} />
-              اهتماماتك: <strong style={{ color: hasInterests ? 'hsl(var(--fg))' : '#7C3AED' }}>
+              <Brain style={{ width: '14px', height: '14px', color: 'var(--theme-primary)' }} />
+              اهتماماتك: <strong style={{ color: hasInterests ? 'var(--theme-text)' : 'var(--theme-primary)' }}>
                 {interestsLoading ? 'جاري التحميل...' : (
                   hasInterests ? getInterestNames() : (
                     <a 
                       href="/profile" 
                       style={{ 
-                        color: '#7C3AED', 
+                        color: 'var(--theme-primary)', 
                         textDecoration: 'underline',
                         cursor: 'pointer'
                       }}
@@ -224,10 +225,10 @@ export default function UserWelcomeBlock() {
                 )}
               </strong>
             </span>
-            <span style={{ color: 'hsl(var(--line))' }}>•</span>
+            <span style={{ color: 'var(--theme-border)' }}>•</span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Target style={{ width: '14px', height: '14px', color: '#7C3AED' }} />
-              دقة التوصيات: <strong style={{ color: 'hsl(var(--fg))' }}>92%</strong>
+              <Target style={{ width: '14px', height: '14px', color: 'var(--theme-primary)' }} />
+              دقة التوصيات: <strong style={{ color: 'var(--theme-text)' }}>92%</strong>
             </span>
           </div>
         ) : (
@@ -235,17 +236,17 @@ export default function UserWelcomeBlock() {
           <div style={{
             marginTop: '16px',
             fontSize: '12px',
-            color: 'hsl(var(--muted))',
+            color: 'var(--theme-text-secondary)',
             display: 'flex',
             alignItems: 'center',
             gap: '4px'
           }}>
-            <Sparkles style={{ width: '12px', height: '12px', color: '#7C3AED' }} />
+            <Sparkles style={{ width: '12px', height: '12px', color: 'var(--theme-primary)' }} />
             للحصول على محتوى مخصص حسب اهتماماتك{' '}
             <a 
               href="/login" 
               style={{ 
-                color: 'hsl(var(--accent))', 
+                color: 'var(--theme-primary)', 
                 textDecoration: 'none',
                 fontWeight: '600',
                 transition: 'all 0.2s ease'
@@ -263,7 +264,7 @@ export default function UserWelcomeBlock() {
             <a 
               href="/register" 
               style={{ 
-                color: 'hsl(var(--accent))', 
+                color: 'var(--theme-primary)', 
                 textDecoration: 'none',
                 fontWeight: '600',
                 transition: 'all 0.2s ease'
