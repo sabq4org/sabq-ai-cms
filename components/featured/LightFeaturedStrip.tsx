@@ -96,20 +96,27 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
                       </span>
                     </div>
                   )}
-                  {/* شارة التصنيف */}
+                  {/* ليبل عاجل يحل مكان ليبل التصنيف */}
                   <div className="absolute top-2 left-2">
-                    <span
-                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium backdrop-blur-sm ${
-                        darkMode
-                          ? "bg-gray-900/60 text-gray-200 border border-gray-700"
-                          : "bg-white/70 text-gray-700 border border-gray-200"
-                      }`}
-                    >
-                      {article.category?.icon && (
-                        <span className="text-xs">{article.category.icon}</span>
-                      )}
-                      {category}
-                    </span>
+                    {isBreaking ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-red-600 text-white">
+                        <span className="text-xs">⚡</span>
+                        عاجل
+                      </span>
+                    ) : (
+                      <span
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium backdrop-blur-sm ${
+                          darkMode
+                            ? "bg-gray-900/60 text-gray-200 border border-gray-700"
+                            : "bg-white/70 text-gray-700 border border-gray-200"
+                        }`}
+                      >
+                        {article.category?.icon && (
+                          <span className="text-xs">{article.category.icon}</span>
+                        )}
+                        {category}
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div className="flex flex-col p-3 pb-4 flex-1">

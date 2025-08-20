@@ -71,10 +71,11 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
   halfWidth = false,
 }) => {
   const { darkMode } = useDarkModeContext();
+  const hasAnyBreaking = articles.some((a) => (a as any).breaking || (a as any).is_breaking);
   const { index: currentIndex, setIndex: setCurrentIndex, next: handleNext, prev: handlePrevious, isReducedMotion } = useFeaturedCarousel({
     length: articles.length,
     autoPlayInterval,
-    paused: false,
+    paused: hasAnyBreaking,
   });
 
   // إيقاف التحريك التلقائي عند تحريك الماوس فوق المكون
@@ -162,14 +163,6 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
               className={`col-span-1 ${halfWidth ? 'lg:col-span-6 xl:col-span-6' : 'lg:col-span-7 xl:col-span-8'} relative overflow-hidden rounded-xl lg:rounded-r-2xl lg:rounded-l-none`}
               style={{ height: `${containerHeight}px` }}
             >
-              {isBreaking && (
-                <div className="absolute top-3 right-3 z-30">
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-red-600 text-white shadow">
-                    <span className="text-sm">⚡</span>
-                    عاجل
-                  </span>
-                </div>
-              )}
               {(currentArticle.featured_image) ? (
                 <OptimizedImage
                   src={currentArticle.featured_image}
@@ -199,8 +192,17 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                 style={{ bottom: '12px', top: 'auto', transform: 'translateZ(0)' }}
               >
                 <div className="flex items-center gap-2 mb-1 text-[11px] text-white">
-                  <span className="text-sm">{currentArticle.category?.icon || '📰'}</span>
-                  <span className="font-medium">{currentArticle.category?.name || 'أخبار'}</span>
+                  {isBreaking ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-red-600 text-white">
+                      <span className="text-xs">⚡</span>
+                      عاجل
+                    </span>
+                  ) : (
+                    <>
+                      <span className="text-sm">{currentArticle.category?.icon || '📰'}</span>
+                      <span className="font-medium">{currentArticle.category?.name || 'أخبار'}</span>
+                    </>
+                  )}
                   <span className="opacity-80">•</span>
                   <span className="opacity-90">
                     {new Date(currentArticle.published_at || new Date()).toLocaleDateString('ar-SA', {
@@ -225,20 +227,27 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
             <div className={`hidden lg:flex ${halfWidth ? 'lg:col-span-6 xl:col-span-6' : 'lg:col-span-5 xl:col-span-4'} p-4 lg:p-6 flex-col justify-between overflow-hidden`} style={{ height: `${containerHeight}px` }}>
               {/* عنوان الخبر لنسخة الديسكتوب (يبقى مرئياً في العمود النصي) */}
               {/* ليبل التصنيف فوق العنوان */}
-              {currentArticle.category?.name && (
-                <div className="mb-2">
-                  <span
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium"
-                    style={{
-                      backgroundColor: currentArticle.category?.color || 'hsl(var(--accent))',
-                      color: '#fff',
-                    }}
-                  >
-                    <span className="text-sm">{currentArticle.category?.icon || '📰'}</span>
-                    <span>{currentArticle.category?.name}</span>
+              <div className="mb-2">
+                {isBreaking ? (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-red-600 text-white">
+                    <span className="text-sm">⚡</span>
+                    عاجل
                   </span>
-                </div>
-              )}
+                ) : (
+                  currentArticle.category?.name && (
+                    <span
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium"
+                      style={{
+                        backgroundColor: currentArticle.category?.color || 'hsl(var(--accent))',
+                        color: '#fff',
+                      }}
+                    >
+                      <span className="text-sm">{currentArticle.category?.icon || '📰'}</span>
+                      <span>{currentArticle.category?.name}</span>
+                    </span>
+                  )
+                )}
+              </div>
               <h2
                 className={`text-lg lg:text-xl xl:text-2xl font-bold mb-4 leading-tight line-clamp-3 ${
                   isBreaking ? 'text-red-700 dark:text-red-400' : (titleClassName ?? 'text-white')
