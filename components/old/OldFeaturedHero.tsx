@@ -59,12 +59,10 @@ export default function OldFeaturedHero() {
   if (!articles.length) return null;
 
   return (
-    <div className="max-w-6xl mx-auto px-4">
-      <FeaturedNewsCarousel
-        articles={articles as any}
-        containerClassName="max-w-6xl mx-auto px-4"
-      />
-    </div>
+    <FeaturedNewsCarousel
+      articles={articles as any}
+      containerClassName=""
+    />
   );
 }
 

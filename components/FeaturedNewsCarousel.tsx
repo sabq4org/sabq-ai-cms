@@ -115,7 +115,9 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
   return (
     <div
       className={`featured-carousel relative ${
-        containerClassName ?? "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6"
+        containerClassName !== undefined
+          ? containerClassName
+          : "max-w-6xl mx-auto px-4 mb-6"
       }`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
