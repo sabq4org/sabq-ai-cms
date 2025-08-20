@@ -618,11 +618,11 @@ export default function EnhancedMuqtarabBlock({
     <div className={cn("muqtarab-card-container", className)}>
       {/* رأس القسم */}
       {showHeader && (
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col items-center text-center gap-4 mb-8">
           {/* رأس موحد بأسلوب بلك الأخبار مع نظام الألوان المتغيرة */}
-          <div className="flex-1">
-            <div className="flex flex-col items-center md:items-start text-center md:text-right">
-              <div className="flex items-center justify-center md:justify-start mb-2">
+          <div className="w-full">
+            <div className="flex flex-col items-center text-center">
+              <div className="flex items-center justify-center mb-2">
                 <span
                   style={{
                     display: 'inline-flex',
