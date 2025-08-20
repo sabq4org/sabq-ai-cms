@@ -75,9 +75,11 @@ export default function Page() {
   // محتوى الموبايل - نفس المحتوى لكن مُحسن للموبايل
   const MobileContent = useMemo(() => (
     <div className="px-4 py-6">
-      <Suspense fallback={<div className="h-6" />}>
-        <WelcomeMetaStrip />
-      </Suspense>
+      <div className="max-w-6xl mx-auto px-4">
+        <Suspense fallback={<div className="h-6" />}>
+          <WelcomeMetaStrip />
+        </Suspense>
+      </div>
       {/* الأخبار المميزة من النسخة القديمة */}
       <Suspense fallback={<div className="h-52 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse mb-4" />}> 
         <FeaturedNewsFromOld />
@@ -111,9 +113,11 @@ export default function Page() {
   // محتوى الديسكتوب محسن مع useMemo
   const DesktopContent = useMemo(() => (
     <div style={{ padding: '20px 0' }}>
-      <Suspense fallback={<div className="h-6" />}>
-        <WelcomeMetaStrip />
-      </Suspense>
+      <div className="max-w-6xl mx-auto px-4">
+        <Suspense fallback={<div className="h-6" />}>
+          <WelcomeMetaStrip />
+        </Suspense>
+      </div>
       {/* الأخبار المميزة من النسخة القديمة */}
       <Suspense fallback={<div className="h-52 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse mb-4" />}> 
         <FeaturedNewsFromOld />

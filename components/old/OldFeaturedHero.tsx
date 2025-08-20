@@ -61,7 +61,7 @@ export default function OldFeaturedHero() {
   return (
     <FeaturedNewsCarousel
       articles={articles as any}
-      containerClassName=""
+      // نترك الحاوية الافتراضية كما هي (max-w-6xl mx-auto px-4)
     />
   );
 }

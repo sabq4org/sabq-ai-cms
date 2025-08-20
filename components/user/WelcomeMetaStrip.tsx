@@ -28,7 +28,7 @@ export default function WelcomeMetaStrip() {
 
   return (
     <div
-      className="welcome-meta-strip pr-4 md:pr-6"
+      className="welcome-meta-strip"
       style={{
         display: 'flex',
         justifyContent: 'flex-end',
