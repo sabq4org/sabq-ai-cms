@@ -415,11 +415,7 @@ export default function DeepAnalysisBlock({
                   key={item.id}
                   href={url}
                   onClick={() => markAsRead(item.id)}
-                  className={`group block h-full ${
-                    darkMode
-                      ? "bg-gray-800/90 backdrop-blur-sm hover:bg-gray-800/95 border-gray-700 hover:border-gray-600"
-                      : "bg-white/95 backdrop-blur-sm hover:bg-white border-white/20 hover:border-white/40"
-                  } rounded-2xl overflow-hidden border transition-all duration-300 transform hover:scale-[1.01] hover:translate-y-[-2px]`}
+                  className={`group block h-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden transition-all duration-300`}
                 >
                   <div className="relative p-4 h-full flex flex-col">
                     {/* رأس البطاقة - مضغوط جداً */}
