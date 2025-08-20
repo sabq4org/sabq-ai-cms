@@ -195,9 +195,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
             <div className="hidden lg:flex lg:col-span-6 p-4 lg:p-6 flex-col justify-between overflow-hidden" style={{ height: `${desktopH}px` }}>
               {/* عنوان الخبر لنسخة الديسكتوب (يبقى مرئياً في العمود النصي) */}
               <h2
-                className={`text-xl lg:text-2xl xl:text-3xl font-bold mb-4 leading-tight line-clamp-3 transition-colors group-hover:text-[hsl(var(--accent))] ${
-                  darkMode ? "text-white" : "text-gray-900"
-                }`}
+                className={`text-xl lg:text-2xl xl:text-3xl font-bold mb-4 leading-tight line-clamp-3 text-white`}
               >
                 {currentArticle.title}
               </h2>
