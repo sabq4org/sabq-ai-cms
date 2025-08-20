@@ -912,7 +912,7 @@ export default function ArticleClientComponent({
             {/* تم نقل أنماط RTL إلى ملفات CSS العامة لضمان الاستقرار أثناء البناء */}
           </div>
           
-          <div className="mt-6 sm:mt-8">
+          <div className="article-unified-width mt-6 sm:mt-8">
             <SmartPersonalizedContent
               articleId={article.id}
               categoryId={article.category_id}
