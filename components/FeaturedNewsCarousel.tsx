@@ -54,6 +54,7 @@ interface FeaturedNewsCarouselProps {
   autoPlayInterval?: number; // بالمللي ثانية
   heights?: { mobile?: number; mobileLg?: number; desktop?: number };
   showBadge?: boolean;
+  containerClassName?: string;
 }
 
 const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
@@ -61,6 +62,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
   autoPlayInterval = 5000, // 5 ثواني افتراضياً
   heights = { mobile: 220, mobileLg: 260, desktop: 320 },
   showBadge = false,
+  containerClassName,
 }) => {
   const { darkMode } = useDarkModeContext();
   const { index: currentIndex, setIndex: setCurrentIndex, next: handleNext, prev: handlePrevious, isReducedMotion } = useFeaturedCarousel({
@@ -112,7 +114,9 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
 
   return (
     <div
-      className="featured-carousel relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6"
+      className={`featured-carousel relative ${
+        containerClassName ?? "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6"
+      }`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       aria-roledescription="carousel"

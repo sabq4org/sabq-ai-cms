@@ -60,7 +60,10 @@ export default function OldFeaturedHero() {
 
   return (
     <div className="max-w-6xl mx-auto px-4">
-      <FeaturedNewsCarousel articles={articles as any} />
+      <FeaturedNewsCarousel
+        articles={articles as any}
+        containerClassName="max-w-6xl mx-auto px-4"
+      />
     </div>
   );
 }
