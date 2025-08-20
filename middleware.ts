@@ -91,7 +91,7 @@ export async function middleware(req: NextRequest) {
           });
         }
         const url = nextUrl.clone();
-        url.pathname = "/admin/login";
+        url.pathname = "/admin/access-denied";
         url.searchParams.set("next", pathname);
         return NextResponse.redirect(url);
       }
