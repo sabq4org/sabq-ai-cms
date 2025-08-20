@@ -40,11 +40,7 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
 
   return (
     <section aria-label="الأخبار المميزة" className="relative" dir="rtl">
-      {heading && (
-        <h2 className={`text-lg font-bold mb-3 ${darkMode ? "text-white" : "text-gray-800"}`}>
-          {heading}
-        </h2>
-      )}
+      {/* تمت إزالة عنوان القسم للنسخة الخفيفة */}
       <div
         ref={scrollRef}
         tabIndex={0}

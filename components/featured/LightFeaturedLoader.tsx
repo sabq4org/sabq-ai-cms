@@ -49,7 +49,7 @@ export default function LightFeaturedLoader({ heading = "الأخبار المم
   if (loading) {
     return (
       <div className="w-full px-2 sm:px-4">
-        <div className="h-6 mb-3 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />
+        {/* تمت إزالة هيكل عنوان القسم */}
         <div className="flex gap-4 overflow-hidden">
           <div className="w-[70%] xs:w-[60%] sm:w-[45%] md:w-[320px] max-w-[340px] h-48 rounded-2xl bg-gray-100 dark:bg-gray-800 animate-pulse" />
           <div className="w-[70%] xs:w-[60%] sm:w-[45%] md:w-[320px] max-w-[340px] h-48 rounded-2xl bg-gray-100 dark:bg-gray-800 animate-pulse" />
@@ -62,7 +62,7 @@ export default function LightFeaturedLoader({ heading = "الأخبار المم
 
   return (
     <div className="max-w-6xl mx-auto px-4 mb-6">
-      <LightFeaturedStrip articles={articles as any} heading={heading} />
+      <LightFeaturedStrip articles={articles as any} />
     </div>
   );
 }
