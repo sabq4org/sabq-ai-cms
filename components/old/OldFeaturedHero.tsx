@@ -26,7 +26,7 @@ export default function OldFeaturedHero() {
     let mounted = true;
     const load = async () => {
       try {
-        const res = await fetch('/api/articles/featured?limit=6', { cache: 'no-store' });
+        const res = await fetch('/api/articles/featured?limit=3', { cache: 'no-store' });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
         const data = (json?.data || []).map((a: any) => ({
@@ -59,7 +59,7 @@ export default function OldFeaturedHero() {
   if (!articles.length) return null;
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto px-4">
       <FeaturedNewsCarousel articles={articles as any} />
     </div>
   );
