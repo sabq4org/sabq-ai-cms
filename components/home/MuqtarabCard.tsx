@@ -320,7 +320,7 @@ export default function MuqtarabCard({
       <article
         className={cn(
           "relative overflow-hidden h-full flex flex-row md:flex-col",
-          "bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl"
+          "bg-transparent dark:bg-transparent rounded-2xl"
         )}
         dir="rtl"
       >
@@ -365,19 +365,19 @@ export default function MuqtarabCard({
             {article.title}
           </h3>
 
-          {/* سطر واحد: التاريخ + المشاهدات */}
+          {/* سطر المشاهدات ووقت القراءة مثل بطاقات الأخبار */}
           <div className="mt-auto">
-            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-              <time dateTime={article.publishDate} className="inline-flex items-center gap-1">
-                <Calendar className="w-4 h-4" />
-                {new Date(article.publishDate).toLocaleDateString("ar-SA", {
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                })}
-              </time>
-              <span className="mx-1">•</span>
-              <ArticleViews count={article.views || 0} variant="minimal" size="sm" showLabel={false} />
+            <div className="old-style-news-bottom-bar">
+              <div className="old-style-news-meta-item">
+                <Eye className="old-style-icon" />
+                <span>{(article.views ?? 0).toLocaleString()} مشاهدة</span>
+              </div>
+              {article.readingTime && (
+                <div className="old-style-news-meta-item">
+                  <Clock className="old-style-icon" />
+                  <span>{article.readingTime} د قراءة</span>
+                </div>
+              )}
             </div>
           </div>
         </div>

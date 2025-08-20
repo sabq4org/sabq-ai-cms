@@ -558,7 +558,7 @@ export default function EnhancedMuqtarabBlock({
       <Link href={article.link} className="group block">
         <article
           dir="rtl"
-          className="h-full rounded-2xl shadow-sm transition-all duration-300 flex flex-row md:flex-col bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+          className="h-full rounded-2xl transition-all duration-300 flex flex-row md:flex-col bg-transparent dark:bg-transparent"
         >
           {/* صورة المقال */}
           <div className="relative w-28 h-28 md:w-full md:h-40 sm:md:h-48 overflow-hidden m-3 md:m-0 rounded-xl md:rounded-none">
@@ -593,11 +593,13 @@ export default function EnhancedMuqtarabBlock({
                 </div>
               )}
               <div
-                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md"
+                className="inline-flex items-center gap-1 px-2 py-1 font-semibold"
                 style={{
                   backgroundColor: (article.angle?.themeColor || '#6366f1'),
                   color: '#ffffff',
                   border: `1px solid ${article.angle?.themeColor || '#6366f1'}`,
+                  borderRadius: '12px',
+                  fontSize: '11px'
                 }}
               >
                 {article.angle?.icon && <span className="mr-0.5">{article.angle.icon}</span>}
