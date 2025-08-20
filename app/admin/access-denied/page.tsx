@@ -5,7 +5,9 @@ import { useSearchParams } from "next/navigation";
 
 export default function AdminAccessDeniedPage() {
   const searchParams = useSearchParams();
-  const next = searchParams?.get("next") || "/admin";
+  const rawNext = searchParams?.get("next") || "/admin";
+  // منع الدوران الذاتي نحو نفس الصفحة
+  const next = rawNext.includes("/admin/access-denied") ? "/admin" : rawNext;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 px-4" dir="rtl">

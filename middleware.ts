@@ -31,10 +31,11 @@ export async function middleware(req: NextRequest) {
 
   // حماية /admin/** (واجهات) و /api/admin/** (واجهات برمجية) مع إعادة التحقق من الدور من قاعدة البيانات
   const isAdminPage = pathname.startsWith("/admin");
+  const isAdminAccessDenied = pathname.startsWith("/admin/access-denied");
   const isAdminApi = pathname.startsWith("/api/admin");
   if (isAdminPage || isAdminApi) {
     // السماح بصفحة دخول الإدارة بدون توكن
-    if (isAdminPage && pathname === "/admin/login") {
+    if (isAdminPage && (pathname === "/admin/login" || isAdminAccessDenied)) {
       return NextResponse.next();
     }
     const at =

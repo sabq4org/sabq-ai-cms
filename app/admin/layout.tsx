@@ -11,8 +11,8 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
 
-  // صفحة دخول الإدارة بدون أي تخطيطات إضافية (لا هيدر/لا فوتر/لا سايدبار)
-  if (pathname?.startsWith("/admin/login")) {
+  // صفحة دخول الإدارة وصفحة الوصول المرفوض: بدون أي تخطيطات إضافية (لا هيدر/لا فوتر/لا سايدبار)
+  if (pathname?.startsWith("/admin/login") || pathname?.startsWith("/admin/access-denied")) {
     return <div className="min-h-screen bg-gray-50">{children}</div>;
   }
 
