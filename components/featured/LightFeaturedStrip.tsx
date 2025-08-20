@@ -80,7 +80,7 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
                         : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-blue-100')
                 }`}
               >
-                <div className={`relative aspect-video w-full overflow-hidden rounded-lg ${isBreaking ? 'ring-2 ring-red-600 dark:ring-red-500' : ''}`}>
+                <div className={`relative aspect-video w-full overflow-hidden rounded-lg`}>
                   <OptimizedImage
                     src={image} // الصورة معالجة مسبقاً من API
                     alt={article.title || "صورة"}

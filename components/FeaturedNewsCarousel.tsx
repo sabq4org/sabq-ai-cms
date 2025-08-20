@@ -160,7 +160,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
             style={{ height: `${containerHeight}px` }}
           >
             <div
-              className={`col-span-1 ${halfWidth ? 'lg:col-span-6 xl:col-span-6' : 'lg:col-span-7 xl:col-span-8'} relative overflow-hidden rounded-xl lg:rounded-r-2xl lg:rounded-l-none ${isBreaking ? 'ring-2 ring-red-600 dark:ring-red-500' : ''}`}
+              className={`col-span-1 ${halfWidth ? 'lg:col-span-6 xl:col-span-6' : 'lg:col-span-7 xl:col-span-8'} relative overflow-hidden rounded-xl lg:rounded-r-2xl lg:rounded-l-none`}
               style={{ height: `${containerHeight}px` }}
             >
               {(currentArticle.featured_image) ? (
@@ -314,8 +314,12 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                 onClick={() => setCurrentIndex(idx)}
                 className={`relative overflow-hidden rounded-lg transition-all duration-300 ease-in-out cursor-pointer ${
                   idx === currentIndex 
-                    ? "w-16 h-9 ring-2 ring-[hsl(var(--accent))] shadow-lg z-10" 
+                    ? "w-16 h-9 shadow-lg z-10" 
                     : "w-10 h-9 hover:w-12 hover:h-9 opacity-50 hover:opacity-70 hover:shadow-md"
+                } ${
+                  (article as any).breaking || (article as any).is_breaking
+                    ? 'ring-2 ring-red-600 dark:ring-red-500'
+                    : (idx === currentIndex ? 'ring-2 ring-[hsl(var(--accent))]' : '')
                 }`}
                 aria-label={`الانتقال إلى الخبر ${idx + 1}: ${article.title}`}
                 aria-current={idx === currentIndex}
