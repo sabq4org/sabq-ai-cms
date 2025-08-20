@@ -107,22 +107,53 @@ export default function FeaturedNewsBlockCompact({
     return article.slug ? `/news/${article.slug}` : `/news/${article.id}`;
   };
 
+  // مكون شعلة اللهب للأخبار الشائعة
+  const FlameIcon = () => (
+    <div 
+      className="inline-block w-3 h-3.5 relative ml-1 flame-container"
+      style={{
+        filter: 'drop-shadow(0 0 3px rgba(255, 69, 0, 0.4))'
+      }}
+    >
+      <div 
+        className="absolute w-2 h-3 rounded-full flame-main"
+        style={{
+          left: '2px',
+          top: '1px',
+          background: 'radial-gradient(circle at 50% 100%, #ff4500 0%, #ff6b00 30%, #ffaa00 60%, #ffdd00 80%, transparent 100%)',
+          borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+          transformOrigin: '50% 100%'
+        }}
+      />
+      <div 
+        className="absolute w-1.5 h-2 rounded-full flame-inner"
+        style={{
+          left: '3px',
+          top: '3px',
+          background: 'radial-gradient(circle at 50% 100%, #ff6b00 0%, #ffaa00 40%, #ffdd00 70%, transparent 100%)',
+          borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+          transformOrigin: '50% 100%'
+        }}
+      />
+    </div>
+  );
+
   if (loading) {
     return (
       <div className={`${
-        darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+        darkMode ? 'bg-gray-900 border-gray-800' : 'bg-gray-50 border-gray-300'
       } rounded-2xl shadow-sm p-5 border max-h-64`}>
-        <div className="animate-pulse">
-          <div className="flex items-center justify-between mb-4">
-            <div className={`h-5 w-32 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'} rounded`}></div>
-            <div className={`h-3 w-20 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'} rounded`}></div>
+                  <div className="animate-pulse">
+            <div className="flex items-center justify-between mb-4">
+              <div className={`h-5 w-32 ${darkMode ? 'bg-gray-800' : 'bg-gray-300'} rounded`}></div>
+              <div className={`h-3 w-20 ${darkMode ? 'bg-gray-800' : 'bg-gray-300'} rounded`}></div>
+            </div>
+            <div className="space-y-3">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className={`h-3 ${darkMode ? 'bg-gray-800' : 'bg-gray-300'} rounded`}></div>
+              ))}
+            </div>
           </div>
-          <div className="space-y-3">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className={`h-3 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'} rounded`}></div>
-            ))}
-          </div>
-        </div>
       </div>
     );
   }
@@ -130,7 +161,7 @@ export default function FeaturedNewsBlockCompact({
   if (featuredArticles.length === 0) {
     return (
       <div className={`${
-        darkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'
+        darkMode ? 'bg-gray-900 border-gray-800' : 'bg-gray-50 border-gray-200'
       } rounded-2xl shadow-sm p-5 border text-center max-h-64`}>
         <h2 className={`text-base font-semibold ${
           darkMode ? 'text-gray-100' : 'text-gray-900'
@@ -146,7 +177,7 @@ export default function FeaturedNewsBlockCompact({
 
   return (
     <div className={`${
-      darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+      darkMode ? 'bg-gray-900 border-gray-800' : 'bg-gray-50 border-gray-300'
     } rounded-2xl shadow-sm p-5 border relative max-h-64`}>
       {/* Header - مضغوط */}
       <div className="flex items-center justify-between mb-3">
@@ -174,7 +205,7 @@ export default function FeaturedNewsBlockCompact({
             >
               <div className="flex items-start gap-3 text-[13px]">
                 {/* صورة مصغرة */}
-                <div className="w-12 h-8 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-700">
+                <div className="w-12 h-8 rounded-lg overflow-hidden flex-shrink-0 bg-gray-200 dark:bg-gray-800">
                   {article.featured_image ? (
                     <OptimizedImage
                       src={article.featured_image}
@@ -200,6 +231,15 @@ export default function FeaturedNewsBlockCompact({
                     {article.title}
                   </h3>
                   
+                  {/* نبذة من الخبر */}
+                  {article.excerpt && (
+                    <p className={`text-[11px] leading-relaxed line-clamp-1 mb-2 ${
+                      darkMode ? 'text-gray-400' : 'text-gray-600'
+                    }`}>
+                      {article.excerpt}
+                    </p>
+                  )}
+                  
                   {/* معلومات إضافية */}
                   <div className={`flex items-center gap-2 text-[11px] ${
                     darkMode ? 'text-gray-400' : 'text-gray-500'
@@ -218,6 +258,9 @@ export default function FeaturedNewsBlockCompact({
                         <div className="flex items-center gap-1">
                           <Eye className="w-3 h-3" />
                           <span>{formatViews(article.views)}</span>
+                          {article.views > 300 && (
+                            <FlameIcon />
+                          )}
                         </div>
                       </>
                     )}
@@ -244,8 +287,8 @@ export default function FeaturedNewsBlockCompact({
           href="/featured-news" 
           className={`inline-flex items-center justify-center px-3 py-1.5 rounded-full text-xs font-medium ${
             darkMode 
-              ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' 
-              : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+              ? 'bg-gray-800 hover:bg-gray-700 text-gray-300' 
+              : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
           } transition-colors`}
         >
           عرض الكل

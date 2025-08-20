@@ -58,7 +58,11 @@ export default function LightFeaturedLoader({ heading = "الأخبار المم
 
   if (!articles.length) return null;
 
-  return <LightFeaturedStrip articles={articles as any} heading={heading} />;
+  return (
+    <div className="max-w-6xl mx-auto px-4 mb-6">
+      <LightFeaturedStrip articles={articles as any} heading={heading} />
+    </div>
+  );
 }
 
 

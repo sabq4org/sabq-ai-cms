@@ -94,20 +94,18 @@ export default function Page() {
         </Suspense>
       </div>
       {/* الأخبار المميزة - النسخة الخفيفة */}
-      <div className="max-w-6xl mx-auto px-2 sm:px-4 mb-4">
-        <Suspense fallback={<div className="h-36 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />}> 
-          <LightFeaturedLoader heading="الأخبار المميزة" limit={10} />
-        </Suspense>
-      </div>
+      <Suspense fallback={<div className="h-36 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />}> 
+        <LightFeaturedLoader heading="الأخبار المميزة" limit={10} />
+      </Suspense>
       {/* المؤشرات الذكية */}
-      <div className="max-w-6xl mx-auto px-2 sm:px-4 mb-6">
-        <Suspense fallback={<div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />}> 
-          <SmartInsightsWidget />
-        </Suspense>
-      </div>
+      <Suspense fallback={<div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />}> 
+        <SmartInsightsWidget />
+      </Suspense>
       
       <Suspense fallback={<div className="h-48 animate-pulse bg-gray-200 rounded mt-6" />}>
-        <SmartContentBlock />
+        <div className="max-w-6xl mx-auto px-4">
+          <SmartContentBlock />
+        </div>
       </Suspense>
       
       <Suspense fallback={<div className="h-64 animate-pulse bg-gray-200 rounded mt-6" />}>
@@ -115,13 +113,15 @@ export default function Page() {
       </Suspense>
       
       <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded mt-6" />}>
-        <MuqtarabBlock
-          limit={8}
-          showPagination={false}
-          showFilters={false}
-          viewMode="grid"
-          className="mt-12"
-        />
+        <div className="max-w-6xl mx-auto px-4">
+          <MuqtarabBlock
+            limit={8}
+            showPagination={false}
+            showFilters={false}
+            viewMode="grid"
+            className="mt-12"
+          />
+        </div>
       </Suspense>
     </div>
   ), []);
@@ -139,13 +139,13 @@ export default function Page() {
         <OldFeaturedHero />
       </Suspense>
       <Suspense fallback={<div className="h-24 animate-pulse bg-gray-200 rounded mt-4" />}>
-        <div className="max-w-6xl mx-auto px-4 mt-4">
-          <SmartInsightsWidget />
-        </div>
+        <SmartInsightsWidget />
       </Suspense>
       
       <Suspense fallback={<div className="h-48 animate-pulse bg-gray-200 rounded mt-6" />}>
-        <SmartContentBlock />
+        <div className="max-w-6xl mx-auto px-4">
+          <SmartContentBlock />
+        </div>
       </Suspense>
       
       <Suspense fallback={<div className="h-64 animate-pulse bg-gray-200 rounded mt-6" />}>
@@ -153,13 +153,15 @@ export default function Page() {
       </Suspense>
       
       <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded mt-6" />}>
-        <MuqtarabBlock
-          limit={8}
-          showPagination={false}
-          showFilters={false}
-          viewMode="grid"
-          className="mt-12"
-        />
+        <div className="max-w-6xl mx-auto px-4">
+          <MuqtarabBlock
+            limit={8}
+            showPagination={false}
+            showFilters={false}
+            viewMode="grid"
+            className="mt-12"
+          />
+        </div>
       </Suspense>
     </div>
   ), []);

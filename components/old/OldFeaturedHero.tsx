@@ -7,6 +7,7 @@ type FeaturedArticle = {
   id: string;
   title: string;
   slug?: string;
+  excerpt?: string;
   featured_image?: string;
   published_at?: string;
   views?: number;
@@ -34,6 +35,7 @@ export default function OldFeaturedHero() {
           id: a.id,
           title: a.title,
           slug: a.slug,
+          excerpt: a.excerpt,
           featured_image: a.featured_image,
           published_at: a.published_at,
           views: a.views,

@@ -94,6 +94,63 @@ export default function FeaturedNewsBlock({
     return views.toString();
   };
 
+  // مكون شعلة اللهب للأخبار الشائعة
+  const FlameIcon = () => (
+    <div 
+      style={{
+        display: 'inline-block',
+        width: '12px',
+        height: '14px',
+        position: 'relative',
+        marginLeft: '4px',
+        filter: 'drop-shadow(0 0 3px rgba(255, 69, 0, 0.4))'
+      }}
+    >
+      <div 
+        style={{
+          position: 'absolute',
+          width: '8px',
+          height: '12px',
+          background: 'radial-gradient(circle at 50% 100%, #ff4500 0%, #ff6b00 30%, #ffaa00 60%, #ffdd00 80%, transparent 100%)',
+          borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+          left: '2px',
+          top: '1px',
+          animation: 'flameFlicker 1.5s ease-in-out infinite alternate',
+          transformOrigin: '50% 100%'
+        }}
+      />
+      <div 
+        style={{
+          position: 'absolute',
+          width: '6px',
+          height: '8px',
+          background: 'radial-gradient(circle at 50% 100%, #ff6b00 0%, #ffaa00 40%, #ffdd00 70%, transparent 100%)',
+          borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+          left: '3px',
+          top: '3px',
+          animation: 'flameFlicker 1.2s ease-in-out infinite alternate-reverse',
+          transformOrigin: '50% 100%'
+        }}
+      />
+      <style>{`
+        @keyframes flameFlicker {
+          0% {
+            transform: scale(1) rotate(-1deg);
+            opacity: 0.9;
+          }
+          50% {
+            transform: scale(1.1) rotate(1deg);
+            opacity: 1;
+          }
+          100% {
+            transform: scale(0.95) rotate(-0.5deg);
+            opacity: 0.95;
+          }
+        }
+      `}</style>
+    </div>
+  );
+
   return (
     <div style={{
       background: 'hsl(var(--bg))',
@@ -257,6 +314,7 @@ export default function FeaturedNewsBlock({
                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <Eye style={{ width: '14px', height: '14px' }} />
                     <span>{formatViews(article.views)}</span>
+                    {article.views && article.views > 300 && <FlameIcon />}
                   </div>
 
                   {/* وقت القراءة */}

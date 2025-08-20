@@ -112,6 +112,55 @@ const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({ article }) => {
     return `/news/${article.id}`;
   };
 
+  // مكون شعلة اللهب للأخبار الشائعة
+  const FlameIcon = () => (
+    <div 
+      className="inline-block w-3 h-3.5 relative ml-1"
+      style={{
+        filter: 'drop-shadow(0 0 3px rgba(255, 69, 0, 0.4))'
+      }}
+    >
+      <div 
+        className="absolute w-2 h-3 rounded-full"
+        style={{
+          left: '2px',
+          top: '1px',
+          background: 'radial-gradient(circle at 50% 100%, #ff4500 0%, #ff6b00 30%, #ffaa00 60%, #ffdd00 80%, transparent 100%)',
+          borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+          animation: 'flameFlicker 1.5s ease-in-out infinite alternate',
+          transformOrigin: '50% 100%'
+        }}
+      />
+      <div 
+        className="absolute w-1.5 h-2 rounded-full"
+        style={{
+          left: '3px',
+          top: '3px',
+          background: 'radial-gradient(circle at 50% 100%, #ff6b00 0%, #ffaa00 40%, #ffdd00 70%, transparent 100%)',
+          borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+          animation: 'flameFlicker 1.2s ease-in-out infinite alternate-reverse',
+          transformOrigin: '50% 100%'
+        }}
+      />
+      <style jsx>{`
+        @keyframes flameFlicker {
+          0% {
+            transform: scale(1) rotate(-1deg);
+            opacity: 0.9;
+          }
+          50% {
+            transform: scale(1.1) rotate(1deg);
+            opacity: 1;
+          }
+          100% {
+            transform: scale(0.95) rotate(-0.5deg);
+            opacity: 0.95;
+          }
+        }
+      `}</style>
+    </div>
+  );
+
   // معالجة تحميل الصورة
   const handleImageLoad = () => {
     setImageLoaded(true);
@@ -331,6 +380,9 @@ const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({ article }) => {
                           ? `${(article.views / 1000).toFixed(1)}ك`
                           : article.views}
                       </span>
+                      {article.views > 300 && (
+                        <FlameIcon />
+                      )}
                     </div>
                   )}
                   {article.likes !== undefined && (

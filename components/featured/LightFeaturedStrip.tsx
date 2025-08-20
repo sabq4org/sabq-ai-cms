@@ -41,7 +41,7 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
   return (
     <section aria-label="الأخبار المميزة" className="relative" dir="rtl">
       {heading && (
-        <h2 className={`text-lg font-bold mb-3 px-4 ${darkMode ? "text-white" : "text-gray-800"}`}>
+        <h2 className={`text-lg font-bold mb-3 ${darkMode ? "text-white" : "text-gray-800"}`}>
           {heading}
         </h2>
       )}
@@ -49,7 +49,7 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
         ref={scrollRef}
         tabIndex={0}
         onKeyDown={onKeyScroll}
-        className="flex gap-4 overflow-x-auto px-4 pb-2 scroll-smooth snap-x snap-mandatory focus:outline-none"
+        className="flex gap-4 overflow-x-auto pb-2 scroll-smooth snap-x snap-mandatory focus:outline-none"
         style={{ WebkitOverflowScrolling: "touch" }}
       >
         {/* إخفاء شريط التمرير */}

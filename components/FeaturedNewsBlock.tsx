@@ -64,6 +64,55 @@ const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({ article }) => {
     return `/news/${article.id}`;
   };
 
+  // مكون شعلة اللهب للأخبار الشائعة
+  const FlameIcon = () => (
+    <div 
+      className="inline-block w-3 h-3.5 relative ml-1"
+      style={{
+        filter: 'drop-shadow(0 0 3px rgba(255, 69, 0, 0.4))'
+      }}
+    >
+      <div 
+        className="absolute w-2 h-3 rounded-full"
+        style={{
+          left: '2px',
+          top: '1px',
+          background: 'radial-gradient(circle at 50% 100%, #ff4500 0%, #ff6b00 30%, #ffaa00 60%, #ffdd00 80%, transparent 100%)',
+          borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+          animation: 'flameFlicker 1.5s ease-in-out infinite alternate',
+          transformOrigin: '50% 100%'
+        }}
+      />
+      <div 
+        className="absolute w-1.5 h-2 rounded-full"
+        style={{
+          left: '3px',
+          top: '3px',
+          background: 'radial-gradient(circle at 50% 100%, #ff6b00 0%, #ffaa00 40%, #ffdd00 70%, transparent 100%)',
+          borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+          animation: 'flameFlicker 1.2s ease-in-out infinite alternate-reverse',
+          transformOrigin: '50% 100%'
+        }}
+      />
+      <style jsx>{`
+        @keyframes flameFlicker {
+          0% {
+            transform: scale(1) rotate(-1deg);
+            opacity: 0.9;
+          }
+          50% {
+            transform: scale(1.1) rotate(1deg);
+            opacity: 1;
+          }
+          100% {
+            transform: scale(0.95) rotate(-0.5deg);
+            opacity: 0.95;
+          }
+        }
+      `}</style>
+    </div>
+  );
+
   // إذا لا يوجد محتوى، لا نعرض شيئاً
   if (!article) {
     return null;
@@ -128,13 +177,24 @@ const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({ article }) => {
                 {article.title}
               </h2>
 
-              {/* موجز الخبر - مكثف */}
+              {/* موجز الخبر - نبذة واضحة ومفصلة */}
               {article.excerpt && (
-                <p className={`text-xs lg:text-base font-normal mb-4 leading-relaxed line-clamp-2 ${
-                  darkMode ? 'text-gray-200 drop-shadow-sm' : 'text-gray-700'
+                <div className={`mb-4 p-3 rounded-lg border-r-4 ${
+                  darkMode 
+                    ? 'bg-gray-700/30 border-blue-400 backdrop-blur-sm' 
+                    : 'bg-blue-50/60 border-blue-500 backdrop-blur-sm'
                 }`}>
-                  {article.excerpt}
-                </p>
+                  <p className={`text-sm lg:text-base font-normal leading-relaxed line-clamp-3 ${
+                    darkMode ? 'text-gray-100 drop-shadow-sm' : 'text-gray-800'
+                  }`}>
+                    {article.excerpt}
+                  </p>
+                  <div className={`mt-2 text-xs font-medium ${
+                    darkMode ? 'text-blue-400' : 'text-blue-600'
+                  }`}>
+                    نبذة من الخبر
+                  </div>
+                </div>
               )}
 
               {/* معلومات المراسل والتصنيف - مكثفة */}
@@ -216,6 +276,9 @@ const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({ article }) => {
                       <span className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
                         {article.views > 1000 ? `${(article.views / 1000).toFixed(1)}ك` : article.views}
                       </span>
+                      {article.views > 300 && (
+                        <FlameIcon />
+                      )}
                     </div>
                   )}
                   {article.likes !== undefined && (

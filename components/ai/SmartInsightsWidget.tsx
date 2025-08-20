@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import Link from 'next/link';
 import { Clock, TrendingUp, Eye, MessageCircle } from 'lucide-react';
 
@@ -23,6 +24,7 @@ interface ArticleInsight {
 }
 
 export default function SmartInsightsWidget() {
+  const { darkMode } = useDarkModeContext();
   const [insights, setInsights] = useState<ArticleInsight[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -151,37 +153,42 @@ export default function SmartInsightsWidget() {
 
   if (loading) {
     return (
-      <div className="bg-gradient-to-br from-slate-50/80 via-white/90 to-slate-100/60 dark:from-slate-800/80 dark:via-slate-800/90 dark:to-slate-900/60 rounded-2xl p-5 border border-slate-200/50 dark:border-slate-700/50 shadow-lg backdrop-blur-sm h-full flex flex-col">
-        <div className="animate-pulse space-y-4 flex-1">
-          <div className="space-y-2">
-            <div className="h-3 w-20 bg-slate-300/60 dark:bg-slate-600/60 rounded"></div>
-            <div className="h-6 w-40 bg-slate-300/60 dark:bg-slate-600/60 rounded"></div>
-            <div className="h-3 w-32 bg-slate-300/60 dark:bg-slate-600/60 rounded"></div>
-          </div>
-          <div className="grid grid-cols-3 gap-2">
-            <div className="h-12 bg-blue-200/40 dark:bg-blue-800/40 rounded-lg"></div>
-            <div className="h-12 bg-green-200/40 dark:bg-green-800/40 rounded-lg"></div>
-            <div className="h-12 bg-purple-200/40 dark:bg-purple-800/40 rounded-lg"></div>
-          </div>
-          <div className="flex-1 space-y-3">
-            <div className="flex gap-3">
-              <div className="w-8 h-8 bg-slate-300/60 dark:bg-slate-600/60 rounded"></div>
-              <div className="flex-1 space-y-2">
-                <div className="h-4 w-full bg-slate-300/60 dark:bg-slate-600/60 rounded"></div>
-                <div className="h-4 w-3/4 bg-slate-300/60 dark:bg-slate-600/60 rounded"></div>
-              </div>
+      <div className="max-w-6xl mx-auto mb-8">
+        <div
+          className="relative overflow-hidden border rounded-xl border-gray-200 dark:border-gray-700 p-5 h-full flex flex-col"
+          style={{ background: darkMode ? 'hsl(var(--accent) / 0.08)' : 'hsl(var(--accent) / 0.06)' }}
+        >
+          <div className="animate-pulse space-y-4 flex-1">
+            <div className="space-y-2">
+              <div className="h-3 w-20 bg-slate-300/60 dark:bg-slate-600/60 rounded"></div>
+              <div className="h-6 w-40 bg-slate-300/60 dark:bg-slate-600/60 rounded"></div>
+              <div className="h-3 w-32 bg-slate-300/60 dark:bg-slate-600/60 rounded"></div>
             </div>
-            <div className="h-16 bg-slate-300/40 dark:bg-slate-600/40 rounded-xl"></div>
-          </div>
-          <div className="flex items-center justify-between pt-3 border-t border-slate-200/50 dark:border-slate-600/50">
-                      <div className="flex gap-1.5">
-            <div className="w-2.5 h-2.5 bg-red-500/90 dark:bg-red-500/80 rounded-full animate-pulse"></div>
-            <div className="w-2.5 h-2.5 bg-blue-500/90 dark:bg-blue-500/80 rounded-full animate-pulse delay-100"></div>
-            <div className="w-2.5 h-2.5 bg-green-500/90 dark:bg-green-500/80 rounded-full animate-pulse delay-200"></div>
-            <div className="w-2.5 h-2.5 bg-yellow-500/90 dark:bg-yellow-500/80 rounded-full animate-pulse delay-300"></div>
-            <div className="w-2.5 h-2.5 bg-purple-500/90 dark:bg-purple-500/80 rounded-full animate-pulse delay-500"></div>
-          </div>
-            <div className="text-xs text-slate-400 dark:text-slate-500">جاري التحميل...</div>
+            <div className="grid grid-cols-3 gap-2">
+              <div className="h-12 bg-blue-200/40 dark:bg-blue-800/40 rounded-lg"></div>
+              <div className="h-12 bg-green-200/40 dark:bg-green-800/40 rounded-lg"></div>
+              <div className="h-12 bg-purple-200/40 dark:bg-purple-800/40 rounded-lg"></div>
+            </div>
+            <div className="flex-1 space-y-3">
+              <div className="flex gap-3">
+                <div className="w-8 h-8 bg-slate-300/60 dark:bg-slate-600/60 rounded"></div>
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-full bg-slate-300/60 dark:bg-slate-600/60 rounded"></div>
+                  <div className="h-4 w-3/4 bg-slate-300/60 dark:bg-slate-600/60 rounded"></div>
+                </div>
+              </div>
+              <div className="h-16 bg-slate-300/40 dark:bg-slate-600/40 rounded-xl"></div>
+            </div>
+            <div className="flex items-center justify-between pt-3 border-t border-slate-200/50 dark:border-slate-600/50">
+                        <div className="flex gap-1.5">
+              <div className="w-2.5 h-2.5 bg-red-500/90 dark:bg-red-500/80 rounded-full animate-pulse"></div>
+              <div className="w-2.5 h-2.5 bg-blue-500/90 dark:bg-blue-500/80 rounded-full animate-pulse delay-100"></div>
+              <div className="w-2.5 h-2.5 bg-green-500/90 dark:bg-green-500/80 rounded-full animate-pulse delay-200"></div>
+              <div className="w-2.5 h-2.5 bg-yellow-500/90 dark:bg-yellow-500/80 rounded-full animate-pulse delay-300"></div>
+              <div className="w-2.5 h-2.5 bg-purple-500/90 dark:bg-purple-500/80 rounded-full animate-pulse delay-500"></div>
+            </div>
+              <div className="text-xs text-slate-400 dark:text-slate-500">جاري التحميل...</div>
+            </div>
           </div>
         </div>
       </div>
@@ -190,29 +197,34 @@ export default function SmartInsightsWidget() {
 
   if (error || insights.length === 0) {
     return (
-      <div className="bg-gradient-to-br from-slate-50/80 via-white/90 to-slate-100/60 dark:from-slate-800/80 dark:via-slate-800/90 dark:to-slate-900/60 rounded-2xl p-5 border border-slate-200/50 dark:border-slate-700/50 shadow-lg backdrop-blur-sm h-full flex flex-col items-center justify-center text-center">
-        <div className="space-y-4">
-          <div className="text-5xl animate-bounce">🤖</div>
-          <div className="space-y-2">
-            <div className="text-slate-600 dark:text-slate-300 text-base font-medium">
-              🎯 مؤشرات ذكية
+      <div className="max-w-6xl mx-auto mb-8">
+        <div
+          className="relative overflow-hidden border rounded-xl border-gray-200 dark:border-gray-700 p-5 h-full flex flex-col items-center justify-center text-center"
+          style={{ background: darkMode ? 'hsl(var(--accent) / 0.08)' : 'hsl(var(--accent) / 0.06)' }}
+        >
+          <div className="space-y-4">
+            <div className="text-5xl animate-bounce">🤖</div>
+            <div className="space-y-2">
+              <div className="text-slate-600 dark:text-slate-300 text-base font-medium">
+                🎯 مؤشرات ذكية
+              </div>
+              <div className="text-slate-500 dark:text-slate-400 text-sm">
+                جاري تحليل الاتجاهات...
+              </div>
+              <div className="text-xs text-slate-400 dark:text-slate-500">
+                المؤشرات الذكية ستظهر قريباً
+              </div>
             </div>
-            <div className="text-slate-500 dark:text-slate-400 text-sm">
-              جاري تحليل الاتجاهات...
+            <div className="flex items-center justify-between pt-3 border-t border-slate-200/50 dark:border-slate-600/50 mt-4">
+              <div className="flex gap-1.5">
+                <div className="w-2.5 h-2.5 bg-red-500/80 dark:bg-red-500/60 rounded-full"></div>
+                <div className="w-2.5 h-2.5 bg-blue-500/80 dark:bg-blue-500/60 rounded-full"></div>
+                <div className="w-2.5 h-2.5 bg-green-500/80 dark:bg-green-500/60 rounded-full"></div>
+                <div className="w-2.5 h-2.5 bg-yellow-500/80 dark:bg-yellow-500/60 rounded-full"></div>
+                <div className="w-2.5 h-2.5 bg-purple-500/80 dark:bg-purple-500/60 rounded-full"></div>
+              </div>
+              <div className="text-xs text-slate-400 dark:text-slate-500">قريباً...</div>
             </div>
-            <div className="text-xs text-slate-400 dark:text-slate-500">
-              المؤشرات الذكية ستظهر قريباً
-            </div>
-          </div>
-          <div className="flex items-center justify-between pt-3 border-t border-slate-200/50 dark:border-slate-600/50 mt-4">
-            <div className="flex gap-1.5">
-              <div className="w-2.5 h-2.5 bg-red-500/80 dark:bg-red-500/60 rounded-full"></div>
-              <div className="w-2.5 h-2.5 bg-blue-500/80 dark:bg-blue-500/60 rounded-full"></div>
-              <div className="w-2.5 h-2.5 bg-green-500/80 dark:bg-green-500/60 rounded-full"></div>
-              <div className="w-2.5 h-2.5 bg-yellow-500/80 dark:bg-yellow-500/60 rounded-full"></div>
-              <div className="w-2.5 h-2.5 bg-purple-500/80 dark:bg-purple-500/60 rounded-full"></div>
-            </div>
-            <div className="text-xs text-slate-400 dark:text-slate-500">قريباً...</div>
           </div>
         </div>
       </div>
@@ -223,7 +235,11 @@ export default function SmartInsightsWidget() {
   const config = getInsightConfig(currentInsight.insightTag);
 
   return (
-    <div className="bg-gradient-to-br from-slate-50/80 via-white/90 to-slate-100/60 dark:from-slate-800/80 dark:via-slate-800/90 dark:to-slate-900/60 rounded-2xl p-5 border border-gray-200 dark:border-gray-700 backdrop-blur-sm transition-all duration-300 h-full flex flex-col relative overflow-hidden">
+    <div className="max-w-6xl mx-auto mb-8">
+      <div
+        className="relative overflow-hidden border rounded-xl border-gray-200 dark:border-gray-700 p-5 transition-all duration-300 h-full flex flex-col"
+        style={{ background: darkMode ? 'hsl(var(--accent) / 0.08)' : 'hsl(var(--accent) / 0.06)' }}
+      >
       {/* خط جانبي ملون ديناميكي */}
       <div className={`absolute top-0 right-0 w-1 h-full ${config.accent.replace('border-l-', 'bg-')} transition-colors duration-500`}></div>
       {/* Header مع عنوان أكبر */}
@@ -387,6 +403,7 @@ export default function SmartInsightsWidget() {
           عرض الكل ←
         </Link>
       </div>
+    </div>
     </div>
   );
 }

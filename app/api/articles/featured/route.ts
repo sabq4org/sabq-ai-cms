@@ -27,6 +27,7 @@ export async function GET(request: NextRequest) {
           id: true,
           title: true,
           slug: true,
+          excerpt: true,
           featured_image: true,
           published_at: true,
           views: true,

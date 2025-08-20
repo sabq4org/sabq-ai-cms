@@ -103,6 +103,55 @@ export default function NewsCard({ news, viewMode = "grid" }: NewsCardProps) {
     return "#";
   };
 
+  // مكون شعلة اللهب للأخبار الشائعة
+  const FlameIcon = () => (
+    <div 
+      className="inline-block w-3 h-3.5 relative ml-1"
+      style={{
+        filter: 'drop-shadow(0 0 3px rgba(255, 69, 0, 0.4))'
+      }}
+    >
+      <div 
+        className="absolute w-2 h-3 rounded-full"
+        style={{
+          left: '2px',
+          top: '1px',
+          background: 'radial-gradient(circle at 50% 100%, #ff4500 0%, #ff6b00 30%, #ffaa00 60%, #ffdd00 80%, transparent 100%)',
+          borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+          animation: 'flameFlicker 1.5s ease-in-out infinite alternate',
+          transformOrigin: '50% 100%'
+        }}
+      />
+      <div 
+        className="absolute w-1.5 h-2 rounded-full"
+        style={{
+          left: '3px',
+          top: '3px',
+          background: 'radial-gradient(circle at 50% 100%, #ff6b00 0%, #ffaa00 40%, #ffdd00 70%, transparent 100%)',
+          borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+          animation: 'flameFlicker 1.2s ease-in-out infinite alternate-reverse',
+          transformOrigin: '50% 100%'
+        }}
+      />
+      <style jsx>{`
+        @keyframes flameFlicker {
+          0% {
+            transform: scale(1) rotate(-1deg);
+            opacity: 0.9;
+          }
+          50% {
+            transform: scale(1.1) rotate(1deg);
+            opacity: 1;
+          }
+          100% {
+            transform: scale(0.95) rotate(-0.5deg);
+            opacity: 0.95;
+          }
+        }
+      `}</style>
+    </div>
+  );
+
   // Publish date
   const publishDate = news.published_at || news.created_at;
 
@@ -196,7 +245,12 @@ export default function NewsCard({ news, viewMode = "grid" }: NewsCardProps) {
                     Math.ceil((news.content?.length || 0) / 1000)}{" "}
                   دقائق
                 </span>
-                <ArticleViews count={news.views || news.views_count || 0} />
+                <div className="flex items-center">
+                  <ArticleViews count={news.views || news.views_count || 0} />
+                  {(news.views || news.views_count || 0) > 300 && (
+                    <FlameIcon />
+                  )}
+                </div>
                 {news.comments_count > 0 && (
                   <span className="flex items-center gap-1">
                     <MessageSquare className="w-3 h-3" />
@@ -299,7 +353,12 @@ export default function NewsCard({ news, viewMode = "grid" }: NewsCardProps) {
                 {formatDateGregorian(publishDate)}
               </span>
               <div className="flex items-center gap-3">
-                <ArticleViews count={news.views || news.views_count || 0} />
+                <div className="flex items-center">
+                  <ArticleViews count={news.views || news.views_count || 0} />
+                  {(news.views || news.views_count || 0) > 300 && (
+                    <FlameIcon />
+                  )}
+                </div>
                 {news.comments_count > 0 && (
                   <span className="flex items-center gap-1">
                     <MessageSquare className="w-3 h-3" />
