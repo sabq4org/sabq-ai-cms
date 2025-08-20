@@ -144,9 +144,8 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
     >
       <Link href={getArticleLink(currentArticle)} className="group block" aria-live="polite">
         <div
-          className={`relative overflow-hidden border rounded-xl`}
+          className={`relative overflow-hidden border rounded-xl border-gray-200 dark:border-gray-700`}
           style={{
-            borderColor: 'hsl(var(--accent) / 0.35)',
             background: darkMode ? 'hsl(var(--accent) / 0.08)' : 'hsl(var(--accent) / 0.06)'
           }}
         >
