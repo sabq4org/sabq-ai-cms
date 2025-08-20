@@ -55,6 +55,7 @@ interface FeaturedNewsCarouselProps {
   heights?: { mobile?: number; mobileLg?: number; desktop?: number };
   showBadge?: boolean;
   containerClassName?: string;
+  titleClassName?: string;
 }
 
 const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
@@ -63,6 +64,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
   heights = { mobile: 260, mobileLg: 320, desktop: 460 },
   showBadge = false,
   containerClassName,
+  titleClassName,
 }) => {
   const { darkMode } = useDarkModeContext();
   const { index: currentIndex, setIndex: setCurrentIndex, next: handleNext, prev: handlePrevious, isReducedMotion } = useFeaturedCarousel({
@@ -209,7 +211,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
             <div className="hidden lg:flex lg:col-span-5 xl:col-span-4 p-4 lg:p-6 flex-col justify-between overflow-hidden" style={{ height: `${containerHeight}px` }}>
               {/* عنوان الخبر لنسخة الديسكتوب (يبقى مرئياً في العمود النصي) */}
               <h2
-                className={`text-xl lg:text-2xl xl:text-3xl font-bold mb-4 leading-tight line-clamp-3 text-white`}
+                className={`text-xl lg:text-2xl xl:text-3xl font-bold mb-4 leading-tight line-clamp-3 ${titleClassName ?? 'text-white'}`}
               >
                 {currentArticle.title}
               </h2>

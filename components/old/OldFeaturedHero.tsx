@@ -61,7 +61,9 @@ export default function OldFeaturedHero() {
   return (
     <FeaturedNewsCarousel
       articles={articles as any}
-      containerClassName="max-w-6xl mx-auto px-2 sm:px-4 mb-6"
+      containerClassName="max-w-6xl mx-auto px-4 mb-6"
+      heights={{ mobile: 220, mobileLg: 260, desktop: 360 }}
+      titleClassName="text-black dark:text-white"
     />
   );
 }
