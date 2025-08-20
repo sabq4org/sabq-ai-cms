@@ -139,11 +139,11 @@ export default function SmartContentBlock({
               justifyContent: 'center',
               width: '36px',
               height: '36px',
-              background: 'linear-gradient(135deg, #DDD6FE 0%, #C7D2FE 100%)',
+              background: 'linear-gradient(135deg, hsl(var(--accent) / 0.15) 0%, hsl(var(--accent) / 0.05) 100%)',
               borderRadius: '10px',
-              color: '#5B21B6',
+              color: 'hsl(var(--accent))',
               fontSize: '18px',
-              border: '1px solid #E0E7FF'
+              border: '1px solid hsl(var(--accent) / 0.25)'
             }}>
               <Sparkles className="w-5 h-5" />
             </span>
@@ -159,7 +159,7 @@ export default function SmartContentBlock({
           <h3 style={{
             fontSize: '14px',
             fontWeight: 600,
-            color: '#7C3AED',
+            color: 'hsl(var(--accent))',
             marginBottom: '6px'
           }}>
             {subtitle}
