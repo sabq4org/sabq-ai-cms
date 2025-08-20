@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Eye, Clock, Flame, Sliders } from 'lucide-react';
+import { Eye, Clock, Sliders } from 'lucide-react';
 
 interface Article {
   id: number | string;
@@ -51,20 +51,22 @@ export default function OldStyleNewsBlock({
     return diffHours <= 24;
   };
 
-  // تنسيق التاريخ
-  const formatDate = (dateString: string) => {
+  // تنسيق التاريخ الميلادي (dd/MM/yyyy)
+  const formatGregorianDate = (dateString: string) => {
     const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffHours = Math.ceil(diffTime / (1000 * 60 * 60));
-    
-    if (diffHours < 1) {
-      return "الآن";
-    } else if (diffHours < 24) {
-      return `منذ ${diffHours} ساعة`;
-    } else {
-      const diffDays = Math.ceil(diffHours / 24);
-      return `منذ ${diffDays} يوم`;
+    try {
+      // استخدام التقويم الميلادي بشكل صريح
+      return date.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
+    } catch {
+      // fallback
+      const d = String(date.getDate()).padStart(2, '0');
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const y = date.getFullYear();
+      return `${d}/${m}/${y}`;
     }
   };
 
@@ -152,13 +154,14 @@ export default function OldStyleNewsBlock({
 
             {/* محتوى المقال */}
             <div className="old-style-news-content">
-              {/* شريط المعلومات العلوي: لايبل جديد + التاريخ */}
+              {/* شريط المعلومات العلوي: لايبل جديد + التاريخ بجواره */}
               <div className="old-style-news-top-bar">
                 <div className="old-style-news-badges">
                   {isNewsNew(article.published_at) && (
                     <div className="old-style-news-new-badge">
-                      <Flame className="old-style-flame-icon" />
+                      <span className="old-style-fire-emoji" aria-hidden>🔥</span>
                       <span>جديد</span>
+                      <span className="old-style-news-date-inline">{formatGregorianDate(article.published_at)}</span>
                     </div>
                   )}
                   {article.is_custom && (
@@ -168,9 +171,6 @@ export default function OldStyleNewsBlock({
                     </div>
                   )}
                 </div>
-                <span className="old-style-news-date">
-                  {formatDate(article.published_at)}
-                </span>
               </div>
 
               {/* العنوان */}
