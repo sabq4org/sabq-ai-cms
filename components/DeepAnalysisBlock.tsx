@@ -274,6 +274,20 @@ export default function DeepAnalysisBlock({
     }
   };
 
+  // تاريخ ميلادي موحّد dd/MM/yyyy مثل بطاقات الأخبار
+  const formatGregorianDate = (dateString?: string) => {
+    if (!dateString) return "";
+    const d = new Date(dateString);
+    try {
+      return d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    } catch {
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const yy = d.getFullYear();
+      return `${dd}/${mm}/${yy}`;
+    }
+  };
+
   // تحديد ما إذا كان التحليل جديد (خلال آخر 24 ساعة)
   const isNewInsight = (dateString: string) => {
     const date = new Date(dateString);
@@ -422,6 +436,7 @@ export default function DeepAnalysisBlock({
               };
 
               const analysisType = getAnalysisType();
+              const displayDate = item.analyzed_at || item.updated_at || item.publishedAt || item.createdAt || item.article?.published_at;
 
               return (
                 <Link
@@ -433,7 +448,7 @@ export default function DeepAnalysisBlock({
                   <div className="relative p-4 h-full flex flex-col">
                     {/* رأس البطاقة - مضغوط جداً */}
                     <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-2">
                         {/* نوع التحليل مدمج */}
                         <div
                           className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${
@@ -449,16 +464,33 @@ export default function DeepAnalysisBlock({
                         </div>
 
                         {isNew && (
-                          <span className="text-xs font-medium px-1.5 py-0.5 rounded bg-green-100 text-green-700">
-                            جديد
-                          </span>
+                          <div
+                            className="old-style-news-new-badge"
+                            style={{
+                              minWidth: 78,
+                              height: 24,
+                              lineHeight: '24px',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '11px',
+                              borderRadius: 12,
+                              padding: '0 8px',
+                            }}
+                          >
+                            <span className="old-style-fire-emoji" aria-hidden>🔥</span>
+                            <span>جديد</span>
+                          </div>
                         )}
                       </div>
-
-                      {/* نقطة القراءة */}
-                      {isUnread && (
-                        <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {displayDate && (
+                          <span className="old-style-news-date">{formatGregorianDate(displayDate)}</span>
+                        )}
+                        {isUnread && (
+                          <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" aria-hidden></div>
+                        )}
+                      </div>
                     </div>
 
                     {/* الصورة والمحتوى */}
@@ -563,53 +595,20 @@ export default function DeepAnalysisBlock({
                       </div>
                     )}
 
-                    {/* معلومات سفلية - محسنة */}
-                    <div
-                      className={`flex items-center justify-between pt-2 mt-auto border-t ${
-                        darkMode
-                          ? "border-gray-700/30"
-                          : "border-gray-200/30"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3 text-[11px]">
-                        {/* الكاتب */}
-                        <div
-                          className={`flex items-center gap-1 ${
-                            darkMode ? "text-gray-400" : "text-gray-500"
-                          }`}
-                        >
-                          <User className="w-3 h-3" />
-                          <span className="font-medium">{authorName}</span>
+                    {/* معلومات سفلية - نمط بطاقات الأخبار (مشاهدات + وقت القراءة) */}
+                    <div className="mt-auto">
+                      <div className="old-style-news-bottom-bar">
+                        <div className="old-style-news-meta-item">
+                          <Eye className="old-style-icon" />
+                          <span>{(views || 0).toLocaleString()} مشاهدة</span>
                         </div>
-
-                        {/* وقت القراءة */}
-                        <div className="flex items-center gap-0.5">
-                          <Clock3
-                            className={`w-3 h-3 ${
-                              darkMode ? "text-gray-500" : "text-gray-400"
-                            }`}
-                          />
-                          <span
-                            className={
-                              darkMode ? "text-gray-500" : "text-gray-400"
-                            }
-                          >
-                            {readTime}د
-                          </span>
-                        </div>
-
-                        {/* المشاهدات */}
-                        <span className="flex items-center gap-0.5 text-blue-600">
-                          <Eye className="w-3 h-3" />
-                          <span className="font-medium">{views}</span>
-                        </span>
+                        {readTime && (
+                          <div className="old-style-news-meta-item">
+                            <Clock3 className="old-style-icon" />
+                            <span>{readTime} د قراءة</span>
+                          </div>
+                        )}
                       </div>
-
-                      <ChevronRight
-                        className={`w-4 h-4 transition-transform group-hover:translate-x-1 ${
-                          darkMode ? "text-gray-400" : "text-gray-400"
-                        }`}
-                      />
                     </div>
                   </div>
                 </Link>
