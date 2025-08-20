@@ -31,7 +31,7 @@ export default function WelcomeMetaStrip() {
       className="welcome-meta-strip"
       style={{
         display: 'flex',
-        justifyContent: 'flex-end',
+        justifyContent: 'flex-start',
         alignItems: 'flex-start',
         gap: '16px',
         color: 'hsl(var(--muted))',
@@ -48,7 +48,7 @@ export default function WelcomeMetaStrip() {
           </span>
         </div>
       )}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textAlign: 'right' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', textAlign: 'left' }}>
         <span style={{ color: 'hsl(var(--fg))', fontWeight: 800, fontSize: 'clamp(22px, 3.5vw, 32px)' }}>
           {getTimeBasedGreeting(now)}{user ? ` يا ${user.name}` : ''} <span style={{ fontSize: 22 }}>👋</span>
         </span>
