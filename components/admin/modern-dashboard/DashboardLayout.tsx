@@ -124,11 +124,11 @@ export default function DashboardLayout({
         <main style={{
           flex: 1,
           marginRight: !isMobile ? (sidebarOpen ? '280px' : '80px') : '0',
-          padding: '0px 16px 16px 16px',
+          padding: '0px 24px 24px 24px',
           minHeight: 'calc(100vh - 56px)',
           transition: 'margin-right 0.3s ease'
         }}>
-          <div className={cn("fade-in", className)}>
+          <div className={cn("fade-in mx-auto w-full", className)} style={{ maxWidth: '1280px' }}>
             {children}
           </div>
         </main>
