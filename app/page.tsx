@@ -2,7 +2,6 @@
 
 import { useDeviceType } from "@/hooks/useDeviceType";
 import UserWelcomeBlock from "@/components/user/UserWelcomeBlock";
-import FeaturedNewsBlock from "@/components/user/FeaturedNewsBlock";
 import SmartContentBlock from "@/components/user/SmartContentBlock";
 import { useEffect, useMemo, Suspense } from "react";
 import dynamic from "next/dynamic";
@@ -51,10 +50,6 @@ export default function Page() {
       </Suspense>
       
       <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded mt-6" />}>
-        <FeaturedNewsBlock />
-      </Suspense>
-      
-      <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded mt-6" />}>
         <MuqtarabBlock
           limit={8}
           showPagination={false}
@@ -75,10 +70,6 @@ export default function Page() {
       
       <Suspense fallback={<div className="h-48 animate-pulse bg-gray-200 rounded mt-6" />}>
         <SmartContentBlock />
-      </Suspense>
-      
-      <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded mt-6" />}>
-        <FeaturedNewsBlock />
       </Suspense>
       
       <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded mt-6" />}>
