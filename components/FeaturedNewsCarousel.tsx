@@ -30,6 +30,7 @@ interface FeaturedArticle {
   views?: number;
   likes?: number;
   shares?: number;
+  breaking?: boolean;
   category?: {
     id: string;
     name: string;
@@ -102,6 +103,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
   }
 
   const currentArticle = articles[currentIndex];
+  const isBreaking = Boolean((currentArticle as any).breaking || (currentArticle as any).is_breaking);
   
   // تسجيل console للتشخيص في النسخة الكاملة
   if (process.env.NODE_ENV === 'development') {
@@ -147,7 +149,9 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
         <div
           className={`relative overflow-hidden border rounded-xl border-gray-200 dark:border-gray-700`}
           style={{
-            background: darkMode ? 'hsl(var(--accent) / 0.08)' : 'hsl(var(--accent) / 0.06)'
+            background: isBreaking
+              ? (darkMode ? 'hsla(0, 72%, 45%, 0.18)' : 'hsla(0, 84%, 60%, 0.12)')
+              : (darkMode ? 'hsl(var(--accent) / 0.08)' : 'hsl(var(--accent) / 0.06)')
           }}
         >
           <div
@@ -158,6 +162,14 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
               className={`col-span-1 ${halfWidth ? 'lg:col-span-6 xl:col-span-6' : 'lg:col-span-7 xl:col-span-8'} relative overflow-hidden rounded-xl lg:rounded-r-2xl lg:rounded-l-none`}
               style={{ height: `${containerHeight}px` }}
             >
+              {isBreaking && (
+                <div className="absolute top-3 right-3 z-30">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-red-600 text-white shadow">
+                    <span className="text-sm">⚡</span>
+                    عاجل
+                  </span>
+                </div>
+              )}
               {(currentArticle.featured_image) ? (
                 <OptimizedImage
                   src={currentArticle.featured_image}
@@ -228,7 +240,9 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                 </div>
               )}
               <h2
-                className={`text-lg lg:text-xl xl:text-2xl font-bold mb-4 leading-tight line-clamp-3 ${titleClassName ?? 'text-white'}`}
+                className={`text-lg lg:text-xl xl:text-2xl font-bold mb-4 leading-tight line-clamp-3 ${
+                  isBreaking ? 'text-red-700 dark:text-red-400' : (titleClassName ?? 'text-white')
+                }`}
               >
                 {currentArticle.title}
               </h2>

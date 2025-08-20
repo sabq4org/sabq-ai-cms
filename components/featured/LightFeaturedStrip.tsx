@@ -61,6 +61,7 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
           const date = article.published_at || article.created_at;
           // لم نعد بحاجة للبحث في حقول متعددة - API يرسل الصورة المعالجة
           const image = article.featured_image;
+          const isBreaking = Boolean(article.breaking || article.is_breaking);
           return (
             <Link
               key={article.id || idx}
@@ -69,11 +70,15 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
               aria-label={article.title}
             >
               <article
-                className={`relative rounded-2xl overflow-hidden border transition-all duration-300 h-full flex flex-col ${
-                  darkMode
-                    ? "bg-gray-800/70 border-gray-700 hover:border-blue-500/60 hover:shadow-blue-900/30"
-                    : "bg-white border-gray-200 hover:border-blue-300 hover:shadow-blue-100"
-                } shadow-sm hover:shadow-lg`}
+                className={`relative rounded-2xl overflow-hidden border transition-all duration-300 h-full flex flex-col shadow-sm hover:shadow-lg ${
+                  isBreaking
+                    ? (darkMode
+                        ? 'bg-red-900/20 border-red-800 hover:border-red-500/60'
+                        : 'bg-red-50 border-red-200 hover:border-red-300')
+                    : (darkMode
+                        ? 'bg-gray-800/70 border-gray-700 hover:border-blue-500/60 hover:shadow-blue-900/30'
+                        : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-blue-100')
+                }`}
               >
                 <div className="relative aspect-video w-full overflow-hidden">
                   <OptimizedImage
@@ -83,6 +88,14 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
                     className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
                     priority={idx === 0}
                   />
+                  {isBreaking && (
+                    <div className="absolute top-2 right-2 z-10">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-red-600 text-white">
+                        <span className="text-xs">⚡</span>
+                        عاجل
+                      </span>
+                    </div>
+                  )}
                   {/* شارة التصنيف */}
                   <div className="absolute top-2 left-2">
                     <span
@@ -102,9 +115,9 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
                 <div className="flex flex-col p-3 pb-4 flex-1">
                   <h3
                     className={`text-sm sm:text-base font-semibold leading-snug line-clamp-2 mb-2 transition-colors ${
-                      darkMode
-                        ? "text-white group-hover:text-blue-300"
-                        : "text-gray-800 group-hover:text-blue-600"
+                      isBreaking
+                        ? (darkMode ? 'text-red-300' : 'text-red-700')
+                        : (darkMode ? 'text-white group-hover:text-blue-300' : 'text-gray-800 group-hover:text-blue-600')
                     }`}
                   >
                     {article.title}

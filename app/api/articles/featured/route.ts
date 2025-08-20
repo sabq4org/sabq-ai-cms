@@ -15,10 +15,17 @@ export async function GET(request: NextRequest) {
       prisma.articles.findMany({
         where: {
           status: "published",
-          featured: true,
           OR: [
-            { published_at: { lte: now } },
-            { published_at: null },
+            { featured: true },
+            { breaking: true },
+          ],
+          AND: [
+            {
+              OR: [
+                { published_at: { lte: now } },
+                { published_at: null },
+              ],
+            },
           ],
         },
         orderBy: [{ published_at: "desc" }, { views: "desc" }],
@@ -31,6 +38,7 @@ export async function GET(request: NextRequest) {
           featured_image: true,
           published_at: true,
           views: true,
+          breaking: true,
           categories: { select: { id: true, name: true, slug: true, color: true } },
         },
       })
