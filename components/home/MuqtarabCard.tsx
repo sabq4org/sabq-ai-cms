@@ -72,6 +72,30 @@ export default function MuqtarabCard({
     }
   };
 
+  // هل المقال جديد (آخر 24 ساعة) أو موسوم isRecent
+  const isNew = (): boolean => {
+    if (article.isRecent) return true;
+    try {
+      const d = new Date(article.publishDate);
+      const diff = Date.now() - d.getTime();
+      return diff <= 24 * 60 * 60 * 1000;
+    } catch {
+      return false;
+    }
+  };
+
+  const formatGregorianDate = (dateString: string) => {
+    const d = new Date(dateString);
+    try {
+      return d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    } catch {
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const yy = d.getFullYear();
+      return `${dd}/${mm}/${yy}`;
+    }
+  };
+
   // مكون بطاقة المقال المميز الكبير
   if (variant === "large") {
     return (
@@ -205,20 +229,27 @@ export default function MuqtarabCard({
               </div>
             )}
 
-            {/* ليبل الزاوية - يمين */}
-            <Badge
-              className="absolute top-3 right-3 px-2 py-1 text-xs font-medium border-0"
-              style={{
-                backgroundColor: `${themeColor}20`,
-                color: themeColor,
-                border: `1px solid ${themeColor}40`
-              }}
-            >
-              {article.angle.icon && (
-                <span className="mr-1">{article.angle.icon}</span>
+            {/* شارات: جديد + اسم الزاوية جنب بعض */}
+            <div className="absolute top-3 right-3 flex items-center gap-2">
+              {isNew() && (
+                <div className="old-style-news-new-badge">
+                  <span className="old-style-fire-emoji" aria-hidden>🔥</span>
+                  <span>جديد</span>
+                  <span className="old-style-news-date-inline">{formatGregorianDate(article.publishDate)}</span>
+                </div>
               )}
-              {article.angle.title}
-            </Badge>
+              <div
+                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md"
+                style={{
+                  color: themeColor as any,
+                  border: `1px solid ${themeColor}`,
+                  background: 'transparent'
+                }}
+              >
+                {article.angle.icon && <span className="mr-0.5">{article.angle.icon}</span>}
+                <span>{article.angle.title}</span>
+              </div>
+            </div>
           </div>
 
           {/* محتوى البطاقة للهواتف */}
@@ -307,9 +338,26 @@ export default function MuqtarabCard({
 
         {/* المحتوى */}
         <div className="p-4 flex-1 flex flex-col">
-          {/* لابل التصنيف */}
-          <div className="mb-2">
-            <span className="category-pill">{article.angle.title}</span>
+          {/* الشريط العلوي: جديد + اسم الزاوية جنب بعض */}
+          <div className="mb-2 flex items-center gap-2">
+            {isNew() && (
+              <div className="old-style-news-new-badge">
+                <span className="old-style-fire-emoji" aria-hidden>🔥</span>
+                <span>جديد</span>
+                <span className="old-style-news-date-inline">{formatGregorianDate(article.publishDate)}</span>
+              </div>
+            )}
+            <div
+              className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md"
+              style={{
+                color: themeColor as any,
+                border: `1px solid ${themeColor}`,
+                background: 'transparent'
+              }}
+            >
+              {article.angle.icon && <span className="mr-0.5">{article.angle.icon}</span>}
+              <span>{article.angle.title}</span>
+            </div>
           </div>
 
           {/* العنوان - حجم مطابق */}
