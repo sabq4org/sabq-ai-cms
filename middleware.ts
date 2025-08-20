@@ -235,12 +235,14 @@ export async function middleware(req: NextRequest) {
   response.headers.set("X-Frame-Options", "DENY");
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  response.headers.set("Accept-Encoding", "gzip, deflate, br");
+  // لا تقم بتعيين Accept-Encoding على الاستجابة؛ هذا هيدر طلب وقد يسبب مشاكل في تحميل الحِزم
 
   return response;
 }
 
 export const config = {
-  // استثناء جميع مسارات Next الداخلية تمامًا حتى لا نعترض ملفات الحِزم أو بيانات RSC
-  matcher: ["/((?!_next/|favicon.ico|public/).*)"],
+  // استثناء شامل لمسارات Next الداخلية والملفات الثابتة لضمان عدم اعتراض حزم Webpack/JS
+  matcher: [
+    "/((?!_next/|_next/static|_next/image|_next/data|favicon.ico|robots.txt|sitemap.xml|site.webmanifest|manifest.webmanifest|assets/|public/|.*\\.(?:js|css|map|json|png|jpg|jpeg|gif|svg|webp)$).*)",
+  ],
 };
