@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  Eye,
   Star,
   User,
 } from "lucide-react";
@@ -240,8 +241,8 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                   {currentArticle.excerpt}
                 </p>
               )}
-              {/* المعلومات الإضافية للديسكتوب فقط - التصنيف يظهر فوق الصورة في الهاتف */}
-              <div className="flex flex-wrap gap-4 text-sm mb-6">
+              {/* معلومات إضافية (أعلى) */}
+              <div className="flex flex-wrap gap-4 text-sm mb-4">
                 {currentArticle.author && (
                   <div className="flex items-center gap-1.5">
                     <User className={`w-4 h-4 ${darkMode ? "text-gray-400" : "text-gray-500"}`} />
@@ -250,14 +251,23 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                     </span>
                   </div>
                 )}
-                <div className="flex items-center gap-1.5">
-                  <Calendar className={`w-4 h-4 ${darkMode ? "text-gray-400" : "text-gray-500"}`} />
-                  <span className={darkMode ? "text-gray-300" : "text-gray-600"}>
-                    {formatDateGregorian(currentArticle.published_at)}
-                  </span>
-                </div>
               </div>
-              <div className="mt-auto flex justify-end">
+              {/* شريط سفلي: المشاهدات + التاريخ يسار، وزر يمين */}
+              <div className="mt-auto flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800">
+                <div className="flex items-center gap-4 text-sm">
+                  <div className="flex items-center gap-1.5">
+                    <Eye className={`w-4 h-4 ${darkMode ? "text-gray-400" : "text-gray-500"}`} />
+                    <span className={darkMode ? "text-gray-300" : "text-gray-600"}>
+                      {typeof currentArticle.views === 'number' ? currentArticle.views : 0}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Calendar className={`w-4 h-4 ${darkMode ? "text-gray-400" : "text-gray-500"}`} />
+                    <span className={darkMode ? "text-gray-300" : "text-gray-600"}>
+                      {formatDateGregorian(currentArticle.published_at)}
+                    </span>
+                  </div>
+                </div>
                 <div
                   className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300 ${
                     darkMode ? "bg-gray-700 hover:bg-gray-600 text-gray-200" : "bg-gray-100 hover:bg-gray-200 text-gray-700"
