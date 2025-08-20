@@ -88,14 +88,7 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
                     className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
                     priority={idx === 0}
                   />
-                  {isBreaking && (
-                    <div className="absolute top-2 right-2 z-10">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-red-600 text-white">
-                        <span className="text-xs">⚡</span>
-                        عاجل
-                      </span>
-                    </div>
-                  )}
+                  {/* تمت إزالة شارة عاجل العلوية اليمنى لعدم التكرار */}
                   {/* ليبل عاجل يحل مكان ليبل التصنيف */}
                   <div className="absolute top-2 left-2">
                     {isBreaking ? (
