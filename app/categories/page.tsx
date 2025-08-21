@@ -857,7 +857,7 @@ export default function CategoriesPage() {
                               </div>
 
                               {/* Content */}
-                              <div className="relative p-6 h-full flex flex-col justify-end text-white">
+                              <div className="relative z-10 p-6 h-full flex flex-col justify-end text-white">
                                 <div className="flex items-center gap-3 mb-3">
                                   <div className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-md">
                                     {category.icon ||
@@ -896,14 +896,12 @@ export default function CategoriesPage() {
                                   ) : null;
                                 })()}
 
-                                <div className="flex items-center gap-2 text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
+                                <div className="inline-flex items-center gap-1 text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] bg-black/50 rounded-md px-2 py-1">
                                   <BookOpen className="w-4 h-4 text-white/95" />
-                                  <span className="text-base font-semibold">
-                                    {category.articles_count || 0}
+                                  <span className="text-base font-semibold text-white">
+                                    {Number(category.articles_count || 0).toLocaleString('en-US')}
                                   </span>
-                                  <span className="text-xs md:text-sm text-white/95">
-                                    مقال
-                                  </span>
+                                  <span className="text-xs md:text-sm text-white/95">مقال</span>
                                 </div>
                               </div>
                             </div>
