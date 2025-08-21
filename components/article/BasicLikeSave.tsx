@@ -155,20 +155,7 @@ export default function BasicLikeSave({
   };
 
   return (
-    <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-      <button
-        onClick={handleLike}
-        disabled={loading || !user}
-        className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
-          liked
-            ? 'bg-red-500 text-white'
-            : 'bg-gray-200 text-gray-700 hover:bg-red-100'
-        } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-      >
-        <Heart className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
-        <span>{likes}</span>
-      </button>
-
+    <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
       <button
         onClick={handleSave}
         disabled={loading || !user}
@@ -182,9 +169,18 @@ export default function BasicLikeSave({
         <span>{saves}</span>
       </button>
 
-      <div className="text-xs text-gray-500">
-        {user ? `مستخدم: ${user.name}` : 'غير مسجل دخول'}
-      </div>
+      <button
+        onClick={handleLike}
+        disabled={loading || !user}
+        className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
+          liked
+            ? 'bg-red-500 text-white'
+            : 'bg-gray-200 text-gray-700 hover:bg-red-100'
+        } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+      >
+        <Heart className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
+        <span>{likes}</span>
+      </button>
     </div>
   );
 }

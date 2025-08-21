@@ -570,7 +570,7 @@ export default function ArticleClientComponent({
                 {/* غلاف عنوان/عنوان فرعي مع توافق الوضع الداكن */}
                 <div className="text-right">
                   {/* العنوان - تحسين المسافات والهوامش */}
-                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-3 text-gray-900 dark:text-white leading-tight tracking-tight article-title-overlay bg-transparent">{/* تقليل العنوان قليلاً على الديسكتوب */}
+                  <h1 className="text-4xl sm:text-5xl lg:text-5xl font-bold mb-3 text-gray-900 dark:text-white leading-tight tracking-tight article-title-overlay bg-transparent">{/* تقليل العنوان قليلاً على الديسكتوب */}
                     {article.title}
                   </h1>
 
@@ -586,7 +586,7 @@ export default function ArticleClientComponent({
                 <div className="article-meta-info flex flex-wrap items-center justify-end gap-3 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-4 text-right border-0">
                   {/* المراسل */}
                   {article.author && (
-                    <div className="inline-flex items-center gap-1.5 sm:gap-2 w-full justify-end mb-2">
+                    <div className="inline-flex items-center gap-1.5 sm:gap-2 w-full justify-start mb-2">
                       <ReporterLink
                         author={article.author as any}
                         size="sm"
@@ -619,7 +619,7 @@ export default function ArticleClientComponent({
                   {/* عدد المشاهدات */}
                   {article.views !== undefined && (
                     <div className="inline-flex items-center gap-1.5 whitespace-nowrap">
-                      <span>👁️</span>
+                      <Eye className="w-4 h-4" />
                       <ArticleViews
                         count={article.views}
                         className="text-xs sm:text-sm"
@@ -759,14 +759,6 @@ export default function ArticleClientComponent({
                   className="shadow-lg article-ai-summary-mobile"
                   showFloatingAudio={true}
                 />
-                <div className="mt-3 flex justify-end">
-                  <SmartAudioButton
-                    articleId={article.id}
-                    title={article.title || ""}
-                    content={article.content || ""}
-                    variant="inline"
-                  />
-                </div>
               </div>
             </div>
 
@@ -784,15 +776,15 @@ export default function ArticleClientComponent({
                   }
                   className="shadow-lg w-full"
                 />
-                <div className="mt-4 flex justify-end">
-                  <SmartAudioButton
-                    articleId={article.id}
-                    title={article.title || ""}
-                    content={article.content || ""}
-                    variant="inline"
-                  />
-                </div>
+              <div className="mt-4 flex justify-end">
+                <SmartAudioButton
+                  articleId={article.id}
+                  title={article.title || ""}
+                  content={article.content || ""}
+                  variant="inline"
+                />
               </div>
+            </div>
 
             {/* أزرار الإعجاب والحفظ البسيطة */}
             <div className="mb-6 sm:mb-8">
