@@ -95,7 +95,7 @@ export default function SmartContentNewsCard({
         
         {/* Image First - Unified Design */}
         <Link href={`/news/${article.slug}`}>
-          <div className="relative h-48 sm:h-56 rounded-t-2xl overflow-hidden">
+          <div className="relative h-[180px] rounded-t-2xl overflow-hidden">
               <SmartImage
                 src=""
                 article={article}
@@ -187,7 +187,7 @@ export default function SmartContentNewsCard({
       <div className="relative">
         {/* Image First - Unified Design */}
         <Link href={`/news/${article.slug}`}>
-          <div className="relative h-48 w-full">
+          <div className="relative h-[180px] w-full">
               <SmartImage
                 src=""
                 article={article}
