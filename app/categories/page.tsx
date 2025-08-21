@@ -852,11 +852,11 @@ export default function CategoriesPage() {
                                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                                   fallbackType="category"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/20"></div>
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/70 to-black/30 backdrop-blur-[2px]"></div>
                               </div>
 
                               {/* Content */}
-                              <div className="relative p-6 h-full flex flex-col justify-end">
+                              <div className="relative p-6 h-full flex flex-col justify-end text-white">
                                 <div className="flex items-center gap-3 mb-3">
                                   <div className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-md">
                                     {category.icon ||
