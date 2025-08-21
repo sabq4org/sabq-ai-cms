@@ -77,14 +77,18 @@ export async function GET(
       whereClause.category_id = parseInt(category);
     }
 
-    // ترتيب النتائج
-    const orderBy: any = {};
+    // ترتيب النتائج - استخدام الحقول الصحيحة
+    let orderBy: any = { published_at: "desc" };
     if (sort === "views") {
-      orderBy.views_count = "desc";
+      orderBy = { views: "desc" };
     } else if (sort === "likes") {
-      orderBy.likes_count = "desc";
-    } else {
-      orderBy.published_at = "desc";
+      orderBy = { likes: "desc" };
+    } else if (sort === "engagement") {
+      orderBy = [
+        { likes: "desc" },
+        { views: "desc" },
+        { shares: "desc" }
+      ];
     }
 
     // البحث عن المراسل في جدول article_authors
@@ -122,7 +126,7 @@ export async function GET(
     // جلب المقالات الحقيقية للمراسل (دعم النظامين القديم والجديد)
     const articles = await prisma.articles.findMany({
       where: finalWhere,
-      orderBy: orderBy,
+      orderBy: orderBy as any,
       take: limit,
       select: {
         id: true,

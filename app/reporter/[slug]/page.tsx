@@ -1364,7 +1364,7 @@ const ReporterProfilePage: React.FC = () => {
       }`}
     >
       {/* المحتوى الرئيسي مع مسافة علوية كافية */}
-      <main className="pt-20 pb-0">
+      <main className="pt-16 md:pt-20 pb-0">
         {/* Container محسن للعرض */}
         <div className="mx-auto px-4 md:px-6 max-w-7xl">
           {/* Hero Card - بارز */}
@@ -1806,7 +1806,7 @@ const ReporterProfilePage: React.FC = () => {
 
           {/* AI Insights Section - جديد */}
           <section className="mb-12">
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-4">
               <div
                 className={cn(
                   "p-3 rounded-2xl",
@@ -1888,9 +1888,9 @@ const ReporterProfilePage: React.FC = () => {
               </div>
 
               {/* Articles Content */}
-              <div className="p-4">
+              <div className="p-2 sm:p-4">
                 {articles.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
                     {articles.map((article) => (
                       <Link
                         key={article.id}
@@ -1946,19 +1946,7 @@ const ReporterProfilePage: React.FC = () => {
                             </div>
                           </div>
 
-                          {/* زر اقرأ المزيد */}
-                          <div className="flex-shrink-0">
-                            <div
-                              className={`inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
-                                darkMode
-                                  ? "bg-blue-600 hover:bg-blue-700 text-white"
-                                  : "bg-blue-600 hover:bg-blue-700 text-white"
-                              }`}
-                            >
-                              <span>اقرأ</span>
-                              <ChevronRight className="w-3 h-3" />
-                            </div>
-                          </div>
+                          {/* إزالة زر اقرأ */}
                         </div>
                       </Link>
                     ))}
