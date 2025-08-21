@@ -109,10 +109,18 @@ export default function SmartContentNewsCard({
               
               {/* Category Label on Image */}
               {article.category_name && (
-                <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full">
-                  <span className="text-xs font-semibold text-gray-800">
-                    {article.category_name}
-                  </span>
+                <div 
+                  className="absolute top-3 right-3"
+                  style={{
+                    background: 'hsl(var(--accent))',
+                    color: 'white',
+                    padding: '4px 12px',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    fontWeight: 600
+                  }}
+                >
+                  {article.category_name}
                 </div>
               )}
             </div>
@@ -191,10 +199,18 @@ export default function SmartContentNewsCard({
               
               {/* Category Label on Image */}
               {article.category_name && (
-                <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full">
-                  <span className="text-xs font-semibold text-gray-800">
-                    {article.category_name}
-                  </span>
+                <div 
+                  className="absolute top-3 right-3"
+                  style={{
+                    background: 'hsl(var(--accent))',
+                    color: 'white',
+                    padding: '4px 12px',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    fontWeight: 600
+                  }}
+                >
+                  {article.category_name}
                 </div>
               )}
               
