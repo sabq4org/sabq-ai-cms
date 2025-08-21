@@ -93,7 +93,7 @@ export default function Page() {
       <div className="md:hidden">
         <LiteStatsBar />
       </div>
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-6xl mx-auto mt-3">
         <Suspense fallback={<div className="h-6" />}>
           <WelcomeMetaStrip />
         </Suspense>

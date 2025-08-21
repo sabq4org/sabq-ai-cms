@@ -2,7 +2,7 @@
 
 .compact-stats-bar {
   /* خفيف ومرن */
-  min-height: 44px;
+  min-height: 26px; /* تقليص ~40% */
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   
@@ -29,7 +29,7 @@
 /* تحسين للشاشات الصغيرة */
 @media (max-width: 480px) {
   .compact-stats-bar {
-    min-height: 40px;
+    min-height: 24px;
   }
   
   .compact-stats-bar .text-sm {
