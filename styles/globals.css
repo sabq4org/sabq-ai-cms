@@ -232,7 +232,8 @@ select:focus-visible {
   max-width: none !important;
 }
 
-.admin-dashboard-layout main {
+/* استثناء المحتوى الرئيسي الذي يحتاج لحجز مساحة للسايدبار */
+.admin-dashboard-layout main:not(.admin-modern-main) {
   width: 100% !important;
   max-width: none !important;
 }
@@ -263,15 +264,23 @@ select:focus-visible {
 }
 
 /* Force override for any tailwind-like max-w-* utility inside admin layout */
-.admin-dashboard-layout [class*="max-w-"] {
+.admin-dashboard-layout [class*="max-w-"]:not(.admin-modern-main) {
   max-width: 100% !important;
   width: 100% !important;
 }
 
 /* Also neutralize inline style attributes that might set width via style="max-width: ..." */
-.admin-dashboard-layout [style*="max-width"] {
+.admin-dashboard-layout [style*="max-width"]:not(.admin-modern-main) {
   max-width: 100% !important;
   width: 100% !important;
+}
+
+/* قاعدة نهائية لضمان عرض المحتوى الصحيح مع حجز مساحة للسايدبار */
+main.admin-modern-main.admin-dashboard-layout {
+  width: calc(100% - var(--sidebar-width, 280px)) !important;
+  max-width: calc(100% - var(--sidebar-width, 280px)) !important;
+  margin-right: 0 !important;
+  padding-right: 0 !important;
 }
 
 /* الجداول داخل صفحات الإدارة تمتد لعرض المحتوى كاملاً */

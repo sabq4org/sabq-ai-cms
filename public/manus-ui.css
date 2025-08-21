@@ -315,16 +315,19 @@ body {
 
 /* ===== Dashboard RTL sidebar spacing fix ===== */
 /* تحديد عرض المحتوى ليكون العرض الكامل ناقص عرض السايدبار */
-.admin-modern-main.admin-dashboard-layout {
+main.admin-modern-main.admin-dashboard-layout {
   width: calc(100% - var(--sidebar-width, 0)) !important;
+  max-width: calc(100% - var(--sidebar-width, 0)) !important;
   padding-right: 0 !important;
-  box-sizing: border-box;
+  margin-right: 0 !important;
+  box-sizing: border-box !important;
 }
 
 /* على الشاشات الصغيرة، يأخذ المحتوى العرض الكامل */
 @media (max-width: 767px) {
-  .admin-modern-main.admin-dashboard-layout {
+  main.admin-modern-main.admin-dashboard-layout {
     width: 100% !important;
+    max-width: 100% !important;
   }
 }
 
