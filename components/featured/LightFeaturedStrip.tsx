@@ -118,9 +118,18 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
                   >
                     {article.title}
                   </h3>
-                  <div className="mt-auto flex items-center gap-2 text-[11px] sm:text-xs text-gray-500 dark:text-gray-400">
-                    {date && (
-                      <time dateTime={date}>{formatDateNumeric(date)}</time>
+                  <div className="mt-auto flex items-center justify-between text-[11px] sm:text-xs text-gray-500 dark:text-gray-400">
+                    <div className="flex items-center gap-2">
+                      {date && (
+                        <time dateTime={date}>{formatDateNumeric(date)}</time>
+                      )}
+                    </div>
+                    {typeof article.views === 'number' && (
+                      <div className="flex items-center gap-1">
+                        <span className="inline-block align-middle">👁️</span>
+                        <span>{article.views}</span>
+                        {(article.views ?? 0) > 300 && <span className="ml-1">🔥</span>}
+                      </div>
                     )}
                   </div>
                 </div>

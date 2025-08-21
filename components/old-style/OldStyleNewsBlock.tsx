@@ -185,6 +185,7 @@ export default function OldStyleNewsBlock({
                   <div className="old-style-news-meta-item">
                     <Eye className="old-style-icon" />
                     <span>{formatViews(article.views)} مشاهدة</span>
+                    {article.views > 300 && <span className="ml-1">🔥</span>}
                   </div>
                 )}
                 

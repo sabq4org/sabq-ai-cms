@@ -11,6 +11,7 @@ interface FeaturedArticleLite {
   published_at?: string;
   breaking?: boolean;
   category?: { id: string; name: string; slug?: string; color?: string; icon?: string } | null;
+  views?: number;
 }
 
 export default function LightFeaturedLoader({ heading = "الأخبار المميزة", limit = 10 }: { heading?: string; limit?: number }) {
@@ -32,6 +33,7 @@ export default function LightFeaturedLoader({ heading = "الأخبار المم
           published_at: a.published_at,
           breaking: a.breaking || a.is_breaking || false,
           category: a.categories ? { id: a.categories.id, name: a.categories.name, slug: a.categories.slug, color: a.categories.color } : null,
+          views: a.views ?? a.views_count ?? 0,
         }));
         if (mounted) setArticles(list);
       } catch (e) {
