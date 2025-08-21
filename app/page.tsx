@@ -88,7 +88,7 @@ export default function Page() {
 
   // محتوى الموبايل - نفس المحتوى لكن مُحسن للموبايل
   const MobileContent = useMemo(() => (
-    <div className="py-6">
+    <div className="pt-0 pb-6">
       {/* شريط الإحصائيات للنسخة الخفيفة - تحت الهيدر مباشرة */}
       <div className="md:hidden mb-4">
         <LiteStatsBar />
