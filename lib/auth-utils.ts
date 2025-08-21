@@ -24,17 +24,7 @@ export async function setUserCookie(user: User) {
 export async function getUserFromCookie(): Promise<User | null> {
   const cookieStore = await cookies();
 
-  // أولاً، تحقق من auth-token للنظام التجريبي
-  const authToken = cookieStore.get("auth-token");
-  if (authToken && authToken.value === "dev-session-token") {
-    return {
-      id: "dev-user-id",
-      name: "مطور المحتوى",
-      email: "dev@sabq.org",
-      role: "admin",
-      is_admin: true,
-    };
-  }
+  // تم إزالة نظام التطوير التجريبي لأسباب أمنية
 
   // ثم تحقق من user cookie العادي
   const userCookie = cookieStore.get("user");

@@ -2,6 +2,14 @@ import { NextResponse } from "next/server";
 
 // تسجيل دخول تجريبي للتطوير
 export async function POST() {
+  // منع الوصول في بيئة الإنتاج
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json(
+      { error: "Not Found" },
+      { status: 404 }
+    );
+  }
+  
   try {
     // إنشاء مستخدم افتراضي
     const user = {

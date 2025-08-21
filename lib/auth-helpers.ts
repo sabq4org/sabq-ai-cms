@@ -43,16 +43,7 @@ export async function getUserFromToken(request: NextRequest): Promise<AuthUser |
       return null;
     }
 
-    // 4. للتطوير: التحقق من التوكن التجريبي
-    if (token === 'dev-session-token') {
-      return {
-        id: 'dev-user-id',
-        email: 'dev@sabq.org',
-        name: 'مطور المحتوى',
-        role: 'admin',
-        is_admin: true
-      };
-    }
+    // 4. تم إزالة نظام التطوير التجريبي لأسباب أمنية
 
     // 5. فك تشفير التوكن الحقيقي
     const jwtSecret = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'default-secret';
