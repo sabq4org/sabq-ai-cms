@@ -558,10 +558,11 @@ export default function EnhancedMuqtarabBlock({
       <Link href={article.link} className="group block">
         <article
           dir="rtl"
-          className="h-full rounded-2xl transition-all duration-300 flex flex-row md:flex-col bg-transparent dark:bg-transparent"
+          className="h-full transition-all duration-300 flex flex-row md:flex-col bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-none"
+          style={{ boxShadow: 'none' }}
         >
           {/* صورة المقال */}
-          <div className="relative w-28 h-28 md:w-full md:h-40 sm:md:h-48 overflow-hidden m-3 md:m-0 rounded-xl md:rounded-none">
+          <div className="relative w-28 h-28 md:w-full md:h-40 sm:md:h-48 overflow-hidden m-3 md:m-0 rounded-t-xl">
             <Image
               src={displaySrc}
               alt={article.title}
