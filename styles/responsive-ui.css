@@ -133,6 +133,50 @@ body {
   background: rgba(255, 255, 255, 0.95);
 }
 
+/* ===== دعم الوضع الداكن للهيدر (النسخة الكاملة) ===== */
+.dark .optimized-header {
+  background: #0f172a; /* slate-900 */
+  border-bottom-color: #334155; /* slate-600 */
+}
+
+.dark .optimized-header.scrolled {
+  background: rgba(15, 23, 42, 0.88); /* slate-900/88 */
+  box-shadow: var(--shadow-md);
+}
+
+.dark .logo {
+  color: #93c5fd; /* blue-300 */
+}
+
+.dark .nav-link {
+  color: #94a3b8; /* slate-400 */
+}
+
+.dark .nav-link:hover,
+.dark .nav-link.active {
+  color: #93c5fd; /* blue-300 */
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.dark .search-input {
+  background: #0b1220; /* near slate-950 */
+  border-color: #334155; /* slate-600 */
+  color: #e5e7eb; /* gray-200 */
+}
+
+.dark .search-icon {
+  color: #94a3b8; /* slate-400 */
+}
+
+.dark .action-btn {
+  color: #94a3b8; /* slate-400 */
+}
+
+.dark .action-btn:hover {
+  background: #0b1220; /* near slate-950 */
+  color: #93c5fd; /* blue-300 */
+}
+
 .header-container {
   display: flex;
   align-items: center;
