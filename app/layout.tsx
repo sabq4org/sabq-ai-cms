@@ -11,6 +11,8 @@ import "../styles/theme-manager.css";
 import "../styles/muqtarab-cards.css";
 import "../styles/responsive-ui.css";
 import "./old-style-demo/old-style.css";
+import "../styles/compact-stats.css";
+import "../styles/enhanced-mobile-stats.css";
 
 const ibmPlexArabic = IBM_Plex_Sans_Arabic({
   subsets: ["arabic"],

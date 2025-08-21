@@ -713,8 +713,8 @@ function NewspaperHomePage({
       pageName="الصفحة الرئيسية"
       showPerformanceMonitor={process.env.NODE_ENV === "development"}
     >
-      {/* إحصائيات النسخة الخفيفة - أسفل الهيدر مباشرة (موبايل فقط) */}
-      <div className="md:hidden sticky z-30" style={{ top: '56px' }}>
+      {/* إحصائيات النسخة الخفيفة - أسفل الهيدر مباشرة */}
+      <div className="w-full">
         <LiteStatsBar />
       </div>
       <div
