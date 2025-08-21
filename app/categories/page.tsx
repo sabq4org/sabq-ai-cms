@@ -853,6 +853,7 @@ export default function CategoriesPage() {
                                   fallbackType="category"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/70 to-black/30 backdrop-blur-[2px]"></div>
+                                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/60 to-transparent pointer-events-none"></div>
                               </div>
 
                               {/* Content */}
@@ -889,16 +890,19 @@ export default function CategoriesPage() {
                                     } catch (e) {}
                                   }
                                   return desc ? (
-                                    <p className="text-white/90 text-sm line-clamp-2 mb-3">
+                                    <p className="text-white text-sm md:text-base font-medium line-clamp-2 mb-3 drop-shadow-[0_1px_1px_rgba(0,0,0,0.7)]">
                                       {desc}
                                     </p>
                                   ) : null;
                                 })()}
 
-                                <div className="flex items-center gap-2 text-white">
-                                  <BookOpen className="w-4 h-4" />
-                                  <span className="text-sm font-medium">
-                                    {category.articles_count || 0} مقال
+                                <div className="flex items-center gap-2 text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
+                                  <BookOpen className="w-4 h-4 text-white/95" />
+                                  <span className="text-base font-semibold">
+                                    {category.articles_count || 0}
+                                  </span>
+                                  <span className="text-xs md:text-sm text-white/95">
+                                    مقال
                                   </span>
                                 </div>
                               </div>
