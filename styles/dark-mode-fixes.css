@@ -244,6 +244,26 @@
   background-color: #0f172a !important;
 }
 
+/* ===== صفحة التصنيفات ===== */
+/* إصلاح ألوان النصوص في صفحة التصنيفات */
+.dark [href^="/categories/"] p:not([class*="text-white"]),
+.dark [href^="/categories/"] span:not([class*="text-white"]),
+.dark .categories-page-wrapper p:not([class*="text-white"]),
+.dark .categories-page-wrapper span:not([class*="text-white"]) {
+  color: inherit !important;
+}
+
+/* تأكد من أن وصف القسم يستخدم اللون الصحيح */
+.dark p[class*="text-gray-600"],
+.dark span[class*="text-gray-500"] {
+  color: #94a3b8 !important;
+}
+
+/* عدد المقالات */
+.dark div[class*="text-gray-900"] {
+  color: #f1f5f9 !important;
+}
+
 /* بطاقات النسخة الخفيفة */
 .dark .old-style-news-card,
 .dark [class*="old-style-news"] {

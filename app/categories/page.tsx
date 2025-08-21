@@ -890,13 +890,13 @@ export default function CategoriesPage() {
                                     } catch (e) {}
                                   }
                                   return desc ? (
-                                    <p className="text-white/80 text-sm line-clamp-2 mb-3">
+                                    <p className="text-white/90 text-sm line-clamp-2 mb-3">
                                       {desc}
                                     </p>
                                   ) : null;
                                 })()}
 
-                                <div className="flex items-center gap-2 text-white/90">
+                                <div className="flex items-center gap-2 text-white">
                                   <BookOpen className="w-4 h-4" />
                                   <span className="text-sm font-medium">
                                     {category.articles_count || 0} مقال
@@ -961,7 +961,7 @@ export default function CategoriesPage() {
                                       } catch (e) {}
                                     }
                                     return desc ? (
-                                      <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2">
+                                      <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2">
                                         {desc}
                                       </p>
                                     ) : null;
@@ -971,10 +971,10 @@ export default function CategoriesPage() {
                                 {/* Stats */}
                                 <div className="flex items-center gap-4">
                                   <div className="text-center">
-                                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                                    <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                                       {category.articles_count || 0}
                                     </div>
-                                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                                    <div className="text-sm text-gray-500 dark:text-gray-300">
                                       مقال
                                     </div>
                                   </div>
