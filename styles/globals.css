@@ -282,54 +282,65 @@ select:focus-visible {
   width: 100% !important;
 }
 
-/* إصلاح نهائي وشامل لمنع انحشار المحتوى تحت السايدبار */
+/* إصلاح نهائي ومحدود للصفحات الإدارية فقط */
 @media (min-width: 768px) {
-  /* حاوية المحتوى الرئيسي - الحل النهائي الشامل */
-  .admin-modern-main.admin-dashboard-layout {
-    width: calc(100vw - 300px) !important; /* عرض النافذة الكامل مطروحاً منه عرض الشريط الجانبي + مساحة إضافية */
+  /* يطبق فقط على الصفحات التي تحتوي على الشريط الجانبي الإداري */
+  body:has(.manus-sidebar) .admin-modern-main.admin-dashboard-layout {
+    width: calc(100vw - 300px) !important; 
     margin-right: 0 !important;
-    padding-right: 0 !important; /* إزالة أي padding قد يسبب تداخل */
-    max-width: none !important; /* إزالة أي قيود على العرض الأقصى */
+    padding-right: 0 !important; 
+    max-width: none !important; 
     box-sizing: border-box !important;
-    position: relative !important; /* للتأكد من الموضع الصحيح */
+    position: relative !important; 
   }
   
-  /* إزالة أي margin أو padding من العناصر المرتبطة */
-  .admin-modern-main.admin-dashboard-layout + *,
-  .admin-modern-main.admin-dashboard-layout ~ * {
+  /* إزالة أي margin أو padding من العناصر المرتبطة - للصفحات الإدارية فقط */
+  body:has(.manus-sidebar) .admin-modern-main.admin-dashboard-layout + *,
+  body:has(.manus-sidebar) .admin-modern-main.admin-dashboard-layout ~ * {
     margin-right: 0 !important;
     padding-right: 0 !important;
   }
   
-  /* إزالة padding من العنصر الأب */
-  div:has(> .admin-modern-main.admin-dashboard-layout),
-  .admin-modern-main.admin-dashboard-layout > div,
-  .admin-modern-main.admin-dashboard-layout .container {
+  /* إزالة padding من العنصر الأب - للصفحات الإدارية فقط */
+  body:has(.manus-sidebar) div:has(> .admin-modern-main.admin-dashboard-layout),
+  body:has(.manus-sidebar) .admin-modern-main.admin-dashboard-layout > div,
+  body:has(.manus-sidebar) .admin-modern-main.admin-dashboard-layout .container {
     padding-right: 0 !important;
     margin-right: 0 !important;
     width: 100% !important;
   }
   
-  /* التأكد من أن body لا يحتوي على padding */
-  body:has(.admin-modern-main.admin-dashboard-layout) {
+  /* التأكد من أن body لا يحتوي على padding - للصفحات الإدارية فقط */
+  body:has(.manus-sidebar):has(.admin-modern-main.admin-dashboard-layout) {
     padding-right: 0 !important;
   }
   
-  /* حل إضافي للعناصر العنيدة */
-  .admin-modern-main.admin-dashboard-layout *[style*="padding-right"],
-  .admin-modern-main.admin-dashboard-layout *[style*="margin-right"] {
+  /* حل إضافي للعناصر العنيدة - للصفحات الإدارية فقط */
+  body:has(.manus-sidebar) .admin-modern-main.admin-dashboard-layout *[style*="padding-right"],
+  body:has(.manus-sidebar) .admin-modern-main.admin-dashboard-layout *[style*="margin-right"] {
     padding-right: 0 !important;
     margin-right: 0 !important;
   }
 }
 
-/* للشاشات الصغيرة - التأكد من عدم وجود مشاكل */
+/* للشاشات الصغيرة - التأكد من عدم وجود مشاكل في الصفحات الإدارية فقط */
 @media (max-width: 767px) {
-  .admin-modern-main.admin-dashboard-layout {
+  body:has(.manus-sidebar) .admin-modern-main.admin-dashboard-layout {
     width: 100% !important;
     margin-right: 0 !important;
     padding-right: 0 !important;
   }
+}
+
+/* قاعدة احترازية إضافية لحماية الصفحة الرئيسية */
+body:not(:has(.admin-modern-main)) .max-w-6xl,
+body:not(:has(.admin-modern-main)) main,
+body:not(:has(.admin-modern-main)) .container {
+  /* التأكد من عدم تأثر الصفحة الرئيسية */
+  position: static !important;
+  width: auto !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
 }
 
 /* تصحيح موضع الهيدر الثابت */
