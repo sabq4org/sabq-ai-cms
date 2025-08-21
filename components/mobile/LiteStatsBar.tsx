@@ -56,10 +56,10 @@ export default function LiteStatsBar() {
   const s = stats ?? defaultStats;
 
   return (
-    <div className="compact-stats-bar enhanced-mobile-stats py-0.5 px-3 border-b border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80">
-      <div className="flex items-center justify-around text-sm leading-none">
+    <div className="compact-stats-bar enhanced-mobile-stats py-0.5 px-3 border-b border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 w-full">
+      <div className="w-full flex items-center justify-between gap-3 text-sm leading-none">
         {/* الأخبار */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-1 justify-center">
           <span className="stats-icon-container p-1 rounded-lg bg-blue-100 dark:bg-blue-900/30">
             <Newspaper className="w-4 h-4 text-blue-600 dark:text-blue-400" />
           </span>
@@ -72,7 +72,7 @@ export default function LiteStatsBar() {
         </div>
 
         {/* الأقسام */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-1 justify-center">
           <span className="stats-icon-container p-1 rounded-lg bg-purple-100 dark:bg-purple-900/30">
             <Tag className="w-4 h-4 text-purple-600 dark:text-purple-400" />
           </span>
@@ -85,7 +85,7 @@ export default function LiteStatsBar() {
         </div>
 
         {/* أخبار اليوم */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-1 justify-center">
           <span className="stats-icon-container p-1 rounded-lg bg-green-100 dark:bg-green-900/30">
             <Calendar className="w-4 h-4 text-green-600 dark:text-green-400" />
           </span>
