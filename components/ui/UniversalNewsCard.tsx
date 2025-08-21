@@ -273,19 +273,22 @@ export default function UniversalNewsCard({
                 )
               )}
             </div>
+            
+            {/* ليبل مخصص على اليسار */}
+            {isPersonalized && (
+              <div className="absolute top-2 left-2 z-10">
+                <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs px-2 py-1">
+                  <Sparkles className="w-3 h-3 mr-1" />
+                  مخصص لك
+                </Badge>
+              </div>
+            )}
           </div>
 
           {/* المحتوى */}
           <div className="flex-1 min-w-0">
             {/* شارات أخرى فقط */}
             <div className="flex items-center gap-2 mb-3 flex-wrap">
-              {isPersonalized && (
-                <Badge className="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-xs px-2 py-1">
-                  <Sparkles className="w-3 h-3 mr-1" />
-                  مخصص لك
-                </Badge>
-              )}
-
               {isTrending && (
                 <Badge className="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 text-xs px-2 py-1">
                   <TrendingUp className="w-3 h-3 mr-1" />
@@ -393,19 +396,22 @@ export default function UniversalNewsCard({
               )
             )}
           </div>
+          
+          {/* ليبل مخصص على اليسار */}
+          {isPersonalized && (
+            <div className="absolute top-3 left-3 z-10">
+              <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs px-2 py-1">
+                <Sparkles className="w-3 h-3 mr-1" />
+                مخصص
+              </Badge>
+            </div>
+          )}
         </div>
 
         {/* المحتوى */}
         <div className="p-6 flex-1 flex flex-col rounded-xl transition-colors group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20">
           {/* شارات أخرى فقط */}
           <div className="flex items-center gap-2 mb-3 flex-wrap">
-            {isPersonalized && (
-              <Badge className="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-xs px-2 py-1">
-                <Sparkles className="w-3 h-3 mr-1" />
-                مخصص
-              </Badge>
-            )}
-
             {isTrending && (
               <Badge className="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 text-xs px-2 py-1">
                 <TrendingUp className="w-3 h-3 mr-1" />

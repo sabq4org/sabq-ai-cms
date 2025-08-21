@@ -123,18 +123,20 @@ export default function SmartContentNewsCard({
                   {article.category_name}
                 </div>
               )}
+              
+              {/* AI Label on Left */}
+              <div className="absolute top-3 left-3">
+                <span className="text-xs font-bold text-white inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-purple-500 to-pink-500">
+                  <Sparkles className="w-3 h-3" />
+                  مخصص{article.score ? ` | ${Math.round(article.score * 100)}%` : ''}
+                </span>
+              </div>
             </div>
           </Link>
         )}
         
         <div className="relative p-6">
-          {/* AI Label Only */}
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-xs font-bold text-white inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-purple-500 to-pink-500">
-              <Sparkles className="w-3 h-3" />
-              مخصص{article.score ? ` | ${Math.round(article.score * 100)}%` : ''}
-            </span>
-          </div>
+          {/* Moved AI Label to Image */}
 
           {/* Content */}
           <Link href={`/news/${article.slug}`}>
@@ -214,6 +216,14 @@ export default function SmartContentNewsCard({
                 </div>
               )}
               
+              {/* AI Label on Left */}
+              <div className="absolute top-3 left-3">
+                <span className="text-xs font-bold text-white inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500">
+                  <Sparkles className="w-3 h-3" />
+                  مخصص{article.score ? ` | ${Math.round(article.score * 100)}%` : ''}
+                </span>
+              </div>
+              
               {article.image_caption && (
                 <div className="absolute bottom-0 left-0 right-0 p-3">
                   <p className="text-xs text-white font-medium">{article.image_caption}</p>
@@ -225,13 +235,7 @@ export default function SmartContentNewsCard({
 
         {/* Content */}
         <div className="px-4 pt-4 pb-4">
-          {/* AI Label Only */}
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-xs font-bold text-white inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500">
-              <Sparkles className="w-3 h-3" />
-              مخصص{article.score ? ` | ${Math.round(article.score * 100)}%` : ''}
-            </span>
-          </div>
+          {/* Moved AI Label to Image */}
 
           <Link href={`/news/${article.slug}`}>
             <h3 className="text-base font-bold mb-2 line-clamp-3 dark:text-white theme-hover-text transition-colors">
