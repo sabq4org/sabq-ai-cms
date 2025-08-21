@@ -60,6 +60,11 @@ export default function MuqtarabCard({
     ? (article.coverImage as string)
     : "/images/default-article.jpg";
 
+  // نفس نظام الألوان من بطاقات الأخبار
+  const baseBg = 'hsl(var(--bg-elevated))';
+  const hoverBg = 'hsl(var(--accent) / 0.06)';
+  const baseBorder = '1px solid hsl(var(--line))';
+
   // تحديد أحجام الصور حسب النوع
   const getImageHeight = () => {
     switch (variant) {
@@ -314,94 +319,152 @@ export default function MuqtarabCard({
     );
   }
 
-  // مكون بطاقة المقال العادية (medium و small) - مطابق لبطاقة الأخبار حرفياً في الحجم وتأثير hover
+  // مكون بطاقة المقال العادية (medium و small) - مطابق لبطاقة الأخبار حرفياً
   return (
-    <Link href={articleLink} className={cn("block h-full", className)}>
-      <article
-        className={cn(
-          "relative overflow-hidden h-full flex flex-row md:flex-col",
-          "bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl"
-        )}
-        dir="rtl"
+    <Link href={articleLink} style={{ textDecoration: 'none' }}>
+      <div 
+        style={{
+          background: baseBg,
+          border: baseBorder,
+          borderRadius: '16px',
+          overflow: 'hidden',
+          transition: 'all 0.3s ease',
+          cursor: 'pointer',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'translateY(-4px)';
+          e.currentTarget.style.background = hoverBg;
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'translateY(0)';
+          e.currentTarget.style.background = baseBg;
+        }}
       >
         {/* صورة المقال */}
-        <div className="relative w-28 h-28 md:w-full md:h-48 bg-gray-100 dark:bg-gray-700 overflow-hidden m-3 md:m-0 rounded-t-xl">
+        <div style={{
+          position: 'relative',
+          height: '180px',
+          width: '100%',
+          background: 'hsl(var(--bg))',
+          overflow: 'hidden'
+        }}>
           <Image
             src={displaySrc}
             alt={article.title}
             fill={true}
-            className="object-cover"
-            sizes="(max-width: 768px) 112px, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover transition-transform duration-500"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             priority={false}
           />
-        </div>
 
-        {/* المحتوى */}
-        <div className="p-3 md:p-4 flex-1 flex flex-col">
-          {/* الشريط العلوي: جديد + اسم الزاوية جنب بعض */}
-          <div className="mb-2 flex items-center gap-2">
-            {isNew() && (
-              <div
-                className="old-style-news-new-badge"
-                style={{
-                  minWidth: 78,
-                  height: 24,
-                  lineHeight: '24px',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '11px',
-                  borderRadius: 12,
-                  padding: '0 8px',
-                }}
-              >
-                <span className="old-style-fire-emoji" aria-hidden>🔥</span>
-                <span>جديد</span>
-              </div>
-            )}
-            <div
-              className="inline-flex items-center gap-1 font-semibold"
-              style={{
-                backgroundColor: themeColor as any,
-                color: '#ffffff',
-                border: `1px solid ${themeColor}`,
-                minWidth: 78,
-                height: 24,
-                lineHeight: '24px',
-                padding: '0 8px',
-                borderRadius: 12,
-                fontSize: '11px',
-                justifyContent: 'center'
-              }}
-            >
-              {article.angle.icon && <span className="mr-0.5">{article.angle.icon}</span>}
-              <span>{article.angle.title}</span>
-            </div>
-            <span className="old-style-news-date-inline">{formatGregorianDate(article.publishDate)}</span>
+          {/* شارة الزاوية */}
+          <div style={{
+            position: 'absolute',
+            top: '12px',
+            right: '12px',
+            background: 'hsl(var(--accent))',
+            color: 'white',
+            padding: '4px 12px',
+            borderRadius: '6px',
+            fontSize: '12px',
+            fontWeight: 600,
+            zIndex: 10,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px'
+          }}>
+            {article.angle.icon && <span>{article.angle.icon}</span>}
+            <span>{article.angle.title}</span>
           </div>
 
-          {/* العنوان - حجم مطابق */}
-          <h3 className="text-base md:text-lg font-bold text-gray-900 dark:text-white line-clamp-3 mb-2 md:mb-3 leading-snug">
+          {/* شارة جديد */}
+          {isNew() && (
+            <div style={{
+              position: 'absolute',
+              top: '12px',
+              left: '12px',
+              background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+              color: 'white',
+              padding: '4px 8px',
+              borderRadius: '6px',
+              fontSize: '10px',
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              zIndex: 10
+            }}>
+              <span>🔥</span>
+              <span>جديد</span>
+            </div>
+          )}
+        </div>
+
+        {/* محتوى البطاقة */}
+        <div style={{
+          padding: '16px',
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          {/* العنوان */}
+          <h3 style={{
+            fontSize: '16px',
+            fontWeight: '600',
+            color: 'hsl(var(--fg))',
+            marginBottom: '12px',
+            lineHeight: '1.5',
+            overflow: 'hidden',
+            display: '-webkit-box',
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: 'vertical'
+          }}>
             {article.title}
           </h3>
 
-          {/* سطر المشاهدات ووقت القراءة مثل بطاقات الأخبار */}
-          <div className="mt-auto">
-            <div className="old-style-news-bottom-bar">
-              <div className="old-style-news-meta-item">
-                <Eye className="old-style-icon" />
-                <span>{(article.views ?? 0).toLocaleString()} مشاهدة</span>
-              </div>
-              {article.readingTime && (
-                <div className="old-style-news-meta-item">
-                  <Clock className="old-style-icon" />
-                  <span>{article.readingTime} د قراءة</span>
-                </div>
-              )}
+          {/* الملخص */}
+          {article.excerpt && (
+            <p style={{
+              fontSize: '14px',
+              color: 'hsl(var(--muted))',
+              marginBottom: '12px',
+              lineHeight: '1.4',
+              overflow: 'hidden',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical'
+            }}>
+              {article.excerpt}
+            </p>
+          )}
+
+          {/* البيانات الوصفية */}
+          <div style={{
+            marginTop: 'auto',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            fontSize: '12px',
+            color: 'hsl(var(--muted))'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <Clock style={{ width: '12px', height: '12px' }} />
+              <span>{formatGregorianDate(article.publishDate)}</span>
+            </div>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <ArticleViews
+                count={article.views || 0}
+                size="sm"
+                showLabel={false}
+              />
             </div>
           </div>
         </div>
-      </article>
+      </div>
     </Link>
   );
 }

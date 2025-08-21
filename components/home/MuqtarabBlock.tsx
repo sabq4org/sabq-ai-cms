@@ -252,9 +252,10 @@ export default function MuqtarabBlock({ className }: MuqtarabBlockProps) {
       const response = await fetch(
         `/api/muqtarab/all-articles?${params.toString()}`,
         {
-          cache: "no-store",
+          cache: "force-cache",
+          next: { revalidate: 300 }, // 5 دقائق
           headers: {
-            "Cache-Control": "no-cache",
+            "Cache-Control": "public, max-age=300, stale-while-revalidate=600",
           },
         }
       );
@@ -274,12 +275,16 @@ export default function MuqtarabBlock({ className }: MuqtarabBlockProps) {
   };
 
   useEffect(() => {
-    fetchArticles();
-  }, []);
-
-  useEffect(() => {
-    fetchHeroArticle();
-    fetchAngleArticle();
+    // تحميل متوازي لجميع البيانات لتحسين الأداء
+    const loadAllData = async () => {
+      await Promise.allSettled([
+        fetchArticles(),
+        fetchHeroArticle(),
+        fetchAngleArticle()
+      ]);
+    };
+    
+    loadAllData();
   }, []);
 
   const handleRefresh = () => {
@@ -289,8 +294,39 @@ export default function MuqtarabBlock({ className }: MuqtarabBlockProps) {
   if (loading) {
     return (
       <div className="muqtarab-card-container">
-        <div className="flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        {/* Skeleton Header */}
+        <div className="p-2 sm:p-3 md:p-4">
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-6 bg-gray-300 dark:bg-gray-600 rounded-full animate-pulse"></div>
+              <div className="w-16 h-5 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
+              <div className="w-4 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
+            </div>
+            <div className="flex gap-1">
+              <div className="w-8 h-8 bg-gray-300 dark:bg-gray-600 rounded-full animate-pulse"></div>
+              <div className="w-8 h-8 bg-gray-300 dark:bg-gray-600 rounded-full animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Skeleton Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 p-2 sm:p-3 md:p-4 pt-0">
+          {Array(8).fill(0).map((_, i) => (
+            <div key={i} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              {/* Skeleton Image */}
+              <div className="w-full h-32 bg-gray-300 dark:bg-gray-600 animate-pulse"></div>
+              
+              {/* Skeleton Content */}
+              <div className="p-3 space-y-2">
+                <div className="w-3/4 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
+                <div className="w-1/2 h-3 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
+                <div className="flex justify-between items-center mt-3">
+                  <div className="w-16 h-3 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
+                  <div className="w-12 h-3 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );

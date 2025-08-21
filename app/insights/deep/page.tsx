@@ -4,6 +4,7 @@ import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Footer from '@/components/Footer';
 import DeepAnalysisCard from '@/components/deep-analysis/DeepAnalysisCard';
+import SmartDeepAnalysisCard from '@/components/deep-analysis/SmartDeepAnalysisCard';
 import DeepAnalysisHorizontalScroll from '@/components/deep-analysis/DeepAnalysisHorizontalScroll';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import toast from 'react-hot-toast';
@@ -337,35 +338,35 @@ export default function DeepAnalysesPage() {
               {/* عرض الشبكة الموحد للجميع - محسن للموبايل ومحسن للنصوص */}
               <div className={`
                 ${viewMode === 'grid' 
-                  ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8' 
+                  ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6' 
                   : 'space-y-6'
                 }
               `}>
                 {filteredAnalyses.map((analysis) => (
-                  <div key={analysis.id} className="deep-analysis-card-container">
-                    <DeepAnalysisCard 
-                      analysis={{
-                        id: analysis.id,
-                        title: analysis.title || 'تحليل عميق',
-                        slug: analysis.slug,
-                        summary: analysis.summary || 'ملخص التحليل غير متوفر',
-                        categories: analysis.categories || [],
-                        tags: analysis.tags || [],
-                        authorName: analysis.authorName,
-                        sourceType: analysis.sourceType,
-                        analysisType: analysis.analysisType,
-                        readingTime: analysis.readingTime,
-                        views: analysis.views,
-                        likes: analysis.likes,
-                        qualityScore: analysis.qualityScore,
-                        status: analysis.status,
-                        createdAt: analysis.createdAt,
-                        publishedAt: analysis.publishedAt,
-                        featuredImage: analysis.featuredImage || undefined
-                      }} 
-                      viewMode={viewMode}
-                    />
-                  </div>
+                  <SmartDeepAnalysisCard 
+                    key={analysis.id}
+                    analysis={{
+                      id: analysis.id,
+                      title: analysis.title || 'تحليل عميق',
+                      slug: analysis.slug,
+                      summary: analysis.summary || 'ملخص التحليل غير متوفر',
+                      categories: analysis.categories || [],
+                      tags: analysis.tags || [],
+                      authorName: analysis.authorName,
+                      sourceType: analysis.sourceType,
+                      analysisType: analysis.analysisType,
+                      readingTime: analysis.readingTime,
+                      views: analysis.views,
+                      likes: analysis.likes,
+                      commentsCount: analysis.commentsCount || 0,
+                      qualityScore: analysis.qualityScore,
+                      status: analysis.status,
+                      createdAt: analysis.createdAt,
+                      publishedAt: analysis.publishedAt,
+                      featuredImage: analysis.featuredImage || undefined
+                    }} 
+                    darkMode={darkMode}
+                  />
                 ))}
               </div>
             </>

@@ -160,8 +160,10 @@ const SmartRecommendationCard: React.FC<{
       <div
         className={`relative ${isMobileScreen ? "h-32" : "h-full"} flex ${
           isMobileScreen ? "flex-row" : "flex-col"
-        } rounded-none border overflow-hidden ${
-          darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+        } rounded-xl border overflow-hidden transition-all duration-300 ${
+          darkMode 
+            ? "bg-blue-950/30 border-blue-800/30 hover:bg-[hsl(var(--accent)/0.15)] hover:border-[hsl(var(--accent)/0.3)]" 
+            : "bg-blue-50/50 border-blue-200/30 hover:bg-[hsl(var(--accent)/0.08)] hover:border-[hsl(var(--accent)/0.2)]"
         }`}
       >
         {/* الصورة الرئيسية */}
@@ -180,36 +182,7 @@ const SmartRecommendationCard: React.FC<{
             priority={index < 3}
           />
 
-          {/* شارة النوع والأيقونة */}
-          {!isMobileScreen && (
-            <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 md:top-3 md:right-3 flex items-center gap-1 sm:gap-1 md:gap-2">
-              <span className="text-base sm:text-xl md:text-3xl bg-white/90 dark:bg-gray-900/90 rounded-full p-1 sm:p-1.5 md:p-2 shadow-lg">
-                {getTypeIcon(article.type)}
-              </span>
-              <span
-                className={`px-1.5 py-0.5 sm:px-2 md:px-3 md:py-1 rounded-full text-[10px] sm:text-xs font-bold ${getTypeColors(
-                  article.type
-                )}`}
-              >
-                {typeLabel}
-              </span>
-            </div>
-          )}
-
-          {/* مؤشر الترتيب */}
-          {!isMobileScreen && index < 3 && (
-            <div
-              className={`absolute top-1.5 left-1.5 sm:top-2 sm:left-2 md:top-3 md:left-3 w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center text-[10px] sm:text-xs md:text-sm font-bold shadow-lg ${
-                index === 0
-                  ? "bg-yellow-400 text-white"
-                  : index === 1
-                  ? "bg-gray-400 text-white"
-                  : "bg-orange-400 text-white"
-              }`}
-            >
-              {index + 1}
-            </div>
-          )}
+          {/* تم حذف الملصقات من على الصور */}
         </div>
 
         {/* المحتوى */}
@@ -263,11 +236,11 @@ const SmartRecommendationCard: React.FC<{
           <h3
             className={`font-bold ${
               isMobileScreen
-                ? "text-[11px] leading-tight mb-1"
-                : "text-xs sm:text-sm md:text-base leading-tight mb-2"
-            } line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors ${
-              darkMode ? "text-white" : "text-gray-900"
-            }`}
+                ? "text-sm leading-tight mb-1"
+                : "text-base sm:text-lg md:text-xl leading-tight mb-2"
+                      } line-clamp-2 transition-colors duration-300 group-hover:text-[hsl(var(--accent))] ${
+            darkMode ? "text-white" : "text-gray-900"
+          }`}
           >
             {article.title}
           </h3>

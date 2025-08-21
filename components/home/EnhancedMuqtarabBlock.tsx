@@ -158,7 +158,14 @@ export default function EnhancedMuqtarabBlock({
         });
 
         const response = await fetch(
-          `/api/muqtarab/all-articles?${params.toString()}`
+          `/api/muqtarab/all-articles?${params.toString()}`,
+          {
+            cache: "force-cache",
+            next: { revalidate: 240 }, // 4 دقائق
+            headers: {
+              "Cache-Control": "public, max-age=240, stale-while-revalidate=480",
+            },
+          }
         );
 
         if (response.ok) {

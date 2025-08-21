@@ -904,16 +904,18 @@ export default function ArticleClientComponent({
             {/* تم نقل أنماط RTL إلى ملفات CSS العامة لضمان الاستقرار أثناء البناء */}
           </div>
           
-          <div className="article-unified-width mt-6 sm:mt-8">
-            <SmartPersonalizedContent
-              articleId={article.id}
-              categoryId={article.category_id}
-              categoryName={article.category?.name}
-              tags={article.keywords || []}
-              darkMode={darkMode}
-              userId={undefined}
-            />
-          </div>
+          {!isMobile && (
+            <div className="article-unified-width mt-6 sm:mt-8">
+              <SmartPersonalizedContent
+                articleId={article.id}
+                categoryId={article.category_id}
+                categoryName={article.category?.name}
+                tags={article.keywords || []}
+                darkMode={darkMode}
+                userId={undefined}
+              />
+            </div>
+          )}
         </div>
       </main>
     </>

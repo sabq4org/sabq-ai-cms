@@ -1,6 +1,5 @@
 "use client";
 
-import Footer from "@/components/Footer";
 import { HeroCard } from "@/components/muqtarab/HeroCard";
 import WithMuqtarabErrorBoundary from "@/components/muqtarab/MuqtarabErrorBoundary";
 import { MuqtarabPageSkeleton } from "@/components/muqtarab/MuqtarabSkeletons";
@@ -20,6 +19,7 @@ import {
   Search,
   Sparkles,
   TrendingUp,
+  User,
   Users,
 } from "lucide-react";
 // import { Metadata } from "next";
@@ -122,10 +122,11 @@ function MuqtaribPageContent() {
         const optimizedResponse = await fetch(apiEndpoint, {
           headers: {
             Accept: "application/json",
+            "Cache-Control": "public, max-age=300, stale-while-revalidate=600",
           },
           // 🚀 تحسين caching للمتصفح
           cache: "force-cache",
-          next: { revalidate: 300 }, // 5 دقائق
+          next: { revalidate: 180 }, // 3 دقائق - أسرع تحديث
         });
 
         if (optimizedResponse.ok) {
@@ -633,10 +634,36 @@ function MuqtaribPageContent() {
         </div>
       </div>
 
-      {/* فوتر الموقع الرسمي */}
-      <Footer />
+
     </div>
   );
+}
+
+// أدوات ألوان بسيطة لبطاقات الزوايا
+function hexToRgbString(hex?: string): string | null {
+  if (!hex) return null;
+  let cleaned = hex.replace('#', '');
+  if (cleaned.length === 3) {
+    cleaned = cleaned.split('').map((c) => c + c).join('');
+  }
+  if (cleaned.length !== 6) return null;
+  const r = parseInt(cleaned.slice(0, 2), 16);
+  const g = parseInt(cleaned.slice(2, 4), 16);
+  const b = parseInt(cleaned.slice(4, 6), 16);
+  if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) return null;
+  return `${r} ${g} ${b}`;
+}
+
+function getCssVarsForTheme(themeColor?: string): React.CSSProperties {
+  const rgb = hexToRgbString(themeColor || '');
+  const cssVars: React.CSSProperties = {};
+  if (themeColor) {
+    (cssVars as any)['--theme-primary'] = themeColor;
+  }
+  if (rgb) {
+    (cssVars as any)['--theme-primary-rgb'] = rgb;
+  }
+  return cssVars;
 }
 
 // مكون المقال المميز للموبايل
@@ -714,160 +741,240 @@ function MobileFeaturedAngleCard({ angle }: { angle: Angle }) {
   );
 }
 
-// مكون الزاوية للموبايل
+// مكون الزاوية للموبايل - مع الصورة والتأثيرات
 function MobileAngleCard({ angle }: { angle: Angle }) {
-  return (
-    <Card className="flex items-center gap-3 p-3 rounded-lg shadow-sm bg-white">
-      <div className="relative w-12 h-12 flex-shrink-0">
-        {angle.coverImage ? (
-          <Image
-            src={angle.coverImage}
-            alt={angle.title}
-            fill
-            className="rounded-md object-cover"
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-blue-400 to-indigo-600 rounded-md flex items-center justify-center">
-            <BookOpen className="w-6 h-6 text-white" />
-          </div>
-        )}
-      </div>
+  // نفس نظام الألوان من بطاقات الأخبار
+  const baseBg = 'hsl(var(--bg-elevated))';
+  const hoverBg = 'hsl(var(--accent) / 0.06)';
+  const baseBorder = '1px solid hsl(var(--line))';
+  const themeColor = angle.themeColor || '#8B5CF6';
 
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
-          <h3 className="text-sm font-semibold line-clamp-1">{angle.title}</h3>
-          {angle.isFeatured && (
-            <Sparkles className="w-3 h-3 text-yellow-500 flex-shrink-0" />
+  return (
+    <Link href={`/muqtarab/${angle.slug}`} style={{ textDecoration: 'none' }}>
+      <div 
+        style={{
+          ...getCssVarsForTheme(angle.themeColor),
+          background: baseBg,
+          border: baseBorder,
+          borderRadius: '12px',
+          transition: 'all 0.3s ease',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          padding: '12px'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'translateY(-2px)';
+          e.currentTarget.style.background = hoverBg;
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'translateY(0)';
+          e.currentTarget.style.background = baseBg;
+        }}
+      >
+        {/* صورة الزاوية */}
+        <div style={{
+          position: 'relative',
+          width: '60px',
+          height: '60px',
+          flexShrink: 0,
+          borderRadius: '8px',
+          overflow: 'hidden'
+        }}>
+          {angle.coverImage ? (
+            <Image
+              src={angle.coverImage}
+              alt={angle.title}
+              fill
+              className="object-cover"
+            />
+          ) : (
+            <div style={{
+              width: '100%',
+              height: '100%',
+              background: `linear-gradient(135deg, ${themeColor}, ${themeColor}CC)`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <BookOpen style={{ width: '24px', height: '24px', color: 'white' }} />
+            </div>
           )}
         </div>
-        <p className="text-xs text-gray-600 line-clamp-2 mb-2">
-          {angle.description}
-        </p>
-        <div className="flex items-center justify-between">
-          <div className="text-xs text-gray-400">
-            {angle.articlesCount || 0} مقالة
+
+        {/* المحتوى */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {/* ليبل الزاوية */}
+          <span className="category-pill" style={{ marginBottom: '8px', display: 'inline-flex' }}>
+            {angle.icon && <span style={{ fontSize: '12px', marginLeft: '4px' }}>{angle.icon}</span>}
+            {angle.title}
+          </span>
+
+          {/* الوصف */}
+          <p style={{
+            fontSize: '13px',
+            color: 'hsl(var(--muted))',
+            marginBottom: '8px',
+            lineHeight: '1.3',
+            overflow: 'hidden',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical'
+          }}>
+            {angle.description}
+          </p>
+
+          {/* عدد المقالات */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            fontSize: '11px',
+            color: 'hsl(var(--muted))'
+          }}>
+            <BookOpen style={{ width: '12px', height: '12px' }} />
+            <span>{angle.articlesCount || 0} مقالة</span>
           </div>
-          <Link href={`/muqtarab/${angle.slug}`}>
-            <Button size="sm" variant="ghost" className="text-xs px-2 py-1 h-6">
-              <Eye className="w-3 h-3 ml-1" />
-              عرض
-            </Button>
-          </Link>
         </div>
       </div>
-    </Card>
+    </Link>
   );
 }
 
-// مكون بطاقة الزاوية العادية
+// مكون بطاقة الزاوية العادية - مطابق لبطاقات الأخبار
 function AngleCard({ angle }: { angle: Angle }) {
   const themeColor = angle.themeColor || "#8B5CF6";
 
+  // نفس نظام الألوان من بطاقات الأخبار
+  const baseBg = 'hsl(var(--bg-elevated))';
+  const hoverBg = 'hsl(var(--accent) / 0.06)';
+  const baseBorder = '1px solid hsl(var(--line))';
+
   return (
-    <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-0 shadow-sm dark:bg-gray-800/50 dark:hover:bg-gray-800/80 relative bg-white dark:bg-gray-800">
-      {/* صورة الزاوية */}
-      <div className="relative h-32 overflow-hidden">
-        {angle.coverImage ? (
-          <Image
-            src={angle.coverImage}
-            alt={angle.title}
-            fill={true}
-            className="object-cover transition-transform duration-500 group-hover:scale-110"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            priority={false}
-          />
-        ) : (
-          <div
-            className="w-full h-full flex items-center justify-center relative"
-            style={{
-              background: `linear-gradient(135deg, ${themeColor} 0%, ${themeColor}80 100%)`,
-            }}
-          >
-            <BookOpen className="w-10 h-10 text-white opacity-80" />
+    <Link href={`/muqtarab/${angle.slug}`} style={{ textDecoration: 'none' }}>
+      <div 
+        style={{
+          ...getCssVarsForTheme(angle.themeColor),
+          background: baseBg,
+          border: baseBorder,
+          borderRadius: '16px',
+          overflow: 'hidden',
+          transition: 'all 0.3s ease',
+          cursor: 'pointer',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'translateY(-4px)';
+          e.currentTarget.style.background = hoverBg;
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'translateY(0)';
+          e.currentTarget.style.background = baseBg;
+        }}
+      >
+        {/* صورة الزاوية */}
+        <div style={{
+          position: 'relative',
+          height: '180px',
+          width: '100%',
+          background: 'hsl(var(--bg))',
+          overflow: 'hidden'
+        }}>
+          {angle.coverImage ? (
+            <Image
+              src={angle.coverImage}
+              alt={angle.title}
+              fill={true}
+              className="object-cover transition-transform duration-500"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              priority={false}
+            />
+          ) : (
+            <div
+              style={{
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: `linear-gradient(135deg, ${themeColor} 0%, ${themeColor}CC 100%)`,
+              }}
+            >
+              <BookOpen style={{ width: '40px', height: '40px', color: 'white', opacity: 0.8 }} />
+            </div>
+          )}
+
+          {/* شارة عدد المقالات فقط */}
+          <div style={{
+            position: 'absolute',
+            top: '12px',
+            left: '12px',
+            background: 'rgba(255, 255, 255, 0.2)',
+            backdropFilter: 'blur(8px)',
+            color: 'white',
+            padding: '4px 8px',
+            borderRadius: '6px',
+            fontSize: '10px',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            zIndex: 10
+          }}>
+            <BookOpen style={{ width: '12px', height: '12px' }} />
+            <span>{angle.articlesCount || 0}</span>
           </div>
-        )}
+        </div>
 
-        {/* تدرج للنص - نفس MuqtarabBlock */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-
-        {/* ليبل اسم الزاوية */}
-        <div className="absolute top-2 right-2">
-          <Badge
-            className="text-xs px-2 py-1 font-medium shadow-sm"
-            style={{
-              backgroundColor: themeColor,
-              color: "white",
-              border: "none"
-            }}
-          >
+        {/* محتوى البطاقة */}
+        <div style={{
+          padding: '16px',
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          {/* ليبل الزاوية فوق التعريف */}
+          <span className="category-pill" style={{ marginBottom: '12px', display: 'inline-flex' }}>
+            {angle.icon && <span style={{ fontSize: '12px', marginLeft: '6px' }}>{angle.icon}</span>}
             {angle.title}
-          </Badge>
-        </div>
+          </span>
 
-        {/* شارة عدد المقالات - يسار أعلى */}
-        <div className="absolute top-2 left-2">
-          <Badge className="bg-white/20 backdrop-blur-sm text-white border-0 px-2 py-1 text-xs font-medium">
-            <BookOpen className="w-3 h-3 mr-1" />
-            {angle.articlesCount || 0} مقالة
-          </Badge>
-        </div>
-      </div>
-
-      {/* محتوى البطاقة */}
-      <CardContent className="p-4">
-        {/* الوصف */}
-        <div className="space-y-2">
-          <Link
-            href={`/muqtarab/${angle.slug}`}
-            className="block group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
-          >
-          </Link>
+          {/* الوصف - 4 أسطر */}
           {angle.description && (
-            <p className="text-gray-600 dark:text-gray-300 text-xs line-clamp-2 leading-relaxed">
+            <p style={{
+              fontSize: '14px',
+              color: 'hsl(var(--muted))',
+              marginBottom: '12px',
+              lineHeight: '1.4',
+              overflow: 'hidden',
+              display: '-webkit-box',
+              WebkitLineClamp: 4,
+              WebkitBoxOrient: 'vertical'
+            }}>
               {angle.description}
             </p>
           )}
-        </div>
 
-        {/* أسفل البطاقة - معلومات ومؤلف */}
-        <div className="mt-3 space-y-2">
-          {/* معلومات المؤلف والتاريخ */}
-          <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-            <div className="flex items-center gap-2">
-              {angle.author?.name && (
-                <div className="flex items-center gap-1">
-                  <Users className="w-3 h-3" />
-                  <span className="font-medium">{angle.author.name}</span>
-                </div>
-              )}
+          {/* عدد المقالات فقط */}
+          <div style={{
+            marginTop: 'auto',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '12px',
+            color: 'hsl(var(--muted))'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <BookOpen style={{ width: '12px', height: '12px' }} />
+              <span>{angle.articlesCount || 0} مقالة</span>
             </div>
-            <time className="text-xs">
-              {angle.createdAt
-                ? new Date(angle.createdAt).toLocaleDateString("ar-SA", {
-                    year: "numeric",
-                    month: "short",
-                  })
-                : ""}
-            </time>
           </div>
-
-          {/* زر الاستكشاف - نفس الأسلوب */}
-          <Link href={`/muqtarab/${angle.slug}`} className="block">
-            <Button
-              size="sm"
-              className="w-full text-xs py-2 rounded-md font-medium transition-all duration-200 hover:scale-105 shadow-sm"
-              style={{
-                backgroundColor: themeColor,
-                color: "white",
-              }}
-            >
-              <Eye className="w-3 h-3 ml-1" />
-              استكشاف
-            </Button>
-          </Link>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </Link>
   );
 }
 
@@ -876,7 +983,7 @@ function AngleCard({ angle }: { angle: Angle }) {
 // مكون بطاقة الزاوية المميزة
 function FeaturedAngleCard({ angle }: { angle: Angle }) {
   return (
-    <Card className="group rounded-2xl overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-300">
+    <Card className="group rounded-2xl overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-300" style={getCssVarsForTheme(angle.themeColor)}>
       <div className="flex h-64">
         <div className="relative w-1/2 overflow-hidden">
           {angle.coverImage ? (
@@ -927,7 +1034,7 @@ function FeaturedAngleCard({ angle }: { angle: Angle }) {
             </div>
 
             <Link href={`/muqtarab/${angle.slug}`}>
-              <Button className="w-full bg-blue-600 hover:bg-blue-700">
+              <Button className="w-full" style={{ backgroundColor: angle.themeColor || 'var(--theme-primary)', color: '#fff' }}>
                 <Eye className="w-4 h-4 ml-2" />
                 استكشاف الزاوية
               </Button>
