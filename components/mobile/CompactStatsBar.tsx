@@ -19,6 +19,8 @@ interface CompactStatsBarProps {
 export default function CompactStatsBar({ darkMode = false }: CompactStatsBarProps) {
   const [stats, setStats] = useState<StatsData | null>(null);
   const [loading, setLoading] = useState(true);
+  
+  console.log('🔍 CompactStatsBar تم تحميله');
 
   useEffect(() => {
     fetchStats();

@@ -713,8 +713,14 @@ function NewspaperHomePage({
       showPerformanceMonitor={process.env.NODE_ENV === "development"}
     >
       {/* شريط الإحصائيات المحسن للموبايل - متلاصق مع الهيدر */}
-      <div className="mobile-stats-bar sticky z-30 bg-white dark:bg-gray-900 shadow-sm block lg:hidden" style={{ top: '56px' }}>
-        <CompactStatsBar darkMode={darkMode} />
+      <div className="lg:hidden">
+        <div className="sticky bg-blue-100 dark:bg-blue-900 shadow-sm border-b-2 border-blue-200" style={{ top: '56px', zIndex: 30 }}>
+          {/* شريط اختباري */}
+          <div className="p-3 text-center">
+            <span className="text-sm font-semibold">شريط الإحصائيات - اختبار</span>
+          </div>
+          <CompactStatsBar darkMode={darkMode} />
+        </div>
       </div>
       
       <div
