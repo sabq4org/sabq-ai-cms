@@ -119,8 +119,8 @@ interface CategoryStats {
   breakingNews: number;
   todayArticles: number;
   weeklyArticles: number;
-  totalViews: number;
-  totalLikes: number;
+    totalViews: number;
+    totalLikes: number;
   averageReadTime: number;
   topAuthors: Array<{
     name: string;
@@ -166,7 +166,10 @@ export default function CategoryDetailPage({ params }: PageProps) {
     fetchCategoryData(params.slug);
   }, [params.slug]);
   useEffect(() => {
-    if (articles.length > 0) {
+    // تحديث filteredArticles مباشرة عند تغيير articles
+    if (articles.length > 0 && !searchTerm && sortBy === "date") {
+      setFilteredArticles(articles);
+    } else if (articles.length > 0) {
       fetchFilteredArticles();
     }
   }, [searchTerm, sortBy, selectedTag, articles]);
@@ -176,19 +179,19 @@ export default function CategoryDetailPage({ params }: PageProps) {
       // تطبيق البحث
       if (searchTerm) {
         filtered = filtered.filter(
-          (article) =>
-            article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (article) =>
+          article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             article.excerpt?.toLowerCase().includes(searchTerm.toLowerCase())
         );
       }
       // تطبيق الترتيب
       filtered.sort((a, b) => {
-        switch (sortBy) {
-          case "views":
+      switch (sortBy) {
+        case "views":
             return (b.views_count || 0) - (a.views_count || 0);
-          case "likes":
+        case "likes":
             return (b.likes_count || 0) - (a.likes_count || 0);
-          default:
+        default:
             return (
               new Date(b.published_at || b.created_at).getTime() -
               new Date(a.published_at || a.created_at).getTime()
@@ -241,7 +244,12 @@ export default function CategoryDetailPage({ params }: PageProps) {
       );
       if (articlesResponse.ok) {
         const articlesData = await articlesResponse.json();
-        setArticles(articlesData.articles || []);
+        console.log("Articles API Response:", articlesData);
+        // التعامل مع البنية المختلفة للبيانات من API
+        const articles = articlesData.data || articlesData.articles || [];
+        console.log("Processed articles:", articles);
+        setArticles(articles);
+        setFilteredArticles(articles);
       }
     } catch (error: any) {
       setError(error.message);
@@ -467,33 +475,33 @@ export default function CategoryDetailPage({ params }: PageProps) {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
+          <div className="text-center">
           <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
           <p className="text-gray-600 dark:text-gray-400">جاري التحميل...</p>
+          </div>
         </div>
-      </div>
     );
   }
   if (error || !category) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="text-center max-w-md">
-          <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
             عذراً، حدث خطأ
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
             {error || "لم نتمكن من العثور على هذا القسم"}
           </p>
-          <button
+              <button
             onClick={() => router.push("/categories")}
             className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <ArrowRight className="w-5 h-5" />
+              >
+                <ArrowRight className="w-5 h-5" />
             العودة للأقسام
           </button>
-        </div>
-      </div>
+            </div>
+          </div>
     );
   }
   const Icon = getIcon(category.name);
@@ -548,34 +556,65 @@ export default function CategoryDetailPage({ params }: PageProps) {
                 )}
               </div>
             </div>
-            {/* Quick Stats */}
-            <div className="flex flex-wrap gap-4 md:gap-6">
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
-                <div className="text-2xl md:text-3xl font-bold text-white">
-                  {filteredStats.totalArticles}
-                </div>
-                <div className="text-sm text-white/70">مقال</div>
+                        {/* Quick Stats - تنسيق محسّن */}
+            <div className="flex flex-wrap gap-3 md:gap-4 mt-6">
+              <div className="bg-white/20 backdrop-blur-md rounded-xl px-6 py-3 border border-white/30 hover:bg-white/30 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-white/30 rounded-lg flex items-center justify-center">
+                    <BookOpen className="w-5 h-5 text-white" />
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
-                <div className="text-2xl md:text-3xl font-bold text-white">
-                  {filteredStats.todayArticles}
-                </div>
-                <div className="text-sm text-white/70">اليوم</div>
+                  <div>
+                    <div className="text-3xl font-bold text-white">
+                      {filteredStats.totalArticles}
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
-                <div className="text-2xl md:text-3xl font-bold text-white">
-                  {filteredStats.totalViews.toLocaleString("ar-SA")}
-                </div>
-                <div className="text-sm text-white/70">مشاهدة</div>
+                    <div className="text-sm text-white/80">إجمالي المقالات</div>
               </div>
-              {filteredStats.featuredCount > 0 && (
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
-                  <div className="text-2xl md:text-3xl font-bold text-white">
-                    {filteredStats.featuredCount}
+                </div>
+              </div>
+              
+              <div className="bg-white/20 backdrop-blur-md rounded-xl px-6 py-3 border border-white/30 hover:bg-white/30 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-white/30 rounded-lg flex items-center justify-center">
+                    <Calendar className="w-5 h-5 text-white" />
                   </div>
-                  <div className="text-sm text-white/70">مميز</div>
+                  <div>
+                    <div className="text-3xl font-bold text-white">
+                      {filteredStats.todayArticles}
+                    </div>
+                    <div className="text-sm text-white/80">مقالات اليوم</div>
+                  </div>
                 </div>
-              )}
+              </div>
+              
+              <div className="bg-white/20 backdrop-blur-md rounded-xl px-6 py-3 border border-white/30 hover:bg-white/30 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-white/30 rounded-lg flex items-center justify-center">
+                    <Eye className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <div className="text-3xl font-bold text-white">
+                      {filteredStats.totalViews.toLocaleString("ar-SA")}
+                    </div>
+                    <div className="text-sm text-white/80">إجمالي المشاهدات</div>
+                  </div>
+                </div>
+              </div>
+              
+              {filteredStats.featuredCount > 0 && (
+                <div className="bg-white/20 backdrop-blur-md rounded-xl px-6 py-3 border border-white/30 hover:bg-white/30 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-white/30 rounded-lg flex items-center justify-center">
+                      <Sparkles className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <div className="text-3xl font-bold text-white">
+                        {filteredStats.featuredCount}
+                      </div>
+                      <div className="text-sm text-white/80">مقالات مميزة</div>
+                    </div>
+                  </div>
+                  </div>
+                )}
             </div>
           </div>
         </div>
@@ -692,8 +731,8 @@ export default function CategoryDetailPage({ params }: PageProps) {
                     <p className="text-gray-500">لا توجد مقالات للعرض</p>
                   </div>
                 )}
+                  </div>
               </div>
-            </div>
             {/* Desktop View - Keep existing */}
             <div className="hidden md:block">
               {viewMode === "grid" ? (
