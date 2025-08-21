@@ -471,14 +471,9 @@ export default function NewsPage() {
       news.categories?.name ||
       news.category ||
       news.categories ||
-      "عام";
-    
-    // Debug
-    if (!news.category?.name && !news.categories?.name) {
-      console.log("Missing category for article:", news.title, news);
-    }
+      null;
     const rawCategorySlug =
-      categoryName?.toLowerCase?.() || categoryName || "عام";
+      categoryName?.toLowerCase?.() || categoryName || "";
     const mappedCategory = categoryMap[rawCategorySlug] || rawCategorySlug;
 
     return (
@@ -915,22 +910,7 @@ export default function NewsPage() {
                 // عرض الموبايل - استخدام OldStyleNewsBlock
                 <div className="mobile-news-container">
                   <OldStyleNewsBlock
-                    articles={filteredArticles.map(article => {
-                      // Debug - فحص بنية التصنيف
-                      if (!article.category && article.category_name) {
-                        console.log("Article missing category object:", article.title, article);
-                      }
-                      
-                      return {
-                        ...article,
-                        // التأكد من وجود category object
-                        category: article.category || (article.category_name ? {
-                          id: article.category_id || 0,
-                          name: article.category_name,
-                          slug: article.category_slug || article.category_name?.toLowerCase()
-                        } : undefined)
-                      };
-                    })}
+                    articles={articles}
                     showTitle={false}
                     columns={1}
                     showExcerpt={false}
