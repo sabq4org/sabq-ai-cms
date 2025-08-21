@@ -90,7 +90,7 @@ export default function Page() {
   const MobileContent = useMemo(() => (
     <div className="pt-0 pb-6">
       {/* شريط الإحصائيات للنسخة الخفيفة - تحت الهيدر مباشرة */}
-      <div className="md:hidden mb-4">
+      <div className="md:hidden mb-6">
         <LiteStatsBar />
       </div>
       <div className="max-w-6xl mx-auto">
