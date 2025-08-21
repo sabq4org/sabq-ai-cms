@@ -309,26 +309,11 @@ body {
   padding-left: 0 !important;
   padding-right: 0 !important;
   margin-left: 0 !important;
-  margin-right: 0 !important;
+  /* تم حذف margin-right: 0 للسماح بتطبيق الهامش الأيمن */
   max-width: 100% !important;
 }
 
-/* ===== Dashboard RTL sidebar spacing fix ===== */
-/* استخدام margin-right لدفع المحتوى بعيداً عن السايدبار */
-.admin-modern-main.admin-dashboard-layout {
-  margin-right: var(--sidebar-width, 280px) !important;
-  width: auto !important;
-  max-width: 100% !important;
-  padding-right: 0 !important;
-  box-sizing: border-box !important;
-}
 
-/* على الشاشات الصغيرة، لا نحتاج margin */
-@media (max-width: 767px) {
-  .admin-modern-main.admin-dashboard-layout {
-    margin-right: 0 !important;
-  }
-}
 
 .manus-header {
   background: hsl(var(--bg));
