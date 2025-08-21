@@ -743,24 +743,40 @@ export default function ProfilePage() {
   return (
     <>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        {/* رأس الصفحة محسّن للموبايل */}
-        <div className="bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 text-white relative overflow-hidden">
+        {/* رأس الصفحة محسّن للموبايل - متناسق مع هوية سبق */}
+        <div className="bg-gradient-to-br from-blue-600 to-blue-700 text-white relative overflow-hidden">
           {/* نمط خلفية ناعم */}
-          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent"></div>
+          {/* نمط هندسي خفيف */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full transform translate-x-32 -translate-y-32"></div>
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-white rounded-full transform -translate-x-48 translate-y-48"></div>
+          </div>
 
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12 relative">
+            {/* شعار سبق */}
+            <div className="absolute top-6 right-4 lg:right-8">
+              <Link href="/" className="inline-block">
+                <img 
+                  src="/logo.png" 
+                  alt="سبق" 
+                  className="h-8 sm:h-10 w-auto opacity-90 hover:opacity-100 transition-opacity"
+                />
+              </Link>
+            </div>
+            
             {/* أزرار الإجراءات للديسكتوب - موقع محسن */}
             <div className="hidden sm:flex absolute top-6 left-4 lg:left-8 gap-3">
               <button
                 onClick={() => router.push("/profile/edit")}
-                className="px-4 py-2 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition-all font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-sm flex items-center gap-2"
+                className="px-4 py-2 bg-white/20 backdrop-blur-sm text-white border border-white/30 rounded-lg hover:bg-white/30 transition-all font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-sm flex items-center gap-2"
               >
                 <Edit2 className="w-4 h-4" />
                 تعديل الملف
               </button>
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-sm flex items-center gap-2"
+                className="px-4 py-2 bg-red-500/80 backdrop-blur-sm text-white border border-red-400/30 rounded-lg hover:bg-red-600/80 transition-all font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-sm flex items-center gap-2"
               >
                 <LogOut className="w-4 h-4" />
                 تسجيل الخروج
@@ -823,7 +839,7 @@ export default function ProfilePage() {
                     )}
                   </label>
                   {/* شارة العضوية مصغرة ومحسنة */}
-                  <div className="absolute -bottom-1 -left-1 w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center shadow-md ring-1 ring-white/50">
+                  <div className="absolute -bottom-1 -left-1 w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-md ring-2 ring-white">
                     <span className="text-xs sm:text-sm">
                       {membership.icon}
                     </span>
@@ -839,21 +855,21 @@ export default function ProfilePage() {
                     {user.email}
                   </p>
                   {/* معلومات سريعة مضغوطة للموبايل */}
-                  <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-xs sm:text-sm">
-                    <div className="flex items-center gap-1 sm:gap-2">
-                      <Crown className="w-3 h-3 sm:w-4 sm:h-4" />
-                      <span>{membership.name}</span>
+                  <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm">
+                    <div className="flex items-center gap-1 sm:gap-2 bg-white/10 px-2 py-1 rounded-full">
+                      <Crown className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-300" />
+                      <span className="text-white/90">{membership.name}</span>
                     </div>
-                    <div className="flex items-center gap-1 sm:gap-2">
-                      <Zap className="w-3 h-3 sm:w-4 sm:h-4" />
-                      <span>{userPoints} نقطة</span>
+                    <div className="flex items-center gap-1 sm:gap-2 bg-white/10 px-2 py-1 rounded-full">
+                      <Zap className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-300" />
+                      <span className="text-white/90">{userPoints} نقطة</span>
                     </div>
-                    <div className="hidden sm:flex items-center gap-2">
+                    <div className="hidden sm:flex items-center gap-2 text-white/80">
                       <Calendar className="w-4 h-4" />
                       <span>عضو منذ {formatDate(user.created_at)}</span>
                     </div>
                     {userInsights && (
-                      <div className="hidden sm:flex items-center gap-2">
+                      <div className="hidden sm:flex items-center gap-2 text-white/80">
                         <Brain className="w-4 h-4" />
                         <span>
                           {userInsights.readingProfile.type === "analytical"
@@ -869,19 +885,20 @@ export default function ProfilePage() {
               </div>
 
               {/* أزرار الإجراءات للموبايل فقط */}
-              <div className="flex flex-col gap-2 w-full sm:hidden">
+              <div className="flex gap-2 w-full sm:hidden">
                 <button
                   onClick={() => router.push("/profile/edit")}
-                  className="flex-1 px-4 py-2 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition-all font-medium flex items-center justify-center gap-2 shadow-lg text-sm"
+                  className="flex-1 px-4 py-2 bg-white/20 backdrop-blur-sm text-white border border-white/30 rounded-lg hover:bg-white/30 transition-all font-medium flex items-center justify-center gap-2 text-sm"
                 >
                   <Edit2 className="w-4 h-4" />
                   تعديل الملف
                 </button>
                 <button
                   onClick={handleLogout}
-                  className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all font-medium shadow-lg text-sm"
+                  className="flex-1 px-4 py-2 bg-red-500/80 backdrop-blur-sm text-white border border-red-400/30 rounded-lg hover:bg-red-600/80 transition-all font-medium text-sm flex items-center justify-center gap-2"
                 >
-                  تسجيل الخروج
+                  <LogOut className="w-4 h-4" />
+                  الخروج
                 </button>
               </div>
             </div>
@@ -988,13 +1005,13 @@ export default function ProfilePage() {
               {/* العمود الأيسر */}
               <div className="lg:col-span-1 space-y-6">
                 {/* بطاقة النقاط محسنة للموبايل */}
-                <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-xl border border-amber-200 dark:border-amber-700 p-4 sm:p-6">
+                <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl border border-blue-200 dark:border-blue-700 p-4 sm:p-6">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-base sm:text-lg font-bold flex items-center gap-2">
-                      <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" />
+                      <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
                       نقاط الولاء
                     </h3>
-                    <div className="text-2xl sm:text-3xl font-bold text-amber-600">
+                    <div className="text-2xl sm:text-3xl font-bold text-blue-700">
                       {userPoints}
                     </div>
                   </div>
@@ -1009,7 +1026,7 @@ export default function ProfilePage() {
                       </div>
                       <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 sm:h-2">
                         <div
-                          className="bg-gradient-to-r from-amber-400 to-amber-600 h-1.5 sm:h-2 rounded-full transition-all duration-500"
+                          className="bg-gradient-to-r from-blue-400 to-blue-600 h-1.5 sm:h-2 rounded-full transition-all duration-500"
                           style={{
                             width: `${getProgressToNextLevel(userPoints)}%`,
                           }}
@@ -1024,7 +1041,7 @@ export default function ProfilePage() {
 
                   <button
                     onClick={() => setShowLoyaltyModal(true)}
-                    className="text-amber-700 dark:text-amber-300 hover:text-amber-800 dark:hover:text-amber-200 text-xs sm:text-sm font-medium flex items-center justify-center gap-1 w-full bg-white/50 dark:bg-gray-800/50 rounded-lg py-2"
+                    className="text-blue-700 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200 text-xs sm:text-sm font-medium flex items-center justify-center gap-1 w-full bg-white/50 dark:bg-gray-800/50 rounded-lg py-2 hover:bg-white/70 dark:hover:bg-gray-700/50 transition-colors"
                   >
                     عرض التفاصيل
                     <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -1101,14 +1118,14 @@ export default function ProfilePage() {
 
                   {/* سلسلة القراءة وتقييم التوازن */}
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 rounded-lg p-3 border border-amber-200 dark:border-amber-700">
+                    <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20 rounded-lg p-3 border border-indigo-200 dark:border-indigo-700">
                       <div className="flex items-center gap-2 mb-1">
-                        <Sparkles className="w-4 h-4 text-amber-600" />
-                        <span className="text-xs text-amber-700 dark:text-amber-300">
+                        <Sparkles className="w-4 h-4 text-indigo-600" />
+                        <span className="text-xs text-indigo-700 dark:text-indigo-300">
                           سلسلة
                         </span>
                       </div>
-                      <div className="text-xl font-bold text-amber-800 dark:text-amber-200">
+                      <div className="text-xl font-bold text-indigo-800 dark:text-indigo-200">
                         {realStats?.readingStreak || 0}
                       </div>
                     </div>
@@ -1130,10 +1147,10 @@ export default function ProfilePage() {
               {/* العمود الأيمن */}
               <div className="lg:col-span-2 space-y-6">
                 {/* الاهتمامات */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 sm:p-8">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 sm:p-8 border border-gray-200 dark:border-gray-700">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-bold flex items-center gap-2">
-                      <Heart className="w-5 h-5 text-red-500" />
+                    <h3 className="text-lg font-bold flex items-center gap-2 text-gray-800 dark:text-gray-200">
+                      <Heart className="w-5 h-5 text-blue-600" />
                       اهتماماتي
                     </h3>
                     <div className="flex items-center gap-2">
@@ -1148,12 +1165,12 @@ export default function ProfilePage() {
                         className={`font-medium flex items-center gap-1 text-sm transition-colors ${
                           fetchingInterestsRef.current
                             ? "text-gray-400 cursor-not-allowed"
-                            : "text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300"
+                            : "text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
                         }`}
                         title="تحديث الاهتمامات"
                       >
                         {fetchingInterestsRef.current ? (
-                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-green-600 border-t-transparent" />
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-t-transparent" />
                         ) : (
                           <ArrowRight className="w-4 h-4 transform rotate-180" />
                         )}
