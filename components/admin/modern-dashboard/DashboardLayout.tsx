@@ -123,13 +123,11 @@ export default function DashboardLayout({
         {/* المحتوى الرئيسي */}
         <main className="admin-modern-main admin-dashboard-layout" style={{
           flex: 1,
-          // حجز مساحة للسايدبار على اليمين كي لا يتداخل مع المحتوى
-          paddingRight: !isMobile ? (sidebarOpen ? '280px' : '80px') : '0',
           paddingTop: '0px',
           paddingBottom: '16px',
           minHeight: 'calc(100vh - 56px)',
-          transition: 'padding-right 0.3s ease',
-          // تمرير عرض السايدبار كمتغير CSS ليقرأه CSS العام (RTL)
+          transition: 'width 0.3s ease',
+          // تمرير عرض السايدبار كمتغير CSS ليقرأه CSS العام
           ['--sidebar-width' as any]: !isMobile ? (sidebarOpen ? '280px' : '80px') : '0'
         }}>
           <div className={cn("fade-in w-full max-w-full px-4 sm:px-6 lg:px-8", className)}>

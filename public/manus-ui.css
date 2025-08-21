@@ -314,19 +314,17 @@ body {
 }
 
 /* ===== Dashboard RTL sidebar spacing fix ===== */
-/* نحجز مساحة للمحتوى تساوي عرض السايدبار في RTL */
+/* تحديد عرض المحتوى ليكون العرض الكامل ناقص عرض السايدبار */
 .admin-modern-main.admin-dashboard-layout {
-  /* حجز مساحة للسايدبار في RTL، مع استخدام الخاصية الفيزيائية لضمان التفوق على أي reset */
-  padding-inline-start: var(--sidebar-width, 0) !important;
-  padding-right: var(--sidebar-width, 0) !important;
+  width: calc(100% - var(--sidebar-width, 0)) !important;
+  padding-right: 0 !important;
   box-sizing: border-box;
 }
 
-/* على الشاشات الصغيرة، لا نضيف مساحة للسايدبار */
+/* على الشاشات الصغيرة، يأخذ المحتوى العرض الكامل */
 @media (max-width: 767px) {
   .admin-modern-main.admin-dashboard-layout {
-    padding-inline-start: 0 !important;
-    padding-right: 0 !important;
+    width: 100% !important;
   }
 }
 
