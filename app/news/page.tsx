@@ -7,6 +7,7 @@ import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import type { RecommendedArticle } from "@/lib/ai-recommendations";
 import { generatePersonalizedRecommendations } from "@/lib/ai-recommendations";
 import CloudImage from "@/components/ui/CloudImage";
+import ArticleViews from "@/components/ui/ArticleViews";
 import { formatDateNumeric } from "@/lib/date-utils";
 import { getArticleLink } from "@/lib/utils";
 import "@/styles/smart-content-cards.css";
@@ -412,6 +413,10 @@ export default function NewsPage() {
   // NewsCard component - من الصفحة الرئيسية
   const NewsCard = ({ news }: { news: any }) => {
     const [imageLoading, setImageLoading] = useState(true);
+    const isBreaking = Boolean(news.breaking || news.is_breaking || news?.metadata?.breaking);
+    const baseBg = isBreaking ? 'hsla(0, 78%, 55%, 0.14)' : 'hsl(var(--bg-elevated))';
+    const hoverBg = isBreaking ? 'hsla(0, 78%, 55%, 0.22)' : 'hsl(var(--accent) / 0.06)';
+    const baseBorder = isBreaking ? '1px solid hsl(0 72% 45% / 0.45)' : '1px solid hsl(var(--line))';
 
     // Category mapping for consistent styling
     const categoryMap: Record<string, string> = {
@@ -472,22 +477,34 @@ export default function NewsPage() {
     const mappedCategory = categoryMap[rawCategorySlug] || rawCategorySlug;
 
     return (
-      <Link href={getArticleLink(news)} className="group block">
-        <article
-          dir="rtl"
-          data-category={mappedCategory}
-          className={`h-full rounded-2xl overflow-hidden shadow-sm transition-all duration-300 flex flex-col ${
-            news.breaking || news.is_breaking
-              ? darkMode
-                ? "bg-red-950/30 border border-red-800/70"
-                : "bg-red-50 border border-red-200"
-              : darkMode
-              ? "bg-gray-800 border border-gray-700"
-              : "bg-white border border-gray-200"
-          }`}
-        >
+      <Link href={getArticleLink(news)} style={{ textDecoration: 'none' }}>
+        <div style={{
+          background: baseBg,
+          border: baseBorder,
+          borderRadius: '16px',
+          overflow: 'hidden',
+          transition: 'all 0.3s ease',
+          cursor: 'pointer',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'translateY(-4px)';
+          e.currentTarget.style.background = hoverBg;
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'translateY(0)';
+          e.currentTarget.style.background = baseBg;
+        }}>
           {/* صورة المقال */}
-          <div className="relative h-40 sm:h-48 overflow-hidden">
+          <div style={{
+            position: 'relative',
+            height: '180px',
+            width: '100%',
+            background: 'hsl(var(--bg))',
+            overflow: 'hidden'
+          }}>
             <CloudImage
               src={news?.image || news?.featured_image || news?.image_url || null}
               alt={news?.title || "صورة المقال"}
@@ -496,58 +513,91 @@ export default function NewsPage() {
               fallbackType="article"
               priority={false}
             />
-            {/* شارة عاجل */}
-            {(news.breaking || news.is_breaking) && (
-              <div className="absolute top-3 right-3">
-                <span className="flex items-center gap-1 px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full animate-pulse shadow-lg">
-                  ⚡ عاجل
-                </span>
+            {/* ليبل عاجل يحل محل التصنيف عند العاجل */}
+            {isBreaking ? (
+              <div style={{
+                position: 'absolute',
+                top: '12px',
+                right: '12px',
+                background: 'hsl(0 72% 45%)',
+                color: 'white',
+                padding: '6px 14px',
+                borderRadius: '20px',
+                fontSize: '13px',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                boxShadow: '0 2px 8px rgba(220, 38, 38, 0.3)',
+                zIndex: 10
+              }}>
+                <span style={{ animation: 'pulse 2s infinite' }}>⚡</span>
+                عاجل
               </div>
+            ) : (
+              news.category_name && (
+                <div style={{
+                  position: 'absolute',
+                  top: '12px',
+                  right: '12px',
+                  background: 'rgba(255, 255, 255, 0.95)',
+                  backdropFilter: 'blur(8px)',
+                  padding: '6px 14px',
+                  borderRadius: '20px',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: '#7C3AED',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                  zIndex: 10
+                }}>
+                  {categoryName}
+                </div>
+              )
             )}
           </div>
+
           {/* محتوى البطاقة */}
-          <div className="p-4 flex-1 flex flex-col">
-            {/* لابل التصنيف */}
-            <div className="mb-2">
-              <span className="category-pill">{categoryName}</span>
-            </div>
-
+          <div style={{
+            padding: '16px',
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
             {/* العنوان */}
-            <h4 className="font-semibold text-lg mb-3 line-clamp-4 leading-snug flex-1">
+            <h3 style={{
+              fontSize: '16px',
+              fontWeight: '600',
+              color: isBreaking ? 'hsl(0 72% 45%)' : 'hsl(var(--fg))',
+              marginBottom: '12px',
+              lineHeight: '1.5',
+              overflow: 'hidden',
+              display: '-webkit-box',
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: 'vertical'
+            }}>
               {news.title}
-            </h4>
+            </h3>
 
-            {/* سطر واحد: التاريخ + المشاهدات */}
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mt-auto">
-              <time
-                dateTime={news.published_at || news.created_at}
-                className="inline-flex items-center gap-1"
-              >
-                <Clock className="w-4 h-4" />
+            {/* البيانات الوصفية */}
+            <div style={{
+              marginTop: 'auto',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '16px',
+              fontSize: '12px',
+              color: 'hsl(var(--muted))'
+            }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Clock className="w-3 h-3" />
                 {formatDateNumeric(news.published_at || news.created_at)}
-              </time>
-              <span className="mx-1">•</span>
-              <span className="inline-flex items-center gap-1">
-                👁️{" "}
-                {new Intl.NumberFormat("ar", { notation: "compact" }).format(
-                  news.views ?? news.views_count ?? 0
-                )}
               </span>
-              {typeof news.comments_count === "number" &&
-                news.comments_count > 0 && (
-                  <>
-                    <span className="mx-1">•</span>
-                    <span className="inline-flex items-center gap-1">
-                      <MessageSquare className="w-4 h-4" />
-                      {new Intl.NumberFormat("ar", {
-                        notation: "compact",
-                      }).format(news.comments_count)}
-                    </span>
-                  </>
-                )}
+              <ArticleViews
+                count={news.views || news.views_count || 0}
+                minimal={true}
+              />
             </div>
           </div>
-        </article>
+        </div>
       </Link>
     );
   };

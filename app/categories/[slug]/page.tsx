@@ -259,6 +259,156 @@ export default function CategoryDetailPage({ params }: PageProps) {
   const getColor = (categoryName: string) => {
     return categoryColors[categoryName] || categoryColors["default"];
   };
+
+  // مكون البطاقة الموحد
+  const ArticleCard = ({ article }: { article: any }) => {
+    const isBreaking = Boolean(article.is_breaking || article?.metadata?.breaking);
+    const baseBg = isBreaking ? 'hsla(0, 78%, 55%, 0.14)' : 'hsl(var(--bg-elevated))';
+    const hoverBg = isBreaking ? 'hsla(0, 78%, 55%, 0.22)' : 'hsl(var(--accent) / 0.06)';
+    const baseBorder = isBreaking ? '1px solid hsl(0 72% 45% / 0.45)' : '1px solid hsl(var(--line))';
+
+    return (
+      <Link href={getArticleLink(article)} style={{ textDecoration: 'none' }}>
+        <div style={{
+          background: baseBg,
+          border: baseBorder,
+          borderRadius: '16px',
+          overflow: 'hidden',
+          transition: 'all 0.3s ease',
+          cursor: 'pointer',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'translateY(-4px)';
+          e.currentTarget.style.background = hoverBg;
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'translateY(0)';
+          e.currentTarget.style.background = baseBg;
+        }}>
+          {/* صورة المقال */}
+          <div style={{
+            position: 'relative',
+            height: '180px',
+            width: '100%',
+            background: 'hsl(var(--bg))',
+            overflow: 'hidden'
+          }}>
+            {article.featured_image ? (
+              <img
+                src={article.featured_image}
+                alt={article.title}
+                style={{ 
+                  width: '100%', 
+                  height: '100%', 
+                  objectFit: 'cover',
+                  transition: 'transform 0.5s ease'
+                }}
+              />
+            ) : (
+              <div style={{
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%)',
+                color: '#7C3AED'
+              }}>
+                <Sparkles className="w-12 h-12" />
+              </div>
+            )}
+            {/* ليبل عاجل يحل محل التصنيف عند العاجل */}
+            {isBreaking ? (
+              <div style={{
+                position: 'absolute',
+                top: '12px',
+                right: '12px',
+                background: 'hsl(0 72% 45%)',
+                color: 'white',
+                padding: '6px 14px',
+                borderRadius: '20px',
+                fontSize: '13px',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                boxShadow: '0 2px 8px rgba(220, 38, 38, 0.3)',
+                zIndex: 10
+              }}>
+                <span style={{ animation: 'pulse 2s infinite' }}>⚡</span>
+                عاجل
+              </div>
+            ) : (
+              article.category_name && (
+                <div style={{
+                  position: 'absolute',
+                  top: '12px',
+                  right: '12px',
+                  background: 'rgba(255, 255, 255, 0.95)',
+                  backdropFilter: 'blur(8px)',
+                  padding: '6px 14px',
+                  borderRadius: '20px',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: '#7C3AED',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                  zIndex: 10
+                }}>
+                  {article.category_name}
+                </div>
+              )
+            )}
+          </div>
+
+          {/* محتوى البطاقة */}
+          <div style={{
+            padding: '16px',
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            {/* العنوان */}
+            <h3 style={{
+              fontSize: '16px',
+              fontWeight: '600',
+              color: isBreaking ? 'hsl(0 72% 45%)' : 'hsl(var(--fg))',
+              marginBottom: '12px',
+              lineHeight: '1.5',
+              overflow: 'hidden',
+              display: '-webkit-box',
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: 'vertical'
+            }}>
+              {article.title}
+            </h3>
+
+            {/* البيانات الوصفية */}
+            <div style={{
+              marginTop: 'auto',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '16px',
+              fontSize: '12px',
+              color: 'hsl(var(--muted))'
+            }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Clock className="w-3 h-3" />
+                {new Date(article.published_at || article.created_at).toLocaleDateString('ar-SA')}
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Eye className="w-3 h-3" />
+                {article.views_count || 0}
+                {article.views_count > 300 && ' 🔥'}
+              </span>
+            </div>
+          </div>
+        </div>
+      </Link>
+    );
+  };
   const getCategoryImage = (category: Category) => {
     // استخدام الصورة المرفوعة من لوحة التحكم إذا كانت موجودة
     const coverImage =
@@ -675,144 +825,7 @@ export default function CategoryDetailPage({ params }: PageProps) {
                   {filteredArticles && filteredArticles.length > 0 ? (
                     filteredArticles.map((article) => {
                       try {
-                        return (
-                          <Link
-                            key={article?.id || Math.random()}
-                            href={getArticleLink(article)}
-                            className="group block"
-                          >
-                            <article
-                              className={`article-card h-full rounded-3xl overflow-hidden shadow-xl dark:shadow-gray-900/50 transition-all duration-300 ${
-                                article?.is_breaking
-                                  ? "bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800"
-                                  : "bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700"
-                              }`}
-                            >
-                              {/* صورة المقال */}
-                              <div className="relative h-48 overflow-hidden bg-gray-100 dark:bg-gray-700">
-                                {article.featured_image ? (
-                                  <img
-                                    src={article.featured_image}
-                                    alt={article.title || "صورة المقال"}
-                                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                    onLoad={(e) => {
-                                      (
-                                        e.target as HTMLImageElement
-                                      ).style.opacity = "1";
-                                    }}
-                                    onError={(e) => {
-                                      const target =
-                                        e.target as HTMLImageElement;
-                                      target.src =
-                                        "/images/placeholder-featured.jpg";
-                                    }}
-                                    style={{
-                                      opacity: 0,
-                                      transition: "opacity 0.3s",
-                                    }}
-                                  />
-                                ) : (
-                                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
-                                    <Newspaper className="w-16 h-16 text-gray-400 dark:text-gray-600" />
-                                  </div>
-                                )}
-                                {/* معلومات أسفل الصورة */}
-                                <div className="absolute bottom-3 right-3 left-3 flex gap-2">
-                                  {/* وقت القراءة */}
-                                  {article.reading_time && (
-                                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-black/70 text-white backdrop-blur-sm">
-                                      <Clock className="w-3 h-3" />
-                                      {article.reading_time} دقيقة
-                                    </span>
-                                  )}
-                                  {/* اسم الكاتب */}
-                                  {article.author_name &&
-                                    article.author_name !== "غير محدد" && (
-                                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-black/70 text-white backdrop-blur-sm">
-                                        <User className="w-3 h-3" />
-                                        {article.author_name}
-                                      </span>
-                                    )}
-                                </div>
-                                {/* شارة عاجل */}
-                                {article.is_breaking && (
-                                  <div className="absolute top-3 right-3">
-                                    <span className="urgent-badge inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-red-500 text-white backdrop-blur-sm">
-                                      <Zap className="w-3 h-3" />
-                                      عاجل
-                                    </span>
-                                  </div>
-                                )}
-                                {/* شارة مميز */}
-                                {article.is_featured && (
-                                  <div className="absolute top-3 left-3">
-                                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-yellow-400 to-orange-500 text-white backdrop-blur-sm">
-                                      <Sparkles className="w-3 h-3" />
-                                      مميز
-                                    </span>
-                                  </div>
-                                )}
-                              </div>
-                              {/* محتوى البطاقة */}
-                              <div className="p-5">
-                                {/* العنوان */}
-                                <h4
-                                  className={`font-bold text-[15px] leading-[1.4] mb-3 line-clamp-3 ${
-                                    article.is_breaking
-                                      ? "text-red-700 dark:text-red-400"
-                                      : "text-gray-900 dark:text-white"
-                                  } group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors`}
-                                >
-                                  {article.title}
-                                </h4>
-                                {/* الملخص */}
-                                {article.excerpt && (
-                                  <p className="text-[13px] leading-relaxed mb-4 line-clamp-2 text-gray-600 dark:text-gray-400">
-                                    {article.excerpt}
-                                  </p>
-                                )}
-                                {/* التفاصيل السفلية */}
-                                <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
-                                  {/* المعلومات */}
-                                  <div className="flex flex-col gap-1">
-                                    {/* التاريخ */}
-                                    <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                                      <Calendar className="w-3 h-3" />
-                                      {formatDate(
-                                        article.published_at ||
-                                          article.created_at
-                                      )}
-                                    </div>
-                                    {/* المشاهدات */}
-                                    <div className="flex items-center gap-3 text-xs">
-                                      <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
-                                        <Eye className="w-3 h-3" />
-                                        {article.views_count > 0
-                                          ? article.views_count.toLocaleString(
-                                              "ar-SA"
-                                            )
-                                          : "جديد"}
-                                      </span>
-                                      {article.likes_count &&
-                                        article.likes_count > 0 && (
-                                          <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
-                                            <Heart className="w-3 h-3" />
-                                            {article.likes_count.toLocaleString(
-                                              "ar-SA"
-                                            )}
-                                          </span>
-                                        )}
-                                    </div>
-                                  </div>
-                                  {/* زر القراءة */}
-                                  <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/20">
-                                    <ArrowLeft className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                                  </div>
-                                </div>
-                              </div>
-                            </article>
-                          </Link>
-                        );
+                        return <ArticleCard key={article?.id || Math.random()} article={article} />;
                       } catch (error) {
                         console.error("Error rendering grid article:", error);
                         return null;
@@ -830,22 +843,7 @@ export default function CategoryDetailPage({ params }: PageProps) {
                   {filteredArticles && filteredArticles.length > 0 ? (
                     filteredArticles.map((article) => {
                       try {
-                        return (
-                          <Link
-                            key={article?.id || Math.random()}
-                            href={getArticleLink(article)}
-                            className="group block"
-                          >
-                            <article
-                              className={`bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 flex gap-6 ${
-                                article?.is_breaking
-                                  ? "border-2 border-red-200 dark:border-red-800"
-                                  : "border border-gray-100 dark:border-gray-700"
-                              }`}
-                            >
-                              {/* Image */}
-                              <div className="relative w-48 h-32 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-700">
-                                {article.featured_image ? (
+                        return <ArticleCard key={article?.id || Math.random()} article={article} />;
                                   <img
                                     src={article.featured_image}
                                     alt={article.title || "صورة المقال"}
@@ -948,11 +946,6 @@ export default function CategoryDetailPage({ params }: PageProps) {
                                       <ArrowLeft className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                                     </div>
                                   </div>
-                                </div>
-                              </div>
-                            </article>
-                          </Link>
-                        );
                       } catch (error) {
                         console.error("Error rendering list article:", error);
                         return null;
