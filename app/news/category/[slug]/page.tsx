@@ -237,8 +237,8 @@ export default function CategoryPage({ params }: PageProps) {
   }
   return (
   <div className="min-h-screen bg-gray-50">
-      {/* Hero Section مع تحسينات */}
-      <div className={`relative bg-gradient-to-br ${getCategoryColor(category?.name_ar)} text-white overflow-hidden`}>
+      {/* Hero Section مع تحسينات (full-bleed) */}
+      <div className={`relative bg-gradient-to-br ${getCategoryColor(category?.name_ar)} text-white overflow-hidden full-bleed`}>
         <div className="absolute inset-0 bg-black/20" />
         <div className="absolute inset-0">
           <div className="absolute top-20 right-20 w-72 h-72 bg-white/10 rounded-full blur-3xl" />

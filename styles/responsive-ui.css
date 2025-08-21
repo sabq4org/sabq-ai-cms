@@ -241,6 +241,16 @@ body {
   min-height: 60px;
 }
 
+/* ===== عناصر بعرض كامل (Full-bleed) ===== */
+.full-bleed {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+}
+
 /* ===== الشعار ===== */
 .logo {
   display: flex;
