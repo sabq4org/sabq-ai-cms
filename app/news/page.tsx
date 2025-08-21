@@ -937,33 +937,31 @@ export default function NewsPage() {
                     showExcerpt={false}
                   />
                   
-                  {/* إضافة البطاقات المخصصة بشكل منفصل */}
-                  <div className="space-y-4 mt-4">
-                    {smartRecommendations.map((recommendation, index) => {
-                      const captions = [
-                        "اقتراح مبني على اهتماماتك المسجلة",
-                        "محتوى يتماشى مع ذوقك واهتماماتك",
-                        "اقتراح ذكي يناسب قراءاتك السابقة",
-                      ];
-
-                      return (
-                        <SmartContentNewsCard
-                          key={`smart-${recommendation.id}`}
-                          article={{
-                            ...recommendation,
-                            slug: recommendation.url.replace("/article/", ""),
-                            featured_image: recommendation.thumbnail,
-                            category_name: recommendation.category,
-                            excerpt: undefined,
-                            image_caption: captions[index % captions.length],
-                          }}
-                          darkMode={darkMode}
-                          variant="compact"
-                          position={index}
-                        />
-                      );
-                    })}
-                  </div>
+                  {/* إضافة البطاقات المخصصة بنفس تنسيق البطاقات العادية */}
+                  {smartRecommendations.length > 0 && (
+                    <div className="mt-4">
+                      <OldStyleNewsBlock
+                        articles={smartRecommendations.map((recommendation) => ({
+                          id: recommendation.id,
+                          title: recommendation.title,
+                          slug: recommendation.url.replace("/article/", ""),
+                          featured_image: recommendation.thumbnail,
+                          image: recommendation.thumbnail,
+                          published_at: new Date().toISOString(),
+                          views: 0,
+                          is_custom: true,
+                          category: recommendation.category ? {
+                            id: 0,
+                            name: recommendation.category,
+                            slug: recommendation.category.toLowerCase()
+                          } : undefined
+                        }))}
+                        showTitle={false}
+                        columns={1}
+                        showExcerpt={false}
+                      />
+                    </div>
+                  )}
                 </div>
               ) : (
                 // عرض سطح المكتب - الشبكة
