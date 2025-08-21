@@ -258,6 +258,13 @@ body {
   padding-top: 0 !important;
 }
 
+/* تهيئة الحاويات لضمان عدم قطع الـ full-bleed */
+.content-main-mobile,
+.content-main-desktop {
+  position: relative;
+  z-index: 1;
+}
+
 /* ===== الشعار ===== */
 .logo {
   display: flex;
