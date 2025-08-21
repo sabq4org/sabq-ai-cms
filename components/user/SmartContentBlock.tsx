@@ -258,30 +258,33 @@ export default function SmartContentBlock({
       <div style={{ position: 'relative', zIndex: 1 }}>
         {/* العنوان الرئيسي */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <h2 style={{
-            fontSize: '24px',
-            fontWeight: '700',
-            color: 'hsl(var(--fg))',
-            marginBottom: '12px',
+          <div style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '8px'
+            marginBottom: '8px'
           }}>
             <span style={{
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
-              width: '32px',
-              height: '32px',
+              width: '36px',
+              height: '36px',
               background: 'linear-gradient(135deg, #DDD6FE 0%, #C7D2FE 100%)',
-              borderRadius: '8px',
+              borderRadius: '10px',
               color: '#5B21B6',
               fontSize: '16px',
               border: '1px solid #E0E7FF'
             }}>
               <Sparkles className="w-5 h-5" />
             </span>
+          </div>
+          <h2 style={{
+            fontSize: '24px',
+            fontWeight: '700',
+            color: 'hsl(var(--fg))',
+            marginBottom: '12px'
+          }}>
             {title}
           </h2>
           
