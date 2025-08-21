@@ -744,39 +744,34 @@ export default function ProfilePage() {
     <>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* رأس الصفحة محسّن للموبايل - متناسق مع هوية سبق */}
-        <div className="bg-gradient-to-br from-blue-600 to-blue-700 text-white relative overflow-hidden">
+        <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 text-gray-900 dark:text-white relative overflow-hidden border-b border-gray-200 dark:border-gray-700">
           {/* نمط خلفية ناعم */}
-          <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent"></div>
-          {/* نمط هندسي خفيف */}
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full transform translate-x-32 -translate-y-32"></div>
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-white rounded-full transform -translate-x-48 translate-y-48"></div>
-          </div>
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent"></div>
 
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12 relative">
-            {/* شعار سبق */}
-            <div className="absolute top-6 right-4 lg:right-8">
+            {/* شعار سبق في الأعلى */}
+            <div className="mb-6 flex justify-center sm:justify-start">
               <Link href="/" className="inline-block">
                 <img 
                   src="/logo.png" 
                   alt="سبق" 
-                  className="h-8 sm:h-10 w-auto opacity-90 hover:opacity-100 transition-opacity"
+                  className="h-10 sm:h-12 w-auto"
                 />
               </Link>
             </div>
             
             {/* أزرار الإجراءات للديسكتوب - موقع محسن */}
-            <div className="hidden sm:flex absolute top-6 left-4 lg:left-8 gap-3">
+            <div className="hidden sm:flex absolute top-6 left-4 lg:left-8 gap-3 z-10">
               <button
                 onClick={() => router.push("/profile/edit")}
-                className="px-4 py-2 bg-white/20 backdrop-blur-sm text-white border border-white/30 rounded-lg hover:bg-white/30 transition-all font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-sm flex items-center gap-2"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium shadow-sm hover:shadow-md text-sm flex items-center gap-2"
               >
                 <Edit2 className="w-4 h-4" />
                 تعديل الملف
               </button>
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 bg-red-500/80 backdrop-blur-sm text-white border border-red-400/30 rounded-lg hover:bg-red-600/80 transition-all font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-sm flex items-center gap-2"
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all font-medium shadow-sm hover:shadow-md text-sm flex items-center gap-2"
               >
                 <LogOut className="w-4 h-4" />
                 تسجيل الخروج
@@ -839,7 +834,7 @@ export default function ProfilePage() {
                     )}
                   </label>
                   {/* شارة العضوية مصغرة ومحسنة */}
-                  <div className="absolute -bottom-1 -left-1 w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-md ring-2 ring-white">
+                  <div className="absolute -bottom-1 -left-1 w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-br from-amber-500 to-amber-600 rounded-full flex items-center justify-center shadow-md ring-2 ring-white dark:ring-gray-800">
                     <span className="text-xs sm:text-sm">
                       {membership.icon}
                     </span>
@@ -848,28 +843,28 @@ export default function ProfilePage() {
 
                 {/* المعلومات الأساسية */}
                 <div className="flex-1 min-w-0">
-                  <h1 className="text-xl sm:text-3xl font-bold mb-1 sm:mb-2 text-white truncate">
+                  <h1 className="text-xl sm:text-3xl font-bold mb-1 sm:mb-2 text-gray-900 dark:text-white truncate">
                     {user.name}
                   </h1>
-                  <p className="text-white/80 mb-2 sm:mb-3 text-sm sm:text-base truncate">
+                  <p className="text-gray-600 dark:text-gray-300 mb-2 sm:mb-3 text-sm sm:text-base truncate">
                     {user.email}
                   </p>
                   {/* معلومات سريعة مضغوطة للموبايل */}
                   <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm">
-                    <div className="flex items-center gap-1 sm:gap-2 bg-white/10 px-2 py-1 rounded-full">
-                      <Crown className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-300" />
-                      <span className="text-white/90">{membership.name}</span>
+                    <div className="flex items-center gap-1 sm:gap-2 bg-blue-100 dark:bg-blue-900/30 px-3 py-1 rounded-full">
+                      <Crown className="w-3 h-3 sm:w-4 sm:h-4 text-amber-600 dark:text-amber-400" />
+                      <span className="text-gray-700 dark:text-gray-300">{membership.name}</span>
                     </div>
-                    <div className="flex items-center gap-1 sm:gap-2 bg-white/10 px-2 py-1 rounded-full">
-                      <Zap className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-300" />
-                      <span className="text-white/90">{userPoints} نقطة</span>
+                    <div className="flex items-center gap-1 sm:gap-2 bg-blue-100 dark:bg-blue-900/30 px-3 py-1 rounded-full">
+                      <Zap className="w-3 h-3 sm:w-4 sm:h-4 text-amber-600 dark:text-amber-400" />
+                      <span className="text-gray-700 dark:text-gray-300">{userPoints} نقطة</span>
                     </div>
-                    <div className="hidden sm:flex items-center gap-2 text-white/80">
+                    <div className="hidden sm:flex items-center gap-2 text-gray-600 dark:text-gray-400">
                       <Calendar className="w-4 h-4" />
                       <span>عضو منذ {formatDate(user.created_at)}</span>
                     </div>
                     {userInsights && (
-                      <div className="hidden sm:flex items-center gap-2 text-white/80">
+                      <div className="hidden sm:flex items-center gap-2 text-gray-600 dark:text-gray-400">
                         <Brain className="w-4 h-4" />
                         <span>
                           {userInsights.readingProfile.type === "analytical"
@@ -888,14 +883,14 @@ export default function ProfilePage() {
               <div className="flex gap-2 w-full sm:hidden">
                 <button
                   onClick={() => router.push("/profile/edit")}
-                  className="flex-1 px-4 py-2 bg-white/20 backdrop-blur-sm text-white border border-white/30 rounded-lg hover:bg-white/30 transition-all font-medium flex items-center justify-center gap-2 text-sm"
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium flex items-center justify-center gap-2 text-sm"
                 >
                   <Edit2 className="w-4 h-4" />
                   تعديل الملف
                 </button>
                 <button
                   onClick={handleLogout}
-                  className="flex-1 px-4 py-2 bg-red-500/80 backdrop-blur-sm text-white border border-red-400/30 rounded-lg hover:bg-red-600/80 transition-all font-medium text-sm flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all font-medium text-sm flex items-center justify-center gap-2"
                 >
                   <LogOut className="w-4 h-4" />
                   الخروج
