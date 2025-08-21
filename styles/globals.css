@@ -1,4 +1,4 @@
-@ke/* أنيميشن شعلة اللهب للأخبار الشائعة */
+/* أنيميشن شعلة اللهب للأخبار الشائعة */
 @keyframes flameFlicker {
   0% {
     transform: scale(1) rotate(-1deg);
@@ -33,24 +33,13 @@
 .flame-container:hover .flame-main,
 .flame-container:hover .flame-inner {
   animation-duration: 0.8s;
-}n-from-right { from { transform: translateX(100%);} to { transform: translateX(0);} }
+}
+
+/* حركات انزلاق صحيحة */
+@keyframes slide-in-from-right { from { transform: translateX(100%);} to { transform: translateX(0);} }
 @keyframes slide-out-to-right { from { transform: translateX(0);} to { transform: translateX(100%);} }
 
-/* أنيميشن شعلة النار للأخبار الشائعة */
-@keyframes flameFlicker {
-  0% {
-    transform: scale(1) rotate(-1deg);
-    opacity: 0.9;
-  }
-  50% {
-    transform: scale(1.1) rotate(1deg);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(0.95) rotate(-0.5deg);
-    opacity: 0.95;
-  }
-}
+/* إزالة تكرار تعريف flameFlicker المكرر */
 
 .data-\[state\=open\]\:slide-in-from-right[data-state="open"] { animation: slide-in-from-right 220ms cubic-bezier(0.2,0.8,0.2,1); }
 .data-\[state\=closed\]\:slide-out-to-right[data-state="closed"] { animation: slide-out-to-right 200ms ease; }

@@ -29,6 +29,7 @@ import {
   CheckCircle,
   Clock,
   Hash,
+  Eye,
   Star,
 } from "lucide-react";
 // import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
