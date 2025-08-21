@@ -244,10 +244,15 @@ body {
 /* ===== عناصر بعرض كامل (Full-bleed) ===== */
 .full-bleed {
   position: relative;
-  left: 50%;
   width: 100vw;
-  max-width: 100vw;
-  transform: translateX(-50%);
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+}
+
+/* توسيط المحتوى داخل full-bleed */
+.full-bleed > * {
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* إزالة أي مسافة علوية لكي تلتصق الصورة بالهيدر مباشرة */
