@@ -89,7 +89,10 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
         {DevIndicator}
         {/* إخفاء هيدر النسخة الخفيفة في صفحات الإدارة */}
         {!pathname.startsWith('/admin') && <LightHeader />}
-        <main className={`mx-auto content-main-mobile ${isCategoryPage ? '' : 'px-4 sm:px-6 py-6'}`} style={{ maxWidth: isCategoryPage ? '100%' : '72rem' }}>
+        <main 
+          className={`mx-auto content-main-mobile ${isCategoryPage || pathname.startsWith('/admin') ? 'px-1' : 'px-4 sm:px-6 py-6'}`} 
+          style={{ maxWidth: (isCategoryPage || pathname.startsWith('/admin')) ? '1400px' : '72rem' }}
+        >
           <div data-device="mobile">
             {children}
           </div>
@@ -112,8 +115,8 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
       {!pathname.startsWith('/admin') && <UserHeader />}
       <main className="content-main-desktop" style={{
         flex: 1,
-        padding: isCategoryPage ? '0' : '16px 24px',
-        maxWidth: isCategoryPage ? '100%' : '72rem',
+        padding: (isCategoryPage || pathname.startsWith('/admin')) ? '0 8px' : '16px 24px',
+        maxWidth: (isCategoryPage || pathname.startsWith('/admin')) ? '1400px' : '72rem',
         margin: '0 auto',
         width: '100%',
         background: 'transparent'
