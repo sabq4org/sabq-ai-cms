@@ -172,27 +172,18 @@ export default function UniversalNewsCard({
 
           {/* المحتوى */}
           <div className="flex-1 min-w-0 rounded-xl transition-colors group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 px-2 py-1">
-            {/* التصنيف أو ليبل عاجل */}
-            <div className="flex items-center gap-2 mb-2 flex-wrap">
-              {isBreaking ? (
+            {/* التصنيف */}
+            <div className="flex items-center gap-2 mb-2">
+              {category && !isBreaking && (
+                <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                  {category.name}
+                </span>
+              )}
+              {isBreaking && (
                 <Badge className="bg-red-600 text-white text-xs px-2 py-0.5">
                   <Zap className="w-3 h-3 mr-1" />
                   عاجل
                 </Badge>
-              ) : (
-                category && (
-                  <Badge
-                    variant="secondary"
-                    className={cn(
-                      "text-xs font-bold px-2 py-0.5 rounded-full border",
-                      categoryStyle.bgClass,
-                      categoryStyle.textClass,
-                      categoryStyle.borderClass
-                    )}
-                  >
-                    {categoryStyle.emoji} {category.name}
-                  </Badge>
-                )
               )}
             </div>
 
@@ -257,33 +248,30 @@ export default function UniversalNewsCard({
               fallbackType="article"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 192px"
             />
-          </div>
-
-          {/* المحتوى */}
-          <div className="flex-1 min-w-0">
-            {/* التصنيف أو ليبل عاجل + شارات أخرى */}
-            <div className="flex items-center gap-2 mb-3 flex-wrap">
+            
+            {/* التصنيف أو ليبل عاجل في الصورة */}
+            <div className="absolute top-2 right-2 z-10">
               {isBreaking ? (
-                <Badge className="bg-red-600 text-white text-sm px-3 py-1">
-                  <Zap className="w-4 h-4 mr-1" />
+                <Badge className="bg-red-600 text-white text-xs px-2 py-1 rounded-full">
+                  <Zap className="w-3 h-3 mr-1" />
                   عاجل
                 </Badge>
               ) : (
                 category && (
-                  <Badge
-                    variant="secondary"
-                    className={cn(
-                      "text-xs font-bold px-3 py-1 rounded-full border",
-                      categoryStyle.bgClass,
-                      categoryStyle.textClass,
-                      categoryStyle.borderClass
-                    )}
-                  >
-                    {categoryStyle.emoji} {category.name}
-                  </Badge>
+                  <div className="bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-full">
+                    <span className="text-xs font-semibold text-gray-800">
+                      {category.name}
+                    </span>
+                  </div>
                 )
               )}
+            </div>
+          </div>
 
+          {/* المحتوى */}
+          <div className="flex-1 min-w-0">
+            {/* شارات أخرى فقط */}
+            <div className="flex items-center gap-2 mb-3 flex-wrap">
               {isPersonalized && (
                 <Badge className="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-xs px-2 py-1">
                   <Sparkles className="w-3 h-3 mr-1" />
@@ -373,33 +361,30 @@ export default function UniversalNewsCard({
             fallbackType="article"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
-        </div>
-
-        {/* المحتوى */}
-        <div className="p-6 flex-1 flex flex-col rounded-xl transition-colors group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20">
-          {/* التصنيف أو ليبل عاجل + شارات أخرى */}
-          <div className="flex items-center gap-2 mb-3 flex-wrap">
+          
+          {/* التصنيف أو ليبل عاجل في الصورة */}
+          <div className="absolute top-3 right-3 z-10">
             {isBreaking ? (
-              <Badge className="bg-red-600 text-white text-xs px-2 py-1">
+              <Badge className="bg-red-600 text-white text-xs px-3 py-1.5 rounded-full">
                 <Zap className="w-3 h-3 mr-1" />
                 عاجل
               </Badge>
             ) : (
               category && (
-                <Badge
-                  variant="secondary"
-                  className={cn(
-                    "text-xs font-bold px-3 py-1 rounded-full border",
-                    categoryStyle.bgClass,
-                    categoryStyle.textClass,
-                    categoryStyle.borderClass
-                  )}
-                >
-                  {categoryStyle.emoji} {category.name}
-                </Badge>
+                <div className="bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                  <span className="text-xs font-semibold text-gray-800">
+                    {category.name}
+                  </span>
+                </div>
               )
             )}
+          </div>
+        </div>
 
+        {/* المحتوى */}
+        <div className="p-6 flex-1 flex flex-col rounded-xl transition-colors group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20">
+          {/* شارات أخرى فقط */}
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
             {isPersonalized && (
               <Badge className="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-xs px-2 py-1">
                 <Sparkles className="w-3 h-3 mr-1" />

@@ -106,18 +106,22 @@ export default function SmartContentNewsCard({
                 onError={() => setImageError(true)}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+              
+              {/* Category Label on Image */}
+              {article.category_name && (
+                <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                  <span className="text-xs font-semibold text-gray-800">
+                    {article.category_name}
+                  </span>
+                </div>
+              )}
             </div>
           </Link>
         )}
         
         <div className="relative p-6">
-          {/* Category and AI Labels */}
-          <div className="flex items-center gap-2 mb-4 flex-wrap">
-            {article.category_name && (
-              <span className="category-pill">
-                {article.category_name}
-              </span>
-            )}
+          {/* AI Label Only */}
+          <div className="flex items-center gap-2 mb-4">
             <span className="text-xs font-bold text-white inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-purple-500 to-pink-500">
               <Sparkles className="w-3 h-3" />
               مخصص{article.score ? ` | ${Math.round(article.score * 100)}%` : ''}
@@ -126,7 +130,7 @@ export default function SmartContentNewsCard({
 
           {/* Content */}
           <Link href={`/news/${article.slug}`}>
-            <h3 className="text-lg font-bold mb-2 line-clamp-2 dark:text-white theme-hover-text transition-colors">
+            <h3 className="text-base font-bold mb-2 line-clamp-3 dark:text-white theme-hover-text transition-colors">
               {article.title}
             </h3>
           </Link>
@@ -185,6 +189,15 @@ export default function SmartContentNewsCard({
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
               
+              {/* Category Label on Image */}
+              {article.category_name && (
+                <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                  <span className="text-xs font-semibold text-gray-800">
+                    {article.category_name}
+                  </span>
+                </div>
+              )}
+              
               {article.image_caption && (
                 <div className="absolute bottom-0 left-0 right-0 p-3">
                   <p className="text-xs text-white font-medium">{article.image_caption}</p>
@@ -196,13 +209,8 @@ export default function SmartContentNewsCard({
 
         {/* Content */}
         <div className="px-4 pt-4 pb-4">
-          {/* Category and AI Labels */}
-          <div className="flex items-center gap-2 mb-3 flex-wrap">
-            {article.category_name && (
-              <span className="category-pill">
-                {article.category_name}
-              </span>
-            )}
+          {/* AI Label Only */}
+          <div className="flex items-center gap-2 mb-3">
             <span className="text-xs font-bold text-white inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500">
               <Sparkles className="w-3 h-3" />
               مخصص{article.score ? ` | ${Math.round(article.score * 100)}%` : ''}
@@ -210,7 +218,7 @@ export default function SmartContentNewsCard({
           </div>
 
           <Link href={`/news/${article.slug}`}>
-            <h3 className="text-base font-bold mb-2 line-clamp-2 dark:text-white theme-hover-text transition-colors">
+            <h3 className="text-base font-bold mb-2 line-clamp-3 dark:text-white theme-hover-text transition-colors">
               {article.title}
             </h3>
           </Link>
