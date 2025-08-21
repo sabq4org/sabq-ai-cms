@@ -472,6 +472,11 @@ export default function NewsPage() {
       news.category ||
       news.categories ||
       "عام";
+    
+    // Debug
+    if (!news.category?.name && !news.categories?.name) {
+      console.log("Missing category for article:", news.title, news);
+    }
     const rawCategorySlug =
       categoryName?.toLowerCase?.() || categoryName || "عام";
     const mappedCategory = categoryMap[rawCategorySlug] || rawCategorySlug;
@@ -535,19 +540,17 @@ export default function NewsPage() {
                 عاجل
               </div>
             ) : (
-              news.category_name && (
+              categoryName && (
                 <div style={{
                   position: 'absolute',
                   top: '12px',
                   right: '12px',
-                  background: 'rgba(255, 255, 255, 0.95)',
-                  backdropFilter: 'blur(8px)',
-                  padding: '6px 14px',
-                  borderRadius: '20px',
+                  background: 'hsl(var(--accent))',
+                  color: 'white',
+                  padding: '4px 12px',
+                  borderRadius: '6px',
                   fontSize: '12px',
-                  fontWeight: '600',
-                  color: '#7C3AED',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                  fontWeight: 600,
                   zIndex: 10
                 }}>
                   {categoryName}
