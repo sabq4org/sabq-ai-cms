@@ -137,49 +137,20 @@ export default function SmartContentNewsCard({
             </p>
           )}
 
-          {/* Footer */}
-          <div className="flex items-center justify-between mt-4 p-3 rounded-lg" style={{backgroundColor: 'rgba(var(--theme-primary-rgb), 0.05)'}}>
-            <div className="flex items-center gap-4 text-sm">
-              {article.reading_time && (
-                <div className="flex items-center gap-1">
-                  <Clock className="w-4 h-4" style={{color: 'var(--theme-primary)'}} />
-                  <span>{article.reading_time} دقائق</span>
-                </div>
-              )}
-              {article.views !== undefined && (
-                <div className="flex items-center gap-1">
-                  <Eye className="w-4 h-4" style={{color: 'var(--theme-primary)'}} />
-                  <span>{article.views}</span>
-                </div>
-              )}
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  setIsBookmarked(!isBookmarked);
-                }}
-                className={`p-2 rounded-lg transition-colors ${
-                  isBookmarked
-                    ? "bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-400"
-                    : "hover:bg-gray-100 dark:hover:bg-gray-700"
-                }`}
-              >
-                <Bookmark
-                  className={`w-4 h-4 ${isBookmarked ? "fill-current" : ""}`}
-                />
-              </button>
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleShare();
-                }}
-                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              >
-                <Share2 className="w-4 h-4" />
-              </button>
-            </div>
+          {/* Footer - بدون أزرار التفاعل */}
+          <div className="flex items-center gap-4 text-sm mt-4 p-3 rounded-lg" style={{backgroundColor: 'rgba(var(--theme-primary-rgb), 0.05)'}}>
+            {article.reading_time && (
+              <div className="flex items-center gap-1">
+                <Clock className="w-4 h-4" style={{color: 'var(--theme-primary)'}} />
+                <span>{article.reading_time} دقائق</span>
+              </div>
+            )}
+            {article.views !== undefined && (
+              <div className="flex items-center gap-1">
+                <Eye className="w-4 h-4" style={{color: 'var(--theme-primary)'}} />
+                <span>{article.views}</span>
+              </div>
+            )}
           </div>
         </div>
       </motion.div>
@@ -270,34 +241,6 @@ export default function SmartContentNewsCard({
                   <span>{article.views}</span>
                 </div>
               )}
-            </div>
-
-            {/* Actions */}
-            <div className="flex items-center gap-1">
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  setIsBookmarked(!isBookmarked);
-                }}
-                className={`p-1.5 rounded-lg transition-colors ${
-                  isBookmarked
-                    ? "bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-400"
-                    : "hover:bg-gray-100 dark:hover:bg-gray-700"
-                }`}
-              >
-                <Bookmark
-                  className={`w-3.5 h-3.5 ${isBookmarked ? "fill-current" : ""}`}
-                />
-              </button>
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleShare();
-                }}
-                className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              >
-                <Share2 className="w-3.5 h-3.5" />
-              </button>
             </div>
           </div>
         </div>

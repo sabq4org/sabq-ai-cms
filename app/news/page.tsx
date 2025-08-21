@@ -668,7 +668,7 @@ export default function NewsPage() {
                   slug: recommendation.url.replace("/article/", ""),
                   featured_image: recommendation.thumbnail,
                   category_name: recommendation.category,
-                  excerpt: excerpts[smartCardIndex % excerpts.length],
+                  // إزالة excerpt لإخفاء النبذة
                   image_caption: `محتوى ${
                     recommendation.type === "تحليل"
                       ? "تحليلي عميق"
@@ -680,7 +680,7 @@ export default function NewsPage() {
                   } - ${recommendation.readingTime} دقائق قراءة`,
                 }}
                 darkMode={darkMode}
-                variant={isMobile ? "full" : "desktop"}
+                variant={isMobile ? "compact" : "desktop"}
                 position={smartCardIndex}
               />
             );
