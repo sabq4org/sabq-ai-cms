@@ -314,6 +314,12 @@ body {
   max-width: 100% !important;
 }
 
+/* ===== Dashboard RTL sidebar spacing fix ===== */
+/* نحجز مساحة للمحتوى تساوي عرض السايدبار في RTL */
+.admin-modern-main.admin-dashboard-layout {
+  padding-inline-start: var(--sidebar-width, 0) !important;
+}
+
 .manus-header {
   background: hsl(var(--bg));
   border-bottom: 1px solid hsl(var(--line));
