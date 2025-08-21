@@ -443,9 +443,9 @@ export default function CategoryDetailPage({ params }: PageProps) {
   const Icon = getIcon(category.name);
   const colorGradient = getColor(category.name);
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 category-page-wrapper">
       {/* Hero Section with Cover Image (full-bleed) */}
-      <section className="relative h-[300px] md:h-[500px] overflow-hidden full-bleed">
+      <section className="relative h-[300px] md:h-[500px] overflow-hidden full-bleed" style={{ marginTop: '-72px', paddingTop: '72px' }}>
         <Image
           src={getCategoryImage(category)}
           alt={category.name}

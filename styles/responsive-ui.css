@@ -252,9 +252,16 @@ body {
 
 /* إزالة أي مسافة علوية لكي تلتصق الصورة بالهيدر مباشرة */
 .page-content-wrapper > .full-bleed:first-child,
-.full-bleed:first-child {
+.full-bleed:first-child,
+[data-device] > div:first-child .full-bleed:first-child {
   margin-top: 0 !important;
   padding-top: 0 !important;
+}
+
+/* إزالة الـ padding من أول div في صفحات التصنيفات */
+[data-device] > div:first-child {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
 }
 
 /* تهيئة الحاويات لضمان عدم قطع الـ full-bleed */
