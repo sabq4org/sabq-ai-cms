@@ -725,13 +725,9 @@ function NewspaperHomePage({
         {/* شريط النبض الإخباري للموبايل - محذوف حسب الطلب */}
         {/* تم إزالة شريط النبض الإخباري من نسخة الموبايل فقط */}
         {/* شريط الإحصائيات المحسن للموبايل - متلاصق مع الهيدر */}
-        <SafeHydration>
-          {isMobileView && (
-            <div className="sticky top-14 z-30 bg-white dark:bg-gray-900 shadow-sm">
-              <CompactStatsBar darkMode={darkMode} />
-            </div>
-          )}
-        </SafeHydration>
+        <div className="mobile-stats-bar sticky top-14 z-30 bg-white dark:bg-gray-900 shadow-sm block lg:hidden">
+          <CompactStatsBar darkMode={darkMode} />
+        </div>
         {/* 🔥 الترتيب الجديد المحدث للواجهة الرئيسية */}
         {/* 1. الهيدر ⬆️ - تم تأكيده أنه في المقدمة عبر Layout */}
 
