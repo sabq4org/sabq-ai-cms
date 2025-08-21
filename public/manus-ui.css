@@ -314,20 +314,19 @@ body {
 }
 
 /* ===== Dashboard RTL sidebar spacing fix ===== */
-/* تحديد عرض المحتوى ليكون العرض الكامل ناقص عرض السايدبار */
-main.admin-modern-main.admin-dashboard-layout {
-  width: calc(100% - var(--sidebar-width, 0)) !important;
-  max-width: calc(100% - var(--sidebar-width, 0)) !important;
+/* استخدام margin-right لدفع المحتوى بعيداً عن السايدبار */
+.admin-modern-main.admin-dashboard-layout {
+  margin-right: var(--sidebar-width, 280px) !important;
+  width: auto !important;
+  max-width: 100% !important;
   padding-right: 0 !important;
-  margin-right: 0 !important;
   box-sizing: border-box !important;
 }
 
-/* على الشاشات الصغيرة، يأخذ المحتوى العرض الكامل */
+/* على الشاشات الصغيرة، لا نحتاج margin */
 @media (max-width: 767px) {
-  main.admin-modern-main.admin-dashboard-layout {
-    width: 100% !important;
-    max-width: 100% !important;
+  .admin-modern-main.admin-dashboard-layout {
+    margin-right: 0 !important;
   }
 }
 
