@@ -120,17 +120,19 @@ export default function Page() {
         <DeepAnalysisBlock maxItems={3} className="mt-10" />
       </Suspense>
       
-      <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded mt-6" />}>
-        <div className="max-w-6xl mx-auto">
-          <MuqtarabBlock
-            limit={8}
-            showPagination={false}
-            showFilters={false}
-            viewMode="grid"
-            className="mt-12"
-          />
-        </div>
-      </Suspense>
+      <div className="full-bleed bg-blue-50 dark:bg-blue-950/20 py-8 mt-6">
+        <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded" />}>
+          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+            <MuqtarabBlock
+              limit={8}
+              showPagination={false}
+              showFilters={false}
+              viewMode="grid"
+              className="mt-12"
+            />
+          </div>
+        </Suspense>
+      </div>
     </div>
   ), []);
 
@@ -168,17 +170,19 @@ export default function Page() {
         <DeepAnalysisBlock maxItems={3} className="mt-12" />
       </Suspense>
       
-      <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded mt-6" />}>
-        <div className="max-w-6xl mx-auto px-4">
-          <MuqtarabBlock
-            limit={8}
-            showPagination={false}
-            showFilters={false}
-            viewMode="grid"
-            className="mt-12"
-          />
-        </div>
-      </Suspense>
+      <div className="full-bleed bg-blue-50 dark:bg-blue-950/20 py-6 mt-6">
+        <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded" />}>
+          <div className="max-w-6xl mx-auto px-4">
+            <MuqtarabBlock
+              limit={8}
+              showPagination={false}
+              showFilters={false}
+              viewMode="grid"
+              className="mt-12"
+            />
+          </div>
+        </Suspense>
+      </div>
     </div>
   ), []);
 
