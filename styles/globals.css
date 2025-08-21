@@ -262,6 +262,18 @@ select:focus-visible {
   margin-right: auto !important;
 }
 
+/* Force override for any tailwind-like max-w-* utility inside admin layout */
+.admin-dashboard-layout [class*="max-w-"] {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* Also neutralize inline style attributes that might set width via style="max-width: ..." */
+.admin-dashboard-layout [style*="max-width"] {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
 /* الجداول داخل صفحات الإدارة تمتد لعرض المحتوى كاملاً */
 .admin-dashboard-layout main table {
   width: 100% !important;
