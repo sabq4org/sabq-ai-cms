@@ -28,7 +28,7 @@ export default function SafeDateDisplay({
     // تنسيق التاريخ فقط بعد التحميل على العميل
     if (date) {
       const base = format === "full" ? formatFullDate(date) : formatRelativeDate(date);
-      const time = showTime ? ` — ${formatTime(date, true)} بتوقيت الرياض` : "";
+      const time = showTime ? ` — ${formatTime(date, true)}` : "";
       setFormattedDate(`${base}${time}`);
     }
   }, [date, format, showTime]);
