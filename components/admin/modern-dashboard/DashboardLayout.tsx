@@ -121,14 +121,14 @@ export default function DashboardLayout({
         )}
 
         {/* المحتوى الرئيسي */}
-        <main className="admin-modern-main" style={{
+        <main className="admin-modern-main admin-dashboard-layout" style={{
           flex: 1,
           marginRight: !isMobile ? (sidebarOpen ? '280px' : '80px') : '0',
           padding: '0px 0px 16px 0px',
           minHeight: 'calc(100vh - 56px)',
           transition: 'margin-right 0.3s ease'
         }}>
-          <div className={cn("fade-in w-full", className)}>
+          <div className={cn("fade-in w-full max-w-full px-4 sm:px-6 lg:px-8", className)}>
             {children}
           </div>
         </main>
