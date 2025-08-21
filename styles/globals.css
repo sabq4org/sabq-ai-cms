@@ -248,6 +248,20 @@ select:focus-visible {
   padding-right: 0 !important;
 }
 
+/* 
+  ==============================================
+  FIX: إلغاء العرض الثابت للوحة التحكم (Responsive Dashboard Fix)
+  - هذه القاعدة تلغي تأثير max-width: 1280px الذي يفرضه .container
+  - على الشاشات الكبيرة، مما يسمح للوحة التحكم بالتمدد بشكل كامل.
+  ==============================================
+*/
+.admin-dashboard-layout .container {
+  max-width: 100% !important;
+  width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
 /* الجداول داخل صفحات الإدارة تمتد لعرض المحتوى كاملاً */
 .admin-dashboard-layout main table {
   width: 100% !important;

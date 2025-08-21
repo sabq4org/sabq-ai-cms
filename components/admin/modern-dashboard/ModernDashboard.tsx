@@ -188,12 +188,12 @@ export default function ModernDashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* الأنظمة الذكية */}
-          <Card className="lg:col-span-2">
-            <CardHeader className="flex flex-row items-center justify-between">
+          <Card className="lg:col-span-1">
+            <CardHeader>
               <div>
                 <CardTitle className="text-base sm:text-lg font-semibold">الأنظمة الذكية</CardTitle>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                  حالة وأداء الأنظمة الذكية
+                  نظرة سريعة على حالة الوحدات الذكية
                 </p>
               </div>
               <Button variant="outline" size="sm">
@@ -246,11 +246,11 @@ export default function ModernDashboard() {
           </Card>
 
           {/* الأنشطة الأخيرة */}
-          <Card>
+          <Card className="lg:col-span-2">
             <CardHeader>
               <CardTitle className="text-base sm:text-lg font-semibold">الأنشطة الأخيرة</CardTitle>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                آخر التحديثات والأنشطة
+                آخر التحديثات التي تمت على النظام
               </p>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -294,7 +294,7 @@ export default function ModernDashboard() {
           <CardHeader>
             <CardTitle className="text-base sm:text-lg font-semibold">أدوات سريعة</CardTitle>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              الوصول السريع للوظائف المهمة
+              وصول سريع للمهام الإدارية الشائعة
             </p>
           </CardHeader>
           <CardContent>

@@ -178,48 +178,48 @@ export default function RolesPage() {
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8">
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center">
                 <Shield className="h-8 w-8 text-blue-500" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">إجمالي الأدوار</p>
-                  <p className="text-2xl font-bold text-gray-900">{roles.length}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900">{roles.length}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
           
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center">
                 <Crown className="h-8 w-8 text-yellow-500" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">أدوار النظام</p>
-                  <p className="text-2xl font-bold text-gray-900">{systemRoles.length}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900">{systemRoles.length}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
           
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center">
                 <Users className="h-8 w-8 text-green-500" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">أدوار مخصصة</p>
-                  <p className="text-2xl font-bold text-gray-900">{customRoles.length}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900">{customRoles.length}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
           
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center">
                 <Settings className="h-8 w-8 text-purple-500" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">إجمالي الصلاحيات</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900">
                     {roles.reduce((total, role) => total + parsePermissions(role.permissions).length, 0)}
                   </p>
                 </div>
@@ -252,7 +252,7 @@ export default function RolesPage() {
         {systemRoles.length > 0 && (
           <div className="mb-8">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">أدوار النظام</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {systemRoles.map((role) => (
                 <RoleCard
                   key={role.id}
@@ -271,7 +271,7 @@ export default function RolesPage() {
         {customRoles.length > 0 && (
           <div className="mb-8">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">الأدوار المخصصة</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {customRoles.map((role) => (
                 <RoleCard
                   key={role.id}
