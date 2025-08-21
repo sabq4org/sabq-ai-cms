@@ -122,13 +122,13 @@ export default function Page() {
       
       <div className="full-bleed bg-blue-50 dark:bg-blue-950/20 py-8 mt-6">
         <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded" />}>
-          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="w-full max-w-6xl mx-auto px-4 sm:px-6">
             <MuqtarabBlock
               limit={8}
               showPagination={false}
               showFilters={false}
               viewMode="grid"
-              className="mt-12"
+              className="mt-12 mx-auto"
             />
           </div>
         </Suspense>
@@ -172,13 +172,13 @@ export default function Page() {
       
       <div className="full-bleed bg-blue-50 dark:bg-blue-950/20 py-6 mt-6">
         <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded" />}>
-          <div className="max-w-6xl mx-auto px-4">
+          <div className="w-full max-w-6xl mx-auto px-4">
             <MuqtarabBlock
               limit={8}
               showPagination={false}
               showFilters={false}
               viewMode="grid"
-              className="mt-12"
+              className="mt-12 mx-auto"
             />
           </div>
         </Suspense>

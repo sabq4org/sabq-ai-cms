@@ -1,5 +1,12 @@
 /* أنماط بطاقات مقترب - متوافقة مع نظام الثيمات */
 
+/* توسيط حاوية البطاقات */
+.muqtarab-card-container {
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
 /* إزالة الخطوط الملونة من بطاقات مقترب */
 .muqtarab-card-container div[class*="absolute"][style*="backgroundColor"] {
   display: none !important;
