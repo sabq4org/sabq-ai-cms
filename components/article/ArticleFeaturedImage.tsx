@@ -6,18 +6,20 @@ import { IMAGE_CONFIG } from "./ImageDisplayConfig";
 interface ArticleFeaturedImageProps {
   imageUrl: string;
   title: string;
+  alt?: string; // النص البديل للصورة (Alt Text)
   category?: {
     name: string;
     color?: string;
     icon?: string;
   };
-  caption?: string;
+  caption?: string; // وصف الصورة
   className?: string;
 }
 
 export default function ArticleFeaturedImage({
   imageUrl,
   title,
+  alt,
   category,
   caption,
   className,
@@ -31,13 +33,11 @@ export default function ArticleFeaturedImage({
           <div className="relative w-full aspect-[16/9] overflow-hidden rounded-xl shadow-lg bg-gray-50 dark:bg-gray-900">
             <OptimizedImage
               src={imageUrl}
-              alt={title}
+              alt={alt || title}
               fill
               className="object-cover"
               priority={true}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, (max-width: 1536px) 110ch, 110ch"
-              objectPosition="center 35%"
-              smartCrop="auto"
               aspectRatio="16:9"
             />
             {/* التصنيف */}
@@ -55,6 +55,15 @@ export default function ArticleFeaturedImage({
               </div>
             )}
           </div>
+          
+          {/* عرض وصف الصورة إذا وُجد */}
+          {caption && (
+            <div className="mt-3 text-center">
+              <p className="text-sm text-gray-600 dark:text-gray-400 italic">
+                {caption}
+              </p>
+            </div>
+          )}
         </div>
       );
 

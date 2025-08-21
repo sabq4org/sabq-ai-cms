@@ -64,13 +64,13 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
   const pathname = usePathname();
   const userMenuRef = useRef<HTMLDivElement | null>(null);
 
-  // تحميل اللون المحفوظ عند التحميل
+  // تحميل اللون المحفوظ عند التحميل - معطل لتجنب التضارب مع CompactThemeSwitcher
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme-color');
     if (savedTheme) {
       const theme = themes.find(t => t.id === savedTheme) || themes[0];
       setCurrentTheme(theme);
-      applyThemeToDOM(theme);
+      // applyThemeToDOM(theme); // معطل مؤقتاً
     }
   }, []);
 

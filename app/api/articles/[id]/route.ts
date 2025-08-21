@@ -370,453 +370,101 @@ export async function GET(
   }
 }
 
-// تحديث المقال
+// تحديث مقال موجود
 export async function PATCH(
   request: Request,
   context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await context.params;
-
   try {
-    // فحص Debug Mode
-    const debugMode = request.headers.get("X-Debug-Mode") === "true";
+    console.log("🚀 PATCH /api/articles/[id] - بداية معالجة طلب التحديث");
+    const { id } = await context.params;
 
-    let data;
-    try {
-      data = await request.json();
-    } catch (jsonError) {
-      console.error("❌ خطأ في قراءة JSON:", jsonError);
+    if (!id) {
       return NextResponse.json(
         {
-          success: false,
-          error: "البيانات المرسلة غير صالحة",
-          details: "Invalid JSON in request body",
+          ok: false,
+          message: "معرف المقال مطلوب",
+          code: "MISSING_ID"
         },
         { status: 400 }
       );
     }
 
-    if (debugMode) {
-      console.group(`🔍 DEBUG: تحديث المقال ${id}`);
-      console.log("⏰ الوقت:", new Date().toISOString());
-      console.log("📥 البيانات الخام:", JSON.stringify(data, null, 2));
-    }
+    const data = await request.json();
+    console.log("📝 بيانات التحديث:", data);
 
-    console.log("📥 البيانات المستلمة للتحديث:", data);
-    console.log("📦 metadata المستلمة:", data.metadata);
-
-    // التحقق من وجود المقال قبل محاولة التحديث
-    const existingArticle = await dbConnectionManager.executeWithConnection(
-      async () => {
-        return await prisma.articles.findUnique({
-          where: { id },
-          select: { id: true, title: true, featured: true, slug: true },
-        });
-      }
-    );
-
-    if (!existingArticle) {
-      console.error("❌ المقال غير موجود:", id);
-      return NextResponse.json(
-        {
-          success: false,
-          error: "المقال غير موجود",
-          details: "Article not found",
-        },
-        { status: 404 }
-      );
-    }
-
-    console.log("✅ تم العثور على المقال:", {
-      id: existingArticle.id,
-      title: existingArticle.title,
-      featured: existingArticle.featured,
-    });
-
-    // التحقق من صحة البيانات المستلمة
-    if (data.featured_image && typeof data.featured_image !== "string") {
-      console.error("❌ نوع صورة المقال غير صحيح:", typeof data.featured_image);
-      return NextResponse.json(
-        {
-          success: false,
-          error: "نوع صورة المقال غير صحيح",
-          details: "featured_image must be a string",
-        },
-        { status: 400 }
-      );
-    }
-
-    // معالجة البيانات قبل الحفظ
+    // تحضير بيانات التحديث
     const updateData: any = {
       updated_at: new Date(),
     };
 
-    // معالجة خاصة للكلمات المفتاحية (seo_keywords)
-    if (data.seo_keywords !== undefined) {
-      // تحويل الكلمات المفتاحية إلى تنسيق مناسب
-      try {
-        console.log("🔑 معالجة الكلمات المفتاحية:", data.seo_keywords);
-        
-        // تنظيف وتهيئة البيانات
-        let keywords = data.seo_keywords;
-        
-        if (Array.isArray(keywords)) {
-          // إذا كانت مصفوفة، نحولها إلى JSON string أو نص مفصول بفواصل
-          if (keywords.length === 0) {
-            updateData.seo_keywords = null; // إذا كانت فارغة، نضع null
-          } else {
-            updateData.seo_keywords = JSON.stringify(keywords); // نحفظها كـ JSON string
-          }
-        } else if (typeof keywords === 'string') {
-          // إذا كانت نصًا، نستخدمها مباشرة
-          updateData.seo_keywords = keywords || null;
-        } else if (keywords) {
-          // أي نوع آخر، نحوله إلى نص
-          updateData.seo_keywords = String(keywords);
-        } else {
-          // إذا كانت فارغة أو undefined، نضع null
-          updateData.seo_keywords = null;
-        }
-        
-        console.log("✅ الكلمات المفتاحية بعد المعالجة:", updateData.seo_keywords);
-      } catch (error) {
-        console.error("❌ خطأ في معالجة الكلمات المفتاحية:", error);
-        // في حالة الخطأ، استخدم null كقيمة افتراضية آمنة
-        updateData.seo_keywords = null;
-      }
-    }
-    
-    // إذا كانت هناك كلمات مفتاحية في metadata، استخرجها أيضًا
-    if (data.metadata?.keywords !== undefined && !data.seo_keywords) {
-      try {
-        console.log("🔑 استخراج الكلمات المفتاحية من metadata:", data.metadata.keywords);
-        
-        let metadataKeywords = data.metadata.keywords;
-        if (Array.isArray(metadataKeywords)) {
-          if (metadataKeywords.length === 0) {
-            updateData.seo_keywords = null;
-          } else {
-            updateData.seo_keywords = JSON.stringify(metadataKeywords);
-          }
-        } else if (typeof metadataKeywords === 'string') {
-          updateData.seo_keywords = metadataKeywords || null;
-        } else if (metadataKeywords) {
-          updateData.seo_keywords = String(metadataKeywords);
-        }
-        
-        console.log("✅ الكلمات المفتاحية من metadata بعد المعالجة:", updateData.seo_keywords);
-      } catch (error) {
-        console.error("❌ خطأ في استخراج الكلمات المفتاحية من metadata:", error);
-      }
+    // تحديث الحقول المرسلة فقط
+    if (data.title !== undefined) updateData.title = data.title;
+    if (data.content !== undefined) updateData.content = data.content;
+    if (data.status !== undefined) updateData.status = data.status;
+    if (data.breaking !== undefined) updateData.breaking = data.breaking;
+    if (data.featured_image !== undefined) updateData.featured_image = data.featured_image;
+    if (data.featured_image_alt !== undefined) updateData.featured_image_alt = data.featured_image_alt;
+    if (data.featured_image_caption !== undefined) updateData.featured_image_caption = data.featured_image_caption;
+    if (data.category_id !== undefined) updateData.category_id = data.category_id;
+    if (data.tags !== undefined) updateData.tags = data.tags;
+
+    // تحديث وقت النشر للمقالات المنشورة حديثاً
+    if (data.status === 'published' && updateData.published_at === null) {
+      updateData.published_at = new Date();
     }
 
-    // نسخ الحقول المسموح بها فقط
-    const allowedFields = [
-      "title",
-      "content",
-      "excerpt",
-      "featured_image",
-      "status",
-      "metadata",
-      "published_at",
-      "scheduled_for",
-      "seo_title",
-      "seo_description",
-      // "seo_keywords", - تمت معالجته بشكل خاص أعلاه
-      "breaking",
-      // 'featured' تمت إزالته من هنا وسيتم معالجته بشكل خاص
-      // الحقول غير الموجودة في schema: subtitle, type, image_caption, author_name, publish_at, external_link
-    ];
-
-    // Prevent slug changes for short, random slugs
-    if (
-      data.slug &&
-      existingArticle.slug.length <= 12 &&
-      existingArticle.slug !== data.slug
-    ) {
-      console.warn(
-        `⚠️ Attempt to change a short slug was blocked. Old: "${existingArticle.slug}", New: "${data.slug}"`
-      );
-      delete data.slug;
-    }
-
-    console.log("📋 الحقول المستلمة:", Object.keys(data));
-    console.log("📋 القيم المستلمة:", data);
-
-    for (const field of allowedFields) {
-      if (data[field] !== undefined) {
-        updateData[field] = data[field];
-        console.log(`✅ تم نسخ الحقل ${field}:`, data[field]);
-      }
-    }
-
-    // منطق الجدولة عند التحديث: إذا تم تمرير scheduled_for مستقبلية → status=scheduled وإزالة published_at
-    try {
-      // تحويل وقت الرياض إلى UTC بنفس منطق الإنشاء
-      function toUTCFromRiyadh(input: string | Date): Date | null {
-        try {
-          if (!input) return null;
-          if (input instanceof Date) return input;
-          if (/([zZ]|[+-]\d{2}:?\d{2})$/.test(input)) {
-            const d = new Date(input);
-            return isNaN(d.getTime()) ? null : d;
-          }
-          const dLocal = new Date(input);
-          if (isNaN(dLocal.getTime())) return null;
-          return new Date(dLocal.getTime() - 3 * 60 * 60 * 1000);
-        } catch {
-          return null;
-        }
-      }
-
-      if (data.scheduled_for || data.publish_at || data.publishAt) {
-        const rawSchedule = data.scheduled_for || data.publish_at || data.publishAt;
-        const scheduledDate = toUTCFromRiyadh(rawSchedule);
-        if (!isNaN(scheduledDate.getTime())) {
-          const now = new Date();
-          if (scheduledDate.getTime() > now.getTime()) {
-            updateData.status = "scheduled";
-            updateData.scheduled_for = scheduledDate;
-            updateData.published_at = null;
-          } else {
-            updateData.status = "published";
-            updateData.published_at = now;
-            updateData.scheduled_for = null;
-          }
-        }
-      }
-    } catch (e) {
-      console.warn("⚠️ فشل معالجة منطق الجدولة في PATCH:", (e as any)?.message);
-    }
-
-    // معالجة خاصة للعلاقات (author و category و article_author)
-    if (data.author_id) {
-      updateData.author = {
-        connect: { id: data.author_id },
-      };
-      console.log(`✅ تم ربط المؤلف (users.author): ${data.author_id}`);
-    }
-
-    if (data.article_author_id) {
-      updateData.article_author = {
-        connect: { id: data.article_author_id },
-      } as any;
-      console.log(
-        `✅ تم ربط المراسل (article_authors): ${data.article_author_id}`
-      );
-    }
-
-    if (data.category_id) {
-      updateData.categories = {
-        connect: { id: data.category_id },
-      };
-      console.log(`✅ تم ربط التصنيف: ${data.category_id}`);
-    }
-
-    // معالجة خاصة لحقل featured - نحفظه مؤقتاً ونعالجه بعد التحديث
-    let shouldUpdateFeatured = false;
-    let featuredValue = false;
-
-    // التحقق من جميع الأسماء المحتملة للحقل المميز
-    if (
-      data.featured !== undefined ||
-      data.is_featured !== undefined ||
-      data.isFeatured !== undefined
-    ) {
-      shouldUpdateFeatured = true;
-      featuredValue = Boolean(
-        data.featured || data.is_featured || data.isFeatured
-      );
-      console.log(
-        `🏆 سيتم تحديث حالة التمييز للمقال ${id}: ${
-          featuredValue ? "مميز" : "غير مميز"
-        }`
-      );
-      // لا نضيف featured إلى updateData هنا، سنعالجه بشكل منفصل
-    }
-
-    // معالجة حقل breaking بأسمائه المختلفة
-    if (
-      data.breaking !== undefined ||
-      data.is_breaking !== undefined ||
-      data.isBreaking !== undefined
-    ) {
-      updateData.breaking = Boolean(
-        data.breaking || data.is_breaking || data.isBreaking
-      );
-    }
-
-    // ضبط content_type عند التحديث بما يتوافق مع article_type
-    if (data.article_type !== undefined) {
-      const type = (data.article_type || "").toString().toLowerCase();
-      updateData.content_type = ["opinion", "analysis", "interview"].includes(
-        type
-      )
-        ? ("OPINION" as any)
-        : ("NEWS" as any);
-    }
-
-    // معالجة excerpt/summary
-    if (data.excerpt !== undefined || data.summary !== undefined) {
-      updateData.excerpt = data.excerpt || data.summary;
-    }
-
-    // التأكد من أن metadata يتم حفظه بشكل صحيح كـ JSON
-    if (data.metadata) {
-      try {
-        updateData.metadata =
-          typeof data.metadata === "string"
-            ? data.metadata
-            : JSON.stringify(data.metadata);
-      } catch (error) {
-        console.error("❌ خطأ في معالجة metadata:", error);
-        // استخدام القيمة كما هي إذا فشل التحويل إلى JSON
-        updateData.metadata =
-          typeof data.metadata === "string" ? data.metadata : "{}";
-      }
-    }
-
-    console.log("💾 البيانات المعدة للحفظ:", updateData);
-
-    try {
-      // محاولة تحديث المقال مع معالجة أفضل للأخطاء
-      const updatedArticle = await dbConnectionManager.executeWithConnection(
-        async () => {
-          return await prisma.articles.update({
-            where: { id },
-            data: updateData,
-          });
-        }
-      );
-
-      console.log("✅ تم تحديث المقال بنجاح:", {
-        id: updatedArticle.id,
-        title: updatedArticle.title,
-      });
-
-      // معالجة تحديث حالة التمييز باستخدام المدير المركزي
-      if (shouldUpdateFeatured) {
-        if (featuredValue) {
-          // تعيين المقال كمميز
-          const featuredResult =
-            await FeaturedArticleManager.setFeaturedArticle(id, {
-              categoryId: updatedArticle.category_id || undefined,
-            });
-
-          if (featuredResult.success) {
-            console.log("✅", featuredResult.message);
-          } else {
-            console.error(
-              "❌ خطأ في تعيين المقال كمميز:",
-              featuredResult.message
-            );
-          }
-        } else {
-          // إلغاء تمييز المقال
-          const unfeaturedResult =
-            await FeaturedArticleManager.unsetFeaturedArticle(id);
-
-          if (unfeaturedResult.success) {
-            console.log("✅", unfeaturedResult.message);
-          } else {
-            console.error(
-              "❌ خطأ في إلغاء تمييز المقال:",
-              unfeaturedResult.message
-            );
-          }
-        }
-
-        // إعادة تحقق صحة الصفحة الرئيسية
-        try {
-          const { revalidatePath } = await import("next/cache");
-          revalidatePath("/");
-          console.log("🔄 تم إعادة تحقق صحة الصفحة الرئيسية");
-        } catch (error) {
-          console.error("❌ خطأ في إعادة تحقق صحة الصفحة الرئيسية:", error);
-        }
-      }
-
-      if (debugMode) {
-        console.log("✅ تحديث ناجح:", updatedArticle.id);
-        console.groupEnd();
-      }
-
-      // إرجاع استجابة موحدة متوافقة مع معايير API Envelope
-      return NextResponse.json({
-        ok: true,
-        message: updatedArticle.status === "draft" ? "تم حفظ المسودة بنجاح" : "تم تحديث المقال بنجاح",
-        data: {
-          id: updatedArticle.id,
-          title: updatedArticle.title,
-          slug: updatedArticle.slug,
-          status: updatedArticle.status
-        }
-      }, { status: 200 });
-    } catch (updateError: any) {
-      console.error("❌ خطأ في تحديث المقال في قاعدة البيانات:", updateError);
-      console.error("📋 تفاصيل خطأ التحديث:", {
-        code: updateError.code,
-        message: updateError.message,
-        meta: updateError.meta,
-        articleId: id,
-        updateData: JSON.stringify(updateData, null, 2),
-      });
-
-      // رسائل خطأ أكثر تفصيلاً متوافقة مع معايير API Envelope
-      if (updateError.code === "P2025") {
-        return NextResponse.json(
-          {
-            ok: false,
-            message: "المقال غير موجود",
-            code: "ARTICLE_NOT_FOUND",
-            details: "تأكد من صحة معرف المقال"
+    const updatedArticle = await prisma.articles.update({
+      where: { id },
+      data: updateData,
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            avatar: true,
           },
-          { status: 404 }
-        );
-      } else if (updateError.code === "P2002") {
-        return NextResponse.json(
-          {
-            ok: false,
-            message: "تعذّر حفظ المقال: قيمة مكررة في حقل فريد",
-            code: "DUPLICATE_VALUE_ERROR",
-            details: `حقل مكرر: ${updateError.meta?.target}`
-          },
-          { status: 409 }
-        );
-      }
-
-      return NextResponse.json(
-        {
-          ok: false,
-          message: "تعذّر حفظ المقال: خطأ في قاعدة البيانات",
-          code: "DATABASE_ERROR",
-          details: updateError.message || "خطأ غير معروف في قاعدة البيانات",
         },
-        { status: 500 }
-      );
-    }
-  } catch (error: any) {
-    console.error("❌ خطأ في تحديث المقال:", error);
-    console.error("📋 تفاصيل الخطأ:", {
-      message: error.message,
-      stack: error.stack,
-      code: error.code,
-      articleId: id,
+        categories: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            color: true,
+            icon: true,
+          },
+        },
+      },
     });
 
-    // في حالة Debug Mode، أرسل تفاصيل أكثر
-    const isDebug = request.headers.get("X-Debug-Mode") === "true";
+    console.log("✅ تم تحديث المقال بنجاح:", updatedArticle.id);
 
+    return NextResponse.json({
+      ok: true,
+      message: "تم تحديث المقال بنجاح",
+      article: updatedArticle,
+    });
+  } catch (error: any) {
+    console.error("❌ خطأ في تحديث المقال:", error);
+    
     return NextResponse.json(
       {
         ok: false,
-        message: "تعذّر حفظ المقال: خطأ داخلي غير متوقع",
-        code: "INTERNAL_ERROR",
-        details: isDebug ? error.message : "الرجاء المحاولة لاحقاً"
+        message: "فشل في تحديث المقال",
+        code: "UPDATE_FAILED",
+        details: error.message,
       },
       { status: 500 }
     );
   }
+}
+
+// دعم PUT method (يستخدم نفس منطق PATCH)
+export async function PUT(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  return PATCH(request, context);
 }
 
 // حذف المقال (حذف فعلي نهائي)
@@ -959,12 +607,4 @@ export async function DELETE(
       { status: 500 }
     );
   }
-}
-
-// دعم PUT method (يستخدم نفس منطق PATCH)
-export async function PUT(
-  request: Request,
-  context: { params: Promise<{ id: string }> }
-) {
-  return PATCH(request, context);
 }

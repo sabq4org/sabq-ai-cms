@@ -583,7 +583,7 @@ export default function ArticleClientComponent({
                 {/* غلاف عنوان/عنوان فرعي مع توافق الوضع الداكن */}
                 <div className="text-right">
                   {/* العنوان - تحسين المسافات والهوامش */}
-                  <h1 className="text-4xl sm:text-5xl lg:text-5xl font-bold mb-3 text-gray-900 dark:text-white leading-tight tracking-tight article-title-overlay bg-transparent">{/* تقليل العنوان قليلاً على الديسكتوب */}
+                  <h1 className="text-2xl sm:text-3xl lg:text-3xl font-bold mb-3 text-gray-900 dark:text-white leading-tight tracking-tight article-title-overlay bg-transparent">{/* تصغير العنوان درجتين كما مطلوب */}
                     {article.title}
                   </h1>
 
@@ -647,7 +647,7 @@ export default function ArticleClientComponent({
               {/* Mobile Header */}
               <div className="sm:hidden px-4 sm:px-6 py-6 bg-transparent transition-colors duration-300">
                 {/* العنوان الرئيسي */}
-                <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-white mb-1">{/* تقليل الفراغ مع العنوان الصغير */}
+                <h1 className="text-xl font-bold leading-tight text-gray-900 dark:text-white mb-1">{/* تصغير من text-3xl إلى text-xl (درجتين أصغر) */}
                   {article.title}
                 </h1>
 
@@ -732,6 +732,7 @@ export default function ArticleClientComponent({
                   <ArticleFeaturedImage
                     imageUrl={article.featured_image}
                     title={article.title}
+                    alt={article.featured_image_alt || article.title}
                     caption={article.featured_image_caption}
                     category={article.category}
                     className="w-full rounded-xl shadow-2xl"
@@ -751,6 +752,7 @@ export default function ArticleClientComponent({
                         <MobileFeaturedImage
                           imageUrl={article.featured_image}
                           title={article.title}
+                          alt={article.featured_image_alt || article.title}
                           caption={article.featured_image_caption}
                           category={article.category}
                           className="h-full"

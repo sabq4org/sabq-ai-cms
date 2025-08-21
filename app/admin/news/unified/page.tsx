@@ -100,6 +100,7 @@ export default function ManusNewsCreatePage() {
     categoryId: "",
     type: "local" as "local" | "external",
     featuredImage: "",
+    featuredImageAlt: "",
     featuredImageCaption: "",
     gallery: [] as string[],
     externalLink: "",
@@ -122,9 +123,10 @@ export default function ManusNewsCreatePage() {
       { field: formData.content, weight: 25 },
       { field: formData.authorId, weight: 10 },
       { field: formData.categoryId, weight: 10 },
-      { field: formData.featuredImage, weight: 10 },
+      { field: formData.featuredImage, weight: 8 },
+      { field: formData.featuredImageAlt, weight: 5 }, // إضافة Alt Text
       { field: formData.keywords.length > 0, weight: 5 },
-      { field: formData.seoTitle, weight: 5 },
+      { field: formData.seoTitle, weight: 2 },
     ];
 
     checks.forEach((check) => {
@@ -800,6 +802,7 @@ export default function ManusNewsCreatePage() {
                   article.category_id || article.category?.id || prev.categoryId || "",
                 type: metadata?.type || prev.type,
                 featuredImage: article.featured_image || "",
+                featuredImageAlt: article.featured_image_alt || "",
                 featuredImageCaption: metadata?.image_caption || "",
                 gallery: Array.isArray(metadata?.gallery) ? metadata.gallery : [],
                 externalLink: metadata?.external_link || "",
@@ -864,6 +867,7 @@ export default function ManusNewsCreatePage() {
         excerpt: formData.excerpt,
         content: editorContent,
         featured_image: formData.featuredImage || null,
+        featured_image_alt: formData.featuredImageAlt || null,
         category_id: formData.categoryId,
         article_author_id: formData.authorId,
         status,
@@ -1834,6 +1838,115 @@ export default function ManusNewsCreatePage() {
                           </button>
                 <span className="text-muted" style={{ fontSize: '12px' }}>أو ارفع صورة جديدة من الأعلى</span>
                   </div>
+
+              {/* حقول Alt Text و Caption - تظهر فقط عند وجود صورة */}
+              {formData.featuredImage && (
+                <div style={{ 
+                  marginTop: '16px', 
+                  padding: '16px', 
+                  background: 'hsl(var(--accent) / 0.02)',
+                  border: '1px solid hsl(var(--accent) / 0.1)',
+                  borderRadius: '8px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                    <span style={{ 
+                      fontSize: '14px', 
+                      fontWeight: '600',
+                      color: 'hsl(var(--accent))'
+                    }}>
+                      📝 وصف الصورة (مهم لـ SEO وإمكانية الوصول)
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div>
+                      <label className="label" style={{ fontSize: '13px', fontWeight: '500' }}>
+                        النص البديل (Alt Text) *
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.featuredImageAlt}
+                        onChange={(e) => setFormData((prev) => ({ ...prev, featuredImageAlt: e.target.value }))}
+                        placeholder="صف محتوى الصورة بإيجاز للأشخاص ذوي الإعاقة البصرية..."
+                        style={{
+                          width: '100%',
+                          padding: '10px',
+                          border: '1px solid hsl(var(--line))',
+                          borderRadius: '6px',
+                          background: 'hsl(var(--bg-card))',
+                          color: 'hsl(var(--fg))',
+                          fontSize: '13px'
+                        }}
+                      />
+                      <p style={{ 
+                        fontSize: '11px', 
+                        color: 'hsl(var(--muted))', 
+                        margin: '4px 0 0 0',
+                        lineHeight: '1.4'
+                      }}>
+                        مطلوب لإمكانية الوصول و SEO. وصف مختصر للصورة (أقل من 125 حرف)
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="label" style={{ fontSize: '13px', fontWeight: '500' }}>
+                        تسمية توضيحية (Caption) - اختياري
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.featuredImageCaption}
+                        onChange={(e) => setFormData((prev) => ({ ...prev, featuredImageCaption: e.target.value }))}
+                        placeholder="تسمية توضيحية تظهر تحت الصورة للقراء..."
+                        style={{
+                          width: '100%',
+                          padding: '10px',
+                          border: '1px solid hsl(var(--line))',
+                          borderRadius: '6px',
+                          background: 'hsl(var(--bg-card))',
+                          color: 'hsl(var(--fg))',
+                          fontSize: '13px'
+                        }}
+                      />
+                      <p style={{ 
+                        fontSize: '11px', 
+                        color: 'hsl(var(--muted))', 
+                        margin: '4px 0 0 0',
+                        lineHeight: '1.4'
+                      }}>
+                        نص يظهر تحت الصورة في المقال، يمكن أن يكون أطول من Alt Text
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* مؤشر حالة التحقق */}
+                  <div style={{ 
+                    marginTop: '12px', 
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    background: formData.featuredImageAlt 
+                      ? 'hsl(120 60% 95%)' 
+                      : 'hsl(46 91% 95%)',
+                    border: `1px solid ${formData.featuredImageAlt 
+                      ? 'hsl(120 60% 80%)' 
+                      : 'hsl(46 91% 80%)'}`
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '12px' }}>
+                        {formData.featuredImageAlt ? '✅' : '⚠️'}
+                      </span>
+                      <span style={{ 
+                        fontSize: '12px', 
+                        fontWeight: '500',
+                        color: formData.featuredImageAlt ? 'hsl(120 60% 30%)' : 'hsl(46 91% 30%)'
+                      }}>
+                        {formData.featuredImageAlt 
+                          ? 'ممتاز! وصف الصورة مكتمل'
+                          : 'يُنصح بإضافة وصف للصورة'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
                 </div>
 
           {/* الكلمات المفتاحية */}
@@ -2007,6 +2120,7 @@ export default function ManusNewsCreatePage() {
           setFormData((prev) => ({
             ...prev,
             featuredImage: asset.cloudinaryUrl,
+            featuredImageAlt: asset.altText || "",
             featuredImageCaption: asset.altText || (asset.metadata?.altText || prev.featuredImageCaption),
           }));
           setOpenMediaPicker(false);

@@ -148,6 +148,8 @@ model articles {
   featured           Boolean             @default(false)
   breaking           Boolean             @default(false)
   featured_image     String?
+  featured_image_alt String?             // النص البديل للصورة البارزة (Alt Text)
+  featured_image_caption String?         // وصف الصورة البارزة
   published_at       DateTime?
   scheduled_for      DateTime?
   views              Int                 @default(0)

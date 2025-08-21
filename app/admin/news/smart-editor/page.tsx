@@ -86,6 +86,8 @@ try {
   status: 'draft' | 'published' | 'archived';
   breaking: boolean;
   featured_image?: string;
+  featured_image_alt?: string;
+  featured_image_caption?: string;
   category_id?: string;
   tags?: string[];
   published_at?: string;
@@ -203,6 +205,8 @@ const SmartNewsEditor: React.FC = () => {
         status: article.status,
         breaking: article.breaking,
         featured_image: article.featured_image,
+        featured_image_alt: article.featured_image_alt,
+        featured_image_caption: article.featured_image_caption,
         category_id: article.category_id,
         tags: article.tags
       };
@@ -459,6 +463,39 @@ const SmartNewsEditor: React.FC = () => {
                     type="url"
                   />
                 </div>
+
+                {/* حقول وصف الصورة البارزة */}
+                {article.featured_image && (
+                  <>
+                    <div>
+                      <Label htmlFor="featured_image_alt" className="text-sm font-medium mb-2 block">
+                        النص البديل للصورة البارزة (Alt Text) *
+                      </Label>
+                      <Input
+                        id="featured_image_alt"
+                        value={article.featured_image_alt || ''}
+                        onChange={(e) => setArticle(prev => ({ ...prev, featured_image_alt: e.target.value }))}
+                        placeholder="وصف مختصر للصورة لمحركات البحث"
+                        required
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        مهم لـ SEO وإمكانية الوصول للمعاقين
+                      </p>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="featured_image_caption" className="text-sm font-medium mb-2 block">
+                        وصف الصورة البارزة (اختياري)
+                      </Label>
+                      <Input
+                        id="featured_image_caption"
+                        value={article.featured_image_caption || ''}
+                        onChange={(e) => setArticle(prev => ({ ...prev, featured_image_caption: e.target.value }))}
+                        placeholder="وصف يظهر تحت الصورة للقراء"
+                      />
+                    </div>
+                  </>
+                )}
               </CardContent>
             </Card>
 

@@ -417,6 +417,8 @@ export async function POST(request: NextRequest) {
       featured: isFeatured,
       breaking: isBreaking,
       featured_image: data.featured_image || null,
+      featured_image_alt: data.featured_image_alt || null,
+      featured_image_caption: data.featured_image_caption || null,
       seo_title: data.seo_title || null,
       seo_description: data.seo_description || null,
       seo_keywords: data.seo_keywords || (data.keywords && Array.isArray(data.keywords) ? data.keywords.join(", ") : null),

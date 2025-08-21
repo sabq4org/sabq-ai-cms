@@ -34,6 +34,7 @@ export interface ArticleData {
   category_id?: string;
   featured_image?: string;
   featured_image_caption?: string; // تعريف الصورة البارزة
+  featured_image_alt?: string; // نص بديل للصورة البارزة (Alt Text)
   image_url?: string; // رابط الصورة المرفوعة
   audio_summary_url?: string;
   published_at?: string;

@@ -44,10 +44,12 @@ export default function ImageUploadDialog({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = async (file: File) => {
-    console.log("📁 رفع ملف للمحرر:", {
+    console.log("� [EDITOR] بدء رفع ملف في المحرر:", {
       name: file.name,
       size: file.size,
       type: file.type,
+      url: window.location.href,
+      timestamp: new Date().toISOString()
     });
 
     // التحقق من نوع الملف
@@ -79,26 +81,44 @@ export default function ImageUploadDialog({
       formData.append("file", file);
       formData.append("type", "article"); // نوع الرفع للمقالات
 
-      // رفع الصورة باستخدام واجهة المحرر الجديدة
+      console.log("📤 [EDITOR] محاولة رفع باستخدام الـ APIs بالترتيب الصحيح...");
+
+      // الأولوية للـ API الصحيح - رفع صور المحرر
+      console.log("🎯 [EDITOR] محاولة #1: /api/upload-editor");
       let response = await fetch("/api/upload-editor", {
         method: "POST",
         body: formData,
       });
 
-      // تجربة واجهات بديلة إذا فشل الأول
+      console.log("📊 [EDITOR] نتيجة upload-editor:", {
+        status: response.status,
+        ok: response.ok
+      });
+
+      // تجربة APIs بديلة إذا فشل الأول
       if (!response.ok) {
-        console.log("⚠️ فشل API الأول، تجربة API بديل...");
+        console.log("⚠️ [EDITOR] فشل upload-editor، محاولة #2: /api/upload-image");
         response = await fetch("/api/upload-image", {
           method: "POST",
           body: formData,
         });
+        
+        console.log("📊 [EDITOR] نتيجة upload-image:", {
+          status: response.status,
+          ok: response.ok
+        });
       }
 
       if (!response.ok) {
-        console.log("⚠️ فشل API الثاني، تجربة API الثالث...");
+        console.log("⚠️ [EDITOR] فشل upload-image، محاولة #3: /api/upload");
         response = await fetch("/api/upload", {
           method: "POST",
           body: formData,
+        });
+        
+        console.log("📊 [EDITOR] نتيجة upload عام:", {
+          status: response.status,
+          ok: response.ok
         });
       }
 

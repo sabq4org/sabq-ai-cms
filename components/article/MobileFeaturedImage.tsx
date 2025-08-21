@@ -6,6 +6,7 @@ import Image from "next/image";
 interface MobileFeaturedImageProps {
   imageUrl: string;
   title: string;
+  alt?: string; // النص البديل للصورة (Alt Text)
   caption?: string;
   category?: {
     name: string;
@@ -18,6 +19,7 @@ interface MobileFeaturedImageProps {
 export default function MobileFeaturedImage({
   imageUrl,
   title,
+  alt,
   caption,
   category,
   className,
@@ -32,7 +34,7 @@ export default function MobileFeaturedImage({
         {/* الصورة مع lazy loading */}
         <Image
           src={imageError ? "/images/placeholder-featured.jpg" : imageUrl}
-          alt={title}
+          alt={alt || title}
           fill
           className={`object-cover transition-opacity duration-300 ${
             imageLoading ? "opacity-0" : "opacity-100"

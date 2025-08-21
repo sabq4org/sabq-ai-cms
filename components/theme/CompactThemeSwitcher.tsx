@@ -54,8 +54,9 @@ interface CompactThemeSwitcherProps {
 }
 
 export default function CompactThemeSwitcher({ className = '' }: CompactThemeSwitcherProps) {
-  const [currentTheme, setCurrentTheme] = useState(themes[0]);
+  const [currentTheme, setCurrentTheme] = useState(themes[0]); // الافتراضي هو الأزرق
   const [focused, setFocused] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // إغلاق المكون عند النقر خارجه
   useEffect(() => {
@@ -72,15 +73,54 @@ export default function CompactThemeSwitcher({ className = '' }: CompactThemeSwi
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [focused]);
 
+  // استمع لتغييرات localStorage من علامات تبويب أخرى
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'theme-color' && e.newValue) {
+        const theme = themes.find(t => t.id === e.newValue) || themes[0];
+        setCurrentTheme(theme);
+        setThemeVars(theme);
+        console.log('🔄 Theme synced from another tab:', theme);
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   // تحميل اللون المحفوظ عند التحميل
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme-color');
-    if (savedTheme) {
-      const theme = themes.find(t => t.id === savedTheme) || themes[0];
-      setCurrentTheme(theme);
-      setThemeVars(theme);
-    }
+    // تأخير بسيط للتأكد من أن DOM جاهز
+    const initializeTheme = () => {
+      const savedTheme = localStorage.getItem('theme-color');
+      console.log('🔍 Saved theme in localStorage:', savedTheme);
+      
+      let themeToApply;
+      if (savedTheme) {
+        themeToApply = themes.find(t => t.id === savedTheme) || themes[0];
+        console.log('✅ Found saved theme:', themeToApply);
+      } else {
+        themeToApply = themes[0]; // الافتراضي هو الأزرق
+        console.log('⚠️ No saved theme, using default:', themeToApply);
+        localStorage.setItem('theme-color', themeToApply.id);
+      }
+      
+      setCurrentTheme(themeToApply);
+      setThemeVars(themeToApply);
+      setIsInitialized(true);
+    };
+
+    // تأخير بسيط للتأكد من تحميل DOM
+    const timer = setTimeout(initializeTheme, 100);
+    return () => clearTimeout(timer);
   }, []);
+
+  // التأكد من تطبيق الثيم عند تغيير currentTheme
+  useEffect(() => {
+    if (currentTheme && isInitialized) {
+      setThemeVars(currentTheme);
+    }
+  }, [currentTheme, isInitialized]);
 
   // تحويل Hex إلى HSL (لضبط متغيرات --accent كما في النسخة الكاملة)
   const hexToHsl = (hex: string) => {
@@ -117,12 +157,16 @@ export default function CompactThemeSwitcher({ className = '' }: CompactThemeSwi
 
   const setThemeVars = (theme: typeof themes[0]) => {
     const root = document.documentElement;
-    // إزالة جميع data-theme attributes
+    
+    // إزالة جميع data-theme attributes القديمة
     themes.forEach(t => root.removeAttribute(`data-theme-${t.id}`));
+    
     // تطبيق theme الجديد
     root.setAttribute('data-theme', theme.id);
     root.style.setProperty('--theme-primary', theme.color);
+    root.style.setProperty('--theme-secondary', theme.color);
     root.style.setProperty('--theme-primary-rgb', theme.rgb);
+    root.style.setProperty('--theme-primary-hover', theme.color);
     root.style.setProperty('--theme-primary-light', `rgba(${theme.rgb}, 0.1)`);
     root.style.setProperty('--theme-primary-lighter', `rgba(${theme.rgb}, 0.05)`);
 
@@ -133,14 +177,38 @@ export default function CompactThemeSwitcher({ className = '' }: CompactThemeSwi
     root.style.setProperty('--accent', `${h} ${s}% ${l}%`);
     root.style.setProperty('--accent-hover', `${h} ${s}% ${hoverL}%`);
     root.style.setProperty('--accent-light', `${h} ${s}% ${lightL}%`);
+    
+    // إضافة console.log للتشخيص
+    console.log(`🎨 Theme changed to: ${theme.name} (${theme.color})`);
+    console.log('🔧 Applied CSS variables:', {
+      '--theme-primary': theme.color,
+      '--theme-primary-rgb': theme.rgb,
+      '--accent': `${h} ${s}% ${l}%`,
+      'data-theme': theme.id
+    });
   };
 
   const handleThemeChange = (themeId: string) => {
     const theme = themes.find(t => t.id === themeId) || themes[0];
+    console.log('🎯 User selected theme:', theme);
+    
+    // تطبيق التغييرات
     setCurrentTheme(theme);
     setThemeVars(theme);
+    
+    // حفظ في localStorage
     localStorage.setItem('theme-color', theme.id);
-    setFocused(false); // إغلاق القائمة بعد الاختيار
+    console.log('💾 Saved to localStorage:', theme.id);
+    
+    // إغلاق القائمة بعد الاختيار
+    setFocused(false);
+    
+    // إشعار في الكونسول للتأكيد
+    setTimeout(() => {
+      console.log('🔍 Current CSS variables after change:');
+      console.log('--theme-primary:', getComputedStyle(document.documentElement).getPropertyValue('--theme-primary'));
+      console.log('data-theme:', document.documentElement.getAttribute('data-theme'));
+    }, 100);
   };
 
   return (
