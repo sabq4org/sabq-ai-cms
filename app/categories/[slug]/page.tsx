@@ -40,21 +40,20 @@ import "../category-page-mobile.css";
 interface Category {
   id: number;
   name: string;
-  name_ar: string;
-  name_en?: string;
   slug: string;
   description?: string;
-  icon?: string;
-  color?: string;
-  cover_image?: string;
   articles_count?: number;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
   metadata?: {
+    name_ar?: string;
+    themeColor?: string;
+    icon?: string;
     cover_image?: string;
     [key: string]: any;
   };
+  cover_image?: string;
+  icon?: string;
+  color?: string;
+  [key: string]: any;
 }
 interface Article {
   id: string;
@@ -89,119 +88,118 @@ const categoryIcons: { [key: string]: React.ComponentType<any> } = {
 // ألوان التصنيفات
 const categoryColors: { [key: string]: string } = {
   تقنية: "from-purple-500 to-purple-600",
-  اقتصاد: "from-green-500 to-green-600",
   رياضة: "from-blue-500 to-blue-600",
-  ثقافة: "from-yellow-500 to-yellow-600",
+  اقتصاد: "from-green-500 to-green-600",
   صحة: "from-pink-500 to-pink-600",
+  بيئة: "from-teal-500 to-teal-600",
+  ثقافة: "from-amber-500 to-amber-600",
   محلي: "from-indigo-500 to-indigo-600",
   دولي: "from-cyan-500 to-cyan-600",
   منوعات: "from-orange-500 to-orange-600",
-  بيئة: "from-teal-500 to-teal-600",
   default: "from-gray-500 to-gray-600",
 };
-interface PageProps {
-  params: Promise<{ slug: string }>;
+function formatDate(dateString: string) {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  if (diffInSeconds < 60) return "منذ لحظات";
+  if (diffInSeconds < 3600)
+    return `منذ ${Math.floor(diffInSeconds / 60)} دقيقة`;
+  if (diffInSeconds < 86400)
+    return `منذ ${Math.floor(diffInSeconds / 3600)} ساعة`;
+  if (diffInSeconds < 2592000)
+    return `منذ ${Math.floor(diffInSeconds / 86400)} يوم`;
+  return date.toLocaleDateString("ar-SA", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 }
 interface CategoryStats {
-  articles: {
-    total: number;
-    published: number;
-    draft: number;
-    weekly: number;
-    monthly: number;
-  };
+  breakingNews: number;
+  todayArticles: number;
+  weeklyArticles: number;
+  totalViews: number;
+  totalLikes: number;
+  averageReadTime: number;
+  topAuthors: Array<{
+    name: string;
+    articleCount: number;
+    avatar?: string;
+  }>;
+  popularTags: string[];
   engagement: {
-    totalViews: number;
-    totalLikes: number;
+    likesRate: number;
+    sharesRate: number;
     totalShares: number;
     averageViews: number;
   };
-  highlights: {
-    mostViewed: any;
-    latest: any;
-    topArticles: any[];
-  };
-  performance: {
-    engagementRate: string;
-    viewsPerArticle: number;
-    weeklyGrowth: number;
-    monthlyGrowth: number;
+}
+interface PageProps {
+  params: {
+    slug: string;
   };
 }
-
 export default function CategoryDetailPage({ params }: PageProps) {
   const router = useRouter();
   const { darkMode } = useDarkModeContext();
   const [category, setCategory] = useState<Category | null>(null);
   const [articles, setArticles] = useState<Article[]>([]);
   const [filteredArticles, setFilteredArticles] = useState<Article[]>([]);
-  const [categoryStats, setCategoryStats] = useState<CategoryStats | null>(
-    null
-  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<"newest" | "views" | "likes">("newest");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [searchTerm, setSearchTerm] = useState("");
-  const [categorySlug, setCategorySlug] = useState<string>("");
+  const [sortBy, setSortBy] = useState<"date" | "views" | "likes">("date");
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [stats, setStats] = useState<CategoryStats | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
-    async function loadCategory() {
-      const resolvedParams = await params;
-      if (resolvedParams?.slug) {
-        setCategorySlug(resolvedParams.slug);
-        fetchCategoryData(resolvedParams.slug);
-      }
-    }
-    loadCategory();
+    const checkDevice = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkDevice();
+    window.addEventListener("resize", checkDevice);
+    return () => window.removeEventListener("resize", checkDevice);
   }, []);
   useEffect(() => {
-    // إذا تغير الترتيب، أعد جلب المقالات مع الترتيب الجديد
-    if (category && (sortBy !== "newest" || searchTerm)) {
+    fetchCategoryData(params.slug);
+  }, [params.slug]);
+  useEffect(() => {
+    if (articles.length > 0) {
       fetchFilteredArticles();
-    } else {
-      // فلترة محلية للبحث فقط
-      const filtered = articles.filter(
-        (article) =>
-          article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (article.excerpt &&
-            article.excerpt.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
-      setFilteredArticles(filtered);
     }
-  }, [articles, sortBy, searchTerm]);
-
+  }, [searchTerm, sortBy, selectedTag, articles]);
   const fetchFilteredArticles = async () => {
-    if (!category) return;
-
     try {
-      let sortParam = "published_at";
-      let orderParam = "desc";
-
-      switch (sortBy) {
-        case "views":
-          sortParam = "views";
-          orderParam = "desc";
-          break;
-        case "likes":
-          sortParam = "likes";
-          orderParam = "desc";
-          break;
-        case "newest":
-        default:
-          sortParam = "published_at";
-          orderParam = "desc";
-          break;
+      let filtered = [...articles];
+      // تطبيق البحث
+      if (searchTerm) {
+        filtered = filtered.filter(
+          (article) =>
+            article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            article.excerpt?.toLowerCase().includes(searchTerm.toLowerCase())
+        );
       }
-
-      const params = new URLSearchParams({
-        category_id: category.id,
-        status: "published",
-        article_type: "news",
-        sort: sortParam,
-        order: orderParam,
-        limit: "50",
+      // تطبيق الترتيب
+      filtered.sort((a, b) => {
+        switch (sortBy) {
+          case "views":
+            return (b.views_count || 0) - (a.views_count || 0);
+          case "likes":
+            return (b.likes_count || 0) - (a.likes_count || 0);
+          default:
+            return (
+              new Date(b.published_at || b.created_at).getTime() -
+              new Date(a.published_at || a.created_at).getTime()
+            );
+        }
       });
-
+      // البحث بحسب التاق إذا لزم
+      const params = new URLSearchParams({
+        status: "published",
+        category_id: category?.id.toString() || "",
+      });
       if (searchTerm) {
         params.append("search", searchTerm);
       }
@@ -419,175 +417,83 @@ export default function CategoryDetailPage({ params }: PageProps) {
         ? (category.metadata as any).cover_image
         : null);
 
-    // التحقق من أن الصورة ليست فارغة
-    if (coverImage && coverImage.trim() !== "") {
-      // إذا كانت الصورة محلية، أضف URL الأساسي
-      if (coverImage.startsWith("/")) {
-        return `${process.env.NEXT_PUBLIC_SITE_URL || ""}${coverImage}`;
-      }
+    if (coverImage) {
       return coverImage;
     }
 
-    // استخدام صورة افتراضية بناءً على اسم التصنيف
-    const categoryImages: { [key: string]: string } = {
+    // إذا لم توجد صورة، استخدام صورة افتراضية جذابة بناءً على نوع التصنيف
+    const defaultImages: Record<string, string> = {
       تقنية:
         "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80",
-      تكنولوجيا:
-        "https://images.unsplash.com/photo-1518709268805-4e9042af2176?auto=format&fit=crop&w=1200&q=80",
       رياضة:
         "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1200&q=80",
       اقتصاد:
         "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1200&q=80",
-      سياسة:
-        "https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?auto=format&fit=crop&w=1200&q=80",
       صحة: "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=1200&q=80",
       بيئة: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80",
       ثقافة:
         "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=1200&q=80",
-      محلي: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=1200&q=80",
-      دولي: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80",
+      محلي:
+        "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=1200&q=80",
+      دولي:
+        "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80",
       منوعات:
         "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80",
-      تعليم:
-        "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80",
-      فنون: "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8a?auto=format&fit=crop&w=1200&q=80",
-      سفر: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1200&q=80",
-      علوم: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=1200&q=80",
-      أخبار:
-        "https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=1200&q=80",
-      default:
-        "https://images.unsplash.com/photo-1585776245991-cf89dd7fc73a?auto=format&fit=crop&w=1200&q=80",
     };
 
-    // البحث المباشر
-    const directMatch = categoryImages[category.name];
-    if (directMatch) return directMatch;
-
-    // البحث الجزئي في الكلمات المفتاحية
-    const keywords = {
-      تقني: categoryImages["تقنية"],
-      تكنولوجي: categoryImages["تكنولوجيا"],
-      رياضي: categoryImages["رياضة"],
-      اقتصادي: categoryImages["اقتصاد"],
-      سياسي: categoryImages["سياسة"],
-      صحي: categoryImages["صحة"],
-      بيئي: categoryImages["بيئة"],
-      ثقافي: categoryImages["ثقافة"],
-      محلي: categoryImages["محلي"],
-      دولي: categoryImages["دولي"],
-      منوع: categoryImages["منوعات"],
-      تعليمي: categoryImages["تعليم"],
-      فني: categoryImages["فنون"],
-      سفر: categoryImages["سفر"],
-      علمي: categoryImages["علوم"],
-      خبر: categoryImages["أخبار"],
-    };
-
-    for (const [keyword, image] of Object.entries(keywords)) {
-      if (category.name.includes(keyword)) return image;
-    }
-
-    return categoryImages["default"];
+    return (
+      defaultImages[category.name] ||
+      "https://images.unsplash.com/photo-1585776245991-cf89dd7fc73a?auto=format&fit=crop&w=1200&q=80"
+    );
   };
-  const generatePlaceholderImage = (title: string) => {
-    const colors = ["#8B5CF6", "#10B981", "#3B82F6", "#EF4444", "#F59E0B"];
-    const colorIndex = title.charCodeAt(0) % colors.length;
-    return `data:image/svg+xml,${encodeURIComponent(`
-      <svg width="800" height="400" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style="stop-color:${
-              colors[colorIndex]
-            };stop-opacity:1" />
-            <stop offset="100%" style="stop-color:${
-              colors[(colorIndex + 1) % colors.length]
-            };stop-opacity:1" />
-          </linearGradient>
-        </defs>
-        <rect width="800" height="400" fill="url(#grad)"/>
-        <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="32" fill="white" text-anchor="middle" dominant-baseline="middle" opacity="0.8">
-          ${title.substring(0, 30)}
-        </text>
-      </svg>
-    `)}`;
-  };
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("ar-SA", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      calendar: "gregory",
-      numberingSystem: "latn",
-    });
+  const filteredStats = {
+    totalArticles: filteredArticles.length,
+    todayArticles: filteredArticles.filter((article) => {
+      const today = new Date();
+      const articleDate = new Date(article.published_at || article.created_at);
+      return (
+        articleDate.getDate() === today.getDate() &&
+        articleDate.getMonth() === today.getMonth() &&
+        articleDate.getFullYear() === today.getFullYear()
+      );
+    }).length,
+    totalViews: filteredArticles.reduce(
+      (sum, article) => sum + (article.views_count || 0),
+      0
+    ),
+    featuredCount: filteredArticles.filter((article) => article.is_featured)
+      .length,
   };
   if (loading) {
     return (
-      <>
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <div className="text-center">
-            <Loader2 className="w-12 h-12 animate-spin text-blue-500 mx-auto mb-4" />
-            <p className="text-gray-500">جاري تحميل التصنيف...</p>
-          </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600 dark:text-gray-400">جاري التحميل...</p>
         </div>
-      </>
+      </div>
     );
   }
-
-  if (error) {
+  if (error || !category) {
     return (
-      <>
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-          <div className="text-center max-w-md mx-auto p-6">
-            <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-              حدث خطأ
-            </h3>
-            <p className="text-gray-600 dark:text-gray-300 mb-6">{error}</p>
-            <div className="flex gap-3 justify-center">
-              <button
-                onClick={() => window.location.reload()}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors"
-              >
-                <RefreshCw className="w-5 h-5" />
-                إعادة المحاولة
-              </button>
-              <Link
-                href="/categories"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gray-500 text-white rounded-xl hover:bg-gray-600 transition-colors"
-              >
-                <ArrowRight className="w-5 h-5" />
-                العودة للتصنيفات
-              </Link>
-            </div>
-          </div>
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="text-center max-w-md">
+          <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+            عذراً، حدث خطأ
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            {error || "لم نتمكن من العثور على هذا القسم"}
+          </p>
+          <button
+            onClick={() => router.push("/categories")}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <ArrowRight className="w-5 h-5" />
+            العودة للأقسام
+          </button>
         </div>
-      </>
-    );
-  }
-
-  if (!category) {
-    return (
-      <>
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <div className="text-center">
-            <Tag className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
-              التصنيف غير موجود
-            </h3>
-            <p className="text-gray-500 mb-6">
-              عذراً، لم نتمكن من العثور على التصنيف المطلوب
-            </p>
-            <Link
-              href="/categories"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors"
-            >
-              <ArrowRight className="w-5 h-5" />
-              العودة إلى التصنيفات
-            </Link>
-          </div>
-        </div>
-      </>
+      </div>
     );
   }
   const Icon = getIcon(category.name);
@@ -604,220 +510,190 @@ export default function CategoryDetailPage({ params }: PageProps) {
           sizes="100vw"
           priority
           onError={(e) => {
-            // إذا فشل تحميل الصورة، استخدم صورة افتراضية
             const target = e.target as HTMLImageElement;
             target.src = "/images/placeholder.jpg";
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
-        {/* Animated Background Pattern */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0di00aC0ydjRoLTR2Mmg0djRoMnYtNGg0di0yaC00em0wLTMwVjBoLTJ2NGgtNHYyaDR2NGgyVjZoNFY0aC00ek02IDM0di00SDR2NEgwdjJoNHY0aDJ2LTRoNHYtMkg2ek02IDRWMEG0NHY0SDB2Mmg0djRoMlY2aDRWNEg2eiIvPjwvZz48L2c+PC9zdmc+')] opacity-30"></div>
-        </div>
-        {/* Content Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 md:p-8">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+        {/* Category Info Overlay */}
+        <div className="absolute bottom-0 right-0 left-0 p-6 md:p-12">
           <div className="max-w-7xl mx-auto">
-            {/* Mobile Layout */}
-            <div className="md:hidden text-center">
-              <h1 className="text-3xl font-bold text-white mb-2 drop-shadow-2xl">
-                {category.name}
-              </h1>
-              {category.description && (
-                <p className="text-base text-white/90 drop-shadow-lg">
-                  {category.description}
-                </p>
-              )}
-            </div>
-            {/* Desktop Layout */}
-            <div className="hidden md:flex items-center gap-8 mb-8">
-              <div
-                className={`w-24 h-24 bg-gradient-to-br ${colorGradient} rounded-3xl flex items-center justify-center shadow-2xl transform hover:scale-110 transition-transform duration-300 backdrop-blur-md`}
-              >
-                {category.icon ? (
-                  <span className="text-5xl filter drop-shadow-lg">
-                    {category.icon}
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-16 h-16 md:w-20 md:h-20 bg-white/90 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg">
+                {category.icon || category.metadata?.icon ? (
+                  <span className="text-3xl md:text-4xl">
+                    {category.icon || category.metadata?.icon}
                   </span>
                 ) : (
-                  <Icon className="w-12 h-12 text-white filter drop-shadow-lg" />
+                  <Icon className="w-8 h-8 md:w-10 md:h-10 text-gray-700" />
                 )}
               </div>
               <div>
-                <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 drop-shadow-2xl">
+                <h1 className="text-3xl md:text-5xl font-bold text-white mb-2">
                   {category.name}
                 </h1>
                 {category.description && (
-                  <p className="text-xl md:text-2xl text-white/90 max-w-4xl drop-shadow-lg">
-                    {category.description}
+                  <p className="text-lg md:text-xl text-white/80 max-w-2xl">
+                    {(() => {
+                      let desc = category.description;
+                      if (desc.startsWith("{")) {
+                        try {
+                          const parsed = JSON.parse(desc);
+                          desc = parsed.ar || parsed.description || desc;
+                        } catch (e) {}
+                      }
+                      return desc;
+                    })()}
                   </p>
                 )}
               </div>
             </div>
-            {/* Enhanced Stats - Desktop Only - استخدام الإحصائيات الحقيقية */}
-            <div className="hidden md:flex items-center gap-8 text-white/90">
-              <div className="flex items-center gap-3 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full border border-white/30">
-                <BookOpen className="w-6 h-6" />
-                <span className="font-bold text-xl">
-                  {categoryStats?.articles.published || articles.length}
-                </span>
-                <span className="text-lg">خبر منشور</span>
+            {/* Quick Stats */}
+            <div className="flex flex-wrap gap-4 md:gap-6">
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+                <div className="text-2xl md:text-3xl font-bold text-white">
+                  {filteredStats.totalArticles}
+                </div>
+                <div className="text-sm text-white/70">مقال</div>
               </div>
-              <div className="flex items-center gap-3 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full border border-white/30">
-                <Eye className="w-6 h-6" />
-                <span className="font-bold text-xl">
-                  {(
-                    categoryStats?.engagement.totalViews ||
-                    articles.reduce(
-                      (acc, article) => acc + (article.views_count || 0),
-                      0
-                    )
-                  ).toLocaleString()}
-                </span>
-                <span className="text-lg">مشاهدة</span>
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+                <div className="text-2xl md:text-3xl font-bold text-white">
+                  {filteredStats.todayArticles}
+                </div>
+                <div className="text-sm text-white/70">اليوم</div>
               </div>
-              <div className="flex items-center gap-3 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full border border-white/30">
-                <Heart className="w-6 h-6" />
-                <span className="font-bold text-xl">
-                  {(
-                    categoryStats?.engagement.totalLikes ||
-                    articles.reduce(
-                      (acc, article) => acc + (article.likes_count || 0),
-                      0
-                    )
-                  ).toLocaleString()}
-                </span>
-                <span className="text-lg">إعجاب</span>
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+                <div className="text-2xl md:text-3xl font-bold text-white">
+                  {filteredStats.totalViews.toLocaleString("ar-SA")}
+                </div>
+                <div className="text-sm text-white/70">مشاهدة</div>
               </div>
-              {categoryStats?.engagement.totalShares &&
-                categoryStats.engagement.totalShares > 0 && (
-                  <div className="flex items-center gap-3 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full border border-white/30">
-                    <TrendingUp className="w-6 h-6" />
-                    <span className="font-bold text-xl">
-                      {categoryStats.engagement.totalShares.toLocaleString()}
-                    </span>
-                    <span className="text-lg">مشاركة</span>
+              {filteredStats.featuredCount > 0 && (
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+                  <div className="text-2xl md:text-3xl font-bold text-white">
+                    {filteredStats.featuredCount}
                   </div>
-                )}
+                  <div className="text-sm text-white/70">مميز</div>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </section>
-      {/* Search and Filters Section */}
-      <section className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-16 z-10 shadow-md">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-            {/* Search */}
-            <div className="relative w-full md:w-96">
+      {/* Content Section */}
+      <section className="max-w-7xl mx-auto px-4 md:px-6 py-8">
+        {/* Filters & Controls */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-8">
+          <div className="flex flex-col lg:flex-row gap-4 justify-between items-center">
+            {/* Search Box */}
+            <div className="relative w-full lg:max-w-md">
               <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
                 placeholder="ابحث في المقالات..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pr-12 pl-4 py-3 bg-gray-50 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 focus:border-transparent transition-all text-gray-900 dark:text-white"
+                className="w-full pr-12 pl-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900 dark:text-white"
               />
             </div>
-            {/* Sort and View Options */}
-            <div className="flex items-center gap-4">
-              {/* Sort */}
+            {/* Controls */}
+            <div className="flex items-center gap-4 w-full lg:w-auto">
+              {/* Sort Options */}
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-                className="px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onChange={(e) =>
+                  setSortBy(e.target.value as "date" | "views" | "likes")
+                }
+                className="px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1 lg:flex-initial"
               >
-                <option value="newest">الأحدث</option>
+                <option value="date">الأحدث</option>
                 <option value="views">الأكثر مشاهدة</option>
-                <option value="likes">الأكثر إعجاباً</option>
+                <option value="likes">الأكثر تفاعلاً</option>
               </select>
-              {/* View Mode */}
-              <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+              {/* View Mode Toggle - Desktop Only */}
+              <div className="hidden lg:flex items-center bg-gray-100 dark:bg-gray-700 rounded-xl p-1">
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`p-2 rounded-md transition-colors ${
+                  className={`p-2.5 rounded-lg transition-all ${
                     viewMode === "grid"
-                      ? "bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm"
-                      : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                      ? "bg-white dark:bg-gray-600 shadow-sm text-blue-600 dark:text-blue-400"
+                      : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
                   }`}
-                  title="عرض شبكة"
+                  title="عرض شبكي"
                 >
-                  <Grid className="w-4 h-4" />
+                  <Grid className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => setViewMode("list")}
-                  className={`p-2 rounded-md transition-colors ${
+                  className={`p-2.5 rounded-lg transition-all ${
                     viewMode === "list"
-                      ? "bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm"
-                      : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                      ? "bg-white dark:bg-gray-600 shadow-sm text-blue-600 dark:text-blue-400"
+                      : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
                   }`}
                   title="عرض قائمة"
                 >
-                  <List className="w-4 h-4" />
+                  <List className="w-5 h-5" />
                 </button>
               </div>
+              {/* Refresh Button */}
+              <button
+                onClick={() => fetchCategoryData(params.slug)}
+                className="p-3 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                title="تحديث"
+              >
+                <RefreshCw className="w-5 h-5" />
+              </button>
             </div>
           </div>
         </div>
-      </section>
-      {/* Articles Section */}
-      <section className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
+        {/* Results Count */}
+        {searchTerm && (
+          <div className="mb-6 text-gray-600 dark:text-gray-400">
+            {filteredArticles.length > 0 ? (
+              <>
+                عرض {filteredArticles.length} نتيجة لـ &ldquo;{searchTerm}
+                &rdquo;
+              </>
+            ) : (
+              <>لا توجد نتائج لـ &ldquo;{searchTerm}&rdquo;</>
+            )}
+          </div>
+        )}
+        {/* Articles Grid/List */}
         {filteredArticles.length === 0 ? (
-          <div className="text-center py-20">
-            <BookOpen className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-            <p className="text-gray-500 dark:text-gray-400 text-lg">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-12 text-center">
+            <BookOpen className="w-20 h-20 text-gray-300 dark:text-gray-600 mx-auto mb-6" />
+            <h3 className="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-3">
+              لا توجد مقالات
+            </h3>
+            <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
               {searchTerm
-                ? "لا توجد مقالات تطابق البحث"
-                : "لا توجد مقالات في هذا التصنيف بعد"}
+                ? "لم نعثر على مقالات تطابق بحثك. جرب كلمات أخرى"
+                : "لا توجد مقالات في هذا القسم حالياً"}
             </p>
           </div>
         ) : (
           <>
-            {/* Mobile View - Ultra Compact Cards (كما في محتوى مخصص لك) */}
-            <div className="md:hidden category-cards-container">
-              <div className="space-y-2">
+            {/* Mobile View - Always Grid */}
+            <div className="block md:hidden">
+              <div className="grid grid-cols-1 gap-4">
                 {filteredArticles && filteredArticles.length > 0 ? (
-                  filteredArticles.slice(0, 10).map((article) => {
-                    // حد أقصى 10 بطاقات
+                  filteredArticles.map((article) => {
                     try {
-                      return (
-                        <CompactCategoryCardMini
-                          key={article?.id || Math.random()}
-                          article={article}
-                          darkMode={darkMode}
-                          className="compact-category-card-mini hover:shadow-md transition-shadow duration-200"
-                        />
-                      );
+                      return <ArticleCard key={article?.id || Math.random()} article={article} />;
                     } catch (error) {
-                      console.error("Error rendering article:", error);
+                      console.error("Error rendering mobile article:", error);
                       return null;
                     }
                   })
                 ) : (
-                  <div className="text-center py-8">
-                    <BookOpen className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                  <div className="text-center py-12">
+                    <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                     <p className="text-gray-500">لا توجد مقالات للعرض</p>
-                  </div>
-                )}
-
-                {/* زر عرض المزيد إذا كان هناك أكثر من 10 مقالات */}
-                {filteredArticles && filteredArticles.length > 10 && (
-                  <div className="text-center pt-4">
-                    <button
-                      onClick={() => {
-                        // يمكن إضافة منطق لعرض المزيد لاحقاً
-                        window.location.href = `/categories/${categorySlug}`;
-                      }}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors show-more-button ${
-                        darkMode
-                          ? "bg-gray-700 text-gray-200 hover:bg-gray-600"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
-                    >
-                      عرض المزيد ({filteredArticles.length - 10} مقال إضافي)
-                    </button>
                   </div>
                 )}
               </div>
             </div>
-
             {/* Desktop View - Keep existing */}
             <div className="hidden md:block">
               {viewMode === "grid" ? (
@@ -844,108 +720,6 @@ export default function CategoryDetailPage({ params }: PageProps) {
                     filteredArticles.map((article) => {
                       try {
                         return <ArticleCard key={article?.id || Math.random()} article={article} />;
-                                  <img
-                                    src={article.featured_image}
-                                    alt={article.title || "صورة المقال"}
-                                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                    onLoad={(e) => {
-                                      (
-                                        e.target as HTMLImageElement
-                                      ).style.opacity = "1";
-                                    }}
-                                    onError={(e) => {
-                                      const target =
-                                        e.target as HTMLImageElement;
-                                      target.src =
-                                        "/images/placeholder-featured.jpg";
-                                    }}
-                                    style={{
-                                      opacity: 0,
-                                      transition: "opacity 0.3s",
-                                    }}
-                                  />
-                                ) : (
-                                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
-                                    <Newspaper className="w-12 h-12 text-gray-400 dark:text-gray-600" />
-                                  </div>
-                                )}
-                                {article.is_breaking && (
-                                  <div className="absolute top-2 right-2">
-                                    <span className="urgent-badge inline-flex items-center gap-1 px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full">
-                                      <Zap className="w-3 h-3" />
-                                      عاجل
-                                    </span>
-                                  </div>
-                                )}
-                              </div>
-                              {/* Content */}
-                              <div className="flex-1">
-                                <div className="flex items-start justify-between mb-2">
-                                  <h3
-                                    className={`text-[17px] font-bold leading-[1.4] ${
-                                      article.is_breaking
-                                        ? "text-red-700 dark:text-red-400"
-                                        : "text-gray-900 dark:text-white"
-                                    } group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-3`}
-                                  >
-                                    {article.title}
-                                  </h3>
-                                  {article.is_featured && (
-                                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-yellow-400 to-orange-500 text-white flex-shrink-0 ml-3">
-                                      <Sparkles className="w-3 h-3" />
-                                      مميز
-                                    </span>
-                                  )}
-                                </div>
-                                {article.excerpt && (
-                                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2 leading-relaxed">
-                                    {article.excerpt}
-                                  </p>
-                                )}
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                                    <span className="flex items-center gap-1">
-                                      <Calendar className="w-4 h-4" />
-                                      {formatDate(
-                                        article.published_at ||
-                                          article.created_at
-                                      )}
-                                    </span>
-                                    {article.reading_time && (
-                                      <span className="flex items-center gap-1">
-                                        <Clock className="w-4 h-4" />
-                                        {article.reading_time} دقيقة
-                                      </span>
-                                    )}
-                                    {article.author_name && (
-                                      <span className="flex items-center gap-1">
-                                        <User className="w-4 h-4" />
-                                        {article.author_name}
-                                      </span>
-                                    )}
-                                  </div>
-                                  <div className="flex items-center gap-3">
-                                    <span className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-                                      <Eye className="w-4 h-4" />
-                                      {article.views_count > 0
-                                        ? article.views_count.toLocaleString(
-                                            "ar-SA"
-                                          )
-                                        : "جديد"}
-                                    </span>
-                                    {article.likes_count &&
-                                      article.likes_count > 0 && (
-                                        <span className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-                                          <Heart className="w-4 h-4" />
-                                          {article.likes_count.toLocaleString(
-                                            "ar-SA"
-                                          )}
-                                        </span>
-                                      )}
-                                    <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/20">
-                                      <ArrowLeft className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                                    </div>
-                                  </div>
                       } catch (error) {
                         console.error("Error rendering list article:", error);
                         return null;
