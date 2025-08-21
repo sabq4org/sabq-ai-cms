@@ -558,7 +558,7 @@ export default function EnhancedMuqtarabBlock({
       <Link href={article.link} className="group block">
         <article
           dir="rtl"
-          className="h-full transition-all duration-300 flex flex-row md:flex-col bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-none"
+          className="h-full transition-all duration-300 flex flex-row md:flex-col bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl"
           style={{ boxShadow: 'none' }}
         >
           {/* صورة المقال */}

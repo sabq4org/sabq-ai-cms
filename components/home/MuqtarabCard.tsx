@@ -99,7 +99,7 @@ export default function MuqtarabCard({
   // مكون بطاقة المقال المميز الكبير
   if (variant === "large") {
     return (
-      <Card className="group overflow-hidden transition-all duration-300 border border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 relative bg-gray-50 rounded-none">
+      <Card className="group overflow-hidden transition-all duration-300 border border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 relative bg-gray-50 rounded-xl">
         {/* تصميم الديسكتوب - نصف صورة ونصف محتوى */}
         <div className="hidden md:grid md:grid-cols-2 gap-0">
           {/* صورة المقال */}
@@ -320,7 +320,7 @@ export default function MuqtarabCard({
       <article
         className={cn(
           "relative overflow-hidden h-full flex flex-row md:flex-col",
-          "bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-none"
+          "bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl"
         )}
         dir="rtl"
       >
