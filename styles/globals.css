@@ -282,22 +282,53 @@ select:focus-visible {
   width: 100% !important;
 }
 
-/* إصلاح نهائي لمنع انحشار المحتوى تحت السايدبار */
+/* إصلاح نهائي وشامل لمنع انحشار المحتوى تحت السايدبار */
 @media (min-width: 768px) {
-  /* حاوية المحتوى الرئيسي */
+  /* حاوية المحتوى الرئيسي - الحل النهائي الشامل */
   .admin-modern-main.admin-dashboard-layout {
+    width: calc(100vw - 300px) !important; /* عرض النافذة الكامل مطروحاً منه عرض الشريط الجانبي + مساحة إضافية */
     margin-right: 0 !important;
+    padding-right: 0 !important; /* إزالة أي padding قد يسبب تداخل */
+    max-width: none !important; /* إزالة أي قيود على العرض الأقصى */
+    box-sizing: border-box !important;
+    position: relative !important; /* للتأكد من الموضع الصحيح */
   }
   
-  /* العنصر الأب المباشر للمحتوى الرئيسي */
+  /* إزالة أي margin أو padding من العناصر المرتبطة */
   .admin-modern-main.admin-dashboard-layout + *,
   .admin-modern-main.admin-dashboard-layout ~ * {
-    margin-right: 280px !important;
+    margin-right: 0 !important;
+    padding-right: 0 !important;
   }
   
-  /* أي div يحتوي على admin-modern-main */
-  div:has(> .admin-modern-main.admin-dashboard-layout) {
-    padding-right: 280px !important;
+  /* إزالة padding من العنصر الأب */
+  div:has(> .admin-modern-main.admin-dashboard-layout),
+  .admin-modern-main.admin-dashboard-layout > div,
+  .admin-modern-main.admin-dashboard-layout .container {
+    padding-right: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+  }
+  
+  /* التأكد من أن body لا يحتوي على padding */
+  body:has(.admin-modern-main.admin-dashboard-layout) {
+    padding-right: 0 !important;
+  }
+  
+  /* حل إضافي للعناصر العنيدة */
+  .admin-modern-main.admin-dashboard-layout *[style*="padding-right"],
+  .admin-modern-main.admin-dashboard-layout *[style*="margin-right"] {
+    padding-right: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+
+/* للشاشات الصغيرة - التأكد من عدم وجود مشاكل */
+@media (max-width: 767px) {
+  .admin-modern-main.admin-dashboard-layout {
+    width: 100% !important;
+    margin-right: 0 !important;
+    padding-right: 0 !important;
   }
 }
 
