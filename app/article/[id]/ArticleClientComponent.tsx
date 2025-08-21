@@ -760,6 +760,7 @@ export default function ArticleClientComponent({
                   showFloatingAudio={true}
                 />
               </div>
+              
             </div>
 
             {/* منطقة الموجز الذكي للديسكتوب */}
@@ -901,11 +902,8 @@ export default function ArticleClientComponent({
               />
             </div>
 
-            {/* تم نقل أنماط RTL إلى ملفات CSS العامة لضمان الاستقرار أثناء البناء */}
-          </div>
-          
-          {!isMobile && (
-            <div className="article-unified-width mt-6 sm:mt-8">
+            {/* مخصص لك بذكاء - أسفل بلوك إحصائيات المقال */}
+            <div className="mt-6 sm:mt-8">
               <SmartPersonalizedContent
                 articleId={article.id}
                 categoryId={article.category_id}
@@ -915,7 +913,11 @@ export default function ArticleClientComponent({
                 userId={undefined}
               />
             </div>
-          )}
+
+            {/* تم نقل أنماط RTL إلى ملفات CSS العامة لضمان الاستقرار أثناء البناء */}
+          </div>
+          
+          
         </div>
       </main>
     </>

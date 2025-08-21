@@ -576,25 +576,44 @@ function SmartPersonalizedContentInner({
     return () => clearInterval(updateInterval);
   }, [articleId, categoryId, tags, userId]);
 
-  // حالة التحميل
+  // حالة التحميل - عرض العنوان دائماً في النسخة الخفيفة
   if (loading) {
     return (
       <section className={"w-full py-6 md:py-8 bg-transparent"}>
         <div className="w-full">
-          <div className="flex items-center justify-center py-8">
+          <div className="mb-6 flex flex-col items-center text-center">
+            <div className="mb-2">
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '36px',
+                  height: '36px',
+                  background: 'linear-gradient(135deg, hsl(var(--accent) / 0.15) 0%, hsl(var(--accent) / 0.05) 100%)',
+                  borderRadius: '10px',
+                  color: 'hsl(var(--accent))',
+                  border: '1px solid hsl(var(--accent) / 0.25)'
+                }}
+              >
+                <Brain className="w-5 h-5" />
+              </span>
+            </div>
+            <h2 className={darkMode ? "text-white font-bold" : "text-gray-900 font-bold"} style={{ fontSize: '20px', marginBottom: '6px' }}>
+              مخصص لك بذكاء
+            </h2>
+            <p style={{ fontSize: '14px', fontWeight: 600, color: 'hsl(var(--accent))' }}>
+              محتوى مختار بناءً على اهتماماتك وسلوكك في القراءة
+            </p>
+          </div>
+          <div className="flex items-center justify-center py-4">
             <div className="flex items-center gap-3">
               <div className="animate-spin">
                 <Brain
-                  className={`w-6 h-6 ${
-                    darkMode ? "text-blue-400" : "text-blue-600"
-                  }`}
+                  className={`w-6 h-6 ${darkMode ? "text-blue-400" : "text-blue-600"}`}
                 />
               </div>
-              <span
-                className={`text-sm ${
-                  darkMode ? "text-gray-300" : "text-gray-600"
-                }`}
-              >
+              <span className={`text-sm ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
                 🤖 جاري تحليل اهتماماتك وتخصيص المحتوى...
               </span>
             </div>
@@ -604,11 +623,37 @@ function SmartPersonalizedContentInner({
     );
   }
 
-  // عرض رسالة التحضير في حالة الخطأ وعدم وجود توصيات
+  // عرض رسالة التحضير في حالة الخطأ وعدم وجود توصيات - مع إظهار العنوان
   if (!recommendations.length && error && error.includes("يتم التحضير")) {
     return (
       <section className={"w-full py-6 md:py-8 bg-transparent"}>
         <div className="w-full">
+          <div className="mb-6 flex flex-col items-center text-center">
+            <div className="mb-2">
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '36px',
+                  height: '36px',
+                  background: 'linear-gradient(135deg, hsl(var(--accent) / 0.15) 0%, hsl(var(--accent) / 0.05) 100%)',
+                  borderRadius: '10px',
+                  color: 'hsl(var(--accent))',
+                  border: '1px solid hsl(var(--accent) / 0.25)'
+                }}
+              >
+                <Brain className="w-5 h-5" />
+              </span>
+            </div>
+            <h2 className={darkMode ? "text-white font-bold" : "text-gray-900 font-bold"} style={{ fontSize: '20px', marginBottom: '6px' }}>
+              مخصص لك بذكاء
+            </h2>
+            <p style={{ fontSize: '14px', fontWeight: 600, color: 'hsl(var(--accent))' }}>
+              محتوى مختار بناءً على اهتماماتك وسلوكك في القراءة
+            </p>
+          </div>
+
           <div
             className={`text-center py-8 px-6 rounded-2xl border-2 border-dashed ${
               darkMode
@@ -656,9 +701,39 @@ function SmartPersonalizedContentInner({
     );
   }
 
-  // إخفاء القسم في حالة عدم وجود توصيات وعدم وجود خطأ
+  // عند عدم وجود توصيات وعدم وجود خطأ - إظهار العنوان فقط (نسخة خفيفة)
   if (!recommendations.length && !error) {
-    return null;
+    return (
+      <section className={"w-full py-6 md:py-8 bg-transparent"}>
+        <div className="w-full">
+          <div className="mb-6 flex flex-col items-center text-center">
+            <div className="mb-2">
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '36px',
+                  height: '36px',
+                  background: 'linear-gradient(135deg, hsl(var(--accent) / 0.15) 0%, hsl(var(--accent) / 0.05) 100%)',
+                  borderRadius: '10px',
+                  color: 'hsl(var(--accent))',
+                  border: '1px solid hsl(var(--accent) / 0.25)'
+                }}
+              >
+                <Brain className="w-5 h-5" />
+              </span>
+            </div>
+            <h2 className={darkMode ? "text-white font-bold" : "text-gray-900 font-bold"} style={{ fontSize: '20px', marginBottom: '6px' }}>
+              مخصص لك بذكاء
+            </h2>
+            <p style={{ fontSize: '14px', fontWeight: 600, color: 'hsl(var(--accent))' }}>
+              محتوى مختار بناءً على اهتماماتك وسلوكك في القراءة
+            </p>
+          </div>
+        </div>
+      </section>
+    );
   }
 
   return (
