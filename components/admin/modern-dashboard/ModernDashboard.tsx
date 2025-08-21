@@ -136,16 +136,16 @@ export default function ModernDashboard() {
     >
       <div className="space-y-6">
         {/* إحصائيات سريعة */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {statsData.map((stat) => (
             <Card key={stat.title} className="relative overflow-hidden hover:shadow-lg transition-all duration-200 group">
-              <CardContent className="p-6">
+              <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
                       {stat.title}
                     </p>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                    <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mt-1">
                       {stat.value}
                     </p>
                     <div className="flex items-center mt-2">
@@ -191,7 +191,7 @@ export default function ModernDashboard() {
           <Card className="lg:col-span-2">
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle className="text-lg font-semibold">الأنظمة الذكية</CardTitle>
+                <CardTitle className="text-base sm:text-lg font-semibold">الأنظمة الذكية</CardTitle>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                   حالة وأداء الأنظمة الذكية
                 </p>
@@ -248,7 +248,7 @@ export default function ModernDashboard() {
           {/* الأنشطة الأخيرة */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg font-semibold">الأنشطة الأخيرة</CardTitle>
+              <CardTitle className="text-base sm:text-lg font-semibold">الأنشطة الأخيرة</CardTitle>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 آخر التحديثات والأنشطة
               </p>
@@ -292,7 +292,7 @@ export default function ModernDashboard() {
         {/* أدوات سريعة */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-semibold">أدوات سريعة</CardTitle>
+            <CardTitle className="text-base sm:text-lg font-semibold">أدوات سريعة</CardTitle>
             <p className="text-sm text-gray-600 dark:text-gray-400">
               الوصول السريع للوظائف المهمة
             </p>

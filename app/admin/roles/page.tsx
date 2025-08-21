@@ -157,7 +157,7 @@ export default function RolesPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="w-full max-w-full px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
             <p className="mt-2 text-gray-600">جاري تحميل الأدوار...</p>
@@ -168,15 +168,15 @@ export default function RolesPage() {
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="w-full max-w-full px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">إدارة الأدوار والصلاحيات</h1>
-          <p className="text-gray-600">عرض وإدارة أدوار المستخدمين والصلاحيات المرتبطة بها</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">إدارة الأدوار والصلاحيات</h1>
+          <p className="text-sm sm:text-base text-gray-600">عرض وإدارة أدوار المستخدمين والصلاحيات المرتبطة بها</p>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8">
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center">
