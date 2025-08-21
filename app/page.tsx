@@ -110,7 +110,7 @@ export default function Page() {
           </div>
         }
       > 
-        <div className="max-w-6xl mx-auto mt-8">
+        <div className="max-w-6xl mx-auto mt-12">
           <SmartInsightsWidget variant="compact" />
         </div>
       </Suspense>
@@ -160,7 +160,7 @@ export default function Page() {
           </div>
         }
       >
-        <div className="max-w-6xl mx-auto px-4 mt-10">
+        <div className="max-w-6xl mx-auto px-4 mt-16">
           <SmartInsightsWidget />
         </div>
       </Suspense>
