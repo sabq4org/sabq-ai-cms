@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 import FooterDashboard from "@/components/FooterDashboard";
 import PageWrapper from "@/components/PageWrapper";
 import { SmartSlot } from "@/components/home/SmartSlot";
-import CompactStatsBar from "@/components/mobile/CompactStatsBar";
+
 // import EnhancedMobileNewsCard from "@/components/mobile/EnhancedMobileNewsCard";
 // import SmartContentNewsCard from "@/components/mobile/SmartContentNewsCard";
 
@@ -722,10 +722,7 @@ function NewspaperHomePage({
           paddingTop: isMobileView ? 0 : undefined
         }}
       >
-        {/* شريط الإحصائيات - مباشرة في أعلى الصفحة */}
-        <div className="md:hidden bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700 border-b border-gray-200 dark:border-gray-700">
-          <CompactStatsBar darkMode={darkMode} />
-        </div>
+
         {/* 🔥 الترتيب الجديد المحدث للواجهة الرئيسية */}
         {/* 1. الهيدر ⬆️ - تم تأكيده أنه في المقدمة عبر Layout */}
 
