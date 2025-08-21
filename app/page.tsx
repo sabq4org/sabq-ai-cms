@@ -106,7 +106,7 @@ export default function Page() {
         }
       > 
         <div className="max-w-6xl mx-auto mt-8">
-          <SmartInsightsWidget />
+          <SmartInsightsWidget variant="compact" />
         </div>
       </Suspense>
       

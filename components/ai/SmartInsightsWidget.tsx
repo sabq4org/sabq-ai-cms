@@ -23,12 +23,19 @@ interface ArticleInsight {
   aiAnalysis: string;
 }
 
-export default function SmartInsightsWidget() {
+interface SmartInsightsWidgetProps {
+  variant?: 'default' | 'compact';
+  className?: string;
+}
+
+export default function SmartInsightsWidget({ variant = 'default', className = '' }: SmartInsightsWidgetProps) {
   const { darkMode } = useDarkModeContext();
   const [insights, setInsights] = useState<ArticleInsight[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  const isCompact = variant === 'compact';
 
   const fetchInsights = async () => {
     try {
@@ -117,15 +124,15 @@ export default function SmartInsightsWidget() {
     };
   };
 
+  const chartMaxHeight = isCompact ? 12 : 16;
   const generateMiniChart = (score: number): JSX.Element => {
     const bars = 6;
-    const maxHeight = 16;
     
     return (
       <div className="flex items-end gap-0.5 h-4">
         {Array.from({ length: bars }, (_, i) => {
           const height = Math.max(2, (score * (i + 1)) / (bars * 50));
-          const barHeight = Math.min(maxHeight, height);
+          const barHeight = Math.min(chartMaxHeight, height);
           
           return (
             <div
@@ -147,9 +154,9 @@ export default function SmartInsightsWidget() {
 
   if (loading) {
     return (
-      <div className="max-w-6xl mx-auto mb-8" aria-busy="true" aria-live="polite">
+      <div className={`max-w-6xl mx-auto ${isCompact ? 'mb-6' : 'mb-8'} ${className}`} aria-busy="true" aria-live="polite">
         <div
-          className="relative overflow-hidden border rounded-xl border-gray-200 dark:border-gray-700 p-5 h-full flex flex-col"
+          className={`relative overflow-hidden border rounded-xl border-gray-200 dark:border-gray-700 ${isCompact ? 'p-3' : 'p-5'} h-full flex flex-col`}
           style={{ background: darkMode ? 'hsl(var(--bg-elevated))' : 'hsl(var(--accent) / 0.06)' }}
         >
           <div className="animate-pulse space-y-4 flex-1">
@@ -191,13 +198,13 @@ export default function SmartInsightsWidget() {
 
   if (error || insights.length === 0) {
     return (
-      <div className="max-w-6xl mx-auto mb-8">
+      <div className={`max-w-6xl mx-auto ${isCompact ? 'mb-6' : 'mb-8'} ${className}`}>
         <div
-          className="relative overflow-hidden border rounded-xl border-gray-200 dark:border-gray-700 p-5 h-full flex flex-col items-center justify-center text-center"
+          className={`relative overflow-hidden border rounded-xl border-gray-200 dark:border-gray-700 ${isCompact ? 'p-3' : 'p-5'} h-full flex flex-col items-center justify-center text-center`}
           style={{ background: darkMode ? 'hsl(var(--accent) / 0.08)' : 'hsl(var(--accent) / 0.06)' }}
         >
           <div className="space-y-4">
-            <div className="text-5xl animate-bounce">🤖</div>
+            <div className={`${isCompact ? 'text-4xl' : 'text-5xl'} animate-bounce`}>🤖</div>
             <div className="space-y-2">
               <div className="text-slate-600 dark:text-slate-300 text-base font-medium">
                 🎯 مؤشرات ذكية
@@ -229,15 +236,15 @@ export default function SmartInsightsWidget() {
   const config = getInsightConfig(currentInsight.insightTag);
 
   return (
-    <div className="max-w-6xl mx-auto mb-8">
+    <div className={`max-w-6xl mx-auto ${isCompact ? 'mb-6' : 'mb-8'} ${className}`}>
       <div
-        className="relative overflow-hidden border rounded-xl border-gray-200 dark:border-gray-700 p-5 transition-all duration-300 h-full flex flex-col"
+        className={`relative overflow-hidden border rounded-xl border-gray-200 dark:border-gray-700 ${isCompact ? 'p-3' : 'p-5'} transition-all duration-300 h-full flex flex-col`}
         style={{ background: darkMode ? 'hsl(var(--bg-elevated))' : 'hsl(var(--accent) / 0.06)' }}
       >
       {/* خط جانبي ملون ديناميكي */}
       <div className={`absolute top-0 right-0 w-1 h-full ${config.accent.replace('border-l-', 'bg-')} transition-colors duration-500`}></div>
       {/* Header مع عنوان أكبر */}
-      <div className="mb-4">
+      <div className={`${isCompact ? 'mb-3' : 'mb-4'}`}>
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
@@ -251,21 +258,21 @@ export default function SmartInsightsWidget() {
           </div>
         </div>
         
-        <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">
+        <h2 className={`${isCompact ? 'text-lg' : 'text-xl'} font-bold text-slate-800 dark:text-slate-200`}>
           🎯 مؤشرات ذكية
         </h2>
         
         {/* 3 بطاقات صغيرة بخلفية رمادية وحدود خفيفة */}
-        <div className="grid grid-cols-3 gap-2 mt-3">
-          <div className="bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-lg p-2 text-center">
+        <div className={`grid grid-cols-3 ${isCompact ? 'gap-1.5 mt-2' : 'gap-2 mt-3'}`}>
+          <div className={`bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-lg ${isCompact ? 'p-1.5' : 'p-2'} text-center`}>
             <div className="text-sm mb-1">🧠</div>
             <div className="text-xs font-medium text-slate-700 dark:text-slate-100">اتجاه فوري</div>
           </div>
-          <div className="bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-lg p-2 text-center">
+          <div className={`bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-lg ${isCompact ? 'p-1.5' : 'p-2'} text-center`}>
             <div className="text-sm mb-1">📊</div>
             <div className="text-xs font-medium text-slate-700 dark:text-slate-100">اتجاهات ذكية</div>
           </div>
-          <div className="bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-lg p-2 text-center">
+          <div className={`bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-lg ${isCompact ? 'p-1.5' : 'p-2'} text-center`}>
             <div className="text-sm mb-1">⚡</div>
             <div className="text-xs font-medium text-slate-700 dark:text-slate-100">تحديث مستمر</div>
           </div>
@@ -278,9 +285,9 @@ export default function SmartInsightsWidget() {
           <div className="space-y-3 h-full flex flex-col">
             {/* العنوان مع المؤشر */}
             <div className="flex items-start gap-3">
-              <span className="text-2xl leading-none">{config.icon}</span>
+              <span className={`${isCompact ? 'text-xl' : 'text-2xl'} leading-none`}>{config.icon}</span>
               <div className="flex-1 min-w-0">
-                <h3 className="text-base font-semibold text-slate-800 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 line-clamp-3 transition-colors leading-relaxed">
+                <h3 className={`${isCompact ? 'text-sm' : 'text-base'} font-semibold text-slate-800 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 line-clamp-3 transition-colors leading-relaxed`}>
                   {currentInsight.title}
                 </h3>
               </div>
@@ -289,7 +296,7 @@ export default function SmartInsightsWidget() {
             {/* التصنيف والمقاييس */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className={`${config.bg} ${config.color} text-sm font-medium px-3 py-1.5 rounded-full border border-current/20`}>
+                <span className={`${config.bg} ${config.color} text-sm font-medium ${isCompact ? 'px-2.5 py-1' : 'px-3 py-1.5'} rounded-full border border-current/20`}>
                   {currentInsight.insightTag}
                 </span>
               </div>
@@ -302,20 +309,20 @@ export default function SmartInsightsWidget() {
                 <div className="flex items-center gap-1.5">
                   {currentInsight.insightTag === 'الأكثر جدلاً' && (
                     <>
-                      <MessageCircle className="w-4 h-4" />
+                      <MessageCircle className={`${isCompact ? 'w-3.5 h-3.5' : 'w-4 h-4'}`} />
                       <span className="font-medium">{formatMetric(currentInsight.commentCount)}</span>
                     </>
                   )}
                   {currentInsight.insightTag === 'صاعد الآن' && (
                     <>
-                      <TrendingUp className="w-4 h-4" />
+                      <TrendingUp className={`${isCompact ? 'w-3.5 h-3.5' : 'w-4 h-4'}`} />
                       <span className="font-medium">+{currentInsight.growthRate.toFixed(0)}%</span>
                     </>
                   )}
                   {(currentInsight.insightTag === 'الأكثر تداولاً' || 
                     !['الأكثر جدلاً', 'صاعد الآن'].includes(currentInsight.insightTag)) && (
                     <>
-                      <Eye className="w-4 h-4" />
+                      <Eye className={`${isCompact ? 'w-3.5 h-3.5' : 'w-4 h-4'}`} />
                       <span className="font-medium">{formatMetric(currentInsight.viewCount)}</span>
                     </>
                   )}
@@ -325,9 +332,9 @@ export default function SmartInsightsWidget() {
 
             {/* التحليل الذكي - flex-1 للمساحة المتبقية */}
             <div className="flex-1 flex flex-col justify-center">
-              <div className="text-sm text-slate-600 dark:text-slate-400 bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+              <div className={`${isCompact ? 'text-xs p-3' : 'text-sm p-4'} text-slate-600 dark:text-slate-400 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700`}>
                 <div className="flex items-start gap-2">
-                  <span className="text-lg">💡</span>
+                  <span className={`${isCompact ? 'text-base' : 'text-lg'}`}>💡</span>
                   <div className="leading-relaxed">
                     {currentInsight.aiAnalysis}
                   </div>
@@ -339,7 +346,7 @@ export default function SmartInsightsWidget() {
       </div>
 
       {/* مؤشرات النقاط والتحكم - 5 نقاط ملونة دائماً */}
-      <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-200/50 dark:border-slate-600/50">
+      <div className={`flex items-center justify-between ${isCompact ? 'mt-3' : 'mt-4'} pt-3 border-t border-slate-200/50 dark:border-slate-600/50`}>
         <div className="flex gap-1.5">
           {Array.from({ length: 5 }, (_, index) => {
             const insight = insights[index];

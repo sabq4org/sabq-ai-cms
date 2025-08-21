@@ -793,7 +793,7 @@ function NewspaperHomePage({
               >
                 {/* استبدال محتوى التصنيفات بـ AI Insights */}
                 <div className="relative -m-4 sm:-m-6 lg:-m-8">
-                  <SmartInsightsWidget />
+                  <SmartInsightsWidget variant={isMobileView ? 'compact' : 'default'} />
                 </div>
               </div>
             </div>
