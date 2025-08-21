@@ -368,6 +368,46 @@ body {
   --theme-border: #9a3412;
 }
 
+/* ===== خلفية قسم مُقترب المتغيرة ===== */
+.muqtarab-section-bg {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--theme-accent) 8%, var(--theme-surface)),
+    color-mix(in srgb, var(--theme-secondary) 5%, var(--theme-surface))
+  );
+  position: relative;
+  overflow: hidden;
+}
+
+.muqtarab-section-bg::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--theme-accent) 15%, transparent) 0%,
+    transparent 70%
+  );
+  animation: subtle-glow 20s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes subtle-glow {
+  0%, 100% { opacity: 0.3; transform: scale(1) rotate(0deg); }
+  50% { opacity: 0.6; transform: scale(1.1) rotate(180deg); }
+}
+
+.dark .muqtarab-section-bg {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--theme-accent) 12%, var(--theme-surface)),
+    color-mix(in srgb, var(--theme-secondary) 8%, var(--theme-surface))
+  );
+}
+
 /* ===== انتقالات ناعمة بين الثيمات ===== */
 * {
   transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;

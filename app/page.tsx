@@ -120,7 +120,7 @@ export default function Page() {
         <DeepAnalysisBlock maxItems={3} className="mt-10" />
       </Suspense>
       
-      <div className="full-bleed bg-blue-50 dark:bg-blue-950/20 py-8 mt-6">
+      <div className="full-bleed py-8 mt-6 muqtarab-section-bg">
         <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded" />}>
           <div className="w-full max-w-6xl mx-auto px-4 sm:px-6">
             <MuqtarabBlock
@@ -170,7 +170,7 @@ export default function Page() {
         <DeepAnalysisBlock maxItems={3} className="mt-12" />
       </Suspense>
       
-      <div className="full-bleed bg-blue-50 dark:bg-blue-950/20 py-6 mt-6">
+      <div className="full-bleed py-6 mt-6 muqtarab-section-bg">
         <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded" />}>
           <div className="w-full max-w-6xl mx-auto px-4">
             <MuqtarabBlock
