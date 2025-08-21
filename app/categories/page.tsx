@@ -842,9 +842,9 @@ export default function CategoriesPage() {
                             href={`/categories/${categorySlug}`}
                             className="group"
                           >
-                            <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden h-64">
+                            <div className="relative bg-gray-800 dark:bg-gray-800 rounded-xl shadow-md overflow-hidden h-64">
                               {/* Background Image */}
-                              <div className="absolute inset-0">
+                              <div className="absolute inset-0 bg-gray-700">
                                 <SafeImage
                                   src={imageSrc || ""}
                                   alt={categoryName}
@@ -853,7 +853,7 @@ export default function CategoriesPage() {
                                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                                   fallbackType="category"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/20"></div>
                               </div>
 
                               {/* Content */}
