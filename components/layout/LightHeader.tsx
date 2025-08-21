@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Menu, User, Moon, Sun, Home, Newspaper, Grid3X3, Sparkles, Brain, Palette } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { useSiteSettings } from '@/hooks/useSiteSettings';
 import { useAuth } from '@/hooks/useAuth';
+import { usePathname } from 'next/navigation';
 
 // نظام الألوان المتغيرة المطور
 const themes = [
@@ -65,6 +66,8 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
   const { darkMode, toggleDarkMode, mounted } = useDarkModeContext();
   const { logoUrl, siteName, loading: settingsLoading } = useSiteSettings();
   const { user, isLoggedIn, logout } = useAuth();
+  const pathname = usePathname();
+  const userMenuRef = useRef<HTMLDivElement | null>(null);
 
   // تحميل اللون المحفوظ عند التحميل
   useEffect(() => {
@@ -75,6 +78,32 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
       applyThemeToDOM(theme);
     }
   }, []);
+
+  // إغلاق القوائم عند تغيّر المسار
+  useEffect(() => {
+    if (isSidebarOpen || userMenuOpen) {
+      setIsSidebarOpen(false);
+      setUserMenuOpen(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
+  // إغلاق قائمة المستخدم عند الضغط خارجها
+  useEffect(() => {
+    const handleOutside = (e: MouseEvent | TouchEvent) => {
+      if (!userMenuOpen) return;
+      const target = e.target as Node | null;
+      if (userMenuRef.current && target && !userMenuRef.current.contains(target)) {
+        setUserMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutside, { passive: true } as any);
+    document.addEventListener('touchstart', handleOutside, { passive: true } as any);
+    return () => {
+      document.removeEventListener('mousedown', handleOutside as any);
+      document.removeEventListener('touchstart', handleOutside as any);
+    };
+  }, [userMenuOpen]);
 
   // تحويل Hex إلى HSL (لضبط متغيرات --accent كما في النسخة الكاملة)
   const hexToHsl = (hex: string) => {
@@ -236,7 +265,7 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
                 <User className="w-5 h-5 text-gray-700 dark:text-gray-200" />
               </Link>
             ) : (
-              <div className="relative">
+              <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setUserMenuOpen(v => !v)}
                   className="p-2 bg-transparent rounded-none transition-all duration-200 active:scale-95 focus:outline-none focus:ring-0 hover:bg-transparent"
@@ -277,6 +306,7 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
           <div 
             className="fixed inset-0 bg-black/50 z-50 backdrop-blur-sm"
             onClick={() => setIsSidebarOpen(false)}
+            aria-hidden="true"
           />
 
           {/* القائمة */}

@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Menu, User, Moon, Sun, Home, Newspaper, Grid3X3, Sparkles, Brain, Palette } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
@@ -60,6 +61,8 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [currentTheme, setCurrentTheme] = useState(themes[0]);
   const { darkMode, toggleDarkMode, mounted } = useDarkModeContext();
+  const pathname = usePathname();
+  const userMenuRef = useRef<HTMLDivElement | null>(null);
 
   // تحميل اللون المحفوظ عند التحميل
   useEffect(() => {
@@ -70,6 +73,13 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
       applyThemeToDOM(theme);
     }
   }, []);
+
+  // إغلاق القائمة الجانبية عند التنقل
+  useEffect(() => {
+    if (isSidebarOpen) setIsSidebarOpen(false);
+    if (showColorPicker) setShowColorPicker(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
 
   // تطبيق اللون على DOM
   const applyThemeToDOM = (theme: typeof themes[0]) => {
@@ -252,6 +262,7 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
           <div 
             className="fixed inset-0 bg-black/50 z-50 backdrop-blur-sm"
             onClick={() => setIsSidebarOpen(false)}
+            aria-hidden="true"
           />
 
           {/* القائمة */}
