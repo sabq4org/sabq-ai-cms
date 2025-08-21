@@ -712,17 +712,6 @@ function NewspaperHomePage({
       pageName="الصفحة الرئيسية"
       showPerformanceMonitor={process.env.NODE_ENV === "development"}
     >
-      {/* شريط الإحصائيات المحسن للموبايل - متلاصق مع الهيدر */}
-      <div className="lg:hidden">
-        <div className="sticky bg-blue-100 dark:bg-blue-900 shadow-sm border-b-2 border-blue-200" style={{ top: '56px', zIndex: 30 }}>
-          {/* شريط اختباري */}
-          <div className="p-3 text-center">
-            <span className="text-sm font-semibold">شريط الإحصائيات - اختبار</span>
-          </div>
-          <CompactStatsBar darkMode={darkMode} />
-        </div>
-      </div>
-      
       <div
         className={`homepage-wrapper min-h-screen transition-colors duration-300 ${
           isMobileView ? "pt-0" : "pt-14 sm:pt-16 lg:pt-20"
@@ -733,6 +722,10 @@ function NewspaperHomePage({
           paddingTop: isMobileView ? 0 : undefined
         }}
       >
+        {/* شريط الإحصائيات - مباشرة في أعلى الصفحة */}
+        <div className="md:hidden bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700 border-b border-gray-200 dark:border-gray-700">
+          <CompactStatsBar darkMode={darkMode} />
+        </div>
         {/* 🔥 الترتيب الجديد المحدث للواجهة الرئيسية */}
         {/* 1. الهيدر ⬆️ - تم تأكيده أنه في المقدمة عبر Layout */}
 
