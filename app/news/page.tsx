@@ -915,7 +915,22 @@ export default function NewsPage() {
                 // عرض الموبايل - استخدام OldStyleNewsBlock
                 <div className="mobile-news-container">
                   <OldStyleNewsBlock
-                    articles={filteredArticles}
+                    articles={filteredArticles.map(article => {
+                      // Debug - فحص بنية التصنيف
+                      if (!article.category && article.category_name) {
+                        console.log("Article missing category object:", article.title, article);
+                      }
+                      
+                      return {
+                        ...article,
+                        // التأكد من وجود category object
+                        category: article.category || (article.category_name ? {
+                          id: article.category_id || 0,
+                          name: article.category_name,
+                          slug: article.category_slug || article.category_name?.toLowerCase()
+                        } : undefined)
+                      };
+                    })}
                     showTitle={false}
                     columns={1}
                     showExcerpt={false}

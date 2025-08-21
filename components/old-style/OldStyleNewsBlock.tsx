@@ -157,6 +157,22 @@ export default function OldStyleNewsBlock({
               {/* الشريط العلوي: شارات + التاريخ بجانب الشارات وعلى يمين البطاقة */}
               <div className="old-style-news-top-bar">
                 <div className="old-style-news-badges">
+                  {/* ليبل التصنيف */}
+                  {article.category?.name && (
+                    <div 
+                      style={{
+                        background: 'hsl(var(--accent))',
+                        color: 'white',
+                        padding: '4px 12px',
+                        borderRadius: '6px',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        marginLeft: '8px'
+                      }}
+                    >
+                      {article.category.name}
+                    </div>
+                  )}
                   {isNewsNew(article.published_at) && (
                     <div className="old-style-news-new-badge">
                       <span className="old-style-fire-emoji" aria-hidden>🔥</span>
