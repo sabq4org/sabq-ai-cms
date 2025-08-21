@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Sparkles, Eye, Calendar, Clock } from 'lucide-react';
+import { Sparkles, Calendar, Clock } from 'lucide-react';
+import ArticleViews from '@/components/ui/ArticleViews';
 import OldStyleNewsBlock from '@/components/old-style/OldStyleNewsBlock';
 import { useUserInterests } from '@/hooks/useUserInterests';
 
@@ -511,10 +512,9 @@ export default function SmartContentBlock({
                         <span>{formatDate(article.published_at)}</span>
                       </div>
 
-                      {/* المشاهدات */}
+                      {/* المشاهدات (موحّدة مع شعلة >300) */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <Eye style={{ width: '14px', height: '14px' }} />
-                        <span>{formatViews(article.views)}</span>
+                        <ArticleViews count={article.views ?? 0} showLabel={false} size="sm" />
                       </div>
 
                       {/* وقت القراءة */}
