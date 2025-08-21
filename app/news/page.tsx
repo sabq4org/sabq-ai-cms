@@ -466,12 +466,31 @@ export default function NewsPage() {
       عامة: "local",
     };
 
-    const categoryName =
-      news.category?.name ||
-      news.categories?.name ||
-      news.category ||
-      news.categories ||
-      null;
+    // معالجة التصنيف من مصادر مختلفة
+    let categoryName = null;
+    
+    if (news.category?.name) {
+      categoryName = news.category.name;
+    } else if (news.categories?.name) {
+      categoryName = news.categories.name;
+    } else if (news.category_name) {
+      categoryName = news.category_name;
+    } else if (typeof news.category === 'string') {
+      categoryName = news.category;
+    } else if (typeof news.categories === 'string') {
+      categoryName = news.categories;
+    }
+    
+    // Debug
+    if (isBreaking) {
+      console.log("Breaking news - no category shown");
+    } else if (!categoryName) {
+      console.log("No category found for:", news.title, {
+        category: news.category,
+        categories: news.categories,
+        category_name: news.category_name
+      });
+    }
     const rawCategorySlug =
       categoryName?.toLowerCase?.() || categoryName || "";
     const mappedCategory = categoryMap[rawCategorySlug] || rawCategorySlug;
