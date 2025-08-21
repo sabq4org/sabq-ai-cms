@@ -405,3 +405,67 @@
 .dark .old-style-news-image-container {
   background: #111827;
 }
+
+/* ===== دعم شامل إضافي للوضع الليلي ===== */
+
+/* الخلفية العامة */
+.dark body,
+.dark main,
+.dark .old-style-page {
+  background-color: #0f172a !important;
+  color: #f1f5f9 !important;
+}
+
+/* لايبل "جديد" */
+.dark .old-style-news-new-badge {
+  background: #22c55e;
+  color: white;
+}
+
+/* التاريخ */
+.dark .old-style-news-date,
+.dark .old-style-news-date-inline {
+  color: #64748b;
+}
+
+/* عدد المشاهدات */
+.dark .old-style-news-views {
+  color: #64748b;
+}
+
+/* عنوان القسم */
+.dark .old-style-section-title {
+  color: #f1f5f9;
+}
+
+/* النص الثانوي للقسم */
+.dark .old-style-section-subtext {
+  color: #94a3b8;
+}
+
+/* اللايبل الذكي */
+.dark .old-style-ai-label {
+  background-color: #3b82f6;
+  color: white;
+}
+
+/* التصنيفات */
+.dark .old-style-news-category {
+  background: #334155;
+  color: #f1f5f9;
+  border-color: #475569;
+}
+
+/* الأيقونات */
+.dark .old-style-icon {
+  color: #94a3b8;
+}
+
+/* الروابط */
+.dark a {
+  color: #60a5fa;
+}
+
+.dark a:hover {
+  color: #93c5fd;
+}

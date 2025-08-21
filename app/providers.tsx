@@ -10,6 +10,7 @@ import NextThemesProvider from './theme-provider'
 import { UserProvider } from '@/contexts/UserContext'
 import { QueryProvider } from './query-provider'
 import { Toaster } from 'react-hot-toast'
+import DarkModeInitializer from '@/components/DarkModeInitializer';
 // import UserInteractionInitializer from '@/components/UserInteractionInitializer';
 
 export function Providers({ children }: { children: ReactNode }) {
@@ -18,6 +19,7 @@ export function Providers({ children }: { children: ReactNode }) {
       <DarkModeProvider>
         <ThemeManagerProvider>
           <AuthProvider>
+            <DarkModeInitializer />
             {/* <UserInteractionInitializer /> */}
             {children}
             <FilteredToaster />

@@ -133,7 +133,9 @@ body {
   background: rgba(255, 255, 255, 0.95);
 }
 
-/* ===== دعم الوضع الداكن للهيدر (النسخة الكاملة) ===== */
+/* ===== دعم شامل للوضع الداكن ===== */
+
+/* الهيدر الرئيسي */
 .dark .optimized-header {
   background: #0f172a; /* slate-900 */
   border-bottom-color: #334155; /* slate-600 */
@@ -175,6 +177,60 @@ body {
 .dark .action-btn:hover {
   background: #0b1220; /* near slate-950 */
   color: #93c5fd; /* blue-300 */
+}
+
+/* ===== دعم الوضع الداكن للهيدر الديسكتوب ===== */
+
+/* هيدر الديسكتوب */
+.dark .desktop-header {
+  background: #0f172a !important;
+  border-bottom-color: #334155 !important;
+}
+
+/* روابط النافيجيشن */
+.dark .desktop-nav-item {
+  color: #94a3b8 !important;
+}
+
+.dark .desktop-nav-item:hover {
+  color: #f1f5f9 !important;
+  background: rgba(59, 130, 246, 0.1) !important;
+}
+
+/* حقل البحث */
+.dark .desktop-search-input {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
+}
+
+.dark .desktop-search-input::placeholder {
+  color: #64748b !important;
+}
+
+.dark .desktop-search-input:focus {
+  border-color: #3b82f6 !important;
+  background: #334155 !important;
+}
+
+/* زر البحث */
+.dark .desktop-search-btn {
+  background: #3b82f6 !important;
+  color: white !important;
+}
+
+.dark .desktop-search-btn:hover {
+  background: #60a5fa !important;
+}
+
+/* أزرار الأكشن */
+.dark .desktop-actions button {
+  color: #94a3b8 !important;
+}
+
+.dark .desktop-actions button:hover {
+  color: #f1f5f9 !important;
+  background: rgba(59, 130, 246, 0.1) !important;
 }
 
 .header-container {

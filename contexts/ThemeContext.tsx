@@ -15,6 +15,37 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+// دوال مساعدة لتطبيق الوضع الليلي
+function applyDarkModeToAllElements() {
+  const selectors = [
+    'main', 'header', 'nav', 'footer', 'aside', 'section', 'article',
+    'div[class*="container"]', 'div[class*="wrapper"]', 'div[class*="layout"]',
+    'div[class*="page"]', 'div[class*="content"]', 'div[class*="panel"]',
+    'div[class*="dashboard"]', 'div[class*="admin"]'
+  ];
+
+  selectors.forEach(selector => {
+    document.querySelectorAll(selector).forEach(element => {
+      element.classList.add('dark');
+    });
+  });
+}
+
+function removeDarkModeFromAllElements() {
+  const selectors = [
+    'main', 'header', 'nav', 'footer', 'aside', 'section', 'article',
+    'div[class*="container"]', 'div[class*="wrapper"]', 'div[class*="layout"]',
+    'div[class*="page"]', 'div[class*="content"]', 'div[class*="panel"]',
+    'div[class*="dashboard"]', 'div[class*="admin"]'
+  ];
+
+  selectors.forEach(selector => {
+    document.querySelectorAll(selector).forEach(element => {
+      element.classList.remove('dark');
+    });
+  });
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>('light');
   const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>('light');
@@ -58,8 +89,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       // التأكد من تطبيق الكلاس الصحيح
       if (resolved === 'dark') {
         document.documentElement.classList.add('dark');
+        document.body.classList.add('dark');
+        // تطبيق على جميع العناصر الرئيسية
+        applyDarkModeToAllElements();
       } else {
         document.documentElement.classList.remove('dark');
+        document.body.classList.remove('dark');
+        // إزالة من جميع العناصر
+        removeDarkModeFromAllElements();
       }
     } catch (error) {
       console.error('خطأ في تحميل إعدادات الثيم:', error);
@@ -79,8 +116,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
         if (resolved === 'dark') {
           document.documentElement.classList.add('dark');
+          document.body.classList.add('dark');
+          applyDarkModeToAllElements();
         } else {
           document.documentElement.classList.remove('dark');
+          document.body.classList.remove('dark');
+          removeDarkModeFromAllElements();
         }
       }
     };
@@ -111,9 +152,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       if (resolvedTheme === 'dark') {
         root.classList.add('dark');
         root.style.colorScheme = 'dark';
+        document.body.classList.add('dark');
+        applyDarkModeToAllElements();
       } else {
         root.classList.remove('dark');
         root.style.colorScheme = 'light';
+        document.body.classList.remove('dark');
+        removeDarkModeFromAllElements();
       }
 
       // تحديث meta theme-color
@@ -147,9 +192,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       if (resolved === 'dark') {
         document.documentElement.classList.add('dark');
         document.documentElement.style.colorScheme = 'dark';
+        document.body.classList.add('dark');
+        applyDarkModeToAllElements();
       } else {
         document.documentElement.classList.remove('dark');
         document.documentElement.style.colorScheme = 'light';
+        document.body.classList.remove('dark');
+        removeDarkModeFromAllElements();
       }
 
       // حفظ في localStorage
@@ -175,9 +224,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (resolved === 'dark') {
       document.documentElement.classList.add('dark');
       document.documentElement.style.colorScheme = 'dark';
+      document.body.classList.add('dark');
+      applyDarkModeToAllElements();
     } else {
       document.documentElement.classList.remove('dark');
       document.documentElement.style.colorScheme = 'light';
+      document.body.classList.remove('dark');
+      removeDarkModeFromAllElements();
     }
 
     // تحديث meta theme-color
