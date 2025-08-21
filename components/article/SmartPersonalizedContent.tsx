@@ -690,7 +690,7 @@ function SmartPersonalizedContentInner({
 
   return (
     <section className={"w-full py-6 md:py-8 bg-transparent"}>
-      <div className="w-full article-unified-width">
+      <div className="w-full">
         {/* عنوان القسم الذكي - توسيط، أيقونة بالأعلى، ألوان متغيرة */}
         <div className="mb-6 flex flex-col items-center text-center">
           <div className="mb-2">

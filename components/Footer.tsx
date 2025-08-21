@@ -4,6 +4,7 @@ import {
   Instagram,
   Twitter,
   Youtube,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import React from "react";
@@ -134,8 +135,22 @@ export default function Footer() {
       {/* Mobile Footer */}
       <div className="lg:hidden" style={{ maxWidth: '1400px', margin: '0 auto', padding: '32px 16px' }}>
         <div className="grid grid-cols-1 gap-6">
-          {/* الأقسام أولاً */}
-          <div className="order-first">
+          {/* الشعار والعبارة أعلى الفوتر */}
+          <div className="order-first text-center">
+            <Link href="/" className="inline-flex justify-center" aria-label="الصفحة الرئيسية">
+              <SabqLogo 
+                className="h-10 w-auto object-contain max-w-[140px] opacity-95"
+                width={140}
+                height={40}
+              />
+            </Link>
+            <p className="mt-3 text-xs leading-5 text-gray-600 dark:text-gray-400 max-w-xs mx-auto">
+              صحيفة إلكترونية سعودية شاملة
+            </p>
+          </div>
+
+          {/* الأقسام بعد الشعار */}
+          <div className="order-none">
             <div className="space-y-2">
               {footerSections.map((section) => (
                 <details key={section.title} className="group">
@@ -161,20 +176,8 @@ export default function Footer() {
             </div>
           </div>
           
-          {/* الشعار والوصف أخيراً */}
-          <div className="order-last text-center pt-6 border-t border-gray-200 dark:border-gray-700">
-            <Link href="/" className="inline-flex justify-center" aria-label="الصفحة الرئيسية">
-              <SabqLogo 
-                className="h-10 w-auto object-contain max-w-[140px] opacity-95"
-                width={140}
-                height={40}
-              />
-            </Link>
-            <p className="mt-3 text-xs leading-5 text-gray-600 dark:text-gray-400 max-w-xs mx-auto">
-              صحيفة إلكترونية سعودية شاملة
-            </p>
-            
-            {/* التواصل الاجتماعي */}
+          {/* التواصل الاجتماعي */}
+          <div className="text-center">
             <div className="flex justify-center gap-3 mt-4">
               {socialLinks.map((social) => (
                 <a
@@ -196,9 +199,13 @@ export default function Footer() {
           <div className="mb-4">
             <Link
               href="/loyalty-program"
-              className="block w-full p-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-colors"
+              className="group block w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-center rounded-xl font-semibold border border-blue-500/40 hover:from-blue-700 hover:to-indigo-700 transition-colors shadow-sm hover:shadow"
             >
-              🔁 اكتشف نظام الولاء الجديد
+              <span className="inline-flex items-center justify-center gap-2">
+                <Sparkles className="w-4 h-4 text-white/90" />
+                <span>اكتشف نظام الولاء الجديد</span>
+                <span className="transition-transform group-hover:-translate-x-0.5">←</span>
+              </span>
             </Link>
           </div>
 
