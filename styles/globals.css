@@ -282,6 +282,25 @@ select:focus-visible {
   width: 100% !important;
 }
 
+/* إصلاح نهائي لمنع انحشار المحتوى تحت السايدبار */
+@media (min-width: 768px) {
+  /* حاوية المحتوى الرئيسي */
+  .admin-modern-main.admin-dashboard-layout {
+    margin-right: 0 !important;
+  }
+  
+  /* العنصر الأب المباشر للمحتوى الرئيسي */
+  .admin-modern-main.admin-dashboard-layout + *,
+  .admin-modern-main.admin-dashboard-layout ~ * {
+    margin-right: 280px !important;
+  }
+  
+  /* أي div يحتوي على admin-modern-main */
+  div:has(> .admin-modern-main.admin-dashboard-layout) {
+    padding-right: 280px !important;
+  }
+}
+
 /* تصحيح موضع الهيدر الثابت */
 .fixed-header {
   position: fixed;

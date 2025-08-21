@@ -121,21 +121,25 @@ export default function DashboardLayout({
           </>
         )}
 
-        {/* المحتوى الرئيسي */}
-        <main className="admin-modern-main admin-dashboard-layout" style={{
+        {/* حاوية المحتوى مع حجز مساحة للسايدبار */}
+        <div style={{
           marginRight: !isMobile ? (sidebarOpen ? '280px' : '80px') : '0',
-          paddingTop: '0px',
-          paddingBottom: '16px',
           minHeight: 'calc(100vh - 56px)',
-          width: 'auto',
           transition: 'margin-right 0.3s ease',
-          // تمرير عرض السايدبار كمتغير CSS ليقرأه CSS العام
-          ['--sidebar-width' as any]: !isMobile ? (sidebarOpen ? '280px' : '80px') : '0'
         }}>
-          <div className={cn("fade-in w-full max-w-full px-4 sm:px-6 lg:px-8", className)}>
-            {children}
-          </div>
-        </main>
+          {/* المحتوى الرئيسي */}
+          <main className="admin-modern-main admin-dashboard-layout" style={{
+            paddingTop: '0px',
+            paddingBottom: '16px',
+            width: '100%',
+            // تمرير عرض السايدبار كمتغير CSS ليقرأه CSS العام
+            ['--sidebar-width' as any]: !isMobile ? (sidebarOpen ? '280px' : '80px') : '0'
+          }}>
+            <div className={cn("fade-in w-full max-w-full px-4 sm:px-6 lg:px-8", className)}>
+              {children}
+            </div>
+          </main>
+        </div>
 
         {/* طبقة تراكب للجوال */}
         {isMobile && sidebarOpen && (
