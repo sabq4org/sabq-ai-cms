@@ -6,6 +6,7 @@ import WelcomeMetaStrip from "@/components/user/WelcomeMetaStrip";
 import SmartContentBlock from "@/components/user/SmartContentBlock";
 import { useEffect, useMemo, Suspense } from "react";
 import dynamic from "next/dynamic";
+import LiteStatsBar from "@/components/mobile/LiteStatsBar";
 
 // استيراد بلوك مقترب بشكل ديناميكي مع تحسين التحميل
 const MuqtarabBlock = dynamic(
@@ -88,6 +89,10 @@ export default function Page() {
   // محتوى الموبايل - نفس المحتوى لكن مُحسن للموبايل
   const MobileContent = useMemo(() => (
     <div className="py-6">
+      {/* شريط الإحصائيات للنسخة الخفيفة - تحت الهيدر مباشرة */}
+      <div className="md:hidden">
+        <LiteStatsBar />
+      </div>
       <div className="max-w-6xl mx-auto">
         <Suspense fallback={<div className="h-6" />}>
           <WelcomeMetaStrip />
