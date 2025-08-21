@@ -289,6 +289,11 @@
   }
 }
 
+/* الوضع الليلي - دعم صريح عبر .dark */
+.dark .old-style-news-image-container {
+  background: #111827; /* gray-900 */
+}
+
 /* الوضع الليلي */
 @media (prefers-color-scheme: dark) {
   .old-style-news-card {
@@ -326,7 +331,7 @@
   }
   
   .old-style-empty-state {
-    background: #1f2937;
+    background: #111827;
     border-color: #374151;
     color: #9ca3af;
   }
