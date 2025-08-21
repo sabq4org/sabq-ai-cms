@@ -3,6 +3,8 @@
 .compact-stats-bar {
   /* خفيف ومرن */
   min-height: 26px; /* تقليص ~40% */
+  display: flex;           /* توسيط عمودي */
+  align-items: center;     /* توسيط عمودي */
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   
@@ -30,6 +32,8 @@
 @media (max-width: 480px) {
   .compact-stats-bar {
     min-height: 22px;
+    display: flex;
+    align-items: center;
   }
   
   .compact-stats-bar .text-sm {
