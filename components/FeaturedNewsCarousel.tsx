@@ -283,6 +283,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                     <span className={darkMode ? "text-gray-300" : "text-gray-600"}>
                       {typeof currentArticle.views === 'number' ? currentArticle.views : 0}
                     </span>
+                    {((currentArticle as any).views ?? 0) > 300 && <span className="ml-1">🔥</span>}
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Calendar className={`w-4 h-4 ${darkMode ? "text-gray-400" : "text-gray-500"}`} />

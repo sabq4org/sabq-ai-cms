@@ -623,6 +623,7 @@ export default function EnhancedMuqtarabBlock({
                 <span>{article.angle?.title}</span>
               </div>
               <span className="old-style-news-date-inline">{formatGregorianDate(article.publishDate)}</span>
+              {(article.views ?? 0) > 300 && <span className="ml-1">🔥</span>}
             </div>
 
             {/* العنوان */}

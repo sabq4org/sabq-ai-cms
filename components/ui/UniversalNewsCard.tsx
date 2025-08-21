@@ -212,14 +212,18 @@ export default function UniversalNewsCard({
                 <SafeDateDisplay date={publishDate || ""} format="relative" />
               </div>
 
-              {(article.views !== undefined ||
-                article.views_count !== undefined) && (
+              {(article.views !== undefined || article.views_count !== undefined) && (
                 <>
                   <span>•</span>
-                  <ArticleViews
-                    count={article.views ?? article.views_count ?? 0}
-                    className="text-xs"
-                  />
+                  <div className="inline-flex items-center">
+                    <ArticleViews
+                      count={article.views ?? article.views_count ?? 0}
+                      className="text-xs"
+                    />
+                    {(article.views ?? article.views_count ?? 0) > 300 && (
+                      <span className="ml-1">🔥</span>
+                    )}
+                  </div>
                 </>
               )}
             </div>
@@ -443,12 +447,16 @@ export default function UniversalNewsCard({
               </div>
             </div>
 
-            {(article.views !== undefined ||
-              article.views_count !== undefined) && (
-              <ArticleViews
-                count={article.views ?? article.views_count ?? 0}
-                className="text-sm"
-              />
+            {(article.views !== undefined || article.views_count !== undefined) && (
+              <div className="inline-flex items-center">
+                <ArticleViews
+                  count={article.views ?? article.views_count ?? 0}
+                  className="text-sm"
+                />
+                {(article.views ?? article.views_count ?? 0) > 300 && (
+                  <span className="ml-1">🔥</span>
+                )}
+              </div>
             )}
           </div>
         </div>
