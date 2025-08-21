@@ -64,7 +64,8 @@ export default function DashboardLayout({
         minHeight: '100vh',
         background: 'hsl(var(--bg))',
         paddingTop: '0px',
-        display: 'flex'
+        position: 'relative',
+        overflow: 'hidden'
       }}>
         
         {/* الشريط الجانبي للديسكتوب */}
@@ -122,11 +123,11 @@ export default function DashboardLayout({
 
         {/* المحتوى الرئيسي */}
         <main className="admin-modern-main admin-dashboard-layout" style={{
-          flex: 1,
           marginRight: !isMobile ? (sidebarOpen ? '280px' : '80px') : '0',
           paddingTop: '0px',
           paddingBottom: '16px',
           minHeight: 'calc(100vh - 56px)',
+          width: 'auto',
           transition: 'margin-right 0.3s ease',
           // تمرير عرض السايدبار كمتغير CSS ليقرأه CSS العام
           ['--sidebar-width' as any]: !isMobile ? (sidebarOpen ? '280px' : '80px') : '0'
