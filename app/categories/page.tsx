@@ -1,6 +1,5 @@
 "use client";
 
-import Footer from "@/components/Footer";
 import SafeImage from "@/components/ui/SafeImage";
 import {
   Activity,
@@ -992,8 +991,6 @@ export default function CategoriesPage() {
           )}
         </div>
       </div>
-
-      <Footer />
     </>
   );
 }
