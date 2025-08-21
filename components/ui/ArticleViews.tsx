@@ -1,5 +1,5 @@
 import React from 'react';
-import { Eye, BarChart3 } from 'lucide-react';
+import { Eye } from 'lucide-react';
 
 interface ArticleViewsProps {
   count: number;
@@ -53,32 +53,9 @@ export default function ArticleViews({
 
   return (
     <div className={finalClasses}>
-      {/* أيقونات: نخفيها تماماً في النمط المصغر */}
+      {/* الأيقونة الموحدة */}
       {variant !== 'minimal' && (
-        count > 300 ? (
-          <div className="relative flex items-center">
-            <BarChart3 className={`${iconSizes[size]} flex-shrink-0 text-orange-500`} />
-            <span 
-              className="absolute -top-0.5 -right-0.5 text-orange-500 text-[8px] animate-pulse" 
-              style={{ fontSize: size === 'xs' ? '6px' : size === 'sm' ? '8px' : '10px' }}
-            >
-              🔥
-            </span>
-          </div>
-        ) : (
-          <div className="relative">
-            <svg 
-              className={`${iconSizes[size]} flex-shrink-0`} 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2"
-            >
-              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
-              <circle cx="12" cy="12" r="3"/>
-            </svg>
-          </div>
-        )
+        <Eye className={`${iconSizes[size]} flex-shrink-0`} />
       )}
 
       <span className="font-medium">
@@ -86,14 +63,14 @@ export default function ArticleViews({
         {showLabel && variant !== 'minimal' && ' مشاهدة'}
       </span>
 
-      {/* أيقونة النار الإضافية للمشاهدات العالية جداً - معطلة في النمط المصغر */}
-      {variant !== 'minimal' && count > 1000 && (
+      {/* شعلة موحّدة عند 300+ */}
+      {count > 300 && (
         <span 
-          className="text-red-500 animate-bounce flex-shrink-0 ml-1" 
-          title={`مقال شائع جداً - ${formatViewsNumber(count)} مشاهدة`}
+          className="ml-1 text-orange-500 flex-shrink-0" 
+          title={`شائع - ${formatViewsNumber(count)} مشاهدة`}
           style={{ fontSize: size === 'xs' ? '10px' : size === 'sm' ? '12px' : '14px' }}
         >
-          🔥🔥
+          🔥
         </span>
       )}
     </div>

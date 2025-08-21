@@ -680,7 +680,6 @@ export default function ArticleClientComponent({
                         <>
                           <span className="text-gray-300 dark:text-gray-600">•</span>
                           <div className="flex items-center gap-1 whitespace-nowrap">
-                            <span>👁️</span>
                             <ArticleViews
                               count={article.views}
                               className="text-xs"
