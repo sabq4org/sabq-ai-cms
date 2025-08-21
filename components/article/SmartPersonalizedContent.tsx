@@ -6,7 +6,7 @@ import {
   type RecommendedArticle,
 } from "@/lib/ai-recommendations";
 import { formatNumber } from "@/lib/config/localization";
-import { Brain, Clock, Eye, RefreshCw, Sparkles, Star } from "lucide-react";
+import { Brain, Clock, Eye, Sparkles, Star } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import ErrorBoundary from "../ui/ErrorBoundary";
@@ -606,7 +606,7 @@ function SmartPersonalizedContentInner({
   // حالة التحميل
   if (loading) {
     return (
-      <section className={"w-full py-6 md:py-8 px-3 md:px-4 bg-transparent"}>
+      <section className={"w-full py-6 md:py-8 bg-transparent"}>
         <div className="w-full">
           <div className="flex items-center justify-center py-8">
             <div className="flex items-center gap-3">
@@ -634,7 +634,7 @@ function SmartPersonalizedContentInner({
   // عرض رسالة التحضير في حالة الخطأ وعدم وجود توصيات
   if (!recommendations.length && error && error.includes("يتم التحضير")) {
     return (
-      <section className={"w-full py-6 md:py-8 px-3 md:px-4 bg-transparent"}>
+      <section className={"w-full py-6 md:py-8 bg-transparent"}>
         <div className="w-full">
           <div
             className={`text-center py-8 px-6 rounded-2xl border-2 border-dashed ${
@@ -689,8 +689,8 @@ function SmartPersonalizedContentInner({
   }
 
   return (
-    <section className={"w-full py-6 md:py-8 px-3 md:px-4 bg-transparent"}>
-      <div className="w-full">
+    <section className={"w-full py-6 md:py-8 bg-transparent"}>
+      <div className="w-full article-unified-width">
         {/* عنوان القسم الذكي - توسيط، أيقونة بالأعلى، ألوان متغيرة */}
         <div className="mb-6 flex flex-col items-center text-center">
           <div className="mb-2">
@@ -716,19 +716,7 @@ function SmartPersonalizedContentInner({
           <p style={{ fontSize: '14px', fontWeight: 600, color: 'hsl(var(--accent))' }}>
             محتوى مختار بناءً على اهتماماتك وسلوكك في القراءة
           </p>
-          {/* زر التحديث اليدوي - يطبق عليه نظام الألوان */}
-          <button
-            onClick={() => fetchPersonalizedRecommendations()}
-            className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium border"
-            style={{
-              background: 'var(--theme-primary-light)',
-              borderColor: 'rgba(var(--theme-primary-rgb), 0.3)',
-              color: 'hsl(var(--accent))'
-            }}
-            title={`آخر تحديث: ${lastUpdateTime.toLocaleTimeString('ar-SA')}`}
-          >
-            <RefreshCw className="w-4 h-4" /> تحديث
-          </button>
+          {/* تمت إزالة زر التحديث حسب طلب النسخة الخفيفة */}
         </div>
 
         {/* البطاقات الذكية - شبكة 2×3 */}
