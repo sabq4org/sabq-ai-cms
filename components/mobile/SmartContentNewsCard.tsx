@@ -10,7 +10,7 @@ import {
   Sparkles,
   TrendingUp,
 } from "lucide-react";
-import Image from "next/image";
+import SmartImage from "@/components/ui/SmartImage";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -41,7 +41,6 @@ export default function SmartContentNewsCard({
   position = 0,
 }: SmartContentNewsCardProps) {
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [imageError, setImageError] = useState(false);
 
 
 
@@ -95,15 +94,16 @@ export default function SmartContentNewsCard({
         />
         
         {/* Image First - Unified Design */}
-        {article.featured_image && !imageError && (
-          <Link href={`/news/${article.slug}`}>
-            <div className="relative h-48 rounded-t-2xl overflow-hidden">
-              <Image
-                src={article.featured_image}
+        <Link href={`/news/${article.slug}`}>
+          <div className="relative h-48 sm:h-56 rounded-t-2xl overflow-hidden">
+              <SmartImage
+                src=""
+                article={article}
                 alt={article.title}
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-300"
-                onError={() => setImageError(true)}
+                fallbackType="article"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
               
@@ -130,10 +130,9 @@ export default function SmartContentNewsCard({
                   <Sparkles className="w-3 h-3" />
                   مخصص{article.score ? ` | ${Math.round(article.score * 100)}%` : ''}
                 </span>
-              </div>
             </div>
-          </Link>
-        )}
+          </div>
+        </Link>
         
         <div className="relative p-6">
           {/* Moved AI Label to Image */}
@@ -187,15 +186,16 @@ export default function SmartContentNewsCard({
 
       <div className="relative">
         {/* Image First - Unified Design */}
-        {article.featured_image && !imageError && (
-          <Link href={`/news/${article.slug}`}>
-            <div className="relative h-48 w-full">
-              <Image
-                src={article.featured_image}
+        <Link href={`/news/${article.slug}`}>
+          <div className="relative h-48 w-full">
+              <SmartImage
+                src=""
+                article={article}
                 alt={article.title}
                 fill
                 className="object-cover"
-                onError={() => setImageError(true)}
+                fallbackType="article"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
               
@@ -229,9 +229,8 @@ export default function SmartContentNewsCard({
                   <p className="text-xs text-white font-medium">{article.image_caption}</p>
                 </div>
               )}
-            </div>
-          </Link>
-        )}
+          </div>
+        </Link>
 
         {/* Content */}
         <div className="px-4 pt-4 pb-4">
