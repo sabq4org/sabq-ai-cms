@@ -1364,7 +1364,7 @@ const ReporterProfilePage: React.FC = () => {
       }`}
     >
       {/* المحتوى الرئيسي مع مسافة علوية كافية */}
-      <main className="pt-20 pb-16">
+      <main className="pt-20 pb-0">
         {/* Container محسن للعرض */}
         <div className="mx-auto px-4 md:px-6 max-w-7xl">
           {/* Hero Card - بارز */}

@@ -122,9 +122,9 @@ export default function ReporterLink({
     // استخدام الـ slug الصحيح من قاعدة البيانات
     linkHref = `/reporter/${reporterData.slug}`;
   } else if (displayName) {
-    // استخدام الاسم العربي مباشرة مع encoding للبحث في API
-    // API سيتولى البحث بالاسم والـ slug المحول
-    linkHref = `/reporter/${encodeURIComponent(displayName)}`;
+    // توحيد الروابط إلى Slug لاتيني لضمان الاتساق وعدم وجود روابط عربية
+    const latinSlug = convertArabicNameToSlug(displayName);
+    linkHref = `/reporter/${latinSlug}`;
   } else if (userId) {
     linkHref = `/user/${userId}`;
   }
