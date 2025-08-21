@@ -30,6 +30,7 @@ import MobileUserDropdown from "./mobile/UserDropdown";
 import UserMenuDrawer from "./mobile/UserMenuDrawer";
 import NotificationBell from "@/components/Notifications/NotificationBell";
 import { NotificationDropdown } from "@/components/Notifications/NotificationDropdown";
+import CompactThemeSwitcher from '@/components/theme/CompactThemeSwitcher';
 
 
 export default function Header() {
@@ -200,6 +201,9 @@ export default function Header() {
                   </span>
                 )}
               </Link>
+
+              {/* منتقي الألوان المتوسع */}
+              <CompactThemeSwitcher />
 
               {/* زر الوضع الليلي */}
               <button

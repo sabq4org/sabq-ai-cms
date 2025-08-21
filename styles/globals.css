@@ -471,6 +471,15 @@ select {
   font-weight: 700;
 }
 
+/* تخصيص H2 للنسخة الخفيفة - حجم أصغر وليس bold */
+.article-content h2 {
+  font-size: 1.25rem !important; /* أصغر من الحجم الافتراضي */
+  font-weight: 400 !important; /* عادي وليس bold */
+  line-height: 1.4 !important;
+  margin: 1.5rem 0 1rem 0 !important;
+  color: #374151 !important; /* لون رمادي داكن */
+}
+
 .article-content p {
   font-family: "IBM Plex Sans Arabic", "Tajawal", "Noto Sans Arabic", system-ui,
     sans-serif !important;

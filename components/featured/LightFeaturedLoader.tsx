@@ -29,7 +29,8 @@ export default function LightFeaturedLoader({ heading = "الأخبار المم
           id: a.id,
           title: a.title,
           slug: a.slug,
-          featured_image: a.featured_image,
+          // معالجة محسّنة للصورة - التحقق من عدة حقول محتملة
+          featured_image: a.featured_image || a.image_url || a.image || a.thumbnail || null,
           published_at: a.published_at,
           breaking: a.breaking || a.is_breaking || false,
           category: a.categories ? { id: a.categories.id, name: a.categories.name, slug: a.categories.slug, color: a.categories.color } : null,

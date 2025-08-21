@@ -120,11 +120,23 @@ export default function ArticleClientComponent({
     if (!raw) {
       return "";
     }
-    if (raw.includes("<p>") || raw.includes("<div>")) {
+    
+    // إذا كان المحتوى يحتوي على HTML tags (بما في ذلك الصور)، استخدمه كما هو
+    if (raw.includes("<p>") || raw.includes("<div>") || raw.includes("<img>") || raw.includes("<figure>") || raw.includes("<h")) {
       return raw;
     }
+    
+    // إذا كان نص عادي، قم بتحويله إلى فقرات مع الحفاظ على الصور المحتملة
     const paragraphs = raw.split("\n\n");
-    const html = paragraphs.map((p) => `<p>${p}</p>`).join("");
+    const html = paragraphs.map((p) => {
+      // إذا كانت الفقرة تحتوي على صورة، احتفظ بها كما هي
+      if (p.includes("<img") || p.includes("![")) {
+        return p;
+      }
+      // وإلا، لفها في تاغ p
+      return p.trim() ? `<p>${p}</p>` : '';
+    }).filter(Boolean).join("");
+    
     return html || "<p>المحتوى غير متوفر حالياً.</p>";
   }, [article?.content]);
   // لم نعد نستخدم الحالة المحلية للتبديل هنا بعد إضافة CommentsPanel
@@ -845,14 +857,16 @@ export default function ArticleClientComponent({
                     prose-headings:text-gray-900 dark:prose-headings:text-white
                     prose-p:text-gray-700 dark:prose-p:text-gray-300
                     prose-p:leading-relaxed
-                    prose-img:w-full prose-img:h-auto prose-img:max-w-none
-                    prose-img:rounded-xl prose-img:shadow-xl
+                    prose-img:w-full prose-img:h-auto prose-img:max-w-none prose-img:object-cover
+                    prose-img:rounded-xl prose-img:shadow-xl prose-img:my-6
                     prose-figure:m-0 prose-figure:my-8
                     prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
                     prose-strong:text-gray-900 dark:prose-strong:text-white
                     prose-blockquote:border-blue-500 dark:prose-blockquote:border-blue-400
                     prose-blockquote:bg-blue-50 dark:prose-blockquote:bg-blue-900/20
                     prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-lg
+                    [&_img]:w-full [&_img]:h-auto [&_img]:rounded-xl [&_img]:shadow-xl [&_img]:my-6
+                    [&_figure]:my-8 [&_figure_img]:rounded-xl [&_figure_img]:shadow-xl
                     ${isReading ? "prose-xl" : "prose-lg"}
                   `}
                   dangerouslySetInnerHTML={{ __html: contentHtml }}

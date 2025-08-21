@@ -25,6 +25,7 @@ import {
 import DarkModeToggle from '@/components/admin/modern-dashboard/DarkModeToggle';
 import Image from 'next/image';
 import SabqLogo from '@/components/SabqLogo';
+import CompactThemeSwitcher from '@/components/theme/CompactThemeSwitcher';
 
 interface UserHeaderProps {
   onMenuClick?: () => void;
@@ -284,8 +285,8 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
               )}
             </button>
 
-            {/* تغيير الثيم السريع */}
-            <div 
+            {/* تغيير الثيم السريع - مخفي لاستخدام CompactThemeSwitcher */}
+            {/* <div 
               className="theme-colors-scroll"
               style={{ 
                 display: 'flex', 
@@ -355,7 +356,10 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
                   </button>
                 );
               })}
-            </div>
+            </div> */}
+
+            {/* منتقي الألوان المتوسع */}
+            <CompactThemeSwitcher />
 
             {/* زر الوضع الداكن */}
             <DarkModeToggle />
