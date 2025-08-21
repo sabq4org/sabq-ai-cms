@@ -28,6 +28,7 @@ const SmartInsightsWidget = dynamic(
 import SafeHydration from "@/components/SafeHydration";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { Clock, User } from "lucide-react";
+import LiteStatsBar from "@/components/mobile/LiteStatsBar";
 
 // Safe Dynamic imports with Next.js dynamic and SSR disabled to prevent hydration issues
 const EmptyComponent = () => null;
@@ -712,6 +713,10 @@ function NewspaperHomePage({
       pageName="الصفحة الرئيسية"
       showPerformanceMonitor={process.env.NODE_ENV === "development"}
     >
+      {/* إحصائيات النسخة الخفيفة - أسفل الهيدر مباشرة (موبايل فقط) */}
+      <div className="md:hidden sticky z-30" style={{ top: '56px' }}>
+        <LiteStatsBar />
+      </div>
       <div
         className={`homepage-wrapper min-h-screen transition-colors duration-300 ${
           isMobileView ? "pt-0" : "pt-14 sm:pt-16 lg:pt-20"
