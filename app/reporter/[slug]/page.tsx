@@ -1407,9 +1407,9 @@ const ReporterProfilePage: React.FC = () => {
                     )}
                   </div>
 
-                  {/* شارة التحقق محسّنة */}
-                  {reporter.is_verified && (
-                    <div className="reporter-verification-badge">
+                  {/* شارات أسفل الصورة بدلاً من التراكب */}
+                  <div className="mt-3 flex items-center justify-center lg:justify-start gap-2">
+                    {reporter.is_verified && (
                       <div
                         className={`flex items-center gap-1 px-2 py-1 rounded-full shadow-md ${
                           darkMode
@@ -1422,20 +1422,16 @@ const ReporterProfilePage: React.FC = () => {
                           {getVerificationText(reporter.verification_badge)}
                         </span>
                       </div>
-                    </div>
-                  )}
-
-                  {/* مؤشر AI محسّن */}
-                  <div className="reporter-ai-badge">
+                    )}
                     <div
-                      className={`flex items-center gap-1 px-2 py-1 rounded-full shadow-md animate-pulse ${
+                      className={`flex items-center gap-1 px-2 py-1 rounded-full shadow-md ${
                         darkMode
-                          ? "bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600"
-                          : "bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
+                          ? "bg-slate-700 border border-slate-600"
+                          : "bg-gray-100 border border-gray-300"
                       }`}
                     >
-                      <BrainCircuit className="w-3 h-3 text-white" />
-                      <span className="text-white font-bold text-xs">
+                      <BrainCircuit className={`w-3 h-3 ${darkMode ? 'text-blue-300' : 'text-blue-600'}`} />
+                      <span className={`${darkMode ? 'text-slate-200' : 'text-gray-800'} font-bold text-xs`}>
                         AI 2.0
                       </span>
                     </div>
@@ -1515,10 +1511,10 @@ const ReporterProfilePage: React.FC = () => {
                     {reporter.email_public && (
                       <a
                         href={`mailto:${reporter.email_public}`}
-                        className={`inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full font-medium transition-all hover:scale-105 ${
+                        className={`inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full font-medium transition-all hover:scale-105 border ${
                           darkMode
-                            ? "bg-blue-600 hover:bg-blue-700 text-white"
-                            : "bg-blue-600 hover:bg-blue-700 text-white"
+                            ? "border-slate-600 text-slate-200 hover:bg-slate-700"
+                            : "border-gray-300 text-gray-700 hover:bg-gray-50"
                         }`}
                       >
                         <Mail className="w-4 h-4" />
@@ -1625,7 +1621,7 @@ const ReporterProfilePage: React.FC = () => {
 
           {/* نبذة تحريرية */}
           {reporter.bio && (
-            <section className="px-6 md:px-10 lg:px-20 mb-10">
+            <section className="mb-10">
               <div
                 className={`rounded-2xl shadow-sm border p-6 ${
                   darkMode
@@ -1667,7 +1663,7 @@ const ReporterProfilePage: React.FC = () => {
 
           {/* إحصائيات سريعة في بطاقات منفصلة */}
           {stats && (
-            <section className="px-6 md:px-10 lg:px-20 mb-10">
+            <section className="mb-10">
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* عدد المقالات */}
                 <div
@@ -1809,7 +1805,7 @@ const ReporterProfilePage: React.FC = () => {
           )}
 
           {/* AI Insights Section - جديد */}
-          <section className="px-6 md:px-10 lg:px-20 mb-12">
+          <section className="mb-12">
             <div className="flex items-center gap-3 mb-6">
               <div
                 className={cn(
@@ -1849,7 +1845,7 @@ const ReporterProfilePage: React.FC = () => {
           <SmartTagsSection slug={slug} darkMode={darkMode} />
 
           {/* تبويب المحتوى المنشور */}
-          <section className="px-6 md:px-10 lg:px-20 mb-12">
+          <section className="mb-12">
             <div
               className={`rounded-2xl shadow-md border ${
                 darkMode
@@ -1894,7 +1890,7 @@ const ReporterProfilePage: React.FC = () => {
               {/* Articles Content */}
               <div className="p-4">
                 {articles.length > 0 ? (
-                  <div className="grid gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     {articles.map((article) => (
                       <Link
                         key={article.id}
@@ -1994,7 +1990,7 @@ const ReporterProfilePage: React.FC = () => {
             </div>
           </section>
           {/* معلومات إضافية */}
-          <section className="px-6 md:px-10 lg:px-20 mb-16">
+          <section className="mb-16">
             <div className="grid lg:grid-cols-3 gap-8">
               {/* التخصصات */}
               {reporter.specializations &&
