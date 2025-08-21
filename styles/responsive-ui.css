@@ -251,6 +251,13 @@ body {
   margin-right: calc(50% - 50vw);
 }
 
+/* إزالة أي مسافة علوية لكي تلتصق الصورة بالهيدر مباشرة */
+.page-content-wrapper > .full-bleed:first-child,
+.full-bleed:first-child {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
 /* ===== الشعار ===== */
 .logo {
   display: flex;
