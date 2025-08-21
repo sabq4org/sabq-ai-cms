@@ -90,10 +90,10 @@ export default function Page() {
   const MobileContent = useMemo(() => (
     <div className="py-6">
       {/* شريط الإحصائيات للنسخة الخفيفة - تحت الهيدر مباشرة */}
-      <div className="md:hidden">
+      <div className="md:hidden mb-4">
         <LiteStatsBar />
       </div>
-      <div className="max-w-6xl mx-auto mt-3">
+      <div className="max-w-6xl mx-auto">
         <Suspense fallback={<div className="h-6" />}>
           <WelcomeMetaStrip />
         </Suspense>
