@@ -23,10 +23,15 @@
 .dark header,
 .dark .header,
 .dark nav,
-.dark .nav,
+.dark .nav {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
+}
+
 .dark footer,
 .dark .footer {
-  background-color: #1e293b !important;
+  background-color: #0f172a !important;
   border-color: #334155 !important;
   color: #f1f5f9 !important;
 }

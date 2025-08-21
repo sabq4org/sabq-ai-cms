@@ -137,13 +137,13 @@ body {
 
 /* الهيدر الرئيسي */
 .dark .optimized-header {
-  background: #0f172a; /* slate-900 */
-  border-bottom-color: #334155; /* slate-600 */
+  background: #1e293b; /* slate-800 */
+  border-bottom-color: #334155; /* slate-700 */
 }
 
 .dark .optimized-header.scrolled {
-  background: rgba(15, 23, 42, 0.88); /* slate-900/88 */
-  box-shadow: var(--shadow-md);
+  background: rgba(30, 41, 59, 0.95); /* slate-800/95 */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
 }
 
 .dark .logo {

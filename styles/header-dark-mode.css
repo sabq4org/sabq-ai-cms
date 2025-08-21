@@ -1,0 +1,259 @@
+/* 
+ * 🌙 تحسينات الهيدر للوضع الليلي
+ * ===================================
+ * إصلاح الألوان المنفرة وتحسين المظهر العام
+ */
+
+/* ===== الهيدر الرئيسي ===== */
+
+/* خلفية الهيدر الأساسية */
+.dark header,
+.dark .header,
+.dark .fixed-header,
+.dark [class*="header"],
+.dark [class*="Header"] {
+  background-color: rgba(30, 41, 59, 0.95) !important; /* slate-800 مع شفافية */
+  backdrop-filter: blur(12px) !important;
+  border-bottom-color: rgba(51, 65, 85, 0.5) !important; /* slate-700 مع شفافية */
+}
+
+/* عند التمرير */
+.dark header.scrolled,
+.dark .header.scrolled,
+.dark .fixed-header.scrolled {
+  background-color: rgba(30, 41, 59, 0.98) !important;
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* ===== عناصر النافيجيشن ===== */
+
+/* الروابط العادية */
+.dark nav a,
+.dark .nav a,
+.dark .nav-link,
+.dark .nav-item,
+.dark [class*="nav-link"],
+.dark [class*="nav-item"] {
+  color: #cbd5e1 !important; /* gray-300 */
+  transition: all 0.2s ease !important;
+}
+
+/* الروابط عند التمرير عليها */
+.dark nav a:hover,
+.dark .nav a:hover,
+.dark .nav-link:hover,
+.dark .nav-item:hover,
+.dark [class*="nav-link"]:hover,
+.dark [class*="nav-item"]:hover {
+  color: #f1f5f9 !important; /* gray-100 */
+  background-color: rgba(71, 85, 105, 0.5) !important; /* slate-600 مع شفافية */
+}
+
+/* الروابط النشطة */
+.dark nav a.active,
+.dark .nav a.active,
+.dark .nav-link.active,
+.dark .nav-item.active,
+.dark [class*="nav-link"].active,
+.dark [class*="nav-item"].active {
+  color: #60a5fa !important; /* blue-400 */
+  background-color: rgba(59, 130, 246, 0.1) !important; /* blue-500 مع شفافية */
+}
+
+/* ===== الأزرار والأيقونات ===== */
+
+/* أزرار الأدوات */
+.dark .header-tools button,
+.dark .header-actions button,
+.dark [class*="header-tool"] button,
+.dark [class*="header-action"] button {
+  color: #cbd5e1 !important;
+  background-color: transparent !important;
+}
+
+.dark .header-tools button:hover,
+.dark .header-actions button:hover,
+.dark [class*="header-tool"] button:hover,
+.dark [class*="header-action"] button:hover {
+  color: #f1f5f9 !important;
+  background-color: rgba(71, 85, 105, 0.5) !important;
+}
+
+/* أيقونات الهيدر */
+.dark header svg,
+.dark .header svg,
+.dark [class*="header"] svg {
+  color: #cbd5e1 !important;
+}
+
+.dark header button:hover svg,
+.dark .header button:hover svg,
+.dark [class*="header"] button:hover svg {
+  color: #f1f5f9 !important;
+}
+
+/* ===== حقل البحث ===== */
+
+.dark .search-input,
+.dark .header-search input,
+.dark [class*="search-input"],
+.dark [class*="header-search"] input {
+  background-color: rgba(15, 23, 42, 0.5) !important; /* slate-900 مع شفافية */
+  border-color: rgba(71, 85, 105, 0.5) !important;
+  color: #f1f5f9 !important;
+}
+
+.dark .search-input::placeholder,
+.dark .header-search input::placeholder,
+.dark [class*="search-input"]::placeholder,
+.dark [class*="header-search"] input::placeholder {
+  color: #64748b !important;
+}
+
+.dark .search-input:focus,
+.dark .header-search input:focus,
+.dark [class*="search-input"]:focus,
+.dark [class*="header-search"] input:focus {
+  background-color: rgba(30, 41, 59, 0.8) !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* ===== القوائم المنسدلة ===== */
+
+.dark .header-dropdown,
+.dark .user-dropdown,
+.dark [class*="header-dropdown"],
+.dark [class*="user-dropdown"] {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5) !important;
+}
+
+.dark .header-dropdown a,
+.dark .user-dropdown a,
+.dark [class*="header-dropdown"] a,
+.dark [class*="user-dropdown"] a {
+  color: #cbd5e1 !important;
+}
+
+.dark .header-dropdown a:hover,
+.dark .user-dropdown a:hover,
+.dark [class*="header-dropdown"] a:hover,
+.dark [class*="user-dropdown"] a:hover {
+  background-color: #334155 !important;
+  color: #f1f5f9 !important;
+}
+
+/* ===== الشعار ===== */
+
+.dark .logo,
+.dark .header-logo,
+.dark [class*="logo"] {
+  filter: brightness(1.2) !important;
+}
+
+/* إصلاح خلفية الشعار البيضاء */
+.dark .logo-container,
+.dark .header-logo-wrapper,
+.dark [class*="logo-container"],
+.dark [class*="logo-wrapper"] {
+  background-color: transparent !important;
+}
+
+.dark .logo img,
+.dark .header-logo img,
+.dark [class*="logo"] img {
+  filter: brightness(1.1) contrast(1.1) !important;
+}
+
+/* ===== المينيو المتجاوب (موبايل) ===== */
+
+.dark .mobile-menu,
+.dark .mobile-nav,
+.dark [class*="mobile-menu"],
+.dark [class*="mobile-nav"] {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+.dark .mobile-menu a,
+.dark .mobile-nav a,
+.dark [class*="mobile-menu"] a,
+.dark [class*="mobile-nav"] a {
+  color: #cbd5e1 !important;
+  border-bottom-color: #334155 !important;
+}
+
+.dark .mobile-menu a:hover,
+.dark .mobile-nav a:hover,
+.dark [class*="mobile-menu"] a:hover,
+.dark [class*="mobile-nav"] a:hover {
+  background-color: #334155 !important;
+  color: #f1f5f9 !important;
+}
+
+/* ===== الإشعارات ===== */
+
+.dark .notification-bell,
+.dark .notification-badge,
+.dark [class*="notification"] {
+  color: #cbd5e1 !important;
+}
+
+.dark .notification-count,
+.dark [class*="notification-count"] {
+  background-color: #ef4444 !important;
+  color: white !important;
+}
+
+/* ===== زر تبديل الوضع الليلي ===== */
+
+.dark .dark-mode-toggle,
+.dark [class*="dark-mode"],
+.dark [class*="theme-toggle"] {
+  color: #fbbf24 !important; /* yellow-400 */
+}
+
+.dark .dark-mode-toggle:hover,
+.dark [class*="dark-mode"]:hover,
+.dark [class*="theme-toggle"]:hover {
+  background-color: rgba(251, 191, 36, 0.1) !important;
+  color: #fde047 !important; /* yellow-300 */
+}
+
+/* ===== تحسينات إضافية ===== */
+
+/* إزالة الحدود الزرقاء */
+.dark header *:focus,
+.dark .header *:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* تحسين التباين */
+.dark header,
+.dark .header {
+  border-bottom-width: 1px !important;
+}
+
+/* منع الخلفيات البيضاء */
+.dark header *,
+.dark .header * {
+  background-color: inherit;
+}
+
+.dark header button,
+.dark .header button,
+.dark header a,
+.dark .header a {
+  background-color: transparent;
+}
+
+/* تطبيق الانتقالات السلسة */
+.dark header *,
+.dark .header * {
+  transition: background-color 0.2s ease, 
+              color 0.2s ease, 
+              border-color 0.2s ease !important;
+}

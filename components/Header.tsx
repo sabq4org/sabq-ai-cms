@@ -131,8 +131,8 @@ export default function Header() {
         ref={headerElRef}
         className={`fixed-header transition-all duration-300 relative z-40 ${
           darkMode
-            ? "bg-gray-900/95 border-gray-800"
-            : "bg-blue-50/95 border-blue-200"
+            ? "bg-gray-900/95 backdrop-blur-lg border-gray-700/50"
+            : "bg-blue-50/95 backdrop-blur-lg border-blue-200"
         } border-b shadow-sm`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full relative">
@@ -169,10 +169,10 @@ export default function Header() {
                   className={`relative flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                     item.highlight
                       ? darkMode
-                        ? "text-red-400 hover:text-red-300 hover:bg-blue-800/40"
+                        ? "text-red-400 hover:text-red-300 hover:bg-gray-800/50"
                         : "text-red-600 hover:text-red-700 hover:bg-blue-600/20"
                       : darkMode
-                      ? "text-gray-300 hover:text-white hover:bg-blue-800/40"
+                      ? "text-gray-300 hover:text-white hover:bg-gray-800/50"
                       : "text-gray-700 hover:text-gray-900 hover:bg-blue-600/20"
                   }`}
                 >
@@ -244,7 +244,7 @@ export default function Header() {
                   href="/login"
                   className={`inline-flex items-center justify-center w-9 h-9 rounded-lg transition-colors ${
                     darkMode
-                      ? "text-blue-300 hover:text-white hover:bg-blue-800/40"
+                      ? "text-gray-300 hover:text-white hover:bg-gray-800/50"
                       : "text-blue-700 hover:text-blue-800 hover:bg-blue-100"
                   }`}
                   title="تسجيل الدخول"

@@ -1,6 +1,7 @@
 /* استيراد نظام الوضع الليلي الموحد */
 @import "./unified-dark-mode.css";
 @import "./dark-mode-fixes.css";
+@import "./header-dark-mode.css";
 
 /* أنيميشن شعلة اللهب للأخبار الشائعة */
 @keyframes flameFlicker {
