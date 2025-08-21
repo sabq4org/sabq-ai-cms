@@ -1,7 +1,7 @@
 "use client";
 
 import SmartContentNewsCard from "@/components/mobile/SmartContentNewsCard";
-import UnifiedMobileNewsCard from "@/components/mobile/UnifiedMobileNewsCard";
+import OldStyleNewsBlock from "@/components/old-style/OldStyleNewsBlock";
 import "@/components/mobile/mobile-news.css";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import type { RecommendedArticle } from "@/lib/ai-recommendations";
@@ -613,27 +613,7 @@ export default function NewsPage() {
     articles.forEach((article, index) => {
       // إضافة بطاقة الخبر
       if (isMobile) {
-        mixedContent.push(
-          <UnifiedMobileNewsCard
-            key={article.id}
-            article={article}
-            darkMode={darkMode}
-            variant="smart-block"
-            onBookmark={(id) => {
-              console.log("Bookmark article:", id);
-            }}
-            onShare={(article) => {
-              if (navigator.share) {
-                navigator.share({
-                  title: article.title,
-                  url:
-                    window.location.origin +
-                    `/article/${article.slug || article.id}`,
-                });
-              }
-            }}
-          />
-        );
+        // سيتم استخدام OldStyleNewsBlock لعرض البطاقات بشكل مجمع
       } else {
         // استخدام NewsCard للديسكتوب
         mixedContent.push(<NewsCard key={article.id} news={article} />);
@@ -932,9 +912,42 @@ export default function NewsPage() {
             <>
               {/* Articles Grid with NewsCard */}
               {isMobile ? (
-                // عرض الموبايل - قائمة كاملة العرض
-                <div className="mobile-news-container space-y-4">
-                  {renderMixedContent()}
+                // عرض الموبايل - استخدام OldStyleNewsBlock
+                <div className="mobile-news-container">
+                  <OldStyleNewsBlock
+                    articles={filteredArticles}
+                    showTitle={false}
+                    columns={1}
+                    showExcerpt={false}
+                  />
+                  
+                  {/* إضافة البطاقات المخصصة بشكل منفصل */}
+                  <div className="space-y-4 mt-4">
+                    {smartRecommendations.map((recommendation, index) => {
+                      const captions = [
+                        "اقتراح مبني على اهتماماتك المسجلة",
+                        "محتوى يتماشى مع ذوقك واهتماماتك",
+                        "اقتراح ذكي يناسب قراءاتك السابقة",
+                      ];
+
+                      return (
+                        <SmartContentNewsCard
+                          key={`smart-${recommendation.id}`}
+                          article={{
+                            ...recommendation,
+                            slug: recommendation.url.replace("/article/", ""),
+                            featured_image: recommendation.thumbnail,
+                            category_name: recommendation.category,
+                            excerpt: undefined,
+                            image_caption: captions[index % captions.length],
+                          }}
+                          darkMode={darkMode}
+                          variant="compact"
+                          position={index}
+                        />
+                      );
+                    })}
+                  </div>
                 </div>
               ) : (
                 // عرض سطح المكتب - الشبكة
