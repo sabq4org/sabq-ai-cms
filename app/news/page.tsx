@@ -3,6 +3,7 @@
 import SmartContentNewsCard from "@/components/mobile/SmartContentNewsCard";
 import OldStyleNewsBlock from "@/components/old-style/OldStyleNewsBlock";
 import "@/components/mobile/mobile-news.css";
+import CompactStatsBar from "@/components/mobile/CompactStatsBar";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import type { RecommendedArticle } from "@/lib/ai-recommendations";
 import { generatePersonalizedRecommendations } from "@/lib/ai-recommendations";
@@ -701,6 +702,13 @@ export default function NewsPage() {
   return (
     <>
       <div className="min-h-screen">
+        {/* شريط الإحصائيات للنسخة الخفيفة */}
+        {isMobile && (
+          <div className="sticky top-14 z-30 bg-white dark:bg-gray-900 shadow-sm">
+            <CompactStatsBar darkMode={darkMode} />
+          </div>
+        )}
+        
         {/* Hero Section */}
         <section className="relative py-16">
 
