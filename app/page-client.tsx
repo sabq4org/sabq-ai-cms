@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 import FooterDashboard from "@/components/FooterDashboard";
 import PageWrapper from "@/components/PageWrapper";
 import { SmartSlot } from "@/components/home/SmartSlot";
-// import CompactStatsBar from "@/components/mobile/CompactStatsBar";
+import CompactStatsBar from "@/components/mobile/CompactStatsBar";
 // import EnhancedMobileNewsCard from "@/components/mobile/EnhancedMobileNewsCard";
 // import SmartContentNewsCard from "@/components/mobile/SmartContentNewsCard";
 
