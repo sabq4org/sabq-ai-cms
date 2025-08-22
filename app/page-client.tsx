@@ -1045,8 +1045,8 @@ function NewspaperHomePage({
                                 }`}
                                 className={`group inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold text-base transition-all duration-300 transform hover:scale-105 shadow-lg dark:shadow-gray-900/50 hover:shadow-xl dark:shadow-gray-900/50 ${
                                   darkMode
-                                    ? "bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white"
-                                    : "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white"
+                                    ? "bg-blue-700 hover:bg-blue-800 text-white"
+                                    : "bg-blue-600 hover:bg-blue-700 text-white"
                                 }`}
                               >
                                 <span>
@@ -1154,7 +1154,7 @@ function NewspaperHomePage({
                       <>
                         {/* للهواتف الصغيرة جداً: دمج النص التعريفي مع العنوان */}
                         <div className="block sm:hidden">
-                          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 mb-3 smart-ai-label">
+                          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100 mb-3 smart-ai-label">
                             <Brain className="w-3.5 h-3.5 text-blue-600" />
                             <span
                               className={`font-medium ${
@@ -1184,7 +1184,7 @@ function NewspaperHomePage({
                         {/* للشاشات المتوسطة والكبيرة: التصميم الكامل */}
                         <div className="hidden sm:block">
                           <div
-                            className={`inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 mb-6 ${
+                            className={`inline-flex items-center gap-3 rounded-full bg-blue-50 border border-blue-100 mb-6 ${
                               isMobileView
                                 ? "px-4 py-2 smart-ai-label"
                                 : "px-6 py-3"
@@ -1238,7 +1238,7 @@ function NewspaperHomePage({
                       // للزائر غير المسجل
                       <>
                         <div
-                          className={`inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 mb-6 dark:bg-gray-800/40 dark:border-gray-700 ${
+                          className={`inline-flex items-center gap-3 rounded-full bg-gray-50 border border-gray-200 mb-6 dark:bg-gray-800/40 dark:border-gray-700 ${
                             isMobileView ? "px-4 py-2" : "px-6 py-3"
                           }`}
                         >
@@ -1309,8 +1309,8 @@ function NewspaperHomePage({
                   <div
                     className={`mb-6 p-4 rounded-xl flex items-center justify-between ${
                       darkMode
-                        ? "bg-gradient-to-r from-purple-900/20 to-blue-900/20 border border-purple-800/30"
-                        : "bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200"
+                        ? "bg-gray-800/30 border border-gray-700"
+                        : "bg-gray-50 border border-gray-200"
                     }`}
                   >
                     <div className="flex items-center gap-3">
@@ -1357,8 +1357,8 @@ function NewspaperHomePage({
                   <div
                     className={`mb-6 p-4 rounded-xl text-center ${
                       darkMode
-                        ? "bg-gradient-to-r from-blue-900/20 to-purple-900/20 border border-blue-800/30"
-                        : "bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200"
+                        ? "bg-gray-800/30 border border-gray-700"
+                        : "bg-gray-50 border border-gray-200"
                     }`}
                   >
                     <p
@@ -1371,7 +1371,7 @@ function NewspaperHomePage({
                     <div className="flex items-center justify-center gap-3">
                       <Link
                         href="/register"
-                        className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-lg text-sm font-medium transition-all transform hover:scale-105"
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-all transform hover:scale-105"
                       >
                         إنشاء حساب
                       </Link>
@@ -1497,7 +1497,7 @@ function NewspaperHomePage({
                   <div className="flex items-center justify-center mt-12">
                     <Link
                       href="/for-you"
-                      className="group inline-flex items-center gap-2 px-8 py-3 rounded-full text-base font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                      className="group inline-flex items-center gap-2 px-8 py-3 rounded-full text-base font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
                     >
                       <span>المزيد من الأخبار</span>
                       <ArrowLeft className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
