@@ -1517,27 +1517,51 @@ function NewspaperHomePage({
             </div>
             
             {/* بلوك مقترب للموبايل */}
-            <div className="mobile-muqtarab-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 mb-8">
-              <MuqtarabBlock
-                limit={4}
-                showPagination={false}
-                showFilters={false}
-                viewMode="grid"
-              />
-            </div>
+            <section className="relative w-full py-8 mb-8 muqtarab-home-section" style={{
+              background: darkMode 
+                ? 'linear-gradient(135deg, rgba(30, 64, 175, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)'
+                : 'linear-gradient(135deg, rgba(219, 234, 254, 0.5) 0%, rgba(191, 219, 254, 0.3) 100%)',
+              borderTop: `1px solid ${darkMode ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.15)'}`,
+              borderBottom: `1px solid ${darkMode ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.15)'}`,
+              backdropFilter: 'blur(10px)',
+              boxShadow: darkMode 
+                ? 'inset 0 2px 4px rgba(0, 0, 0, 0.1)' 
+                : 'inset 0 2px 4px rgba(59, 130, 246, 0.05)'
+            }}>
+              <div className="mobile-muqtarab-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <MuqtarabBlock
+                  limit={4}
+                  showPagination={false}
+                  showFilters={false}
+                  viewMode="grid"
+                />
+              </div>
+            </section>
           </>
         )}
         
         {/* النسخة العادية: مقترب للجميع */}
         {!isMobileView && (
-          <div className="desktop-muqtarab-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 mb-8">
-            <MuqtarabBlock
-              limit={8}
-              showPagination={true}
-              showFilters={true}
-              viewMode="grid"
-            />
-          </div>
+          <section className="relative w-full py-12 mb-12 muqtarab-home-section" style={{
+            background: darkMode 
+              ? 'linear-gradient(135deg, rgba(30, 64, 175, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)'
+              : 'linear-gradient(135deg, rgba(219, 234, 254, 0.5) 0%, rgba(191, 219, 254, 0.3) 100%)',
+            borderTop: `1px solid ${darkMode ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.15)'}`,
+            borderBottom: `1px solid ${darkMode ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.15)'}`,
+            backdropFilter: 'blur(10px)',
+            boxShadow: darkMode 
+              ? 'inset 0 2px 4px rgba(0, 0, 0, 0.1)' 
+              : 'inset 0 2px 4px rgba(59, 130, 246, 0.05)'
+          }}>
+            <div className="desktop-muqtarab-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <MuqtarabBlock
+                limit={8}
+                showPagination={true}
+                showFilters={true}
+                viewMode="grid"
+              />
+            </div>
+          </section>
         )}
         
         {/* الكلمات المفتاحية للديسكتوب */}
