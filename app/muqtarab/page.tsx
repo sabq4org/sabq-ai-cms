@@ -233,7 +233,7 @@ function MuqtaribPageContent() {
       <section className="relative py-16">
         <div className="relative max-w-7xl mx-auto px-4 md:px-6">
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 mb-6 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-2xl header-main-icon">
+            <div className="inline-flex items-center justify-center w-20 h-20 mb-6 rounded-2xl shadow-2xl header-main-icon themed-gradient-bg">
               <BookOpen className="w-10 h-10 text-white header-icon" />
             </div>
 
@@ -247,7 +247,7 @@ function MuqtaribPageContent() {
 
             {/* إحصائيات مقترب */}
             {stats && (
-              <div className="mt-6 inline-flex flex-wrap justify-center items-center gap-4 md:gap-6 rounded-2xl px-4 md:px-6 py-3 bg-white border border-gray-200 shadow-sm">
+              <div className="mt-6 inline-flex flex-wrap justify-center items-center gap-4 md:gap-6 rounded-2xl px-4 md:px-6 py-3 bg-white border border-gray-200 shadow-sm stats-container">
                 <div className="text-center px-2">
                   <div className="flex items-center gap-2">
                     <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400 stats-icon" />
@@ -768,13 +768,12 @@ function MobileAngleCard({ angle }: { angle: Angle }) {
           gap: '12px',
           padding: '12px'
         }}
+        className="muqtarab-themed-card"
         onMouseEnter={(e) => {
           e.currentTarget.style.transform = 'translateY(-2px)';
-          e.currentTarget.style.background = '#ffffff';
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.transform = 'translateY(0)';
-          e.currentTarget.style.background = '#ffffff';
         }}
       >
         {/* صورة الزاوية */}
@@ -870,13 +869,12 @@ function AngleCard({ angle }: { angle: Angle }) {
           display: 'flex',
           flexDirection: 'column'
         }}
+        className="muqtarab-themed-card card"
         onMouseEnter={(e) => {
           e.currentTarget.style.transform = 'translateY(-4px)';
-          e.currentTarget.style.background = '#ffffff';
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.transform = 'translateY(0)';
-          e.currentTarget.style.background = '#ffffff';
         }}
       >
         {/* صورة الزاوية */}
