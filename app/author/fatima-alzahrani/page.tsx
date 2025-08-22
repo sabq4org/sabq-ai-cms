@@ -419,7 +419,7 @@ export default function FatimaAlzahraniPage() {
             {articles.map((article) => (
               <Link 
                 key={article.id}
-                href={`/article/${article.id}`}
+                href={`/news/${article.slug || article.id}`}
                 className={cn(
                   "group block rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300",
                   darkMode ? "bg-gray-700 hover:bg-gray-650" : "bg-gray-50 hover:shadow-xl"

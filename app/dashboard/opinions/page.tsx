@@ -314,7 +314,7 @@ export default function OpinionsPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       {getStatusBadge(article.status)}
-                      <Link href={`/article/${article.id}`} target="_blank">
+                      <Link href={`/news/${article.slug || article.id}`} target="_blank">
                         <Button variant="ghost" size="sm">
                           <Eye className="w-4 h-4" />
                         </Button>

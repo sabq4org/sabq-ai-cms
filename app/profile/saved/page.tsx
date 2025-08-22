@@ -429,7 +429,7 @@ export default function SavedArticlesPage() {
                   }`}
                 >
                   {/* صورة المقال */}
-                  <Link href={`/article/${article.id}`} className="block relative h-48 overflow-hidden">
+                  <Link href={`/news/${article.slug || article.id}`} className="block relative h-48 overflow-hidden">
                     <Image
                       src={getImageUrl(article.featured_image)}
                       alt={article.title}
@@ -461,7 +461,7 @@ export default function SavedArticlesPage() {
 
                   {/* محتوى المقال */}
                   <div className="p-4">
-                    <Link href={`/article/${article.id}`}>
+                    <Link href={`/news/${article.slug || article.id}`}>
                       <h3 className={`font-bold text-lg mb-2 line-clamp-2 hover:text-blue-500 transition-colors ${
                         darkMode ? 'text-white' : 'text-gray-900'
                       }`}>

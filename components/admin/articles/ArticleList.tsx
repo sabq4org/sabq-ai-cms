@@ -777,7 +777,7 @@ export const ArticleList: React.FC<ArticleListProps> = ({
                                   </DropdownMenuItem>
                                 )}
                                 <DropdownMenuItem
-                                  onClick={() => navigator.clipboard.writeText(`${window.location.origin}/article/${article.id}`)}
+                                  onClick={() => navigator.clipboard.writeText(`${window.location.origin}/news/${article.slug || article.id}`)}
                                 >
                                   <Copy className="h-4 w-4 ml-2 text-gray-600" />
                                   <span>📋 نسخ الرابط</span>
