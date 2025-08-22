@@ -257,7 +257,7 @@ function CompactPodcastSection({
                 "rounded-xl p-1.5 sm:p-2 text-center border",
                 darkMode
                   ? "bg-gray-800/40 border-gray-700 text-gray-200"
-                  : "bg-white/70 border-gray-200 text-gray-700"
+                  : "bg-[#f8f8f7]/70 border-gray-200 text-gray-700"
               )}
             >
               <div className="flex items-center justify-center gap-1 text-[11px] sm:text-xs">
@@ -273,7 +273,7 @@ function CompactPodcastSection({
                 "rounded-xl p-1.5 sm:p-2 text-center border",
                 darkMode
                   ? "bg-gray-800/40 border-gray-700 text-gray-200"
-                  : "bg-white/70 border-gray-200 text-gray-700"
+                  : "bg-[#f8f8f7]/70 border-gray-200 text-gray-700"
               )}
             >
               <div className="flex items-center justify-center gap-1 text-[11px] sm:text-xs">
@@ -289,7 +289,7 @@ function CompactPodcastSection({
                 "rounded-xl p-1.5 sm:p-2 text-center border",
                 darkMode
                   ? "bg-gray-800/40 border-gray-700 text-gray-200"
-                  : "bg-white/70 border-gray-200 text-gray-700"
+                  : "bg-[#f8f8f7]/70 border-gray-200 text-gray-700"
               )}
             >
               <div className="flex items-center justify-center gap-1 text-[11px] sm:text-xs">
@@ -544,7 +544,7 @@ function SmartModule() {
                 "p-3 rounded-xl border",
                 darkMode
                   ? "bg-slate-800/60 border-slate-600/30"
-                  : "bg-white/90 border-gray-200 shadow-sm"
+                  : "bg-[#f8f8f7]/90 border-gray-200 shadow-sm"
               )}
             >
               <p
@@ -613,7 +613,7 @@ function SmartModule() {
                 "p-3 rounded-xl border",
                 darkMode
                   ? "bg-slate-800/60 border-slate-600/30"
-                  : "bg-white/90 border-gray-200 shadow-sm"
+                  : "bg-[#f8f8f7]/90 border-gray-200 shadow-sm"
               )}
             >
               <p

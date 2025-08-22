@@ -391,7 +391,7 @@ function NewspaperHomePage({
                 : "bg-red-50 border border-red-200"
               : darkMode
               ? "bg-gray-800 border border-gray-700"
-              : "bg-white border border-gray-200"
+              : "bg-[#f8f8f7] border border-gray-200"
           }`}
         >
           {/* صورة المقال */}
@@ -724,7 +724,7 @@ function NewspaperHomePage({
       <div
         className={`homepage-wrapper min-h-screen transition-colors duration-300 ${
           isMobileView ? "pt-0" : "pt-14 sm:pt-16 lg:pt-20"
-        } ${darkMode ? "bg-gray-900" : "bg-white"}`}
+        } ${darkMode ? "bg-gray-900" : "bg-[#f8f8f7]"}`}
         style={{
           direction: "rtl",
           marginTop: 0,
@@ -825,7 +825,7 @@ function NewspaperHomePage({
                                 : "bg-blue-500 text-white border border-blue-400 shadow-md"
                               : darkMode
                               ? "bg-blue-800/20 hover:bg-blue-700/30 text-blue-100 hover:text-blue-50 border border-blue-700/30 hover:border-blue-600/50"
-                              : "bg-white hover:bg-blue-50 text-gray-700 hover:text-blue-600 border border-gray-200 hover:border-blue-300 shadow-sm hover:shadow-md backdrop-blur-sm"
+                              : "bg-[#f8f8f7] hover:bg-blue-50 text-gray-700 hover:text-blue-600 border border-gray-200 hover:border-blue-300 shadow-sm hover:shadow-md backdrop-blur-sm"
                           }`}
                         >
                           {/* شارة "مخصص" للتصنيفات المخصصة */}
@@ -871,7 +871,7 @@ function NewspaperHomePage({
                         className={`mt-8 p-6 rounded-3xl shadow-lg dark:shadow-gray-900/50 ${
                           darkMode
                             ? "bg-gray-800/50"
-                            : "bg-white dark:bg-gray-800/70"
+                            : "bg-[#f8f8f7] dark:bg-gray-800/70"
                         } backdrop-blur-sm border ${
                           darkMode
                             ? "border-gray-700"
@@ -928,7 +928,7 @@ function NewspaperHomePage({
                                     className={`h-full rounded-xl overflow-hidden shadow-md transition-all duration-300 transform hover:scale-[1.02] ${
                                       darkMode
                                         ? "bg-gray-800 border border-gray-700"
-                                        : "bg-white border border-gray-100"
+                                        : "bg-[#f8f8f7] border border-gray-100"
                                     }`}
                                   >
                                     {/* صورة المقال */}

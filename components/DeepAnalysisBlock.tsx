@@ -443,7 +443,7 @@ export default function DeepAnalysisBlock({
                   key={item.id}
                   href={url}
                   onClick={() => markAsRead(item.id)}
-                  className={`group block h-full bg-white/95 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-lg`}
+                  className={`group block h-full bg-[#f8f8f7]/95 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-lg`}
                 >
                   <div className="relative p-4 h-full flex flex-col">
                     {/* رأس البطاقة - مضغوط جداً */}
@@ -603,7 +603,7 @@ export default function DeepAnalysisBlock({
           className={`inline-flex items-center gap-3 px-8 py-4 font-medium text-sm rounded-full transition-all duration-300 transform hover:scale-105 group ${
             darkMode
               ? "bg-white/10 hover:bg-white/20 text-white border border-white/20"
-              : "bg-white hover:bg-gray-50 text-gray-800 border border-gray-200 shadow-sm"
+              : "bg-[#f8f8f7] hover:bg-gray-50 text-gray-800 border border-gray-200 shadow-sm"
           }`}
         >
           <BookOpen className="w-5 h-5" />

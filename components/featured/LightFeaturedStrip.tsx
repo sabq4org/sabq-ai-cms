@@ -74,7 +74,7 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
                         : 'bg-red-50 border-red-200 hover:border-red-300')
                     : (darkMode
                         ? 'bg-[rgba(255,255,255,0.04)] border-gray-700 hover:border-gray-500/70'
-                        : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-blue-100')
+                        : 'bg-[#f8f8f7] border-gray-200 hover:border-blue-300 hover:shadow-blue-100')
                 }`}
               >
                 <div className={`relative aspect-video w-full overflow-hidden rounded-lg ${!hasImage ? 'bg-gray-200 dark:bg-gray-700' : ''}`}>
@@ -120,7 +120,7 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
                         className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium backdrop-blur-sm ${
                           darkMode
                             ? "bg-gray-900/60 text-gray-200 border border-gray-700"
-                            : "bg-white/70 text-gray-700 border border-gray-200"
+                            : "bg-[#f8f8f7]/70 text-gray-700 border border-gray-200"
                         }`}
                       >
                         {article.category?.icon && (

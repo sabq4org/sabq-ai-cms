@@ -185,7 +185,7 @@ const AdBanner: React.FC<AdBannerProps> = ({ placement, className = "" }) => {
       {/* الإعلان */}
       <div
         id={`ad-${ad.id}`}
-        className="relative bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700 cursor-pointer"
+        className="relative bg-[#f8f8f7] dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700 cursor-pointer"
         onClick={handleClick}
       >
         {/* زر الإغلاق */}

@@ -462,7 +462,7 @@ export default function TodayOpinionsSection({
                     } rounded-xl transition-all hover:scale-105 ${
                       darkMode
                         ? "bg-gray-700 hover:bg-red-900/20 text-gray-300 hover:text-red-400"
-                        : "bg-white hover:bg-red-50 text-gray-600 hover:text-red-600"
+                        : "bg-[#f8f8f7] hover:bg-red-50 text-gray-600 hover:text-red-600"
                     } shadow-lg`}
                   >
                     <Heart className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -484,7 +484,7 @@ export default function TodayOpinionsSection({
                     } rounded-xl transition-all hover:scale-105 ${
                       darkMode
                         ? "bg-gray-700 hover:bg-blue-900/20 text-gray-300 hover:text-blue-400"
-                        : "bg-white hover:bg-blue-50 text-gray-600 hover:text-blue-600"
+                        : "bg-[#f8f8f7] hover:bg-blue-50 text-gray-600 hover:text-blue-600"
                     } shadow-lg`}
                   >
                     <Share2 className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -513,7 +513,7 @@ export default function TodayOpinionsSection({
                         ? "bg-green-500 text-white"
                         : darkMode
                         ? "bg-gray-700 hover:bg-green-900/20 text-gray-300 hover:text-green-400"
-                        : "bg-white hover:bg-green-50 text-gray-600 hover:text-green-600"
+                        : "bg-[#f8f8f7] hover:bg-green-50 text-gray-600 hover:text-green-600"
                     } shadow-lg`}
                   >
                     {currentPlayingId ===

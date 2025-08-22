@@ -57,10 +57,10 @@ export default function LiteStatsBar() {
   const s = stats ?? defaultStats;
 
   return (
-    <div className="compact-stats-bar enhanced-mobile-stats py-0.5 px-3 border-b border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 w-full">
+    <div className="compact-stats-bar enhanced-mobile-stats py-0.5 px-3 border-b border-gray-200 dark:border-gray-700 bg-[#f8f8f7]/90 dark:bg-gray-900/80 w-full">
       <div className="w-full flex items-center justify-between gap-3 text-sm leading-none">
         {/* الأخبار */}
-        <Link href="/news" className="flex items-center gap-2 flex-1 justify-center hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg p-2 transition-colors">
+        <Link href="/news" className="flex items-center gap-2 flex-1 justify-center hover:bg-gray-100/50 dark:hover:bg-gray-800/50 rounded-lg p-2 transition-colors">
           <span className="stats-icon-container p-1 rounded-lg bg-blue-100 dark:bg-blue-900/30">
             <Newspaper className="w-4 h-4 text-blue-600 dark:text-blue-400" />
           </span>
@@ -73,7 +73,7 @@ export default function LiteStatsBar() {
         </Link>
 
         {/* الأقسام */}
-        <Link href="/categories" className="flex items-center gap-2 flex-1 justify-center hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg p-2 transition-colors">
+        <Link href="/categories" className="flex items-center gap-2 flex-1 justify-center hover:bg-gray-100/50 dark:hover:bg-gray-800/50 rounded-lg p-2 transition-colors">
           <span className="stats-icon-container p-1 rounded-lg bg-blue-100 dark:bg-blue-900/30">
             <Tag className="w-4 h-4 text-blue-600 dark:text-blue-400" />
           </span>
