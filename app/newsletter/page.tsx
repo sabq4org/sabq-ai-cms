@@ -389,7 +389,7 @@ export default function NewsletterPage() {
       <section
         className={cn(
           "py-16 sm:py-24",
-          darkMode ? "bg-slate-800/30" : "bg-background-primary/50"
+          darkMode ? "bg-slate-800/30" : "bg-[#fafafa]/50"
         )}
       >
         <div className="container mx-auto px-4">

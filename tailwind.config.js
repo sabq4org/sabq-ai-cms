@@ -26,9 +26,9 @@ module.exports = {
         ],
       },
       colors: {
-        // خلفية المشروع الجديدة
+        // خلفية المشروع الموحدة
         background: {
-          primary: "#ECECEC",
+          primary: "#fafafa",
           secondary: "#F5F5F5",
         },
         

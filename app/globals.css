@@ -168,8 +168,8 @@ body {
 
 body {
   color: rgb(var(--foreground-rgb));
-  /* خلفية المشروع الجديدة */
-  background: #ECECEC;
+  /* خلفية المشروع الموحدة */
+  background: #fafafa;
 }
 
 a {

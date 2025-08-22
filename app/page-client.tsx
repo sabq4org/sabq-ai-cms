@@ -1549,7 +1549,7 @@ function NewspaperHomePage({
         {/* 8. التحليل العميق (Deep Analysis) 🧠 */}
         {/* Deep Analysis Block - بلوك التحليل العميق - يأتي بعد الكلمات المفتاحية ومقترب */}
         <section
-          className={`relative w-full bg-[#f8f8f7] dark:bg-[#0d1b2a] ${
+          className={`relative w-full bg-[#fafafa] dark:bg-[#0d1b2a] ${
             isMobileView ? "py-12 mb-12" : "py-16 mb-16"
           }`}
         >
