@@ -29,13 +29,10 @@ const navigationItems: NavigationItem[] = [
 
 export default function LightLayout({ children }: LightLayoutProps) {
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const { darkMode, toggleDarkMode } = useDarkModeContext();
   const { user } = useAuth();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // إلغاء شرط mounted حتى يظهر الهيدر فوراً دون تأخير/وميض
 
   // إغلاق القائمة عند تغيير حجم الشاشة
   useEffect(() => {
@@ -62,9 +59,7 @@ export default function LightLayout({ children }: LightLayoutProps) {
     };
   }, [isSideMenuOpen]);
 
-  if (!mounted) {
-    return null;
-  }
+  // إظهار الهيدر مباشرة في SSR وCSR
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
