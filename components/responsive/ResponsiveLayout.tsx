@@ -51,18 +51,28 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
     return () => observer.disconnect();
   }, []);
 
-  // تطبيق فوري لخلفية مقترب
+  // تطبيق فوري للخلفية العامة
   useEffect(() => {
+    // تطبيق الخلفية الأساسية
+    const bgColor = darkMode ? '#111827' : '#f8f8f7';
+    document.documentElement.style.backgroundColor = bgColor;
+    document.documentElement.style.backgroundImage = 'none';
+    document.body.style.backgroundColor = bgColor;
+    document.body.style.backgroundImage = 'none';
+    
+    // تطبيق على العناصر الرئيسية
+    const mainElements = document.querySelectorAll('#__next, .page-wrapper, .homepage-wrapper, main');
+    mainElements.forEach(el => {
+      (el as HTMLElement).style.backgroundColor = 'transparent';
+      (el as HTMLElement).style.backgroundImage = 'none';
+    });
+    
     if (pathname?.startsWith('/muqtarab')) {
-      document.documentElement.style.backgroundColor = '#f8f8f7';
-      document.body.style.backgroundColor = '#f8f8f7';
       document.body.setAttribute('data-muqtarab-page', 'true');
     } else {
-      document.documentElement.style.backgroundColor = '#f8f8f7';
-      document.body.style.backgroundColor = '#f8f8f7';
       document.body.removeAttribute('data-muqtarab-page');
     }
-  }, [pathname]);
+  }, [pathname, darkMode]);
 
   useEffect(() => {
     setMounted(true);

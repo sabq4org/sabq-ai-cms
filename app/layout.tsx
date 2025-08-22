@@ -62,8 +62,14 @@ export default function RootLayout({
 }) {
   // ملاحظة: hook لا يمكن استخدامه هنا لأنه ملف سيرفري. سنستخدم فحصاً بسيطاً داخل ResponsiveLayout.
   return (
-    <html lang="ar" dir="rtl" className={ibmPlexArabic.variable}>
+    <html lang="ar" dir="rtl" className={ibmPlexArabic.variable} style={{ backgroundColor: '#f8f8f7' }}>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: `
+          // تطبيق فوري قبل أي شيء
+          document.documentElement.style.backgroundColor = '#f8f8f7';
+        ` }} />
+        <meta name="theme-color" content="#f8f8f7" />
+        <meta name="msapplication-TileColor" content="#f8f8f7" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
@@ -138,7 +144,7 @@ export default function RootLayout({
           }
         `}} />
       </head>
-      <body className={`${ibmPlexArabic.className} antialiased`} suppressHydrationWarning>
+      <body className={`${ibmPlexArabic.className} antialiased`} style={{ backgroundColor: '#f8f8f7', minHeight: '100vh' }} suppressHydrationWarning>
         <style dangerouslySetInnerHTML={{ __html: `
           html, body { 
             background: #f8f8f7 !important; 
@@ -177,6 +183,15 @@ export default function RootLayout({
             const main = document.querySelector('main');
             if (main) main.style.backgroundColor = 'transparent';
           });
+          
+          // تأكد من تطبيق الخلفية حتى بعد أي تحديثات ديناميكية
+          setInterval(function() {
+            if (document.body.style.backgroundColor !== '#f8f8f7' && 
+                !document.documentElement.classList.contains('dark')) {
+              document.body.style.backgroundColor = '#f8f8f7';
+              document.documentElement.style.backgroundColor = '#f8f8f7';
+            }
+          }, 100);
         ` }} />
         <Providers>
           <ResponsiveLayout>

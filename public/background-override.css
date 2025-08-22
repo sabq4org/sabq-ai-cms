@@ -1,13 +1,19 @@
 /* Override للخلفية - أولوية قصوى */
+:root {
+  background: #f8f8f7 !important;
+}
+
 html,
 body,
 html body,
 body html,
 html > body,
-body > div {
+body > div,
+body > div#__next {
   background: #f8f8f7 !important;
   background-color: #f8f8f7 !important;
   background-image: none !important;
+  min-height: 100vh !important;
 }
 
 /* الوضع الداكن */
@@ -42,4 +48,30 @@ main > div {
 
 .dark * {
   --page-bg: #111827;
+}
+
+/* استهداف Next.js containers */
+div[id="__next"],
+div#__next,
+#__next {
+  background: transparent !important;
+  min-height: 100vh !important;
+}
+
+/* تطبيق على أي div مباشر تحت body */
+body > div:first-child {
+  background: transparent !important;
+}
+
+/* قاعدة عامة للتأكد */
+body > * {
+  background-color: transparent !important;
+}
+
+/* باستثناء العناصر التي تحتاج خلفية بيضاء */
+.card,
+.bg-white,
+[class*="card"],
+article {
+  background-color: #ffffff !important;
 }
