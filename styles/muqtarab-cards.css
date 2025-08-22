@@ -320,10 +320,10 @@ html:has([data-muqtarab="true"]) body {
 }
 
 /* إصلاح نهائي للخلفيات - الأولوية القصوى */
-[data-page="muqtarab"]:not(.card),
-[data-page="muqtarab"] > *:not(.card),
-[data-muqtarab="true"]:not(.card),
-[data-muqtarab="true"] > *:not(.card) {
+[data-page="muqtarab"]:not(.card):not(article),
+[data-page="muqtarab"] > *:not(.card):not(article):not(.rounded-2xl):not(.rounded-xl):not(.rounded-lg),
+[data-muqtarab="true"]:not(.card):not(article),
+[data-muqtarab="true"] > *:not(.card):not(article):not(.rounded-2xl):not(.rounded-xl):not(.rounded-lg) {
   background-color: transparent !important;
 }
 
@@ -332,4 +332,47 @@ html:has([data-muqtarab="true"]) body {
 div.min-h-screen:has([data-muqtarab="true"]) {
   background: #f8f8f7 !important;
   background-color: #f8f8f7 !important;
+}
+
+/* ضمان أن جميع البطاقات في مقترب بيضاء - أولوية قصوى */
+[data-page="muqtarab"] .card,
+[data-page="muqtarab"] article,
+[data-page="muqtarab"] .bg-white,
+[data-page="muqtarab"] .rounded-2xl,
+[data-page="muqtarab"] .rounded-xl,
+[data-page="muqtarab"] .rounded-lg,
+[data-page="muqtarab"] [class*="Card"],
+[data-page="muqtarab"] [class*="card"],
+[data-muqtarab="true"] .card,
+[data-muqtarab="true"] article,
+[data-muqtarab="true"] [class*="Card"],
+[data-muqtarab="true"] [class*="card"],
+.muqtarab-card-container .card,
+.muqtarab-card-container article,
+.muqtarab-card-container [class*="Card"],
+.muqtarab-card-container [class*="card"] {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+}
+
+/* البطاقات في الوضع الداكن */
+.dark [data-page="muqtarab"] .card,
+.dark [data-page="muqtarab"] article,
+.dark [data-muqtarab="true"] .card,
+.dark [data-muqtarab="true"] article,
+.dark .muqtarab-card-container .card,
+.dark .muqtarab-card-container article {
+  background: #1f2937 !important;
+  background-color: #1f2937 !important;
+}
+
+/* شريط البحث والفلاتر - أبيض أيضاً */
+[data-page="muqtarab"] input,
+[data-page="muqtarab"] .search-input,
+[data-page="muqtarab"] .filter-container,
+[data-muqtarab="true"] input,
+[data-muqtarab="true"] .search-input,
+[data-muqtarab="true"] .filter-container {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
 }

@@ -104,7 +104,7 @@ export default function MuqtarabCard({
   // مكون بطاقة المقال المميز الكبير
   if (variant === "large") {
     return (
-      <Card className="group overflow-hidden transition-all duration-300 border border-gray-200 dark:border-gray-700 relative rounded-xl muqtarab-themed-card" style={{ backgroundColor: '#ffffff' }}>
+      <Card className="group overflow-hidden transition-all duration-300 border border-gray-200 dark:border-gray-700 relative rounded-xl muqtarab-themed-card bg-white" style={{ backgroundColor: '#ffffff' }}>
         {/* تصميم الديسكتوب - نصف صورة ونصف محتوى */}
         <div className="hidden md:grid md:grid-cols-2 gap-0">
           {/* صورة المقال */}
