@@ -12,6 +12,14 @@ import { usePathname } from 'next/navigation';
 // نظام الألوان المتغيرة المطور
 const themes = [
   { 
+    id: 'default', 
+    name: 'بلا لون', 
+    color: '#3b82f6', // اللون الافتراضي للموقع
+    rgb: '59 130 246',
+    gradient: 'from-blue-500 to-blue-600',
+    isDefault: true 
+  },
+  { 
     id: 'blue', 
     name: 'أزرق', 
     color: '#3b82f6', 
@@ -142,20 +150,33 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
     const root = document.documentElement;
     // إزالة جميع data-theme attributes
     themes.forEach(t => root.removeAttribute(`data-theme-${t.id}`));
-    // تطبيق theme الجديد
-    root.setAttribute('data-theme', theme.id);
-    root.style.setProperty('--theme-primary', theme.color);
-    root.style.setProperty('--theme-primary-rgb', theme.rgb);
-    root.style.setProperty('--theme-primary-light', `rgba(${theme.rgb}, 0.1)`);
-    root.style.setProperty('--theme-primary-lighter', `rgba(${theme.rgb}, 0.05)`);
+    
+    if (theme.isDefault) {
+      // إذا كان "بلا لون"، إزالة جميع المتغيرات المخصصة
+      root.removeAttribute('data-theme');
+      root.style.removeProperty('--theme-primary');
+      root.style.removeProperty('--theme-primary-rgb');
+      root.style.removeProperty('--theme-primary-light');
+      root.style.removeProperty('--theme-primary-lighter');
+      root.style.removeProperty('--accent');
+      root.style.removeProperty('--accent-hover');
+      root.style.removeProperty('--accent-light');
+    } else {
+      // تطبيق theme الجديد
+      root.setAttribute('data-theme', theme.id);
+      root.style.setProperty('--theme-primary', theme.color);
+      root.style.setProperty('--theme-primary-rgb', theme.rgb);
+      root.style.setProperty('--theme-primary-light', `rgba(${theme.rgb}, 0.1)`);
+      root.style.setProperty('--theme-primary-lighter', `rgba(${theme.rgb}, 0.05)`);
 
-    // ضبط متغيرات النسخة الكاملة (--accent*) لضمان توافق البلوكات القديمة
-    const { h, s, l } = hexToHsl(theme.color);
-    const hoverL = Math.max(0, Math.min(100, l - 5));
-    const lightL = 96; // كما في النسخة الكاملة تقريباً
-    root.style.setProperty('--accent', `${h} ${s}% ${l}%`);
-    root.style.setProperty('--accent-hover', `${h} ${s}% ${hoverL}%`);
-    root.style.setProperty('--accent-light', `${h} ${s}% ${lightL}%`);
+      // ضبط متغيرات النسخة الكاملة (--accent*) لضمان توافق البلوكات القديمة
+      const { h, s, l } = hexToHsl(theme.color);
+      const hoverL = Math.max(0, Math.min(100, l - 5));
+      const lightL = 96; // كما في النسخة الكاملة تقريباً
+      root.style.setProperty('--accent', `${h} ${s}% ${l}%`);
+      root.style.setProperty('--accent-hover', `${h} ${s}% ${hoverL}%`);
+      root.style.setProperty('--accent-light', `${h} ${s}% ${lightL}%`);
+    }
   };
 
   // تطبيق اللون على DOM
@@ -391,10 +412,19 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
                           ? 'border-gray-900 dark:border-white scale-105' 
                           : 'border-gray-200 dark:border-gray-600'
                       }`}
-                      style={{ backgroundColor: theme.color }}
+                      style={{ backgroundColor: theme.isDefault ? '#e5e7eb' : theme.color }}
                       title={theme.name}
                     >
-                      {currentTheme.id === theme.id && (
+                      {theme.isDefault ? (
+                        <div className="absolute inset-0 rounded-lg flex items-center justify-center">
+                          <div className="w-5 h-5 rounded-full border-2 border-dashed border-gray-400 dark:border-gray-300" />
+                          {currentTheme.id === theme.id && (
+                            <div className="absolute inset-0 rounded-lg flex items-center justify-center">
+                              <div className="w-2 h-2 bg-gray-600 dark:bg-gray-200 rounded-full"></div>
+                            </div>
+                          )}
+                        </div>
+                      ) : currentTheme.id === theme.id && (
                         <div className="absolute inset-0 rounded-lg flex items-center justify-center">
                           <div className="w-3 h-3 bg-white rounded-full shadow-sm"></div>
                         </div>
