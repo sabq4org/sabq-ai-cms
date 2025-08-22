@@ -1,14 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/auth-options';
-import { SmartNotificationsService } from '@/lib/modules/smart-notifications/service';
+import jwt from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    // استخراج التوكن من الكوكيز
+    const token = request.cookies.get('auth-token')?.value || 
+                  request.cookies.get('access_token')?.value;
     
-    if (!session?.user?.id) {
+    if (!token) {
       return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+    }
+
+    // التحقق من صحة التوكن
+    let userId: string;
+    let userEmail: string;
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET) as any;
+      userId = decoded.id;
+      userEmail = decoded.email || '';
+    } catch (error) {
+      return NextResponse.json({ error: 'توكن غير صالح' }, { status: 401 });
     }
 
     const { channel } = await request.json();
@@ -17,8 +30,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'قناة التوصيل مطلوبة' }, { status: 400 });
     }
 
-    // إنشاء خدمة الإشعارات
-    const notificationService = new SmartNotificationsService();
+
 
     // محتوى الإشعار التجريبي
     const testNotificationContent = {
@@ -31,8 +43,8 @@ export async function POST(request: NextRequest) {
 
     // إرسال الإشعار التجريبي
     const result = await sendTestNotification(
-      session.user.id,
-      session.user.email || '',
+      userId,
+      userEmail,
       channel,
       testNotificationContent
     );

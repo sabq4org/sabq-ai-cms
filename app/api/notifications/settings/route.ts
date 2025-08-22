@@ -1,22 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/auth-options';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
+import jwt from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
 
 // جلب إعدادات الإشعارات
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    // استخراج التوكن من الكوكيز
+    const token = request.cookies.get('auth-token')?.value || 
+                  request.cookies.get('access_token')?.value;
     
-    if (!session?.user?.id) {
+    if (!token) {
       return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+    }
+
+    // التحقق من صحة التوكن
+    let userId: string;
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET) as any;
+      userId = decoded.id;
+    } catch (error) {
+      return NextResponse.json({ error: 'توكن غير صالح' }, { status: 401 });
     }
 
     // جلب إعدادات المستخدم من قاعدة البيانات
     const userSettings = await prisma.user_preferences.findUnique({
       where: {
         user_id_key: {
-          user_id: session.user.id,
+          user_id: userId,
           key: 'notification_settings'
         }
       }
@@ -67,10 +79,21 @@ export async function GET(request: NextRequest) {
 // حفظ إعدادات الإشعارات
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    // استخراج التوكن من الكوكيز
+    const token = request.cookies.get('auth-token')?.value || 
+                  request.cookies.get('access_token')?.value;
     
-    if (!session?.user?.id) {
+    if (!token) {
       return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+    }
+
+    // التحقق من صحة التوكن
+    let userId: string;
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET) as any;
+      userId = decoded.id;
+    } catch (error) {
+      return NextResponse.json({ error: 'توكن غير صالح' }, { status: 401 });
     }
 
     const settings = await request.json();
@@ -79,7 +102,7 @@ export async function POST(request: NextRequest) {
     await prisma.user_preferences.upsert({
       where: {
         user_id_key: {
-          user_id: session.user.id,
+          user_id: userId,
           key: 'notification_settings'
         }
       },
@@ -88,8 +111,8 @@ export async function POST(request: NextRequest) {
         updated_at: new Date()
       },
       create: {
-        id: `${session.user.id}_notification_settings`,
-        user_id: session.user.id,
+        id: `${userId}_notification_settings`,
+        user_id: userId,
         key: 'notification_settings',
         value: JSON.stringify(settings)
       }
@@ -110,7 +133,7 @@ export async function POST(request: NextRequest) {
           '{channels}',
           ${JSON.stringify(activeChannels)}::jsonb
         )
-        WHERE id = ${session.user.id}
+        WHERE id = ${userId}
       `;
     }
 
