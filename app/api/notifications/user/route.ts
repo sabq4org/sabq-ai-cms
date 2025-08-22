@@ -4,7 +4,6 @@ import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
 
-// جلب إشعارات المستخدم
 export async function GET(request: NextRequest) {
   try {
     // استخراج التوكن من الكوكيز
@@ -24,49 +23,38 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'توكن غير صالح' }, { status: 401 });
     }
 
-    // جلب آخر 50 إشعار للمستخدم
+    // جلب الإشعارات للمستخدم
     const notifications = await prisma.smartNotifications.findMany({
       where: {
-        user_id: userId,
-        status: {
-          in: ['delivered', 'read']
-        }
+        user_id: userId
       },
       orderBy: {
         created_at: 'desc'
       },
-      take: 50,
-      select: {
-        id: true,
-        title: true,
-        message: true,
-        type: true,
-        priority: true,
-        category: true,
-        data: true,
-        read_at: true,
-        created_at: true,
-        clicked_at: true
-      }
+      take: 50 // أحدث 50 إشعار
     });
 
     // حساب عدد الإشعارات غير المقروءة
-    const unreadCount = await prisma.smartNotifications.count({
-      where: {
-        user_id: userId,
-        read_at: null,
-        status: 'delivered'
-      }
-    });
+    const unreadCount = notifications.filter(n => !n.read_at).length;
+
+    // تحويل التواريخ لـ ISO strings
+    const formattedNotifications = notifications.map(notification => ({
+      ...notification,
+      created_at: notification.created_at.toISOString(),
+      updated_at: notification.updated_at.toISOString(),
+      read_at: notification.read_at?.toISOString() || null,
+      data: notification.data || {}
+    }));
 
     return NextResponse.json({
       success: true,
-      notifications,
-      unreadCount
+      notifications: formattedNotifications,
+      unreadCount,
+      total: notifications.length
     });
 
   } catch (error) {
-    console.error('Error fetching user notifications:', error);
+    console.error('Error fetching notifications:', error);
     return NextResponse.json(
       { error: 'حدث خطأ في جلب الإشعارات' },
       { status: 500 }

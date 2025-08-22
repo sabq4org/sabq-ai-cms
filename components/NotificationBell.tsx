@@ -128,13 +128,20 @@ export default function NotificationBell() {
     return date.toLocaleDateString('ar-SA');
   };
 
+  // معالج النقر مع تسجيل console
+  const handleBellClick = () => {
+    console.log('Bell clicked, current state:', isOpen);
+    setIsOpen(!isOpen);
+  };
+
   return (
     <div className="relative" ref={dropdownRef}>
       {/* زر الجرس */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors"
+        onClick={handleBellClick}
+        className="relative p-2 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
         aria-label="الإشعارات"
+        type="button"
       >
         {unreadCount > 0 ? (
           <BellRing className="w-5 h-5 md:w-6 md:h-6 animate-pulse" />
@@ -151,7 +158,7 @@ export default function NotificationBell() {
 
       {/* قائمة الإشعارات */}
       {isOpen && (
-        <div className="absolute left-0 md:left-auto md:right-0 mt-2 w-80 md:w-96 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
+        <div className="absolute left-0 md:left-auto md:right-0 mt-2 w-80 md:w-96 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-[100] overflow-hidden">
           {/* الهيدر */}
           <div className="px-4 py-3 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
