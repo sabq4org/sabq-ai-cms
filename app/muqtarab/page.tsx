@@ -1,5 +1,7 @@
 "use client";
 
+import React from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { HeroCard } from "@/components/muqtarab/HeroCard";
 import WithMuqtarabErrorBoundary from "@/components/muqtarab/MuqtarabErrorBoundary";
 import { MuqtarabPageSkeleton } from "@/components/muqtarab/MuqtarabSkeletons";
@@ -25,7 +27,6 @@ import {
 // import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
 // ملاحظة: لا يمكن تصدير metadata من صفحة عميل.
 // يمكن لاحقًا نقل الميتاداتا إلى ملف layout أو صفحة خادومية.
@@ -227,18 +228,13 @@ function MuqtaribPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-[#f8f8f7]" style={{ backgroundColor: '#f8f8f7' }} data-page="muqtarab">
       {/* Hero Section - مماثل لصفحة الأخبار */}
-      <section className="relative py-16 bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full blur-3xl bg-blue-200/30 dark:bg-blue-900/20" />
-          <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full blur-3xl bg-purple-200/30 dark:bg-purple-900/20" />
-        </div>
-
-        <div className="relative max-w-7xl mx-auto px-4 md:px-6">
+      <section className="relative py-16" style={{ backgroundColor: '#f8f8f7' }}>
+        <div className="relative max-w-7xl mx-auto px-4 md:px-6" style={{ backgroundColor: '#f8f8f7' }}>
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 mb-6 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-2xl">
-              <BookOpen className="w-10 h-10 text-white" />
+            <div className="inline-flex items-center justify-center w-20 h-20 mb-6 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-2xl header-main-icon">
+              <BookOpen className="w-10 h-10 text-white header-icon" />
             </div>
 
             <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 dark:text-white">
@@ -251,10 +247,10 @@ function MuqtaribPageContent() {
 
             {/* إحصائيات مقترب */}
             {stats && (
-              <div className="mt-6 inline-flex flex-wrap justify-center items-center gap-4 md:gap-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl px-4 md:px-6 py-3 shadow-lg">
+              <div className="mt-6 inline-flex flex-wrap justify-center items-center gap-4 md:gap-6 rounded-2xl px-4 md:px-6 py-3 border" style={{ backgroundColor: '#f8f8f7', borderColor: '#f0f0ef' }}>
                 <div className="text-center px-2">
                   <div className="flex items-center gap-2">
-                    <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                    <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400 stats-icon" />
                     <div className="text-2xl font-bold text-gray-900 dark:text-white">
                       {stats ? stats.publishedAngles : filteredAngles.length}
                     </div>
@@ -268,7 +264,7 @@ function MuqtaribPageContent() {
 
                 <div className="text-center px-2">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-green-600 dark:text-green-400" />
+                    <Sparkles className="w-5 h-5 text-green-600 dark:text-green-400 stats-icon" />
                     <div className="text-2xl font-bold text-gray-900 dark:text-white">
                       {stats
                         ? stats.publishedArticles
@@ -284,7 +280,7 @@ function MuqtaribPageContent() {
 
                 <div className="text-center px-2">
                   <div className="flex items-center gap-2">
-                    <Eye className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                    <Eye className="w-5 h-5 text-purple-600 dark:text-purple-400 stats-icon" />
                     <div className="text-2xl font-bold text-gray-900 dark:text-white">
                       {stats
                         ? stats.displayViews.formatted
@@ -313,11 +309,11 @@ function MuqtaribPageContent() {
 
       {/* المقال المميز */}
       {heroArticle && (
-        <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
+        <div className="max-w-7xl mx-auto px-4 py-6 md:py-8" style={{ backgroundColor: '#f8f8f7' }}>
           {/* عنوان بسيط */}
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-1 h-6 bg-blue-600 rounded-full"></div>
+              <div className="w-1 h-6 bg-blue-600 rounded-full section-accent-line"></div>
               <h2 className="text-xl md:text-2xl font-bold text-foreground">
                 المقال المميز
               </h2>
@@ -339,10 +335,10 @@ function MuqtaribPageContent() {
 
       {/* عرض بديل للمقالات إذا لم يكن هناك مقال مميز */}
       {!heroArticle && featuredArticles.length > 0 && (
-        <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
+        <div className="max-w-7xl mx-auto px-4 py-6 md:py-8" style={{ backgroundColor: '#f8f8f7' }}>
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-1 h-6 bg-blue-600 rounded-full"></div>
+              <div className="w-1 h-6 bg-blue-600 rounded-full section-accent-line"></div>
               <h2 className="text-xl md:text-2xl font-bold text-foreground">
                 أحدث المقالات المميزة
               </h2>
@@ -434,10 +430,10 @@ function MuqtaribPageContent() {
 
       {/* المقالات المختارة من الزوايا - تظهر عندما يوجد heroArticle */}
       {heroArticle && featuredArticles.length > 0 && (
-        <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
+        <div className="max-w-7xl mx-auto px-4 py-6 md:py-8" style={{ backgroundColor: '#f8f8f7' }}>
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-1 h-6 bg-green-600 rounded-full"></div>
+              <div className="w-1 h-6 bg-green-600 rounded-full section-accent-line"></div>
               <h2 className="text-xl md:text-2xl font-bold text-foreground">
                 مقالات مختارة
               </h2>
@@ -490,8 +486,8 @@ function MuqtaribPageContent() {
       )}
 
       {/* البحث والفلاتر */}
-      <div className="max-w-7xl mx-auto px-4 py-4 md:py-6">
-        <div className="bg-card rounded-lg border p-4 md:p-6 mb-6">
+      <div className="max-w-7xl mx-auto px-4 py-4 md:py-6" style={{ backgroundColor: '#f8f8f7' }}>
+        <div className="rounded-lg border p-4 md:p-6 mb-6" style={{ backgroundColor: '#f8f8f7' }}>
           <div className="flex flex-col gap-4">
             {/* شريط البحث */}
             <div className="relative">
@@ -500,7 +496,7 @@ function MuqtaribPageContent() {
                 placeholder="ابحث في الزوايا..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pr-10"
+                className="pr-10 search-input"
               />
             </div>
 
@@ -669,7 +665,11 @@ function getCssVarsForTheme(themeColor?: string): React.CSSProperties {
 // مكون المقال المميز للموبايل
 function MobileHeroCard({ heroArticle }: { heroArticle: HeroArticle }) {
   return (
-    <Card className="flex gap-3 items-start p-4 rounded-xl shadow-sm bg-white border">
+    <Card 
+      className="flex gap-3 items-start p-4 rounded-xl shadow-sm border muqtarab-themed-card" 
+      style={{ backgroundColor: '#ffffff' }}
+      data-card="hero"
+    >
       {heroArticle.coverImage && (
         <div className="relative w-20 h-20 flex-shrink-0">
           <Image
@@ -708,7 +708,11 @@ function MobileHeroCard({ heroArticle }: { heroArticle: HeroArticle }) {
 // مكون الزاوية المميزة للموبايل
 function MobileFeaturedAngleCard({ angle }: { angle: Angle }) {
   return (
-    <Card className="p-3 rounded-xl shadow-sm bg-white text-center">
+    <Card 
+      className="p-3 rounded-xl shadow-sm text-center muqtarab-themed-card" 
+      style={{ backgroundColor: '#ffffff' }}
+      data-card="hero"
+    >
       <div className="relative w-16 h-16 mx-auto mb-2">
         {angle.coverImage ? (
           <Image
@@ -754,7 +758,7 @@ function MobileAngleCard({ angle }: { angle: Angle }) {
       <div 
         style={{
           ...getCssVarsForTheme(angle.themeColor),
-          background: baseBg,
+          background: '#ffffff',
           border: baseBorder,
           borderRadius: '12px',
           transition: 'all 0.3s ease',
@@ -766,11 +770,11 @@ function MobileAngleCard({ angle }: { angle: Angle }) {
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.transform = 'translateY(-2px)';
-          e.currentTarget.style.background = hoverBg;
+          e.currentTarget.style.background = '#ffffff';
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.transform = 'translateY(0)';
-          e.currentTarget.style.background = baseBg;
+          e.currentTarget.style.background = '#ffffff';
         }}
       >
         {/* صورة الزاوية */}
@@ -856,7 +860,7 @@ function AngleCard({ angle }: { angle: Angle }) {
       <div 
         style={{
           ...getCssVarsForTheme(angle.themeColor),
-          background: baseBg,
+          background: '#ffffff',
           border: baseBorder,
           borderRadius: '16px',
           overflow: 'hidden',
@@ -868,11 +872,11 @@ function AngleCard({ angle }: { angle: Angle }) {
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.transform = 'translateY(-4px)';
-          e.currentTarget.style.background = hoverBg;
+          e.currentTarget.style.background = '#ffffff';
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.transform = 'translateY(0)';
-          e.currentTarget.style.background = baseBg;
+          e.currentTarget.style.background = '#ffffff';
         }}
       >
         {/* صورة الزاوية */}
@@ -1051,14 +1055,8 @@ function MuqtarabFooter({ stats }: { stats: MuqtarabStats | null }) {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative mt-16 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/20 border-t border-gray-200 dark:border-gray-700">
-      {/* خلفية ديناميكية */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full blur-3xl bg-blue-200/20 dark:bg-blue-900/10" />
-        <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full blur-3xl bg-indigo-200/20 dark:bg-indigo-900/10" />
-      </div>
-
-      <div className="relative max-w-7xl mx-auto px-4 md:px-6 py-12">
+    <footer className="relative mt-16 border-t border-gray-200 dark:border-gray-700" style={{ backgroundColor: '#f8f8f7' }}>
+      <div className="relative max-w-7xl mx-auto px-4 md:px-6 py-12" style={{ backgroundColor: '#f8f8f7' }}>
         {/* الجزء العلوي */}
         <div className="grid md:grid-cols-4 gap-8 mb-12">
           {/* معلومات مقترب */}
@@ -1248,7 +1246,7 @@ function MuqtarabFooter({ stats }: { stats: MuqtarabStats | null }) {
           </div>
 
           {/* رسالة تشجيعية */}
-          <div className="mt-6 p-4 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-100 dark:border-blue-800/30">
+          <div className="mt-6 p-4 rounded-xl border border-blue-100 dark:border-blue-800/30" style={{ backgroundColor: '#f8f8f7' }}>
             <div className="flex items-center justify-center gap-2 text-center">
               <span className="text-gray-700 dark:text-gray-300 text-sm">
                 نسعى لإثراء المحتوى العربي بأفكار عميقة ونقاشات هادفة
@@ -1263,11 +1261,34 @@ function MuqtarabFooter({ stats }: { stats: MuqtarabStats | null }) {
 }
 
 export default function MuqtaribPage() {
+  // تطبيق مباشر للخلفية عند التحميل
+  if (typeof window !== 'undefined') {
+    document.documentElement.style.setProperty('--muqtarab-bg', '#f8f8f7');
+    document.body.style.setProperty('background', '#f8f8f7', 'important');
+  }
+
   return (
-    <SafeMuqtarabWrapper>
-      <WithMuqtarabErrorBoundary>
-        <MuqtaribPageContent />
-      </WithMuqtarabErrorBoundary>
-    </SafeMuqtarabWrapper>
+    <>
+      <style jsx global>{`
+        html, body {
+          background: #f8f8f7 !important;
+          background-color: #f8f8f7 !important;
+        }
+      `}</style>
+      <div style={{ 
+        backgroundColor: '#f8f8f7', 
+        minHeight: '100vh',
+        position: 'relative',
+        zIndex: 0
+      }} data-page="muqtarab" data-muqtarab="true">
+        <SafeMuqtarabWrapper>
+          <WithMuqtarabErrorBoundary>
+            <div data-muqtarab="true" style={{ backgroundColor: '#f8f8f7', minHeight: 'inherit' }}>
+              <MuqtaribPageContent />
+            </div>
+          </WithMuqtarabErrorBoundary>
+        </SafeMuqtarabWrapper>
+      </div>
+    </>
   );
 }
