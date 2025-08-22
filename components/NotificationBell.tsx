@@ -3,8 +3,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Bell, BellRing, X, Check, Clock, AlertCircle, Newspaper, MessageSquare, TrendingUp, Settings } from 'lucide-react';
 import Link from 'next/link';
-import { formatDistanceToNow } from 'date-fns';
-import { ar } from 'date-fns/locale';
 
 interface Notification {
   id: string;
@@ -43,9 +41,11 @@ export default function NotificationBell() {
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isOpen]);
 
   const fetchNotifications = async () => {
     try {
@@ -62,7 +62,7 @@ export default function NotificationBell() {
 
   const markAsRead = async (notificationId: string) => {
     try {
-      const response = await fetch('/api/notifications/mark-read', {
+      const response = await fetch('/api/notifications/mark-as-read', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ notificationId })
@@ -84,8 +84,8 @@ export default function NotificationBell() {
   const markAllAsRead = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/notifications/mark-all-read', {
-        method: 'POST'
+      const response = await fetch('/api/notifications/mark-as-read', {
+        method: 'PUT'
       });
 
       if (response.ok) {
@@ -116,15 +116,16 @@ export default function NotificationBell() {
     }
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high':
-        return 'border-red-500 bg-red-50';
-      case 'medium':
-        return 'border-yellow-500 bg-yellow-50';
-      default:
-        return 'border-gray-300 bg-white';
-    }
+  const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    if (seconds < 60) return 'منذ لحظات';
+    if (seconds < 3600) return `منذ ${Math.floor(seconds / 60)} دقيقة`;
+    if (seconds < 86400) return `منذ ${Math.floor(seconds / 3600)} ساعة`;
+    if (seconds < 604800) return `منذ ${Math.floor(seconds / 86400)} يوم`;
+    return date.toLocaleDateString('ar-SA');
   };
 
   return (
@@ -132,17 +133,17 @@ export default function NotificationBell() {
       {/* زر الجرس */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors"
+        className="relative p-2 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors"
         aria-label="الإشعارات"
       >
         {unreadCount > 0 ? (
-          <BellRing className="w-6 h-6 animate-pulse" />
+          <BellRing className="w-5 h-5 md:w-6 md:h-6 animate-pulse" />
         ) : (
-          <Bell className="w-6 h-6" />
+          <Bell className="w-5 h-5 md:w-6 md:h-6" />
         )}
         
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[20px] h-5 flex items-center justify-center font-bold px-1">
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}
@@ -150,24 +151,25 @@ export default function NotificationBell() {
 
       {/* قائمة الإشعارات */}
       {isOpen && (
-        <div className="absolute left-0 mt-2 w-96 bg-white rounded-lg shadow-xl border border-gray-200 z-50 overflow-hidden">
+        <div className="absolute left-0 md:left-auto md:right-0 mt-2 w-80 md:w-96 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
           {/* الهيدر */}
-          <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
+          <div className="px-4 py-3 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">الإشعارات</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">الإشعارات</h3>
               <div className="flex items-center gap-2">
                 {unreadCount > 0 && (
                   <button
                     onClick={markAllAsRead}
                     disabled={loading}
-                    className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                    className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium disabled:opacity-50"
                   >
                     تعيين الكل كمقروء
                   </button>
                 )}
                 <Link
-                  href="/settings/notifications"
-                  className="text-gray-500 hover:text-gray-700"
+                  href="/admin/settings/notifications"
+                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                  onClick={() => setIsOpen(false)}
                 >
                   <Settings className="w-4 h-4" />
                 </Link>
@@ -178,16 +180,16 @@ export default function NotificationBell() {
           {/* قائمة الإشعارات */}
           <div className="max-h-96 overflow-y-auto">
             {notifications.length === 0 ? (
-              <div className="px-4 py-8 text-center text-gray-500">
-                <Bell className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+              <div className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                <Bell className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
                 <p>لا توجد إشعارات جديدة</p>
               </div>
             ) : (
               notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer ${
-                    !notification.read_at ? 'bg-blue-50' : ''
+                  className={`px-4 py-3 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer ${
+                    !notification.read_at ? 'bg-blue-50 dark:bg-blue-900/20' : ''
                   }`}
                   onClick={() => {
                     if (!notification.read_at) {
@@ -195,6 +197,7 @@ export default function NotificationBell() {
                     }
                     if (notification.data?.url) {
                       window.location.href = notification.data.url;
+                      setIsOpen(false);
                     }
                   }}
                 >
@@ -205,12 +208,12 @@ export default function NotificationBell() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1">
-                          <p className={`text-sm font-medium text-gray-900 ${
+                          <p className={`text-sm font-medium text-gray-900 dark:text-white ${
                             !notification.read_at ? 'font-semibold' : ''
                           }`}>
                             {notification.title}
                           </p>
-                          <p className="text-sm text-gray-600 mt-1">
+                          <p className="text-sm text-gray-600 dark:text-gray-300 mt-1 line-clamp-2">
                             {notification.message}
                           </p>
                         </div>
@@ -220,14 +223,11 @@ export default function NotificationBell() {
                       </div>
                       <div className="flex items-center gap-2 mt-2">
                         <Clock className="w-3 h-3 text-gray-400" />
-                        <span className="text-xs text-gray-500">
-                          {formatDistanceToNow(new Date(notification.created_at), {
-                            addSuffix: true,
-                            locale: ar
-                          })}
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {formatTimeAgo(notification.created_at)}
                         </span>
                         {notification.priority === 'high' && (
-                          <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full">
+                          <span className="text-xs bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-2 py-0.5 rounded-full">
                             عاجل
                           </span>
                         )}
@@ -241,10 +241,11 @@ export default function NotificationBell() {
 
           {/* الفوتر */}
           {notifications.length > 0 && (
-            <div className="px-4 py-2 bg-gray-50 border-t border-gray-200">
+            <div className="px-4 py-2 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
               <Link
                 href="/notifications"
-                className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+                onClick={() => setIsOpen(false)}
               >
                 عرض جميع الإشعارات
               </Link>

@@ -91,6 +91,7 @@ export default function NotificationSettingsPage() {
 
   const [loading, setLoading] = useState(false);
   const [testingChannel, setTestingChannel] = useState<string | null>(null);
+  const [creatingDemo, setCreatingDemo] = useState(false);
   const [stats, setStats] = useState({
     totalSent: 15420,
     delivered: 14890,
@@ -135,6 +136,25 @@ export default function NotificationSettingsPage() {
       toast.error('حدث خطأ في حفظ الإعدادات');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const createDemoNotifications = async () => {
+    setCreatingDemo(true);
+    try {
+      const response = await fetch('/api/notifications/demo', {
+        method: 'POST'
+      });
+
+      if (response.ok) {
+        toast.success('تم إنشاء إشعارات تجريبية بنجاح');
+      } else {
+        throw new Error('Failed to create demo notifications');
+      }
+    } catch (error) {
+      toast.error('فشل إنشاء الإشعارات التجريبية');
+    } finally {
+      setCreatingDemo(false);
     }
   };
 
@@ -228,6 +248,24 @@ export default function NotificationSettingsPage() {
               </div>
             </div>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+              <button
+                className={`btn btn-ghost btn-sm ${creatingDemo ? 'loading' : ''}`}
+                onClick={createDemoNotifications}
+                disabled={creatingDemo}
+                style={{ minWidth: '140px' }}
+              >
+                {creatingDemo ? (
+                  <>
+                    <Loader2 className="animate-spin" style={{ width: '14px', height: '14px', marginRight: '6px' }} />
+                    جاري الإنشاء...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles style={{ width: '14px', height: '14px', marginRight: '6px' }} />
+                    إشعارات تجريبية
+                  </>
+                )}
+              </button>
               <div style={{ textAlign: 'center' }}>
                 <div className="text-xs text-muted">الحالة</div>
                 <div style={{ 
