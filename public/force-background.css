@@ -9,21 +9,20 @@ body:not(.dark):not([class*="dark"]) {
   background-image: none !important;
 }
 
-/* Remove all overlays and layers */
-*[class*="overlay"],
-*[class*="modal"],
-*[class*="backdrop"],
-*[style*="position: fixed"],
-*[style*="position: absolute"] {
+/* Remove all overlays and layers - بحذر */
+*[class*="overlay"]:not(.muqtarab-home-section),
+*[class*="modal"]:not(:target),
+*[class*="backdrop"]:not(.active) {
   pointer-events: none !important;
   background: transparent !important;
   opacity: 0 !important;
 }
 
-/* Force transparency on all containers */
-div:not([class*="card"]):not(article),
-section:not([class*="card"]),
-main *:not([class*="card"]):not(article) {
+/* Force transparency on specific containers only */
+.homepage-wrapper,
+.page-wrapper,
+.content-main-desktop,
+.content-main-mobile {
   background: transparent !important;
   background-color: transparent !important;
 }
@@ -36,14 +35,10 @@ body.dark {
   background-color: #111827 !important;
 }
 
-/* Override any inline styles */
-[style*="background-color: white"] {
-  background-color: transparent !important;
-}
-
-[style*="background-color: rgb(255"],
-[style*="background-color: #fff"],
-[style*="background-color: #ffffff"] {
+/* Override inline white backgrounds - فقط للحاويات الكبيرة */
+body > div[style*="background-color: white"]:not([class*="card"]),
+body > div[style*="background-color: rgb(255"]:not([class*="card"]),
+body > div[style*="background-color: #fff"]:not([class*="card"]) {
   background-color: transparent !important;
 }
 
@@ -58,27 +53,9 @@ html {
   -webkit-filter: none !important;
 }
 
-/* Nuclear option - hide everything with white background except cards */
-@supports (background: paint(customProperty)) {
-  body * {
-    background: var(--bg-override, transparent) !important;
-  }
-  
-  .card,
-  article,
-  [class*="card"] {
-    --bg-override: white;
-  }
-}
-
 /* Ensure body is always on top of any pseudo elements */
 body {
   position: relative !important;
   z-index: 0 !important;
   isolation: isolate !important;
-}
-
-/* Remove any full-screen overlays */
-body > div:first-child:not(.page-wrapper):not(.homepage-wrapper) {
-  display: none !important;
 }

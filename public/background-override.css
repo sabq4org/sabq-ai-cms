@@ -108,9 +108,9 @@ html::after {
   opacity: 0 !important;
 }
 
-/* التأكد من عدم وجود طبقات مخفية */
-body > div[style*="position: fixed"],
-body > div[style*="position: absolute"] {
+/* التأكد من عدم وجود طبقات مخفية - بحذر */
+body > div[style*="position: fixed"]:empty,
+body > div[style*="position: absolute"]:empty {
   display: none !important;
 }
 
@@ -145,13 +145,10 @@ body > div:not(.card):not([class*="card"]) {
   background: transparent !important;
 }
 
-/* معالجة خاصة لـ LiteStatsBar وأي headers */
+/* معالجة خاصة لـ LiteStatsBar - مع الحفاظ على شفافيتها الأصلية */
 .lite-stats-bar,
-.compact-stats-bar,
-[class*="stats-bar"],
-.header,
-[class*="header"]:not(.header-main-icon) {
-  background: transparent !important;
+.compact-stats-bar {
+  /* السماح للمكونات بتحديد خلفيتها الخاصة */
 }
 
 /* تأكد من ظهور الخلفية على html/body حتى مع scroll */

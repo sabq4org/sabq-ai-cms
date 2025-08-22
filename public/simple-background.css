@@ -1,0 +1,47 @@
+/* Simple background fix - بدون تأثيرات جانبية */
+
+/* خلفية أساسية للصفحة - أولوية قصوى */
+html,
+html:root,
+:root {
+  background: #f8f8f7 !important;
+  background-color: #f8f8f7 !important;
+  background-image: none !important;
+  min-height: 100%;
+}
+
+body,
+body:not(.dark) {
+  background: #f8f8f7 !important;
+  background-color: #f8f8f7 !important;
+  background-image: none !important;
+  min-height: 100vh;
+}
+
+/* الوضع الداكن */
+html.dark,
+body.dark,
+.dark html,
+.dark body {
+  background: #111827 !important;
+  background-color: #111827 !important;
+}
+
+/* شفافية للحاويات الرئيسية فقط */
+.homepage-wrapper,
+.page-wrapper {
+  background: transparent !important;
+}
+
+/* إزالة pseudo elements من manus-layout فقط */
+.manus-layout::before,
+.manus-layout::after {
+  display: none !important;
+}
+
+/* الحفاظ على البطاقات بيضاء */
+.card,
+article,
+[class*="card"] {
+  background-color: #ffffff;
+}

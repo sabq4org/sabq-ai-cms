@@ -62,17 +62,20 @@ export default function RootLayout({
 }) {
   // ملاحظة: hook لا يمكن استخدامه هنا لأنه ملف سيرفري. سنستخدم فحصاً بسيطاً داخل ResponsiveLayout.
   return (
-    <html lang="ar" dir="rtl" className={ibmPlexArabic.variable} style={{ backgroundColor: '#f8f8f7' }}>
+    <html lang="ar" dir="rtl" className={ibmPlexArabic.variable} style={{ backgroundColor: '#f8f8f7', backgroundImage: 'none' }}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: `
           // تطبيق فوري قبل أي شيء
           document.documentElement.style.backgroundColor = '#f8f8f7';
+          document.documentElement.style.backgroundImage = 'none';
+          document.documentElement.style.setProperty('background-color', '#f8f8f7', 'important');
         ` }} />
         <meta name="theme-color" content="#f8f8f7" />
         <meta name="msapplication-TileColor" content="#f8f8f7" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
+        <link rel="stylesheet" href="/simple-background.css" />
         <link rel="stylesheet" href="/force-background.css" />
         <link rel="stylesheet" href="/background-override.css" />
         <link rel="stylesheet" href="/manus-ui.css" />
@@ -108,28 +111,9 @@ export default function RootLayout({
             background: transparent !important;
           }
           
-          /* إزالة أي طبقات pseudo */
-          *::before,
-          *::after {
-            background: transparent !important;
-          }
+
           
-          /* استثناء للعناصر التي تحتاج pseudo elements */
-          .muqtarab-home-section::before,
-          .muqtarab-home-section::after {
-            background: initial !important;
-          }
-          
-          /* تجربة لتحديد المشكلة - خلفية حمراء مؤقتة */
-          html {
-            background: #f8f8f7 !important;
-            box-shadow: inset 0 0 0 10000px #f8f8f7 !important;
-          }
-          
-          body {
-            background: transparent !important;
-            isolation: isolate !important;
-          }
+
           
           /* خلفية فورية لصفحة مقترب - أعلى أولوية */
           body:has([data-page="muqtarab"]),
@@ -168,7 +152,7 @@ export default function RootLayout({
           }
         `}} />
       </head>
-      <body className={`${ibmPlexArabic.className} antialiased`} style={{ backgroundColor: '#f8f8f7', minHeight: '100vh' }} suppressHydrationWarning>
+      <body className={`${ibmPlexArabic.className} antialiased`} style={{ backgroundColor: '#f8f8f7', backgroundImage: 'none', minHeight: '100vh' }} suppressHydrationWarning>
         <style dangerouslySetInnerHTML={{ __html: `
           html, body { 
             background: #f8f8f7 !important; 
@@ -222,27 +206,19 @@ export default function RootLayout({
               el.style.display = 'none';
             });
             
-            // فحص جميع العناصر وإزالة الخلفيات البيضاء
-            var allElements = document.querySelectorAll('body > div, body > div > div');
-            allElements.forEach(function(el) {
-              var computedStyle = window.getComputedStyle(el);
-              var bgColor = computedStyle.backgroundColor;
-              
-              // إذا كانت الخلفية بيضاء أو شبه بيضاء
-              if (bgColor === 'rgb(255, 255, 255)' || 
-                  bgColor === 'rgba(255, 255, 255, 1)' ||
-                  bgColor === 'white' ||
-                  bgColor === '#ffffff' ||
-                  bgColor === '#fff') {
-                // تحقق من أن العنصر ليس بطاقة
-                if (!el.classList.contains('card') && 
-                    !el.className.includes('card') &&
-                    !el.tagName.toLowerCase() === 'article') {
-                  el.style.backgroundColor = 'transparent';
-                  el.style.background = 'transparent';
-                }
-              }
-            });
+            // فحص وإصلاح الخلفية
+            var html = document.documentElement;
+            var body = document.body;
+            
+            if (html.style.backgroundColor !== '#f8f8f7') {
+              html.style.backgroundColor = '#f8f8f7';
+              html.style.backgroundImage = 'none';
+            }
+            
+            if (body.style.backgroundColor !== '#f8f8f7') {
+              body.style.backgroundColor = '#f8f8f7';
+              body.style.backgroundImage = 'none';
+            }
           }, 100);
         ` }} />
         <Providers>
