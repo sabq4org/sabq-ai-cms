@@ -74,6 +74,7 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
                         : 'bg-white border-red-200 hover:border-red-300')
                     : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-blue-100'
                 }`}
+                style={{ backgroundColor: '#ffffff' }}
               >
                 <div className={`relative aspect-video w-full overflow-hidden rounded-lg ${!hasImage ? 'bg-gray-200 dark:bg-gray-700' : ''}`}>
                   {hasImage ? (
