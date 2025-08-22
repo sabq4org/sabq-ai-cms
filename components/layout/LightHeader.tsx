@@ -203,7 +203,7 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
   // منع التحميل قبل mount للتجنب hydration errors
   if (!mounted || settingsLoading) {
     return (
-      <header className={`sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-700 bg-gray-200/95 dark:bg-gray-900/85 backdrop-blur supports-[backdrop-filter]:bg-gray-200/70 dark:supports-[backdrop-filter]:bg-gray-900/60 ${className}`}>
+      <header className={`sticky top-0 z-50 w-full border-b border-white/30 dark:border-white/10 bg-white/60 dark:bg-gray-900/60 backdrop-blur-md supports-[backdrop-filter]:bg-white/40 dark:supports-[backdrop-filter]:bg-gray-900/40 ${className}`}>
         <div className="container flex h-14 items-center justify-between px-4 sm:px-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-gray-200 animate-pulse" />

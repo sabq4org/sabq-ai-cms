@@ -70,9 +70,9 @@ export default function LightLayout({ children }: LightLayoutProps) {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
       {/* Header */}
       <header 
-        className="sticky top-0 z-50 w-full border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-900/60"
+        className="sticky top-0 z-50 w-full border-b border-white/30 dark:border-white/10 bg-white/60 dark:bg-gray-900/60 backdrop-blur-md supports-[backdrop-filter]:bg-white/40 dark:supports-[backdrop-filter]:bg-gray-900/40"
         style={{
-          borderColor: 'rgba(var(--theme-primary-rgb, 59 130 246), 0.2)',
+          borderColor: 'rgba(var(--theme-primary-rgb, 59 130 246), 0.18)',
         }}
       >
         <div className="container mx-auto px-4">

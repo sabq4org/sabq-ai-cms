@@ -157,10 +157,10 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
         left: 0,
         right: 0,
         height: '72px',
-        background: 'rgba(229, 231, 235, 0.95)',
-        borderBottom: '1px solid #e5e7eb',
+        background: 'rgba(255, 255, 255, 0.6)',
+        borderBottom: '1px solid rgba(255,255,255,0.3)',
         zIndex: 1000,
-        backdropFilter: 'blur(10px)',
+        backdropFilter: 'blur(12px)',
         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
       }}>
         <div style={{
@@ -191,10 +191,10 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
         left: 0,
         right: 0,
         height: '72px',
-        background: 'rgba(229, 231, 235, 0.95)',
-        borderBottom: '1px solid #e5e7eb',
+        background: 'rgba(255, 255, 255, 0.6)',
+        borderBottom: '1px solid rgba(255,255,255,0.3)',
         zIndex: 1000,
-        backdropFilter: 'blur(10px)',
+        backdropFilter: 'blur(12px)',
         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
       }}>
         <div style={{
