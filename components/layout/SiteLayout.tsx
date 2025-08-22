@@ -1,10 +1,12 @@
 "use client";
 
-import ResponsiveLayout from "@/components/responsive/ResponsiveLayout";
 import Footer from "@/components/Footer";
 import FooterGate from "@/components/layout/FooterGate";
+import LightHeader from "@/components/layout/LightHeader";
+import UserHeader from "@/components/user/UserHeader";
 import { Providers } from "../../app/providers";
-import { useEffect } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
+import { usePathname } from "next/navigation";
 
 // CSS خاص بالموقع فقط
 import "../../app/globals.css";
@@ -21,6 +23,36 @@ export default function SiteLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const [isMobile, setIsMobile] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
+  const isUserAuthPage = pathname === "/login" || pathname === "/register";
+  const isCategoryPage = pathname?.startsWith("/categories/") || pathname?.startsWith("/news/category/");
+
+  // فحص الجهاز
+  const checkDevice = useCallback(() => {
+    const width = window.innerWidth;
+    const newIsMobile = width < 768;
+    setIsMobile(prev => prev !== newIsMobile ? newIsMobile : prev);
+  }, []);
+
+  useEffect(() => {
+    setMounted(true);
+    checkDevice();
+
+    let timeoutId: NodeJS.Timeout;
+    const debouncedResize = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(checkDevice, 100);
+    };
+
+    window.addEventListener('resize', debouncedResize, { passive: true });
+
+    return () => {
+      window.removeEventListener('resize', debouncedResize);
+      clearTimeout(timeoutId);
+    };
+  }, [checkDevice]);
   
   // تطبيق الخلفية فور التحميل
   useEffect(() => {
@@ -62,17 +94,74 @@ export default function SiteLayout({
     };
   }, []);
 
-  return (
-    <div style={{ backgroundColor: '#f8f8f7', minHeight: '100vh' }}>
-      <Providers>
-        <ResponsiveLayout>
-          <main className="flex-1">
+  // Loading state
+  if (!mounted) {
+    return (
+      <div style={{ backgroundColor: '#f8f8f7', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: '32px', height: '32px', border: '3px solid #e5e7eb', borderTop: '3px solid #3b82f6', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+      </div>
+    );
+  }
+
+  // صفحات الدخول للأعضاء (لا هيدر/فوتر)
+  if (isUserAuthPage) {
+    return (
+      <div style={{ backgroundColor: '#f8f8f7', minHeight: '100vh' }}>
+        <Providers>
+          {children}
+        </Providers>
+      </div>
+    );
+  }
+
+  // النسخة الخفيفة للهواتف والتابلت
+  if (isMobile) {
+    return (
+      <div style={{ backgroundColor: '#f8f8f7', minHeight: '100vh' }}>
+        <Providers>
+          <LightHeader />
+          <main 
+            style={{ 
+              maxWidth: isCategoryPage ? '1400px' : '72rem',
+              margin: '0 auto',
+              padding: isCategoryPage ? '4px' : '16px 24px 24px 24px'
+            }}
+          >
             {children}
           </main>
           <FooterGate>
             <Footer />
           </FooterGate>
-        </ResponsiveLayout>
+        </Providers>
+      </div>
+    );
+  }
+
+  // النسخة الكاملة للديسكتوب واللابتوب
+  return (
+    <div style={{ 
+      backgroundColor: '#f8f8f7', 
+      minHeight: '100vh',
+      paddingTop: '72px',
+      display: 'flex',
+      flexDirection: 'column',
+      position: 'relative',
+      zIndex: 1
+    }}>
+      <Providers>
+        <UserHeader />
+        <main style={{
+          flex: 1,
+          padding: isCategoryPage ? '0 8px' : '16px 24px',
+          maxWidth: isCategoryPage ? '1400px' : '72rem',
+          margin: '0 auto',
+          width: '100%'
+        }}>
+          {children}
+        </main>
+        <FooterGate>
+          <Footer />
+        </FooterGate>
       </Providers>
     </div>
   );
