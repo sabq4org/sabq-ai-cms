@@ -489,10 +489,11 @@ select {
 
 /* Dark mode improvements */
 @layer components {
-  /* بطاقات الأخبار داخل بلك النسخة المطورة - شفافة بدون إطار */
+  /* بطاقات الأخبار داخل بلك النسخة المطورة - خلفية #f8f8f7 بدون إطار */
   .smart-ai-grid article,
   .smart-ai-list article {
-    @apply bg-transparent border-none;
+    @apply bg-[#f8f8f7] border-none;
+    background-color: #f8f8f7 !important;
   }
 
   .dark .smart-ai-grid article,

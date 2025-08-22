@@ -391,7 +391,7 @@ function NewspaperHomePage({
                 : "bg-red-50 border border-red-200"
               : darkMode
               ? "bg-gray-800 border border-gray-700"
-              : "bg-transparent border-none"
+              : "bg-[#f8f8f7] border-none"
           }`}
         >
           {/* صورة المقال */}
