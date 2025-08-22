@@ -417,8 +417,8 @@ async function fetchRecentQualityArticles(
     const response = await fetch(
       `${baseUrl}/api/news?limit=${limit * 2}&status=published&sort=published_at&order=desc`,
       {
-        next: { revalidate: 30 },
-        cache: 'no-store'
+        next: { revalidate: 60 },
+        cache: 'force-cache'
       }
     );
 
@@ -842,8 +842,8 @@ async function fetchArticlesByCategories(
     const response = await fetch(
       `${baseUrl}/api/news?limit=15&status=published&sort=published_at&order=desc${categoryParam}`,
       {
-        next: { revalidate: 30 },
-        cache: 'no-store'
+        next: { revalidate: 60 },
+        cache: 'force-cache'
       }
     );
 
@@ -962,8 +962,8 @@ async function fetchTrendingArticles(
     const response = await fetch(
       `${baseUrl}/api/news?limit=10&status=published&sort=published_at&order=desc&breaking=false&featured=false`,
       {
-        next: { revalidate: 30 }, // تحديث كل 30 ثانية
-        cache: 'no-store' // منع الكاش لضمان الحصول على أحدث الأخبار
+        next: { revalidate: 60 },
+        cache: 'force-cache'
       }
     );
 
@@ -1026,7 +1026,8 @@ async function fetchSemanticallySimilarArticles(
       .map((tag) => `tag=${encodeURIComponent(tag)}`)
       .join("&");
     const response = await fetch(
-      `${baseUrl}/api/articles?${tagsQuery}&exclude=${articleId}&limit=6&status=published`
+      `${baseUrl}/api/articles?${tagsQuery}&exclude=${articleId}&limit=6&status=published`,
+      { next: { revalidate: 120 }, cache: 'force-cache' }
     );
 
     if (!response.ok) return [];

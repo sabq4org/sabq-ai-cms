@@ -345,7 +345,7 @@ function SmartPersonalizedContentInner({
       // وقت للتشخيص
       const startTime = Date.now();
 
-      // توليد التوصيات المخصصة مع زيادة العدد إلى 6
+      // توليد التوصيات المخصصة مع تقليل العدد إلى 3 لتسريع العرض
       let personalizedRecommendations = [];
 
       try {
@@ -355,7 +355,7 @@ function SmartPersonalizedContentInner({
             currentArticleId: articleId,
             currentTags: tags,
             currentCategory: categoryName || "",
-            limit: 6, // زيادة من 4 إلى 6
+            limit: 3,
           }
         );
 
@@ -523,7 +523,7 @@ function SmartPersonalizedContentInner({
         throw new Error("لا توجد توصيات بعد المعالجة");
       }
 
-      setRecommendations(enhancedRecommendations);
+      setRecommendations(enhancedRecommendations.slice(0, 3));
       setLastUpdateTime(new Date());
       console.log(`✅ تم تحديث ${enhancedRecommendations.length} توصية بنجاح`);
 
@@ -552,16 +552,22 @@ function SmartPersonalizedContentInner({
     setLoading(true);
 
     // محاولة جلب التوصيات
+    // فرض مهلة قصوى 1500ms لعرض رسالة التحضير بدلاً من انتظار طويل
+    const timeoutId = setTimeout(() => {
+      if (loading) {
+        setError("يتم التحضير لمحتوى يناسبك...");
+      }
+    }, 1500);
+
     fetchPersonalizedRecommendations()
       .then(() => {
-        // تم بنجاح
         setComponentStatus("success");
       })
       .catch((error) => {
-        // فشل مع وجود خطأ
         console.error("❌ خطأ غير معالج في استدعاء التوصيات:", error);
         setComponentStatus("error");
-      });
+      })
+      .finally(() => clearTimeout(timeoutId));
 
     // تحديث التوصيات كل 12 ساعة
     const updateInterval = setInterval(() => {
@@ -573,7 +579,9 @@ function SmartPersonalizedContentInner({
     }, 12 * 60 * 60 * 1000); // 12 ساعة
 
     // تنظيف interval عند إزالة المكون
-    return () => clearInterval(updateInterval);
+    return () => {
+      clearInterval(updateInterval);
+    };
   }, [articleId, categoryId, tags, userId]);
 
   // حالة التحميل - عرض العنوان دائماً في النسخة الخفيفة
