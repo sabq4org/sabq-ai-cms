@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+// نستخدم عنصر img مباشرة لتجنب قيود next/image على الدومينات في النسخة الخفيفة
 import { Eye, Clock, Sliders } from 'lucide-react';
 
 interface Article {
@@ -142,13 +142,13 @@ export default function OldStyleNewsBlock({
           >
             {/* صورة المقال */}
             <div className="old-style-news-image-container">
-              <Image
+              <img
                 src={getImageUrl(article)}
                 alt={article.title}
-                width={300}
-                height={200}
                 className="old-style-news-image"
                 loading="lazy"
+                decoding="async"
+                referrerPolicy="no-referrer"
               />
             </div>
 

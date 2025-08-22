@@ -47,8 +47,8 @@
 
 /* بطاقة الخبر */
 .old-style-news-card {
-  background: transparent;
-  border: none;
+  background: transparent !important;
+  border: none !important;
   border-radius: 0;
   overflow: visible;
   transition: transform 0.3s ease;
@@ -366,8 +366,8 @@
 
 /* دعم الوضع الليلي عند تفعيل فئة .dark من الواجهة */
 .dark .old-style-news-card {
-  background: transparent;
-  border: none;
+  background: transparent !important;
+  border: none !important;
   color: #f9fafb;
 }
 
