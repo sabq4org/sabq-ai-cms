@@ -52,7 +52,7 @@ const PageWrapper: React.FC<PageWrapperProps> = ({
 
   return (
     <ErrorBoundary>
-      <div className={`page-wrapper ${className}`}>
+      <div className={`page-wrapper ${className}`} style={{ backgroundColor: 'transparent' }}>
         {children}
 
         {/* الإشعارات المنبثقة */}

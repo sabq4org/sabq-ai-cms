@@ -98,13 +98,19 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
   // النسخة الخفيفة للهواتف والتابلت
   if (isMobile) {
     return (
-      <div className="min-h-screen bg-[#f8f8f7] dark:bg-gray-950">
+      <div className="min-h-screen" style={{ 
+        backgroundColor: darkMode ? '#111827' : '#f8f8f7',
+        backgroundImage: 'none'
+      }}>
         {DevIndicator}
         {/* إخفاء هيدر النسخة الخفيفة في صفحات الإدارة */}
         {!pathname.startsWith('/admin') && <LightHeader />}
         <main 
           className={`mx-auto content-main-mobile ${isCategoryPage || pathname.startsWith('/admin') ? 'px-1' : 'px-4 sm:px-6 py-6'}`} 
-          style={{ maxWidth: (isCategoryPage || pathname.startsWith('/admin')) ? '1400px' : '72rem' }}
+          style={{ 
+            maxWidth: (isCategoryPage || pathname.startsWith('/admin')) ? '1400px' : '72rem',
+            backgroundColor: 'transparent'
+          }}
         >
           <div data-device="mobile">
             {children}
@@ -116,12 +122,14 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
 
   // النسخة الكاملة للديسكتوب واللابتوب
   return (
-    <div className="min-h-screen bg-[#f8f8f7] dark:bg-gray-900" style={{ 
+    <div className="min-h-screen" style={{ 
       paddingTop: '72px',
       display: 'flex',
       flexDirection: 'column',
       position: 'relative',
-      zIndex: 1
+      zIndex: 1,
+      backgroundColor: darkMode ? '#111827' : '#f8f8f7',
+      backgroundImage: 'none'
     }}>
       {DevIndicator}
       {/* إخفاء هيدر الموقع في صفحات الإدارة */}

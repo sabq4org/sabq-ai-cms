@@ -69,8 +69,34 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
         <link rel="stylesheet" href="/manus-ui.css" />
         <style dangerouslySetInnerHTML={{ __html: `
+          /* إعدادات الخلفية الأساسية - بأولوية قصوى */
+          html {
+            background: #f8f8f7 !important;
+            background-color: #f8f8f7 !important;
+          }
+          
           body {
             font-family: ${ibmPlexArabic.style.fontFamily}, Arial, sans-serif;
+            background: #f8f8f7 !important;
+            background-color: #f8f8f7 !important;
+            min-height: 100vh;
+          }
+          
+          /* إلغاء أي خلفيات من manus-ui.css */
+          body {
+            background: #f8f8f7 !important;
+          }
+          
+          /* الوضع الداكن */
+          html.dark,
+          body.dark,
+          .dark body {
+            background: #111827 !important;
+            background-color: #111827 !important;
+          }
+          
+          .homepage-wrapper {
+            background: transparent !important;
           }
           
           /* خلفية فورية لصفحة مقترب - أعلى أولوية */

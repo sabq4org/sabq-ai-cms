@@ -418,6 +418,34 @@ div.min-h-screen:has([data-muqtarab="true"]) {
   pointer-events: none;
 }
 
+/* تطبيق الخلفية على الصفحة الرئيسية بالكامل */
+html,
+body {
+  background: #f8f8f7 !important;
+  background-color: #f8f8f7 !important;
+  background-image: none !important;
+}
+
+/* الوضع الداكن */
+html.dark,
+body.dark,
+.dark html,
+.dark body {
+  background: #111827 !important;
+  background-color: #111827 !important;
+}
+
+/* إزالة أي خلفيات من العناصر الأساسية */
+.page-wrapper,
+.homepage-wrapper,
+.content-main-desktop,
+.content-main-mobile,
+main,
+#__next {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
 /* الحفاظ على تنسيق بطاقات الزوايا */
 [data-page="muqtarab"] a > div[style*="borderRadius"],
 [data-muqtarab="true"] a > div[style*="borderRadius"] {

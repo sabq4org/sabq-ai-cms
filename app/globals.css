@@ -166,10 +166,44 @@ body {
   overflow-x: hidden;
 }
 
+html {
+  background: #f8f8f7 !important;
+  background-color: #f8f8f7 !important;
+}
+
 body {
   color: rgb(var(--foreground-rgb));
   /* خلفية المشروع الموحدة */
-  background: #f8f8f7;
+  background: #f8f8f7 !important;
+  background-color: #f8f8f7 !important;
+  min-height: 100vh;
+}
+
+/* ضمان شفافية المكونات الرئيسية */
+.page-wrapper,
+.homepage-wrapper,
+.content-main-desktop,
+.content-main-mobile,
+main {
+  background: transparent !important;
+}
+
+/* الوضع الداكن */
+@media (prefers-color-scheme: dark) {
+  html.dark,
+  body.dark {
+    background: #111827 !important;
+    background-color: #111827 !important;
+  }
+}
+
+/* فصل صريح للوضع الداكن */
+.dark html,
+.dark body,
+html.dark,
+body.dark {
+  background: #111827 !important;
+  background-color: #111827 !important;
 }
 
 /* خلفية خاصة لصفحات مقترب - أعلى أولوية */
