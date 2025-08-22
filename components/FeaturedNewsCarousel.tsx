@@ -148,11 +148,11 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
     >
       <Link href={getArticleLink(currentArticle)} className="group block" aria-live="polite">
         <div
-          className={`relative overflow-hidden border rounded-xl border-gray-200 dark:border-gray-700`}
+          className={`relative overflow-hidden border rounded-xl bg-white dark:bg-gray-900 border-[#f0f0ef] dark:border-gray-700`}
           style={{
             background: isBreaking
               ? (darkMode ? 'hsla(0, 72%, 45%, 0.18)' : 'hsla(0, 84%, 60%, 0.12)')
-              : (darkMode ? 'hsl(var(--bg-elevated))' : 'hsl(var(--accent) / 0.06)')
+              : undefined
           }}
         >
           <div
@@ -276,7 +276,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                 )}
               </div>
               {/* شريط سفلي: المشاهدات + التاريخ يسار، وزر يمين */}
-              <div className="mt-auto flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800">
+              <div className="mt-auto flex items-center justify-between pt-3 border-t border-[#f0f0ef] dark:border-gray-800">
                 <div className="flex items-center gap-4 text-sm">
                   <div className="flex items-center gap-1.5">
                     <Eye className={`w-4 h-4 ${darkMode ? "text-gray-400" : "text-gray-500"}`} />
