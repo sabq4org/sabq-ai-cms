@@ -1,0 +1,60 @@
+/* Absolute Background #f8f8f7 - لا يمكن تجاوزه */
+
+/* Layer 1: Root */
+:root {
+  background: #f8f8f7 !important;
+}
+
+/* Layer 2: HTML */
+html,
+html:root,
+html[lang],
+html[dir] {
+  background: #f8f8f7 !important;
+  background-color: #f8f8f7 !important;
+  background-image: none !important;
+  background-attachment: fixed !important;
+}
+
+/* Layer 3: Body */
+body,
+body.antialiased,
+body[class] {
+  background: #f8f8f7 !important;
+  background-color: #f8f8f7 !important;
+  background-image: none !important;
+  min-height: 100vh !important;
+}
+
+/* Layer 4: Remove all whites */
+body * {
+  background-color: var(--bg-override, initial);
+}
+
+body > div:not([class*="card"]) {
+  --bg-override: transparent;
+}
+
+/* Layer 5: Dark mode */
+@media (prefers-color-scheme: dark) {
+  html.dark { background: #111827 !important; }
+  body.dark { background: #111827 !important; }
+}
+
+.dark html,
+.dark body {
+  background: #111827 !important;
+}
+
+/* Layer 6: Ultimate override */
+html::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #f8f8f7;
+  z-index: -99999;
+  pointer-events: none;
+}

@@ -45,3 +45,19 @@ article,
 [class*="card"] {
   background-color: #ffffff;
 }
+
+/* Force على جميع العناصر الأخرى */
+* {
+  --bg-force: #f8f8f7;
+}
+
+/* إزالة أي خلفية بيضاء من divs الرئيسية */
+body > div:not([class*="card"]) {
+  background-color: transparent !important;
+}
+
+/* تأكيد نهائي */
+@media all {
+  html { background: #f8f8f7 !important; }
+  body { background: #f8f8f7 !important; }
+}
