@@ -14,6 +14,12 @@ html:has([data-muqtarab="true"]) body {
   background-color: #f8f8f7 !important;
 }
 
+/* إزالة الخلفية البيضاء من العناصر غير البطاقات */
+[data-page="muqtarab"] > div:not(.card),
+[data-muqtarab="true"] > div:not(.card) {
+  background: transparent !important;
+}
+
 /* تطبيق مباشر على جميع عناصر الحاوية في صفحة مقترب */
 [data-page="muqtarab"],
 [data-muqtarab="true"] {
@@ -175,8 +181,8 @@ html:has([data-muqtarab="true"]) body {
 }
 
 /* شريط الفلاتر وعناصر التحكم - بقاء البطاقات بيضاء فقط */
-.muqtarab-card-container .bg-white\/50:not(.muqtarab-card-container),
-.muqtarab-card-container [class*="bg-white"]:not(.muqtarab-card-container):not(.min-h-screen) {
+.muqtarab-card-container .card .bg-white\/50,
+.muqtarab-card-container .card [class*="bg-white"] {
   background-color: #ffffff !important;
   border: 1px solid #f0f0ef !important;
 }
@@ -189,13 +195,9 @@ html:has([data-muqtarab="true"]) body {
   background-color: #ffffff !important;
 }
 
-/* خلفيات MobileFeaturedImage */
-[data-muqtarab="true"] .bg-white,
-[data-page="muqtarab"] .bg-white,
-[data-muqtarab="true"] [class*="bg-[#fafafa]"],
-[data-page="muqtarab"] [class*="bg-[#fafafa]"],
-[data-muqtarab="true"] .bg-gray-50,
-[data-page="muqtarab"] .bg-gray-50 {
+/* خلفيات MobileFeaturedImage - إبقاء البطاقات فقط بيضاء */
+[data-muqtarab="true"] .card .bg-white,
+[data-page="muqtarab"] .card .bg-white {
   background-color: #ffffff !important;
 }
 
@@ -315,4 +317,19 @@ html:has([data-muqtarab="true"]) body {
 .dark .muqtarab-card-container [class*="bg-gray-800"] {
   background-color: #ffffff !important;
   border: 1px solid #f0f0ef !important;
+}
+
+/* إصلاح نهائي للخلفيات - الأولوية القصوى */
+[data-page="muqtarab"]:not(.card),
+[data-page="muqtarab"] > *:not(.card),
+[data-muqtarab="true"]:not(.card),
+[data-muqtarab="true"] > *:not(.card) {
+  background-color: transparent !important;
+}
+
+/* الحاوية الرئيسية */
+.min-h-screen[data-page="muqtarab"],
+div.min-h-screen:has([data-muqtarab="true"]) {
+  background: #f8f8f7 !important;
+  background-color: #f8f8f7 !important;
 }
