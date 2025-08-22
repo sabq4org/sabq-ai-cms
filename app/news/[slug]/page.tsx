@@ -1,4 +1,4 @@
-import ArticleClientComponent from "@/app/article/[id]/ArticleClientComponent";
+import SimpleArticleClient from "@/components/news/SimpleArticleClient";
 import prisma from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 
@@ -173,7 +173,7 @@ export default async function NewsPage({
 
   // إعادة توجيه إذا كان مقال رأي
   if (effectiveContentType !== "NEWS") {
-    return redirect(`/article/${decodedSlug}`);
+    return redirect(`/opinion/${decodedSlug}`);
   }
 
   // تحديث المشاهدات بشكل غير متزامن (لا ننتظر)
@@ -184,11 +184,10 @@ export default async function NewsPage({
     })
     .catch((err) => console.log("Failed to update views:", err));
 
-  // تمرير البيانات الكاملة للعميل - لا حاجة لـ fetch إضافي!
+  // تمرير البيانات للمكون البسيط
   return (
-    <ArticleClientComponent
-      articleId={article.id}
-      initialArticle={article as any} // ✅ البيانات الكاملة
+    <SimpleArticleClient
+      article={article}
     />
   );
 }
