@@ -391,16 +391,16 @@ function NewspaperHomePage({
                 : "bg-red-50 border border-red-200"
               : darkMode
               ? "bg-gray-800 border border-gray-700"
-              : "bg-[#f8f8f7] border border-gray-200"
+              : "bg-white border border-[#f0f0ef]"
           }`}
         >
           {/* صورة المقال */}
-          <div className="relative h-40 sm:h-48 overflow-hidden">
+          <div className="relative h-40 sm:h-48 overflow-hidden bg-gray-100 dark:bg-gray-700">
             <CloudImage
-              src={news?.featured_image || news?.image_url || news?.image || news?.thumbnail || null}
+              src={news?.featured_image || news?.image_url || news?.image || news?.thumbnail || ""}
               alt={news?.title || "صورة المقال"}
               fill
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
               fallbackType="article"
               priority={false}
               sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"

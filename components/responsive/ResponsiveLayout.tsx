@@ -20,15 +20,6 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
   const isUserAuthPage = pathname === "/login" || pathname === "/register";
   const isCategoryPage = pathname?.startsWith("/categories/") || pathname?.startsWith("/news/category/");
 
-  // Debug المسار الحالي في وضع التطوير
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🔍 [ResponsiveLayout] Current pathname:', pathname);
-      console.log('🔍 [ResponsiveLayout] Should show header:', !pathname?.startsWith('/admin'));
-      console.log('🔍 [ResponsiveLayout] Device type:', isMobile ? 'Mobile' : 'Desktop');
-    }
-  }, [pathname, isMobile]);
-
   // تحسين فحص الجهاز
   const checkDevice = useCallback(() => {
     const width = window.innerWidth;
@@ -136,9 +127,6 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
     );
   }
 
-  // تأكد من عرض الهيدر في جميع الحالات عدا الإدارة
-  const shouldShowHeader = !pathname?.startsWith('/admin');
-
   // النسخة الخفيفة للهواتف والتابلت
   if (isMobile) {
     return (
@@ -148,11 +136,11 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
       }}>
         {DevIndicator}
         {/* إخفاء هيدر النسخة الخفيفة في صفحات الإدارة */}
-        {shouldShowHeader && <LightHeader />}
+        {!pathname.startsWith('/admin') && <LightHeader />}
         <main 
-          className={`mx-auto content-main-mobile ${isCategoryPage || pathname?.startsWith('/admin') ? 'px-1' : 'px-4 sm:px-6 py-6'}`} 
+          className={`mx-auto content-main-mobile ${isCategoryPage || pathname.startsWith('/admin') ? 'px-1' : 'px-4 sm:px-6 py-6'}`} 
           style={{ 
-            maxWidth: (isCategoryPage || pathname?.startsWith('/admin')) ? '1400px' : '72rem',
+            maxWidth: (isCategoryPage || pathname.startsWith('/admin')) ? '1400px' : '72rem',
             backgroundColor: 'transparent'
           }}
         >
@@ -177,11 +165,11 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
     }}>
       {DevIndicator}
       {/* إخفاء هيدر الموقع في صفحات الإدارة */}
-      {shouldShowHeader && <UserHeader />}
+      {!pathname.startsWith('/admin') && <UserHeader />}
       <main className="content-main-desktop" style={{
         flex: 1,
-        padding: (isCategoryPage || pathname?.startsWith('/admin')) ? '0 8px' : '16px 24px',
-        maxWidth: (isCategoryPage || pathname?.startsWith('/admin')) ? '1400px' : '72rem',
+        padding: (isCategoryPage || pathname.startsWith('/admin')) ? '0 8px' : '16px 24px',
+        maxWidth: (isCategoryPage || pathname.startsWith('/admin')) ? '1400px' : '72rem',
         margin: '0 auto',
         width: '100%',
         background: 'transparent'
