@@ -4,6 +4,7 @@ import { ArrowLeft, Calendar, Clock, Eye, MessageSquare } from "lucide-react";
 import Link from "next/link";
 
 export const revalidate = 120;
+export const dynamic = "force-dynamic";
 
 type Article = {
   id: string;
