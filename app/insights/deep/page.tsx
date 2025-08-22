@@ -203,7 +203,6 @@ export default function DeepAnalysesPage() {
             </div>
           </div>
         </div>
-        <Footer />
       </>
     );
   }
