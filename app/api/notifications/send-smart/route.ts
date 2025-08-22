@@ -28,23 +28,44 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'توكن غير صالح' }, { status: 401 });
     }
 
-    const { 
+    const payload = await request.json();
+    let { 
       articleId, 
       articleTitle, 
       articleCategory,
       articleTags,
       isBreaking = false,
       customMessage 
-    } = await request.json();
+    } = payload || {};
+    const articleSlugInput: string | undefined = payload?.articleSlug || undefined;
+    const articleUrlInput: string | undefined = payload?.articleUrl || undefined;
+
+    // دعم الإدخال عبر slug أو URL إذا لم يتوفر articleId
+    if (!articleId && (articleSlugInput || articleUrlInput)) {
+      try {
+        const extractedSlug = articleSlugInput || (articleUrlInput ? new URL(articleUrlInput).pathname.split('/').pop() : undefined);
+        if (extractedSlug) {
+          const art = await prisma.articles.findFirst({
+            where: { slug: extractedSlug },
+            include: { categories: { select: { id: true, name: true, slug: true } } }
+          });
+          if (art) {
+            articleId = art.id;
+            articleTitle = articleTitle || art.title;
+            articleCategory = articleCategory || (art as any).categories?.name || 'news';
+          }
+        }
+      } catch (e) {
+        console.warn('⚠️ تعذر استخراج المقال من slug/URL:', (e as any)?.message);
+      }
+    }
 
     if (!articleId || !articleTitle || !articleCategory) {
-      return NextResponse.json({ 
-        error: 'معلومات المقال مطلوبة' 
-      }, { status: 400 });
+      return NextResponse.json({ error: 'معلومات المقال مطلوبة' }, { status: 400 });
     }
 
     // جلب بيانات المقال للحصول على slug والفئة الدقيقة
-    let articleSlug: string | null = null;
+    let articleSlug: string | null = articleSlugInput || null;
     let resolvedCategoryName: string = articleCategory;
     let resolvedCategorySlug: string | null = null;
 
