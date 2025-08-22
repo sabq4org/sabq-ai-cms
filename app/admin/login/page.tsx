@@ -53,10 +53,10 @@ export default function AdminLogin() {
         justifyContent: 'center',
         padding: '20px'
       }}>
-          <div style={{
-            width: '100%',
-            maxWidth: '450px'
-          }}>
+        <div style={{
+          width: '100%',
+          maxWidth: '450px'
+        }}>
             
             <div style={{
               textAlign: 'center',
