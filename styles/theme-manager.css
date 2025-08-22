@@ -370,11 +370,7 @@ body {
 
 /* ===== خلفية قسم مُقترب المتغيرة ===== */
 .muqtarab-section-bg {
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--theme-accent) 8%, var(--theme-surface)),
-    color-mix(in srgb, var(--theme-secondary) 5%, var(--theme-surface))
-  );
+  background: #fafafa;
   position: relative;
   overflow: hidden;
 }
@@ -388,7 +384,7 @@ body {
   height: 200%;
   background: radial-gradient(
     circle,
-    color-mix(in srgb, var(--theme-accent) 15%, transparent) 0%,
+    rgba(0, 0, 0, 0.02) 0%,
     transparent 70%
   );
   animation: subtle-glow 20s ease-in-out infinite;
@@ -401,11 +397,7 @@ body {
 }
 
 .dark .muqtarab-section-bg {
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--theme-accent) 12%, var(--theme-surface)),
-    color-mix(in srgb, var(--theme-secondary) 8%, var(--theme-surface))
-  );
+  background: #1a1a1a;
 }
 
 /* ===== انتقالات ناعمة بين الثيمات ===== */
