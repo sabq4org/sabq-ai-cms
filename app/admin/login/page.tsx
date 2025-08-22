@@ -236,7 +236,7 @@ export default function AdminLogin() {
                       جاري الدخول...
                     </div>
                   ) : (
-                    '🚀 دخول إلى لوحة التحكم'
+                    'دخول إلى لوحة التحكم'
                   )}
                 </button>
               </form>
@@ -259,8 +259,8 @@ export default function AdminLogin() {
                   للاختبار والتجربة:
                 </p>
                 <div style={{ fontSize: '13px', color: '#475569', textAlign: 'center' }}>
-                  <div>📧 البريد: admin@sabq.io</div>
-                  <div style={{ marginTop: '4px' }}>🔑 كلمة المرور: admin123</div>
+                  <div>البريد: admin@sabq.io</div>
+                  <div style={{ marginTop: '4px' }}>كلمة المرور: admin123</div>
                 </div>
               </div>
             </div>
@@ -273,7 +273,7 @@ export default function AdminLogin() {
               fontSize: '14px'
             }}>
               <p style={{ margin: '0' }}>
-                🔒 محمي بأحدث تقنيات الأمان والتشفير
+                محمي بأحدث تقنيات الأمان والتشفير
               </p>
             </div>
           </div>
