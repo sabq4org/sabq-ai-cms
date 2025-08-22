@@ -9,6 +9,14 @@ import { useDarkModeContext } from '@/contexts/DarkModeContext';
 // نظام الألوان المتغيرة المطور
 const themes = [
   { 
+    id: 'default', 
+    name: 'بلا لون', 
+    color: '#3b82f6', // اللون الافتراضي للموقع
+    rgb: '59 130 246',
+    gradient: 'from-blue-500 to-blue-600',
+    isDefault: true 
+  },
+  { 
     id: 'blue', 
     name: 'أزرق', 
     color: '#3b82f6', 
@@ -88,12 +96,21 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
     // إزالة جميع data-theme attributes
     themes.forEach(t => root.removeAttribute(`data-theme-${t.id}`));
     
-    // تطبيق theme الجديد
-    root.setAttribute('data-theme', theme.id);
-    root.style.setProperty('--theme-primary', theme.color);
-    root.style.setProperty('--theme-primary-rgb', theme.rgb);
-    root.style.setProperty('--theme-primary-light', `rgba(${theme.rgb}, 0.1)`);
-    root.style.setProperty('--theme-primary-lighter', `rgba(${theme.rgb}, 0.05)`);
+    if (theme.isDefault) {
+      // إذا كان "بلا لون"، إزالة جميع المتغيرات المخصصة
+      root.removeAttribute('data-theme');
+      root.style.removeProperty('--theme-primary');
+      root.style.removeProperty('--theme-primary-rgb');
+      root.style.removeProperty('--theme-primary-light');
+      root.style.removeProperty('--theme-primary-lighter');
+    } else {
+      // تطبيق theme الجديد
+      root.setAttribute('data-theme', theme.id);
+      root.style.setProperty('--theme-primary', theme.color);
+      root.style.setProperty('--theme-primary-rgb', theme.rgb);
+      root.style.setProperty('--theme-primary-light', `rgba(${theme.rgb}, 0.1)`);
+      root.style.setProperty('--theme-primary-lighter', `rgba(${theme.rgb}, 0.05)`);
+    }
   };
 
   // تطبيق اللون المختار
@@ -154,7 +171,9 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
             {/* اللوجو */}
             <Link href="/" className="flex items-center gap-2 group">
               <div 
-                className={`w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-sm transition-all duration-200 group-hover:scale-105 bg-gradient-to-br ${currentTheme.gradient}`}
+                className={`w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-sm transition-all duration-200 group-hover:scale-105 bg-gradient-to-br ${
+                  currentTheme.isDefault ? 'from-blue-500 to-blue-600' : currentTheme.gradient
+                }`}
               >
                 س
               </div>
@@ -178,11 +197,19 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
                 title="تغيير لون الموقع"
               >
                 <div className="relative">
-                  <div 
-                    className="w-5 h-5 rounded-full border-2 border-white shadow-sm"
-                    style={{ backgroundColor: currentTheme.color }}
-                  />
-                  <Palette className="w-3 h-3 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                  {currentTheme.isDefault ? (
+                    <div className="w-5 h-5 rounded-full border-2 border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                      <div className="w-2.5 h-2.5 rounded-full border border-dashed border-gray-400 dark:border-gray-300" />
+                    </div>
+                  ) : (
+                    <>
+                      <div 
+                        className="w-5 h-5 rounded-full border-2 border-white shadow-sm"
+                        style={{ backgroundColor: currentTheme.color }}
+                      />
+                      <Palette className="w-3 h-3 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                    </>
+                  )}
                 </div>
               </button>
 
@@ -205,10 +232,16 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
                             : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
                         }`}
                       >
-                        <div 
-                          className="w-8 h-8 rounded-full mx-auto mb-2 shadow-md"
-                          style={{ backgroundColor: theme.color }}
-                        />
+                        {theme.isDefault ? (
+                          <div className="w-8 h-8 rounded-full mx-auto mb-2 shadow-md bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
+                            <div className="w-4 h-4 rounded-full border-2 border-dashed border-gray-400 dark:border-gray-300" />
+                          </div>
+                        ) : (
+                          <div 
+                            className="w-8 h-8 rounded-full mx-auto mb-2 shadow-md"
+                            style={{ backgroundColor: theme.color }}
+                          />
+                        )}
                         <div className="text-xs font-medium text-gray-700 dark:text-gray-200 text-center">
                           {theme.name}
                         </div>
