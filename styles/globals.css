@@ -489,17 +489,15 @@ select {
 
 /* Dark mode improvements */
 @layer components {
-  /* فرض خلفية بيضاء لبطاقات الأخبار داخل بلك النسخة المطورة بالذكاء الاصطناعي */
+  /* بطاقات الأخبار داخل بلك النسخة المطورة - شفافة بدون إطار */
   .smart-ai-grid article,
   .smart-ai-list article {
-    @apply bg-white border border-[#f0f0ef];
-    background-color: #ffffff !important;
-    border-color: #f0f0ef !important;
+    @apply bg-transparent border-none;
   }
 
   .dark .smart-ai-grid article,
   .dark .smart-ai-list article {
-    @apply bg-gray-800 border-gray-700;
+    @apply bg-gray-800 border border-gray-700;
   }
 
   /* لوحة التحكم - ألوان الوضع الليلي */

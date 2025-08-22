@@ -384,14 +384,14 @@ function NewspaperHomePage({
         <article
           dir="rtl"
           data-category={mappedCategory}
-          className={`h-full rounded-2xl overflow-hidden shadow-sm transition-all duration-300 flex flex-col ${
+          className={`h-full rounded-2xl overflow-hidden transition-all duration-300 flex flex-col ${
             news.breaking || news.is_breaking
               ? darkMode
                 ? "bg-red-950/30 border border-red-800/70"
                 : "bg-red-50 border border-red-200"
               : darkMode
               ? "bg-gray-800 border border-gray-700"
-              : "bg-white border border-[#f0f0ef]"
+              : "bg-transparent border-none"
           }`}
         >
           {/* صورة المقال */}
