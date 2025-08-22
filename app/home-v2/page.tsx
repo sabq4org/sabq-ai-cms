@@ -103,7 +103,7 @@ export default async function HomeV2() {
   const numberFmt = new Intl.NumberFormat("ar", { notation: "compact" });
   return (
     <main
-      className="min-h-dvh bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 pt-14"
+      className="min-h-dvh bg-[#fafafa] dark:bg-gray-900 text-gray-900 dark:text-gray-100 pt-14"
       dir="rtl"
     >
       {/* Top Nav */}

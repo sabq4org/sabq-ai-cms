@@ -50,7 +50,7 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
 
   // تحسين شاشة التحميل
   const LoadingSpinner = useMemo(() => (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+    <div className="min-h-screen bg-[#fafafa] dark:bg-gray-900 flex items-center justify-center">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
     </div>
   ), []);
@@ -76,7 +76,7 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
   // صفحات الدخول: إدارة + العضو (لا هيدر/فوتر)
   if (isAdminLogin || isUserAuthPage) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900" data-page={isAdminLogin ? "admin-login" : "user-auth"}>
+      <div className="min-h-screen bg-[#fafafa] dark:bg-gray-900" data-page={isAdminLogin ? "admin-login" : "user-auth"}>
         {children}
       </div>
     );
@@ -85,7 +85,7 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
   // النسخة الخفيفة للهواتف والتابلت
   if (isMobile) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+      <div className="min-h-screen bg-[#fafafa] dark:bg-gray-950">
         {DevIndicator}
         {/* إخفاء هيدر النسخة الخفيفة في صفحات الإدارة */}
         {!pathname.startsWith('/admin') && <LightHeader />}
@@ -103,7 +103,7 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
 
   // النسخة الكاملة للديسكتوب واللابتوب
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900" style={{ 
+    <div className="min-h-screen bg-[#fafafa] dark:bg-gray-900" style={{ 
       paddingTop: '72px',
       display: 'flex',
       flexDirection: 'column',
