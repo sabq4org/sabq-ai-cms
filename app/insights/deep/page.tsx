@@ -193,7 +193,7 @@ export default function DeepAnalysesPage() {
   if (!mounted || loading) {
     return (
       <>
-        <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+        <div className="min-h-screen" style={{ backgroundColor: 'transparent' }}>
           <div className="flex items-center justify-center h-screen">
             <div className="text-center">
               <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
@@ -208,19 +208,14 @@ export default function DeepAnalysesPage() {
   }
   return (
     <>
-      <div dir="rtl" className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div dir="rtl" className="min-h-screen" style={{ backgroundColor: 'transparent' }}>
         {/* Hero Section */}
-        <section className="relative overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 py-20">
-          {/* Background decoration */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full blur-3xl bg-purple-200/30 dark:bg-purple-900/20" />
-            <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full blur-3xl bg-blue-200/30 dark:bg-blue-900/20" />
-          </div>
+        <section className="relative py-16 md:py-20">
           
           <div className="relative max-w-7xl mx-auto px-4 md:px-6">
             <div className="text-center">
-              <div className="inline-flex items-center justify-center w-20 h-20 mb-6 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 shadow-2xl">
-                <Brain className="w-10 h-10 text-white" />
+              <div className="inline-flex items-center justify-center w-20 h-20 mb-6 rounded-2xl shadow-2xl header-main-icon themed-gradient-bg">
+                <Brain className="w-10 h-10 text-white header-icon" />
               </div>
               
               <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 dark:text-white">
@@ -233,7 +228,7 @@ export default function DeepAnalysesPage() {
               
               {/* إحصائيات التحليلات العميقة */}
               {analyses.length > 0 && (
-                <div className="mt-6 inline-flex flex-wrap justify-center items-center gap-4 md:gap-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl px-4 md:px-6 py-3 shadow-lg">
+                <div className="mt-6 inline-flex flex-wrap justify-center items-center gap-4 md:gap-6 rounded-2xl px-4 md:px-6 py-3 bg-white border border-gray-200 shadow-sm stats-container">
                   <div className="text-center px-2">
                     <div className="flex items-center gap-2">
                       <Brain className="w-5 h-5 text-purple-600 dark:text-purple-400" />
@@ -293,7 +288,7 @@ export default function DeepAnalysesPage() {
           </div>
         </section>
         {/* Search Section */}
-        <section className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-16 z-10 shadow-md">
+        <section className="border-b border-gray-200 dark:border-gray-700 sticky top-16 z-10" style={{ backgroundColor: 'transparent' }}>
           <div className="max-w-7xl mx-auto px-6 py-6">
             <div className="relative w-full max-w-md mx-auto">
               <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -302,13 +297,13 @@ export default function DeepAnalysesPage() {
                 placeholder="ابحث في التحليلات..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pr-12 pl-4 py-3 bg-gray-50 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-500 focus:ring-opacity-50 focus:border-transparent transition-all text-gray-900 dark:text-white"
+                className="w-full pr-12 pl-4 py-3 bg-white dark:bg-gray-700 border-2 border-[#f0f0ef] dark:border-gray-600 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-500 focus:ring-opacity-50 focus:border-transparent transition-all text-gray-900 dark:text-white"
               />
             </div>
           </div>
         </section>
         {/* Categories Grid */}
-        <section className="max-w-7xl mx-auto px-6 py-12">
+        <section className="max-w-7xl mx-auto px-6 py-12" style={{ backgroundColor: 'transparent' }}>
           {filteredAnalyses.length === 0 ? (
             <div className="text-center py-20">
               <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full mb-6 ${
@@ -435,6 +430,25 @@ export default function DeepAnalysesPage() {
         }
         .animation-delay-4000 {
           animation-delay: 4s;
+        }
+        
+        /* تصميم الهيدر مثل مقترب */
+        .header-main-icon {
+          background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+          border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .themed-gradient-bg {
+          background: var(--theme-primary, #8b5cf6) !important;
+          background: linear-gradient(135deg, var(--theme-primary, #8b5cf6) 0%, var(--theme-secondary, #7c3aed) 100%) !important;
+        }
+        
+        .header-icon {
+          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        }
+        
+        .stats-container {
+          border: 1px solid #f0f0ef !important;
         }
       `}</style>
     </>
