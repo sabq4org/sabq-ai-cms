@@ -15,8 +15,8 @@
   --theme-primary: #1e40af;
   --theme-secondary: #3b82f6;
   --theme-accent: #06b6d4;
-  --theme-background: #ffffff;
-  --theme-surface: #f8fafc;
+  --theme-background: #fafafa;
+  --theme-surface: #fafafa;
   --theme-text: #1e293b;
   --theme-text-secondary: #64748b;
   --theme-border: #e2e8f0;
@@ -58,8 +58,8 @@
   --accent-light: 212 96% 96%;
   --fg: 222 47% 11%;           /* نص رئيسي */
   --muted: 215 16% 47%;        /* نص ثانوي */
-  --bg: 0 0% 100%;             /* خلفية أساسية */
-  --bg-elevated: 210 20% 98%;  /* خلفية بطاقات */
+  --bg: 0 0% 98%;              /* خلفية أساسية (#fafafa) */
+  --bg-elevated: 0 0% 98%;     /* خلفية بطاقات (#fafafa) */
   --line: 220 13% 91%;         /* لون الحدود */
 }
 
