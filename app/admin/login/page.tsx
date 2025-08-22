@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import styles from './login.module.css';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
@@ -231,14 +232,7 @@ export default function AdminLogin() {
                 >
                   {loading ? (
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                      <div style={{
-                        width: '20px',
-                        height: '20px',
-                        border: '2px solid white',
-                        borderTop: '2px solid transparent',
-                        borderRadius: '50%',
-                        animation: 'spin 1s linear infinite'
-                      }}></div>
+                      <div className={styles.spinner}></div>
                       جاري الدخول...
                     </div>
                   ) : (
@@ -284,13 +278,7 @@ export default function AdminLogin() {
             </div>
           </div>
 
-          {/* CSS for animations */}
-          <style>{`
-            @keyframes spin {
-              0% { transform: rotate(0deg); }
-              100% { transform: rotate(360deg); }
-            }
-          `}</style>
+          {/* الحركة انتقلت إلى CSS Module */}
         </div>
       </div>
     </div>
