@@ -27,7 +27,7 @@ import Image from 'next/image';
 import SabqLogo from '@/components/SabqLogo';
 import { useSiteSettings } from '@/hooks/useSiteSettings';
 import CompactThemeSwitcher from '@/components/theme/CompactThemeSwitcher';
-import { NotificationDropdown } from '@/components/Notifications/NotificationDropdown';
+import { NotificationDropdown } from '@/components/Notifications/NotificationDropdownOptimized';
 
 interface UserHeaderProps {
   onMenuClick?: () => void;

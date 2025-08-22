@@ -71,14 +71,15 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
   }, []);
 
   /**
-   * جلب الإشعارات من API
+   * جلب الإشعارات من API - محسّن للسرعة
    */
   const fetchNotifications = useCallback(async (pageNum: number = 1, reset: boolean = false) => {
     try {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`/api/notifications?page=${pageNum}&limit=20`, {
+      // استخدم حجم صغير للسرعة
+      const response = await fetch(`/api/notifications?page=${pageNum}&limit=15&status=all`, {
         headers: {
           ...getAuthHeaders(),
           'Content-Type': 'application/json'
@@ -88,20 +89,23 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
 
       if (!response.ok) {
         if (response.status === 401) {
-          throw new Error('انتهت صلاحية الجلسة، يرجى تسجيل الدخول مرة أخرى');
+          throw new Error('انتهت صلاحية الجلسة');
         }
-        throw new Error(`خطأ HTTP: ${response.status}`);
+        throw new Error(`خطأ: ${response.status}`);
       }
 
       const result = await response.json();
 
       if (result.success) {
         let newNotifications = result.data.notifications;
-        // توحيد الحقول: ضمان وجود data حتى لو أُرسلت كـ metadata
+        
+        // توحيد البيانات وتنظيفها
         newNotifications = newNotifications.map((n: any) => ({
           ...n,
           data: n.data || n.metadata || {},
-          link: n.link || n.data?.link || (n.data?.articleId ? `/news/${n.data.articleId}` : ''),
+          link: n.link || n.data?.link || 
+                (n.data?.articleId ? `/news/${n.data.articleId}` : '') ||
+                (n.data?.slug ? `/news/${n.data.slug}` : ''),
           metadata: n.data || n.metadata || {}
         }));
         
@@ -109,10 +113,15 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
           reset ? newNotifications : [...prev, ...newNotifications]
         );
         
-        setUnreadCount(result.data.unreadCount);
+        setUnreadCount(result.data.unreadCount || 0);
         setStats(result.data.stats || {});
         setPage(pageNum);
         setHasMore(result.data.pagination.hasMore);
+        
+        // تحسين أداء: تسجيل التقرير
+        if (result.data.performance) {
+          console.log(`📊 الأداء: عُرض ${result.data.performance.returned} من ${result.data.performance.filtered} (حُذف ${result.data.performance.removed} مكسور)`);
+        }
         
       } else {
         throw new Error(result.error || 'فشل في جلب الإشعارات');
@@ -123,9 +132,9 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
       console.error('❌ خطأ في جلب الإشعارات:', err);
       setError(errorMessage);
       
-      // إشعار المستخدم بالخطأ فقط إذا لم يكن خطأ مصادقة
-      if (!errorMessage.includes('تسجيل الدخول')) {
-        toast.error(errorMessage);
+      // لا تُظهر toast للأخطاء البسيطة
+      if (!errorMessage.includes('انتهت صلاحية') && !errorMessage.includes('401')) {
+        toast.error('فشل في تحميل الإشعارات');
       }
     } finally {
       setLoading(false);
