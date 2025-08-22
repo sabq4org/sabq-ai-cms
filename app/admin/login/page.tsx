@@ -1,30 +1,43 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
-import { useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import SabqLogo from "@/components/SabqLogo";
 
-export default function AdminLogin() {
+// مكون منفصل لتجنب hydration mismatch
+function AdminLoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [mounted, setMounted] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  
   const denied = searchParams?.get("denied") === '1';
   const next = searchParams?.get("next") || "/admin";
   const showDenied = denied && next.startsWith('/admin') && next !== '/admin' && next !== '/admin/login';
 
+  // تأكد من mount قبل الوصول للـ DOM
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // تنظيف باراميتر denied إذا لم تتوفر شروط العرض
   useEffect(() => {
+    if (!mounted) return;
+    
     if (denied && !showDenied) {
       try {
-        const url = new URL(window.location.href);
-        url.searchParams.delete('denied');
-        window.history.replaceState({}, '', url.toString());
-      } catch {}
+        if (typeof window !== 'undefined') {
+          const url = new URL(window.location.href);
+          url.searchParams.delete('denied');
+          window.history.replaceState({}, '', url.toString());
+        }
+      } catch (error) {
+        console.warn('Failed to update URL:', error);
+      }
     }
-  }, [denied, showDenied]);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  }, [denied, showDenied, mounted]);
 
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -54,8 +67,12 @@ export default function AdminLogin() {
       if (res.ok && data?.success) {
         // fallback: حفظ التوكن في كوكي إضافي للتوافق مع الميدلوير
         try {
-          document.cookie = `auth-token=${data.token}; path=/; max-age=${60 * 60}; SameSite=Lax`;
-        } catch {}
+          if (typeof document !== 'undefined') {
+            document.cookie = `auth-token=${data.token}; path=/; max-age=${60 * 60}; SameSite=Lax`;
+          }
+        } catch (error) {
+          console.warn('Failed to set cookie:', error);
+        }
         router.replace(next);
       } else {
         alert(data?.error || "فشل تسجيل الدخول");
@@ -166,5 +183,35 @@ export default function AdminLogin() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Suspense wrapper لتجنب hydration errors
+function AdminLoginLoading() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-sky-400 via-blue-500 to-blue-600 flex items-center justify-center p-4" dir="rtl">
+      <div className="w-full max-w-md mx-auto">
+        <div className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm rounded-xl p-6">
+          <div className="text-center space-y-4">
+            <div className="w-32 h-10 bg-gray-200 animate-pulse rounded mx-auto"></div>
+            <div className="w-48 h-6 bg-gray-200 animate-pulse rounded mx-auto"></div>
+            <div className="w-36 h-4 bg-gray-200 animate-pulse rounded mx-auto"></div>
+          </div>
+          <div className="space-y-4 mt-8">
+            <div className="w-full h-10 bg-gray-200 animate-pulse rounded"></div>
+            <div className="w-full h-10 bg-gray-200 animate-pulse rounded"></div>
+            <div className="w-full h-12 bg-gray-200 animate-pulse rounded"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function AdminLogin() {
+  return (
+    <Suspense fallback={<AdminLoginLoading />}>
+      <AdminLoginContent />
+    </Suspense>
   );
 }
