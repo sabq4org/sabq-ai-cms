@@ -578,3 +578,74 @@ main,
 [data-muqtarab="true"] .text-purple-600 {
   color: var(--theme-primary, #3B82F6) !important;
 }
+
+/* ========== تطبيق نفس النظام على صفحة الأقسام ========== */
+
+/* تأثيرات الإحصائيات والأيقونات لصفحة الأقسام */
+[data-page="categories"] .stats-icon,
+[data-page="categories"] .header-icon,
+[data-categories="true"] .stats-icon,
+[data-categories="true"] .header-icon {
+  color: var(--theme-primary, #3B82F6) !important;
+  transition: color 0.3s ease;
+}
+
+[data-page="categories"] .stats-icon:hover,
+[data-page="categories"] .header-icon:hover,
+[data-categories="true"] .stats-icon:hover,
+[data-categories="true"] .header-icon:hover {
+  color: var(--theme-primary, hsl(212 90% 50%)) !important;
+}
+
+/* تحسين شريط الإحصائيات لصفحة الأقسام */
+[data-page="categories"] .stats-container,
+[data-categories="true"] .stats-container {
+  background: transparent !important;
+  border: 1px solid #f0f0ef !important;
+  transition: all 0.3s ease;
+}
+
+[data-page="categories"] .stats-container:hover,
+[data-categories="true"] .stats-container:hover {
+  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.03) !important;
+  border-color: var(--theme-primary, #3B82F6) !important;
+}
+
+/* تأثيرات الهيدر والأيقونة الرئيسية لصفحة الأقسام */
+[data-page="categories"] .header-main-icon,
+[data-page="categories"] .themed-gradient-bg,
+[data-categories="true"] .header-main-icon,
+[data-categories="true"] .themed-gradient-bg {
+  background: linear-gradient(135deg, var(--theme-primary, #6366f1), var(--theme-secondary, #4f46e5)) !important;
+  transition: all 0.3s ease;
+}
+
+[data-page="categories"] .header-main-icon:hover,
+[data-categories="true"] .header-main-icon:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 30px rgba(var(--theme-primary-rgb, 59 130 246), 0.3);
+}
+
+/* إزالة أي خلفيات بيضاء من صفحة الأقسام */
+[data-page="categories"] section,
+[data-page="categories"] .max-w-7xl,
+[data-page="categories"] .relative,
+[data-categories="true"] section,
+[data-categories="true"] .max-w-7xl,
+[data-categories="true"] .relative {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* التأكد من أن الأيقونة الرئيسية بيضاء */
+[data-page="categories"] .header-main-icon .header-icon,
+[data-categories="true"] .header-main-icon .header-icon {
+  color: white !important;
+}
+
+/* التأكد من تطبيق الخلفية على الحاوية الرئيسية */
+[data-page="categories"],
+[data-categories="true"] {
+  background: #f8f8f7 !important;
+  background-color: #f8f8f7 !important;
+}

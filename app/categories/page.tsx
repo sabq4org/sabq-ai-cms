@@ -606,18 +606,19 @@ export default function CategoriesPage() {
 
   return (
     <>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen" data-page="categories" data-categories="true" style={{ 
+        backgroundColor: '#f8f8f7',
+        minHeight: '100vh',
+        position: 'relative',
+        zIndex: 0
+      }}>
         {/* Hero Section */}
-        <section className="relative py-16 bg-gradient-to-br from-indigo-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full blur-3xl bg-indigo-200/30 dark:bg-indigo-900/20" />
-            <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full blur-3xl bg-purple-200/30 dark:bg-purple-900/20" />
-          </div>
+        <section className="relative py-16 md:py-20">
 
           <div className="relative max-w-7xl mx-auto px-4 md:px-6">
             <div className="text-center">
-              <div className="inline-flex items-center justify-center w-20 h-20 mb-6 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-2xl">
-                <Layers className="w-10 h-10 text-white" />
+              <div className="inline-flex items-center justify-center w-20 h-20 mb-6 rounded-2xl shadow-2xl header-main-icon themed-gradient-bg">
+                <Layers className="w-10 h-10 text-white header-icon" />
               </div>
 
               <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 dark:text-white">
@@ -630,10 +631,10 @@ export default function CategoriesPage() {
 
               {/* إحصائيات الأقسام - مثل صفحة الأخبار */}
               {!loading && categories.length > 0 && (
-                <div className="mt-6 inline-flex flex-wrap justify-center items-center gap-4 md:gap-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl px-4 md:px-6 py-3 shadow-lg">
+                <div className="mt-6 inline-flex flex-wrap justify-center items-center gap-4 md:gap-6 rounded-2xl px-4 md:px-6 py-3 border border-[#f0f0ef] shadow-sm stats-container" style={{ backgroundColor: 'transparent' }}>
                   <div className="text-center px-2">
                     <div className="flex items-center gap-2">
-                      <Layers className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                      <Layers className="w-5 h-5 text-blue-600 dark:text-blue-400 stats-icon" />
                       <div className="text-2xl font-bold text-gray-900 dark:text-white">
                         {categories.length}
                       </div>
@@ -647,7 +648,7 @@ export default function CategoriesPage() {
 
                   <div className="text-center px-2">
                     <div className="flex items-center gap-2">
-                      <BookOpen className="w-5 h-5 text-green-600 dark:text-green-400" />
+                      <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400 stats-icon" />
                       <div className="text-2xl font-bold text-gray-900 dark:text-white">
                         {totalArticles > 999
                           ? `${(totalArticles / 1000).toFixed(1)}k`
@@ -663,7 +664,7 @@ export default function CategoriesPage() {
 
                   <div className="text-center px-2">
                     <div className="flex items-center gap-2">
-                      <Activity className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                      <Activity className="w-5 h-5 text-blue-600 dark:text-blue-400 stats-icon" />
                       <div className="text-2xl font-bold text-gray-900 dark:text-white">
                         {categories.filter((cat) => cat.is_active).length}
                       </div>
@@ -677,7 +678,7 @@ export default function CategoriesPage() {
 
                   <div className="text-center px-2">
                     <div className="flex items-center gap-2">
-                      <TrendingUp className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                      <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400 stats-icon" />
                       <div className="text-2xl font-bold text-gray-900 dark:text-white">
                         {Math.round(totalArticles / categories.length)}
                       </div>
@@ -701,7 +702,7 @@ export default function CategoriesPage() {
         </section>
 
         {/* Search & Controls Bar */}
-        <div className="sticky top-0 z-40 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
+        <div className="sticky top-0 z-40 border-b border-[#f0f0ef] dark:border-gray-700" style={{ backgroundColor: 'transparent', backdropFilter: 'blur(8px)' }}>
           <div className="max-w-7xl mx-auto px-4 md:px-6">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4">
               {/* Search Box */}
@@ -712,7 +713,8 @@ export default function CategoriesPage() {
                   placeholder="ابحث في الأقسام..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pr-12 pl-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-900 dark:text-white"
+                  className="w-full pr-12 pl-4 py-2.5 dark:bg-gray-700 border border-[#f0f0ef] dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-900 dark:text-white"
+                  style={{ backgroundColor: 'transparent' }}
                 />
               </div>
 
@@ -724,21 +726,23 @@ export default function CategoriesPage() {
                   onChange={(e) =>
                     setSortBy(e.target.value as "name" | "articles")
                   }
-                  className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="px-4 py-2 border border-[#f0f0ef] dark:border-gray-600 rounded-lg dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  style={{ backgroundColor: 'transparent' }}
                 >
                   <option value="articles">الأكثر مقالات</option>
                   <option value="name">الترتيب الأبجدي</option>
                 </select>
 
                 {/* View Mode Toggle */}
-                <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+                <div className="flex items-center border border-[#f0f0ef] dark:bg-gray-700 rounded-lg p-1" style={{ backgroundColor: 'transparent' }}>
                   <button
                     onClick={() => setViewMode("grid")}
                     className={`p-2 rounded transition-colors ${
                       viewMode === "grid"
-                        ? "bg-white dark:bg-gray-600 shadow-sm text-indigo-600 dark:text-indigo-400"
+                        ? "border border-[#f0f0ef] dark:bg-gray-600 shadow-sm text-indigo-600 dark:text-indigo-400"
                         : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
                     }`}
+                    style={{ backgroundColor: viewMode === "grid" ? 'transparent' : 'transparent' }}
                     title="عرض شبكي"
                   >
                     <Grid3X3 className="w-4 h-4" />
@@ -747,9 +751,10 @@ export default function CategoriesPage() {
                     onClick={() => setViewMode("list")}
                     className={`p-2 rounded transition-colors ${
                       viewMode === "list"
-                        ? "bg-white dark:bg-gray-600 shadow-sm text-indigo-600 dark:text-indigo-400"
+                        ? "border border-[#f0f0ef] dark:bg-gray-600 shadow-sm text-indigo-600 dark:text-indigo-400"
                         : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
                     }`}
+                    style={{ backgroundColor: viewMode === "list" ? 'transparent' : 'transparent' }}
                     title="عرض قائمة"
                   >
                     <List className="w-4 h-4" />
