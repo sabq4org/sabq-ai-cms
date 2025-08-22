@@ -525,7 +525,6 @@ function MuqtaribPageContent() {
 
         {/* شبكة الزوايا - محسنة للموبايل */}
         <div className="mb-6 md:mb-8">
-          `
           <div className="flex items-center justify-between mb-4 md:mb-6">
             <h2 className="text-lg md:text-3xl font-bold text-gray-900">
               {selectedFilter === "all"
@@ -679,7 +678,7 @@ function MobileHeroCard({ heroArticle }: { heroArticle: HeroArticle }) {
             className="rounded-md object-cover"
             priority
             placeholder="blur"
-            blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMzInIGhlaWdodD0nMzInIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zyc+PHJlY3Qgd2lkdGg9JzMyJyBoZWlnaHQ9JzMyJyBmaWxsPScjZWVlJy8+PC9zdmc+"
+            blurDataURL="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
           />
         </div>
       )}
@@ -798,7 +797,7 @@ function MobileAngleCard({ angle, priority }: { angle: Angle, priority?: boolean
               priority={!!priority}
               loading={priority ? 'eager' : undefined}
               placeholder="blur"
-              blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nODAnIGhlaWdodD0nODAnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zyc+PHJlY3Qgd2lkdGg9JzgwJyBoZWlnaHQ9JzgwJyBmaWxsPScjZWVlJy8+PC9zdmc+"
+              blurDataURL="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
             />
           ) : (
             <div style={{
@@ -903,7 +902,7 @@ function AngleCard({ angle, priority }: { angle: Angle, priority?: boolean }) {
               priority={!!priority}
               loading={priority ? 'eager' : undefined}
               placeholder="blur"
-              blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMjAwJyBoZWlnaHQ9JzEyNScgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJz48cmVjdCB3aWR0aD0nMjAwJyBoZWlnaHQ9JzEyNScgZmlsbD0nI2VlZScvPjwvc3ZnPiI=
+              blurDataURL="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
             />
           ) : (
             <div
