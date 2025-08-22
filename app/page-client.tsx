@@ -397,7 +397,7 @@ function NewspaperHomePage({
           {/* صورة المقال */}
           <div className="relative h-40 sm:h-48 overflow-hidden bg-gray-100 dark:bg-gray-700">
             <CloudImage
-              src={news?.featured_image || news?.image_url || news?.image || news?.thumbnail || ""}
+              src={news?.featured_image || news?.image_url || news?.image || news?.thumbnail || news?.cover_image || news?.coverImage || "/images/placeholder-featured.jpg"}
               alt={news?.title || "صورة المقال"}
               fill
               className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -405,6 +405,7 @@ function NewspaperHomePage({
               priority={false}
               sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
               quality={85}
+              onError={() => console.log('خطأ في تحميل صورة المقال:', news?.id, news?.title)}
             />
             {/* شارة عاجل */}
             {(news.breaking || news.is_breaking) && (
