@@ -202,8 +202,9 @@ export default function NotificationBell() {
                     if (!notification.read_at) {
                       markAsRead(notification.id);
                     }
-                    if (notification.data?.url) {
-                      window.location.href = notification.data.url;
+                    const targetUrl = (notification as any)?.data?.url || (notification as any)?.data?.link;
+                    if (targetUrl) {
+                      window.location.href = targetUrl as string;
                       setIsOpen(false);
                     }
                   }}

@@ -724,6 +724,30 @@ export async function POST(request: NextRequest) {
       console.log('⚠️ المقال بدون تصنيف، تخطي الإشعارات');
     }
 
+    // 🚨 إذا كان الخبر عاجلًا، أرسل إشعار عاجل لجميع المستخدمين النشطين
+    if (article.status === 'published' && article.breaking === true) {
+      try {
+        console.log('🚨 خبر عاجل - إرسال إشعارات عاجلة للجميع');
+
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+        // نستخدم مسار send-smart لإعادة استخدام منطق القنوات والتخصيص
+        setImmediate(() => {
+          fetch(`${siteUrl}/api/notifications/send-smart`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              articleId: article.id,
+              articleTitle: article.title,
+              articleCategory: article.categories?.name || 'news',
+              isBreaking: true
+            })
+          }).catch((err) => console.warn('⚠️ فشل إرسال إشعار عاجل عبر send-smart:', err?.message));
+        });
+      } catch (e) {
+        console.warn('⚠️ فشل منطق إشعار العاجل:', (e as any)?.message);
+      }
+    }
+
     // ربط المقال بنظام القصص الذكي في الخلفية (لا نعطل النشر)
     if (typeof process !== 'undefined') {
       setImmediate(() => {
