@@ -550,6 +550,30 @@ main,
   box-shadow: 0 8px 30px rgba(var(--theme-primary-rgb, 59 130 246), 0.3);
 }
 
+/* إزالة أي خلفيات بيضاء من صفحة عمق */
+[data-page="deep"] section,
+[data-page="deep"] .max-w-7xl,
+[data-page="deep"] .relative,
+[data-deep="true"] section,
+[data-deep="true"] .max-w-7xl,
+[data-deep="true"] .relative {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* التأكد من أن الأيقونة الرئيسية تتبع النظام */
+[data-page="deep"] .header-main-icon .header-icon,
+[data-deep="true"] .header-main-icon .header-icon {
+  color: white !important;
+}
+
+/* التأكد من تطبيق الخلفية على الحاوية الرئيسية */
+[data-page="deep"],
+[data-deep="true"] {
+  background: #f8f8f7 !important;
+  background-color: #f8f8f7 !important;
+}
+
 [data-page="muqtarab"] .text-purple-600,
 [data-muqtarab="true"] .text-purple-600 {
   color: var(--theme-primary, #3B82F6) !important;

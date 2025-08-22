@@ -193,7 +193,7 @@ export default function DeepAnalysesPage() {
   if (!mounted || loading) {
     return (
       <>
-        <div className="min-h-screen" style={{ backgroundColor: 'transparent' }}>
+        <div className="min-h-screen" style={{ backgroundColor: '#f8f8f7' }}>
           <div className="flex items-center justify-center h-screen">
             <div className="text-center">
               <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
@@ -208,7 +208,12 @@ export default function DeepAnalysesPage() {
   }
   return (
     <>
-      <div dir="rtl" className="min-h-screen" data-page="deep" style={{ backgroundColor: 'transparent' }}>
+      <div dir="rtl" className="min-h-screen" data-page="deep" data-deep="true" style={{ 
+        backgroundColor: '#f8f8f7',
+        minHeight: '100vh',
+        position: 'relative',
+        zIndex: 0
+      }}>
         {/* Hero Section */}
         <section className="relative py-16 md:py-20">
           
@@ -433,24 +438,33 @@ export default function DeepAnalysesPage() {
           animation-delay: 4s;
         }
         
-        /* تصميم الهيدر مثل مقترب */
-        .header-main-icon {
-          background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-          border: 2px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .themed-gradient-bg {
-          background: var(--theme-primary, #8b5cf6) !important;
+        /* تصميم الهيدر مثل مقترب - الأيقونة بيضاء دائماً والخلفية تتغير */
+        [data-page="deep"] .header-main-icon,
+        [data-page="deep"] .themed-gradient-bg {
           background: linear-gradient(135deg, var(--theme-primary, #8b5cf6) 0%, var(--theme-secondary, #7c3aed) 100%) !important;
+          border: 2px solid rgba(255, 255, 255, 0.2);
+          transition: all 0.3s ease;
         }
         
-        .header-icon {
+        [data-page="deep"] .header-main-icon:hover {
+          transform: scale(1.05);
+          box-shadow: 0 8px 30px rgba(var(--theme-primary-rgb, 59 130 246), 0.3);
+        }
+        
+        [data-page="deep"] .header-icon {
+          color: white !important;
           filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
         }
         
-        .stats-container {
+        [data-page="deep"] .stats-container {
           background: transparent !important;
           border: 1px solid #f0f0ef !important;
+        }
+        
+        /* إزالة أي خلفيات بيضاء من كل الحاويات */
+        [data-page="deep"] section,
+        [data-page="deep"] div:not(.stats-container):not(.header-main-icon) {
+          background-color: transparent !important;
         }
       `}</style>
     </>
