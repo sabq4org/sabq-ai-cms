@@ -200,10 +200,16 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
     { icon: Brain, label: 'عمق', href: '/deep-analysis', description: 'تحليلات معمقة' },
   ];
 
+  // تشخيص - إضافة console.log لمعرفة حالة الهيدر
+  useEffect(() => {
+    console.log('🔍 حالة LightHeader:', { mounted, settingsLoading, pathname, logoUrl, siteName });
+  }, [mounted, settingsLoading, pathname, logoUrl, siteName]);
+
   // منع التحميل قبل mount للتجنب hydration errors
   if (!mounted || settingsLoading) {
+    console.log('⏳ LightHeader - في وضع التحميل:', { mounted, settingsLoading });
     return (
-      <header className={`sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-700 bg-gray-200/95 dark:bg-gray-900/85 backdrop-blur supports-[backdrop-filter]:bg-gray-200/70 dark:supports-[backdrop-filter]:bg-gray-900/60 ${className}`}>
+      <header className={`sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-700 bg-red-200/95 dark:bg-red-900/85 backdrop-blur supports-[backdrop-filter]:bg-red-200/70 dark:supports-[backdrop-filter]:bg-red-900/60 ${className}`}>
         <div className="container flex h-14 items-center justify-between px-4 sm:px-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-gray-200 animate-pulse" />
@@ -217,6 +223,7 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
             <div className="w-10 h-10 rounded-lg bg-gray-200 animate-pulse" />
             <div className="w-10 h-10 rounded-lg bg-gray-200 animate-pulse" />
           </div>
+          <div className="text-xs text-red-600">تحميل هيدر...</div>
         </div>
       </header>
     );
