@@ -71,11 +71,12 @@ export async function POST(request: NextRequest) {
     );
 
     if (interestedUsers.length === 0) {
-      return NextResponse.json({ 
-        success: true,
-        message: 'لا يوجد مستخدمون مطابقون للمعايير',
-        count: 0
+      // Fallback: أرسل للمشرفين لضمان التحقق
+      const admins = await prisma.users.findMany({
+        where: { is_active: true, role: { in: ['admin', 'editor', 'owner'] } },
+        select: { id: true, email: true }
       });
+      interestedUsers = admins;
     }
 
     // إنشاء الإشعارات

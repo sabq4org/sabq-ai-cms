@@ -24,22 +24,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'توكن غير صالح' }, { status: 401 });
     }
 
-    const { notificationId } = await request.json();
+    const { notificationId, markAll } = await request.json();
 
-    if (!notificationId) {
+    if (!notificationId && !markAll) {
       return NextResponse.json({ error: 'معرف الإشعار مطلوب' }, { status: 400 });
     }
 
-    // تحديث حالة الإشعار
+    if (markAll) {
+      const result = await prisma.smartNotifications.updateMany({
+        where: { user_id: userId, read_at: null },
+        data: { read_at: new Date(), status: 'read' }
+      });
+      return NextResponse.json({ success: true, data: { updatedCount: result.count } });
+    }
+
+    // تحديث حالة إشعار واحد
     const notification = await prisma.smartNotifications.update({
-      where: {
-        id: notificationId,
-        user_id: userId // التأكد من ملكية الإشعار
-      },
-      data: {
-        read_at: new Date(),
-        status: 'read'
-      }
+      where: { id: notificationId, user_id: userId },
+      data: { read_at: new Date(), status: 'read' }
     });
 
     return NextResponse.json({ 

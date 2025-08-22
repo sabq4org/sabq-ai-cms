@@ -89,9 +89,19 @@ export class SmartNotificationEngine {
       if (!article) return;
 
       // العثور على المستخدمين المهتمين بهذا التصنيف
-      const interestedUsers = await this.findUsersInterestedInCategory(categoryId);
+      let interestedUsers = await this.findUsersInterestedInCategory(categoryId);
 
       console.log(`👥 عدد المستخدمين المهتمين: ${interestedUsers.length}`);
+
+      //Fallback: إذا لم يوجد مهتمون، أرسل للمشرفين لضمان الاختبار والتأكد من الجاهزية
+      if (interestedUsers.length === 0) {
+        const admins = await prisma.users.findMany({
+          where: { is_active: true, role: { in: ['admin', 'editor', 'owner'] } },
+          select: { id: true, email: true }
+        });
+        interestedUsers = admins.map(a => a.id);
+        console.log(`🛠️ لا يوجد مهتمون صريحون. إرسال إشعار للمشرفين (${admins.length}).`);
+      }
 
       // إنشاء إشعارات للمستخدمين
       for (const userId of interestedUsers) {
