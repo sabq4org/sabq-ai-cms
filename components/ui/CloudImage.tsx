@@ -38,6 +38,11 @@ export default function CloudImage({
   // الحصول على رابط الصورة المحسن مع معالجة أفضل للأخطاء
   const imageUrl = React.useMemo(() => {
     try {
+      // إذا لم يكن هناك src أو كان فارغاً، استخدم الصورة الافتراضية مباشرة
+      if (!src || src.trim() === "" || hasError) {
+        return "/images/placeholder-featured.jpg";
+      }
+
       // تحديد بيئة التشغيل - استخدام تحديد أكثر دقة للإنتاج
       const isProduction =
         process.env.NODE_ENV === "production" ||
@@ -49,7 +54,7 @@ export default function CloudImage({
 
       // استخدام معالج الإنتاج في بيئة الإنتاج
       if (isProduction) {
-        return getProductionImageUrl(hasError ? null : src, {
+        return getProductionImageUrl(src, {
           width,
           height,
           quality,
@@ -58,7 +63,7 @@ export default function CloudImage({
       }
 
       // في بيئة التطوير، استخدم المعالج العادي
-      return getImageUrl(hasError ? null : src, {
+      return getImageUrl(src, {
         width,
         height,
         quality,
@@ -66,39 +71,28 @@ export default function CloudImage({
       });
     } catch (error) {
       console.error("خطأ في معالجة رابط الصورة:", error);
-      // استخدام معالج الإنتاج للصور الافتراضية
-      const isProduction =
-        process.env.NODE_ENV === "production" ||
-        (typeof window !== "undefined" &&
-          window.location.hostname !== "localhost" &&
-          window.location.hostname !== "127.0.0.1" &&
-          !window.location.hostname.includes("192.168.") &&
-          !window.location.hostname.includes("dev-"));
-
-      if (isProduction) {
-        return getProductionImageUrl(null, { fallbackType });
-      }
-      return getImageUrl(null, { fallbackType });
+      // إرجاع الصورة الافتراضية عند حدوث خطأ
+      return "/images/placeholder-featured.jpg";
     }
   }, [src, hasError, width, height, quality, fallbackType]);
 
   const handleError = () => {
     console.log(`❌ فشل تحميل الصورة: ${src} - التبديل إلى fallback`);
+    
+    // تجربة الصورة الافتراضية مباشرة
     setHasError(true);
     setIsLoading(false);
     onError?.();
 
-    // إضافة سجل تشخيصي مفصل للجوال
-    const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
-    if (isMobile) {
-      console.log(`📱 MOBILE DEBUG - فشل تحميل صورة على الجوال:
-      - المصدر: ${src}
+    // إضافة سجل تشخيصي مفصل
+    console.log(`🔍 تشخيص الصورة:
+      - المصدر الأصلي: ${src}
       - نوع البديل: ${fallbackType}
       - العرض: ${width}
       - الارتفاع: ${height}
-      - URL الناتج: ${imageUrl}
-      `);
-    }
+      - URL المعالج: ${imageUrl}
+      - hasError: ${hasError}
+    `);
   };
 
   const handleLoad = () => {
@@ -110,7 +104,9 @@ export default function CloudImage({
     return (
       <>
         {isLoading && (
-          <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse" />
+          <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse flex items-center justify-center">
+            <span className="text-4xl">📰</span>
+          </div>
         )}
         <Image
           src={imageUrl}
@@ -121,8 +117,8 @@ export default function CloudImage({
           }
           quality={quality}
           priority={priority}
-          unoptimized
-          className={`${className} object-cover object-center rounded-xl ${
+          unoptimized={false}
+          className={`${className} object-cover object-center ${
             isLoading ? "opacity-0" : "opacity-100"
           } transition-opacity duration-300`}
           onError={handleError}
