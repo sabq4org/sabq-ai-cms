@@ -1,8 +1,7 @@
 "use client";
 
 import DeepAnalysisBlock from "@/components/DeepAnalysisBlock";
-import Footer from "@/components/Footer";
-import FooterDashboard from "@/components/FooterDashboard";
+
 import PageWrapper from "@/components/PageWrapper";
 import { SmartSlot } from "@/components/home/SmartSlot";
 
@@ -1611,10 +1610,7 @@ function NewspaperHomePage({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SmartSlot position="above_footer" />
         </div>
-        {/* بلوك "ليلة هادئة" - فوق الـ footer */}
-        <FooterDashboard />
-        {/* 11. الفوتر (Footer) 🏁 */}
-        <Footer />
+        {/* Smart content - فوق الـ footer */}
       </div>
     </PageWrapper>
   );

@@ -99,6 +99,12 @@ export default function SiteLayout({
     return (
       <div style={{ backgroundColor: '#f8f8f7', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ width: '32px', height: '32px', border: '3px solid #e5e7eb', borderTop: '3px solid #3b82f6', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+        <style dangerouslySetInnerHTML={{ __html: `
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        ` }} />
       </div>
     );
   }
@@ -114,51 +120,30 @@ export default function SiteLayout({
     );
   }
 
-  // النسخة الخفيفة للهواتف والتابلت
-  if (isMobile) {
-    return (
-      <div style={{ backgroundColor: '#f8f8f7', minHeight: '100vh' }}>
-        <Providers>
-          <LightHeader />
-          <main 
-            style={{ 
-              maxWidth: isCategoryPage ? '1400px' : '72rem',
-              margin: '0 auto',
-              padding: isCategoryPage ? '4px' : '16px 24px 24px 24px'
-            }}
-          >
-            {children}
-          </main>
-          <FooterGate>
-            <Footer />
-          </FooterGate>
-        </Providers>
-      </div>
-    );
-  }
-
-  // النسخة الكاملة للديسكتوب واللابتوب
   return (
-    <div style={{ 
-      backgroundColor: '#f8f8f7', 
-      minHeight: '100vh',
-      paddingTop: '72px',
-      display: 'flex',
-      flexDirection: 'column',
-      position: 'relative',
-      zIndex: 1
-    }}>
+    <div style={{ backgroundColor: '#f8f8f7', minHeight: '100vh' }}>
       <Providers>
-        <UserHeader />
+        {/* الهيدر حسب نوع الجهاز */}
+        {isMobile ? <LightHeader /> : (
+          <div style={{ paddingTop: '72px', position: 'relative' }}>
+            <UserHeader />
+          </div>
+        )}
+        
+        {/* المحتوى الرئيسي */}
         <main style={{
-          flex: 1,
-          padding: isCategoryPage ? '0 8px' : '16px 24px',
           maxWidth: isCategoryPage ? '1400px' : '72rem',
           margin: '0 auto',
-          width: '100%'
+          padding: isMobile 
+            ? (isCategoryPage ? '4px' : '16px 24px 24px 24px')
+            : (isCategoryPage ? '0 8px' : '16px 24px'),
+          minHeight: 'calc(100vh - 200px)', // مساحة للفوتر
+          ...(isMobile ? {} : { paddingTop: '16px' })
         }}>
           {children}
         </main>
+        
+        {/* فوتر واحد فقط */}
         <FooterGate>
           <Footer />
         </FooterGate>
