@@ -393,6 +393,34 @@ export class SmartNotificationEngine {
       const categoryName = category?.name || '';
       const categorySlug = category?.slug || '';
 
+      // بناء قائمة مرادفات للمطابقة المرنة
+      const synonyms = new Set<string>();
+      const lcName = categoryName.toLowerCase();
+      const lcSlug = categorySlug.toLowerCase();
+      if (lcName) synonyms.add(lcName);
+      if (lcSlug) synonyms.add(lcSlug);
+      // محليات
+      if (/محليات|محلي/.test(categoryName) || /local/.test(categorySlug)) {
+        ['محليات', 'محلي', 'local', 'local-news', 'localnews', 'locals'].forEach(s => synonyms.add(s));
+      }
+      // سياحة/سفر
+      if (/سياح|سفر/.test(categoryName) || /(tourism|travel)/i.test(categorySlug)) {
+        ['سياحة', 'السياحة', 'سفر', 'travel', 'tourism', 'trips'].forEach(s => synonyms.add(s));
+      }
+      // اقتصاد
+      if (/اقتصاد|مالي/.test(categoryName) || /(economy|business|finance)/i.test(categorySlug)) {
+        ['اقتصاد', 'اقتصادى', 'مال', 'أعمال', 'business', 'economy', 'finance'].forEach(s => synonyms.add(s));
+      }
+      // تقنية
+      if (/تقنية|تكنولوجيا/.test(categoryName) || /(tech|technology)/i.test(categorySlug)) {
+        ['تقنية', 'تكنولوجيا', 'tech', 'technology', 'ai'].forEach(s => synonyms.add(s));
+      }
+      // رياضة
+      if (/رياضة/.test(categoryName) || /(sport|sports)/i.test(categorySlug)) {
+        ['رياضة', 'sports', 'sport'].forEach(s => synonyms.add(s));
+      }
+      const interestTerms = Array.from(synonyms);
+
       // 1) المستخدمون الذين لديهم user_interests مباشرة لهذا التصنيف
       const userInterests = await prisma.user_interests.findMany({
         where: {
@@ -404,19 +432,12 @@ export class SmartNotificationEngine {
       userInterests.forEach(ui => userIds.add(ui.user_id));
       console.log(`🎯 من user_interests: ${userInterests.length}`);
 
-      // 2) المستخدمون الذين تحتوي قائمة interests لديهم على اسم/سلَج التصنيف
-      if (categoryName || categorySlug) {
+      // 2) المستخدمون الذين تحتوي قائمة interests لديهم على أي من المرادفات
+      if (interestTerms.length > 0) {
         const usersByInterests = await prisma.users.findMany({
           where: {
             is_active: true,
-            OR: [
-              ...(categoryName ? [{ interests: { has: categoryName } }] : []),
-              ...(categorySlug ? [{ interests: { has: categorySlug } }] : []),
-            ],
-            notification_preferences: {
-              path: '$.enabled',
-              equals: true
-            }
+            interests: { hasSome: interestTerms }
           },
           select: { id: true }
         });
@@ -424,20 +445,17 @@ export class SmartNotificationEngine {
         console.log(`🎯 من users.interests: ${usersByInterests.length}`);
       }
 
-      // 3) المستخدمون الذين لديهم تفضيل favorite_categories يحتوي اسم التصنيف
-      if (categoryName) {
+      // 3) المستخدمون الذين لديهم تفضيل favorite_categories يحتوي أي مرادف
+      if (interestTerms.length > 0) {
+        const containsOr = interestTerms.map(term => ({ value: { contains: term } }));
         const usersByPrefs = await prisma.users.findMany({
           where: {
             is_active: true,
             user_preferences: {
               some: {
                 key: 'favorite_categories',
-                value: { contains: categoryName }
+                OR: containsOr
               }
-            },
-            notification_preferences: {
-              path: '$.enabled',
-              equals: true
             }
           },
           select: { id: true }

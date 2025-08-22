@@ -147,38 +147,42 @@ async function getInterestedUsers(
     const users = await prisma.users.findMany({
       where: {
         is_active: true,
-        OR: [
-          // مهتمون بالفئة
-          {
-            interests: {
-              has: category
-            }
-          },
-          // مرادفات للفئة عبر slug
-          ...(categorySlug ? [{ interests: { has: categorySlug } }] : []),
-          // مهتمون بأي من العلامات
-          ...(tags.length > 0 ? [{
-            interests: {
-              hasSome: tags
-            }
-          }] : []),
-          // لديهم تفضيلات مخصصة لهذه الفئة
-          {
-            user_preferences: {
-              some: {
-                key: 'favorite_categories',
-                value: {
-                  contains: category
-                }
-              }
-            }
+        OR: (() => {
+          const or: any[] = [];
+          // مطابقة مرادفات الفئة
+          const terms = new Set<string>();
+          const lcCat = (category || '').toLowerCase();
+          const lcSlug = (categorySlug || '').toLowerCase();
+          if (lcCat) terms.add(lcCat);
+          if (lcSlug) terms.add(lcSlug);
+          if (/محليات|محلي/.test(category) || /local/.test(lcSlug)) {
+            ['محليات','محلي','local','local-news','localnews','locals'].forEach(t=>terms.add(t));
           }
-        ],
-        // تأكد من تفعيل الإشعارات
-        notification_preferences: {
-          path: '$.enabled',
-          equals: true
-        }
+          if (/سياح|سفر/.test(category) || /(tourism|travel)/i.test(lcSlug)) {
+            ['سياحة','السياحة','سفر','travel','tourism','trips'].forEach(t=>terms.add(t));
+          }
+          if (/اقتصاد|مالي/.test(category) || /(economy|business|finance)/i.test(lcSlug)) {
+            ['اقتصاد','اقتصادى','مال','أعمال','business','economy','finance'].forEach(t=>terms.add(t));
+          }
+          if (/تقنية|تكنولوجيا/.test(category) || /(tech|technology)/i.test(lcSlug)) {
+            ['تقنية','تكنولوجيا','tech','technology','ai'].forEach(t=>terms.add(t));
+          }
+          if (/رياضة/.test(category) || /(sport|sports)/i.test(lcSlug)) {
+            ['رياضة','sports','sport'].forEach(t=>terms.add(t));
+          }
+
+          const interestTerms = Array.from(terms);
+          if (interestTerms.length > 0) {
+            or.push({ interests: { hasSome: interestTerms } });
+            or.push({ user_preferences: { some: { key: 'favorite_categories', OR: interestTerms.map(term => ({ value: { contains: term } })) } } });
+          } else {
+            or.push({ interests: { has: category } });
+          }
+          if (tags && tags.length > 0) {
+            or.push({ interests: { hasSome: tags } });
+          }
+          return or;
+        })()
       },
       select: {
         id: true,
