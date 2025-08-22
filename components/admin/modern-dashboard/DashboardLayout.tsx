@@ -129,7 +129,7 @@ export default function DashboardLayout({
         }}>
           {/* المحتوى الرئيسي */}
           <main className="admin-modern-main admin-dashboard-layout" style={{
-            paddingTop: '0px',
+            paddingTop: '20px',
             paddingBottom: '16px',
             width: '100%',
             // تمرير عرض السايدبار كمتغير CSS ليقرأه CSS العام
