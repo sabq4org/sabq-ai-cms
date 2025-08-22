@@ -779,11 +779,12 @@ function MobileAngleCard({ angle }: { angle: Angle }) {
         {/* صورة الزاوية */}
         <div style={{
           position: 'relative',
-          width: '60px',
-          height: '60px',
+          width: '80px',
+          height: '80px',
           flexShrink: 0,
-          borderRadius: '8px',
-          overflow: 'hidden'
+          borderRadius: '12px',
+          overflow: 'hidden',
+          backgroundColor: '#f3f4f6'
         }}>
           {angle.coverImage ? (
             <Image
@@ -880,9 +881,9 @@ function AngleCard({ angle }: { angle: Angle }) {
         {/* صورة الزاوية */}
         <div style={{
           position: 'relative',
-          height: '180px',
+          height: '200px',
           width: '100%',
-          background: 'hsl(var(--bg))',
+          backgroundColor: '#f3f4f6',
           overflow: 'hidden'
         }}>
           {angle.coverImage ? (

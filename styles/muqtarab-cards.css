@@ -43,31 +43,23 @@ html:has([data-muqtarab="true"]) body {
   width: 100%;
 }
 
-/* إزالة الخطوط الملونة من بطاقات مقترب */
-.muqtarab-card-container div[class*="absolute"][style*="backgroundColor"] {
+/* إزالة أي تأثيرات غير مرغوبة على الزوايا */
+[data-page="muqtarab"] .muqtarab-themed-card > div:first-child {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+/* إزالة الخطوط الملونة من بطاقات مقترب - معطل مؤقتاً */
+/* .muqtarab-card-container div[class*="absolute"][style*="backgroundColor"] {
   display: none !important;
 }
 
 .muqtarab-card-container div[class*="absolute"][style*="background"] {
   display: none !important;
-}
+} */
 
 /* تعطيل أي تداخل يفرض حدود/خلفية/ظلال على .group داخل مقترب */
-.muqtarab-card-container .group {
-  background: transparent !important;
-  box-shadow: none !important;
-}
-
-.dark .muqtarab-card-container .group {
-  background: transparent !important;
-}
-
-.muqtarab-card-container .group:hover {
-  box-shadow: none !important;
-}
-
-.dark .muqtarab-card-container .group:hover {
-}
+/* تم إلغاء هذه القواعد لأنها تؤثر على التنسيق */
 
 /* تطبيق ألوان الثيم على الليبلات */
 .muqtarab-card-container div[style*="backgroundColor"][class*="rounded-full"] {
@@ -147,9 +139,7 @@ html:has([data-muqtarab="true"]) body {
 }
 
 /* الاعتماد على .category-pill العالمية مثل بطاقة الأخبار */
-.muqtarab-card-container div[class*="rounded-full"][class*="font-bold"] {
-  all: unset;
-}
+/* تم إلغاء هذه القاعدة لأنها تؤثر على التنسيق */
 
 /* تخصيص لون الإطارات لبطاقات مقترب */
 .muqtarab-card-container .group,
@@ -358,22 +348,30 @@ div.min-h-screen:has([data-muqtarab="true"]) {
 
 /* ضمان أن جميع البطاقات في مقترب بيضاء */
 [data-page="muqtarab"] .card,
-[data-page="muqtarab"] article,
+[data-page="muqtarab"] article.card,
 [data-page="muqtarab"] .bg-white,
 [data-page="muqtarab"] .rounded-2xl:not(.header-main-icon),
 [data-page="muqtarab"] .rounded-xl:not(.header-main-icon),
 [data-page="muqtarab"] .rounded-lg:not(.header-main-icon),
-[data-page="muqtarab"] [class*="Card"],
-[data-page="muqtarab"] [class*="card"],
 [data-muqtarab="true"] .card,
-[data-muqtarab="true"] article,
-[data-muqtarab="true"] [class*="Card"],
-[data-muqtarab="true"] [class*="card"],
+[data-muqtarab="true"] article.card,
 .muqtarab-card-container .card,
-.muqtarab-card-container article,
-.muqtarab-card-container [class*="Card"],
-.muqtarab-card-container [class*="card"] {
+.muqtarab-card-container article.card {
   background: #ffffff !important;
+  background-color: #ffffff !important;
+}
+
+/* استثناء: لا تطبق على div العامة داخل البطاقات */
+[data-page="muqtarab"] .card > div:not([class*="card"]):not([class*="Card"]) {
+  background: transparent !important;
+}
+
+/* الحفاظ على أحجام الصور في بطاقات الزوايا */
+/* تم إلغاء هذه القاعدة لأنها تؤثر على حجم الصور */
+
+/* الحفاظ على تنسيق بطاقات الزوايا */
+[data-page="muqtarab"] a > div[style*="borderRadius"],
+[data-muqtarab="true"] a > div[style*="borderRadius"] {
   background-color: #ffffff !important;
 }
 
