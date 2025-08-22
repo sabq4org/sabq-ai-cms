@@ -78,15 +78,35 @@ export default function SimpleArticleClient({ article }: SimpleArticleClientProp
             onError={() => setImageError(true)}
             loading="lazy"
           />
+          {/* شرح الصورة */}
+          {article.image_caption && (
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 text-center italic">
+              {article.image_caption}
+            </p>
+          )}
         </div>
       )}
 
-      {/* الملخص */}
-      {article.excerpt && (
-        <div className="mb-8 p-6 bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 rounded-r-xl">
-          <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
-            {article.excerpt}
-          </p>
+      {/* الموجز الذكي - تصميم مميز */}
+      {(article.ai_summary || article.summary || article.excerpt) && (
+        <div className="mb-8 relative">
+          <div className="absolute right-0 top-0 w-1 h-full bg-gradient-to-b from-blue-500 to-purple-600 rounded-full"></div>
+          <div className="pr-6 pl-6 py-6 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl border border-blue-200/50 dark:border-blue-700/50">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <span className="text-white text-sm font-bold">🤖</span>
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                الموجز الذكي
+              </h3>
+              <span className="text-xs bg-gradient-to-r from-blue-500 to-purple-600 text-white px-2 py-1 rounded-full">
+                AI
+              </span>
+            </div>
+            <p className="text-base text-gray-700 dark:text-gray-300 leading-relaxed">
+              {article.ai_summary || article.summary || article.excerpt}
+            </p>
+          </div>
         </div>
       )}
 

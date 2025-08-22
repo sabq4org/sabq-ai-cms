@@ -20,7 +20,7 @@ import { SmartSlot } from "@/components/home/SmartSlot";
 // import SmartContentNewsCard from "@/components/mobile/SmartContentNewsCard";
 
 import AdBanner from "@/components/ads/AdBanner";
-import FastImage from "@/components/ui/FastImage";
+import CloudImage from "@/components/ui/CloudImage";
 import { useAuth } from "@/hooks/useAuth";
 import type { RecommendedArticle } from "@/lib/ai-recommendations";
 import { generatePersonalizedRecommendations } from "@/lib/ai-recommendations";
@@ -398,12 +398,12 @@ function NewspaperHomePage({
                 : "bg-red-50 border border-red-200"
               : darkMode
               ? "bg-gray-800 border border-gray-700"
-              : "bg-white border border-[#f0f0ef] shadow-sm"
+              : "bg-white border border-gray-200 shadow-sm"
           }`}
         >
           {/* صورة المقال */}
           <div className="relative h-40 sm:h-48 overflow-hidden bg-gray-100 dark:bg-gray-700">
-            <FastImage
+            <CloudImage
               src={news?.featured_image || news?.image_url || news?.image || news?.thumbnail || news?.cover_image || news?.coverImage || "/images/placeholder-featured.jpg"}
               alt={news?.title || "صورة المقال"}
               fill
@@ -411,7 +411,7 @@ function NewspaperHomePage({
               fallbackType="article"
               priority={false}
               sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
-              quality={60}
+              quality={85}
               onError={() => console.log('خطأ في تحميل صورة المقال:', news?.id, news?.title)}
             />
             {/* شارة عاجل */}
@@ -525,7 +525,7 @@ function NewspaperHomePage({
       try {
         setArticlesLoading(true);
         const res = await fetch(
-          "/api/news?status=published&limit=12&sort=published_at&order=desc"
+          "/api/news?status=published&limit=16&sort=published_at&order=desc"
         );
         const json = await res.json();
         // 💡 قبول كلا الصيغتين: { success, articles: [...] } أو { success, data: [...] }
@@ -942,7 +942,7 @@ function NewspaperHomePage({
                                   >
                                     {/* صورة المقال */}
                                     <div className="relative h-32 sm:h-36 overflow-hidden">
-                                      <FastImage
+                                      <CloudImage
                                         src={article?.image || null}
                                         alt={article?.title || "صورة المقال"}
                                         fill
