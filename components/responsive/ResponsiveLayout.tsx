@@ -29,6 +29,19 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
     setIsMobile(prev => prev !== newIsMobile ? newIsMobile : prev);
   }, []);
 
+  // تطبيق فوري لخلفية مقترب
+  useEffect(() => {
+    if (pathname?.startsWith('/muqtarab')) {
+      document.documentElement.style.backgroundColor = '#f8f8f7';
+      document.body.style.backgroundColor = '#f8f8f7';
+      document.body.setAttribute('data-muqtarab-page', 'true');
+    } else {
+      document.documentElement.style.backgroundColor = '#fafafa';
+      document.body.style.backgroundColor = '#fafafa';
+      document.body.removeAttribute('data-muqtarab-page');
+    }
+  }, [pathname]);
+
   useEffect(() => {
     setMounted(true);
     checkDevice();
@@ -84,8 +97,11 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
 
   // النسخة الخفيفة للهواتف والتابلت
   if (isMobile) {
+    const isMuqtarabPage = pathname?.startsWith('/muqtarab');
+    const backgroundClass = isMuqtarabPage ? 'bg-[#f8f8f7]' : 'bg-[#fafafa]';
+    
     return (
-      <div className="min-h-screen bg-[#fafafa] dark:bg-gray-950">
+      <div className={`min-h-screen ${backgroundClass} dark:bg-gray-950`}>
         {DevIndicator}
         {/* إخفاء هيدر النسخة الخفيفة في صفحات الإدارة */}
         {!pathname.startsWith('/admin') && <LightHeader />}
@@ -102,8 +118,11 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
   }
 
   // النسخة الكاملة للديسكتوب واللابتوب
+  const isMuqtarabPage = pathname?.startsWith('/muqtarab');
+  const backgroundClass = isMuqtarabPage ? 'bg-[#f8f8f7]' : 'bg-[#fafafa]';
+  
   return (
-    <div className="min-h-screen bg-[#fafafa] dark:bg-gray-900" style={{ 
+    <div className={`min-h-screen ${backgroundClass} dark:bg-gray-900`} style={{ 
       paddingTop: '72px',
       display: 'flex',
       flexDirection: 'column',
