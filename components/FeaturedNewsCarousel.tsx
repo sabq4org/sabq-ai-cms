@@ -120,6 +120,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
   const mobileLgH = heights.mobileLg || mobileH;
   const desktopH = heights.desktop || mobileLgH;
   const [containerHeight, setContainerHeight] = useState<number>(desktopH);
+  const [accentActive, setAccentActive] = useState<boolean>(false);
 
   useEffect(() => {
     const computeHeight = () => {
@@ -133,6 +134,26 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
     window.addEventListener('resize', computeHeight);
     return () => window.removeEventListener('resize', computeHeight);
   }, [desktopH, mobileLgH, mobileH]);
+
+  // رصد تفعيل نظام الألوان المتغيرة عبر data-theme
+  useEffect(() => {
+    try {
+      const updateAccentActive = () => {
+        const dt = document.documentElement.getAttribute('data-theme');
+        setAccentActive(Boolean(dt) && dt !== 'none');
+      };
+      updateAccentActive();
+      const observer = new MutationObserver((mutations) => {
+        for (const m of mutations) {
+          if (m.type === 'attributes' && m.attributeName === 'data-theme') {
+            updateAccentActive();
+          }
+        }
+      });
+      observer.observe(document.documentElement, { attributes: true });
+      return () => observer.disconnect();
+    } catch {}
+  }, []);
 
   return (
     <div
