@@ -147,7 +147,7 @@ export default function NewslettersArchive() {
     return (
       <div className={cn(
         "min-h-screen transition-colors duration-300",
-        darkMode ? "bg-slate-900" : "bg-[#fafafa]"
+        darkMode ? "bg-slate-900" : "bg-[#f8f8f7]"
       )}>
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center min-h-[400px]">

@@ -200,7 +200,7 @@ export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps
   }, []);
 
   return (
-    <div id="deep-analysis-highlight" className="py-8 relative overflow-hidden bg-[#fafafa] dark:bg-gradient-to-br dark:from-blue-900 dark:via-indigo-800 dark:to-purple-900">
+    <div id="deep-analysis-highlight" className="py-8 relative overflow-hidden bg-[#f8f8f7] dark:bg-gradient-to-br dark:from-blue-900 dark:via-indigo-800 dark:to-purple-900">
       <div className="max-w-7xl mx-auto px-4 relative z-10">
         {/* العنوان والوصف */}
         <div className="text-center mb-8 max-w-3xl mx-auto">

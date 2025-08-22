@@ -76,7 +76,7 @@ export default function MobileFeaturedImage({
 
       {/* شرح الصورة (Alt Text) أو التعليق على الصورة إن وجد - خارج حاوي الصورة */}
       {(alt || caption) && (alt !== title || caption) && (
-        <div className="mt-2 px-3 py-2 bg-[#fafafa] dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="mt-2 px-3 py-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
           {alt && alt !== title && (
             <div className="flex items-start gap-2 justify-start text-left">
               <span className="text-xs text-blue-500 dark:text-blue-400 mt-0.5 flex-shrink-0">📷</span>

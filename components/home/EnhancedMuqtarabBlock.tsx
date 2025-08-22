@@ -265,7 +265,7 @@ export default function EnhancedMuqtarabBlock({
   const LoadingSkeleton = () => (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {Array.from({ length: limit }).map((_, i) => (
-        <Card key={i} className="overflow-hidden">
+        <Card key={i} className="overflow-hidden muqtarab-themed-card">
           <Skeleton className="h-48 w-full" />
           <CardContent className="p-4 space-y-3">
             <Skeleton className="h-4 w-full" />
@@ -302,8 +302,12 @@ export default function EnhancedMuqtarabBlock({
 
     return (
       <Card 
-        className="group overflow-hidden transition-all duration-300 border-0 dark:bg-gray-800/50 relative"
-        style={customStyles}
+        className="group overflow-hidden transition-all duration-300 border-0 relative muqtarab-themed-card"
+        style={{
+          ...customStyles,
+          border: '1px solid #f0f0ef',
+          backgroundColor: '#ffffff'
+        }}
       >
         {/* خط ملامس بلون الزاوية في الأسفل - يستخدم CSS variables */}
         <div
@@ -376,7 +380,10 @@ export default function EnhancedMuqtarabBlock({
             </p>
 
             {/* معلومات شاملة في سطر واحد */}
-            <div className="flex items-center justify-between flex-wrap gap-4 mb-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+            <div 
+              className="flex items-center justify-between flex-wrap gap-4 mb-4 p-4 rounded-lg"
+              style={{ backgroundColor: '#ffffff', border: '1px solid #f0f0ef' }}
+            >
               {/* معلومات المؤلف */}
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
@@ -565,8 +572,12 @@ export default function EnhancedMuqtarabBlock({
       <Link href={article.link} className="group block">
         <article
           dir="rtl"
-          className="h-full transition-all duration-300 flex flex-row md:flex-col bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl"
-          style={{ boxShadow: 'none' }}
+          className="h-full transition-all duration-300 flex flex-row md:flex-col border border-gray-200 dark:border-gray-700 rounded-xl muqtarab-themed-card"
+          style={{ 
+            boxShadow: 'none',
+            borderColor: '#f0f0ef',
+            backgroundColor: '#ffffff'
+          }}
         >
           {/* صورة المقال */}
           <div className="relative w-28 h-28 md:w-full md:h-40 sm:md:h-48 overflow-hidden m-3 md:m-0 rounded-t-xl">
@@ -691,7 +702,7 @@ export default function EnhancedMuqtarabBlock({
                     justifyContent: 'center',
                     width: '36px',
                     height: '36px',
-                    background: 'linear-gradient(135deg, hsl(var(--accent) / 0.15) 0%, hsl(var(--accent) / 0.05) 100%)',
+                    background: '#f8f8f7',
                     borderRadius: '10px',
                     color: 'hsl(var(--accent))',
                     fontSize: '18px',
@@ -742,7 +753,13 @@ export default function EnhancedMuqtarabBlock({
 
       {/* شريط الفلاتر */}
       {showFilters && (
-        <div className="flex flex-wrap items-center gap-4 mb-6 p-4 bg-white/50 dark:bg-gray-800/30 rounded-xl">
+        <div 
+          className="flex flex-wrap items-center gap-4 mb-6 p-4 rounded-xl muqtarab-themed-card"
+          style={{ 
+            border: '1px solid #f0f0ef',
+            backgroundColor: '#ffffff'
+          }}
+        >
           {/* خيارات الترتيب */}
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">

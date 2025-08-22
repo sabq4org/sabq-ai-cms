@@ -169,7 +169,17 @@ body {
 body {
   color: rgb(var(--foreground-rgb));
   /* خلفية المشروع الموحدة */
-  background: #fafafa;
+  background: #f8f8f7;
+}
+
+/* خلفية خاصة لصفحات مقترب - أعلى أولوية */
+body:has([data-page="muqtarab"]) {
+  background: #f8f8f7 !important;
+}
+
+/* خلفية احتياطية عبر المسار */
+body:has([data-muqtarab="true"]) {
+  background: #f8f8f7 !important;
 }
 
 a {

@@ -72,6 +72,15 @@ export default function RootLayout({
           body {
             font-family: ${ibmPlexArabic.style.fontFamily}, Arial, sans-serif;
           }
+          
+          /* خلفية فورية لصفحة مقترب - أعلى أولوية */
+          body:has([data-page="muqtarab"]),
+          body:has([data-muqtarab="true"]),
+          html:has([data-page="muqtarab"]) body {
+            background: #f8f8f7 !important;
+            background-color: #f8f8f7 !important;
+          }
+          
           .social-link:hover {
             background: #0066cc !important;
             color: white !important;

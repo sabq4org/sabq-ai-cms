@@ -104,7 +104,7 @@ export default function MuqtarabCard({
   // مكون بطاقة المقال المميز الكبير
   if (variant === "large") {
     return (
-      <Card className="group overflow-hidden transition-all duration-300 border border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 relative bg-gray-50 rounded-xl">
+      <Card className="group overflow-hidden transition-all duration-300 border border-gray-200 dark:border-gray-700 relative rounded-xl muqtarab-themed-card" style={{ backgroundColor: '#ffffff' }}>
         {/* تصميم الديسكتوب - نصف صورة ونصف محتوى */}
         <div className="hidden md:grid md:grid-cols-2 gap-0">
           {/* صورة المقال */}
@@ -324,7 +324,7 @@ export default function MuqtarabCard({
     <Link href={articleLink} style={{ textDecoration: 'none' }}>
       <div 
         style={{
-          background: baseBg,
+          background: '#ffffff',
           border: baseBorder,
           borderRadius: '16px',
           overflow: 'hidden',
@@ -336,11 +336,11 @@ export default function MuqtarabCard({
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.transform = 'translateY(-4px)';
-          e.currentTarget.style.background = hoverBg;
+          e.currentTarget.style.background = '#ffffff';
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.transform = 'translateY(0)';
-          e.currentTarget.style.background = baseBg;
+          e.currentTarget.style.background = '#ffffff';
         }}
       >
         {/* صورة المقال */}

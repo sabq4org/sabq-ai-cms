@@ -78,7 +78,7 @@ export default function UserGuidePage() {
 
   return (
     <>
-      <div className="min-h-screen bg-[#fafafa] dark:bg-gray-900">
+      <div className="min-h-screen bg-[#f8f8f7] dark:bg-gray-900">
         
         {/* Hero Section - بسيط ونظيف */}
         <div className="bg-white dark:bg-gray-800 py-20">
@@ -150,7 +150,7 @@ export default function UserGuidePage() {
                   {/* مزايا الخطوة */}
                   <div className="grid md:grid-cols-2 gap-4">
                     {step.features.map((feature, featureIndex) => (
-                      <div key={featureIndex} className="flex items-center gap-3 text-gray-700 dark:text-gray-300 bg-[#fafafa] dark:bg-gray-700 rounded-xl p-4">
+                      <div key={featureIndex} className="flex items-center gap-3 text-gray-700 dark:text-gray-300 bg-[#f8f8f7] dark:bg-gray-700 rounded-xl p-4">
                         <CheckCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
                         <span>{feature}</span>
                       </div>

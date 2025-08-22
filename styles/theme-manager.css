@@ -15,8 +15,8 @@
   --theme-primary: #1e40af;
   --theme-secondary: #3b82f6;
   --theme-accent: #06b6d4;
-  --theme-background: #fafafa;
-  --theme-surface: #fafafa;
+  --theme-background: #f8f8f7;
+  --theme-surface: #f8f8f7;
   --theme-text: #1e293b;
   --theme-text-secondary: #64748b;
   --theme-border: #e2e8f0;
@@ -370,7 +370,7 @@ body {
 
 /* ===== خلفية قسم مُقترب المتغيرة ===== */
 .muqtarab-section-bg {
-  background: #fafafa;
+  background: #f8f8f7;
   position: relative;
   overflow: hidden;
 }
