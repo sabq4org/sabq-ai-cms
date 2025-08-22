@@ -129,9 +129,22 @@ export default function NotificationBell() {
   };
 
   // معالج النقر مع تسجيل console
+  const toggleOpen = () => setIsOpen((v) => !v);
   const handleBellClick = () => {
     console.log('Bell clicked, current state:', isOpen);
-    setIsOpen(!isOpen);
+    toggleOpen();
+  };
+  const handlePointerDown: React.PointerEventHandler<HTMLButtonElement> = (e) => {
+    // منع أي اعتراض محتمل من عناصر تغطي الزر
+    e.preventDefault();
+    e.stopPropagation();
+    toggleOpen();
+  };
+  const handleKeyDown: React.KeyboardEventHandler<HTMLButtonElement> = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleOpen();
+    }
   };
 
   return (
@@ -139,8 +152,12 @@ export default function NotificationBell() {
       {/* زر الجرس */}
       <button
         onClick={handleBellClick}
-        className="relative p-2 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+        onPointerDown={handlePointerDown}
+        onKeyDown={handleKeyDown}
+        className="relative p-2 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer select-none"
         aria-label="الإشعارات"
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
         type="button"
       >
         {unreadCount > 0 ? (
