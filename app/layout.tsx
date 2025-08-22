@@ -67,12 +67,14 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
+        <link rel="stylesheet" href="/background-override.css" />
         <link rel="stylesheet" href="/manus-ui.css" />
         <style dangerouslySetInnerHTML={{ __html: `
           /* إعدادات الخلفية الأساسية - بأولوية قصوى */
           html {
             background: #f8f8f7 !important;
             background-color: #f8f8f7 !important;
+            min-height: 100vh !important;
           }
           
           body {
@@ -159,6 +161,22 @@ export default function RootLayout({
             document.documentElement.style.backgroundColor = '#111827';
             document.body.style.backgroundColor = '#111827';
           }
+          
+          // تطبيق مرة أخرى بعد تحميل DOM
+          window.addEventListener('DOMContentLoaded', function() {
+            document.documentElement.style.backgroundColor = '#f8f8f7';
+            document.body.style.backgroundColor = '#f8f8f7';
+            
+            // إزالة أي خلفيات من العناصر الرئيسية
+            const wrapper = document.querySelector('.homepage-wrapper');
+            if (wrapper) wrapper.style.backgroundColor = 'transparent';
+            
+            const pageWrapper = document.querySelector('.page-wrapper');
+            if (pageWrapper) pageWrapper.style.backgroundColor = 'transparent';
+            
+            const main = document.querySelector('main');
+            if (main) main.style.backgroundColor = 'transparent';
+          });
         ` }} />
         <Providers>
           <ResponsiveLayout>

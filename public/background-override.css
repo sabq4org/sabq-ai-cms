@@ -1,0 +1,45 @@
+/* Override للخلفية - أولوية قصوى */
+html,
+body,
+html body,
+body html,
+html > body,
+body > div {
+  background: #f8f8f7 !important;
+  background-color: #f8f8f7 !important;
+  background-image: none !important;
+}
+
+/* الوضع الداكن */
+html.dark,
+body.dark,
+.dark html,
+.dark body,
+html.dark body,
+body.dark html {
+  background: #111827 !important;
+  background-color: #111827 !important;
+  background-image: none !important;
+}
+
+/* إزالة أي خلفيات من العناصر الأساسية */
+#__next,
+.page-wrapper,
+.homepage-wrapper,
+.content-main-desktop,
+.content-main-mobile,
+main,
+main > div {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* تطبيق فوري بأعلى أولوية */
+* {
+  --page-bg: #f8f8f7;
+}
+
+.dark * {
+  --page-bg: #111827;
+}
