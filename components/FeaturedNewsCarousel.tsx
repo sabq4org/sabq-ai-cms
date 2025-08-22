@@ -148,7 +148,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
     >
       <Link href={getArticleLink(currentArticle)} className="group block" aria-live="polite">
         <div
-          className={`relative overflow-hidden border rounded-xl bg-white dark:bg-gray-900 border-[#f0f0ef] dark:border-gray-700`}
+          className={`relative overflow-hidden border rounded-xl bg-white dark:bg-gray-900 border-[#f0f0ef] dark:border-gray-700 transition-colors hover:border-[hsl(var(--accent))]`}
           style={{
             background: isBreaking
               ? (darkMode ? 'hsla(0, 72%, 45%, 0.18)' : 'hsla(0, 84%, 60%, 0.12)')
@@ -293,9 +293,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                   </div>
                 </div>
                 <div
-                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300 ${
-                    darkMode ? "bg-gray-700 hover:bg-gray-600 text-gray-200" : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                  }`}
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300 bg-[hsl(var(--accent))] hover:bg-[hsl(var(--accent-hover))] text-white`}
                 >
                   <span>اقرأ المزيد</span>
                   <ArrowLeft className="w-4 h-4" />
