@@ -198,8 +198,10 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
               >
                 <div className="relative">
                   {currentTheme.isDefault ? (
-                    <div className="w-5 h-5 rounded-full border-2 border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                      <div className="w-2.5 h-2.5 rounded-full border border-dashed border-gray-400 dark:border-gray-300" />
+                    <div className="w-5 h-5 rounded-full border-2 border-gray-400 dark:border-gray-600 bg-white dark:bg-gray-700 flex items-center justify-center relative overflow-hidden">
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-full h-0.5 bg-red-500 rotate-45 transform origin-center"></div>
+                      </div>
                     </div>
                   ) : (
                     <>
@@ -233,8 +235,11 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
                         }`}
                       >
                         {theme.isDefault ? (
-                          <div className="w-8 h-8 rounded-full mx-auto mb-2 shadow-md bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
-                            <div className="w-4 h-4 rounded-full border-2 border-dashed border-gray-400 dark:border-gray-300" />
+                          <div className="w-8 h-8 rounded-full mx-auto mb-2 shadow-md bg-white dark:bg-gray-700 flex items-center justify-center relative overflow-hidden">
+                            <div className="w-6 h-6 rounded-full border-2 border-gray-400 dark:border-gray-300" />
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="w-full h-0.5 bg-red-500 rotate-45 transform origin-center"></div>
+                            </div>
                           </div>
                         ) : (
                           <div 

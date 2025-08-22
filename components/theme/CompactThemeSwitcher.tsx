@@ -6,6 +6,14 @@ import { PaintBrushIcon } from '@heroicons/react/24/outline';
 // نظام الألوان المتغيرة
 const themes = [
   { 
+    id: 'default', 
+    name: 'بلا لون', 
+    color: '#3b82f6', // اللون الافتراضي للموقع
+    rgb: '59 130 246',
+    gradient: 'from-blue-500 to-blue-600',
+    isDefault: true 
+  },
+  { 
     id: 'blue', 
     name: 'أزرق', 
     color: '#3b82f6', 
@@ -161,31 +169,46 @@ export default function CompactThemeSwitcher({ className = '' }: CompactThemeSwi
     // إزالة جميع data-theme attributes القديمة
     themes.forEach(t => root.removeAttribute(`data-theme-${t.id}`));
     
-    // تطبيق theme الجديد
-    root.setAttribute('data-theme', theme.id);
-    root.style.setProperty('--theme-primary', theme.color);
-    root.style.setProperty('--theme-secondary', theme.color);
-    root.style.setProperty('--theme-primary-rgb', theme.rgb);
-    root.style.setProperty('--theme-primary-hover', theme.color);
-    root.style.setProperty('--theme-primary-light', `rgba(${theme.rgb}, 0.1)`);
-    root.style.setProperty('--theme-primary-lighter', `rgba(${theme.rgb}, 0.05)`);
+    if (theme.isDefault) {
+      // إذا كان "بلا لون"، إزالة جميع المتغيرات المخصصة
+      root.removeAttribute('data-theme');
+      root.style.removeProperty('--theme-primary');
+      root.style.removeProperty('--theme-secondary');
+      root.style.removeProperty('--theme-primary-rgb');
+      root.style.removeProperty('--theme-primary-hover');
+      root.style.removeProperty('--theme-primary-light');
+      root.style.removeProperty('--theme-primary-lighter');
+      root.style.removeProperty('--accent');
+      root.style.removeProperty('--accent-hover');
+      root.style.removeProperty('--accent-light');
+      console.log('🎨 Theme reset to default (no custom colors)');
+    } else {
+      // تطبيق theme الجديد
+      root.setAttribute('data-theme', theme.id);
+      root.style.setProperty('--theme-primary', theme.color);
+      root.style.setProperty('--theme-secondary', theme.color);
+      root.style.setProperty('--theme-primary-rgb', theme.rgb);
+      root.style.setProperty('--theme-primary-hover', theme.color);
+      root.style.setProperty('--theme-primary-light', `rgba(${theme.rgb}, 0.1)`);
+      root.style.setProperty('--theme-primary-lighter', `rgba(${theme.rgb}, 0.05)`);
 
-    // ضبط متغيرات النسخة الكاملة (--accent*) لضمان توافق البلوكات القديمة
-    const { h, s, l } = hexToHsl(theme.color);
-    const hoverL = Math.max(0, Math.min(100, l - 5));
-    const lightL = 96; // كما في النسخة الكاملة تقريباً
-    root.style.setProperty('--accent', `${h} ${s}% ${l}%`);
-    root.style.setProperty('--accent-hover', `${h} ${s}% ${hoverL}%`);
-    root.style.setProperty('--accent-light', `${h} ${s}% ${lightL}%`);
-    
-    // إضافة console.log للتشخيص
-    console.log(`🎨 Theme changed to: ${theme.name} (${theme.color})`);
-    console.log('🔧 Applied CSS variables:', {
-      '--theme-primary': theme.color,
-      '--theme-primary-rgb': theme.rgb,
-      '--accent': `${h} ${s}% ${l}%`,
-      'data-theme': theme.id
-    });
+      // ضبط متغيرات النسخة الكاملة (--accent*) لضمان توافق البلوكات القديمة
+      const { h, s, l } = hexToHsl(theme.color);
+      const hoverL = Math.max(0, Math.min(100, l - 5));
+      const lightL = 96; // كما في النسخة الكاملة تقريباً
+      root.style.setProperty('--accent', `${h} ${s}% ${l}%`);
+      root.style.setProperty('--accent-hover', `${h} ${s}% ${hoverL}%`);
+      root.style.setProperty('--accent-light', `${h} ${s}% ${lightL}%`);
+      
+      // إضافة console.log للتشخيص
+      console.log(`🎨 Theme changed to: ${theme.name} (${theme.color})`);
+      console.log('🔧 Applied CSS variables:', {
+        '--theme-primary': theme.color,
+        '--theme-primary-rgb': theme.rgb,
+        '--accent': `${h} ${s}% ${l}%`,
+        'data-theme': theme.id
+      });
+    }
   };
 
   const handleThemeChange = (themeId: string) => {
@@ -249,15 +272,41 @@ export default function CompactThemeSwitcher({ className = '' }: CompactThemeSwi
           }}
           title={`الثيم: ${currentTheme.name}`}
         >
-          <div 
-            style={{
-              width: '16px',
-              height: '16px',
-              borderRadius: '50%',
-              background: currentTheme.color,
-              boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
-            }}
-          />
+          {currentTheme.isDefault ? (
+            <div 
+              style={{
+                width: '16px',
+                height: '16px',
+                borderRadius: '50%',
+                background: 'white',
+                border: '2px solid #9ca3af',
+                position: 'relative',
+                overflow: 'hidden',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+              }}
+            >
+              <div style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                width: '120%',
+                height: '2px',
+                background: '#ef4444',
+                transform: 'translate(-50%, -50%) rotate(-45deg)',
+                transformOrigin: 'center'
+              }} />
+            </div>
+          ) : (
+            <div 
+              style={{
+                width: '16px',
+                height: '16px',
+                borderRadius: '50%',
+                background: currentTheme.color,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+              }}
+            />
+          )}
           <span style={{ fontSize: '12px', opacity: 0.8 }}>
             {currentTheme.name}
           </span>
@@ -297,14 +346,18 @@ export default function CompactThemeSwitcher({ className = '' }: CompactThemeSwi
                   width: '20px',
                   height: '20px',
                   borderRadius: '50%',
-                  background: theme.color,
-                  border: currentTheme.id === theme.id ? '2px solid #ffffff' : '1px solid rgba(255,255,255,0.5)',
+                  background: theme.isDefault ? 'white' : theme.color,
+                  border: theme.isDefault 
+                    ? (currentTheme.id === theme.id ? '2px solid #ef4444' : '2px solid #9ca3af')
+                    : (currentTheme.id === theme.id ? '2px solid #ffffff' : '1px solid rgba(255,255,255,0.5)'),
                   cursor: 'pointer',
                   transition: 'all 0.15s ease',
                   transform: currentTheme.id === theme.id ? 'scale(1.1)' : 'scale(1)',
                   boxShadow: currentTheme.id === theme.id 
                     ? '0 0 0 2px rgba(59, 130, 246, 0.5)' 
-                    : '0 1px 3px rgba(0,0,0,0.2)'
+                    : '0 1px 3px rgba(0,0,0,0.2)',
+                  position: 'relative',
+                  overflow: 'hidden'
                 }}
                 onMouseEnter={(e) => {
                   if (currentTheme.id !== theme.id) {
@@ -319,7 +372,20 @@ export default function CompactThemeSwitcher({ className = '' }: CompactThemeSwi
                     : '0 1px 3px rgba(0,0,0,0.2)';
                 }}
                 title={theme.name}
-              />
+              >
+                {theme.isDefault && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    width: '120%',
+                    height: '2px',
+                    background: '#ef4444',
+                    transform: 'translate(-50%, -50%) rotate(-45deg)',
+                    transformOrigin: 'center'
+                  }} />
+                )}
+              </button>
             ))}
           </div>
         </div>
