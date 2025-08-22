@@ -43,6 +43,7 @@ interface UseSmartNotificationsReturn {
   }) => Promise<boolean>;
   clearError: () => void;
   loadMore: () => Promise<void>;
+  clearAllNotifications: () => void;
   // Connection
   isConnected: boolean;
   connectToNotifications: () => Promise<void>;
@@ -145,7 +146,7 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
    */
   const markAsRead = useCallback(async (notificationId: string) => {
     try {
-      const response = await fetch('/api/notifications/mark-read', {
+      const response = await fetch('/api/notifications/mark-read-single', {
         method: 'POST',
         headers: {
           ...getAuthHeaders(),
@@ -196,16 +197,13 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
    */
   const markAllAsRead = useCallback(async () => {
     try {
-      const response = await fetch('/api/notifications/mark-read', {
+      const response = await fetch('/api/notifications/mark-all-read-header', {
         method: 'POST',
         headers: {
           ...getAuthHeaders(),
           'Content-Type': 'application/json'
         },
-        credentials: 'include',
-        body: JSON.stringify({
-          markAll: true
-        })
+        credentials: 'include'
       });
 
       if (!response.ok) {

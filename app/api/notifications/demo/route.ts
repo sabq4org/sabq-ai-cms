@@ -1,28 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
+import { getCurrentUser } from '@/app/lib/auth';
 
 // إنشاء إشعارات تجريبية للمستخدم
 export async function POST(request: NextRequest) {
   try {
-    // استخراج التوكن من الكوكيز
-    const token = request.cookies.get('auth-token')?.value || 
-                  request.cookies.get('access_token')?.value;
+    const user = await getCurrentUser();
     
-    if (!token) {
+    if (!user || !user.id) {
       return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
     }
 
-    // التحقق من صحة التوكن
-    let userId: string;
-    try {
-      const decoded = jwt.verify(token, JWT_SECRET) as any;
-      userId = decoded.id;
-    } catch (error) {
-      return NextResponse.json({ error: 'توكن غير صالح' }, { status: 401 });
-    }
+    const userId = user.id;
 
     // إنشاء إشعارات تجريبية
     const demoNotifications = [

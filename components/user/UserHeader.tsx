@@ -27,6 +27,7 @@ import Image from 'next/image';
 import SabqLogo from '@/components/SabqLogo';
 import { useSiteSettings } from '@/hooks/useSiteSettings';
 import CompactThemeSwitcher from '@/components/theme/CompactThemeSwitcher';
+import { NotificationDropdown } from '@/components/Notifications/NotificationDropdown';
 
 interface UserHeaderProps {
   onMenuClick?: () => void;
@@ -270,23 +271,10 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
               <Search style={{ width: '18px', height: '18px' }} />
             </button>
 
-            {/* الإشعارات */}
-            <button className="btn btn-sm" title="الإشعارات">
-              <Bell style={{ width: '18px', height: '18px' }} />
-              {user && (
-                <span className="chip" style={{
-                  background: 'hsl(var(--accent))',
-                  color: 'white',
-                  fontSize: '10px',
-                  padding: '2px 6px',
-                  borderRadius: '10px',
-                  border: 'none',
-                  marginRight: '4px'
-                }}>
-                  3
-                </span>
-              )}
-            </button>
+            {/* الإشعارات الذكية */}
+            {user && (
+              <NotificationDropdown />
+            )}
 
             {/* تغيير الثيم السريع - مخفي لاستخدام CompactThemeSwitcher */}
             {/* <div 

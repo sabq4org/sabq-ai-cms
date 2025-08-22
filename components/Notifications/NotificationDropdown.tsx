@@ -310,27 +310,32 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                           : ''
                       }`}
                       onClick={async (e) => {
+                        e.preventDefault();
+                        
+                        // إخفاء الإشعار محلياً فوراً للاستجابة السريعة
+                        setHiddenNotifications(prev => new Set([...prev, notification.id]));
+                        
                         // تحديد كمقروء إذا لم يكن كذلك
                         if (!notification.read_at) {
                           try {
                             await markAsRead(notification.id);
-                            // إخفاء الإشعار محلياً فقط بعد نجاح التحديث
-                            setHiddenNotifications(prev => new Set([...prev, notification.id]));
                           } catch (error) {
                             console.error('فشل في تحديد الإشعار كمقروء:', error);
-                            // لا نخفي الإشعار في حالة الفشل
+                            // إعادة الإشعار للقائمة في حالة الفشل
+                            setHiddenNotifications(prev => {
+                              const newSet = new Set(prev);
+                              newSet.delete(notification.id);
+                              return newSet;
+                            });
                             return;
                           }
-                        } else {
-                          // إذا كان مقروء مسبقاً، يمكن إخفاؤه محلياً
-                          setHiddenNotifications(prev => new Set([...prev, notification.id]));
                         }
                         
                         // الانتقال للرابط إذا كان موجود
-                        if (notification.link && !e.defaultPrevented) {
+                        if ((notification as any).link) {
                           setTimeout(() => {
-                            window.location.href = notification.link;
-                          }, 200); // تأخير بسيط للسماح بالحركة
+                            window.location.href = (notification as any).link;
+                          }, 100); // تأخير أقل للاستجابة السريعة
                         }
                       }}
                     >
@@ -384,9 +389,9 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                           )}
                           
                           {/* رسالة الإشعار كرابط قابل للنقر */}
-                          {notification.link ? (
+                          {(notification as any).link ? (
                             <Link 
-                              href={notification.link}
+                              href={(notification as any).link}
                               className={`text-sm ${
                                 !notification.read_at 
                                   ? 'text-gray-900 dark:text-white font-medium hover:text-blue-600 dark:hover:text-blue-400' 
