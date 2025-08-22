@@ -1394,7 +1394,7 @@ function NewspaperHomePage({
                   // عرض المقالات المخصصة للمستخدمين المسجلين مع البطاقات الذكية
                   isMobileView ? (
                     // عرض الموبايل - قائمة عمودية مع البطاقات المخصصة
-                    <div className="space-y-3">
+                    <div className="space-y-3 smart-ai-list">
                       {renderMixedContent(
                         personalizedArticles.slice(0, 15)
                       ).map((element, idx) => {
@@ -1421,7 +1421,7 @@ function NewspaperHomePage({
                     </div>
                   ) : (
                     // عرض الديسكتوب - شبكة مع البطاقات المخصصة
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 smart-ai-grid">
                       {renderMixedContent(
                         personalizedArticles.slice(0, 16)
                       ).map((element, idx) => {
@@ -1457,12 +1457,12 @@ function NewspaperHomePage({
                   // عرض آخر المقالات للزوار أو المستخدمين بدون تفضيلات - مع البطاقات المخصصة
                   isMobileView ? (
                     // عرض الموبايل - قائمة عمودية مع البطاقات المخصصة
-                    <div className="space-y-3">
+                    <div className="space-y-3 smart-ai-list">
                       {renderMixedContent(articles.slice(0, 15))}
                     </div>
                   ) : (
                     // عرض الديسكتوب - شبكة مع البطاقات المخصصة
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 smart-ai-grid">
                       {renderMixedContent(articles.slice(0, 16))}
                     </div>
                   )

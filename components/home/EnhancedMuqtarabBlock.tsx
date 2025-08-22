@@ -572,10 +572,10 @@ export default function EnhancedMuqtarabBlock({
       <Link href={article.link} className="group block">
         <article
           dir="rtl"
-          className="h-full transition-all duration-300 flex flex-row md:flex-col border border-gray-200 dark:border-gray-700 rounded-xl muqtarab-themed-card"
+          className="h-full transition-all duration-300 flex flex-row md:flex-col rounded-xl muqtarab-themed-card"
           style={{ 
             boxShadow: 'none',
-            borderColor: '#f0f0ef',
+            border: '1px solid #f0f0ef',
             backgroundColor: '#ffffff'
           }}
         >
