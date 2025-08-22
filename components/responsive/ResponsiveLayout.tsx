@@ -25,8 +25,9 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
     const width = window.innerWidth;
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     
-    // اعتبر الجهاز محمول إذا كانت الشاشة صغيرة أو إذا كان جهاز لمس
-    const newIsMobile = width < 768 || (isTouchDevice && width < 1024);
+    // تبسيط الفحص - فقط حجم الشاشة
+    const newIsMobile = width < 768;
+    console.log(`🔧 تشخيص الجهاز: العرض=${width}px، الجهاز=${newIsMobile ? 'موبايل' : 'ديسكتوب'}، لمس=${isTouchDevice}`);
     setIsMobile(prev => prev !== newIsMobile ? newIsMobile : prev);
   }, []);
 
