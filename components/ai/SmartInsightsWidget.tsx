@@ -31,6 +31,7 @@ interface SmartInsightsWidgetProps {
 export default function SmartInsightsWidget({ variant = 'default', className = '' }: SmartInsightsWidgetProps) {
   const { darkMode } = useDarkModeContext();
   const [insights, setInsights] = useState<ArticleInsight[]>([]);
+  const [accentActive, setAccentActive] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -63,6 +64,26 @@ export default function SmartInsightsWidget({ variant = 'default', className = '
     // تحديث كل 5 دقائق
     const interval = setInterval(fetchInsights, 5 * 60 * 1000);
     return () => clearInterval(interval);
+  }, []);
+
+  // رصد تفعيل نظام الألوان (accent) عبر data-theme لدعم خيار "بلا لون"
+  useEffect(() => {
+    try {
+      const updateAccent = () => {
+        const dt = document.documentElement.getAttribute('data-theme');
+        setAccentActive(Boolean(dt) && dt !== 'none');
+      };
+      updateAccent();
+      const observer = new MutationObserver((mutations) => {
+        for (const m of mutations) {
+          if (m.type === 'attributes' && m.attributeName === 'data-theme') {
+            updateAccent();
+          }
+        }
+      });
+      observer.observe(document.documentElement, { attributes: true });
+      return () => observer.disconnect();
+    } catch {}
   }, []);
 
   // دوران تلقائي للمؤشرات
@@ -156,8 +177,8 @@ export default function SmartInsightsWidget({ variant = 'default', className = '
     return (
       <div className={`max-w-6xl mx-auto ${isCompact ? 'mb-6' : 'mb-8'} ${className}`} aria-busy="true" aria-live="polite">
         <div
-          className={`relative overflow-hidden border rounded-xl border-gray-200 dark:border-gray-700 ${isCompact ? 'p-3' : 'p-5'} h-full flex flex-col`}
-          style={{ background: darkMode ? 'hsl(var(--bg-elevated))' : 'hsl(var(--accent) / 0.06)' }}
+          className={`relative overflow-hidden border rounded-xl border-[#f0f0ef] dark:border-gray-700 ${isCompact ? 'p-3' : 'p-5'} h-full flex flex-col transition-colors hover:border-[hsl(var(--accent))]`}
+          style={{ background: darkMode ? 'hsl(var(--bg-elevated))' : (accentActive ? 'hsl(var(--accent) / 0.06)' : '#ffffff') }}
         >
           <div className="animate-pulse space-y-4 flex-1">
             <div className="space-y-2">
@@ -180,7 +201,7 @@ export default function SmartInsightsWidget({ variant = 'default', className = '
               </div>
               <div className="h-16 bg-slate-300/40 dark:bg-slate-600/40 rounded-xl"></div>
             </div>
-            <div className="flex items-center justify-between pt-3 border-t border-slate-200/50 dark:border-slate-600/50">
+            <div className="flex items-center justify-between pt-3 border-t border-[#f0f0ef] dark:border-slate-600/50">
                         <div className="flex gap-1.5">
               <div className="w-2.5 h-2.5 bg-red-500/90 dark:bg-red-500/80 rounded-full animate-pulse"></div>
               <div className="w-2.5 h-2.5 bg-blue-500/90 dark:bg-blue-500/80 rounded-full animate-pulse delay-100"></div>
@@ -200,8 +221,8 @@ export default function SmartInsightsWidget({ variant = 'default', className = '
     return (
       <div className={`max-w-6xl mx-auto ${isCompact ? 'mb-6' : 'mb-8'} ${className}`}>
         <div
-          className={`relative overflow-hidden border rounded-xl border-gray-200 dark:border-gray-700 ${isCompact ? 'p-3' : 'p-5'} h-full flex flex-col items-center justify-center text-center`}
-          style={{ background: darkMode ? 'hsl(var(--accent) / 0.08)' : 'hsl(var(--accent) / 0.06)' }}
+          className={`relative overflow-hidden border rounded-xl border-[#f0f0ef] dark:border-gray-700 ${isCompact ? 'p-3' : 'p-5'} h-full flex flex-col items-center justify-center text-center transition-colors hover:border-[hsl(var(--accent))]`}
+          style={{ background: darkMode ? 'hsl(var(--bg-elevated))' : (accentActive ? 'hsl(var(--accent) / 0.06)' : '#ffffff') }}
         >
           <div className="space-y-4">
             <div className={`${isCompact ? 'text-4xl' : 'text-5xl'} animate-bounce`}>🤖</div>
@@ -216,7 +237,7 @@ export default function SmartInsightsWidget({ variant = 'default', className = '
                 المؤشرات الذكية ستظهر قريباً
               </div>
             </div>
-            <div className="flex items-center justify-between pt-3 border-t border-slate-200/50 dark:border-slate-600/50 mt-4">
+            <div className="flex items-center justify-between pt-3 border-t border-[#f0f0ef] dark:border-slate-600/50 mt-4">
               <div className="flex gap-1.5">
                 <div className="w-2.5 h-2.5 bg-red-500/80 dark:bg-red-500/60 rounded-full"></div>
                 <div className="w-2.5 h-2.5 bg-blue-500/80 dark:bg-blue-500/60 rounded-full"></div>
@@ -238,8 +259,8 @@ export default function SmartInsightsWidget({ variant = 'default', className = '
   return (
     <div className={`max-w-6xl mx-auto ${isCompact ? 'mb-6' : 'mb-8'} ${className}`}>
       <div
-        className={`relative overflow-hidden border rounded-xl border-gray-200 dark:border-gray-700 ${isCompact ? 'p-3' : 'p-5'} transition-all duration-300 h-full flex flex-col`}
-        style={{ background: darkMode ? 'hsl(var(--bg-elevated))' : 'hsl(var(--accent) / 0.06)' }}
+        className={`relative overflow-hidden border rounded-xl border-[#f0f0ef] dark:border-gray-700 ${isCompact ? 'p-3' : 'p-5'} transition-all duration-300 h-full flex flex-col hover:border-[hsl(var(--accent))]`}
+        style={{ background: darkMode ? 'hsl(var(--bg-elevated))' : (accentActive ? 'hsl(var(--accent) / 0.06)' : '#ffffff') }}
       >
       {/* خط جانبي ملون ديناميكي */}
       <div className={`absolute top-0 right-0 w-1 h-full ${config.accent.replace('border-l-', 'bg-')} transition-colors duration-500`}></div>
@@ -346,7 +367,7 @@ export default function SmartInsightsWidget({ variant = 'default', className = '
       </div>
 
       {/* مؤشرات النقاط والتحكم - 5 نقاط ملونة دائماً */}
-      <div className={`flex items-center justify-between ${isCompact ? 'mt-3' : 'mt-4'} pt-3 border-t border-slate-200/50 dark:border-slate-600/50`}>
+      <div className={`flex items-center justify-between ${isCompact ? 'mt-3' : 'mt-4'} pt-3 border-t border-[#f0f0ef] dark:border-slate-600/50`}>
         <div className="flex gap-1.5">
           {Array.from({ length: 5 }, (_, index) => {
             const insight = insights[index];
@@ -399,7 +420,7 @@ export default function SmartInsightsWidget({ variant = 'default', className = '
         
         <Link 
           href="/ai-insights" 
-          className="text-xs text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
+          className={`text-xs transition-colors font-medium ${accentActive ? 'text-[hsl(var(--accent))] hover:text-[hsl(var(--accent-hover))]' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}
         >
           عرض الكل ←
         </Link>
