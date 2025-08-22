@@ -51,28 +51,14 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
     return () => observer.disconnect();
   }, []);
 
-  // تطبيق فوري للخلفية العامة
+  // تطبيق الخلفية العامة
   useEffect(() => {
-    // تطبيق الخلفية الأساسية
-    const bgColor = darkMode ? '#111827' : '#f8f8f7';
-    document.documentElement.style.backgroundColor = bgColor;
-    document.documentElement.style.backgroundImage = 'none';
-    document.body.style.backgroundColor = bgColor;
-    document.body.style.backgroundImage = 'none';
-    
-    // تطبيق على العناصر الرئيسية
-    const mainElements = document.querySelectorAll('#__next, .page-wrapper, .homepage-wrapper, main');
-    mainElements.forEach(el => {
-      (el as HTMLElement).style.backgroundColor = 'transparent';
-      (el as HTMLElement).style.backgroundImage = 'none';
-    });
-    
     if (pathname?.startsWith('/muqtarab')) {
       document.body.setAttribute('data-muqtarab-page', 'true');
     } else {
       document.body.removeAttribute('data-muqtarab-page');
     }
-  }, [pathname, darkMode]);
+  }, [pathname]);
 
   useEffect(() => {
     setMounted(true);
@@ -130,18 +116,14 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
   // النسخة الخفيفة للهواتف والتابلت
   if (isMobile) {
     return (
-      <div className="min-h-screen" style={{ 
-        backgroundColor: darkMode ? '#111827' : '#f8f8f7',
-        backgroundImage: 'none'
-      }}>
+      <div className="min-h-screen">
         {DevIndicator}
         {/* إخفاء هيدر النسخة الخفيفة في صفحات الإدارة */}
         {!pathname.startsWith('/admin') && <LightHeader />}
         <main 
           className={`mx-auto content-main-mobile ${isCategoryPage || pathname.startsWith('/admin') ? 'px-1' : 'px-4 sm:px-6 py-6'}`} 
           style={{ 
-            maxWidth: (isCategoryPage || pathname.startsWith('/admin')) ? '1400px' : '72rem',
-            backgroundColor: 'transparent'
+            maxWidth: (isCategoryPage || pathname.startsWith('/admin')) ? '1400px' : '72rem'
           }}
         >
           <div data-device="mobile">
@@ -159,9 +141,7 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
       display: 'flex',
       flexDirection: 'column',
       position: 'relative',
-      zIndex: 1,
-      backgroundColor: darkMode ? '#111827' : '#f8f8f7',
-      backgroundImage: 'none'
+      zIndex: 1
     }}>
       {DevIndicator}
       {/* إخفاء هيدر الموقع في صفحات الإدارة */}
@@ -171,8 +151,7 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
         padding: (isCategoryPage || pathname.startsWith('/admin')) ? '0 8px' : '16px 24px',
         maxWidth: (isCategoryPage || pathname.startsWith('/admin')) ? '1400px' : '72rem',
         margin: '0 auto',
-        width: '100%',
-        background: 'transparent'
+        width: '100%'
       }}>
         <div data-device="desktop">
           {children}
