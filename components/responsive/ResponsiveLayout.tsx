@@ -14,6 +14,7 @@ interface ResponsiveLayoutProps {
 export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
   const [isMobile, setIsMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
   const pathname = usePathname();
   const isAdminLogin = pathname?.startsWith("/admin/login");
   const isUserAuthPage = pathname === "/login" || pathname === "/register";
@@ -27,6 +28,27 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
     // اعتبر الجهاز محمول إذا كانت الشاشة صغيرة أو إذا كان جهاز لمس
     const newIsMobile = width < 768 || (isTouchDevice && width < 1024);
     setIsMobile(prev => prev !== newIsMobile ? newIsMobile : prev);
+  }, []);
+
+  // التحقق من الوضع الداكن
+  useEffect(() => {
+    const checkDarkMode = () => {
+      const isDark = document.documentElement.classList.contains('dark') || 
+                     document.body.classList.contains('dark') ||
+                     localStorage.getItem('theme') === 'dark';
+      setDarkMode(isDark);
+    };
+
+    checkDarkMode();
+    
+    // مراقبة تغييرات الـ class
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, { 
+      attributes: true, 
+      attributeFilter: ['class'] 
+    });
+    
+    return () => observer.disconnect();
   }, []);
 
   // تطبيق فوري لخلفية مقترب
