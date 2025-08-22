@@ -27,7 +27,6 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
     
     // تبسيط الفحص - فقط حجم الشاشة
     const newIsMobile = width < 768;
-    console.log(`🔧 تشخيص الجهاز: العرض=${width}px، الجهاز=${newIsMobile ? 'موبايل' : 'ديسكتوب'}، لمس=${isTouchDevice}`);
     setIsMobile(prev => prev !== newIsMobile ? newIsMobile : prev);
   }, []);
 
@@ -128,22 +127,8 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
     );
   }
 
-  // تشخيص - إضافة console.log
-  useEffect(() => {
-    console.log('📱 ResponsiveLayout - حالة العرض:', { 
-      isMobile, 
-      mounted, 
-      pathname,
-      isAdminLogin,
-      isUserAuthPage,
-      shouldShowHeader: isMobile && !pathname.startsWith('/admin'),
-      windowWidth: typeof window !== 'undefined' ? window.innerWidth : 'N/A'
-    });
-  }, [isMobile, mounted, pathname, isAdminLogin, isUserAuthPage]);
-
   // النسخة الخفيفة للهواتف والتابلت
   if (isMobile) {
-    console.log('📱 عرض النسخة الخفيفة - هيدر:', !pathname.startsWith('/admin'));
     return (
       <div className="min-h-screen" style={{ 
         backgroundColor: darkMode ? '#111827' : '#f8f8f7',
