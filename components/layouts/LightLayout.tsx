@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useAuth } from "@/hooks/useAuth";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import "@/styles/light-layout.css";
 
 interface LightLayoutProps {
@@ -32,6 +33,7 @@ export default function LightLayout({ children }: LightLayoutProps) {
   const [mounted, setMounted] = useState(false);
   const { darkMode, toggleDarkMode } = useDarkModeContext();
   const { user } = useAuth();
+  const { logoUrl, logoDarkUrl } = useSiteSettings();
 
   useEffect(() => {
     setMounted(true);
@@ -98,12 +100,13 @@ export default function LightLayout({ children }: LightLayoutProps) {
               {/* Logo */}
               <Link href="/" className="flex items-center">
                 <Image
-                  src="/logo.png"
+                  src={(darkMode ? (logoDarkUrl || logoUrl) : (logoUrl || "/logo.png")) as string}
                   alt="سبق الذكية"
                   width={120}
                   height={40}
                   className="h-10 w-auto object-contain"
                   priority
+                  unoptimized={Boolean((darkMode ? (logoDarkUrl || logoUrl) : (logoUrl || "/logo.png"))?.toString().startsWith("http"))}
                 />
               </Link>
             </div>

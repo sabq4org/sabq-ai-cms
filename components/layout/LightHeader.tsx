@@ -72,7 +72,7 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [currentTheme, setCurrentTheme] = useState(themes[0]);
   const { darkMode, toggleDarkMode, mounted } = useDarkModeContext();
-  const { logoUrl, siteName, loading: settingsLoading } = useSiteSettings();
+  const { logoUrl, logoDarkUrl, siteName, loading: settingsLoading } = useSiteSettings();
   const { user, isLoggedIn, logout } = useAuth();
   const pathname = usePathname();
   const userMenuRef = useRef<HTMLDivElement | null>(null);
@@ -243,15 +243,15 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
               {settingsLoading ? (
                 <div className="w-[140px] md:w-[200px] h-10 md:h-12 bg-gray-200 dark:bg-gray-700 animate-pulse rounded" />
               ) : (
-                logoUrl && (
+                (logoUrl || logoDarkUrl) && (
                   <div className="relative h-10 md:h-12 w-[140px] md:w-[200px] transition-all duration-200 group-hover:scale-105">
                     <Image
-                      src={logoUrl}
+                      src={(darkMode ? (logoDarkUrl || logoUrl) : (logoUrl || logoDarkUrl)) as string}
                       alt={siteName || "سبق"}
                       fill
                       className="object-contain drop-shadow-sm group-hover:drop-shadow-md transition-all duration-200 mix-blend-multiply dark:mix-blend-normal"
                       priority
-                      unoptimized={logoUrl.startsWith("http")}
+                      unoptimized={Boolean((darkMode ? (logoDarkUrl || logoUrl) : (logoUrl || logoDarkUrl))?.toString().startsWith("http"))}
                     />
                   </div>
                 )

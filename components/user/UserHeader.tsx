@@ -25,6 +25,7 @@ import {
 import DarkModeToggle from '@/components/admin/modern-dashboard/DarkModeToggle';
 import Image from 'next/image';
 import SabqLogo from '@/components/SabqLogo';
+import { useSiteSettings } from '@/hooks/useSiteSettings';
 import CompactThemeSwitcher from '@/components/theme/CompactThemeSwitcher';
 
 interface UserHeaderProps {
@@ -34,6 +35,7 @@ interface UserHeaderProps {
 
 export default function UserHeader({ onMenuClick, showMenuButton = false }: UserHeaderProps) {
   const { user, logout } = useAuth();
+  const { logoUrl, logoDarkUrl } = useSiteSettings();
   const [searchOpen, setSearchOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [currentTheme, setCurrentTheme] = useState('blue');
@@ -219,14 +221,15 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
             
             {/* الشعار */}
             <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
-                          <Image
-              src="/logo.png"
-              alt="شعار سبق"
-              width={200}
-              height={48}
-              className="h-12 md:h-12 w-auto object-contain mix-blend-multiply dark:mix-blend-normal"
-              priority
-            />
+              <Image
+                src={(isMobile ? (logoUrl || '/logo.png') : (logoUrl || '/logo.png')) as string}
+                alt="شعار سبق"
+                width={200}
+                height={48}
+                className="h-12 md:h-12 w-auto object-contain mix-blend-multiply dark:mix-blend-normal"
+                priority
+                unoptimized={Boolean((logoUrl || '/logo.png').toString().startsWith('http'))}
+              />
             </Link>
           </div>
 
