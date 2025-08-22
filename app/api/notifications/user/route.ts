@@ -11,7 +11,8 @@ export async function GET(request: NextRequest) {
                   request.cookies.get('access_token')?.value;
     
     if (!token) {
-      return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+      // استجابة صامتة عند عدم وجود جلسة
+      return NextResponse.json({ success: true, notifications: [], unreadCount: 0, total: 0 });
     }
 
     // التحقق من صحة التوكن
@@ -20,7 +21,8 @@ export async function GET(request: NextRequest) {
       const decoded = jwt.verify(token, JWT_SECRET) as any;
       userId = decoded.id;
     } catch (error) {
-      return NextResponse.json({ error: 'توكن غير صالح' }, { status: 401 });
+      // استجابة صامتة عند توكن غير صالح
+      return NextResponse.json({ success: true, notifications: [], unreadCount: 0, total: 0 });
     }
 
     // جلب الإشعارات للمستخدم

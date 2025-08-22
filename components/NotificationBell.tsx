@@ -49,7 +49,7 @@ export default function NotificationBell() {
 
   const fetchNotifications = async () => {
     try {
-      const response = await fetch('/api/notifications/user');
+      const response = await fetch('/api/notifications/user', { credentials: 'include' });
       if (response.ok) {
         const data = await response.json();
         setNotifications(data.notifications || []);

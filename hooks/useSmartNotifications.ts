@@ -87,10 +87,17 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
         credentials: 'include'
       });
 
+      if (response.status === 401) {
+        // جلسة منتهية: إخفاء وإرجاع قائمة فارغة بدون أي إشعار للمستخدم
+        setNotifications([]);
+        setUnreadCount(0);
+        setStats({} as any);
+        setPage(1);
+        setHasMore(false);
+        return;
+      }
+
       if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('انتهت صلاحية الجلسة');
-        }
         throw new Error(`خطأ: ${response.status}`);
       }
 
@@ -130,12 +137,12 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'خطأ غير معروف';
       console.error('❌ خطأ في جلب الإشعارات:', err);
-      setError(errorMessage);
-      
-      // لا تُظهر toast للأخطاء البسيطة
-      if (!errorMessage.includes('انتهت صلاحية') && !errorMessage.includes('401')) {
-        toast.error('فشل في تحميل الإشعارات');
+      // أخطاء الجلسة: صامتة بالكامل
+      if (errorMessage.includes('انتهت صلاحية') || errorMessage.includes('401')) {
+        return;
       }
+      setError(errorMessage);
+      toast.error('فشل في تحميل الإشعارات');
     } finally {
       setLoading(false);
     }
@@ -167,6 +174,10 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
         })
       });
 
+      if (response.status === 401) {
+        // صامت
+        return;
+      }
       if (!response.ok) {
         throw new Error(`خطأ HTTP: ${response.status}`);
       }
@@ -215,6 +226,10 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
         credentials: 'include'
       });
 
+      if (response.status === 401) {
+        // صامت
+        return;
+      }
       if (!response.ok) {
         throw new Error(`خطأ HTTP: ${response.status}`);
       }
@@ -274,6 +289,10 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
         })
       });
 
+      if (response.status === 401) {
+        // صامت
+        return false;
+      }
       if (!response.ok) {
         throw new Error(`خطأ HTTP: ${response.status}`);
       }
