@@ -135,7 +135,7 @@ export default function NotificationBell() {
   };
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative z-[100] pointer-events-auto" ref={dropdownRef}>
       {/* زر الجرس */}
       <button
         onClick={handleBellClick}
@@ -158,7 +158,7 @@ export default function NotificationBell() {
 
       {/* قائمة الإشعارات */}
       {isOpen && (
-        <div className="absolute left-0 md:left-auto md:right-0 mt-2 w-80 md:w-96 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-[100] overflow-hidden">
+        <div className="absolute left-0 md:left-auto md:right-0 mt-2 w-80 md:w-96 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-[9999] overflow-hidden">
           {/* الهيدر */}
           <div className="px-4 py-3 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">

@@ -129,7 +129,7 @@ export default function Header() {
     <>
       <header
         ref={headerElRef}
-        className={`fixed-header transition-all duration-300 relative z-40 ${
+        className={`fixed-header transition-all duration-300 relative z-50 ${
           darkMode
             ? "bg-gray-900/95 backdrop-blur-lg border-gray-700/50"
             : "bg-blue-50/95 backdrop-blur-lg border-blue-200"
@@ -183,7 +183,7 @@ export default function Header() {
             </nav>
 
             {/* أدوات الهيدر */}
-            <div className="flex items-center space-x-1 md:space-x-3 rtl:space-x-reverse header-tools absolute right-0">
+            <div className="flex items-center space-x-1 md:space-x-3 rtl:space-x-reverse header-tools absolute right-0 z-[60]">
 
 
               {/* زر لحظة بلحظة - يظهر على الشاشات المتوسطة فأعلى فقط */}
