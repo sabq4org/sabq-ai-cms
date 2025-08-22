@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
-import Footer from '@/components/Footer';
+
 import DeepAnalysisCard from '@/components/deep-analysis/DeepAnalysisCard';
 import SmartDeepAnalysisCard from '@/components/deep-analysis/SmartDeepAnalysisCard';
 import DeepAnalysisHorizontalScroll from '@/components/deep-analysis/DeepAnalysisHorizontalScroll';
@@ -373,7 +373,6 @@ export default function DeepAnalysesPage() {
           )}
         </section>
       </div>
-      <Footer />
       <style jsx>{`
         .scrollbar-hide {
           -ms-overflow-style: none;
