@@ -4,11 +4,20 @@ import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
 
+function extractToken(request: NextRequest): string | null {
+  const cookieToken = request.cookies.get('auth-token')?.value || request.cookies.get('access_token')?.value;
+  if (cookieToken) return cookieToken;
+  const authHeader = request.headers.get('authorization') || request.headers.get('Authorization');
+  if (authHeader && /^Bearer\s+/.test(authHeader)) {
+    return authHeader.replace(/^Bearer\s+/i, '').trim();
+  }
+  return null;
+}
+
 export async function GET(request: NextRequest) {
   try {
-    // استخراج التوكن من الكوكيز
-    const token = request.cookies.get('auth-token')?.value || 
-                  request.cookies.get('access_token')?.value;
+    // استخراج التوكن من الكوكيز أو Authorization
+    const token = extractToken(request);
     
     if (!token) {
       // استجابة صامتة عند عدم وجود جلسة
