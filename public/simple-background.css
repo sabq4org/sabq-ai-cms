@@ -39,12 +39,12 @@ body.dark,
   display: none !important;
 }
 
-/* الحفاظ على البطاقات بيضاء */
-.card,
+/* إزالة الخلفية البيضاء من البطاقات - بقاء الخلفية العامة فقط */
+/* .card,
 article,
 [class*="card"] {
   background-color: #ffffff;
-}
+} */
 
 /* Force على جميع العناصر الأخرى */
 * {

@@ -187,9 +187,9 @@ export default function NewsCard({ news, viewMode = "grid" }: NewsCardProps) {
         <article
           className={cn(
             "relative rounded-3xl shadow-sm transition-all duration-300 p-6 flex gap-6",
-            isBreaking
-              ? "bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800"
-              : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+                      isBreaking
+            ? "bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800"
+            : "bg-[#f8f8f7] dark:bg-gray-800 border-none"
           )}
           dir="rtl"
           data-category={mappedCategory}
@@ -252,7 +252,7 @@ export default function NewsCard({ news, viewMode = "grid" }: NewsCardProps) {
           "relative rounded-2xl shadow-sm transition-all duration-300 overflow-hidden h-full flex flex-col",
           isBreaking
             ? "bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800"
-            : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+            : "bg-[#f8f8f7] dark:bg-gray-800 border-none"
         )}
         dir="rtl"
         data-category={mappedCategory}

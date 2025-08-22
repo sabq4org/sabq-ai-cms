@@ -81,12 +81,13 @@ body > * {
 /* باستثناء العناصر التي تحتاج خلفية بيضاء */
 .card,
 .bg-white,
-[class*="card"],
+/* إزالة فرض الخلفية البيضاء من البطاقات */
+/* [class*="card"],
 article {
   background-color: #ffffff !important;
   position: relative !important;
   z-index: 1 !important;
-}
+} */
 
 /* إزالة أي overlays أو pseudo elements قد تغطي الصفحة */
 .manus-layout::before,
