@@ -57,7 +57,7 @@ export default function AdminLogin() {
             width: '100%',
             maxWidth: '450px'
           }}>
-            {/* شعار سبق */}
+            
             <div style={{
               textAlign: 'center',
               marginBottom: '40px'
@@ -88,7 +88,7 @@ export default function AdminLogin() {
               </div>
             </div>
 
-            {/* صندوق تسجيل الدخول */}
+            
             <div style={{
               backgroundColor: 'white',
               borderRadius: '20px',
@@ -117,7 +117,7 @@ export default function AdminLogin() {
               <form onSubmit={handleSubmit} style={{
                 textAlign: 'left'
               }}>
-                {/* البريد الإلكتروني */}
+                
                 <div style={{ marginBottom: '24px' }}>
                   <label style={{
                     display: 'block',
@@ -158,7 +158,7 @@ export default function AdminLogin() {
                   />
                 </div>
 
-                {/* كلمة المرور */}
+                
                 <div style={{ marginBottom: '32px' }}>
                   <label style={{
                     display: 'block',
@@ -198,7 +198,7 @@ export default function AdminLogin() {
                   />
                 </div>
 
-                {/* زر الدخول */}
+                
                 <button
                   type="submit"
                   disabled={loading}
@@ -241,7 +241,7 @@ export default function AdminLogin() {
                 </button>
               </form>
 
-              {/* معلومات للاختبار */}
+              
               <div style={{
                 marginTop: '24px',
                 padding: '16px',
@@ -265,7 +265,7 @@ export default function AdminLogin() {
               </div>
             </div>
 
-            {/* تذييل */}
+            
             <div style={{
               textAlign: 'center',
               marginTop: '30px',
