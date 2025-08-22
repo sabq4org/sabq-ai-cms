@@ -649,3 +649,74 @@ main,
   background: #f8f8f7 !important;
   background-color: #f8f8f7 !important;
 }
+
+/* ========== تطبيق نفس النظام على صفحة الأخبار ========== */
+
+/* تأثيرات الإحصائيات والأيقونات لصفحة الأخبار */
+[data-page="news"] .stats-icon,
+[data-page="news"] .header-icon,
+[data-news="true"] .stats-icon,
+[data-news="true"] .header-icon {
+  color: var(--theme-primary, #3B82F6) !important;
+  transition: color 0.3s ease;
+}
+
+[data-page="news"] .stats-icon:hover,
+[data-page="news"] .header-icon:hover,
+[data-news="true"] .stats-icon:hover,
+[data-news="true"] .header-icon:hover {
+  color: var(--theme-primary, hsl(212 90% 50%)) !important;
+}
+
+/* تحسين شريط الإحصائيات لصفحة الأخبار */
+[data-page="news"] .stats-container,
+[data-news="true"] .stats-container {
+  background: transparent !important;
+  border: 1px solid #f0f0ef !important;
+  transition: all 0.3s ease;
+}
+
+[data-page="news"] .stats-container:hover,
+[data-news="true"] .stats-container:hover {
+  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.03) !important;
+  border-color: var(--theme-primary, #3B82F6) !important;
+}
+
+/* تأثيرات الهيدر والأيقونة الرئيسية لصفحة الأخبار */
+[data-page="news"] .header-main-icon,
+[data-page="news"] .themed-gradient-bg,
+[data-news="true"] .header-main-icon,
+[data-news="true"] .themed-gradient-bg {
+  background: linear-gradient(135deg, var(--theme-primary, #3b82f6), var(--theme-secondary, #2563eb)) !important;
+  transition: all 0.3s ease;
+}
+
+[data-page="news"] .header-main-icon:hover,
+[data-news="true"] .header-main-icon:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 30px rgba(var(--theme-primary-rgb, 59 130 246), 0.3);
+}
+
+/* إزالة أي خلفيات بيضاء من صفحة الأخبار */
+[data-page="news"] section,
+[data-page="news"] .max-w-7xl,
+[data-page="news"] .relative,
+[data-news="true"] section,
+[data-news="true"] .max-w-7xl,
+[data-news="true"] .relative {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* التأكد من أن الأيقونة الرئيسية بيضاء */
+[data-page="news"] .header-main-icon .header-icon,
+[data-news="true"] .header-main-icon .header-icon {
+  color: white !important;
+}
+
+/* التأكد من تطبيق الخلفية على الحاوية الرئيسية */
+[data-page="news"],
+[data-news="true"] {
+  background: #f8f8f7 !important;
+  background-color: #f8f8f7 !important;
+}
