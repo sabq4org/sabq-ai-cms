@@ -194,7 +194,7 @@ html:has([data-muqtarab="true"]) body {
 /* نظام الألوان المتغيرة لبطاقات مقترب */
 [data-page="muqtarab"] .card,
 [data-muqtarab="true"] .card {
-  --card-hover-bg: hsl(var(--accent) / 0.06);
+  --card-hover-bg: rgba(var(--theme-primary-rgb, 59 130 246), 0.05);
   --card-accent: var(--theme-primary, #3B82F6);
   transition: all 0.3s ease;
 }
@@ -219,16 +219,34 @@ html:has([data-muqtarab="true"]) body {
 
 /* بطاقات MuqtarabCard المحددة */
 .muqtarab-themed-card {
-  --card-hover-bg: hsl(var(--accent) / 0.06);
-  --card-accent: hsl(var(--accent));
+  --card-hover-bg: rgba(var(--theme-primary-rgb, 59 130 246), 0.05);
+  --card-accent: var(--theme-primary, #3B82F6);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .muqtarab-themed-card:hover {
-  background: rgba(var(--theme-primary-rgb, 59 130 246), 0.05) !important;
-  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.05) !important;
+  background: var(--card-hover-bg) !important;
+  background-color: var(--card-hover-bg) !important;
   transform: translateY(-1px);
   box-shadow: 0 8px 25px rgba(var(--theme-primary-rgb, 59 130 246), 0.12);
+}
+
+/* نسخة الصفحة الرئيسية (داخل .muqtarab-card-container) */
+.muqtarab-card-container .card {
+  --card-hover-bg: rgba(var(--theme-primary-rgb, 59 130 246), 0.05);
+  transition: all 0.3s ease;
+}
+
+.muqtarab-card-container .card:hover {
+  background-color: var(--card-hover-bg) !important;
+}
+
+/* عند اختيار "بلا لون" عُد للخلفية البيضاء بدون تلوين */
+html[data-theme="none"] .muqtarab-card-container .card,
+html:not([data-theme]) .muqtarab-card-container .card,
+html[data-theme="none"] [data-page="muqtarab"] .card,
+html:not([data-theme]) [data-page="muqtarab"] .card {
+  --card-hover-bg: #ffffff;
 }
 
 /* تأثيرات على النصوص والأيقونات */
