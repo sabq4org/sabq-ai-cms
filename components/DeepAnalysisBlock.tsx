@@ -337,7 +337,7 @@ export default function DeepAnalysisBlock({
   return (
     <div
       id="deep-analysis-highlight"
-      className={`py-10 md:py-12 relative overflow-hidden ${className}`}
+      className={`py-10 md:py-12 relative overflow-hidden bg-transparent ${className}`}
     >
       {/* العنوان والوصف - محصور في container */}
       {showTitle && (

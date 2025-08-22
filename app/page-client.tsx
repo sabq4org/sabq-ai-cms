@@ -1553,11 +1553,7 @@ function NewspaperHomePage({
             isMobileView ? "py-12 mb-12" : "py-16 mb-16"
           }`}
         >
-          {/* نمط خلفية منقطة خفيفة */}
-          <div className="absolute inset-0" style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, #e5e5e5 1px, transparent 1px)`,
-            backgroundSize: '20px 20px'
-          }}></div>
+          {/* إزالة النمط المنقط لإظهار الخلفية #fafafa بوضوح */}
 
           {/* المحتوى داخل container محدود */}
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
