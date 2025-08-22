@@ -43,22 +43,15 @@ export default function AdminLogin() {
   };
 
   return (
-    <html lang="ar" dir="rtl">
-      <head>
-        <title>دخول الإداريين - سبق الذكية</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="robots" content="noindex, nofollow" />
-      </head>
-      <body style={{ margin: 0, padding: 0, fontFamily: 'system-ui' }}>
-        <div style={{
-          minHeight: '100vh',
-          background: 'linear-gradient(135deg, #0ea5e9 0%, #3b82f6 50%, #2563eb 100%)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '20px',
-          fontFamily: 'system-ui, -apple-system, sans-serif'
-        }} dir="rtl">
+    <div dir="rtl" style={{ margin: 0, padding: 0, fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #0ea5e9 0%, #3b82f6 50%, #2563eb 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px'
+      }}>
           <div style={{
             width: '100%',
             maxWidth: '450px'
@@ -292,14 +285,14 @@ export default function AdminLogin() {
           </div>
 
           {/* CSS for animations */}
-          <style dangerouslySetInnerHTML={{ __html: `
+          <style>{`
             @keyframes spin {
               0% { transform: rotate(0deg); }
               100% { transform: rotate(360deg); }
             }
-          ` }} />
+          `}</style>
         </div>
-      </body>
-    </html>
+      </div>
+    </div>
   );
 }
