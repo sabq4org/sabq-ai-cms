@@ -31,21 +31,13 @@ export default function AdminLayout({
   
   if (isLoginPage || isAccessDenied) {
     return (
-      <html lang="ar" dir="rtl" className={ibmPlexArabic.variable}>
-        <head>
-          <meta name="theme-color" content="#1f2937" />
-          <title>دخول الإداريين - سبق الذكية</title>
-          <meta name="robots" content="noindex, nofollow" />
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-        </head>
-        <body className={`${ibmPlexArabic.className} antialiased`} suppressHydrationWarning>
-          {/* بدون أي هيدر أو providers معقدة - فقط الصفحة */}
-          <DarkModeProvider>
-            {children}
-            <Toaster position="top-center" />
-          </DarkModeProvider>
-        </body>
-      </html>
+      <div style={{ minHeight: '100vh' }}>
+        {/* بدون أي هيدر - فقط صفحة تسجيل الدخول */}
+        <DarkModeProvider>
+          {children}
+          <Toaster position="top-center" />
+        </DarkModeProvider>
+      </div>
     );
   }
 
