@@ -43,252 +43,263 @@ export default function AdminLogin() {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #0ea5e9 0%, #3b82f6 50%, #2563eb 100%)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '20px',
-      fontFamily: 'system-ui, -apple-system, sans-serif'
-    }} dir="rtl">
-      <div style={{
-        width: '100%',
-        maxWidth: '450px'
-      }}>
-        {/* شعار سبق */}
+    <html lang="ar" dir="rtl">
+      <head>
+        <title>دخول الإداريين - سبق الذكية</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="robots" content="noindex, nofollow" />
+      </head>
+      <body style={{ margin: 0, padding: 0, fontFamily: 'system-ui' }}>
         <div style={{
-          textAlign: 'center',
-          marginBottom: '40px'
-        }}>
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #0ea5e9 0%, #3b82f6 50%, #2563eb 100%)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px',
+          fontFamily: 'system-ui, -apple-system, sans-serif'
+        }} dir="rtl">
           <div style={{
-            display: 'inline-block',
-            padding: '20px',
-            backgroundColor: 'rgba(255,255,255,0.1)',
-            borderRadius: '20px',
-            backdropFilter: 'blur(10px)'
+            width: '100%',
+            maxWidth: '450px'
           }}>
-            <h1 style={{
-              fontSize: '36px',
-              fontWeight: 'bold',
-              color: 'white',
-              margin: '0',
-              letterSpacing: '2px'
+            {/* شعار سبق */}
+            <div style={{
+              textAlign: 'center',
+              marginBottom: '40px'
             }}>
-              سبق الذكية
-            </h1>
-            <p style={{
-              color: 'rgba(255,255,255,0.9)',
-              margin: '8px 0 0 0',
+              <div style={{
+                display: 'inline-block',
+                padding: '20px',
+                backgroundColor: 'rgba(255,255,255,0.1)',
+                borderRadius: '20px',
+                backdropFilter: 'blur(10px)'
+              }}>
+                <h1 style={{
+                  fontSize: '36px',
+                  fontWeight: 'bold',
+                  color: 'white',
+                  margin: '0',
+                  letterSpacing: '2px'
+                }}>
+                  سبق الذكية
+                </h1>
+                <p style={{
+                  color: 'rgba(255,255,255,0.9)',
+                  margin: '8px 0 0 0',
+                  fontSize: '14px'
+                }}>
+                  منصة الصحافة الذكية
+                </p>
+              </div>
+            </div>
+
+            {/* صندوق تسجيل الدخول */}
+            <div style={{
+              backgroundColor: 'white',
+              borderRadius: '20px',
+              padding: '40px',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
+              backdropFilter: 'blur(10px)'
+            }}>
+              <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+                <h2 style={{
+                  fontSize: '24px',
+                  fontWeight: 'bold',
+                  color: '#1f2937',
+                  margin: '0 0 8px 0'
+                }}>
+                  تسجيل دخول الإداريين
+                </h2>
+                <p style={{
+                  color: '#6b7280',
+                  margin: '0',
+                  fontSize: '16px'
+                }}>
+                  ادخل بياناتك للوصول إلى لوحة التحكم
+                </p>
+              </div>
+
+              <form onSubmit={handleSubmit} style={{
+                textAlign: 'left'
+              }}>
+                {/* البريد الإلكتروني */}
+                <div style={{ marginBottom: '24px' }}>
+                  <label style={{
+                    display: 'block',
+                    marginBottom: '8px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: '#374151',
+                    textAlign: 'right'
+                  }}>
+                    البريد الإلكتروني
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="admin@sabq.io"
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '14px 16px',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '12px',
+                      fontSize: '16px',
+                      outline: 'none',
+                      transition: 'border-color 0.3s ease',
+                      textAlign: 'right',
+                      boxSizing: 'border-box',
+                      direction: 'ltr'
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = '#3b82f6';
+                      e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = '#e5e7eb';
+                      e.target.style.boxShadow = 'none';
+                    }}
+                  />
+                </div>
+
+                {/* كلمة المرور */}
+                <div style={{ marginBottom: '32px' }}>
+                  <label style={{
+                    display: 'block',
+                    marginBottom: '8px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: '#374151',
+                    textAlign: 'right'
+                  }}>
+                    كلمة المرور
+                  </label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••••"
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '14px 16px',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '12px',
+                      fontSize: '16px',
+                      outline: 'none',
+                      transition: 'border-color 0.3s ease',
+                      textAlign: 'right',
+                      boxSizing: 'border-box'
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = '#3b82f6';
+                      e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = '#e5e7eb';
+                      e.target.style.boxShadow = 'none';
+                    }}
+                  />
+                </div>
+
+                {/* زر الدخول */}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  style={{
+                    width: '100%',
+                    padding: '16px',
+                    backgroundColor: loading ? '#9ca3af' : '#3b82f6',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '12px',
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.3s ease',
+                    transform: loading ? 'none' : 'translateY(0)',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!loading) {
+                      e.target.style.backgroundColor = '#2563eb';
+                      e.target.style.transform = 'translateY(-2px)';
+                      e.target.style.boxShadow = '0 10px 30px rgba(59, 130, 246, 0.3)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!loading) {
+                      e.target.style.backgroundColor = '#3b82f6';
+                      e.target.style.transform = 'translateY(0)';
+                      e.target.style.boxShadow = 'none';
+                    }
+                  }}
+                >
+                  {loading ? (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                      <div style={{
+                        width: '20px',
+                        height: '20px',
+                        border: '2px solid white',
+                        borderTop: '2px solid transparent',
+                        borderRadius: '50%',
+                        animation: 'spin 1s linear infinite'
+                      }}></div>
+                      جاري الدخول...
+                    </div>
+                  ) : (
+                    '🚀 دخول إلى لوحة التحكم'
+                  )}
+                </button>
+              </form>
+
+              {/* معلومات للاختبار */}
+              <div style={{
+                marginTop: '24px',
+                padding: '16px',
+                backgroundColor: '#f8fafc',
+                borderRadius: '12px',
+                border: '1px solid #e2e8f0'
+              }}>
+                <p style={{
+                  fontSize: '14px',
+                  color: '#64748b',
+                  margin: '0 0 8px 0',
+                  textAlign: 'center',
+                  fontWeight: '600'
+                }}>
+                  للاختبار والتجربة:
+                </p>
+                <div style={{ fontSize: '13px', color: '#475569', textAlign: 'center' }}>
+                  <div>📧 البريد: admin@sabq.io</div>
+                  <div style={{ marginTop: '4px' }}>🔑 كلمة المرور: admin123</div>
+                </div>
+              </div>
+            </div>
+
+            {/* تذييل */}
+            <div style={{
+              textAlign: 'center',
+              marginTop: '30px',
+              color: 'rgba(255,255,255,0.8)',
               fontSize: '14px'
             }}>
-              منصة الصحافة الذكية
-            </p>
-          </div>
-        </div>
-
-        {/* صندوق تسجيل الدخول */}
-        <div style={{
-          backgroundColor: 'white',
-          borderRadius: '20px',
-          padding: '40px',
-          boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
-          backdropFilter: 'blur(10px)'
-        }}>
-          <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-            <h2 style={{
-              fontSize: '24px',
-              fontWeight: 'bold',
-              color: '#1f2937',
-              margin: '0 0 8px 0'
-            }}>
-              تسجيل دخول الإداريين
-            </h2>
-            <p style={{
-              color: '#6b7280',
-              margin: '0',
-              fontSize: '16px'
-            }}>
-              ادخل بياناتك للوصول إلى لوحة التحكم
-            </p>
-          </div>
-
-          <form onSubmit={handleSubmit}>
-            {/* البريد الإلكتروني */}
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: '600',
-                color: '#374151',
-                marginBottom: '8px',
-                textAlign: 'right'
-              }}>
-                البريد الإلكتروني
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="مثال: admin@sabq.io"
-                required
-                style={{
-                  width: '100%',
-                  padding: '14px 16px',
-                  border: '2px solid #e5e7eb',
-                  borderRadius: '12px',
-                  fontSize: '16px',
-                  outline: 'none',
-                  transition: 'border-color 0.3s ease',
-                  textAlign: 'right',
-                  boxSizing: 'border-box',
-                  direction: 'ltr'
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = '#3b82f6';
-                  e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = '#e5e7eb';
-                  e.target.style.boxShadow = 'none';
-                }}
-              />
-            </div>
-
-            {/* كلمة المرور */}
-            <div style={{ marginBottom: '32px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: '600',
-                color: '#374151',
-                marginBottom: '8px',
-                textAlign: 'right'
-              }}>
-                كلمة المرور
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••••"
-                required
-                style={{
-                  width: '100%',
-                  padding: '14px 16px',
-                  border: '2px solid #e5e7eb',
-                  borderRadius: '12px',
-                  fontSize: '16px',
-                  outline: 'none',
-                  transition: 'border-color 0.3s ease',
-                  textAlign: 'right',
-                  boxSizing: 'border-box'
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = '#3b82f6';
-                  e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = '#e5e7eb';
-                  e.target.style.boxShadow = 'none';
-                }}
-              />
-            </div>
-
-            {/* زر الدخول */}
-            <button
-              type="submit"
-              disabled={loading}
-              style={{
-                width: '100%',
-                padding: '16px',
-                backgroundColor: loading ? '#9ca3af' : '#3b82f6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '12px',
-                fontSize: '16px',
-                fontWeight: '600',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                transition: 'all 0.3s ease',
-                transform: loading ? 'none' : 'translateY(0)',
-              }}
-              onMouseEnter={(e) => {
-                if (!loading) {
-                  e.target.style.backgroundColor = '#2563eb';
-                  e.target.style.transform = 'translateY(-2px)';
-                  e.target.style.boxShadow = '0 10px 30px rgba(59, 130, 246, 0.3)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!loading) {
-                  e.target.style.backgroundColor = '#3b82f6';
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = 'none';
-                }
-              }}
-            >
-              {loading ? (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                  <div style={{
-                    width: '20px',
-                    height: '20px',
-                    border: '2px solid white',
-                    borderTop: '2px solid transparent',
-                    borderRadius: '50%',
-                    animation: 'spin 1s linear infinite'
-                  }}></div>
-                  جاري الدخول...
-                </div>
-              ) : (
-                '🚀 دخول إلى لوحة التحكم'
-              )}
-            </button>
-          </form>
-
-          {/* معلومات للاختبار */}
-          <div style={{
-            marginTop: '24px',
-            padding: '16px',
-            backgroundColor: '#f8fafc',
-            borderRadius: '12px',
-            border: '1px solid #e2e8f0'
-          }}>
-            <p style={{
-              fontSize: '14px',
-              color: '#64748b',
-              margin: '0 0 8px 0',
-              textAlign: 'center',
-              fontWeight: '600'
-            }}>
-              للاختبار والتجربة:
-            </p>
-            <div style={{ fontSize: '13px', color: '#475569', textAlign: 'center' }}>
-              <div>📧 البريد: admin@sabq.io</div>
-              <div style={{ marginTop: '4px' }}>🔑 كلمة المرور: admin123</div>
+              <p style={{ margin: '0' }}>
+                🔒 محمي بأحدث تقنيات الأمان والتشفير
+              </p>
             </div>
           </div>
-        </div>
 
-        {/* تذييل */}
-        <div style={{
-          textAlign: 'center',
-          marginTop: '30px',
-          color: 'rgba(255,255,255,0.8)',
-          fontSize: '14px'
-        }}>
-          <p style={{ margin: '0' }}>
-            🔒 محمي بأحدث تقنيات الأمان والتشفير
-          </p>
+          {/* CSS for animations */}
+          <style dangerouslySetInnerHTML={{ __html: `
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          ` }} />
         </div>
-      </div>
-
-      {/* CSS for animations */}
-      <style jsx>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
-    </div>
+      </body>
+    </html>
   );
 }
