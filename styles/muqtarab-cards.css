@@ -382,14 +382,13 @@ div.min-h-screen:has([data-muqtarab="true"]) {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: radial-gradient(circle at 3px 3px, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
-  background-size: 40px 40px;
+  background-image: none !important;
   pointer-events: none;
 }
 
 /* تأثير الحركة الخفيف عند التمرير */
 .muqtarab-home-section:hover::before {
-  animation: muqtarab-subtle-move 20s linear infinite;
+  animation: none;
 }
 
 @keyframes muqtarab-subtle-move {
@@ -403,7 +402,7 @@ div.min-h-screen:has([data-muqtarab="true"]) {
 
 /* النمط المنقط في الوضع الداكن */
 .dark .muqtarab-home-section::before {
-  background-image: radial-gradient(circle at 3px 3px, rgba(147, 197, 253, 0.02) 1px, transparent 1px);
+  background-image: none !important;
 }
 
 /* تأثير إضافي للوضع الداكن */
@@ -414,7 +413,7 @@ div.min-h-screen:has([data-muqtarab="true"]) {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle at center, rgba(59, 130, 246, 0.03) 0%, transparent 50%);
+  background: none !important;
   pointer-events: none;
 }
 

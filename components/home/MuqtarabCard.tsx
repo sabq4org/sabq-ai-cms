@@ -118,13 +118,13 @@ export default function MuqtarabCard({
               priority={false}
             />
 
-            {/* تدرج للنص */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+            {/* تراكب ثابت للنص بدون تدرج */}
+            <div className="absolute inset-0 bg-black/50" />
 
             {/* شارة مميز كبيرة - يسار */}
             {article.isFeatured && (
               <div className="absolute top-4 left-4">
-                <Badge className="bg-gradient-to-r from-yellow-500 to-amber-600 text-white px-3 py-1.5 text-sm font-bold">
+                <Badge className="bg-yellow-500 text-white px-3 py-1.5 text-sm font-bold">
                   <Star className="w-4 h-4 mr-1.5" />
                   مقال مميز
                 </Badge>
@@ -221,13 +221,13 @@ export default function MuqtarabCard({
               priority={false}
             />
 
-            {/* تدرج للنص */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+            {/* تراكب ثابت للنص بدون تدرج */}
+            <div className="absolute inset-0 bg-black/50" />
 
             {/* شارة مميز - يسار */}
             {article.isFeatured && (
               <div className="absolute top-3 left-3">
-                <Badge className="bg-gradient-to-r from-yellow-500 to-amber-600 text-white px-2 py-1 text-xs font-bold">
+                <Badge className="bg-yellow-500 text-white px-2 py-1 text-xs font-bold">
                   <Star className="w-3 h-3 mr-1" />
                   مميز
                 </Badge>

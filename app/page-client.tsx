@@ -1519,9 +1519,7 @@ function NewspaperHomePage({
             
             {/* بلوك مقترب للموبايل */}
             <section className="relative w-full py-8 mb-8 muqtarab-home-section" style={{
-              background: darkMode 
-                ? 'linear-gradient(135deg, rgba(30, 64, 175, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)'
-                : 'linear-gradient(135deg, rgba(219, 234, 254, 0.5) 0%, rgba(191, 219, 254, 0.3) 100%)',
+              background: 'transparent',
               borderTop: `1px solid ${darkMode ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.15)'}`,
               borderBottom: `1px solid ${darkMode ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.15)'}`,
               backdropFilter: 'blur(10px)',
@@ -1544,9 +1542,7 @@ function NewspaperHomePage({
         {/* النسخة العادية: مقترب للجميع */}
         {!isMobileView && (
           <section className="relative w-full py-12 mb-12 muqtarab-home-section" style={{
-            background: darkMode 
-              ? 'linear-gradient(135deg, rgba(30, 64, 175, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)'
-              : 'linear-gradient(135deg, rgba(219, 234, 254, 0.5) 0%, rgba(191, 219, 254, 0.3) 100%)',
+            background: 'transparent',
             borderTop: `1px solid ${darkMode ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.15)'}`,
             borderBottom: `1px solid ${darkMode ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.15)'}`,
             backdropFilter: 'blur(10px)',

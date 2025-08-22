@@ -218,7 +218,7 @@ const AdBanner: React.FC<AdBannerProps> = ({ placement, className = "" }) => {
 
           {/* تدرج للنص */}
           {ad.title && (
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+            <div className="absolute inset-0 bg-black/50" />
           )}
         </div>
 

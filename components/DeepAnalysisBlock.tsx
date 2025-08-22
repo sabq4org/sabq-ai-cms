@@ -351,7 +351,7 @@ export default function DeepAnalysisBlock({
                   justifyContent: 'center',
                   width: '36px',
                   height: '36px',
-                  background: 'linear-gradient(135deg, hsl(var(--accent) / 0.15) 0%, hsl(var(--accent) / 0.05) 100%)',
+                  background: 'hsl(var(--accent) / 0.08)',
                   borderRadius: '10px',
                   color: 'hsl(var(--accent))',
                   fontSize: '18px',

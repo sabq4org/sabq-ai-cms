@@ -197,7 +197,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                   className="object-cover object-center"
                 />
               ) : (
-                <div className="absolute inset-0 w-full h-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, hsl(var(--accent) / 0.35), hsl(var(--accent) / 0.15))' }}>
+                <div className="absolute inset-0 w-full h-full flex items-center justify-center" style={{ background: 'hsl(var(--accent) / 0.08)' }}>
                   <span className="text-6xl">📰</span>
                 </div>
               )}
@@ -205,8 +205,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
               <div
                 className="md:hidden absolute inset-0 z-10 pointer-events-none"
                 style={{
-                  background:
-                    'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.5) 25%, transparent 100%)',
+                  background: 'rgba(0,0,0,0.5)',
                   transform: 'translateZ(0)'
                 }}
               />
