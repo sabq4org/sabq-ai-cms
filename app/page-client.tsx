@@ -397,21 +397,25 @@ function NewspaperHomePage({
           {/* صورة المقال */}
           <div className="relative h-40 sm:h-48 overflow-hidden">
             <CloudImage
-              src={news?.image || news?.featured_image || news?.image_url || null}
+              src={news?.featured_image || news?.image_url || news?.image || news?.thumbnail || null}
               alt={news?.title || "صورة المقال"}
               fill
-              className="w-full h-full object-cover transition-transform duration-500"
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               fallbackType="article"
               priority={false}
+              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
+              quality={85}
             />
             {/* شارة عاجل */}
             {(news.breaking || news.is_breaking) && (
-              <div className="absolute top-3 right-3">
+              <div className="absolute top-3 right-3 z-10">
                 <span className="flex items-center gap-1 px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full animate-pulse shadow-lg">
                   ⚡ عاجل
                 </span>
               </div>
             )}
+            {/* تأثير تحميل */}
+            <div className="absolute inset-0 bg-gray-100 dark:bg-gray-800 opacity-0 group-hover:opacity-5 transition-opacity duration-300" />
           </div>
           {/* محتوى البطاقة */}
           <div className="p-4 flex-1 flex flex-col">

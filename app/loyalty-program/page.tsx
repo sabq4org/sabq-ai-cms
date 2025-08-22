@@ -1,6 +1,5 @@
 "use client";
 
-import Footer from "@/components/Footer";
 import "@/styles/loyalty-program-mobile.css";
 import {
   ArrowLeft,
@@ -405,8 +404,6 @@ export default function LoyaltyProgramPage() {
           </div>
         </section>
       </main>
-
-      <Footer />
     </div>
   );
 }

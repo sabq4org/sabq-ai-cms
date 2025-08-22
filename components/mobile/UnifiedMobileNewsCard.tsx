@@ -10,9 +10,9 @@ import {
   Share2,
   TrendingUp,
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { CloudImage } from "@/components/CloudImage";
 
 interface UnifiedMobileNewsCardProps {
   article: {
@@ -65,7 +65,6 @@ export default function UnifiedMobileNewsCard({
 }: UnifiedMobileNewsCardProps) {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
-  const [imageError, setImageError] = useState(false);
 
   const isBreaking = article.breaking || article.is_breaking;
   const isFeatured = article.featured || article.is_featured;
@@ -130,14 +129,15 @@ export default function UnifiedMobileNewsCard({
               )}
             </div>
           </div>
-          {article.featured_image && !imageError && (
+          {article.featured_image && (
             <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
-              <Image
+              <CloudImage
                 src={article.featured_image}
                 alt={article.title}
                 fill
                 className="object-cover"
-                onError={() => setImageError(true)}
+                fallbackType="article"
+                priority={false}
               />
             </div>
           )}
@@ -169,15 +169,16 @@ export default function UnifiedMobileNewsCard({
           )}
 
           {/* Image */}
-          {article.featured_image && !imageError && (
+          {article.featured_image && (
             <Link href={`/news/${article.slug}`}>
               <div className="relative h-48 w-full">
-                <Image
+                <CloudImage
                   src={article.featured_image}
                   alt={article.title}
                   fill
                   className="object-cover"
-                  onError={() => setImageError(true)}
+                  fallbackType="article"
+                  priority={false}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
               </div>
@@ -295,16 +296,17 @@ export default function UnifiedMobileNewsCard({
         <Link href={`/news/${article.slug}`} className="block">
           <div className={`flex ${variant === "featured" ? "flex-col" : "gap-3"} p-4`}>
             {/* Image */}
-            {article.featured_image && !imageError && (
+            {article.featured_image && (
               <div className={`relative overflow-hidden rounded-lg ${
                 variant === "featured" ? "w-full h-48 mb-3" : "w-24 h-24 flex-shrink-0"
               }`}>
-                <Image
+                <CloudImage
                   src={article.featured_image}
                   alt={article.title}
                   fill
                   className="object-cover"
-                  onError={() => setImageError(true)}
+                  fallbackType="article"
+                  priority={false}
                 />
               </div>
             )}

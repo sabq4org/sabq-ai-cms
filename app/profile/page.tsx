@@ -1,6 +1,5 @@
 "use client";
 
-import Footer from "@/components/Footer";
 import LikedArticlesTab from "@/components/profile/LikedArticlesTab";
 import ReadingInsights from "@/components/profile/ReadingInsights";
 import SavedArticles from "@/components/profile/SavedArticles";
@@ -749,32 +748,49 @@ export default function ProfilePage() {
           <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent"></div>
 
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12 relative">
-            {/* شعار سبق في الأعلى */}
-            <div className="mb-6 flex justify-center sm:justify-start">
-              <Link href="/" className="inline-block">
-                <img 
-                  src="/logo.png" 
-                  alt="سبق" 
-                  className="h-10 sm:h-12 w-auto"
-                />
-              </Link>
-            </div>
-            
-            {/* أزرار الإجراءات للديسكتوب - موقع محسن */}
+            {/* أزرار الإجراءات المحدثة - تصميم احترافي */}
             <div className="hidden sm:flex absolute top-6 left-4 lg:left-8 gap-3 z-10">
+              {/* زر تعديل الملف الشخصي */}
               <button
                 onClick={() => router.push("/profile/edit")}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium shadow-sm hover:shadow-md text-sm flex items-center gap-2"
+                className="group relative px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl font-semibold text-sm 
+                         shadow-lg hover:shadow-xl transition-all duration-300 ease-out transform hover:scale-[1.02] active:scale-[0.98]
+                         border border-blue-500/20 backdrop-blur-sm overflow-hidden
+                         flex items-center gap-2.5"
               >
-                <Edit2 className="w-4 h-4" />
-                تعديل الملف
+                {/* تأثير الخلفية المتحركة */}
+                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
+                
+                {/* الأيقونة مع تأثير دوران خفيف */}
+                <Edit2 className="w-4 h-4 transition-transform duration-300 group-hover:rotate-12 relative z-10" />
+                
+                {/* النص */}
+                <span className="relative z-10">تعديل الملف الشخصي</span>
+                
+                {/* نقاط مضيئة صغيرة */}
+                <div className="absolute top-1 right-1 w-1 h-1 bg-white/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute bottom-1 left-1 w-1 h-1 bg-white/20 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100"></div>
               </button>
+              
+              {/* زر تسجيل الخروج */}
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all font-medium shadow-sm hover:shadow-md text-sm flex items-center gap-2"
+                className="group relative px-5 py-2.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-xl font-semibold text-sm 
+                         shadow-lg hover:shadow-xl transition-all duration-300 ease-out transform hover:scale-[1.02] active:scale-[0.98]
+                         border border-red-500/20 backdrop-blur-sm overflow-hidden
+                         flex items-center gap-2.5"
               >
-                <LogOut className="w-4 h-4" />
-                تسجيل الخروج
+                {/* تأثير الخلفية المتحركة */}
+                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
+                
+                {/* الأيقونة مع تأثير حركة */}
+                <LogOut className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 relative z-10" />
+                
+                {/* النص */}
+                <span className="relative z-10">تسجيل الخروج</span>
+                
+                {/* تأثير تحذيري خفيف */}
+                <div className="absolute inset-0 bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
               </button>
             </div>
             {/* التصميم المحسن للموبايل */}
@@ -879,21 +895,44 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* أزرار الإجراءات للموبايل فقط */}
-              <div className="flex gap-2 w-full sm:hidden">
+              {/* أزرار الإجراءات للموبايل - تصميم محسن */}
+              <div className="flex gap-3 w-full sm:hidden">
+                {/* زر تعديل الملف الشخصي للموبايل */}
                 <button
                   onClick={() => router.push("/profile/edit")}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium flex items-center justify-center gap-2 text-sm"
+                  className="group flex-1 relative px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 active:from-blue-700 active:to-blue-800 
+                           text-white rounded-xl font-semibold text-sm shadow-lg active:shadow-md
+                           transition-all duration-200 ease-out transform active:scale-95
+                           border border-blue-500/20 backdrop-blur-sm overflow-hidden
+                           flex items-center justify-center gap-2.5"
                 >
-                  <Edit2 className="w-4 h-4" />
-                  تعديل الملف
+                  {/* تأثير الضغط */}
+                  <div className="absolute inset-0 bg-white/10 opacity-0 group-active:opacity-100 transition-opacity duration-150"></div>
+                  
+                  {/* الأيقونة */}
+                  <Edit2 className="w-4 h-4 transition-transform duration-200 group-active:scale-110 relative z-10" />
+                  
+                  {/* النص */}
+                  <span className="relative z-10">تعديل الملف الشخصي</span>
                 </button>
+                
+                {/* زر تسجيل الخروج للموبايل */}
                 <button
                   onClick={handleLogout}
-                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all font-medium text-sm flex items-center justify-center gap-2"
+                  className="group flex-1 relative px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 active:from-red-700 active:to-red-800 
+                           text-white rounded-xl font-semibold text-sm shadow-lg active:shadow-md
+                           transition-all duration-200 ease-out transform active:scale-95
+                           border border-red-500/20 backdrop-blur-sm overflow-hidden
+                           flex items-center justify-center gap-2.5"
                 >
-                  <LogOut className="w-4 h-4" />
-                  الخروج
+                  {/* تأثير الضغط */}
+                  <div className="absolute inset-0 bg-white/10 opacity-0 group-active:opacity-100 transition-opacity duration-150"></div>
+                  
+                  {/* الأيقونة */}
+                  <LogOut className="w-4 h-4 transition-transform duration-200 group-active:translate-x-0.5 relative z-10" />
+                  
+                  {/* النص */}
+                  <span className="relative z-10">تسجيل الخروج</span>
                 </button>
               </div>
             </div>
@@ -1853,8 +1892,6 @@ export default function ProfilePage() {
         )}
       </div>
 
-      {/* Footer */}
-      <Footer />
     </>
   );
 }

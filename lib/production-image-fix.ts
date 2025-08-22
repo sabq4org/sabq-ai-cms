@@ -6,9 +6,11 @@
 const PRODUCTION_DOMAIN = process.env.NEXT_PUBLIC_SITE_URL || 'https://sabq.io';
 
 export const PLACEHOLDER_IMAGES = {
-  article: `/images/placeholder-news.svg`,
-  analysis: `/images/deep-analysis-default.svg`,
-  default: `/images/placeholder-news.svg`,
+  article: `https://ui-avatars.com/api/?name=مقال&background=0D8ABC&color=fff&size=800&font-size=0.33&rounded=false`,
+  author: `https://ui-avatars.com/api/?name=كاتب&background=0D8ABC&color=fff&size=200&font-size=0.33&rounded=true`,
+  category: `https://ui-avatars.com/api/?name=تصنيف&background=00A86B&color=fff&size=800&font-size=0.33&rounded=false`,
+  analysis: `https://ui-avatars.com/api/?name=تحليل&background=7C3AED&color=fff&size=800&font-size=0.33&rounded=false`,
+  default: `https://ui-avatars.com/api/?name=سبق&background=1E40AF&color=fff&size=800&font-size=0.33&rounded=false`,
 };
 
 /**

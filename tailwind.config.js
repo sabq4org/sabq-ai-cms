@@ -26,6 +26,12 @@ module.exports = {
         ],
       },
       colors: {
+        // خلفية المشروع الجديدة
+        background: {
+          primary: "#ECECEC",
+          secondary: "#F5F5F5",
+        },
+        
         // ألوان ناعمة مريحة للعين
         soft: {
           cream: "#FAFAF9",

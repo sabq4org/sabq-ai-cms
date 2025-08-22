@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import Footer from '@/components/Footer';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { 
   Play, 
@@ -148,7 +147,7 @@ export default function NewslettersArchive() {
     return (
       <div className={cn(
         "min-h-screen transition-colors duration-300",
-        darkMode ? "bg-slate-900" : "bg-gray-50"
+        darkMode ? "bg-slate-900" : "bg-background-primary"
       )}>
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center min-h-[400px]">
@@ -163,7 +162,6 @@ export default function NewslettersArchive() {
             </div>
           </div>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -352,8 +350,6 @@ export default function NewslettersArchive() {
           </div>
         )}
       </div>
-      
-      <Footer />
     </div>
   );
 }

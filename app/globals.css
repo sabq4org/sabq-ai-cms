@@ -168,8 +168,8 @@ body {
 
 body {
   color: rgb(var(--foreground-rgb));
-  /* خلفية بيضاء افتراضية - تم تجاوزها بواسطة Tailwind في layout.tsx */
-  background: white;
+  /* خلفية المشروع الجديدة */
+  background: #ECECEC;
 }
 
 a {

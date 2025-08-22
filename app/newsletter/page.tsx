@@ -1,6 +1,5 @@
 "use client";
 
-import Footer from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -390,7 +389,7 @@ export default function NewsletterPage() {
       <section
         className={cn(
           "py-16 sm:py-24",
-          darkMode ? "bg-slate-800/30" : "bg-gray-50/50"
+          darkMode ? "bg-slate-800/30" : "bg-background-primary/50"
         )}
       >
         <div className="container mx-auto px-4">
@@ -758,8 +757,6 @@ export default function NewsletterPage() {
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 }
