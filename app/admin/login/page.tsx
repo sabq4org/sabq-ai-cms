@@ -277,7 +277,6 @@ export default function AdminLogin() {
               </p>
             </div>
           </div>
-          
         </div>
       </div>
     </div>
