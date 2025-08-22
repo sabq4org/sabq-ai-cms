@@ -38,7 +38,7 @@ export default function RootLayout({
   }
 
   return (
-    <html lang="ar" dir="rtl" className={ibmPlexArabic.variable}>
+    <html lang="ar" dir="rtl" className={ibmPlexArabic.variable} style={{ backgroundColor: '#f8f8f7' }}>
       <head>
         <meta name="theme-color" content="#3b82f6" />
         <meta name="msapplication-TileColor" content="#3b82f6" />
@@ -46,8 +46,20 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="stylesheet" href="/manus-ui.css" />
+        <style>{`
+          /* خلفية موحدة للموقع فقط */
+          html, body {
+            background-color: #f8f8f7 !important;
+            background-image: none !important;
+          }
+          
+          /* الوضع الداكن */
+          html.dark, body.dark, .dark html, .dark body {
+            background-color: #111827 !important;
+          }
+        `}</style>
       </head>
-      <body className={`${ibmPlexArabic.className} antialiased`} suppressHydrationWarning>
+      <body className={`${ibmPlexArabic.className} antialiased`} style={{ backgroundColor: '#f8f8f7', minHeight: '100vh' }} suppressHydrationWarning>
         <Providers>
           <ResponsiveLayout>
             <main className="flex-1">
