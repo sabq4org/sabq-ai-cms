@@ -135,7 +135,7 @@ export default function DashboardLayout({
             // تمرير عرض السايدبار كمتغير CSS ليقرأه CSS العام
             ['--sidebar-width' as any]: !isMobile ? (sidebarOpen ? '280px' : '80px') : '0'
           }}>
-            <div className={cn("fade-in w-full max-w-full px-3 sm:px-4", className)}>
+            <div className={cn("fade-in w-full px-3 sm:px-4", className)} style={{ maxWidth: '97%', margin: '0 auto' }}>
               {children}
             </div>
           </main>
