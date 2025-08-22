@@ -443,7 +443,10 @@ export default function EnhancedMuqtarabBlock({
               fill={true}
               className="object-cover object-center transition-transform duration-300 group-hover:scale-105"
               sizes="100vw"
-              priority={false}
+              priority={true}
+              loading="eager"
+              placeholder="blur"
+              blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMTIwJyBoZWlnaHQ9JzcyJyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnPjxyZWN0IHdpZHRoPScxMjAnIGhlaWdodD0nNzInIGZpbGw9JyNlZWUnLz48L3N2Zz4="
             />
 
             {/* شارات الحالة */}
@@ -587,7 +590,10 @@ export default function EnhancedMuqtarabBlock({
               fill={true}
               className="object-cover"
               sizes="(max-width: 768px) 112px, (max-width: 1200px) 50vw, 33vw"
-              priority={false}
+              priority={true}
+              loading="eager"
+              placeholder="blur"
+              blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMTEyJyBoZWlnaHQ9JzExMicgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJz48cmVjdCB3aWR0aD0nMTEyJyBoZWlnaHQ9JzExMicgZmlsbD0nI2VlZScvPjwvc3ZnPiI="
             />
             {/* شارة مميز */}
             {article.isFeatured && (

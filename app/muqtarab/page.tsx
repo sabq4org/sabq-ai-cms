@@ -222,7 +222,7 @@ function MuqtaribPageContent() {
     setFilteredAngles(filtered);
   }, [angles, searchQuery, selectedFilter]);
 
-  // Loading state مع Skeleton
+  // Loading state مع Skeleton (مهلة حماية قصيرة لتفادي وميض القوالب البيضاء)
   if (loading) {
     return <MuqtarabPageSkeleton />;
   }
@@ -572,13 +572,13 @@ function MuqtaribPageContent() {
                       </h3>
                     </div>
                     <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {featuredAngles.map((angle) => (
-                        <AngleCard key={angle.id} angle={angle} />
+                      {featuredAngles.map((angle, idx) => (
+                        <AngleCard key={angle.id} angle={angle} priority={idx < 3} />
                       ))}
                     </div>
                     <div className="md:hidden space-y-3">
-                      {featuredAngles.map((angle) => (
-                        <MobileAngleCard key={angle.id} angle={angle} />
+                      {featuredAngles.map((angle, idx) => (
+                        <MobileAngleCard key={angle.id} angle={angle} priority={idx < 3} />
                       ))}
                     </div>
                   </div>
@@ -598,8 +598,8 @@ function MuqtaribPageContent() {
                     <div className="md:hidden">
                       {/* قائمة مبسطة للموبايل */}
                       <div className="space-y-3">
-                        {regularAngles.map((angle) => (
-                          <MobileAngleCard key={angle.id} angle={angle} />
+                        {regularAngles.map((angle, idx) => (
+                          <MobileAngleCard key={angle.id} angle={angle} priority={idx < 6} />
                         ))}
                       </div>
                     </div>
@@ -618,8 +618,8 @@ function MuqtaribPageContent() {
                           : "grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
                       }`}
                     >
-                      {regularAngles.map((angle) => (
-                        <AngleCard key={angle.id} angle={angle} />
+                      {regularAngles.map((angle, idx) => (
+                        <AngleCard key={angle.id} angle={angle} priority={idx < 6} />
                       ))}
                     </div>
                   </>
@@ -677,6 +677,9 @@ function MobileHeroCard({ heroArticle }: { heroArticle: HeroArticle }) {
             alt={heroArticle.title}
             fill
             className="rounded-md object-cover"
+            priority
+            placeholder="blur"
+            blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMzInIGhlaWdodD0nMzInIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zyc+PHJlY3Qgd2lkdGg9JzMyJyBoZWlnaHQ9JzMyJyBmaWxsPScjZWVlJy8+PC9zdmc+"
           />
         </div>
       )}
@@ -746,7 +749,7 @@ function MobileFeaturedAngleCard({ angle }: { angle: Angle }) {
 }
 
 // مكون الزاوية للموبايل - مع الصورة والتأثيرات
-function MobileAngleCard({ angle }: { angle: Angle }) {
+function MobileAngleCard({ angle, priority }: { angle: Angle, priority?: boolean }) {
   // نفس نظام الألوان من بطاقات الأخبار
   const baseBg = 'hsl(var(--bg-elevated))';
   const hoverBg = 'hsl(var(--accent) / 0.06)';
@@ -784,7 +787,7 @@ function MobileAngleCard({ angle }: { angle: Angle }) {
           flexShrink: 0,
           borderRadius: '12px',
           overflow: 'hidden',
-          backgroundColor: '#f3f4f6'
+          backgroundColor: '#ffffff'
         }}>
           {angle.coverImage ? (
             <Image
@@ -792,6 +795,10 @@ function MobileAngleCard({ angle }: { angle: Angle }) {
               alt={angle.title}
               fill
               className="object-cover"
+              priority={!!priority}
+              loading={priority ? 'eager' : undefined}
+              placeholder="blur"
+              blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nODAnIGhlaWdodD0nODAnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zyc+PHJlY3Qgd2lkdGg9JzgwJyBoZWlnaHQ9JzgwJyBmaWxsPScjZWVlJy8+PC9zdmc+"
             />
           ) : (
             <div style={{
@@ -847,7 +854,7 @@ function MobileAngleCard({ angle }: { angle: Angle }) {
 }
 
 // مكون بطاقة الزاوية العادية - مطابق لبطاقات الأخبار
-function AngleCard({ angle }: { angle: Angle }) {
+function AngleCard({ angle, priority }: { angle: Angle, priority?: boolean }) {
   const themeColor = angle.themeColor || "#8B5CF6";
 
   // نفس نظام الألوان من بطاقات الأخبار
@@ -883,7 +890,7 @@ function AngleCard({ angle }: { angle: Angle }) {
           position: 'relative',
           height: '200px',
           width: '100%',
-          backgroundColor: '#f3f4f6',
+          backgroundColor: '#ffffff',
           overflow: 'hidden'
         }}>
           {angle.coverImage ? (
@@ -893,7 +900,10 @@ function AngleCard({ angle }: { angle: Angle }) {
               fill={true}
               className="object-cover transition-transform duration-500"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              priority={false}
+              priority={!!priority}
+              loading={priority ? 'eager' : undefined}
+              placeholder="blur"
+              blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMjAwJyBoZWlnaHQ9JzEyNScgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJz48cmVjdCB3aWR0aD0nMjAwJyBoZWlnaHQ9JzEyNScgZmlsbD0nI2VlZScvPjwvc3ZnPiI=
             />
           ) : (
             <div
