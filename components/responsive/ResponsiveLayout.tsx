@@ -16,7 +16,6 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
   const [mounted, setMounted] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const pathname = usePathname();
-  const isAdminLogin = pathname?.startsWith("/admin/login");
   const isUserAuthPage = pathname === "/login" || pathname === "/register";
   const isCategoryPage = pathname?.startsWith("/categories/") || pathname?.startsWith("/news/category/");
 
@@ -79,9 +78,9 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
     };
   }, [checkDevice]);
 
-  // تحسين شاشة التحميل
+  // شاشة التحميل البسيطة
   const LoadingSpinner = useMemo(() => (
-    <div className="min-h-screen bg-[#f8f8f7] dark:bg-gray-900 flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
     </div>
   ), []);
@@ -104,10 +103,10 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
     return LoadingSpinner;
   }
 
-  // صفحات الدخول: إدارة + العضو (لا هيدر/فوتر)
-  if (isAdminLogin || isUserAuthPage) {
+  // صفحات الدخول للأعضاء (لا هيدر/فوتر)
+  if (isUserAuthPage) {
     return (
-      <div className="min-h-screen bg-[#f8f8f7] dark:bg-gray-900" data-page={isAdminLogin ? "admin-login" : "user-auth"}>
+      <div className="min-h-screen" data-page="user-auth">
         {children}
       </div>
     );
@@ -118,12 +117,11 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
     return (
       <div className="min-h-screen">
         {DevIndicator}
-        {/* إخفاء هيدر النسخة الخفيفة في صفحات الإدارة */}
-        {!pathname.startsWith('/admin') && <LightHeader />}
+        <LightHeader />
         <main 
-          className={`mx-auto content-main-mobile ${isCategoryPage || pathname.startsWith('/admin') ? 'px-1' : 'px-4 sm:px-6 py-6'}`} 
+          className={`mx-auto content-main-mobile ${isCategoryPage ? 'px-1' : 'px-4 sm:px-6 py-6'}`} 
           style={{ 
-            maxWidth: (isCategoryPage || pathname.startsWith('/admin')) ? '1400px' : '72rem'
+            maxWidth: isCategoryPage ? '1400px' : '72rem'
           }}
         >
           <div data-device="mobile">
@@ -144,12 +142,11 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
       zIndex: 1
     }}>
       {DevIndicator}
-      {/* إخفاء هيدر الموقع في صفحات الإدارة */}
-      {!pathname.startsWith('/admin') && <UserHeader />}
+      <UserHeader />
       <main className="content-main-desktop" style={{
         flex: 1,
-        padding: (isCategoryPage || pathname.startsWith('/admin')) ? '0 8px' : '16px 24px',
-        maxWidth: (isCategoryPage || pathname.startsWith('/admin')) ? '1400px' : '72rem',
+        padding: isCategoryPage ? '0 8px' : '16px 24px',
+        maxWidth: isCategoryPage ? '1400px' : '72rem',
         margin: '0 auto',
         width: '100%'
       }}>

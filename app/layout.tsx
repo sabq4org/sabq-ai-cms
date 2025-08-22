@@ -4,6 +4,8 @@ import ResponsiveLayout from "@/components/responsive/ResponsiveLayout";
 import Footer from "@/components/Footer";
 import FooterGate from "@/components/layout/FooterGate";
 import { Providers } from "./providers";
+
+// CSS خاص بالموقع فقط
 import "./globals.css";
 import "../styles/news-card-desktop.css";
 import "../styles/theme-manager.css";
