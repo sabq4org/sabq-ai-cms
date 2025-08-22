@@ -257,10 +257,11 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                 ) : (
                   currentArticle.category?.name && (
                     <span
-                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium"
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium border"
                       style={{
-                        backgroundColor: currentArticle.category?.color || 'hsl(var(--accent))',
-                        color: '#fff',
+                        background: darkMode ? 'hsl(var(--accent) / 0.18)' : 'hsl(var(--accent) / 0.12)',
+                        color: 'hsl(var(--accent))',
+                        borderColor: 'hsl(var(--accent) / 0.25)'
                       }}
                     >
                       <span className="text-sm">{currentArticle.category?.icon || '📰'}</span>
