@@ -647,13 +647,13 @@ export default function ArticleClientComponent({
               {/* Mobile Header */}
               <div className="sm:hidden px-4 sm:px-6 py-6 bg-transparent transition-colors duration-300">
                 {/* العنوان الرئيسي */}
-                <h1 className="text-xl font-bold leading-tight text-gray-900 dark:text-white mb-1">{/* تصغير من text-3xl إلى text-xl (درجتين أصغر) */}
+                <h1 className="text-2xl font-bold leading-tight text-gray-900 dark:text-white mb-1">{/* تكبير من text-xl إلى text-2xl (تكة أكبر) */}
                   {article.title}
                 </h1>
 
                 {/* العنوان الفرعي */}
                 {getSubtitle() && (
-                  <h2 className="article-subtitle text-base leading-relaxed text-gray-600 dark:text-gray-300 font-normal mb-3">{/* رفع حجم العنوان الصغير وإبقاؤه بدون بولد */}
+                  <h2 className="article-subtitle text-base leading-relaxed text-gray-600 dark:text-gray-300 font-normal mb-3">{/* إزالة البولد - font-normal بدلاً من font-bold */}
                     {getSubtitle()}
                   </h2>
                 )}
