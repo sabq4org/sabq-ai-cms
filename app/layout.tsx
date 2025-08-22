@@ -137,6 +137,29 @@ export default function RootLayout({
         `}} />
       </head>
       <body className={`${ibmPlexArabic.className} antialiased`} suppressHydrationWarning>
+        <style dangerouslySetInnerHTML={{ __html: `
+          html, body { 
+            background: #f8f8f7 !important; 
+            background-color: #f8f8f7 !important; 
+            background-image: none !important;
+          }
+          .dark html, .dark body, html.dark, body.dark { 
+            background: #111827 !important; 
+            background-color: #111827 !important; 
+          }
+        ` }} />
+        <script dangerouslySetInnerHTML={{ __html: `
+          // تطبيق فوري للخلفية
+          document.documentElement.style.backgroundColor = '#f8f8f7';
+          document.body.style.backgroundColor = '#f8f8f7';
+          
+          // التحقق من الوضع الداكن
+          if (document.documentElement.classList.contains('dark') || 
+              document.body.classList.contains('dark')) {
+            document.documentElement.style.backgroundColor = '#111827';
+            document.body.style.backgroundColor = '#111827';
+          }
+        ` }} />
         <Providers>
           <ResponsiveLayout>
             {children}
