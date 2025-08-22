@@ -1,245 +1,104 @@
-// API محسّن لتحديد الإشعارات كمقروءة - حل مشكلة الثبات
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { getCurrentUser, requireAuthFromRequest } from '@/app/lib/auth';
+import jwt from 'jsonwebtoken';
 
-export const runtime = "nodejs";
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
 
-// إعدادات CORS للسماح بإرسال credentials
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  'Access-Control-Allow-Credentials': 'true',
-};
-
-export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
-}
-
-// تحديد إشعار واحد أو عدة إشعارات كمقروءة
-export async function POST(req: NextRequest) {
+// تحديد إشعار كمقروء
+export async function POST(request: NextRequest) {
   try {
-    // تجربة طرق مصادقة متعددة
-    let user: any = null;
+    // استخراج التوكن من الكوكيز
+    const token = request.cookies.get('auth-token')?.value || 
+                  request.cookies.get('access_token')?.value;
     
-    // الطريقة الأولى: من الهيدر
+    if (!token) {
+      return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+    }
+
+    // التحقق من صحة التوكن
+    let userId: string;
     try {
-      user = await requireAuthFromRequest(req);
-    } catch (_) {
-      // فشلت، نجرب الطريقة الثانية
-    }
-    
-    // الطريقة الثانية: من الكوكيز
-    if (!user) {
-      try {
-        user = await getCurrentUser();
-      } catch (_) {
-        // فشلت أيضاً
-      }
-    }
-    
-    if (!user) {
-      console.log('❌ فشل في المصادقة في /api/notifications/mark-as-read');
-      return NextResponse.json({
-        success: false,
-        error: 'مطلوب تسجيل الدخول',
-        code: 'UNAUTHORIZED'
-      }, { status: 401, headers: corsHeaders });
+      const decoded = jwt.verify(token, JWT_SECRET) as any;
+      userId = decoded.id;
+    } catch (error) {
+      return NextResponse.json({ error: 'توكن غير صالح' }, { status: 401 });
     }
 
-    console.log(`✅ نجحت المصادقة للمستخدم: ${user.email} (${user.id})`);
+    const { notificationId } = await request.json();
 
-    const body = await req.json();
-    const { notificationId, notificationIds, markAll = false } = body;
-
-    let result;
-    let action;
-
-    if (markAll) {
-      // تحديد جميع الإشعارات غير المقروءة كمقروءة
-      result = await prisma.smartNotifications.updateMany({
-        where: {
-          user_id: user.id,
-          read_at: null
-        },
-        data: {
-          read_at: new Date(),
-          status: 'read'
-        }
-      });
-      action = 'mark_all_read';
-      
-    } else if (notificationIds && Array.isArray(notificationIds)) {
-      // تحديد عدة إشعارات كمقروءة
-      result = await prisma.smartNotifications.updateMany({
-        where: {
-          id: { in: notificationIds },
-          user_id: user.id,
-          read_at: null
-        },
-        data: {
-          read_at: new Date(),
-          status: 'read'
-        }
-      });
-      action = 'mark_multiple_read';
-      
-    } else if (notificationId) {
-      // تحديد إشعار واحد كمقروء
-      result = await prisma.smartNotifications.updateMany({
-        where: {
-          id: notificationId,
-          user_id: user.id
-        },
-        data: {
-          read_at: new Date(),
-          status: 'read'
-        }
-      });
-      action = 'mark_single_read';
-      
-    } else {
-      return NextResponse.json({
-        success: false,
-        error: 'مطلوب معرف الإشعار أو تحديد العملية',
-        code: 'INVALID_REQUEST'
-      }, { status: 400, headers: corsHeaders });
+    if (!notificationId) {
+      return NextResponse.json({ error: 'معرف الإشعار مطلوب' }, { status: 400 });
     }
 
-    // جلب عدد الإشعارات غير المقروءة المحدث
-    const unreadCount = await prisma.smartNotifications.count({
+    // تحديث حالة الإشعار
+    const notification = await prisma.smartNotifications.update({
       where: {
-        user_id: user.id,
-        read_at: null
+        id: notificationId,
+        user_id: userId // التأكد من ملكية الإشعار
+      },
+      data: {
+        read_at: new Date(),
+        status: 'read'
       }
     });
 
-    console.log(`✅ تم تحديد ${result.count} إشعار كمقروء للمستخدم ${user.id}`);
-
-    return NextResponse.json({
+    return NextResponse.json({ 
       success: true,
-      data: {
-        updatedCount: result.count,
-        unreadCount,
-        action,
-        timestamp: new Date().toISOString()
-      },
-      message: result.count > 0 
-        ? `تم تحديد ${result.count} إشعار كمقروء` 
-        : 'لا توجد إشعارات جديدة للتحديد'
-    }, { headers: corsHeaders });
+      notification
+    });
 
   } catch (error) {
-    console.error('❌ خطأ في تحديد الإشعارات كمقروءة:', error);
-    
-    return NextResponse.json({
-      success: false,
-      error: 'حدث خطأ في النظام',
-      code: 'SERVER_ERROR',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
-    }, { status: 500, headers: corsHeaders });
+    console.error('Error marking notification as read:', error);
+    return NextResponse.json(
+      { error: 'حدث خطأ في تحديث الإشعار' },
+      { status: 500 }
+    );
   }
 }
 
-// جلب حالة الإشعارات
-export async function GET(req: NextRequest) {
+// تحديد جميع الإشعارات كمقروءة
+export async function PUT(request: NextRequest) {
   try {
-    // تجربة طرق مصادقة متعددة
-    let user: any = null;
+    // استخراج التوكن من الكوكيز
+    const token = request.cookies.get('auth-token')?.value || 
+                  request.cookies.get('access_token')?.value;
     
+    if (!token) {
+      return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+    }
+
+    // التحقق من صحة التوكن
+    let userId: string;
     try {
-      user = await requireAuthFromRequest(req);
-    } catch (_) {
-      // فشلت، نجرب الطريقة الثانية
+      const decoded = jwt.verify(token, JWT_SECRET) as any;
+      userId = decoded.id;
+    } catch (error) {
+      return NextResponse.json({ error: 'توكن غير صالح' }, { status: 401 });
     }
-    
-    if (!user) {
-      try {
-        user = await getCurrentUser();
-      } catch (_) {
-        // فشلت أيضاً
+
+    // تحديث جميع الإشعارات غير المقروءة
+    const result = await prisma.smartNotifications.updateMany({
+      where: {
+        user_id: userId,
+        read_at: null,
+        status: 'delivered'
+      },
+      data: {
+        read_at: new Date(),
+        status: 'read'
       }
-    }
-    
-    if (!user) {
-      console.log('❌ فشل في المصادقة في GET /api/notifications/mark-as-read');
-      return NextResponse.json({
-        success: false,
-        error: 'مطلوب تسجيل الدخول',
-        code: 'UNAUTHORIZED'
-      }, { status: 401, headers: corsHeaders });
-    }
+    });
 
-    const { searchParams } = new URL(req.url);
-    const notificationId = searchParams.get('id');
-
-    if (notificationId) {
-      // التحقق من حالة إشعار محدد
-      const notification = await prisma.smartNotifications.findFirst({
-        where: {
-          id: notificationId,
-          user_id: user.id
-        },
-        select: {
-          id: true,
-          read_at: true,
-          status: true,
-          clicked_at: true
-        }
-      });
-
-      if (!notification) {
-        return NextResponse.json({
-          success: false,
-          error: 'الإشعار غير موجود',
-          code: 'NOT_FOUND'
-        }, { status: 404, headers: corsHeaders });
-      }
-
-      return NextResponse.json({
-        success: true,
-        data: {
-          id: notification.id,
-          isRead: !!notification.read_at,
-          status: notification.status,
-          isClicked: !!notification.clicked_at,
-          readAt: notification.read_at
-        }
-      }, { headers: corsHeaders });
-
-    } else {
-      // جلب إحصائيات عامة
-      const [totalCount, unreadCount, readCount] = await Promise.all([
-        prisma.smartNotifications.count({
-          where: { user_id: user.id }
-        }),
-        prisma.smartNotifications.count({
-          where: { user_id: user.id, read_at: null }
-        }),
-        prisma.smartNotifications.count({
-          where: { user_id: user.id, read_at: { not: null } }
-        })
-      ]);
-
-      return NextResponse.json({
-        success: true,
-        data: {
-          total: totalCount,
-          unread: unreadCount,
-          read: readCount,
-          timestamp: new Date().toISOString()
-        }
-      }, { headers: corsHeaders });
-    }
+    return NextResponse.json({ 
+      success: true,
+      updated: result.count
+    });
 
   } catch (error) {
-    console.error('❌ خطأ في جلب حالة الإشعارات:', error);
-    
-    return NextResponse.json({
-      success: false,
-      error: 'حدث خطأ في النظام',
-      code: 'SERVER_ERROR'
-    }, { status: 500, headers: corsHeaders });
+    console.error('Error marking all notifications as read:', error);
+    return NextResponse.json(
+      { error: 'حدث خطأ في تحديث الإشعارات' },
+      { status: 500 }
+    );
   }
 }

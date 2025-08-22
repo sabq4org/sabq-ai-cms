@@ -28,8 +28,7 @@ import ClientOnly from "./ClientOnly";
 import UserDropdown from "./UserDropdown";
 import MobileUserDropdown from "./mobile/UserDropdown";
 import UserMenuDrawer from "./mobile/UserMenuDrawer";
-import NotificationBell from "@/components/Notifications/NotificationBell";
-import { NotificationDropdown } from "@/components/Notifications/NotificationDropdown";
+import NotificationBell from "@/components/NotificationBell";
 import CompactThemeSwitcher from '@/components/theme/CompactThemeSwitcher';
 
 
@@ -220,14 +219,9 @@ export default function Header() {
               </button>
 
               {/* الإشعارات الذكية */}
-              {/* سطح المكتب: قائمة منسدلة متقدمة */}
-              <div className="hidden md:block">
-                <NotificationDropdown />
-              </div>
-              {/* الجوال: جرس بسيط مع عدّاد - يظهر فقط على الشاشات الصغيرة */}
-              <div className="md:hidden" id="mobile-notification-bell">
+              {user && (
                 <NotificationBell />
-              </div>
+              )}
 
               {/* المستخدم أو تسجيل الدخول */}
               {user ? (
