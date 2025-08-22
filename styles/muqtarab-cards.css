@@ -205,22 +205,15 @@ html:has([data-muqtarab="true"]) body {
 [data-page="muqtarab"] .card,
 [data-muqtarab="true"] .card {
   --card-hover-bg: rgba(var(--theme-primary-rgb, 59 130 246), 0.05);
-  --card-hover-border: var(--theme-primary, hsl(212 90% 50%));
-  --card-accent: var(--theme-primary, hsl(212 90% 50%));
+  --card-hover-border: var(--theme-primary, #3B82F6);
+  --card-accent: var(--theme-primary, #3B82F6);
   transition: all 0.3s ease;
 }
 
 [data-page="muqtarab"] .card:hover,
-[data-muqtarab="true"] .card:hover,
-[data-page="muqtarab"] article:hover,
-[data-muqtarab="true"] article:hover,
-[data-page="muqtarab"] [class*="Card"]:hover,
-[data-muqtarab="true"] [class*="Card"]:hover,
-.muqtarab-card-container .card:hover,
-.muqtarab-card-container article:hover {
-  background: rgba(var(--theme-primary-rgb, 59 130 246), 0.05) !important;
-  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.05) !important;
-  border-color: var(--theme-primary, #3B82F6) !important;
+[data-muqtarab="true"] .card:hover {
+  background-color: var(--card-hover-bg) !important;
+  border-color: var(--card-hover-border) !important;
   transform: translateY(-2px);
   box-shadow: 0 4px 20px rgba(var(--theme-primary-rgb, 59 130 246), 0.15);
 }
@@ -363,23 +356,23 @@ div.min-h-screen:has([data-muqtarab="true"]) {
   background-color: #f8f8f7 !important;
 }
 
-/* ضمان أن جميع البطاقات في مقترب بيضاء - أولوية قصوى */
-[data-page="muqtarab"] .card:not(:hover),
-[data-page="muqtarab"] article:not(:hover),
+/* ضمان أن جميع البطاقات في مقترب بيضاء */
+[data-page="muqtarab"] .card,
+[data-page="muqtarab"] article,
 [data-page="muqtarab"] .bg-white,
-[data-page="muqtarab"] .rounded-2xl:not(.header-main-icon):not(:hover),
-[data-page="muqtarab"] .rounded-xl:not(.header-main-icon):not(:hover),
-[data-page="muqtarab"] .rounded-lg:not(.header-main-icon):not(:hover),
-[data-page="muqtarab"] [class*="Card"]:not(:hover),
-[data-page="muqtarab"] [class*="card"]:not(:hover),
-[data-muqtarab="true"] .card:not(:hover),
-[data-muqtarab="true"] article:not(:hover),
-[data-muqtarab="true"] [class*="Card"]:not(:hover),
-[data-muqtarab="true"] [class*="card"]:not(:hover),
-.muqtarab-card-container .card:not(:hover),
-.muqtarab-card-container article:not(:hover),
-.muqtarab-card-container [class*="Card"]:not(:hover),
-.muqtarab-card-container [class*="card"]:not(:hover) {
+[data-page="muqtarab"] .rounded-2xl:not(.header-main-icon),
+[data-page="muqtarab"] .rounded-xl:not(.header-main-icon),
+[data-page="muqtarab"] .rounded-lg:not(.header-main-icon),
+[data-page="muqtarab"] [class*="Card"],
+[data-page="muqtarab"] [class*="card"],
+[data-muqtarab="true"] .card,
+[data-muqtarab="true"] article,
+[data-muqtarab="true"] [class*="Card"],
+[data-muqtarab="true"] [class*="card"],
+.muqtarab-card-container .card,
+.muqtarab-card-container article,
+.muqtarab-card-container [class*="Card"],
+.muqtarab-card-container [class*="card"] {
   background: #ffffff !important;
   background-color: #ffffff !important;
 }
