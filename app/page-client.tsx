@@ -1549,11 +1549,15 @@ function NewspaperHomePage({
         {/* 8. التحليل العميق (Deep Analysis) 🧠 */}
         {/* Deep Analysis Block - بلوك التحليل العميق - يأتي بعد الكلمات المفتاحية ومقترب */}
         <section
-          className={`relative w-full bg-[#fafafa] dark:bg-[#0d1b2a] ${
+          className={`relative w-full bg-[#fafafa] dark:bg-[#0d1b2a] border-y border-gray-100 dark:border-gray-800 ${
             isMobileView ? "py-12 mb-12" : "py-16 mb-16"
           }`}
         >
-          {/* خلفية بسيطة بدون تدرج لإظهار اللون الأساسي */}
+          {/* نمط خلفية منقطة خفيفة */}
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, #e5e5e5 1px, transparent 1px)`,
+            backgroundSize: '20px 20px'
+          }}></div>
 
           {/* المحتوى داخل container محدود */}
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
