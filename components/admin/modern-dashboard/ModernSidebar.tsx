@@ -265,6 +265,15 @@ const sidebarItems: SidebarItem[] = [
         icon: Settings,
         href: "/admin/settings/ai-settings",
       },
+      {
+        id: "smart-notifications",
+        title: "الإشعارات الذكية",
+        icon: Bell,
+        href: "/admin/settings/notifications",
+        badge: "جديد",
+        badgeVariant: "default",
+        isNew: true,
+      },
     ],
   },
   // تمت إزالة قسم إدارة المحتوى حسب الطلب ونقل الأقسام المطلوبة تحت إدارة الأخبار
