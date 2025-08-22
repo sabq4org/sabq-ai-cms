@@ -107,6 +107,18 @@ export default function RootLayout({
             background: transparent !important;
           }
           
+          /* إزالة أي طبقات pseudo */
+          *::before,
+          *::after {
+            background: transparent !important;
+          }
+          
+          /* استثناء للعناصر التي تحتاج pseudo elements */
+          .muqtarab-home-section::before,
+          .muqtarab-home-section::after {
+            background: initial !important;
+          }
+          
           /* خلفية فورية لصفحة مقترب - أعلى أولوية */
           body:has([data-page="muqtarab"]),
           body:has([data-muqtarab="true"]),
@@ -191,6 +203,34 @@ export default function RootLayout({
               document.body.style.backgroundColor = '#f8f8f7';
               document.documentElement.style.backgroundColor = '#f8f8f7';
             }
+            
+            // إزالة أي طبقات مغطية
+            var overlays = document.querySelectorAll('.mobile-overlay, .manus-layout::before, [class*="overlay"]:not(.muqtarab-home-section)');
+            overlays.forEach(function(el) {
+              el.style.display = 'none';
+            });
+            
+            // فحص جميع العناصر وإزالة الخلفيات البيضاء
+            var allElements = document.querySelectorAll('body > div, body > div > div');
+            allElements.forEach(function(el) {
+              var computedStyle = window.getComputedStyle(el);
+              var bgColor = computedStyle.backgroundColor;
+              
+              // إذا كانت الخلفية بيضاء أو شبه بيضاء
+              if (bgColor === 'rgb(255, 255, 255)' || 
+                  bgColor === 'rgba(255, 255, 255, 1)' ||
+                  bgColor === 'white' ||
+                  bgColor === '#ffffff' ||
+                  bgColor === '#fff') {
+                // تحقق من أن العنصر ليس بطاقة
+                if (!el.classList.contains('card') && 
+                    !el.className.includes('card') &&
+                    !el.tagName.toLowerCase() === 'article') {
+                  el.style.backgroundColor = 'transparent';
+                  el.style.background = 'transparent';
+                }
+              }
+            });
           }, 100);
         ` }} />
         <Providers>

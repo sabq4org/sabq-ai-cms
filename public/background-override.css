@@ -3,17 +3,27 @@
   background: #f8f8f7 !important;
 }
 
-html,
-body,
-html body,
-body html,
-html > body,
-body > div,
-body > div#__next {
+html {
+  background: #f8f8f7 !important;
+  background-color: #f8f8f7 !important;
+  background-image: none !important;
+}
+
+body {
   background: #f8f8f7 !important;
   background-color: #f8f8f7 !important;
   background-image: none !important;
   min-height: 100vh !important;
+}
+
+/* إزالة أي خلفيات من divs الرئيسية */
+body > div,
+body > div > div,
+#__next,
+#__next > div {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
 }
 
 /* الوضع الداكن */
@@ -74,4 +84,83 @@ body > * {
 [class*="card"],
 article {
   background-color: #ffffff !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* إزالة أي overlays أو pseudo elements قد تغطي الصفحة */
+.manus-layout::before,
+.manus-layout::after,
+body::before,
+body::after,
+html::before,
+html::after {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  content: none !important;
+}
+
+/* إزالة mobile overlay */
+.mobile-overlay {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* التأكد من عدم وجود طبقات مخفية */
+body > div[style*="position: fixed"],
+body > div[style*="position: absolute"] {
+  display: none !important;
+}
+
+/* إزالة أي fixed overlays */
+[class*="overlay"]:not(.muqtarab-home-section),
+[class*="modal"]:not(.open),
+[class*="backdrop"] {
+  display: none !important;
+}
+
+/* فرض الشفافية على جميع العناصر الرئيسية */
+.homepage-wrapper,
+.page-wrapper,
+main,
+main > div,
+.content-main-desktop,
+.content-main-mobile,
+[class*="wrapper"]:not(.card),
+[class*="container"]:not(.card) {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* إزالة خلفية بيضاء من أي عنصر fixed */
+[style*="position: fixed"] {
+  background: transparent !important;
+}
+
+/* تأكد من عدم وجود خلفيات بيضاء على العناصر الرئيسية */
+body > div:not(.card):not([class*="card"]) {
+  background: transparent !important;
+}
+
+/* معالجة خاصة لـ LiteStatsBar وأي headers */
+.lite-stats-bar,
+.compact-stats-bar,
+[class*="stats-bar"],
+.header,
+[class*="header"]:not(.header-main-icon) {
+  background: transparent !important;
+}
+
+/* تأكد من ظهور الخلفية على html/body حتى مع scroll */
+html {
+  min-height: 100% !important;
+  height: 100% !important;
+}
+
+body {
+  min-height: 100% !important;
+  height: auto !important;
 }
