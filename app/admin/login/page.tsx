@@ -57,6 +57,7 @@ export default function AdminLogin() {
           width: '100%',
           maxWidth: '450px'
         }}>
+          {/* شعار سبق */}
           <div style={{
             textAlign: 'center',
             marginBottom: '40px'
@@ -75,7 +76,7 @@ export default function AdminLogin() {
                 margin: '0',
                 letterSpacing: '2px'
               }}>
-                سبق الذكية
+                ✨ سبق الذكية
               </h1>
               <p style={{
                 color: 'rgba(255,255,255,0.9)',
@@ -87,6 +88,7 @@ export default function AdminLogin() {
             </div>
           </div>
 
+          {/* صندوق تسجيل الدخول */}
           <div style={{
             backgroundColor: 'white',
             borderRadius: '20px',
@@ -115,6 +117,7 @@ export default function AdminLogin() {
             <form onSubmit={handleSubmit} style={{
               textAlign: 'left'
             }}>
+              {/* البريد الإلكتروني */}
               <div style={{ marginBottom: '24px' }}>
                 <label style={{
                   display: 'block',
@@ -155,6 +158,7 @@ export default function AdminLogin() {
                 />
               </div>
 
+              {/* كلمة المرور */}
               <div style={{ marginBottom: '32px' }}>
                 <label style={{
                   display: 'block',
@@ -194,6 +198,7 @@ export default function AdminLogin() {
                 />
               </div>
 
+              {/* زر الدخول */}
               <button
                 type="submit"
                 disabled={loading}
@@ -231,11 +236,12 @@ export default function AdminLogin() {
                     جاري الدخول...
                   </div>
                 ) : (
-                  'دخول إلى لوحة التحكم'
+                  '🚀 دخول إلى لوحة التحكم'
                 )}
               </button>
             </form>
 
+            {/* معلومات للاختبار */}
             <div style={{
               marginTop: '24px',
               padding: '16px',
@@ -253,12 +259,13 @@ export default function AdminLogin() {
                 للاختبار والتجربة:
               </p>
               <div style={{ fontSize: '13px', color: '#475569', textAlign: 'center' }}>
-                <div>البريد: admin@sabq.io</div>
-                <div style={{ marginTop: '4px' }}>كلمة المرور: admin123</div>
+                <div>📧 البريد: admin@sabq.io</div>
+                <div style={{ marginTop: '4px' }}>🔑 كلمة المرور: admin123</div>
               </div>
             </div>
           </div>
 
+          {/* تذييل */}
           <div style={{
             textAlign: 'center',
             marginTop: '30px',
@@ -266,7 +273,7 @@ export default function AdminLogin() {
             fontSize: '14px'
           }}>
             <p style={{ margin: '0' }}>
-              محمي بأحدث تقنيات الأمان والتشفير
+              🔒 محمي بأحدث تقنيات الأمان والتشفير
             </p>
           </div>
         </div>
