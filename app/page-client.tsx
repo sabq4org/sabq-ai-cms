@@ -1,6 +1,17 @@
 "use client";
 
-import DeepAnalysisBlock from "@/components/DeepAnalysisBlock";
+import dynamic from "next/dynamic";
+
+// Lazy loading للمكونات الثقيلة
+const DeepAnalysisBlock = dynamic(() => import("@/components/DeepAnalysisBlock"), {
+  loading: () => <div className="h-64 bg-gray-100 animate-pulse rounded-xl"></div>,
+  ssr: false
+});
+
+const SmartInsightsWidget = dynamic(() => import("@/components/ai/SmartInsightsWidget"), {
+  loading: () => <div className="h-48 bg-gray-100 animate-pulse rounded-xl"></div>,
+  ssr: false
+});
 
 import PageWrapper from "@/components/PageWrapper";
 import { SmartSlot } from "@/components/home/SmartSlot";
@@ -9,7 +20,7 @@ import { SmartSlot } from "@/components/home/SmartSlot";
 // import SmartContentNewsCard from "@/components/mobile/SmartContentNewsCard";
 
 import AdBanner from "@/components/ads/AdBanner";
-import CloudImage from "@/components/ui/CloudImage";
+import FastImage from "@/components/ui/FastImage";
 import { useAuth } from "@/hooks/useAuth";
 import type { RecommendedArticle } from "@/lib/ai-recommendations";
 import { generatePersonalizedRecommendations } from "@/lib/ai-recommendations";
@@ -19,10 +30,7 @@ import { getArticleLink } from "@/lib/utils";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
-const SmartInsightsWidget = dynamic(
-  () => import("@/components/ai/SmartInsightsWidget").catch(() => ({ default: EmptyComponent })),
-  { ssr: false }
-);
+
 
 import SafeHydration from "@/components/SafeHydration";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
@@ -395,7 +403,7 @@ function NewspaperHomePage({
         >
           {/* صورة المقال */}
           <div className="relative h-40 sm:h-48 overflow-hidden bg-gray-100 dark:bg-gray-700">
-            <CloudImage
+            <FastImage
               src={news?.featured_image || news?.image_url || news?.image || news?.thumbnail || news?.cover_image || news?.coverImage || "/images/placeholder-featured.jpg"}
               alt={news?.title || "صورة المقال"}
               fill
@@ -403,7 +411,7 @@ function NewspaperHomePage({
               fallbackType="article"
               priority={false}
               sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
-              quality={85}
+              quality={60}
               onError={() => console.log('خطأ في تحميل صورة المقال:', news?.id, news?.title)}
             />
             {/* شارة عاجل */}
@@ -517,7 +525,7 @@ function NewspaperHomePage({
       try {
         setArticlesLoading(true);
         const res = await fetch(
-          "/api/news?status=published&limit=20&sort=published_at&order=desc"
+          "/api/news?status=published&limit=12&sort=published_at&order=desc"
         );
         const json = await res.json();
         // 💡 قبول كلا الصيغتين: { success, articles: [...] } أو { success, data: [...] }
@@ -934,7 +942,7 @@ function NewspaperHomePage({
                                   >
                                     {/* صورة المقال */}
                                     <div className="relative h-32 sm:h-36 overflow-hidden">
-                                      <CloudImage
+                                      <FastImage
                                         src={article?.image || null}
                                         alt={article?.title || "صورة المقال"}
                                         fill
@@ -1529,7 +1537,7 @@ function NewspaperHomePage({
             }}>
               <div className="mobile-muqtarab-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <MuqtarabBlock
-                  limit={4}
+                  limit={3}
                   showPagination={false}
                   showFilters={false}
                   viewMode="grid"
@@ -1552,7 +1560,7 @@ function NewspaperHomePage({
           }}>
             <div className="desktop-muqtarab-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <MuqtarabBlock
-                limit={8}
+                limit={6}
                 showPagination={true}
                 showFilters={true}
                 viewMode="grid"

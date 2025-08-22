@@ -8,15 +8,9 @@ import { Providers } from "../../app/providers";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { usePathname } from "next/navigation";
 
-// CSS خاص بالموقع فقط
+// CSS أساسي فقط
 import "../../app/globals.css";
-import "../../styles/news-card-desktop.css";
-import "../../styles/theme-manager.css";
 import "../../styles/muqtarab-cards.css";
-import "../../styles/responsive-ui.css";
-import "../../app/old-style-demo/old-style.css";
-import "../../styles/compact-stats.css";
-import "../../styles/enhanced-mobile-stats.css";
 
 export default function SiteLayout({
   children,
@@ -29,84 +23,38 @@ export default function SiteLayout({
   const isUserAuthPage = pathname === "/login" || pathname === "/register";
   const isCategoryPage = pathname?.startsWith("/categories/") || pathname?.startsWith("/news/category/");
 
-  // فحص الجهاز
-  const checkDevice = useCallback(() => {
-    const width = window.innerWidth;
-    const newIsMobile = width < 768;
-    setIsMobile(prev => prev !== newIsMobile ? newIsMobile : prev);
-  }, []);
-
+  // فحص بسيط للجهاز
   useEffect(() => {
     setMounted(true);
+    
+    // فحص واحد فقط
+    const checkDevice = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
     checkDevice();
-
-    let timeoutId: NodeJS.Timeout;
-    const debouncedResize = () => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(checkDevice, 100);
-    };
-
-    window.addEventListener('resize', debouncedResize, { passive: true });
-
-    return () => {
-      window.removeEventListener('resize', debouncedResize);
-      clearTimeout(timeoutId);
-    };
-  }, [checkDevice]);
-  
-  // تطبيق الخلفية فور التحميل
-  useEffect(() => {
-    // تطبيق فوري للخلفية
-    document.documentElement.style.backgroundColor = '#f8f8f7';
-    document.documentElement.style.backgroundImage = 'none';
-    document.body.style.backgroundColor = '#f8f8f7';
-    document.body.style.backgroundImage = 'none';
     
-    // إضافة CSS مباشر للرأس
-    const style = document.createElement('style');
-    style.textContent = `
-      html, body {
-        background-color: #f8f8f7 !important;
-        background-image: none !important;
-        min-height: 100vh !important;
-      }
-      
-      .dark html, .dark body {
-        background-color: #111827 !important;
-      }
-      
-      .homepage-wrapper,
-      .page-wrapper,
-      main,
-      #__next,
-      [data-device="mobile"],
-      [data-device="desktop"] {
-        background: transparent !important;
-        background-color: transparent !important;
-      }
-    `;
-    document.head.appendChild(style);
+    // استخدام ResizeObserver بدلاً من addEventListener للأداء الأفضل
+    const resizeObserver = new ResizeObserver(() => {
+      checkDevice();
+    });
+    
+    resizeObserver.observe(document.body);
     
     return () => {
-      if (style.parentNode) {
-        style.parentNode.removeChild(style);
-      }
+      resizeObserver.disconnect();
     };
   }, []);
+  
+  // تطبيق خلفية بسيط ومحسن
+  useEffect(() => {
+    document.documentElement.style.backgroundColor = '#f8f8f7';
+    document.body.style.backgroundColor = '#f8f8f7';
+  }, []);
 
-  // Loading state
+  // تحميل سريع
   if (!mounted) {
-    return (
-      <div style={{ backgroundColor: '#f8f8f7', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ width: '32px', height: '32px', border: '3px solid #e5e7eb', borderTop: '3px solid #3b82f6', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-        <style dangerouslySetInnerHTML={{ __html: `
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        ` }} />
-      </div>
-    );
+    return <div style={{ backgroundColor: '#f8f8f7', minHeight: '100vh' }}></div>;
   }
 
   // صفحات الدخول للأعضاء (لا هيدر/فوتر)
