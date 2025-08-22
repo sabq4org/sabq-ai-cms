@@ -1549,20 +1549,19 @@ function NewspaperHomePage({
         {/* 8. التحليل العميق (Deep Analysis) 🧠 */}
         {/* Deep Analysis Block - بلوك التحليل العميق - يأتي بعد الكلمات المفتاحية ومقترب */}
         <section
-          className={`relative w-full bg-[#1a365d] dark:bg-[#0d1b2a] ${
+          className={`relative w-full bg-background-primary dark:bg-[#0d1b2a] ${
             isMobileView ? "py-12 mb-12" : "py-16 mb-16"
           }`}
         >
-          {/* خلفية متدرجة overlay تمتد بالكامل */}
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/95 via-indigo-900/90 to-purple-900/95 dark:from-gray-900/95 dark:via-blue-900/90 dark:to-indigo-900/95"></div>
+          {/* خلفية بسيطة بدون تدرج لإظهار اللون الأساسي */}
 
           {/* المحتوى داخل container محدود */}
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-white">
+              <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-gray-800 dark:text-white">
                 🧠 تحليل عميق بالذكاء الاصطناعي
               </h2>
-              <p className="text-lg sm:text-xl max-w-2xl mx-auto text-blue-100">
+              <p className="text-lg sm:text-xl max-w-2xl mx-auto text-gray-600 dark:text-blue-100">
                 استكشف تحليلات عميقة ومتطورة للموضوعات المهمة مدعومة بالذكاء
                 الاصطناعي
               </p>
