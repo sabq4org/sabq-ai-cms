@@ -100,7 +100,7 @@ export default function Page() {
       </div>
       {/* الأخبار المميزة - النسخة الخفيفة */}
       <Suspense fallback={<div className="h-36 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />}> 
-        <LightFeaturedLoader heading="الأخبار المميزة" limit={10} />
+        <LightFeaturedLoader heading="الأخبار المميزة" limit={3} />
       </Suspense>
       {/* المؤشرات الذكية */}
       <Suspense

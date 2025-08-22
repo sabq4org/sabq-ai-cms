@@ -52,7 +52,7 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
         <style jsx>{`
           div::-webkit-scrollbar { display: none; }
         `}</style>
-        {articles.map((article, idx) => {
+        {articles.slice(0, 3).map((article, idx) => {
           const category = article.category?.name || article.category_name || article.category || "عام";
           const date = article.published_at || article.created_at;
           // معالجة محسّنة للصورة - التحقق من عدة حقول وتوفير fallback
@@ -70,11 +70,9 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
                 className={`relative rounded-2xl overflow-hidden border transition-all duration-300 h-full flex flex-col shadow-sm hover:shadow-lg ${
                   isBreaking
                     ? (darkMode
-                        ? 'bg-[rgba(255,255,255,0.04)] border-red-700/60 hover:border-red-500/70'
-                        : 'bg-red-50 border-red-200 hover:border-red-300')
-                    : (darkMode
-                        ? 'bg-[rgba(255,255,255,0.04)] border-gray-700 hover:border-gray-500/70'
-                        : 'bg-[#f8f8f7] border-gray-200 hover:border-blue-300 hover:shadow-blue-100')
+                        ? 'bg-white border-red-700/60 hover:border-red-500/70'
+                        : 'bg-white border-red-200 hover:border-red-300')
+                    : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-blue-100'
                 }`}
               >
                 <div className={`relative aspect-video w-full overflow-hidden rounded-lg ${!hasImage ? 'bg-gray-200 dark:bg-gray-700' : ''}`}>

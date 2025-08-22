@@ -14,7 +14,7 @@ interface FeaturedArticleLite {
   views?: number;
 }
 
-export default function LightFeaturedLoader({ heading = "الأخبار المميزة", limit = 10 }: { heading?: string; limit?: number }) {
+export default function LightFeaturedLoader({ heading = "الأخبار المميزة", limit = 3 }: { heading?: string; limit?: number }) {
   const [articles, setArticles] = useState<FeaturedArticleLite[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -22,7 +22,7 @@ export default function LightFeaturedLoader({ heading = "الأخبار المم
     let mounted = true;
     (async () => {
       try {
-        const res = await fetch(`/api/articles/featured?limit=${limit}`, { cache: "no-store" });
+        const res = await fetch(`/api/articles/featured?limit=${limit}`, { cache: "force-cache", next: { revalidate: 120 } });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
         const list: FeaturedArticleLite[] = (json?.data || []).map((a: any) => ({
@@ -36,7 +36,7 @@ export default function LightFeaturedLoader({ heading = "الأخبار المم
           category: a.categories ? { id: a.categories.id, name: a.categories.name, slug: a.categories.slug, color: a.categories.color } : null,
           views: a.views ?? a.views_count ?? 0,
         }));
-        if (mounted) setArticles(list);
+        if (mounted) setArticles(list.slice(0, 3));
       } catch (e) {
         console.error("فشل جلب الأخبار المميزة (Light):", e);
         if (mounted) setArticles([]);
