@@ -43,11 +43,31 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
+    // جلب بيانات المقال للحصول على slug والفئة الدقيقة
+    let articleSlug: string | null = null;
+    let resolvedCategoryName: string = articleCategory;
+    let resolvedCategorySlug: string | null = null;
+
+    try {
+      const articleRec = await prisma.articles.findUnique({
+        where: { id: articleId },
+        include: { categories: { select: { name: true, slug: true } } }
+      });
+      if (articleRec) {
+        articleSlug = (articleRec as any).slug || null;
+        resolvedCategoryName = (articleRec as any).categories?.name || articleCategory;
+        resolvedCategorySlug = (articleRec as any).categories?.slug || null;
+      }
+    } catch (e) {
+      console.warn('⚠️ تعذر جلب بيانات المقال للحصول على slug/الفئة:', (e as any)?.message);
+    }
+
     // جلب المستخدمين المهتمين بهذه الفئة
     const interestedUsers = await getInterestedUsers(
-      articleCategory,
+      resolvedCategoryName,
       articleTags || [],
-      isBreaking
+      isBreaking,
+      resolvedCategorySlug || undefined
     );
 
     if (interestedUsers.length === 0) {
@@ -64,7 +84,8 @@ export async function POST(request: NextRequest) {
       {
         articleId,
         articleTitle,
-        articleCategory,
+        articleCategory: resolvedCategoryName,
+        articleSlug: articleSlug || undefined,
         isBreaking,
         customMessage
       }
@@ -97,7 +118,8 @@ export async function POST(request: NextRequest) {
 async function getInterestedUsers(
   category: string,
   tags: string[],
-  isBreaking: boolean
+  isBreaking: boolean,
+  categorySlug?: string
 ): Promise<any[]> {
   try {
     // إذا كان خبر عاجل، أرسل لجميع المستخدمين النشطين
@@ -132,6 +154,8 @@ async function getInterestedUsers(
               has: category
             }
           },
+          // مرادفات للفئة عبر slug
+          ...(categorySlug ? [{ interests: { has: categorySlug } }] : []),
           // مهتمون بأي من العلامات
           ...(tags.length > 0 ? [{
             interests: {
@@ -251,7 +275,7 @@ async function createNotifications(
           articleId: articleData.articleId,
           articleTitle: articleData.articleTitle,
           articleCategory: articleData.articleCategory,
-          url: `/articles/${articleData.articleId}`
+          url: articleData.articleSlug ? `/news/${articleData.articleSlug}` : `/news/${articleData.articleId}`
         },
         delivery_channels: getActiveChannels(prefs),
         ai_optimized: !!(prefs.aiFeatures?.smartTiming || prefs.aiFeatures?.contentPersonalization),

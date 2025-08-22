@@ -384,7 +384,16 @@ export class SmartNotificationEngine {
     try {
       const userIds = new Set<string>();
 
-      // 1. البحث في الاهتمامات المحفوظة فقط (المصدر الوحيد)
+      // جلب معلومات التصنيف (الاسم والسلَج) لتطابق مرن مع الاهتمامات
+      const category = await prisma.categories.findUnique({
+        where: { id: categoryId },
+        select: { id: true, name: true, slug: true }
+      });
+
+      const categoryName = category?.name || '';
+      const categorySlug = category?.slug || '';
+
+      // 1) المستخدمون الذين لديهم user_interests مباشرة لهذا التصنيف
       const userInterests = await prisma.user_interests.findMany({
         where: {
           category_id: categoryId,
@@ -392,16 +401,53 @@ export class SmartNotificationEngine {
         },
         select: { user_id: true }
       });
-
       userInterests.forEach(ui => userIds.add(ui.user_id));
-      console.log(`🎯 المستخدمون المهتمون من الاهتمامات المحفوظة: ${userInterests.length}`);
+      console.log(`🎯 من user_interests: ${userInterests.length}`);
 
-      // ملاحظة: تم إلغاء البحث في التفاعلات السابقة و user_preferences
-      // لضمان وصول الإشعارات فقط للمستخدمين الذين اختاروا الاهتمام صراحة
+      // 2) المستخدمون الذين تحتوي قائمة interests لديهم على اسم/سلَج التصنيف
+      if (categoryName || categorySlug) {
+        const usersByInterests = await prisma.users.findMany({
+          where: {
+            is_active: true,
+            OR: [
+              ...(categoryName ? [{ interests: { has: categoryName } }] : []),
+              ...(categorySlug ? [{ interests: { has: categorySlug } }] : []),
+            ],
+            notification_preferences: {
+              path: '$.enabled',
+              equals: true
+            }
+          },
+          select: { id: true }
+        });
+        usersByInterests.forEach(u => userIds.add(u.id));
+        console.log(`🎯 من users.interests: ${usersByInterests.length}`);
+      }
+
+      // 3) المستخدمون الذين لديهم تفضيل favorite_categories يحتوي اسم التصنيف
+      if (categoryName) {
+        const usersByPrefs = await prisma.users.findMany({
+          where: {
+            is_active: true,
+            user_preferences: {
+              some: {
+                key: 'favorite_categories',
+                value: { contains: categoryName }
+              }
+            },
+            notification_preferences: {
+              path: '$.enabled',
+              equals: true
+            }
+          },
+          select: { id: true }
+        });
+        usersByPrefs.forEach(u => userIds.add(u.id));
+        console.log(`🎯 من user_preferences.favorite_categories: ${usersByPrefs.length}`);
+      }
 
       const totalUsers = Array.from(userIds);
       console.log(`📊 إجمالي المستخدمين المهتمين بالتصنيف ${categoryId}: ${totalUsers.length}`);
-
       return totalUsers;
 
     } catch (error) {
