@@ -1,5 +1,8 @@
+"use client";
+
 import type { Metadata } from "next";
 import { IBM_Plex_Sans_Arabic } from "next/font/google";
+import { usePathname } from "next/navigation";
 import ResponsiveLayout from "@/components/responsive/ResponsiveLayout";
 import Footer from "@/components/Footer";
 import FooterGate from "@/components/layout/FooterGate";
@@ -22,45 +25,18 @@ const ibmPlexArabic = IBM_Plex_Sans_Arabic({
   display: "swap"
 });
 
-export const metadata: Metadata = {
-  title: "صحيفة سبق الذكية - أخبار المملكة والعالم",
-  description: "صحيفة سبق الذكية - آخر الأخبار والتحليلات من المملكة العربية السعودية والعالم",
-  keywords: "أخبار, السعودية, سبق, صحيفة, أخبار عاجلة, تحليلات",
-  authors: [{ name: "فريق سبق الذكية" }],
-  openGraph: {
-    title: "صحيفة سبق الذكية",
-    description: "آخر الأخبار والتحليلات من المملكة العربية السعودية والعالم",
-    url: "https://sabq.ai",
-    siteName: "صحيفة سبق الذكية",
-    locale: "ar_SA",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "صحيفة سبق الذكية",
-    description: "آخر الأخبار والتحليلات من المملكة العربية السعودية والعالم",
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-    },
-  },
-};
-
-export const viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 5,
-};
-
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+
+  // إذا كان مسار الإدارة، اتركه للـ admin layout يتعامل معه بدون أي تدخل
+  if (pathname?.startsWith('/admin')) {
+    return <>{children}</>;
+  }
+
   return (
     <html lang="ar" dir="rtl" className={ibmPlexArabic.variable}>
       <head>

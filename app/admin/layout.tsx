@@ -25,20 +25,23 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
 
-  // صفحة دخول الإدارة: layout بسيط جداً
-  if (pathname?.startsWith("/admin/login") || pathname?.startsWith("/admin/access-denied")) {
+  // صفحة دخول الإدارة: layout خاص جداً - بدون أي هيدر أو مكونات إضافية
+  const isLoginPage = pathname === "/admin/login" || pathname?.includes("login");
+  const isAccessDenied = pathname?.startsWith("/admin/access-denied");
+  
+  if (isLoginPage || isAccessDenied) {
     return (
       <html lang="ar" dir="rtl" className={ibmPlexArabic.variable}>
         <head>
           <meta name="theme-color" content="#1f2937" />
-          <title>لوحة التحكم - سبق الذكية</title>
+          <title>دخول الإداريين - سبق الذكية</title>
           <meta name="robots" content="noindex, nofollow" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
         </head>
         <body className={`${ibmPlexArabic.className} antialiased`} suppressHydrationWarning>
+          {/* بدون أي هيدر أو providers معقدة - فقط الصفحة */}
           <DarkModeProvider>
-            <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-              {children}
-            </div>
+            {children}
             <Toaster position="top-center" />
           </DarkModeProvider>
         </body>
