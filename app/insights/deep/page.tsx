@@ -208,7 +208,7 @@ export default function DeepAnalysesPage() {
   }
   return (
     <>
-      <div dir="rtl" className="min-h-screen" style={{ backgroundColor: 'transparent' }}>
+      <div dir="rtl" className="min-h-screen" data-page="deep" style={{ backgroundColor: 'transparent' }}>
         {/* Hero Section */}
         <section className="relative py-16 md:py-20">
           
@@ -228,10 +228,10 @@ export default function DeepAnalysesPage() {
               
               {/* إحصائيات التحليلات العميقة */}
               {analyses.length > 0 && (
-                <div className="mt-6 inline-flex flex-wrap justify-center items-center gap-4 md:gap-6 rounded-2xl px-4 md:px-6 py-3 bg-white border border-gray-200 shadow-sm stats-container">
+                <div className="mt-6 inline-flex flex-wrap justify-center items-center gap-4 md:gap-6 rounded-2xl px-4 md:px-6 py-3 border border-[#f0f0ef] shadow-sm stats-container" style={{ backgroundColor: 'transparent' }}>
                   <div className="text-center px-2">
                     <div className="flex items-center gap-2">
-                      <Brain className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                      <Brain className="w-5 h-5 text-blue-600 dark:text-blue-400 stats-icon" />
                       <div className="text-2xl font-bold text-gray-900 dark:text-white">{analyses.length}</div>
                     </div>
                     <div className="text-sm text-gray-600 dark:text-gray-400">تحليل عميق</div>
@@ -241,7 +241,7 @@ export default function DeepAnalysesPage() {
                   
                   <div className="text-center px-2">
                     <div className="flex items-center gap-2">
-                      <Eye className="w-5 h-5 text-green-600 dark:text-green-400" />
+                      <Eye className="w-5 h-5 text-blue-600 dark:text-blue-400 stats-icon" />
                       <div className="text-2xl font-bold text-gray-900 dark:text-white">
                         {analyses.reduce((sum, a) => sum + a.views, 0) > 999 ? 
                           `${(analyses.reduce((sum, a) => sum + a.views, 0) / 1000).toFixed(1)}k` : 
@@ -255,7 +255,7 @@ export default function DeepAnalysesPage() {
                   
                   <div className="text-center px-2">
                     <div className="flex items-center gap-2">
-                      <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                      <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400 stats-icon" />
                       <div className="text-2xl font-bold text-gray-900 dark:text-white">
                         {analyses.length > 0 ? Math.round(analyses.reduce((sum, a) => sum + a.qualityScore, 0) / analyses.length) : 0}%
                       </div>
@@ -267,7 +267,7 @@ export default function DeepAnalysesPage() {
                   
                   <div className="text-center px-2">
                     <div className="flex items-center gap-2">
-                      <MessageCircle className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                      <MessageCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 stats-icon" />
                       <div className="text-2xl font-bold text-gray-900 dark:text-white">
                         {analyses.reduce((sum, a) => sum + (a.commentsCount || 0), 0)}
                       </div>
@@ -297,7 +297,8 @@ export default function DeepAnalysesPage() {
                 placeholder="ابحث في التحليلات..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pr-12 pl-4 py-3 bg-white dark:bg-gray-700 border-2 border-[#f0f0ef] dark:border-gray-600 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-500 focus:ring-opacity-50 focus:border-transparent transition-all text-gray-900 dark:text-white"
+                className="w-full pr-12 pl-4 py-3 dark:bg-gray-700 border-2 border-[#f0f0ef] dark:border-gray-600 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-500 focus:ring-opacity-50 focus:border-transparent transition-all text-gray-900 dark:text-white"
+                style={{ backgroundColor: 'transparent' }}
               />
             </div>
           </div>
@@ -448,6 +449,7 @@ export default function DeepAnalysesPage() {
         }
         
         .stats-container {
+          background: transparent !important;
           border: 1px solid #f0f0ef !important;
         }
       `}</style>

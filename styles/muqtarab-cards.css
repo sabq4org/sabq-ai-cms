@@ -512,6 +512,44 @@ main,
   color: var(--theme-primary, #3B82F6) !important;
 }
 
+/* ========== تطبيق نفس النظام على صفحة عمق ========== */
+
+/* تأثيرات الإحصائيات والأيقونات لصفحة عمق */
+[data-page="deep"] .stats-icon,
+[data-page="deep"] .header-icon {
+  color: var(--theme-primary, #3B82F6) !important;
+  transition: color 0.3s ease;
+}
+
+[data-page="deep"] .stats-icon:hover,
+[data-page="deep"] .header-icon:hover {
+  color: var(--theme-primary, hsl(212 90% 50%)) !important;
+}
+
+/* تحسين شريط الإحصائيات لصفحة عمق */
+[data-page="deep"] .stats-container {
+  background: transparent !important;
+  border: 1px solid #f0f0ef !important;
+  transition: all 0.3s ease;
+}
+
+[data-page="deep"] .stats-container:hover {
+  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.03) !important;
+  border-color: var(--theme-primary, #3B82F6) !important;
+}
+
+/* تأثيرات الهيدر والأيقونة الرئيسية لصفحة عمق */
+[data-page="deep"] .header-main-icon,
+[data-page="deep"] .themed-gradient-bg {
+  background: linear-gradient(135deg, var(--theme-primary, #8b5cf6), var(--theme-secondary, #7c3aed)) !important;
+  transition: all 0.3s ease;
+}
+
+[data-page="deep"] .header-main-icon:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 30px rgba(var(--theme-primary-rgb, 59 130 246), 0.3);
+}
+
 [data-page="muqtarab"] .text-purple-600,
 [data-muqtarab="true"] .text-purple-600 {
   color: var(--theme-primary, #3B82F6) !important;
