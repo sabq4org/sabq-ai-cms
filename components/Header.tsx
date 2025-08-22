@@ -28,7 +28,7 @@ import ClientOnly from "./ClientOnly";
 import UserDropdown from "./UserDropdown";
 import MobileUserDropdown from "./mobile/UserDropdown";
 import UserMenuDrawer from "./mobile/UserMenuDrawer";
-import NotificationBell from "@/components/NotificationBell";
+import { NotificationDropdown } from '@/components/Notifications/NotificationDropdownOptimized';
 import CompactThemeSwitcher from '@/components/theme/CompactThemeSwitcher';
 
 
@@ -218,9 +218,9 @@ export default function Header() {
                 )}
               </button>
 
-              {/* الإشعارات الذكية */}
+              {/* الإشعارات الذكية المحسنة */}
               {user && (
-                <NotificationBell />
+                <NotificationDropdown />
               )}
 
               {/* المستخدم أو تسجيل الدخول */}
