@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import OldStyleNewsBlock from "@/components/old-style/OldStyleNewsBlock";
-import "../old-style-demo/old-style.css";
+// تمت إضافة الاستيراد عالمياً من خلال app/layout.tsx
 
 export default function LightPage() {
   const [loading, setLoading] = useState(true);
@@ -46,8 +46,8 @@ export default function LightPage() {
       <div 
         className="mb-8 p-6 rounded-2xl border-2"
         style={{
-          borderColor: 'var(--theme-primary, #3B82F6)',
-          backgroundColor: 'var(--theme-primary, #3B82F6)10',
+          borderColor: 'rgba(var(--theme-primary-rgb, 59 130 246), 0.4)',
+          backgroundColor: 'rgba(var(--theme-primary-rgb, 59 130 246), 0.06)',
         }}
       >
         <h2 
@@ -65,8 +65,8 @@ export default function LightPage() {
       <div 
         className="mb-8 p-4 rounded-xl text-center border"
         style={{
-          backgroundColor: 'var(--theme-primary, #3B82F6)05',
-          borderColor: 'var(--theme-primary, #3B82F6)20',
+          backgroundColor: 'rgba(var(--theme-primary-rgb, 59 130 246), 0.05)',
+          borderColor: 'rgba(var(--theme-primary-rgb, 59 130 246), 0.2)',
         }}
       >
         <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
@@ -120,7 +120,7 @@ export default function LightPage() {
         <div className="text-center p-6">
           <div 
             className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-            style={{ backgroundColor: 'var(--theme-primary, #3B82F6)20' }}
+            style={{ backgroundColor: 'rgba(var(--theme-primary-rgb, 59 130 246), 0.2)' }}
           >
             <svg 
               className="w-8 h-8"
@@ -139,7 +139,7 @@ export default function LightPage() {
         <div className="text-center p-6">
           <div 
             className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-            style={{ backgroundColor: 'var(--theme-primary, #3B82F6)20' }}
+            style={{ backgroundColor: 'rgba(var(--theme-primary-rgb, 59 130 246), 0.2)' }}
           >
             <svg 
               className="w-8 h-8"
@@ -158,7 +158,7 @@ export default function LightPage() {
         <div className="text-center p-6">
           <div 
             className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-            style={{ backgroundColor: 'var(--theme-primary, #3B82F6)20' }}
+            style={{ backgroundColor: 'rgba(var(--theme-primary-rgb, 59 130 246), 0.2)' }}
           >
             <svg 
               className="w-8 h-8"

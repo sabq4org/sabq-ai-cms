@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans_Arabic } from "next/font/google";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
+import "./globals.css";
+import "@/app/old-style-demo/old-style.css";
 
 const ibmPlexArabic = IBM_Plex_Sans_Arabic({
   subsets: ["arabic"],

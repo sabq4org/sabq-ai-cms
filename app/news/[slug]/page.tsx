@@ -1,6 +1,7 @@
-import SimpleArticleClient from "@/components/news/SimpleArticleClient";
+import ArticleClientComponent from "@/app/article/[id]/ArticleClientComponent";
 import prisma from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
+import "./mobile-styles.css";
 
 // ISR: تفاصيل الخبر (NEWS) تعاد التحقق كل 300 ثانية
 export const revalidate = 300;
@@ -184,10 +185,8 @@ export default async function NewsPage({
     })
     .catch((err) => console.log("Failed to update views:", err));
 
-  // تمرير البيانات للمكون البسيط
+  // تمرير البيانات الكاملة للمكوّن المعتمد تاريخيًا
   return (
-    <SimpleArticleClient
-      article={article}
-    />
+    <ArticleClientComponent articleId={article.id} initialArticle={article as any} />
   );
 }

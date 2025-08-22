@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { Calendar, Clock, User, Eye } from "lucide-react";
 import Link from "next/link";
+import AudioSummaryPlayer from "@/components/AudioSummaryPlayer";
+import CommentsSection from "@/components/article/CommentsSection";
 
 interface SimpleArticleClientProps {
   article: any;
@@ -32,7 +34,7 @@ export default function SimpleArticleClient({ article }: SimpleArticleClientProp
     <article className="max-w-4xl mx-auto px-4 py-8">
       {/* العنوان */}
       <header className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+        <h1 className="text-2xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
           {article.title}
         </h1>
         
@@ -87,26 +89,33 @@ export default function SimpleArticleClient({ article }: SimpleArticleClientProp
         </div>
       )}
 
-      {/* الموجز الذكي - تصميم مميز */}
+      {/* الموجز الذكي + الاستماع للموجز */}
       {(article.ai_summary || article.summary || article.excerpt) && (
-        <div className="mb-8 relative">
-          <div className="absolute right-0 top-0 w-1 h-full bg-gradient-to-b from-blue-500 to-purple-600 rounded-full"></div>
-          <div className="pr-6 pl-6 py-6 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl border border-blue-200/50 dark:border-blue-700/50">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white text-sm font-bold">🤖</span>
+        <div className="mb-8">
+          <div className="relative mb-4">
+            <div className="absolute right-0 top-0 w-1 h-full bg-gradient-to-b from-blue-500 to-purple-600 rounded-full"></div>
+            <div className="pr-6 pl-6 py-6 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl border border-blue-200/50 dark:border-blue-700/50">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-sm font-bold">🤖</span>
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                  الموجز الذكي
+                </h3>
+                <span className="text-xs bg-gradient-to-r from-blue-500 to-purple-600 text-white px-2 py-1 rounded-full">
+                  AI
+                </span>
               </div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                الموجز الذكي
-              </h3>
-              <span className="text-xs bg-gradient-to-r from-blue-500 to-purple-600 text-white px-2 py-1 rounded-full">
-                AI
-              </span>
+              <p className="text-base text-gray-700 dark:text-gray-300 leading-relaxed">
+                {article.ai_summary || article.summary || article.excerpt}
+              </p>
             </div>
-            <p className="text-base text-gray-700 dark:text-gray-300 leading-relaxed">
-              {article.ai_summary || article.summary || article.excerpt}
-            </p>
           </div>
+          <AudioSummaryPlayer
+            articleId={String(article.id)}
+            excerpt={article.ai_summary || article.summary || article.excerpt}
+            audioUrl={article.audio_summary_url}
+          />
         </div>
       )}
 
@@ -144,6 +153,13 @@ export default function SimpleArticleClient({ article }: SimpleArticleClientProp
             </div>
           )}
         </footer>
+      )}
+
+      {/* التعليقات */}
+      {article.id && (
+        <div className="mt-10">
+          <CommentsSection articleId={String(article.id)} />
+        </div>
       )}
     </article>
   );

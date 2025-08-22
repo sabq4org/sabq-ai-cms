@@ -72,7 +72,7 @@ export default function LightLayout({ children }: LightLayoutProps) {
       <header 
         className="sticky top-0 z-50 w-full border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-900/60"
         style={{
-          borderColor: 'var(--theme-primary, #3B82F6)20',
+          borderColor: 'rgba(var(--theme-primary-rgb, 59 130 246), 0.2)',
         }}
       >
         <div className="container mx-auto px-4">
@@ -167,7 +167,7 @@ export default function LightLayout({ children }: LightLayoutProps) {
               <div 
                 className="flex h-16 items-center justify-between px-4 border-b"
                 style={{
-                  borderColor: 'var(--theme-primary, #3B82F6)20',
+                  borderColor: 'rgba(var(--theme-primary-rgb, 59 130 246), 0.2)',
                 }}
               >
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white">
@@ -195,18 +195,11 @@ export default function LightLayout({ children }: LightLayoutProps) {
                           href={item.href}
                           onClick={() => setIsSideMenuOpen(false)}
                           className="flex items-center gap-3 rounded-lg px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 hover:scale-[1.02]"
-                          style={{
-                            ':hover': {
-                              backgroundColor: `var(--theme-primary, #3B82F6)10`,
-                              color: 'var(--theme-primary, #3B82F6)',
-                            }
-                          }}
+                          
                         >
                           <Icon 
                             className="h-5 w-5"
-                            style={{
-                              color: 'var(--theme-primary, #3B82F6)',
-                            }}
+                            style={{ color: 'var(--theme-primary, #3B82F6)' }}
                           />
                           <span className="font-medium">{item.label}</span>
                         </Link>

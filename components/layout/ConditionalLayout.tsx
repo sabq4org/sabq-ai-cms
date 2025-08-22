@@ -26,9 +26,15 @@ export default function ConditionalLayout({
 
   // تحديد نوع Layout بناءً على المسار
   const isAdminPath = pathname?.startsWith('/admin');
+  const isLightPath = pathname === '/light' || pathname?.startsWith('/light/');
 
   if (isAdminPath) {
     return <AdminPureLayout>{children}</AdminPureLayout>;
+  }
+
+  // في مسار النسخة الخفيفة، دع تخطيط المقطع `app/light/layout.tsx` يتكفّل بالتخطيط
+  if (isLightPath) {
+    return <>{children}</>;
   }
 
   return <SiteLayout>{children}</SiteLayout>;

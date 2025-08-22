@@ -106,7 +106,7 @@ export default function ResponsiveHome({ isMobile = false }: ResponsiveHomeProps
         className="mb-4 p-4 rounded-xl border-2"
         style={{
           borderColor: 'var(--theme-primary, #3B82F6)',
-          backgroundColor: 'var(--theme-primary, #3B82F6)10',
+          backgroundColor: 'rgba(var(--theme-primary-rgb, 59 130 246), 0.06)',
         }}
       >
         <h1 
@@ -126,8 +126,8 @@ export default function ResponsiveHome({ isMobile = false }: ResponsiveHomeProps
     <div 
       className="mb-6 p-3 rounded-lg text-center border"
       style={{
-        backgroundColor: 'var(--theme-primary, #3B82F6)05',
-        borderColor: 'var(--theme-primary, #3B82F6)20',
+        backgroundColor: 'rgba(var(--theme-primary-rgb, 59 130 246), 0.05)',
+        borderColor: 'rgba(var(--theme-primary-rgb, 59 130 246), 0.2)',
       }}
     >
       <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
@@ -171,8 +171,8 @@ export default function ResponsiveHome({ isMobile = false }: ResponsiveHomeProps
             key={index}
             className="p-4 rounded-lg border"
             style={{
-              backgroundColor: 'var(--theme-primary, #3B82F6)10',
-              borderColor: 'var(--theme-primary, #3B82F6)20',
+              backgroundColor: 'rgba(var(--theme-primary-rgb, 59 130 246), 0.06)',
+              borderColor: 'rgba(var(--theme-primary-rgb, 59 130 246), 0.2)',
             }}
           >
             <div className="text-2xl mb-2">{feature.icon}</div>

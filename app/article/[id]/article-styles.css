@@ -1,0 +1,15 @@
+/* Local article styles (light/mobile) - restored to satisfy import
+   Intentionally minimal to avoid overriding global article CSS. */
+
+/* Keep RTL alignment safe if needed */
+.arabic-article-content {
+  text-align: right;
+  direction: rtl;
+}
+
+/* Containers referenced by the component (no-op to preserve layout) */
+.article-title-wrapper {}
+.article-unified-width {}
+.loading-skeleton {}
+
+
