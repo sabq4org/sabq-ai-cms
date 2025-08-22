@@ -56,12 +56,25 @@ export default function ArticleFeaturedImage({
             )}
           </div>
           
-          {/* عرض وصف الصورة إذا وُجد */}
-          {caption && (
-            <div className="mt-3 text-center">
-              <p className="text-sm text-gray-600 dark:text-gray-400 italic">
-                {caption}
-              </p>
+          {/* عرض شرح الصورة (Alt Text) أو وصف الصورة إذا وُجد */}
+          {(alt || caption) && (
+            <div className="mt-3 text-left">
+              {alt && alt !== title && (
+                <div className="flex items-start gap-2 justify-start">
+                  <span className="text-sm text-blue-500 dark:text-blue-400 mt-0.5 flex-shrink-0">📷</span>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                    {alt}
+                  </p>
+                </div>
+              )}
+              {caption && caption !== alt && (
+                <div className="flex items-start gap-2 justify-start mt-1">
+                  <span className="text-sm text-gray-400 dark:text-gray-500 mt-0.5 flex-shrink-0">💬</span>
+                  <p className="text-sm text-gray-500 dark:text-gray-500 italic">
+                    {caption}
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </div>

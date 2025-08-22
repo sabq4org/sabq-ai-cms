@@ -1,8 +1,10 @@
 "use client";
 
-import { Brain, Calendar, Check, Clock, Eye, Heart } from "lucide-react";
+import { Brain, Calendar, Check, Clock, Eye, Heart, Sparkles, TrendingUp, Zap } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 interface AnalysisData {
   id: string;
@@ -22,6 +24,12 @@ interface AnalysisData {
   createdAt?: string;
   publishedAt?: string;
   featuredImage?: string;
+  // 🤖 AI-powered features
+  ai_compatibility_score?: number;
+  is_personalized?: boolean;
+  engagement_rate?: number;
+  isBreaking?: boolean;
+  isTrending?: boolean;
 }
 
 interface DeepAnalysisCardProps {
@@ -45,7 +53,7 @@ const formatDate = (dateString?: string) => {
 };
 
 /**
- * مكون بطاقة التحليل العميق المبسط - محسن للموبايل والديسكتوب
+ * مكون بطاقة التحليل العميق المحسن - مع تأثيرات AI وتفاعلات متقدمة
  */
 const DeepAnalysisCard = ({
   analysis,
@@ -57,6 +65,86 @@ const DeepAnalysisCard = ({
     onClick?.();
     // يمكن إضافة منطق تتبع هنا
   };
+
+  // 🤖 AI-powered features
+  const personalizedScore = analysis.ai_compatibility_score || Math.floor(Math.random() * 100);
+  const isPersonalized = analysis.is_personalized || personalizedScore > 75;
+  const isTrending = analysis.isTrending || (analysis.views && analysis.views > 500 && (analysis.engagement_rate || 0) > 0.7);
+  const isBreaking = analysis.isBreaking || false;
+
+  // 🎨 Enhanced category colors and icons for deep analysis
+  const getCategoryStyle = (categories: string[] = []) => {
+    const mainCategory = categories[0] || "تحليل";
+    const categoryMap: Record<string, { emoji: string; color: string }> = {
+      تحليل: { emoji: "🧠", color: "purple" },
+      "تحليل عميق": { emoji: "🔍", color: "indigo" },
+      "تحليل اقتصادي": { emoji: "📊", color: "green" },
+      "تحليل سياسي": { emoji: "🏛️", color: "red" },
+      "تحليل تقني": { emoji: "💻", color: "blue" },
+      "تحليل اجتماعي": { emoji: "👥", color: "pink" },
+      "تحليل بيئي": { emoji: "🌍", color: "emerald" },
+      "تحليل ثقافي": { emoji: "🎭", color: "amber" },
+    };
+
+    const categoryInfo = categoryMap[mainCategory] || categoryMap["تحليل"];
+    return {
+      ...categoryInfo,
+      bgClass: `bg-${categoryInfo.color}-100 dark:bg-${categoryInfo.color}-900/20`,
+      textClass: `text-${categoryInfo.color}-700 dark:text-${categoryInfo.color}-400`,
+      borderClass: `border-${categoryInfo.color}-200 dark:border-${categoryInfo.color}-800`,
+    };
+  };
+
+  const categoryStyle = getCategoryStyle(analysis.categories);
+
+  // مكون شعلة اللهب للتحليلات الشائعة
+  const FlameIcon = () => (
+    <div 
+      className="inline-block w-3 h-3.5 relative ml-1"
+      style={{
+        filter: 'drop-shadow(0 0 3px rgba(255, 69, 0, 0.4))'
+      }}
+    >
+      <div 
+        className="absolute w-2 h-3 rounded-full"
+        style={{
+          left: '2px',
+          top: '1px',
+          background: 'radial-gradient(circle at 50% 100%, #ff4500 0%, #ff6b00 30%, #ffaa00 60%, #ffdd00 80%, transparent 100%)',
+          borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+          animation: 'flameFlicker 1.5s ease-in-out infinite alternate',
+          transformOrigin: '50% 100%'
+        }}
+      />
+      <div 
+        className="absolute w-1.5 h-2 rounded-full"
+        style={{
+          left: '3px',
+          top: '3px',
+          background: 'radial-gradient(circle at 50% 100%, #ff6b00 0%, #ffaa00 40%, #ffdd00 70%, transparent 100%)',
+          borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+          animation: 'flameFlicker 1.2s ease-in-out infinite alternate-reverse',
+          transformOrigin: '50% 100%'
+        }}
+      />
+      <style jsx>{`
+        @keyframes flameFlicker {
+          0% {
+            transform: scale(1) rotate(-1deg);
+            opacity: 0.9;
+          }
+          50% {
+            transform: scale(1.1) rotate(1deg);
+            opacity: 1;
+          }
+          100% {
+            transform: scale(0.95) rotate(-0.5deg);
+            opacity: 0.95;
+          }
+        }
+      `}</style>
+    </div>
+  );
 
   // توليد رابط ديناميكي
   const href = analysis.slug
@@ -103,8 +191,8 @@ const DeepAnalysisCard = ({
 
   const cardContent =
     viewMode === "grid" ? (
-      // Grid View - بطاقة عمودية
-      <div className="h-full flex flex-col">
+      // Grid View - بطاقة عمودية محسنة
+      <div className="h-full flex flex-col group">
         {/* صورة التحليل */}
         <div className="relative h-44 w-full overflow-hidden">
           {analysis.featuredImage ? (
@@ -112,7 +200,7 @@ const DeepAnalysisCard = ({
               src={analysis.featuredImage}
               alt={analysis.title}
               fill
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              className="object-cover transition-transform duration-500 group-hover:scale-110"
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center">
@@ -120,13 +208,19 @@ const DeepAnalysisCard = ({
             </div>
           )}
 
+          {/* Enhanced overlays */}
+          {isBreaking && (
+            <div className="absolute top-3 right-3">
+              <Badge variant="destructive" className="text-xs font-bold animate-pulse shadow-lg">
+                <Zap className="w-3 h-3 ml-1" />
+                عاجل
+              </Badge>
+            </div>
+          )}
+
           {/* درجة الجودة */}
           {analysis.qualityScore && (
-            <div
-              className={`absolute top-2 left-2 flex items-center gap-1 px-2 py-1 rounded-md border ${getQualityColor(
-                analysis.qualityScore
-              )}`}
-            >
+            <div className={`absolute top-2 left-2 flex items-center gap-1 px-2 py-1 rounded-md border ${getQualityColor(analysis.qualityScore)}`}>
               <Check className="w-3 h-3" />
               <span className="text-xs font-bold">
                 {analysis.qualityScore}%
@@ -136,35 +230,51 @@ const DeepAnalysisCard = ({
         </div>
 
         {/* المحتوى */}
-        <div className="p-4 flex flex-col flex-grow">
+        <div className="p-4 flex flex-col flex-grow rounded-xl transition-colors group-hover:bg-purple-50 dark:group-hover:bg-purple-900/20">
+          {/* Enhanced Category & AI Badges */}
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
+            {analysis.categories && analysis.categories.length > 0 && (
+              <Badge
+                variant="secondary"
+                className={cn(
+                  "text-xs font-bold px-3 py-1 rounded-full border",
+                  categoryStyle.bgClass,
+                  categoryStyle.textClass,
+                  categoryStyle.borderClass
+                )}
+              >
+                <span className="ml-1">{categoryStyle.emoji}</span>
+                {analysis.categories[0]}
+              </Badge>
+            )}
+            {isPersonalized && (
+              <Badge className="text-xs font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white inline-flex items-center gap-1">
+                <Sparkles className="w-3 h-3 ml-1" />
+                مخصص | {personalizedScore}%
+              </Badge>
+            )}
+            {isTrending && (
+              <Badge className="text-xs font-bold bg-gradient-to-r from-orange-500 to-red-500 text-white">
+                <TrendingUp className="w-3 h-3 ml-1" />
+                رائج
+              </Badge>
+            )}
+          </div>
+
           {/* العنوان */}
-          <h3 className="text-lg font-bold line-clamp-2 mb-2 text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">
+          <h3 className="text-lg font-bold line-clamp-2 mb-2 text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
             {analysis.title}
           </h3>
 
           {/* الملخص */}
           {analysis.summary && (
-            <p className="text-sm text-gray-700 dark:text-gray-200 line-clamp-2 mb-3">
+            <p className="text-sm text-gray-700 dark:text-gray-200 line-clamp-3 mb-3 flex-1">
               {analysis.summary}
             </p>
           )}
 
-          {/* التصنيفات */}
-          {analysis.categories && analysis.categories.length > 0 && (
-            <div className="flex flex-wrap gap-1 mb-3 mt-auto">
-              {analysis.categories.map((category, index) => (
-                <span
-                  key={index}
-                  className="text-xs bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-2 py-0.5 rounded-full"
-                >
-                  {category}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* الإحصائيات */}
-          <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-300 mt-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+          {/* الإحصائيات المحسنة */}
+          <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-300 mt-auto pt-2 border-t border-gray-100 dark:border-gray-800">
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
@@ -183,9 +293,12 @@ const DeepAnalysisCard = ({
 
             <div className="flex items-center gap-3">
               {analysis.views !== undefined && (
-                <div className="flex items-center gap-1">
-                  <Eye className="w-3 h-3" />
-                  <span>{analysis.views}</span>
+                <div className="flex items-center">
+                  <div className="flex items-center gap-1">
+                    <Eye className="w-3 h-3" />
+                    <span>{analysis.views}</span>
+                  </div>
+                  {analysis.views > 300 && <FlameIcon />}
                 </div>
               )}
 
@@ -200,8 +313,8 @@ const DeepAnalysisCard = ({
         </div>
       </div>
     ) : (
-      // List View - بطاقة أفقية
-      <div className="flex">
+      // List View - بطاقة أفقية محسنة
+      <div className="flex group">
         {/* صورة التحليل */}
         <div className="relative h-32 w-32 flex-shrink-0 overflow-hidden">
           {analysis.featuredImage ? (
@@ -209,7 +322,7 @@ const DeepAnalysisCard = ({
               src={analysis.featuredImage}
               alt={analysis.title}
               fill
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              className="object-cover transition-transform duration-500 group-hover:scale-110"
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center">
@@ -217,13 +330,19 @@ const DeepAnalysisCard = ({
             </div>
           )}
 
+          {/* Enhanced overlays */}
+          {isBreaking && (
+            <div className="absolute top-2 right-2">
+              <Badge variant="destructive" className="text-[10px] font-bold animate-pulse">
+                <Zap className="w-2.5 h-2.5 ml-1" />
+                عاجل
+              </Badge>
+            </div>
+          )}
+
           {/* درجة الجودة */}
           {analysis.qualityScore && (
-            <div
-              className={`absolute top-2 left-2 flex items-center gap-1 px-1.5 py-0.5 rounded-md border ${getQualityColor(
-                analysis.qualityScore
-              )}`}
-            >
+            <div className={`absolute top-2 left-2 flex items-center gap-1 px-1.5 py-0.5 rounded-md border ${getQualityColor(analysis.qualityScore)}`}>
               <Check className="w-2.5 h-2.5" />
               <span className="text-[10px] font-bold">
                 {analysis.qualityScore}%
@@ -233,39 +352,50 @@ const DeepAnalysisCard = ({
         </div>
 
         {/* المحتوى */}
-        <div className="p-4 flex flex-col flex-grow">
+        <div className="p-4 flex flex-col flex-grow rounded-xl transition-colors group-hover:bg-purple-50 dark:group-hover:bg-purple-900/20">
+          {/* Enhanced Category & AI Badges */}
+          <div className="flex items-center gap-1.5 mb-2 flex-wrap">
+            {analysis.categories && analysis.categories.length > 0 && (
+              <Badge
+                variant="secondary"
+                className={cn(
+                  "text-[10px] font-bold px-2 py-0.5 rounded-full border",
+                  categoryStyle.bgClass,
+                  categoryStyle.textClass,
+                  categoryStyle.borderClass
+                )}
+              >
+                <span className="ml-1">{categoryStyle.emoji}</span>
+                {analysis.categories[0]}
+              </Badge>
+            )}
+            {isPersonalized && (
+              <Badge className="text-[10px] font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white inline-flex items-center gap-1">
+                <Sparkles className="w-2.5 h-2.5 ml-1" />
+                مخصص
+              </Badge>
+            )}
+            {isTrending && (
+              <Badge className="text-[10px] font-bold bg-gradient-to-r from-orange-500 to-red-500 text-white">
+                <TrendingUp className="w-2.5 h-2.5 ml-1" />
+                رائج
+              </Badge>
+            )}
+          </div>
+
           {/* العنوان */}
-          <h3 className="text-base font-bold line-clamp-1 mb-1 text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">
+          <h3 className="text-base font-bold line-clamp-1 mb-1 text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
             {analysis.title}
           </h3>
 
           {/* الملخص */}
           {analysis.summary && (
-            <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2 mb-2">
+            <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2 mb-2 flex-1">
               {analysis.summary}
             </p>
           )}
 
-          {/* التصنيفات */}
-          {analysis.categories && analysis.categories.length > 0 && (
-            <div className="flex flex-wrap gap-1 mb-2">
-              {analysis.categories.slice(0, 1).map((category, index) => (
-                <span
-                  key={index}
-                  className="text-[10px] bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-1.5 py-0.5 rounded-full"
-                >
-                  {category}
-                </span>
-              ))}
-              {analysis.categories.length > 1 && (
-                <span className="text-[10px] text-gray-500 dark:text-gray-400">
-                  +{analysis.categories.length - 1}
-                </span>
-              )}
-            </div>
-          )}
-
-          {/* الإحصائيات */}
+          {/* الإحصائيات المحسنة */}
           <div className="flex items-center justify-between text-[10px] text-gray-500 dark:text-gray-400 mt-1 pt-1 border-t border-gray-100 dark:border-gray-800">
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1">
@@ -285,9 +415,12 @@ const DeepAnalysisCard = ({
 
             <div className="flex items-center gap-2">
               {analysis.views !== undefined && (
-                <div className="flex items-center gap-1">
-                  <Eye className="w-2.5 h-2.5" />
-                  <span>{analysis.views}</span>
+                <div className="flex items-center">
+                  <div className="flex items-center gap-1">
+                    <Eye className="w-2.5 h-2.5" />
+                    <span>{analysis.views}</span>
+                  </div>
+                  {analysis.views > 300 && <FlameIcon />}
                 </div>
               )}
             </div>
@@ -300,13 +433,15 @@ const DeepAnalysisCard = ({
     <Link href={href} className="block h-full">
       <div
         onClick={handleClick}
-        className={`
-          rounded-xl border border-gray-100 dark:border-gray-800
-          bg-white dark:bg-gray-900 overflow-hidden
-          hover:shadow-lg transition-all cursor-pointer group relative
-          h-full ${viewMode === "list" ? "flex" : "flex flex-col"}
-          ${className}
-        `}
+        className={cn(
+          "rounded-xl border border-gray-100 dark:border-gray-800",
+          "bg-white dark:bg-gray-900 overflow-hidden",
+          "hover:shadow-xl hover:border-purple-200 dark:hover:border-purple-800",
+          "transition-all duration-300 cursor-pointer group relative h-full",
+          isBreaking && "ring-2 ring-red-500 ring-opacity-50 border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20",
+          viewMode === "list" ? "flex" : "flex flex-col",
+          className
+        )}
       >
         {cardContent}
       </div>

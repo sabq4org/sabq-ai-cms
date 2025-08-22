@@ -270,6 +270,9 @@ export async function GET(
         // ✅ إضافة image للتوافق مع المكونات
         image: article.featured_image,
         image_url: article.featured_image,
+        // ✅ إضافة حقول Alt Text ووصف الصورة
+        featured_image_alt: (article as any).featured_image_alt,
+        featured_image_caption: (article as any).featured_image_caption,
         category: categoryInfo,
         // ضمان إرجاع الكلمات المفتاحية كمصفوفة في جميع الحقول المتوقعة
         tags: tags,

@@ -137,11 +137,11 @@ export default function Header() {
         } border-b shadow-sm`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full relative">
-          <div className="flex items-center justify-between h-full">
-            {/* الشعار */}
+          <div className="flex items-center h-full relative">
+            {/* الشعار - يبدأ من اليسار */}
             <Link
               href="/"
-              className="flex-shrink-0 relative z-50 hover:scale-105 transition-transform duration-200 header-logo-wrapper ml-auto"
+              className="flex-shrink-0 relative z-50 hover:scale-105 transition-transform duration-200 header-logo-wrapper"
             >
               {settingsLoading ? (
                 <div className="h-8 sm:h-10 w-28 sm:w-36 animate-pulse"></div>
@@ -162,7 +162,7 @@ export default function Header() {
             </Link>
 
             {/* المينيو الرئيسية */}
-            <nav className="hidden md:flex items-center space-x-6 rtl:space-x-reverse flex-1 justify-center">
+            <nav className="hidden md:flex items-center space-x-6 rtl:space-x-reverse absolute left-1/2 transform -translate-x-1/2">
               {navigationItems.map((item) => (
                 <Link
                   key={item.url}
@@ -184,7 +184,7 @@ export default function Header() {
             </nav>
 
             {/* أدوات الهيدر */}
-            <div className="flex items-center space-x-1 md:space-x-3 rtl:space-x-reverse header-tools">
+            <div className="flex items-center space-x-1 md:space-x-3 rtl:space-x-reverse header-tools absolute right-0">
 
 
               {/* زر لحظة بلحظة - يظهر على الشاشات المتوسطة فأعلى فقط */}

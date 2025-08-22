@@ -28,9 +28,9 @@ export default function MobileFeaturedImage({
   const [imageError, setImageError] = useState(false);
 
   return (
-    <div className={`relative w-full h-full ${className || ''}`}>
-      {/* حاوي الصورة */}
-      <div className="relative w-full h-full overflow-hidden bg-gray-100 dark:bg-gray-800 rounded-lg">
+    <div className={`relative w-full ${className || ''}`}>
+      {/* حاوي الصورة بارتفاع مناسب */}
+      <div className="relative w-full h-[230px] overflow-hidden bg-gray-100 dark:bg-gray-800 rounded-lg">
         {/* الصورة مع lazy loading */}
         <Image
           src={imageError ? "/images/placeholder-featured.jpg" : imageUrl}
@@ -74,12 +74,25 @@ export default function MobileFeaturedImage({
         )}
       </div>
 
-      {/* التعليق على الصورة إن وجد */}
-      {caption && (
-        <div className="px-4 py-2 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
-          <p className="text-xs text-gray-600 dark:text-gray-400 text-center">
-            {caption}
-          </p>
+      {/* شرح الصورة (Alt Text) أو التعليق على الصورة إن وجد - خارج حاوي الصورة */}
+      {(alt || caption) && (alt !== title || caption) && (
+        <div className="mt-2 px-3 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+          {alt && alt !== title && (
+            <div className="flex items-start gap-2 justify-start text-left">
+              <span className="text-xs text-blue-500 dark:text-blue-400 mt-0.5 flex-shrink-0">📷</span>
+              <p className="text-xs text-gray-700 dark:text-gray-200 font-medium leading-relaxed">
+                {alt}
+              </p>
+            </div>
+          )}
+          {caption && caption !== alt && (
+            <div className="flex items-start gap-2 justify-start text-left mt-1">
+              <span className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 flex-shrink-0">💬</span>
+              <p className="text-xs text-gray-500 dark:text-gray-400 italic leading-relaxed">
+                {caption}
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>
