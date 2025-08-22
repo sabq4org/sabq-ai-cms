@@ -277,8 +277,7 @@ export default function AdminLogin() {
               </p>
             </div>
           </div>
-
-          {/* الحركة انتقلت إلى CSS Module */}
+          {/* animation moved to CSS module */}
         </div>
       </div>
     </div>
