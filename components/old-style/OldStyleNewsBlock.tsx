@@ -134,7 +134,7 @@ export default function OldStyleNewsBlock({
           gap: '20px'
         }}
       >
-        {articles.map((article) => (
+        {articles.map((article, index) => (
           <Link
             key={article.id}
             href={getArticleUrl(article)}
@@ -148,7 +148,9 @@ export default function OldStyleNewsBlock({
                 width={300}
                 height={200}
                 className="old-style-news-image"
-                loading="lazy"
+                priority={index < columns}
+                loading={index < columns ? 'eager' : 'lazy'}
+                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
             </div>
 

@@ -70,6 +70,7 @@
   object-fit: cover;
   transition: transform 0.3s ease;
   border-radius: 8px;
+  background-color: #fff; /* منع وميض الخلفية الرمادية قبل التحميل */
 }
 
 .old-style-news-card:hover .old-style-news-image {
