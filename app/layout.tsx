@@ -155,6 +155,13 @@ export default function RootLayout({
       </head>
       <body className={`${ibmPlexArabic.className} antialiased`} style={{ backgroundColor: '#f8f8f7', backgroundImage: 'none', minHeight: '100vh' }} suppressHydrationWarning>
         <style dangerouslySetInnerHTML={{ __html: `
+          /* Critical: Force background immediately */
+          body { 
+            background: #f8f8f7 !important; 
+            background-color: #f8f8f7 !important;
+          }
+        ` }} />
+        <style dangerouslySetInnerHTML={{ __html: `
           html, body { 
             background: #f8f8f7 !important; 
             background-color: #f8f8f7 !important; 
@@ -179,8 +186,8 @@ export default function RootLayout({
           
           // تطبيق مرة أخرى بعد تحميل DOM
           window.addEventListener('DOMContentLoaded', function() {
-            document.documentElement.style.backgroundColor = '#f8f8f7';
-            document.body.style.backgroundColor = '#f8f8f7';
+            document.documentElement.style.setProperty('background-color', '#f8f8f7', 'important');
+            document.body.style.setProperty('background-color', '#f8f8f7', 'important');
             
             // إزالة أي خلفيات من العناصر الرئيسية
             const wrapper = document.querySelector('.homepage-wrapper');
@@ -191,6 +198,14 @@ export default function RootLayout({
             
             const main = document.querySelector('main');
             if (main) main.style.backgroundColor = 'transparent';
+            
+            // Force background on any div with white background
+            document.querySelectorAll('div').forEach(function(div) {
+              if (window.getComputedStyle(div).backgroundColor === 'rgb(255, 255, 255)' && 
+                  !div.className.includes('card')) {
+                div.style.backgroundColor = 'transparent';
+              }
+            });
           });
           
           // تأكد من تطبيق الخلفية حتى بعد أي تحديثات ديناميكية
