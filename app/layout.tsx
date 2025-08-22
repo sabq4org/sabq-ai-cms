@@ -73,6 +73,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
+        <link rel="stylesheet" href="/force-background.css" />
         <link rel="stylesheet" href="/background-override.css" />
         <link rel="stylesheet" href="/manus-ui.css" />
         <style dangerouslySetInnerHTML={{ __html: `
@@ -117,6 +118,17 @@ export default function RootLayout({
           .muqtarab-home-section::before,
           .muqtarab-home-section::after {
             background: initial !important;
+          }
+          
+          /* تجربة لتحديد المشكلة - خلفية حمراء مؤقتة */
+          html {
+            background: #f8f8f7 !important;
+            box-shadow: inset 0 0 0 10000px #f8f8f7 !important;
+          }
+          
+          body {
+            background: transparent !important;
+            isolation: isolate !important;
           }
           
           /* خلفية فورية لصفحة مقترب - أعلى أولوية */

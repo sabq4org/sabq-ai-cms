@@ -1,0 +1,59 @@
+/* Force background with maximum specificity */
+
+/* Light mode background */
+:root:root:root,
+html:not(.dark):not([class*="dark"]),
+body:not(.dark):not([class*="dark"]) {
+  background: #f8f8f7 !important;
+  background-color: #f8f8f7 !important;
+  background-image: none !important;
+}
+
+/* Remove all overlays and layers */
+*[class*="overlay"],
+*[class*="modal"],
+*[class*="backdrop"],
+*[style*="position: fixed"],
+*[style*="position: absolute"] {
+  pointer-events: none !important;
+  background: transparent !important;
+  opacity: 0 !important;
+}
+
+/* Force transparency on all containers */
+div:not([class*="card"]):not(article),
+section:not([class*="card"]),
+main *:not([class*="card"]):not(article) {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* Dark mode */
+:root.dark:root.dark,
+html.dark,
+body.dark {
+  background: #111827 !important;
+  background-color: #111827 !important;
+}
+
+/* Override any inline styles */
+[style*="background-color: white"] {
+  background-color: transparent !important;
+}
+
+[style*="background-color: rgb(255"],
+[style*="background-color: #fff"],
+[style*="background-color: #ffffff"] {
+  background-color: transparent !important;
+}
+
+/* Debug - add red outline to any white elements */
+* {
+  --white-debug: #f8f8f7;
+}
+
+/* Final override using filter */
+html {
+  filter: none !important;
+  -webkit-filter: none !important;
+}

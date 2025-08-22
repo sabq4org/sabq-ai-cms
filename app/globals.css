@@ -184,8 +184,24 @@ body {
 .homepage-wrapper,
 .content-main-desktop,
 .content-main-mobile,
-main {
+main,
+#__next,
+#__next > div {
   background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* تطبيق الخلفية على viewport */
+@media screen {
+  html {
+    background: #f8f8f7 !important;
+    background-color: #f8f8f7 !important;
+  }
+  
+  body {
+    background: #f8f8f7 !important;
+    background-color: #f8f8f7 !important;
+  }
 }
 
 /* الوضع الداكن */
