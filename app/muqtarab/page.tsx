@@ -228,10 +228,10 @@ function MuqtaribPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8f8f7]" style={{ backgroundColor: '#f8f8f7' }} data-page="muqtarab">
-      {/* Hero Section - مماثل لصفحة الأخبار */}
-      <section className="relative py-16" style={{ backgroundColor: '#f8f8f7' }}>
-        <div className="relative max-w-7xl mx-auto px-4 md:px-6" style={{ backgroundColor: '#f8f8f7' }}>
+    <div className="min-h-screen bg-[#f8f8f7]">
+      {/* Hero Section */}
+      <section className="relative py-16">
+        <div className="relative max-w-7xl mx-auto px-4 md:px-6">
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-20 h-20 mb-6 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-2xl header-main-icon">
               <BookOpen className="w-10 h-10 text-white header-icon" />
@@ -247,7 +247,7 @@ function MuqtaribPageContent() {
 
             {/* إحصائيات مقترب */}
             {stats && (
-              <div className="mt-6 inline-flex flex-wrap justify-center items-center gap-4 md:gap-6 rounded-2xl px-4 md:px-6 py-3 border" style={{ backgroundColor: '#f8f8f7', borderColor: '#f0f0ef' }}>
+              <div className="mt-6 inline-flex flex-wrap justify-center items-center gap-4 md:gap-6 rounded-2xl px-4 md:px-6 py-3 bg-white border border-gray-200 shadow-sm">
                 <div className="text-center px-2">
                   <div className="flex items-center gap-2">
                     <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400 stats-icon" />
@@ -309,7 +309,7 @@ function MuqtaribPageContent() {
 
       {/* المقال المميز */}
       {heroArticle && (
-        <div className="max-w-7xl mx-auto px-4 py-6 md:py-8" style={{ backgroundColor: '#f8f8f7' }}>
+        <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
           {/* عنوان بسيط */}
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-2">
@@ -335,7 +335,7 @@ function MuqtaribPageContent() {
 
       {/* عرض بديل للمقالات إذا لم يكن هناك مقال مميز */}
       {!heroArticle && featuredArticles.length > 0 && (
-        <div className="max-w-7xl mx-auto px-4 py-6 md:py-8" style={{ backgroundColor: '#f8f8f7' }}>
+        <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-1 h-6 bg-blue-600 rounded-full section-accent-line"></div>
@@ -430,7 +430,7 @@ function MuqtaribPageContent() {
 
       {/* المقالات المختارة من الزوايا - تظهر عندما يوجد heroArticle */}
       {heroArticle && featuredArticles.length > 0 && (
-        <div className="max-w-7xl mx-auto px-4 py-6 md:py-8" style={{ backgroundColor: '#f8f8f7' }}>
+        <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-1 h-6 bg-green-600 rounded-full section-accent-line"></div>
@@ -486,8 +486,8 @@ function MuqtaribPageContent() {
       )}
 
       {/* البحث والفلاتر */}
-      <div className="max-w-7xl mx-auto px-4 py-4 md:py-6" style={{ backgroundColor: '#f8f8f7' }}>
-        <div className="rounded-lg border p-4 md:p-6 mb-6" style={{ backgroundColor: '#f8f8f7' }}>
+      <div className="max-w-7xl mx-auto px-4 py-4 md:py-6">
+        <div className="rounded-lg bg-white border border-gray-200 p-4 md:p-6 mb-6 shadow-sm">
           <div className="flex flex-col gap-4">
             {/* شريط البحث */}
             <div className="relative">
@@ -667,7 +667,7 @@ function MobileHeroCard({ heroArticle }: { heroArticle: HeroArticle }) {
   return (
     <Card 
       className="flex gap-3 items-start p-4 rounded-xl shadow-sm border muqtarab-themed-card" 
-      style={{ backgroundColor: '#ffffff' }}
+     
       data-card="hero"
     >
       {heroArticle.coverImage && (
@@ -710,7 +710,7 @@ function MobileFeaturedAngleCard({ angle }: { angle: Angle }) {
   return (
     <Card 
       className="p-3 rounded-xl shadow-sm text-center muqtarab-themed-card" 
-      style={{ backgroundColor: '#ffffff' }}
+     
       data-card="hero"
     >
       <div className="relative w-16 h-16 mx-auto mb-2">
@@ -1055,8 +1055,8 @@ function MuqtarabFooter({ stats }: { stats: MuqtarabStats | null }) {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative mt-16 border-t border-gray-200 dark:border-gray-700" style={{ backgroundColor: '#f8f8f7' }}>
-      <div className="relative max-w-7xl mx-auto px-4 md:px-6 py-12" style={{ backgroundColor: '#f8f8f7' }}>
+    <footer className="relative mt-16 border-t border-gray-200 dark:border-gray-700">
+      <div className="relative max-w-7xl mx-auto px-4 md:px-6 py-12">
         {/* الجزء العلوي */}
         <div className="grid md:grid-cols-4 gap-8 mb-12">
           {/* معلومات مقترب */}
@@ -1246,7 +1246,7 @@ function MuqtarabFooter({ stats }: { stats: MuqtarabStats | null }) {
           </div>
 
           {/* رسالة تشجيعية */}
-          <div className="mt-6 p-4 rounded-xl border border-blue-100 dark:border-blue-800/30" style={{ backgroundColor: '#f8f8f7' }}>
+          <div className="mt-6 p-4 rounded-xl bg-white border border-blue-100 dark:border-blue-800/30">
             <div className="flex items-center justify-center gap-2 text-center">
               <span className="text-gray-700 dark:text-gray-300 text-sm">
                 نسعى لإثراء المحتوى العربي بأفكار عميقة ونقاشات هادفة
@@ -1283,7 +1283,7 @@ export default function MuqtaribPage() {
       }} data-page="muqtarab" data-muqtarab="true">
         <SafeMuqtarabWrapper>
           <WithMuqtarabErrorBoundary>
-            <div data-muqtarab="true" style={{ backgroundColor: '#f8f8f7', minHeight: 'inherit' }}>
+            <div data-muqtarab="true">
               <MuqtaribPageContent />
             </div>
           </WithMuqtarabErrorBoundary>
