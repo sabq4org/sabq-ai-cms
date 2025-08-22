@@ -57,3 +57,28 @@ html {
   filter: none !important;
   -webkit-filter: none !important;
 }
+
+/* Nuclear option - hide everything with white background except cards */
+@supports (background: paint(customProperty)) {
+  body * {
+    background: var(--bg-override, transparent) !important;
+  }
+  
+  .card,
+  article,
+  [class*="card"] {
+    --bg-override: white;
+  }
+}
+
+/* Ensure body is always on top of any pseudo elements */
+body {
+  position: relative !important;
+  z-index: 0 !important;
+  isolation: isolate !important;
+}
+
+/* Remove any full-screen overlays */
+body > div:first-child:not(.page-wrapper):not(.homepage-wrapper) {
+  display: none !important;
+}

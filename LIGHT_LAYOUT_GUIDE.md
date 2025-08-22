@@ -119,4 +119,37 @@ className="bg-[#f8f8f7] dark:bg-gray-900"
 ### النتيجة:
 خلفية موحدة ومتناسقة في جميع أنحاء الصفحة الرئيسية مع الحفاظ على التناغم البصري.
 
+## حل مشكلة الطبقة المغطية
+
+### المشكلة:
+ظهور طبقة بيضاء تغطي خلفية الصفحة #f8f8f7
+
+### الحلول المطبقة:
+
+#### 1. **ملفات CSS مخصصة**:
+- `force-background.css`: أول ملف يُحمل مع قواعد بأولوية قصوى
+- `background-override.css`: إزالة overlays وpseudo elements
+
+#### 2. **JavaScript ديناميكي**:
+- فحص دوري كل 100ms
+- إزالة الخلفيات البيضاء من العناصر غير البطاقات
+- إخفاء جميع overlays
+
+#### 3. **CSS Specificity عالية**:
+```css
+:root:root:root,
+html:not(.dark):not([class*="dark"]),
+body:not(.dark):not([class*="dark"]) {
+  background: #f8f8f7 !important;
+}
+```
+
+#### 4. **إزالة العناصر المزعجة**:
+- `.manus-layout::before`
+- `.mobile-overlay`
+- جميع العناصر بـ `position: fixed`
+
+### النتيجة:
+خلفية موحدة #f8f8f7 بدون أي طبقات مغطية
+
 تم التحديث بتاريخ: 2025/01/02
