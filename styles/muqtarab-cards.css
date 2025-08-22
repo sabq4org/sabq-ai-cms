@@ -194,8 +194,7 @@ html:has([data-muqtarab="true"]) body {
 /* نظام الألوان المتغيرة لبطاقات مقترب */
 [data-page="muqtarab"] .card,
 [data-muqtarab="true"] .card {
-  --card-hover-bg: rgba(var(--theme-primary-rgb, 59 130 246), 0.05);
-  --card-hover-border: var(--theme-primary, #3B82F6);
+  --card-hover-bg: hsl(var(--accent) / 0.06);
   --card-accent: var(--theme-primary, #3B82F6);
   transition: all 0.3s ease;
 }
@@ -203,7 +202,6 @@ html:has([data-muqtarab="true"]) body {
 [data-page="muqtarab"] .card:hover,
 [data-muqtarab="true"] .card:hover {
   background-color: var(--card-hover-bg) !important;
-  border-color: var(--card-hover-border) !important;
   transform: translateY(-2px);
   box-shadow: 0 4px 20px rgba(var(--theme-primary-rgb, 59 130 246), 0.15);
 }
@@ -221,16 +219,14 @@ html:has([data-muqtarab="true"]) body {
 
 /* بطاقات MuqtarabCard المحددة */
 .muqtarab-themed-card {
-  --card-hover-bg: rgba(var(--theme-primary-rgb, 59 130 246), 0.05);
-  --card-hover-border: var(--theme-primary, hsl(212 90% 50%));
-  --card-accent: var(--theme-primary, hsl(212 90% 50%));
+  --card-hover-bg: hsl(var(--accent) / 0.06);
+  --card-accent: hsl(var(--accent));
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .muqtarab-themed-card:hover {
   background: rgba(var(--theme-primary-rgb, 59 130 246), 0.05) !important;
   background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.05) !important;
-  border-color: var(--theme-primary, #3B82F6) !important;
   transform: translateY(-1px);
   box-shadow: 0 8px 25px rgba(var(--theme-primary-rgb, 59 130 246), 0.12);
 }
