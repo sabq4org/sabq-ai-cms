@@ -315,7 +315,8 @@ export default function CategoriesPage() {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
-        cache: "no-cache",
+        cache: "force-cache",
+        next: { revalidate: 300 },
       });
 
       console.log("📄 استجابة API:", {

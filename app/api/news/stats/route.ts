@@ -19,10 +19,13 @@ export async function GET(request: NextRequest) {
       totalViews: totalViews._sum.views || 0,
     };
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       success: true,
       stats: stats,
     });
+    res.headers.set("Cache-Control", "public, s-maxage=120, stale-while-revalidate=600");
+    res.headers.set("CDN-Cache-Control", "public, s-maxage=600");
+    return res;
   } catch (error: any) {
     return NextResponse.json(
       {

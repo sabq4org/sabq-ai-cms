@@ -32,10 +32,13 @@ export async function GET(request: NextRequest) {
       articles_count: category._count.articles,
     }));
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       success: true,
       categories: categoriesWithCount,
     });
+    res.headers.set("Cache-Control", "public, s-maxage=300, stale-while-revalidate=900");
+    res.headers.set("CDN-Cache-Control", "public, s-maxage=900");
+    return res;
   } catch (error: any) {
     return NextResponse.json(
       {

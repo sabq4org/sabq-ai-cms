@@ -232,7 +232,7 @@ export default function CategoryDetailPage({ params }: PageProps) {
       setLoading(true);
       setError(null);
 
-      const categoryResponse = await fetch(`/api/categories/by-slug/${slug}`);
+      const categoryResponse = await fetch(`/api/categories/by-slug/${slug}`, { cache: "force-cache", next: { revalidate: 300 } });
       if (!categoryResponse.ok) {
         throw new Error("Category not found");
       }
@@ -240,7 +240,8 @@ export default function CategoryDetailPage({ params }: PageProps) {
       setCategory(categoryData.category);
 
       const articlesResponse = await fetch(
-        `/api/articles?category_id=${categoryData.category.id}&status=published&article_type=news`
+        `/api/articles?category_id=${categoryData.category.id}&status=published&article_type=news`,
+        { cache: "force-cache", next: { revalidate: 120 } }
       );
       if (articlesResponse.ok) {
         const articlesData = await articlesResponse.json();

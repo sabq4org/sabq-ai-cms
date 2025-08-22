@@ -1,10 +1,9 @@
 import CloudImage from "@/components/ui/CloudImage";
 import { getArticleLink } from "@/lib/utils";
 import { ArrowLeft, Calendar, Clock, Eye, MessageSquare } from "lucide-react";
-import { headers } from "next/headers";
 import Link from "next/link";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 120;
 
 type Article = {
   id: string;
@@ -30,19 +29,11 @@ type Article = {
   } | null;
 };
 
-async function getBaseUrl() {
-  const headersList = await headers();
-  const host = headersList.get("host") || "localhost:3001";
-  const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
-  return `${protocol}://${host}`;
-}
-
-async function safeFetch<T>(path: string, fallback: T): Promise<T> {
+async function safeFetch<T>(path: string, fallback: T, revalidateSeconds: number = 120): Promise<T> {
   try {
-    const baseUrl = await getBaseUrl();
-    const res = await fetch(`${baseUrl}${path}`, {
+    const res = await fetch(path, {
       headers: { "Content-Type": "application/json" },
-      cache: "no-store",
+      next: { revalidate: revalidateSeconds },
     });
     if (!res.ok) return fallback as T;
     const json = await res.json();

@@ -13,7 +13,8 @@ export default function LightPage() {
     const fetchArticles = async () => {
       try {
         const res = await fetch(
-          "/api/news?status=published&limit=12&sort=published_at&order=desc&minimal=true&include_categories=true"
+          "/api/news?status=published&limit=12&sort=published_at&order=desc&minimal=true&include_categories=true",
+          { cache: "force-cache", next: { revalidate: 60 } }
         );
         const json = await res.json();
         if (json?.success && Array.isArray(json.articles)) {

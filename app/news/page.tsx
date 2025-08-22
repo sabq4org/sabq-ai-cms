@@ -130,7 +130,8 @@ export default function NewsPage() {
       // محاولة جلب البيانات
       const response = await fetch("/api/categories?is_active=true", {
         signal: controller.signal,
-        cache: "no-store", // تجنب مشكلات التخزين المؤقت
+        cache: "force-cache",
+        next: { revalidate: 300 },
       });
 
       clearTimeout(timeoutId);
@@ -212,7 +213,7 @@ export default function NewsPage() {
     try {
       setStatsLoading(true);
       const params = selectedCategory ? `?category_id=${selectedCategory}` : "";
-      const response = await fetch(`/api/news/stats${params}`);
+      const response = await fetch(`/api/news/stats${params}`, { cache: "force-cache", next: { revalidate: 120 } });
       if (!response.ok) throw new Error("Failed to fetch stats");
       const data = await response.json();
       if (data.success) {
@@ -270,6 +271,8 @@ export default function NewsPage() {
         try {
           const response = await fetch(`/api/news?${params}`, {
             signal: controller.signal,
+            cache: "force-cache",
+            next: { revalidate: 60 },
           });
           clearTimeout(timeoutId);
 
