@@ -209,80 +209,51 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -10, scale: 0.98 }}
                   transition={{ duration: 0.2 }}
-                  className="bg-white dark:bg-gray-900 notification-dropdown-modern z-[9999] max-h-[75vh] overflow-hidden notification-dropdown-fixed notification-dropdown-shadow notification-dropdown-stable"
+                  className="fixed bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-xl z-[9999] max-h-[75vh] overflow-hidden"
                   style={{ 
-                    position: 'fixed', 
                     top: position.top, 
                     right: position.right, 
-                    width: '26rem', 
-                    maxWidth: '90vw', 
-                    transform: 'none',
-                    willChange: 'auto' 
+                    width: '22rem', 
+                    maxWidth: '90vw'
                   }}
                   role="dialog"
                   aria-label="قائمة الإشعارات"
                 >
             {/* رأس القائمة */}
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700 text-right bg-white dark:bg-gray-900 backdrop-blur rtl:text-right">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                    <BellIcon className="w-4 h-4 text-blue-500" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                      الإشعارات
-                    </h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      آخر التحديثات والأخبار
-                    </p>
-                  </div>
+            <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <BellIcon className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+                    الإشعارات
+                  </h3>
                 </div>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 active:scale-95 text-gray-500 dark:text-gray-400"
+                  className="w-6 h-6 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 text-gray-500 dark:text-gray-400"
                   aria-label="إغلاق الإشعارات"
                 >
                   ✕
                 </button>
               </div>
               
-              <div className="flex items-center gap-2 text-sm">
-                {unreadCount > 0 && (
+              {unreadCount > 0 && (
+                <div className="flex items-center justify-between mt-2">
+                  <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                    {unreadCount} إشعار جديد
+                  </span>
                   <button
                     onClick={markAllAsRead}
-                    className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg transition-all duration-200 font-medium"
+                    className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
                   >
                     تحديد الكل كمقروء
                   </button>
-                )}
-                <button
-                  onClick={() => fetchNotifications(1, true)}
-                  className="px-3 py-1.5 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-lg transition-all duration-200"
-                >
-                  تحديث
-                </button>
-                {error && (
-                  <button
-                    onClick={clearError}
-                    className="px-3 py-1.5 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg transition-all duration-200"
-                  >
-                    مسح الخطأ
-                  </button>
-                )}
-              </div>
-
-              {unreadCount > 0 && (
-                <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/10 rounded-lg border border-blue-100 dark:border-blue-800/30">
-                  <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">
-                    لديك {unreadCount} إشعار غير مقروء
-                  </p>
                 </div>
               )}
               
               {error && (
-                <div className="mt-3 p-3 bg-red-50 dark:bg-red-900/10 rounded-lg border border-red-100 dark:border-red-800/30">
-                  <p className="text-sm text-red-700 dark:text-red-300">
+                <div className="mt-2 p-2 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                  <p className="text-xs text-red-700 dark:text-red-300">
                     {error}
                   </p>
                 </div>
@@ -290,25 +261,18 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
             </div>
 
             {/* قائمة الإشعارات */}
-            <div className="max-h-[60vh] overflow-y-auto notification-scroll bg-white dark:bg-gray-900">
+            <div className="max-h-[60vh] overflow-y-auto">
               {loading && notifications.length === 0 ? (
-                <div className="p-8 text-center">
-                  <div className="w-12 h-12 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center mx-auto mb-4">
-                    <div className="notification-loading-pulse rounded-full h-6 w-6 border-2 border-blue-500 border-t-transparent"></div>
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-300 font-medium mb-1">
-                    جاري تحميل الإشعارات
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    يرجى الانتظار قليلاً...
+                <div className="p-6 text-center">
+                  <div className="w-8 h-8 rounded-full border-2 border-blue-500 border-t-transparent animate-spin mx-auto mb-2"></div>
+                  <p className="text-xs text-gray-600 dark:text-gray-300">
+                    جاري التحميل...
                   </p>
                 </div>
               ) : notifications.length === 0 ? (
-                <div className="p-8 text-center">
-                  <div className="w-16 h-16 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
-                    <BellIcon className="h-8 w-8 text-gray-400 dark:text-gray-500" />
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-300 font-medium mb-1">
+                <div className="p-6 text-center">
+                  <BellIcon className="h-8 w-8 text-gray-400 dark:text-gray-500 mx-auto mb-2" />
+                  <p className="text-sm text-gray-600 dark:text-gray-300 font-medium">
                     لا توجد إشعارات
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -316,7 +280,7 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                   </p>
                 </div>
               ) : (
-                <>
+                <div className="py-2">
                   {notifications
                     .filter(n => !hiddenNotifications.has(n.id))
                     .slice()
@@ -340,10 +304,10 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                     <motion.div
                       key={notification.id}
                       layout
-                      className={`mx-3 mb-2 notification-item rounded-lg border transition-all duration-200 cursor-pointer group active:scale-95 ${
+                      className={`block px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer border-l-2 ${
                         !notification.read_at 
-                          ? 'bg-blue-50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-800/30 hover:bg-blue-100 dark:hover:bg-blue-900/20' 
-                          : 'bg-white dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800'
+                          ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-900/10' 
+                          : 'border-transparent'
                       }`}
                       onClick={async (e) => {
                         e.preventDefault();
@@ -371,111 +335,67 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                         if ((notification as any).link) {
                           setTimeout(() => {
                             window.location.href = (notification as any).link;
-                          }, 100); // تأخير أقل للاستجابة السريعة
+                          }, 100);
                         }
                       }}
                     >
-                      <div className="p-4 flex items-start gap-3">
+                      <div className="flex items-start gap-3">
                         {/* أيقونة نوع الإشعار */}
-                        <div className={`w-10 h-10 notification-icon rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-200 ${
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
                           !notification.read_at 
-                            ? 'bg-blue-500/20' 
+                            ? 'bg-blue-100 dark:bg-blue-900/30' 
                             : 'bg-gray-100 dark:bg-gray-700'
                         }`}>
-                          <span className="text-lg">
+                          <span className="text-sm">
                             {getNotificationIcon(notification.type)}
                           </span>
                         </div>
 
                         {/* محتوى الإشعار */}
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between mb-2">
-                            <h4 className={`text-sm font-medium leading-relaxed ${
+                          <div className="flex items-start justify-between">
+                            <h4 className={`text-sm font-medium ${
                               !notification.read_at 
                                 ? 'text-gray-900 dark:text-white' 
                                 : 'text-gray-700 dark:text-gray-300'
                             }`}>
                               {notification.title}
                             </h4>
-                            <div className="flex items-center gap-2 flex-shrink-0">
-                              {!notification.read_at && (
-                                <button
-                                  onClick={async (e) => {
-                                    e.stopPropagation();
-                                    try {
-                                      await markAsRead(notification.id);
-                                      // إخفاء الإشعار محلياً بعد نجاح التحديث
-                                      setHiddenNotifications(prev => new Set([...prev, notification.id]));
-                                    } catch (error) {
-                                      console.error('فشل في تحديد الإشعار كمقروء:', error);
-                                    }
-                                  }}
-                                  className="w-6 h-6 notification-button rounded-lg flex items-center justify-center bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 transition-all duration-200"
-                                  aria-label="تحديد كمقروء"
-                                  title="تحديد كمقروء"
-                                >
-                                  <CheckIcon className="h-3 w-3" />
-                                </button>
-                              )}
-                            </div>
+                            {!notification.read_at && (
+                              <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mt-1"></div>
+                            )}
                           </div>
                           
-                          {/* النص التوضيحي */}
-                          {(notification as any).metadata?.categoryIntro && (
-                            <p className="text-xs text-blue-600 dark:text-blue-400 mb-2 font-medium">
-                              {(notification as any).metadata.categoryIntro}
-                            </p>
-                          )}
-                          
                           {/* رسالة الإشعار */}
-                          {(notification as any).link ? (
-                            <Link 
-                              href={(notification as any).link}
-                              className={`text-sm leading-relaxed block hover:underline ${
-                                !notification.read_at 
-                                  ? 'text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white' 
-                                  : 'text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200'
-                              }`}
-                              onClick={async (e) => {
-                                if (!notification.read_at) {
-                                  try {
-                                    await markAsRead(notification.id);
-                                  } catch (error) {
-                                    console.error('فشل في تحديد الإشعار كمقروء:', error);
-                                  }
-                                }
-                              }}
-                            >
-                              {notification.message}
-                            </Link>
-                          ) : (
-                            <p className={`text-sm leading-relaxed ${
-                              !notification.read_at 
-                                ? 'text-gray-700 dark:text-gray-300' 
-                                : 'text-gray-600 dark:text-gray-400'
-                            }`}>
-                              {notification.message}
-                            </p>
-                          )}
+                          <p className={`text-xs mt-1 line-clamp-2 ${
+                            !notification.read_at 
+                              ? 'text-gray-700 dark:text-gray-300' 
+                              : 'text-gray-600 dark:text-gray-400'
+                          }`}>
+                            {notification.message}
+                          </p>
 
-                          
-                          <div className="flex items-center justify-between mt-3">
+                          <div className="flex items-center justify-between mt-2">
                             <p className="text-xs text-gray-500 dark:text-gray-400">
                               {formatDate(notification.created_at)}
                             </p>
-                            <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                              notification.priority === 'urgent' 
-                                ? 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300'
-                                : notification.priority === 'high'
-                                ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-300'
-                                : notification.priority === 'medium'
-                                ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300'
-                                : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
-                            }`}>
-                              {notification.priority === 'urgent' ? 'عاجل' :
-                               notification.priority === 'high' ? 'مهم' :
-                               notification.priority === 'medium' ? 'متوسط' : 'عادي'}
-                            </span>
+                            {!notification.read_at && (
+                              <button
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  try {
+                                    await markAsRead(notification.id);
+                                    setHiddenNotifications(prev => new Set([...prev, notification.id]));
+                                  } catch (error) {
+                                    console.error('فشل في تحديد الإشعار كمقروء:', error);
+                                  }
+                                }}
+                                className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+                                aria-label="تحديد كمقروء"
+                              >
+                                تحديد كمقروء
+                              </button>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -484,23 +404,17 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
 
                   {/* زر تحميل المزيد */}
                   {hasMore && (
-                    <div className="p-6 text-center border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/30">
+                    <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
                       <button
                         onClick={loadMore}
                         disabled={loading}
-                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 dark:disabled:bg-blue-800 text-white rounded-lg font-medium transition-all duration-200 active:scale-95 disabled:cursor-not-allowed mr-3"
+                        className="w-full text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 disabled:text-gray-400 transition-colors"
                       >
                         {loading ? 'جاري التحميل...' : 'تحميل المزيد'}
                       </button>
-                      <button
-                        onClick={() => fetchNotifications(1, true)}
-                        className="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-all duration-200 active:scale-95"
-                      >
-                        تحديث
-                      </button>
                     </div>
                   )}
-                </>
+                </div>
               )}
             </div>
                 </motion.div>

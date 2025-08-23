@@ -88,57 +88,59 @@ export default function Page() {
 
   // محتوى الموبايل - نفس المحتوى لكن مُحسن للموبايل
   const MobileContent = useMemo(() => (
-    <div className="pt-0 pb-6">
-      {/* شريط الإحصائيات للنسخة الخفيفة - تحت الهيدر مباشرة */}
-      <div className="md:hidden mb-6">
+    <>
+      {/* شريط الإحصائيات للنسخة الخفيفة - ملاصق للهيدر */}
+      <div className="md:hidden">
         <LiteStatsBar />
       </div>
-      <div className="max-w-6xl mx-auto">
-        <Suspense fallback={<div className="h-6" />}>
-          <WelcomeMetaStrip />
-        </Suspense>
-      </div>
-      {/* الأخبار المميزة - النسخة الخفيفة */}
-      <Suspense fallback={<div className="h-36 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />}> 
-        <LightFeaturedLoader heading="الأخبار المميزة" limit={3} />
-      </Suspense>
-      {/* المؤشرات الذكية */}
-      <Suspense
-        fallback={
-          <div className="max-w-6xl mx-auto mt-8">
-            <div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />
-          </div>
-        }
-      > 
-        <div className="max-w-6xl mx-auto mt-12">
-          <SmartInsightsWidget variant="compact" />
-        </div>
-      </Suspense>
-      
-      <Suspense fallback={<div className="h-48 animate-pulse bg-gray-200 rounded mt-6" />}>
+      <div className="pt-0 pb-6">
         <div className="max-w-6xl mx-auto">
-          <SmartContentBlock />
+          <Suspense fallback={<div className="h-6" />}>
+            <WelcomeMetaStrip />
+          </Suspense>
         </div>
-      </Suspense>
-      
-      <Suspense fallback={<div className="h-64 animate-pulse bg-gray-200 rounded mt-6" />}>
-        <DeepAnalysisBlock maxItems={3} className="mt-10" />
-      </Suspense>
-      
-      <div className="full-bleed py-8 mt-6 muqtarab-section-bg">
-        <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded" />}>
-          <div className="w-full max-w-6xl mx-auto px-4 sm:px-6">
-            <MuqtarabBlock
-              limit={8}
-              showPagination={false}
-              showFilters={false}
-              viewMode="grid"
-              className="mt-12 mx-auto"
-            />
+        {/* الأخبار المميزة - النسخة الخفيفة */}
+        <Suspense fallback={<div className="h-36 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />}> 
+          <LightFeaturedLoader heading="الأخبار المميزة" limit={3} />
+        </Suspense>
+        {/* المؤشرات الذكية */}
+        <Suspense
+          fallback={
+            <div className="max-w-6xl mx-auto mt-8">
+              <div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />
+            </div>
+          }
+        > 
+          <div className="max-w-6xl mx-auto mt-12">
+            <SmartInsightsWidget variant="compact" />
           </div>
         </Suspense>
+        
+        <Suspense fallback={<div className="h-48 animate-pulse bg-gray-200 rounded mt-6" />}>
+          <div className="max-w-6xl mx-auto">
+            <SmartContentBlock />
+          </div>
+        </Suspense>
+        
+        <Suspense fallback={<div className="h-64 animate-pulse bg-gray-200 rounded mt-6" />}>
+          <DeepAnalysisBlock maxItems={3} className="mt-10" />
+        </Suspense>
+        
+        <div className="full-bleed py-8 mt-6 muqtarab-section-bg">
+          <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded" />}>
+            <div className="w-full max-w-6xl mx-auto px-4 sm:px-6">
+              <MuqtarabBlock
+                limit={8}
+                showPagination={false}
+                showFilters={false}
+                viewMode="grid"
+                className="mt-12 mx-auto"
+              />
+            </div>
+          </Suspense>
+        </div>
       </div>
-    </div>
+    </>
   ), []);
 
   // محتوى الديسكتوب محسن مع useMemo

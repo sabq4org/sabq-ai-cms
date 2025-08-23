@@ -1,0 +1,58 @@
+/* إصلاح التصاق شريط الإحصائيات في النسخة الخفيفة */
+
+.compact-stats-bar {
+  /* إزالة أي مساحة فارغة */
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  
+  /* ممتد بالكامل */
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  
+  /* تحسين التصميم */
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.enhanced-mobile-stats {
+  /* ضمان عدم وجود فجوات */
+  border-radius: 0 !important;
+  
+  /* تحسين الألوان */
+  background: rgba(248, 248, 247, 0.95);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.dark .enhanced-mobile-stats {
+  background: rgba(17, 24, 39, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* تحسين تجربة الهوفر */
+.enhanced-mobile-stats .stats-icon-container {
+  transition: all 0.2s ease;
+}
+
+.enhanced-mobile-stats a:hover .stats-icon-container,
+.enhanced-mobile-stats div:hover .stats-icon-container {
+  transform: scale(1.05);
+}
+
+/* تحسين الأرقام */
+.stats-number {
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* ضبط المساحات في الصفحة الرئيسية */
+@media (max-width: 768px) {
+  .mobile-content-wrapper {
+    padding-top: 0 !important;
+  }
+  
+  .mobile-content-wrapper > div:first-child {
+    margin-top: 0 !important;
+  }
+}
