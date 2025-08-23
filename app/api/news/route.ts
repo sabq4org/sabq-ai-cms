@@ -109,54 +109,55 @@ export async function GET(request: NextRequest) {
     }
 
     // جلب المقالات مع العلاقات/الحقول المطلوبة فقط
-    const articles = await prisma.articles.findMany({
+    const articlesQuery = {
       where,
-      ...(minimal
-        ? {
-            select: {
-              id: true,
-              slug: true,
-              title: true,
-              featured_image: true,
-              status: true,
-              article_type: true,
-              content_type: true,
-              published_at: true,
-              created_at: true,
-              updated_at: true,
-              views: true,
-              reading_time: true,
-              featured: true,
-              breaking: true,
-              category_id: true,
-              author_id: true,
-              article_author_id: true,
-              ...(includeCategories
-                ? {
-                    categories: {
-                      select: { id: true, name: true, slug: true, color: true },
-                    },
-                  }
-                : {}),
-              author: { select: { id: true, name: true } },
-              article_author: { select: { id: true, full_name: true } },
-            },
-          }
-        : {
-            include: {
-              categories: includeCategories,
-              author: {
-                select: { id: true, name: true, email: true },
-              },
-              article_author: {
-                select: { id: true, full_name: true, email: true, bio: true },
-              },
-            },
-          }),
       orderBy,
       skip,
       take: limit,
-    });
+    };
+
+    if (minimal) {
+      (articlesQuery as any).select = {
+        id: true,
+        slug: true,
+        title: true,
+        featured_image: true,
+        status: true,
+        article_type: true,
+        content_type: true,
+        published_at: true,
+        created_at: true,
+        updated_at: true,
+        views: true,
+        reading_time: true,
+        featured: true,
+        breaking: true,
+        category_id: true,
+        author_id: true,
+        article_author_id: true,
+        ...(includeCategories
+          ? {
+              categories: {
+                select: { id: true, name: true, slug: true, color: true },
+              },
+            }
+          : {}),
+        author: { select: { id: true, name: true } },
+        article_author: { select: { id: true, full_name: true } },
+      };
+    } else {
+      (articlesQuery as any).include = {
+        categories: includeCategories,
+        author: {
+          select: { id: true, name: true, email: true },
+        },
+        article_author: {
+          select: { id: true, full_name: true, email: true, bio: true },
+        },
+      };
+    }
+
+    const articles = await prisma.articles.findMany(articlesQuery);
 
     if (process.env.NODE_ENV !== 'production') {
       console.log(`✅ [News API] تم جلب ${articles.length} مقال`);
@@ -183,7 +184,7 @@ export async function GET(request: NextRequest) {
     }
 
     // تحويل البيانات للتنسيق المطلوب
-    const formattedArticles = articles.map((article) => {
+    const formattedArticles = articles.map((article: any) => {
       // منطق اختيار المؤلف (النظام الجديد له الأولوية)
       const selectedAuthor = article.article_author || article.author;
       const authorName =
@@ -243,6 +244,7 @@ export async function GET(request: NextRequest) {
 
     const response = {
       success: true,
+      data: formattedArticles, // إضافة data للتوافق
       articles: formattedArticles,
       pagination: {
         current_page: page,

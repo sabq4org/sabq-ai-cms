@@ -173,13 +173,13 @@
   }
   
   .featured-mobile-card .featured-title {
-    color: #000 !important;
+    color: #2d3748 !important;
   }
   
   .featured-author-info,
   .featured-stat-badge,
   .featured-category-badge {
-    background: rgba(0, 0, 0, 0.1) !important;
-    color: #000 !important;
+    background: rgba(45, 55, 72, 0.1) !important;
+    color: #2d3748 !important;
   }
 }

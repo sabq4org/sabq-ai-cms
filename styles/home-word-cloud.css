@@ -212,7 +212,7 @@
 /* تحسينات للطباعة */
 @media print {
   .word-cloud-keyword {
-    color: #000 !important;
+    color: #2d3748 !important;
     background: none !important;
     text-shadow: none !important;
     transform: none !important;

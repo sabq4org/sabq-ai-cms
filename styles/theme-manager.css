@@ -418,15 +418,15 @@ body {
   .theme-card,
   .dashboard-card {
     background: white !important;
-    border: 1px solid #000000 !important;
+    border: 1px solid #718096 !important;
     box-shadow: none !important;
   }
   
   .theme-button-primary,
   .theme-button-secondary {
     background: white !important;
-    color: black !important;
-    border: 1px solid #000000 !important;
+    color: #2d3748 !important;
+    border: 1px solid #718096 !important;
   }
 }
 
@@ -443,11 +443,11 @@ body {
 
 @media (prefers-contrast: high) {
   :root {
-    --theme-border: #000000;
+    --theme-border: #4a5568;
   }
   
   .dark {
-    --theme-border: #ffffff;
+    --theme-border: #cbd5e1;
   }
 }
 

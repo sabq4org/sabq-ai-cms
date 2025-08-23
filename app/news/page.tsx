@@ -256,7 +256,7 @@ export default function NewsPage() {
           status: "published",
           limit: ITEMS_PER_PAGE.toString(),
           page: currentPage.toString(),
-          sortBy: sortBy === "views" ? "views" : "published_at",
+          sort: sortBy === "views" ? "views" : "published_at",
           order: "desc",
         });
 
@@ -280,8 +280,12 @@ export default function NewsPage() {
 
           const data = await response.json();
 
-          // إصلاح مشكلة عدم ظهور الأخبار - API يعيد البيانات في data.data
-          const articles = data.data || data.articles || [];
+          console.log("📊 بيانات الاستجابة:", data);
+
+          // إصلاح مشكلة عدم ظهور الأخبار - API يعيد البيانات في articles مباشرة
+          const articles = data.articles || data.data || [];
+
+          console.log(`✅ تم جلب ${articles.length} مقال`);
 
           if (reset) {
             setArticles(articles);
@@ -613,7 +617,6 @@ export default function NewsPage() {
               </span>
               <ArticleViews
                 count={news.views || news.views_count || 0}
-                minimal={true}
               />
             </div>
           </div>
@@ -940,7 +943,7 @@ export default function NewsPage() {
                 // عرض الموبايل - استخدام OldStyleNewsBlock
                 <div className="mobile-news-container">
                   <OldStyleNewsBlock
-                    articles={articles}
+                    articles={articles as any}
                     showTitle={false}
                     columns={1}
                     showExcerpt={false}

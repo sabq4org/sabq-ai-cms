@@ -1,0 +1,204 @@
+/* تخفيف الألوان السوداء المزعجة للعين */
+
+/* تخفيف الألوان السوداء الرئيسية */
+:root {
+  /* استبدال الأسود المطلق بلون رمادي داكن ناعم */
+  --soft-black: #2d3748;
+  --soft-black-light: #4a5568;
+  --soft-black-lighter: #718096;
+  
+  /* ألوان النصوص الناعمة */
+  --text-primary-soft: #2d3748;
+  --text-secondary-soft: #4a5568;
+  --text-tertiary-soft: #718096;
+  
+  /* خلفيات ناعمة بدلاً من الأسود */
+  --bg-soft-dark: #1a202c;
+  --bg-soft-darker: #2d3748;
+}
+
+/* تطبيق الألوان الناعمة على العناصر الأساسية */
+
+/* العناوين */
+.typography-h1 {
+  color: var(--text-primary-soft) !important;
+}
+
+.typography-h2 {
+  color: var(--text-secondary-soft) !important;
+}
+
+.typography-h3,
+.typography-h4 {
+  color: var(--text-tertiary-soft) !important;
+}
+
+/* النصوص العامة */
+body,
+.text-black {
+  color: var(--text-primary-soft) !important;
+}
+
+.text-gray-900 {
+  color: var(--text-secondary-soft) !important;
+}
+
+/* الحدود السوداء */
+*[style*="border: 1px solid #000"],
+*[style*="border: 1px solid black"],
+.border-black {
+  border-color: var(--soft-black-lighter) !important;
+}
+
+/* الخلفيات السوداء */
+*[style*="background: #000"],
+*[style*="background-color: #000"],
+*[style*="background: black"],
+*[style*="background-color: black"] {
+  background-color: var(--bg-soft-dark) !important;
+}
+
+/* تخفيف ألوان محددة موجودة في الموقع */
+
+/* تحسين ألوان النصوص في الكروت */
+.featured-mobile-card *[style*="color: #000"] {
+  color: var(--text-primary-soft) !important;
+}
+
+/* تحسين ألوان الحدود في النماذج */
+.theme-manager *[style*="border: 1px solid #000000"] {
+  border-color: var(--soft-black-light) !important;
+}
+
+/* تحسين خلفيات الـ Dark Mode */
+.dark {
+  --bg-soft-dark: #1e293b;
+  --bg-soft-darker: #334155;
+  --text-primary-soft: #e2e8f0;
+  --text-secondary-soft: #cbd5e1;
+  --text-tertiary-soft: #94a3b8;
+}
+
+/* تطبيق الألوان المحسنة على Dark Mode */
+.dark .typography-h1 {
+  color: var(--text-primary-soft) !important;
+}
+
+.dark .typography-h2 {
+  color: var(--text-secondary-soft) !important;
+}
+
+.dark .typography-h3,
+.dark .typography-h4 {
+  color: var(--text-tertiary-soft) !important;
+}
+
+/* تحسين ألوان النصوص في الـ Word Cloud */
+.word-cloud *[style*="color: #000"] {
+  color: var(--text-primary-soft) !important;
+}
+
+/* تحسين ألوان التحديد والتركيز */
+::selection {
+  background-color: rgba(59, 130, 246, 0.3);
+  color: var(--text-primary-soft);
+}
+
+/* تحسين ألوان الروابط */
+a {
+  color: var(--theme-primary, #3b82f6);
+}
+
+a:hover {
+  color: var(--theme-primary-hover, #2563eb);
+}
+
+/* تحسينات خاصة للمقالات */
+.article-content {
+  color: var(--text-secondary-soft) !important;
+  line-height: 1.7;
+}
+
+.article-content h1,
+.article-content h2,
+.article-content h3,
+.article-content h4,
+.article-content h5,
+.article-content h6 {
+  color: var(--text-primary-soft) !important;
+}
+
+/* تحسين ألوان الأزرار */
+.btn-dark,
+.bg-black {
+  background-color: var(--bg-soft-darker) !important;
+  color: white !important;
+}
+
+.btn-dark:hover {
+  background-color: var(--soft-black-light) !important;
+}
+
+/* تحسين ألوان الجداول */
+table th {
+  color: var(--text-primary-soft) !important;
+  background-color: #f7fafc;
+}
+
+.dark table th {
+  background-color: var(--bg-soft-darker) !important;
+  color: var(--text-primary-soft) !important;
+}
+
+/* تحسين ألوان النماذج */
+input,
+textarea,
+select {
+  color: var(--text-primary-soft) !important;
+  border-color: var(--soft-black-lighter) !important;
+}
+
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: var(--bg-soft-dark) !important;
+  color: var(--text-primary-soft) !important;
+}
+
+/* تحسين ألوان القوائم */
+.dropdown-menu,
+.menu {
+  background-color: white;
+  border-color: var(--soft-black-lighter);
+}
+
+.dark .dropdown-menu,
+.dark .menu {
+  background-color: var(--bg-soft-dark) !important;
+  color: var(--text-primary-soft) !important;
+}
+
+/* تحسينات للوضوح والراحة البصرية */
+.contrast-improvement {
+  filter: contrast(0.95) brightness(1.05);
+}
+
+/* تطبيق التحسينات على العناصر الأساسية للموقع */
+.main-content,
+.article-wrapper,
+.news-grid {
+  filter: contrast(0.92) brightness(1.08);
+}
+
+/* تحسين Shadow للعناصر المهمة */
+.card,
+.news-card,
+.article-card {
+  box-shadow: 0 2px 8px rgba(45, 55, 72, 0.1);
+}
+
+.dark .card,
+.dark .news-card,
+.dark .article-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}

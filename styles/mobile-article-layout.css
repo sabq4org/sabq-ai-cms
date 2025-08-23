@@ -166,13 +166,13 @@
 @media print {
   .mobile-article-header {
     background: white !important;
-    color: black !important;
+    color: #2d3748 !important;
   }
   
   .mobile-article-category {
     border: 1px solid #ccc !important;
     background: white !important;
-    color: black !important;
+    color: #2d3748 !important;
   }
 }
 
