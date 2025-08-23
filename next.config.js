@@ -32,16 +32,8 @@ const nextConfig = {
   // Note: api config moved to individual route handlers
 
   experimental: {
-    // Experimental support for optimizing stylesheets
-    optimizeCss: {
-      files: ["styles/globals.css", "styles/ArabicStyles.css"],
-      preload: false, // منع التحميل المسبق للـ CSS
-    },
-    cssChunking: "strict",
-    // turbo config moved to turbopack object
+    // تبسيط الإعدادات التجريبية
     webpackBuildWorker: true,
-    // تحسين التحميل
-    ppr: false,
     staleTimes: {
       dynamic: 30,
       static: 180,
@@ -151,14 +143,9 @@ const nextConfig = {
     ],
   },
 
-  // تحسين الكمبايل
+  // تحسين الكمبايل - إزالة removeConsole لتجنب التعارض
   compiler: {
-    removeConsole:
-      process.env.NODE_ENV === "production"
-        ? {
-            exclude: ["error", "warn"],
-          }
-        : false,
+    // لا نحتاج إزالة console.log في بيئة التطوير
   },
 
   // Headers للتحكم في التخزين المؤقت

@@ -1,0 +1,4 @@
+// Babel config - استخدام minimal config لتجنب تعارض مع SWC
+module.exports = {
+  presets: ["next/babel"],
+};
