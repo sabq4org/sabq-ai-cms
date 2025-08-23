@@ -196,6 +196,22 @@ export default function TwoFactorSettings() {
                 </div>
               ))}
             </div>
+            <button
+              type="button"
+              onClick={() => {
+                const text = backupCodes.join('\n');
+                const blob = new Blob([text], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'sabq-2fa-backup-codes.txt';
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+              className="mt-3 text-blue-600 hover:text-blue-700 text-sm underline"
+            >
+              تنزيل الرموز الاحتياطية
+            </button>
           </div>
 
           <div className="mb-6">

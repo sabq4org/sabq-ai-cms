@@ -91,24 +91,27 @@ export default function TwoFactorLogin() {
               <input
                 type="text"
                 inputMode="numeric"
-                pattern="[0-9]{6}"
-                maxLength={6}
+                pattern="[0-9A-Z]{6,8}"
+                maxLength={8}
                 className="w-full text-center text-2xl font-mono border-2 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="000000"
                 value={code}
-                onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+                onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^0-9A-Z]/g, ''))}
                 required
                 autoFocus
               />
               <p className="text-xs text-gray-500 mt-2 text-center">
-                الرمز مكون من 6 أرقام
+                الرمز مكون من 6 أرقام من تطبيق المصادقة
+              </p>
+              <p className="text-xs text-gray-500 mt-1 text-center">
+                أو استخدم أحد الرموز الاحتياطية المكونة من 8 أحرف
               </p>
             </div>
             
             <button
               type="submit"
               className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium py-3 rounded-lg transition-all duration-200 disabled:opacity-60"
-              disabled={loading || code.length !== 6}
+              disabled={loading || (code.length !== 6 && code.length !== 8)}
             >
               {loading ? (
                 <div className="flex items-center gap-2 justify-center">
