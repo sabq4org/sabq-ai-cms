@@ -8,6 +8,7 @@ import "@/styles/notification-fixes.css";
 import "@/styles/notification-modern-ui.css";
 import "@/styles/notification-light-header.css";
 import "@/styles/lite-stats-bar-sticky.css";
+import "@/styles/mobile-article-improvements.css";
 
 const ibmPlexArabic = IBM_Plex_Sans_Arabic({
   subsets: ["arabic"],

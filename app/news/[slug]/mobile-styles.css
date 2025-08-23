@@ -4,8 +4,8 @@
 .prose img {
   max-width: 92% !important;
   margin: 16px auto !important;
-  border-radius: 12px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12) !important;
   display: block !important;
   height: auto !important;
 }
@@ -103,6 +103,7 @@
   .prose img {
     max-width: 95% !important;
     margin: 12px auto !important;
+    border-radius: 16px !important;
   }
 
   .prose table {
@@ -112,6 +113,32 @@
   .prose blockquote {
     padding: 0.75rem !important;
     margin: 1rem 0 !important;
+    border-radius: 12px !important;
+  }
+  
+  /* توسيع جميع الحاويات والبلوكات */
+  .container,
+  .max-w-4xl,
+  .max-w-3xl,
+  .max-w-2xl,
+  .max-w-xl,
+  .max-w-lg,
+  .article-container,
+  .content-container {
+    max-width: 100% !important;
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  
+  /* تحسين حواف العناصر التفاعلية */
+  .bg-white,
+  .bg-gray-50,
+  .bg-gray-100,
+  .dark\\:bg-gray-800,
+  .dark\\:bg-gray-900 {
+    border-radius: 16px !important;
   }
 }
 

@@ -224,6 +224,43 @@
     margin-right: 0;
   }
 
+  /* تحسينات خاصة بالنسخة الخفيفة */
+  @media (max-width: 768px) {
+    .article-unified-width {
+      max-width: 100% !important;
+      padding-left: 0.75rem !important; /* تقليل padding للاستفادة من المساحة */
+      padding-right: 0.75rem !important;
+    }
+    
+    /* توسيع البلوكات والحاويات في النسخة الخفيفة */
+    .article-unified-width > *,
+    .article-unified-width .prose,
+    .article-unified-width .ai-summary,
+    .article-unified-width .comments-panel,
+    .article-unified-width .stats-block,
+    .article-unified-width .questions-panel,
+    .article-unified-width .personalized-content,
+    .article-unified-width .like-save-buttons,
+    .article-unified-width .social-share-buttons,
+    .article-unified-width .keywords-wrapper {
+      width: 100% !important;
+      max-width: 100% !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      padding-left: 0.5rem !important;
+      padding-right: 0.5rem !important;
+    }
+    
+    /* تحسين حواف البلوكات */
+    .article-unified-width .ai-summary,
+    .article-unified-width .stats-block,
+    .article-unified-width .questions-panel,
+    .article-unified-width .comments-panel {
+      border-radius: 16px !important;
+      margin-bottom: 1rem !important;
+    }
+  }
+
   /* تطبيق على مكونات محددة قد تحتوي على عروض ثابتة */
   .article-unified-width .grid,
   .article-unified-width .flex,

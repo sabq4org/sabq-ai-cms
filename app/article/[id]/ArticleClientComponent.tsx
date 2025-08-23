@@ -749,7 +749,7 @@ export default function ArticleClientComponent({
                   article.featured_image.length > 0 &&
                   !article.metadata?.emergency_mode && (
                     <div className="mb-4">
-                      <div className="relative h-[230px] overflow-hidden rounded-lg">{/* خفض الارتفاع قليلاً لرفع المحتوى */}
+                      <div className="relative h-[230px] overflow-hidden rounded-xl">{/* خفض الارتفاع قليلاً لرفع المحتوى */}
                         <MobileFeaturedImage
                           imageUrl={article.featured_image}
                           title={article.title}
