@@ -49,6 +49,7 @@ import "@/styles/mobile-article.css";
 import "@/styles/mobile-article-stats.css";
 import "@/styles/article-width-harmony.css";
 import "@/styles/article-layout-final.css";
+import "@/styles/desktop-article-unified-width.css";
 import "./article-styles.css";
 import AIQuestions from "@/components/article/AIQuestions";
 
@@ -779,35 +780,39 @@ export default function ArticleClientComponent({
 
             {/* منطقة الموجز الذكي للديسكتوب */}
             <div className="hidden sm:block mb-6 sm:mb-8">
-              <ArticleAISummary
-                  articleId={article.id}
-                  title={article.title || "مقال بدون عنوان"}
-                  content={article.content || ""}
-                  existingSummary={
-                    article.ai_summary ||
-                    article.summary ||
-                    article.excerpt ||
-                    ""
-                  }
-                  className="shadow-lg w-full"
-                />
-              <div className="mt-4 flex justify-end">
-                <SmartAudioButton
-                  articleId={article.id}
-                  title={article.title || ""}
-                  content={article.content || ""}
-                  variant="inline"
-                />
+              <div className="article-ai-summary-wrapper article-unified-width">
+                <ArticleAISummary
+                    articleId={article.id}
+                    title={article.title || "مقال بدون عنوان"}
+                    content={article.content || ""}
+                    existingSummary={
+                      article.ai_summary ||
+                      article.summary ||
+                      article.excerpt ||
+                      ""
+                    }
+                    className="shadow-lg w-full"
+                  />
+                <div className="mt-4 flex justify-end">
+                  <SmartAudioButton
+                    articleId={article.id}
+                    title={article.title || ""}
+                    content={article.content || ""}
+                    variant="inline"
+                  />
+                </div>
               </div>
             </div>
 
             {/* أزرار الإعجاب والحفظ البسيطة */}
             <div className="mb-6 sm:mb-8">
-              <BasicLikeSave
-                articleId={article.id}
-                initialLikes={article.likes || article.stats?.likes || 0}
-                initialSaves={article.saves || article.stats?.saves || 0}
-              />
+              <div className="article-unified-width">
+                <BasicLikeSave
+                  articleId={article.id}
+                  initialLikes={article.likes || article.stats?.likes || 0}
+                  initialSaves={article.saves || article.stats?.saves || 0}
+                />
+              </div>
             </div>
 
             {/* تمت إزالة أزرار المشاركة هنا بناء على التوجيه */}
@@ -815,7 +820,7 @@ export default function ArticleClientComponent({
             {/* الكلمات المفتاحية */}
             {keywords.length > 0 && (
               <div className="mb-6 sm:mb-8">
-                <div>
+                <div className="article-unified-width">
                   <div className="flex flex-wrap gap-1.5 sm:gap-2">
                     {keywords.map((keyword, index) => (
                       <Link
@@ -834,26 +839,28 @@ export default function ArticleClientComponent({
 
             {/* زر وضع القراءة */}
             <div className="mb-6 sm:mb-8">
-              <div className="flex justify-end">
-                <button
-                  onClick={() => setIsReading(!isReading)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                    isReading
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
-                  } hover:opacity-90`}
-                >
-                  <BookOpen className="w-4 h-4" />
-                  <span className="text-sm font-medium">
-                    {isReading ? "إيقاف وضع القراءة" : "وضع القراءة"}
-                  </span>
-                </button>
+              <div className="article-unified-width">
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => setIsReading(!isReading)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                      isReading
+                        ? "bg-blue-500 text-white"
+                        : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+                    } hover:opacity-90`}
+                  >
+                    <BookOpen className="w-4 h-4" />
+                    <span className="text-sm font-medium">
+                      {isReading ? "إيقاف وضع القراءة" : "وضع القراءة"}
+                    </span>
+                  </button>
+                </div>
               </div>
             </div>
 
             {/* محتوى المقال */}
             <div className="mb-12">
-              <div>
+              <div className="article-content-wrapper article-unified-width">
                 <div
                   className={`prose max-w-none dark:prose-invert arabic-article-content
                     prose-headings:text-gray-900 dark:prose-headings:text-white
@@ -879,13 +886,15 @@ export default function ArticleClientComponent({
             {/* مكون الذكاء الاصطناعي للأسئلة - أسفل تفاصيل الخبر */}
             {article?.content && (
               <div className="mb-8">
-                <AIQuestions
-                  content={
-                    typeof article.content === "string"
-                      ? article.content
-                      : JSON.stringify(article.content)
-                  }
-                />
+                <div className="article-questions-wrapper article-unified-width">
+                  <AIQuestions
+                    content={
+                      typeof article.content === "string"
+                        ? article.content
+                        : JSON.stringify(article.content)
+                    }
+                  />
+                </div>
               </div>
             )}
 
@@ -893,41 +902,47 @@ export default function ArticleClientComponent({
 
             {/* Comments Panel: يوضع قبل بلوك الإحصائيات كما هو مطلوب */}
             <div className="mt-4 sm:mt-6">
-              <CommentsPanel
-                articleId={article.id}
-                initialCount={article.comments_count || 0}
-              />
+              <div className="article-comments-wrapper article-unified-width">
+                <CommentsPanel
+                  articleId={article.id}
+                  initialCount={article.comments_count || 0}
+                />
+              </div>
             </div>
 
             {/* بلوك إحصائيات المقال (التصميم القديم) */}
             <div className="mt-6">
-              <ArticleStatsBlock
-                views={article.views || 0}
-                likes={article.likes || 0}
-                saves={article.saves || 0}
-                shares={article.shares || 0}
-                category={
-                  article.category
-                    ? {
-                        name: article.category.name,
-                        color: (article.category as any).color,
-                        icon: (article.category as any).icon,
-                      }
-                    : undefined
-                }
-              />
+              <div className="article-stats-wrapper article-unified-width">
+                <ArticleStatsBlock
+                  views={article.views || 0}
+                  likes={article.likes || 0}
+                  saves={article.saves || 0}
+                  shares={article.shares || 0}
+                  category={
+                    article.category
+                      ? {
+                          name: article.category.name,
+                          color: (article.category as any).color,
+                          icon: (article.category as any).icon,
+                        }
+                      : undefined
+                  }
+                />
+              </div>
             </div>
 
             {/* مخصص لك بذكاء - أسفل بلوك إحصائيات المقال */}
             <div className="mt-6 sm:mt-8">
-              <SmartPersonalizedContent
-                articleId={article.id}
-                categoryId={article.category_id}
-                categoryName={article.category?.name}
-                tags={article.keywords || []}
-                darkMode={darkMode}
-                userId={undefined}
-              />
+              <div className="article-personalized-wrapper article-unified-width">
+                <SmartPersonalizedContent
+                  articleId={article.id}
+                  categoryId={article.category_id}
+                  categoryName={article.category?.name}
+                  tags={article.keywords || []}
+                  darkMode={darkMode}
+                  userId={undefined}
+                />
+              </div>
             </div>
 
             {/* تم نقل أنماط RTL إلى ملفات CSS العامة لضمان الاستقرار أثناء البناء */}

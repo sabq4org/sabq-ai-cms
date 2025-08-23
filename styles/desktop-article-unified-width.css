@@ -1,0 +1,237 @@
+/* 🎯 توحيد عرض جميع بلوكات المقال مع عرض الصورة - النسخة الديسكتوب */
+
+/* العرض الأساسي الموحد - للنسخة الديسكتوب فقط */
+@media (min-width: 640px) {
+  /* الكلاس الموحد لجميع عناصر المقال */
+  .article-unified-width {
+    max-width: 56rem; /* 896px - نفس عرض الصورة */
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1.5rem; /* 24px */
+    padding-right: 1.5rem; /* 24px */
+    box-sizing: border-box;
+  }
+
+  /* للشاشات الكبيرة جداً */
+  @media (min-width: 1024px) {
+    .article-unified-width {
+      padding-left: 2rem; /* 32px */
+      padding-right: 2rem; /* 32px */
+    }
+  }
+
+  /* تطبيق العرض الموحد على كل العناصر */
+  .article-title-wrapper,
+  .article-featured-image-wrapper,
+  .article-ai-summary-wrapper,
+  .article-content-wrapper,
+  .article-stats-wrapper,
+  .article-comments-wrapper,
+  .article-questions-wrapper,
+  .article-personalized-wrapper {
+    max-width: 56rem;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    box-sizing: border-box;
+  }
+
+  @media (min-width: 1024px) {
+    .article-title-wrapper,
+    .article-featured-image-wrapper,
+    .article-ai-summary-wrapper,
+    .article-content-wrapper,
+    .article-stats-wrapper,
+    .article-comments-wrapper,
+    .article-questions-wrapper,
+    .article-personalized-wrapper {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+
+  /* ضمان عدم تجاوز العرض في أي حالة */
+  .article-unified-width > *,
+  .article-title-wrapper > *,
+  .article-featured-image-wrapper > *,
+  .article-ai-summary-wrapper > *,
+  .article-content-wrapper > *,
+  .article-stats-wrapper > *,
+  .article-comments-wrapper > *,
+  .article-questions-wrapper > *,
+  .article-personalized-wrapper > * {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* تطبيق خاص على الصورة المميزة */
+  .article-featured-image-wrapper img,
+  .article-featured-image-wrapper .relative,
+  .article-featured-image-wrapper .aspect-ratio-container {
+    width: 100%;
+    height: auto;
+    border-radius: 0.75rem; /* rounded-xl */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); /* shadow-2xl */
+  }
+
+  /* تطبيق على الموجز الذكي */
+  .article-ai-summary-wrapper .ai-summary-card,
+  .article-ai-summary-wrapper > div,
+  .article-ai-summary-wrapper [class*="summary"] {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* تطبيق على بلوك الإحصائيات */
+  .article-stats-wrapper .stats-container,
+  .article-stats-wrapper > div,
+  .article-stats-wrapper [class*="stats"] {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* تطبيق على التعليقات */
+  .article-comments-wrapper .comments-container,
+  .article-comments-wrapper > div,
+  .article-comments-wrapper [class*="comment"] {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* تطبيق على أسئلة الذكاء الاصطناعي */
+  .article-questions-wrapper .ai-questions-container,
+  .article-questions-wrapper > div,
+  .article-questions-wrapper [class*="question"] {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* تطبيق على المحتوى المخصص */
+  .article-personalized-wrapper .personalized-content-container,
+  .article-personalized-wrapper > div,
+  .article-personalized-wrapper [class*="personalized"] {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* تطبيق على محتوى المقال */
+  .article-content-wrapper .prose,
+  .article-content-wrapper > div {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* إزالة أي constraints إضافية قد تؤثر على العرض */
+  .article-unified-width .prose {
+    max-width: none !important;
+  }
+
+  /* ضمان التناسق في المسافات بين البلوكات */
+  .article-block-spacing {
+    margin-bottom: 1.5rem; /* mb-6 */
+  }
+
+  .article-block-spacing-large {
+    margin-bottom: 2rem; /* mb-8 */
+  }
+
+  /* تطبيق محدد للعناصر التفاعلية */
+  .article-unified-width .like-save-buttons,
+  .article-unified-width .social-share-buttons,
+  .article-unified-width .keywords-wrapper {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+/* للموبايل - بقاء التصميم الحالي دون تغيير */
+@media (max-width: 639px) {
+  /* لا تطبق أي قيود على العرض في الموبايل */
+  .article-unified-width,
+  .article-title-wrapper,
+  .article-featured-image-wrapper,
+  .article-ai-summary-wrapper,
+  .article-content-wrapper,
+  .article-stats-wrapper,
+  .article-comments-wrapper,
+  .article-questions-wrapper,
+  .article-personalized-wrapper {
+    max-width: 100%;
+    margin: 0;
+    padding-left: 1rem; /* 16px */
+    padding-right: 1rem; /* 16px */
+  }
+}
+
+/* تأكيد عدم وجود تعارض مع الأنماط الموجودة */
+.desktop-width-harmony {
+  max-width: 56rem !important;
+  margin: 0 auto !important;
+}
+
+@media (min-width: 640px) {
+  .desktop-width-harmony {
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .desktop-width-harmony {
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+  }
+}
+
+/* Dark mode compatibility */
+.dark .article-unified-width {
+  color: inherit;
+}
+
+  /* تحسينات إضافية لضمان الاتساق */
+  .article-unified-width img {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  .article-unified-width .w-full {
+    width: 100% !important;
+  }
+  
+  /* ضمان عدم خروج المحتوى عن الحدود */
+  .article-unified-width {
+    overflow-x: hidden;
+  }
+
+  /* تطبيق محدد على عناصر المحتوى التفاعلية */
+  .article-unified-width .like-save-buttons,
+  .article-unified-width .social-share-buttons,
+  .article-unified-width .keywords-wrapper,
+  .article-unified-width .ai-summary,
+  .article-unified-width .comments-panel,
+  .article-unified-width .stats-block,
+  .article-unified-width .questions-panel,
+  .article-unified-width .personalized-content {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* تأكيد عدم وجود margins سالبة قد تؤثر على المحاذاة */
+  .article-unified-width * {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  /* تطبيق على مكونات محددة قد تحتوي على عروض ثابتة */
+  .article-unified-width .grid,
+  .article-unified-width .flex,
+  .article-unified-width .flex-wrap,
+  .article-unified-width .grid-cols-1,
+  .article-unified-width .grid-cols-2,
+  .article-unified-width .grid-cols-3 {
+    max-width: 100%;
+  }
+
+/* للموبايل - بقاء التصميم الحالي دون تغيير */
