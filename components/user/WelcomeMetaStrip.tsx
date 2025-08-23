@@ -33,27 +33,27 @@ export default function WelcomeMetaStrip() {
         display: 'flex',
         justifyContent: 'flex-start',
         alignItems: 'flex-start',
-        gap: '12px',
+        gap: '8px',
         flexDirection: 'column',
         color: 'hsl(var(--muted))',
-        marginBottom: '10px',
+        marginBottom: '6px',
         flexWrap: 'wrap',
       }}
     >
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', textAlign: 'left' }}>
-        <span style={{ color: 'hsl(var(--fg))', fontWeight: 800, fontSize: 'clamp(22px, 3.5vw, 32px)' }}>
-          {getTimeBasedGreeting(now)}{user ? ` يا ${user.name}` : ''} <span style={{ fontSize: 22 }}>👋</span>
+        <span style={{ color: 'hsl(var(--fg))', fontWeight: 700, fontSize: 'clamp(16px, 2.8vw, 20px)' }}>
+          {getTimeBasedGreeting(now)}{user ? ` يا ${user.name}` : ''} <span style={{ fontSize: 18 }}>👋</span>
         </span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '6px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px', flexWrap: 'wrap' }}>
           {user && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Award style={{ width: '14px', height: '14px', color: '#FFA500' }} />
-              <span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <Award style={{ width: '12px', height: '12px', color: '#FFA500' }} />
+              <span style={{ fontSize: 'clamp(11px, 2.2vw, 12px)' }}>
                 لديك <strong style={{ color: 'hsl(var(--fg))', fontWeight: 600 }}>1,250</strong> نقطة ولاء
               </span>
             </div>
           )}
-          <span style={{ fontSize: 'clamp(12px, 2.5vw, 14px)' }}>
+          <span style={{ fontSize: 'clamp(11px, 2.2vw, 12px)' }}>
             {formatDate(now)}
           </span>
         </div>

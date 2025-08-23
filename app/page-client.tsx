@@ -730,7 +730,7 @@ function NewspaperHomePage({
         <LiteStatsBar />
       </div>
       <div
-        className={`homepage-wrapper min-h-screen transition-colors duration-300 ${
+        className={`homepage-wrapper min-h-screen transition-colors duration-300 mobile-content-after-stats ${
           isMobileView ? "pt-0" : "pt-14 sm:pt-16 lg:pt-20"
         }`}
         style={{

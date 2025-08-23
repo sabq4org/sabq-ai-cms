@@ -14,6 +14,11 @@
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  
+  /* إلتصاق مباشر بالهيدر */
+  position: sticky;
+  top: 56px; /* ارتفاع الهيدر الخفيف */
+  z-index: 40;
 }
 
 .enhanced-mobile-stats {
@@ -46,6 +51,12 @@
   font-feature-settings: 'tnum' 1;
 }
 
+/* تحسين العبارة الترحيبية في جميع النسخ */
+.welcome-meta-strip {
+  padding: 0 !important;
+  margin-bottom: 0.5rem !important;
+}
+
 /* ضبط المساحات في الصفحة الرئيسية */
 @media (max-width: 768px) {
   .mobile-content-wrapper {
@@ -54,5 +65,33 @@
   
   .mobile-content-wrapper > div:first-child {
     margin-top: 0 !important;
+  }
+  
+  /* إزالة أي فراغات بعد شريط الإحصائيات */
+  .compact-stats-bar + div {
+    margin-top: 0 !important;
+    padding-top: 1rem !important;
+  }
+  
+  /* إصلاح المحتوى بعد شريط الإحصائيات */
+  .mobile-content-after-stats {
+    margin-top: 0 !important;
+    padding-top: 0.5rem !important;
+  }
+  
+  .mobile-content-after-stats > div:first-child {
+    padding-top: 0.5rem !important;
+  }
+  
+  /* تحسين العبارة الترحيبية في النسخة الخفيفة */
+  .welcome-meta-strip {
+    margin-top: 0.75rem !important;
+  }
+}
+
+/* تحسين العبارة الترحيبية في النسخة العادية */
+@media (min-width: 769px) {
+  .welcome-meta-strip {
+    margin-top: 0.5rem !important;
   }
 }

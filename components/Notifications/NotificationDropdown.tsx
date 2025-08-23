@@ -80,9 +80,26 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
       const headerHeightVar = getComputedStyle(document.documentElement).getPropertyValue('--header-height');
       const headerHeight = headerHeightVar ? parseInt(headerHeightVar) : 64;
       
-      // حساب الموضع مرتبط بالهيدر الثابت
+      // حساب الموضع مرتبط بالهيدر الثابت - تحسين للنسخة الخفيفة
       const top = headerHeight + 8; // مسافة ثابتة من أسفل الهيدر
-      const right = Math.max(16, window.innerWidth - rect.right);
+      
+      // حساب الموضع الأفقي لمنع القص من الجانب
+      const dropdownWidth = 352; // 22rem = 352px
+      const rightSpace = window.innerWidth - rect.right;
+      const leftSpace = rect.left;
+      
+      let right: number;
+      
+      if (rightSpace >= dropdownWidth) {
+        // يمكن وضع القائمة على اليسار دون قص
+        right = Math.max(16, window.innerWidth - rect.right);
+      } else if (leftSpace >= dropdownWidth) {
+        // وضع القائمة على اليمين
+        right = Math.max(16, window.innerWidth - rect.left - dropdownWidth);
+      } else {
+        // وسط الشاشة مع مسافة أمان
+        right = Math.max(16, Math.min(window.innerWidth - dropdownWidth - 16, (window.innerWidth - dropdownWidth) / 2));
+      }
       
       setPosition({ top, right });
     };
@@ -213,7 +230,7 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                   style={{ 
                     top: position.top, 
                     right: position.right, 
-                    width: '22rem', 
+                    width: 'min(22rem, calc(100vw - 2rem))', 
                     maxWidth: '90vw'
                   }}
                   role="dialog"

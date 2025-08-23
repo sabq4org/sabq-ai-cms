@@ -93,8 +93,8 @@ export default function Page() {
       <div className="md:hidden">
         <LiteStatsBar />
       </div>
-      <div className="pt-0 pb-6">
-        <div className="max-w-6xl mx-auto">
+      <div className="pb-6">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-4">
           <Suspense fallback={<div className="h-6" />}>
             <WelcomeMetaStrip />
           </Suspense>
@@ -146,7 +146,7 @@ export default function Page() {
   // محتوى الديسكتوب محسن مع useMemo
   const DesktopContent = useMemo(() => (
     <div style={{ padding: '20px 0' }}>
-      <div className="max-w-6xl mx-auto px-4">
+      <div className="max-w-6xl mx-auto px-4 pt-4">
         <Suspense fallback={<div className="h-6" />}>
           <WelcomeMetaStrip />
         </Suspense>
