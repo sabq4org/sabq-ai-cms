@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import ThemeApplier from "@/components/ThemeApplier";
 
 // Layouts
 import AdminPureLayout from "./AdminPureLayout";
@@ -29,13 +30,28 @@ export default function ConditionalLayout({
   const isLightPath = pathname === '/light' || pathname?.startsWith('/light/');
 
   if (isAdminPath) {
-    return <AdminPureLayout>{children}</AdminPureLayout>;
+    return (
+      <AdminPureLayout>
+        <ThemeApplier />
+        {children}
+      </AdminPureLayout>
+    );
   }
 
   // في مسار النسخة الخفيفة، دع تخطيط المقطع `app/light/layout.tsx` يتكفّل بالتخطيط
   if (isLightPath) {
-    return <>{children}</>;
+    return (
+      <>
+        <ThemeApplier />
+        {children}
+      </>
+    );
   }
 
-  return <SiteLayout>{children}</SiteLayout>;
+  return (
+    <SiteLayout>
+      <ThemeApplier />
+      {children}
+    </SiteLayout>
+  );
 }

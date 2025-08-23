@@ -15,35 +15,50 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-// دوال مساعدة لتطبيق الوضع الليلي
-function applyDarkModeToAllElements() {
-  const selectors = [
-    'main', 'header', 'nav', 'footer', 'aside', 'section', 'article',
-    'div[class*="container"]', 'div[class*="wrapper"]', 'div[class*="layout"]',
-    'div[class*="page"]', 'div[class*="content"]', 'div[class*="panel"]',
-    'div[class*="dashboard"]', 'div[class*="admin"]'
-  ];
+// تطبيق محسّن للوضع الليلي
+function applyThemeToDocument(isDark: boolean) {
+  const root = document.documentElement;
+  const body = document.body;
 
-  selectors.forEach(selector => {
-    document.querySelectorAll(selector).forEach(element => {
-      element.classList.add('dark');
-    });
-  });
-}
-
-function removeDarkModeFromAllElements() {
-  const selectors = [
-    'main', 'header', 'nav', 'footer', 'aside', 'section', 'article',
-    'div[class*="container"]', 'div[class*="wrapper"]', 'div[class*="layout"]',
-    'div[class*="page"]', 'div[class*="content"]', 'div[class*="panel"]',
-    'div[class*="dashboard"]', 'div[class*="admin"]'
-  ];
-
-  selectors.forEach(selector => {
-    document.querySelectorAll(selector).forEach(element => {
-      element.classList.remove('dark');
-    });
-  });
+  if (isDark) {
+    // تطبيق الوضع الليلي
+    root.classList.add('dark');
+    root.setAttribute('data-theme', 'dark');
+    body.classList.add('dark');
+    root.style.colorScheme = 'dark';
+    
+    // تطبيق على العناصر الرئيسية
+    const mainElements = document.querySelectorAll('main, header, nav, footer, aside, section, article');
+    mainElements.forEach(el => el.classList.add('dark'));
+    
+    // تحديث CSS variables
+    root.style.setProperty('--bg-main', '#0f172a');
+    root.style.setProperty('--bg-elevated', '#1e293b');
+    root.style.setProperty('--text-primary', '#f8fafc');
+    root.style.setProperty('--text-secondary', '#cbd5e1');
+  } else {
+    // تطبيق الوضع الفاتح
+    root.classList.remove('dark');
+    root.setAttribute('data-theme', 'light');
+    body.classList.remove('dark');
+    root.style.colorScheme = 'light';
+    
+    // إزالة من العناصر الرئيسية
+    const mainElements = document.querySelectorAll('main, header, nav, footer, aside, section, article');
+    mainElements.forEach(el => el.classList.remove('dark'));
+    
+    // تحديث CSS variables
+    root.style.setProperty('--bg-main', '#ffffff');
+    root.style.setProperty('--bg-elevated', '#f8fafc');
+    root.style.setProperty('--text-primary', '#0f172a');
+    root.style.setProperty('--text-secondary', '#475569');
+  }
+  
+  // تحديث meta theme-color
+  const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+  if (metaThemeColor) {
+    metaThemeColor.setAttribute('content', isDark ? '#0f172a' : '#ffffff');
+  }
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
@@ -86,18 +101,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       const resolved = getResolvedTheme(initialTheme, systemPrefersDark);
       setResolvedTheme(resolved);
 
-      // التأكد من تطبيق الكلاس الصحيح
-      if (resolved === 'dark') {
-        document.documentElement.classList.add('dark');
-        document.body.classList.add('dark');
-        // تطبيق على جميع العناصر الرئيسية
-        applyDarkModeToAllElements();
-      } else {
-        document.documentElement.classList.remove('dark');
-        document.body.classList.remove('dark');
-        // إزالة من جميع العناصر
-        removeDarkModeFromAllElements();
-      }
+      // التأكد من تطبيق الثيم الصحيح
+      applyThemeToDocument(resolved === 'dark');
     } catch (error) {
       console.error('خطأ في تحميل إعدادات الثيم:', error);
     }
@@ -113,16 +118,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       if (theme === 'system') {
         const resolved = e.matches ? 'dark' : 'light';
         setResolvedTheme(resolved);
-
-        if (resolved === 'dark') {
-          document.documentElement.classList.add('dark');
-          document.body.classList.add('dark');
-          applyDarkModeToAllElements();
-        } else {
-          document.documentElement.classList.remove('dark');
-          document.body.classList.remove('dark');
-          removeDarkModeFromAllElements();
-        }
+        applyThemeToDocument(resolved === 'dark');
       }
     };
 
@@ -147,25 +143,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (!mounted) return;
 
     try {
-      const root = document.documentElement;
-
-      if (resolvedTheme === 'dark') {
-        root.classList.add('dark');
-        root.style.colorScheme = 'dark';
-        document.body.classList.add('dark');
-        applyDarkModeToAllElements();
-      } else {
-        root.classList.remove('dark');
-        root.style.colorScheme = 'light';
-        document.body.classList.remove('dark');
-        removeDarkModeFromAllElements();
-      }
-
-      // تحديث meta theme-color
-      const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-      if (metaThemeColor) {
-        metaThemeColor.setAttribute('content', resolvedTheme === 'dark' ? '#111827' : '#1e40af');
-      }
+      applyThemeToDocument(resolvedTheme === 'dark');
 
       // حفظ في localStorage
       localStorage.setItem('theme', theme);
@@ -188,18 +166,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       const resolved = getResolvedTheme(newTheme, systemPrefersDark);
       setResolvedTheme(resolved);
 
-      // تطبيق الكلاس فوراً
-      if (resolved === 'dark') {
-        document.documentElement.classList.add('dark');
-        document.documentElement.style.colorScheme = 'dark';
-        document.body.classList.add('dark');
-        applyDarkModeToAllElements();
-      } else {
-        document.documentElement.classList.remove('dark');
-        document.documentElement.style.colorScheme = 'light';
-        document.body.classList.remove('dark');
-        removeDarkModeFromAllElements();
-      }
+      // تطبيق الثيم فوراً
+      applyThemeToDocument(resolved === 'dark');
 
       // حفظ في localStorage
       try {
@@ -220,24 +188,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const resolved = getResolvedTheme(newTheme, systemPrefersDark);
     setResolvedTheme(resolved);
 
-    // تطبيق الكلاس فوراً
-    if (resolved === 'dark') {
-      document.documentElement.classList.add('dark');
-      document.documentElement.style.colorScheme = 'dark';
-      document.body.classList.add('dark');
-      applyDarkModeToAllElements();
-    } else {
-      document.documentElement.classList.remove('dark');
-      document.documentElement.style.colorScheme = 'light';
-      document.body.classList.remove('dark');
-      removeDarkModeFromAllElements();
-    }
-
-    // تحديث meta theme-color
-    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-    if (metaThemeColor) {
-      metaThemeColor.setAttribute('content', resolved === 'dark' ? '#111827' : '#1e40af');
-    }
+    // تطبيق الثيم فوراً
+    applyThemeToDocument(resolved === 'dark');
 
     // حفظ في localStorage
     try {

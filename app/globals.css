@@ -252,4 +252,282 @@ a {
   text-decoration: none;
 }
 
+/* دعم محسن للوضع الليلي */
+html.dark, html[data-theme="dark"] {
+  --bg-main: #0f172a;
+  --bg-elevated: #1e293b;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --border-color: #334155;
+}
+
+html:not(.dark), html[data-theme="light"] {
+  --bg-main: #ffffff;
+  --bg-elevated: #f8fafc;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --border-color: #e2e8f0;
+}
+
+/* تطبيق الوضع الليلي على العناصر الأساسية */
+html.dark body,
+html.dark main,
+html.dark header,
+html.dark nav,
+html.dark footer,
+html.dark aside,
+html.dark section,
+html.dark article {
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+}
+
+/* تحسين الروابط في الوضع الليلي */
+html.dark a {
+  color: #60a5fa;
+}
+
+html.dark a:hover {
+  color: #93c5fd;
+}
+
+/* تحسين الأزرار في الوضع الليلي */
+html.dark button {
+  background-color: var(--bg-elevated);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+/* تحسين النماذج في الوضع الليلي */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: var(--bg-elevated);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: var(--text-secondary);
+}
+
+/* تحسينات إضافية للوضع الليلي - شامل لكل المكونات */
+
+/* ضمان تطبيق الثيم على جميع العناصر */
+.dark *,
+html.dark *,
+html[data-theme="dark"] * {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+/* تطبيق الثيم على العناصر الأساسية للصفحة */
+.dark div,
+.dark span,
+.dark p,
+.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6,
+.dark li,
+.dark td, .dark th,
+.dark label,
+html.dark div,
+html.dark span,
+html.dark p,
+html.dark h1, html.dark h2, html.dark h3, html.dark h4, html.dark h5, html.dark h6,
+html.dark li,
+html.dark td, html.dark th,
+html.dark label {
+  color: var(--text-primary, #f8fafc) !important;
+}
+
+/* ضمان خلفية الكونتينرات والكروت */
+.dark .container,
+.dark .wrapper,
+.dark .layout,
+.dark .content,
+.dark .panel,
+.dark .card,
+.dark .surface,
+.dark .elevated,
+.dark .modal,
+.dark .popup,
+.dark .dropdown,
+html.dark .container,
+html.dark .wrapper,
+html.dark .layout,
+html.dark .content,
+html.dark .panel,
+html.dark .card,
+html.dark .surface,
+html.dark .elevated,
+html.dark .modal,
+html.dark .popup,
+html.dark .dropdown {
+  background-color: var(--bg-main, #0f172a) !important;
+  border-color: var(--border-color, #334155) !important;
+}
+
+/* إصلاح العناصر التي قد تحتفظ بالألوان الفاتحة */
+.dark .bg-white,
+.dark .bg-gray-50,
+.dark .bg-gray-100,
+html.dark .bg-white,
+html.dark .bg-gray-50,
+html.dark .bg-gray-100 {
+  background-color: var(--bg-main, #0f172a) !important;
+}
+
+.dark .bg-gray-200,
+.dark .bg-gray-300,
+html.dark .bg-gray-200,
+html.dark .bg-gray-300 {
+  background-color: var(--bg-elevated, #1e293b) !important;
+}
+
+.dark .text-black,
+.dark .text-gray-800,
+.dark .text-gray-900,
+html.dark .text-black,
+html.dark .text-gray-800,
+html.dark .text-gray-900 {
+  color: var(--text-primary, #f8fafc) !important;
+}
+
+.dark .text-gray-600,
+.dark .text-gray-700,
+html.dark .text-gray-600,
+html.dark .text-gray-700 {
+  color: var(--text-secondary, #cbd5e1) !important;
+}
+
+.dark .border-gray-200,
+.dark .border-gray-300,
+.dark .border-gray-400,
+html.dark .border-gray-200,
+html.dark .border-gray-300,
+html.dark .border-gray-400 {
+  border-color: var(--border-color, #334155) !important;
+}
+
+/* تحسين الأزرار والعناصر التفاعلية */
+.dark button:not(.btn-primary):not([class*="bg-blue"]):not([class*="bg-green"]):not([class*="bg-red"]),
+html.dark button:not(.btn-primary):not([class*="bg-blue"]):not([class*="bg-green"]):not([class*="bg-red"]) {
+  background-color: var(--bg-elevated, #1e293b) !important;
+  color: var(--text-primary, #f8fafc) !important;
+  border-color: var(--border-color, #334155) !important;
+}
+
+/* تحسين النماذج */
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="search"],
+.dark input[type="url"],
+.dark input[type="tel"],
+.dark input[type="number"],
+.dark textarea,
+.dark select,
+html.dark input[type="text"],
+html.dark input[type="email"],
+html.dark input[type="password"],
+html.dark input[type="search"],
+html.dark input[type="url"],
+html.dark input[type="tel"],
+html.dark input[type="number"],
+html.dark textarea,
+html.dark select {
+  background-color: var(--bg-elevated, #1e293b) !important;
+  color: var(--text-primary, #f8fafc) !important;
+  border-color: var(--border-color, #334155) !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder,
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: var(--text-secondary, #cbd5e1) !important;
+  opacity: 0.7;
+}
+
+/* تحسين الجداول */
+.dark table,
+html.dark table {
+  background-color: var(--bg-main, #0f172a) !important;
+  color: var(--text-primary, #f8fafc) !important;
+}
+
+.dark th,
+html.dark th {
+  background-color: var(--bg-elevated, #1e293b) !important;
+  color: var(--text-primary, #f8fafc) !important;
+  border-color: var(--border-color, #334155) !important;
+}
+
+.dark td,
+html.dark td {
+  border-color: var(--border-color, #334155) !important;
+  color: var(--text-primary, #f8fafc) !important;
+}
+
+/* تحسين التمرير والحدود */
+.dark ::-webkit-scrollbar,
+html.dark ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dark ::-webkit-scrollbar-track,
+html.dark ::-webkit-scrollbar-track {
+  background: var(--bg-elevated, #1e293b);
+}
+
+.dark ::-webkit-scrollbar-thumb,
+html.dark ::-webkit-scrollbar-thumb {
+  background: var(--border-color, #334155);
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover,
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* إصلاح النصوص المخفية أو الباهتة */
+.dark .opacity-60,
+.dark .opacity-70,
+.dark .opacity-80,
+html.dark .opacity-60,
+html.dark .opacity-70,
+html.dark .opacity-80 {
+  color: var(--text-secondary, #cbd5e1) !important;
+}
+
+/* ضمان أن العناصر الأساسية تأخذ الثيم الصحيح */
+html.dark,
+html.dark body,
+.dark {
+  background-color: var(--bg-main, #0f172a) !important;
+  color: var(--text-primary, #f8fafc) !important;
+}
+
+/* مكونات إدارية خاصة */
+.dark .admin,
+.dark .dashboard,
+html.dark .admin,
+html.dark .dashboard {
+  background-color: var(--bg-main, #0f172a) !important;
+}
+
+.dark .admin *,
+.dark .dashboard *,
+html.dark .admin *,
+html.dark .dashboard * {
+  color: var(--text-primary, #f8fafc) !important;
+}
+
+/* إصلاح مكونات خاصة قد تتضارب مع الثيم */
+.dark [class*="bg-"]:not([class*="bg-blue"]):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-yellow"]):not([class*="bg-purple"]):not([class*="bg-pink"]):not([class*="bg-indigo"]):not([class*="bg-orange"]),
+html.dark [class*="bg-"]:not([class*="bg-blue"]):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-yellow"]):not([class*="bg-purple"]):not([class*="bg-pink"]):not([class*="bg-indigo"]):not([class*="bg-orange"]) {
+  background-color: var(--bg-elevated, #1e293b) !important;
+}
+
 
