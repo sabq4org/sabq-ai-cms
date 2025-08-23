@@ -60,11 +60,48 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
   const [isConnected, setIsConnected] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  // إضافة cache محلي للإشعارات المحذوفة
-  const [deletedNotificationIds, setDeletedNotificationIds] = useState<Set<string>>(new Set());
+  // إضافة cache محلي للإشعارات المحذوفة - محفوظ في localStorage
+  const [deletedNotificationIds, setDeletedNotificationIds] = useState<Set<string>>(() => {
+    // تأخير تحميل localStorage حتى بعد الهيدريشن
+    return new Set();
+  });
 
   const notificationManager = useRef<any>(null);
   const isInitialized = useRef(false);
+  const isHydrated = useRef(false);
+
+  /**
+   * تحميل الإشعارات المحذوفة من localStorage بعد الهيدريشن
+   */
+  useEffect(() => {
+    if (!isHydrated.current && typeof window !== 'undefined') {
+      isHydrated.current = true;
+      try {
+        const stored = localStorage.getItem('deletedNotifications');
+        if (stored) {
+          const deletedIds = JSON.parse(stored);
+          setDeletedNotificationIds(new Set(deletedIds));
+          console.log(`📦 تم تحميل ${deletedIds.length} إشعار محذوف من localStorage`);
+        }
+      } catch (error) {
+        console.error('خطأ في تحميل localStorage:', error);
+        localStorage.removeItem('deletedNotifications');
+      }
+    }
+  }, []);
+
+  /**
+   * حفظ قائمة الإشعارات المحذوفة في localStorage
+   */
+  const saveDeletedNotificationsToStorage = useCallback((deletedIds: Set<string>) => {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('deletedNotifications', JSON.stringify(Array.from(deletedIds)));
+      } catch (error) {
+        console.error('خطأ في حفظ الإشعارات المحذوفة:', error);
+      }
+    }
+  }, []);
 
   /**
    * مسح رسائل الخطأ
@@ -153,7 +190,7 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [deletedNotificationIds]);
 
   /**
    * تحميل المزيد من الإشعارات
@@ -235,7 +272,11 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
 
     // ⚡ تحديث فوري للواجهة قبل API call
     setNotifications(prev => prev.filter(n => n.id !== notificationId));
-    setDeletedNotificationIds(prev => new Set([...prev, notificationId]));
+    setDeletedNotificationIds(prev => {
+      const newSet = new Set([...prev, notificationId]);
+      saveDeletedNotificationsToStorage(newSet);
+      return newSet;
+    });
     
     // تحديث فوري للعداد
     if (wasUnread) {
@@ -244,7 +285,7 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
 
     try {
       const response = await fetch('/api/test-notifications/delete-single', {
-        method: 'POST',
+        method: 'DELETE',
         headers: {
           ...getAuthHeaders(),
           'Content-Type': 'application/json'
@@ -295,6 +336,7 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
         setDeletedNotificationIds(prev => {
           const newSet = new Set(prev);
           newSet.delete(notificationId);
+          saveDeletedNotificationsToStorage(newSet);
           return newSet;
         });
         if (wasUnread) {
@@ -305,7 +347,7 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
       }
       // إذا كان الإشعار غير موجود، لا تفعل شيئاً (اتركه محذوفاً محلياً)
     }
-  }, [notifications, unreadCount]);
+  }, [notifications, unreadCount, saveDeletedNotificationsToStorage]);
 
   /**
    * تحديد جميع الإشعارات كمقروءة
@@ -506,18 +548,45 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
   }, []);
 
   /**
+   * تنظيف localStorage من الإشعارات المحذوفة القديمة جداً
+   * (تشغيل عند التهيئة لتجنب تراكم البيانات)
+   */
+  const cleanupOldDeletedNotifications = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('deletedNotifications');
+        if (stored) {
+          const deletedIds = JSON.parse(stored);
+          // اختبار: اذا كان هناك أكثر من 100 إشعار محذوف، احتفظ بآخر 50 فقط
+          if (deletedIds.length > 100) {
+            const recentIds = deletedIds.slice(-50);
+            localStorage.setItem('deletedNotifications', JSON.stringify(recentIds));
+            setDeletedNotificationIds(new Set(recentIds));
+            console.log(`🧹 تم تنظيف ${deletedIds.length - 50} إشعار محذوف قديم من الذاكرة`);
+          }
+        }
+      } catch (error) {
+        console.error('خطأ في تنظيف localStorage:', error);
+        // في حالة خطأ، أعد تهيئة localStorage
+        localStorage.removeItem('deletedNotifications');
+      }
+    }
+  }, []);
+
+  /**
    * تهيئة النظام عند التحميل
    */
   useEffect(() => {
     if (!isInitialized.current) {
       isInitialized.current = true;
+      cleanupOldDeletedNotifications(); // تنظيف localStorage أولاً
       connectToNotifications();
     }
 
     return () => {
       disconnectFromNotifications();
     };
-  }, [connectToNotifications, disconnectFromNotifications]);
+  }, []); // إزالة الاعتماديات لمنع الحلقة اللا نهائية
 
   /**
    * تنسيق أيقونة نوع الإشعار
@@ -547,6 +616,14 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
     setPage(1);
     setHasMore(false);
     setDeletedNotificationIds(new Set()); // تنظيف كاش المحذوفات
+    // تنظيف localStorage أيضاً
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem('deletedNotifications');
+      } catch (error) {
+        console.error('خطأ في تنظيف localStorage:', error);
+      }
+    }
     // قطع الاتصال بـ WebSocket
     if (notificationManager.current) {
       disconnectFromNotifications();
