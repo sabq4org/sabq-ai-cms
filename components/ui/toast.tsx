@@ -78,32 +78,52 @@ function ToastComponent({ toast: t }: { toast: Toast }) {
     return () => clearTimeout(timer);
   }, [t.duration]);
 
-  const bgColor = {
-    success: 'bg-green-500',
-    error: 'bg-red-500',
-    info: 'bg-blue-500',
-    warning: 'bg-yellow-500'
-  }[t.type];
-
-  const icon = {
-    success: '✓',
-    error: '✕',
-    info: 'ℹ',
-    warning: '⚠'
+  const styles = {
+    success: {
+      bg: 'bg-gradient-to-r from-green-500 to-green-600',
+      icon: '✅',
+      border: 'border-green-400'
+    },
+    error: {
+      bg: 'bg-gradient-to-r from-red-500 to-red-600',
+      icon: '❌',
+      border: 'border-red-400'
+    },
+    info: {
+      bg: 'bg-gradient-to-r from-blue-500 to-blue-600',
+      icon: 'ℹ️',
+      border: 'border-blue-400'
+    },
+    warning: {
+      bg: 'bg-gradient-to-r from-yellow-500 to-orange-500',
+      icon: '⚠️',
+      border: 'border-yellow-400'
+    }
   }[t.type];
 
   return (
     <div
       className={`
-        flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg text-white
-        ${bgColor}
-        transition-all duration-300 transform
-        ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'}
-        min-w-[300px] max-w-[500px]
+        flex items-center gap-3 px-5 py-4 rounded-xl shadow-2xl text-white
+        ${styles.bg}
+        transition-all duration-300 transform pointer-events-auto
+        ${isVisible ? 'translate-y-0 opacity-100 scale-100' : '-translate-y-2 opacity-0 scale-95'}
+        min-w-[320px] max-w-[500px]
+        backdrop-blur-md bg-opacity-95
+        border ${styles.border} border-opacity-30
       `}
     >
-      <span className="text-xl">{icon}</span>
-      <p className="text-sm font-medium flex-1">{t.message}</p>
+      <span className="text-2xl">{styles.icon}</span>
+      <p className="text-base font-medium flex-1">{t.message}</p>
+      <button
+        onClick={() => setIsVisible(false)}
+        className="ml-2 text-white/70 hover:text-white transition-colors"
+        aria-label="إغلاق"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
     </div>
   );
 }
@@ -120,7 +140,7 @@ export function ToastContainer() {
   if (!mounted) return null;
 
   return createPortal(
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
+    <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none">
       {toasts.map(t => (
         <ToastComponent key={t.id} toast={t} />
       ))}

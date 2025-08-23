@@ -50,7 +50,15 @@ export default function AdminLogin() {
           toast.error(data.error || "فشل تسجيل الدخول");
         }
       } else {
-        toast.error(`خطأ في الخادم: ${res.status}`);
+        if (res.status === 401) {
+          toast.error("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+        } else if (res.status === 429) {
+          toast.error("تم تجاوز عدد المحاولات المسموح بها. حاول مرة أخرى لاحقاً");
+        } else if (res.status === 500) {
+          toast.error("عذراً، حدث خطأ في النظام. يرجى المحاولة لاحقاً");
+        } else {
+          toast.error("حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى");
+        }
       }
     } catch (error) {
       console.error(error);
