@@ -47,7 +47,14 @@ export default function AdminLogin() {
           }
           router.replace(next);
         } else {
-          toast.error(data.error || "فشل تسجيل الدخول");
+          // معالجة الأخطاء المختلفة
+          if (data.code === "INVALID_CREDENTIALS") {
+            toast.error("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+          } else if (data.code === "ACCOUNT_LOCKED") {
+            toast.error("تم قفل الحساب مؤقتاً بسبب محاولات متعددة فاشلة");
+          } else {
+            toast.error(data.error || "فشل تسجيل الدخول");
+          }
         }
       } else {
         if (res.status === 401) {
@@ -61,8 +68,11 @@ export default function AdminLogin() {
         }
       }
     } catch (error) {
-      console.error(error);
-      toast.error("حدث خطأ في الاتصال");
+      // فقط في بيئة التطوير
+      if (process.env.NODE_ENV === 'development') {
+        console.error(error);
+      }
+      toast.error("حدث خطأ في الاتصال. يرجى التحقق من اتصالك بالإنترنت");
     } finally {
       setLoading(false);
     }

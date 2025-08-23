@@ -37,13 +37,20 @@ export async function POST(request: NextRequest) {
     );
 
     if (!result.success) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         {
           success: false,
-          error: result.error
+          error: result.error || "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+          code: "INVALID_CREDENTIALS"
         },
         { status: 401 }
       );
+      
+      // منع تسريب معلومات حساسة
+      response.headers.set('X-Content-Type-Options', 'nosniff');
+      response.headers.set('X-Frame-Options', 'DENY');
+      
+      return response;
     }
 
     // التحقق من 2FA
