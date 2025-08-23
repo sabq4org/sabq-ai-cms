@@ -1,10 +1,57 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+// Rate limiting store
+const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+
 export function middleware(request: NextRequest) {
   const response = NextResponse.next();
   const url = request.nextUrl;
   const isAdminRoute = url.pathname.startsWith('/admin');
+  
+  // Rate limiting for AI and critical APIs
+  const criticalPaths = ['/api/ai/', '/api/auth/', '/api/upload/'];
+  const isCriticalAPI = criticalPaths.some(path => url.pathname.startsWith(path));
+  
+  if (isCriticalAPI) {
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+    const key = `${ip}:${url.pathname}`;
+    const now = Date.now();
+    
+    // Get or create rate limit data
+    let data = rateLimitStore.get(key);
+    if (!data || now > data.resetTime) {
+      data = { count: 0, resetTime: now + 60000 }; // 1 minute window
+    }
+    
+    data.count++;
+    rateLimitStore.set(key, data);
+    
+    // Define limits based on path
+    let limit = 60; // Default
+    if (url.pathname.startsWith('/api/ai/')) limit = 10;
+    if (url.pathname.startsWith('/api/auth/')) limit = 5;
+    if (url.pathname.startsWith('/api/upload/')) limit = 20;
+    
+    // Check if limit exceeded
+    if (data.count > limit) {
+      return NextResponse.json(
+        { error: 'تم تجاوز عدد الطلبات المسموح به. حاول مرة أخرى لاحقاً.' },
+        { 
+          status: 429,
+          headers: {
+            'Retry-After': '60',
+            'X-RateLimit-Limit': limit.toString(),
+            'X-RateLimit-Remaining': '0'
+          }
+        }
+      );
+    }
+    
+    // Add rate limit headers
+    response.headers.set('X-RateLimit-Limit', limit.toString());
+    response.headers.set('X-RateLimit-Remaining', (limit - data.count).toString());
+  }
   
   // Content Security Policy - أكثر صرامة للصفحات الإدارية
   const baseCsp = [

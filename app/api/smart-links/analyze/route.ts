@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import OpenAI from 'openai';
+import { aiAnalysisRateLimit } from '@/lib/ai-rate-limiter';
 
 const prisma = new PrismaClient();
 

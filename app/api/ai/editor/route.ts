@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { aiEditorRateLimit } from '@/lib/ai-rate-limiter';
 
 
 
@@ -161,8 +162,9 @@ ${context?.type ? `نوع الخبر: ${context.type}` : ''}
 };
 
 export async function POST(request: NextRequest) {
-  let body: any;
-  try {
+  return aiEditorRateLimit(request, async () => {
+    let body: any;
+    try {
     body = await request.json();
     const { service, content, context, targetLang } = body;
 
@@ -271,6 +273,7 @@ export async function POST(request: NextRequest) {
        { status: 500 }
      );
   }
+  });
 }
 
 // Mock responses للاختبار

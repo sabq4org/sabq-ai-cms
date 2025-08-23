@@ -122,7 +122,7 @@ export async function GET(request: NextRequest) {
         userIds.length
           ? prisma.users.findMany({
               where: { id: { in: userIds } },
-              select: { id: true, name: true, email: true, avatar: true },
+              select: { id: true, name: true, avatar: true },
             })
           : Promise.resolve([]),
       ]);
@@ -146,12 +146,12 @@ export async function GET(request: NextRequest) {
           ? {
               id: c.user_id,
               name: userMap.get(c.user_id)?.name || "مستخدم",
-              email: userMap.get(c.user_id)?.email || undefined,
+
               avatar: userMap.get(c.user_id)?.avatar || undefined,
             }
           : {
               name: c.metadata?.guestName || "زائر",
-              email: undefined,
+
               avatar: undefined,
             },
       }));
