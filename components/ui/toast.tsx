@@ -1,130 +1,128 @@
-import * as React from "react"
-import * as ToastPrimitives from "@radix-ui/react-toast"
-import { cva, type VariantProps } from "class-variance-authority"
-import { X } from "lucide-react"
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
-import { cn } from "@/lib/utils"
+export interface ToastOptions {
+  duration?: number;
+  position?: 'top' | 'bottom' | 'top-right' | 'bottom-right';
+}
 
-const ToastProvider = ToastPrimitives.Provider
+interface Toast {
+  id: string;
+  message: string;
+  type: 'success' | 'error' | 'info' | 'warning';
+  duration: number;
+}
 
-const ToastViewport = React.forwardRef<
-  React.ElementRef<typeof ToastPrimitives.Viewport>,
-  React.ComponentPropsWithoutRef<typeof ToastPrimitives.Viewport>
->(({ className, ...props }, ref) => (
-  <ToastPrimitives.Viewport
-    ref={ref}
-    className={cn(
-      // على الجوال: أسفل الشاشة مع تباعد داخلي مناسب وبـ z-index مرتفع جداً
-      "fixed bottom-4 right-4 left-4 z-[10000] flex max-h-screen w-auto flex-col-reverse p-0 gap-2",
-      // من الشاشات المتوسطة فأعلى: في الزاوية اليمنى السفلية بحجم ثابت
-      "sm:top-auto sm:bottom-4 sm:right-4 sm:left-auto sm:flex-col md:max-w-[420px]",
-      className
-    )}
-    {...props}
-  />
-))
-ToastViewport.displayName = ToastPrimitives.Viewport.displayName
+class ToastManager {
+  private listeners: ((toasts: Toast[]) => void)[] = [];
+  private toasts: Toast[] = [];
 
-const toastVariants = cva(
-  "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full",
-  {
-    variants: {
-      variant: {
-        default: "border bg-background text-foreground",
-        destructive:
-          "destructive group border-destructive bg-destructive text-destructive-foreground",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-    },
+  subscribe(listener: (toasts: Toast[]) => void) {
+    this.listeners.push(listener);
+    return () => {
+      this.listeners = this.listeners.filter(l => l !== listener);
+    };
   }
-)
 
-const Toast = React.forwardRef<
-  React.ElementRef<typeof ToastPrimitives.Root>,
-  React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> &
-    VariantProps<typeof toastVariants>
->(({ className, variant, ...props }, ref) => {
+  private notify() {
+    this.listeners.forEach(listener => listener([...this.toasts]));
+  }
+
+  show(message: string, type: Toast['type'] = 'info', options?: ToastOptions) {
+    const id = Math.random().toString(36);
+    const toast: Toast = {
+      id,
+      message,
+      type,
+      duration: options?.duration || 3000
+    };
+
+    this.toasts.push(toast);
+    this.notify();
+
+    setTimeout(() => {
+      this.toasts = this.toasts.filter(t => t.id !== id);
+      this.notify();
+    }, toast.duration);
+  }
+
+  success(message: string, options?: ToastOptions) {
+    this.show(message, 'success', options);
+  }
+
+  error(message: string, options?: ToastOptions) {
+    this.show(message, 'error', options);
+  }
+
+  info(message: string, options?: ToastOptions) {
+    this.show(message, 'info', options);
+  }
+
+  warning(message: string, options?: ToastOptions) {
+    this.show(message, 'warning', options);
+  }
+}
+
+export const toast = new ToastManager();
+
+function ToastComponent({ toast: t }: { toast: Toast }) {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setIsVisible(true);
+    const timer = setTimeout(() => {
+      setIsVisible(false);
+    }, t.duration - 300);
+    return () => clearTimeout(timer);
+  }, [t.duration]);
+
+  const bgColor = {
+    success: 'bg-green-500',
+    error: 'bg-red-500',
+    info: 'bg-blue-500',
+    warning: 'bg-yellow-500'
+  }[t.type];
+
+  const icon = {
+    success: '✓',
+    error: '✕',
+    info: 'ℹ',
+    warning: '⚠'
+  }[t.type];
+
   return (
-    <ToastPrimitives.Root
-      ref={ref}
-      className={cn(toastVariants({ variant }), className)}
-      {...props}
-    />
-  )
-})
-Toast.displayName = ToastPrimitives.Root.displayName
+    <div
+      className={`
+        flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg text-white
+        ${bgColor}
+        transition-all duration-300 transform
+        ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'}
+        min-w-[300px] max-w-[500px]
+      `}
+    >
+      <span className="text-xl">{icon}</span>
+      <p className="text-sm font-medium flex-1">{t.message}</p>
+    </div>
+  );
+}
 
-const ToastAction = React.forwardRef<
-  React.ElementRef<typeof ToastPrimitives.Action>,
-  React.ComponentPropsWithoutRef<typeof ToastPrimitives.Action>
->(({ className, ...props }, ref) => (
-  <ToastPrimitives.Action
-    ref={ref}
-    className={cn(
-      "inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium ring-offset-background transition-colors hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-muted/40 group-[.destructive]:hover:border-destructive/30 group-[.destructive]:hover:bg-destructive group-[.destructive]:hover:text-destructive-foreground group-[.destructive]:focus:ring-destructive",
-      className
-    )}
-    {...props}
-  />
-))
-ToastAction.displayName = ToastPrimitives.Action.displayName
+export function ToastContainer() {
+  const [toasts, setToasts] = useState<Toast[]>([]);
+  const [mounted, setMounted] = useState(false);
 
-const ToastClose = React.forwardRef<
-  React.ElementRef<typeof ToastPrimitives.Close>,
-  React.ComponentPropsWithoutRef<typeof ToastPrimitives.Close>
->(({ className, ...props }, ref) => (
-  <ToastPrimitives.Close
-    ref={ref}
-    className={cn(
-      "absolute right-2 top-2 rounded-md p-1 text-foreground/50 opacity-0 transition-opacity hover:text-foreground focus:opacity-100 focus:outline-none focus:ring-2 group-hover:opacity-100 group-[.destructive]:text-red-300 group-[.destructive]:hover:text-red-50 group-[.destructive]:focus:ring-red-400 group-[.destructive]:focus:ring-offset-red-600",
-      className
-    )}
-    toast-close=""
-    {...props}
-  >
-    <X className="h-4 w-4" />
-  </ToastPrimitives.Close>
-))
-ToastClose.displayName = ToastPrimitives.Close.displayName
+  useEffect(() => {
+    setMounted(true);
+    return toast.subscribe(setToasts);
+  }, []);
 
-const ToastTitle = React.forwardRef<
-  React.ElementRef<typeof ToastPrimitives.Title>,
-  React.ComponentPropsWithoutRef<typeof ToastPrimitives.Title>
->(({ className, ...props }, ref) => (
-  <ToastPrimitives.Title
-    ref={ref}
-    className={cn("text-sm font-semibold", className)}
-    {...props}
-  />
-))
-ToastTitle.displayName = ToastPrimitives.Title.displayName
+  if (!mounted) return null;
 
-const ToastDescription = React.forwardRef<
-  React.ElementRef<typeof ToastPrimitives.Description>,
-  React.ComponentPropsWithoutRef<typeof ToastPrimitives.Description>
->(({ className, ...props }, ref) => (
-  <ToastPrimitives.Description
-    ref={ref}
-    className={cn("text-sm opacity-90", className)}
-    {...props}
-  />
-))
-ToastDescription.displayName = ToastPrimitives.Description.displayName
-
-type ToastProps = React.ComponentPropsWithoutRef<typeof Toast>
-
-type ToastActionElement = React.ReactElement<typeof ToastAction>
-
-export {
-  type ToastProps,
-  type ToastActionElement,
-  ToastProvider,
-  ToastViewport,
-  Toast,
-  ToastTitle,
-  ToastDescription,
-  ToastClose,
-  ToastAction,
+  return createPortal(
+    <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
+      {toasts.map(t => (
+        <ToastComponent key={t.id} toast={t} />
+      ))}
+    </div>,
+    document.body
+  );
 }

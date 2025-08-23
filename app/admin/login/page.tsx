@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import styles from './login.module.css';
+import { toast } from "@/components/ui/toast";
 import SabqLogo from "@/components/SabqLogo";
 
 export default function AdminLogin() {
@@ -36,7 +37,7 @@ export default function AdminLogin() {
           if (data.requires2FA) {
             // حفظ الرمز المؤقت وتوجيه لصفحة 2FA
             sessionStorage.setItem('2fa_temp_token', data.tempToken);
-            alert("يرجى إدخال رمز المصادقة الثنائية");
+            toast.info("يرجى إدخال رمز المصادقة الثنائية");
             router.push("/admin/login/2fa");
             return;
           }
@@ -46,14 +47,14 @@ export default function AdminLogin() {
           }
           router.replace(next);
         } else {
-          alert(data.error || "فشل تسجيل الدخول");
+          toast.error(data.error || "فشل تسجيل الدخول");
         }
       } else {
-        alert(`خطأ: ${res.status}`);
+        toast.error(`خطأ في الخادم: ${res.status}`);
       }
     } catch (error) {
       console.error(error);
-      alert("حدث خطأ في الاتصال");
+      toast.error("حدث خطأ في الاتصال");
     } finally {
       setLoading(false);
     }

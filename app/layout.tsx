@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { IBM_Plex_Sans_Arabic } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
+import { ToastContainer } from "@/components/ui/toast";
 import "./globals.css";
 import "@/app/old-style-demo/old-style.css";
 import "@/styles/color-softening.css";
@@ -54,6 +55,7 @@ export default function RootLayout({
         <ConditionalLayout>
           {children}
         </ConditionalLayout>
+        <ToastContainer />
         <SpeedInsights />
       </body>
     </html>

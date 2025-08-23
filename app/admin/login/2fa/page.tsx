@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
+import { toast } from "@/components/ui/toast";
 
 export default function TwoFactorLogin() {
   const router = useRouter();
@@ -19,7 +20,7 @@ export default function TwoFactorLogin() {
     try {
       const tempToken = sessionStorage.getItem('2fa_temp_token');
       if (!tempToken) {
-        alert("جلسة منتهية، يرجى تسجيل الدخول مرة أخرى");
+        toast.error("جلسة منتهية، يرجى تسجيل الدخول مرة أخرى");
         router.push("/admin/login");
         return;
       }
@@ -46,22 +47,22 @@ export default function TwoFactorLogin() {
           // مسح الرمز المؤقت
           sessionStorage.removeItem('2fa_temp_token');
           
-          alert("تم التحقق بنجاح!");
+          toast.success("تم التحقق بنجاح!");
           router.replace(next);
         } else {
-          alert(data.error || "رمز غير صحيح");
+          toast.error(data.error || "رمز غير صحيح");
         }
       } else {
         if (res.status === 401) {
-          alert("انتهت صلاحية الجلسة");
+          toast.error("انتهت صلاحية الجلسة");
           router.push("/admin/login");
         } else {
-          alert(`خطأ: ${res.status}`);
+          toast.error(`خطأ في الخادم: ${res.status}`);
         }
       }
     } catch (error) {
       console.error(error);
-      alert("حدث خطأ في الاتصال");
+      toast.error("حدث خطأ في الاتصال");
     } finally {
       setLoading(false);
     }
