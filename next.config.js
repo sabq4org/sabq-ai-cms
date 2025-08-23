@@ -1,32 +1,23 @@
 /** @type {import('next').NextConfig} */
 // FORCE REBUILD: 2025-08-15T21:02 - Emergency deployment
 const nextConfig = {
+  // تفعيل SWC بدلاً من Babel لحل مشكلة next/font
+  compiler: {
+    // تفعيل SWC compiler بدلاً من Babel
+    removeConsole:
+      process.env.NODE_ENV === "production"
+        ? {
+            exclude: ["error", "warn"],
+          }
+        : false,
+    // تعطيل emotion إذا لم نستخدمه
+    emotion: false,
+    reactRemoveProperties: process.env.NODE_ENV === "production",
+  },
+
   // إضافة معرف فريد للملفات الثابتة
   generateBuildId: async () => {
     return "build-" + Date.now();
-  },
-
-  // تعطيل التخزين المؤقت للتطوير
-  async headers() {
-    return [
-      {
-        source: '/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
-          },
-          {
-            key: 'Pragma',
-            value: 'no-cache',
-          },
-          {
-            key: 'Expires',
-            value: '0',
-          },
-        ],
-      },
-    ];
   },
 
   // Note: api config moved to individual route handlers
@@ -151,16 +142,6 @@ const nextConfig = {
     ],
   },
 
-  // تحسين الكمبايل
-  compiler: {
-    removeConsole:
-      process.env.NODE_ENV === "production"
-        ? {
-            exclude: ["error", "warn"],
-          }
-        : false,
-  },
-
   // Headers للتحكم في التخزين المؤقت
   async headers() {
     return [
@@ -231,13 +212,13 @@ const nextConfig = {
   // زيادة timeout للصفحات الثقيلة
   staticPageGenerationTimeout: 90,
 
-  // تعطيل type checking أثناء البناء (مؤقتاً)
+  // تفعيل type checking للتطوير السليم
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
 
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
   
   // معالجة مراجع الصوت النسبية مثل /some/path/test.mp3 → /test.mp3

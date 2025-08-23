@@ -1,0 +1,17 @@
+تعليمات تحديث layout.tsx:
+
+1. أضف هذه السطور في أعلى الملف بعد باقي imports:
+import "../styles/lite-layout-optimization.css";
+import "../styles/lite-components-optimization.css";
+
+2. أضف هذا قبل إغلاق </body>:
+<script src="/js/lite-optimizer.js" async></script>
+
+3. أو استخدم next/script:
+import Script from 'next/script';
+
+وأضف داخل المكون:
+<Script 
+  src="/js/lite-optimizer.js"
+  strategy="afterInteractive"
+/>

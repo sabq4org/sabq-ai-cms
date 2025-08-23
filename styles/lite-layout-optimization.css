@@ -1,0 +1,442 @@
+/* تحسينات تخطيط النسخة الخفيفة لاستغلال المساحات الجانبية */
+/* Lite Layout Optimizations for Better Space Utilization */
+
+/* ===== تحسينات عامة للنسخة الخفيفة ===== */
+@media (max-width: 768px) {
+  
+  /* إزالة الحواف الجانبية وتوسيع المحتوى */
+  .lite-full-width,
+  .mobile-full-width {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* تحسين الحاويات الرئيسية */
+  .max-w-6xl,
+  .max-w-7xl,
+  .max-w-5xl,
+  .max-w-4xl,
+  .container {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+
+  /* توسيع المحتوى في الصفحة الرئيسية */
+  .homepage-container,
+  .main-content,
+  .content-wrapper {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    max-width: 100% !important;
+  }
+}
+
+/* ===== تحسينات للبلوكات والبطاقات ===== */
+@media (max-width: 768px) {
+  
+  /* بطاقات الأخبار - استغلال كامل العرض */
+  .news-card,
+  .article-card,
+  .content-card {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    border-radius: 12px !important;
+  }
+
+  /* البلوكات المحتوى */
+  .smart-content-block,
+  .featured-block,
+  .analysis-block,
+  .muqtarab-block {
+    margin-left: -0.5rem !important;
+    margin-right: -0.5rem !important;
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+    width: calc(100% + 1rem) !important;
+  }
+
+  /* الشبكة للبطاقات - استغلال أفضل للمساحة */
+  .grid-cols-1 {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem !important;
+  }
+
+  .grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.5rem !important;
+  }
+
+  /* للشاشات الصغيرة، تحويل grid إلى عمود واحد */
+  @media (max-width: 480px) {
+    .grid {
+      grid-template-columns: 1fr !important;
+      gap: 0.75rem !important;
+    }
+  }
+}
+
+/* ===== تحسينات المحتوى النصي والصور ===== */
+@media (max-width: 768px) {
+  
+  /* الصور - استغلال كامل العرض */
+  .featured-image,
+  .article-image,
+  .content-image {
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    border-radius: 12px !important;
+  }
+
+  /* المحتوى النصي */
+  .prose,
+  .article-content,
+  .text-content {
+    max-width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  /* العناوين */
+  h1, h2, h3, h4, h5, h6 {
+    padding-left: 0.25rem !important;
+    padding-right: 0.25rem !important;
+  }
+
+  /* الفقرات */
+  p, .paragraph {
+    padding-left: 0.25rem !important;
+    padding-right: 0.25rem !important;
+    line-height: 1.6 !important;
+  }
+}
+
+/* ===== تحسينات خاصة للمكونات الرئيسية ===== */
+@media (max-width: 768px) {
+  
+  /* شريط الأخبار المميزة */
+  .light-featured-loader {
+    margin: 1rem 0 !important;
+  }
+
+  .light-featured-loader .featured-container {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+
+  /* المؤشرات الذكية */
+  .smart-insights-widget {
+    margin-left: -0.5rem !important;
+    margin-right: -0.5rem !important;
+    padding: 1rem 0.75rem !important;
+  }
+
+  /* بلوك المحتوى الذكي */
+  .smart-content-block {
+    padding: 1.5rem 0.75rem !important;
+  }
+
+  /* بلوك التحليل العميق */
+  .deep-analysis-block {
+    padding: 1.5rem 0.75rem !important;
+  }
+
+  /* بلوك مقترب */
+  .muqtarab-block {
+    padding: 1.5rem 0.75rem !important;
+  }
+}
+
+/* ===== تحسينات شريط الإحصائيات الخفيف ===== */
+@media (max-width: 768px) {
+  
+  .lite-stats-bar {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0.75rem 1rem !important;
+    /* إزالة الحواف لاستغلال كامل العرض */
+    border-radius: 0 !important;
+    margin-left: -1rem !important;
+    margin-right: -1rem !important;
+    width: calc(100% + 2rem) !important;
+  }
+
+  /* عناصر الإحصائيات */
+  .lite-stats-item {
+    flex: 1 !important;
+    min-width: 0 !important;
+    padding: 0.5rem !important;
+  }
+
+  /* أرقام الإحصائيات */
+  .stats-number {
+    font-size: 1.1rem !important;
+    font-weight: 700 !important;
+  }
+
+  /* تسميات الإحصائيات */
+  .stats-label {
+    font-size: 0.75rem !important;
+    line-height: 1.2 !important;
+  }
+}
+
+/* ===== تحسينات التنقل والقوائم ===== */
+@media (max-width: 768px) {
+  
+  /* القائمة العلوية */
+  .top-navigation {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    width: 100% !important;
+  }
+
+  /* الروابط في القائمة */
+  .nav-link {
+    padding: 0.5rem 0.75rem !important;
+    margin: 0 0.25rem !important;
+  }
+
+  /* أزرار التفاعل */
+  .interaction-buttons {
+    gap: 0.5rem !important;
+    padding: 0.5rem !important;
+  }
+
+  /* أزرار المشاركة */
+  .share-buttons {
+    justify-content: space-between !important;
+    padding: 0.75rem 0.5rem !important;
+  }
+}
+
+/* ===== تحسينات التعليقات والتفاعل ===== */
+@media (max-width: 768px) {
+  
+  /* قسم التعليقات */
+  .comments-section {
+    padding: 1rem 0.75rem !important;
+    margin-top: 1.5rem !important;
+  }
+
+  /* نموذج التعليق */
+  .comment-form {
+    padding: 0.75rem !important;
+  }
+
+  /* التعليقات */
+  .comment-item {
+    padding: 0.75rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+
+  /* أزرار الإعجاب والحفظ */
+  .like-save-buttons {
+    justify-content: space-between !important;
+    padding: 1rem 0.5rem !important;
+    gap: 1rem !important;
+  }
+}
+
+/* ===== تحسينات الفوتر والعناصر السفلية ===== */
+@media (max-width: 768px) {
+  
+  /* الفوتر */
+  footer {
+    padding: 1.5rem 0.75rem !important;
+    margin-top: 2rem !important;
+  }
+
+  /* روابط الفوتر */
+  .footer-links {
+    justify-content: center !important;
+    flex-wrap: wrap !important;
+    gap: 1rem !important;
+  }
+
+  /* معلومات الموقع */
+  .site-info {
+    text-align: center !important;
+    padding: 1rem 0.5rem !important;
+  }
+}
+
+/* ===== تحسينات خاصة للشاشات الصغيرة جداً ===== */
+@media (max-width: 375px) {
+  
+  /* تقليل المسافات أكثر */
+  .lite-full-width,
+  .mobile-full-width {
+    padding-left: 0.25rem !important;
+    padding-right: 0.25rem !important;
+  }
+
+  /* الحاويات */
+  .max-w-6xl,
+  .max-w-7xl,
+  .container {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+
+  /* البطاقات */
+  .news-card,
+  .article-card {
+    padding: 0.75rem !important;
+  }
+
+  /* النصوص */
+  h1 { font-size: 1.5rem !important; }
+  h2 { font-size: 1.25rem !important; }
+  h3 { font-size: 1.125rem !important; }
+  
+  /* المسافات */
+  .space-y-6 > * + * {
+    margin-top: 1rem !important;
+  }
+
+  .space-y-4 > * + * {
+    margin-top: 0.75rem !important;
+  }
+}
+
+/* ===== تحسينات للوضع الأفقي ===== */
+@media (max-width: 768px) and (orientation: landscape) {
+  
+  /* تقليل المسافات العمودية في الوضع الأفقي */
+  .content-section {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+  }
+
+  /* شريط الإحصائيات مضغوط أكثر */
+  .lite-stats-bar {
+    padding: 0.5rem 1rem !important;
+  }
+
+  /* العناوين أصغر */
+  h1, h2, h3 {
+    margin-bottom: 0.5rem !important;
+  }
+}
+
+/* ===== تحسينات الأداء للنسخة الخفيفة ===== */
+@media (max-width: 768px) {
+  
+  /* تحسين التمرير */
+  .lite-content {
+    -webkit-overflow-scrolling: touch !important;
+    scroll-behavior: smooth !important;
+  }
+
+  /* إزالة التأثيرات الثقيلة */
+  .backdrop-blur,
+  .backdrop-filter {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* تبسيط الظلال */
+  .shadow-lg {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  .shadow-xl {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* تحسين الانتقالات */
+  * {
+    transition-duration: 0.15s !important;
+  }
+}
+
+/* ===== فئات مساعدة للنسخة الخفيفة ===== */
+@media (max-width: 768px) {
+  
+  /* إخفاء على الموبايل */
+  .lite-hidden {
+    display: none !important;
+  }
+
+  /* عرض على الموبايل فقط */
+  .lite-only {
+    display: block !important;
+  }
+
+  /* مساحة كاملة */
+  .lite-full-space {
+    margin-left: -0.75rem !important;
+    margin-right: -0.75rem !important;
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+    width: calc(100% + 1.5rem) !important;
+  }
+
+  /* بدون حواف */
+  .lite-no-padding {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  /* حواف مصغرة */
+  .lite-compact {
+    padding: 0.5rem !important;
+    margin: 0.25rem 0 !important;
+  }
+
+  /* مرن كامل */
+  .lite-flex-full {
+    flex: 1 !important;
+    min-width: 0 !important;
+  }
+}
+
+/* ===== تحسينات خاصة للنسخة الداكنة ===== */
+@media (max-width: 768px) {
+  
+  .dark .lite-card {
+    background: rgba(17, 24, 39, 0.95) !important;
+    border-color: rgba(75, 85, 99, 0.3) !important;
+  }
+
+  .dark .lite-text {
+    color: rgba(243, 244, 246, 0.9) !important;
+  }
+
+  .dark .lite-border {
+    border-color: rgba(75, 85, 99, 0.2) !important;
+  }
+}
+
+/* ===== إصلاحات متنوعة للنسخة الخفيفة ===== */
+@media (max-width: 768px) {
+  
+  /* إصلاح overflow */
+  body, html {
+    overflow-x: hidden !important;
+  }
+
+  /* إصلاح العرض */
+  * {
+    max-width: 100% !important;
+  }
+
+  /* استثناءات للعناصر المحددة */
+  img, video, iframe {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* إصلاح المسافات السالبة */
+  .negative-margin {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}

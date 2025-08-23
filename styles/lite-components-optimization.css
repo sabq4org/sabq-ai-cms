@@ -1,0 +1,399 @@
+/* تطبيق تحسينات النسخة الخفيفة على المكونات الموجودة */
+/* Apply lite optimizations to existing components */
+
+/* ===== تحسينات للصفحة الرئيسية ===== */
+@media (max-width: 768px) {
+  
+  /* تطبيق التحسينات على الصفحة الرئيسية */
+  .homepage-container,
+  [data-page="home"] {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  /* المحتوى الرئيسي */
+  .homepage-container > div,
+  .main-content > div {
+    margin-left: 0.5rem !important;
+    margin-right: 0.5rem !important;
+  }
+
+  /* البلوكات الرئيسية */
+  .homepage-container .max-w-6xl,
+  .main-content .max-w-6xl {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+    max-width: 100% !important;
+  }
+}
+
+/* ===== تحسينات LiteStatsBar ===== */
+@media (max-width: 768px) {
+  
+  .lite-stats-bar,
+  [class*="LiteStatsBar"],
+  [data-component="lite-stats"] {
+    /* امتداد كامل العرض */
+    margin-left: -1rem !important;
+    margin-right: -1rem !important;
+    width: calc(100% + 2rem) !important;
+    padding: 0.75rem 1rem !important;
+    
+    /* إزالة الحواف المنحنية من الجوانب */
+    border-radius: 0 !important;
+    
+    /* خلفية متدرجة لطيفة */
+    background: linear-gradient(135deg, 
+      rgba(59, 130, 246, 0.05) 0%, 
+      rgba(16, 185, 129, 0.05) 100%) !important;
+    border-top: 1px solid rgba(59, 130, 246, 0.1) !important;
+    border-bottom: 1px solid rgba(16, 185, 129, 0.1) !important;
+  }
+
+  /* عناصر الإحصائيات */
+  .lite-stats-bar .stats-item,
+  .lite-stats-bar > div > div {
+    flex: 1 !important;
+    text-align: center !important;
+    padding: 0.5rem 0.25rem !important;
+  }
+
+  /* أرقام الإحصائيات */
+  .lite-stats-bar .stats-number,
+  .lite-stats-bar [class*="font-bold"],
+  .lite-stats-bar [class*="font-semibold"] {
+    font-size: 1.125rem !important;
+    font-weight: 700 !important;
+    color: rgb(59 130 246) !important;
+  }
+
+  /* تسميات الإحصائيات */
+  .lite-stats-bar .stats-label,
+  .lite-stats-bar .text-sm,
+  .lite-stats-bar .text-xs {
+    font-size: 0.75rem !important;
+    color: rgb(107 114 128) !important;
+  }
+}
+
+/* ===== تحسينات LightFeaturedLoader ===== */
+@media (max-width: 768px) {
+  
+  .light-featured-loader,
+  [class*="LightFeaturedLoader"],
+  [data-component="featured-light"] {
+    margin: 1.5rem 0 !important;
+  }
+
+  /* حاوية الأخبار المميزة */
+  .light-featured-loader .container,
+  .light-featured-loader > div {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+    max-width: 100% !important;
+  }
+
+  /* بطاقات الأخبار المميزة */
+  .light-featured-loader .news-card,
+  .light-featured-loader .featured-card {
+    margin: 0.5rem 0 !important;
+    padding: 1rem !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+  }
+
+  /* صور الأخبار المميزة */
+  .light-featured-loader .news-image,
+  .light-featured-loader .featured-image {
+    aspect-ratio: 16/9 !important;
+    border-radius: 12px !important;
+    width: 100% !important;
+  }
+
+  /* عناوين الأخبار المميزة */
+  .light-featured-loader .news-title,
+  .light-featured-loader .featured-title {
+    font-size: 1.125rem !important;
+    line-height: 1.4 !important;
+    margin: 0.75rem 0 0.5rem 0 !important;
+  }
+}
+
+/* ===== تحسينات SmartInsightsWidget ===== */
+@media (max-width: 768px) {
+  
+  .smart-insights-widget,
+  [class*="SmartInsights"],
+  [data-component="insights"] {
+    /* امتداد كامل مع هوامش */
+    margin-left: -0.5rem !important;
+    margin-right: -0.5rem !important;
+    padding: 1.5rem 0.75rem !important;
+    border-radius: 16px !important;
+  }
+
+  /* بطاقات المؤشرات */
+  .smart-insights-widget .insight-card,
+  .smart-insights-widget > div > div {
+    margin-bottom: 1rem !important;
+    padding: 1rem !important;
+    border-radius: 12px !important;
+    background: rgba(255, 255, 255, 0.8) !important;
+    border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  }
+
+  /* عناوين المؤشرات */
+  .smart-insights-widget h3,
+  .smart-insights-widget .insight-title {
+    font-size: 1rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  /* محتوى المؤشرات */
+  .smart-insights-widget .insight-content,
+  .smart-insights-widget p {
+    font-size: 0.875rem !important;
+    line-height: 1.5 !important;
+  }
+}
+
+/* ===== تحسينات SmartContentBlock ===== */
+@media (max-width: 768px) {
+  
+  .smart-content-block,
+  [class*="SmartContent"],
+  [data-component="smart-content"] {
+    padding: 1.5rem 0.75rem !important;
+    margin: 1.5rem 0 !important;
+  }
+
+  /* الشبكة للمحتوى الذكي */
+  .smart-content-block .grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+
+  /* بطاقات المحتوى */
+  .smart-content-block .content-card,
+  .smart-content-block .news-card {
+    padding: 1.25rem !important;
+    border-radius: 14px !important;
+    margin-bottom: 1rem !important;
+  }
+
+  /* صور المحتوى */
+  .smart-content-block .content-image,
+  .smart-content-block img {
+    width: 100% !important;
+    border-radius: 10px !important;
+    aspect-ratio: 16/10 !important;
+  }
+}
+
+/* ===== تحسينات DeepAnalysisBlock ===== */
+@media (max-width: 768px) {
+  
+  .deep-analysis-block,
+  [class*="DeepAnalysis"],
+  [data-component="deep-analysis"] {
+    padding: 1.5rem 0.75rem !important;
+    margin: 2rem 0 !important;
+  }
+
+  /* بطاقات التحليل العميق */
+  .deep-analysis-block .analysis-card,
+  .deep-analysis-block .article-card {
+    margin-bottom: 1.25rem !important;
+    padding: 1.25rem !important;
+    border-radius: 16px !important;
+    background: linear-gradient(135deg, 
+      rgba(255, 255, 255, 0.9) 0%, 
+      rgba(249, 250, 251, 0.9) 100%) !important;
+  }
+
+  /* عناوين التحليل */
+  .deep-analysis-block .analysis-title,
+  .deep-analysis-block h3 {
+    font-size: 1.125rem !important;
+    line-height: 1.4 !important;
+    margin-bottom: 0.75rem !important;
+  }
+
+  /* محتوى التحليل */
+  .deep-analysis-block .analysis-excerpt,
+  .deep-analysis-block p {
+    font-size: 0.875rem !important;
+    line-height: 1.6 !important;
+    color: rgb(75 85 99) !important;
+  }
+}
+
+/* ===== تحسينات MuqtarabBlock ===== */
+@media (max-width: 768px) {
+  
+  .muqtarab-block,
+  [class*="Muqtarab"],
+  [data-component="muqtarab"] {
+    padding: 2rem 0.75rem !important;
+    margin: 1.5rem 0 !important;
+  }
+
+  /* خلفية مقترب */
+  .muqtarab-section-bg,
+  .full-bleed {
+    margin-left: -1rem !important;
+    margin-right: -1rem !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    width: calc(100% + 2rem) !important;
+  }
+
+  /* شبكة مقترب */
+  .muqtarab-block .grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.25rem !important;
+  }
+
+  /* بطاقات مقترب */
+  .muqtarab-block .muqtarab-card,
+  .muqtarab-block .article-card {
+    padding: 1.25rem !important;
+    border-radius: 16px !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  }
+
+  /* عناوين مقترب */
+  .muqtarab-block .article-title,
+  .muqtarab-block h3 {
+    font-size: 1.125rem !important;
+    line-height: 1.4 !important;
+    margin-bottom: 0.75rem !important;
+  }
+}
+
+/* ===== تحسينات WelcomeMetaStrip ===== */
+@media (max-width: 768px) {
+  
+  .welcome-meta-strip,
+  [class*="WelcomeMeta"],
+  [data-component="welcome-meta"] {
+    padding: 1rem 0.75rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  /* عناصر الترحيب */
+  .welcome-meta-strip > div {
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+  }
+
+  /* نص الترحيب */
+  .welcome-meta-strip .welcome-text,
+  .welcome-meta-strip h1 {
+    font-size: 1.25rem !important;
+    text-align: center !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  /* معلومات إضافية */
+  .welcome-meta-strip .meta-info,
+  .welcome-meta-strip .text-sm {
+    text-align: center !important;
+    color: rgb(107 114 128) !important;
+  }
+}
+
+/* ===== تحسينات عامة للمكونات ===== */
+@media (max-width: 768px) {
+  
+  /* جميع العناوين */
+  h1, h2, h3, h4, h5, h6 {
+    padding-left: 0.25rem !important;
+    padding-right: 0.25rem !important;
+    line-height: 1.3 !important;
+  }
+
+  /* جميع الفقرات */
+  p {
+    padding-left: 0.25rem !important;
+    padding-right: 0.25rem !important;
+    line-height: 1.6 !important;
+  }
+
+  /* جميع الروابط */
+  a {
+    padding: 0.25rem 0.5rem !important;
+    border-radius: 6px !important;
+  }
+
+  /* جميع الأزرار */
+  button {
+    padding: 0.75rem 1rem !important;
+    border-radius: 8px !important;
+    min-height: 44px !important;
+  }
+
+  /* جميع البطاقات */
+  .card, .bg-white, [class*="bg-white"] {
+    border-radius: 12px !important;
+    padding: 1rem !important;
+    margin: 0.5rem 0 !important;
+  }
+}
+
+/* ===== تحسينات للشاشات الصغيرة جداً ===== */
+@media (max-width: 375px) {
+  
+  /* تقليل المسافات أكثر */
+  .lite-stats-bar {
+    padding: 0.5rem 0.75rem !important;
+  }
+
+  .smart-insights-widget,
+  .smart-content-block,
+  .deep-analysis-block,
+  .muqtarab-block {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+
+  /* تقليل أحجام النصوص قليلاً */
+  h1 { font-size: 1.375rem !important; }
+  h2 { font-size: 1.25rem !important; }
+  h3 { font-size: 1.125rem !important; }
+
+  /* تقليل المسافات بين العناصر */
+  .space-y-6 > * + * {
+    margin-top: 1rem !important;
+  }
+}
+
+/* ===== تحسينات للوضع الليلي ===== */
+@media (max-width: 768px) {
+  
+  .dark .lite-stats-bar {
+    background: linear-gradient(135deg, 
+      rgba(59, 130, 246, 0.1) 0%, 
+      rgba(16, 185, 129, 0.1) 100%) !important;
+    border-top-color: rgba(59, 130, 246, 0.2) !important;
+    border-bottom-color: rgba(16, 185, 129, 0.2) !important;
+  }
+
+  .dark .smart-insights-widget .insight-card {
+    background: rgba(31, 41, 55, 0.8) !important;
+    border-color: rgba(75, 85, 99, 0.3) !important;
+  }
+
+  .dark .deep-analysis-block .analysis-card {
+    background: linear-gradient(135deg, 
+      rgba(31, 41, 55, 0.9) 0%, 
+      rgba(17, 24, 39, 0.9) 100%) !important;
+  }
+
+  .dark .muqtarab-block .muqtarab-card {
+    background: rgba(31, 41, 55, 0.95) !important;
+    border-color: rgba(75, 85, 99, 0.3) !important;
+  }
+}
