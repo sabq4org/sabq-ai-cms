@@ -33,57 +33,13 @@ export default function SmartBlockRenderer({
 }: SmartBlockRendererProps) {
   // تحديد الأيقونة والألوان بناءً على نوع البلوك
   const getBlockStyle = (type: string) => {
-    switch (type) {
-      case "hero":
-        return {
-          icon: <Star className="w-5 h-5 text-blue-600" />,
-          bgColor: darkMode ? "bg-blue-600/30" : "bg-blue-500",
-          textColor: "text-blue-600",
-          lightBg: darkMode ? "bg-blue-900/20" : "bg-blue-50",
-        };
-      case "carousel":
-        return {
-          icon: <TrendingUp className="w-5 h-5 text-orange-600" />,
-          bgColor: darkMode ? "bg-orange-900/30" : "bg-orange-50",
-          textColor: "text-orange-600",
-          lightBg: darkMode ? "bg-orange-900/20" : "bg-orange-50",
-        };
-      case "grid":
-        return {
-          icon: <Compass className="w-5 h-5 text-purple-600" />,
-          bgColor: darkMode ? "bg-purple-900/30" : "bg-purple-50",
-          textColor: "text-purple-600",
-          lightBg: darkMode ? "bg-purple-900/20" : "bg-purple-50",
-        };
-      case "list":
-        return {
-          icon: <Activity className="w-5 h-5 text-green-600" />,
-          bgColor: darkMode ? "bg-green-900/30" : "bg-green-50",
-          textColor: "text-green-600",
-          lightBg: darkMode ? "bg-green-900/20" : "bg-green-50",
-        };
-      case "ticker":
-        return {
-          icon: <Volume2 className="w-5 h-5 text-pink-600" />,
-          bgColor: darkMode ? "bg-pink-900/30" : "bg-pink-50",
-          textColor: "text-pink-600",
-          lightBg: darkMode ? "bg-pink-900/20" : "bg-pink-50",
-        };
-      case "trending":
-        return {
-          icon: <Lightbulb className="w-5 h-5 text-indigo-600" />,
-          bgColor: darkMode ? "bg-indigo-900/30" : "bg-indigo-50",
-          textColor: "text-indigo-600",
-          lightBg: darkMode ? "bg-indigo-900/20" : "bg-indigo-50",
-        };
-      default:
-        return {
-          icon: <Target className="w-5 h-5 text-gray-600" />,
-          bgColor: darkMode ? "bg-gray-700/30" : "bg-gray-100",
-          textColor: "text-gray-600",
-          lightBg: darkMode ? "bg-gray-700/20" : "bg-gray-50",
-        };
-    }
+    // إزالة الألوان وجعل جميع البلوكات بلا لون (شفاف/أبيض)
+    return {
+      icon: <Star className={`w-5 h-5 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`} />,
+      bgColor: "bg-transparent",
+      textColor: darkMode ? "text-gray-300" : "text-gray-700",
+      lightBg: "bg-transparent",
+    };
   };
 
   const style = getBlockStyle(block.type);
@@ -135,13 +91,11 @@ export default function SmartBlockRenderer({
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div
-            className={`w-10 h-10 rounded-xl flex items-center justify-center`}
-            style={{
-              backgroundColor: block.theme
-                ? `${block.theme.primaryColor}20`
-                : style.bgColor,
-              color: block.theme ? block.theme.primaryColor : style.textColor,
-            }}
+            className={`w-10 h-10 rounded-xl flex items-center justify-center border ${
+              darkMode 
+                ? 'bg-transparent border-gray-600' 
+                : 'bg-transparent border-gray-300'
+            }`}
           >
             {React.cloneElement(style.icon, {
               className: `w-5 h-5`,
@@ -167,13 +121,11 @@ export default function SmartBlockRenderer({
         </div>
         {articles.length > 0 && (
           <span
-            className={`px-3 py-1 rounded-full text-xs font-medium`}
-            style={{
-              backgroundColor: block.theme
-                ? `${block.theme.primaryColor}20`
-                : style.bgColor,
-              color: block.theme ? block.theme.primaryColor : style.textColor,
-            }}
+            className={`px-3 py-1 rounded-full text-xs font-medium border ${
+              darkMode 
+                ? 'bg-transparent border-gray-600 text-gray-300' 
+                : 'bg-transparent border-gray-300 text-gray-600'
+            }`}
           >
             {articles.length} {articles.length === 1 ? "مقال" : "مقالات"}
           </span>
