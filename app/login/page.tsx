@@ -78,6 +78,24 @@ function LoginForm() {
       const data = await response.json();
       if (response.ok && data.success) {
         console.log('📊 استجابة تسجيل الدخول:', data);
+        
+        // التحقق من 2FA
+        if (data.requires2FA) {
+          // حفظ الرمز المؤقت وتوجيه لصفحة 2FA
+          sessionStorage.setItem('2fa_temp_token', data.tempToken);
+          toast.info("يرجى إدخال رمز المصادقة الثنائية");
+          
+          // تحديد الوجهة النهائية
+          let finalDestination = "/";
+          if (callbackUrl) {
+            finalDestination = callbackUrl;
+          } else if (data.user?.is_admin) {
+            finalDestination = "/admin";
+          }
+          
+          router.push(`/login/2fa?next=${encodeURIComponent(finalDestination)}`);
+          return;
+        }
 
         // حفظ التوكن أيضاً في localStorage لتسهيل تمريه في Authorization
         if (typeof window !== 'undefined' && data.token) {

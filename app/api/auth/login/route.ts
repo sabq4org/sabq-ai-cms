@@ -46,6 +46,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // التحقق من 2FA
+    if (result.requires2FA) {
+      return NextResponse.json(
+        {
+          success: true,
+          requires2FA: true,
+          tempToken: result.tempToken,
+          message: result.message
+        },
+        { status: 200 }
+      );
+    }
+
     // إرسال الاستجابة الناجحة
     const response = NextResponse.json(
       {
