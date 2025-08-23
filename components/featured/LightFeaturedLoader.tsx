@@ -22,7 +22,7 @@ export default function LightFeaturedLoader({ heading = "الأخبار المم
     let mounted = true;
     (async () => {
       try {
-        const res = await fetch(`/api/articles/featured?limit=${limit}`, { cache: "force-cache", next: { revalidate: 120 } });
+        const res = await fetch(`/api/articles/featured?limit=${limit}`, { cache: "no-store" });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
         const list: FeaturedArticleLite[] = (json?.data || []).map((a: any) => ({
@@ -36,7 +36,7 @@ export default function LightFeaturedLoader({ heading = "الأخبار المم
           category: a.categories ? { id: a.categories.id, name: a.categories.name, slug: a.categories.slug, color: a.categories.color } : null,
           views: a.views ?? a.views_count ?? 0,
         }));
-        if (mounted) setArticles(list.slice(0, 3));
+        if (mounted) setArticles(list.slice(0, Math.max(1, Math.min(6, limit || 3))));
       } catch (e) {
         console.error("فشل جلب الأخبار المميزة (Light):", e);
         if (mounted) setArticles([]);

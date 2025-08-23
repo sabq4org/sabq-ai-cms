@@ -28,7 +28,12 @@ export async function GET(request: NextRequest) {
             },
           ],
         },
-        orderBy: [{ published_at: "desc" }, { views: "desc" }],
+        orderBy: [
+          { breaking: "desc" },
+          { featured: "desc" },
+          { published_at: "desc" },
+          { views: "desc" }
+        ],
         take: limit,
         select: {
           id: true,
