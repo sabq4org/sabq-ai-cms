@@ -3,11 +3,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Menu, User, Moon, Sun, Home, Newspaper, Grid3X3, Sparkles, Brain, Palette } from 'lucide-react';
+import { Menu, User, Moon, Sun, Home, Newspaper, Grid3X3, Sparkles, Brain, Palette, Bell } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { useSiteSettings } from '@/hooks/useSiteSettings';
 import { useAuth } from '@/hooks/useAuth';
 import { usePathname } from 'next/navigation';
+import { NotificationDropdown } from '@/components/Notifications/NotificationDropdown';
 
 // نظام الألوان المتغيرة المطور
 const themes = [
@@ -259,8 +260,11 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
             </Link>
           </div>
 
-          {/* الجانب الأيسر: الوضع الليلي + الملف الشخصي */}
+          {/* الجانب الأيسر: الإشعارات + الوضع الليلي + الملف الشخصي */}
           <div className="flex items-center gap-2">
+            {/* الإشعارات */}
+            <NotificationDropdown className="notification-light-header" />
+
             {/* تبديل الوضع الليلي */}
             <button
               onClick={toggleDarkMode}

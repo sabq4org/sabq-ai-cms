@@ -5,6 +5,8 @@ import "./globals.css";
 import "@/app/old-style-demo/old-style.css";
 import "@/styles/color-softening.css";
 import "@/styles/notification-fixes.css";
+import "@/styles/notification-modern-ui.css";
+import "@/styles/notification-light-header.css";
 
 const ibmPlexArabic = IBM_Plex_Sans_Arabic({
   subsets: ["arabic"],
