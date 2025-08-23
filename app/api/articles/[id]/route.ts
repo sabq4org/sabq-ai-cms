@@ -488,6 +488,7 @@ export async function DELETE(
           select: {
             id: true,
             title: true,
+            slug: true,
             status: true,
             featured: true,
             category_id: true,
@@ -539,6 +540,19 @@ export async function DELETE(
       await prisma.interactions.deleteMany({ where: { article_id: id } });
       // حذف التعليقات (موجودة في schema)
       await prisma.comments.deleteMany({ where: { article_id: id } });
+
+      // 🗑️ حذف الإشعارات المرتبطة بالمقال - مهم جداً!
+      const deletedNotifications = await prisma.smartNotifications.deleteMany({
+        where: {
+          OR: [
+            { data: { path: ['articleId'], equals: id } },
+            { data: { path: ['entityId'], equals: id } },
+            { data: { path: ['link'], string_contains: existingArticle.slug || id } }
+          ]
+        }
+      });
+      
+      console.log(`🔔 تم حذف ${deletedNotifications.count} إشعارات مرتبطة بالمقال`);
 
       console.log(`🧹 تم حذف جميع البيانات المرتبطة بالمقال`);
     });

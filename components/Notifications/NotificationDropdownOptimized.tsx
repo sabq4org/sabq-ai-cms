@@ -30,6 +30,7 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
     hasMore,
     fetchNotifications,
     markAsRead,
+    deleteNotification,
     markAllAsRead,
     loadMore,
     clearError,
@@ -40,7 +41,7 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
   // جلب الإشعارات عند فتح القائمة
   useEffect(() => {
     if (isOpen && user) {
-      setHiddenNotifications(new Set());
+      // لا نمسح hiddenNotifications عند إعادة فتح القائمة
       if (notifications.length === 0) {
         fetchNotifications(1, true);
       }
@@ -251,6 +252,7 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                       </div>
                     ) : (
                       <>
+                        <AnimatePresence mode="popLayout">
                         {notifications
                           .filter(n => !hiddenNotifications.has(n.id))
                           .slice(0, 10) // حدّد العدد للأداء
@@ -258,6 +260,9 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                           <motion.div
                             key={notification.id}
                             layout
+                            initial={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.15, ease: 'easeOut' }}
                             className={`relative ${
                               !notification.read_at 
                                 ? 'bg-blue-50/80 dark:bg-blue-900/10 border-r-4 border-r-blue-500' 
@@ -266,30 +271,27 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                             onClick={async (e) => {
                               e.preventDefault();
                               
-                              // إخفاء فوري
+                              // ⚡ إخفاء فوري في الواجهة للاستجابة السريعة
                               setHiddenNotifications(prev => new Set([...prev, notification.id]));
                               
-                              // تحديد كمقروء
-                              if (!notification.read_at) {
-                                try {
-                                  await markAsRead(notification.id);
-                                } catch (error) {
-                                  console.error('فشل:', error);
-                                  setHiddenNotifications(prev => {
-                                    const newSet = new Set(prev);
-                                    newSet.delete(notification.id);
-                                    return newSet;
-                                  });
-                                  return;
-                                }
+                              // انتقال للرابط أولاً (حتى لو فشل الحذف)
+                              const shouldNavigate = (notification as any).link || (notification as any).data?.link;
+                              const link = (notification as any).link || (notification as any).data?.link;
+                              
+                              // حذف فعلي من قاعدة البيانات
+                              try {
+                                await deleteNotification(notification.id);
+                                console.log('✅ تم حذف الإشعار بنجاح:', notification.id);
+                              } catch (error) {
+                                console.log('ℹ️ الإشعار قد يكون محذوفاً بالفعل أو فشل الحذف:', error);
+                                // لا نعيد الإشعار للظهور - نتركه مخفياً
                               }
                               
-                              // انتقال للرابط
-                              if ((notification as any).link || (notification as any).data?.link) {
-                                const link = (notification as any).link || (notification as any).data?.link;
+                              // انتقال للرابط (بغض النظر عن نتيجة الحذف)
+                              if (shouldNavigate && link) {
                                 setTimeout(() => {
                                   window.location.href = link;
-                                }, 50);
+                                }, 50); // تأخير قصير جداً
                               }
                             }}
                           >
@@ -315,23 +317,38 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                                       <span className="text-xs text-gray-400 whitespace-nowrap">
                                         {formatDate(notification.created_at)}
                                       </span>
-                                      {!notification.read_at && (
+                                      {/* خيارات الإشعار */}
+                                      <div className="flex items-center gap-1">
+                                        {!notification.read_at && (
+                                          <button
+                                            onClick={async (e) => {
+                                              e.stopPropagation();
+                                              try {
+                                                await markAsRead(notification.id);
+                                              } catch (error) {
+                                                console.error('فشل:', error);
+                                              }
+                                            }}
+                                            className="p-1 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-full transition-colors"
+                                            title="تحديد كمقروء"
+                                          >
+                                            <CheckIcon className="h-4 w-4" />
+                                          </button>
+                                        )}
                                         <button
                                           onClick={async (e) => {
                                             e.stopPropagation();
-                                            try {
-                                              await markAsRead(notification.id);
-                                              setHiddenNotifications(prev => new Set([...prev, notification.id]));
-                                            } catch (error) {
-                                              console.error('فشل:', error);
-                                            }
+                                            // ⚡ إخفاء فوري
+                                            setHiddenNotifications(prev => new Set([...prev, notification.id]));
+                                            // حذف في الخلفية
+                                            deleteNotification(notification.id).catch(console.error);
                                           }}
-                                          className="p-1 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-full transition-colors"
-                                          title="تحديد كمقروء"
+                                          className="p-1 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-full transition-colors"
+                                          title="حذف نهائياً"
                                         >
-                                          <CheckIcon className="h-4 w-4" />
+                                          <XMarkIcon className="h-4 w-4" />
                                         </button>
-                                      )}
+                                      </div>
                                     </div>
                                   </div>
                                   
@@ -359,6 +376,7 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                             </div>
                           </motion.div>
                         ))}
+                        </AnimatePresence>
 
                         {/* تحميل المزيد */}
                         {hasMore && (

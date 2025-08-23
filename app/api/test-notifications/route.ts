@@ -27,10 +27,18 @@ export async function GET(req: NextRequest) {
     
     console.log(`🧪 [TEST API] استخدام المستخدم التجريبي: ${testUser.name}`);
     
-    // جلب الإشعارات للمستخدم التجريبي
+    // جلب الإشعارات للمستخدم التجريبي مع تجنب المكسورة
     const [notifications, totalCount, unreadCount] = await Promise.all([
       prisma.smartNotifications.findMany({
-        where: { user_id: testUser.id },
+        where: { 
+          user_id: testUser.id,
+          // تجنب الإشعارات المكسورة
+          NOT: [
+            // تجنب الإشعارات التجريبية
+            { data: { path: ['articleId'], string_starts_with: 'test-article-' } },
+            // يمكن إضافة فلاتر أخرى هنا
+          ]
+        },
         orderBy: [
           { read_at: 'asc' },
           { created_at: 'desc' }
@@ -50,13 +58,23 @@ export async function GET(req: NextRequest) {
       }),
       
       prisma.smartNotifications.count({
-        where: { user_id: testUser.id }
+        where: { 
+          user_id: testUser.id,
+          // نفس الفلاتر
+          NOT: [
+            { data: { path: ['articleId'], string_starts_with: 'test-article-' } }
+          ]
+        }
       }),
       
       prisma.smartNotifications.count({
         where: { 
           user_id: testUser.id,
-          read_at: null 
+          read_at: null,
+          // نفس الفلاتر  
+          NOT: [
+            { data: { path: ['articleId'], string_starts_with: 'test-article-' } }
+          ]
         }
       })
     ]);

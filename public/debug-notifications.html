@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 مصحح الإشعارات - مدير النظام</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
+        body { font-family: 'Tajawal', sans-serif; }
+        .notification-item { 
+            transition: all 0.3s ease; 
+            border-right: 4px solid #e5e7eb;
+        }
+        .notification-item:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15); 
+        }
+        .notification-unread { border-right-color: #10b981; background: rgba(16, 185, 129, 0.05); }
+        .notification-read { border-right-color: #6b7280; background: rgba(107, 114, 128, 0.05); }
+        .api-status { 
+            display: inline-block; 
+            padding: 6px 12px; 
+            border-radius: 20px; 
+            font-size: 12px; 
+            font-weight: bold; 
+            transition: all 0.3s ease;
+        }
+        .status-success { background: linear-gradient(45deg, #10b981, #059669); color: white; }
+        .status-error { background: linear-gradient(45deg, #ef4444, #dc2626); color: white; }
+        .status-loading { background: linear-gradient(45deg, #f59e0b, #d97706); color: white; }
+        .loading { animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .card { 
+            backdrop-filter: blur(10px); 
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.2s ease;
+        }
+        .card:hover { transform: translateY(-2px); }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .auth-info { background: linear-gradient(45deg, #4f46e5, #7c3aed); }
+        .debug-success { color: #10b981; }
+        .debug-error { color: #ef4444; }
+        .debug-warning { color: #f59e0b; }
+        .debug-info { color: #3b82f6; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Fixed Header -->
+    <header class="gradient-bg text-white shadow-lg fixed top-0 w-full z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    <i class="fas fa-tools text-2xl animate-pulse"></i>
+                    <div>
+                        <h1 class="text-xl font-bold">🔧 مصحح الإشعارات</h1>
+                        <p class="text-blue-100 text-sm">مدير النظام - تشخيص وإصلاح مباشر</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    <span id="current-time" class="text-xs bg-white bg-opacity-20 px-3 py-1 rounded-full"></span>
+                    <div class="auth-info px-3 py-1 rounded-lg text-sm">
+                        <i class="fas fa-user-shield"></i>
+                        <span class="mr-2">مصادق</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-8 mt-20">
+        <!-- Quick Status Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-white rounded-lg p-4 text-center shadow-md">
+                <div class="text-2xl mb-2">🗄️</div>
+                <div id="db-status" class="text-sm font-semibold text-gray-600">فحص قاعدة البيانات...</div>
+            </div>
+            <div class="bg-white rounded-lg p-4 text-center shadow-md">
+                <div class="text-2xl mb-2">👥</div>
+                <div id="users-count" class="text-sm font-semibold text-gray-600">فحص المستخدمين...</div>
+            </div>
+            <div class="bg-white rounded-lg p-4 text-center shadow-md">
+                <div class="text-2xl mb-2">🔔</div>
+                <div id="notifications-total" class="text-sm font-semibold text-gray-600">فحص الإشعارات...</div>
+            </div>
+        </div>
+
+        <!-- API Status Cards -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Test API -->
+            <div class="card bg-white rounded-xl p-6 shadow-lg">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-gray-800">
+                        <i class="fas fa-flask text-orange-500 mr-2"></i>
+                        API التجريبي
+                    </h3>
+                    <span id="test-api-status" class="api-status status-loading">
+                        <i class="fas fa-spinner loading mr-1"></i>
+                        فحص
+                    </span>
+                </div>
+                <p class="text-sm text-gray-600 mb-4">/api/test-notifications</p>
+                <div id="test-api-details" class="space-y-2 text-sm mb-4">
+                    <div class="text-gray-500">انتظار النتائج...</div>
+                </div>
+                <button onclick="testTestAPI()" class="w-full bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors">
+                    <i class="fas fa-play mr-2"></i>اختبار
+                </button>
+            </div>
+
+            <!-- Universal API -->
+            <div class="card bg-white rounded-xl p-6 shadow-lg">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-gray-800">
+                        <i class="fas fa-globe text-green-500 mr-2"></i>
+                        API الشامل
+                    </h3>
+                    <span id="universal-api-status" class="api-status status-loading">
+                        <i class="fas fa-spinner loading mr-1"></i>
+                        فحص
+                    </span>
+                </div>
+                <p class="text-sm text-gray-600 mb-4">/api/notifications-universal</p>
+                <div id="universal-api-details" class="space-y-2 text-sm mb-4">
+                    <div class="text-gray-500">انتظار النتائج...</div>
+                </div>
+                <button onclick="testUniversalAPI()" class="w-full bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                    <i class="fas fa-play mr-2"></i>اختبار
+                </button>
+            </div>
+
+            <!-- Real API -->
+            <div class="card bg-white rounded-xl p-6 shadow-lg">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-gray-800">
+                        <i class="fas fa-server text-blue-500 mr-2"></i>
+                        API الحقيقي
+                    </h3>
+                    <span id="real-api-status" class="api-status status-loading">
+                        <i class="fas fa-spinner loading mr-1"></i>
+                        فحص
+                    </span>
+                </div>
+                <p class="text-sm text-gray-600 mb-4">/api/notifications</p>
+                <div id="real-api-details" class="space-y-2 text-sm mb-4">
+                    <div class="text-gray-500">انتظار النتائج...</div>
+                </div>
+                <button onclick="testRealAPI()" class="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                    <i class="fas fa-play mr-2"></i>اختبار
+                </button>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card bg-white rounded-xl p-6 shadow-lg mb-8">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">
+                <i class="fas fa-bolt text-yellow-500 mr-2"></i>
+                إجراءات سريعة
+            </h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <button onclick="checkDatabase()" class="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors text-sm">
+                    <i class="fas fa-database mr-1"></i>
+                    فحص قاعدة البيانات
+                </button>
+                <button onclick="checkUsers()" class="bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600 transition-colors text-sm">
+                    <i class="fas fa-users mr-1"></i>
+                    فحص المستخدمين
+                </button>
+                <button onclick="createTestNotification()" class="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors text-sm">
+                    <i class="fas fa-plus mr-1"></i>
+                    إنشاء تجريبي
+                </button>
+                <button onclick="cleanupBrokenNotifications()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors text-sm">
+                    <i class="fas fa-broom mr-1"></i>
+                    تنظيف المكسورة
+                </button>
+                <button onclick="refreshAll()" class="bg-emerald-500 text-white px-4 py-2 rounded-lg hover:bg-emerald-600 transition-colors text-sm">
+                    <i class="fas fa-sync mr-1"></i>
+                    تحديث الكل
+                </button>
+            </div>
+        </div>
+
+        <!-- Current Working Notifications -->
+        <div class="card bg-white rounded-xl p-6 shadow-lg mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-gray-800">
+                    <i class="fas fa-bell text-red-500 mr-2"></i>
+                    الإشعارات الحالية
+                    <span id="notifications-count" class="bg-red-500 text-white text-xs px-2 py-1 rounded-full mr-2">0</span>
+                </h3>
+                <button onclick="loadNotifications()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm">
+                    <i class="fas fa-reload mr-2"></i>
+                    تحديث
+                </button>
+            </div>
+            
+            <div class="mb-4 flex flex-wrap gap-2">
+                <select id="api-selector" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                    <option value="test">API التجريبي (يعمل دائماً)</option>
+                    <option value="universal">API الشامل (ذكي)</option>
+                    <option value="real">API الحقيقي (يحتاج مصادقة)</option>
+                </select>
+                <select id="limit-selector" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                    <option value="5">5 إشعارات</option>
+                    <option value="10" selected>10 إشعارات</option>
+                    <option value="20">20 إشعار</option>
+                </select>
+            </div>
+
+            <div id="notifications-container" class="space-y-4">
+                <div class="text-center text-gray-500 py-8">
+                    <i class="fas fa-bell-slash text-4xl text-gray-300 mb-4"></i>
+                    <p>اضغط "تحديث" لتحميل الإشعارات</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Debug Console -->
+        <div class="card bg-gray-900 rounded-xl p-6 shadow-lg">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-white">
+                    <i class="fas fa-terminal text-green-400 mr-2"></i>
+                    وحدة التحكم المباشرة
+                </h3>
+                <div class="flex space-x-2 space-x-reverse">
+                    <button onclick="clearDebugLog()" class="bg-gray-700 text-white px-3 py-1 rounded text-sm hover:bg-gray-600">
+                        <i class="fas fa-trash mr-1"></i>مسح
+                    </button>
+                    <button onclick="exportLogs()" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-500">
+                        <i class="fas fa-download mr-1"></i>تصدير
+                    </button>
+                </div>
+            </div>
+            <div id="debug-log" class="bg-black rounded-lg p-4 text-green-400 font-mono text-sm max-h-64 overflow-y-auto">
+                <div class="debug-info">[INFO] مصحح الإشعارات جاهز...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let debugLog = [];
+        let systemStats = {
+            database: 'unknown',
+            users: 0,
+            notifications: 0,
+            apis: {}
+        };
+        
+        // تحديث الوقت
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('current-time').textContent = now.toLocaleString('ar-SA');
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // إضافة رسالة للسجل
+        function addToDebugLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString('ar-SA');
+            const logEntry = { message, type, timestamp };
+            debugLog.push(logEntry);
+            
+            if (debugLog.length > 100) {
+                debugLog = debugLog.slice(-100);
+            }
+            
+            const logElement = document.getElementById('debug-log');
+            const div = document.createElement('div');
+            div.className = `debug-${type}`;
+            div.textContent = `[${timestamp}] [${type.toUpperCase()}] ${message}`;
+            
+            logElement.appendChild(div);
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function clearDebugLog() {
+            debugLog = [];
+            document.getElementById('debug-log').innerHTML = '<div class="debug-info">[INFO] تم مسح السجل...</div>';
+        }
+
+        // فحص قاعدة البيانات
+        async function checkDatabase() {
+            addToDebugLog('فحص حالة قاعدة البيانات...', 'info');
+            const statusElement = document.getElementById('db-status');
+            
+            try {
+                // استخدام API التجريبي للفحص
+                const response = await fetch('/api/test-notifications');
+                const data = await response.json();
+                
+                if (data.success) {
+                    statusElement.innerHTML = '<span class="text-green-600">✅ متصلة</span>';
+                    systemStats.database = 'connected';
+                    addToDebugLog('قاعدة البيانات متصلة بنجاح', 'success');
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                statusElement.innerHTML = '<span class="text-red-600">❌ منقطعة</span>';
+                systemStats.database = 'disconnected';
+                addToDebugLog(`خطأ في قاعدة البيانات: ${error.message}`, 'error');
+            }
+        }
+
+        // فحص المستخدمين
+        async function checkUsers() {
+            addToDebugLog('فحص المستخدمين...', 'info');
+            const statusElement = document.getElementById('users-count');
+            
+            try {
+                const response = await fetch('/api/test-notifications');
+                const data = await response.json();
+                
+                if (data.success && data.data.testUser) {
+                    statusElement.innerHTML = `<span class="text-green-600">✅ ${data.data.testUser.name}</span>`;
+                    systemStats.users = 1;
+                    addToDebugLog(`تم العثور على مستخدم: ${data.data.testUser.name}`, 'success');
+                } else {
+                    throw new Error('لا يوجد مستخدمون');
+                }
+            } catch (error) {
+                statusElement.innerHTML = '<span class="text-red-600">❌ لا يوجد</span>';
+                systemStats.users = 0;
+                addToDebugLog(`خطأ في المستخدمين: ${error.message}`, 'error');
+            }
+        }
+
+        // اختبار API التجريبي
+        async function testTestAPI() {
+            const statusElement = document.getElementById('test-api-status');
+            const detailsElement = document.getElementById('test-api-details');
+            
+            statusElement.innerHTML = '<i class="fas fa-spinner loading mr-1"></i>جاري الاختبار';
+            statusElement.className = 'api-status status-loading';
+            addToDebugLog('اختبار API التجريبي...', 'info');
+            
+            try {
+                const response = await fetch('/api/test-notifications?limit=3');
+                const data = await response.json();
+                
+                if (data.success) {
+                    statusElement.innerHTML = '<i class="fas fa-check mr-1"></i>يعمل بشكل مثالي';
+                    statusElement.className = 'api-status status-success';
+                    
+                    detailsElement.innerHTML = `
+                        <div class="text-green-600"><i class="fas fa-check-circle mr-1"></i>متصل ويعمل</div>
+                        <div><strong>المستخدم:</strong> ${data.data.testUser.name}</div>
+                        <div><strong>الإشعارات:</strong> ${data.data.stats.total} (${data.data.stats.unread} جديدة)</div>
+                        <div class="text-xs text-green-600 mt-2">✅ هذا API يعمل دائماً للاختبار</div>
+                    `;
+                    
+                    systemStats.apis.test = 'working';
+                    systemStats.notifications = data.data.stats.total;
+                    document.getElementById('notifications-total').innerHTML = `<span class="text-green-600">✅ ${data.data.stats.total} إشعار</span>`;
+                    
+                    addToDebugLog(`API التجريبي يعمل - ${data.data.stats.total} إشعارات`, 'success');
+                } else {
+                    throw new Error(data.error || 'استجابة غير صحيحة');
+                }
+            } catch (error) {
+                statusElement.innerHTML = '<i class="fas fa-times mr-1"></i>خطأ';
+                statusElement.className = 'api-status status-error';
+                
+                detailsElement.innerHTML = `
+                    <div class="text-red-600"><i class="fas fa-exclamation-circle mr-1"></i>فشل الاتصال</div>
+                    <div class="text-sm text-gray-600">${error.message}</div>
+                    <div class="text-xs text-red-600 mt-2">⚠️ مشكلة في الخادم أو قاعدة البيانات</div>
+                `;
+                
+                systemStats.apis.test = 'failed';
+                addToDebugLog(`خطأ في API التجريبي: ${error.message}`, 'error');
+            }
+        }
+
+        // اختبار API الشامل
+        async function testUniversalAPI() {
+            const statusElement = document.getElementById('universal-api-status');
+            const detailsElement = document.getElementById('universal-api-details');
+            
+            statusElement.innerHTML = '<i class="fas fa-spinner loading mr-1"></i>جاري الاختبار';
+            statusElement.className = 'api-status status-loading';
+            addToDebugLog('اختبار API الشامل...', 'info');
+            
+            try {
+                const response = await fetch('/api/notifications-universal?limit=3');
+                const data = await response.json();
+                
+                if (data.success) {
+                    statusElement.innerHTML = '<i class="fas fa-check mr-1"></i>يعمل';
+                    statusElement.className = 'api-status status-success';
+                    
+                    detailsElement.innerHTML = `
+                        <div class="text-green-600"><i class="fas fa-check-circle mr-1"></i>متصل بنجاح</div>
+                        <div><strong>المستخدم:</strong> ${data.data.user.name}</div>
+                        <div><strong>طريقة المصادقة:</strong> ${data.data.user.authMethod}</div>
+                        <div><strong>الإشعارات:</strong> ${data.data.stats.total} (${data.data.stats.unread} جديدة)</div>
+                        <div><strong>الأداء:</strong> ${data.data.performance.responseTime}ms</div>
+                    `;
+                    
+                    systemStats.apis.universal = 'working';
+                    addToDebugLog(`API الشامل يعمل بطريقة: ${data.data.user.authMethod}`, 'success');
+                } else {
+                    throw new Error(data.error || 'استجابة غير صحيحة');
+                }
+            } catch (error) {
+                statusElement.innerHTML = '<i class="fas fa-times mr-1"></i>خطأ';
+                statusElement.className = 'api-status status-error';
+                
+                detailsElement.innerHTML = `
+                    <div class="text-red-600"><i class="fas fa-exclamation-circle mr-1"></i>فشل الاتصال</div>
+                    <div class="text-sm text-gray-600">${error.message}</div>
+                    <div class="text-xs text-orange-600 mt-2">💡 قد تكون هناك مشكلة في المصادقة</div>
+                `;
+                
+                systemStats.apis.universal = 'failed';
+                addToDebugLog(`خطأ في API الشامل: ${error.message}`, 'error');
+            }
+        }
+
+        // اختبار API الحقيقي
+        async function testRealAPI() {
+            const statusElement = document.getElementById('real-api-status');
+            const detailsElement = document.getElementById('real-api-details');
+            
+            statusElement.innerHTML = '<i class="fas fa-spinner loading mr-1"></i>جاري الاختبار';
+            statusElement.className = 'api-status status-loading';
+            addToDebugLog('اختبار API الحقيقي...', 'info');
+            
+            try {
+                const response = await fetch('/api/notifications?limit=3');
+                const data = await response.json();
+                
+                if (response.status === 401) {
+                    throw new Error('غير مصرح - يحتاج تسجيل دخول');
+                }
+                
+                if (data.success) {
+                    statusElement.innerHTML = '<i class="fas fa-check mr-1"></i>يعمل';
+                    statusElement.className = 'api-status status-success';
+                    
+                    detailsElement.innerHTML = `
+                        <div class="text-green-600"><i class="fas fa-check-circle mr-1"></i>متصل بنجاح</div>
+                        <div><strong>المستخدم:</strong> ${data.data.user.name}</div>
+                        <div><strong>الإشعارات:</strong> ${data.data.stats.total} (${data.data.stats.unread} جديدة)</div>
+                        <div><strong>الأداء:</strong> ${data.data.performance.responseTime}ms</div>
+                    `;
+                    
+                    systemStats.apis.real = 'working';
+                    addToDebugLog('API الحقيقي يعمل بشكل مثالي', 'success');
+                } else {
+                    throw new Error(data.error || 'استجابة غير صحيحة');
+                }
+            } catch (error) {
+                statusElement.innerHTML = '<i class="fas fa-times mr-1"></i>يحتاج مصادقة';
+                statusElement.className = 'api-status status-error';
+                
+                detailsElement.innerHTML = `
+                    <div class="text-orange-600"><i class="fas fa-exclamation-triangle mr-1"></i>غير مصرح</div>
+                    <div class="text-sm text-gray-600">${error.message}</div>
+                    <div class="text-xs text-blue-600 mt-2">💡 تحتاج تسجيل دخول في التطبيق الرئيسي</div>
+                `;
+                
+                systemStats.apis.real = 'needs-auth';
+                addToDebugLog(`API الحقيقي: ${error.message}`, 'warning');
+            }
+        }
+
+        // تحميل الإشعارات
+        async function loadNotifications() {
+            const apiSelector = document.getElementById('api-selector');
+            const limitSelector = document.getElementById('limit-selector');
+            const container = document.getElementById('notifications-container');
+            const countElement = document.getElementById('notifications-count');
+            
+            const apiEndpoints = {
+                'real': '/api/notifications',
+                'universal': '/api/notifications-universal',
+                'test': '/api/test-notifications'
+            };
+            
+            const selectedAPI = apiSelector.value;
+            const limit = limitSelector.value;
+            const endpoint = apiEndpoints[selectedAPI];
+            
+            container.innerHTML = '<div class="text-center py-8"><i class="fas fa-spinner loading text-2xl text-blue-500"></i><p class="mt-2 text-gray-600">جاري تحميل الإشعارات...</p></div>';
+            
+            addToDebugLog(`تحميل ${limit} إشعارات من ${selectedAPI} API...`, 'info');
+            
+            try {
+                const response = await fetch(`${endpoint}?limit=${limit}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const notifications = data.data.notifications || [];
+                    countElement.textContent = notifications.length;
+                    
+                    if (notifications.length === 0) {
+                        container.innerHTML = `
+                            <div class="text-center py-12">
+                                <i class="fas fa-bell-slash text-4xl text-gray-300 mb-4"></i>
+                                <h3 class="text-lg font-semibold text-gray-700 mb-2">لا توجد إشعارات</h3>
+                                <p class="text-gray-500">لا توجد إشعارات لعرضها من هذا API</p>
+                            </div>
+                        `;
+                    } else {
+                        container.innerHTML = notifications.map((notif, index) => {
+                            const isUnread = !notif.read_at;
+                            const timeAgo = notif.timeAgo || getTimeAgo(notif.created_at);
+                            const icon = getTypeIcon(notif.type);
+                            
+                            return `
+                                <div class="notification-item ${isUnread ? 'notification-unread' : 'notification-read'} p-4 rounded-lg">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex items-start space-x-3 space-x-reverse">
+                                            <div class="text-2xl">${icon}</div>
+                                            <div class="flex-1">
+                                                <div class="flex items-center space-x-2 space-x-reverse mb-1">
+                                                    <h4 class="font-semibold text-gray-800 text-sm">${notif.title}</h4>
+                                                    <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">${notif.type}</span>
+                                                </div>
+                                                <p class="text-gray-600 text-sm mb-2">${notif.message}</p>
+                                                <div class="flex items-center space-x-4 space-x-reverse text-xs text-gray-500">
+                                                    <span><i class="fas fa-clock mr-1"></i>${timeAgo}</span>
+                                                    <span><i class="fas fa-flag mr-1"></i>${notif.priority}</span>
+                                                    ${isUnread ? '<span class="text-green-600"><i class="fas fa-circle mr-1"></i>جديد</span>' : '<span class="text-gray-400"><i class="fas fa-check mr-1"></i>مقروء</span>'}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center space-x-2 space-x-reverse">
+                                            <div class="text-xs text-gray-400">#${index + 1}</div>
+                                            <div class="flex items-center space-x-1 space-x-reverse">
+                                                ${isUnread ? `<button onclick="markNotificationAsRead('${notif.id}')" class="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600" title="تحديد كمقروء">
+                                                    <i class="fas fa-check text-xs"></i>
+                                                </button>` : ''}
+                                                <button onclick="deleteNotificationPermanently('${notif.id}', '${notif.title.replace(/'/g, "\\'")}', ${index + 1})" class="text-xs bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600" title="حذف نهائياً">
+                                                    <i class="fas fa-trash text-xs"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    }
+                    
+                    addToDebugLog(`تم تحميل ${notifications.length} إشعارات بنجاح`, 'success');
+                } else {
+                    throw new Error(data.error || 'فشل في تحميل الإشعارات');
+                }
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="text-center py-12">
+                        <i class="fas fa-exclamation-triangle text-4xl text-red-400 mb-4"></i>
+                        <h3 class="text-lg font-semibold text-red-700 mb-2">خطأ في التحميل</h3>
+                        <p class="text-red-600 text-sm">${error.message}</p>
+                        <button onclick="loadNotifications()" class="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 text-sm">
+                            <i class="fas fa-retry mr-2"></i>إعادة المحاولة
+                        </button>
+                    </div>
+                `;
+                addToDebugLog(`خطأ في تحميل الإشعارات: ${error.message}`, 'error');
+            }
+        }
+
+        // إنشاء إشعار تجريبي
+        async function createTestNotification() {
+            addToDebugLog('إنشاء إشعار تجريبي...', 'info');
+            
+            try {
+                const response = await fetch('/api/test-notifications', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        source: 'admin-debugger',
+                        timestamp: new Date().toISOString()
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    addToDebugLog('تم إنشاء إشعار تجريبي بنجاح', 'success');
+                    // تحديث الإشعارات إذا كان API التجريبي مختار
+                    if (document.getElementById('api-selector').value === 'test') {
+                        await loadNotifications();
+                    }
+                } else {
+                    throw new Error(data.error || 'فشل في إنشاء الإشعار');
+                }
+            } catch (error) {
+                addToDebugLog(`خطأ في إنشاء الإشعار: ${error.message}`, 'error');
+            }
+        }
+
+        // تنظيف الإشعارات المكسورة
+        async function cleanupBrokenNotifications() {
+            addToDebugLog('بدء تنظيف الإشعارات المكسورة...', 'warning');
+            
+            try {
+                const response = await fetch('/api/test-notifications/cleanup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    addToDebugLog(`تم حذف ${data.data.cleanup.deleted} إشعارات مكسورة`, 'success');
+                    
+                    // إظهار تفاصيل الإشعارات المحذوفة
+                    data.data.broken_details.forEach((notif, index) => {
+                        addToDebugLog(`${index + 1}. ${notif.title} - ${notif.reason}`, 'warning');
+                    });
+                    
+                    // تحديث الإحصائيات
+                    document.getElementById('notifications-total').innerHTML = 
+                        `<span class="text-green-600">✅ ${data.data.stats_after.total} إشعار (منظف)</span>`;
+                    
+                    // تحديث الإشعارات إذا كانت محملة
+                    if (document.getElementById('api-selector').value === 'test') {
+                        await loadNotifications();
+                    }
+                } else {
+                    throw new Error(data.error || 'فشل في التنظيف');
+                }
+            } catch (error) {
+                addToDebugLog(`خطأ في التنظيف: ${error.message}`, 'error');
+            }
+        }
+
+        // تحديث جميع الفحوصات
+        async function refreshAll() {
+            addToDebugLog('تحديث شامل لجميع الفحوصات...', 'info');
+            await Promise.all([
+                checkDatabase(),
+                checkUsers(),
+                testTestAPI(),
+                testUniversalAPI(),
+                testRealAPI()
+            ]);
+            addToDebugLog('تم الانتهاء من التحديث الشامل', 'success');
+        }
+
+        // تصدير السجلات
+        function exportLogs() {
+            const data = {
+                timestamp: new Date().toISOString(),
+                systemStats: systemStats,
+                debugLog: debugLog,
+                userAgent: navigator.userAgent,
+                url: window.location.href
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], {
+                type: 'application/json'
+            });
+            
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `notifications-debug-${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            addToDebugLog('تم تصدير ملف السجلات', 'success');
+        }
+
+        // تحديد إشعار كمقروء
+        async function markNotificationAsRead(notificationId) {
+            addToDebugLog(`تحديد الإشعار ${notificationId} كمقروء...`, 'info');
+            
+            try {
+                const response = await fetch('/api/test-notifications/mark-read-single', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        notificationId: notificationId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    addToDebugLog(`تم تحديد الإشعار كمقروء بنجاح`, 'success');
+                    // إعادة تحميل الإشعارات
+                    await loadNotifications();
+                } else {
+                    throw new Error(data.error || 'فشل في تحديد الإشعار');
+                }
+            } catch (error) {
+                addToDebugLog(`خطأ في تحديد الإشعار: ${error.message}`, 'error');
+            }
+        }
+
+        // حذف إشعار نهائياً
+        async function deleteNotificationPermanently(notificationId, title, index) {
+            if (!confirm(`هل أنت متأكد من حذف الإشعار "${title}" نهائياً؟\n\nهذا الإجراء لا يمكن التراجع عنه!`)) {
+                return;
+            }
+            
+            addToDebugLog(`حذف الإشعار #${index} (${notificationId}) نهائياً...`, 'warning');
+            
+            try {
+                const response = await fetch('/api/test-notifications/delete-single', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        notificationId: notificationId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    addToDebugLog(`✅ تم حذف الإشعار "${title}" نهائياً`, 'success');
+                    addToDebugLog(`متبقي: ${data.data.totalRemaining} إشعار (${data.data.remainingUnread} غير مقروء)`, 'info');
+                    
+                    // إعادة تحميل الإشعارات
+                    await loadNotifications();
+                    
+                    // تحديث الإحصائيات في الهيدر إن وُجدت
+                    document.getElementById('notifications-total').innerHTML = 
+                        `<span class="text-green-600">✅ ${data.data.totalRemaining} إشعار</span>`;
+                        
+                } else {
+                    throw new Error(data.error || 'فشل في حذف الإشعار');
+                }
+            } catch (error) {
+                addToDebugLog(`❌ خطأ في حذف الإشعار: ${error.message}`, 'error');
+            }
+        }
+
+        // وظائف مساعدة
+        function getTimeAgo(dateStr) {
+            const now = new Date();
+            const date = new Date(dateStr);
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            
+            if (diffMins < 1) return 'الآن';
+            if (diffMins < 60) return `منذ ${diffMins} دقيقة`;
+            if (diffMins < 1440) return `منذ ${Math.floor(diffMins / 60)} ساعة`;
+            return `منذ ${Math.floor(diffMins / 1440)} يوم`;
+        }
+
+        function getTypeIcon(type) {
+            const icons = {
+                'breaking_news': '⚡',
+                'article_recommendation': '📰',
+                'user_engagement': '👥',
+                'system_alert': '🔔',
+                'ai_insight': '🤖',
+                'daily_digest': '📊',
+                'comment_reply': '💬',
+                'author_follow': '⭐'
+            };
+            return icons[type] || '🔔';
+        }
+
+        // تشغيل الفحوصات الأولية
+        window.addEventListener('load', async function() {
+            addToDebugLog('تشغيل المصحح...', 'info');
+            
+            // فحوصات أساسية أولاً
+            await checkDatabase();
+            await checkUsers();
+            
+            // ثم فحص APIs
+            await testTestAPI();
+            
+            // تحميل الإشعارات من API التجريبي افتراضياً
+            document.getElementById('api-selector').value = 'test';
+            await loadNotifications();
+            
+            addToDebugLog('المصحح جاهز للاستخدام', 'success');
+        });
+    </script>
+</body>
+</html>

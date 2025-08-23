@@ -69,14 +69,13 @@ export class SmartNotificationEngine {
   }
 
   /**
-   * إشعار عند نشر مقال جديد في تصنيف يهتم به المستخدم
+   * إرسال إشعار للمستخدمين المهتمين بمقال جديد في تصنيف معين
    */
   static async notifyNewArticleInCategory(articleId: string, categoryId: string): Promise<void> {
     try {
-      console.log('📰 معالجة إشعارات مقال جديد في التصنيف:', categoryId);
-      console.log('🔍 معرف المقال:', articleId);
+      console.log(`� إرسال إشعارات للمقال الجديد: ${articleId} في التصنيف: ${categoryId}`);
 
-      // جلب المقال
+      // التحقق أولاً من أن المقال ما زال موجوداً وصالحاً
       const article = await prisma.articles.findUnique({
         where: { id: articleId },
         include: {
@@ -86,7 +85,22 @@ export class SmartNotificationEngine {
         }
       });
 
-      if (!article) return;
+      if (!article) {
+        console.log('⚠️ المقال غير موجود، إلغاء إرسال الإشعارات');
+        return;
+      }
+
+      // التحقق من أن المقال منشور وليس محذوفاً
+      if (article.status !== 'published') {
+        console.log(`⚠️ المقال غير منشور (${article.status})، إلغاء إرسال الإشعارات`);
+        return;
+      }
+
+      // التحقق من أن المقال لديه slug صحيح
+      if (!article.slug) {
+        console.log('⚠️ المقال بدون slug، إلغاء إرسال الإشعارات');
+        return;
+      }
 
       // العثور على المستخدمين المهتمين بهذا التصنيف
       let interestedUsers = await this.findUsersInterestedInCategory(categoryId);

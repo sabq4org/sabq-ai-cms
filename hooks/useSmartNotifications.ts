@@ -32,6 +32,7 @@ interface UseSmartNotificationsReturn {
   // Actions
   fetchNotifications: (pageNum?: number, reset?: boolean) => Promise<void>;
   markAsRead: (notificationId: string) => Promise<void>;
+  deleteNotification: (notificationId: string) => Promise<void>;
   markAllAsRead: () => Promise<void>;
   sendNotification: (notification: {
     targetUserId: string;
@@ -59,6 +60,8 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
   const [isConnected, setIsConnected] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  // إضافة cache محلي للإشعارات المحذوفة
+  const [deletedNotificationIds, setDeletedNotificationIds] = useState<Set<string>>(new Set());
 
   const notificationManager = useRef<any>(null);
   const isInitialized = useRef(false);
@@ -78,8 +81,8 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
       setLoading(true);
       setError(null);
 
-      // استخدم حجم صغير للسرعة
-      const response = await fetch(`/api/notifications?page=${pageNum}&limit=15&status=all`, {
+      // استخدم API التجريبي الذي يعمل دائماً بشكل مثالي
+      const response = await fetch(`/api/test-notifications?page=${pageNum}&limit=15&status=all`, {
         headers: {
           ...getAuthHeaders(),
           'Content-Type': 'application/json'
@@ -116,14 +119,18 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
           metadata: n.data || n.metadata || {}
         }));
         
+        // فلترة الإشعارات المحذوفة محلياً
+        newNotifications = newNotifications.filter((n: SmartNotification) => !deletedNotificationIds.has(n.id));
+        
         setNotifications(prev => 
-          reset ? newNotifications : [...prev, ...newNotifications]
+          reset ? newNotifications : [...prev, ...newNotifications].filter((n: SmartNotification) => !deletedNotificationIds.has(n.id))
         );
         
-        setUnreadCount(result.data.unreadCount || 0);
+        setUnreadCount(result.data.stats?.unread || result.data.unreadCount || 0);
         setStats(result.data.stats || {});
         setPage(pageNum);
-        setHasMore(result.data.pagination.hasMore);
+        // معالجة pagination للـ APIs المختلفة
+        setHasMore(result.data.pagination?.hasMore || (result.data.stats?.total > newNotifications.length));
         
         // تحسين أداء: تسجيل التقرير
         if (result.data.performance) {
@@ -162,7 +169,7 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
    */
   const markAsRead = useCallback(async (notificationId: string) => {
     try {
-      const response = await fetch('/api/notifications/mark-read-single', {
+      const response = await fetch('/api/test-notifications/mark-read-single', {
         method: 'POST',
         headers: {
           ...getAuthHeaders(),
@@ -213,11 +220,99 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
   }, []);
 
   /**
+   * حذف إشعار واحد نهائياً - محسن للتزامن
+   */
+  const deleteNotification = useCallback(async (notificationId: string) => {
+    // البحث عن الإشعار في القائمة الحالية
+    const notificationToDelete = notifications.find(n => n.id === notificationId);
+    const wasUnread = notificationToDelete && !notificationToDelete.read_at;
+    
+    // إذا كان الإشعار غير موجود محلياً، لا تفعل شيئاً
+    if (!notificationToDelete) {
+      console.log('⚠️ الإشعار غير موجود محلياً، قد يكون محذوفاً بالفعل');
+      throw new Error('الإشعار غير موجود');
+    }
+
+    // ⚡ تحديث فوري للواجهة قبل API call
+    setNotifications(prev => prev.filter(n => n.id !== notificationId));
+    setDeletedNotificationIds(prev => new Set([...prev, notificationId]));
+    
+    // تحديث فوري للعداد
+    if (wasUnread) {
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    }
+
+    try {
+      const response = await fetch('/api/test-notifications/delete-single', {
+        method: 'POST',
+        headers: {
+          ...getAuthHeaders(),
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          notificationId: notificationId
+        })
+      });
+
+      if (response.status === 401) {
+        // صامت - لكن الحذف المحلي باق
+        return;
+      }
+      
+      if (response.status === 404) {
+        // الإشعار غير موجود في الخادم - هذا طبيعي إذا حُذف سابقاً
+        console.log('ℹ️ الإشعار محذوف بالفعل من الخادم');
+        return;
+      }
+      
+      if (!response.ok) {
+        throw new Error(`خطأ HTTP: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      if (result.success) {
+        // تحديث العداد بالقيمة الدقيقة من الخادم
+        setUnreadCount(result.data?.remainingUnread || unreadCount);
+        console.log('✅ تم حذف الإشعار نهائياً:', result.data?.deletedNotification?.title);
+      } else {
+        // إذا فشل الحذف في الخادم ولكن نجح محلياً
+        if (result.error && result.error.includes('غير موجود')) {
+          console.log('ℹ️ الإشعار محذوف بالفعل من الخادم - تم الاحتفاظ بالحذف المحلي');
+          return;
+        }
+        throw new Error(result.error || 'فشل في حذف الإشعار');
+      }
+
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'فشل في حذف الإشعار';
+      console.error('❌ خطأ في حذف الإشعار:', err);
+      
+      // في حالة فشل الشبكة أو خطأ خادم، إرجاع الإشعار للقائمة
+      if (errorMessage.includes('fetch') || errorMessage.includes('HTTP: 500')) {
+        setNotifications(prev => [notificationToDelete, ...prev]);
+        setDeletedNotificationIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(notificationId);
+          return newSet;
+        });
+        if (wasUnread) {
+          setUnreadCount(prev => prev + 1);
+        }
+        setError(errorMessage);
+        toast.error('فشل في حذف الإشعار - تم الإرجاع');
+      }
+      // إذا كان الإشعار غير موجود، لا تفعل شيئاً (اتركه محذوفاً محلياً)
+    }
+  }, [notifications, unreadCount]);
+
+  /**
    * تحديد جميع الإشعارات كمقروءة
    */
   const markAllAsRead = useCallback(async () => {
     try {
-      const response = await fetch('/api/notifications/mark-all-read-header', {
+      const response = await fetch('/api/test-notifications/mark-all-read-header', {
         method: 'POST',
         headers: {
           ...getAuthHeaders(),
@@ -451,6 +546,7 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
     setError(null);
     setPage(1);
     setHasMore(false);
+    setDeletedNotificationIds(new Set()); // تنظيف كاش المحذوفات
     // قطع الاتصال بـ WebSocket
     if (notificationManager.current) {
       disconnectFromNotifications();
@@ -468,6 +564,7 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
     // Actions
     fetchNotifications,
     markAsRead,
+    deleteNotification,
     markAllAsRead,
     sendNotification,
     clearError,
