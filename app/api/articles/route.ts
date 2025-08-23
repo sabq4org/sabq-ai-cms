@@ -709,6 +709,15 @@ export async function POST(request: NextRequest) {
           SmartNotificationEngine.notifyNewArticleInCategory(article.id, article.category_id!)
             .then(() => {
               console.log('✅ تم إرسال إشعارات المقال الجديد بنجاح');
+              try {
+                // إعادة تحقق للخبرات على الواجهة (/news) فورًا
+                const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+                fetch(`${siteUrl}/api/revalidate`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ path: '/news', tag: 'news-list' })
+                }).catch(() => {});
+              } catch {}
             })
             .catch((error) => {
               console.error('❌ خطأ في إرسال إشعارات المقال الجديد:', error);

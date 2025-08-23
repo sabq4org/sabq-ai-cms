@@ -271,8 +271,7 @@ export default function NewsPage() {
         try {
           const response = await fetch(`/api/news?${params}`, {
             signal: controller.signal,
-            cache: "force-cache",
-            next: { revalidate: 60 },
+            cache: "no-store",
           });
           clearTimeout(timeoutId);
 
