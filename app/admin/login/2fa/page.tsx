@@ -12,6 +12,7 @@ export default function TwoFactorLogin() {
   
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
+  const [useBackupCode, setUseBackupCode] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,39 +81,45 @@ export default function TwoFactorLogin() {
               المصادقة الثنائية
             </h1>
             <p className="text-gray-600 mt-2">
-              أدخل رمز التحقق من تطبيق المصادقة
+              {useBackupCode ? "أدخل أحد الرموز الاحتياطية" : "أدخل رمز التحقق من تطبيق المصادقة"}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium mb-2 text-gray-700">
-                رمز التحقق
+                {useBackupCode ? "الرمز الاحتياطي" : "رمز التحقق"}
               </label>
               <input
                 type="text"
-                inputMode="numeric"
-                pattern="[0-9A-Z]{6,8}"
-                maxLength={8}
+                inputMode={useBackupCode ? "text" : "numeric"}
+                pattern={useBackupCode ? "[0-9A-Z]{8}" : "[0-9]{6}"}
+                maxLength={useBackupCode ? 8 : 6}
                 className="w-full text-center text-2xl font-mono border-2 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="000000"
+                placeholder={useBackupCode ? "ABCD1234" : "000000"}
                 value={code}
-                onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^0-9A-Z]/g, ''))}
+                onChange={(e) => {
+                  const val = e.target.value.toUpperCase();
+                  if (useBackupCode) {
+                    setCode(val.replace(/[^0-9A-Z]/g, ''));
+                  } else {
+                    setCode(val.replace(/[^0-9]/g, ''));
+                  }
+                }}
                 required
                 autoFocus
               />
               <p className="text-xs text-gray-500 mt-2 text-center">
-                الرمز مكون من 6 أرقام من تطبيق المصادقة
-              </p>
-              <p className="text-xs text-gray-500 mt-1 text-center">
-                أو استخدم أحد الرموز الاحتياطية المكونة من 8 أحرف
+                {useBackupCode 
+                  ? "الرمز الاحتياطي مكون من 8 أحرف وأرقام" 
+                  : "الرمز مكون من 6 أرقام من تطبيق المصادقة"}
               </p>
             </div>
             
             <button
               type="submit"
               className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium py-3 rounded-lg transition-all duration-200 disabled:opacity-60"
-              disabled={loading || (code.length !== 6 && code.length !== 8)}
+              disabled={loading || (useBackupCode ? code.length !== 8 : code.length !== 6)}
             >
               {loading ? (
                 <div className="flex items-center gap-2 justify-center">
@@ -124,13 +131,28 @@ export default function TwoFactorLogin() {
               )}
             </button>
 
-            <div className="text-center space-y-2">
-              <a
-                href="/admin/login"
-                className="text-sm text-blue-600 hover:text-blue-700"
+            <div className="text-center space-y-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setUseBackupCode(!useBackupCode);
+                  setCode("");
+                }}
+                className="text-sm text-blue-600 hover:text-blue-700 underline"
               >
-                العودة لتسجيل الدخول
-              </a>
+                {useBackupCode 
+                  ? "استخدام رمز من تطبيق المصادقة" 
+                  : "استخدام رمز احتياطي بدلاً من ذلك"}
+              </button>
+              
+              <div>
+                <a
+                  href="/admin/login"
+                  className="text-sm text-gray-600 hover:text-gray-700"
+                >
+                  العودة لتسجيل الدخول
+                </a>
+              </div>
             </div>
           </form>
         </div>
