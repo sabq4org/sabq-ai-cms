@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import { useAuth } from '@/hooks/useAuth';
@@ -314,9 +315,9 @@ export default function DashboardFooter({ userId, onInteraction }: DashboardFoot
             {recommendations.length > 0 ? (
               <div className="grid gap-3">
                 {recommendations.map((rec: any) => (
-                  <a
+                  <Link
                     key={rec.article.id}
-                    href={`/news/${rec.article.id}`}
+                    href={`/article/${rec.article.id}`}
                     onClick={() => onInteraction?.('recommendation_click', { articleId: rec.article.id })}
                     className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
                   >
@@ -341,7 +342,7 @@ export default function DashboardFooter({ userId, onInteraction }: DashboardFoot
                       </div>
                       <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0" />
                     </div>
-                  </a>
+                  </Link>
                 ))}
               </div>
             ) : (

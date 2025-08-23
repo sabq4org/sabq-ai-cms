@@ -6,6 +6,7 @@ import {
   type RecommendedArticle,
 } from "@/lib/ai-recommendations";
 import { formatNumber } from "@/lib/config/localization";
+import { getArticleLink } from "@/lib/utils";
 import { Brain, Clock, Eye, Sparkles, Star } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
@@ -156,7 +157,7 @@ const SmartRecommendationCard: React.FC<{
   }, []);
 
   return (
-    <Link href={article.url} className="group block">
+    <Link href={getArticleLink(article)} className="group block">
       <div
         className={`relative ${isMobileScreen ? "h-32" : "h-full"} flex ${
           isMobileScreen ? "flex-row" : "flex-col"
