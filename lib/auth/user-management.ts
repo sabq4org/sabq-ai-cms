@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import { randomBytes } from 'crypto';
 import { z } from 'zod';
 import { AccountLockoutService } from '@/lib/account-lockout';
+import { TwoFactorAuthService } from '@/lib/two-factor-auth';
 
 const prisma = new PrismaClient();
 
@@ -324,6 +325,23 @@ export class UserManagementService {
       
       // مسح المحاولات الفاشلة بعد تسجيل دخول ناجح
       await AccountLockoutService.clearFailedAttempts(validatedData.email);
+      
+      // التحقق من 2FA إذا كان مفعلاً
+      if (user.two_factor_enabled) {
+        // إنشاء رمز مؤقت للمرحلة الثانية
+        const tempToken = SecurityManager.createJWTToken({
+          user_id: user.id,
+          temp_2fa: true,
+          expires_at: Date.now() + 5 * 60 * 1000 // 5 دقائق
+        }, '5m');
+        
+        return {
+          success: true,
+          requires2FA: true,
+          tempToken,
+          message: 'يرجى إدخال رمز التحقق من تطبيق المصادقة'
+        };
+      }
 
       // تحديث آخر تسجيل دخول
       await prisma.users.update({
@@ -387,6 +405,69 @@ export class UserManagementService {
       return {
         success: false,
         error: error.message || 'خطأ في تسجيل الدخول'
+      };
+    }
+  }
+
+  /**
+   * إنشاء رموز الجلسة (منفصلة للاستخدام مع 2FA)
+   */
+  static async createSessionTokens(
+    user: any,
+    options: { remember_me?: boolean } = {}
+  ): Promise<AuthResult> {
+    try {
+      const accessTtl = options.remember_me ? '30d' : '7d';
+      const accessToken = SecurityManager.createJWTToken({
+        user_id: user.id,
+        email: user.email,
+        role: user.role
+      }, accessTtl);
+
+      const refreshToken = SecurityManager.createJWTToken({
+        user_id: user.id,
+        type: 'refresh'
+      }, REFRESH_TOKEN_EXPIRES_IN);
+
+      // حفظ refresh token
+      await prisma.refreshToken.create({
+        data: {
+          id: SecurityManager.generateSecureToken(16),
+          userId: user.id,
+          tokenHash: await SecurityManager.hashPassword(refreshToken),
+          userAgent: 'unknown',
+          ipAddress: 'unknown',
+          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+        }
+      });
+
+      // إنشاء جلسة المستخدم
+      await prisma.userSessions.create({
+        data: {
+          id: SecurityManager.generateSecureToken(16),
+          user_id: user.id,
+          session_token: await SecurityManager.hashPassword(accessToken),
+          ip_address: 'unknown',
+          user_agent: 'unknown',
+          device_type: 'desktop',
+          location: {},
+          last_activity_at: new Date(),
+          is_active: true
+        }
+      });
+
+      return {
+        success: true,
+        user: user as User,
+        access_token: accessToken,
+        refresh_token: refreshToken,
+        message: 'تم تسجيل الدخول بنجاح'
+      };
+    } catch (error: any) {
+      console.error('Create session error:', error);
+      return {
+        success: false,
+        error: error.message || 'خطأ في إنشاء الجلسة'
       };
     }
   }

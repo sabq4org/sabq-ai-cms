@@ -2,6 +2,7 @@
 
 import Cookies from "js-cookie";
 import { jwtDecode, JwtPayload } from "jwt-decode";
+import { SecureStorage, initializeSecureStorage } from "@/lib/secure-storage";
 import {
   createContext,
   ReactNode,
@@ -142,6 +143,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (didInitRef.current) return;
     didInitRef.current = true;
+    
+    // ترحيل البيانات من localStorage إلى تخزين آمن
+    initializeSecureStorage();
+    
     loadUserFromCookie();
     // تجديد صامت دوري + إعادة تحقق عند التركيز والاتصال
     let refreshInterval: any;

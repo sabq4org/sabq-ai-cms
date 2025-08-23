@@ -165,14 +165,7 @@ export default function AdminLogin() {
               <a href="#" className="text-blue-600 hover:text-blue-800 transition-colors">تواصل مع فريق الدعم التقني</a>
             </div>
             
-            {/* معلومات الاختبار */}
-            <div className="mt-4 p-3 bg-gray-100 rounded-lg text-center">
-              <p className="text-xs text-gray-600 font-medium mb-2">بيانات الاختبار:</p>
-              <div className="text-xs text-gray-500">
-                <div>البريد: admin@sabq.io</div>
-                <div>كلمة المرور: admin123</div>
-              </div>
-            </div>
+
           </div>
         </div>
       </div>

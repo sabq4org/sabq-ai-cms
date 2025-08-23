@@ -876,6 +876,7 @@ model users {
   preferred_language       String                    @default("ar")
   profile_completed        Boolean                   @default(false)
   status                   String                    @default("active")
+  two_factor_enabled       Boolean                   @default(false)
   LoyaltyTransactions      LoyaltyTransactions[]
   ml_predictions           MLPredictions[]
   search_queries           SearchQueries[]
@@ -892,6 +893,7 @@ model users {
   authored_articles        articles[]                @relation("ArticleAuthor")
   audio_episodes           audio_episodes[]
   audio_programs           audio_programs[]
+  two_factor_auth          two_factor_auth?
   created_doses            daily_doses[]             @relation("DoseCreator")
   user_doses               daily_doses[]             @relation("UserDoses")
   interactions             interactions[]
@@ -2311,4 +2313,26 @@ model account_lockouts {
   updated_at   DateTime?
 
   @@index([locked_until])
+}
+
+model two_factor_auth {
+  id           String    @id @default(dbgenerated("gen_random_uuid()"))
+  user_id      String    @unique
+  secret       String
+  backup_codes Json
+  is_enabled   Boolean   @default(true)
+  verified_at  DateTime?
+  last_used_at DateTime?
+  created_at   DateTime  @default(now())
+  updated_at   DateTime?
+
+  user users @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model two_factor_temp {
+  id           String   @id @default(dbgenerated("gen_random_uuid()"))
+  user_id      String   @unique
+  secret       String
+  backup_codes Json
+  created_at   DateTime @default(now())
 }
