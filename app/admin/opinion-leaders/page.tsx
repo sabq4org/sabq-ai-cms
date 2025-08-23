@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
 import { Star, Check, X, Crown, Calendar, Eye, Clock, User, Bookmark, AlertCircle, Search, Filter } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
