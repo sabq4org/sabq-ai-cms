@@ -45,10 +45,10 @@ export default function SmartBlockRenderer({
   const style = getBlockStyle(block.type);
 
   // التصميم الافتراضي الموحد مع دعم الألوان المخصصة
+  // ضمان الخلفية البيضاء كديفولت
   const customStyle = block.theme
     ? {
-        backgroundColor:
-          block.theme.backgroundColor || (darkMode ? "#1f2937" : "#ffffff"),
+        backgroundColor: "#ffffff", // خلفية بيضاء ثابتة كديفولت
         color: block.theme.textColor || (darkMode ? "#f3f4f6" : "#1f2937"),
         borderColor: block.theme.primaryColor
           ? `${block.theme.primaryColor}20`
@@ -56,7 +56,9 @@ export default function SmartBlockRenderer({
           ? "#4b5563"
           : "#e5e7eb",
       }
-    : {};
+    : {
+        backgroundColor: "#ffffff", // خلفية بيضاء ثابتة كديفولت حتى بدون ثيم
+      };
 
   // معالجة البلوكات المخصصة
   if (block.type === "custom") {
@@ -80,11 +82,7 @@ export default function SmartBlockRenderer({
   return (
     <div
       className={`rounded-3xl p-6 shadow-xl dark:shadow-gray-900/50 border transition-all duration-300 hover:shadow-2xl ${
-        !block.theme
-          ? darkMode
-            ? "bg-gray-800 border-gray-700"
-            : "bg-white border-gray-200"
-          : ""
+        darkMode ? "border-gray-700" : "border-gray-200"
       }`}
       style={customStyle}
     >
