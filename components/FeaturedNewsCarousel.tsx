@@ -98,24 +98,18 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
     return article.slug ? `/news/${article.slug}` : `/news/${article.id}`;
   };
 
-  // إذا لا توجد أخبار، لا نعرض شيئاً
-  if (!articles.length) {
-    return null;
-  }
+  // وظيفة للتحقق من الأخبار الجديدة (آخر ساعتين)
+  const isRecentNews = (publishedAt: string) => {
+    try {
+      const publishedDate = new Date(publishedAt);
+      const currentDate = new Date();
+      const diffInMinutes = (currentDate.getTime() - publishedDate.getTime()) / (1000 * 60);
+      return diffInMinutes <= 120.1; // أقل من أو يساوي 120 دقيقة مع هامش أمان صغير
+    } catch (error) {
+      return false;
+    }
+  };
 
-  const currentArticle = articles[currentIndex];
-  const isBreaking = Boolean((currentArticle as any).breaking || (currentArticle as any).is_breaking);
-  
-  // تسجيل console للتشخيص في النسخة الكاملة
-  if (process.env.NODE_ENV === 'development') {
-    console.log('🖼️ [FeaturedNewsCarousel] Desktop Mode: Component is rendering for desktop screens');
-    console.log('🖼️ [FeaturedNewsCarousel] Current Article:', {
-      id: currentArticle.id,
-      title: currentArticle.title?.substring(0, 50) + '...',
-      featured_image: currentArticle.featured_image,
-      hasImage: !!currentArticle.featured_image
-    });
-  }
   const mobileH = heights.mobile || 260;
   const mobileLgH = heights.mobileLg || mobileH;
   const desktopH = heights.desktop || mobileLgH;
@@ -154,6 +148,25 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
       return () => observer.disconnect();
     } catch {}
   }, []);
+
+  // إذا لا توجد أخبار، لا نعرض شيئاً
+  if (!articles.length) {
+    return null;
+  }
+
+  const currentArticle = articles[currentIndex];
+  const isBreaking = Boolean((currentArticle as any).breaking || (currentArticle as any).is_breaking);
+  
+  // تسجيل console للتشخيص في النسخة الكاملة
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🖼️ [FeaturedNewsCarousel] Desktop Mode: Component is rendering for desktop screens');
+    console.log('🖼️ [FeaturedNewsCarousel] Current Article:', {
+      id: currentArticle.id,
+      title: currentArticle.title?.substring(0, 50) + '...',
+      featured_image: currentArticle.featured_image,
+      hasImage: !!currentArticle.featured_image
+    });
+  }
 
   return (
     <div
@@ -226,6 +239,16 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                       <span className="font-medium">{currentArticle.category?.name || 'أخبار'}</span>
                     </>
                   )}
+                  {/* ليبل "جديد" للأخبار في آخر ساعتين */}
+                  {!isBreaking && isRecentNews(currentArticle.published_at) && (
+                    <>
+                      <span className="opacity-80">•</span>
+                      <span className="recent-news-badge inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold text-white">
+                        <span className="text-xs">🆕</span>
+                        جديد
+                      </span>
+                    </>
+                  )}
                   <span className="opacity-80">•</span>
                   <span className="opacity-90">
                     {new Date(currentArticle.published_at || new Date()).toLocaleDateString('ar-SA', {
@@ -251,26 +274,35 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
               {/* عنوان الخبر لنسخة الديسكتوب (يبقى مرئياً في العمود النصي) */}
               {/* ليبل التصنيف فوق العنوان */}
               <div className="mb-2">
-                {isBreaking ? (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-red-600 text-white">
-                    <span className="text-sm">⚡</span>
-                    عاجل
-                  </span>
-                ) : (
-                  currentArticle.category?.name && (
-                    <span
-                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium border"
-                      style={{
-                        background: darkMode ? 'hsl(var(--accent) / 0.18)' : 'hsl(var(--accent) / 0.12)',
-                        color: 'hsl(var(--accent))',
-                        borderColor: 'hsl(var(--accent) / 0.25)'
-                      }}
-                    >
-                      <span className="text-sm">{currentArticle.category?.icon || '📰'}</span>
-                      <span>{currentArticle.category?.name}</span>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {isBreaking ? (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-red-600 text-white">
+                      <span className="text-sm">⚡</span>
+                      عاجل
                     </span>
-                  )
-                )}
+                  ) : (
+                    currentArticle.category?.name && (
+                      <span
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium border"
+                        style={{
+                          background: darkMode ? 'hsl(var(--accent) / 0.18)' : 'hsl(var(--accent) / 0.12)',
+                          color: 'hsl(var(--accent))',
+                          borderColor: 'hsl(var(--accent) / 0.25)'
+                        }}
+                      >
+                        <span className="text-sm">{currentArticle.category?.icon || '📰'}</span>
+                        <span>{currentArticle.category?.name}</span>
+                      </span>
+                    )
+                  )}
+                  {/* ليبل "جديد" للأخبار في آخر ساعتين - نسخة الديسكتوب */}
+                  {!isBreaking && isRecentNews(currentArticle.published_at) && (
+                    <span className="recent-news-badge inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold text-white">
+                      <span className="text-xs">🆕</span>
+                      جديد
+                    </span>
+                  )}
+                </div>
               </div>
               <h2
                 className={`text-lg lg:text-xl xl:text-2xl font-bold mb-4 leading-tight line-clamp-3 ${

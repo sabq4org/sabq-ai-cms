@@ -1,0 +1,27 @@
+/* تحسينات لليبل "جديد" للأخبار المنشورة في آخر ساعتين */
+
+/* كلاسات مخصصة لليبل الجديد */
+.recent-news-badge {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3);
+  animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+  0%, 100% {
+    box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3);
+  }
+  50% {
+    box-shadow: 0 2px 10px rgba(5, 150, 105, 0.5);
+  }
+}
+
+/* تحسين للنسخة المظلمة */
+.dark .recent-news-badge {
+  background: linear-gradient(135deg, #047857 0%, #059669 100%);
+  box-shadow: 0 2px 6px rgba(4, 120, 87, 0.4);
+}
+
+.dark .recent-news-badge:hover {
+  box-shadow: 0 2px 10px rgba(4, 120, 87, 0.6);
+}

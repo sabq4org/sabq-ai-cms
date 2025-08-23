@@ -29,6 +29,7 @@
     "publish-scheduled:interactive": "node scripts/publish-scheduled.js --interactive",
     "diagnose-scheduled": "node scripts/diagnose-scheduled.js",
     "test": "jest",
+    "test:babel": "jest --config=jest.config.fallback.js",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:e2e": "playwright test",

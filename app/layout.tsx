@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans_Arabic } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
 import "./globals.css";
 import "@/app/old-style-demo/old-style.css";
@@ -8,6 +9,7 @@ import "@/styles/notification-fixes.css";
 import "@/styles/notification-modern-ui.css";
 import "@/styles/notification-light-header.css";
 import "@/styles/lite-stats-bar-sticky.css";
+import "@/styles/recent-news-badge.css";
 
 const ibmPlexArabic = IBM_Plex_Sans_Arabic({
   subsets: ["arabic"],
@@ -52,6 +54,7 @@ export default function RootLayout({
         <ConditionalLayout>
           {children}
         </ConditionalLayout>
+        <SpeedInsights />
       </body>
     </html>
   );
