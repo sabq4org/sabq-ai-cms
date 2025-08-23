@@ -2289,3 +2289,26 @@ enum ads_placement {
   sidebar_bottom
   footer_banner
 }
+
+model failed_login_attempts {
+  id           String   @id @default(dbgenerated("gen_random_uuid()"))
+  email        String
+  attempts     Int      @default(1)
+  ip_address   String?
+  last_attempt DateTime @default(now())
+  created_at   DateTime @default(now())
+
+  @@index([email])
+  @@index([created_at])
+}
+
+model account_lockouts {
+  id           String    @id @default(dbgenerated("gen_random_uuid()"))
+  email        String    @unique
+  locked_until DateTime
+  reason       String?
+  created_at   DateTime  @default(now())
+  updated_at   DateTime?
+
+  @@index([locked_until])
+}

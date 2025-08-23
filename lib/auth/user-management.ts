@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { randomBytes } from 'crypto';
 import { z } from 'zod';
+import { AccountLockoutService } from '@/lib/account-lockout';
 
 const prisma = new PrismaClient();
 
@@ -116,10 +117,15 @@ export class SecurityManager {
    * إنشاء JWT token
    */
   static createJWTToken(payload: any, expiresIn: string = JWT_EXPIRES_IN): string {
+    if (!JWT_SECRET || JWT_SECRET === 'your-super-secret-jwt-key-change-this-in-production') {
+      throw new Error('JWT_SECRET غير محدد أو غير آمن');
+    }
+    
     return jwt.sign(payload, JWT_SECRET, { 
       expiresIn,
       issuer: 'sabq-smart-cms',
-      audience: 'sabq-users'
+      audience: 'sabq-users',
+      algorithm: 'HS256' // تحديد الخوارزمية
     });
   }
 
@@ -253,15 +259,36 @@ export class UserManagementService {
       // التحقق من صحة البيانات
       const validatedData = UserLoginSchema.parse(loginData);
 
+      // التحقق من حالة قفل الحساب
+      const isLocked = await AccountLockoutService.isAccountLocked(validatedData.email);
+      if (isLocked) {
+        const lockInfo = await AccountLockoutService.getFailedAttemptsInfo(validatedData.email);
+        return {
+          success: false,
+          error: `الحساب مقفل بسبب محاولات تسجيل دخول فاشلة متعددة. يمكنك المحاولة مرة أخرى بعد ${
+            lockInfo.lockedUntil ? new Date(lockInfo.lockedUntil).toLocaleString('ar') : '30 دقيقة'
+          }`
+        };
+      }
+
       // البحث عن المستخدم
       const user = await prisma.users.findUnique({
         where: { email: validatedData.email }
       });
 
       if (!user || !user.password_hash) {
+        // تسجيل محاولة فاشلة
+        await AccountLockoutService.recordFailedAttempt(
+          validatedData.email,
+          sessionInfo?.ip_address
+        );
+        
+        const lockInfo = await AccountLockoutService.getFailedAttemptsInfo(validatedData.email);
         return {
           success: false,
-          error: 'بيانات المستخدم غير صحيحة'
+          error: lockInfo.remainingAttempts > 0 
+            ? `بيانات المستخدم غير صحيحة. لديك ${lockInfo.remainingAttempts} محاولات متبقية`
+            : 'بيانات المستخدم غير صحيحة'
         };
       }
 
@@ -280,11 +307,23 @@ export class UserManagementService {
       );
 
       if (!isPasswordValid) {
+        // تسجيل محاولة فاشلة
+        await AccountLockoutService.recordFailedAttempt(
+          validatedData.email,
+          sessionInfo?.ip_address
+        );
+        
+        const lockInfo = await AccountLockoutService.getFailedAttemptsInfo(validatedData.email);
         return {
           success: false,
-          error: 'بيانات المستخدم غير صحيحة'
+          error: lockInfo.remainingAttempts > 0 
+            ? `بيانات المستخدم غير صحيحة. لديك ${lockInfo.remainingAttempts} محاولات متبقية`
+            : 'بيانات المستخدم غير صحيحة'
         };
       }
+      
+      // مسح المحاولات الفاشلة بعد تسجيل دخول ناجح
+      await AccountLockoutService.clearFailedAttempts(validatedData.email);
 
       // تحديث آخر تسجيل دخول
       await prisma.users.update({

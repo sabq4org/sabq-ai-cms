@@ -46,8 +46,19 @@ export async function getUserFromToken(request: NextRequest): Promise<AuthUser |
     // 4. تم إزالة نظام التطوير التجريبي لأسباب أمنية
 
     // 5. فك تشفير التوكن الحقيقي
-    const jwtSecret = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'default-secret';
-    const decoded = jwt.verify(token, jwtSecret) as any;
+    const jwtSecret = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET;
+    
+    if (!jwtSecret) {
+      console.error('خطأ أمني: JWT_SECRET غير محدد');
+      return null;
+    }
+    
+    // التحقق من صحة التوقيع بشكل صارم
+    const decoded = jwt.verify(token, jwtSecret, {
+      algorithms: ['HS256'], // تحديد الخوارزمية المسموحة
+      ignoreExpiration: false, // عدم تجاهل انتهاء الصلاحية
+      complete: false // إرجاع payload فقط
+    }) as any;
 
     return {
       id: decoded.id || decoded.sub || decoded.userId,

@@ -1,9 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-// GET: جلب جميع المستخدمين
+// GET: جلب جميع المستخدمين (محمي للمسؤولين فقط)
 export async function GET(request: NextRequest) {
   try {
+    // التحقق من صلاحيات المسؤول
+    const authHeader = request.headers.get('authorization');
+    const authToken = authHeader?.startsWith('Bearer ') 
+      ? authHeader.substring(7)
+      : request.cookies.get('auth-token')?.value || request.cookies.get('auth_token')?.value;
+    
+    if (!authToken) {
+      return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+    }
+    
+    // التحقق من JWT
+    try {
+      const jwt = require('jsonwebtoken');
+      const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET;
+      
+      if (!JWT_SECRET) {
+        console.error('خطأ أمني: JWT_SECRET غير محدد');
+        return NextResponse.json({ error: 'خطأ في التكوين' }, { status: 500 });
+      }
+      
+      const decoded = jwt.verify(authToken, JWT_SECRET, {
+        algorithms: ['HS256'],
+        ignoreExpiration: false
+      }) as any;
+      
+      // التحقق من صلاحيات المسؤول
+      if (!decoded.is_admin && decoded.role !== 'admin') {
+        return NextResponse.json({ error: 'صلاحيات مسؤول مطلوبة' }, { status: 403 });
+      }
+    } catch (error) {
+      return NextResponse.json({ error: 'توكن غير صالح' }, { status: 401 });
+    }
     const searchParams = request.nextUrl.searchParams;
     const role = searchParams.get('role');
     const status = searchParams.get('status');
@@ -80,10 +112,15 @@ export async function GET(request: NextRequest) {
         subscription = 'premium';
       }
 
+      // إخفاء البيانات الحساسة جزئياً
+      const maskedEmail = user.email 
+        ? user.email.substring(0, 3) + '***@' + user.email.split('@')[1]
+        : 'غير محدد';
+      
       return {
         id: user.id,
         name: user.name || 'بدون اسم',
-        email: user.email,
+        email: maskedEmail, // البريد المخفي
         avatar: user.avatar,
         role: user.role,
         isAdmin: user.is_admin,

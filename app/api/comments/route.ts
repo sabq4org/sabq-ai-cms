@@ -72,7 +72,9 @@ export async function GET(request: NextRequest) {
       }
       // تطبيق البحث النصي دون إلغاء فلتر الحالة
       if (q) {
-        where.content = { contains: q, mode: "insensitive" } as any;
+        // التحقق من صحة معامل البحث لمنع SQL Injection
+        const sanitizedQuery = q.replace(/['"\\]/g, ''); // إزالة الأحرف الخطرة
+        where.content = { contains: sanitizedQuery, mode: "insensitive" } as any;
       }
       // تطبيق فلتر aiScore (لا يُلغي الحالة)
       const aiScoreLt = searchParams.get("aiScore[lt]");

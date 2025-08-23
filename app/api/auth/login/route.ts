@@ -1,9 +1,12 @@
 // API لتسجيل الدخول - نظام سبق الذكية
 import { NextRequest, NextResponse } from 'next/server';
 import { UserManagementService, UserLoginSchema, SecurityManager } from '@/lib/auth/user-management';
+import { authRateLimit } from '@/lib/rate-limiter';
 
 export async function POST(request: NextRequest) {
-  try {
+  // تطبيق Rate Limiting للحماية من Brute Force
+  return authRateLimit(request, async () => {
+    try {
     const body = await request.json();
     
     // التحقق من صحة البيانات
@@ -134,17 +137,18 @@ export async function POST(request: NextRequest) {
 
     return response;
 
-  } catch (error: any) {
-    console.error('Login API error:', error);
-    
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'خطأ داخلي في الخادم'
-      },
-      { status: 500 }
-    );
-  }
+    } catch (error: any) {
+      console.error('Login API error:', error);
+      
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'خطأ داخلي في الخادم'
+        },
+        { status: 500 }
+      );
+    }
+  });
 }
 
 // دالة لتحديد نوع الجهاز

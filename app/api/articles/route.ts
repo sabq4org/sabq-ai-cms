@@ -83,6 +83,9 @@ export async function GET(request: NextRequest) {
     }
 
     if (search) {
+      // تنظيف معامل البحث لمنع SQL Injection
+      const sanitizedSearch = search.replace(/['"\\%_]/g, ''); // إزالة الأحرف الخطرة
+      
       const typeFilter = where.OR
         ? { OR: where.OR }
         : where.article_type
@@ -93,8 +96,8 @@ export async function GET(request: NextRequest) {
         typeFilter,
         {
           OR: [
-            { title: { contains: search, mode: "insensitive" } },
-            { content: { contains: search, mode: "insensitive" } },
+            { title: { contains: sanitizedSearch, mode: "insensitive" } },
+            { content: { contains: sanitizedSearch, mode: "insensitive" } },
           ],
         },
       ];
