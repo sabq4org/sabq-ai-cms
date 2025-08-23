@@ -21,7 +21,8 @@ export function middleware(request: NextRequest) {
     "base-uri 'self'",
     "form-action 'self'",
     "manifest-src 'self'",
-    "upgrade-insecure-requests"
+    "upgrade-insecure-requests",
+    "block-all-mixed-content"
   ];
   
   // إضافة قيود إضافية للصفحات الإدارية
@@ -57,10 +58,13 @@ export function middleware(request: NextRequest) {
   if (process.env.NODE_ENV === 'production') {
     response.headers.set(
       'Strict-Transport-Security',
-      'max-age=31536000; includeSubDomains; preload' // إضافة preload
+      'max-age=31536000; includeSubDomains; preload'
     );
+    
+    // إضافة header لحل مشاكل SSL
+    response.headers.set('X-Forwarded-Proto', 'https');
   }
-  
+
   return response;
 }
 
