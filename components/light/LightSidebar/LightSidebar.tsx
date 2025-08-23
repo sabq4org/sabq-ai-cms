@@ -125,9 +125,9 @@ export function LightSidebar({ initialOpen, onCloseExternal }: LightSidebarProps
                   />
                 ))}
               </nav>
-              <div className="px-4 py-4 border-t border-gray-100 dark:border-gray-800 text-[11px] text-gray-500 dark:text-gray-500 tracking-tight leading-snug">
+              <div className="px-4 py-4 border-t border-gray-100 dark:border-gray-800 text-[10px] text-gray-500 dark:text-gray-500 tracking-tight leading-snug">
                 <p className="mb-1">© {new Date().getFullYear()} سبق الذكية</p>
-                <p className="opacity-80">إصدار النسخة الخفيفة</p>
+                <p className="opacity-70">إصدار النسخة الخفيفة</p>
               </div>
             </motion.aside>
           </>

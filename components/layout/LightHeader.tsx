@@ -353,7 +353,7 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
                     )
                   )}
                   <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">النسخة الخفيفة</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">النسخة الخفيفة</p>
                   </div>
                 </div>
                 <button

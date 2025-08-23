@@ -110,12 +110,12 @@ export default function ResponsiveHome({ isMobile = false }: ResponsiveHomeProps
         }}
       >
         <h1 
-          className="text-2xl font-bold mb-2"
+          className="text-xl font-bold mb-2"
           style={{ color: 'var(--theme-primary, #3B82F6)' }}
         >
           🌟 النسخة الخفيفة
         </h1>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+        <p className="text-xs text-gray-600 dark:text-gray-400">
           واجهة مبسطة وسريعة للأجهزة المحمولة
         </p>
       </div>
@@ -157,10 +157,10 @@ export default function ResponsiveHome({ isMobile = false }: ResponsiveHomeProps
 
   const MobileFeatures = useMemo(() => (
     <div className="mt-12 text-center">
-      <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">
+      <h3 className="text-base font-bold mb-4 text-gray-900 dark:text-white">
         مميزات النسخة الخفيفة
       </h3>
-      <div className="grid grid-cols-2 gap-4 text-sm">
+      <div className="grid grid-cols-2 gap-4 text-xs">
         {[
           { icon: "⚡", title: "سريع جداً", desc: "تحميل فائق السرعة" },
           { icon: "📱", title: "محمول أولاً", desc: "مُحسّن للهواتف" },
