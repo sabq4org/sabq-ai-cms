@@ -18,7 +18,7 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const anchorRef = useRef<HTMLButtonElement>(null);
-  const [position, setPosition] = useState<{ top: number; right: number }>({ top: 0, right: 16 });
+  const [position, setPosition] = useState<{ top: number; right: number }>({ top: 64, right: 16 });
   const [hiddenNotifications, setHiddenNotifications] = useState<Set<string>>(new Set());
   const { user } = useAuth();
 
@@ -75,8 +75,15 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
     const updatePosition = () => {
       if (!anchorRef.current) return;
       const rect = anchorRef.current.getBoundingClientRect();
-      const top = rect.bottom + window.scrollY + 8;
-      const right = Math.max(8, window.innerWidth - rect.right - window.scrollX);
+      
+      // الحصول على ارتفاع الهيدر من CSS variable أو استخدام القيمة الافتراضية
+      const headerHeightVar = getComputedStyle(document.documentElement).getPropertyValue('--header-height');
+      const headerHeight = headerHeightVar ? parseInt(headerHeightVar) : 64;
+      
+      // حساب الموضع مرتبط بالهيدر الثابت
+      const top = headerHeight + 8; // مسافة ثابتة من أسفل الهيدر
+      const right = Math.max(16, window.innerWidth - rect.right);
+      
       setPosition({ top, right });
     };
 
@@ -84,13 +91,13 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
       updatePosition();
       document.addEventListener('mousedown', handleClickOutside);
       window.addEventListener('resize', updatePosition);
-      window.addEventListener('scroll', updatePosition, { passive: true });
+      // إزالة scroll listener لتثبيت الإشعارات مع الهيدر
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       window.removeEventListener('resize', updatePosition);
-      window.removeEventListener('scroll', updatePosition);
+      // تم إزالة scroll event cleanup
     };
   }, [isOpen]);
 
@@ -153,7 +160,7 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
   }
 
   return (
-    <div className={`relative ${className}`} ref={dropdownRef}>
+    <div className={`notification-dropdown-container ${className}`} ref={dropdownRef}>
       {/* زر الإشعارات */}
       <button
         ref={anchorRef}
@@ -202,8 +209,16 @@ export function NotificationDropdown({ className = '' }: NotificationDropdownPro
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -10, scale: 0.98 }}
                   transition={{ duration: 0.2 }}
-                  className="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-[9999] max-h-[75vh] overflow-hidden"
-                  style={{ position: 'fixed', top: position.top, right: position.right, width: '26rem', maxWidth: '90vw' }}
+                  className="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-[9999] max-h-[75vh] overflow-hidden notification-dropdown-fixed notification-dropdown-shadow notification-dropdown-stable"
+                  style={{ 
+                    position: 'fixed', 
+                    top: position.top, 
+                    right: position.right, 
+                    width: '26rem', 
+                    maxWidth: '90vw', 
+                    transform: 'none',
+                    willChange: 'auto' 
+                  }}
                   role="dialog"
                   aria-label="قائمة الإشعارات"
                 >
