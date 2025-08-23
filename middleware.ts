@@ -9,13 +9,25 @@ export function middleware(request: NextRequest) {
   const url = request.nextUrl;
   const isAdminRoute = url.pathname.startsWith('/admin');
   
-  // Rate limiting for AI and critical APIs
-  const criticalPaths = ['/api/ai/', '/api/auth/', '/api/upload/'];
+  // Enhanced Rate limiting for critical APIs
+  const criticalPaths = [
+    '/api/ai/', 
+    '/api/auth/', 
+    '/api/upload/',
+    '/api/upload-image/',
+    '/api/upload-production/',
+    '/api/deep-analyses/',
+    '/api/news/ai-generate/',
+    '/api/admin/articles/generate-ai-content/',
+    '/api/generate-podcast/',
+    '/api/audio/generate/'
+  ];
   const isCriticalAPI = criticalPaths.some(path => url.pathname.startsWith(path));
   
   if (isCriticalAPI) {
     const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
-    const key = `${ip}:${url.pathname}`;
+    const userAgent = request.headers.get('user-agent') || 'unknown';
+    const key = `${ip}:${url.pathname}:${userAgent.slice(0, 50)}`; // Include user agent for better tracking
     const now = Date.now();
     
     // Get or create rate limit data
@@ -27,30 +39,72 @@ export function middleware(request: NextRequest) {
     data.count++;
     rateLimitStore.set(key, data);
     
-    // Define limits based on path
-    let limit = 60; // Default
-    if (url.pathname.startsWith('/api/ai/')) limit = 10;
-    if (url.pathname.startsWith('/api/auth/')) limit = 5;
-    if (url.pathname.startsWith('/api/upload/')) limit = 20;
+    // Define stricter limits based on path and resource intensity
+    let limit = 30; // Default reduced from 60
+    let windowMinutes = 1;
+    
+    // AI-related endpoints (most resource intensive)
+    if (url.pathname.startsWith('/api/ai/') || 
+        url.pathname.startsWith('/api/deep-analyses/') ||
+        url.pathname.startsWith('/api/news/ai-generate/') ||
+        url.pathname.startsWith('/api/admin/articles/generate-ai-content/') ||
+        url.pathname.startsWith('/api/generate-podcast/') ||
+        url.pathname.startsWith('/api/audio/generate/')) {
+      limit = 5; // Very strict for AI
+      windowMinutes = 1;
+    }
+    
+    // Authentication endpoints
+    else if (url.pathname.startsWith('/api/auth/')) {
+      limit = 10; // Increased from 5 for better UX
+      windowMinutes = 1;
+    }
+    
+    // Upload endpoints (resource intensive)
+    else if (url.pathname.startsWith('/api/upload')) {
+      limit = 15; // Reduced from 20
+      windowMinutes = 1;
+    }
     
     // Check if limit exceeded
     if (data.count > limit) {
+      // Log potential abuse
+      console.warn(`🚨 Rate limit exceeded: ${ip} on ${url.pathname} (${data.count}/${limit})`);
+      
       return NextResponse.json(
-        { error: 'تم تجاوز عدد الطلبات المسموح به. حاول مرة أخرى لاحقاً.' },
+        { 
+          error: 'تم تجاوز عدد الطلبات المسموح به. حاول مرة أخرى لاحقاً.',
+          code: 'RATE_LIMIT_EXCEEDED',
+          retryAfter: windowMinutes * 60
+        },
         { 
           status: 429,
           headers: {
-            'Retry-After': '60',
+            'Retry-After': (windowMinutes * 60).toString(),
             'X-RateLimit-Limit': limit.toString(),
-            'X-RateLimit-Remaining': '0'
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': new Date(data.resetTime).toISOString(),
+            'X-Content-Type-Options': 'nosniff',
+            'X-Frame-Options': 'DENY'
           }
         }
       );
     }
     
-    // Add rate limit headers
+    // Add rate limit headers to successful responses
     response.headers.set('X-RateLimit-Limit', limit.toString());
     response.headers.set('X-RateLimit-Remaining', (limit - data.count).toString());
+    response.headers.set('X-RateLimit-Reset', new Date(data.resetTime).toISOString());
+    
+    // Clean up old entries periodically (every 100 requests)
+    if (Math.random() < 0.01) {
+      const cutoff = now - 300000; // 5 minutes ago
+      for (const [key, value] of rateLimitStore.entries()) {
+        if (value.resetTime < cutoff) {
+          rateLimitStore.delete(key);
+        }
+      }
+    }
   }
   
   // Content Security Policy - أكثر صرامة للصفحات الإدارية
