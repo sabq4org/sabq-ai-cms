@@ -9,9 +9,13 @@ const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET;
 // POST: التحقق من رمز 2FA وتفعيله
 export async function POST(request: NextRequest) {
   try {
-    const { token, action, tempToken } = await request.json();
+    const body = await request.json();
+    const { token, code, action, tempToken } = body;
     
-    if (!token) {
+    // التعامل مع الحقول المختلفة
+    const verificationCode = code || token;
+    
+    if (!verificationCode) {
       return NextResponse.json({ error: 'الرمز مطلوب' }, { status: 400 });
     }
     
@@ -24,10 +28,16 @@ export async function POST(request: NextRequest) {
     let userId: string;
     let isTemp2FA = false;
     
-    if (tempToken) {
+    // الحصول على التوكن من الهيدر أو البودي
+    const authHeader = request.headers.get('authorization');
+    const authToken = authHeader?.startsWith('Bearer ') 
+      ? authHeader.substring(7)
+      : tempToken;
+    
+    if (authToken) {
       // التحقق من الرمز المؤقت (عند تسجيل الدخول مع 2FA)
       try {
-        const decoded = jwt.verify(tempToken, JWT_SECRET, {
+        const decoded = jwt.verify(authToken, JWT_SECRET, {
           algorithms: ['HS256'],
           ignoreExpiration: false
         }) as any;
@@ -80,7 +90,7 @@ export async function POST(request: NextRequest) {
       });
     } else if (isTemp2FA) {
       // التحقق من 2FA عند تسجيل الدخول
-      const isValid = await TwoFactorAuthService.verifyUserToken(userId, token);
+      const isValid = await TwoFactorAuthService.verifyUserToken(userId, verificationCode);
       
       if (!isValid) {
         return NextResponse.json({ 
@@ -116,7 +126,7 @@ export async function POST(request: NextRequest) {
       });
     } else {
       // التحقق العادي من 2FA (للعمليات الحساسة)
-      const isValid = await TwoFactorAuthService.verifyUserToken(userId, token);
+      const isValid = await TwoFactorAuthService.verifyUserToken(userId, verificationCode);
       
       if (!isValid) {
         return NextResponse.json({ 

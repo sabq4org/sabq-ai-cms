@@ -32,6 +32,15 @@ export default function AdminLogin() {
       if (res.ok) {
         const data = await res.json();
         if (data.success) {
+          // التحقق من 2FA
+          if (data.requires2FA) {
+            // حفظ الرمز المؤقت وتوجيه لصفحة 2FA
+            sessionStorage.setItem('2fa_temp_token', data.tempToken);
+            alert("يرجى إدخال رمز المصادقة الثنائية");
+            router.push("/admin/login/2fa");
+            return;
+          }
+          
           if (data.token && typeof document !== 'undefined') {
             document.cookie = `auth-token=${data.token}; path=/; max-age=${60 * 60}; SameSite=Lax`;
           }
