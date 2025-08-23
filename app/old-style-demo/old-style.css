@@ -155,23 +155,42 @@
   font-weight: 600;
 }
 
-/* شعلة النار الحقيقية المتحركة */
-/* أيقونة الشعلة (SVG) مع وميض وتوهج */
-.old-style-flame-icon {
-  width: 14px;
-  height: 14px;
-  color: #ff6b00;
-  filter: drop-shadow(0 0 4px rgba(255, 107, 0, 0.6));
-  animation: flamePulse 1.6s ease-in-out infinite;
+/* شارة الأخبار العاجلة */
+.old-style-news-breaking-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: white;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+  animation: pulse-breaking 2s ease-in-out infinite;
 }
 
-/* لهب كإيموجي بوضوح أعلى */
-.old-style-fire-emoji { font-size: 14px; line-height: 1; }
+.old-style-lightning-emoji {
+  font-size: 12px;
+  animation: flash 1.5s ease-in-out infinite;
+}
 
-@keyframes flamePulse {
-  0% { transform: scale(1); opacity: 0.95; }
-  50% { transform: scale(1.12); opacity: 1; }
-  100% { transform: scale(0.98); opacity: 0.97; }
+@keyframes pulse-breaking {
+  0%, 100% { 
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 4px 16px rgba(220, 38, 38, 0.5);
+    transform: scale(1.05);
+  }
+}
+
+@keyframes flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
 }
 
 /* التاريخ */
@@ -326,6 +345,7 @@
   }
   
   .old-style-news-card:hover {
+    transform: translateY(-2px);
   }
   
   .old-style-news-title {
@@ -379,7 +399,7 @@
   color: #f9fafb;
 }
 
-.dark .old-style-news-card:hover .old-style-news-card-title {
+.dark .old-style-news_card:hover .old-style-news-card-title {
   color: #60a5fa;
 }
 

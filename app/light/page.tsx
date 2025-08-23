@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import OldStyleNewsBlock from "@/components/old-style/OldStyleNewsBlock";
+import LightFeaturedLoader from "@/components/featured/LightFeaturedLoader";
 // تمت إضافة الاستيراد عالمياً من خلال app/layout.tsx
 
 export default function LightPage() {
@@ -12,13 +13,14 @@ export default function LightPage() {
   useEffect(() => {
     const fetchArticles = async () => {
       try {
+        // استخدام API الأخبار المميزة لضمان إظهار الأخبار العاجلة
         const res = await fetch(
-          "/api/news?status=published&limit=12&sort=published_at&order=desc&minimal=true&include_categories=true",
+          "/api/articles/featured?limit=12",
           { cache: "force-cache", next: { revalidate: 60 } }
         );
         const json = await res.json();
-        if (json?.success && Array.isArray(json.articles)) {
-          setArticles(json.articles);
+        if (json?.ok && Array.isArray(json.data)) {
+          setArticles(json.data);
         } else {
           setArticles([]);
         }
@@ -95,6 +97,11 @@ export default function LightPage() {
             إنشاء حساب
           </Link>
         </div>
+      </div>
+
+      {/* الأخبار المميزة والعاجلة - النسخة الخفيفة */}
+      <div className="mb-8">
+        <LightFeaturedLoader heading="الأخبار المميزة والعاجلة" limit={3} />
       </div>
 
       {/* News Grid - Old Style with real data (نسخة مطورة بالذكاء الاصطناعي) */}

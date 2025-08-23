@@ -14,6 +14,11 @@ interface Article {
     name: string;
     slug: string;
   };
+  categories?: {
+    id: number;
+    name: string;
+    slug: string;
+  };
   featured_image?: string;
   image?: string;
   image_url?: string;
@@ -22,6 +27,8 @@ interface Article {
   reading_time?: number;
   slug: string;
   is_custom?: boolean;
+  breaking?: boolean;
+  is_breaking?: boolean;
 }
 
 interface OldStyleNewsBlockProps {
@@ -159,14 +166,21 @@ export default function OldStyleNewsBlock({
               {/* الشريط العلوي: شارات + التاريخ بجانب الشارات وعلى يمين البطاقة */}
               <div className="old-style-news-top-bar">
                 <div className="old-style-news-badges">
+                  {/* شارة عاجل - أولوية أعلى من باقي الشارات */}
+                  {(article.breaking || article.is_breaking) && (
+                    <div className="old-style-news-breaking-badge">
+                      <span className="old-style-lightning-emoji" aria-hidden>⚡</span>
+                      <span>عاجل</span>
+                    </div>
+                  )}
                   {/* ليبل التصنيف - تم إخفاؤه حسب طلب المستخدم */}
-                  {isNewsNew(article.published_at) && (
+                  {isNewsNew(article.published_at) && !(article.breaking || article.is_breaking) && (
                     <div className="old-style-news-new-badge">
                       <span className="old-style-fire-emoji" aria-hidden>🔥</span>
                       <span>جديد</span>
                     </div>
                   )}
-                  {article.is_custom && (
+                  {article.is_custom && !(article.breaking || article.is_breaking) && (
                     <div className="old-style-news-custom-badge">
                       <Sliders className="old-style-icon" />
                       <span>مخصص</span>
