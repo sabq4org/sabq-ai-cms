@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans_Arabic } from "next/font/google";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
-import Script from 'next/script';
 import "./globals.css";
 import "@/app/old-style-demo/old-style.css";
 import "@/styles/color-softening.css";
@@ -9,9 +8,8 @@ import "@/styles/notification-fixes.css";
 import "@/styles/notification-modern-ui.css";
 import "@/styles/notification-light-header.css";
 import "@/styles/lite-stats-bar-sticky.css";
-import "@/styles/mobile-article-improvements.css";
-import "../styles/lite-layout-optimization.css";
-import "../styles/lite-components-optimization.css";const ibmPlexArabic = IBM_Plex_Sans_Arabic({
+
+const ibmPlexArabic = IBM_Plex_Sans_Arabic({
   subsets: ["arabic"],
   weight: ["100", "200", "300", "400", "500", "600", "700"],
   variable: "--font-ibm-plex-arabic",
@@ -54,10 +52,6 @@ export default function RootLayout({
         <ConditionalLayout>
           {children}
         </ConditionalLayout>
-        <Script 
-          src="/js/lite-optimizer.js"
-          strategy="afterInteractive"
-        />
       </body>
     </html>
   );

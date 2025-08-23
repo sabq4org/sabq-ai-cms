@@ -30,13 +30,13 @@ export default function MobileFeaturedImage({
   return (
     <div className={`relative w-full ${className || ''}`}>
       {/* حاوي الصورة بارتفاع مناسب */}
-      <div className="relative w-full h-[230px] overflow-hidden bg-gray-100 dark:bg-gray-800 rounded-xl">
+      <div className="relative w-full h-[230px] overflow-hidden bg-gray-100 dark:bg-gray-800 rounded-lg">
         {/* الصورة مع lazy loading */}
         <Image
           src={imageError ? "/images/placeholder-featured.jpg" : imageUrl}
           alt={alt || title}
           fill
-          className={`object-cover transition-opacity duration-300 rounded-xl ${
+          className={`object-cover transition-opacity duration-300 ${
             imageLoading ? "opacity-0" : "opacity-100"
           }`}
           sizes="100vw"

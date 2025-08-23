@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
+// تم إزالة DashboardLayout - تستخدم الصفحة layout.tsx الأساسي
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -51,7 +51,7 @@ export default function MuqtarabAnalyticsPage() {
   const [timeRange, setTimeRange] = useState('30d');
 
   useEffect(() => {
-    fetchAnalyticsData();
+    fetchAnalyicsData();
   }, [timeRange]);
 
   const fetchAnalyticsData = async () => {
