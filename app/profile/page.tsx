@@ -736,7 +736,7 @@ export default function ProfilePage() {
     );
   }
   if (!user) return null;
-  const userPoints = loyaltyData?.total_points || user.loyaltyPoints || 0;
+  const userPoints = loyaltyData?.data?.total_points || loyaltyData?.total_points || user.loyaltyPoints || 0;
   const membership = getMembershipLevel(userPoints);
   const pointsToNext = getPointsToNextLevel(userPoints);
   return (

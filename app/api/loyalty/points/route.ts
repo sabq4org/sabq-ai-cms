@@ -23,7 +23,16 @@ export async function GET(req: NextRequest) {
     const totalPoints = aggregate._sum.points || 0;
     const level = getLevel(totalPoints);
 
-    return NextResponse.json({ success: true, total_points: totalPoints, level });
+    return NextResponse.json({ 
+      success: true, 
+      total_points: totalPoints, 
+      level,
+      data: {
+        total_points: totalPoints,
+        level,
+        user_id: userId
+      }
+    });
   } catch (error) {
     console.error('Error in /api/loyalty/points:', error);
     return NextResponse.json({ success: false, error: 'Failed to fetch points' }, { status: 500 });

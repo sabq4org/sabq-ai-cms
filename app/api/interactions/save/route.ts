@@ -85,7 +85,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     console.error('/api/interactions/save error:', e);
-    return NextResponse.json({ error: 'Failed to toggle save' }, { status: 500 });
+    const errorMessage = e instanceof Error ? e.message : 'خطأ غير متوقع';
+    return NextResponse.json({ 
+      error: 'Failed to toggle save', 
+      details: errorMessage,
+      success: false 
+    }, { status: 500 });
   }
 }
 
