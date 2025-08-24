@@ -790,15 +790,9 @@ function NewspaperHomePage({
               <div
                 className={`h-full rounded-3xl p-4 sm:p-6 lg:p-8 transition-all duration-500 shadow-lg dark:shadow-gray-900/50 ${
                   darkMode
-                    ? "bg-blue-900/10 border border-blue-800/30"
-                    : "bg-blue-50 dark:bg-blue-900/20/50 border border-blue-200/50"
+                    ? 'bg-gray-800 border border-gray-700'
+                    : 'bg-white border border-gray-200'
                 }`}
-                style={{
-                  backdropFilter: "blur(10px)",
-                  background: darkMode
-                    ? "linear-gradient(135deg, rgba(30, 64, 175, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)"
-                    : "linear-gradient(135deg, rgba(219, 234, 254, 0.5) 0%, rgba(191, 219, 254, 0.3) 100%)",
-                }}
               >
                 {/* استبدال محتوى التصنيفات بـ AI Insights */}
                 <div className="relative -m-4 sm:-m-6 lg:-m-8">
@@ -834,7 +828,7 @@ function NewspaperHomePage({
                                 : "bg-blue-500 text-white border border-blue-400 shadow-md"
                               : darkMode
                               ? "bg-blue-800/20 hover:bg-blue-700/30 text-blue-100 hover:text-blue-50 border border-blue-700/30 hover:border-blue-600/50"
-                              : "bg-[#f8f8f7] hover:bg-blue-50 text-gray-700 hover:text-blue-600 border border-gray-200 hover:border-blue-300 shadow-sm hover:shadow-md backdrop-blur-sm"
+                              : "bg-white hover:bg-blue-50 text-gray-700 hover:text-blue-600 border border-gray-200 hover:border-blue-300 shadow-sm hover:shadow-md backdrop-blur-sm"
                           }`}
                         >
                           {/* شارة "مخصص" للتصنيفات المخصصة */}
@@ -880,7 +874,7 @@ function NewspaperHomePage({
                         className={`mt-8 p-6 rounded-3xl shadow-lg dark:shadow-gray-900/50 ${
                           darkMode
                             ? "bg-gray-800/50"
-                            : "bg-[#f8f8f7] dark:bg-gray-800/70"
+                            : "bg-white dark:bg-gray-800/70"
                         } backdrop-blur-sm border ${
                           darkMode
                             ? "border-gray-700"
@@ -937,7 +931,7 @@ function NewspaperHomePage({
                                     className={`h-full rounded-xl overflow-hidden shadow-md transition-all duration-300 transform hover:scale-[1.02] ${
                                       darkMode
                                         ? "bg-gray-800 border border-gray-700"
-                                        : "bg-[#f8f8f7] border border-gray-100"
+                                        : "bg-white border border-gray-100"
                                     }`}
                                   >
                                     {/* صورة المقال */}
@@ -1578,7 +1572,7 @@ function NewspaperHomePage({
         {/* 8. التحليل العميق (Deep Analysis) 🧠 */}
         {/* Deep Analysis Block - بلوك التحليل العميق - يأتي بعد الكلمات المفتاحية ومقترب */}
         <section
-          className={`relative w-full bg-[#f8f8f7] dark:bg-[#0d1b2a] border-y border-gray-100 dark:border-gray-800 ${
+          className={`relative w-full bg-white dark:bg-[#0d1b2a] border-y border-gray-100 dark:border-gray-800 ${
             isMobileView ? "py-12 mb-12" : "py-16 mb-16"
           }`}
         >
