@@ -16,6 +16,13 @@ export const http = axios.create({
   },
 });
 
+// Helper function to mask tokens for safe logging  
+function maskToken(token: string | null | undefined): string {
+  if (!token) return 'null';
+  if (token.length <= 10) return '***masked***';
+  return token.substring(0, 6) + '...' + token.substring(token.length - 4);
+}
+
 // متغير لمنع تكرار العمليات
 let isReplaying = false;
 
@@ -28,9 +35,16 @@ http.interceptors.request.use(
     const token = getAccessToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log('🔑 إضافة توكن للطلب:', config.url, '- التوكن:', token.substring(0, 20) + '...');
+      console.log('🔑 [http] Adding token to request:', config.url);
+      console.log('🔑 [http] Token source: memory - masked:', maskToken(token));
     } else {
-      console.log('⚠️ لا يوجد توكن للطلب:', config.url);
+      console.log('⚠️ [http] No token available for request:', config.url);
+      // Try to get from cookie as fallback
+      const cookieToken = getCookieValue('__Host-sabq-access-token') || getCookieValue('sabq_at');
+      if (cookieToken) {
+        config.headers.Authorization = `Bearer ${cookieToken}`;
+        console.log('🔑 [http] Fallback: using cookie token - masked:', maskToken(cookieToken));
+      }
     }
 
     // إضافة CSRF token للطلبات المهمة
@@ -44,7 +58,7 @@ http.interceptors.request.use(
     // رؤوس إضافية للأمان
     config.headers['X-Requested-With'] = 'XMLHttpRequest';
     
-    console.log('📤 طلب HTTP:', config.method?.toUpperCase(), config.url);
+    console.log('📤 [http] Request:', config.method?.toUpperCase(), config.url);
     return config;
   },
   (error) => Promise.reject(error)
@@ -88,21 +102,21 @@ http.interceptors.response.use(
       }
 
       try {
-        console.log('🔄 محاولة تجديد التوكن وإعادة الطلب...');
-        console.log('🔍 التوكن الحالي قبل التجديد:', getAccessToken()?.substring(0, 20) + '...');
+        console.log('🔄 [http] Attempting token refresh and retry...');
+        console.log('🔍 [http] Current token before refresh - masked:', maskToken(getAccessToken()));
         
         // فحص الكوكيز قبل التجديد
-        console.log('🍪 فحص الكوكيز قبل التجديد:');
-        const cookiesDebug = typeof document !== 'undefined' ? document.cookie : 'undefined';
-        console.log('  - جميع الكوكيز:', cookiesDebug);
-        
+        console.log('🍪 [http] Cookie check before refresh:');
         const refreshCookie = getCookieValue('sabq_rft') || getCookieValue('__Host-sabq-refresh');
         const csrfToken = getCookieValue('sabq-csrf-token');
-        console.log('  - كوكي التجديد:', refreshCookie ? 'موجود' : 'مفقود');
-        console.log('  - CSRF Token:', csrfToken ? 'موجود' : 'مفقود');
+        console.log('  - Refresh cookie:', refreshCookie ? 'present' : 'missing');
+        console.log('  - CSRF Token:', csrfToken ? 'present' : 'missing');
         
         // تجديد التوكن (مع منع السباقات)
         const newToken = await ensureAccessToken();
+        
+        console.log('✅ [http] Token refresh successful - masked:', maskToken(newToken));
+        console.log('🔄 [http] Retrying original request with new token');
         
         console.log('🔍 التوكن الجديد بعد التجديد:', newToken?.substring(0, 20) + '...');
         console.log('🔍 التوكن من الذاكرة:', getAccessToken()?.substring(0, 20) + '...');
@@ -118,7 +132,7 @@ http.interceptors.response.use(
         original.headers.Authorization = `Bearer ${newToken}`;
         
         console.log('🔄 إعادة تشغيل الطلب بالتوكن الجديد:', original.url);
-        console.log('� Authorization header:', original.headers.Authorization?.substring(0, 30) + '...');
+        console.log('🔑 Authorization header:', original.headers.Authorization?.substring(0, 30) + '...');
         
         // إعادة إرسال الطلب بالتوكن الجديد
         return http(original);

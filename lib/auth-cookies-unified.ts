@@ -7,16 +7,18 @@ import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
 
 // إعدادات الكوكيز الموحدة (تطبيق البرومنت)
+/**
+ * Enhanced cookie configuration to ensure __Host- cookies work correctly
+ * Key fix: Domain attribute must NOT be set for __Host- cookies
+ */
 const COOKIE_CONFIG = {
   // إعدادات الأمان
   secure: process.env.NODE_ENV === 'production',
   httpOnly: true,
   
-  // إعدادات الدومين موحدة حسب البرومنت: Domain=.sabq.me
-  domain: process.env.NODE_ENV === 'production' 
-    ? '.sabq.me'  // موحد حسب البرومنت
-    : undefined,
-  
+  // إعدادات الدومين - CRITICAL FIX: Domain must be undefined for __Host- cookies
+  // Domain is explicitly omitted for __Host- prefixed cookies as per spec
+  // Legacy cookies will still use domain for backward compatibility
   path: '/',
   
   // SameSite Policy موحدة حسب البرومنت: SameSite=Lax
@@ -28,17 +30,28 @@ const COOKIE_CONFIG = {
   extendedMaxAge: 60 * 24 * 60 * 60, // 60 يوم مع "تذكرني"
 };
 
+// Legacy cookie configuration (with domain for backward compatibility)
+const LEGACY_COOKIE_CONFIG = {
+  secure: process.env.NODE_ENV === 'production',
+  httpOnly: true,
+  domain: process.env.NODE_ENV === 'production' 
+    ? '.sabq.me'  // موحد حسب البرومنت للكوكيز القديمة فقط
+    : undefined,
+  path: '/',
+  sameSite: 'lax' as const,
+};
+
 // أسماء الكوكيز الموحدة (حسب البرومنت)
 export const COOKIE_NAMES = {
   ACCESS_TOKEN: '__Host-sabq-access-token',
-  REFRESH_TOKEN: 'sabq_rft', // اسم موحد حسب البرومنت  
+  REFRESH_TOKEN: '__Host-sabq-refresh', // Fixed: use __Host- prefix for refresh token too  
   USER_SESSION: '__Host-sabq-user-session',
   CSRF_TOKEN: 'sabq-csrf-token', // غير __Host لأنه يحتاج JavaScript access
 } as const;
 
 // أسماء الكوكيز القديمة للتنظيف والـ Fallback (قابلة للتوسعة)
 const LEGACY_COOKIES = [
-  'sabq_at', 'sabq_rt', 'access_token', 'refresh_token', 
+  'sabq_at', 'sabq_rft', 'sabq_rt', 'access_token', 'refresh_token', 
   'auth-token', 'user', 'token', 'jwt'
 ];
 
@@ -50,6 +63,14 @@ export const TOKEN_COOKIE_PRIORITY = [
   'auth-token',               // Fallback عام
   'token',                    // Fallback عام
   'jwt'                       // Fallback عام
+] as const;
+
+// Refresh token priority (per requirements)
+export const REFRESH_TOKEN_COOKIE_PRIORITY = [
+  '__Host-sabq-refresh',      // النظام الموحد الجديد (أولوية عليا)
+  'sabq_rft',                 // النظام القديم الرئيسي  
+  'sabq_rt',                  // Fallback
+  'refresh_token',            // Fallback عام
 ] as const;
 
 /**
@@ -97,14 +118,11 @@ export function setUnifiedAuthCookies(
     });
   }
 
-  // CSRF Token
+  // CSRF Token (uses legacy config since it's not __Host- prefixed)
   const csrfToken = generateCSRFToken();
   response.cookies.set(COOKIE_NAMES.CSRF_TOKEN, csrfToken, {
-    secure: COOKIE_CONFIG.secure,
+    ...LEGACY_COOKIE_CONFIG, // Use legacy config with domain for CSRF token
     httpOnly: false, // يحتاج للإرسال في headers
-    sameSite: COOKIE_CONFIG.sameSite,
-    domain: COOKIE_CONFIG.domain,
-    path: COOKIE_CONFIG.path,
     maxAge,
   });
 
@@ -127,30 +145,34 @@ export function updateAccessToken(response: NextResponse, accessToken: string) {
 }
 
 /**
- * قراءة كوكي المصادقة الموحدة
+ * قراءة كوكي المصادقة الموحدة - Enhanced with proper fallback priority
  */
 export function getUnifiedAuthTokens(request: NextRequest): {
   accessToken: string | null;
   refreshToken: string | null;
   userSession: any | null;
 } {
-  // NOTE: Always prefer unified cookie names for new system
-  // محاولة قراءة الكوكيز الموحدة أولاً (أولوية عالية)
-  let accessToken = request.cookies.get(COOKIE_NAMES.ACCESS_TOKEN)?.value || null;
-  let refreshToken = request.cookies.get(COOKIE_NAMES.REFRESH_TOKEN)?.value || null;
+  // Use priority-based token lookup (per requirements)
+  let accessToken: string | null = null;
+  let refreshToken: string | null = null;
   let userSession = null;
 
-  // Legacy fallback support for backward compatibility
-  // Fallback للكوكيز القديمة (دعم التوافق مع الأنظمة القديمة)
-  if (!accessToken) {
-    accessToken = request.cookies.get('sabq_at')?.value || 
-                  request.cookies.get('access_token')?.value ||
-                  request.cookies.get('auth-token')?.value || null;
+  // Access token lookup with priority order
+  for (const cookieName of TOKEN_COOKIE_PRIORITY) {
+    const cookieValue = request.cookies.get(cookieName)?.value;
+    if (cookieValue) {
+      accessToken = cookieValue;
+      break;
+    }
   }
 
-  if (!refreshToken) {
-    refreshToken = request.cookies.get('sabq_rt')?.value || 
-                   request.cookies.get('refresh_token')?.value || null;
+  // Refresh token lookup with priority order (per requirements)
+  for (const cookieName of REFRESH_TOKEN_COOKIE_PRIORITY) {
+    const cookieValue = request.cookies.get(cookieName)?.value;
+    if (cookieValue) {
+      refreshToken = cookieValue;
+      break;
+    }
   }
 
   // محاولة قراءة معلومات الجلسة
@@ -191,24 +213,24 @@ export function clearAllAuthCookies(response: NextResponse) {
  */
 function cleanupLegacyCookies(response: NextResponse) {
   LEGACY_COOKIES.forEach(cookieName => {
-    // مسح مع domain عادي
+    // مسح بدون domain (للكوكيز الحالية)
     response.cookies.set(cookieName, '', {
       httpOnly: true,
-      secure: COOKIE_CONFIG.secure,
-      sameSite: COOKIE_CONFIG.sameSite,
+      secure: LEGACY_COOKIE_CONFIG.secure,
+      sameSite: LEGACY_COOKIE_CONFIG.sameSite,
       path: '/',
       maxAge: 0,
       expires: new Date(0),
     });
 
-    // مسح مع domain محدد للإنتاج
-    if (COOKIE_CONFIG.domain) {
+    // مسح مع domain محدد للإنتاج (للكوكيز القديمة)
+    if (process.env.NODE_ENV === 'production') {
       response.cookies.set(cookieName, '', {
         httpOnly: true,
-        secure: COOKIE_CONFIG.secure,
-        sameSite: COOKIE_CONFIG.sameSite,
+        secure: LEGACY_COOKIE_CONFIG.secure,
+        sameSite: LEGACY_COOKIE_CONFIG.sameSite,
         path: '/',
-        domain: COOKIE_CONFIG.domain,
+        domain: '.sabq.me', // Domain محدد للكوكيز القديمة
         maxAge: 0,
         expires: new Date(0),
       });
@@ -216,10 +238,8 @@ function cleanupLegacyCookies(response: NextResponse) {
 
     // مسح النسخة غير HttpOnly
     response.cookies.set(cookieName, '', {
+      ...LEGACY_COOKIE_CONFIG,
       httpOnly: false,
-      secure: COOKIE_CONFIG.secure,
-      sameSite: COOKIE_CONFIG.sameSite,
-      path: '/',
       maxAge: 0,
       expires: new Date(0),
     });

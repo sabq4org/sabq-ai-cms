@@ -344,14 +344,14 @@ export async function requireAuthFromRequest(request: NextRequest): Promise<User
   }
 
   // محاولة جلب التوكن من Request باستخدام قائمة الأولويات
-  // NOTE: Always prefer __Host-sabq-access-token for unified system
-  // Legacy fallback support for backward compatibility
+  // NOTE: Always prefer __Host-sabq-access-token for unified system  
+  // Legacy fallback support for backward compatibility as per requirements
   let token: string | null = null;
   
-  // استخدام قائمة الأولويات للبحث عن التوكن
+  // استخدام قائمة الأولويات للبحث عن التوكن (updated per requirements)
   const tokenPriority = [
     "__Host-sabq-access-token", // ✅ النظام الموحد الجديد (أولوية عليا)
-    "sabq_at",                  // 🔄 النظام القديم الرئيسي
+    "sabq_at",                  // 🔄 النظام القديم الرئيسي (legacy fallback)
     "auth-token",               // 🔄 Fallback عام
     "access_token",             // 🔄 Fallback عام
     "token",                    // 🔄 Fallback عام

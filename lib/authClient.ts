@@ -3,6 +3,13 @@
  * تطبيق البرومنت النصي التنفيذي لإيقاف حلقة 401/refresh
  */
 
+// Load debug helpers (tree-shakable in production)
+if (typeof window !== 'undefined') {
+  import('./debugAuth').catch(() => {
+    // Silent fail if debug helpers can't be loaded
+  });
+}
+
 // متغيرات عامة لإدارة التوكن في الذاكرة
 let accessTokenInMemory: string | null = null;
 let refreshPromise: Promise<string> | null = null;
@@ -116,6 +123,13 @@ export async function performTokenRefresh(): Promise<{success: boolean; token?: 
   }
 }
 
+// Helper function to mask tokens for safe logging
+function maskToken(token: string | null): string {
+  if (!token) return 'null';
+  if (token.length <= 10) return '***masked***';
+  return token.substring(0, 6) + '...' + token.substring(token.length - 4);
+}
+
 /**
  * تنفيذ تجديد التوكن الداخلي مع تسجيل مفصل
  */
@@ -126,15 +140,20 @@ async function performTokenRefreshInternal(): Promise<string> {
   console.log(`🔄 بدء تجديد التوكن (محاولة ${refreshAttempts}/${MAX_REFRESH_ATTEMPTS})...`);
 
   try {
-    console.log('🔗 إرسال طلب التجديد مع credentials...');
+    console.log('🔗 إرسال طلب التجديد مع credentials: include...');
     
     // فحص الكوكيز قبل الإرسال
     if (typeof document !== 'undefined') {
       const cookies = document.cookie;
       console.log('🍪 الكوكيز قبل طلب التجديد:');
       ['sabq_rft', '__Host-sabq-refresh', '__Host-sabq-access-token', 'sabq-csrf-token'].forEach(name => {
+        const cookieValue = getCookieFromDocument(name);
         const exists = cookies.includes(name);
-        console.log(`  ${exists ? '✅' : '❌'} ${name}`);
+        if (name.includes('csrf')) {
+          console.log(`  ${exists ? '✅' : '❌'} ${name}: ${cookieValue ? 'present' : 'missing'}`);
+        } else {
+          console.log(`  ${exists ? '✅' : '❌'} ${name}: ${maskToken(cookieValue)}`);
+        }
       });
     }
     
@@ -155,11 +174,14 @@ async function performTokenRefreshInternal(): Promise<string> {
       }
     }
     
+    console.log('📤 [authClient] Sending refresh request with credentials: include');
     const response = await fetch('/api/auth/refresh', {
       method: 'POST',
       credentials: 'include', // حاسم لإرسال الكوكيز
       headers
     });
+
+    console.log('📥 [authClient] Refresh response status:', response.status, response.statusText);
 
     if (!response.ok) {
       // تسجيل مفصل لاستجابة غير ناجحة
@@ -212,6 +234,8 @@ async function performTokenRefreshInternal(): Promise<string> {
     }
 
     const data = await response.json();
+    console.log('📥 [authClient] Refresh response body received');
+    
     const newToken = data.accessToken || data.token;
     
     if (!newToken) {
@@ -219,10 +243,12 @@ async function performTokenRefreshInternal(): Promise<string> {
       throw new Error('No token returned from server');
     }
 
-    // تحديث التوكن في الذاكرة
+    console.log('✅ [authClient] New token received:', maskToken(newToken));
+
+    // تحديث التوكن في الذاكرة - ensure this is called
     setAccessTokenInMemory(newToken);
     
-    console.log('✅ تم تجديد التوكن بنجاح');
+    console.log('✅ تم تجديد التوكن بنجاح وحفظه في الذاكرة');
     refreshAttempts = 0; // إعادة تعيين العداد عند النجاح
 
     // إطلاق حدث التجديد (بدون reload!)
@@ -294,6 +320,15 @@ export async function validateSession(): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+// Expose auth state for debug helpers (safe for production)
+if (typeof window !== 'undefined') {
+  (window as any)._sabq_auth_state = {
+    get accessToken() { return accessTokenInMemory; },
+    get refreshAttempts() { return refreshAttempts; },
+    get lastRefreshAttempt() { return lastRefreshAttempt; }
+  };
 }
 
 /**
