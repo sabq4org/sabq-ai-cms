@@ -108,9 +108,14 @@ export default function CompactThemeSwitcher({ className = '' }: CompactThemeSwi
         themeToApply = themes.find(t => t.id === savedTheme) || themes[0];
         console.log('✅ Found saved theme:', themeToApply);
       } else {
-        themeToApply = themes[0]; // الافتراضي هو الأزرق
+        themeToApply = themes[0]; // الافتراضي هو "بلا لون"
         console.log('⚠️ No saved theme, using default:', themeToApply);
-        localStorage.setItem('theme-color', themeToApply.id);
+        // لا نحفظ "بلا لون" في localStorage لتجنب الخلط
+        if (!themeToApply.isDefault) {
+          localStorage.setItem('theme-color', themeToApply.id);
+        } else {
+          localStorage.removeItem('theme-color');
+        }
       }
       
       setCurrentTheme(themeToApply);
@@ -219,9 +224,14 @@ export default function CompactThemeSwitcher({ className = '' }: CompactThemeSwi
     setCurrentTheme(theme);
     setThemeVars(theme);
     
-    // حفظ في localStorage
-    localStorage.setItem('theme-color', theme.id);
-    console.log('💾 Saved to localStorage:', theme.id);
+    // حفظ في localStorage فقط إذا لم يكن "بلا لون"
+    if (theme.isDefault) {
+      localStorage.removeItem('theme-color');
+      console.log('💾 Removed theme from localStorage (using default)');
+    } else {
+      localStorage.setItem('theme-color', theme.id);
+      console.log('💾 Saved to localStorage:', theme.id);
+    }
     
     // إغلاق القائمة بعد الاختيار
     setFocused(false);
