@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import SmartAnalyticsDashboard from '@/components/analytics/SmartAnalyticsDashboard';
+import SmartAnalyticsDashboard from '@/components/Analytics/SmartAnalyticsDashboard';
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 
