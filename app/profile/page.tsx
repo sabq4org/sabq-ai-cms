@@ -40,6 +40,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
+import { useAuth } from "@/hooks/useAuth";
 // المكونات الجديدة
 interface UserProfile {
   id: string;
@@ -145,6 +146,7 @@ interface UserInsights {
 }
 export default function ProfilePage() {
   const router = useRouter();
+  const { user: authUser, loading: authLoading, logout } = useAuth();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -173,11 +175,11 @@ export default function ProfilePage() {
   const manualRefreshRef = useRef(false); // 🆕 للتمييز بين التحديث اليدوي والتلقائي
   const interestsLoadedImmediatelyRef = useRef(false); // 🆕 لتتبع تحميل الاهتمامات من fetchUserInterestsImmediately
   useEffect(() => {
-    if (!fetchDataRef.current) {
+    if (!fetchDataRef.current && !authLoading) {
       fetchDataRef.current = true;
       checkAuth();
     }
-  }, []);
+  }, [authUser, authLoading]);
 
   // إضافة listener لتحديث الاهتمامات عند العودة للصفحة (أقل تكراراً)
   useEffect(() => {
@@ -578,12 +580,14 @@ export default function ProfilePage() {
     }
   };
   const checkAuth = async () => {
-    const userData = localStorage.getItem("user");
-    if (!userData) {
-      router.push("/login");
+    // استخدام authUser من useAuth بدلاً من localStorage
+    if (!authUser) {
+      if (!authLoading) {
+        router.push("/login");
+      }
       return;
     }
-    const localUser = JSON.parse(userData);
+    
     // جلب البيانات المحدثة من API
     try {
       const response = await fetch("/api/auth/me", {
@@ -592,31 +596,36 @@ export default function ProfilePage() {
       if (response.ok) {
         const data = await response.json();
         if (data.success && data.user) {
-          // دمج البيانات المحدثة مع البيانات المحلية
+          // دمج البيانات المحدثة
           const updatedUser = {
-            ...localUser,
+            ...authUser,
             ...data.user,
             interests: data.user.interests || [],
           };
           setUser(updatedUser);
-          localStorage.setItem("user", JSON.stringify(updatedUser));
+          // لا نحتاج لحفظ في localStorage بعد الآن
         } else {
-          setUser(localUser);
+          setUser(authUser as UserProfile);
         }
       } else {
-        setUser(localUser);
+        // إذا فشل طلب API، استخدم authUser
+        setUser(authUser as UserProfile);
       }
     } catch (error) {
       console.error("Error fetching updated user data:", error);
-      setUser(localUser);
+      setUser(authUser as UserProfile);
     } finally {
       setLoading(false);
     }
   };
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    toast.success("تم تسجيل الخروج بنجاح");
-    router.push("/"); // العودة للصفحة الرئيسية بدلاً من صفحة تسجيل الدخول
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast.success("تم تسجيل الخروج بنجاح");
+      router.push("/"); // العودة للصفحة الرئيسية بدلاً من صفحة تسجيل الدخول
+    } catch (error) {
+      toast.error("فشل تسجيل الخروج");
+    }
   };
   const formatDate = (dateString: string) => {
     if (!dateString) return "";
