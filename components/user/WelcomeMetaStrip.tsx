@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useLoyalty } from '@/hooks/useLoyalty';
 
 export default function WelcomeMetaStrip() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [now, setNow] = React.useState<Date>(() => new Date());
   const [mounted, setMounted] = React.useState(false);
   const { points, mutate } = useLoyalty();
@@ -13,10 +13,11 @@ export default function WelcomeMetaStrip() {
     setMounted(true);
     const id = setInterval(() => setNow(new Date()), 60000);
     
-    if (user?.id) { mutate(); }
+    // حدّث نقاط الولاء فقط عندما تتوفر هوية المستخدم ولا توجد حالة تحميل
+    if (user?.id && !loading) { mutate(); }
     
     return () => clearInterval(id);
-  }, [user]);
+  }, [user, loading, mutate]);
 
   const formatDate = (d: Date) =>
     d.toLocaleDateString('ar-SA', {
@@ -32,6 +33,31 @@ export default function WelcomeMetaStrip() {
     if (hour < 18) return 'مساء الخير';
     return 'مساء الخير';
   };
+
+  // حالة التحميل لتجنب وميض الحالة
+  if (loading) {
+    return (
+      <div
+        className="welcome-meta-strip"
+        style={{
+          display: 'flex',
+          justifyContent: 'flex-start',
+          alignItems: 'flex-start',
+          gap: '8px',
+          flexDirection: 'column',
+          color: 'hsl(var(--muted))',
+          marginBottom: '6px',
+          flexWrap: 'wrap',
+        }}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', textAlign: 'left' }}>
+          <span style={{ color: 'hsl(var(--fg))', fontWeight: 700, fontSize: 'clamp(16px, 2.8vw, 20px)' }}>
+            جاري التحميل...
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
