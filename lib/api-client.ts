@@ -59,8 +59,20 @@ apiClient.interceptors.request.use(
 
 // Response interceptor - للتعامل مع 401 وتجديد التوكن
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('✅ API Response successful:', response.config.url);
+    return response;
+  },
   async (error: AxiosError) => {
+    console.log('❌ API Error:', error.config?.url, error.response?.status);
+    console.log('❌ Error details:', {
+      url: error.config?.url,
+      method: error.config?.method,
+      status: error.response?.status,
+      data: error.response?.data,
+      headers: error.config?.headers
+    });
+    
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
     
     if (error.response?.status === 401 && !originalRequest._retry) {
@@ -79,14 +91,22 @@ apiClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
+        console.log('🔄 محاولة تجديد التوكن...');
+        
         // محاولة تجديد التوكن
         const response = await axios.post('/api/auth/refresh', {}, {
-          withCredentials: true
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json'
+          }
         });
+
+        console.log('🔍 Refresh response status:', response.status);
+        console.log('🔍 Refresh response data:', response.data);
 
         if (response.data.success) {
           // نجح التجديد، معالجة الطابور
-          console.log('🔄 Silent refresh successful');
+          console.log('✅ تم تجديد التوكن بنجاح');
           processQueue(null);
           
           // أطلق حدث لتحديث حالة المصادقة
@@ -95,6 +115,7 @@ apiClient.interceptors.response.use(
           // إعادة إرسال الطلب الأصلي
           return apiClient(originalRequest);
         } else {
+          console.log('❌ فشل تجديد التوكن - response not successful:', response.data);
           throw new Error('فشل تجديد الجلسة');
         }
       } catch (refreshError) {

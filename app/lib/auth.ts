@@ -279,6 +279,8 @@ export async function requireAuth(): Promise<User> {
 
 // Middleware للتحقق من المصادقة من طلب HTTP
 export async function requireAuthFromRequest(request: NextRequest): Promise<User> {
+  console.log('🔍 بدء التحقق من المصادقة...');
+  
   // للتطوير: التحقق من user-id header أولاً
   const userIdHeader = request.headers.get('user-id');
   if (userIdHeader) {
@@ -348,22 +350,35 @@ export async function requireAuthFromRequest(request: NextRequest): Promise<User
               request.cookies.get("token")?.value ||
               request.cookies.get("jwt")?.value;
 
+  console.log('🔑 التوكن من الكوكيز:', token ? 'موجود' : 'غير موجود');
+  console.log('🔍 جميع الكوكيز:', request.cookies.getAll().map(c => ({ name: c.name, hasValue: !!c.value })));
+
   // محاولة جلب من Authorization header
   if (!token) {
     const authHeader = request.headers.get('authorization');
     if (authHeader && authHeader.startsWith('Bearer ')) {
       token = authHeader.substring(7);
+      console.log('🔑 تم العثور على التوكن في Header');
     }
   }
 
   if (!token) {
-    throw new Error("Unauthorized");
+    console.log('❌ لا يوجد توكن - رفض الطلب');
+    throw new Error("No authentication token found");
   }
 
   // التحقق من التوكن
-  const payload = await verifyToken(token);
-  if (!payload) {
-    throw new Error("Unauthorized");
+  let payload;
+  try {
+    payload = await verifyToken(token);
+    if (!payload) {
+      console.log('❌ فشل التحقق من التوكن - payload فارغ');
+      throw new Error("Invalid token");
+    }
+    console.log('✅ تم فك تشفير التوكن بنجاح');
+  } catch (jwtError: any) {
+    console.error('❌ خطأ في التحقق من التوكن:', jwtError.message);
+    throw new Error('Invalid token');
   }
 
   // الحصول على المستخدم من قاعدة البيانات
@@ -374,6 +389,7 @@ export async function requireAuthFromRequest(request: NextRequest): Promise<User
 
   const pid = (payload?.sub as string) || payload?.id || payload?.userId || payload?.uid || payload?.user?.id || payload?.user_id;
   const pemail = payload?.email || payload?.user?.email;
+  console.log('🔍 معرف المستخدم من التوكن:', pid, 'البريد:', pemail);
   let user = null as any;
   if (pid) {
     user = await prisma.users.findUnique({
@@ -404,8 +420,11 @@ export async function requireAuthFromRequest(request: NextRequest): Promise<User
   await prisma.$disconnect();
 
   if (!user) {
-    throw new Error("Unauthorized");
+    console.log('❌ المستخدم غير موجود في قاعدة البيانات');
+    throw new Error("User not found");
   }
+
+  console.log('✅ تم العثور على المستخدم:', user.email);
 
   const superAdmins = (process.env.SUPER_ADMIN_EMAILS || "admin@sabq.ai")
     .split(",")

@@ -36,17 +36,29 @@ function getLevel(totalPoints: number) {
 export async function POST(req: NextRequest) {
   try {
     console.log('🔍 بدء معالجة طلب الإعجاب...');
+    console.log('🔍 Headers:', Object.fromEntries(req.headers.entries()));
+    console.log('🔍 Cookies:', req.cookies.getAll());
     
     // التحقق من المصادقة
     let user;
     try {
       user = await requireAuthFromRequest(req);
       console.log('✅ تم التحقق من المستخدم:', user.id);
-    } catch (authError) {
+    } catch (authError: any) {
       console.error('❌ خطأ في المصادقة:', authError);
+      console.error('❌ تفاصيل الخطأ:', authError.stack);
+      
       return NextResponse.json({ 
         success: false, 
-        error: "Unauthorized" 
+        error: "Unauthorized",
+        details: process.env.NODE_ENV === 'development' ? authError.message : undefined,
+        debug: {
+          cookies: req.cookies.getAll().map(c => ({ name: c.name, hasValue: !!c.value })),
+          headers: {
+            authorization: !!req.headers.get("authorization"),
+            cookie: !!req.headers.get("cookie")
+          }
+        }
       }, { status: 401 });
     }
     
