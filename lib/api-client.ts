@@ -89,6 +89,9 @@ apiClient.interceptors.response.use(
           console.log('🔄 Silent refresh successful');
           processQueue(null);
           
+          // أطلق حدث لتحديث حالة المصادقة
+          window.dispatchEvent(new Event('auth-change'));
+          
           // إعادة إرسال الطلب الأصلي
           return apiClient(originalRequest);
         } else {

@@ -1,260 +1,165 @@
-"use client";
+'use client';
 
-import Cookies from "js-cookie";
-import { jwtDecode, JwtPayload } from "jwt-decode";
-import { SecureStorage, initializeSecureStorage } from "@/lib/secure-storage";
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { createContext, useState, useEffect, useCallback, useContext } from 'react';
 
-export interface User extends JwtPayload {
+export interface User {
   id: string;
-  name: string;
   email: string;
+  name?: string;
   role: string;
-  avatar?: string;
+  roleId?: string;
   is_admin?: boolean;
+  avatar?: string;
   loyaltyPoints?: number;
-  status?: string;
-  isVerified?: boolean;
+  created_at?: string;
+  updated_at?: string;
+  is_verified?: boolean;
+  iat?: number;
+  exp?: number;
 }
 
-export interface AuthContextType {
+interface AuthState {
   user: User | null;
+  isLoggedIn: boolean;
+  userId: string | null;
   loading: boolean;
-  isAuthenticated: boolean;
-  login: (token: string) => void;
+  error: string | null;
+}
+
+interface AuthContextValue extends AuthState {
+  login: (tokenOrUser: string | User) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(
-  undefined
-);
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-// Hook لاستخدام AuthContext
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    // في البيئة المحلية، أعطي تحذير بدلاً من خطأ
-    if (process.env.NODE_ENV === "development") {
-      console.warn("useAuth must be used within an AuthProvider");
-      return {
-        user: null,
-        loading: false,
-        isAuthenticated: false,
-        login: () => {},
-        logout: () => {},
-        refreshUser: async () => {},
-      };
-    }
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
-}
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [authState, setAuthState] = useState<AuthState>({
+    user: null,
+    isLoggedIn: false,
+    userId: null,
+    loading: true,
+    error: null
+  });
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  // يمنع تكرار التنفيذ في وضع التطوير (React StrictMode)
-  const didInitRef = useRef(false);
-
-  const fetchUserFromAPI = async (): Promise<User | null> => {
-    // لا نعتمد على auth-token غير الآمن، نستخدم الكوكيز HttpOnly فقط عبر credentials: 'include'
-    const headers: Record<string, string> = {};
-
-    // المحاولة الأولى: /api/auth/me
-    try {
-      const resp = await fetch("/api/auth/me", { headers, credentials: "include", cache: 'no-store' });
-      if (resp.ok) {
-        const data = await resp.json();
-        if (data.success && data.user) return data.user;
-      }
-    } catch (err) {
-      console.log("خطأ في جلب بيانات المستخدم من API:", err);
-    }
-
-    // المحاولة الثانية: /api/user/me
-    try {
-      const resp2 = await fetch("/api/user/me", { headers, credentials: "include", cache: 'no-store' });
-      if (resp2.ok) {
-        const data2 = await resp2.json();
-        if (data2 && (data2.id || (data2.success && data2.id))) {
-          return {
-            id: data2.id,
-            name: data2.name || "مستخدم",
-            email: data2.email || "",
-            role: data2.role || "user",
-            is_admin: data2.isAdmin || data2.is_admin || false,
-            isVerified: data2.isVerified || data2.is_verified || false,
-          } as User;
-        }
-      }
-    } catch (err2) {
-      console.log("خطأ في جلب بيانات المستخدم من /api/user/me:", err2);
-    }
-
-    // لا مزيد من fallback إلى Cookie 'user' كمصدر مصادقة
-
-    return null;
-  };
-
-  const loadUserFromCookie = async () => {
-    try {
-      // محاولة جلب بيانات المستخدم من API أولاً
-      const userData = await fetchUserFromAPI();
-      if (userData) {
-        setUser(userData);
-        // مزامنة مع localStorage
-        if (typeof window !== "undefined") {
-          localStorage.setItem("user", JSON.stringify(userData));
-          if (userData.id) {
-            localStorage.setItem("user_id", String(userData.id));
-          }
-        }
-        setLoading(false);
-        return;
-      }
-
-      // إذا فشل API، محاولة قراءة من الكوكيز كـ fallback
-      // أمان: لا تعتمد على Cookie 'user' كمصدر مصادقة
-
-      // إذا لم نجد أي بيانات مستخدم، تنظيف localStorage
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("user");
-        localStorage.removeItem("user_id");
-      }
-
-      // إذا لم نجد أي بيانات مستخدم
-      setUser(null);
-    } catch (error) {
-      console.error("خطأ في تحميل بيانات المستخدم:", error);
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (didInitRef.current) return;
-    didInitRef.current = true;
-    
-    // ترحيل البيانات من localStorage إلى تخزين آمن
-    initializeSecureStorage();
-    
-    loadUserFromCookie();
-    // تجديد صامت دوري + إعادة تحقق عند التركيز والاتصال
-    let refreshInterval: any;
-    const doSilentRefresh = async () => {
-      try {
-        await fetch('/api/auth/refresh', { method: 'POST', credentials: 'include' });
-        await refreshUser();
-      } catch {}
-    };
-    refreshInterval = setInterval(doSilentRefresh, 10 * 60 * 1000); // كل 10 دقائق
-    const onFocus = () => refreshUser();
-    const onReconnect = () => refreshUser();
-    window.addEventListener('focus', onFocus);
-    window.addEventListener('online', onReconnect);
-    return () => {
-      clearInterval(refreshInterval);
-      window.removeEventListener('focus', onFocus);
-      window.removeEventListener('online', onReconnect);
-    };
+  // تحديث حالة المصادقة
+  const updateAuthState = useCallback((user: User | null, error: string | null = null) => {
+    setAuthState({
+      user,
+      isLoggedIn: !!user,
+      userId: user?.id || null,
+      loading: false,
+      error
+    });
   }, []);
 
-  const login = async (token: string) => {
+  // تحميل بيانات المستخدم
+  const loadUser = useCallback(async () => {
     try {
-      console.log('🔑 بدء تسجيل الدخول بالتوكن');
+      // تعيين loading state
+      setAuthState(prev => ({ ...prev, loading: true }));
       
-      // لا نخزن التوكن في كوكي غير HttpOnly؛ نترك ضبط الكوكيز لمسار /api/auth/login
-      
-      // جلب بيانات المستخدم من API
-      const userData = await fetchUserFromAPI();
-      if (userData) {
-        setUser(userData);
-        console.log('✅ تم تسجيل الدخول بنجاح:', userData.name);
-        
-        // حفظ في localStorage
-        if (typeof window !== "undefined") {
-          localStorage.setItem("user", JSON.stringify(userData));
-          if (userData.id) {
-            localStorage.setItem("user_id", String(userData.id));
-          }
+      // الاعتماد على API فقط للحصول على بيانات المستخدم
+      const response = await fetch('/api/auth/me', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
         }
-      }
-      
-      setLoading(false);
-    } catch (error) {
-      console.error("فشل في معالجة التوكن عند تسجيل الدخول:", error);
-      setLoading(false);
-    }
-  };
-
-  const logout = async () => {
-    try {
-      // استدعاء API تسجيل الخروج
-      await fetch("/api/auth/logout", {
-        method: "POST",
-        credentials: "include",
       });
-    } catch (error) {
-      console.error("خطأ في تسجيل الخروج:", error);
-    }
 
-    setUser(null);
-    // إزالة أي أثر عميل فقط
-    Cookies.remove("user");
-
-    // إزالة من localStorage أيضاً
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("user");
-      localStorage.removeItem("user_id");
-      localStorage.removeItem("user_preferences");
-      localStorage.removeItem("darkMode");
-      sessionStorage.removeItem("user");
-      sessionStorage.clear(); // تنظيف جميع بيانات الجلسة
-    }
-
-    // لا نعيد التوجيه هنا لتجنب تضارب مع واجهة الإدارة؛ دَع المستدعي يقرر
-  };
-
-  const refreshUser = async () => {
-    // محاولة تجديد صامت إذا لزم
-    try {
-      await fetch('/api/auth/refresh', { method: 'POST', credentials: 'include' });
-    } catch {}
-    const userData = await fetchUserFromAPI();
-    if (userData) {
-      setUser(userData);
-      if (typeof window !== "undefined") {
-        localStorage.setItem("user", JSON.stringify(userData));
-        if (userData.id) {
-          localStorage.setItem("user_id", String(userData.id));
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.user) {
+          updateAuthState(data.user);
+          return;
         }
       }
-    } else {
-      setUser(null);
+
+      // لا يوجد مستخدم مسجل
+      updateAuthState(null);
+    } catch (error) {
+      console.error('خطأ في تحميل بيانات المستخدم:', error);
+      updateAuthState(null, 'فشل في تحميل بيانات المستخدم');
     }
+  }, [updateAuthState]);
+
+  // تسجيل الدخول
+  const login = useCallback(async (tokenOrUser: string | User) => {
+    // إذا كان token، نحتاج لجلب بيانات المستخدم
+    if (typeof tokenOrUser === 'string') {
+      // Token تم تمريره، الكوكيز يجب أن تكون قد تم تعيينها من قبل API
+      // فقط نحتاج لتحديث بيانات المستخدم
+      await loadUser();
+      
+      // أطلق حدث لتحديث المكونات الأخرى
+      window.dispatchEvent(new Event('auth-change'));
+    } else {
+      // User object تم تمريره مباشرة
+      updateAuthState(tokenOrUser);
+      window.dispatchEvent(new Event('auth-change'));
+    }
+  }, [updateAuthState, loadUser]);
+
+  // تسجيل الخروج
+  const logout = useCallback(() => {
+    updateAuthState(null);
+    
+    // مسح البيانات غير الحساسة فقط
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('user_preferences');
+      sessionStorage.clear();
+    }
+    
+    // لا نتلاعب بالكوكيز HttpOnly من العميل
+  }, [updateAuthState]);
+
+  // تحميل البيانات عند بدء التطبيق
+  useEffect(() => {
+    loadUser();
+  }, [loadUser]);
+
+  // استمع لتغييرات الجلسة من تبويبات أخرى
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'auth_session_update') {
+        loadUser();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [loadUser]);
+
+  // استمع لتغييرات المصادقة
+  useEffect(() => {
+    const handleAuthChange = () => {
+      loadUser();
+    };
+
+    window.addEventListener('auth-change', handleAuthChange);
+    return () => window.removeEventListener('auth-change', handleAuthChange);
+  }, [loadUser]);
+
+  const value: AuthContextValue = {
+    ...authState,
+    login,
+    logout,
+    refreshUser: loadUser
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        isAuthenticated: !!user,
-        login,
-        logout,
-        refreshUser,
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 }

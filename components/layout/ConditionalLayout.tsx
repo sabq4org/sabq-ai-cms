@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import ThemeApplier from "@/components/ThemeApplier";
 import { QueryProvider } from "@/lib/providers/QueryProvider";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 // Layouts
 import AdminPureLayout from "./AdminPureLayout";
@@ -26,8 +27,10 @@ export default function ConditionalLayout({
   if (isAdminLoginPath) {
     return (
       <QueryProvider>
-        <ThemeApplier />
-        {children}
+        <AuthProvider>
+          <ThemeApplier />
+          {children}
+        </AuthProvider>
       </QueryProvider>
     );
   }
@@ -35,10 +38,12 @@ export default function ConditionalLayout({
   if (isAdminPath) {
     return (
       <QueryProvider>
-        <AdminPureLayout>
-          <ThemeApplier />
-          {children}
-        </AdminPureLayout>
+        <AuthProvider>
+          <AdminPureLayout>
+            <ThemeApplier />
+            {children}
+          </AdminPureLayout>
+        </AuthProvider>
       </QueryProvider>
     );
   }
@@ -47,18 +52,22 @@ export default function ConditionalLayout({
   if (isLightPath) {
     return (
       <QueryProvider>
-        <ThemeApplier />
-        {children}
+        <AuthProvider>
+          <ThemeApplier />
+          {children}
+        </AuthProvider>
       </QueryProvider>
     );
   }
 
   return (
     <QueryProvider>
-      <SiteLayout>
-        <ThemeApplier />
-        {children}
-      </SiteLayout>
+      <AuthProvider>
+        <SiteLayout>
+          <ThemeApplier />
+          {children}
+        </SiteLayout>
+      </AuthProvider>
     </QueryProvider>
   );
 }
