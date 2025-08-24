@@ -531,10 +531,39 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
   const disconnectFromNotifications = useCallback(() => {
     if (notificationManager.current) {
       try {
-        const token = localStorage.getItem('token');
+        // استخدام نفس منطق قراءة التوكن من الكوكيز
+        let token = '';
+        
+        if (typeof document !== 'undefined') {
+          const cookies = document.cookie.split('; ');
+          const tokenNames = [
+            '__Host-sabq-access-token',  // النظام الجديد - الإنتاج
+            'sabq-access-token',         // النظام الجديد - التطوير
+            'auth-token',                // النظام الحالي المستخدم
+            'sabq_at',                   // النظام الموحد القديم
+            'access_token',              // Fallback عام
+            'token',                     // Fallback عام
+            'jwt'                        // Fallback عام
+          ];
+          
+          for (const name of tokenNames) {
+            const cookie = cookies.find(row => row.startsWith(`${name}=`));
+            if (cookie) {
+              token = cookie.split('=')[1];
+              break;
+            }
+          }
+          
+          // Fallback إلى localStorage
+          if (!token) {
+            const lsToken = localStorage.getItem('auth-token');
+            if (lsToken) token = lsToken;
+          }
+        }
+        
         if (token) {
           const decoded = JSON.parse(atob(token.split('.')[1]));
-          const userId = decoded.userId || decoded.id;
+          const userId = decoded.userId || decoded.id || decoded.user_id || decoded.sub;
           notificationManager.current.disconnectUser(userId);
         }
       } catch (error) {
@@ -587,6 +616,36 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
       disconnectFromNotifications();
     };
   }, []); // إزالة الاعتماديات لمنع الحلقة اللا نهائية
+
+  /**
+   * الاستماع لتغييرات حالة المصادقة وإعادة الاتصال
+   */
+  useEffect(() => {
+    const handleAuthChange = (event: Event) => {
+      const custom = event as CustomEvent;
+      const detail: any = custom?.detail || {};
+      const { type } = detail;
+
+      console.log('🔔 [SmartNotifications] تغيير في حالة المصادقة:', type);
+
+      // إعادة الاتصال عند تسجيل الدخول أو تجديد التوكن
+      if (type === 'login' || type === 'token-refreshed') {
+        setTimeout(() => {
+          connectToNotifications();
+        }, 1000); // تأخير صغير للسماح للحالة بالتحديث
+      } else if (type === 'logout' || type === 'session-expired') {
+        disconnectFromNotifications();
+      }
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('auth-change', handleAuthChange as EventListener);
+      
+      return () => {
+        window.removeEventListener('auth-change', handleAuthChange as EventListener);
+      };
+    }
+  }, [connectToNotifications, disconnectFromNotifications]);
 
   /**
    * تنسيق أيقونة نوع الإشعار
