@@ -323,8 +323,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       // ⛔ إيقاف إعادة التحميل عند token-refreshed (حسب البرومنت)
+      // لكن تحديث حالة المستخدم إذا لزم الأمر
       if (type === 'token-refreshed') {
-        console.log('ℹ️ تجاهل تجديد التوكن - لا إعادة تحميل (تطبيق البرومنت)');
+        console.log('ℹ️ تجديد التوكن - تحديث طابع التوكن فقط (بدون إعادة تحميل)');
+        
+        // تحديث timestamp للمستخدم إذا كان موجود
+        if (authState.user && detail.userVersion) {
+          setAuthState(prev => ({
+            ...prev,
+            user: prev.user ? {
+              ...prev.user,
+              updated_at: new Date().toISOString()
+            } : null
+          }));
+        }
+        
         return;
       }
 

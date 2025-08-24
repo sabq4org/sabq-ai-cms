@@ -343,8 +343,9 @@ export async function requireAuthFromRequest(request: NextRequest): Promise<User
     } as User & { role: string };
   }
 
-  // محاولة جلب التوكن من Request
-  let token = request.cookies.get("sabq_at")?.value ||
+  // محاولة جلب التوكن من Request (أسماء الكوكيز الموحدة أولاً)
+  let token = request.cookies.get("__Host-sabq-access-token")?.value ||  // النظام الموحد الجديد
+              request.cookies.get("sabq_at")?.value ||                    // النظام القديم
               request.cookies.get("auth-token")?.value ||
               request.cookies.get("access_token")?.value ||
               request.cookies.get("token")?.value ||

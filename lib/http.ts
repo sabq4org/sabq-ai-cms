@@ -28,6 +28,9 @@ http.interceptors.request.use(
     const token = getAccessToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log('🔑 إضافة توكن للطلب:', config.url, '- التوكن:', token.substring(0, 20) + '...');
+    } else {
+      console.log('⚠️ لا يوجد توكن للطلب:', config.url);
     }
 
     // إضافة CSRF token للطلبات المهمة
@@ -71,8 +74,8 @@ http.interceptors.response.use(
     // معالجة 401 - لا نكرر للأبد (Single Retry كما في البرومنت)
     if (error.response.status === 401 && !original._retried) {
       
-      // تجاهل الطلبات الحساسة
-      const sensitiveEndpoints = ['/auth/login', '/auth/register', '/auth/refresh', '/auth/me'];
+      // تجاهل الطلبات الحساسة فقط (استثناء /profile لأنه يحتاج تجديد)
+      const sensitiveEndpoints = ['/auth/login', '/auth/register', '/auth/refresh'];
       const isSensitive = sensitiveEndpoints.some(endpoint => 
         original.url?.includes(endpoint)
       );
@@ -84,16 +87,28 @@ http.interceptors.response.use(
 
       try {
         console.log('🔄 محاولة تجديد التوكن وإعادة الطلب...');
+        console.log('🔍 التوكن الحالي قبل التجديد:', getAccessToken()?.substring(0, 20) + '...');
         
         // تجديد التوكن (مع منع السباقات)
         const newToken = await ensureAccessToken();
+        
+        console.log('🔍 التوكن الجديد بعد التجديد:', newToken?.substring(0, 20) + '...');
+        console.log('🔍 التوكن من الذاكرة:', getAccessToken()?.substring(0, 20) + '...');
+        
+        // تأكد من أن التوكن محدث في الذاكرة
+        if (newToken !== getAccessToken()) {
+          console.warn('⚠️ تعارض في التوكن - إصلاح...');
+          // في حالة عدم التزامن، استخدم التوكن الجديد مباشرة
+        }
         
         // وضع علامة أن الطلب تم إعادة محاولته
         original._retried = true;
         original.headers.Authorization = `Bearer ${newToken}`;
         
+        console.log('🔄 إعادة تشغيل الطلب بالتوكن الجديد:', original.url);
+        console.log('� Authorization header:', original.headers.Authorization?.substring(0, 30) + '...');
+        
         // إعادة إرسال الطلب بالتوكن الجديد
-        console.log('🔄 إعادة تشغيل الطلب بالتوكن الجديد');
         return http(original);
         
       } catch (refreshError) {
