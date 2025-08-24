@@ -28,11 +28,15 @@ const COOKIE_CONFIG = {
   extendedMaxAge: 60 * 24 * 60 * 60, // 60 يوم مع "تذكرني"
 };
 
-// أسماء الكوكيز الموحدة (حسب البرومنت)
+// أسماء الكوكيز الموحدة (حسب البرومنت) - مع دعم بيئة التطوير
 export const COOKIE_NAMES = {
-  ACCESS_TOKEN: '__Host-sabq-access-token',
+  ACCESS_TOKEN: process.env.NODE_ENV === 'production' 
+    ? '__Host-sabq-access-token' 
+    : 'sabq-access-token', // كوكي عادي في التطوير
   REFRESH_TOKEN: 'sabq_rft', // اسم موحد حسب البرومنت  
-  USER_SESSION: '__Host-sabq-user-session',
+  USER_SESSION: process.env.NODE_ENV === 'production' 
+    ? '__Host-sabq-user-session' 
+    : 'sabq-user-session', // كوكي عادي في التطوير
   CSRF_TOKEN: 'sabq-csrf-token', // غير __Host لأنه يحتاج JavaScript access
 } as const;
 
@@ -44,7 +48,9 @@ const LEGACY_COOKIES = [
 
 // Future-proofing: قائمة أولويات قراءة التوكن (يمكن إضافة أسماء جديدة)
 export const TOKEN_COOKIE_PRIORITY = [
-  '__Host-sabq-access-token', // النظام الموحد الحالي (أولوية عليا)
+  process.env.NODE_ENV === 'production' ? '__Host-sabq-access-token' : 'sabq-access-token', // النظام الموحد الحالي (أولوية عليا)
+  '__Host-sabq-access-token', // للإنتاج
+  'sabq-access-token',        // للتطوير
   'sabq_at',                  // النظام القديم الرئيسي
   'access_token',             // Fallback عام
   'auth-token',               // Fallback عام
@@ -67,17 +73,26 @@ export function setUnifiedAuthCookies(
   const { rememberMe = false, userInfo } = options;
   const maxAge = rememberMe ? COOKIE_CONFIG.extendedMaxAge : COOKIE_CONFIG.refreshTokenMaxAge;
   
+  console.log('🍪 تعيين الكوكيز الموحدة...');
+  console.log(`  - بيئة: ${process.env.NODE_ENV}`);
+  console.log(`  - Secure: ${COOKIE_CONFIG.secure}`);
+  console.log(`  - Domain: ${COOKIE_CONFIG.domain || 'undefined (localhost)'}`);
+  
   // Access Token (24 ساعة دائماً)
-  response.cookies.set(COOKIE_NAMES.ACCESS_TOKEN, accessToken, {
+  const accessCookieConfig = {
     ...COOKIE_CONFIG,
     maxAge: COOKIE_CONFIG.accessTokenMaxAge,
-  });
+  };
+  
+  response.cookies.set(COOKIE_NAMES.ACCESS_TOKEN, accessToken, accessCookieConfig);
+  console.log(`  ✅ Access Token: ${COOKIE_NAMES.ACCESS_TOKEN}`);
 
   // Refresh Token (30-60 يوم حسب "تذكرني")  
   response.cookies.set(COOKIE_NAMES.REFRESH_TOKEN, refreshToken, {
     ...COOKIE_CONFIG,
     maxAge,
   });
+  console.log(`  ✅ Refresh Token: ${COOKIE_NAMES.REFRESH_TOKEN}`);
 
   // User Session Info (معلومات أساسية محدودة)
   if (userInfo) {
@@ -95,6 +110,7 @@ export function setUnifiedAuthCookies(
       httpOnly: false, // يحتاج للقراءة من JavaScript
       maxAge,
     });
+    console.log(`  ✅ User Session: ${COOKIE_NAMES.USER_SESSION}`);
   }
 
   // CSRF Token
@@ -107,6 +123,7 @@ export function setUnifiedAuthCookies(
     path: COOKIE_CONFIG.path,
     maxAge,
   });
+  console.log(`  ✅ CSRF Token: ${COOKIE_NAMES.CSRF_TOKEN}`);
 
   // تنظيف الكوكيز القديمة
   cleanupLegacyCookies(response);

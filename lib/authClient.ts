@@ -14,16 +14,41 @@ let lastRefreshAttempt = 0;
 let refreshAttempts = 0;
 
 /**
- * قراءة قيمة كوكي من document.cookie
+ * قراءة الكوكي من المتصفح مع Fallback للأسماء المختلفة
  */
 function getCookieFromDocument(name: string): string | null {
   if (typeof document === 'undefined') return null;
   
+  // محاولة قراءة الكوكي المحدد أولاً
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
-  
   if (parts.length === 2) {
-    return parts.pop()?.split(';').shift() || null;
+    const cookieValue = parts.pop()?.split(';').shift() || null;
+    if (cookieValue) {
+      return cookieValue;
+    }
+  }
+  
+  // Fallback للأسماء البديلة (التطوير/الإنتاج)
+  const fallbackNames: Record<string, string[]> = {
+    '__Host-sabq-access-token': ['sabq-access-token', 'sabq_at', 'access_token'],
+    'sabq-access-token': ['__Host-sabq-access-token', 'sabq_at', 'access_token'],
+    'sabq_rft': ['__Host-sabq-refresh', 'sabq_rt', 'refresh_token'],
+    '__Host-sabq-user-session': ['sabq-user-session', 'user'],
+    'sabq-user-session': ['__Host-sabq-user-session', 'user'],
+  };
+  
+  const alternatives = fallbackNames[name] || [];
+  for (const altName of alternatives) {
+    const altValue = `; ${document.cookie}`;
+    const altParts = altValue.split(`; ${altName}=`);
+    if (altParts.length === 2) {
+      const altCookieValue = altParts.pop()?.split(';').shift() || null;
+      if (altCookieValue) {
+        console.log(`📋 [authClient] استخدام fallback cookie: ${altName} بدلاً من ${name}`);
+        return altCookieValue;
+      }
+    }
   }
   
   return null;
