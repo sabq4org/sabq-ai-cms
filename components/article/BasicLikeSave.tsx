@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { Heart, Bookmark } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useLoyalty } from '@/hooks/useLoyalty';
-import { api } from '@/lib/api-client';
 
 interface BasicLikeSaveProps {
   articleId: string;
@@ -61,20 +60,32 @@ export default function BasicLikeSave({
     try {
       console.log('🔍 جلب حالة المستخدم للمقال:', articleId);
       
-      const data = await api.get(`/interactions/user-status?articleId=${articleId}`);
-      console.log('📄 بيانات حالة المستخدم:', data);
-      
-      if (data) {
-        setLiked(!!(data.liked ?? data.hasLiked ?? data.interactions?.liked));
-        setSaved(!!(data.saved ?? data.hasSaved ?? data.interactions?.saved));
-        if (typeof data.likesCount === 'number') setLikes(data.likesCount);
-        if (typeof data.savesCount === 'number') setSaves(data.savesCount);
-        console.log('✅ تم تحديث حالة المستخدم');
+      // استخدام fetch مباشرة لتجنب interceptor issues
+      const response = await fetch(`/api/interactions/user-status?articleId=${articleId}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('📄 بيانات حالة المستخدم:', data);
+        
+        if (data) {
+          setLiked(!!(data.liked ?? data.hasLiked ?? data.interactions?.liked));
+          setSaved(!!(data.saved ?? data.hasSaved ?? data.interactions?.saved));
+          if (typeof data.likesCount === 'number') setLikes(data.likesCount);
+          if (typeof data.savesCount === 'number') setSaves(data.savesCount);
+          console.log('✅ تم تحديث حالة المستخدم');
+        }
       } else {
-        console.warn('⚠️ فشل في جلب حالة المستخدم:', data);
+        console.warn('⚠️ فشل في جلب حالة المستخدم:', response.status);
       }
     } catch (error) {
       console.error('❌ خطأ في جلب حالة المستخدم:', error);
+      // لا تقطع الجلسة عند فشل جلب حالة المستخدم
     }
   };
 
@@ -91,19 +102,29 @@ export default function BasicLikeSave({
       const newLikeStatus = !liked;
       console.log('👍 محاولة إعجاب موحد:', { articleId, like: newLikeStatus, userId: user.id });
       
-      // استدعاء مسار like المباشر ليتكامل مع الولاء
-      const data = await api.post('/interactions/like', { articleId, like: newLikeStatus }).catch((err) => {
-        return err?.response?.data || { success: false, error: 'Request failed' };
+      // استخدام fetch مباشرة لتجنب interceptor issues
+      const response = await fetch('/api/interactions/like', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include', // مهم لإرسال الكوكيز
+        body: JSON.stringify({ articleId, like: newLikeStatus })
       });
+
+      const data = await response.json();
       console.log('📄 بيانات الاستجابة:', data);
       
-      if (data.success) {
+      if (response.ok && data.success) {
         setLiked(newLikeStatus);
         setLikes(newLikeStatus ? likes + 1 : Math.max(0, likes - 1));
         
         // إشعار مختصر فقط عند منح نقاط
         if (data.pointsAwarded > 0) {
-          try { (await import('@/components/ui/toast')).toast.success(`+${data.pointsAwarded} نقاط • إجمالي: ${data.totalPoints} (${data.level})`); } catch {}
+          try { 
+            const toast = await import('@/components/ui/toast');
+            toast.toast.success(`+${data.pointsAwarded} نقاط • إجمالي: ${data.totalPoints} (${data.level})`);
+          } catch {}
         }
         
         console.log('✅ تم الإعجاب بنجاح:', data);
@@ -112,12 +133,32 @@ export default function BasicLikeSave({
       } else {
         console.error('❌ فشل الإعجاب:', data);
         
+        // لا تقطع الجلسة عند فشل التفاعل - فقط أظهر رسالة خطأ
         const msg = data.message || data.error || 'فشل العملية';
-        try { (await import('@/components/ui/toast')).toast.error(msg); } catch { alert(msg); }
+        try { 
+          const toast = await import('@/components/ui/toast');
+          toast.toast.error(msg);
+        } catch { 
+          alert(msg); 
+        }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ خطأ في الإعجاب:', error);
-      try { (await import('@/components/ui/toast')).toast.error('حدث خطأ في الاتصال'); } catch { alert('حدث خطأ في الاتصال'); }
+      
+      // معالجة أخطاء الشبكة بدون قطع الجلسة
+      let errorMessage = 'حدث خطأ في الاتصال';
+      if (error.name === 'AbortError') {
+        errorMessage = 'انتهت مهلة الاتصال';
+      } else if (!navigator.onLine) {
+        errorMessage = 'تحقق من اتصالك بالإنترنت';
+      }
+      
+      try { 
+        const toast = await import('@/components/ui/toast');
+        toast.toast.error(errorMessage);
+      } catch { 
+        alert(errorMessage); 
+      }
     } finally {
       setLoading(false);
     }
@@ -136,13 +177,20 @@ export default function BasicLikeSave({
       const newSaveStatus = !saved;
       console.log('💾 محاولة حفظ موحد:', { articleId, saved: newSaveStatus, userId: user.id });
       
-      // استدعاء مسار save المباشر ليتكامل مع الولاء
-      const data = await api.post('/interactions/save', { articleId, save: newSaveStatus }).catch((err) => {
-        return err?.response?.data || { success: false, error: 'Request failed' };
+      // استخدام fetch مباشرة لتجنب interceptor issues
+      const response = await fetch('/api/interactions/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include', // مهم لإرسال الكوكيز
+        body: JSON.stringify({ articleId, save: newSaveStatus })
       });
+
+      const data = await response.json();
       console.log('📄 بيانات الاستجابة:', data);
       
-      if (data.success) {
+      if (response.ok && data.success) {
         setSaved(newSaveStatus);
         setSaves(newSaveStatus ? saves + 1 : Math.max(0, saves - 1));
         
