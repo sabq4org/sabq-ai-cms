@@ -6,32 +6,32 @@
 import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
 
-// إعدادات الكوكيز الموحدة
+// إعدادات الكوكيز الموحدة (تطبيق البرومنت)
 const COOKIE_CONFIG = {
   // إعدادات الأمان
   secure: process.env.NODE_ENV === 'production',
   httpOnly: true,
   
-  // إعدادات الدومين - دعم الساب دومين في الإنتاج
+  // إعدادات الدومين موحدة حسب البرومنت: Domain=.sabq.me
   domain: process.env.NODE_ENV === 'production' 
-    ? (process.env.COOKIE_DOMAIN || '.sabq.io')
+    ? '.sabq.me'  // موحد حسب البرومنت
     : undefined,
   
   path: '/',
   
-  // SameSite Policy موحدة
-  sameSite: 'lax' as const, // lax للتوافق مع التنقل بين الصفحات
+  // SameSite Policy موحدة حسب البرومنت: SameSite=Lax
+  sameSite: 'lax' as const,
   
   // مدة البقاء
-  accessTokenMaxAge: 24 * 60 * 60, // 24 ساعة بدلاً من 15 دقيقة
+  accessTokenMaxAge: 24 * 60 * 60, // 24 ساعة
   refreshTokenMaxAge: 30 * 24 * 60 * 60, // 30 يوم
   extendedMaxAge: 60 * 24 * 60 * 60, // 60 يوم مع "تذكرني"
 };
 
-// أسماء الكوكيز الموحدة
+// أسماء الكوكيز الموحدة (حسب البرومنت)
 export const COOKIE_NAMES = {
   ACCESS_TOKEN: '__Host-sabq-access-token',
-  REFRESH_TOKEN: '__Host-sabq-refresh-token',  
+  REFRESH_TOKEN: 'sabq_rft', // اسم موحد حسب البرومنت  
   USER_SESSION: '__Host-sabq-user-session',
   CSRF_TOKEN: 'sabq-csrf-token', // غير __Host لأنه يحتاج JavaScript access
 } as const;

@@ -59,11 +59,14 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ تم تجديد التوكن بنجاح');
 
-    // إنشاء الاستجابة الناجحة
+    // إنشاء الاستجابة الناجحة مع إرسال التوكن (حسب البرومنت)
     const response = NextResponse.json(
       {
         success: true,
-        message: 'تم تجديد الرمز بنجاح'
+        message: 'تم تجديد الرمز بنجاح',
+        accessToken: result.access_token, // إضافة التوكن للاستجابة
+        accessTokenExp: Date.now() + 15 * 60 * 1000, // 15 دقيقة
+        userVersion: Date.now() // لتتبع إصدار البيانات
       },
       { status: 200 }
     );

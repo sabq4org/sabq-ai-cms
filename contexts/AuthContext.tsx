@@ -1,7 +1,8 @@
 'use client';
 
 import React, { createContext, useState, useEffect, useCallback, useContext, useRef } from 'react';
-import { api, checkSession } from '@/lib/api-client';
+import { httpAPI } from '@/lib/http';
+import { getAccessToken, setAccessTokenInMemory, clearSession, validateSession } from '@/lib/authClient';
 
 export interface User {
   id: string;
@@ -112,8 +113,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setAuthState(prev => ({ ...prev, loading: true, error: null }));
       }
 
-      // استخدام دالة فحص الجلسة المحسّنة (بدون interceptors)
-      const isValidSession = await checkSession();
+      // استخدام دالة فحص الجلسة المحسّنة
+      const isValidSession = await validateSession();
       
       if (!isValidSession) {
         console.log('❌ جلسة غير صالحة - إعادة تعيين العداد');
@@ -239,7 +240,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     try {
       // استدعاء API تسجيل الخروج لمسح الكوكيز
-      await api.post('/auth/logout');
+      await httpAPI.post('/auth/logout');
     } catch (error) {
       console.warn('⚠️ خطأ في API تسجيل الخروج (غير حاسم):', error);
     }
@@ -321,25 +322,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      // تجاهل أحداث تجديد التوكن إذا كان المستخدم مسجل دخول بالفعل
-      if (type === 'token-refreshed' && authState.user) {
-        console.log('ℹ️ تجاهل تجديد التوكن - المستخدم مسجل دخول');
+      // ⛔ إيقاف إعادة التحميل عند token-refreshed (حسب البرومنت)
+      if (type === 'token-refreshed') {
+        console.log('ℹ️ تجاهل تجديد التوكن - لا إعادة تحميل (تطبيق البرومنت)');
         return;
       }
 
-      // تجاهل أحداث انتهاء الجلسة إذا لم يكن هناك مستخدم مسجل بالفعل
-      if (type === 'session-expired' && !authState.user) {
-        console.log('ℹ️ تجاهل انتهاء الجلسة - لا يوجد مستخدم مسجل بالفعل');
+      // معالجة انتهاء الجلسة فقط
+      if (type === 'session-expired' || type === 'auth-expired') {
+        console.log('🚪 انتهت الجلسة - تنظيف البيانات');
+        clearSession();
+        updateAuthState(null);
         return;
       }
 
-      if (debounceTimer) clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => {
-        if (mountedRef.current && !loadingRef.current) {
-          console.log('🔄 إعادة تحميل بسبب حدث المصادقة:', type);
-          loadUser(true);
-        }
-      }, 500);
+      // أحداث أخرى (logout, etc.)
+      if (['logout', 'session-cleared'].includes(type)) {
+        if (debounceTimer) clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          if (mountedRef.current && !loadingRef.current) {
+            console.log('🔄 إعادة تحميل بسبب حدث المصادقة:', type);
+            loadUser(true);
+          }
+        }, 500);
+      }
     };
 
     window.addEventListener('auth-change', handleAuthChange as EventListener);
