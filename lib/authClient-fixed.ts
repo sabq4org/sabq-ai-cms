@@ -14,38 +14,6 @@ let lastRefreshAttempt = 0;
 let refreshAttempts = 0;
 
 /**
- * قراءة قيمة كوكي من document.cookie
- */
-function getCookieFromDocument(name: string): string | null {
-  if (typeof document === 'undefined') return null;
-  
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  
-  if (parts.length === 2) {
-    return parts.pop()?.split(';').shift() || null;
-  }
-  
-  return null;
-}
-
-/**
- * فحص انتهاء صلاحية التوكن
- */
-function isTokenExpired(token: string): boolean {
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    const exp = payload.exp * 1000; // تحويل إلى milliseconds
-    const now = Date.now();
-    const buffer = 30000; // 30 ثانية buffer
-    
-    return now > (exp - buffer);
-  } catch {
-    return true; // إذا فشل parsing، اعتبر التوكن منتهي
-  }
-}
-
-/**
  * تعيين التوكن في الذاكرة فقط (لا localStorage)
  */
 export function setAccessTokenInMemory(token: string | null): void {
@@ -102,7 +70,7 @@ export async function ensureAccessToken(): Promise<string> {
 }
 
 /**
- * تنفيذ تحديث التوكن للاستخدام الخارجي
+ * تنفيذ تجديد التوكن للاستخدام الخارجي
  */
 export async function performTokenRefresh(): Promise<{success: boolean; token?: string; error?: string}> {
   try {
@@ -117,7 +85,7 @@ export async function performTokenRefresh(): Promise<{success: boolean; token?: 
 }
 
 /**
- * تنفيذ تجديد التوكن الداخلي مع تسجيل مفصل
+ * تنفيذ تجديد التوكن الداخلي
  */
 async function performTokenRefreshInternal(): Promise<string> {
   lastRefreshAttempt = Date.now();
@@ -126,80 +94,24 @@ async function performTokenRefreshInternal(): Promise<string> {
   console.log(`🔄 بدء تجديد التوكن (محاولة ${refreshAttempts}/${MAX_REFRESH_ATTEMPTS})...`);
 
   try {
-    console.log('🔗 إرسال طلب التجديد مع credentials...');
-    
-    // فحص الكوكيز قبل الإرسال
-    if (typeof document !== 'undefined') {
-      const cookies = document.cookie;
-      console.log('🍪 الكوكيز قبل طلب التجديد:');
-      ['sabq_rft', '__Host-sabq-refresh', '__Host-sabq-access-token', 'sabq-csrf-token'].forEach(name => {
-        const exists = cookies.includes(name);
-        console.log(`  ${exists ? '✅' : '❌'} ${name}`);
-      });
-    }
-    
-    // تحضير headers
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      'X-Requested-With': 'XMLHttpRequest'
-    };
-    
-    // إضافة CSRF token إذا موجود
-    if (typeof document !== 'undefined') {
-      const csrf = getCookieFromDocument('sabq-csrf-token');
-      if (csrf) {
-        headers['X-CSRF-Token'] = csrf;
-        console.log('🔐 CSRF Token: موجود');
-      } else {
-        console.log('🔐 CSRF Token: مفقود');
-      }
-    }
-    
     const response = await fetch('/api/auth/refresh', {
       method: 'POST',
-      credentials: 'include', // حاسم لإرسال الكوكيز
-      headers
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
     });
 
-    console.log(`📡 استجابة التجديد: ${response.status} ${response.statusText}`);
-
     if (!response.ok) {
-      // تسجيل مفصل لاستجابة غير ناجحة
-      const responseText = await response.text().catch(() => 'لا يمكن قراءة النص');
       console.error(`❌ فشل في تجديد التوكن: ${response.status} - ${response.statusText}`);
-      console.error('📄 نص الاستجابة:', responseText);
-      
-      // تسجيل headers الاستجابة
-      console.log('📋 Headers الاستجابة:');
-      response.headers.forEach((value, key) => {
-        console.log(`  ${key}: ${value}`);
-      });
-      
-      // تحليل خاص للـ 400 Bad Request
-      if (response.status === 400) {
-        console.error('🚨 400 Bad Request - احتمالات:');
-        console.error('  1. كوكي التجديد مفقود أو غير صالح');
-        console.error('  2. CSRF token مفقود أو غير مطابق');
-        console.error('  3. مشكلة في credentials أو headers');
-        console.error('  4. مشكلة في __Host- cookie attributes');
-        
-        // فحص الكوكيز المرسلة
-        if (typeof document !== 'undefined') {
-          const cookies = document.cookie;
-          console.log('🍪 الكوكيز المتاحة في المتصفح:');
-          ['sabq_rft', '__Host-sabq-refresh', '__Host-sabq-access-token', 'sabq-csrf-token'].forEach(name => {
-            const exists = cookies.includes(name);
-            console.log(`  ${exists ? '✅' : '❌'} ${name}`);
-          });
-        }
-      }
       
       if (response.status === 401) {
         clearSession();
-        throw new Error('Refresh token invalid or expired');
+        throw new Error('Refresh token invalid');
       }
       
-      throw new Error(`HTTP ${response.status}: ${response.statusText} - ${responseText}`);
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
     const data = await response.json();
@@ -235,6 +147,22 @@ async function performTokenRefreshInternal(): Promise<string> {
     clearSession(); // تنظيف شامل عند الفشل
     
     throw error;
+  }
+}
+
+/**
+ * فحص انتهاء صلاحية التوكن
+ */
+function isTokenExpired(token: string): boolean {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const exp = payload.exp * 1000; // تحويل إلى milliseconds
+    const now = Date.now();
+    const buffer = 30000; // 30 ثانية buffer
+    
+    return now > (exp - buffer);
+  } catch {
+    return true; // إذا فشل parsing، اعتبر التوكن منتهي
   }
 }
 

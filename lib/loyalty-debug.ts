@@ -250,7 +250,6 @@ export async function resetAuthCompletely(): Promise<void> {
   }
   
   console.log('✅ تم إعادة التعيين الشاملة');
-  console.log('ℹ️ يُنصح بإعادة تحميل الصفحة الآن');
 }
 
 /**
@@ -261,7 +260,9 @@ if (typeof window !== 'undefined') {
     diagnoseLoyaltyEndpoint,
     quickTokenTest,
     analyzeCookies,
-    resetAuthCompletely
+    resetAuthCompletely,
+    inspectRefreshRequest,
+    testRefreshDirectly
   };
   
   console.log('🔧 تم تحميل أدوات تشخيص Loyalty:');
@@ -269,4 +270,112 @@ if (typeof window !== 'undefined') {
   console.log('  - debugLoyalty.quickTokenTest()');
   console.log('  - debugLoyalty.analyzeCookies()');
   console.log('  - debugLoyalty.resetAuthCompletely()');
+  console.log('  - debugLoyalty.inspectRefreshRequest()');
+  console.log('  - debugLoyalty.testRefreshDirectly()');
+}
+
+/**
+ * فحص طلب التجديد في Network tab
+ */
+export function inspectRefreshRequest(): void {
+  console.log('🔍 كيفية فحص طلب التجديد في Network tab:');
+  console.log('');
+  console.log('1️⃣ افتح DevTools (F12)');
+  console.log('2️⃣ اذهب لتبويب Network');
+  console.log('3️⃣ فلتر البحث: "refresh" أو "/api/auth/refresh"');
+  console.log('4️⃣ قم بعمل إجراء يسبب 401 (مثل زيارة /profile/me/loyalty)');
+  console.log('5️⃣ ستظهر طلبات refresh، انقر على الطلب');
+  console.log('');
+  console.log('🔍 ما تبحث عنه:');
+  console.log('');
+  console.log('📤 في Request Headers:');
+  console.log('  ✅ Cookie: sabq_rft=...');
+  console.log('  ✅ X-CSRF-Token: ... (إذا مطلوب)');
+  console.log('  ✅ credentials: include');
+  console.log('');
+  console.log('📥 في Response:');
+  console.log('  - إذا 200: تحقق من Set-Cookie في Response Headers');
+  console.log('  - إذا 400: تحقق من Response body لمعرفة السبب');
+  console.log('  - إذا 401: التوكن منتهي أو غير صالح');
+  console.log('');
+  console.log('🚨 علامات المشاكل الشائعة:');
+  console.log('  ❌ لا يوجد Cookie في Request Headers → credentials مشكلة');
+  console.log('  ❌ Set-Cookie في Response لكن الكوكيز لا تُحفظ → __Host- attributes');
+  console.log('  ❌ 400 مع "CSRF" في Response → CSRF token مفقود');
+  console.log('  ❌ 400 مع "refresh" في Response → sabq_rft مفقود أو غير صالح');
+}
+
+/**
+ * اختبار طلب refresh مباشر للتشخيص
+ */
+export async function testRefreshDirectly(): Promise<void> {
+  console.log('🧪 اختبار طلب التجديد مباشرة...');
+  
+  if (typeof document === 'undefined') {
+    console.error('❌ يعمل فقط في المتصفح');
+    return;
+  }
+  
+  // فحص الكوكيز المتاحة
+  const cookies = document.cookie;
+  const refreshCookie = cookies.match(/sabq_rft=([^;]+)/)?.[1];
+  const csrfToken = cookies.match(/sabq-csrf-token=([^;]+)/)?.[1];
+  
+  console.log('🍪 الكوكيز المتاحة:');
+  console.log(`  - sabq_rft: ${refreshCookie ? '✅ موجود' : '❌ مفقود'}`);
+  console.log(`  - CSRF: ${csrfToken ? '✅ موجود' : '❌ مفقود'}`);
+  
+  if (!refreshCookie) {
+    console.error('❌ لا يوجد refresh cookie - لا يمكن المتابعة');
+    return;
+  }
+  
+  try {
+    console.log('📡 إرسال طلب التجديد...');
+    
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest'
+    };
+    
+    if (csrfToken) {
+      headers['X-CSRF-Token'] = csrfToken;
+    }
+    
+    const response = await fetch('/api/auth/refresh', {
+      method: 'POST',
+      credentials: 'include',
+      headers
+    });
+    
+    console.log(`📊 النتيجة: ${response.status} ${response.statusText}`);
+    
+    // قراءة الاستجابة
+    const responseText = await response.text();
+    console.log('📄 نص الاستجابة:', responseText);
+    
+    // فحص headers الاستجابة
+    console.log('📋 Headers الاستجابة:');
+    response.headers.forEach((value, key) => {
+      if (key.toLowerCase().includes('cookie') || key.toLowerCase().includes('csrf')) {
+        console.log(`  ${key}: ${value}`);
+      }
+    });
+    
+    if (response.status === 400) {
+      console.error('🚨 تشخيص 400 Bad Request:');
+      if (!csrfToken) {
+        console.error('  - احتمال: CSRF token مفقود');
+      }
+      if (responseText.includes('refresh')) {
+        console.error('  - احتمال: sabq_rft غير صالح أو منتهي');
+      }
+      if (responseText.includes('cookie')) {
+        console.error('  - احتمال: مشكلة في إرسال الكوكيز');
+      }
+    }
+    
+  } catch (error) {
+    console.error('❌ خطأ في طلب التجديد:', error);
+  }
 }

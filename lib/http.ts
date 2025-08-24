@@ -91,6 +91,16 @@ http.interceptors.response.use(
         console.log('🔄 محاولة تجديد التوكن وإعادة الطلب...');
         console.log('🔍 التوكن الحالي قبل التجديد:', getAccessToken()?.substring(0, 20) + '...');
         
+        // فحص الكوكيز قبل التجديد
+        console.log('🍪 فحص الكوكيز قبل التجديد:');
+        const cookiesDebug = typeof document !== 'undefined' ? document.cookie : 'undefined';
+        console.log('  - جميع الكوكيز:', cookiesDebug);
+        
+        const refreshCookie = getCookieValue('sabq_rft') || getCookieValue('__Host-sabq-refresh');
+        const csrfToken = getCookieValue('sabq-csrf-token');
+        console.log('  - كوكي التجديد:', refreshCookie ? 'موجود' : 'مفقود');
+        console.log('  - CSRF Token:', csrfToken ? 'موجود' : 'مفقود');
+        
         // تجديد التوكن (مع منع السباقات)
         const newToken = await ensureAccessToken();
         
@@ -115,6 +125,20 @@ http.interceptors.response.use(
         
       } catch (refreshError) {
         console.error('❌ فشل تجديد التوكن:', refreshError);
+        
+        // تسجيل تفصيلي لسبب فشل التجديد
+        if (refreshError instanceof Error) {
+          console.error('📋 تفاصيل الخطأ:', {
+            message: refreshError.message,
+            name: refreshError.name,
+            stack: refreshError.stack?.split('\n').slice(0, 3)
+          });
+        }
+        
+        // فحص إضافي للكوكيز بعد الفشل
+        console.log('🍪 فحص الكوكيز بعد فشل التجديد:');
+        const postFailCookies = typeof document !== 'undefined' ? document.cookie : 'undefined';
+        console.log('  - الكوكيز الحالية:', postFailCookies);
         
         // تنظيف الجلسة والإعادة للتسجيل
         clearSession();
