@@ -107,14 +107,18 @@ export function middleware(request: NextRequest) {
     }
   }
   
-  // Content Security Policy - أكثر صرامة للصفحات الإدارية
+  // Content Security Policy - متكيفة حسب البيئة (أقل صرامة محلياً لتجنّب أخطاء SSL)
+  const isProd = process.env.NODE_ENV === 'production';
   const baseCsp = [
     "default-src 'self'",
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.google-analytics.com https://*.googletagmanager.com https://apis.google.com https://www.google.com https://www.gstatic.com https://*.googleapis.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' data: https: blob:",
     "font-src 'self' https://fonts.gstatic.com",
-    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.openai.com https://*.google-analytics.com https://*.googletagmanager.com https://apis.google.com",
+    // في التطوير: السماح بالـ http: و ws: لتعمل الموارد وHMR بدون ترقية قسرية
+    isProd
+      ? "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.openai.com https://*.google-analytics.com https://*.googletagmanager.com https://apis.google.com"
+      : "connect-src 'self' http: ws: wss: https://*.supabase.co wss://*.supabase.co https://api.openai.com https://*.google-analytics.com https://*.googletagmanager.com https://apis.google.com",
     "media-src 'self' https: blob:",
     "object-src 'none'",
     "frame-src 'self' https://www.google.com https://accounts.google.com",
@@ -122,8 +126,11 @@ export function middleware(request: NextRequest) {
     "base-uri 'self'",
     "form-action 'self'",
     "manifest-src 'self'",
-    "upgrade-insecure-requests",
-    "block-all-mixed-content"
+    // هذه التوجيهات فقط للإنتاج كي لا تُرقي http→https محلياً
+    ...(isProd ? [
+      "upgrade-insecure-requests",
+      "block-all-mixed-content",
+    ] : [])
   ];
   
   // إضافة قيود إضافية للصفحات الإدارية

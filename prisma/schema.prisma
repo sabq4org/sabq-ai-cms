@@ -183,6 +183,11 @@ model articles {
   author             users               @relation("ArticleAuthor", fields: [author_id], references: [id])
   categories         categories?         @relation(fields: [category_id], references: [id])
   interactions       interactions[]
+  
+  // علاقات نظام الإشعارات الذكية
+  notifications      SmartNotification[]
+  behaviorEvents     BehaviorEvent[]
+  readingSessions    ReadingSession[]
 
   @@index([article_author_id])
   @@index([article_type])
@@ -910,6 +915,14 @@ model users {
   dose_templates           smart_dose_templates[]    @relation("DoseTemplateCreator")
   ui_settings              UiSetting[]
   user_interests           user_interests[]
+  
+  // علاقات نظام الإشعارات الذكية
+  notifications           SmartNotification[]
+  notificationInteractions NotificationInteraction[]
+  userProfile             UserProfile?
+  readingSessions         ReadingSession[]
+  behaviorPatterns        BehaviorPattern[]
+  notificationStats       NotificationStats[]
 
   @@index([email], map: "idx_users_email")
   @@index([role], map: "idx_users_role")
@@ -2232,31 +2245,7 @@ enum ContentType {
   OPINION
 }
 
-enum NotificationType {
-  breaking_news
-  article_recommendation
-  system_alert
-  user_engagement
-  performance_warning
-  content_moderation
-  ai_insight
-}
 
-enum NotificationPriority {
-  low
-  medium
-  high
-  urgent
-}
-
-enum NotificationStatus {
-  pending
-  scheduled
-  sent
-  delivered
-  read
-  failed
-}
 
 enum RecommendationType {
   content_based
@@ -2335,4 +2324,440 @@ model two_factor_temp {
   secret       String
   backup_codes Json
   created_at   DateTime @default(now())
+}
+
+// ============================================
+// نماذج نظام الإشعارات الذكية
+// Smart Notifications System Models
+// ============================================
+
+// نموذج الإشعارات الذكية
+model SmartNotification {
+  id                String                @id @default(cuid())
+  userId            String
+  type              NotificationType
+  priority          NotificationPriority
+  status            NotificationStatus    @default(PENDING)
+  
+  title             String
+  message           String                @db.Text
+  contentId         String?
+  
+  // القنوات المستهدفة
+  channels          DeliveryChannel[]
+  
+  // البيانات الوصفية
+  metadata          Json?
+  customData        Json?
+  
+  // النقاط الذكية
+  engagementScore   Float                 @default(0)
+  relevanceScore    Float                 @default(0)
+  timingScore       Float                 @default(0)
+  qualityScore      Float                 @default(0)
+  noveltyScore      Float                 @default(0)
+  sentimentAlignment Float                @default(0)
+  socialSignals     Float                 @default(0)
+  
+  // بيانات التخصيص
+  personalizationData Json?
+  
+  // التوقيتات
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+  scheduledTime     DateTime?
+  sentTime          DateTime?
+  readAt            DateTime?
+  clickedAt         DateTime?
+  
+  // العلاقات
+  user              users                 @relation(fields: [userId], references: [id])
+  content           articles?             @relation(fields: [contentId], references: [id])
+  deliveries        NotificationDelivery[]
+  interactions      NotificationInteraction[]
+  
+  @@index([userId, status])
+  @@index([type, status])
+  @@index([scheduledTime])
+  @@index([sentTime])
+}
+
+// نموذج تسليم الإشعارات
+model NotificationDelivery {
+  id               String              @id @default(cuid())
+  notificationId   String
+  channel          DeliveryChannel
+  status           DeliveryStatus
+  
+  attemptCount     Int                 @default(0)
+  lastAttemptAt    DateTime?
+  deliveredAt      DateTime?
+  failureReason    String?
+  
+  metadata         Json?
+  
+  notification     SmartNotification   @relation(fields: [notificationId], references: [id])
+  
+  @@unique([notificationId, channel])
+  @@index([status])
+}
+
+// نموذج تفاعلات الإشعارات
+model NotificationInteraction {
+  id               String              @id @default(cuid())
+  notificationId   String
+  userId           String
+  
+  actionType       InteractionType
+  actionValue      String?
+  timestamp        DateTime            @default(now())
+  
+  deviceInfo       Json?
+  metadata         Json?
+  
+  notification     SmartNotification   @relation(fields: [notificationId], references: [id])
+  user             users               @relation(fields: [userId], references: [id])
+  
+  @@index([notificationId, actionType])
+  @@index([userId, timestamp])
+}
+
+// نموذج ملف المستخدم الذكي
+model UserProfile {
+  id               String              @id @default(cuid())
+  userId           String              @unique
+  
+  // الاهتمامات
+  interests        Json                // خريطة الاهتمامات مع الأوزان
+  
+  // أنماط القراءة
+  readingPatterns  Json
+  
+  // التفضيلات الزمنية
+  temporalPreferences Json
+  
+  // تفضيلات الأجهزة
+  devicePreferences Json
+  
+  // تفضيلات المشاعر
+  sentimentPreferences Json
+  
+  // إعدادات الإشعارات
+  notificationPreferences Json
+  
+  // إحصائيات
+  totalNotificationsSent     Int        @default(0)
+  totalNotificationsClicked  Int        @default(0)
+  totalNotificationsIgnored  Int        @default(0)
+  
+  lastUpdated      DateTime            @updatedAt
+  createdAt        DateTime            @default(now())
+  
+  user             users               @relation(fields: [userId], references: [id])
+  behaviorEvents   BehaviorEvent[]
+  
+  @@index([userId])
+}
+
+// نموذج أحداث السلوك
+model BehaviorEvent {
+  id               String              @id @default(cuid())
+  userId           String
+  sessionId        String
+  
+  eventType        String
+  timestamp        DateTime            @default(now())
+  
+  url              String?
+  contentId        String?
+  
+  // البيانات الوصفية
+  scrollPosition   Float?
+  scrollDirection  String?
+  scrollSpeed      Float?
+  timeSpent        Int?
+  interactionType  String?
+  searchQuery      String?
+  notificationId   String?
+  contentSection   String?
+  
+  // معلومات الجهاز
+  deviceType       String
+  deviceOS         String
+  browser          String
+  screenSize       String
+  
+  // بيانات الموقع
+  country          String?
+  city             String?
+  timezone         String?
+  
+  // البيانات الإضافية
+  metadata         Json?
+  
+  userProfile      UserProfile         @relation(fields: [userId], references: [userId])
+  content          articles?           @relation(fields: [contentId], references: [id])
+  
+  @@index([userId, timestamp])
+  @@index([sessionId])
+  @@index([eventType])
+  @@index([contentId])
+}
+
+// نموذج جلسات القراءة
+model ReadingSession {
+  id               String              @id @default(cuid())
+  userId           String
+  contentId        String
+  sessionId        String
+  
+  startTime        DateTime
+  endTime          DateTime?
+  totalTime        Int                 // بالثواني
+  
+  scrollEvents     Json                // مصفوفة أحداث التمرير
+  pauseEvents      Json                // مصفوفة أحداث التوقف
+  
+  readingSpeed     Float               // كلمة في الدقيقة
+  completionRate   Float               // نسبة الإكمال
+  engagementScore  Float
+  
+  intentType       ReadingIntentType
+  qualityIndicators Json
+  
+  createdAt        DateTime            @default(now())
+  
+  user             users               @relation(fields: [userId], references: [id])
+  content          articles            @relation(fields: [contentId], references: [id])
+  
+  @@index([userId, createdAt])
+  @@index([contentId])
+  @@index([sessionId])
+}
+
+// نموذج أنماط السلوك
+model BehaviorPattern {
+  id               String              @id @default(cuid())
+  userId           String
+  
+  patternType      BehaviorPatternType
+  confidence       Float
+  characteristics  String[]
+  recommendations  String[]
+  
+  detectedAt       DateTime            @default(now())
+  lastUpdated      DateTime            @updatedAt
+  
+  user             users               @relation(fields: [userId], references: [id])
+  
+  @@index([userId, patternType])
+}
+
+// نموذج قوالب الإشعارات
+model NotificationTemplate {
+  id               String              @id @default(cuid())
+  
+  name             String
+  type             NotificationType
+  
+  titleTemplate    String
+  messageTemplate  String
+  
+  variables        String[]            // المتغيرات المطلوبة
+  
+  isActive         Boolean             @default(true)
+  
+  // إحصائيات الأداء
+  usageCount       Int                 @default(0)
+  avgOpenRate      Float               @default(0)
+  avgClickRate     Float               @default(0)
+  
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  
+  campaigns        Campaign[]
+  
+  @@index([type, isActive])
+}
+
+// نموذج حملات الإشعارات
+model Campaign {
+  id               String              @id @default(cuid())
+  
+  name             String
+  description      String?
+  
+  templateId       String
+  targetAudience   Json                // معايير الاستهداف
+  
+  status           CampaignStatus      @default(DRAFT)
+  
+  scheduledStart   DateTime?
+  scheduledEnd     DateTime?
+  actualStart      DateTime?
+  actualEnd        DateTime?
+  
+  // الإحصائيات
+  targetCount      Int                 @default(0)
+  sentCount        Int                 @default(0)
+  deliveredCount   Int                 @default(0)
+  openedCount      Int                 @default(0)
+  clickedCount     Int                 @default(0)
+  
+  metadata         Json?
+  
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  
+  template         NotificationTemplate @relation(fields: [templateId], references: [id])
+  
+  @@index([status])
+}
+
+// نموذج إحصائيات الإشعارات
+model NotificationStats {
+  id               String              @id @default(cuid())
+  userId           String
+  date             DateTime            @db.Date
+  
+  totalSent        Int                 @default(0)
+  totalDelivered   Int                 @default(0)
+  totalOpened      Int                 @default(0)
+  totalClicked     Int                 @default(0)
+  totalIgnored     Int                 @default(0)
+  
+  byType           Json                // إحصائيات حسب النوع
+  byChannel        Json                // إحصائيات حسب القناة
+  byHour           Json                // توزيع الساعات
+  
+  avgResponseTime  Float               @default(0) // بالدقائق
+  
+  user             users               @relation(fields: [userId], references: [id])
+  
+  @@unique([userId, date])
+  @@index([date])
+}
+
+// نموذج سجل التكرار
+model DuplicationLog {
+  id               String              @id @default(cuid())
+  userId           String
+  
+  notificationHash String
+  notificationId   String
+  type             NotificationType
+  contentId        String?
+  
+  timestamp        DateTime            @default(now())
+  expiresAt        DateTime
+  
+  @@index([userId, expiresAt])
+  @@index([notificationHash])
+}
+
+// نموذج حدود المعدل
+model RateLimitRecord {
+  id               String              @id @default(cuid())
+  userId           String
+  
+  limitKey         String              // مفتاح الحد (type:channel)
+  count            Int                 @default(0)
+  windowStart      DateTime
+  windowEnd        DateTime
+  
+  violations       Int                 @default(0)
+  lastViolation    DateTime?
+  
+  @@unique([userId, limitKey, windowStart])
+  @@index([windowEnd])
+}
+
+// ============================================
+// Enums لنظام الإشعارات الذكية
+// Smart Notifications System Enums
+// ============================================
+
+enum NotificationType {
+  SOCIAL_INTERACTION
+  CONTENT_RECOMMENDATION
+  AUTHOR_UPDATE
+  SIMILAR_CONTENT
+  BREAKING_NEWS
+  SYSTEM_ANNOUNCEMENT
+  REMINDER
+  ACHIEVEMENT
+}
+
+enum NotificationPriority {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum NotificationStatus {
+  PENDING
+  SCHEDULED
+  SENT
+  DELIVERED
+  READ
+  CLICKED
+  FAILED
+  CANCELLED
+}
+
+enum DeliveryChannel {
+  WEB_PUSH
+  MOBILE_PUSH
+  EMAIL
+  SMS
+  IN_APP
+  WEBSOCKET
+}
+
+enum DeliveryStatus {
+  PENDING
+  ATTEMPTING
+  DELIVERED
+  FAILED
+  BOUNCED
+}
+
+enum InteractionType {
+  CLICK
+  DISMISS
+  READ
+  ARCHIVE
+  UNSUBSCRIBE
+}
+
+enum ReadingIntentType {
+  FOCUSED_READING
+  SCANNING
+  SEARCHING
+  CASUAL_BROWSING
+  RESEARCH
+  ENTERTAINMENT
+}
+
+enum BehaviorPatternType {
+  POWER_USER
+  REGULAR_USER
+  CASUAL_USER
+  DORMANT_USER
+  CONTENT_EXPLORER
+  FOCUSED_READER
+  SOCIAL_SHARER
+  NIGHT_OWL
+  EARLY_BIRD
+  WEEKEND_WARRIOR
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  RUNNING
+  PAUSED
+  COMPLETED
+  CANCELLED
 }

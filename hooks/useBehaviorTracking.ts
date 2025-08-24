@@ -1,119 +1,271 @@
-import { useEffect, useRef } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { getBehaviorTracker, initBehaviorTracker } from '@/lib/services/behaviorTracker';
+/**
+ * React Hook لتتبع السلوك
+ * Behavior Tracking React Hook
+ */
+
+import { useEffect, useRef, useCallback } from 'react';
+import {
+  trackBehavior,
+  trackReadingStart,
+  trackReadingProgress,
+  trackReadingComplete,
+  trackScroll,
+  trackClick,
+  trackSocialInteraction,
+  trackSearch
+} from '../lib/behavior-tracking';
 
 interface UseBehaviorTrackingOptions {
-  articleId?: string;
-  debug?: boolean;
+  contentId?: string;
+  trackScrolling?: boolean;
+  trackReading?: boolean;
+  scrollThreshold?: number;
+  readingThreshold?: number;
 }
 
 export function useBehaviorTracking(options: UseBehaviorTrackingOptions = {}) {
-  const { user } = useAuth();
-  const trackerRef = useRef<ReturnType<typeof getBehaviorTracker>>(null);
-  const impressionStartedRef = useRef(false);
+  const {
+    contentId,
+    trackScrolling = true,
+    trackReading = true,
+    scrollThreshold = 10, // نسبة مئوية
+    readingThreshold = 90  // نسبة مئوية لاعتبار القراءة مكتملة
+  } = options;
 
+  const readingStarted = useRef(false);
+  const readingCompleted = useRef(false);
+  const lastScrollPosition = useRef(0);
+  const maxScrollReached = useRef(0);
+
+  // تتبع بداية القراءة
   useEffect(() => {
-    // تهيئة المتتبع
-    if (!trackerRef.current) {
-      trackerRef.current = initBehaviorTracker({
-        userId: user?.id,
-        debug: options.debug || false
-      });
+    if (trackReading && contentId && !readingStarted.current) {
+      readingStarted.current = true;
+      trackReadingStart(contentId);
+    }
+  }, [contentId, trackReading]);
+
+  // تتبع التمرير
+  const handleScroll = useCallback(() => {
+    if (!trackScrolling) return;
+
+    const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+    const scrollPercentage = (scrollPosition / (documentHeight - windowHeight)) * 100;
+
+    // تتبع التمرير فقط إذا تغير بنسبة كافية
+    if (Math.abs(scrollPercentage - lastScrollPosition.current) >= scrollThreshold) {
+      trackScroll(contentId);
+      lastScrollPosition.current = scrollPercentage;
     }
 
-    // تحديث معرف المستخدم إذا تغير
-    if (user?.id && trackerRef.current) {
-      trackerRef.current.setUserId(user.id);
-    }
-  }, [user?.id, options.debug]);
+    // تحديث أقصى عمق للتمرير
+    if (scrollPercentage > maxScrollReached.current) {
+      maxScrollReached.current = scrollPercentage;
 
-  useEffect(() => {
-    // بدء تتبع انطباع المقال
-    if (options.articleId && trackerRef.current && !impressionStartedRef.current) {
-      impressionStartedRef.current = true;
-      trackerRef.current.startImpression(options.articleId);
+      // تتبع تقدم القراءة
+      if (trackReading && contentId && readingStarted.current) {
+        trackReadingProgress(contentId, scrollPercentage);
 
-      // إنهاء الانطباع عند مغادرة الصفحة
-      return () => {
-        if (trackerRef.current && options.articleId) {
-          trackerRef.current.endImpression(options.articleId);
-          impressionStartedRef.current = false;
+        // تتبع اكتمال القراءة
+        if (scrollPercentage >= readingThreshold && !readingCompleted.current) {
+          readingCompleted.current = true;
+          trackReadingComplete(contentId);
         }
+      }
+    }
+  }, [contentId, trackScrolling, trackReading, scrollThreshold, readingThreshold]);
+
+  // إضافة مستمع التمرير
+  useEffect(() => {
+    if (trackScrolling) {
+      let scrollTimer: NodeJS.Timeout;
+      
+      const debouncedScroll = () => {
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(handleScroll, 150);
+      };
+
+      window.addEventListener('scroll', debouncedScroll);
+      return () => {
+        window.removeEventListener('scroll', debouncedScroll);
+        clearTimeout(scrollTimer);
       };
     }
-  }, [options.articleId]);
+  }, [handleScroll, trackScrolling]);
 
-  // دوال مساعدة للتفاعلات
-  const trackInteraction = async (type: 'like' | 'save' | 'share' | 'comment', metadata?: any) => {
-    if (trackerRef.current && options.articleId) {
-      await trackerRef.current.trackInteraction(options.articleId, type, metadata);
+  // تتبع النقرات
+  const handleClick = useCallback((event: MouseEvent) => {
+    const target = event.target as HTMLElement;
+    
+    // تتبع النقرات على الروابط والأزرار فقط
+    if (target.tagName === 'A' || target.tagName === 'BUTTON' || 
+        target.closest('a') || target.closest('button')) {
+      trackClick(target.closest('a') || target.closest('button') || target, contentId);
     }
-  };
+  }, [contentId]);
 
-  const trackRecommendationClick = async (recommendationId: string, articleId: string) => {
-    if (trackerRef.current) {
-      await trackerRef.current.trackRecommendationClick(recommendationId, articleId);
-    }
-  };
-
-  return {
-    tracker: trackerRef.current,
-    trackInteraction,
-    trackRecommendationClick
-  };
-}
-
-// Hook مخصص لصفحة المقال
-export function useArticleTracking(articleId: string) {
-  const tracking = useBehaviorTracking({ articleId });
-
-  return {
-    onLike: (isLiked: boolean) => tracking.trackInteraction(isLiked ? 'like' : 'like'),
-    onSave: (isSaved: boolean) => tracking.trackInteraction(isSaved ? 'save' : 'save'),
-    onShare: (platform?: string) => tracking.trackInteraction('share', { platform }),
-    onComment: () => tracking.trackInteraction('comment'),
-    trackRecommendationClick: tracking.trackRecommendationClick
-  };
-}
-
-// Hook لتتبع مجموعة من المقالات (مثل في الصفحة الرئيسية)
-export function useArticlesTracking() {
-  const tracking = useBehaviorTracking();
-  const activeArticlesRef = useRef<Set<string>>(new Set());
-
-  const startTrackingArticle = (articleId: string) => {
-    if (tracking.tracker && !activeArticlesRef.current.has(articleId)) {
-      activeArticlesRef.current.add(articleId);
-      tracking.tracker.startImpression(articleId);
-    }
-  };
-
-  const stopTrackingArticle = (articleId: string) => {
-    if (tracking.tracker && activeArticlesRef.current.has(articleId)) {
-      activeArticlesRef.current.delete(articleId);
-      tracking.tracker.endImpression(articleId);
-    }
-  };
-
+  // إضافة مستمع النقرات
   useEffect(() => {
-    // تنظيف جميع المقالات المتتبعة عند إلغاء التحميل
+    document.addEventListener('click', handleClick);
     return () => {
-      if (tracking.tracker) {
-        activeArticlesRef.current.forEach(articleId => {
-          tracking.tracker!.endImpression(articleId);
-        });
-        activeArticlesRef.current.clear();
+      document.removeEventListener('click', handleClick);
+    };
+  }, [handleClick]);
+
+  // وظائف تتبع مخصصة
+  const trackLike = useCallback(() => {
+    if (contentId) {
+      trackSocialInteraction('like', contentId);
+    }
+  }, [contentId]);
+
+  const trackShare = useCallback((platform?: string) => {
+    if (contentId) {
+      trackSocialInteraction('share', contentId, { platform });
+    }
+  }, [contentId]);
+
+  const trackComment = useCallback((commentLength?: number) => {
+    if (contentId) {
+      trackSocialInteraction('comment', contentId, { commentLength });
+    }
+  }, [contentId]);
+
+  const trackBookmark = useCallback(() => {
+    if (contentId) {
+      trackSocialInteraction('bookmark', contentId);
+    }
+  }, [contentId]);
+
+  const trackCustomEvent = useCallback((eventType: string, metadata?: Record<string, any>) => {
+    trackBehavior({
+      eventType,
+      contentId,
+      metadata
+    });
+  }, [contentId]);
+
+  // تنظيف عند إلغاء التحميل
+  useEffect(() => {
+    return () => {
+      // إذا بدأت القراءة ولم تكتمل، سجل النسبة المئوية النهائية
+      if (trackReading && contentId && readingStarted.current && !readingCompleted.current) {
+        trackReadingProgress(contentId, maxScrollReached.current);
       }
     };
-  }, [tracking.tracker]);
+  }, [contentId, trackReading]);
 
   return {
-    startTrackingArticle,
-    stopTrackingArticle,
-    trackInteraction: async (articleId: string, type: 'like' | 'save' | 'share' | 'comment', metadata?: any) => {
-      if (tracking.tracker) {
-        await tracking.tracker.trackInteraction(articleId, type, metadata);
-      }
-    }
+    trackLike,
+    trackShare,
+    trackComment,
+    trackBookmark,
+    trackCustomEvent,
+    trackSearch,
+    readingProgress: maxScrollReached.current,
+    isReadingComplete: readingCompleted.current
   };
-} 
+}
+
+// Hook لتتبع الوقت المقضي على الصفحة
+export function useTimeSpent(pageId?: string) {
+  const startTime = useRef(Date.now());
+  const totalTime = useRef(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      totalTime.current = Date.now() - startTime.current;
+    }, 1000);
+
+    return () => {
+      clearInterval(interval);
+      
+      // تتبع الوقت المقضي عند مغادرة الصفحة
+      if (totalTime.current > 0) {
+        trackBehavior({
+          eventType: 'time_spent',
+          contentId: pageId,
+          metadata: {
+            timeSpent: Math.round(totalTime.current / 1000), // بالثواني
+            pageUrl: window.location.href
+          }
+        });
+      }
+    };
+  }, [pageId]);
+
+  return {
+    timeSpent: totalTime.current,
+    timeSpentSeconds: Math.round(totalTime.current / 1000)
+  };
+}
+
+// Hook لتتبع رؤية العناصر
+export function useElementVisibility(elementRef: React.RefObject<HTMLElement>, options?: {
+  threshold?: number;
+  rootMargin?: string;
+  onVisible?: () => void;
+  onHidden?: () => void;
+  trackingId?: string;
+}) {
+  const {
+    threshold = 0.5,
+    rootMargin = '0px',
+    onVisible,
+    onHidden,
+    trackingId
+  } = options || {};
+
+  const isVisible = useRef(false);
+
+  useEffect(() => {
+    if (!elementRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !isVisible.current) {
+            isVisible.current = true;
+            onVisible?.();
+            
+            if (trackingId) {
+              trackBehavior({
+                eventType: 'element_visible',
+                metadata: {
+                  elementId: trackingId,
+                  visibilityRatio: entry.intersectionRatio
+                }
+              });
+            }
+          } else if (!entry.isIntersecting && isVisible.current) {
+            isVisible.current = false;
+            onHidden?.();
+            
+            if (trackingId) {
+              trackBehavior({
+                eventType: 'element_hidden',
+                metadata: {
+                  elementId: trackingId
+                }
+              });
+            }
+          }
+        });
+      },
+      {
+        threshold,
+        rootMargin
+      }
+    );
+
+    observer.observe(elementRef.current);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [elementRef, threshold, rootMargin, onVisible, onHidden, trackingId]);
+
+  return isVisible.current;
+}

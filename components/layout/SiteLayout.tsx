@@ -59,10 +59,7 @@ export default function SiteLayout({
     document.body.style.backgroundColor = '#f8f8f7';
   }, []);
 
-  // تحميل سريع
-  if (!mounted) {
-    return <div style={{ backgroundColor: '#f8f8f7', minHeight: '100vh' }}></div>;
-  }
+  // ملاحظة: لم نعد نحجب العرض قبل التثبيت لتجنب الصفحة البيضاء في التطوير
 
   // صفحات الدخول للأعضاء (لا هيدر/فوتر)
   if (isUserAuthPage) {
