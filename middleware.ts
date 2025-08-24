@@ -82,10 +82,12 @@ export function middleware(request: NextRequest) {
   if (isProtectedPath && !isAPIRoute) {
     const { accessToken, refreshToken } = getUnifiedTokensFromRequest(request);
     
-    // إذا لم يوجد أي توكن، وجه للصفحة الرئيسية
+    // إذا لم يوجد أي توكن، وجه لصفحة تسجيل الدخول
     if (!accessToken && !refreshToken) {
       console.log('🔒 مسار محمي بدون توكن:', url.pathname);
-      return NextResponse.redirect(new URL('/', request.url));
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('next', url.pathname); // حفظ الصفحة المطلوبة للعودة إليها
+      return NextResponse.redirect(loginUrl);
     }
     
     // التحقق من صحة access token إذا وُجد
@@ -95,7 +97,9 @@ export function middleware(request: NextRequest) {
         console.log('❌ توكن الوصول غير صالح:', url.pathname);
         // سنحاول refresh token إذا وُجد
         if (!refreshToken || !verifyTokenWithFallback(refreshToken)) {
-          return NextResponse.redirect(new URL('/', request.url));
+          const loginUrl = new URL('/login', request.url);
+          loginUrl.searchParams.set('next', url.pathname);
+          return NextResponse.redirect(loginUrl);
         }
       } else {
         // التحقق من انتهاء الصلاحية
@@ -104,7 +108,9 @@ export function middleware(request: NextRequest) {
           console.log('⏰ انتهت صلاحية توكن الوصول:', url.pathname);
           // سنحاول refresh token
           if (!refreshToken || !verifyTokenWithFallback(refreshToken)) {
-            return NextResponse.redirect(new URL('/', request.url));
+            const loginUrl = new URL('/login', request.url);
+            loginUrl.searchParams.set('next', url.pathname);
+            return NextResponse.redirect(loginUrl);
           }
         }
       }
@@ -113,9 +119,12 @@ export function middleware(request: NextRequest) {
     // التحقق من صلاحيات المسئول للمسارات الإدارية
     if (isAdminRoute && accessToken) {
       const decoded = verifyTokenWithFallback(accessToken);
-      if (decoded && !decoded.is_admin && decoded.role !== 'admin') {
+      if (decoded && !decoded.is_admin && decoded.role !== 'admin' && decoded.role !== 'super_admin' && decoded.role !== 'system_admin') {
         console.log('🚫 محاولة وصول غير مخولة للوحة الإدارية:', decoded.email || decoded.id);
-        return NextResponse.redirect(new URL('/', request.url));
+        // إرجاع للصفحة الرئيسية مع رسالة خطأ
+        const homeUrl = new URL('/', request.url);
+        homeUrl.searchParams.set('error', 'access_denied');
+        return NextResponse.redirect(homeUrl);
       }
     }
   }
