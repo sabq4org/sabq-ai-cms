@@ -34,44 +34,32 @@ export async function GET(request: NextRequest) {
       request.cookies.get("token")?.value ||
       request.cookies.get("jwt")?.value;
 
-    // إذا لم يوجد في الكوكيز، جرب من Authorization header
+    console.log('🔑 التوكن المستخرج:', token ? `...${token.slice(-4)}` : 'غير موجود');
+
     if (!token) {
+      // محاولة من Authorization header
       const authHeader = request.headers.get("authorization");
       if (authHeader && authHeader.startsWith("Bearer ")) {
         token = authHeader.substring(7);
+        console.log('🔑 تم العثور على التوكن في Header');
       }
     }
 
     if (!token) {
-      // محاولة fallback من Cookie 'user' لتجنب 500 وإرجاع حالة موحدة
-      const userCookie = request.cookies.get('user')?.value;
-      if (userCookie) {
-        try {
-          const decoded = JSON.parse(decodeURIComponent(userCookie));
-          if (decoded && decoded.id) {
-            return corsResponseFromRequest(request, {
-              success: true,
-              user: {
-                id: decoded.id,
-                email: decoded.email || '',
-                name: decoded.name || 'مستخدم',
-                role: decoded.role || 'user',
-                is_admin: !!decoded.is_admin,
-                isAdmin: !!decoded.is_admin,
-                is_verified: !!decoded.is_verified,
-                isVerified: !!decoded.is_verified,
-                avatar: decoded.avatar || null,
-                created_at: decoded.created_at || null,
-                updated_at: decoded.updated_at || null,
-                status: 'active',
-                loyaltyPoints: 0,
-                interests: [],
-              },
-            });
+      console.log('❌ لا يوجد توكن - إرجاع 401');
+      return createCorsResponse({
+        success: false,
+        error: "No authentication token found",
+        debug: {
+          cookies: request.cookies.getAll().map(c => ({ name: c.name, hasValue: !!c.value, httpOnly: c.httpOnly, secure: c.secure, sameSite: c.sameSite })),
+          headers: {
+            authorization: !!request.headers.get("authorization"),
+            cookieHeader: !!request.headers.get("cookie"),
+            host: request.headers.get("host"),
+            referer: request.headers.get("referer"),
           }
-        } catch {}
-      }
-      return corsResponseFromRequest(request, { success: false, error: "Unauthorized" }, 401);
+        }
+      }, { status: 401 });
     }
 
     // التحقق من صحة التوكن (جرب عدة مفاتيح)

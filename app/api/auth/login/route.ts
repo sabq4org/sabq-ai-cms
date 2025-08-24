@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
       response.cookies.set('sabq_at', result.access_token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'lax', //  변경: strict -> lax
         maxAge: 15 * 60, // 15 دقيقة
         path: '/',
         ...(cookieDomain ? { domain: cookieDomain } as any : {}),
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
       response.cookies.set('access_token', result.access_token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'lax', // 변경: strict -> lax
         maxAge: 15 * 60,
         path: '/',
         ...(cookieDomain ? { domain: cookieDomain } as any : {}),
@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
       response.cookies.set('sabq_rt', result.refresh_token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'lax', // 변경: strict -> lax
         maxAge: remember ? 60 * 24 * 60 * 60 : 30 * 24 * 60 * 60, // 60 يوم مع تذكرني
         path: '/',
         ...(cookieDomain ? { domain: cookieDomain } as any : {}),
@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
       response.cookies.set('refresh_token', result.refresh_token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'lax', // 변경: strict -> lax
         maxAge: remember ? 60 * 24 * 60 * 60 : 30 * 24 * 60 * 60,
         path: '/',
         ...(cookieDomain ? { domain: cookieDomain } as any : {}),

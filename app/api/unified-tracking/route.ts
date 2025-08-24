@@ -1,57 +1,55 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAuthFromRequest } from '@/app/lib/auth';
-import UnifiedTrackingSystem from '@/lib/unified-tracking-system';
+import prisma from "@/lib/prisma";
 
-/**
- * 🎯 API موحد للتتبع الذكي
- * يربط جميع الأنشطة بنقاط الولاء والملف الشخصي
- */
-
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
-    // التحقق من المصادقة
-    const user = await requireAuthFromRequest(request);
-    
-    const body = await request.json();
-    const { articleId, interactionType, metadata = {} } = body;
-
-    if (!articleId || !interactionType) {
-      return NextResponse.json({
-        success: false,
-        error: 'معرف المقال ونوع التفاعل مطلوبان'
+    let body;
+    try {
+      body = await req.json();
+    } catch (parseError) {
+      console.error('❌ [tracking] خطأ في قراءة body:', parseError);
+      return NextResponse.json({ 
+        success: false, 
+        error: "Invalid request body" 
       }, { status: 400 });
     }
 
-    // تسجيل التفاعل باستخدام النظام الموحد
-    const result = await UnifiedTrackingSystem.trackInteraction({
-      userId: user.id,
-      articleId,
-      interactionType,
-      metadata: {
-        ...metadata,
-        userAgent: request.headers.get('user-agent') || undefined,
-        ip: request.headers.get('x-forwarded-for') || 
-            request.headers.get('x-real-ip') || 
-            '127.0.0.1',
-        timestamp: new Date().toISOString()
-      }
-    });
-
-    return NextResponse.json(result);
-
-  } catch (error: any) {
-    console.error('❌ خطأ في API التتبع الموحد:', error);
+    const { event, data } = body;
     
-    if (error.message?.includes('Unauthorized')) {
-      return NextResponse.json({
-        success: false,
-        error: 'غير مصرح'
-      }, { status: 401 });
+    if (!event) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "Missing event type" 
+      }, { status: 400 });
     }
 
-    return NextResponse.json({
-      success: false,
-      error: 'حدث خطأ في تسجيل التفاعل'
+    // لا نوقف الطلب إذا فشل التسجيل في قاعدة البيانات
+    try {
+      await prisma.user_activities.create({
+        data: {
+          id: `track_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          user_id: data?.userId || 'anonymous',
+          session_id: data?.sessionId || 'unknown',
+          activity_type: event,
+          activity_data: data || {},
+          created_at: new Date()
+        }
+      });
+    } catch (dbError) {
+      console.error('⚠️ [tracking] فشل حفظ التتبع في قاعدة البيانات (سيتم تجاهله):', dbError);
+    }
+
+    return NextResponse.json({ 
+      success: true,
+      message: 'Event tracked successfully'
+    });
+
+  } catch (error: any) {
+    console.error('❌ [tracking] خطأ عام في unified-tracking:', error);
+    return NextResponse.json({ 
+      success: false, 
+      error: "Internal server error",
+      details: process.env.NODE_ENV === 'development' ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 }

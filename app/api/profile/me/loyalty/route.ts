@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentUser } from '@/app/lib/auth';
-import prisma from '@/lib/prisma';
+import { requireAuthFromRequest } from "@/app/lib/auth";
+import prisma from "@/lib/prisma";
 
 function getLevel(totalPoints: number): { level: string; nextLevelThreshold: number } {
   if (totalPoints >= 2000) return { level: 'بلاتيني', nextLevelThreshold: 999999 };
@@ -9,22 +9,52 @@ function getLevel(totalPoints: number): { level: string; nextLevelThreshold: num
   return { level: 'برونزي', nextLevelThreshold: 100 };
 }
 
-export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
-export async function GET(_req: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
-    const user = await getCurrentUser();
-    if (!user) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    console.log('🔍 [loyalty] بدء جلب نقاط الولاء...');
+    
+    let user;
+    try {
+      user = await requireAuthFromRequest(req);
+      console.log('✅ [loyalty] تم التحقق من المستخدم:', user.id);
+    } catch (authError: any) {
+      console.error('❌ [loyalty] خطأ في المصادقة:', authError.message);
+      return NextResponse.json({ 
+        success: false, 
+        error: "Unauthorized",
+        details: process.env.NODE_ENV === 'development' ? authError.message : undefined
+      }, { status: 401 });
+    }
 
-    const agg = await prisma.loyalty_points.aggregate({ where: { user_id: user.id }, _sum: { points: true } });
-    const points = agg._sum.points || 0;
+    const userData = await prisma.users.findUnique({
+      where: { id: user.id },
+      select: { loyalty_points: true }
+    });
+
+    const points = userData?.loyalty_points || 0;
     const { level, nextLevelThreshold } = getLevel(points);
 
-    return NextResponse.json({ success: true, points, level, nextLevelThreshold, lastUpdatedAt: new Date().toISOString() }, { headers: { 'Cache-Control': 'no-store' } });
+    console.log(`✅ [loyalty] تم جلب النقاط بنجاح للمستخدم ${user.id}:`, { points, level });
+
+    return NextResponse.json({ 
+      success: true, 
+      points, 
+      level, 
+      nextLevelThreshold, 
+      lastUpdatedAt: new Date().toISOString() 
+    }, { 
+      headers: { 'Cache-Control': 'no-store' } 
+    });
+    
   } catch (e: any) {
-    return NextResponse.json({ success: false, error: 'Failed to fetch loyalty' }, { status: 500 });
+    console.error('❌ [loyalty] خطأ عام في الخادم:', e);
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Failed to fetch loyalty',
+      details: process.env.NODE_ENV === 'development' ? e.message : undefined
+    }, { status: 500 });
   }
 }
 
