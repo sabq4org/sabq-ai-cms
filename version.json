@@ -1,8 +1,8 @@
 {
-  "version": "0.2.2",
+  "version": "0.2.3",
   "name": "sabq-ai-cms",
   "build": {
-    "date": "2025-01-17",
+    "date": "2025-08-24",
     "environment": "digitalocean",
     "node": ">=18.0.0"
   }
