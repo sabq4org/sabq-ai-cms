@@ -3,20 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  PieChart,
-  Pie,
-  Cell
-} from 'recharts';
-import {
   TrendingUp,
   Users,
   Eye,
@@ -184,31 +170,6 @@ export default function SmartAnalyticsDashboard() {
     },
   ];
 
-  // تحضير بيانات الرسوم البيانية
-  const interactionsByType = data.interactions.reduce((acc, interaction) => {
-    acc[interaction.type] = (acc[interaction.type] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-
-  const pieData = Object.entries(interactionsByType).map(([type, count]) => ({
-    name: type,
-    value: count,
-  }));
-
-  const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#00ff00', '#ff00ff'];
-
-  // بيانات النقاط عبر الوقت
-  const pointsOverTime = data.loyaltyHistory
-    .slice(0, 30)
-    .reverse()
-    .map((point, index) => ({
-      date: new Date(point.created_at).toLocaleDateString('ar-SA'),
-      points: point.points,
-      cumulative: data.loyaltyHistory
-        .slice(0, data.loyaltyHistory.length - index)
-        .reduce((sum, p) => sum + p.points, 0),
-    }));
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -248,50 +209,30 @@ export default function SmartAnalyticsDashboard() {
         ))}
       </div>
 
-      {/* Charts */}
+      {/* Charts Placeholder */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Points Over Time */}
         <div className="bg-white rounded-lg p-6 shadow-sm border">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">📈 تطور النقاط</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={pointsOverTime}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Line
-                type="monotone"
-                dataKey="cumulative"
-                stroke="#8884d8"
-                strokeWidth={2}
-                dot={{ fill: '#8884d8' }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+            <div className="text-center text-gray-500">
+              <TrendingUp className="w-12 h-12 mx-auto mb-2" />
+              <p>رسم بياني لتطور النقاط</p>
+              <p className="text-sm">سيتم إضافة الرسوم البيانية قريباً</p>
+            </div>
+          </div>
         </div>
 
         {/* Interaction Types */}
         <div className="bg-white rounded-lg p-6 shadow-sm border">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">🎯 أنواع التفاعل</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={pieData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {pieData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+          <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+            <div className="text-center text-gray-500">
+              <Users className="w-12 h-12 mx-auto mb-2" />
+              <p>رسم دائري لأنواع التفاعل</p>
+              <p className="text-sm">سيتم إضافة الرسوم البيانية قريباً</p>
+            </div>
+          </div>
         </div>
       </div>
 
