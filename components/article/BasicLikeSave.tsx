@@ -43,7 +43,7 @@ export default function BasicLikeSave({
   const authToken = getAuthToken();
   const authHeaders: Record<string, string> = authToken
     ? { Authorization: `Bearer ${authToken}` }
-    : {};
+    : (user?.id ? { 'user-id': user.id } : {});
 
   // تشخيص حالة المصادقة
   console.log('🔧 BasicLikeSave Debug:', {
