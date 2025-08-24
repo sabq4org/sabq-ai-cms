@@ -411,13 +411,29 @@ export function validateTokenFromCookies(): boolean {
 }
 
 // تحميل التوكن من الكوكيز عند بدء تشغيل المودول (إذا كان في المتصفح)
+// هذا يحل مشكلة عدم قراءة التوكن فوراً عند تحميل الصفحة
 if (typeof window !== 'undefined') {
-  // تأخير صغير للتأكد من تحميل document بالكامل
-  setTimeout(() => {
+  // تحميل فوري إذا كان document جاهز
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
     const token = getCookieFromDocument('access_token');
     if (token && !isTokenExpired(token)) {
       accessTokenInMemory = token;
-      console.log('🚀 [authClient] تم تحميل التوكن من الكوكيز عند البداية');
+      console.log('🚀 [authClient] تم تحميل التوكن من الكوكيز فوراً');
     }
-  }, 100);
+  } else {
+    // انتظار تحميل document
+    const loadToken = () => {
+      const token = getCookieFromDocument('access_token');
+      if (token && !isTokenExpired(token)) {
+        accessTokenInMemory = token;
+        console.log('🚀 [authClient] تم تحميل التوكن من الكوكيز عند اكتمال التحميل');
+      }
+    };
+    
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadToken);
+    } else {
+      setTimeout(loadToken, 100);
+    }
+  }
 }
