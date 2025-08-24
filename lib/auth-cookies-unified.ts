@@ -36,11 +36,21 @@ export const COOKIE_NAMES = {
   CSRF_TOKEN: 'sabq-csrf-token', // غير __Host لأنه يحتاج JavaScript access
 } as const;
 
-// أسماء الكوكيز القديمة للتنظيف
+// أسماء الكوكيز القديمة للتنظيف والـ Fallback (قابلة للتوسعة)
 const LEGACY_COOKIES = [
   'sabq_at', 'sabq_rt', 'access_token', 'refresh_token', 
   'auth-token', 'user', 'token', 'jwt'
 ];
+
+// Future-proofing: قائمة أولويات قراءة التوكن (يمكن إضافة أسماء جديدة)
+export const TOKEN_COOKIE_PRIORITY = [
+  '__Host-sabq-access-token', // النظام الموحد الحالي (أولوية عليا)
+  'sabq_at',                  // النظام القديم الرئيسي
+  'access_token',             // Fallback عام
+  'auth-token',               // Fallback عام
+  'token',                    // Fallback عام
+  'jwt'                       // Fallback عام
+] as const;
 
 /**
  * تعيين كوكيز المصادقة الموحدة
@@ -124,12 +134,14 @@ export function getUnifiedAuthTokens(request: NextRequest): {
   refreshToken: string | null;
   userSession: any | null;
 } {
-  // محاولة قراءة الكوكيز الموحدة أولاً
+  // NOTE: Always prefer unified cookie names for new system
+  // محاولة قراءة الكوكيز الموحدة أولاً (أولوية عالية)
   let accessToken = request.cookies.get(COOKIE_NAMES.ACCESS_TOKEN)?.value || null;
   let refreshToken = request.cookies.get(COOKIE_NAMES.REFRESH_TOKEN)?.value || null;
   let userSession = null;
 
-  // Fallback للكوكيز القديمة
+  // Legacy fallback support for backward compatibility
+  // Fallback للكوكيز القديمة (دعم التوافق مع الأنظمة القديمة)
   if (!accessToken) {
     accessToken = request.cookies.get('sabq_at')?.value || 
                   request.cookies.get('access_token')?.value ||

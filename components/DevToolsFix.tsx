@@ -19,6 +19,16 @@ const DevToolsFix: React.FC = () => {
         disable: () => fix.getStatus(),
         status: () => fix.getStatus()
       };
+      
+      // تحميل أدوات التشخيص المتقدمة للمصادقة
+      import('@/lib/debug-tools').then(() => {
+        console.log('🔍 أدوات التشخيص تم تحميلها');
+      });
+      
+      // تحميل أدوات loyalty التخصصية
+      import('@/lib/loyalty-debug').then(() => {
+        console.log('🎯 أدوات Loyalty تم تحميلها');
+      });
     }
   }, []);
 

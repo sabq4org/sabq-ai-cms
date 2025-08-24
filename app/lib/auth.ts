@@ -343,13 +343,29 @@ export async function requireAuthFromRequest(request: NextRequest): Promise<User
     } as User & { role: string };
   }
 
-  // محاولة جلب التوكن من Request (أسماء الكوكيز الموحدة أولاً)
-  let token = request.cookies.get("__Host-sabq-access-token")?.value ||  // النظام الموحد الجديد
-              request.cookies.get("sabq_at")?.value ||                    // النظام القديم
-              request.cookies.get("auth-token")?.value ||
-              request.cookies.get("access_token")?.value ||
-              request.cookies.get("token")?.value ||
-              request.cookies.get("jwt")?.value;
+  // محاولة جلب التوكن من Request باستخدام قائمة الأولويات
+  // NOTE: Always prefer __Host-sabq-access-token for unified system
+  // Legacy fallback support for backward compatibility
+  let token: string | null = null;
+  
+  // استخدام قائمة الأولويات للبحث عن التوكن
+  const tokenPriority = [
+    "__Host-sabq-access-token", // ✅ النظام الموحد الجديد (أولوية عليا)
+    "sabq_at",                  // 🔄 النظام القديم الرئيسي
+    "auth-token",               // 🔄 Fallback عام
+    "access_token",             // 🔄 Fallback عام
+    "token",                    // 🔄 Fallback عام
+    "jwt"                       // 🔄 Fallback عام
+  ];
+  
+  for (const cookieName of tokenPriority) {
+    const cookieValue = request.cookies.get(cookieName)?.value;
+    if (cookieValue) {
+      token = cookieValue;
+      console.log(`🔑 تم العثور على التوكن في: ${cookieName}`);
+      break;
+    }
+  }
 
   console.log('🔑 التوكن من الكوكيز:', token ? 'موجود' : 'غير موجود');
   console.log('🔍 جميع الكوكيز:', request.cookies.getAll().map(c => ({ name: c.name, hasValue: !!c.value })));

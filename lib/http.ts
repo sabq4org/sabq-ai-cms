@@ -71,10 +71,12 @@ http.interceptors.response.use(
       method: original.method
     });
 
-    // معالجة 401 - لا نكرر للأبد (Single Retry كما في البرومنت)
+    // معالجة 401 - Single Retry فقط (تطبيق البرومنت النصي)
     if (error.response.status === 401 && !original._retried) {
       
       // تجاهل الطلبات الحساسة فقط (استثناء /profile لأنه يحتاج تجديد)
+      // NOTE: Keep this list minimal and well-documented
+      // Future updates: Review when adding new auth endpoints
       const sensitiveEndpoints = ['/auth/login', '/auth/register', '/auth/refresh'];
       const isSensitive = sensitiveEndpoints.some(endpoint => 
         original.url?.includes(endpoint)

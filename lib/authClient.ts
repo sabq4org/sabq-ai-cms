@@ -56,7 +56,7 @@ export async function ensureAccessToken(): Promise<string> {
   }
 
   // بدء عملية التجديد (Single-flight)
-  refreshPromise = performTokenRefresh();
+  refreshPromise = performTokenRefreshInternal();
   
   try {
     const newToken = await refreshPromise;
@@ -70,9 +70,24 @@ export async function ensureAccessToken(): Promise<string> {
 }
 
 /**
- * تنفيذ تجديد التوكن الفعلي
+ * تنفيذ تجديد التوكن للاستخدام الخارجي
  */
-async function performTokenRefresh(): Promise<string> {
+export async function performTokenRefresh(): Promise<{success: boolean; token?: string; error?: string}> {
+  try {
+    const token = await performTokenRefreshInternal();
+    return { success: true, token };
+  } catch (error) {
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : String(error) 
+    };
+  }
+}
+
+/**
+ * تنفيذ تجديد التوكن الداخلي
+ */
+async function performTokenRefreshInternal(): Promise<string> {
   lastRefreshAttempt = Date.now();
   refreshAttempts++;
 
@@ -89,42 +104,47 @@ async function performTokenRefresh(): Promise<string> {
     });
 
     if (!response.ok) {
+      console.error(`❌ فشل في تجديد التوكن: ${response.status} - ${response.statusText}`);
+      
+      if (response.status === 401) {
+        clearSession();
+        throw new Error('Refresh token invalid');
+      }
+      
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
     const data = await response.json();
-
-    if (!data.success || !data.accessToken) {
-      throw new Error(data.message || 'فشل في الحصول على التوكن الجديد');
+    const newToken = data.accessToken || data.token;
+    
+    if (!newToken) {
+      console.error('❌ لم يتم إرجاع التوكن من الخادم');
+      throw new Error('No token returned from server');
     }
 
-    // حفظ التوكن الجديد في الذاكرة
-    setAccessTokenInMemory(data.accessToken);
+    // تحديث التوكن في الذاكرة
+    setAccessTokenInMemory(newToken);
     
-    // إعادة تعيين العداد عند النجاح
-    refreshAttempts = 0;
-
     console.log('✅ تم تجديد التوكن بنجاح');
+    refreshAttempts = 0; // إعادة تعيين العداد عند النجاح
 
     // إطلاق حدث التجديد (بدون reload!)
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('token-refreshed', {
         detail: { 
-          accessToken: data.accessToken,
+          accessToken: newToken,
           userVersion: data.userVersion || Date.now()
         }
       }));
     }
-
-    return data.accessToken;
-
-  } catch (error: any) {
-    console.error('❌ خطأ في تجديد التوكن:', error.message);
     
-    // تنظيف الجلسة عند الفشل النهائي
-    if (refreshAttempts >= MAX_REFRESH_ATTEMPTS) {
-      clearSession();
-    }
+    return newToken;
+
+  } catch (error) {
+    console.error('❌ خطأ في تجديد التوكن:', error);
+    
+    // تنظيف الحالة عند الفشل
+    clearSession(); // تنظيف شامل عند الفشل
     
     throw error;
   }
