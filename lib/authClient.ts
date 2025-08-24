@@ -14,40 +14,74 @@ let lastRefreshAttempt = 0;
 let refreshAttempts = 0;
 
 /**
- * قراءة الكوكي من المتصفح مع Fallback للأسماء المختلفة
+ * قراءة الكوكي من المتصفح مع Fallback للأسماء المختلفة (محسّن للكوكيز الذكية)
  */
 function getCookieFromDocument(name: string): string | null {
   if (typeof document === 'undefined') return null;
   
+  // قائمة أولوية للأسماء المختلفة
+  const priorityNames: Record<string, string[]> = {
+    // للتطوير أولاً، ثم الإنتاج
+    'access_token': [
+      'sabq-access-token',      // التطوير
+      '__Host-sabq-access-token', // الإنتاج
+      'sabq_at',                // القديم
+      'access_token'            // عام
+    ],
+    'refresh_token': [
+      'sabq_rft',               // موحد
+      '__Host-sabq-refresh',    // الإنتاج
+      'sabq_rt'                 // القديم
+    ],
+    'user_session': [
+      'sabq-user-session',      // التطوير
+      '__Host-sabq-user-session', // الإنتاج  
+      'user'                    // القديم
+    ]
+  };
+  
   // محاولة قراءة الكوكي المحدد أولاً
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) {
-    const cookieValue = parts.pop()?.split(';').shift() || null;
-    if (cookieValue) {
-      return cookieValue;
+  const tryReadCookie = (cookieName: string): string | null => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${cookieName}=`);
+    if (parts.length === 2) {
+      const cookieValue = parts.pop()?.split(';').shift() || null;
+      if (cookieValue) {
+        return cookieValue;
+      }
+    }
+    return null;
+  };
+  
+  // أولاً، محاولة قراءة الاسم المحدد
+  let result = tryReadCookie(name);
+  if (result) return result;
+  
+  // ثانياً، استخدام قائمة الأولوية
+  const alternatives = priorityNames[name] || [];
+  for (const altName of alternatives) {
+    result = tryReadCookie(altName);
+    if (result) {
+      console.log(`📋 [authClient] استخدام fallback cookie: ${altName} بدلاً من ${name}`);
+      return result;
     }
   }
   
-  // Fallback للأسماء البديلة (التطوير/الإنتاج)
-  const fallbackNames: Record<string, string[]> = {
-    '__Host-sabq-access-token': ['sabq-access-token', 'sabq_at', 'access_token'],
-    'sabq-access-token': ['__Host-sabq-access-token', 'sabq_at', 'access_token'],
-    'sabq_rft': ['__Host-sabq-refresh', 'sabq_rt', 'refresh_token'],
+  // ثالثاً، Fallback للأسماء البديلة العامة
+  const generalFallbacks: Record<string, string[]> = {
+    '__Host-sabq-access-token': ['sabq-access-token', 'sabq_at'],
+    'sabq-access-token': ['__Host-sabq-access-token', 'sabq_at'],
+    'sabq_rft': ['__Host-sabq-refresh', 'sabq_rt'],
     '__Host-sabq-user-session': ['sabq-user-session', 'user'],
     'sabq-user-session': ['__Host-sabq-user-session', 'user'],
   };
   
-  const alternatives = fallbackNames[name] || [];
-  for (const altName of alternatives) {
-    const altValue = `; ${document.cookie}`;
-    const altParts = altValue.split(`; ${altName}=`);
-    if (altParts.length === 2) {
-      const altCookieValue = altParts.pop()?.split(';').shift() || null;
-      if (altCookieValue) {
-        console.log(`📋 [authClient] استخدام fallback cookie: ${altName} بدلاً من ${name}`);
-        return altCookieValue;
-      }
+  const generalAlts = generalFallbacks[name] || [];
+  for (const altName of generalAlts) {
+    result = tryReadCookie(altName);
+    if (result) {
+      console.log(`📋 [authClient] استخدام general fallback: ${altName} بدلاً من ${name}`);
+      return result;
     }
   }
   

@@ -3,10 +3,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { UserManagementService, UserLoginSchema, SecurityManager } from '@/lib/auth/user-management';
 import { authRateLimit } from '@/lib/rate-limiter';
 import { 
-  setUnifiedAuthCookies, 
-  setCORSHeaders, 
-  setNoCache 
-} from '@/lib/auth-cookies-unified';
+  setSmartAuthCookies, 
+  clearSmartAuthCookies 
+} from '@/lib/smart-cookie-helper';
+import { setCORSHeaders, setNoCache } from '@/lib/auth-cookies-unified';
 
 export async function POST(request: NextRequest) {
   // تطبيق Rate Limiting للحماية من Brute Force
@@ -110,19 +110,31 @@ export async function POST(request: NextRequest) {
         { status: 200 }
       );
 
-      // تعيين الكوكيز الموحدة الآمنة
+      // تعيين الكوكيز الذكية الآمنة (يحل مشكلة Domain mismatch)
       if (result.access_token && result.refresh_token) {
-        setUnifiedAuthCookies(
+        setSmartAuthCookies(
+          request,
           response, 
-          result.access_token, 
-          result.refresh_token,
+          {
+            access: result.access_token,
+            refresh: result.refresh_token,
+            session: JSON.stringify({
+              id: result.user?.id,
+              email: result.user?.email,
+              name: result.user?.name,
+              role: result.user?.role,
+              isAdmin: result.user?.is_admin,
+              timestamp: Date.now()
+            }),
+            csrf: crypto.randomUUID().replace(/-/g, '')
+          },
           {
             rememberMe: validationResult.data.remember_me || false,
             userInfo: result.user
           }
         );
         
-        console.log('🍪 تم تعيين كوكيز المصادقة الموحدة');
+        console.log('🍪 تم تعيين كوكيز المصادقة الذكية (حل مشكلة Domain)');
       }
 
       // تعيين رؤوس CORS وعدم التخزين المؤقت

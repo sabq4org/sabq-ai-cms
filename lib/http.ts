@@ -91,15 +91,28 @@ http.interceptors.response.use(
         console.log('🔄 محاولة تجديد التوكن وإعادة الطلب...');
         console.log('🔍 التوكن الحالي قبل التجديد:', getAccessToken()?.substring(0, 20) + '...');
         
-        // فحص الكوكيز قبل التجديد
+        // فحص الكوكيز قبل التجديد (محسّن للكوكيز الذكية)
         console.log('🍪 فحص الكوكيز قبل التجديد:');
         const cookiesDebug = typeof document !== 'undefined' ? document.cookie : 'undefined';
         console.log('  - جميع الكوكيز:', cookiesDebug);
         
-        const refreshCookie = getCookieValue('sabq_rft') || getCookieValue('__Host-sabq-refresh');
+        // البحث عن كوكيز التجديد مع أولوية ذكية
+        const refreshCookieNames = ['sabq_rft', '__Host-sabq-refresh', 'sabq_rt'];
+        let refreshCookie = null;
+        for (const name of refreshCookieNames) {
+          refreshCookie = getCookieValue(name);
+          if (refreshCookie) {
+            console.log(`  - كوكي التجديد: ${name} ✅`);
+            break;
+          }
+        }
+        
         const csrfToken = getCookieValue('sabq-csrf-token');
-        console.log('  - كوكي التجديد:', refreshCookie ? 'موجود' : 'مفقود');
-        console.log('  - CSRF Token:', csrfToken ? 'موجود' : 'مفقود');
+        console.log('  - CSRF Token:', csrfToken ? 'موجود ✅' : 'مفقود ❌');
+        
+        if (!refreshCookie) {
+          console.warn('⚠️ لا يوجد refresh token - قد تفشل عملية التجديد');
+        }
         
         // تجديد التوكن (مع منع السباقات)
         const newToken = await ensureAccessToken();
