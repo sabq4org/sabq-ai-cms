@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Heart, Bookmark } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 
 interface BasicLikeSaveProps {
   articleId: string;
@@ -45,6 +45,15 @@ export default function BasicLikeSave({
     ? { Authorization: `Bearer ${authToken}` }
     : {};
 
+  // تشخيص حالة المصادقة
+  console.log('🔧 BasicLikeSave Debug:', {
+    articleId,
+    user: user ? { id: user.id, name: user.name } : null,
+    authToken: authToken ? 'موجود' : 'غير موجود',
+    initialLikes,
+    initialSaves
+  });
+
   // جلب حالة المستخدم عند التحميل
   useEffect(() => {
     if (!user || !articleId) return;
@@ -65,6 +74,8 @@ export default function BasicLikeSave({
 
   const fetchUserStatus = async () => {
     try {
+      console.log('🔍 جلب حالة المستخدم للمقال:', articleId);
+      
       const response = await fetch(`/api/interactions/user-status?articleId=${articleId}` , {
         method: 'GET',
         credentials: 'include',
@@ -73,20 +84,29 @@ export default function BasicLikeSave({
           ...authHeaders,
         },
       });
+      
+      console.log('📊 استجابة حالة المستخدم:', response.status, response.statusText);
+      
       const data = await response.json();
+      console.log('📄 بيانات حالة المستخدم:', data);
+      
       if (response.ok && data) {
         setLiked(!!(data.liked ?? data.hasLiked ?? data.interactions?.liked));
         setSaved(!!(data.saved ?? data.hasSaved ?? data.interactions?.saved));
         if (typeof data.likesCount === 'number') setLikes(data.likesCount);
         if (typeof data.savesCount === 'number') setSaves(data.savesCount);
+        console.log('✅ تم تحديث حالة المستخدم');
+      } else {
+        console.warn('⚠️ فشل في جلب حالة المستخدم:', data);
       }
     } catch (error) {
-      // تجاهل
+      console.error('❌ خطأ في جلب حالة المستخدم:', error);
     }
   };
 
   const handleLike = async () => {
     if (!user) {
+      console.log('❌ المستخدم غير مسجل الدخول');
       alert('يرجى تسجيل الدخول أولاً');
       return;
     }
@@ -95,6 +115,8 @@ export default function BasicLikeSave({
 
     try {
       const newLikeStatus = !liked;
+      console.log('👍 محاولة إعجاب:', { articleId, like: newLikeStatus, userId: user.id });
+      
       const response = await fetch('/api/interactions/like', {
         method: 'POST',
         credentials: 'include',
@@ -105,15 +127,22 @@ export default function BasicLikeSave({
         body: JSON.stringify({ articleId, like: newLikeStatus }),
       });
 
+      console.log('📊 استجابة الإعجاب:', response.status, response.statusText);
+      
       const data = await response.json().catch(() => ({}));
+      console.log('📄 بيانات الاستجابة:', data);
+      
       if (response.ok) {
         setLiked(newLikeStatus);
         setLikes(typeof data.likes === 'number' ? data.likes : (newLikeStatus ? likes + 1 : Math.max(0, likes - 1)));
+        console.log('✅ تم الإعجاب بنجاح');
       } else {
-        alert('حدث خطأ في الإعجاب');
+        console.error('❌ فشل الإعجاب:', data);
+        alert(`حدث خطأ في الإعجاب: ${data.error || 'خطأ غير معروف'}`);
       }
     } catch (error) {
-      alert('حدث خطأ في الإعجاب');
+      console.error('❌ خطأ في الإعجاب:', error);
+      alert('حدث خطأ في الاتصال');
     } finally {
       setLoading(false);
     }
@@ -121,6 +150,7 @@ export default function BasicLikeSave({
 
   const handleSave = async () => {
     if (!user) {
+      console.log('❌ المستخدم غير مسجل الدخول');
       alert('يرجى تسجيل الدخول أولاً');
       return;
     }
@@ -129,6 +159,8 @@ export default function BasicLikeSave({
 
     try {
       const newSaveStatus = !saved;
+      console.log('💾 محاولة حفظ:', { articleId, saved: newSaveStatus, userId: user.id });
+      
       const response = await fetch('/api/bookmarks', {
         method: 'POST',
         credentials: 'include',
@@ -139,16 +171,23 @@ export default function BasicLikeSave({
         body: JSON.stringify({ articleId, saved: newSaveStatus }),
       });
 
+      console.log('📊 استجابة الحفظ:', response.status, response.statusText);
+      
       const data = await response.json().catch(() => ({}));
+      console.log('📄 بيانات الاستجابة:', data);
+      
       if (response.ok) {
         // تثبيت الحالة والعداد من الخادم لضمان عدم رجوعها للصفر بعد التحديث
         setSaved(!!(data.saved ?? newSaveStatus));
         setSaves(typeof data.saves === 'number' ? data.saves : (newSaveStatus ? saves + 1 : Math.max(0, saves - 1)));
+        console.log('✅ تم الحفظ بنجاح');
       } else {
-        alert('حدث خطأ في الحفظ');
+        console.error('❌ فشل الحفظ:', data);
+        alert(`حدث خطأ في الحفظ: ${data.error || 'خطأ غير معروف'}`);
       }
     } catch (error) {
-      alert('حدث خطأ في الحفظ');
+      console.error('❌ خطأ في الحفظ:', error);
+      alert('حدث خطأ في الاتصال');
     } finally {
       setLoading(false);
     }
