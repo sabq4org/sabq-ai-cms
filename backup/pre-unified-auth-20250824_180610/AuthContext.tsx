@@ -48,13 +48,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const loadingRef = useRef<boolean>(false);
   const mountedRef = useRef<boolean>(true);
   const lastLoadTimeRef = useRef<number>(0);
-  
-  // Rate Limiting للمصادقة
-  const retryCountRef = useRef<number>(0);
-  const lastFailureRef = useRef<number>(0);
-  const MAX_RETRIES = 3;
-  const RETRY_DELAY = 5000; // 5 ثوان
-  const FAILURE_COOLDOWN = 30000; // 30 ثانية
 
   // تحديث حالة المصادقة بأمان
   const updateAuthState = useCallback((user: User | null, error: string | null = null) => {
@@ -71,29 +64,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  // تحميل بيانات المستخدم مع حماية من Race Conditions وRate Limiting
+  // تحميل بيانات المستخدم مع حماية من Race Conditions وDebouncing
   const loadUser = useCallback(async (force = false) => {
     const now = Date.now();
     const timeSinceLastLoad = now - lastLoadTimeRef.current;
-    
-    // منع الاستدعاءات المتزامنة
-    if (loadingRef.current && !force) {
-      console.log('⏳ تحميل جاري بالفعل...');
-      return;
-    }
-
-    // فحص Rate Limiting
-    if (retryCountRef.current >= MAX_RETRIES && !force) {
-      const timeSinceLastFailure = now - lastFailureRef.current;
-      if (timeSinceLastFailure < FAILURE_COOLDOWN) {
-        console.log(`⏳ تم تجاوز الحد الأقصى للمحاولات. انتظار ${Math.ceil((FAILURE_COOLDOWN - timeSinceLastFailure) / 1000)} ثانية`);
-        return;
-      } else {
-        // إعادة تعيين العداد بعد انتهاء فترة الانتظار
-        retryCountRef.current = 0;
-        console.log('🔄 إعادة تعيين عداد المحاولات');
-      }
-    }
     
     // تجنب التحميل المتكرر (debounce: 2 ثانية)
     if (!force && timeSinceLastLoad < 2000) {
@@ -101,55 +75,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    if (loadingRef.current && !force) {
+      console.log('⏳ تحميل جاري بالفعل...');
+      return;
+    }
+
     loadingRef.current = true;
     lastLoadTimeRef.current = now;
 
     try {
-      console.log(`🔍 بدء تحميل بيانات المستخدم (${retryCountRef.current + 1}/${MAX_RETRIES})...`);
+      console.log('🔍 بدء تحميل بيانات المستخدم...');
       
       // عيّن حالة التحميل فقط عند عدم وجود مستخدم أو عند الإجبار
       if ((!authState.user || force) && mountedRef.current) {
         setAuthState(prev => ({ ...prev, loading: true, error: null }));
       }
 
-      // استخدام دالة فحص الجلسة المحسّنة (بدون interceptors)
+      // استخدام دالة فحص الجلسة المحسّنة
       const isValidSession = await checkSession();
       
       if (!isValidSession) {
-        console.log('❌ جلسة غير صالحة - إعادة تعيين العداد');
-        retryCountRef.current = 0; // إعادة تعيين عند عدم وجود جلسة
+        console.log('❌ جلسة غير صالحة');
         updateAuthState(null);
         return;
       }
 
-      // الحصول على بيانات المستخدم باستخدام fetch مباشرة
-      const response = await fetch('/api/auth/me', {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+      // الحصول على بيانات المستخدم
+      const data = await api.get('/auth/me');
 
       if (!mountedRef.current) return;
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data?.success && data?.user) {
-          console.log('✅ تم تحميل بيانات المستخدم:', data.user.email);
-          updateAuthState(data.user);
-          retryCountRef.current = 0; // إعادة تعيين العداد عند النجاح
-          return;
-        }
-      } else if (response.status === 401) {
-        console.log('⚠️ لا يوجد مستخدم مسجل - إعادة تعيين العداد');
-        retryCountRef.current = 0;
-        updateAuthState(null);
+      if (data?.success && data?.user) {
+        console.log('✅ تم تحميل بيانات المستخدم:', data.user.email);
+        updateAuthState(data.user);
         return;
       }
 
       console.log('⚠️ لا يوجد مستخدم مسجل');
-      retryCountRef.current = 0;
       updateAuthState(null);
       
     } catch (error: any) {
@@ -159,52 +121,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         code: error.code
       });
       
-      if (!mountedRef.current) return;
-      
-      retryCountRef.current++;
-      lastFailureRef.current = now;
-      
-      if (retryCountRef.current >= MAX_RETRIES) {
-        console.error(`❌ تم تجاوز الحد الأقصى للمحاولات (${MAX_RETRIES})`);
-        setAuthState(prev => ({ 
-          ...prev, 
-          loading: false, 
-          error: 'فشل في تحميل بيانات المستخدم',
-          user: null,
-          isLoggedIn: false,
-          userId: null 
-        }));
-        loadingRef.current = false;
-      } else {
-        // التعامل مع أنواع الأخطاء المختلفة  
+      if (mountedRef.current) {
+        // التعامل مع أنواع الأخطاء المختلفة
         if (error.response?.status === 401) {
-          console.log('🔐 جلسة منتهية الصلاحية - إعادة تعيين العداد');
-          retryCountRef.current = 0;
-          updateAuthState(null);
-          loadingRef.current = false;
+          console.log('🔐 جلسة منتهية الصلاحية');
+          updateAuthState(null, null); // لا نعرض خطأ للمستخدم
         } else if (error.code === 'NETWORK_ERROR' || error.message.includes('timeout')) {
-          console.log(`🌐 خطأ في الشبكة - إعادة المحاولة خلال ${RETRY_DELAY / 1000} ثانية...`);
-          setTimeout(() => {
-            if (mountedRef.current) {
-              loadUser(true);
-            }
-          }, RETRY_DELAY);
-          return; // لا نغير loading إلى false
+          console.log('🌐 خطأ في الشبكة - إبقاء الحالة الحالية');
+          // لا نغير الحالة في حالة خطأ الشبكة
+          setAuthState(prev => ({ ...prev, loading: false }));
         } else {
-          console.log(`⏳ إعادة المحاولة خلال ${RETRY_DELAY / 1000} ثانية...`);
-          setTimeout(() => {
-            if (mountedRef.current) {
-              loadUser(true);
-            }
-          }, RETRY_DELAY);
-          return; // لا نغير loading إلى false
+          updateAuthState(null, 'فشل في تحميل بيانات المستخدم');
         }
       }
     } finally {
-      // تعيين loading إلى false فقط إذا لم نكن ننتظر إعادة المحاولة
-      if (retryCountRef.current >= MAX_RETRIES || retryCountRef.current === 0) {
-        loadingRef.current = false;
-      }
+      loadingRef.current = false;
     }
   }, [updateAuthState, authState.user]);
 
@@ -324,12 +255,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // تجاهل أحداث تجديد التوكن إذا كان المستخدم مسجل دخول بالفعل
       if (type === 'token-refreshed' && authState.user) {
         console.log('ℹ️ تجاهل تجديد التوكن - المستخدم مسجل دخول');
-        return;
-      }
-
-      // تجاهل أحداث انتهاء الجلسة إذا لم يكن هناك مستخدم مسجل بالفعل
-      if (type === 'session-expired' && !authState.user) {
-        console.log('ℹ️ تجاهل انتهاء الجلسة - لا يوجد مستخدم مسجل بالفعل');
         return;
       }
 

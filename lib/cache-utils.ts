@@ -18,23 +18,46 @@ export const getCachedArticles = unstable_cache(
   }
 );
 
-// تخزين مؤقت للتصنيفات
+// تخزين مؤقت للتصنيفات (نظام محسن مع عدد المقالات)
 export const getCachedCategories = unstable_cache(
   async () => {
-    return await prisma.categories.findMany({
+    console.log('🔄 Next.js cache: جلب التصنيفات من قاعدة البيانات...')
+    
+    const categories = await prisma.categories.findMany({
       where: { is_active: true },
       orderBy: [
         { display_order: 'asc' },
         { name: 'asc' }
-      ]
-    });
+      ],
+      include: {
+        _count: {
+          select: {
+            articles: {
+              where: {
+                status: 'published'
+              }
+            }
+          }
+        }
+      }
+    })
+    
+    // إضافة articles_count لكل تصنيف للتوافق مع النظام القديم
+    const categoriesWithCount = categories.map(category => ({
+      ...category,
+      articles_count: category._count.articles
+    }))
+    
+    console.log(`✅ Next.js cache: تم جلب ${categoriesWithCount.length} تصنيف مع عدد المقالات`)
+    
+    return categoriesWithCount
   },
   ['categories'],
   {
     revalidate: 300, // إعادة التحقق كل 5 دقائق
     tags: ['categories']
   }
-);
+)
 
 // تخزين مؤقت للمستخدمين
 export const getCachedUsers = unstable_cache(

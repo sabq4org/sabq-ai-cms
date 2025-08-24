@@ -20,9 +20,12 @@ const CACHE_TTL_MS = 5 * 60 * 1000
 const STALE_GRACE_PERIOD_MS = 60 * 60 * 1000
 
 /**
- * جلب التصنيفات مع cache ذكي
+ * جلب التصنيفات مع cache ذكي (نظام قديم - مُعطل)
+ * استخدم getCachedCategories من cache-utils.ts بدلاً من ذلك
+ * 
+ * @deprecated - تم إستبداله بنظام Next.js unstable_cache
  */
-export async function getCachedCategories(forceRefresh = false) {
+export async function getLegacyCachedCategories(forceRefresh = false) {
   const now = new Date()
   const cacheAge = now.getTime() - categoriesCache.lastUpdated.getTime()
   
@@ -103,10 +106,11 @@ export async function getCachedCategories(forceRefresh = false) {
 }
 
 /**
- * تحديث cache التصنيفات يدوياً
+ * تحديث cache التصنيفات يدوياً (مُعطل - استخدم revalidateCategoryCache من cache-utils.ts)
+ * @deprecated
  */
 export async function updateCategoriesCache() {
-  return getCachedCategories(true)
+  return getLegacyCachedCategories(true)
 }
 
 /**
@@ -138,10 +142,18 @@ export function getCacheInfo() {
   }
 }
 
-// تحديث تلقائي للـ cache كل 5 دقائق
+// تحديث تلقائي للـ cache كل 5 دقائق (مُعطل لتجنب التضارب مع Next.js cache)
 let autoUpdateInterval: NodeJS.Timeout | null = null
 
+/**
+ * @deprecated - مُعطل لتجنب التضارب مع Next.js unstable_cache
+ */
 export function startAutoUpdate() {
+  console.log('⚠️ التحديث التلقائي مُعطل لتجنب التضارب مع Next.js cache')
+  return
+  
+  // الكود المُعطل:
+  /*
   if (autoUpdateInterval) return
   
   autoUpdateInterval = setInterval(async () => {
@@ -154,6 +166,7 @@ export function startAutoUpdate() {
   }, CACHE_TTL_MS)
   
   console.log('🔄 بدء التحديث التلقائي لـ cache التصنيفات')
+  */
 }
 
 export function stopAutoUpdate() {
@@ -164,10 +177,12 @@ export function stopAutoUpdate() {
   }
 }
 
-// بدء التحديث التلقائي في الإنتاج
-if (process.env.NODE_ENV === 'production') {
-  startAutoUpdate()
-}
+// بدء التحديث التلقائي في الإنتاج (مُعطل لتجنب التضارب)
+// تم تعطيل التحديث التلقائي لتجنب التضارب مع Next.js cache
+// if (process.env.NODE_ENV === 'production') {
+//   startAutoUpdate()
+// }
+console.log('ℹ️ نظام cache التصنيفات القديم مُعطل - يتم استخدام Next.js unstable_cache')
 
 // تنظيف عند إيقاف التطبيق
 if (typeof process !== 'undefined') {

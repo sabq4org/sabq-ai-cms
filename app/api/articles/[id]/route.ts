@@ -1,6 +1,6 @@
 import dbConnectionManager from "@/lib/db-connection-manager";
 import prisma from "@/lib/prisma";
-import { getCachedCategories } from "@/lib/services/categoriesCache";
+import { getCachedCategories } from "@/lib/cache-utils";
 import { FeaturedArticleManager } from "@/lib/services/featured-article-manager";
 import { NextResponse } from "next/server";
 
@@ -144,9 +144,9 @@ export async function GET(
     if (!categoryInfo && article.category_id) {
       try {
         const categoriesResult = await getCachedCategories();
-        categoryInfo = categoriesResult.categories.find(
-          (c) => c.id === article.category_id
-        );
+        categoryInfo = categoriesResult.find(
+          (c: any) => c.id === article.category_id
+        ) || null;
       } catch (error) {
         console.error("⚠️ فشل جلب التصنيف من cache:", error);
       }
@@ -221,7 +221,7 @@ export async function GET(
             const parsedTags = JSON.parse(article.tags);
             tags = Array.isArray(parsedTags) ? parsedTags : [article.tags];
           } catch (e) {
-            tags = article.tags.split(',').map(tag => tag.trim()).filter(Boolean);
+            tags = String(article.tags).split(',').map((tag: string) => tag.trim()).filter(Boolean);
           }
         } else {
           tags = article.tags ? [String(article.tags)] : [];
@@ -250,10 +250,10 @@ export async function GET(
         metadata: {
           hasKeywords: article.metadata && (typeof article.metadata === 'string' ? 
             JSON.parse(article.metadata).keywords !== undefined : 
-            article.metadata.keywords !== undefined),
+            (typeof article.metadata === 'object' && article.metadata !== null && 'keywords' in article.metadata)),
           hasSeoKeywords: article.metadata && (typeof article.metadata === 'string' ? 
             JSON.parse(article.metadata).seo_keywords !== undefined : 
-            article.metadata.seo_keywords !== undefined)
+            (typeof article.metadata === 'object' && article.metadata !== null && 'seo_keywords' in article.metadata))
         }
       });
     } catch (error) {

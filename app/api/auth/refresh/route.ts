@@ -1,34 +1,37 @@
-// API لتجديد access token - نظام سبق الذكية
+// API لتجديد access token - نظام سبق الذكية (محسّن وموحد)
 import { NextRequest, NextResponse } from 'next/server';
 import { UserManagementService } from '@/lib/auth/user-management';
+import { 
+  getUnifiedAuthTokens, 
+  updateAccessToken, 
+  setCORSHeaders, 
+  setNoCache 
+} from '@/lib/auth-cookies-unified';
 
 export async function POST(request: NextRequest) {
   try {
     console.log('🔄 بدء عملية تجديد التوكن...');
-    console.log('🍪 الكوكيز المتاحة:', request.cookies.getAll().map(c => ({ name: c.name, hasValue: !!c.value })));
     
-    // الحصول على refresh token من cookies أو body (أولوية للكوكيز الموحدة)
-    let refreshToken = request.cookies.get('sabq_rt')?.value || request.cookies.get('refresh_token')?.value;
+    // الحصول على refresh token من الكوكيز الموحدة
+    const { refreshToken } = getUnifiedAuthTokens(request);
+    
+    console.log('🔍 الكوكيز المتاحة:', request.cookies.getAll().map(c => ({ name: c.name, hasValue: !!c.value })));
     
     if (!refreshToken) {
-      console.log('⚠️ لا يوجد refresh token في الكوكيز، محاولة من body...');
-      try {
-        const body = await request.json();
-        refreshToken = body.refresh_token;
-      } catch (e) {
-        console.log('⚠️ فشل قراءة body');
-      }
-    }
-
-    if (!refreshToken) {
-      console.log('❌ لا يوجد refresh token نهائياً');
-      return NextResponse.json(
+      console.log('❌ لا يوجد refresh token');
+      
+      const response = NextResponse.json(
         {
           success: false,
-          error: 'رمز التجديد مطلوب'
+          error: 'رمز التجديد مطلوب',
+          code: 'NO_REFRESH_TOKEN'
         },
         { status: 400 }
       );
+      
+      setCORSHeaders(response, request.headers.get('origin') || undefined);
+      setNoCache(response);
+      return response;
     }
 
     console.log('✅ تم العثور على refresh token');
@@ -37,20 +40,26 @@ export async function POST(request: NextRequest) {
     console.log('🔑 محاولة تجديد التوكن...');
     const result = await UserManagementService.refreshAccessToken(refreshToken);
 
-    if (result.error) {
+    if (result.error || !result.access_token) {
       console.log('❌ فشل تجديد التوكن:', result.error);
-      return NextResponse.json(
+      
+      const response = NextResponse.json(
         {
           success: false,
-          error: result.error
+          error: result.error || 'فشل في تجديد الرمز',
+          code: 'REFRESH_FAILED'
         },
         { status: 401 }
       );
+      
+      setCORSHeaders(response, request.headers.get('origin') || undefined);
+      setNoCache(response);
+      return response;
     }
 
     console.log('✅ تم تجديد التوكن بنجاح');
 
-    // إرسال الاستجابة الناجحة
+    // إنشاء الاستجابة الناجحة
     const response = NextResponse.json(
       {
         success: true,
@@ -59,46 +68,40 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
 
-    // تحديث access token cookie (موحد + متوافق)
-    if (result.access_token) {
-      response.cookies.set('sabq_at', result.access_token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax', // تغيير من strict إلى lax
-        maxAge: 15 * 60, // 15 دقيقة
-        path: '/'
-      });
-      response.cookies.set('access_token', result.access_token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax', // تغيير من strict إلى lax
-        maxAge: 15 * 60,
-        path: '/'
-      });
-    }
+    // تحديث access token في الكوكيز
+    updateAccessToken(response, result.access_token);
+    
+    // تعيين رؤوس CORS وعدم التخزين المؤقت
+    setCORSHeaders(response, request.headers.get('origin') || undefined);
+    setNoCache(response);
 
+    console.log('🎉 تم تجديد التوكن ورد الاستجابة بنجاح');
     return response;
 
   } catch (error: any) {
-    console.error('Token refresh API error:', error);
+    console.error('❌ خطأ في API تجديد التوكن:', error);
     
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         success: false,
-        error: 'خطأ داخلي في الخادم'
+        error: 'خطأ داخلي في الخادم',
+        code: 'INTERNAL_ERROR',
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
       },
       { status: 500 }
     );
+    
+    setCORSHeaders(response, request.headers.get('origin') || undefined);
+    setNoCache(response);
+    return response;
   }
 }
 
-export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
-  });
+// معالجة طلبات OPTIONS للـ CORS
+export async function OPTIONS(request: NextRequest) {
+  console.log('🌐 معالجة طلب OPTIONS للـ CORS');
+  
+  const response = new NextResponse(null, { status: 200 });
+  setCORSHeaders(response, request.headers.get('origin') || undefined);
+  return response;
 }

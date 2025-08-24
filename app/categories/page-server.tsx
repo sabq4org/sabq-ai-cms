@@ -5,11 +5,11 @@ async function fetchCategoriesServer() {
     console.log('🔄 جلب التصنيفات من الخادم...');
     
     // استيراد المكتبة مباشرة
-    const { getCachedCategories } = await import('@/lib/services/categoriesCache');
+    const { getCachedCategories } = await import('@/lib/cache-utils');
     const categoriesResult = await getCachedCategories();
     
-    if (categoriesResult.success && categoriesResult.categories) {
-      const categories = categoriesResult.categories.filter((cat: any) => cat.is_active);
+    if (categoriesResult && Array.isArray(categoriesResult)) {
+      const categories = categoriesResult.filter((cat: any) => cat.is_active);
       console.log('✅ تم جلب التصنيفات من الخادم:', categories.length);
       return categories;
     }

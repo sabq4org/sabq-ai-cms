@@ -17,18 +17,11 @@ const apiClient = axios.create({
 });
 
 // متغيرات لإدارة عملية التجديد (منع Race Conditions)
-// متغيرات للتحكم في إعادة المحاولة والRate Limiting
 let isRefreshing = false;
 let failedQueue: Array<{
   resolve: (value?: any) => void;
-  reject: (error?: any) => void;
+  reject: (reason?: any) => void;
 }> = [];
-
-// Rate Limiting للتجديد
-let refreshAttempts = 0;
-const MAX_REFRESH_ATTEMPTS = 3;
-const REFRESH_COOLDOWN = 60000; // دقيقة واحدة
-let lastRefreshFailure = 0;
 
 // معالجة طابور الطلبات المعلقة
 const processQueue = (error: any, token: string | null = null) => {
@@ -71,8 +64,6 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => {
     console.log('✅ استجابة API ناجحة:', response.config.url, response.status);
-    // إعادة تعيين عداد المحاولات عند النجاح
-    refreshAttempts = 0;
     return response;
   },
   async (error: AxiosError) => {
@@ -87,36 +78,10 @@ apiClient.interceptors.response.use(
     
     // التعامل مع 401 - جلسة منتهية الصلاحية
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
-      console.log('🔐 تم اكتشاف 401 - فحص إمكانية تجديد التوكن...');
-      
-      // فحص Rate Limiting للتجديد
-      const now = Date.now();
-      if (refreshAttempts >= MAX_REFRESH_ATTEMPTS) {
-        const timeSinceLastFailure = now - lastRefreshFailure;
-        if (timeSinceLastFailure < REFRESH_COOLDOWN) {
-          console.log('🚫 تم تجاوز حد محاولات التجديد. انتظار...');
-          
-          // تنظيف الجلسة وإعادة التوجيه
-          if (typeof window !== 'undefined') {
-            ['auth-token', 'user', 'user_preferences'].forEach(key => {
-              localStorage.removeItem(key);
-              sessionStorage.removeItem(key);
-            });
-            
-            window.dispatchEvent(new CustomEvent('auth-change', { 
-              detail: { type: 'max-retries-exceeded' } 
-            }));
-          }
-          
-          return Promise.reject(new Error('تم تجاوز الحد الأقصى لمحاولات تجديد التوكن'));
-        } else {
-          refreshAttempts = 0;
-          console.log('🔄 إعادة تعيين عداد محاولات التجديد');
-        }
-      }
+      console.log('🔐 تم اكتشاف 401 - محاولة تجديد التوكن...');
       
       // تجنب تجديد التوكن للطلبات الحساسة
-      const sensitiveEndpoints = ['/auth/login', '/auth/register', '/auth/refresh', '/auth/refresh-token', '/auth/me'];
+      const sensitiveEndpoints = ['/auth/login', '/auth/register', '/auth/refresh', '/auth/refresh-token'];
       const isSensitive = sensitiveEndpoints.some(endpoint => 
         originalRequest.url?.includes(endpoint)
       );
@@ -142,37 +107,27 @@ apiClient.interceptors.response.use(
 
       originalRequest._retry = true;
       isRefreshing = true;
-      refreshAttempts++;
 
       try {
-        console.log(`🔄 بدء عملية تجديد التوكن (${refreshAttempts}/${MAX_REFRESH_ATTEMPTS})...`);
+        console.log('🔄 بدء عملية تجديد التوكن...');
         
-        // محاولة تجديد التوكن باستخدام fetch مباشرة لتجنب interceptor loops
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 ثوان timeout
-        
-        const refreshResponse = await fetch('/api/auth/refresh', {
-          method: 'POST',
-          credentials: 'include',
+        // محاولة تجديد التوكن باستخدام endpoint الصحيح
+        const refreshResponse = await axios.post('/api/auth/refresh', {}, {
+          withCredentials: true,
           headers: {
             'Content-Type': 'application/json',
             'X-Requested-With': 'XMLHttpRequest'
           },
-          signal: controller.signal
+          timeout: 10000 // مهلة زمنية قصيرة للتجديد
         });
-        
-        clearTimeout(timeoutId);
-
-        const refreshData = await refreshResponse.json();
 
         console.log('🔍 استجابة التجديد:', {
           status: refreshResponse.status,
-          success: refreshData?.success
+          success: refreshResponse.data?.success
         });
 
-        if (refreshResponse.ok && refreshData?.success) {
+        if (refreshResponse.data?.success) {
           console.log('✅ تم تجديد التوكن بنجاح');
-          refreshAttempts = 0; // إعادة تعيين العداد عند النجاح
           
           // معالجة الطابور بنجاح
           processQueue(null);
@@ -192,12 +147,11 @@ apiClient.interceptors.response.use(
         }
         
       } catch (refreshError: any) {
-        console.warn(`⚠️ فشل تجديد التوكن (محاولة ${refreshAttempts}/${MAX_REFRESH_ATTEMPTS}):`, {
+        console.warn('⚠️ فشل تجديد التوكن:', {
           message: refreshError.message,
-          name: refreshError.name
+          status: refreshError.response?.status,
+          data: refreshError.response?.data
         });
-        
-        lastRefreshFailure = Date.now();
         
         // معالجة الطابور بالخطأ
         processQueue(refreshError, null);
@@ -212,30 +166,27 @@ apiClient.interceptors.response.use(
             sessionStorage.removeItem(key);
           });
           
-          // إطلاق حدث انتهاء الجلسة مع معلومات إضافية
+          // إطلاق حدث انتهاء الجلسة
           window.dispatchEvent(new CustomEvent('auth-change', { 
-            detail: { 
-              type: 'session-expired',
-              reason: refreshAttempts >= MAX_REFRESH_ATTEMPTS ? 'max-retries' : 'refresh-failed'
-            } 
+            detail: { type: 'session-expired' } 
           }));
           
-          // إعادة توجيه فقط عند الوصول للحد الأقصى من المحاولات
-          if (refreshAttempts >= MAX_REFRESH_ATTEMPTS) {
-            const requiresAuth = isProtectedRoute(originalRequest.url || '');
+          // تحديد ما إذا كان الطلب يتطلب مصادقة
+          const requiresAuth = isProtectedRoute(originalRequest.url || '');
+          
+          if (requiresAuth) {
+            const currentPath = window.location.pathname;
+            const isAlreadyOnLogin = currentPath.includes('/login');
             
-            if (requiresAuth) {
-              const currentPath = window.location.pathname;
-              const isAlreadyOnLogin = currentPath.includes('/login');
+            // تجنب إعادة التوجيه المتكررة وحفظ الصفحة المقصودة
+            if (!isAlreadyOnLogin) {
+              console.log('🔄 إعادة توجيه لصفحة تسجيل الدخول...');
+              const loginUrl = `/login?next=${encodeURIComponent(currentPath)}`;
               
-              if (!isAlreadyOnLogin) {
-                console.log('🔄 إعادة توجيه لصفحة تسجيل الدخول بعد تجاوز الحد الأقصى...');
-                const loginUrl = `/login?next=${encodeURIComponent(currentPath)}`;
-                
-                setTimeout(() => {
-                  window.location.href = loginUrl;
-                }, 1000);
-              }
+              // تأخير قصير لتجنب الإرباك
+              setTimeout(() => {
+                window.location.href = loginUrl;
+              }, 1000);
             }
           }
         }
@@ -326,15 +277,11 @@ export const api = {
 // تصدير instance للاستخدام المتقدم
 export default apiClient;
 
-// دالة إضافية لفحص صحة الجلسة (بدون interceptors لتجنب loops)
+// دالة إضافية لفحص صحة الجلسة
 export const checkSession = async (): Promise<boolean> => {
   try {
-    // استخدم axios مباشرة بدون interceptors لتجنب الloop
-    const response = await axios.get('/api/auth/me', {
-      withCredentials: true,
-      timeout: 5000
-    });
-    return response.data?.success === true;
+    const response = await api.get('/auth/me');
+    return response?.success === true;
   } catch {
     return false;
   }

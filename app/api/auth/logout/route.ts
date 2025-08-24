@@ -1,81 +1,89 @@
-// API لتسجيل الخروج - نظام سبق الذكية
+// API لتسجيل الخروج - نظام سبق الذكية (محسّن وموحد)
 import { NextRequest, NextResponse } from 'next/server';
 import { UserManagementService } from '@/lib/auth/user-management';
+import { 
+  getUnifiedAuthTokens, 
+  clearAllAuthCookies, 
+  setCORSHeaders, 
+  setNoCache 
+} from '@/lib/auth-cookies-unified';
 
 export async function POST(request: NextRequest) {
   try {
-    // الحصول على access token من headers أو cookies
-    let accessToken = request.headers.get('authorization')?.replace('Bearer ', '');
-    
-    if (!accessToken) {
-      accessToken = request.cookies.get('access_token')?.value;
+    console.log('👋 بدء عملية تسجيل الخروج...');
+
+    // الحصول على access token من الكوكيز الموحدة أو headers
+    const { accessToken } = getUnifiedAuthTokens(request);
+    let token = accessToken;
+
+    if (!token) {
+      // محاولة من Authorization header كـ fallback
+      const authHeader = request.headers.get('authorization');
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+        console.log('🔑 تم العثور على التوكن في Header');
+      }
     }
 
-    if (accessToken) {
-      // تسجيل الخروج
-      await UserManagementService.logoutUser(accessToken);
+    if (token) {
+      try {
+        // تسجيل الخروج من النظام
+        const result = await UserManagementService.logoutUser(token);
+        console.log('✅ تم تسجيل الخروج من النظام:', result.message);
+      } catch (logoutError) {
+        console.warn('⚠️ خطأ في تسجيل الخروج من النظام (غير حاسم):', logoutError);
+      }
     }
 
-    // إرسال الاستجابة الناجحة
+    // إنشاء الاستجابة الناجحة
     const response = NextResponse.json(
       {
         success: true,
-        message: 'تم تسجيل الخروج بنجاح'
+        message: 'تم تسجيل الخروج بنجاح',
+        code: 'LOGOUT_SUCCESS'
       },
       { status: 200 }
     );
 
-    // حذف cookies (مع دعم الدومين لضمان المسح)
-    const cookieDomain = process.env.COOKIE_DOMAIN || process.env.NEXT_PUBLIC_COOKIE_DOMAIN || (process.env.NODE_ENV === 'production' ? '.sabq.io' : undefined);
-    const deleteCookie = (name: string) => {
-      response.cookies.set(name, '', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 0,
-        path: '/',
-        ...(cookieDomain ? { domain: cookieDomain } as any : {}),
-      });
-    };
-    // HttpOnly
-    deleteCookie('sabq_at');
-    deleteCookie('sabq_rt');
-    deleteCookie('access_token');
-    deleteCookie('refresh_token');
-    // واجهة غير حساسة
-    response.cookies.set('auth-token', '', { httpOnly: false, maxAge: 0, path: '/', ...(cookieDomain ? { domain: cookieDomain } as any : {}) });
-    response.cookies.set('user', '', { httpOnly: false, maxAge: 0, path: '/', ...(cookieDomain ? { domain: cookieDomain } as any : {}) });
+    // مسح جميع كوكيز المصادقة (الموحدة والقديمة)
+    clearAllAuthCookies(response);
+    
+    // تعيين رؤوس CORS وعدم التخزين المؤقت
+    setCORSHeaders(response, request.headers.get('origin') || undefined);
+    setNoCache(response);
 
+    console.log('🎉 تم تسجيل الخروج بنجاح ومسح جميع الكوكيز');
     return response;
 
   } catch (error: any) {
-    console.error('Logout API error:', error);
+    console.error('❌ خطأ في API تسجيل الخروج:', error);
     
     // حتى لو حدث خطأ، نعتبر الخروج ناجحاً لأغراض الأمان
     const response = NextResponse.json(
       {
         success: true,
-        message: 'تم تسجيل الخروج'
+        message: 'تم تسجيل الخروج',
+        code: 'LOGOUT_FORCED'
       },
       { status: 200 }
     );
 
-    response.cookies.delete('access_token');
-    response.cookies.delete('refresh_token');
-    response.cookies.delete('auth-token');
-    response.cookies.delete('user');
+    // مسح الكوكيز حتى في حالة الخطأ
+    clearAllAuthCookies(response);
+    
+    // تعيين رؤوس CORS وعدم التخزين المؤقت
+    setCORSHeaders(response, request.headers.get('origin') || undefined);
+    setNoCache(response);
 
     return response;
   }
 }
 
-export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
-  });
+// معالجة طلبات OPTIONS للـ CORS
+export async function OPTIONS(request: NextRequest) {
+  console.log('🌐 معالجة طلب OPTIONS للـ CORS');
+  
+  const response = new NextResponse(null, { status: 200 });
+  setCORSHeaders(response, request.headers.get('origin') || undefined);
+  return response;
 }
