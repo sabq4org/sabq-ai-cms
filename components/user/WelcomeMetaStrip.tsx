@@ -56,8 +56,12 @@ export default function WelcomeMetaStrip() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
               <Award style={{ width: '12px', height: '12px', color: '#FFA500' }} />
               <span style={{ fontSize: 'clamp(11px, 2.2vw, 12px)' }}>
-                لديك <strong style={{ color: 'hsl(var(--fg))', fontWeight: 600 }}>
-                  {Number(points).toLocaleString('ar-SA')}
+                لديك <strong style={{ 
+                  color: 'hsl(var(--fg))', 
+                  fontWeight: 700,
+                  fontSize: 'clamp(14px, 2.5vw, 16px)'
+                }}>
+                  {Number(points).toLocaleString('en-US')}
                 </strong> نقطة ولاء
               </span>
             </div>
