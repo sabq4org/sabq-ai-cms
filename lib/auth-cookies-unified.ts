@@ -12,10 +12,9 @@ const COOKIE_CONFIG = {
   secure: process.env.NODE_ENV === 'production',
   httpOnly: true,
   
-  // إعدادات الدومين موحدة حسب البرومنت: Domain=.sabq.me
-  domain: process.env.NODE_ENV === 'production' 
-    ? '.sabq.me'  // موحد حسب البرومنت
-    : undefined,
+  // ❌ تم إزالة hardcoded domain - سيتم تحديدها ديناميكياً
+  // إعدادات الدومين موحدة حسب البرومنت: ديناميكية حسب الـ Host
+  domain: undefined, // سيتم تحديدها في setAuthCookies ديناميكياً
   
   path: '/',
   

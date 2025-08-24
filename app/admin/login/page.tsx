@@ -35,16 +35,16 @@ export default function AdminLogin() {
         if (data.success) {
           // التحقق من 2FA
           if (data.requires2FA) {
-            // حفظ الرمز المؤقت وتوجيه لصفحة 2FA
+            // حفظ الرمز المؤقت وتوجيه لصفحة 2FA مع تمرير معامل next
             sessionStorage.setItem('2fa_temp_token', data.tempToken);
             toast.info("يرجى إدخال رمز المصادقة الثنائية");
-            router.push("/admin/login/2fa");
+            router.push(`/admin/login/2fa?next=${encodeURIComponent(next)}`);
             return;
           }
           
-          if (data.token && typeof document !== 'undefined') {
-            document.cookie = `auth-token=${data.token}; path=/; max-age=${60 * 60}; SameSite=Lax`;
-          }
+          
+          // لا حاجة لحفظ التوكن يدوياً، الـ API route يحفظه في الكوكيز
+          // data.token لا يُرسل من API route الحديث
           router.replace(next);
         } else {
           // معالجة الأخطاء المختلفة

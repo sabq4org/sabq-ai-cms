@@ -96,12 +96,12 @@ http.interceptors.response.use(
         const cookiesDebug = typeof document !== 'undefined' ? document.cookie : 'undefined';
         console.log('  - جميع الكوكيز:', cookiesDebug);
         
-        // البحث عن كوكيز التجديد مع أولوية ذكية (محدّث للنظام الجديد)
+        // البحث عن كوكيز التجديد مع أولوية ذكية (مبسط لـ sabq.io)
         const refreshCookieNames = [
-          'sabq-refresh-token',    // النظام الجديد المحسّن
-          '__Host-sabq-refresh',   // احتياطي للإنتاج
-          'sabq_rft',              // النظام الموحد القديم
-          'sabq_rt'                // النظام القديم
+          'sabq-refresh-token',    // النظام الحالي
+          '__Host-sabq-refresh',   // للإنتاج
+          'sabq_rft',              // legacy موحد
+          'sabq_rt'                // legacy قديم
         ];
         let refreshCookie = null;
         for (const name of refreshCookieNames) {

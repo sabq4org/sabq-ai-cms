@@ -11,7 +11,7 @@ const MAX_AGE_REFRESH = 60 * 60 * 24 * 30; // 30 يوم
 const MAX_AGE_EXTENDED = 60 * 60 * 24 * 60; // 60 يوم مع "تذكرني"
 
 /**
- * استخراج root domain الصحيح من Host header
+ * استخراج root domain الصحيح من Host header - مبسط لـ sabq.io
  */
 function getRootDomainFromHost(host?: string): string | undefined {
   if (!host) return undefined;
@@ -19,16 +19,12 @@ function getRootDomainFromHost(host?: string): string | undefined {
   // إزالة المنفذ إذا كان موجود
   const cleanHost = host.split(':')[0].toLowerCase();
   
-  // تحديد الدومين الجذر بناءً على Host الحالي
+  // الدومين الوحيد المستخدم - sabq.io
   if (cleanHost.endsWith('.sabq.io') || cleanHost === 'sabq.io') {
     return '.sabq.io'; // يدعم جميع subdomains لـ sabq.io
   }
   
-  if (cleanHost.endsWith('.sabq.me') || cleanHost === 'sabq.me') {
-    return '.sabq.me'; // يدعم جميع subdomains لـ sabq.me
-  }
-  
-  // للتطوير المحلي أو دومينات غير معروفة
+  // للتطوير المحلي
   if (cleanHost.startsWith('localhost') || cleanHost.startsWith('127.0.0.1')) {
     return undefined; // host-only cookies للتطوير
   }

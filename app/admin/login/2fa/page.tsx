@@ -39,10 +39,17 @@ export default function TwoFactorLogin() {
       if (res.ok) {
         const data = await res.json();
         if (data.success) {
-          // حفظ التوكن النهائي
+          // حفظ التوكن النهائي بأسماء الكوكيز المتسقة مع النظام
           if (data.access_token && typeof document !== 'undefined') {
+            // حفظ access token باستخدام أسماء الكوكيز المتوقعة من middleware
+            document.cookie = `sabq_at=${data.access_token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+            // احتياطي للتوافق
             document.cookie = `auth-token=${data.access_token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
-            document.cookie = `auth_token=${data.access_token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+          }
+          
+          // حفظ refresh token إذا كان متاحاً
+          if (data.refresh_token && typeof document !== 'undefined') {
+            document.cookie = `sabq_rt=${data.refresh_token}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax`;
           }
           
           // مسح الرمز المؤقت

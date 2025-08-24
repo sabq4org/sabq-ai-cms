@@ -9,7 +9,7 @@ import type { NextRequest } from 'next/server'
 const MAX_AGE = 60 * 60 * 24 * 7 // أسبوع واحد
 
 /**
- * استخراج الدومين الجذر من Host header بشكل ديناميكي
+ * استخراج الدومين الجذر من Host header - مبسط لـ sabq.io فقط
  */
 function rootDomainFromHost(host?: string | null): string | undefined {
   if (!host) return undefined
@@ -22,23 +22,13 @@ function rootDomainFromHost(host?: string | null): string | undefined {
     return undefined
   }
   
-  // للدومينات المعروفة - استخدام root domain
+  // للدومين الوحيد المستخدم - sabq.io
   if (cleanHost.endsWith('.sabq.io') || cleanHost === 'sabq.io') {
     return '.sabq.io' // يدعم جميع subdomains لـ sabq.io
   }
   
-  if (cleanHost.endsWith('.sabq.me') || cleanHost === 'sabq.me') {
-    return '.sabq.me' // يدعم جميع subdomains لـ sabq.me
-  }
-  
-  // للدومينات الأخرى - استخراج root domain تلقائياً
-  const parts = cleanHost.split('.')
-  if (parts.length >= 2) {
-    return `.${parts.slice(-2).join('.')}` // أخذ الجزء الأخير من الدومين
-  }
-  
-  // fallback - استخدام Host كما هو
-  return cleanHost
+  // fallback للتطوير أو دومينات غير معروفة - بدون domain (host-only)
+  return undefined
 }
 
 /**
