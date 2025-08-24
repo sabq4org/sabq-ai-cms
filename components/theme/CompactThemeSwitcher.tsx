@@ -232,6 +232,8 @@ export default function CompactThemeSwitcher({ className = '' }: CompactThemeSwi
       localStorage.setItem('theme-color', theme.id);
       console.log('💾 Saved to localStorage:', theme.id);
     }
+    // بث حدث موحّد لاكتشاف تغيير اللون عبر المكونات
+    try { window.dispatchEvent(new Event('theme-color-change')); } catch {}
     
     // إغلاق القائمة بعد الاختيار
     setFocused(false);

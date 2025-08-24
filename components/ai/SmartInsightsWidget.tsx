@@ -66,26 +66,24 @@ export default function SmartInsightsWidget({ variant = 'default', className = '
     return () => clearInterval(interval);
   }, []);
 
-  // رصد تفعيل نظام الألوان (accent) عبر data-theme لدعم خيار "بلا لون"
+  // تحديد تفعيل اللون من localStorage: theme-color (غير موجود أو 'default' = بلا لون)
   useEffect(() => {
     try {
-      const updateAccent = () => {
-        const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
-        setAccentActive(Boolean(accent));
+      const compute = () => {
+        const saved = localStorage.getItem('theme-color');
+        setAccentActive(Boolean(saved) && saved !== 'default');
       };
-      updateAccent();
-      const observer = new MutationObserver((mutations) => {
-        for (const m of mutations) {
-          if (
-            m.type === 'attributes' &&
-            (m.attributeName === 'data-theme' || m.attributeName === 'style')
-          ) {
-            updateAccent();
-          }
-        }
-      });
-      observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'style'] });
-      return () => observer.disconnect();
+      compute();
+      const onStorage = (e: StorageEvent) => {
+        if (e.key === 'theme-color') compute();
+      };
+      const onThemeChange = () => compute();
+      window.addEventListener('storage', onStorage);
+      window.addEventListener('theme-color-change', onThemeChange as any);
+      return () => {
+        window.removeEventListener('storage', onStorage);
+        window.removeEventListener('theme-color-change', onThemeChange as any);
+      };
     } catch {}
   }, []);
 
@@ -180,8 +178,8 @@ export default function SmartInsightsWidget({ variant = 'default', className = '
     return (
       <div className={`max-w-6xl mx-auto ${isCompact ? 'mb-6' : 'mb-8'} ${className}`} aria-busy="true" aria-live="polite">
         <div
-          className={`relative overflow-hidden border rounded-xl border-[#f0f0ef] dark:border-gray-700 ${isCompact ? 'p-3' : 'p-5'} h-full flex flex-col transition-colors hover:border-gray-300 dark:hover:border-gray-600`}
-          style={{ background: darkMode ? 'hsl(var(--bg-elevated))' : '#ffffff' }}
+          className={`relative overflow-hidden border rounded-xl border-[#f0f0ef] dark:border-gray-700 ${isCompact ? 'p-3' : 'p-5'} h-full flex flex-col transition-colors hover:border-[hsl(var(--accent))]`}
+          style={{ background: darkMode ? 'hsl(var(--bg-elevated))' : (accentActive ? 'hsl(var(--accent) / 0.06)' : '#ffffff') }}
         >
           <div className="animate-pulse space-y-4 flex-1">
             <div className="space-y-2">
@@ -224,8 +222,8 @@ export default function SmartInsightsWidget({ variant = 'default', className = '
     return (
       <div className={`max-w-6xl mx-auto ${isCompact ? 'mb-6' : 'mb-8'} ${className}`}>
         <div
-          className={`relative overflow-hidden border rounded-xl border-[#f0f0ef] dark:border-gray-700 ${isCompact ? 'p-3' : 'p-5'} h-full flex flex-col items-center justify-center text-center transition-colors hover:border-gray-300 dark:hover:border-gray-600`}
-          style={{ background: darkMode ? 'hsl(var(--bg-elevated))' : '#ffffff' }}
+          className={`relative overflow-hidden border rounded-xl border-[#f0f0ef] dark:border-gray-700 ${isCompact ? 'p-3' : 'p-5'} h-full flex flex-col items-center justify-center text-center transition-colors hover:border-[hsl(var(--accent))]`}
+          style={{ background: darkMode ? 'hsl(var(--bg-elevated))' : (accentActive ? 'hsl(var(--accent) / 0.06)' : '#ffffff') }}
         >
           <div className="space-y-4">
             <div className={`${isCompact ? 'text-4xl' : 'text-5xl'} animate-bounce`}>🤖</div>
@@ -263,7 +261,7 @@ export default function SmartInsightsWidget({ variant = 'default', className = '
     <div className={`max-w-6xl mx-auto ${isCompact ? 'mb-6' : 'mb-8'} ${className}`}>
       <div
         className={`relative overflow-hidden border rounded-xl border-[#f0f0ef] dark:border-gray-700 ${isCompact ? 'p-3' : 'p-5'} transition-all duration-300 h-full flex flex-col hover:border-[hsl(var(--accent))]`}
-        style={{ background: darkMode ? 'hsl(var(--bg-elevated))' : '#ffffff' }}
+        style={{ background: darkMode ? 'hsl(var(--bg-elevated))' : (accentActive ? 'hsl(var(--accent) / 0.06)' : '#ffffff') }}
       >
       {/* خط جانبي ملون ديناميكي */}
       <div className={`absolute top-0 right-0 w-1 h-full ${config.accent.replace('border-l-', 'bg-')} transition-colors duration-500`}></div>

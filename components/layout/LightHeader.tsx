@@ -189,7 +189,12 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
   const applyTheme = (theme: typeof themes[0]) => {
     setCurrentTheme(theme);
     setThemeVars(theme);
-    localStorage.setItem('theme-color', theme.id);
+    if (theme.isDefault) {
+      localStorage.removeItem('theme-color');
+    } else {
+      localStorage.setItem('theme-color', theme.id);
+    }
+    try { window.dispatchEvent(new Event('theme-color-change')); } catch {}
   };
 
   // عناصر القائمة الجانبية

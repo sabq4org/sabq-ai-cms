@@ -129,27 +129,24 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
     return () => window.removeEventListener('resize', computeHeight);
   }, [desktopH, mobileLgH, mobileH]);
 
-  // رصد تفعيل نظام الألوان المتغيرة عبر data-theme
+  // تحديد تفعيل اللون من localStorage: theme-color (غير موجود أو 'default' = بلا لون)
   useEffect(() => {
     try {
-      const updateAccentActive = () => {
-        const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
-        // اعتبر اللون نشطاً فقط إذا كانت قيمة --accent موجودة فعلاً
-        setAccentActive(Boolean(accent));
+      const compute = () => {
+        const saved = localStorage.getItem('theme-color');
+        setAccentActive(Boolean(saved) && saved !== 'default');
       };
-      updateAccentActive();
-      const observer = new MutationObserver((mutations) => {
-        for (const m of mutations) {
-          if (
-            m.type === 'attributes' &&
-            (m.attributeName === 'data-theme' || m.attributeName === 'style')
-          ) {
-            updateAccentActive();
-          }
-        }
-      });
-      observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'style'] });
-      return () => observer.disconnect();
+      compute();
+      const onStorage = (e: StorageEvent) => {
+        if (e.key === 'theme-color') compute();
+      };
+      const onThemeChange = () => compute();
+      window.addEventListener('storage', onStorage);
+      window.addEventListener('theme-color-change', onThemeChange as any);
+      return () => {
+        window.removeEventListener('storage', onStorage);
+        window.removeEventListener('theme-color-change', onThemeChange as any);
+      };
     } catch {}
   }, []);
 
@@ -190,7 +187,10 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
           style={{
             background: isBreaking
               ? (darkMode ? 'hsla(0, 72%, 45%, 0.18)' : 'hsla(0, 84%, 60%, 0.12)')
-              : (darkMode ? 'hsl(var(--bg-elevated))' : '#ffffff')
+              : (darkMode 
+                  ? 'hsl(var(--bg-elevated))' 
+                  : (accentActive ? 'hsl(var(--accent) / 0.06)' : '#ffffff')
+                )
           }}
         >
           <div
@@ -286,9 +286,11 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                       <span
                         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium border"
                         style={{
-                          background: darkMode ? 'rgba(148,163,184,0.15)' : 'rgba(148,163,184,0.15)',
-                          color: darkMode ? '#e5e7eb' : '#334155',
-                          borderColor: darkMode ? 'rgba(148,163,184,0.35)' : 'rgba(148,163,184,0.35)'
+                          background: darkMode
+                            ? (accentActive ? 'hsl(var(--accent) / 0.18)' : 'rgba(148,163,184,0.15)')
+                            : (accentActive ? 'hsl(var(--accent) / 0.12)' : 'rgba(148,163,184,0.15)'),
+                          color: accentActive ? 'hsl(var(--accent))' : (darkMode ? '#e5e7eb' : '#334155'),
+                          borderColor: accentActive ? 'hsl(var(--accent) / 0.25)' : 'rgba(148,163,184,0.35)'
                         }}
                       >
                         <span className="text-sm">{currentArticle.category?.icon || '📰'}</span>
@@ -404,7 +406,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                   className={`absolute inset-0 transition-opacity duration-300 ${
                     idx === currentIndex ? "" : "bg-black/40 hover:bg-black/25"
                   }`}
-                  style={{ background: undefined }}
+                  style={{ background: idx === currentIndex && accentActive ? 'hsl(var(--accent) / 0.15)' : undefined }}
                 ></div>
                 {/* مؤشر النشاط */}
                 {idx === currentIndex && (
