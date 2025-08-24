@@ -1,6 +1,35 @@
 # Auth Debug Tools
 
-This document describes the debugging tools available for diagnosing authentication and token refresh issues.
+This document describes the debugging tools available for diagnosing authentication and token refresh issues, specifically addressing recurring 401 errors for endpoints like `/profile/me/loyalty`.
+
+## Problem Statement
+
+The frontend was experiencing recurring 401s for `/profile/me/loyalty` because:
+1. Token refresh requests sometimes fail (400) 
+2. Browser doesn't send/receive expected access token cookies
+3. __Host- cookies were being set with Domain attribute (violates browser spec)
+4. Limited debugging visibility into the refresh process
+
+## Solution Implemented
+
+This implementation adds conservative, safe debugging + reliability improvements to both client and server code:
+
+### Key Fixes Applied
+
+1. **Cookie Specification Compliance**: Fixed __Host- cookies to exclude Domain attribute
+2. **Enhanced Logging**: All auth operations now include masked token logging 
+3. **Fallback Support**: Priority-based cookie reading with __Host- > legacy fallbacks
+4. **Debug Tools**: Client-side helpers for manual testing and diagnosis
+5. **Server Diagnostics**: Detailed refresh handler logging with rejection reasons
+
+### Root Cause Analysis
+
+The primary issue was __Host- prefixed cookies being set with `Domain=.sabq.me` attribute. Per browser security specifications, __Host- cookies:
+- MUST NOT include a Domain attribute
+- MUST have Secure=true 
+- MUST have Path=/
+
+When Domain was included, browsers would reject the __Host- cookies, causing the auth system to fall back to legacy cookie names inconsistently.
 
 ## Client-Side Debug Helpers
 
