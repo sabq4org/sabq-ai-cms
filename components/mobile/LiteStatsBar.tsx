@@ -57,7 +57,7 @@ export default function LiteStatsBar() {
   const s = stats ?? defaultStats;
 
   return (
-    <div className="compact-stats-bar enhanced-mobile-stats py-1.5 px-0 border-b border-gray-200 dark:border-gray-700 bg-[#f8f8f7]/90 dark:bg-gray-900/80 w-full">
+    <div className="compact-stats-bar enhanced-mobile-stats py-1.5 px-0 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 w-full">
       <div className="w-full flex items-center justify-between gap-3 text-sm leading-none px-4">
         {/* الأخبار */}
         <Link href="/news" className="flex items-center gap-2 flex-1 justify-center hover:bg-gray-100/50 dark:hover:bg-gray-800/50 rounded-lg p-2 transition-colors">

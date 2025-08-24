@@ -72,7 +72,9 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
                     ? (darkMode
                         ? 'bg-red-950/30 border-red-700/60 hover:border-red-500/70'
                         : 'bg-red-50 border-red-200 hover:border-red-300')
-                    : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-blue-100'
+                    : (darkMode 
+                        ? 'bg-gray-800 border-gray-700 hover:border-blue-400 hover:shadow-blue-900/20'
+                        : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-blue-100')
                 }`}
               >
                 <div className={`relative aspect-video w-full overflow-hidden rounded-lg ${!hasImage ? 'bg-gray-200 dark:bg-gray-700' : ''}`}>
