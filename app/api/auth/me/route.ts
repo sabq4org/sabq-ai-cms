@@ -1,11 +1,22 @@
-import { corsResponseFromRequest, handleOptionsForRequest } from "@/lib/cors";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import jwt from "jsonwebtoken";
-import { NextRequest } from "next/server";
+
+// دالة CORS بسيطة
+function createCorsResponse(data: any, status: number = 200) {
+  const response = NextResponse.json(data, { status });
+  
+  response.headers.set('Access-Control-Allow-Origin', '*');
+  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  response.headers.set('Access-Control-Allow-Credentials', 'true');
+  
+  return response;
+}
 
 // معالجة طلبات OPTIONS للـ CORS
 export async function OPTIONS() {
-  return handleOptionsForRequest();
+  return createCorsResponse({ message: 'OK' });
 }
 
 const JWT_SECRET =
@@ -77,13 +88,13 @@ export async function GET(request: NextRequest) {
       } catch {}
     }
     if (!decoded) {
-      return corsResponseFromRequest(request, { success: false, error: "جلسة غير صالحة" }, 401);
+      return createCorsResponse({ success: false, error: "جلسة غير صالحة" }, 401);
     }
 
     // استخراج معرف المستخدم من payload (يدعم sub أو id)
     const userId = decoded?.sub || decoded?.id || decoded?.userId || decoded?.user_id;
     if (!userId || typeof userId !== "string") {
-      return corsResponseFromRequest(request, { success: false, error: "جلسة غير صالحة" }, 401);
+      return createCorsResponse({ success: false, error: "جلسة غير صالحة" }, 401);
     }
 
     // البحث عن المستخدم في قاعدة البيانات
@@ -127,7 +138,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (!user) {
-      return corsResponseFromRequest(request, { success: false, error: "المستخدم غير موجود" }, 404);
+      return createCorsResponse({ success: false, error: "المستخدم غير موجود" }, 404);
     }
 
     const isAdmin =
@@ -137,7 +148,7 @@ export async function GET(request: NextRequest) {
       user.role === "system_admin";
 
     // إرجاع استجابة متوافقة مع النظام
-    return corsResponseFromRequest(request, {
+    return createCorsResponse({
       success: true,
       user: {
         id: user.id,
@@ -158,8 +169,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (error: any) {
     console.error("خطأ في جلب بيانات المستخدم:", error);
-    return corsResponseFromRequest(
-      request,
+    return createCorsResponse(
       {
         success: false,
         error: "حدث خطأ في جلب بيانات المستخدم",

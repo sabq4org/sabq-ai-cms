@@ -4,10 +4,16 @@ import { requireAuthFromRequest } from '@/app/lib/auth';
 
 export async function GET(req: NextRequest) {
   try {
+    console.log('🔍 بدء معالجة طلب حالة التفاعل...');
+    
     const { searchParams } = new URL(req.url);
     const articleId = searchParams.get('articleId');
     if (!articleId) {
-      return NextResponse.json({ error: 'Missing articleId' }, { status: 400 });
+      console.error('❌ articleId مفقود');
+      return NextResponse.json({ 
+        success: false,
+        error: 'Missing articleId' 
+      }, { status: 400 });
     }
 
     // جلب عدادات المقال
@@ -16,7 +22,11 @@ export async function GET(req: NextRequest) {
       select: { likes: true, saves: true },
     });
     if (!article) {
-      return NextResponse.json({ error: 'Article not found' }, { status: 404 });
+      console.error('❌ المقال غير موجود:', articleId);
+      return NextResponse.json({ 
+        success: false,
+        error: 'Article not found' 
+      }, { status: 404 });
     }
 
     // محاولة الحصول على المستخدم
@@ -58,7 +68,15 @@ export async function GET(req: NextRequest) {
       savesCount: article.saves || 0,
     });
   } catch (e: any) {
-    console.error('/api/interactions/user-status error:', e);
-    return NextResponse.json({ error: 'Failed to fetch user status' }, { status: 500 });
+    console.error('❌ خطأ في /api/interactions/user-status:', {
+      error: e,
+      message: e?.message,
+      stack: e?.stack
+    });
+    return NextResponse.json({ 
+      success: false,
+      error: 'Failed to fetch user status',
+      details: e instanceof Error ? e.message : 'Unknown error'
+    }, { status: 500 });
   }
 }

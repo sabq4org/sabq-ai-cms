@@ -33,17 +33,54 @@ function getLevel(totalPoints: number) {
 
 export async function POST(req: NextRequest) {
   try {
-    const user = await requireAuthFromRequest(req);
-    const { articleId, save } = await req.json();
+    console.log('🔍 بدء معالجة طلب الحفظ...');
+    
+    // التحقق من المصادقة
+    let user;
+    try {
+      user = await requireAuthFromRequest(req);
+      console.log('✅ تم التحقق من المستخدم:', user.id);
+    } catch (authError) {
+      console.error('❌ خطأ في المصادقة:', authError);
+      return NextResponse.json({ 
+        success: false, 
+        error: "Unauthorized" 
+      }, { status: 401 });
+    }
+    
+    // قراءة البيانات
+    let body;
+    try {
+      body = await req.json();
+    } catch (error) {
+      console.error('❌ خطأ في قراءة body:', error);
+      return NextResponse.json({ 
+        success: false, 
+        error: "Invalid request body" 
+      }, { status: 400 });
+    }
+    
+    const { articleId, save } = body;
+    console.log('📝 بيانات الطلب:', { articleId, save });
 
     if (!articleId) {
-      return NextResponse.json({ error: 'Missing articleId' }, { status: 400 });
+      return NextResponse.json({ 
+        success: false,
+        error: 'Missing articleId' 
+      }, { status: 400 });
     }
 
     // تحقق من المقال
-    const article = await prisma.articles.findUnique({ where: { id: articleId }, select: { id: true, saves: true } });
+    const article = await prisma.articles.findUnique({ 
+      where: { id: articleId }, 
+      select: { id: true, saves: true } 
+    });
     if (!article) {
-      return NextResponse.json({ error: 'Article not found' }, { status: 404 });
+      console.error('❌ المقال غير موجود:', articleId);
+      return NextResponse.json({ 
+        success: false,
+        error: 'Article not found' 
+      }, { status: 404 });
     }
 
     // نفّذ العملية داخل معاملة
