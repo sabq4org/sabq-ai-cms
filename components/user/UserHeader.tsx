@@ -28,6 +28,7 @@ import SabqLogo from '@/components/SabqLogo';
 import { useSiteSettings } from '@/hooks/useSiteSettings';
 import CompactThemeSwitcher from '@/components/theme/CompactThemeSwitcher';
 import { NotificationDropdown } from '@/components/Notifications/NotificationDropdownOptimized';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 interface UserHeaderProps {
   onMenuClick?: () => void;
@@ -37,11 +38,13 @@ interface UserHeaderProps {
 export default function UserHeader({ onMenuClick, showMenuButton = false }: UserHeaderProps) {
   const { user, logout } = useAuth();
   const { logoUrl, logoDarkUrl } = useSiteSettings();
+  const { darkMode } = useDarkModeContext();
   const [searchOpen, setSearchOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [currentTheme, setCurrentTheme] = useState('blue');
   const [isMobile, setIsMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [currentThemeColor, setCurrentThemeColor] = useState<string | null>(null);
   
   // التحقق من حجم الشاشة ومنع مشاكل Hydration
   React.useEffect(() => {
@@ -53,6 +56,32 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // تتبع تغيير اللون من نظام الألوان المتغيرة
+  React.useEffect(() => {
+    const updateThemeColor = () => {
+      const root = document.documentElement;
+      const themeColor = root.style.getPropertyValue('--theme-primary');
+      const accentColor = root.style.getPropertyValue('--accent');
+      
+      if (themeColor) {
+        setCurrentThemeColor(themeColor);
+      } else if (accentColor) {
+        // تحويل HSL إلى استخدام مباشر
+        const hslMatch = accentColor.match(/(\d+)\s+(\d+)%\s+(\d+)%/);
+        if (hslMatch) {
+          const [_, h, s, l] = hslMatch;
+          setCurrentThemeColor(`hsl(${h}, ${s}%, ${l}%)`);
+        }
+      } else {
+        setCurrentThemeColor(null);
+      }
+    };
+
+    updateThemeColor();
+    window.addEventListener('theme-color-change', updateThemeColor);
+    return () => window.removeEventListener('theme-color-change', updateThemeColor);
   }, []);
 
   // إغلاق القوائم المنسدلة عند النقر خارجها
@@ -160,8 +189,12 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
         left: 0,
         right: 0,
         height: '72px',
-        background: 'rgba(255, 255, 255, 0.6)',
-        borderBottom: '1px solid rgba(255,255,255,0.3)',
+        background: currentThemeColor 
+          ? `${currentThemeColor}15`
+          : (darkMode ? 'rgba(17, 24, 39, 0.85)' : 'rgba(255, 255, 255, 0.6)'),
+        borderBottom: currentThemeColor 
+          ? `1px solid ${currentThemeColor}30`
+          : (darkMode ? '1px solid rgb(55, 65, 81)' : '1px solid rgba(255,255,255,0.3)'),
         zIndex: 1000,
         backdropFilter: 'blur(12px)',
         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
@@ -194,8 +227,12 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
         left: 0,
         right: 0,
         height: '72px',
-        background: 'rgba(255, 255, 255, 0.6)',
-        borderBottom: '1px solid rgba(255,255,255,0.3)',
+        background: currentThemeColor 
+          ? `${currentThemeColor}15`
+          : (darkMode ? 'rgba(17, 24, 39, 0.85)' : 'rgba(255, 255, 255, 0.6)'),
+        borderBottom: currentThemeColor 
+          ? `1px solid ${currentThemeColor}30`
+          : (darkMode ? '1px solid rgb(55, 65, 81)' : '1px solid rgba(255,255,255,0.3)'),
         zIndex: 1000,
         backdropFilter: 'blur(12px)',
         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
