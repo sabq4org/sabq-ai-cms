@@ -6,12 +6,28 @@ export default function WelcomeMetaStrip() {
   const { user } = useAuth();
   const [now, setNow] = React.useState<Date>(() => new Date());
   const [mounted, setMounted] = React.useState(false);
+  const [loyaltyPoints, setLoyaltyPoints] = React.useState<number | null>(null);
 
   React.useEffect(() => {
     setMounted(true);
     const id = setInterval(() => setNow(new Date()), 60000);
+    
+    // جلب النقاط الحقيقية من قاعدة البيانات
+    if (user?.id) {
+      fetch(`/api/loyalty?userId=${user.id}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            setLoyaltyPoints(data.totalPoints || 0);
+          } else {
+            setLoyaltyPoints(0);
+          }
+        })
+        .catch(() => setLoyaltyPoints(0));
+    }
+    
     return () => clearInterval(id);
-  }, []);
+  }, [user]);
 
   const formatDate = (d: Date) =>
     d.toLocaleDateString('ar-SA', {
@@ -51,7 +67,9 @@ export default function WelcomeMetaStrip() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
               <Award style={{ width: '12px', height: '12px', color: '#FFA500' }} />
               <span style={{ fontSize: 'clamp(11px, 2.2vw, 12px)' }}>
-                لديك <strong style={{ color: 'hsl(var(--fg))', fontWeight: 600 }}>1,250</strong> نقطة ولاء
+                لديك <strong style={{ color: 'hsl(var(--fg))', fontWeight: 600 }}>
+                  {loyaltyPoints !== null ? loyaltyPoints.toLocaleString('ar-SA') : '...'}
+                </strong> نقطة ولاء
               </span>
             </div>
           )}
