@@ -134,7 +134,8 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
     try {
       const updateAccentActive = () => {
         const dt = document.documentElement.getAttribute('data-theme');
-        setAccentActive(Boolean(dt) && dt !== 'none');
+        // إذا لم يكن هناك data-theme أو كان 'none' أو 'default'، فلا يوجد لون نشط
+        setAccentActive(Boolean(dt) && dt !== 'none' && dt !== 'default' && dt.trim() !== '');
       };
       updateAccentActive();
       const observer = new MutationObserver((mutations) => {
