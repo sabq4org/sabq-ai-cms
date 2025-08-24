@@ -186,10 +186,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
           style={{
             background: isBreaking
               ? (darkMode ? 'hsla(0, 72%, 45%, 0.18)' : 'hsla(0, 84%, 60%, 0.12)')
-              : (darkMode
-                  ? 'hsl(var(--bg-elevated))'
-                  : (accentActive ? 'hsl(var(--accent) / 0.06)' : '#ffffff')
-                )
+              : (darkMode ? 'hsl(var(--bg-elevated))' : '#ffffff')
           }}
         >
           <div
@@ -210,7 +207,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                   className="object-cover object-center"
                 />
               ) : (
-                <div className="absolute inset-0 w-full h-full flex items-center justify-center" style={{ background: 'hsl(var(--accent) / 0.08)' }}>
+                <div className="absolute inset-0 w-full h-full flex items-center justify-center" style={{ background: darkMode ? '#1f2937' : '#f3f4f6' }}>
                   <span className="text-6xl">📰</span>
                 </div>
               )}
@@ -306,7 +303,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
               </div>
               <h2
                 className={`text-lg lg:text-xl xl:text-2xl font-bold mb-4 leading-tight line-clamp-3 ${
-                  isBreaking ? 'text-red-700 dark:text-red-400' : (titleClassName ?? 'text-white')
+                  isBreaking ? 'text-red-700 dark:text-red-400' : (titleClassName ?? (darkMode ? 'text-white' : 'text-gray-900'))
                 }`}
               >
                 {currentArticle.title}
