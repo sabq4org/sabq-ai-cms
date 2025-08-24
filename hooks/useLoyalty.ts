@@ -12,6 +12,11 @@ export function useLoyalty() {
   const { data, error, isLoading } = useQuery({
     queryKey: LOYALTY_QUERY_KEY,
     queryFn: async () => {
+      // Skip during SSR
+      if (typeof window === 'undefined') {
+        return { points: 0, level: 'برونزي', nextLevelThreshold: 100 };
+      }
+
       console.log('🎯 useLoyalty queryFn called with:', { 
         isLoggedIn, 
         userId: user?.id,
@@ -24,7 +29,7 @@ export function useLoyalty() {
       
       return api.get('/profile/me/loyalty');
     },
-    enabled: !authLoading && isLoggedIn && !!user?.id, // Only run when auth is ready
+    enabled: typeof window !== 'undefined' && !authLoading && isLoggedIn && !!user?.id, // Only run when auth is ready and on client
     staleTime: 30_000,
     refetchOnWindowFocus: false,
   });
