@@ -5,6 +5,8 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
 import { ToastContainer } from "@/components/ui/toast";
 import "./globals.css";
+import "@/styles/unified-font-system.css";
+import "@/styles/force-arabic-font.css";
 import "@/app/old-style-demo/old-style.css";
 import "@/styles/color-softening.css";
 import "@/styles/notification-fixes.css";
@@ -14,10 +16,12 @@ import "@/styles/lite-stats-bar-sticky.css";
 import "@/styles/recent-news-badge.css";
 
 const ibmPlexArabic = IBM_Plex_Sans_Arabic({
-  subsets: ["arabic"],
+  subsets: ["arabic", "latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700"],
   variable: "--font-ibm-plex-arabic",
-  display: "swap"
+  display: "swap",
+  preload: true,
+  fallback: ["Tajawal", "Noto Sans Arabic", "system-ui", "sans-serif"]
 });
 
 export const metadata: Metadata = {
@@ -52,7 +56,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ar" dir="rtl" className={ibmPlexArabic.variable}>
-      <body className={`${ibmPlexArabic.className} antialiased`} suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
+      <body className={`${ibmPlexArabic.className} font-arabic antialiased`} suppressHydrationWarning>
         <Suspense fallback={<div style={{ minHeight: '100vh', backgroundColor: '#f8f8f7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="text-center">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>

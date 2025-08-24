@@ -1,0 +1,100 @@
+/* 🎯 فرض الخط العربي المعتمد على جميع عناصر الموقع */
+/* هذا الملف يضمن ظهور الخط العربي IBM Plex Sans Arabic في جميع أنحاء الموقع */
+
+/* تعريف الخط الأساسي */
+:root {
+  --arabic-font: 'IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* تطبيق الخط على جميع العناصر */
+*,
+*::before,
+*::after {
+  font-family: var(--arabic-font) !important;
+}
+
+/* تطبيق الخط على العناصر الأساسية */
+html,
+body,
+div,
+span,
+h1, h2, h3, h4, h5, h6,
+p,
+a,
+button,
+input,
+textarea,
+select,
+label,
+li,
+td,
+th {
+  font-family: var(--arabic-font) !important;
+}
+
+/* تحسين عرض الخط العربي */
+body {
+  font-feature-settings: 'kern' 1, 'liga' 1, 'clig' 1, 'calt' 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-variant-ligatures: common-ligatures;
+}
+
+/* تطبيق الخط على مكونات Tailwind */
+.font-sans,
+.font-arabic {
+  font-family: var(--arabic-font) !important;
+}
+
+/* تطبيق الخط على عناصر المحتوى */
+.prose,
+.prose *,
+.article-content,
+.article-content *,
+.card-content,
+.card-content * {
+  font-family: var(--arabic-font) !important;
+}
+
+/* تطبيق الخط على عناصر النماذج */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+textarea,
+select {
+  font-family: var(--arabic-font) !important;
+}
+
+/* تطبيق الخط على الأزرار */
+button,
+.btn,
+.button {
+  font-family: var(--arabic-font) !important;
+}
+
+/* تطبيق الخط على عناصر التنقل */
+nav,
+nav *,
+.navigation,
+.navigation *,
+.menu,
+.menu * {
+  font-family: var(--arabic-font) !important;
+}
+
+/* تطبيق الخط على العناوين */
+.title,
+.headline,
+.heading {
+  font-family: var(--arabic-font) !important;
+}
+
+/* تطبيق الخط على النصوص الصغيرة */
+.text-sm,
+.text-xs,
+.caption,
+.small {
+  font-family: var(--arabic-font) !important;
+}

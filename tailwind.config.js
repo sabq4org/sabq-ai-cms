@@ -12,6 +12,7 @@ module.exports = {
       fontFamily: {
         arabic: [
           "var(--font-ibm-plex-arabic)",
+          "IBM Plex Sans Arabic",
           "Tajawal",
           "Noto Sans Arabic",
           "system-ui",
@@ -19,6 +20,7 @@ module.exports = {
         ],
         sans: [
           "var(--font-ibm-plex-arabic)",
+          "IBM Plex Sans Arabic", 
           "Tajawal",
           "Noto Sans Arabic",
           "system-ui",
