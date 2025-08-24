@@ -115,30 +115,51 @@ export default function BasicLikeSave({
 
     try {
       const newLikeStatus = !liked;
-      console.log('👍 محاولة إعجاب:', { articleId, like: newLikeStatus, userId: user.id });
+      console.log('👍 محاولة إعجاب موحد:', { articleId, like: newLikeStatus, userId: user.id });
       
-      const response = await fetch('/api/interactions/like', {
+      // استخدام النظام الموحد للتتبع
+      const response = await fetch('/api/unified-tracking', {
         method: 'POST',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           ...authHeaders,
         },
-        body: JSON.stringify({ articleId, like: newLikeStatus }),
+        body: JSON.stringify({ 
+          articleId, 
+          interactionType: 'like',
+          metadata: {
+            previousState: liked,
+            action: newLikeStatus ? 'add' : 'remove'
+          }
+        }),
       });
 
-      console.log('📊 استجابة الإعجاب:', response.status, response.statusText);
+      console.log('📊 استجابة النظام الموحد:', response.status, response.statusText);
       
       const data = await response.json().catch(() => ({}));
       console.log('📄 بيانات الاستجابة:', data);
       
-      if (response.ok) {
+      if (response.ok && data.success) {
         setLiked(newLikeStatus);
-        setLikes(typeof data.likes === 'number' ? data.likes : (newLikeStatus ? likes + 1 : Math.max(0, likes - 1)));
-        console.log('✅ تم الإعجاب بنجاح');
+        setLikes(newLikeStatus ? likes + 1 : Math.max(0, likes - 1));
+        
+        // إظهار رسالة النجاح مع النقاط
+        if (data.pointsAwarded > 0) {
+          alert(`✅ ${data.message}\n🎯 إجمالي نقاطك: ${data.totalPoints} (${data.level})`);
+        }
+        
+        console.log('✅ تم الإعجاب بنجاح:', data);
       } else {
         console.error('❌ فشل الإعجاب:', data);
-        alert(`حدث خطأ في الإعجاب: ${data.error || 'خطأ غير معروف'}`);
+        
+        if (data.limitReached) {
+          alert(`⚠️ ${data.message}`);
+        } else if (data.alreadyExists) {
+          alert(`ℹ️ ${data.message}`);
+        } else {
+          alert(`حدث خطأ في الإعجاب: ${data.error || data.message || 'خطأ غير معروف'}`);
+        }
       }
     } catch (error) {
       console.error('❌ خطأ في الإعجاب:', error);
@@ -159,31 +180,51 @@ export default function BasicLikeSave({
 
     try {
       const newSaveStatus = !saved;
-      console.log('💾 محاولة حفظ:', { articleId, saved: newSaveStatus, userId: user.id });
+      console.log('💾 محاولة حفظ موحد:', { articleId, saved: newSaveStatus, userId: user.id });
       
-      const response = await fetch('/api/bookmarks', {
+      // استخدام النظام الموحد للتتبع
+      const response = await fetch('/api/unified-tracking', {
         method: 'POST',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           ...authHeaders,
         },
-        body: JSON.stringify({ articleId, saved: newSaveStatus }),
+        body: JSON.stringify({ 
+          articleId, 
+          interactionType: 'save',
+          metadata: {
+            previousState: saved,
+            action: newSaveStatus ? 'add' : 'remove'
+          }
+        }),
       });
 
-      console.log('📊 استجابة الحفظ:', response.status, response.statusText);
+      console.log('📊 استجابة النظام الموحد:', response.status, response.statusText);
       
       const data = await response.json().catch(() => ({}));
       console.log('📄 بيانات الاستجابة:', data);
       
-      if (response.ok) {
-        // تثبيت الحالة والعداد من الخادم لضمان عدم رجوعها للصفر بعد التحديث
-        setSaved(!!(data.saved ?? newSaveStatus));
-        setSaves(typeof data.saves === 'number' ? data.saves : (newSaveStatus ? saves + 1 : Math.max(0, saves - 1)));
-        console.log('✅ تم الحفظ بنجاح');
+      if (response.ok && data.success) {
+        setSaved(newSaveStatus);
+        setSaves(newSaveStatus ? saves + 1 : Math.max(0, saves - 1));
+        
+        // إظهار رسالة النجاح مع النقاط
+        if (data.pointsAwarded > 0) {
+          alert(`✅ ${data.message}\n🎯 إجمالي نقاطك: ${data.totalPoints} (${data.level})`);
+        }
+        
+        console.log('✅ تم الحفظ بنجاح:', data);
       } else {
         console.error('❌ فشل الحفظ:', data);
-        alert(`حدث خطأ في الحفظ: ${data.error || 'خطأ غير معروف'}`);
+        
+        if (data.limitReached) {
+          alert(`⚠️ ${data.message}`);
+        } else if (data.alreadyExists) {
+          alert(`ℹ️ ${data.message}`);
+        } else {
+          alert(`حدث خطأ في الحفظ: ${data.error || data.message || 'خطأ غير معروف'}`);
+        }
       }
     } catch (error) {
       console.error('❌ خطأ في الحفظ:', error);

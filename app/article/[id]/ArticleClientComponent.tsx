@@ -52,6 +52,7 @@ import "@/styles/article-layout-final.css";
 import "@/styles/desktop-article-unified-width.css";
 import "./article-styles.css";
 import AIQuestions from "@/components/article/AIQuestions";
+import SmartReadingTracker from "@/components/article/SmartReadingTracker";
 
 interface ArticleClientComponentProps {
   initialArticle: ArticleData | null;
@@ -548,6 +549,9 @@ export default function ArticleClientComponent({
 
   return (
     <>
+      {/* نظام التتبع الذكي */}
+      <SmartReadingTracker articleId={articleId} />
+      
       {/* شريط التقدم في القراءة */}
       <ReadingProgressBar />
 
