@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/toast';
 import { 
   MessageSquare, 
   Heart, 
@@ -112,12 +112,12 @@ export default function UnifiedCommentSystem({
 
   const submitComment = async () => {
     if (!isAuthenticated || !user) {
-      toast.error('يجب تسجيل الدخول أولاً');
+      toast.show('يجب تسجيل الدخول أولاً', 'error');
       return;
     }
 
     if (!newComment.trim()) {
-      toast.error('يرجى كتابة تعليق');
+      toast.show('يرجى كتابة تعليق', 'error');
       return;
     }
 
@@ -140,15 +140,15 @@ export default function UnifiedCommentSystem({
       const data = await response.json();
 
       if (data.success) {
-        toast.success('تم إرسال التعليق بنجاح');
+        toast.show('تم إرسال التعليق بنجاح', 'success');
         setNewComment('');
         fetchComments(); // إعادة تحميل التعليقات
       } else {
-        toast.error(data.error || 'فشل في إرسال التعليق');
+        toast.show(data.error || 'فشل في إرسال التعليق', 'error');
       }
     } catch (error) {
       console.error('خطأ في إرسال التعليق:', error);
-      toast.error('حدث خطأ في إرسال التعليق');
+      toast.show('حدث خطأ في إرسال التعليق', 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -156,12 +156,12 @@ export default function UnifiedCommentSystem({
 
   const submitReply = async (parentId: string) => {
     if (!isAuthenticated || !user) {
-      toast.error('يجب تسجيل الدخول أولاً');
+      toast.show('يجب تسجيل الدخول أولاً', 'error');
       return;
     }
 
     if (!replyText.trim()) {
-      toast.error('يرجى كتابة رد');
+      toast.show('يرجى كتابة رد', 'error');
       return;
     }
 
@@ -184,22 +184,22 @@ export default function UnifiedCommentSystem({
       const data = await response.json();
 
       if (data.success) {
-        toast.success('تم إرسال الرد بنجاح');
+        toast.show('تم إرسال الرد بنجاح', 'success');
         setReplyText('');
         setReplyingTo(null);
         fetchComments();
       } else {
-        toast.error(data.error || 'فشل في إرسال الرد');
+        toast.show(data.error || 'فشل في إرسال الرد', 'error');
       }
     } catch (error) {
       console.error('خطأ في إرسال الرد:', error);
-      toast.error('حدث خطأ في إرسال الرد');
+      toast.show('حدث خطأ في إرسال الرد', 'error');
     }
   };
 
   const toggleLike = async (commentId: string) => {
     if (!isAuthenticated) {
-      toast.error('يجب تسجيل الدخول للإعجاب');
+      toast.show('يجب تسجيل الدخول للإعجاب', 'error');
       return;
     }
 
