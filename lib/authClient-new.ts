@@ -161,41 +161,32 @@ async function performTokenRefreshInternal(): Promise<string> {
       headers
     });
 
+    console.log(`📡 استجابة التجديد: ${response.status} ${response.statusText}`);
+
     if (!response.ok) {
       // تسجيل مفصل لاستجابة غير ناجحة
       const responseText = await response.text().catch(() => 'لا يمكن قراءة النص');
-      console.error(`❌ [authClient] فشل في تجديد التوكن: ${response.status} - ${response.statusText}`);
-      console.error('📄 [authClient] نص الاستجابة:', responseText);
+      console.error(`❌ فشل في تجديد التوكن: ${response.status} - ${response.statusText}`);
+      console.error('📄 نص الاستجابة:', responseText);
       
       // تسجيل headers الاستجابة
-      console.log('📋 [authClient] Response Headers:');
+      console.log('📋 Headers الاستجابة:');
       response.headers.forEach((value, key) => {
         console.log(`  ${key}: ${value}`);
       });
       
       // تحليل خاص للـ 400 Bad Request
       if (response.status === 400) {
-        console.error('🚨 [authClient] 400 Bad Request - تحليل السبب:');
-        console.error('  📊 البيانات المرسلة:');
-        console.error(`    - credentials: include ✓`);
-        console.error(`    - CSRF Token: ${headers['X-CSRF-Token'] ? '✓ موجود' : '❌ مفقود'}`);
-        
-        // تحقق من محتوى الخطأ
-        const lowerText = responseText.toLowerCase();
-        if (lowerText.includes('csrf')) {
-          console.error('  🎯 السبب المحدد: CSRF Token مفقود أو غير مطابق');
-        } else if (lowerText.includes('refresh') || lowerText.includes('token')) {
-          console.error('  🎯 السبب المحدد: Refresh token غير صالح أو منتهي');
-        } else if (lowerText.includes('cookie') || lowerText.includes('credential')) {
-          console.error('  🎯 السبب المحدد: الكوكيز لم تُرسل للخادم');
-        } else {
-          console.error('  🎯 السبب غير محدد - فحص نص الاستجابة أعلاه');
-        }
+        console.error('🚨 400 Bad Request - احتمالات:');
+        console.error('  1. كوكي التجديد مفقود أو غير صالح');
+        console.error('  2. CSRF token مفقود أو غير مطابق');
+        console.error('  3. مشكلة في credentials أو headers');
+        console.error('  4. مشكلة في __Host- cookie attributes');
         
         // فحص الكوكيز المرسلة
         if (typeof document !== 'undefined') {
           const cookies = document.cookie;
-          console.log('🍪 [authClient] الكوكيز في المتصفح بعد الفشل:');
+          console.log('🍪 الكوكيز المتاحة في المتصفح:');
           ['sabq_rft', '__Host-sabq-refresh', '__Host-sabq-access-token', 'sabq-csrf-token'].forEach(name => {
             const exists = cookies.includes(name);
             console.log(`  ${exists ? '✅' : '❌'} ${name}`);

@@ -262,7 +262,7 @@ if (typeof window !== 'undefined') {
     analyzeCookies,
     resetAuthCompletely,
     inspectRefreshRequest,
-    testRefreshDirectly
+    debugRefreshDirect
   };
   
   console.log('🔧 تم تحميل أدوات تشخيص Loyalty:');
@@ -271,7 +271,7 @@ if (typeof window !== 'undefined') {
   console.log('  - debugLoyalty.analyzeCookies()');
   console.log('  - debugLoyalty.resetAuthCompletely()');
   console.log('  - debugLoyalty.inspectRefreshRequest()');
-  console.log('  - debugLoyalty.testRefreshDirectly()');
+  console.log('  - debugLoyalty.debugRefreshDirect()');
 }
 
 /**
@@ -306,76 +306,102 @@ export function inspectRefreshRequest(): void {
 }
 
 /**
- * اختبار طلب refresh مباشر للتشخيص
+ * اختبار طلب refresh مباشر للتشخيص (الكود المحسن من المستخدم)
  */
-export async function testRefreshDirectly(): Promise<void> {
-  console.log('🧪 اختبار طلب التجديد مباشرة...');
+export async function debugRefreshDirect(): Promise<Response | null> {
+  console.log('🧪 [debugRefresh] اختبار طلب التجديد مباشرة...');
   
   if (typeof document === 'undefined') {
     console.error('❌ يعمل فقط في المتصفح');
-    return;
+    return null;
   }
   
-  // فحص الكوكيز المتاحة
+  // 1. فحص الكوكيز المتاحة قبل الإرسال
+  console.log('🍪 [debugRefresh] فحص الكوكيز قبل الإرسال:');
   const cookies = document.cookie;
-  const refreshCookie = cookies.match(/sabq_rft=([^;]+)/)?.[1];
-  const csrfToken = cookies.match(/sabq-csrf-token=([^;]+)/)?.[1];
+  console.log('  - جميع الكوكيز:', cookies);
   
-  console.log('🍪 الكوكيز المتاحة:');
-  console.log(`  - sabq_rft: ${refreshCookie ? '✅ موجود' : '❌ مفقود'}`);
-  console.log(`  - CSRF: ${csrfToken ? '✅ موجود' : '❌ مفقود'}`);
+  const refreshCookie = cookies.split('; ').find(c => c.startsWith('sabq_rft='))?.split('=')[1] ||
+                       cookies.split('; ').find(c => c.startsWith('__Host-sabq-refresh='))?.split('=')[1];
+  const csrf = cookies.split('; ').find(c => c.startsWith('sabq-csrf-token='))?.split('=')[1];
+  
+  console.log('  - sabq_rft:', refreshCookie ? '✅ موجود' : '❌ مفقود');
+  console.log('  - CSRF Token:', csrf ? '✅ موجود' : '❌ مفقود');
   
   if (!refreshCookie) {
-    console.error('❌ لا يوجد refresh cookie - لا يمكن المتابعة');
-    return;
+    console.error('❌ [debugRefresh] لا يوجد refresh cookie - لا يمكن المتابعة');
+    console.log('💡 تحقق من تسجيل الدخول أولاً أو من أن الخادم يرسل sabq_rft');
+    return null;
   }
   
   try {
-    console.log('📡 إرسال طلب التجديد...');
+    console.log('📡 [debugRefresh] إرسال طلب التجديد مع credentials...');
     
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      'X-Requested-With': 'XMLHttpRequest'
-    };
-    
-    if (csrfToken) {
-      headers['X-CSRF-Token'] = csrfToken;
-    }
-    
-    const response = await fetch('/api/auth/refresh', {
+    const res = await fetch('/api/auth/refresh', {
       method: 'POST',
-      credentials: 'include',
-      headers
+      credentials: 'include', // حتمي لإرسال cookies مثل sabq_rft أو __Host-...
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrf || '',
+        'X-Debug': 'direct-refresh-test' // لتمييز هذا الطلب في logs الخادم
+      },
+      body: JSON.stringify({ debug: true }), // إن كان الخادم يتوقع body
     });
     
-    console.log(`📊 النتيجة: ${response.status} ${response.statusText}`);
+    console.log('📊 [debugRefresh] النتيجة:', res.status, res.statusText);
     
-    // قراءة الاستجابة
-    const responseText = await response.text();
-    console.log('📄 نص الاستجابة:', responseText);
+    // قراءة نص الاستجابة
+    const text = await res.text();
+    console.log('📄 [debugRefresh] Response Body Length:', text.length);
     
-    // فحص headers الاستجابة
-    console.log('📋 Headers الاستجابة:');
-    response.headers.forEach((value, key) => {
-      if (key.toLowerCase().includes('cookie') || key.toLowerCase().includes('csrf')) {
-        console.log(`  ${key}: ${value}`);
-      }
+    try {
+      const json = JSON.parse(text);
+      console.log('📋 [debugRefresh] Response JSON:', json);
+    } catch (err) {
+      console.log('� [debugRefresh] Response Text:', text);
+    }
+    
+    // فحص Set-Cookie في الاستجابة
+    const setCookieHeader = res.headers.get('set-cookie');
+    console.log('🍪 [debugRefresh] Set-Cookie من الخادم:', setCookieHeader || 'لا توجد');
+    
+    // فحص جميع headers المهمة
+    console.log('📋 [debugRefresh] Response Headers المهمة:');
+    ['set-cookie', 'content-type', 'x-csrf-token', 'cache-control'].forEach(header => {
+      const value = res.headers.get(header);
+      console.log(`  - ${header}: ${value || 'غير موجود'}`);
     });
     
-    if (response.status === 400) {
-      console.error('🚨 تشخيص 400 Bad Request:');
-      if (!csrfToken) {
-        console.error('  - احتمال: CSRF token مفقود');
+    // تحليل أخطاء 400 المحددة
+    if (res.status === 400) {
+      console.error('🚨 [debugRefresh] تحليل 400 Bad Request:');
+      
+      if (text.toLowerCase().includes('csrf')) {
+        console.error('  🎯 السبب المحتمل: CSRF token مفقود أو غير مطابق');
+        console.error(`    - تم إرسال: "${csrf || 'لا شيء'}"`);
+        console.error('    - تحقق من أن الخادم يرسل نفس القيمة في كوكي sabq-csrf-token');
       }
-      if (responseText.includes('refresh')) {
-        console.error('  - احتمال: sabq_rft غير صالح أو منتهي');
+      
+      if (text.toLowerCase().includes('refresh') || text.toLowerCase().includes('token')) {
+        console.error('  🎯 السبب المحتمل: refresh token غير صالح أو منتهي');
+        console.error('    - تحقق من صلاحية sabq_rft في الخادم');
       }
-      if (responseText.includes('cookie')) {
-        console.error('  - احتمال: مشكلة في إرسال الكوكيز');
+      
+      if (text.toLowerCase().includes('cookie') || text.toLowerCase().includes('credential')) {
+        console.error('  🎯 السبب المحتمل: الكوكيز لم تُرسل للخادم');
+        console.error('    - تأكد من credentials: "include" في جميع طلبات fetch');
+      }
+      
+      if (!csrf) {
+        console.error('  🎯 ملاحظة: CSRF Token مفقود من الكوكيز');
+        console.error('    - قد يكون السبب الرئيسي إذا كان الخادم يطلبه');
       }
     }
+    
+    return res;
     
   } catch (error) {
-    console.error('❌ خطأ في طلب التجديد:', error);
+    console.error('❌ [debugRefresh] خطأ في الشبكة:', error);
+    return null;
   }
 }
