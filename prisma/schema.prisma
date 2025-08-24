@@ -849,6 +849,20 @@ model user_similar_readers {
   @@unique([user_id, similar_user_id])
 }
 
+model user_activities {
+  id            String   @id @db.VarChar(50)
+  user_id       String   @default("anonymous") @db.VarChar(36)
+  session_id    String   @db.VarChar(100)
+  activity_type String   @db.VarChar(50)
+  activity_data Json?
+  created_at    DateTime @default(now())
+
+  @@index([user_id])
+  @@index([session_id])
+  @@index([activity_type])
+  @@index([created_at])
+}
+
 model users {
   id                       String                    @id
   email                    String                    @unique

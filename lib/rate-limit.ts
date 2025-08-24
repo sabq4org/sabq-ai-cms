@@ -26,8 +26,18 @@ export async function rateLimit(key: string, max: number, windowSec: number) {
     }
   }
 
-  // in-memory fallback
+  // in-memory fallback محسّن
   if (!inMemoryCounters) inMemoryCounters = new Map();
+  
+  // تنظيف الإدخالات القديمة كل دقيقة
+  if (Math.random() < 0.01) { // 1% فرصة للتنظيف
+    const expired = [];
+    for (const [k, v] of inMemoryCounters.entries()) {
+      if (v.expiresAt < now) expired.push(k);
+    }
+    expired.forEach(k => inMemoryCounters!.delete(k));
+  }
+  
   const entry = inMemoryCounters!.get(k);
   if (!entry || entry.expiresAt < now) {
     inMemoryCounters!.set(k, { count: 1, expiresAt: now + windowSec * 1000 });
@@ -39,4 +49,28 @@ export async function rateLimit(key: string, max: number, windowSec: number) {
     err.status = 429;
     throw err;
   }
+}
+
+/**
+ * Rate limit مع دعم user-based limiting
+ */
+export async function userRateLimit(
+  userId: string, 
+  action: string, 
+  max: number, 
+  windowSec: number
+) {
+  return rateLimit(`user:${userId}:${action}`, max, windowSec);
+}
+
+/**
+ * Rate limit مع دعم IP-based limiting
+ */
+export async function ipRateLimit(
+  ip: string, 
+  action: string, 
+  max: number, 
+  windowSec: number
+) {
+  return rateLimit(`ip:${ip}:${action}`, max, windowSec);
 }

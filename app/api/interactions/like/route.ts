@@ -143,15 +143,30 @@ export async function POST(req: NextRequest) {
 
     // منح نقاط عند إضافة إعجاب فقط (وليس عند الإزالة)
     let pointsAwarded = 0;
-    if (like) {
-      // نقاط بسيطة وثابتة للإعجاب
-      pointsAwarded = await awardLoyaltyPoints(user.id, articleId, 1, 'like');
+    if (like && likedStatusChanged) {
+      // منح النقاط بشكل غير متزامن لتسريع الاستجابة
+      setImmediate(async () => {
+        try {
+          await awardLoyaltyPoints(user.id, articleId, 1, 'like');
+        } catch (error) {
+          console.error('Error awarding points:', error);
+        }
+      });
+      pointsAwarded = 1; // نعيد القيمة المتوقعة فوراً
     }
+
+    // نعيد النقاط الحالية من الذاكرة المؤقتة أو قاعدة البيانات
     const totalPoints = await getTotalPoints(user.id);
     const level = getLevel(totalPoints);
 
-    // ملاحظة: واجهات الهيدر تعتمد /api/profile/me/loyalty مع SWR، لذا لا نحتاج تحديث users.loyalty_points مباشرة هنا
-    return NextResponse.json({ liked: !!like, ...result, pointsAwarded, totalPoints, level, success: true });
+    return NextResponse.json({ 
+      liked: !!like, 
+      ...result, 
+      pointsAwarded, 
+      totalPoints: totalPoints + pointsAwarded, // نضيف النقاط الجديدة للعرض الفوري
+      level, 
+      success: true 
+    });
   } catch (e: any) {
     const message = String(e?.message || e || "");
     if (message.includes("Unauthorized")) {
