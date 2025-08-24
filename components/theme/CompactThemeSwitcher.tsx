@@ -62,7 +62,7 @@ interface CompactThemeSwitcherProps {
 }
 
 export default function CompactThemeSwitcher({ className = '' }: CompactThemeSwitcherProps) {
-  const [currentTheme, setCurrentTheme] = useState(themes[0]); // الافتراضي هو الأزرق
+  const [currentTheme, setCurrentTheme] = useState(themes[0]); // الافتراضي هو "بلا لون"
   const [focused, setFocused] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 

@@ -1,12 +1,12 @@
 // 🧪 اختبار سريع لإعادة ضبط نظام الألوان
 // يمكن تشغيل هذا في Console للتشخيص
 
-// إعادة ضبط الثيم للافتراضي (الأزرق)
+// إعادة ضبط الثيم للافتراضي (بلا لون)
 function resetThemeToDefault() {
-  localStorage.setItem('theme-color', 'blue');
+  localStorage.removeItem('theme-color');
   localStorage.removeItem('theme-color-backup');
   location.reload();
-  console.log('✅ Theme reset to default (blue)');
+  console.log('✅ Theme reset to default (no color)');
 }
 
 // مسح كامل لجميع بيانات الثيم
