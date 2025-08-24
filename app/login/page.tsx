@@ -83,7 +83,10 @@ function LoginForm() {
         if (data.requires2FA) {
           // حفظ الرمز المؤقت وتوجيه لصفحة 2FA
           sessionStorage.setItem('2fa_temp_token', data.tempToken);
-          toast.info("يرجى إدخال رمز المصادقة الثنائية");
+          toast("يرجى إدخال رمز المصادقة الثنائية", {
+            icon: "🔐",
+            duration: 4000,
+          });
           
           // تحديد الوجهة النهائية
           let finalDestination = "/";
