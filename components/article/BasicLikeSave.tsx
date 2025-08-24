@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Heart, Bookmark } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useLoyalty } from '@/hooks/useLoyalty';
 
 interface BasicLikeSaveProps {
   articleId: string;
@@ -10,23 +11,8 @@ interface BasicLikeSaveProps {
   initialSaves?: number;
 }
 
-function getAuthToken(): string | null {
-  try {
-    // 1) من localStorage إذا كان محفوظاً
-    if (typeof window !== 'undefined') {
-      const ls = localStorage.getItem('auth-token');
-      if (ls) return ls;
-    }
-    // 2) من الكوكيز
-    if (typeof document !== 'undefined') {
-      const match = document.cookie
-        .split('; ')
-        .find((row) => row.startsWith('auth-token='));
-      if (match) return decodeURIComponent(match.split('=')[1]);
-    }
-  } catch {}
-  return null;
-}
+// لم نعد نحتاج لقراءة التوكن
+// الكوكيز HttpOnly ستتولى المصادقة تلقائياً
 
 export default function BasicLikeSave({ 
   articleId, 
@@ -34,22 +20,20 @@ export default function BasicLikeSave({
   initialSaves = 0 
 }: BasicLikeSaveProps) {
   const { user } = useAuth();
+  const { mutate: refreshLoyalty } = useLoyalty();
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
   const [likes, setLikes] = useState(initialLikes);
   const [saves, setSaves] = useState(initialSaves);
   const [loading, setLoading] = useState(false);
 
-  const authToken = getAuthToken();
-  const authHeaders: Record<string, string> = authToken
-    ? { Authorization: `Bearer ${authToken}` }
-    : (user?.id ? { 'user-id': user.id } : {});
+  // لا نحتاج لإرسال headers إضافية
+  // الكوكيز ستُرسل تلقائياً مع credentials: 'include'
 
   // تشخيص حالة المصادقة
   console.log('🔧 BasicLikeSave Debug:', {
     articleId,
     user: user ? { id: user.id, name: user.name } : null,
-    authToken: authToken ? 'موجود' : 'غير موجود',
     initialLikes,
     initialSaves
   });
@@ -81,7 +65,6 @@ export default function BasicLikeSave({
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          ...authHeaders,
         },
       });
       
@@ -123,9 +106,8 @@ export default function BasicLikeSave({
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          ...authHeaders,
         },
-        body: JSON.stringify({ articleId, like: newLikeStatus, requestId: `${articleId}_${Date.now()}` }),
+        body: JSON.stringify({ articleId, like: newLikeStatus }),
       });
 
       console.log('📊 استجابة النظام الموحد:', response.status, response.statusText);
@@ -143,6 +125,8 @@ export default function BasicLikeSave({
         }
         
         console.log('✅ تم الإعجاب بنجاح:', data);
+        // تحديث نقاط الولاء في الهيدر فوراً
+        refreshLoyalty();
       } else {
         console.error('❌ فشل الإعجاب:', data);
         
@@ -176,7 +160,6 @@ export default function BasicLikeSave({
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          ...authHeaders,
         },
         body: JSON.stringify({ articleId, save: newSaveStatus }),
       });

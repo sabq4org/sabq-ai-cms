@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuthFromRequest } from "@/app/lib/auth";
-import getRedisClient from "@/lib/redis-client";
+import { getRedisClient } from "@/lib/redis-client";
 import { deleteKeysByPattern } from "@/lib/redis-helpers";
 import prisma from "@/lib/prisma";
 
@@ -82,25 +82,47 @@ export async function POST(req: NextRequest) {
         where: { user_id_article_id_type: uniqueKey },
       });
 
+      let didChange = false;
+
       // إذا طلب العميل like=true نضمن وجود السجل، وإذا false نضمن عدم وجوده
       if (like) {
         if (!existing) {
-          await tx.interactions.create({
-            data: {
-              id: `like_${user.id}_${articleId}_${Date.now()}`,
-              user_id: user.id,
-              article_id: articleId,
-              type: "like",
-            },
-          });
-          await tx.articles.update({ where: { id: articleId }, data: { likes: { increment: 1 } } });
+          try {
+            await tx.interactions.create({
+              data: {
+                id: `like_${user.id}_${articleId}_${Date.now()}`,
+                user_id: user.id,
+                article_id: articleId,
+                type: "like",
+              },
+            });
+            didChange = true;
+          } catch (err: any) {
+            // في حال سباق إنشاء متزامن: تجاهل خطأ القيود الفريدة
+            if (!(err && err.code === "P2002")) {
+              throw err;
+            }
+          }
+          if (didChange) {
+            await tx.articles.update({ where: { id: articleId }, data: { likes: { increment: 1 } } });
+          }
         }
       } else {
         if (existing) {
-          await tx.interactions.delete({ where: { id: existing.id } });
-          await tx.articles.update({ where: { id: articleId }, data: { likes: { decrement: 1 } } });
-          // ضمان عدم السالب
-          await tx.articles.updateMany({ where: { id: articleId, likes: { lt: 0 } as any }, data: { likes: 0 } });
+          try {
+            await tx.interactions.delete({ where: { id: existing.id } });
+            didChange = true;
+          } catch (err: any) {
+            // إذا كان قد حُذف بالفعل بسبب سباق، تجاهل
+            if (!(err && (err.code === "P2025" || String(err.message || "").includes("Record to delete does not exist")))) {
+              throw err;
+            }
+          }
+          if (didChange) {
+            await tx.articles.update({ where: { id: articleId }, data: { likes: { decrement: 1 } } });
+            // ضمان عدم السالب
+            await tx.articles.updateMany({ where: { id: articleId, likes: { lt: 0 } as any }, data: { likes: 0 } });
+          }
         }
       }
 
@@ -128,6 +150,7 @@ export async function POST(req: NextRequest) {
     const totalPoints = await getTotalPoints(user.id);
     const level = getLevel(totalPoints);
 
+    // ملاحظة: واجهات الهيدر تعتمد /api/profile/me/loyalty مع SWR، لذا لا نحتاج تحديث users.loyalty_points مباشرة هنا
     return NextResponse.json({ liked: !!like, ...result, pointsAwarded, totalPoints, level, success: true });
   } catch (e: any) {
     const message = String(e?.message || e || "");
@@ -135,7 +158,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     console.error("/api/interactions/like error:", e);
-    return NextResponse.json({ error: "Failed to toggle like" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to toggle like", details: message }, { status: 500 });
   }
 }
 

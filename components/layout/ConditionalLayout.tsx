@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import ThemeApplier from "@/components/ThemeApplier";
+import { QueryProvider } from "@/lib/providers/QueryProvider";
 
 // Layouts
 import AdminPureLayout from "./AdminPureLayout";
@@ -24,36 +25,40 @@ export default function ConditionalLayout({
   // إذا كانت صفحة تسجيل دخول admin، لا تطبق أي layout
   if (isAdminLoginPath) {
     return (
-      <>
+      <QueryProvider>
         <ThemeApplier />
         {children}
-      </>
+      </QueryProvider>
     );
   }
 
   if (isAdminPath) {
     return (
-      <AdminPureLayout>
-        <ThemeApplier />
-        {children}
-      </AdminPureLayout>
+      <QueryProvider>
+        <AdminPureLayout>
+          <ThemeApplier />
+          {children}
+        </AdminPureLayout>
+      </QueryProvider>
     );
   }
 
   // في مسار النسخة الخفيفة، دع تخطيط المقطع `app/light/layout.tsx` يتكفّل بالتخطيط
   if (isLightPath) {
     return (
-      <>
+      <QueryProvider>
         <ThemeApplier />
         {children}
-      </>
+      </QueryProvider>
     );
   }
 
   return (
-    <SiteLayout>
-      <ThemeApplier />
-      {children}
-    </SiteLayout>
+    <QueryProvider>
+      <SiteLayout>
+        <ThemeApplier />
+        {children}
+      </SiteLayout>
+    </QueryProvider>
   );
 }
