@@ -120,7 +120,7 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
                         className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium backdrop-blur-sm ${
                           darkMode
                             ? "bg-gray-900/60 text-gray-200 border border-gray-700"
-                            : "bg-[#f8f8f7]/70 text-gray-700 border border-gray-200"
+                            : "bg-white/70 text-gray-700 border border-gray-200"
                         }`}
                       >
                         {article.category?.icon && (

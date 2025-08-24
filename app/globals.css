@@ -24,16 +24,16 @@ html, body {
   --background-end-rgb: 255, 255, 255;
   
   /* خلفية الموقع الموحدة */
-  --site-bg: #f8f8f7;
+  --site-bg: #ffffff;
   --site-bg-dark: #111827;
   
-  /* نظام الألوان المتغيرة - الألوان الافتراضية */
-  --theme-primary: #3b82f6;
-  --theme-secondary: #2563eb;
-  --theme-primary-rgb: 59 130 246;
-  --theme-primary-hover: #2563eb;
-  --theme-primary-light: rgba(59, 130, 246, 0.1);
-  --theme-primary-lighter: rgba(59, 130, 246, 0.05);
+  /* نظام الألوان المتغيرة - الألوان الافتراضية (بلا لون) */
+  --theme-primary: #6b7280;
+  --theme-secondary: #9ca3af;
+  --theme-primary-rgb: 107 114 128;
+  --theme-primary-hover: #4b5563;
+  --theme-primary-light: rgba(107, 114, 128, 0.1);
+  --theme-primary-lighter: rgba(107, 114, 128, 0.05);
 }
 
 /* نظام الألوان المتغيرة - مجموعة الألوان المختلفة */

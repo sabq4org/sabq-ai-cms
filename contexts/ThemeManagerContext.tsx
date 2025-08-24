@@ -46,18 +46,18 @@ const predefinedSchemes: ColorScheme[] = [
     name: 'sabq',
     displayName: 'ثيم سبق الافتراضي',
     colors: {
-      primary: '#1e40af',
-      secondary: '#3b82f6',
-      accent: '#06b6d4',
+      primary: '#6b7280',
+      secondary: '#9ca3af',
+      accent: '#d1d5db',
       background: '#ffffff',
-      surface: '#f8fafc',
+      surface: '#ffffff',
       text: '#1e293b',
       textSecondary: '#64748b',
       border: '#e2e8f0',
       success: '#10b981',
       warning: '#f59e0b',
       error: '#ef4444',
-      info: '#3b82f6'
+      info: '#6b7280'
     },
     darkMode: {
       primary: '#3b82f6',
