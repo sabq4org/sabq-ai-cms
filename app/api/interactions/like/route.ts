@@ -4,6 +4,35 @@ import getRedisClient from "@/lib/redis-client";
 import { deleteKeysByPattern } from "@/lib/redis-helpers";
 import prisma from "@/lib/prisma";
 
+async function awardLoyaltyPoints(userId: string, articleId: string, points: number, action: string) {
+  if (points <= 0) return 0;
+  await prisma.loyalty_points.create({
+    data: {
+      id: `lp_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+      user_id: userId,
+      points,
+      action,
+      reference_id: articleId,
+      reference_type: 'article',
+      metadata: { source: 'interactions/like', timestamp: new Date().toISOString() },
+      created_at: new Date(),
+    },
+  });
+  return points;
+}
+
+async function getTotalPoints(userId: string) {
+  const agg = await prisma.loyalty_points.aggregate({ where: { user_id: userId }, _sum: { points: true } });
+  return agg._sum.points || 0;
+}
+
+function getLevel(totalPoints: number) {
+  if (totalPoints >= 2000) return 'بلاتيني';
+  if (totalPoints >= 500) return 'ذهبي';
+  if (totalPoints >= 100) return 'فضي';
+  return 'برونزي';
+}
+
 export async function POST(req: NextRequest) {
   try {
     const user = await requireAuthFromRequest(req);
@@ -90,7 +119,16 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    return NextResponse.json({ liked: !!like, ...result });
+    // منح نقاط عند إضافة إعجاب فقط (وليس عند الإزالة)
+    let pointsAwarded = 0;
+    if (like) {
+      // نقاط بسيطة وثابتة للإعجاب
+      pointsAwarded = await awardLoyaltyPoints(user.id, articleId, 1, 'like');
+    }
+    const totalPoints = await getTotalPoints(user.id);
+    const level = getLevel(totalPoints);
+
+    return NextResponse.json({ liked: !!like, ...result, pointsAwarded, totalPoints, level, success: true });
   } catch (e: any) {
     const message = String(e?.message || e || "");
     if (message.includes("Unauthorized")) {

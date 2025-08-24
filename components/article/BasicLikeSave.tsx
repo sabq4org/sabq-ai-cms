@@ -117,22 +117,15 @@ export default function BasicLikeSave({
       const newLikeStatus = !liked;
       console.log('👍 محاولة إعجاب موحد:', { articleId, like: newLikeStatus, userId: user.id });
       
-      // استخدام النظام الموحد للتتبع
-      const response = await fetch('/api/unified-tracking', {
+      // استدعاء مسار like المباشر ليتكامل مع الولاء
+      const response = await fetch('/api/interactions/like', {
         method: 'POST',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           ...authHeaders,
         },
-        body: JSON.stringify({ 
-          articleId, 
-          interactionType: 'like',
-          metadata: {
-            previousState: liked,
-            action: newLikeStatus ? 'add' : 'remove'
-          }
-        }),
+        body: JSON.stringify({ articleId, like: newLikeStatus, requestId: `${articleId}_${Date.now()}` }),
       });
 
       console.log('📊 استجابة النظام الموحد:', response.status, response.statusText);
@@ -144,26 +137,21 @@ export default function BasicLikeSave({
         setLiked(newLikeStatus);
         setLikes(newLikeStatus ? likes + 1 : Math.max(0, likes - 1));
         
-        // إظهار رسالة النجاح مع النقاط
+        // إشعار مختصر فقط عند منح نقاط
         if (data.pointsAwarded > 0) {
-          alert(`✅ ${data.message}\n🎯 إجمالي نقاطك: ${data.totalPoints} (${data.level})`);
+          try { (await import('@/components/ui/toast')).toast.success(`+${data.pointsAwarded} نقاط • إجمالي: ${data.totalPoints} (${data.level})`); } catch {}
         }
         
         console.log('✅ تم الإعجاب بنجاح:', data);
       } else {
         console.error('❌ فشل الإعجاب:', data);
         
-        if (data.limitReached) {
-          alert(`⚠️ ${data.message}`);
-        } else if (data.alreadyExists) {
-          alert(`ℹ️ ${data.message}`);
-        } else {
-          alert(`حدث خطأ في الإعجاب: ${data.error || data.message || 'خطأ غير معروف'}`);
-        }
+        const msg = data.message || data.error || 'فشل العملية';
+        try { (await import('@/components/ui/toast')).toast.error(msg); } catch { alert(msg); }
       }
     } catch (error) {
       console.error('❌ خطأ في الإعجاب:', error);
-      alert('حدث خطأ في الاتصال');
+      try { (await import('@/components/ui/toast')).toast.error('حدث خطأ في الاتصال'); } catch { alert('حدث خطأ في الاتصال'); }
     } finally {
       setLoading(false);
     }
@@ -182,22 +170,15 @@ export default function BasicLikeSave({
       const newSaveStatus = !saved;
       console.log('💾 محاولة حفظ موحد:', { articleId, saved: newSaveStatus, userId: user.id });
       
-      // استخدام النظام الموحد للتتبع
-      const response = await fetch('/api/unified-tracking', {
+      // استدعاء مسار save المباشر ليتكامل مع الولاء
+      const response = await fetch('/api/interactions/save', {
         method: 'POST',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           ...authHeaders,
         },
-        body: JSON.stringify({ 
-          articleId, 
-          interactionType: 'save',
-          metadata: {
-            previousState: saved,
-            action: newSaveStatus ? 'add' : 'remove'
-          }
-        }),
+        body: JSON.stringify({ articleId, save: newSaveStatus }),
       });
 
       console.log('📊 استجابة النظام الموحد:', response.status, response.statusText);
@@ -209,26 +190,20 @@ export default function BasicLikeSave({
         setSaved(newSaveStatus);
         setSaves(newSaveStatus ? saves + 1 : Math.max(0, saves - 1));
         
-        // إظهار رسالة النجاح مع النقاط
         if (data.pointsAwarded > 0) {
-          alert(`✅ ${data.message}\n🎯 إجمالي نقاطك: ${data.totalPoints} (${data.level})`);
+          try { (await import('@/components/ui/toast')).toast.success(`+${data.pointsAwarded} نقاط • إجمالي: ${data.totalPoints} (${data.level})`); } catch {}
         }
         
         console.log('✅ تم الحفظ بنجاح:', data);
       } else {
         console.error('❌ فشل الحفظ:', data);
         
-        if (data.limitReached) {
-          alert(`⚠️ ${data.message}`);
-        } else if (data.alreadyExists) {
-          alert(`ℹ️ ${data.message}`);
-        } else {
-          alert(`حدث خطأ في الحفظ: ${data.error || data.message || 'خطأ غير معروف'}`);
-        }
+        const msg = data.message || data.error || 'فشل العملية';
+        try { (await import('@/components/ui/toast')).toast.error(msg); } catch { alert(msg); }
       }
     } catch (error) {
       console.error('❌ خطأ في الحفظ:', error);
-      alert('حدث خطأ في الاتصال');
+      try { (await import('@/components/ui/toast')).toast.error('حدث خطأ في الاتصال'); } catch { alert('حدث خطأ في الاتصال'); }
     } finally {
       setLoading(false);
     }
