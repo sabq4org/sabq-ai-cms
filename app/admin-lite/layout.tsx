@@ -5,9 +5,23 @@ import { useAuth } from "@/contexts/AuthContext";
 import { LogOut } from "lucide-react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Home, Newspaper, FileText, BarChart3, Settings } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 export default function AdminLiteLayout({ children }: { children: React.ReactNode }) {
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return <div>{children}</div>;
+  }
+
+  return <AdminLiteLayoutClient>{children}</AdminLiteLayoutClient>;
+}
+
+function AdminLiteLayoutClient({ children }: { children: React.ReactNode }) {
   const { logout } = useAuth();
   const pathname = usePathname();
   const searchParams = useSearchParams();

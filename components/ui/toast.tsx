@@ -67,6 +67,14 @@ class ToastManager {
 
 export const toast = new ToastManager();
 
+// مكونات إضافية للتوافق مع shadcn/ui
+export const ToastProvider = ({ children }: { children: React.ReactNode }) => <>{children}</>;
+export const Toast = ({ children, ...props }: any) => <div {...props}>{children}</div>;
+export const ToastTitle = ({ children }: { children: React.ReactNode }) => <div className="font-semibold">{children}</div>;
+export const ToastDescription = ({ children }: { children: React.ReactNode }) => <div className="text-sm opacity-90">{children}</div>;
+export const ToastClose = () => <button className="ml-auto">×</button>;
+export const ToastViewport = () => <div />;
+
 function ToastComponent({ toast: t }: { toast: Toast }) {
   const [isVisible, setIsVisible] = useState(false);
 

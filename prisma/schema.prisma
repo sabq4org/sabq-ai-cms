@@ -1117,14 +1117,14 @@ model SmartNotifications {
   title                 String
   message               String
   type                  NotificationType
-  priority              NotificationPriority @default(medium)
+  priority              NotificationPriority @default(MEDIUM)
   category              String?
   data                  Json?
   scheduled_at          DateTime?
   sent_at               DateTime?
   read_at               DateTime?
   clicked_at            DateTime?
-  status                NotificationStatus   @default(pending)
+  status                NotificationStatus   @default(PENDING)
   delivery_channels     String[]
   ai_optimized          Boolean              @default(false)
   personalization_score Float?
