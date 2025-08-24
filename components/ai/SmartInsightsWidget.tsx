@@ -70,19 +70,21 @@ export default function SmartInsightsWidget({ variant = 'default', className = '
   useEffect(() => {
     try {
       const updateAccent = () => {
-        const dt = document.documentElement.getAttribute('data-theme');
-        // إذا لم يكن هناك data-theme أو كان 'none' أو 'default'، فلا يوجد لون نشط
-        setAccentActive(Boolean(dt) && dt !== 'none' && dt !== 'default' && dt.trim() !== '');
+        const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+        setAccentActive(Boolean(accent));
       };
       updateAccent();
       const observer = new MutationObserver((mutations) => {
         for (const m of mutations) {
-          if (m.type === 'attributes' && m.attributeName === 'data-theme') {
+          if (
+            m.type === 'attributes' &&
+            (m.attributeName === 'data-theme' || m.attributeName === 'style')
+          ) {
             updateAccent();
           }
         }
       });
-      observer.observe(document.documentElement, { attributes: true });
+      observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'style'] });
       return () => observer.disconnect();
     } catch {}
   }, []);

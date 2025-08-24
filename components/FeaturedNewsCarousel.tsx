@@ -133,19 +133,22 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
   useEffect(() => {
     try {
       const updateAccentActive = () => {
-        const dt = document.documentElement.getAttribute('data-theme');
-        // إذا لم يكن هناك data-theme أو كان 'none' أو 'default'، فلا يوجد لون نشط
-        setAccentActive(Boolean(dt) && dt !== 'none' && dt !== 'default' && dt.trim() !== '');
+        const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+        // اعتبر اللون نشطاً فقط إذا كانت قيمة --accent موجودة فعلاً
+        setAccentActive(Boolean(accent));
       };
       updateAccentActive();
       const observer = new MutationObserver((mutations) => {
         for (const m of mutations) {
-          if (m.type === 'attributes' && m.attributeName === 'data-theme') {
+          if (
+            m.type === 'attributes' &&
+            (m.attributeName === 'data-theme' || m.attributeName === 'style')
+          ) {
             updateAccentActive();
           }
         }
       });
-      observer.observe(document.documentElement, { attributes: true });
+      observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'style'] });
       return () => observer.disconnect();
     } catch {}
   }, []);
@@ -404,7 +407,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                   className={`absolute inset-0 transition-opacity duration-300 ${
                     idx === currentIndex ? "" : "bg-black/40 hover:bg-black/25"
                   }`}
-                  style={{ background: idx === currentIndex ? 'hsl(var(--accent) / 0.15)' : undefined }}
+                  style={{ background: idx === currentIndex && accentActive ? 'hsl(var(--accent) / 0.15)' : undefined }}
                 ></div>
                 {/* مؤشر النشاط */}
                 {idx === currentIndex && (
