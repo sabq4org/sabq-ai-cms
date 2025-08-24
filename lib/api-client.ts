@@ -99,7 +99,7 @@ apiClient.interceptors.response.use(
         }
       } catch (refreshError) {
         // فشل التجديد، معالجة الطابور بالخطأ
-        console.warn('⚠️ Silent refresh failed, redirecting to login');
+        console.warn('⚠️ Silent refresh failed');
         processQueue(refreshError, null);
         
         // تنظيف الجلسة المحلية
@@ -108,13 +108,26 @@ apiClient.interceptors.response.use(
           localStorage.removeItem('auth-token');
           localStorage.removeItem('user');
           
-          // إعادة التوجيه لصفحة تسجيل الدخول
-          const currentPath = window.location.pathname;
-          const loginUrl = `/login?next=${encodeURIComponent(currentPath)}`;
+          // إطلاق حدث لتحديث حالة المصادقة
+          window.dispatchEvent(new Event('auth-change'));
           
-          // تجنب إعادة التوجيه المتكررة
-          if (!window.location.pathname.includes('/login')) {
-            window.location.href = loginUrl;
+          // إعادة التوجيه فقط إذا كان الطلب يتطلب مصادقة
+          // يتم تحديد ذلك من خلال config خاص أو من مسار API محمي
+          const requiresAuth = originalRequest.config?.requiresAuth || 
+                              originalRequest.url?.includes('/api/profile/') ||
+                              originalRequest.url?.includes('/api/admin/') ||
+                              originalRequest.url?.includes('/api/interactions/like') ||
+                              originalRequest.url?.includes('/api/interactions/save');
+          
+          if (requiresAuth) {
+            const currentPath = window.location.pathname;
+            const loginUrl = `/login?next=${encodeURIComponent(currentPath)}`;
+            
+            // تجنب إعادة التوجيه المتكررة
+            if (!window.location.pathname.includes('/login')) {
+              console.log('🔄 Redirecting to login for protected route');
+              window.location.href = loginUrl;
+            }
           }
         }
         
