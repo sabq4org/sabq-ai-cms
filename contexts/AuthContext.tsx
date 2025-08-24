@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useState, useEffect, useCallback, useContext, useRef } from 'react';
+import { api } from '@/lib/api-client';
 
 export interface User {
   id: string;
@@ -73,20 +74,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setAuthState(prev => ({ ...prev, loading: true, error: null }));
       }
 
-      const response = await fetch('/api/auth/me', {
-        method: 'GET',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' }
-      });
+      const data = await api.get('/auth/me');
 
       if (!mountedRef.current) return;
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data?.success && data?.user) {
-          updateAuthState(data.user);
-          return;
-        }
+      if (data?.success && data?.user) {
+        updateAuthState(data.user);
+        return;
       }
 
       // لا يوجد مستخدم مسجل

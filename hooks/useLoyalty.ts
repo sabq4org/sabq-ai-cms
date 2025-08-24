@@ -1,5 +1,6 @@
 "use client";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { api } from '@/lib/api-client';
 
 const LOYALTY_QUERY_KEY = ['loyalty', 'me'];
 
@@ -8,9 +9,7 @@ export function useLoyalty() {
   const { data, error, isLoading } = useQuery({
     queryKey: LOYALTY_QUERY_KEY,
     queryFn: async () => {
-      const res = await fetch('/api/profile/me/loyalty', { cache: 'no-store', credentials: 'include' });
-      if (!res.ok) throw new Error('failed');
-      return res.json();
+      return api.get('/profile/me/loyalty');
     },
     staleTime: 30_000,
     refetchOnWindowFocus: false,

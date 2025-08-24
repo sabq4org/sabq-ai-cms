@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Heart, Bookmark } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useLoyalty } from '@/hooks/useLoyalty';
+import { api } from '@/lib/api-client';
 
 interface BasicLikeSaveProps {
   articleId: string;
@@ -60,20 +61,10 @@ export default function BasicLikeSave({
     try {
       console.log('🔍 جلب حالة المستخدم للمقال:', articleId);
       
-      const response = await fetch(`/api/interactions/user-status?articleId=${articleId}` , {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      console.log('📊 استجابة حالة المستخدم:', response.status, response.statusText);
-      
-      const data = await response.json();
+      const data = await api.get(`/interactions/user-status?articleId=${articleId}`);
       console.log('📄 بيانات حالة المستخدم:', data);
       
-      if (response.ok && data) {
+      if (data) {
         setLiked(!!(data.liked ?? data.hasLiked ?? data.interactions?.liked));
         setSaved(!!(data.saved ?? data.hasSaved ?? data.interactions?.saved));
         if (typeof data.likesCount === 'number') setLikes(data.likesCount);
@@ -101,21 +92,12 @@ export default function BasicLikeSave({
       console.log('👍 محاولة إعجاب موحد:', { articleId, like: newLikeStatus, userId: user.id });
       
       // استدعاء مسار like المباشر ليتكامل مع الولاء
-      const response = await fetch('/api/interactions/like', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ articleId, like: newLikeStatus }),
+      const data = await api.post('/interactions/like', { articleId, like: newLikeStatus }).catch((err) => {
+        return err?.response?.data || { success: false, error: 'Request failed' };
       });
-
-      console.log('📊 استجابة النظام الموحد:', response.status, response.statusText);
-      
-      const data = await response.json().catch(() => ({}));
       console.log('📄 بيانات الاستجابة:', data);
       
-      if (response.ok && data.success) {
+      if (data.success) {
         setLiked(newLikeStatus);
         setLikes(newLikeStatus ? likes + 1 : Math.max(0, likes - 1));
         
@@ -155,21 +137,12 @@ export default function BasicLikeSave({
       console.log('💾 محاولة حفظ موحد:', { articleId, saved: newSaveStatus, userId: user.id });
       
       // استدعاء مسار save المباشر ليتكامل مع الولاء
-      const response = await fetch('/api/interactions/save', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ articleId, save: newSaveStatus }),
+      const data = await api.post('/interactions/save', { articleId, save: newSaveStatus }).catch((err) => {
+        return err?.response?.data || { success: false, error: 'Request failed' };
       });
-
-      console.log('📊 استجابة النظام الموحد:', response.status, response.statusText);
-      
-      const data = await response.json().catch(() => ({}));
       console.log('📄 بيانات الاستجابة:', data);
       
-      if (response.ok && data.success) {
+      if (data.success) {
         setSaved(newSaveStatus);
         setSaves(newSaveStatus ? saves + 1 : Math.max(0, saves - 1));
         
