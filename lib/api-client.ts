@@ -86,6 +86,7 @@ apiClient.interceptors.response.use(
 
         if (response.data.success) {
           // نجح التجديد، معالجة الطابور
+          console.log('🔄 Silent refresh successful');
           processQueue(null);
           
           // إعادة إرسال الطلب الأصلي
@@ -95,6 +96,7 @@ apiClient.interceptors.response.use(
         }
       } catch (refreshError) {
         // فشل التجديد، معالجة الطابور بالخطأ
+        console.warn('⚠️ Silent refresh failed, redirecting to login');
         processQueue(refreshError, null);
         
         // تنظيف الجلسة المحلية

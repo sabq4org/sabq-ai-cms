@@ -17,6 +17,13 @@ const EXCLUDED_PATHS = [
   '/api/webhooks', // webhooks من خدمات خارجية
 ];
 
+// إعدادات Rate Limiting لمحاولات CSRF الفاشلة
+const CSRF_FAILURE_LIMIT = 5;
+const CSRF_FAILURE_WINDOW = 15 * 60 * 1000; // 15 دقيقة
+
+// تخزين محاولات CSRF الفاشلة في الذاكرة (يمكن نقلها إلى Redis لاحقاً)
+const csrfFailures = new Map<string, { count: number; resetAt: number }>();
+
 /**
  * توليد CSRF token جديد
  */
@@ -67,6 +74,33 @@ export async function verifyCSRFToken(request: NextRequest): Promise<boolean> {
 }
 
 /**
+ * تتبع محاولات CSRF الفاشلة
+ */
+function trackCSRFFailure(clientId: string): boolean {
+  const now = Date.now();
+  const record = csrfFailures.get(clientId);
+  
+  // تنظيف السجلات القديمة
+  if (record && record.resetAt < now) {
+    csrfFailures.delete(clientId);
+  }
+  
+  if (!record || record.resetAt < now) {
+    csrfFailures.set(clientId, { count: 1, resetAt: now + CSRF_FAILURE_WINDOW });
+    return true;
+  }
+  
+  record.count++;
+  
+  if (record.count > CSRF_FAILURE_LIMIT) {
+    console.warn(`⚠️ CSRF: Too many failures from ${clientId}`);
+    return false;
+  }
+  
+  return true;
+}
+
+/**
  * Middleware للتحقق من CSRF
  */
 export async function csrfMiddleware(
@@ -76,6 +110,23 @@ export async function csrfMiddleware(
   const isValid = await verifyCSRFToken(request);
 
   if (!isValid) {
+    // تحديد معرف العميل (IP أو معرف المستخدم)
+    const clientId = request.headers.get('x-forwarded-for') || 
+                    request.headers.get('x-real-ip') || 
+                    'unknown';
+    
+    // التحقق من Rate Limiting
+    if (!trackCSRFFailure(clientId)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Too many failed attempts',
+          code: 'CSRF_RATE_LIMIT'
+        },
+        { status: 429 }
+      );
+    }
+    
     return NextResponse.json(
       {
         success: false,
