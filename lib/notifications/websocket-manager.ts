@@ -49,23 +49,46 @@ export class NotificationManager {
     try {
       let decoded: any = null;
       let token = tokenOrUndefined;
+      
       // دعم سحب التوكن من document.cookie/localStorage إذا لم يرسل من الواجهة
       if (!token && typeof document !== 'undefined') {
         try {
           const cookies = document.cookie.split('; ');
-          const names = ['sabq_at','auth-token','access_token','token','jwt'];
+          // استخدام نفس أولوية الأسماء من cookieAuth
+          const names = [
+            '__Host-sabq-access-token',  // النظام الجديد - الإنتاج
+            'sabq-access-token',         // النظام الجديد - التطوير
+            'auth-token',                // النظام الحالي المستخدم
+            'sabq_at',                   // النظام الموحد القديم
+            'access_token',              // Fallback عام
+            'token',                     // Fallback عام
+            'jwt'                        // Fallback عام
+          ];
+          
           for (const n of names) {
             const row = cookies.find(r => r.startsWith(`${n}=`));
-            if (row) { token = row.split('=')[1]; break; }
+            if (row) { 
+              token = row.split('=')[1];
+              console.log(`🍪 [NotificationManager] تم العثور على التوكن في: ${n}`);
+              break;
+            }
           }
+          
           if (!token) {
             const ls = localStorage.getItem('auth-token');
-            if (ls) token = ls;
+            if (ls) {
+              token = ls;
+              console.log('💾 [NotificationManager] تم العثور على التوكن في localStorage');
+            }
           }
-        } catch {}
+        } catch (err) {
+          console.error('❌ [NotificationManager] خطأ في قراءة الكوكيز:', err);
+        }
       }
+      
       decoded = token ? this.verifyToken(token) : null;
       if (!decoded) {
+        console.log('❌ [NotificationManager] فشل في فك تشفير التوكن');
         return { success: false, error: 'Token غير صحيح' };
       }
 

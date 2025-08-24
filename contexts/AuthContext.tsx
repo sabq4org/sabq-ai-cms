@@ -2,7 +2,8 @@
 
 import React, { createContext, useState, useEffect, useCallback, useContext, useRef } from 'react';
 import { httpAPI } from '@/lib/http';
-import { getAccessToken, setAccessTokenInMemory, clearSession, validateSession } from '@/lib/authClient';
+import { getAccessToken, setAccessTokenInMemory, clearSession, validateSession, loadTokenFromCookies, validateTokenFromCookies } from '@/lib/authClient';
+import { getUserFromCookies, hasAuthCookie, clearAuthCookies } from '@/lib/cookieAuth';
 
 export interface User {
   id: string;
@@ -72,6 +73,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  // تحديث حالة المصادقة من الكوكيز مباشرة
+  const loadUserFromCookies = useCallback(() => {
+    console.log('🍪 محاولة قراءة المستخدم من الكوكيز...');
+    
+    const { user, token } = getUserFromCookies();
+    
+    if (user && token) {
+      console.log('✅ تم العثور على مستخدم في الكوكيز:', user.email);
+      
+      // تحديث التوكن في الذاكرة
+      setAccessTokenInMemory(token);
+      
+      // تحديث حالة المصادقة
+      updateAuthState(user);
+      
+      return user;
+    } else {
+      console.log('❌ لم يتم العثور على مستخدم صالح في الكوكيز');
+      
+      // محاولة أخيرة: استخدام authClient للتحقق من التوكن
+      if (validateTokenFromCookies()) {
+        console.log('🔄 تم العثور على توكن صالح في authClient، سنحاول تحميل المستخدم من API');
+        return 'token-found'; // إشارة لتحميل من API
+      }
+      
+      return null;
+    }
+  }, [updateAuthState]);
+
   // تحميل بيانات المستخدم مع حماية من Race Conditions وRate Limiting
   const loadUser = useCallback(async (force = false) => {
     const now = Date.now();
@@ -107,6 +137,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       console.log(`🔍 بدء تحميل بيانات المستخدم (${retryCountRef.current + 1}/${MAX_RETRIES})...`);
+      
+      // أولاً: محاولة قراءة من الكوكيز إذا لم نكن نجبر إعادة التحميل
+      if (!force) {
+        const cookieResult = loadUserFromCookies();
+        if (cookieResult && cookieResult !== 'token-found') {
+          loadingRef.current = false;
+          return;
+        }
+        
+        // إذا وُجد توكن في الكوكيز لكن بدون معلومات مستخدم، استمر للـ API
+        if (cookieResult === 'token-found') {
+          console.log('🔄 توكن موجود، تحميل معلومات المستخدم من API...');
+        }
+      }
       
       // عيّن حالة التحميل فقط عند عدم وجود مستخدم أو عند الإجبار
       if ((!authState.user || force) && mountedRef.current) {
@@ -207,15 +251,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         loadingRef.current = false;
       }
     }
-  }, [updateAuthState, authState.user]);
+  }, [updateAuthState, authState.user, loadUserFromCookies]);
 
   // تسجيل الدخول
   const login = useCallback(async (tokenOrUser: string | User) => {
     console.log('🔐 عملية تسجيل الدخول...');
     
     if (typeof tokenOrUser === 'string') {
-      // إذا كان token، قم بتحميل بيانات المستخدم
-      await loadUser(true);
+      // إذا كان token، حفظه في الذاكرة وحاول قراءة المستخدم من الكوكيز أولاً
+      setAccessTokenInMemory(tokenOrUser);
+      
+      // محاولة قراءة من الكوكيز أولاً
+      const cookieResult = loadUserFromCookies();
+      
+      if (!cookieResult || cookieResult === 'token-found') {
+        // إذا فشل قراءة الكوكيز أو وُجد توكن بدون معلومات مستخدم، حمل من API
+        await loadUser(true);
+      }
       
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('auth-change', { 
@@ -232,7 +284,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }));
       }
     }
-  }, [updateAuthState, loadUser]);
+  }, [updateAuthState, loadUser, loadUserFromCookies]);
 
   // تسجيل الخروج
   const logout = useCallback(async () => {
@@ -247,6 +299,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     // تنظيف الحالة المحلية
     updateAuthState(null);
+    
+    // تنظيف كوكيز المصادقة
+    clearAuthCookies();
     
     if (typeof window !== 'undefined') {
       // تنظيف localStorage و sessionStorage
@@ -266,6 +321,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     mountedRef.current = true;
     
+    // أولاً: محاولة قراءة من الكوكيز فوراً (بدون تأخير)
+    if (hasAuthCookie()) {
+      console.log('🚀 تحميل فوري من الكوكيز...');
+      loadUserFromCookies();
+    }
+    
     const timer = setTimeout(() => {
       if (mountedRef.current) {
         console.log('🚀 تحميل أولي لبيانات المستخدم...');
@@ -277,7 +338,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       mountedRef.current = false;
       clearTimeout(timer);
     };
-  }, []);
+  }, [loadUserFromCookies]); // إضافة dependency
 
   // الاستماع لتغييرات الجلسة من تبويبات أخرى مع Debounce
   useEffect(() => {

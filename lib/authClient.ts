@@ -21,22 +21,25 @@ function getCookieFromDocument(name: string): string | null {
   
   // قائمة أولوية للأسماء المختلفة (محدّثة للنظام الجديد)
   const priorityNames: Record<string, string[]> = {
-    // للتطوير أولاً، ثم الإنتاج
+    // للتطوير أولاً، ثم الإنتاج - تطابق cookieAuth.ts
     'access_token': [
-      'sabq-access-token',         // النظام الجديد - التطوير
       '__Host-sabq-access-token',  // النظام الجديد - الإنتاج
+      'sabq-access-token',         // النظام الجديد - التطوير
+      'auth-token',                // النظام الحالي المستخدم
       'sabq_at',                   // النظام الموحد القديم
-      'access_token'               // عام
+      'access_token',              // عام
+      'token',                     // عام
+      'jwt'                        // عام
     ],
     'refresh_token': [
-      'sabq-refresh-token',        // النظام الجديد
       '__Host-sabq-refresh-token', // النظام الجديد - الإنتاج
+      'sabq-refresh-token',        // النظام الجديد - التطوير
       'sabq_rft',                  // النظام الموحد القديم
       'sabq_rt'                    // Legacy
     ],
     'user_session': [
-      'sabq-user-session',         // التطوير
       '__Host-sabq-user-session',  // الإنتاج  
+      'sabq-user-session',         // التطوير
       'user'                       // القديم
     ]
   };
@@ -70,11 +73,12 @@ function getCookieFromDocument(name: string): string | null {
   
   // ثالثاً، Fallback للأسماء البديلة العامة (محدّث للنظام الجديد)
   const generalFallbacks: Record<string, string[]> = {
-    '__Host-sabq-access-token': ['sabq-access-token', 'sabq_at'],
-    'sabq-access-token': ['__Host-sabq-access-token', 'sabq_at'],
-    'sabq-refresh-token': ['__Host-sabq-refresh-token', 'sabq_rft', 'sabq_rt'],
+    '__Host-sabq-access-token': ['sabq-access-token', 'auth-token', 'sabq_at'],
+    'sabq-access-token': ['__Host-sabq-access-token', 'auth-token', 'sabq_at'],
+    'auth-token': ['__Host-sabq-access-token', 'sabq-access-token', 'sabq_at'],
     '__Host-sabq-refresh-token': ['sabq-refresh-token', 'sabq_rft', 'sabq_rt'],
-    'sabq_rft': ['sabq-refresh-token', '__Host-sabq-refresh-token', 'sabq_rt'],
+    'sabq-refresh-token': ['__Host-sabq-refresh-token', 'sabq_rft', 'sabq_rt'],
+    'sabq_rft': ['__Host-sabq-refresh-token', 'sabq-refresh-token', 'sabq_rt'],
     '__Host-sabq-user-session': ['sabq-user-session', 'user'],
     'sabq-user-session': ['__Host-sabq-user-session', 'user'],
   };
@@ -374,4 +378,46 @@ export function resetRefreshState(): void {
 export function loginWithToken(token: string): void {
   setAccessTokenInMemory(token);
   console.log('✅ تم تسجيل الدخول بالتوكن الجديد');
+}
+
+/**
+ * قراءة التوكن من الكوكيز وحفظه في الذاكرة
+ */
+export function loadTokenFromCookies(): string | null {
+  const token = getCookieFromDocument('access_token');
+  if (token) {
+    console.log('🍪 [authClient] تم تحميل التوكن من الكوكيز');
+    setAccessTokenInMemory(token);
+    return token;
+  }
+  return null;
+}
+
+/**
+ * فحص صحة التوكن المحفوظ في الكوكيز
+ */
+export function validateTokenFromCookies(): boolean {
+  const token = getCookieFromDocument('access_token');
+  if (!token) return false;
+  
+  if (isTokenExpired(token)) {
+    console.log('⚠️ [authClient] التوكن في الكوكيز منتهي الصلاحية');
+    return false;
+  }
+  
+  // حفظ في الذاكرة إذا كان صالح
+  setAccessTokenInMemory(token);
+  return true;
+}
+
+// تحميل التوكن من الكوكيز عند بدء تشغيل المودول (إذا كان في المتصفح)
+if (typeof window !== 'undefined') {
+  // تأخير صغير للتأكد من تحميل document بالكامل
+  setTimeout(() => {
+    const token = getCookieFromDocument('access_token');
+    if (token && !isTokenExpired(token)) {
+      accessTokenInMemory = token;
+      console.log('🚀 [authClient] تم تحميل التوكن من الكوكيز عند البداية');
+    }
+  }, 100);
 }
