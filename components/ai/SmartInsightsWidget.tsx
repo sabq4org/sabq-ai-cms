@@ -180,8 +180,8 @@ export default function SmartInsightsWidget({ variant = 'default', className = '
     return (
       <div className={`max-w-6xl mx-auto ${isCompact ? 'mb-6' : 'mb-8'} ${className}`} aria-busy="true" aria-live="polite">
         <div
-          className={`relative overflow-hidden border rounded-xl border-[#f0f0ef] dark:border-gray-700 ${isCompact ? 'p-3' : 'p-5'} h-full flex flex-col transition-colors hover:border-[hsl(var(--accent))]`}
-          style={{ background: darkMode ? 'hsl(var(--bg-elevated))' : (accentActive ? 'hsl(var(--accent) / 0.06)' : '#ffffff') }}
+          className={`relative overflow-hidden border rounded-xl border-[#f0f0ef] dark:border-gray-700 ${isCompact ? 'p-3' : 'p-5'} h-full flex flex-col transition-colors hover:border-gray-300 dark:hover:border-gray-600`}
+          style={{ background: darkMode ? 'hsl(var(--bg-elevated))' : '#ffffff' }}
         >
           <div className="animate-pulse space-y-4 flex-1">
             <div className="space-y-2">
@@ -224,8 +224,8 @@ export default function SmartInsightsWidget({ variant = 'default', className = '
     return (
       <div className={`max-w-6xl mx-auto ${isCompact ? 'mb-6' : 'mb-8'} ${className}`}>
         <div
-          className={`relative overflow-hidden border rounded-xl border-[#f0f0ef] dark:border-gray-700 ${isCompact ? 'p-3' : 'p-5'} h-full flex flex-col items-center justify-center text-center transition-colors hover:border-[hsl(var(--accent))]`}
-          style={{ background: darkMode ? 'hsl(var(--bg-elevated))' : (accentActive ? 'hsl(var(--accent) / 0.06)' : '#ffffff') }}
+          className={`relative overflow-hidden border rounded-xl border-[#f0f0ef] dark:border-gray-700 ${isCompact ? 'p-3' : 'p-5'} h-full flex flex-col items-center justify-center text-center transition-colors hover:border-gray-300 dark:hover:border-gray-600`}
+          style={{ background: darkMode ? 'hsl(var(--bg-elevated))' : '#ffffff' }}
         >
           <div className="space-y-4">
             <div className={`${isCompact ? 'text-4xl' : 'text-5xl'} animate-bounce`}>🤖</div>

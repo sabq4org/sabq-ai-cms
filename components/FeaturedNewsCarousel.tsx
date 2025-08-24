@@ -186,14 +186,11 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
     >
       <Link href={getArticleLink(currentArticle)} className="group block" aria-live="polite">
         <div
-          className={`relative overflow-hidden border rounded-xl border-[#f0f0ef] dark:border-gray-700 transition-colors hover:border-[hsl(var(--accent))]`}
+          className={`relative overflow-hidden border rounded-xl border-[#f0f0ef] dark:border-gray-700 transition-colors hover:border-gray-300 dark:hover:border-gray-600`}
           style={{
             background: isBreaking
               ? (darkMode ? 'hsla(0, 72%, 45%, 0.18)' : 'hsla(0, 84%, 60%, 0.12)')
-              : (darkMode 
-                  ? 'hsl(var(--bg-elevated))' 
-                  : (accentActive ? 'hsl(var(--accent) / 0.06)' : '#ffffff')
-                )
+              : (darkMode ? 'hsl(var(--bg-elevated))' : '#ffffff')
           }}
         >
           <div
@@ -289,9 +286,9 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                       <span
                         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium border"
                         style={{
-                          background: darkMode ? 'hsl(var(--accent) / 0.18)' : 'hsl(var(--accent) / 0.12)',
-                          color: 'hsl(var(--accent))',
-                          borderColor: 'hsl(var(--accent) / 0.25)'
+                          background: darkMode ? 'rgba(148,163,184,0.15)' : 'rgba(148,163,184,0.15)',
+                          color: darkMode ? '#e5e7eb' : '#334155',
+                          borderColor: darkMode ? 'rgba(148,163,184,0.35)' : 'rgba(148,163,184,0.35)'
                         }}
                       >
                         <span className="text-sm">{currentArticle.category?.icon || '📰'}</span>
@@ -407,7 +404,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                   className={`absolute inset-0 transition-opacity duration-300 ${
                     idx === currentIndex ? "" : "bg-black/40 hover:bg-black/25"
                   }`}
-                  style={{ background: idx === currentIndex && accentActive ? 'hsl(var(--accent) / 0.15)' : undefined }}
+                  style={{ background: undefined }}
                 ></div>
                 {/* مؤشر النشاط */}
                 {idx === currentIndex && (
