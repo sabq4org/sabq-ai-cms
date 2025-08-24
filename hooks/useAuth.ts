@@ -50,7 +50,34 @@ export function useAuth() {
   // تحميل بيانات المستخدم
   const loadUser = useCallback(async () => {
     try {
-      // محاولة جلب بيانات المستخدم من localStorage أولاً
+      // محاولة التحقق من المصادقة عبر API أولاً
+      try {
+        const response = await fetch('/api/auth/me', {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.user) {
+            updateAuthState(data.user);
+            // مزامنة مع localStorage
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('user', JSON.stringify(data.user));
+              localStorage.setItem('user_id', data.user.id);
+            }
+            return;
+          }
+        }
+      } catch (apiError) {
+        // في حالة فشل API، استخدم fallback
+        console.log('API غير متاح، استخدام البيانات المحلية');
+      }
+
+      // محاولة جلب بيانات المستخدم من localStorage كـ fallback
       if (typeof window !== 'undefined') {
         const storedUser = localStorage.getItem('user');
         const storedUserId = localStorage.getItem('user_id');

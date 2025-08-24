@@ -5,8 +5,10 @@ import { useAuth } from '@/hooks/useAuth';
 export default function WelcomeMetaStrip() {
   const { user } = useAuth();
   const [now, setNow] = React.useState<Date>(() => new Date());
+  const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
+    setMounted(true);
     const id = setInterval(() => setNow(new Date()), 60000);
     return () => clearInterval(id);
   }, []);
@@ -53,8 +55,8 @@ export default function WelcomeMetaStrip() {
               </span>
             </div>
           )}
-          <span style={{ fontSize: 'clamp(11px, 2.2vw, 12px)' }}>
-            {formatDate(now)}
+          <span style={{ fontSize: 'clamp(11px, 2.2vw, 12px)' }} suppressHydrationWarning>
+            {mounted ? formatDate(now) : 'التاريخ'}
           </span>
         </div>
       </div>
