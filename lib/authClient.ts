@@ -19,24 +19,25 @@ let refreshAttempts = 0;
 function getCookieFromDocument(name: string): string | null {
   if (typeof document === 'undefined') return null;
   
-  // قائمة أولوية للأسماء المختلفة
+  // قائمة أولوية للأسماء المختلفة (محدّثة للنظام الجديد)
   const priorityNames: Record<string, string[]> = {
     // للتطوير أولاً، ثم الإنتاج
     'access_token': [
-      'sabq-access-token',      // التطوير
-      '__Host-sabq-access-token', // الإنتاج
-      'sabq_at',                // القديم
-      'access_token'            // عام
+      'sabq-access-token',         // النظام الجديد - التطوير
+      '__Host-sabq-access-token',  // النظام الجديد - الإنتاج
+      'sabq_at',                   // النظام الموحد القديم
+      'access_token'               // عام
     ],
     'refresh_token': [
-      'sabq_rft',               // موحد
-      '__Host-sabq-refresh',    // الإنتاج
-      'sabq_rt'                 // القديم
+      'sabq-refresh-token',        // النظام الجديد
+      '__Host-sabq-refresh-token', // النظام الجديد - الإنتاج
+      'sabq_rft',                  // النظام الموحد القديم
+      'sabq_rt'                    // Legacy
     ],
     'user_session': [
-      'sabq-user-session',      // التطوير
-      '__Host-sabq-user-session', // الإنتاج  
-      'user'                    // القديم
+      'sabq-user-session',         // التطوير
+      '__Host-sabq-user-session',  // الإنتاج  
+      'user'                       // القديم
     ]
   };
   
@@ -67,11 +68,13 @@ function getCookieFromDocument(name: string): string | null {
     }
   }
   
-  // ثالثاً، Fallback للأسماء البديلة العامة
+  // ثالثاً، Fallback للأسماء البديلة العامة (محدّث للنظام الجديد)
   const generalFallbacks: Record<string, string[]> = {
     '__Host-sabq-access-token': ['sabq-access-token', 'sabq_at'],
     'sabq-access-token': ['__Host-sabq-access-token', 'sabq_at'],
-    'sabq_rft': ['__Host-sabq-refresh', 'sabq_rt'],
+    'sabq-refresh-token': ['__Host-sabq-refresh-token', 'sabq_rft', 'sabq_rt'],
+    '__Host-sabq-refresh-token': ['sabq-refresh-token', 'sabq_rft', 'sabq_rt'],
+    'sabq_rft': ['sabq-refresh-token', '__Host-sabq-refresh-token', 'sabq_rt'],
     '__Host-sabq-user-session': ['sabq-user-session', 'user'],
     'sabq-user-session': ['__Host-sabq-user-session', 'user'],
   };
@@ -255,7 +258,7 @@ async function performTokenRefreshInternal(): Promise<string> {
         if (typeof document !== 'undefined') {
           const cookies = document.cookie;
           console.log('🍪 [authClient] الكوكيز في المتصفح بعد الفشل:');
-          ['sabq_rft', '__Host-sabq-refresh', '__Host-sabq-access-token', 'sabq-csrf-token'].forEach(name => {
+          ['sabq-refresh-token', 'sabq_rft', '__Host-sabq-refresh-token', '__Host-sabq-access-token', 'sabq-csrf-token'].forEach(name => {
             const exists = cookies.includes(name);
             console.log(`  ${exists ? '✅' : '❌'} ${name}`);
           });

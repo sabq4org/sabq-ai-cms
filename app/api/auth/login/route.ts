@@ -3,9 +3,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { UserManagementService, UserLoginSchema, SecurityManager } from '@/lib/auth/user-management';
 import { authRateLimit } from '@/lib/rate-limiter';
 import { 
-  setSmartAuthCookies, 
-  clearSmartAuthCookies 
-} from '@/lib/smart-cookie-helper';
+  setAuthCookies, 
+  generateCSRFToken 
+} from '@/lib/setAuthCookies';
 import { setCORSHeaders, setNoCache } from '@/lib/auth-cookies-unified';
 
 export async function POST(request: NextRequest) {
@@ -110,31 +110,27 @@ export async function POST(request: NextRequest) {
         { status: 200 }
       );
 
-      // تعيين الكوكيز الذكية الآمنة (يحل مشكلة Domain mismatch)
+      // تعيين الكوكيز الديناميكية الآمنة (يحل مشكلة Domain mismatch)
       if (result.access_token && result.refresh_token) {
-        setSmartAuthCookies(
+        const csrfToken = generateCSRFToken();
+        const cookieStrings = setAuthCookies(
           request,
-          response, 
           {
-            access: result.access_token,
-            refresh: result.refresh_token,
-            session: JSON.stringify({
-              id: result.user?.id,
-              email: result.user?.email,
-              name: result.user?.name,
-              role: result.user?.role,
-              isAdmin: result.user?.is_admin,
-              timestamp: Date.now()
-            }),
-            csrf: crypto.randomUUID().replace(/-/g, '')
+            accessToken: result.access_token,
+            refreshToken: result.refresh_token,
+            csrfToken
           },
           {
-            rememberMe: validationResult.data.remember_me || false,
-            userInfo: result.user
+            rememberMe: validationResult.data.remember_me || false
           }
         );
         
-        console.log('🍪 تم تعيين كوكيز المصادقة الذكية (حل مشكلة Domain)');
+        // إضافة الكوكيز إلى الاستجابة
+        cookieStrings.forEach(cookie => {
+          response.headers.append('Set-Cookie', cookie);
+        });
+        
+        console.log('🍪 تم تعيين كوكيز المصادقة الديناميكية (حل مشكلة Domain)');
       }
 
       // تعيين رؤوس CORS وعدم التخزين المؤقت

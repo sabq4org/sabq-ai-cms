@@ -96,8 +96,13 @@ http.interceptors.response.use(
         const cookiesDebug = typeof document !== 'undefined' ? document.cookie : 'undefined';
         console.log('  - جميع الكوكيز:', cookiesDebug);
         
-        // البحث عن كوكيز التجديد مع أولوية ذكية
-        const refreshCookieNames = ['sabq_rft', '__Host-sabq-refresh', 'sabq_rt'];
+        // البحث عن كوكيز التجديد مع أولوية ذكية (محدّث للنظام الجديد)
+        const refreshCookieNames = [
+          'sabq-refresh-token',    // النظام الجديد المحسّن
+          '__Host-sabq-refresh',   // احتياطي للإنتاج
+          'sabq_rft',              // النظام الموحد القديم
+          'sabq_rt'                // النظام القديم
+        ];
         let refreshCookie = null;
         for (const name of refreshCookieNames) {
           refreshCookie = getCookieValue(name);

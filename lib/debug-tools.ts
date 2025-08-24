@@ -298,8 +298,17 @@ export function resetEverything(): void {
     ];
     
     cookiesToDelete.forEach(name => {
-      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.sabq.me;`;
+      // مسح ديناميكي بدون hardcoded domain
+      const hostname = window.location.hostname;
+      
+      // مسح مع host فقط
       document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+      
+      // مسح مع root domain إذا كان معقول
+      if (hostname.includes('.sabq.io') || hostname.includes('.sabq.me')) {
+        const rootDomain = hostname.includes('.sabq.io') ? '.sabq.io' : '.sabq.me';
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${rootDomain};`;
+      }
     });
     
     // إطلاق حدث إعادة التعيين
