@@ -7,10 +7,39 @@ import {
   Sparkles,
 } from "lucide-react";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import SabqLogo from "./SabqLogo";
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
 
 export default function Footer() {
+  const { darkMode } = useDarkModeContext();
+  const [currentThemeColor, setCurrentThemeColor] = useState<string | null>(null);
+
+  // تتبع تغيير اللون من نظام الألوان المتغيرة
+  useEffect(() => {
+    const updateThemeColor = () => {
+      const root = document.documentElement;
+      const themeColor = root.style.getPropertyValue('--theme-primary');
+      const accentColor = root.style.getPropertyValue('--accent');
+      
+      if (themeColor) {
+        setCurrentThemeColor(themeColor);
+      } else if (accentColor) {
+        // تحويل HSL إلى hex إذا كان متوفراً
+        const hslMatch = accentColor.match(/(\d+)\s+(\d+)%\s+(\d+)%/);
+        if (hslMatch) {
+          const [_, h, s, l] = hslMatch;
+          setCurrentThemeColor(`hsl(${h}, ${s}%, ${l}%)`);
+        }
+      } else {
+        setCurrentThemeColor(null);
+      }
+    };
+
+    updateThemeColor();
+    window.addEventListener('theme-color-change', updateThemeColor);
+    return () => window.removeEventListener('theme-color-change', updateThemeColor);
+  }, []);
   const footerSections = [
     {
       title: "أقسام سبق",
@@ -69,7 +98,17 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="border-t bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800">
+    <footer 
+      className="border-t"
+      style={{
+        backgroundColor: currentThemeColor 
+          ? `${currentThemeColor}08` 
+          : (darkMode ? 'rgb(17, 24, 39)' : 'rgb(249, 250, 251)'),
+        borderColor: currentThemeColor 
+          ? `${currentThemeColor}20` 
+          : (darkMode ? 'rgb(31, 41, 55)' : 'rgb(229, 231, 235)')
+      }}
+    >
       {/* Desktop Footer */}
       <div className="hidden lg:block" style={{ maxWidth: '1400px', margin: '0 auto', padding: '48px 16px' }}>
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
@@ -114,7 +153,18 @@ export default function Footer() {
                   <li key={link.url}>
                     <Link
                       href={link.url}
-                      className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                      className="transition-colors"
+                      style={{
+                        ':hover': {
+                          color: currentThemeColor || '#3b82f6'
+                        }
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.color = currentThemeColor || '#3b82f6';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.color = '';
+                      }}
                     >
                       {link.label}
                     </Link>
@@ -126,7 +176,14 @@ export default function Footer() {
         </div>
         
         {/* حقوق النشر */}
-        <div className="mt-16 border-t border-gray-200 dark:border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-500 dark:text-gray-400">
+        <div 
+          className="mt-16 border-t pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-500 dark:text-gray-400"
+          style={{
+            borderColor: currentThemeColor 
+              ? `${currentThemeColor}20` 
+              : (darkMode ? 'rgb(31, 41, 55)' : 'rgb(229, 231, 235)')
+          }}
+        >
           <p>&copy; {new Date().getFullYear()} صحيفة سبق. جميع الحقوق محفوظة.</p>
           <p>🤖 مدعوم بالذكاء… مصنوع بالحب في 🇸🇦</p>
         </div>
@@ -154,7 +211,14 @@ export default function Footer() {
             <div className="space-y-2">
               {footerSections.map((section) => (
                 <details key={section.title} className="group">
-                  <summary className="flex items-center justify-between p-3 bg-gray-100 dark:bg-gray-800 rounded-lg cursor-pointer">
+                  <summary 
+                    className="flex items-center justify-between p-3 rounded-lg cursor-pointer"
+                    style={{
+                      backgroundColor: currentThemeColor 
+                        ? `${currentThemeColor}10` 
+                        : (darkMode ? 'rgb(31, 41, 55)' : 'rgb(243, 244, 246)')
+                    }}
+                  >
                     <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
                       {section.title}
                     </span>
@@ -165,7 +229,13 @@ export default function Footer() {
                       <Link
                         key={link.url}
                         href={link.url}
-                        className="text-xs text-gray-600 dark:text-gray-400 hover:text-blue-600 py-1"
+                        className="text-xs text-gray-600 dark:text-gray-400 py-1 transition-colors"
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.color = currentThemeColor || '#3b82f6';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.color = '';
+                        }}
                       >
                         {link.label}
                       </Link>
@@ -210,7 +280,14 @@ export default function Footer() {
           </div>
 
           {/* حقوق النشر */}
-          <div className="text-center pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div 
+            className="text-center pt-4 border-t"
+            style={{
+              borderColor: currentThemeColor 
+                ? `${currentThemeColor}20` 
+                : (darkMode ? 'rgb(31, 41, 55)' : 'rgb(229, 231, 235)')
+            }}
+          >
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
               © {new Date().getFullYear()} صحيفة سبق. جميع الحقوق محفوظة
             </p>

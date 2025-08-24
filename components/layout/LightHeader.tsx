@@ -231,7 +231,18 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
   return (
     <>
       {/* الهيدر الرئيسي */}
-      <header className={`sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-700 bg-gray-200/95 dark:bg-gray-900/85 backdrop-blur supports-[backdrop-filter]:bg-gray-200/70 dark:supports-[backdrop-filter]:bg-gray-900/60 ${className}`}>
+      <header 
+        className={`sticky top-0 z-50 w-full border-b backdrop-blur ${className}`}
+        style={{
+          backgroundColor: currentTheme.isDefault 
+            ? (darkMode ? 'rgba(17, 24, 39, 0.85)' : 'rgba(229, 231, 235, 0.95)') 
+            : `${currentTheme.color}15`,
+          borderColor: currentTheme.isDefault 
+            ? (darkMode ? 'rgb(55, 65, 81)' : 'rgb(229, 231, 235)') 
+            : `${currentTheme.color}30`,
+          backdropFilter: 'blur(8px)'
+        }}
+      >
         <div className="container flex h-14 items-center justify-between px-4 sm:px-6">
           {/* الجانب الأيمن: زر القائمة + اللوجو */}
           <div className="flex items-center gap-0">
@@ -340,7 +351,15 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
           />
 
           {/* القائمة */}
-          <div className="fixed right-0 top-0 h-full w-80 bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 z-50 transform transition-transform shadow-2xl">
+          <div 
+            className="fixed right-0 top-0 h-full w-80 border-l z-50 transform transition-transform shadow-2xl"
+            style={{
+              backgroundColor: darkMode ? 'rgb(17, 24, 39)' : 'white',
+              borderColor: currentTheme.isDefault 
+                ? (darkMode ? 'rgb(55, 65, 81)' : 'rgb(229, 231, 235)') 
+                : `${currentTheme.color}30`
+            }}
+          >
             <div className="p-6 h-full flex flex-col">
               {/* رأس القائمة */}
               <div className="flex items-center justify-between mb-8">
