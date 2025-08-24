@@ -8,7 +8,8 @@
 import React, { useState } from 'react';
 import UnifiedLayout from '@/components/layout/UnifiedLayout';
 import UnifiedCommentSystem from '@/components/comments/UnifiedCommentSystem';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { UnifiedAuthProvider } from '@/contexts/UnifiedAuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { 
   User, 
   Shield, 
@@ -21,8 +22,9 @@ import {
   AlertTriangle
 } from 'lucide-react';
 
-export default function TestUnifiedAuthPage() {
-  const { user, loading, isAuthenticated, isAdmin, refreshUser, logout } = useUnifiedAuth();
+function TestUnifiedAuthContent() {
+  const { user, loading, isLoggedIn: isAuthenticated, refreshUser, logout } = useAuth();
+  const isAdmin = user?.is_admin || user?.role === 'admin' || user?.role === 'super_admin';
   const [testResults, setTestResults] = useState<any[]>([]);
 
   const runAuthTests = async () => {
@@ -326,5 +328,13 @@ export default function TestUnifiedAuthPage() {
 
       </div>
     </UnifiedLayout>
+  );
+}
+
+export default function TestUnifiedAuthPage() {
+  return (
+    <UnifiedAuthProvider>
+      <TestUnifiedAuthContent />
+    </UnifiedAuthProvider>
   );
 }
