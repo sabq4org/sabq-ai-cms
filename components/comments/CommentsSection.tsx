@@ -68,6 +68,32 @@ export default function CommentsSection({ articleId, allowComments }: CommentsSe
   const [hasMore, setHasMore] = useState(false);
   const [totalComments, setTotalComments] = useState(0);
   const [commentsEnabled, setCommentsEnabled] = useState(true);
+  const [currentThemeColor, setCurrentThemeColor] = useState<string | null>(null);
+
+  // تتبع نظام الألوان المتغيرة
+  useEffect(() => {
+    const updateThemeColor = () => {
+      const root = document.documentElement;
+      const themeColor = root.style.getPropertyValue('--theme-primary');
+      const accentColor = root.style.getPropertyValue('--accent');
+      
+      if (themeColor) {
+        setCurrentThemeColor(themeColor);
+      } else if (accentColor) {
+        const hslMatch = accentColor.match(/(\d+)\s+(\d+)%\s+(\d+)%/);
+        if (hslMatch) {
+          const [_, h, s, l] = hslMatch;
+          setCurrentThemeColor(`hsl(${h}, ${s}%, ${l}%)`);
+        }
+      } else {
+        setCurrentThemeColor(null);
+      }
+    };
+
+    updateThemeColor();
+    window.addEventListener('theme-color-change', updateThemeColor);
+    return () => window.removeEventListener('theme-color-change', updateThemeColor);
+  }, []);
 
   useEffect(() => {
     // التحقق من حالة التعليقات من localStorage
@@ -314,11 +340,27 @@ ${data.aiAnalysis.reason ? `📝 السبب: ${data.aiAnalysis.reason}` : ''}
   }
 
   return (
-    <div className={`${darkMode ? 'bg-gray-800' : 'bg-gray-50'} rounded-xl p-6`}>
+    <div 
+      className={`rounded-xl p-6 transition-all duration-300`}
+      style={{
+        backgroundColor: currentThemeColor 
+          ? `${currentThemeColor}08` 
+          : (darkMode ? 'rgb(31, 41, 55)' : 'rgb(249, 250, 251)'),
+        borderWidth: '1px',
+        borderColor: currentThemeColor 
+          ? `${currentThemeColor}20` 
+          : (darkMode ? 'rgb(55, 65, 81)' : 'rgb(229, 231, 235)')
+      }}
+    >
       {/* رأس قسم التعليقات */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <MessageCircle className={`w-6 h-6 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+          <MessageCircle 
+            className="w-6 h-6 transition-colors"
+            style={{
+              color: currentThemeColor || (darkMode ? '#60a5fa' : '#2563eb')
+            }}
+          />
           <h2 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
             التعليقات ({totalComments})
           </h2>
@@ -328,21 +370,37 @@ ${data.aiAnalysis.reason ? `📝 السبب: ${data.aiAnalysis.reason}` : ''}
         <div className="flex items-center gap-2">
           <button
             onClick={() => setSortBy('latest')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              sortBy === 'latest'
-                ? darkMode ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white'
-                : darkMode ? 'bg-gray-700 text-gray-300' : 'bg-white text-gray-700'
-            }`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all`}
+            style={{
+              backgroundColor: sortBy === 'latest' 
+                ? (currentThemeColor || (darkMode ? '#2563eb' : '#3b82f6'))
+                : (darkMode ? 'rgb(55, 65, 81)' : 'rgb(255, 255, 255)'),
+              color: sortBy === 'latest' 
+                ? 'white' 
+                : (darkMode ? 'rgb(209, 213, 219)' : 'rgb(55, 65, 81)'),
+              borderWidth: '1px',
+              borderColor: sortBy === 'latest'
+                ? 'transparent'
+                : (darkMode ? 'rgb(75, 85, 99)' : 'rgb(229, 231, 235)')
+            }}
           >
             الأحدث
           </button>
           <button
             onClick={() => setSortBy('popular')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              sortBy === 'popular'
-                ? darkMode ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white'
-                : darkMode ? 'bg-gray-700 text-gray-300' : 'bg-white text-gray-700'
-            }`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all`}
+            style={{
+              backgroundColor: sortBy === 'popular' 
+                ? (currentThemeColor || (darkMode ? '#2563eb' : '#3b82f6'))
+                : (darkMode ? 'rgb(55, 65, 81)' : 'rgb(255, 255, 255)'),
+              color: sortBy === 'popular' 
+                ? 'white' 
+                : (darkMode ? 'rgb(209, 213, 219)' : 'rgb(55, 65, 81)'),
+              borderWidth: '1px',
+              borderColor: sortBy === 'popular'
+                ? 'transparent'
+                : (darkMode ? 'rgb(75, 85, 99)' : 'rgb(229, 231, 235)')
+            }}
           >
             الأكثر تفاعلاً
           </button>
@@ -352,14 +410,35 @@ ${data.aiAnalysis.reason ? `📝 السبب: ${data.aiAnalysis.reason}` : ''}
       {/* زر إضافة تعليق */}
       <button
         onClick={() => setShowCommentForm(!showCommentForm)}
-        className={`w-full mb-6 px-4 py-3 rounded-lg border-2 border-dashed transition-all ${
-          darkMode 
-            ? 'border-gray-600 hover:border-blue-500 hover:bg-gray-700' 
-            : 'border-gray-300 hover:border-blue-400 hover:bg-gray-100'
-        }`}
+        className={`w-full mb-6 px-4 py-3 rounded-lg border-2 border-dashed transition-all hover:scale-[1.01]`}
+        style={{
+          borderColor: currentThemeColor 
+            ? `${currentThemeColor}40` 
+            : (darkMode ? 'rgb(75, 85, 99)' : 'rgb(209, 213, 219)'),
+          backgroundColor: showCommentForm 
+            ? (currentThemeColor ? `${currentThemeColor}10` : (darkMode ? 'rgb(55, 65, 81)' : 'rgb(243, 244, 246)'))
+            : 'transparent'
+        }}
+        onMouseEnter={(e) => {
+          if (currentThemeColor) {
+            e.currentTarget.style.borderColor = currentThemeColor;
+            e.currentTarget.style.backgroundColor = `${currentThemeColor}15`;
+          }
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = currentThemeColor 
+            ? `${currentThemeColor}40` 
+            : (darkMode ? 'rgb(75, 85, 99)' : 'rgb(209, 213, 219)');
+          e.currentTarget.style.backgroundColor = showCommentForm 
+            ? (currentThemeColor ? `${currentThemeColor}10` : (darkMode ? 'rgb(55, 65, 81)' : 'rgb(243, 244, 246)'))
+            : 'transparent';
+        }}
       >
         <div className="flex items-center justify-center gap-2">
-          <Send className="w-5 h-5" />
+          <Send 
+            className="w-5 h-5 transition-colors" 
+            style={{ color: currentThemeColor || (darkMode ? '#93c5fd' : '#3b82f6') }}
+          />
           <span className={darkMode ? 'text-gray-300' : 'text-gray-700'}>
             أضف تعليقك
           </span>
@@ -407,15 +486,38 @@ ${data.aiAnalysis.reason ? `📝 السبب: ${data.aiAnalysis.reason}` : ''}
               <button
                 onClick={() => setPage(prev => prev + 1)}
                 disabled={loading}
-                className={`px-6 py-3 rounded-lg font-medium transition-all ${
-                  darkMode 
-                    ? 'bg-gray-700 text-white hover:bg-gray-600' 
-                    : 'bg-white text-gray-700 hover:bg-gray-100'
-                } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`px-6 py-3 rounded-lg font-medium transition-all ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}`}
+                style={{
+                  backgroundColor: currentThemeColor 
+                    ? `${currentThemeColor}15` 
+                    : (darkMode ? 'rgb(55, 65, 81)' : 'rgb(255, 255, 255)'),
+                  color: currentThemeColor || (darkMode ? '#f3f4f6' : '#374151'),
+                  borderWidth: '1px',
+                  borderColor: currentThemeColor 
+                    ? `${currentThemeColor}30` 
+                    : (darkMode ? 'rgb(75, 85, 99)' : 'rgb(229, 231, 235)')
+                }}
+                onMouseEnter={(e) => {
+                  if (!loading && currentThemeColor) {
+                    e.currentTarget.style.backgroundColor = `${currentThemeColor}25`;
+                    e.currentTarget.style.borderColor = currentThemeColor;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = currentThemeColor 
+                    ? `${currentThemeColor}15` 
+                    : (darkMode ? 'rgb(55, 65, 81)' : 'rgb(255, 255, 255)');
+                  e.currentTarget.style.borderColor = currentThemeColor 
+                    ? `${currentThemeColor}30` 
+                    : (darkMode ? 'rgb(75, 85, 99)' : 'rgb(229, 231, 235)');
+                }}
               >
                 {loading ? (
                   <span className="flex items-center gap-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                    <div 
+                      className="animate-spin rounded-full h-4 w-4 border-b-2"
+                      style={{ borderColor: currentThemeColor || 'currentColor' }}
+                    ></div>
                     جاري التحميل...
                   </span>
                 ) : (

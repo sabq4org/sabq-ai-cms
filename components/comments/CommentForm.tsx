@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Send, X } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
@@ -23,6 +23,32 @@ export default function CommentForm({
   const { darkMode } = useDarkModeContext();
   const [content, setContent] = useState(initialValue);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentThemeColor, setCurrentThemeColor] = useState<string | null>(null);
+
+  // تتبع نظام الألوان المتغيرة
+  useEffect(() => {
+    const updateThemeColor = () => {
+      const root = document.documentElement;
+      const themeColor = root.style.getPropertyValue('--theme-primary');
+      const accentColor = root.style.getPropertyValue('--accent');
+      
+      if (themeColor) {
+        setCurrentThemeColor(themeColor);
+      } else if (accentColor) {
+        const hslMatch = accentColor.match(/(\d+)\s+(\d+)%\s+(\d+)%/);
+        if (hslMatch) {
+          const [_, h, s, l] = hslMatch;
+          setCurrentThemeColor(`hsl(${h}, ${s}%, ${l}%)`);
+        }
+      } else {
+        setCurrentThemeColor(null);
+      }
+    };
+
+    updateThemeColor();
+    window.addEventListener('theme-color-change', updateThemeColor);
+    return () => window.removeEventListener('theme-color-change', updateThemeColor);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,11 +88,29 @@ export default function CommentForm({
           onChange={(e) => setContent(e.target.value)}
           placeholder={placeholder}
           disabled={isSubmitting}
-          className={`w-full p-4 rounded-lg border resize-none transition-all ${
+          className={`w-full p-4 rounded-lg border resize-none transition-all focus:outline-none ${
             darkMode 
-              ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500' 
-              : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-400'
-          } focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
+              ? 'bg-gray-700 text-white placeholder-gray-400' 
+              : 'bg-white text-gray-900 placeholder-gray-500'
+          }`}
+          style={{
+            borderColor: currentThemeColor 
+              ? `${currentThemeColor}40` 
+              : (darkMode ? 'rgb(75, 85, 99)' : 'rgb(209, 213, 219)'),
+            boxShadow: `0 0 0 0px ${currentThemeColor || 'transparent'}`
+          }}
+          onFocus={(e) => {
+            if (currentThemeColor) {
+              e.currentTarget.style.borderColor = currentThemeColor;
+              e.currentTarget.style.boxShadow = `0 0 0 3px ${currentThemeColor}20`;
+            }
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.borderColor = currentThemeColor 
+              ? `${currentThemeColor}40` 
+              : (darkMode ? 'rgb(75, 85, 99)' : 'rgb(209, 213, 219)');
+            e.currentTarget.style.boxShadow = `0 0 0 0px transparent`;
+          }}
           rows={4}
         />
         
@@ -87,9 +131,17 @@ export default function CommentForm({
           disabled={isSubmitting || !content.trim()}
           className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all flex items-center justify-center gap-2 ${
             isSubmitting || !content.trim()
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95'
+              ? 'cursor-not-allowed opacity-50'
+              : 'hover:scale-[1.02] active:scale-95'
           }`}
+          style={{
+            backgroundColor: (isSubmitting || !content.trim())
+              ? (darkMode ? 'rgb(75, 85, 99)' : 'rgb(209, 213, 219)')
+              : (currentThemeColor || '#3b82f6'),
+            color: (isSubmitting || !content.trim())
+              ? (darkMode ? 'rgb(156, 163, 175)' : 'rgb(107, 114, 128)')
+              : 'white'
+          }}
         >
           {isSubmitting ? (
             <>
