@@ -259,31 +259,25 @@ export function MediaPickerModal({
           lastModified: file.lastModified
         });
         
-        // Convert file to base64
-        const base64Data = await fileToBase64(file);
+        // إنشاء FormData بدلاً من تحويل إلى base64
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("altText", altText);
+        if (currentFolder?.id) {
+          formData.append("folderId", currentFolder.id);
+        }
         
-        const requestBody = {
-          file: {
-            name: file.name,
-            type: file.type,
-            size: file.size,
-            data: base64Data
-          },
-          folderId: currentFolder?.id || null,
-          altText: altText // إضافة النص البديل
-        };
-        
-        console.log("📤 Sending request with Content-Type: application/json");
-        console.log("📤 Request body size:", JSON.stringify(requestBody).length, "characters");
+        console.log("📤 Sending request with FormData (multipart/form-data)");
         
         const res = await fetch("/api/admin/media/upload", {
           method: "POST",
           headers: {
             ...getAuthHeaders(),
+            // لا نضع Content-Type عند استخدام FormData - المتصفح يضعه تلقائياً
             "Accept": "application/json"
           },
           credentials: 'include',
-          body: JSON.stringify(requestBody),
+          body: formData,
         });
 
         console.log("📡 Response status:", res.status, res.statusText);
