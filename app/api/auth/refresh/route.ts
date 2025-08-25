@@ -11,20 +11,49 @@ import {
 export async function POST(request: NextRequest) {
   try {
     console.log('🔄 بدء عملية تجديد التوكن...');
+    console.log('🔍 Headers:', {
+      origin: request.headers.get('origin'),
+      referer: request.headers.get('referer'),
+      userAgent: request.headers.get('user-agent')?.includes('Firefox') ? 'Firefox' : 'Other'
+    });
     
     // الحصول على refresh token من الكوكيز الموحدة
     const { refreshToken } = getUnifiedAuthTokens(request);
     
-    console.log('🔍 الكوكيز المتاحة:', request.cookies.getAll().map(c => ({ name: c.name, hasValue: !!c.value })));
+    console.log('🔍 الكوكيز المتاحة:', request.cookies.getAll().map(c => ({ 
+      name: c.name, 
+      hasValue: !!c.value
+    })));
     
-    if (!refreshToken) {
-      console.log('❌ لا يوجد refresh token');
+    // محاولة قراءة refresh token من مصادر إضافية للتوافقية
+    let finalRefreshToken = refreshToken;
+    if (!finalRefreshToken) {
+      // البحث في كوكيز legacy
+      const legacyTokens = ['sabq_rt', 'refresh_token', 'sabq-refresh-token'];
+      for (const cookieName of legacyTokens) {
+        const value = request.cookies.get(cookieName)?.value;
+        if (value) {
+          console.log(`🔄 وُجد refresh token في ${cookieName}`);
+          finalRefreshToken = value;
+          break;
+        }
+      }
+    }
+    
+    if (!finalRefreshToken) {
+      console.log('❌ لا يوجد refresh token في أي مصدر');
       
       const response = NextResponse.json(
         {
           success: false,
           error: 'رمز التجديد مطلوب',
-          code: 'NO_REFRESH_TOKEN'
+          code: 'NO_REFRESH_TOKEN',
+          debug: process.env.NODE_ENV === 'development' ? {
+            cookies: request.cookies.getAll().map(c => c.name),
+            headers: {
+              cookie: !!request.headers.get('cookie')
+            }
+          } : undefined
         },
         { status: 400 }
       );
@@ -38,7 +67,7 @@ export async function POST(request: NextRequest) {
 
     // تجديد الرمز
     console.log('🔑 محاولة تجديد التوكن...');
-    const result = await UserManagementService.refreshAccessToken(refreshToken);
+    const result = await UserManagementService.refreshAccessToken(finalRefreshToken);
 
     if (result.error || !result.access_token) {
       console.log('❌ فشل تجديد التوكن:', result.error);

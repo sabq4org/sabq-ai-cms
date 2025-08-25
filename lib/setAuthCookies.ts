@@ -5,6 +5,7 @@
 
 import { serialize } from 'cookie'
 import type { NextRequest } from 'next/server'
+import { isFirefox, debugCookieIssues } from './firefox-cookie-helper'
 
 const MAX_AGE = 60 * 60 * 24 * 7 // أسبوع واحد
 
@@ -41,7 +42,16 @@ function supportsHostCookies(req?: NextRequest): boolean {
   const protocol = req?.headers.get('x-forwarded-proto') || 
                    req?.url?.startsWith('https:') ? 'https' : 'http'
   
-  return protocol === 'https'
+  if (protocol !== 'https') return false
+  
+  // تجنب __Host- في Firefox لتفادي مشاكل التوافق
+  const userAgent = req?.headers.get('user-agent') || ''
+  if (isFirefox(userAgent)) {
+    console.log('🦊 Firefox detected - avoiding __Host- prefix for better compatibility')
+    return false
+  }
+  
+  return true
 }
 
 /**
@@ -69,6 +79,14 @@ export function setAuthCookies(
   console.log(`  - Root Domain: ${rootDomain || 'undefined (host-only)'}`)
   console.log(`  - __Host- Support: ${useHostCookies}`)
   console.log(`  - Max Age: ${maxAge} seconds`)
+  
+  // تشخيص مشاكل Firefox
+  if (req) {
+    const cookieDebug = debugCookieIssues(req)
+    if (cookieDebug.browser === 'Firefox' && cookieDebug.possibleIssues.length > 0) {
+      console.log('🦊 تحذيرات Firefox:', cookieDebug.possibleIssues)
+    }
+  }
   
   const cookies: string[] = []
   
