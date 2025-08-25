@@ -1,0 +1,179 @@
+{
+  "timestamp": "2025-08-25T11:12:19.106Z",
+  "environment": {
+    "CLOUDINARY_CLOUD_NAME": {
+      "exists": false,
+      "length": 0,
+      "firstChars": "N/A"
+    },
+    "CLOUDINARY_API_KEY": {
+      "exists": false,
+      "length": 0,
+      "firstChars": "N/A"
+    },
+    "CLOUDINARY_API_SECRET": {
+      "exists": false,
+      "length": 0,
+      "firstChars": "N/A"
+    },
+    "NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME": {
+      "exists": false,
+      "length": 0,
+      "firstChars": "N/A"
+    }
+  },
+  "directories": {
+    "uploadsDir": {
+      "exists": true,
+      "path": "/Users/alialhazmi/sabq-ai-cms/public/uploads"
+    },
+    "subDirectories": {
+      "general": {
+        "exists": true,
+        "path": "/Users/alialhazmi/sabq-ai-cms/public/uploads/general",
+        "permissions": "read-only"
+      },
+      "articles": {
+        "exists": true,
+        "path": "/Users/alialhazmi/sabq-ai-cms/public/uploads/articles",
+        "permissions": "read-only"
+      },
+      "featured": {
+        "exists": true,
+        "path": "/Users/alialhazmi/sabq-ai-cms/public/uploads/featured",
+        "permissions": "read-only"
+      },
+      "avatar": {
+        "exists": true,
+        "path": "/Users/alialhazmi/sabq-ai-cms/public/uploads/avatar",
+        "permissions": "read-only"
+      },
+      "authors": {
+        "exists": true,
+        "path": "/Users/alialhazmi/sabq-ai-cms/public/uploads/authors",
+        "permissions": "read-only"
+      }
+    }
+  },
+  "getTests": [
+    {
+      "endpoint": "/api/upload-image-safe",
+      "status": 200,
+      "success": true,
+      "data": {
+        "success": true,
+        "message": "upload-image-safe ok"
+      }
+    },
+    {
+      "endpoint": "/api/upload",
+      "status": 200,
+      "success": true,
+      "data": {
+        "success": true,
+        "message": "خدمة رفع الملفات تعمل بشكل طبيعي",
+        "supported_types": [
+          "image/jpeg",
+          "image/png",
+          "image/webp",
+          "image/gif"
+        ],
+        "max_size": "5MB",
+        "endpoints": {
+          "upload": "POST /api/upload",
+          "test": "GET /api/upload"
+        }
+      }
+    },
+    {
+      "endpoint": "/api/upload-image",
+      "status": 200,
+      "success": true,
+      "data": {
+        "success": true,
+        "message": "خدمة رفع الصور تعمل بشكل صحيح",
+        "version": "2.0",
+        "supportedTypes": [
+          "image/jpeg",
+          "image/png",
+          "image/webp",
+          "image/gif"
+        ],
+        "maxSize": "10MB"
+      }
+    }
+  ],
+  "postTests": [
+    {
+      "endpoint": "/api/upload-image-safe",
+      "status": 200,
+      "success": true,
+      "data": {
+        "success": true,
+        "url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==",
+        "fallback": true
+      },
+      "headers": {
+        "cache-control": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
+        "connection": "keep-alive",
+        "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://vercel.live; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://va.vercel-scripts.com https://vercel.live wss:; frame-src 'self' https://vercel.live;",
+        "content-type": "application/json",
+        "date": "Mon, 25 Aug 2025 11:12:20 GMT",
+        "expires": "0",
+        "keep-alive": "timeout=5",
+        "pragma": "no-cache",
+        "transfer-encoding": "chunked",
+        "vary": "RSC, Next-Router-State-Tree, Next-Router-Prefetch, Next-Router-Segment-Prefetch"
+      }
+    },
+    {
+      "endpoint": "/api/upload",
+      "status": 200,
+      "success": true,
+      "data": {
+        "success": true,
+        "url": "/uploads/general/general_1756120340760_q93216.png"
+      },
+      "headers": {
+        "cache-control": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
+        "connection": "keep-alive",
+        "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://vercel.live; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://va.vercel-scripts.com https://vercel.live wss:; frame-src 'self' https://vercel.live;",
+        "content-type": "application/json",
+        "date": "Mon, 25 Aug 2025 11:12:20 GMT",
+        "expires": "0",
+        "keep-alive": "timeout=5",
+        "pragma": "no-cache",
+        "transfer-encoding": "chunked",
+        "vary": "RSC, Next-Router-State-Tree, Next-Router-Prefetch, Next-Router-Segment-Prefetch"
+      }
+    },
+    {
+      "endpoint": "/api/upload-image",
+      "status": 200,
+      "success": true,
+      "data": {
+        "success": true,
+        "url": "/uploads/general/general_1756120340796_exoxz0.png",
+        "fileName": "general_1756120340796_exoxz0.png",
+        "originalName": "test-image.png",
+        "size": 67,
+        "type": "image/png",
+        "folder": "general",
+        "uploaded_at": "2025-08-25T11:12:20.797Z",
+        "message": "تم رفع الصورة بنجاح"
+      },
+      "headers": {
+        "cache-control": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
+        "connection": "keep-alive",
+        "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://vercel.live; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://va.vercel-scripts.com https://vercel.live wss:; frame-src 'self' https://vercel.live;",
+        "content-type": "application/json",
+        "date": "Mon, 25 Aug 2025 11:12:20 GMT",
+        "expires": "0",
+        "keep-alive": "timeout=5",
+        "pragma": "no-cache",
+        "transfer-encoding": "chunked",
+        "vary": "RSC, Next-Router-State-Tree, Next-Router-Prefetch, Next-Router-Segment-Prefetch"
+      }
+    }
+  ]
+}

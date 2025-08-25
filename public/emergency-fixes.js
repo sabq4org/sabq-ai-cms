@@ -23,9 +23,14 @@
         ...options.headers
       };
       
-      // لا نضيف Content-Type إلا إذا كان هناك body
+      // ⚠️ FIX: لا نضع Content-Type إلا للـ JSON، وليس للـ FormData
       if (options.body && typeof options.body === 'string') {
         options.headers['Content-Type'] = 'application/json';
+      }
+      // إذا كان body هو FormData، نترك المتصفح يحدد Content-Type مع boundary تلقائياً
+      else if (options.body && options.body instanceof FormData) {
+        // لا نضع Content-Type، المتصفح سيضيف multipart/form-data مع boundary
+        console.log('🔧 [EMERGENCY-FIXES] تم اكتشاف FormData، ترك Content-Type للمتصفح');
       }
     }
     

@@ -10,9 +10,7 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 const apiClient = axios.create({
   baseURL: '/api',
   timeout: 30000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  // ⚠️ FIX: لا نضع Content-Type افتراضياً، سيتم تحديده حسب نوع البيانات
   withCredentials: true, // مهم جداً لإرسال الكوكيز الآمنة
 });
 
@@ -46,6 +44,22 @@ const processQueue = (error: any, token: string | null = null) => {
 // Request interceptor - لإضافة CSRF token وتحسين الرؤوس
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    // 🔧 FIX: معالجة FormData بشكل صحيح
+    if (config.data instanceof FormData) {
+      // لا نضع Content-Type للـ FormData، Axios سيضع multipart/form-data مع boundary تلقائياً
+      console.log('🔧 [API-CLIENT] تم اكتشاف FormData، ترك Content-Type لـ Axios');
+      // حذف أي Content-Type موجود
+      if (config.headers) {
+        delete config.headers['Content-Type'];
+        delete config.headers['content-type'];
+      }
+    } else {
+      // للبيانات العادية، نضع JSON
+      if (config.headers && !config.headers['Content-Type'] && !config.headers['content-type']) {
+        config.headers['Content-Type'] = 'application/json';
+      }
+    }
+    
     // إضافة CSRF token للطلبات التي تحتاجه
     if (['post', 'put', 'delete', 'patch'].includes(config.method?.toLowerCase() || '')) {
       const csrfToken = getCookieValue('sabq-csrf-token') || getCookieValue('csrf-token');
