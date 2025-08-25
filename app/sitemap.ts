@@ -5,9 +5,10 @@ async function getArticles() {
   try {
     const baseUrl = process.env.NEXTAUTH_URL || "https://sabq.me";
     const response = await fetch(
-      `${baseUrl}/api/articles?limit=1000&published=true`,
+      `${baseUrl}/api/articles?limit=100&published=true`,
       {
         next: { revalidate: 3600 }, // إعادة التحقق كل ساعة
+        signal: AbortSignal.timeout(30000), // timeout بعد 30 ثانية
       }
     );
 
@@ -36,6 +37,7 @@ async function getCategories() {
     const baseUrl = process.env.NEXTAUTH_URL || "https://sabq.me";
     const response = await fetch(`${baseUrl}/api/categories`, {
       next: { revalidate: 3600 }, // إعادة التحقق كل ساعة
+      signal: AbortSignal.timeout(30000), // timeout بعد 30 ثانية
     });
 
     if (!response.ok) {

@@ -32,7 +32,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/EnhancedAuthContextWithSSR";
 import { useRouter } from "next/navigation";
 
 interface ModernHeaderProps {

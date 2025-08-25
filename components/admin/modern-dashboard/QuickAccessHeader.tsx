@@ -23,7 +23,7 @@ import {
   User,
 } from "lucide-react";
 import Link from "next/link";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/EnhancedAuthContextWithSSR";
 import {
   DropdownMenu,
   DropdownMenuTrigger,

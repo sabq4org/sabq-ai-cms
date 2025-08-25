@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/EnhancedAuthContextWithSSR";
 import {
   Bell,
   Search,
