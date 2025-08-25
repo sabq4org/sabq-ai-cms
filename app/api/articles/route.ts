@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { withRetry } from "@/lib/prisma-helper";
+import { ensureDbConnected } from "@/lib/prisma-helpers";
 import { ensureUniqueSlug, resolveContentType } from "@/lib/slug";
 import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
@@ -28,6 +29,9 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    // التأكد من الاتصال بقاعدة البيانات
+    await ensureDbConnected();
+    
     if (process.env.NODE_ENV !== 'production') {
       console.log("🔍 بداية معالجة طلب المقالات");
       console.log("prisma:", typeof prisma);

@@ -116,5 +116,12 @@ export function getPrismaClient(): PrismaClient {
 }
 
 // التصدير - named export و default export
-export { prisma };
+export { 
+  prisma,
+  ensureDbConnected,
+  isPrismaNotConnectedError,
+  retryWithConnection,
+  withPrisma,
+  getPrismaClient
+};
 export default prisma;

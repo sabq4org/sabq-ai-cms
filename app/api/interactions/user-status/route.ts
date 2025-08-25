@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma, { ensureDbConnected, retryWithConnection } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
+import { ensureDbConnected, retryWithConnection } from '@/lib/prisma-helpers';
 import { requireAuthFromRequest } from '@/app/lib/auth';
 
 // تعيين runtime كـ nodejs لـ Prisma
