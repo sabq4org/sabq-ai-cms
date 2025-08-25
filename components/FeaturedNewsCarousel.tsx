@@ -351,13 +351,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                     </span>
                   </div>
                 </div>
-                <div
-                  className={`group/btn inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                    darkMode
-                      ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl'
-                      : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-md hover:shadow-lg'
-                  } transform hover:-translate-y-0.5`}
-                >
+                <div className="group/btn inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 soft-read-more-btn transform hover:-translate-y-0.5">
                   <span>اقرأ المزيد</span>
                   <ArrowLeft className="w-4 h-4" />
                 </div>

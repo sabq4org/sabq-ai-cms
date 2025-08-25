@@ -17,6 +17,7 @@ import "@/styles/lite-stats-bar-sticky.css";
 import "@/styles/recent-news-badge.css";
 import "@/styles/dark-mode-overlay-fix.css";
 import "@/styles/remove-featured-image-effects.css";
+import "@/styles/soft-read-more-button.css";
 
 const ibmPlexArabic = IBM_Plex_Sans_Arabic({
   subsets: ["arabic", "latin"],

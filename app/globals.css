@@ -187,16 +187,16 @@ body {
 }
 
 html {
-  background: #f8f8f7 !important;
-  background-color: #f8f8f7 !important;
+  background: #f1f1f0 !important;
+  background-color: #f1f1f0 !important;
   background-image: none !important;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
-  /* خلفية المشروع الموحدة */
-  background: #f8f8f7 !important;
-  background-color: #f8f8f7 !important;
+  /* خلفية المشروع الموحدة - أغمق قليلاً */
+  background: #f1f1f0 !important;
+  background-color: #f1f1f0 !important;
   background-image: none !important;
   min-height: 100vh;
 }
@@ -206,8 +206,8 @@ html[data-theme],
 body[data-theme],
 html[class],
 body[class] {
-  background: #f8f8f7 !important;
-  background-color: #f8f8f7 !important;
+  background: #f1f1f0 !important;
+  background-color: #f1f1f0 !important;
 }
 
 /* ضمان شفافية المكونات الرئيسية */
@@ -225,13 +225,13 @@ main,
 /* تطبيق الخلفية على viewport */
 @media screen {
   html {
-    background: #f8f8f7 !important;
-    background-color: #f8f8f7 !important;
+    background: #f1f1f0 !important;
+    background-color: #f1f1f0 !important;
   }
   
   body {
-    background: #f8f8f7 !important;
-    background-color: #f8f8f7 !important;
+    background: #f1f1f0 !important;
+    background-color: #f1f1f0 !important;
   }
 }
 
@@ -255,12 +255,12 @@ body.dark {
 
 /* خلفية خاصة لصفحات مقترب - أعلى أولوية */
 body:has([data-page="muqtarab"]) {
-  background: #f8f8f7 !important;
+  background: #f1f1f0 !important;
 }
 
 /* خلفية احتياطية عبر المسار */
 body:has([data-muqtarab="true"]) {
-  background: #f8f8f7 !important;
+  background: #f1f1f0 !important;
 }
 
 a {
