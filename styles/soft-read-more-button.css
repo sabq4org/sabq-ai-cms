@@ -1,20 +1,21 @@
 /* Soft Read More Button Styles - Dynamic Theme Colors with Darker Background */
 
 /* Main soft button class - adapts to theme accent color with darker background */
+/* تعتمد الآن على نظام الألوان المتغيرة --theme-primary و --theme-primary-rgb */
 .soft-read-more-btn {
-  background: hsl(var(--accent) / 0.12) !important;
-  color: hsl(var(--accent) / 0.8) !important;
-  border: 1px solid hsl(var(--accent) / 0.2) !important;
+  background: rgba(var(--theme-primary-rgb, 59 130 246), 0.10) !important;
+  color: var(--theme-primary, #3B82F6) !important;
+  border: 1px solid rgba(var(--theme-primary-rgb, 59 130 246), 0.20) !important;
   backdrop-filter: blur(8px) !important;
-  box-shadow: 0 1px 3px hsl(var(--accent) / 0.15) !important;
+  box-shadow: 0 1px 3px rgba(var(--theme-primary-rgb, 59 130 246), 0.15) !important;
   transition: all 0.3s ease !important;
 }
 
 .soft-read-more-btn:hover {
-  background: hsl(var(--accent) / 0.2) !important;
-  color: hsl(var(--accent) / 0.9) !important;
-  border-color: hsl(var(--accent) / 0.3) !important;
-  box-shadow: 0 2px 6px hsl(var(--accent) / 0.2) !important;
+  background: rgba(var(--theme-primary-rgb, 59 130 246), 0.18) !important;
+  color: var(--theme-primary, #2563EB) !important;
+  border-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.30) !important;
+  box-shadow: 0 2px 6px rgba(var(--theme-primary-rgb, 59 130 246), 0.20) !important;
 }
 
 /* Generic button styling with theme colors and darker background */
@@ -22,11 +23,11 @@
 .group button.inline-flex.items-center,
 .group a.inline-flex.items-center,
 div.group\/btn.inline-flex.items-center {
-  background: hsl(var(--accent) / 0.12) !important;
-  color: hsl(var(--accent) / 0.8) !important;
-  border: 1px solid hsl(var(--accent) / 0.2) !important;
+  background: rgba(var(--theme-primary-rgb, 59 130 246), 0.10) !important;
+  color: var(--theme-primary, #3B82F6) !important;
+  border: 1px solid rgba(var(--theme-primary-rgb, 59 130 246), 0.20) !important;
   backdrop-filter: blur(8px) !important;
-  box-shadow: 0 1px 3px hsl(var(--accent) / 0.15) !important;
+  box-shadow: 0 1px 3px rgba(var(--theme-primary-rgb, 59 130 246), 0.15) !important;
   transition: all 0.3s ease !important;
 }
 
@@ -34,10 +35,10 @@ div.group\/btn.inline-flex.items-center {
 .group button.inline-flex.items-center:hover,
 .group a.inline-flex.items-center:hover,
 div.group\/btn.inline-flex.items-center:hover {
-  background: hsl(var(--accent) / 0.2) !important;
-  color: hsl(var(--accent) / 0.9) !important;
-  border-color: hsl(var(--accent) / 0.3) !important;
-  box-shadow: 0 2px 6px hsl(var(--accent) / 0.2) !important;
+  background: rgba(var(--theme-primary-rgb, 59 130 246), 0.18) !important;
+  color: var(--theme-primary, #2563EB) !important;
+  border-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.30) !important;
+  box-shadow: 0 2px 6px rgba(var(--theme-primary-rgb, 59 130 246), 0.20) !important;
 }
 
 /* Override any gradient backgrounds on read more buttons */
