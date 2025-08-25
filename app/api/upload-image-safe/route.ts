@@ -5,14 +5,14 @@ export const runtime = "nodejs";
 
 // تهيئة Cloudinary إن توفرت المتغيرات
 const hasCloudinary = Boolean(
-  (process.env.CLOUDINARY_CLOUD_NAME || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME) &&
+  process.env.CLOUDINARY_CLOUD_NAME &&
   process.env.CLOUDINARY_API_KEY &&
   process.env.CLOUDINARY_API_SECRET
 );
 
 if (hasCloudinary) {
   cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
   });
@@ -20,24 +20,11 @@ if (hasCloudinary) {
 
 export async function POST(request: NextRequest) {
   try {
-    console.log("🔐 upload-image-safe: بدء عملية رفع آمنة...");
+    console.log("🔄 [SAFE UPLOAD] بداية الرفع الآمن");
     
-    // التحقق من Content-Type
-    const contentType = request.headers.get('content-type') || '';
-    console.log('📋 [SAFE UPLOAD] Content-Type:', contentType);
-    
-    if (!contentType.includes('multipart/form-data')) {
-      console.error('❌ [SAFE UPLOAD] Content-Type خاطئ:', contentType);
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: "Content-Type must be multipart/form-data",
-          details: `Got: ${contentType}`,
-          code: "INVALID_CONTENT_TYPE"
-        },
-        { status: 400 }
-      );
-    }
+    // إزالة التحقق من Content-Type لأن المتصفح يديره تلقائياً
+    const contentType = request.headers.get("content-type") || "";
+    console.log("📋 [SAFE UPLOAD] Content-Type:", contentType);
     
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
@@ -68,49 +55,51 @@ export async function POST(request: NextRequest) {
       // لا نرفض مباشرة لتفادي تعطل الواجهة
     }
 
-    // إذا Cloudinary متاح ارفع مباشرة، مع fallback إلى data URL عند الفشل
+    console.log(`📸 [SAFE UPLOAD] معالجة ملف: ${file.name} (${Math.round(file.size / 1024)}KB)`);
+
+    // تحويل الملف إلى buffer
+    const buffer = Buffer.from(await file.arrayBuffer());
+    
+    // محاولة رفع إلى Cloudinary أولاً (إن توفر)
     if (hasCloudinary) {
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      const folder = `sabq-cms/${type}`;
       try {
-        const uploadResult: any = await new Promise((resolve, reject) => {
-          const uploadStream = cloudinary.uploader.upload_stream(
+        console.log("☁️ [SAFE UPLOAD] محاولة رفع Cloudinary...");
+        
+        const uploadResult = await new Promise((resolve, reject) => {
+          cloudinary.uploader.upload_stream(
             {
-              folder,
               resource_type: "auto",
-              public_id: `${Date.now()}_${(file.name || "upload").replace(/[^a-zA-Z0-9.-]/g, "_")}`,
-              overwrite: false,
-              tags: ["sabq-cms", type],
+              folder: `uploads/${type}`,
+              format: "auto",
+              quality: "auto:good"
             },
             (error, result) => {
-              if (error) return reject(error);
-              resolve(result);
+              if (error) reject(error);
+              else resolve(result);
             }
-          );
-          uploadStream.end(buffer);
+          ).end(buffer);
         });
-        return NextResponse.json({ success: true, url: uploadResult.secure_url });
-      } catch (err) {
-        console.warn("⚠️ Cloudinary failed in upload-image-safe. Falling back to data URL.", (err as any)?.message || err);
-        const base64 = buffer.toString("base64");
-        const dataUrl = `data:${file.type || "image/jpeg"};base64,${base64}`;
+
+        console.log("✅ [SAFE UPLOAD] Cloudinary نجح");
+        return NextResponse.json({ success: true, url: (uploadResult as any).secure_url });
+      } catch (cloudinaryError) {
+        console.log("⚠️ [SAFE UPLOAD] Cloudinary فشل، التبديل إلى data URL...");
+        const dataUrl = `data:${file.type || 'image/jpeg'};base64,${buffer.toString('base64')}`;
         return NextResponse.json({ success: true, url: dataUrl, fallback: true });
       }
     }
 
-    // Fallback: إرجاع Data URL مباشرةً (لا يعتمد على نظام الملفات)
-    const bytes = await file.arrayBuffer();
-    const base64 = Buffer.from(bytes).toString("base64");
-    const dataUrl = `data:${file.type || "image/jpeg"};base64,${base64}`;
+    // إذا لم تتوفر Cloudinary، استخدم data URL مباشرة
+    console.log("💾 [SAFE UPLOAD] استخدام data URL...");
+    const dataUrl = `data:${file.type || 'image/jpeg'};base64,${buffer.toString('base64')}`;
+    
     return NextResponse.json({ success: true, url: dataUrl, fallback: true });
   } catch (error: any) {
-    console.error("❌ upload-image-safe error:", error?.message || error);
+    console.error("❌ [SAFE UPLOAD] خطأ عام:", error.message);
     return NextResponse.json({ success: false, error: "فشل رفع الصورة" }, { status: 500 });
   }
 }
 
-// مسار فحص صحي اختياري
 export async function GET() {
   return NextResponse.json({ success: true, message: 'upload-image-safe ok' });
 }

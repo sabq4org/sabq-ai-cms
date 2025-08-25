@@ -6,22 +6,12 @@ export async function POST(request: NextRequest) {
   try {
     console.log("📁 بدء رفع ملف...");
     
-    // التحقق من Content-Type
+    // التحقق من Content-Type (إزالة التحقق الصارم لأن المتصفح يدير هذا تلقائياً)
     const contentType = request.headers.get('content-type') || '';
     console.log("📋 [UPLOAD API] Content-Type:", contentType);
     
-    if (!contentType.includes('multipart/form-data')) {
-      console.error('❌ [UPLOAD API] Content-Type خاطئ:', contentType);
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: "Content-Type must be multipart/form-data",
-          details: `Got: ${contentType}`,
-          code: "INVALID_CONTENT_TYPE"
-        },
-        { status: 400 }
-      );
-    }
+    // السماح للمتصفح بإدارة Content-Type تلقائياً
+    // لا نحتاج للتحقق الصارم لأن NextJS يتعامل مع FormData تلقائياً
 
     // معالجة آمنة لـ FormData
     let formData: FormData;
