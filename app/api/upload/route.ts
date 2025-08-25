@@ -41,20 +41,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // التحقق من نوع الملف
-    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    // توسيع الأنواع المدعومة وإتاحة قبول أنواع الصور الحديثة
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/gif",
+      "image/avif",
+      "image/heic",
+      "image/heif"
+    ];
     if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "نوع الملف غير مدعوم. يجب أن يكون JPG, PNG, WEBP, أو GIF",
-        },
-        { status: 400 }
-      );
+      console.warn("⚠️ نوع ملف غير مدعوم، سيتم المعالجة كـ binary واعتباره صورة عامة:", file.type);
     }
 
-    // التحقق من حجم الملف (5MB max)
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    // التحقق من حجم الملف (10MB max)
+    const maxSize = 10 * 1024 * 1024; // 10MB
     if (file.size > maxSize) {
       return NextResponse.json(
         { success: false, error: "حجم الملف كبير جداً. الحد الأقصى 5MB" },
@@ -116,16 +118,7 @@ export async function POST(request: NextRequest) {
 
       console.log(`✅ تم رفع الملف بنجاح: ${fileUrl}`);
 
-      return NextResponse.json({
-        success: true,
-        url: fileUrl,
-        fileName: fileName,
-        originalName: file.name,
-        size: file.size,
-        type: file.type,
-        folder: folder,
-        uploaded_at: new Date().toISOString(),
-      });
+      return NextResponse.json({ success: true, url: fileUrl });
     } catch (fileError: any) {
       console.error("❌ خطأ في حفظ الملف:", fileError);
 

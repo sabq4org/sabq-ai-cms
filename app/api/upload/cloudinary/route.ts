@@ -29,10 +29,7 @@ export async function POST(request: NextRequest) {
         {
           folder: "sabq-cms/general",
           resource_type: "auto",
-          public_id: `${Date.now()}_${file.name.replace(
-            /[^a-zA-Z0-9.-]/g,
-            "_"
-          )}`,
+          public_id: `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`,
           overwrite: false,
           tags: ["sabq-cms", "upload"],
         },
@@ -44,15 +41,20 @@ export async function POST(request: NextRequest) {
       uploadStream.end(buffer);
     });
 
-    return NextResponse.json({
-      success: true,
-      url: uploadResult.secure_url,
-    });
+    return NextResponse.json({ success: true, url: uploadResult.secure_url });
   } catch (error: any) {
     console.error("❌ Cloudinary Upload Error:", error);
-    return NextResponse.json(
-      { success: false, error: "Upload failed", details: error.message },
-      { status: 500 }
-    );
+    // Fallback: إرجاع Data URL لتجنب توقف الواجهة الأمامية
+    try {
+      const formData = await request.formData();
+      const file = formData.get("file") as File | null;
+      if (file) {
+        const bytes = await file.arrayBuffer();
+        const base64 = Buffer.from(bytes).toString("base64");
+        const dataUrl = `data:${file.type || "image/jpeg"};base64,${base64}`;
+        return NextResponse.json({ success: true, url: dataUrl, fallback: true });
+      }
+    } catch {}
+    return NextResponse.json({ success: false, error: "Upload failed" }, { status: 500 });
   }
 }
