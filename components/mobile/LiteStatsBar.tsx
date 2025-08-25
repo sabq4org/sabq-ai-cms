@@ -16,6 +16,7 @@ interface StatsData {
 
 export default function LiteStatsBar() {
   const [stats, setStats] = useState<StatsData | null>(null);
+  const [indicators, setIndicators] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
   // بيانات افتراضية لضمان الظهور حتى قبل وصول API
@@ -39,6 +40,14 @@ export default function LiteStatsBar() {
           dailyChangePercentage: data.dailyChangePercentage,
           trend: (data.trend as Trend) ?? 'stable',
         });
+        // جلب مؤشرات حقيقية بالتوازي
+        try {
+          const indRes = await fetch('/api/indicators', { cache: 'no-store' });
+          if (indRes.ok) {
+            const ind = await indRes.json();
+            setIndicators(ind);
+          }
+        } catch {}
       } catch {
         setStats(defaultStats);
       } finally {
@@ -100,6 +109,30 @@ export default function LiteStatsBar() {
                 {getTrendIcon(s.trend)}
               </span>
             </div>
+          </div>
+        </div>
+
+        {/* مؤشرات حقيقية مختصرة (لا تغيير تصميم: صف واحد مصغر) */}
+        <div className="hidden md:flex items-center gap-3 flex-1 justify-center p-2">
+          <div className="text-[10px] text-gray-600 dark:text-gray-400">
+            نقاش: <span className="font-bold text-gray-900 dark:text-white">
+              {indicators?.topDiscussed?.[0]?.commentsCount ?? '—'}
+            </span>
+          </div>
+          <div className="text-[10px] text-gray-600 dark:text-gray-400">
+            مشاهدة: <span className="font-bold text-gray-900 dark:text-white">
+              {indicators?.topViewed?.[0]?.views ?? '—'}
+            </span>
+          </div>
+          <div className="text-[10px] text-gray-600 dark:text-gray-400">
+            إعجاب: <span className="font-bold text-gray-900 dark:text-white">
+              {indicators?.topLiked?.[0]?.likes ?? '—'}
+            </span>
+          </div>
+          <div className="text-[10px] text-gray-600 dark:text-gray-400">
+            صاعد: <span className="font-bold text-gray-900 dark:text-white">
+              {indicators?.trendingUp?.[0]?.changeRatio ? `x${indicators.trendingUp[0].changeRatio}` : '—'}
+            </span>
           </div>
         </div>
       </div>
