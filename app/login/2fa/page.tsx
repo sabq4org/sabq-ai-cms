@@ -51,7 +51,22 @@ export default function TwoFactorLoginPage() {
           sessionStorage.removeItem('2fa_temp_token');
           
           toast.success("تم التحقق بنجاح!");
-          router.replace(next);
+          
+          // التوجيه الصحيح بناءً على نوع المستخدم والوجهة المطلوبة
+          let finalDestination = next;
+          
+          // إذا كان المستخدم أدمن وكانت الوجهة الافتراضية، وجه للوحة التحكم
+          if (data.user?.is_admin && (next === "/" || next === "/home")) {
+            finalDestination = "/admin";
+          }
+          
+          // إذا كانت الوجهة تحتوي على admin، تأكد من توجيهه للمكان الصحيح
+          if (next.includes("/admin") && data.user?.is_admin) {
+            finalDestination = next;
+          }
+          
+          console.log('🔄 التوجيه بعد 2FA إلى:', finalDestination);
+          router.replace(finalDestination);
         } else {
           toast.error(data.error || "رمز غير صحيح");
         }

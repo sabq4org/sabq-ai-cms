@@ -38,7 +38,10 @@ export default function AdminLogin() {
             // حفظ الرمز المؤقت وتوجيه لصفحة 2FA مع تمرير معامل next
             sessionStorage.setItem('2fa_temp_token', data.tempToken);
             toast.info("يرجى إدخال رمز المصادقة الثنائية");
-            router.push(`/admin/login/2fa?next=${encodeURIComponent(next)}`);
+            
+            // استخدام صفحة 2FA الموحدة مع تمرير الوجهة النهائية
+            const finalDestination = next || "/admin";
+            router.push(`/login/2fa?next=${encodeURIComponent(finalDestination)}`);
             return;
           }
           
