@@ -150,13 +150,13 @@ async function findUserInDatabase(userId: string): Promise<{ user: any | null; e
     if (userService) {
       // استخدام UserManagementService
       try {
-        const result: any = await userService.getUserById(userId);
-        if (result && result.success && result.user) {
-          console.log(`✅ [getAuthenticatedUser] وُجد المستخدم: ${result.user.email}`);
-          return { user: result.user };
+        const user: any = await userService.getUserById(userId);
+        if (user) {
+          console.log(`✅ [getAuthenticatedUser] وُجد المستخدم: ${user.email}`);
+          return { user };
         } else {
-          console.log(`❌ [getAuthenticatedUser] لم يُوجد المستخدم: ${result?.error}`);
-          return { user: null, error: result?.error };
+          console.log(`❌ [getAuthenticatedUser] لم يُوجد المستخدم: null`);
+          return { user: null, error: 'User not found in database' };
         }
       } catch (serviceError) {
         console.log('⚠️ [getAuthenticatedUser] خطأ في UserManagementService:', serviceError);
