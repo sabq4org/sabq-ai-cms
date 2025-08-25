@@ -57,7 +57,11 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
           const date = article.published_at || article.created_at;
           // معالجة محسّنة للصورة - التحقق من عدة حقول وتوفير fallback
           const image = article.featured_image || article.image_url || article.image || article.thumbnail;
-          const hasImage = image && image !== '' && image !== 'null';
+          // تطبيع مسار الصورة للنسخة الخفيفة: اجعل الروابط النسبية تبدأ بـ '/'
+          const normalizedImage = typeof image === 'string'
+            ? (image.startsWith('http') || image.startsWith('/') ? image : `/${image.replace(/^\/+/, '')}`)
+            : image;
+          const hasImage = normalizedImage && normalizedImage !== '' && normalizedImage !== 'null' && normalizedImage !== 'undefined';
           const isBreaking = Boolean(article.breaking || article.is_breaking);
           return (
             <Link
@@ -80,7 +84,7 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
                 <div className={`relative aspect-video w-full overflow-hidden rounded-lg ${!hasImage ? 'bg-gray-200 dark:bg-gray-700' : ''}`}>
                   {hasImage ? (
                     <OptimizedImage
-                      src={image}
+                      src={normalizedImage}
                       alt={article.title || "صورة"}
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"

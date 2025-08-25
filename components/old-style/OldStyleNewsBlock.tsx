@@ -87,6 +87,7 @@ export default function OldStyleNewsBlock({
   const getImageUrl = (article: Article) => {
     const candidate = article.featured_image || article.image || article.image_url || '';
     if (candidate) {
+      // السماح بالروابط المطلقة
       if (
         candidate.startsWith('http') ||
         candidate.includes('cloudinary.com') ||
@@ -94,7 +95,8 @@ export default function OldStyleNewsBlock({
       ) {
         return candidate;
       }
-      return candidate.startsWith('/') ? candidate : `/images/${candidate}`;
+      // تطبيع الروابط النسبية لتبدأ بـ '/'
+      return candidate.startsWith('/') ? candidate : `/${candidate.replace(/^\/+/, '')}`;
     }
     return '/images/placeholder-news.svg';
   };
