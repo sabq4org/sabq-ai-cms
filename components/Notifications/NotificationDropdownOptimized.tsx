@@ -8,7 +8,7 @@ import { BellIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { BellIcon as BellSolidIcon } from '@heroicons/react/24/solid';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSmartNotifications } from '@/hooks/useSmartNotifications';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 
 interface NotificationDropdownProps {
   className?: string;

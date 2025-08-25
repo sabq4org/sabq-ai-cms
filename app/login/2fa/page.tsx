@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function TwoFactorLoginPage() {
   const router = useRouter();
@@ -41,9 +41,8 @@ export default function TwoFactorLoginPage() {
       if (res.ok) {
         const data = await res.json();
         if (data.success) {
-          // حفظ التوكن النهائي
-          if (data.access_token && typeof window !== 'undefined') {
-            localStorage.setItem('auth-token', data.access_token);
+          // تسجيل الدخول باستخدام التوكن دون تخزين في localStorage
+          if (data.access_token) {
             await login(data.access_token);
           }
           

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function SmartUserHeader() {
   const { user, loading, error } = useAuth();

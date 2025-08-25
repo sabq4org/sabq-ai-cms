@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import ThemeApplier from "@/components/ThemeApplier";
 import { QueryProvider } from "@/lib/providers/QueryProvider";
-import { AuthProvider } from "@/contexts/EnhancedAuthContextWithSSR";
+import { AuthProvider } from "@/contexts/AuthContext";
 import AuthMonitor from "@/components/debug/AuthMonitor";
 
 // Layouts

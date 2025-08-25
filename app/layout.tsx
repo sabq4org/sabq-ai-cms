@@ -87,6 +87,9 @@ export default async function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* إصلاحات إنتاج عامة وCSS */}
+        <script src="/production-error-fixes.js" defer></script>
+        <script src="/fix-cors-auth.js" defer></script>
         {/* تمرير بيانات المستخدم إلى العميل */}
         {initialUser && (
           <script

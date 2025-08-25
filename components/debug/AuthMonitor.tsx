@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useAuth } from "@/contexts/EnhancedAuthContextWithSSR";
+import { useAuth } from "@/hooks/useAuth";
 import { getAccessToken } from '@/lib/authClient';
 
 export default function AuthMonitor() {

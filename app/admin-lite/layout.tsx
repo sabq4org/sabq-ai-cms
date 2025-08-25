@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { LogOut } from "lucide-react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Home, Newspaper, FileText, BarChart3, Settings } from "lucide-react";

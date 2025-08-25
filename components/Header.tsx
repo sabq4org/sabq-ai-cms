@@ -1,7 +1,7 @@
 "use client";
 
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
-import { useAuth } from "@/contexts/EnhancedAuthContextWithSSR";
+import { useAuth } from "@/hooks/useAuth";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import {
   Activity,
