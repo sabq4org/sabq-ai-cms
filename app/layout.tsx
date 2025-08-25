@@ -59,15 +59,21 @@ export default async function RootLayout({
   let initialUser = null;
   
   try {
-    // فقط للصفحات التي تدعم dynamic rendering
-    const isDynamicRoute = process.env.NODE_ENV !== 'production' || 
-                          typeof window === 'undefined';
-    
-    if (isDynamicRoute) {
+    // تجنب استخدام getServerUser في بيئة الـ static generation
+    const isStaticGeneration = process.env.VERCEL_ENV === 'preview' || 
+                              process.env.VERCEL || 
+                              process.env.NODE_ENV === 'production';
+                              
+    if (!isStaticGeneration) {
       initialUser = await getServerUser();
     }
   } catch (error) {
-    console.warn('⚠️ [RootLayout] فشل جلب المستخدم (static mode):', error);
+    // في حالة static generation، تجاهل الخطأ
+    if (error && typeof error === 'object' && 'digest' in error && error.digest === 'DYNAMIC_SERVER_USAGE') {
+      console.log('🔍 [RootLayout] تجاهل getServerUser في static generation');
+    } else {
+      console.warn('⚠️ [RootLayout] فشل جلب المستخدم:', error);
+    }
   }
   
   if (initialUser) {

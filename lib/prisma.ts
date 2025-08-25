@@ -159,4 +159,8 @@ export {
   withPrisma,
   getPrismaClient
 };
+
+// التصدير الصريح للدوال التي يبحث عنها البناء
+export { ensureDbConnected, isPrismaNotConnectedError, retryWithConnection };
+
 export default prisma;
