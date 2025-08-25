@@ -104,35 +104,47 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
     
-    // حفظ الملف
+    // محاولة حفظ الملف (قد يفشل في Vercel)
     try {
       await writeFile(filePath, buffer);
       console.log(`✅ [IMAGE UPLOAD] تم حفظ الملف: ${filePath}`);
-    } catch (writeError: any) {
-      console.error('❌ [IMAGE UPLOAD] خطأ في حفظ الملف:', writeError);
+      
+      // إنشاء URL للملف
+      const fileUrl = `/uploads/${folder}/${fileName}`;
+      
+      console.log(`✅ [IMAGE UPLOAD] تم رفع الصورة بنجاح: ${fileUrl}`);
+      
       return NextResponse.json({
-        success: false,
-        error: 'فشل في حفظ الملف',
-        details: writeError.message
-      }, { status: 500 });
+        success: true,
+        url: fileUrl,
+        fileName: fileName,
+        originalName: file.name,
+        size: file.size,
+        type: file.type,
+        folder: folder,
+        uploaded_at: new Date().toISOString(),
+        message: 'تم رفع الصورة بنجاح'
+      });
+    } catch (writeError: any) {
+      console.warn('⚠️ [IMAGE UPLOAD] فشل حفظ الملف، استخدام data URL كبديل:', writeError.message);
+      
+      // Fallback: إرجاع data URL
+      const base64 = buffer.toString('base64');
+      const dataUrl = `data:${file.type || 'image/jpeg'};base64,${base64}`;
+      
+      return NextResponse.json({
+        success: true,
+        url: dataUrl,
+        fileName: fileName,
+        originalName: file.name,
+        size: file.size,
+        type: file.type,
+        folder: folder,
+        uploaded_at: new Date().toISOString(),
+        message: 'تم رفع الصورة بنجاح (data URL)',
+        fallback: true
+      });
     }
-    
-    // إنشاء URL للملف
-    const fileUrl = `/uploads/${folder}/${fileName}`;
-    
-    console.log(`✅ [IMAGE UPLOAD] تم رفع الصورة بنجاح: ${fileUrl}`);
-    
-    return NextResponse.json({
-      success: true,
-      url: fileUrl,
-      fileName: fileName,
-      originalName: file.name,
-      size: file.size,
-      type: file.type,
-      folder: folder,
-      uploaded_at: new Date().toISOString(),
-      message: 'تم رفع الصورة بنجاح'
-    });
     
   } catch (error: any) {
     console.error('❌ [IMAGE UPLOAD] خطأ عام:', {

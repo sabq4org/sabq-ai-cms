@@ -10,9 +10,13 @@ cloudinary.config({
 });
 
 export async function POST(request: NextRequest) {
+  let formData: FormData;
+  let file: File | null = null;
+  let fileBuffer: Buffer | null = null;
+
   try {
-    const formData = await request.formData();
-    const file = formData.get("file") as File;
+    formData = await request.formData();
+    file = formData.get("file") as File;
 
     if (!file) {
       return NextResponse.json(
@@ -22,7 +26,7 @@ export async function POST(request: NextRequest) {
     }
 
     const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    fileBuffer = Buffer.from(bytes);
 
     const uploadResult: any = await new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
@@ -38,23 +42,24 @@ export async function POST(request: NextRequest) {
           resolve(result);
         }
       );
-      uploadStream.end(buffer);
+      uploadStream.end(fileBuffer);
     });
 
     return NextResponse.json({ success: true, url: uploadResult.secure_url });
   } catch (error: any) {
     console.error("❌ Cloudinary Upload Error:", error);
-    // Fallback: إرجاع Data URL لتجنب توقف الواجهة الأمامية
-    try {
-      const formData = await request.formData();
-      const file = formData.get("file") as File | null;
-      if (file) {
-        const bytes = await file.arrayBuffer();
-        const base64 = Buffer.from(bytes).toString("base64");
+    
+    // Fallback: إرجاع Data URL باستخدام البيانات المحفوظة
+    if (file && fileBuffer) {
+      try {
+        const base64 = fileBuffer.toString("base64");
         const dataUrl = `data:${file.type || "image/jpeg"};base64,${base64}`;
         return NextResponse.json({ success: true, url: dataUrl, fallback: true });
+      } catch (fallbackError) {
+        console.error("❌ Fallback Error:", fallbackError);
       }
-    } catch {}
+    }
+    
     return NextResponse.json({ success: false, error: "Upload failed" }, { status: 500 });
   }
 }

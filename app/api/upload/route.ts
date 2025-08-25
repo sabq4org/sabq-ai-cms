@@ -110,25 +110,38 @@ export async function POST(request: NextRequest) {
         console.log(`✅ المجلد موجود: ${uploadsDir}`);
       }
 
-      // حفظ الملف
-      await writeFile(filePath, buffer);
-
-      // إنشاء URL للملف
-      const fileUrl = `/uploads/${folder}/${fileName}`;
-
-      console.log(`✅ تم رفع الملف بنجاح: ${fileUrl}`);
-
-      return NextResponse.json({ success: true, url: fileUrl });
+      // محاولة حفظ الملف (قد يفشل في Vercel)
+      try {
+        await writeFile(filePath, buffer);
+        
+        // إنشاء URL للملف
+        const fileUrl = `/uploads/${folder}/${fileName}`;
+        
+        console.log(`✅ تم رفع الملف بنجاح: ${fileUrl}`);
+        
+        return NextResponse.json({ success: true, url: fileUrl });
+      } catch (writeError: any) {
+        console.warn("⚠️ فشل حفظ الملف، استخدام data URL كبديل:", writeError.message);
+        
+        // Fallback: إرجاع data URL
+        const base64 = buffer.toString('base64');
+        const dataUrl = `data:${file.type || 'image/jpeg'};base64,${base64}`;
+        
+        return NextResponse.json({ 
+          success: true, 
+          url: dataUrl,
+          fallback: true,
+          message: 'تم رفع الصورة بنجاح (data URL)'
+        });
+      }
     } catch (fileError: any) {
-      console.error("❌ خطأ في حفظ الملف:", fileError);
+      console.error("❌ خطأ في معالجة الملف:", fileError);
 
-      // محاولة استخدام خدمة سحابية كبديل (يمكن تطويرها لاحقاً)
       return NextResponse.json(
         {
           success: false,
-          error: "فشل في حفظ الملف على الخادم",
+          error: "فشل في معالجة الملف",
           details: fileError.message,
-          suggestion: "تأكد من صلاحيات الكتابة في مجلد public/uploads",
         },
         { status: 500 }
       );
