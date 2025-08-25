@@ -5,6 +5,23 @@ import { join } from "path";
 export async function POST(request: NextRequest) {
   try {
     console.log("📁 بدء رفع ملف...");
+    
+    // التحقق من Content-Type
+    const contentType = request.headers.get('content-type') || '';
+    console.log("📋 [UPLOAD API] Content-Type:", contentType);
+    
+    if (!contentType.includes('multipart/form-data')) {
+      console.error('❌ [UPLOAD API] Content-Type خاطئ:', contentType);
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: "Content-Type must be multipart/form-data",
+          details: `Got: ${contentType}`,
+          code: "INVALID_CONTENT_TYPE"
+        },
+        { status: 400 }
+      );
+    }
 
     // معالجة آمنة لـ FormData
     let formData: FormData;

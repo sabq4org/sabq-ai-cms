@@ -1,0 +1,25 @@
+{
+  "timestamp": "2025-08-25T10:35:06.853Z",
+  "apiFiles": [
+    {
+      "path": "app/api/upload-image-safe/route.ts",
+      "exists": true
+    },
+    {
+      "path": "app/api/upload/route.ts",
+      "exists": true
+    },
+    {
+      "path": "app/api/upload-image/route.ts",
+      "exists": true
+    }
+  ],
+  "envExists": true,
+  "uploadsExists": true,
+  "recommendations": [
+    "تحقق من تشغيل الخادم المحلي",
+    "راجع متغيرات Cloudinary",
+    "تأكد من وجود مجلدات الرفع",
+    "افحص browser console للأخطاء"
+  ]
+}

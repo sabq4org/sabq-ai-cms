@@ -15,6 +15,24 @@ export async function POST(request: NextRequest) {
   let fileBuffer: Buffer | null = null;
 
   try {
+    console.log('🔍 [Cloudinary API] بدء معالجة الطلب...');
+    
+    // التحقق من Content-Type
+    const contentType = request.headers.get('content-type') || '';
+    console.log('📋 [Cloudinary API] Content-Type:', contentType);
+    
+    if (!contentType.includes('multipart/form-data')) {
+      console.error('❌ [Cloudinary API] Content-Type خاطئ:', contentType);
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: "Content-Type must be multipart/form-data",
+          details: `Got: ${contentType}`
+        },
+        { status: 400 }
+      );
+    }
+
     formData = await request.formData();
     file = formData.get("file") as File;
 

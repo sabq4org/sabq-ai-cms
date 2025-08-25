@@ -20,6 +20,25 @@ if (hasCloudinary) {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log("🔐 upload-image-safe: بدء عملية رفع آمنة...");
+    
+    // التحقق من Content-Type
+    const contentType = request.headers.get('content-type') || '';
+    console.log('📋 [SAFE UPLOAD] Content-Type:', contentType);
+    
+    if (!contentType.includes('multipart/form-data')) {
+      console.error('❌ [SAFE UPLOAD] Content-Type خاطئ:', contentType);
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: "Content-Type must be multipart/form-data",
+          details: `Got: ${contentType}`,
+          code: "INVALID_CONTENT_TYPE"
+        },
+        { status: 400 }
+      );
+    }
+    
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
     const type = (formData.get("type") as string) || "general";
