@@ -1,3 +1,4 @@
+export { GET, runtime } from '@/app/api/articles/route';
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
