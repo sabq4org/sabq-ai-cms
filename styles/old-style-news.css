@@ -47,6 +47,7 @@
   display: block;
   box-shadow: none;
   outline: none;
+  position: relative;
 }
 
 .old-style-news-card:hover {
@@ -61,7 +62,7 @@
   overflow: hidden;
   background: #f3f4f6;
   border-radius: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 6px; /* تقليل المسافة السفلية للصورة */
 }
 
 .old-style-news-image {
@@ -80,6 +81,8 @@
 /* محتوى البطاقة - بدون padding */
 .old-style-news-content {
   padding: 0;
+  /* إزالة أي مساحة إضافية */
+  margin-top: 0;
 }
 
 /* الشريط العلوي: لايبل جديد + التاريخ */
@@ -88,6 +91,10 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 8px;
+  /* رفع الشريط العلوي أكثر ليحاذي الحد العلوي للصورة تماماً */
+  margin-top: -16px;
+  position: relative;
+  z-index: 2;
 }
 
 /* لايبل "جديد" الأخضر مع شعلة النار الحقيقية */
@@ -102,6 +109,7 @@
   font-size: 11px;
   font-weight: 600;
   position: relative;
+  top: -2px; /* رفع إضافي للشارات */
 }
 
 /* شعلة النار الحقيقية المتحركة */
@@ -244,6 +252,8 @@
   font-size: 11px;
   font-weight: 700;
   animation: pulse 2s ease-in-out infinite alternate;
+  position: relative;
+  top: -2px; /* رفع إضافي للشارات */
 }
 
 /* شارة مميز - ذهبي */
@@ -271,6 +281,8 @@
   border-radius: 12px;
   font-size: 11px;
   font-weight: 600;
+  position: relative;
+  top: -2px; /* رفع إضافي للشارات */
 }
 
 /* التاريخ بجانب الشارات */
@@ -279,6 +291,8 @@
   color: #6b7280;
   font-weight: 500;
   margin-right: auto; /* يدفع التاريخ لأقصى اليسار */
+  position: relative;
+  top: -2px; /* رفع إضافي للتاريخ */
 }
 
 /* الرموز التعبيرية */
@@ -445,4 +459,31 @@
     border-color: #374151;
     color: #9ca3af;
   }
+}
+
+/* نمط بديل: وضع الشارات فوق الصورة مباشرة */
+.old-style-news-top-bar-overlay {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 3;
+  pointer-events: none; /* السماح بالنقر على الصورة */
+}
+
+.old-style-news-top-bar-overlay .old-style-news-badges,
+.old-style-news-top-bar-overlay .old-style-news-date-inline {
+  pointer-events: auto; /* تفعيل التفاعل مع الشارات والتاريخ */
+  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  padding: 2px 6px;
+}
+
+.dark .old-style-news-top-bar-overlay .old-style-news-badges,
+.dark .old-style-news-top-bar-overlay .old-style-news-date-inline {
+  background: rgba(0, 0, 0, 0.7);
 }

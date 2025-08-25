@@ -183,8 +183,8 @@ export default function OldStyleNewsBlock({
                   )}
                   {/* ليبل التصنيف - تم إخفاؤه حسب طلب المستخدم */}
                   {isNewsNew(article.published_at) && !(article.breaking || article.is_breaking) && (
-                    <div className="old-style-news-new-badge">
-                      <span className="old-style-fire-emoji" aria-hidden>🔥</span>
+                    <div className="recent-news-badge inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold text-white">
+                      <span className="text-xs">🔥</span>
                       <span>جديد</span>
                     </div>
                   )}

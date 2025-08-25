@@ -21,6 +21,18 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
   const { darkMode } = useDarkModeContext();
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
+  // تحديد إذا كان الخبر جديد (آخر ساعتين فقط)
+  const isNewsNew = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffTime = Math.abs(now.getTime() - date.getTime());
+      return diffTime <= 2 * 60 * 60 * 1000; // ساعتان
+    } catch {
+      return false;
+    }
+  };
+
   const onKeyScroll = useCallback((e: React.KeyboardEvent) => {
     if (!scrollRef.current) return;
     const el = scrollRef.current;
@@ -56,12 +68,12 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
           const category = article.category?.name || article.category_name || article.category || "عام";
           const date = article.published_at || article.created_at;
           // معالجة محسّنة للصورة - التحقق من عدة حقول وتوفير fallback
-          const image = article.featured_image || article.image_url || article.image || article.thumbnail;
+          const image = article.featured_image || article.image_url || article.image || article.thumbnail || '/images/placeholder-news.svg';
           // تطبيع مسار الصورة للنسخة الخفيفة: اجعل الروابط النسبية تبدأ بـ '/'
-          const normalizedImage = typeof image === 'string'
+          const normalizedImage = typeof image === 'string' && image !== 'null' && image !== 'undefined'
             ? (image.startsWith('http') || image.startsWith('/') ? image : `/${image.replace(/^\/+/, '')}`)
-            : image;
-          const hasImage = normalizedImage && normalizedImage !== '' && normalizedImage !== 'null' && normalizedImage !== 'undefined';
+            : '/images/placeholder-news.svg';
+          const hasImage = normalizedImage && normalizedImage !== '' && normalizedImage !== '/images/placeholder-news.svg';
           const isBreaking = Boolean(article.breaking || article.is_breaking);
           return (
             <Link
@@ -112,13 +124,17 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
                       </div>
                     </div>
                   )}
-                  {/* تمت إزالة شارة عاجل العلوية اليمنى لعدم التكرار */}
-                  {/* ليبل عاجل يحل مكان ليبل التصنيف */}
+                  {/* ليبل عاجل أو جديد يحل مكان ليبل التصنيف */}
                   <div className="absolute top-2 left-2">
                     {isBreaking ? (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-red-600 text-white">
                         <span className="text-xs">⚡</span>
                         عاجل
+                      </span>
+                    ) : isNewsNew(article.published_at || article.created_at || '') ? (
+                      <span className="recent-news-badge inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold text-white">
+                        <span className="text-xs">🔥</span>
+                        جديد
                       </span>
                     ) : (
                       <span

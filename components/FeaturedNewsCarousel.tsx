@@ -245,7 +245,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                     <>
                       <span className="opacity-80">•</span>
                       <span className="recent-news-badge inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold text-white">
-                        <span className="text-xs">🆕</span>
+                        <span className="text-xs">🔥</span>
                         جديد
                       </span>
                     </>
@@ -301,7 +301,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                   {/* ليبل "جديد" للأخبار في آخر ساعتين - نسخة الديسكتوب */}
                   {!isBreaking && isRecentNews(currentArticle.published_at) && (
                     <span className="recent-news-badge inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold text-white">
-                      <span className="text-xs">🆕</span>
+                      <span className="text-xs">🔥</span>
                       جديد
                     </span>
                   )}
