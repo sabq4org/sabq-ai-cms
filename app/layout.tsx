@@ -4,6 +4,7 @@ import { IBM_Plex_Sans_Arabic } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
 import { ToastContainer } from "@/components/ui/toast";
+import { getServerUser } from "@/lib/getServerUser";
 import "./globals.css";
 import "@/styles/unified-font-system.css";
 import "@/styles/force-arabic-font.css";
@@ -49,16 +50,33 @@ export const viewport = {
   maximumScale: 5,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // جلب المستخدم من الخادم لتجنب race condition في hydration
+  const serverUser = await getServerUser();
+  
+  if (serverUser) {
+    console.log('🔍 [RootLayout] تم جلب المستخدم من الخادم:', serverUser.email, serverUser.partial ? '(partial)' : '(full)');
+  } else {
+    console.log('🔍 [RootLayout] لا يوجد مستخدم في الخادم');
+  }
+
   return (
     <html lang="ar" dir="rtl" className={ibmPlexArabic.variable}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* تمرير بيانات المستخدم إلى العميل */}
+        {serverUser && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `window.__INITIAL_USER__ = ${JSON.stringify(serverUser)};`
+            }}
+          />
+        )}
       </head>
       <body className={`${ibmPlexArabic.className} font-arabic antialiased`} suppressHydrationWarning>
         <Suspense fallback={<div style={{ minHeight: '100vh', backgroundColor: '#f8f8f7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

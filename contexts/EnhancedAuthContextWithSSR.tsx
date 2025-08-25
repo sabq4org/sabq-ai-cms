@@ -18,6 +18,7 @@ export interface User {
   is_verified?: boolean;
   iat?: number;
   exp?: number;
+  partial?: boolean;
 }
 
 interface AuthState {
@@ -41,23 +42,20 @@ export function AuthProvider({ children, initialUser }: { children: React.ReactN
     user: initialUser || null,
     isLoggedIn: !!initialUser,
     userId: initialUser?.id || null,
-    loading: !initialUser, // إذا كان لدينا initialUser، فلا نحتاج loading
+    loading: !initialUser,
     error: null
   });
 
-  // مراجع لمنع سباقات التحميل والتحديث بعد فك التركيب
-  const loadingRef = useRef<boolean>(false);
   const mountedRef = useRef<boolean>(true);
+  const loadingRef = useRef<boolean>(false);
   const lastLoadTimeRef = useRef<number>(0);
-  
-  // Rate Limiting للمصادقة
   const retryCountRef = useRef<number>(0);
   const lastFailureRef = useRef<number>(0);
+  
   const MAX_RETRIES = 3;
-  const RETRY_DELAY = 5000; // 5 ثوان
-  const FAILURE_COOLDOWN = 30000; // 30 ثانية
+  const RETRY_DELAY = 5000;
+  const FAILURE_COOLDOWN = 30000;
 
-  // تحديث حالة المصادقة بأمان
   const updateAuthState = useCallback((user: User | null, error: string | null = null) => {
     if (!mountedRef.current) return;
     
@@ -72,58 +70,50 @@ export function AuthProvider({ children, initialUser }: { children: React.ReactN
     });
   }, []);
 
-  // تحميل بيانات المستخدم مع حماية من Race Conditions وRate Limiting
   const loadUser = useCallback(async (force = false, isBackgroundCheck = false) => {
     const now = Date.now();
     const timeSinceLastLoad = now - lastLoadTimeRef.current;
-    
-    // منع الاستدعاءات المتزامنة
+
     if (loadingRef.current && !force) {
-      console.log('⏳ تحميل جاري بالفعل...');
+      console.log('⚠️ تحميل قيد التنفيذ - تجاهل الطلب');
       return;
     }
 
-    // فحص Rate Limiting
     if (retryCountRef.current >= MAX_RETRIES && !force) {
       const timeSinceLastFailure = now - lastFailureRef.current;
       if (timeSinceLastFailure < FAILURE_COOLDOWN) {
-        console.log(`⏳ تم تجاوز الحد الأقصى للمحاولات. انتظار ${Math.ceil((FAILURE_COOLDOWN - timeSinceLastFailure) / 1000)} ثانية`);
+        console.log(`⏳ في فترة انتظار (${Math.round((FAILURE_COOLDOWN - timeSinceLastFailure) / 1000)}s)`);
         return;
-      } else {
-        // إعادة تعيين العداد بعد انتهاء فترة الانتظار
-        retryCountRef.current = 0;
-        console.log('🔄 إعادة تعيين عداد المحاولات');
       }
+      retryCountRef.current = 0;
     }
-    
-    // تجنب التحميل المتكرر (debounce: 2 ثانية)
-    if (!force && timeSinceLastLoad < 2000) {
-      console.log('⏰ تجنب التحميل المتكرر - آخر تحميل كان منذ', timeSinceLastLoad, 'ms');
+
+    if (timeSinceLastLoad < 1000 && !force) {
+      console.log('⚠️ طلب حديث جداً - تجاهل');
       return;
     }
 
-    loadingRef.current = true;
     lastLoadTimeRef.current = now;
+    loadingRef.current = true;
+
+    console.log(`🔍 بدء تحميل بيانات المستخدم (${retryCountRef.current + 1}/${MAX_RETRIES})${isBackgroundCheck ? ' (فحص خلفي)' : ''}...`);
+
+    if (!isBackgroundCheck && (!authState.user || force) && mountedRef.current) {
+      setAuthState(prev => ({ ...prev, loading: true, error: null }));
+    }
 
     try {
-      console.log(`🔍 بدء تحميل بيانات المستخدم (${retryCountRef.current + 1}/${MAX_RETRIES})...`);
-      
-      // عيّن حالة التحميل فقط عند عدم وجود مستخدم أو عند الإجبار
-      if ((!authState.user || force) && mountedRef.current) {
-        setAuthState(prev => ({ ...prev, loading: true, error: null }));
-      }
-
-      // استخدام دالة فحص الجلسة المحسّنة
       const isValidSession = await validateSession();
       
       if (!isValidSession) {
         console.log('❌ جلسة غير صالحة - إعادة تعيين العداد');
-        retryCountRef.current = 0; // إعادة تعيين عند عدم وجود جلسة
-        updateAuthState(null);
+        retryCountRef.current = 0;
+        if (!isBackgroundCheck) {
+          updateAuthState(null);
+        }
         return;
       }
 
-      // الحصول على بيانات المستخدم باستخدام fetch مباشرة
       const response = await fetch('/api/auth/me', {
         method: 'GET',
         credentials: 'include',
@@ -139,38 +129,44 @@ export function AuthProvider({ children, initialUser }: { children: React.ReactN
         if (data?.success && data?.user) {
           console.log('✅ تم تحميل بيانات المستخدم:', data.user.email);
           
-          // إذا كانت partial data، أظهر تحذير
-          if (data.partial) {
+          if (data.partial && !isBackgroundCheck) {
             console.warn('⚠️ بيانات المستخدم جزئية - تعمل بـ fallback من التوكن');
           }
           
           updateAuthState(data.user);
-          retryCountRef.current = 0; // إعادة تعيين العداد عند النجاح
+          retryCountRef.current = 0;
           return;
         }
       } else if (response.status === 401) {
         console.log('⚠️ لا يوجد مستخدم مسجل - إعادة تعيين العداد');
         retryCountRef.current = 0;
-        updateAuthState(null);
+        if (!isBackgroundCheck) {
+          updateAuthState(null);
+        }
         return;
       } else if (response.status >= 500) {
-        // خطأ خادم - لا تمسح المستخدم إذا كان موجوداً
-        console.warn('⚠️ خطأ خادم (500+) - الاحتفاظ بالحالة الحالية');
+        // خطأ خادم - احتفظ بالمستخدم الحالي في الفحص الخلفي
+        console.warn(`⚠️ خطأ خادم (${response.status}) - ${isBackgroundCheck ? 'تجاهل في الفحص الخلفي' : 'الاحتفاظ بالحالة الحالية'}`);
         
-        if (authState.user) {
-          console.log('ℹ️ المحافظة على بيانات المستخدم الحالية أثناء خطأ الخادم');
+        if (isBackgroundCheck && authState.user) {
+          console.log('ℹ️ المحافظة على بيانات المستخدم أثناء فحص خلفي فاشل');
+          return;
+        }
+        
+        if (authState.user && !isBackgroundCheck) {
           setAuthState(prev => ({ ...prev, loading: false, error: 'خطأ في الخادم' }));
           loadingRef.current = false;
           return;
         }
         
-        // إذا لم يكن هناك مستخدم، عالج كخطأ عادي
         throw new Error(`Server error: ${response.status}`);
       }
 
       console.log('⚠️ لا يوجد مستخدم مسجل');
       retryCountRef.current = 0;
-      updateAuthState(null);
+      if (!isBackgroundCheck) {
+        updateAuthState(null);
+      }
       
     } catch (error: any) {
       console.error('❌ خطأ في تحميل بيانات المستخدم:', {
@@ -181,80 +177,48 @@ export function AuthProvider({ children, initialUser }: { children: React.ReactN
       
       if (!mountedRef.current) return;
       
-      retryCountRef.current++;
-      lastFailureRef.current = now;
-      
-      if (retryCountRef.current >= MAX_RETRIES) {
-        console.error(`❌ تم تجاوز الحد الأقصى للمحاولات (${MAX_RETRIES})`);
-        setAuthState(prev => ({ 
-          ...prev, 
-          loading: false, 
-          error: 'فشل في تحميل بيانات المستخدم',
-          user: null,
-          isLoggedIn: false,
-          userId: null 
-        }));
-        loadingRef.current = false;
-      } else {
-        // التعامل مع أنواع الأخطاء المختلفة  
+      if (!isBackgroundCheck) {
+        retryCountRef.current++;
+        lastFailureRef.current = now;
+        
         if (error.response?.status === 401) {
           console.log('🔐 جلسة منتهية الصلاحية - إعادة تعيين العداد');
           retryCountRef.current = 0;
           updateAuthState(null);
           loadingRef.current = false;
-        } else if (error.response?.status >= 500) {
-          // خطأ خادم - احتفظ بالمستخدم الحالي إن وجد
+        } else if (error.response?.status >= 500 && authState.user) {
           console.log('🔴 خطأ خادم - الاحتفاظ بالحالة الحالية');
-          if (authState.user) {
-            console.log('ℹ️ المحافظة على بيانات المستخدم أثناء خطأ الخادم');
-            setAuthState(prev => ({ 
-              ...prev, 
-              loading: false, 
-              error: 'خطأ في الخادم - جاري المحاولة مرة أخرى' 
-            }));
-            loadingRef.current = false;
-            
-            // أعد المحاولة بعد وقت أطول للأخطاء الخادم
-            setTimeout(() => {
-              if (mountedRef.current && retryCountRef.current < MAX_RETRIES) {
-                console.log('🔄 إعادة المحاولة بعد خطأ خادم...');
-                loadUser(true);
-              }
-            }, RETRY_DELAY * 2); // ضاعف وقت الانتظار للخوادم
-            return;
-          }
+          setAuthState(prev => ({ ...prev, loading: false, error: 'خطأ في الخادم - جاري المحاولة مرة أخرى' }));
+          loadingRef.current = false;
+          
+          setTimeout(() => {
+            if (mountedRef.current && retryCountRef.current < MAX_RETRIES) {
+              console.log('🔄 إعادة المحاولة بعد خطأ خادم...');
+              loadUser(true, true);
+            }
+          }, RETRY_DELAY * 2);
+          return;
         } else if (error.code === 'NETWORK_ERROR' || error.message.includes('timeout')) {
           console.log(`🌐 خطأ في الشبكة - إعادة المحاولة خلال ${RETRY_DELAY / 1000} ثانية...`);
           setTimeout(() => {
             if (mountedRef.current) {
-              loadUser(true);
+              loadUser(true, isBackgroundCheck);
             }
           }, RETRY_DELAY);
-          return; // لا نغير loading إلى false
-        } else {
-          console.log(`⏳ إعادة المحاولة خلال ${RETRY_DELAY / 1000} ثانية...`);
-          setTimeout(() => {
-            if (mountedRef.current) {
-              loadUser(true);
-            }
-          }, RETRY_DELAY);
-          return; // لا نغير loading إلى false
+          return;
         }
       }
     } finally {
-      // تعيين loading إلى false فقط إذا لم نكن ننتظر إعادة المحاولة
       if (retryCountRef.current >= MAX_RETRIES || retryCountRef.current === 0) {
         loadingRef.current = false;
       }
     }
   }, [updateAuthState, authState.user]);
 
-  // تسجيل الدخول
   const login = useCallback(async (tokenOrUser: string | User) => {
     console.log('🔐 عملية تسجيل الدخول...');
     
     if (typeof tokenOrUser === 'string') {
-      // إذا كان token، قم بتحميل بيانات المستخدم
       await loadUser(true);
       
       if (typeof window !== 'undefined') {
@@ -263,7 +227,6 @@ export function AuthProvider({ children, initialUser }: { children: React.ReactN
         }));
       }
     } else {
-      // إذا كان user object، استخدمه مباشرة
       updateAuthState(tokenOrUser);
       
       if (typeof window !== 'undefined') {
@@ -274,47 +237,40 @@ export function AuthProvider({ children, initialUser }: { children: React.ReactN
     }
   }, [updateAuthState, loadUser]);
 
-  // تسجيل الخروج
   const logout = useCallback(async () => {
     console.log('👋 عملية تسجيل الخروج...');
     
     try {
-      // استدعاء API تسجيل الخروج لمسح الكوكيز
       await httpAPI.post('/auth/logout');
     } catch (error) {
       console.warn('⚠️ خطأ في API تسجيل الخروج (غير حاسم):', error);
     }
     
-    // تنظيف الحالة المحلية
     updateAuthState(null);
     
     if (typeof window !== 'undefined') {
-      // تنظيف localStorage و sessionStorage
       ['user_preferences', 'auth-token', 'user'].forEach(key => {
         localStorage.removeItem(key);
         sessionStorage.removeItem(key);
       });
       
-      // إطلاق حدث تسجيل الخروج
       window.dispatchEvent(new CustomEvent('auth-change', { 
         detail: { type: 'logout' } 
       }));
     }
   }, [updateAuthState]);
 
-  // تحميل البيانات عند بدء التطبيق (مع تأخير للاستقرار)
+  // تحميل البيانات عند بدء التطبيق
   useEffect(() => {
     mountedRef.current = true;
     
-    // إذا كان لدينا initialUser، نؤخر الفحص قليلاً لتجنب race condition
     const delay = initialUser ? 1000 : 500;
     
     const timer = setTimeout(() => {
       if (mountedRef.current) {
         if (initialUser) {
-          console.log('🚀 تحميل أولي مع initialUser:', initialUser.email);
-          // فحص خلفي لتأكيد صحة البيانات
-          loadUser(true, true); // background check
+          console.log('🚀 تحميل أولي مع initialUser:', initialUser.email, initialUser.partial ? '(partial)' : '(full)');
+          loadUser(true, true);
         } else {
           console.log('🚀 تحميل أولي بدون initialUser...');
           loadUser();
@@ -326,35 +282,9 @@ export function AuthProvider({ children, initialUser }: { children: React.ReactN
       mountedRef.current = false;
       clearTimeout(timer);
     };
-  }, [initialUser]);
+  }, [initialUser, loadUser]);
 
-  // الاستماع لتغييرات الجلسة من تبويبات أخرى مع Debounce
-  useEffect(() => {
-    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-    
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'auth_session_update' || e.key === 'user') {
-        console.log('💾 تغيير في localStorage:', e.key);
-        
-        if (debounceTimer) clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
-          if (mountedRef.current && !loadingRef.current) {
-            console.log('🔄 إعادة تحميل بسبب تغيير localStorage');
-            loadUser();
-          }
-        }, 1000);
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    
-    return () => {
-      if (debounceTimer) clearTimeout(debounceTimer);
-      window.removeEventListener('storage', handleStorageChange);
-    };
-  }, [loadUser]);
-
-  // الاستماع لأحداث المصادقة مع تصفية المصدر وDebounce
+  // الاستماع لأحداث المصادقة
   useEffect(() => {
     let debounceTimer: ReturnType<typeof setTimeout> | null = null;
     
@@ -365,18 +295,14 @@ export function AuthProvider({ children, initialUser }: { children: React.ReactN
 
       console.log('🎯 حدث تغيير المصادقة:', type, source);
 
-      // إذا كان التحديث نتيجة تمرير user object مباشرة، فلا حاجة لإعادة التحميل
       if (source === 'user-object') {
         console.log('ℹ️ تجاهل إعادة التحميل - مصدر user object');
         return;
       }
 
-      // ⛔ إيقاف إعادة التحميل عند token-refreshed (حسب البرومنت)
-      // لكن تحديث حالة المستخدم إذا لزم الأمر
       if (type === 'token-refreshed') {
         console.log('ℹ️ تجديد التوكن - تحديث طابع التوكن فقط (بدون إعادة تحميل)');
         
-        // تحديث timestamp للمستخدم إذا كان موجود
         if (authState.user && detail.userVersion) {
           setAuthState(prev => ({
             ...prev,
@@ -390,7 +316,6 @@ export function AuthProvider({ children, initialUser }: { children: React.ReactN
         return;
       }
 
-      // معالجة انتهاء الجلسة فقط
       if (type === 'session-expired' || type === 'auth-expired') {
         console.log('🚪 انتهت الجلسة - تنظيف البيانات');
         clearSession();
@@ -398,7 +323,6 @@ export function AuthProvider({ children, initialUser }: { children: React.ReactN
         return;
       }
 
-      // أحداث أخرى (logout, etc.)
       if (['logout', 'session-cleared'].includes(type)) {
         if (debounceTimer) clearTimeout(debounceTimer);
         debounceTimer = setTimeout(() => {
@@ -416,7 +340,7 @@ export function AuthProvider({ children, initialUser }: { children: React.ReactN
       if (debounceTimer) clearTimeout(debounceTimer);
       window.removeEventListener('auth-change', handleAuthChange as EventListener);
     };
-  }, [loadUser, authState.user]);
+  }, [loadUser, authState.user, updateAuthState]);
 
   const value: AuthContextValue = {
     ...authState,

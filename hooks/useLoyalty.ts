@@ -1,7 +1,7 @@
 "use client";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api-client';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/EnhancedAuthContextWithSSR';
 
 const LOYALTY_QUERY_KEY = ['loyalty', 'me'];
 
