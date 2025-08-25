@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import ThemeApplier from "@/components/ThemeApplier";
 import { QueryProvider } from "@/lib/providers/QueryProvider";
 import { AuthProvider } from "@/contexts/EnhancedAuthContextWithSSR";
+import AuthMonitor from "@/components/debug/AuthMonitor";
 
 // Layouts
 import AdminPureLayout from "./AdminPureLayout";
@@ -77,6 +78,7 @@ export default function ConditionalLayout({
   return (
     <QueryProvider>
       <AuthProvider initialUser={initialUser}>
+        {process.env.NODE_ENV === 'development' && <AuthMonitor />}
         <SiteLayout>
           <ThemeApplier />
           {children}

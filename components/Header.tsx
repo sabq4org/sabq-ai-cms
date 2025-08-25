@@ -1,7 +1,7 @@
 "use client";
 
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/EnhancedAuthContextWithSSR";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import {
   Activity,
@@ -26,10 +26,11 @@ import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import ClientOnly from "./ClientOnly";
 import UserDropdown from "./UserDropdown";
-import MobileUserDropdown from "./mobile/UserDropdown";
-import UserMenuDrawer from "./mobile/UserMenuDrawer";
+// import MobileUserDropdown from "./mobile/UserDropdown"; // مؤقتاً معطل
+// import UserMenuDrawer from "./mobile/UserMenuDrawer"; // مؤقتاً معطل
 import { NotificationDropdown } from '@/components/Notifications/NotificationDropdownOptimized';
 import CompactThemeSwitcher from '@/components/theme/CompactThemeSwitcher';
+import AuthStateDebugger from '@/components/debug/AuthStateDebugger';
 
 
 export default function Header() {
@@ -264,6 +265,11 @@ export default function Header() {
           open={userOpen}
           onClose={() => setUserOpen(false)}
         />
+      )}
+      
+      {/* مكون التشخيص - يظهر فقط في التطوير */}
+      {process.env.NODE_ENV === 'development' && (
+        <AuthStateDebugger enabled={true} />
       )}
     </>
   );
