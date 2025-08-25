@@ -2,7 +2,7 @@
 
 import React, { useRef, useCallback } from "react";
 import Link from "next/link";
-import OptimizedImage from "@/components/ui/OptimizedImage";
+import CloudImage from "@/components/ui/CloudImage";
 import { formatDateNumeric } from "@/lib/date-utils";
 import { getArticleLink } from "@/lib/utils";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
@@ -83,12 +83,13 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
               >
                 <div className={`relative aspect-video w-full overflow-hidden rounded-lg ${!hasImage ? 'bg-gray-200 dark:bg-gray-700' : ''}`}>
                   {hasImage ? (
-                    <OptimizedImage
+                    <CloudImage
                       src={normalizedImage}
                       alt={article.title || "صورة"}
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
                       priority={idx === 0}
+                      fallbackType="article"
                     />
                   ) : (
                     // صورة افتراضية أو placeholder عندما لا توجد صورة
