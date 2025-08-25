@@ -290,6 +290,25 @@ export async function GET(request: NextRequest) {
   } catch (error: any) {
     console.error('❌ [/api/auth/me] خطأ عام:', error);
     
+    // في حالة أخطاء قاعدة البيانات، حاول استخدام التوكن كـ fallback
+    const { accessToken: fallbackToken } = getUnifiedAuthTokens(request);
+    if (fallbackToken && (error.message?.includes('Prisma') || error.message?.includes('database'))) {
+      const tokenUser = getUserFromToken(fallbackToken);
+      if (tokenUser) {
+        console.log('⚠️ [/api/auth/me] استخدام fallback للتوكن بسبب خطأ قاعدة البيانات');
+        const response = NextResponse.json({
+          success: true,
+          user: tokenUser,
+          partial: true,
+          reason: 'db_error_fallback'
+        });
+        
+        setCORSHeaders(response, request.headers.get('origin') || undefined);
+        setNoCache(response);
+        return response;
+      }
+    }
+    
     const response = NextResponse.json({ 
       success: false, 
       error: "خطأ داخلي في الخادم", 

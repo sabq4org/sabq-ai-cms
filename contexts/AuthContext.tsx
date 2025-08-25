@@ -138,6 +138,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const data = await response.json();
         if (data?.success && data?.user) {
           console.log('✅ تم تحميل بيانات المستخدم:', data.user.email);
+          
+          // إذا كانت partial data، أظهر تحذير
+          if (data.partial) {
+            console.warn('⚠️ بيانات المستخدم جزئية - تعمل بـ fallback من التوكن');
+          }
+          
           updateAuthState(data.user);
           retryCountRef.current = 0; // إعادة تعيين العداد عند النجاح
           return;
@@ -147,6 +153,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         retryCountRef.current = 0;
         updateAuthState(null);
         return;
+      } else if (response.status >= 500) {
+        // خطأ خادم - لا تمسح المستخدم إذا كان موجوداً
+        console.warn('⚠️ خطأ خادم (500+) - الاحتفاظ بالحالة الحالية');
+        
+        if (authState.user) {
+          console.log('ℹ️ المحافظة على بيانات المستخدم الحالية أثناء خطأ الخادم');
+          setAuthState(prev => ({ ...prev, loading: false, error: 'خطأ في الخادم' }));
+          loadingRef.current = false;
+          return;
+        }
+        
+        // إذا لم يكن هناك مستخدم، عالج كخطأ عادي
+        throw new Error(`Server error: ${response.status}`);
       }
 
       console.log('⚠️ لا يوجد مستخدم مسجل');
@@ -183,6 +202,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           retryCountRef.current = 0;
           updateAuthState(null);
           loadingRef.current = false;
+        } else if (error.response?.status >= 500) {
+          // خطأ خادم - احتفظ بالمستخدم الحالي إن وجد
+          console.log('🔴 خطأ خادم - الاحتفاظ بالحالة الحالية');
+          if (authState.user) {
+            console.log('ℹ️ المحافظة على بيانات المستخدم أثناء خطأ الخادم');
+            setAuthState(prev => ({ 
+              ...prev, 
+              loading: false, 
+              error: 'خطأ في الخادم - جاري المحاولة مرة أخرى' 
+            }));
+            loadingRef.current = false;
+            
+            // أعد المحاولة بعد وقت أطول للأخطاء الخادم
+            setTimeout(() => {
+              if (mountedRef.current && retryCountRef.current < MAX_RETRIES) {
+                console.log('🔄 إعادة المحاولة بعد خطأ خادم...');
+                loadUser(true);
+              }
+            }, RETRY_DELAY * 2); // ضاعف وقت الانتظار للخوادم
+            return;
+          }
         } else if (error.code === 'NETWORK_ERROR' || error.message.includes('timeout')) {
           console.log(`🌐 خطأ في الشبكة - إعادة المحاولة خلال ${RETRY_DELAY / 1000} ثانية...`);
           setTimeout(() => {
