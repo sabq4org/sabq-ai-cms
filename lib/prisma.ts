@@ -76,6 +76,31 @@ export function isPrismaNotConnectedError(e: unknown): boolean {
      e.message?.includes('P1017')); // Connection pool error code
 }
 
+// Helper: فحص خطأ "Response from the Engine was empty"
+export function isEngineEmptyResponseError(e: unknown): boolean {
+  if (!(e instanceof Error)) return false;
+  const msg = e.message?.toLowerCase?.() || '';
+  return msg.includes('response from the engine was empty') || e.name === 'PrismaClientUnknownRequestError';
+}
+
+// إعادة بناء عميل Prisma عند تعطل المحرك
+export async function resetPrismaClient(): Promise<void> {
+  try {
+    await prisma.$disconnect().catch(() => {});
+  } catch {}
+  // إعادة إنشاء العميل بنفس الخيارات
+  prisma = new PrismaClient(prismaOptions);
+  if (process.env.NODE_ENV !== 'production') {
+    (global as any).__prisma = prisma;
+  }
+  try {
+    await prisma.$connect();
+    console.log('♻️ Prisma client has been reset and reconnected');
+  } catch (e) {
+    console.error('❌ Failed to reset Prisma client:', e);
+  }
+}
+
 // دالة للمحاولة مع إعادة الاتصال التلقائي
 export async function retryWithConnection<T>(
   operation: () => Promise<T>,
@@ -86,26 +111,24 @@ export async function retryWithConnection<T>(
   for (let i = 0; i <= maxRetries; i++) {
     try {
       // تأكد من الاتصال قبل كل محاولة
-      if (i > 0) {
-        const connected = await ensureDbConnected();
-        if (!connected) {
-          throw new Error('Failed to establish database connection');
-        }
+      const connected = await ensureDbConnected();
+      if (!connected) {
+        // محاولة إعادة الضبط ثم المحاولة مجدداً
+        await resetPrismaClient();
       }
       
       return await operation();
     } catch (error) {
       lastError = error;
       
-      if (isPrismaNotConnectedError(error) && i < maxRetries) {
-        console.info(`🔄 Retrying after connection error (attempt ${i + 1}/${maxRetries + 1})...`);
-        
-        // انتظار قصير قبل المحاولة التالية
+      if ((isPrismaNotConnectedError(error) || isEngineEmptyResponseError(error)) && i < maxRetries) {
+        console.info(`🔄 Retrying after Prisma engine error (attempt ${i + 1}/${maxRetries + 1})...`);
+        // إعادة بناء العميل ثم الانتظار قبل المحاولة التالية
+        await resetPrismaClient();
         await new Promise(resolve => setTimeout(resolve, 500 * (i + 1)));
         continue;
-      } else {
-        throw error;
       }
+      throw error;
     }
   }
   
