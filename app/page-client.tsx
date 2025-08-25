@@ -1045,7 +1045,7 @@ function NewspaperHomePage({
                                     (c) => c.id === selectedCategory
                                   )?.slug || "general"
                                 }`}
-                                className={`group inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold text-base transition-all duration-300 transform hover:scale-105 shadow-lg dark:shadow-gray-900/50 hover:shadow-xl dark:shadow-gray-900/50 ${
+                                className={`group inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold text-base transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl ${
                                   darkMode
                                     ? "bg-blue-700 hover:bg-blue-800 text-white"
                                     : "bg-blue-600 hover:bg-blue-700 text-white"
@@ -1067,8 +1067,8 @@ function NewspaperHomePage({
                           <div
                             className={`text-center py-8 ${
                               darkMode
-                                ? "text-gray-400 dark:text-gray-500"
-                                : "text-gray-500 dark:text-gray-400 dark:text-gray-500"
+                                ? "text-gray-400"
+                                : "text-gray-500"
                             }`}
                           >
                             <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
@@ -1083,8 +1083,8 @@ function NewspaperHomePage({
                   <div
                     className={`text-center py-8 ${
                       darkMode
-                        ? "text-gray-400 dark:text-gray-500"
-                        : "text-gray-500 dark:text-gray-400 dark:text-gray-500"
+                        ? "text-gray-400"
+                        : "text-gray-500"
                     }`}
                   >
                     <p className="text-sm">لا توجد تصنيفات متاحة حالياً</p>
@@ -1172,14 +1172,14 @@ function NewspaperHomePage({
                               darkMode ? "text-white" : "text-gray-800"
                             } text-xl leading-tight`}
                           >
-                            🎯 محتوى مختار خصيصاً لك
+                            أخبار تفهمك أولاً
                           </h2>
                           <p
                             className={`smart-section-subtext ${
                               darkMode ? "text-gray-300" : "text-gray-600"
                             } text-xs mb-4`}
                           >
-                            مقالات مخصصة بالذكاء الاصطناعي
+                            مقالات مختارة بعناية لتناسب اهتماماتك وتوفر وقتك
                           </p>
                         </div>
 
@@ -1219,7 +1219,7 @@ function NewspaperHomePage({
                                 : "text-4xl"
                             }`}
                           >
-                            🎯 محتوى ذكي مخصص لاهتماماتك
+                            أخبار تفهمك أولاً
                           </h2>
                           <p
                             className={`max-w-2xl mx-auto smart-section-subtext ${
@@ -1230,9 +1230,7 @@ function NewspaperHomePage({
                                 : "text-xl mb-8"
                             }`}
                           >
-                            {isMobileView
-                              ? "مقالات مختارة خصيصاً لك"
-                              : "نقدم لك أفضل المقالات المختارة خصيصاً بناءً على اهتماماتك المحددة"}
+                            مقالات مختارة بعناية لتناسب اهتماماتك وتوفر وقتك
                           </p>
                         </div>
                       </>
@@ -1268,7 +1266,7 @@ function NewspaperHomePage({
                               : "text-4xl"
                           }`}
                         >
-                          📰 آخر الأخبار
+                          آخبار الأخبار
                         </h2>
                         <p
                           className={`max-w-2xl mx-auto smart-section-subtext ${
@@ -1280,8 +1278,8 @@ function NewspaperHomePage({
                           }`}
                         >
                           {isMobileView
-                            ? "أحدث المقالات المنشورة"
-                            : "تابع أحدث المقالات المنشورة من جميع التصنيفات"}
+                            ? ""
+                            : ""}
                         </p>
                       </>
                     ))}
@@ -1296,8 +1294,8 @@ function NewspaperHomePage({
                   <p
                     className={`text-sm ${
                       darkMode
-                        ? "text-gray-400 dark:text-gray-500"
-                        : "text-gray-600 dark:text-gray-400 dark:text-gray-500"
+                        ? "text-gray-400"
+                        : "text-gray-600"
                     }`}
                   >
                     جاري تحميل المقالات...
@@ -1363,29 +1361,23 @@ function NewspaperHomePage({
                         : "bg-gray-50 border border-gray-200"
                     }`}
                   >
-                    <p
-                      className={`text-sm mb-3 ${
-                        darkMode ? "text-gray-300" : "text-gray-700"
-                      }`}
-                    >
-                      🎯 سجل دخولك للحصول على محتوى مخصص حسب اهتماماتك
+                    <h3 className={`text-lg md:text-xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                      تجربة إخبارية أفضل بانتظارك.
+                    </h3>
+                    <p className={`${darkMode ? 'text-gray-300' : 'text-gray-700'} text-sm md:text-base mb-4`}>
+                      سجّل عضويتك مجاناً لتصلك المقالات والأخبار التي تناسب ذوقك واهتماماتك الفريدة.
                     </p>
-                    <div className="flex items-center justify-center gap-3">
+                    <div className="flex items-center justify-center">
                       <Link
                         href="/register"
-                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-all transform hover:scale-105"
+                        className="px-5 py-2.5 rounded-lg text-sm font-medium transition-all hover:scale-[1.02] border"
+                        style={{
+                          backgroundColor: 'var(--theme-primary, #3B82F6)',
+                          color: 'white',
+                          borderColor: 'rgba(var(--theme-primary-rgb, 59 130 246), 0.3)'
+                        }}
                       >
-                        إنشاء حساب
-                      </Link>
-                      <Link
-                        href="/login"
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all border ${
-                          darkMode
-                            ? "border-gray-600 hover:border-gray-500 text-gray-300 hover:bg-gray-800"
-                            : "border-gray-300 hover:border-gray-400 text-gray-700 hover:bg-gray-50"
-                        }`}
-                      >
-                        تسجيل دخول
+                        سجّل الآن مجاناً
                       </Link>
                     </div>
                   </div>
@@ -1473,8 +1465,8 @@ function NewspaperHomePage({
                   <div
                     className={`text-center py-20 ${
                       darkMode
-                        ? "text-gray-400 dark:text-gray-500"
-                        : "text-gray-500 dark:text-gray-400 dark:text-gray-500"
+                        ? "text-gray-400"
+                        : "text-gray-500"
                     }`}
                   >
                     <Newspaper className="w-16 h-16 mx-auto mb-4 opacity-50" />
