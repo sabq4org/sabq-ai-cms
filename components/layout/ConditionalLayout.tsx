@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import ThemeApplier from "@/components/ThemeApplier";
+import DarkModeOverlayFix from "@/components/debug/DarkModeOverlayFix";
 import { QueryProvider } from "@/lib/providers/QueryProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import AuthMonitor from "@/components/debug/AuthMonitor";
@@ -44,6 +45,7 @@ export default function ConditionalLayout({
       <QueryProvider>
         <AuthProvider initialUser={initialUser}>
           <ThemeApplier />
+          <DarkModeOverlayFix />
           {children}
         </AuthProvider>
       </QueryProvider>
@@ -56,6 +58,7 @@ export default function ConditionalLayout({
         <AuthProvider initialUser={initialUser}>
           <AdminPureLayout>
             <ThemeApplier />
+            <DarkModeOverlayFix />
             {children}
           </AdminPureLayout>
         </AuthProvider>
@@ -69,6 +72,7 @@ export default function ConditionalLayout({
       <QueryProvider>
         <AuthProvider initialUser={initialUser}>
           <ThemeApplier />
+          <DarkModeOverlayFix />
           {children}
         </AuthProvider>
       </QueryProvider>
@@ -81,6 +85,7 @@ export default function ConditionalLayout({
         {process.env.NODE_ENV === 'development' && <AuthMonitor />}
         <SiteLayout>
           <ThemeApplier />
+          <DarkModeOverlayFix />
           {children}
         </SiteLayout>
       </AuthProvider>

@@ -15,6 +15,7 @@ import "@/styles/notification-modern-ui.css";
 import "@/styles/notification-light-header.css";
 import "@/styles/lite-stats-bar-sticky.css";
 import "@/styles/recent-news-badge.css";
+import "@/styles/dark-mode-overlay-fix.css";
 
 const ibmPlexArabic = IBM_Plex_Sans_Arabic({
   subsets: ["arabic", "latin"],

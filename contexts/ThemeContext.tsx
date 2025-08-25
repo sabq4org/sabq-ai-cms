@@ -15,7 +15,7 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-// تطبيق محسّن للوضع الليلي مع معالجة شاملة
+// تطبيق محسّن للوضع الليلي مع معالجة مبسطة
 function applyThemeToDocument(isDark: boolean) {
   if (typeof document === 'undefined') return;
   
@@ -24,74 +24,17 @@ function applyThemeToDocument(isDark: boolean) {
 
   console.log(`🌙 تطبيق الوضع ${isDark ? 'الليلي' : 'النهاري'}...`);
 
-  // تطبيق فوري وشامل
+  // تطبيق أساسي على HTML/Body فقط
   if (isDark) {
-    // تطبيق الوضع الليلي
     root.classList.add('dark');
     root.setAttribute('data-theme', 'dark');
-    root.setAttribute('data-mode', 'dark');
     body.classList.add('dark');
     root.style.colorScheme = 'dark';
-    
-    // تطبيق على جميع العناصر الموجودة
-    const allElements = document.querySelectorAll('*:not(script):not(style):not(link):not(meta):not(title)');
-    allElements.forEach(el => {
-      if (el.tagName && !['SCRIPT', 'STYLE', 'LINK', 'META', 'TITLE', 'HEAD'].includes(el.tagName)) {
-        el.classList.add('dark');
-      }
-    });
-    
-    // تحديث CSS variables شاملة
-    root.style.setProperty('--bg-main', '#0f172a');
-    root.style.setProperty('--bg-elevated', '#1e293b');
-    root.style.setProperty('--bg-surface', '#334155');
-    root.style.setProperty('--bg-muted', '#475569');
-    root.style.setProperty('--text-primary', '#f8fafc');
-    root.style.setProperty('--text-secondary', '#cbd5e1');
-    root.style.setProperty('--text-tertiary', '#94a3b8');
-    root.style.setProperty('--text-muted', '#64748b');
-    root.style.setProperty('--border-color', '#475569');
-    root.style.setProperty('--border-light', '#64748b');
-    
-    // متغيرات إضافية للتوافق
-    root.style.setProperty('--color-bg-base', '#0f172a');
-    root.style.setProperty('--color-bg-elevated', '#1e293b');
-    root.style.setProperty('--color-text-primary', '#f8fafc');
-    root.style.setProperty('--color-text-secondary', '#cbd5e1');
-    
   } else {
-    // تطبيق الوضع الفاتح
     root.classList.remove('dark');
     root.setAttribute('data-theme', 'light');
-    root.setAttribute('data-mode', 'light');
     body.classList.remove('dark');
     root.style.colorScheme = 'light';
-    
-    // إزالة من جميع العناصر
-    const darkElements = document.querySelectorAll('.dark');
-    darkElements.forEach(el => {
-      if (el !== root && el !== body) {
-        el.classList.remove('dark');
-      }
-    });
-    
-    // تحديث CSS variables للوضع الفاتح
-    root.style.setProperty('--bg-main', '#ffffff');
-    root.style.setProperty('--bg-elevated', '#f8fafc');
-    root.style.setProperty('--bg-surface', '#f1f5f9');
-    root.style.setProperty('--bg-muted', '#e2e8f0');
-    root.style.setProperty('--text-primary', '#0f172a');
-    root.style.setProperty('--text-secondary', '#475569');
-    root.style.setProperty('--text-tertiary', '#64748b');
-    root.style.setProperty('--text-muted', '#94a3b8');
-    root.style.setProperty('--border-color', '#e2e8f0');
-    root.style.setProperty('--border-light', '#f1f5f9');
-    
-    // متغيرات إضافية للتوافق
-    root.style.setProperty('--color-bg-base', '#ffffff');
-    root.style.setProperty('--color-bg-elevated', '#f8fafc');
-    root.style.setProperty('--color-text-primary', '#0f172a');
-    root.style.setProperty('--color-text-secondary', '#475569');
   }
   
   // تحديث meta theme-color
@@ -99,14 +42,6 @@ function applyThemeToDocument(isDark: boolean) {
   if (metaThemeColor) {
     metaThemeColor.setAttribute('content', isDark ? '#0f172a' : '#ffffff');
   }
-
-  // ضمان تطبيق التغييرات على الصفحة
-  setTimeout(() => {
-    // إعادة رسم الصفحة لضمان تطبيق الأنماط
-    document.body.style.visibility = 'hidden';
-    document.body.offsetHeight; // إجبار إعادة الحساب
-    document.body.style.visibility = 'visible';
-  }, 10);
 
   console.log(`✅ تم تطبيق الوضع ${isDark ? 'الليلي' : 'النهاري'} بنجاح`);
 }
@@ -196,36 +131,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       const isDarkTheme = resolvedTheme === 'dark';
       applyThemeToDocument(isDarkTheme);
 
-      // مراقب DOM لتطبيق الوضع الليلي على العناصر الجديدة
-      const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-          if (mutation.type === 'childList' && isDarkTheme) {
-            mutation.addedNodes.forEach((node) => {
-              if (node.nodeType === Node.ELEMENT_NODE) {
-                const element = node as Element;
-                element.classList.add('dark');
-                
-                // تطبيق على جميع العناصر الفرعية أيضاً
-                const children = element.querySelectorAll('*');
-                children.forEach(child => child.classList.add('dark'));
-              }
-            });
-          }
-        });
-      });
-
-      // بدء مراقبة التغييرات
-      observer.observe(document.body, {
-        childList: true,
-        subtree: true
-      });
-
       // حفظ في localStorage
       localStorage.setItem('theme', theme);
-
-      return () => {
-        observer.disconnect();
-      };
     } catch (error) {
       console.error('خطأ في تطبيق الثيم:', error);
     }
