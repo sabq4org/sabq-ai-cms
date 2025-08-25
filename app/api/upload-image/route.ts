@@ -35,19 +35,24 @@ export async function POST(request: NextRequest) {
       file = formData.get("file") as File | null;
       type = (formData.get("type") as string) || "general";
     } else if (contentType.includes("application/json")) {
-      // إذا كان الطلب JSON
-      const jsonData = await request.json();
-      
-      if (jsonData.file && typeof jsonData.file === 'string' && jsonData.file.startsWith('data:')) {
-        // تحويل base64 إلى File
-        const [header, base64Data] = jsonData.file.split(',');
-        const mimeType = header.match(/data:([^;]+)/)?.[1] || 'image/jpeg';
-        const buffer = Buffer.from(base64Data, 'base64');
-        const blob = new Blob([buffer], { type: mimeType });
-        file = new File([blob], 'image.jpg', { type: mimeType });
+      // إذا كان الطلب JSON — مع حماية من JSON غير صالح
+      try {
+        const jsonData = await request.json();
+        
+        if (jsonData.file && typeof jsonData.file === 'string' && jsonData.file.startsWith('data:')) {
+          // تحويل base64 إلى File
+          const [header, base64Data] = jsonData.file.split(',');
+          const mimeType = header.match(/data:([^;]+)/)?.[1] || 'image/jpeg';
+          const buffer = Buffer.from(base64Data, 'base64');
+          const blob = new Blob([buffer], { type: mimeType });
+          file = new File([blob], 'image.jpg', { type: mimeType });
+        }
+        
+        type = jsonData.type || "general";
+      } catch (jsonErr: any) {
+        console.warn("⚠️ [UPLOAD IMAGE] JSON غير صالح، أعد الطلب كـ FormData:", jsonErr?.message);
+        return NextResponse.json({ success: false, error: 'نوع المحتوى غير مدعوم، استخدم FormData' }, { status: 400 });
       }
-      
-      type = jsonData.type || "general";
     } else {
       // محاولة قراءة كـ FormData بأي حال
       try {
