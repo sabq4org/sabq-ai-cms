@@ -150,14 +150,7 @@ export function getPrismaClient(): PrismaClient {
   return prisma;
 }
 
-// التصدير - named export و default export
-export { 
-  prisma,
-  ensureDbConnected,
-  isPrismaNotConnectedError,
-  retryWithConnection,
-  withPrisma,
-  getPrismaClient
-};
+// التصدير - named export و default export (تجنّب إعادة تصدير الدوال المصدّرة مسبقاً)
+export { prisma };
 
 export default prisma;

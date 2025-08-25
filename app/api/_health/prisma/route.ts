@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma, { ensureDbConnected } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
+import { ensureDbConnected } from "@/lib/prisma";
 
 export const runtime = 'nodejs';
 
