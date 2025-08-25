@@ -3,8 +3,7 @@ import { getAuthenticatedUser, createAuthErrorResponse } from "@/lib/getAuthenti
 import { setCORSHeaders, setNoCache, getUnifiedAuthTokens, updateAccessToken } from "@/lib/auth-cookies-unified";
 import { UserManagementService } from "@/lib/auth/user-management";
 import { serialize } from 'cookie';
-import prisma from "@/lib/prisma";
-import { ensureDbConnected, isPrismaNotConnectedError, retryWithConnection } from "@/lib/prisma-helpers";
+import prisma, { ensureDbConnected, isPrismaNotConnectedError, retryWithConnection } from "@/lib/prisma";
 import jwt from 'jsonwebtoken';
 
 // تعيين runtime كـ nodejs لـ Prisma

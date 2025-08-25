@@ -82,8 +82,19 @@ http.interceptors.response.use(
         original.url?.includes(endpoint)
       );
       
+      // ❌ منع تجديد التوكن لـ loyalty endpoint لأنه يسبب مشاكل في الجلسة
+      const problematicEndpoints = ['/profile/me/loyalty'];
+      const isProblematic = problematicEndpoints.some(endpoint => 
+        original.url?.includes(endpoint)
+      );
+      
       if (isSensitive) {
         console.log('⚠️ طلب حساس - لا يحتاج تجديد');
+        return Promise.reject(error);
+      }
+      
+      if (isProblematic) {
+        console.log('⚠️ طلب مُشكِل للولاء - منع تجديد التوكن لتجنب حلقة المشاكل');
         return Promise.reject(error);
       }
 

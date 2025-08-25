@@ -24,14 +24,23 @@ export function useLoyalty() {
       });
       
       if (!isLoggedIn || !user?.id) {
-        throw new Error('User not authenticated for loyalty data');
+        console.log('⚠️ useLoyalty: المستخدم غير مسجل دخول - إرجاع قيم افتراضية');
+        return { points: 0, level: 'برونزي', nextLevelThreshold: 100 };
       }
       
-      return api.get('/profile/me/loyalty');
+      try {
+        return await api.get('/profile/me/loyalty');
+      } catch (error: any) {
+        console.warn('⚠️ useLoyalty: فشل في جلب نقاط الولاء، استخدام قيم افتراضية:', error.message);
+        // إرجاع قيم افتراضية بدلاً من رمي خطأ
+        return { points: 0, level: 'برونزي', nextLevelThreshold: 100 };
+      }
     },
     enabled: typeof window !== 'undefined' && !authLoading && isLoggedIn && !!user?.id, // Only run when auth is ready and on client
     staleTime: 30_000,
     refetchOnWindowFocus: false,
+    // منع إعادة المحاولة عند فشل الطلب
+    retry: false,
   });
 
   return {
