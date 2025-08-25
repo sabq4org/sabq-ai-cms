@@ -27,15 +27,43 @@ if (process.env.NODE_ENV === "production") {
   prisma = global.__prisma;
 }
 
+// متغير لتتبع حالة الاتصال
+let isConnecting = false;
+let connectionPromise: Promise<boolean> | null = null;
+
 // دالة للتأكد من الاتصال - آمنة للاستدعاء المتكرر
-export async function ensureDbConnected() {
+export async function ensureDbConnected(): Promise<boolean> {
+  // إذا كان هناك محاولة اتصال جارية، انتظرها
+  if (isConnecting && connectionPromise) {
+    return connectionPromise;
+  }
+
   try {
-    // $connect() is idempotent - safe to call multiple times
-    await prisma.$connect();
+    // اختبار سريع للاتصال
+    await prisma.$queryRaw`SELECT 1`;
     return true;
-  } catch (err) {
-    console.error('❌ Prisma $connect() failed:', err);
-    return false;
+  } catch (error) {
+    console.warn('⚠️ Database connection test failed, attempting to reconnect...');
+    
+    // إذا فشل الاختبار، حاول الاتصال
+    if (!isConnecting) {
+      isConnecting = true;
+      connectionPromise = prisma.$connect()
+        .then(() => {
+          console.log('✅ Database reconnected successfully');
+          isConnecting = false;
+          connectionPromise = null;
+          return true;
+        })
+        .catch((err) => {
+          console.error('❌ Prisma $connect() failed:', err);
+          isConnecting = false;
+          connectionPromise = null;
+          return false;
+        });
+    }
+    
+    return connectionPromise || false;
   }
 }
 
@@ -51,30 +79,37 @@ export function isPrismaNotConnectedError(e: unknown): boolean {
 // دالة للمحاولة مع إعادة الاتصال التلقائي
 export async function retryWithConnection<T>(
   operation: () => Promise<T>,
-  maxRetries = 2
+  maxRetries = 3
 ): Promise<T> {
   let lastError: unknown;
   
   for (let i = 0; i <= maxRetries; i++) {
     try {
+      // تأكد من الاتصال قبل كل محاولة
+      if (i > 0) {
+        const connected = await ensureDbConnected();
+        if (!connected) {
+          throw new Error('Failed to establish database connection');
+        }
+      }
+      
       return await operation();
     } catch (error) {
       lastError = error;
       
       if (isPrismaNotConnectedError(error) && i < maxRetries) {
-        console.log(`🔄 Retrying after connection error (attempt ${i + 1}/${maxRetries})...`);
-        const connected = await ensureDbConnected();
-        if (!connected) {
-          throw error;
-        }
-        // Continue to next iteration
+        console.info(`🔄 Retrying after connection error (attempt ${i + 1}/${maxRetries + 1})...`);
+        
+        // انتظار قصير قبل المحاولة التالية
+        await new Promise(resolve => setTimeout(resolve, 500 * (i + 1)));
+        continue;
       } else {
         throw error;
       }
     }
   }
   
-  throw lastError;
+  throw lastError || new Error('Max retries exceeded');
 }
 
 // معالجة إغلاق الاتصال بشكل صحيح - فقط عند إيقاف التطبيق

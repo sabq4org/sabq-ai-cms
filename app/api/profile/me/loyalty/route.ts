@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuthFromRequest } from "@/app/lib/auth";
-import prisma from "@/lib/prisma";
-import { ensureDbConnected, retryWithConnection } from "@/lib/prisma-helpers";
+import { prisma, ensureDbConnected, retryWithConnection, isPrismaNotConnectedError } from "@/lib/prisma";
 
 // تعيين runtime كـ nodejs لـ Prisma
 export const runtime = 'nodejs';
@@ -31,28 +30,50 @@ export async function GET(req: NextRequest) {
       }, { status: 401 });
     }
 
-    // التأكد من الاتصال بقاعدة البيانات قبل الاستعلام
-    await ensureDbConnected();
+    let points = 0;
+    let dbConnected = false;
     
-    // استخدام retryWithConnection لضمان المرونة
-    const userData = await retryWithConnection(async () => {
-      return await prisma.users.findUnique({
-        where: { id: user.id },
-        select: { loyalty_points: true }
-      });
-    });
+    try {
+      // محاولة الاتصال وجلب البيانات
+      dbConnected = await ensureDbConnected();
+      
+      if (dbConnected) {
+        const userData = await retryWithConnection(async () => {
+          return await prisma.users.findUnique({
+            where: { id: user.id },
+            select: { loyalty_points: true }
+          });
+        });
+        points = userData?.loyalty_points || 0;
+      }
+    } catch (dbError: any) {
+      console.warn('⚠️ [loyalty] فشل الاتصال بقاعدة البيانات، استخدام القيم الافتراضية:', dbError.message);
+      
+      // إذا كانت مشكلة اتصال، استخدم قيمة افتراضية
+      if (isPrismaNotConnectedError(dbError)) {
+        points = 0; // قيمة افتراضية
+        dbConnected = false;
+      } else {
+        throw dbError; // إعادة رمي الخطأ إذا لم يكن مشكلة اتصال
+      }
+    }
 
-    const points = userData?.loyalty_points || 0;
     const { level, nextLevelThreshold } = getLevel(points);
 
-    console.log(`✅ [loyalty] تم جلب النقاط بنجاح للمستخدم ${user.id}:`, { points, level });
+    console.log(`✅ [loyalty] تم جلب النقاط للمستخدم ${user.id}:`, { 
+      points, 
+      level, 
+      dbConnected,
+      fallback: !dbConnected 
+    });
 
     return NextResponse.json({ 
       success: true, 
       points, 
       level, 
       nextLevelThreshold, 
-      lastUpdatedAt: new Date().toISOString() 
+      lastUpdatedAt: new Date().toISOString(),
+      fallback: !dbConnected // إشارة للواجهة أن البيانات قد تكون افتراضية
     }, { 
       headers: { 'Cache-Control': 'no-store' } 
     });

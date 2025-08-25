@@ -3,7 +3,7 @@ import { requireAuthFromRequest } from "@/app/lib/auth";
 import { getRedisClient } from "@/lib/redis-client";
 import { deleteKeysByPattern } from "@/lib/redis-helpers";
 import prisma from "@/lib/prisma";
-import { ensureDbConnected, retryWithConnection } from "@/lib/prisma-helpers";
+import { ensureDbConnected, retryWithConnection, isPrismaNotConnectedError } from "@/lib/prisma";
 
 // تعيين runtime كـ nodejs لـ Prisma
 export const runtime = 'nodejs';

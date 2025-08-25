@@ -1,6 +1,4 @@
-import prisma from "@/lib/prisma";
-import { withRetry } from "@/lib/prisma-helper";
-import { ensureDbConnected } from "@/lib/prisma-helpers";
+import { prisma, ensureDbConnected, retryWithConnection, isPrismaNotConnectedError } from "@/lib/prisma";
 import { ensureUniqueSlug, resolveContentType } from "@/lib/slug";
 import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
