@@ -1,12 +1,13 @@
 import prisma from "@/lib/prisma";
-import { withRetry } from "@/lib/prisma-helper";
+import { retryWithConnection, ensureDbConnected } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
 export async function GET(request: NextRequest) {
   try {
-    const categories = await withRetry(async () => prisma.categories.findMany({
+    await ensureDbConnected();
+    const categories = await retryWithConnection(async () => await prisma.categories.findMany({
       where: {
         is_active: true,
       },

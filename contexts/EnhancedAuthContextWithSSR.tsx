@@ -106,12 +106,8 @@ export function AuthProvider({ children, initialUser }: { children: React.ReactN
       const isValidSession = await validateSession();
       
       if (!isValidSession) {
-        console.log('❌ جلسة غير صالحة - إعادة تعيين العداد');
-        retryCountRef.current = 0;
-        if (!isBackgroundCheck) {
-          updateAuthState(null);
-        }
-        return;
+        console.log('❌ جلسة غير صالحة بحسب validateSession() - سنحاول جلب /api/auth/me اعتماداً على الكوكيز');
+        // لا نُعيد هنا، نكمل لاستدعاء /api/auth/me الذي يعتمد على الكوكيز HttpOnly
       }
 
       const response = await fetch('/api/auth/me', {
@@ -219,6 +215,8 @@ export function AuthProvider({ children, initialUser }: { children: React.ReactN
     console.log('🔐 عملية تسجيل الدخول...');
     
     if (typeof tokenOrUser === 'string') {
+      // حفظ التوكن في الذاكرة ليصبح validateSession إيجابياً مباشرة
+      setAccessTokenInMemory(tokenOrUser);
       await loadUser(true);
       
       if (typeof window !== 'undefined') {

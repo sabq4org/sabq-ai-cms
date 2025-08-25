@@ -132,8 +132,8 @@ export async function GET(request: NextRequest) {
     }
 
     // جلب المقالات أولاً (بدون content_type لتوافق قاعدة البيانات الحالية)
-    const articles = await withRetry(async () => {
-      return prisma.articles.findMany({
+    const articles = await retryWithConnection(async () => {
+      return await prisma.articles.findMany({
         where,
         skip,
         take: limit,

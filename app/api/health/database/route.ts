@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { withRetry } from "@/lib/prisma-helper";
+import { ensureDbConnected, retryWithConnection } from "@/lib/prisma";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,13 +10,14 @@ export async function GET(request: NextRequest) {
   
   try {
     // اختبار الاتصال الأساسي
-    await withRetry(async () => {
+    await ensureDbConnected();
+    await retryWithConnection(async () => {
       await prisma.$queryRaw`SELECT 1`;
     });
     
     // اختبار الجداول الأساسية
-    const [usersCount, articlesCount, categoriesCount] = await withRetry(async () => 
-      Promise.all([
+    const [usersCount, articlesCount, categoriesCount] = await retryWithConnection(async () => 
+      await Promise.all([
         prisma.users.count(),
         prisma.articles.count(), 
         prisma.categories.count()

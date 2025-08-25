@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { withRetry } from "@/lib/prisma-helper";
+import { ensureDbConnected, retryWithConnection } from "@/lib/prisma";
 import jwt from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -74,7 +74,8 @@ export async function GET(request: NextRequest) {
     }
 
     // اجلب المستخدم
-    const user = await withRetry(async () => 
+    await ensureDbConnected();
+    const user = await retryWithConnection(async () => 
       await prisma.users.findUnique({
         where: { id: userId },
         select: {

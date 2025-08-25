@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import prisma from '@/lib/prisma';
-import { withRetry } from '@/lib/prisma-helper';
+import { ensureDbConnected, retryWithConnection } from '@/lib/prisma';
 
 /**
  * Cron job لنشر الأخبار المجدولة
@@ -23,8 +23,9 @@ export async function GET(request: NextRequest) {
     console.log(`🕐 [${now.toISOString()}] بدء فحص الأخبار المجدولة...`);
 
     // البحث عن الأخبار المجدولة التي حان وقت نشرها
-    const scheduledArticles = await withRetry(async () => 
-      prisma.articles.findMany({
+    await ensureDbConnected();
+    const scheduledArticles = await retryWithConnection(async () => 
+      await prisma.articles.findMany({
         where: {
           status: 'scheduled',
           scheduled_for: {
@@ -66,8 +67,8 @@ export async function GET(request: NextRequest) {
         console.log(`📝 معالجة: "${article.title}" (مجدول لـ ${article.scheduled_for?.toISOString()})`);
 
         // تحديث حالة الخبر إلى منشور
-        const updatedArticle = await withRetry(async () => 
-          prisma.articles.update({
+        const updatedArticle = await retryWithConnection(async () => 
+          await prisma.articles.update({
             where: { id: article.id },
             data: {
               status: 'published',

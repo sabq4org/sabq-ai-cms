@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { withRetry } from "@/lib/prisma-helper";
+import { retryWithConnection, ensureDbConnected } from "@/lib/prisma";
 
 export const runtime = "nodejs";
 
@@ -11,8 +11,9 @@ export async function GET(request: NextRequest) {
 
     const now = new Date();
 
-    const featured = await withRetry(async () =>
-      prisma.articles.findMany({
+    await ensureDbConnected();
+    const featured = await retryWithConnection(async () =>
+      await prisma.articles.findMany({
         where: {
           status: "published",
           OR: [

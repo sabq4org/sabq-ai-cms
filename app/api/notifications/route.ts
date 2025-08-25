@@ -1,7 +1,7 @@
 // API للإشعارات الذكية - محسّن وسريع
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { withRetry } from '@/lib/prisma-helper';
+import { retryWithConnection, ensureDbConnected } from '@/lib/prisma';
 import { getCurrentUser, requireAuthFromRequest } from '@/app/lib/auth';
 
 export const runtime = "nodejs";
@@ -55,7 +55,8 @@ export async function GET(req: NextRequest) {
     }
 
     // جلب الإشعارات مع تحسين الأداء والفلترة
-    const [notifications, totalCount, unreadCount] = await withRetry(async () => 
+    await ensureDbConnected();
+    const [notifications, totalCount, unreadCount] = await retryWithConnection(async () => 
       await Promise.all([
         prisma.smartNotifications.findMany({
           where: whereClause,

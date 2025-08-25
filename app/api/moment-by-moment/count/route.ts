@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { withRetry } from "@/lib/prisma-helper";
+import { retryWithConnection, ensureDbConnected } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -24,8 +24,9 @@ export async function GET(request: NextRequest) {
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
 
     // عدد المقالات الجديدة (خلال آخر ساعة) مع توافق لأنواع المحتوى وكتابة مختلفة
-    const articlesCount = await withRetry(async () => 
-      prisma.articles.count({
+    await ensureDbConnected();
+    const articlesCount = await retryWithConnection(async () => 
+      await prisma.articles.count({
         where: {
           status: 'published',
           AND: [
