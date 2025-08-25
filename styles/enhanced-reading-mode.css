@@ -1,0 +1,203 @@
+/* وضع القراءة المحسن */
+
+/* تطبيق وضع القراءة على الصفحة كاملة */
+.reading-mode-enhanced,
+.reading-mode-enhanced * {
+  transition: all 0.3s ease !important;
+}
+
+/* الخلفية والنص في وضع القراءة */
+.reading-mode-enhanced {
+  background-color: #faf9f7 !important;
+  color: #2c2c2c !important;
+}
+
+.reading-mode-enhanced body {
+  background-color: #faf9f7 !important;
+  color: #2c2c2c !important;
+}
+
+/* تحسين النصوص في وضع القراءة */
+.reading-mode-enhanced .article-content,
+.reading-mode-enhanced .prose,
+.reading-mode-enhanced .article-text,
+.reading-mode-enhanced p,
+.reading-mode-enhanced div[class*="content"] {
+  font-family: Georgia, 'Times New Roman', serif !important;
+  font-size: 1.125rem !important;
+  line-height: 1.8 !important;
+  color: #2c2c2c !important;
+  letter-spacing: 0.01em !important;
+}
+
+/* العناوين في وضع القراءة */
+.reading-mode-enhanced h1,
+.reading-mode-enhanced h2,
+.reading-mode-enhanced h3,
+.reading-mode-enhanced h4,
+.reading-mode-enhanced h5,
+.reading-mode-enhanced h6 {
+  font-family: Georgia, 'Times New Roman', serif !important;
+  color: #1a1a1a !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+  margin-top: 2rem !important;
+  margin-bottom: 1rem !important;
+}
+
+/* تحسين الهيدر والقوائم في وضع القراءة */
+.reading-mode-enhanced header,
+.reading-mode-enhanced nav,
+.reading-mode-enhanced .header {
+  background-color: #f5f4f2 !important;
+  color: #2c2c2c !important;
+  border-bottom: 1px solid #e5e5e5 !important;
+}
+
+/* إخفاء العناصر غير الضرورية في وضع القراءة */
+.reading-mode-enhanced .sidebar,
+.reading-mode-enhanced aside,
+.reading-mode-enhanced [class*="sidebar"],
+.reading-mode-enhanced .advertisement,
+.reading-mode-enhanced [class*="ads"] {
+  opacity: 0.3 !important;
+  pointer-events: none !important;
+}
+
+/* تحسين الصور في وضع القراءة */
+.reading-mode-enhanced img {
+  opacity: 0.9 !important;
+  border-radius: 8px !important;
+  margin: 1.5rem 0 !important;
+}
+
+/* تحسين الروابط في وضع القراءة */
+.reading-mode-enhanced a {
+  color: #2563eb !important;
+  text-decoration: underline !important;
+  text-decoration-thickness: 1px !important;
+  text-underline-offset: 2px !important;
+}
+
+.reading-mode-enhanced a:hover {
+  color: #1d4ed8 !important;
+}
+
+/* تحسين القوائم في وضع القراءة */
+.reading-mode-enhanced ul,
+.reading-mode-enhanced ol {
+  font-family: Georgia, 'Times New Roman', serif !important;
+  font-size: 1.125rem !important;
+  line-height: 1.8 !important;
+  margin: 1rem 0 !important;
+}
+
+.reading-mode-enhanced li {
+  margin-bottom: 0.5rem !important;
+}
+
+/* تحسين الاقتباسات */
+.reading-mode-enhanced blockquote {
+  border-right: 4px solid #2563eb !important;
+  padding: 1rem 1.5rem !important;
+  margin: 1.5rem 0 !important;
+  background-color: #f8fafc !important;
+  font-style: italic !important;
+  color: #4b5563 !important;
+}
+
+/* تحسين الجداول */
+.reading-mode-enhanced table {
+  font-family: Georgia, 'Times New Roman', serif !important;
+  font-size: 1rem !important;
+  border-collapse: collapse !important;
+  width: 100% !important;
+  margin: 1.5rem 0 !important;
+}
+
+.reading-mode-enhanced th,
+.reading-mode-enhanced td {
+  border: 1px solid #d1d5db !important;
+  padding: 0.75rem !important;
+  text-align: right !important;
+}
+
+.reading-mode-enhanced th {
+  background-color: #f3f4f6 !important;
+  font-weight: 600 !important;
+}
+
+/* إخفاء أو تخفيف الأزرار والعناصر التفاعلية */
+.reading-mode-enhanced .interaction-button,
+.reading-mode-enhanced .social-share,
+.reading-mode-enhanced .like-button,
+.reading-mode-enhanced [class*="share"] {
+  opacity: 0.4 !important;
+  transform: scale(0.9) !important;
+}
+
+/* تحسين عرض المحتوى في وضع القراءة */
+.reading-mode-enhanced .article-content-wrapper,
+.reading-mode-enhanced .article-unified-width {
+  max-width: 50rem !important;
+  margin: 0 auto !important;
+  padding: 2rem !important;
+}
+
+/* وضع القراءة في الوضع الداكن */
+.dark.reading-mode-enhanced {
+  background-color: #1a1a1a !important;
+  color: #e5e5e5 !important;
+}
+
+.dark.reading-mode-enhanced body {
+  background-color: #1a1a1a !important;
+  color: #e5e5e5 !important;
+}
+
+.dark.reading-mode-enhanced .article-content,
+.dark.reading-mode-enhanced .prose,
+.dark.reading-mode-enhanced .article-text,
+.dark.reading-mode-enhanced p,
+.dark.reading-mode-enhanced div[class*="content"] {
+  color: #e5e5e5 !important;
+}
+
+.dark.reading-mode-enhanced h1,
+.dark.reading-mode-enhanced h2,
+.dark.reading-mode-enhanced h3,
+.dark.reading-mode-enhanced h4,
+.dark.reading-mode-enhanced h5,
+.dark.reading-mode-enhanced h6 {
+  color: #f9fafb !important;
+}
+
+.dark.reading-mode-enhanced header,
+.dark.reading-mode-enhanced nav,
+.dark.reading-mode-enhanced .header {
+  background-color: #1f1f1f !important;
+  color: #e5e5e5 !important;
+  border-bottom: 1px solid #374151 !important;
+}
+
+.dark.reading-mode-enhanced blockquote {
+  border-right-color: #60a5fa !important;
+  background-color: #1f2937 !important;
+  color: #d1d5db !important;
+}
+
+/* تحسينات للموبايل في وضع القراءة */
+@media (max-width: 768px) {
+  .reading-mode-enhanced .article-content,
+  .reading-mode-enhanced .prose,
+  .reading-mode-enhanced p {
+    font-size: 1.0625rem !important;
+    line-height: 1.7 !important;
+  }
+  
+  .reading-mode-enhanced .article-content-wrapper,
+  .reading-mode-enhanced .article-unified-width {
+    padding: 1rem !important;
+    max-width: 100% !important;
+  }
+}

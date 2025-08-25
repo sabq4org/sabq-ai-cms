@@ -8,13 +8,7 @@ import {
 } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
-int                        <div 
-                      key={index}
-                      className={`
-                        flex items-start gap-3 p-4 rounded-lg
-                        ${darkMode ? 'bg-blue-900/20' : 'bg-white/70'}
-                      `}
-                    >SmartSummaryProps {
+interface SmartSummaryProps {
   summary: {
     id: string;
     brief_summary: string;
@@ -41,10 +35,10 @@ export default function SmartSummary({ summary, articleTitle, originalReadingTim
 
   return (
     <div className={`
-      my-12 rounded-3xl overflow-hidden shadow-2xl max-w-full w-full
+      my-12 rounded-3xl overflow-hidden max-w-full w-full
       ${darkMode 
-        ? 'bg-gradient-to-br from-blue-900/40 to-indigo-900/40 border border-blue-800/50' 
-        : 'bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100'
+        ? 'bg-gradient-to-br from-blue-900/40 to-indigo-900/40 border border-blue-800/50 shadow-2xl' 
+        : 'bg-gray-50/80 border border-gray-200'
       }
     `}>
       {/* Header */}

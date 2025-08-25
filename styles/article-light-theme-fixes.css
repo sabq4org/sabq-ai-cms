@@ -1,0 +1,208 @@
+/* إصلاحات صفحة تفاصيل الخبر في النسخة الخفيفة */
+
+/* 1. الصور بزوايا منحنية ناعمة في صفحات المقالات */
+.article-content img,
+.article-featured-image img,
+.article-image,
+img[src*="article"],
+img[src*="news"] {
+  border-radius: 12px !important;
+  transition: all 0.3s ease;
+}
+
+/* صور المحتوى في المقال */
+.article-content-wrapper img,
+.prose img,
+.article-text img {
+  border-radius: 12px !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* الصورة المميزة */
+.article-featured-image-wrapper img,
+.mobile-featured-image img,
+.featured-image img {
+  border-radius: 16px !important;
+}
+
+/* 2. إزالة تأثيرات وظلال بلوك الموجز الذكي في الوضع الفاتح */
+:not(.dark) .smart-summary-wrapper,
+:not(.dark) [class*="SmartSummary"],
+:not(.dark) .ai-summary,
+:not(.dark) .smart-summary {
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  background: rgba(245, 245, 245, 0.5) !important;
+}
+
+/* إزالة الحدود والظلال من SmartSummary في الوضع الفاتح */
+:not(.dark) div[class*="bg-gradient-to-br from-blue-50"],
+:not(.dark) div[class*="from-blue-50"],
+:not(.dark) div[class*="to-indigo-50"] {
+  border: none !important;
+  box-shadow: none !important;
+  background: rgba(249, 250, 251, 0.8) !important;
+}
+
+/* إزالة الحدود من عناصر SmartSummary الفرعية */
+:not(.dark) div[class*="border-blue-200"],
+:not(.dark) div[class*="border-indigo-200"] {
+  border: none !important;
+}
+
+/* 3. تحسين زر وضع القراءة */
+.reading-mode-button,
+button[class*="reading"],
+.reading-toggle,
+[aria-label*="reading"] {
+  background: hsl(220, 13%, 91%) !important;
+  color: hsl(220, 9%, 46%) !important;
+  border: 1px solid hsl(220, 13%, 83%) !important;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.reading-mode-button:hover,
+button[class*="reading"]:hover,
+.reading-toggle:hover {
+  background: hsl(220, 13%, 87%) !important;
+  color: hsl(220, 9%, 36%) !important;
+  border-color: hsl(220, 13%, 78%) !important;
+}
+
+/* تحسين وضع القراءة النشط */
+.reading-mode-enhanced,
+.reading-mode-active,
+.reading-mode {
+  background-color: #faf9f7 !important;
+  color: #2c2c2c !important;
+  line-height: 1.8 !important;
+  font-size: 1.125rem !important;
+  font-family: Georgia, 'Times New Roman', serif !important;
+}
+
+/* إصلاح وضع القراءة في الوضع الداكن */
+.dark .reading-mode-enhanced,
+.dark .reading-mode-active,
+.dark .reading-mode {
+  background-color: #1a1a1a !important;
+  color: #e5e5e5 !important;
+}
+
+/* 4. توسيع المحتوى في النسخة الخفيفة فقط */
+@media (min-width: 768px) {
+  /* تطبيق التوسيع على النسخة الفاتحة فقط */
+  :not(.dark) .article-unified-width,
+  :not(.dark) .article-content-wrapper,
+  :not(.dark) .article-title-wrapper,
+  :not(.dark) .article-ai-summary-wrapper {
+    max-width: 64rem !important; /* زيادة من 56rem إلى 64rem */
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+  }
+
+  /* توسيع محتوى المقال */
+  :not(.dark) .prose,
+  :not(.dark) .article-content,
+  :not(.dark) .article-text {
+    max-width: 60rem !important;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* الحفاظ على العرض الأصلي في الوضع الداكن */
+.dark .article-unified-width,
+.dark .article-content-wrapper,
+.dark .article-title-wrapper,
+.dark .article-ai-summary-wrapper {
+  max-width: 56rem !important;
+}
+
+/* تحسينات إضافية للوضع الفاتح */
+:not(.dark) .article-page {
+  background-color: #f8f9fa;
+}
+
+/* تحسين تباعد العناصر في النسخة الفاتحة الموسعة */
+@media (min-width: 768px) {
+  :not(.dark) .article-section-spacing {
+    margin-bottom: 2.5rem;
+  }
+
+  :not(.dark) .article-content-wrapper {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+}
+
+/* إصلاحات خاصة بالموبايل */
+@media (max-width: 767px) {
+  /* الحفاظ على العرض الكامل في الموبايل */
+  .article-unified-width,
+  .article-content-wrapper,
+  .article-title-wrapper,
+  .article-ai-summary-wrapper {
+    max-width: 100% !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* الصور بزوايا أقل انحناءً في الموبايل */
+  .article-content img,
+  .article-featured-image img {
+    border-radius: 8px !important;
+  }
+}
+
+/* تحسينات التفاعل للزر */
+.reading-mode-button:active,
+button[class*="reading"]:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* تحسينات خاصة لمكون SmartSummary */
+:not(.dark) div[class*="shadow-2xl"] {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+:not(.dark) div[class*="rounded-3xl"] {
+  border: 1px solid #e5e7eb !important;
+}
+
+/* تحسين ظهور الصور في المحتوى */
+.article-content img:hover,
+.prose img:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* إزالة أي تأثيرات blur من المكونات في النسخة الفاتحة */
+:not(.dark) div[class*="backdrop-blur"],
+:not(.dark) div[class*="backdrop-filter"] {
+  backdrop-filter: none !important;
+  background: rgba(249, 250, 251, 0.8) !important;
+}
+
+/* تحسين الألوان في النسخة الفاتحة */
+:not(.dark) .article-meta,
+:not(.dark) .article-info {
+  color: #6b7280 !important;
+}
+
+:not(.dark) .article-title {
+  color: #111827 !important;
+}
+
+/* تحسين التباين للنصوص */
+:not(.dark) .article-excerpt,
+:not(.dark) .article-summary {
+  color: #4b5563 !important;
+  line-height: 1.6;
+}

@@ -124,6 +124,18 @@ export default function ArticleClientComponent({
       setTimeout(() => window.scrollTo(0, 0), 0);
     }
   }, []);
+
+  // استعادة وضع القراءة من localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedReadingMode = localStorage.getItem('reading-mode') === 'true';
+      if (savedReadingMode) {
+        setIsReading(true);
+        document.body.classList.add('reading-mode-enhanced');
+        document.documentElement.classList.add('reading-mode-enhanced');
+      }
+    }
+  }, []);
   // توليد محتوى HTML بشكل متزامن لتجنب ومضة الفراغ بعد اختفاء شاشة التحميل
   const contentHtml = useMemo(() => {
     const raw = article?.content || null;
@@ -854,12 +866,25 @@ export default function ArticleClientComponent({
               <div className="w-full">
                 <div className="flex justify-end">
                   <button
-                    onClick={() => setIsReading(!isReading)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                    onClick={() => {
+                      setIsReading(!isReading);
+                      // تطبيق وضع القراءة على الصفحة كاملة
+                      if (!isReading) {
+                        document.body.classList.add('reading-mode-enhanced');
+                        document.documentElement.classList.add('reading-mode-enhanced');
+                        localStorage.setItem('reading-mode', 'true');
+                      } else {
+                        document.body.classList.remove('reading-mode-enhanced');
+                        document.documentElement.classList.remove('reading-mode-enhanced');
+                        localStorage.setItem('reading-mode', 'false');
+                      }
+                    }}
+                    className={`reading-mode-button flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
                       isReading
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
-                    } hover:opacity-90`}
+                        ? "bg-blue-100 text-blue-700 border border-blue-200"
+                        : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600"
+                    } hover:shadow-sm active:scale-95`}
+                    aria-label={isReading ? 'إيقاف وضع القراءة' : 'تفعيل وضع القراءة'}
                   >
                     <BookOpen className="w-4 h-4" />
                     <span className="text-sm font-medium">
