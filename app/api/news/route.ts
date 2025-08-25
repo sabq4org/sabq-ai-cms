@@ -1,8 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { GET as articlesGET } from '@/app/api/articles/route';
 
-export const runtime = 'nodejs';
-
 export async function GET(request: NextRequest) {
   return articlesGET(request);
 }
