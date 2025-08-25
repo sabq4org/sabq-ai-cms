@@ -141,14 +141,32 @@ export function useUserInterests() {
       console.log('🔄 Auth loading complete, fetching user interests...');
       fetchUserInterests().catch(console.error);
     } else if (!authLoading && !isLoggedIn) {
-      // Clear interests when user is not logged in (after auth loading completes)
-      console.log('🧹 Auth loading complete - user not logged in, clearing interests');
-      setInterests([]);
-      setError(null);
+      // لا نقوم بمسح الاهتمامات هنا لتجنب الوميض المؤقت عند تغيّر حالة الجلسة
+      // سيتم المسح فقط عند أحداث خروج صريحة (logout/session-expired)
+      console.log('🧭 Auth indicates guest, keeping existing interests until explicit logout');
     } else {
       console.log('⏳ Waiting for auth loading to complete...', { authLoading, isLoggedIn, userId: user?.id });
     }
   }, [authLoading, isLoggedIn, user?.id]);
+
+  // امسح الاهتمامات فقط عند أحداث خروج مؤكدة لتجنّب الاختفاء المفاجئ
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const onAuthEvent = (e: any) => {
+      const t = e?.detail?.type;
+      if (t === 'logout' || t === 'session-expired' || t === 'max-retries-exceeded') {
+        console.log('🧹 Clearing interests due to explicit auth event:', t);
+        setInterests([]);
+        setError(null);
+      }
+    };
+    window.addEventListener('auth-change', onAuthEvent as EventListener);
+    window.addEventListener('auth-expired', onAuthEvent as EventListener);
+    return () => {
+      window.removeEventListener('auth-change', onAuthEvent as EventListener);
+      window.removeEventListener('auth-expired', onAuthEvent as EventListener);
+    };
+  }, []);
 
   return {
     interests,
