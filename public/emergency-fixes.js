@@ -17,20 +17,23 @@
       options.credentials = 'include';
       options.mode = 'cors';
       
-      // إضافة headers مطلوبة
-      options.headers = {
-        'Accept': 'application/json',
-        ...options.headers
-      };
-      
-      // ⚠️ FIX: لا نضع Content-Type إلا للـ JSON، وليس للـ FormData
-      if (options.body && typeof options.body === 'string') {
-        options.headers['Content-Type'] = 'application/json';
-      }
-      // إذا كان body هو FormData، نترك المتصفح يحدد Content-Type مع boundary تلقائياً
-      else if (options.body && options.body instanceof FormData) {
-        // لا نضع Content-Type، المتصفح سيضيف multipart/form-data مع boundary
-        console.log('🔧 [EMERGENCY-FIXES] تم اكتشاف FormData، ترك Content-Type للمتصفح');
+      // ⚠️ CRITICAL FIX: فحص نوع البيانات أولاً قبل تعديل headers
+      if (options.body && options.body instanceof FormData) {
+        // لا نضع أي headers للـ FormData، المتصفح سيضيف multipart/form-data مع boundary تلقائياً
+        console.log('🔧 [EMERGENCY-FIXES] FormData detected - letting browser handle headers');
+        // نحافظ على headers الموجودة مسبقاً فقط
+        options.headers = { ...options.headers };
+      } else {
+        // للطلبات الأخرى (JSON)، نضع headers مطلوبة
+        options.headers = {
+          'Accept': 'application/json',
+          ...options.headers
+        };
+        
+        // نضع Content-Type للـ JSON فقط
+        if (options.body && typeof options.body === 'string') {
+          options.headers['Content-Type'] = 'application/json';
+        }
       }
     }
     

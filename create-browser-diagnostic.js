@@ -1,0 +1,285 @@
+#!/usr/bin/env node
+
+/**
+ * 🔧 أداة التشخيص السريع للمتصفح
+ * تنشئ كود JavaScript يمكن تشغيله في console المتصفح للتشخيص
+ */
+
+const fs = require('fs');
+const path = require('path');
+
+// كود التشخيص للمتصفح
+const browserDiagnosticCode = `
+// 🔍 أداة التشخيص السريع لرفع الصور في المتصفح
+
+(async function() {
+  console.log('🚀 بدء التشخيص السريع...');
+  
+  // معلومات البيئة
+  console.log('📋 معلومات البيئة:');
+  console.log('- المتصفح:', navigator.userAgent);
+  console.log('- fetch مُعرف مسبقاً:', typeof fetch !== 'undefined');
+  console.log('- FormData متاح:', typeof FormData !== 'undefined');
+  console.log('- emergency-fixes محمل:', window.fetch?.toString?.()?.includes?.('emergency') || false);
+  
+  // إنشاء ملف اختبار
+  function createTestFile() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1;
+    canvas.height = 1;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ff0000';
+    ctx.fillRect(0, 0, 1, 1);
+    
+    return new Promise(resolve => {
+      canvas.toBlob(blob => {
+        const file = new File([blob], 'test.png', { type: 'image/png' });
+        resolve(file);
+      }, 'image/png');
+    });
+  }
+  
+  // اختبار fetch مباشر
+  async function testDirectFetch() {
+    console.log('\\n🧪 اختبار fetch مباشر...');
+    
+    try {
+      const file = await createTestFile();
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', 'general');
+      
+      console.log('📋 FormData created:', formData);
+      console.log('📋 File info:', {
+        name: file.name,
+        type: file.type,
+        size: file.size
+      });
+      
+      // طلب مع تسجيل headers
+      console.log('📤 إرسال طلب...');
+      const response = await fetch('/api/upload-image-safe', {
+        method: 'POST',
+        body: formData
+      });
+      
+      console.log('📨 Response:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ نجح الاختبار:', result);
+        return { success: true, result };
+      } else {
+        const error = await response.text();
+        console.log('❌ فشل الاختبار:', error);
+        return { success: false, error };
+      }
+      
+    } catch (error) {
+      console.error('❌ خطأ في الاختبار:', error);
+      return { success: false, error: error.message };
+    }
+  }
+  
+  // اختبار XMLHttpRequest
+  async function testXHR() {
+    console.log('\\n🧪 اختبار XMLHttpRequest...');
+    
+    return new Promise(async (resolve) => {
+      try {
+        const file = await createTestFile();
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('type', 'general');
+        
+        const xhr = new XMLHttpRequest();
+        
+        xhr.onload = function() {
+          console.log('📨 XHR Response:', {
+            status: xhr.status,
+            statusText: xhr.statusText,
+            responseText: xhr.responseText
+          });
+          
+          if (xhr.status === 200) {
+            console.log('✅ XHR نجح');
+            resolve({ success: true, result: JSON.parse(xhr.responseText) });
+          } else {
+            console.log('❌ XHR فشل');
+            resolve({ success: false, error: xhr.responseText });
+          }
+        };
+        
+        xhr.onerror = function() {
+          console.error('❌ XHR خطأ:', xhr.statusText);
+          resolve({ success: false, error: xhr.statusText });
+        };
+        
+        xhr.open('POST', '/api/upload-image-safe');
+        xhr.send(formData);
+        
+      } catch (error) {
+        console.error('❌ خطأ في XHR:', error);
+        resolve({ success: false, error: error.message });
+      }
+    });
+  }
+  
+  // تشغيل الاختبارات
+  const fetchResult = await testDirectFetch();
+  const xhrResult = await testXHR();
+  
+  // النتائج النهائية
+  console.log('\\n📊 النتائج النهائية:');
+  console.log('- fetch مباشر:', fetchResult.success ? '✅ نجح' : '❌ فشل');
+  console.log('- XMLHttpRequest:', xhrResult.success ? '✅ نجح' : '❌ فشل');
+  
+  if (!fetchResult.success) {
+    console.log('❌ خطأ fetch:', fetchResult.error);
+  }
+  
+  if (!xhrResult.success) {
+    console.log('❌ خطأ XHR:', xhrResult.error);
+  }
+  
+  // توصيات
+  console.log('\\n💡 التوصيات:');
+  if (fetchResult.success && xhrResult.success) {
+    console.log('✅ جميع طرق الرفع تعمل بشكل صحيح');
+  } else if (fetchResult.success && !xhrResult.success) {
+    console.log('⚠️ fetch يعمل، XHR لا يعمل - مشكلة في XHR');
+  } else if (!fetchResult.success && xhrResult.success) {
+    console.log('⚠️ XHR يعمل، fetch لا يعمل - مشكلة في fetch interceptor');
+  } else {
+    console.log('❌ كلا الطريقتين لا تعمل - مشكلة في الخادم أو الشبكة');
+  }
+  
+  return { fetchResult, xhrResult };
+})().then(results => {
+  console.log('\\n🏁 اكتمل التشخيص:', results);
+}).catch(error => {
+  console.error('❌ خطأ في التشخيص:', error);
+});
+
+`;
+
+// كتابة الكود في ملف
+const outputPath = path.join(__dirname, 'browser-diagnostic-code.js');
+fs.writeFileSync(outputPath, browserDiagnosticCode);
+
+console.log('✅ تم إنشاء كود التشخيص للمتصفح');
+console.log(`📁 المسار: ${outputPath}`);
+console.log('');
+console.log('📋 تعليمات الاستخدام:');
+console.log('1. افتح المتصفح وانتقل إلى الموقع');
+console.log('2. اضغط F12 لفتح Developer Tools');
+console.log('3. انتقل إلى تبويب Console');
+console.log('4. انسخ والصق الكود التالي:');
+console.log('');
+console.log('--- بداية الكود ---');
+console.log(browserDiagnosticCode);
+console.log('--- نهاية الكود ---');
+console.log('');
+console.log('5. اضغط Enter وراقب النتائج');
+
+// إنشاء ملف HTML للتشخيص السريع
+const quickTestHtml = `
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار سريع لرفع الصور</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔧 اختبار سريع لرفع الصور</h1>
+    
+    <div>
+        <input type="file" id="file-input" accept="image/*">
+        <br><br>
+        <button onclick="runQuickTest()">تشغيل اختبار سريع</button>
+        <button onclick="runFullDiagnostic()">تشغيل تشخيص كامل</button>
+        <button onclick="clearResults()">مسح النتائج</button>
+    </div>
+    
+    <div id="results"></div>
+    
+    <script src="/emergency-fixes.js"></script>
+    <script>
+        ${browserDiagnosticCode}
+        
+        function displayResult(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'result ' + type;
+            resultDiv.innerHTML = '<pre>' + JSON.stringify(message, null, 2) + '</pre>';
+            resultsDiv.appendChild(resultDiv);
+        }
+        
+        async function runQuickTest() {
+            const fileInput = document.getElementById('file-input');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('يرجى اختيار ملف أولاً');
+                return;
+            }
+            
+            displayResult('بدء الاختبار السريع...', 'info');
+            
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('type', 'general');
+                
+                const response = await fetch('/api/upload-image-safe', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    displayResult({ success: true, result }, 'success');
+                } else {
+                    displayResult({ success: false, error: result }, 'error');
+                }
+                
+            } catch (error) {
+                displayResult({ success: false, error: error.message }, 'error');
+            }
+        }
+        
+        async function runFullDiagnostic() {
+            displayResult('تشغيل التشخيص الكامل...', 'info');
+            // سيتم تشغيل الكود الذي تم إدراجه أعلاه
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+    </script>
+</body>
+</html>
+`;
+
+const quickTestPath = path.join(__dirname, 'public', 'quick-upload-test.html');
+fs.writeFileSync(quickTestPath, quickTestHtml);
+
+console.log('✅ تم إنشاء صفحة الاختبار السريع أيضاً');
+console.log(`📁 المسار: ${quickTestPath}`);
+console.log('🌐 الرابط: http://localhost:3000/quick-upload-test.html');
