@@ -21,10 +21,11 @@ export default function ConditionalLayout({
   // تحديد نوع Layout بناءً على المسار
   const isAdminPath = pathname?.startsWith('/admin');
   const isAdminLoginPath = pathname?.startsWith('/admin/login');
+  const isLoginPath = pathname?.startsWith('/login');
   const isLightPath = pathname === '/light' || pathname?.startsWith('/light/');
 
-  // إذا كانت صفحة تسجيل دخول admin، لا تطبق أي layout
-  if (isAdminLoginPath) {
+  // إذا كانت صفحة تسجيل دخول (عادي أو admin)، لا تطبق أي layout
+  if (isAdminLoginPath || isLoginPath) {
     return (
       <QueryProvider>
         <AuthProvider>
