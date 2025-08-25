@@ -163,4 +163,13 @@ export {
 // التصدير الصريح للدوال التي يبحث عنها البناء
 export { ensureDbConnected, isPrismaNotConnectedError, retryWithConnection };
 
+// Re-export للتأكد من إمكانية الوصول أثناء البناء
+const dbHelpers = {
+  ensureDbConnected,
+  isPrismaNotConnectedError,
+  retryWithConnection
+};
+
+export { dbHelpers };
+
 export default prisma;

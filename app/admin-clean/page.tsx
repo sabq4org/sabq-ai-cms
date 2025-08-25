@@ -1,182 +1,173 @@
 'use client';
 
+// تعطيل static rendering لهذه الصفحة
+export const dynamic = 'force-dynamic';
+
 import React, { useState } from 'react';
 import Link from 'next/link';
 
-// نسخة نظيفة تماماً من لوحة التحكم بتصميم Manus UI
+// نسخة نظيفة تماماً من لوحة التحكم بتصميم مبسط
 export default function AdminClean() {
   const [currentTheme, setCurrentTheme] = useState('blue');
 
   // ثيمات الألوان
   const themes = {
-    blue: { accent: '212 90% 50%', name: 'الأزرق' },
-    green: { accent: '142 71% 45%', name: 'الأخضر' },
-    purple: { accent: '262 83% 58%', name: 'البنفسجي' },
-    orange: { accent: '25 95% 53%', name: 'البرتقالي' },
-    red: { accent: '0 84% 60%', name: 'الأحمر' },
+    blue: { color: '#3B82F6', name: 'الأزرق' },
+    green: { color: '#10B981', name: 'الأخضر' },
+    purple: { color: '#8B5CF6', name: 'البنفسجي' },
+    orange: { color: '#F59E0B', name: 'البرتقالي' },
+    red: { color: '#EF4444', name: 'الأحمر' },
   };
 
-  // تطبيق الثيم
-  const applyTheme = (theme: string) => {
-    const themeData = themes[theme as keyof typeof themes];
-    if (themeData) {
-      document.documentElement.style.setProperty('--accent', themeData.accent);
-      setCurrentTheme(theme);
-    }
-  };
+  const currentThemeColor = themes[currentTheme as keyof typeof themes]?.color || '#3B82F6';
 
   return (
-    <>
-      {/* تحميل CSS Manus UI */}
-      <link rel="stylesheet" href="/manus-ui.css" />
-      
-      <div className="manus-layout">
-        {/* الشريط الجانبي الوحيد */}
-        <aside className="manus-sidebar">
-          {/* شعار بسيط */}
-          <div style={{ marginBottom: '32px' }}>
-            <div style={{
-              width: '48px',
-              height: '48px',
-              background: 'hsl(var(--accent))',
-              borderRadius: '12px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontSize: '24px',
-              fontWeight: '700',
-              marginBottom: '12px'
-            }}>
-              س
-            </div>
-            <h1 className="heading-3" style={{ margin: 0 }}>الإدارة</h1>
-            <p className="text-xs text-muted">نظام إدارة المحتوى</p>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
+      {/* الشريط الجانبي */}
+      <aside className="w-64 bg-white dark:bg-gray-800 shadow-lg p-6">
+        {/* شعار بسيط */}
+        <div className="mb-8">
+          <div 
+            style={{ backgroundColor: currentThemeColor }}
+            className="w-12 h-12 rounded-xl flex items-center justify-center text-white text-2xl font-bold mb-3"
+          >
+            س
           </div>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">الإدارة</h1>
+          <p className="text-sm text-gray-600 dark:text-gray-400">نظام إدارة المحتوى</p>
+        </div>
 
-          {/* التنقل */}
-          <nav>
-            <div className="divide-list">
-              <div className="list-item" style={{ padding: '12px 0' }}>
-                <Link href="/admin-clean" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
-                  📊 الرئيسية
-                </Link>
-              </div>
-              <div className="list-item" style={{ padding: '12px 0' }}>
-                <Link href="/admin/articles" className="btn" style={{ width: '100%', justifyContent: 'center' }}>
-                  📝 المقالات
-                </Link>
-              </div>
-              <div className="list-item" style={{ padding: '12px 0' }}>
-                <Link href="/admin/analytics" className="btn" style={{ width: '100%', justifyContent: 'center' }}>
-                  📈 التحليلات
-                </Link>
-              </div>
-              <div className="list-item" style={{ padding: '12px 0' }}>
-                <Link href="/admin/users" className="btn" style={{ width: '100%', justifyContent: 'center' }}>
-                  👥 المستخدمون
-                </Link>
-              </div>
-              <div className="list-item" style={{ padding: '12px 0' }}>
-                <Link href="/admin/settings" className="btn" style={{ width: '100%', justifyContent: 'center' }}>
-                  ⚙️ الإعدادات
-                </Link>
-              </div>
-            </div>
-          </nav>
+        {/* التنقل */}
+        <nav className="space-y-2">
+          <Link 
+            href="/admin-clean" 
+            style={{ backgroundColor: currentThemeColor }}
+            className="w-full flex items-center justify-center px-4 py-3 text-white rounded-lg font-medium"
+          >
+            📊 الرئيسية
+          </Link>
+          <Link href="/admin/articles" className="w-full flex items-center justify-center px-4 py-3 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
+            📝 المقالات
+          </Link>
+          <Link href="/admin/analytics" className="w-full flex items-center justify-center px-4 py-3 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
+            📈 التحليلات
+          </Link>
+          <Link href="/admin/users" className="w-full flex items-center justify-center px-4 py-3 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
+            👥 المستخدمون
+          </Link>
+          <Link href="/admin/settings" className="w-full flex items-center justify-center px-4 py-3 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
+            ⚙️ الإعدادات
+          </Link>
+        </nav>
 
-          <div className="divider"></div>
-
+        <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
           {/* تغيير الثيم */}
           <div>
-            <h3 className="heading-3" style={{ fontSize: '14px', marginBottom: '16px' }}>🎨 اللون</h3>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">🎨 اللون</h3>
+            <div className="flex flex-wrap gap-2">
               {Object.entries(themes).map(([key, theme]) => (
                 <button
                   key={key}
-                  className={`btn btn-xs ${currentTheme === key ? 'btn-primary' : ''}`}
-                  onClick={() => applyTheme(key)}
-                  style={{ minWidth: '60px', fontSize: '11px' }}
+                  className={`px-3 py-1 rounded-md text-xs font-medium ${
+                    currentTheme === key 
+                      ? 'text-white' 
+                      : 'text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
+                  style={{ 
+                    backgroundColor: currentTheme === key ? theme.color : undefined 
+                  }}
+                  onClick={() => setCurrentTheme(key)}
                 >
                   {theme.name}
                 </button>
               ))}
             </div>
           </div>
-        </aside>
+        </div>
+      </aside>
 
-        {/* المحتوى */}
-        <main className="manus-main">
-          {/* هيدر مبسط */}
-          <header className="manus-header">
-            <div>
-              <h1 className="heading-2" style={{ margin: 0 }}>الإدارة</h1>
-              <p className="text-sm text-muted">نظام إدارة المحتوى</p>
-            </div>
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <button className="btn btn-sm">🔔</button>
-              <button className="btn btn-sm">👤</button>
-            </div>
-          </header>
+      {/* المحتوى */}
+      <main className="flex-1 p-8">
+        {/* هيدر */}
+        <header className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">الإدارة</h1>
+            <p className="text-gray-600 dark:text-gray-400">نظام إدارة المحتوى</p>
+          </div>
+          <div className="flex gap-3">
+            <button className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
+              🔔
+            </button>
+            <button className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
+              👤
+            </button>
+          </div>
+        </header>
 
-          {/* محتوى نظيف */}
-          <section className="grid grid-4" style={{ marginBottom: '32px' }}>
-            <div className="card">
-              <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                <div style={{ fontSize: '32px', marginBottom: '8px' }}>📝</div>
-                <div className="heading-3" style={{ color: 'hsl(var(--accent))' }}>2,847</div>
-                <div className="text-xs text-muted">المقالات</div>
+        {/* الإحصائيات */}
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {[
+            { icon: '📝', value: '2,847', label: 'المقالات' },
+            { icon: '👥', value: '45.2K', label: 'المستخدمون' },
+            { icon: '📊', value: '128K', label: 'المشاهدات' },
+            { icon: '📈', value: '89%', label: 'التفاعل' }
+          ].map((stat, index) => (
+            <div key={index} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 text-center">
+              <div className="text-3xl mb-2">{stat.icon}</div>
+              <div style={{ color: currentThemeColor }} className="text-2xl font-bold mb-1">
+                {stat.value}
               </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">{stat.label}</div>
             </div>
-            
-            <div className="card">
-              <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                <div style={{ fontSize: '32px', marginBottom: '8px' }}>👥</div>
-                <div className="heading-3" style={{ color: 'hsl(var(--accent))' }}>45.2K</div>
-                <div className="text-xs text-muted">المستخدمون</div>
-              </div>
-            </div>
-            
-            <div className="card">
-              <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                <div style={{ fontSize: '32px', marginBottom: '8px' }}>📊</div>
-                <div className="heading-3" style={{ color: 'hsl(var(--accent))' }}>128K</div>
-                <div className="text-xs text-muted">المشاهدات</div>
-              </div>
-            </div>
-            
-            <div className="card">
-              <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                <div style={{ fontSize: '32px', marginBottom: '8px' }}>📈</div>
-                <div className="heading-3" style={{ color: 'hsl(var(--accent))' }}>89%</div>
-                <div className="text-xs text-muted">التفاعل</div>
-              </div>
-            </div>
-          </section>
+          ))}
+        </section>
 
-          {/* بطاقة النجاح */}
-          <section>
-            <div className="card" style={{ 
-              textAlign: 'center',
-              background: 'hsl(var(--accent) / 0.05)',
-              border: '1px solid hsl(var(--accent) / 0.2)'
-            }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>✅</div>
-              <div className="card-title">تم تطبيق Manus UI بنجاح!</div>
-              <div className="card-subtitle" style={{ marginBottom: '24px' }}>
-                قائمة جانبية واحدة فقط، نظيفة وبسيطة
-              </div>
-              
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                <Link href="/admin" className="btn">النسخة الكاملة</Link>
-                <Link href="/dashboard-simple" className="btn">لوحة التحكم</Link>
-                <Link href="#" className="btn btn-primary">النسخة النظيفة</Link>
-                <Link href="/" className="btn">الموقع الرئيسي</Link>
-              </div>
+        {/* بطاقة النجاح */}
+        <section>
+          <div 
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-8 text-center border-2"
+            style={{ 
+              borderColor: currentThemeColor + '40',
+              backgroundColor: `${currentThemeColor}08`
+            }}
+          >
+            <div className="text-5xl mb-4">✅</div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              تم إصلاح مشاكل البناء!
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              صفحة نظيفة بدون مكتبات خارجية، متوافقة مع Vercel
+            </p>
+            
+            <div className="flex gap-3 justify-center flex-wrap">
+              <Link 
+                href="/admin" 
+                className="px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600"
+              >
+                النسخة الكاملة
+              </Link>
+              <Link 
+                href="/dashboard-simple" 
+                className="px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600"
+              >
+                لوحة التحكم
+              </Link>
+              <button 
+                style={{ backgroundColor: currentThemeColor }}
+                className="px-6 py-3 text-white rounded-lg"
+              >
+                النسخة النظيفة
+              </button>
+              <Link 
+                href="/" 
+                className="px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600"
+              >
+                الموقع الرئيسي
+              </Link>
             </div>
-          </section>
-        </main>
-      </div>
-    </>
+          </div>
+        </section>
+      </main>
+    </div>
   );
 }
