@@ -10,6 +10,7 @@ import {
 import CloudImage from '@/components/ui/CloudImage';
 import { formatDateGregorian } from '@/lib/date-utils';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
+import '@/styles/old-style-news.css';
 
 interface FeaturedArticle {
   id: string;
@@ -48,6 +49,14 @@ interface FeaturedNewsBlockProps {
 
 const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({ article }) => {
   const { darkMode } = useDarkModeContext();
+
+  // تحديد إذا كان الخبر جديد (آخر ساعتين فقط)
+  const isNewsNew = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    return diffTime <= 2 * 60 * 60 * 1000; // ساعتان
+  };
 
   const getVerificationIcon = (badge: string) => {
     switch (badge) {
@@ -226,6 +235,17 @@ const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({ article }) => {
                         </span>
                       </div>
                     )}
+                  </div>
+                )}
+
+                {/* ليبل "جديد" مع شعلة النار */}
+                {isNewsNew(article.published_at) && (
+                  <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold transition-all duration-300 ${darkMode 
+                    ? 'bg-green-600 text-white shadow-lg' 
+                    : 'bg-green-500 text-white shadow-md'
+                  }`}>
+                    <span className="text-sm" aria-hidden>🔥</span>
+                    <span>جديد</span>
                   </div>
                 )}
 
