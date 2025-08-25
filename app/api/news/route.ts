@@ -1,8 +1,28 @@
 import type { NextRequest } from 'next/server';
-import { GET as articlesGET } from '@/app/api/articles/route';
 
+// Proxy to /api/articles to avoid re-export build conflicts
 export async function GET(request: NextRequest) {
-  return articlesGET(request);
+  const url = new URL(request.url);
+  const target = new URL(`/api/articles${url.search}`, url.origin);
+
+  const upstream = await fetch(target.toString(), {
+    // Preserve cookies/headers as needed (Next will include cookies in server env)
+    headers: {
+      'X-Requested-With': 'news-alias',
+    },
+    cache: 'no-store',
+    // credentials not needed server-side; cookies are available in route handlers
+  });
+
+  const body = await upstream.text();
+
+  return new Response(body, {
+    status: upstream.status,
+    headers: {
+      'Content-Type': upstream.headers.get('Content-Type') || 'application/json',
+      'Cache-Control': upstream.headers.get('Cache-Control') || 'no-store',
+    },
+  });
 }
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
