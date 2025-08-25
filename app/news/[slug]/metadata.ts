@@ -26,7 +26,19 @@ export async function generateMetadata({
     title: item.title,
     description: item.seo_description || undefined,
     alternates: { canonical: url },
-    openGraph: { url },
-    twitter: { card: "summary_large_image" },
+    openGraph: {
+      url,
+      images: item.featured_image ? [
+        item.featured_image.startsWith('http') ? item.featured_image : `${base}${item.featured_image}`
+      ] : [`${base}/images/sabq-logo-social.svg`],
+      siteName: "صحيفة سبق الإلكترونية",
+      locale: "ar_SA",
+    },
+    twitter: {
+      card: "summary_large_image",
+      images: item.featured_image ? [
+        item.featured_image.startsWith('http') ? item.featured_image : `${base}${item.featured_image}`
+      ] : [`${base}/images/sabq-logo-social.svg`],
+    },
   };
 }

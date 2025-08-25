@@ -5,6 +5,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
 import { ToastContainer } from "@/components/ui/toast";
 import { getServerUser } from "@/lib/getServerUser";
+import { getSiteUrl } from "@/lib/url-builder";
 import "./globals.css";
 import "@/styles/unified-font-system.css";
 import "@/styles/force-arabic-font.css";
@@ -30,22 +31,35 @@ const ibmPlexArabic = IBM_Plex_Sans_Arabic({
   fallback: ["Tajawal", "Noto Sans Arabic", "system-ui", "sans-serif"]
 });
 
+const SITE_URL = getSiteUrl();
+
 export const metadata: Metadata = {
   title: "صحيفة سبق الذكية - أخبار المملكة والعالم",
   description: "صحيفة سبق الذكية - آخر الأخبار والتحليلات من المملكة العربية السعودية والعالم",
   keywords: "أخبار, السعودية, سبق, صحيفة, أخبار عاجلة, تحليلات",
   authors: [{ name: "فريق سبق الذكية" }],
+  metadataBase: new URL(SITE_URL),
   openGraph: {
     title: "صحيفة سبق الذكية",
     description: "آخر الأخبار والتحليلات من المملكة العربية السعودية والعالم",
-    url: "https://sabq.ai",
+    url: SITE_URL,
     siteName: "صحيفة سبق الذكية",
     locale: "ar_SA",
     type: "website",
+    images: [
+      `${SITE_URL}/images/sabq-logo-social.svg`
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@sabqorg",
   },
   robots: {
     index: true,
     follow: true,
+  },
+  alternates: {
+    canonical: SITE_URL,
   },
 };
 

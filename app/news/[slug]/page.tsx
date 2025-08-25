@@ -1,5 +1,6 @@
 import ArticleClientComponent from "@/app/article/[id]/ArticleClientComponent";
 import prisma from "@/lib/prisma";
+import { getSiteUrl } from "@/lib/url-builder";
 import { notFound, redirect } from "next/navigation";
 import "./mobile-styles.css";
 
@@ -125,6 +126,8 @@ export async function generateMetadata({
     };
   }
 
+  const SITE_URL = getSiteUrl();
+
   return {
     title: article.seo.title,
     description: article.seo.description,
@@ -132,20 +135,30 @@ export async function generateMetadata({
     openGraph: {
       title: article.title,
       description: article.seo.description,
-      images: article.featured_image ? [article.featured_image] : [],
+      images: article.featured_image ? [
+        article.featured_image.startsWith('http') ? article.featured_image : `${SITE_URL}${article.featured_image}`
+      ] : [
+        `${SITE_URL}/images/sabq-logo-social.svg`
+      ],
       type: "article",
       publishedTime: article.published_at?.toISOString(),
       authors: article.author_name ? [article.author_name] : [],
+      url: `${SITE_URL}/news/${slug}`,
+      siteName: "صحيفة سبق الإلكترونية",
     },
     twitter: {
       card: "summary_large_image",
       title: article.title,
       description: article.seo.description,
-      images: article.featured_image ? [article.featured_image] : [],
+      images: article.featured_image ? [
+        article.featured_image.startsWith('http') ? article.featured_image : `${SITE_URL}${article.featured_image}`
+      ] : [
+        `${SITE_URL}/images/sabq-logo-social.svg`
+      ],
       creator: article.author_name,
     },
     alternates: {
-      canonical: `https://sabq.io/news/${slug}`,
+      canonical: `${SITE_URL}/news/${slug}`,
     },
   };
 }
