@@ -10,8 +10,8 @@ import { useAuth } from "@/contexts/EnhancedAuthContextWithSSR";
 export default function LightPage() {
   const [loading, setLoading] = useState(true);
   const [articles, setArticles] = useState<any[]>([]);
-  const { user: authUser } = useAuth();
-  const isLoggedIn = Boolean(authUser);
+  const { user: authUser, loading: authLoading } = useAuth();
+  const isLoggedIn = Boolean(authUser) && !authLoading;
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -67,40 +67,42 @@ export default function LightPage() {
         </p>
       </div>
 
-      {/* Login/Register CTA Block */}
-      <div 
-        className="mb-8 p-4 rounded-xl text-center border"
-        style={{
-          backgroundColor: 'rgba(var(--theme-primary-rgb, 59 130 246), 0.05)',
-          borderColor: 'rgba(var(--theme-primary-rgb, 59 130 246), 0.2)',
-        }}
-      >
-        <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
-          للحصول على محتوى مخصص لك سجل دخولك أو أنشئ حساباً جديداً
-        </p>
-        <div className="flex items-center justify-center gap-3">
-          <Link
-            href="/login"
-            className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:scale-105"
-            style={{
-              backgroundColor: 'var(--theme-primary, #3B82F6)',
-              color: 'white',
-            }}
-          >
-            تسجيل دخول
-          </Link>
-          <Link
-            href="/register"
-            className="px-4 py-2 rounded-lg text-sm font-medium transition-all hover:scale-105 border"
-            style={{
-              borderColor: 'var(--theme-primary, #3B82F6)',
-              color: 'var(--theme-primary, #3B82F6)',
-            }}
-          >
-            إنشاء حساب
-          </Link>
+      {/* Login/Register CTA Block (للزوار فقط) */}
+      {!isLoggedIn && !authLoading && (
+        <div 
+          className="mb-8 p-4 rounded-xl text-center border"
+          style={{
+            backgroundColor: 'rgba(var(--theme-primary-rgb, 59 130 246), 0.05)',
+            borderColor: 'rgba(var(--theme-primary-rgb, 59 130 246), 0.2)',
+          }}
+        >
+          <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
+            للحصول على محتوى مخصص لك سجل دخولك أو أنشئ حساباً جديداً
+          </p>
+          <div className="flex items-center justify-center gap-3">
+            <Link
+              href="/login"
+              className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:scale-105"
+              style={{
+                backgroundColor: 'var(--theme-primary, #3B82F6)',
+                color: 'white',
+              }}
+            >
+              تسجيل دخول
+            </Link>
+            <Link
+              href="/register"
+              className="px-4 py-2 rounded-lg text-sm font-medium transition-all hover:scale-105 border"
+              style={{
+                borderColor: 'var(--theme-primary, #3B82F6)',
+                color: 'var(--theme-primary, #3B82F6)',
+              }}
+            >
+              إنشاء حساب
+            </Link>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* الأخبار المميزة والعاجلة - النسخة الخفيفة */}
       <div className="mb-8">
