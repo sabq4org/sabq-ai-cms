@@ -16,8 +16,13 @@ export interface ServerUser {
  * جلب المستخدم من جهة الخادم باستخدام الكوكيز مباشرة
  * للاستخدام في Server Components وSSR
  */
-export async function getServerUser(): Promise<ServerUser | null> {
+export async function getServerUser(options: { allowStatic?: boolean } = {}): Promise<ServerUser | null> {
   try {
+    // إذا كانت الصفحة تحتاج static rendering، تجاهل المصادقة
+    if (options.allowStatic) {
+      return null;
+    }
+    
     const cookieStore = await cookies();
     
     // البحث عن التوكن في الكوكيز المختلفة

@@ -10,13 +10,17 @@ import { AuthProvider } from "@/contexts/EnhancedAuthContextWithSSR";
 import AdminPureLayout from "./AdminPureLayout";
 import SiteLayout from "./SiteLayout";
 
+import { ServerUser } from "@/lib/getServerUser";
+
 export default function ConditionalLayout({
   children,
+  initialUser: serverInitialUser,
 }: {
   children: React.ReactNode;
+  initialUser?: ServerUser | null;
 }) {
   const pathname = usePathname();
-  const [initialUser, setInitialUser] = useState<any>(null);
+  const [initialUser, setInitialUser] = useState<any>(serverInitialUser);
 
   // قراءة بيانات المستخدم المرسلة من الخادم
   useEffect(() => {

@@ -53,13 +53,25 @@ export const viewport = {
 export default async function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
-  // جلب المستخدم من الخادم لتجنب race condition في hydration
-  const serverUser = await getServerUser();
+  // تحميل المستخدم من الخادم (مع التعامل مع static rendering)
+  let initialUser = null;
   
-  if (serverUser) {
-    console.log('🔍 [RootLayout] تم جلب المستخدم من الخادم:', serverUser.email, serverUser.partial ? '(partial)' : '(full)');
+  try {
+    // فقط للصفحات التي تدعم dynamic rendering
+    const isDynamicRoute = process.env.NODE_ENV !== 'production' || 
+                          typeof window === 'undefined';
+    
+    if (isDynamicRoute) {
+      initialUser = await getServerUser();
+    }
+  } catch (error) {
+    console.warn('⚠️ [RootLayout] فشل جلب المستخدم (static mode):', error);
+  }
+  
+  if (initialUser) {
+    console.log('✅ [RootLayout] تم جلب المستخدم:', initialUser.email);
   } else {
     console.log('🔍 [RootLayout] لا يوجد مستخدم في الخادم');
   }
@@ -70,10 +82,10 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {/* تمرير بيانات المستخدم إلى العميل */}
-        {serverUser && (
+        {initialUser && (
           <script
             dangerouslySetInnerHTML={{
-              __html: `window.__INITIAL_USER__ = ${JSON.stringify(serverUser)};`
+              __html: `window.__INITIAL_USER__ = ${JSON.stringify(initialUser)};`
             }}
           />
         )}
@@ -85,7 +97,7 @@ export default async function RootLayout({
             <p className="mt-3 text-gray-600">جاري التحميل...</p>
           </div>
         </div>}>
-          <ConditionalLayout>
+          <ConditionalLayout initialUser={initialUser}>
             {children}
           </ConditionalLayout>
         </Suspense>
