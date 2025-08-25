@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Eye, Clock, Sliders } from 'lucide-react';
@@ -49,13 +49,19 @@ export default function OldStyleNewsBlock({
   className = ""
 }: OldStyleNewsBlockProps) {
   
-  // تحديد إذا كان الخبر جديد (أقل من 24 ساعة)
+  // إعادة رندر خفيفة كل دقيقة لضمان إزالة "جديد" تلقائياً مع مرور الوقت
+  const [, setNowTick] = useState<number>(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNowTick(Date.now()), 60_000);
+    return () => clearInterval(id);
+  }, []);
+
+  // تحديد إذا كان الخبر جديد (آخر ساعتين فقط)
   const isNewsNew = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffHours = Math.ceil(diffTime / (1000 * 60 * 60));
-    return diffHours <= 24;
+    return diffTime <= 2 * 60 * 60 * 1000; // ساعتان
   };
 
   // تنسيق التاريخ الميلادي (dd/MM/yyyy)
