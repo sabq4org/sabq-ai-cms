@@ -1,0 +1,188 @@
+/* توحيد عرض جميع مكونات المقال مع الصورة المميزة - عرض كامل */
+
+/* إزالة قيود العرض من جميع مكونات المقال لتصبح بنفس عرض الصورة المميزة */
+@media (min-width: 640px) {
+  /* إزالة قيود max-width من جميع مكونات المقال */
+  .article-unified-width,
+  .article-title-wrapper,
+  .article-ai-summary-wrapper,
+  .article-content-wrapper,
+  .article-stats-wrapper,
+  .article-comments-wrapper,
+  .article-questions-wrapper,
+  .article-personalized-wrapper {
+    max-width: none !important; /* إزالة القيد السابق 56rem */
+    width: 100% !important; /* العرض الكامل مثل الصورة المميزة */
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+    box-sizing: border-box !important;
+  }
+
+  /* للشاشات الكبيرة */
+  @media (min-width: 1024px) {
+    .article-unified-width,
+    .article-title-wrapper,
+    .article-ai-summary-wrapper,
+    .article-content-wrapper,
+    .article-stats-wrapper,
+    .article-comments-wrapper,
+    .article-questions-wrapper,
+    .article-personalized-wrapper {
+      padding-left: 2rem !important;
+      padding-right: 2rem !important;
+    }
+  }
+
+  /* الصورة المميزة تبقى بعرضها الحالي (بدون قيود) */
+  .article-featured-image-wrapper {
+    max-width: none !important;
+    width: 100% !important;
+    padding-left: 0 !important; /* إزالة padding للصورة المميزة */
+    padding-right: 0 !important;
+  }
+
+  /* ضمان أن المحتوى الداخلي يأخذ العرض الكامل */
+  .article-unified-width > *,
+  .article-ai-summary-wrapper > *,
+  .article-content-wrapper > *,
+  .article-stats-wrapper > *,
+  .article-comments-wrapper > *,
+  .article-questions-wrapper > *,
+  .article-personalized-wrapper > * {
+    max-width: 100% !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* تأكيد على العناصر المحددة */
+  .article-ai-summary-wrapper .ai-summary-card,
+  .article-ai-summary-wrapper > div,
+  .article-ai-summary-wrapper [class*="summary"],
+  .article-stats-wrapper .stats-container,
+  .article-stats-wrapper > div,
+  .article-stats-wrapper [class*="stats"],
+  .article-comments-wrapper .comments-container,
+  .article-comments-wrapper > div,
+  .article-comments-wrapper [class*="comment"],
+  .article-questions-wrapper .ai-questions-container,
+  .article-questions-wrapper > div,
+  .article-questions-wrapper [class*="question"],
+  .article-personalized-wrapper .personalized-content-container,
+  .article-personalized-wrapper > div,
+  .article-personalized-wrapper [class*="personalized"] {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* محتوى المقال */
+  .article-content-wrapper .prose,
+  .article-content-wrapper > div {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* إزالة أي قيود إضافية */
+  .article-unified-width .prose {
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  /* العناصر التفاعلية */
+  .article-unified-width .like-save-buttons,
+  .article-unified-width .social-share-buttons,
+  .article-unified-width .keywords-wrapper,
+  .article-unified-width .ai-summary,
+  .article-unified-width .comments-panel,
+  .article-unified-width .stats-block,
+  .article-unified-width .questions-panel,
+  .article-unified-width .personalized-content {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* Grid و Flex elements */
+  .article-unified-width .grid,
+  .article-unified-width .flex,
+  .article-unified-width .flex-wrap,
+  .article-unified-width .grid-cols-1,
+  .article-unified-width .grid-cols-2,
+  .article-unified-width .grid-cols-3 {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* إزالة أي margins سلبية */
+  .article-unified-width,
+  .article-unified-width * {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  /* ضمان عدم overflow */
+  .article-unified-width {
+    overflow-x: hidden;
+  }
+
+  /* تطبيق خاص على الصور */
+  .article-unified-width img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+  
+  .article-unified-width .w-full {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* تطبيق على العناصر التي قد تحتوي على عروض ثابتة من Tailwind */
+  .article-unified-width [class*="max-w-"],
+  .article-unified-width [class*="w-"] {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* إعادة تعيين أي classes محددة قد تقيد العرض */
+  .article-unified-width .container,
+  .article-unified-width .mx-auto,
+  .article-unified-width [class*="container"] {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+}
+
+/* الموبايل يبقى كما هو */
+@media (max-width: 639px) {
+  .article-unified-width,
+  .article-title-wrapper,
+  .article-featured-image-wrapper,
+  .article-ai-summary-wrapper,
+  .article-content-wrapper,
+  .article-stats-wrapper,
+  .article-comments-wrapper,
+  .article-questions-wrapper,
+  .article-personalized-wrapper {
+    max-width: 100%;
+    margin: 0;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Dark mode compatibility */
+.dark .article-unified-width {
+  color: inherit;
+}
+
+/* Override أي أنماط تصميم أخرى قد تتعارض */
+.article-full-width-override {
+  max-width: none !important;
+  width: 100% !important;
+}
+
+/* تطبيق على أي عنصر له class article-unified-width */
+.article-unified-width.article-unified-width {
+  max-width: none !important;
+  width: 100% !important;
+}

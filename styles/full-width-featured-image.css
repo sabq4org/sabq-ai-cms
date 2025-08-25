@@ -1,0 +1,91 @@
+/* 🎯 جعل الصورة المميزة بعرض كامل مع باقي العناصر بنفس العرض المحدد */
+
+/* للديسكتوب فقط */
+@media (min-width: 640px) {
+  /* الصورة المميزة - عرض كامل بدون قيود */
+  .article-featured-image-wrapper {
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    width: 100% !important;
+  }
+
+  .article-featured-image-wrapper img,
+  .article-featured-image-wrapper .relative,
+  .article-featured-image-wrapper .aspect-ratio-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 0 !important; /* إزالة الحواف المنحنية للعرض الكامل */
+    box-shadow: none !important; /* إزالة الظل للعرض الكامل */
+  }
+
+  /* باقي العناصر - محافظة على العرض المحدد 56rem */
+  .article-title-wrapper,
+  .article-ai-summary-wrapper,
+  .article-content-wrapper,
+  .article-stats-wrapper,
+  .article-comments-wrapper,
+  .article-questions-wrapper,
+  .article-personalized-wrapper,
+  .article-unified-width:not(.article-featured-image-wrapper) {
+    max-width: 56rem !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+    box-sizing: border-box !important;
+  }
+
+  /* للشاشات الكبيرة */
+  @media (min-width: 1024px) {
+    .article-title-wrapper,
+    .article-ai-summary-wrapper,
+    .article-content-wrapper,
+    .article-stats-wrapper,
+    .article-comments-wrapper,
+    .article-questions-wrapper,
+    .article-personalized-wrapper,
+    .article-unified-width:not(.article-featured-image-wrapper) {
+      padding-left: 2rem !important;
+      padding-right: 2rem !important;
+    }
+  }
+
+  /* التأكد من عدم تأثير القواعد الموجودة على الصورة */
+  .article-featured-image-wrapper.article-unified-width {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  /* تحسين عرض الصورة */
+  .article-featured-image-wrapper .w-full {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  /* إزالة أي constraints من الصورة */
+  .article-featured-image-wrapper > *,
+  .article-featured-image-wrapper img {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+}
+
+/* للموبايل - بقاء التصميم الحالي دون تغيير */
+@media (max-width: 639px) {
+  .article-featured-image-wrapper,
+  .article-title-wrapper,
+  .article-ai-summary-wrapper,
+  .article-content-wrapper,
+  .article-stats-wrapper,
+  .article-comments-wrapper,
+  .article-questions-wrapper,
+  .article-personalized-wrapper {
+    max-width: 100%;
+    margin: 0;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}

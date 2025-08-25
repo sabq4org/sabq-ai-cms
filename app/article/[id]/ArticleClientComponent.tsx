@@ -69,10 +69,15 @@ export default function ArticleClientComponent({
 
   // معالجة metadata إذا كانت string
   const processArticle = (articleData: any) => {
+    if (!articleData) {
+      return null;
+    }
+    
+    // التأكد من وجود metadata قبل المعالجة
     if (
-      articleData &&
       articleData.metadata &&
-      typeof articleData.metadata === "string"
+      typeof articleData.metadata === "string" &&
+      articleData.metadata.trim()
     ) {
       try {
         articleData.metadata = JSON.parse(articleData.metadata);
@@ -81,6 +86,9 @@ export default function ArticleClientComponent({
         console.warn("تحذير: فشل في تحليل metadata، استخدام قيمة افتراضية");
         articleData.metadata = {};
       }
+    } else if (!articleData.metadata) {
+      // إضافة metadata فارغة إذا لم تكن موجودة
+      articleData.metadata = {};
     }
     return articleData;
   };
@@ -566,7 +574,7 @@ export default function ArticleClientComponent({
             <header className="mb-1 sm:mb-2">
               {/* Desktop Header - محاذاة العرض مع حاوية المحتوى */}
               <div className="hidden sm:block">
-                <div className="article-title-wrapper article-unified-width">
+                <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-4 sm:px-6">
                   <div className="px-0 py-4 lg:py-6 flex flex-col justify-center">
                 {/* التصنيف - محاذاة لليمين مع تحسين الهامش */}
                 {article.category && (
@@ -733,7 +741,7 @@ export default function ArticleClientComponent({
             article.featured_image.length > 0 &&
             !article.metadata?.emergency_mode && (
               <div className="hidden sm:block mb-6">
-                <div className="article-featured-image-wrapper article-unified-width">
+                <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-4 sm:px-6">
                   <ArticleFeaturedImage
                     imageUrl={article.featured_image}
                     title={article.title}
@@ -745,7 +753,7 @@ export default function ArticleClientComponent({
                 </div>
               </div>
             )}
-          <div className="article-unified-width py-2">
+          <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-4 sm:px-6 py-2">
             <div className="bg-transparent dark:bg-transparent rounded-xl">
               <div className="sm:hidden mb-6">
                 {article.featured_image &&
@@ -784,7 +792,7 @@ export default function ArticleClientComponent({
 
             {/* منطقة الموجز الذكي للديسكتوب */}
             <div className="hidden sm:block mb-6 sm:mb-8">
-              <div className="article-ai-summary-wrapper article-unified-width">
+              <div className="w-full">
                 <ArticleAISummary
                     articleId={article.id}
                     title={article.title || "مقال بدون عنوان"}
@@ -810,7 +818,7 @@ export default function ArticleClientComponent({
 
             {/* أزرار الإعجاب والحفظ البسيطة */}
             <div className="mb-6 sm:mb-8">
-              <div className="article-unified-width">
+              <div className="w-full">
                 <BasicLikeSave
                   articleId={article.id}
                   initialLikes={article.likes || article.stats?.likes || 0}
@@ -824,7 +832,7 @@ export default function ArticleClientComponent({
             {/* الكلمات المفتاحية */}
             {keywords.length > 0 && (
               <div className="mb-6 sm:mb-8">
-                <div className="article-unified-width">
+                <div className="w-full">
                   <div className="flex flex-wrap gap-1.5 sm:gap-2">
                     {keywords.map((keyword, index) => (
                       <Link
@@ -843,7 +851,7 @@ export default function ArticleClientComponent({
 
             {/* زر وضع القراءة */}
             <div className="mb-6 sm:mb-8">
-              <div className="article-unified-width">
+              <div className="w-full">
                 <div className="flex justify-end">
                   <button
                     onClick={() => setIsReading(!isReading)}
@@ -864,7 +872,7 @@ export default function ArticleClientComponent({
 
             {/* محتوى المقال */}
             <div className="mb-12">
-              <div className="article-content-wrapper article-unified-width">
+              <div className="w-full">
                 <div
                   className={`prose max-w-none dark:prose-invert arabic-article-content
                     prose-headings:text-gray-900 dark:prose-headings:text-white
@@ -890,7 +898,7 @@ export default function ArticleClientComponent({
             {/* مكون الذكاء الاصطناعي للأسئلة - أسفل تفاصيل الخبر */}
             {article?.content && (
               <div className="mb-8">
-                <div className="article-questions-wrapper article-unified-width">
+                <div className="w-full">
                   <AIQuestions
                     content={
                       typeof article.content === "string"
@@ -906,7 +914,7 @@ export default function ArticleClientComponent({
 
             {/* Comments Panel: يوضع قبل بلوك الإحصائيات كما هو مطلوب */}
             <div className="mt-4 sm:mt-6">
-              <div className="article-comments-wrapper article-unified-width">
+              <div className="w-full">
                 <CommentsPanel
                   articleId={article.id}
                   initialCount={article.comments_count || 0}
@@ -916,7 +924,7 @@ export default function ArticleClientComponent({
 
             {/* بلوك إحصائيات المقال (التصميم القديم) */}
             <div className="mt-6">
-              <div className="article-stats-wrapper article-unified-width">
+              <div className="w-full">
                 <ArticleStatsBlock
                   views={article.views || 0}
                   likes={article.likes || 0}
@@ -937,7 +945,7 @@ export default function ArticleClientComponent({
 
             {/* مخصص لك بذكاء - أسفل بلوك إحصائيات المقال */}
             <div className="mt-6 sm:mt-8">
-              <div className="article-personalized-wrapper article-unified-width">
+              <div className="w-full">
                 <SmartPersonalizedContent
                   articleId={article.id}
                   categoryId={article.category_id}

@@ -70,8 +70,12 @@ export default function ContentImage({
   if (hasError) {
     return (
       <figure className={cn('my-8', getVariantClasses(), className)}>
-        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-xl flex items-center justify-center" 
-             style={{ aspectRatio: aspectRatio === 'auto' ? undefined : aspectRatio.replace('/', ' / ') }}>
+        <div 
+          className="w-full bg-gray-200 dark:bg-gray-700 rounded-xl flex items-center justify-center" 
+          style={{ 
+            aspectRatio: aspectRatio === 'auto' ? undefined : aspectRatio.replace('/', ' / '),
+            minHeight: '200px'
+          }}>
           <p className="text-gray-500 dark:text-gray-400 text-sm">
             فشل تحميل الصورة
           </p>
@@ -101,6 +105,7 @@ export default function ContentImage({
             isLoading ? 'opacity-0' : 'opacity-100',
             aspectRatio !== 'auto' && `aspect-[${aspectRatio}]`
           )}
+          style={aspectRatio !== 'auto' ? { aspectRatio: aspectRatio.replace('/', ' / ') } : undefined}
           sizes={getSizes()}
           priority={priority}
           loading={priority ? 'eager' : 'lazy'}
