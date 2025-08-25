@@ -123,8 +123,40 @@ function LoginForm() {
 
         console.log('🔄 إعادة توجيه إلى:', redirectPath);
         
-        // إعادة توجيه فورية
-        router.push(redirectPath);
+        // تحديث حالة المصادقة أولاً
+        if (login && data.user) {
+          await login(data.user);
+        }
+        
+        // تأكيد الجلسة قبل التوجيه
+        try {
+          const meResponse = await fetch('/api/auth/me', {
+            credentials: 'include'
+          });
+          
+          if (meResponse.ok) {
+            console.log('✅ تم تأكيد الجلسة');
+          }
+        } catch (e) {
+          console.warn('⚠️ فشل تأكيد الجلسة:', e);
+        }
+        
+        // إعادة توجيه مع ضمان البقاء على نفس المضيف
+        if (redirectPath.startsWith('/')) {
+          // مسار نسبي - آمن
+          router.push(redirectPath);
+        } else {
+          // مسار مطلق - تأكد من نفس المضيف
+          const currentHost = window.location.host;
+          const redirectUrl = new URL(redirectPath, window.location.origin);
+          
+          if (redirectUrl.host === currentHost) {
+            router.push(redirectPath);
+          } else {
+            // إذا كان المضيف مختلف، استخدم المسار فقط
+            router.push(redirectUrl.pathname + redirectUrl.search);
+          }
+        }
       } else {
         toast.error(data.error || "حدث خطأ في تسجيل الدخول");
       }
