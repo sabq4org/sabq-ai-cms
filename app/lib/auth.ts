@@ -151,7 +151,7 @@ export async function getCurrentUser(): Promise<User | null> {
               },
             });
           }
-          await prisma.$disconnect();
+          // Note: لا نقوم بعمل $disconnect هنا لتفادي قطع الاتصال بين الطلبات
           if (!user) return null;
           const superAdmins = (
             process.env.SUPER_ADMIN_EMAILS || "admin@sabq.ai"
@@ -215,7 +215,7 @@ export async function getCurrentUser(): Promise<User | null> {
       });
     }
 
-    await prisma.$disconnect();
+    // Note: لا تقطع الاتصال داخل المسار - اترك إدارة الاتصال للـ singleton
 
     if (!user) return null;
     const superAdmins = (process.env.SUPER_ADMIN_EMAILS || "admin@sabq.ai")
@@ -434,7 +434,7 @@ export async function requireAuthFromRequest(request: NextRequest): Promise<User
     });
   }
 
-  await prisma.$disconnect();
+  // Note: عدم قطع الاتصال هنا - قد يسبب "Engine is not yet connected"
 
   if (!user) {
     console.log('❌ المستخدم غير موجود في قاعدة البيانات');
@@ -496,7 +496,7 @@ export async function getEffectiveUserRoleById(
       },
     });
 
-    await prisma.$disconnect();
+    // عدم قطع الاتصال - يُدار مركزياً في lib/prisma
 
     if (!user) return "user";
 

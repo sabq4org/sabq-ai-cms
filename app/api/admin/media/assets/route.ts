@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/require-admin";
-import prisma from "@/lib/prisma";
+import prisma, { ensureDbConnected, retryWithConnection } from "@/lib/prisma";
 import { MediaType } from "@prisma/client";
 
 // GET /api/admin/media/assets - Get media assets with filtering
 export async function GET(request: NextRequest) {
   try {
+    await ensureDbConnected();
     const userCheck = await requireAdmin(request);
     if (!userCheck.authorized) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -39,7 +40,7 @@ export async function GET(request: NextRequest) {
 
     // Get assets with pagination
     const [assets, total] = await Promise.all([
-      prisma.mediaAsset.findMany({
+      retryWithConnection(async () => await prisma.mediaAsset.findMany({
         where,
         include: {
           folder: true,
@@ -55,8 +56,8 @@ export async function GET(request: NextRequest) {
         orderBy: { createdAt: "desc" },
         take: limit,
         skip: offset,
-      }),
-      prisma.mediaAsset.count({ where }),
+      })),
+      retryWithConnection(async () => await prisma.mediaAsset.count({ where })),
     ]);
 
     return NextResponse.json({

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/require-admin";
-import prisma from "@/lib/prisma";
+import prisma, { ensureDbConnected, retryWithConnection } from "@/lib/prisma";
 import { z } from "zod";
 
 const createFolderSchema = z.object({
@@ -11,12 +11,13 @@ const createFolderSchema = z.object({
 // GET /api/admin/media/folders - Get all folders with hierarchy
 export async function GET(request: NextRequest) {
   try {
+    await ensureDbConnected();
     const userCheck = await requireAdmin(request);
     if (!userCheck.authorized) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const folders = await prisma.mediaFolder.findMany({
+    const folders = await retryWithConnection(async () => await prisma.mediaFolder.findMany({
       include: {
         _count: {
           select: {
@@ -29,7 +30,7 @@ export async function GET(request: NextRequest) {
         { parentId: "asc" },
         { name: "asc" },
       ],
-    });
+    }));
 
     // Build hierarchical structure
     const buildHierarchy = (parentId: string | null = null): any[] => {

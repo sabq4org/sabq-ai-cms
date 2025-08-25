@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/require-admin";
-import prisma from "@/lib/prisma";
+import prisma, { ensureDbConnected, retryWithConnection } from "@/lib/prisma";
 import { MediaType } from "@prisma/client";
 import { v2 as cloudinary } from "cloudinary";
 
@@ -33,6 +33,7 @@ function getMediaType(mimeType: string): MediaType {
 // POST /api/admin/media/upload - Upload new media asset
 export async function POST(request: NextRequest) {
   try {
+    await ensureDbConnected();
     const userCheck = await requireAdmin(request);
     if (!userCheck.authorized) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -99,10 +100,10 @@ export async function POST(request: NextRequest) {
     // Get folder path for Cloudinary organization
     let cloudinaryFolder = "media";
     if (folderId) {
-      const folder = await prisma.mediaFolder.findUnique({
+      const folder = await retryWithConnection(async () => await prisma.mediaFolder.findUnique({
         where: { id: folderId },
         select: { path: true },
-      });
+      }));
       if (folder) {
         // Convert path to Cloudinary folder format
         cloudinaryFolder = `media${folder.path}`;
@@ -179,7 +180,7 @@ export async function POST(request: NextRequest) {
       assetData.uploadedById = userCheck.user.id;
     }
 
-    const asset = await prisma.mediaAsset.create({
+    const asset = await retryWithConnection(async () => await prisma.mediaAsset.create({
       data: assetData,
       include: {
         folder: true,
@@ -192,7 +193,7 @@ export async function POST(request: NextRequest) {
           },
         },
       },
-    });
+    }));
     
     console.log("✅ Database record created successfully:", asset.id);
 
