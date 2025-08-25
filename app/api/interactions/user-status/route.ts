@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import prisma, { ensureDbConnected, retryWithConnection } from '@/lib/prisma';
 import { requireAuthFromRequest } from '@/app/lib/auth';
+
+// تعيين runtime كـ nodejs لـ Prisma
+export const runtime = 'nodejs';
 
 export async function GET(req: NextRequest) {
   try {
     console.log('🔍 بدء معالجة طلب حالة التفاعل...');
+    
+    // التأكد من الاتصال بقاعدة البيانات
+    await ensureDbConnected();
     
     const { searchParams } = new URL(req.url);
     const articleId = searchParams.get('articleId');

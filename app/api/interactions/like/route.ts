@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuthFromRequest } from "@/app/lib/auth";
 import { getRedisClient } from "@/lib/redis-client";
 import { deleteKeysByPattern } from "@/lib/redis-helpers";
-import prisma from "@/lib/prisma";
+import prisma, { ensureDbConnected, retryWithConnection } from "@/lib/prisma";
+
+// تعيين runtime كـ nodejs لـ Prisma
+export const runtime = 'nodejs';
 
 async function awardLoyaltyPoints(userId: string, articleId: string, points: number, action: string) {
   if (points <= 0) return 0;
@@ -38,6 +41,9 @@ export async function POST(req: NextRequest) {
     console.log('🔍 بدء معالجة طلب الإعجاب...');
     console.log('🔍 Headers:', Object.fromEntries(req.headers.entries()));
     console.log('🔍 Cookies:', req.cookies.getAll());
+    
+    // التأكد من الاتصال بقاعدة البيانات
+    await ensureDbConnected();
     
     // التحقق من المصادقة
     let user;

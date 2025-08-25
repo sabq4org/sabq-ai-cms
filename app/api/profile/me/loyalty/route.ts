@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuthFromRequest } from "@/app/lib/auth";
-import prisma from "@/lib/prisma";
+import prisma, { ensureDbConnected, retryWithConnection } from "@/lib/prisma";
+
+// تعيين runtime كـ nodejs لـ Prisma
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 function getLevel(totalPoints: number): { level: string; nextLevelThreshold: number } {
   if (totalPoints >= 2000) return { level: 'بلاتيني', nextLevelThreshold: 999999 };
@@ -8,8 +12,6 @@ function getLevel(totalPoints: number): { level: string; nextLevelThreshold: num
   if (totalPoints >= 100) return { level: 'فضي', nextLevelThreshold: 500 };
   return { level: 'برونزي', nextLevelThreshold: 100 };
 }
-
-export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   try {
@@ -28,9 +30,15 @@ export async function GET(req: NextRequest) {
       }, { status: 401 });
     }
 
-    const userData = await prisma.users.findUnique({
-      where: { id: user.id },
-      select: { loyalty_points: true }
+    // التأكد من الاتصال بقاعدة البيانات قبل الاستعلام
+    await ensureDbConnected();
+    
+    // استخدام retryWithConnection لضمان المرونة
+    const userData = await retryWithConnection(async () => {
+      return await prisma.users.findUnique({
+        where: { id: user.id },
+        select: { loyalty_points: true }
+      });
     });
 
     const points = userData?.loyalty_points || 0;
