@@ -109,7 +109,7 @@ export async function GET(request: NextRequest) {
   } finally {
     // التأكد من إغلاق الاتصال
     try {
-      await prisma.$disconnect();
+      // Removed: $disconnect() - causes connection issues
       console.log('🔌 تم قطع الاتصال بقاعدة البيانات');
     } catch (disconnectError) {
       console.error('⚠️ خطأ في قطع الاتصال:', disconnectError);

@@ -95,7 +95,7 @@ export async function GET(request: NextRequest) {
     
   } finally {
     try {
-      await prisma.$disconnect();
+      // Removed: $disconnect() - causes connection issues
     } catch (disconnectError) {
       console.error('⚠️ DEBUG: خطأ في قطع الاتصال:', disconnectError);
     }

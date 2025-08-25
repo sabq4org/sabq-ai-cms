@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
         user_agent: undefined,
       }
     });
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
     return NextResponse.json({ ok: true });
   } catch (e: any) {
     if (String(e?.message || e).includes("Unauthorized")) {

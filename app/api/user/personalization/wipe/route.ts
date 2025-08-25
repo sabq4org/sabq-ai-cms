@@ -12,7 +12,7 @@ export async function POST() {
       prisma.UserInteractions.deleteMany({ where: { user_id: user.id } }),
       prisma.user_interests.deleteMany({ where: { user_id: user.id } })
     ]);
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
     const redis = getRedisClient();
     if (redis) await deleteKeysByPattern(redis, `user:feed:${user.id}:*`);
     return NextResponse.json({ ok: true });

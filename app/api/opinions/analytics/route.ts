@@ -393,7 +393,7 @@ export async function GET(request: NextRequest) {
   } finally {
     if (prisma) {
       try {
-        await prisma.$disconnect();
+        // Removed: $disconnect() - causes connection issues
       } catch (disconnectError) {
         console.warn('⚠️ API: تعذر قطع الاتصال في opinions/analytics:', disconnectError);
       }

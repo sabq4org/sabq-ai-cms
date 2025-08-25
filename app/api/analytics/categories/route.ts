@@ -141,7 +141,7 @@ export async function GET() {
         const responseTime = Date.now() - startTime;
         console.log(`⚡ [Analytics Categories API] تم جلب البيانات من قاعدة البيانات في ${responseTime}ms`);
 
-        await prisma.$disconnect();
+        // Removed: $disconnect() - causes connection issues
 
         return NextResponse.json({
           success: true,

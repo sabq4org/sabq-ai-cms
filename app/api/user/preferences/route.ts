@@ -11,7 +11,7 @@ export async function GET() {
       select: { id: true, category_id: true, is_active: true, created_at: true },
       orderBy: { created_at: "desc" }
     });
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
     return NextResponse.json({ interests, updatedAt: new Date().toISOString() }, { headers: { "Cache-Control": "no-store" } });
   } catch (e: any) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
         await tx.user_interests.createMany({ data, skipDuplicates: true });
       }
     });
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
     return NextResponse.json({ ok: true });
   } catch (e: any) {
     if (String(e?.message || e).includes("Unauthorized")) {

@@ -126,7 +126,7 @@ export async function GET(request: NextRequest) {
       error: 'حدث خطأ في جلب المقالات المعجب بها'
     }, { status: 500 });
   } finally {
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
   }
 }
 
@@ -192,6 +192,6 @@ export async function DELETE(request: NextRequest) {
       error: 'حدث خطأ في إلغاء الإعجاب'
     }, { status: 500 });
   } finally {
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
   }
 }

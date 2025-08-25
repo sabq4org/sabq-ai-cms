@@ -29,7 +29,7 @@ export async function GET() {
       details: error.message
     }, { status: 500 });
   } finally {
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
   }
 }
 
@@ -64,6 +64,6 @@ export async function POST(request: NextRequest) {
       details: error.message
     }, { status: 500 });
   } finally {
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
   }
 }

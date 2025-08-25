@@ -37,7 +37,7 @@ export async function GET() {
     diagnostics.connection.data = { userCount };
     console.log(`Query successful. User count: ${userCount}`);
 
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
     console.log('Prisma disconnected.');
     
   } catch (e: any) {

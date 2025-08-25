@@ -218,7 +218,7 @@ export async function GET(request: NextRequest) {
     // قطع اتصال آمن
     if (prisma) {
       try {
-        await prisma.$disconnect();
+        // Removed: $disconnect() - causes connection issues
         console.log('🔌 [Analytics Behavior API] تم قطع الاتصال بقاعدة البيانات');
       } catch (disconnectError) {
         console.warn('⚠️ [Analytics Behavior API] تعذر قطع الاتصال:', disconnectError);

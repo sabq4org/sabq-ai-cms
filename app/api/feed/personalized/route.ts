@@ -103,7 +103,7 @@ export async function GET(req: NextRequest) {
       await redis.set(cacheKey, JSON.stringify(pageItems), "EX", 300);
     }
 
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
     return NextResponse.json({ items: pageItems, nextOffset: pageItems.length === limit ? offset + limit : null, meta }, { headers: { "Cache-Control": "no-store" } });
   } catch (e: any) {
     if (String(e?.message || e).includes("Unauthorized")) {

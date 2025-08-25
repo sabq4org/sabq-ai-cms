@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
       message: error instanceof Error ? error.message : 'خطأ غير معروف'
     }, { status: 500 });
   } finally {
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
   }
 }
 

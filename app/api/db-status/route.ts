@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // إغلاق الاتصال الحالي إذا كان موجودًا
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
 
     // إعادة توصيل قاعدة البيانات
     await prisma.$connect();

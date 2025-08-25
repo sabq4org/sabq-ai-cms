@@ -62,7 +62,7 @@ export async function PUT(
       { status: 500 }
     );
   } finally {
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
   }
 }
 
@@ -110,6 +110,6 @@ export async function DELETE(
       { status: 500 }
     );
   } finally {
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
   }
 }

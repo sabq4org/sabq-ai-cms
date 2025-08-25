@@ -10,7 +10,7 @@ export async function GET() {
       where: { user_id: user.id, module: "personalization", key: "enabled" },
       select: { value: true }
     });
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
     const enabled = row?.value?.enabled !== false;
     return NextResponse.json({ enabled });
   } catch (e: any) {
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
       update: { value: { enabled } },
       create: { user_id: user.id, module: "personalization", key: "enabled", value: { enabled } }
     });
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
     return NextResponse.json({ enabled });
   } catch (e: any) {
     if (String(e?.message || e).includes("Unauthorized")) {

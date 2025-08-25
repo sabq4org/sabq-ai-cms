@@ -60,7 +60,7 @@ async function loadKeywords(search?: string): Promise<Keyword[]> {
     console.error('❌ خطأ في جلب الكلمات المفتاحية:', error);
     return [];
   } finally {
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
   }
 }
 
@@ -92,7 +92,7 @@ async function createKeyword(name: string, usageCount: number = 0): Promise<Keyw
     console.error('❌ خطأ في إنشاء الكلمة المفتاحية:', error);
     throw error;
   } finally {
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
   }
 }
 
@@ -122,7 +122,7 @@ async function updateKeyword(id: string, updates: Partial<Keyword>): Promise<Key
     console.error('❌ خطأ في تحديث الكلمة المفتاحية:', error);
     throw error;
   } finally {
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
   }
 }
 
@@ -141,7 +141,7 @@ async function deleteKeyword(id: string): Promise<void> {
     console.error('❌ خطأ في حذف الكلمة المفتاحية:', error);
     throw error;
   } finally {
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
   }
 }
 

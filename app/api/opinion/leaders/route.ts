@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
       details: error instanceof Error ? error.message : String(error)
     }, { status: 500 });
   } finally {
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
   }
 }
 
@@ -146,6 +146,6 @@ export async function POST(request: NextRequest) {
       details: error instanceof Error ? error.message : String(error)
     }, { status: 500 });
   } finally {
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
   }
 }

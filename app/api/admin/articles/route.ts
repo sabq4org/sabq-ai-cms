@@ -319,7 +319,7 @@ export async function POST(request: NextRequest) {
       code: error.code
     }, { status: 500 });
   } finally {
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
   }
 }
 
@@ -420,6 +420,6 @@ export async function GET(request: NextRequest) {
       details: error.message || 'خطأ غير معروف'
     }, { status: 500 });
   } finally {
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
   }
 }

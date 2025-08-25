@@ -130,7 +130,7 @@ async function readBlocks(): Promise<SmartBlock[]> {
       ];
       return defaultBlocks;
   } finally {
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
   }
 }
 
@@ -166,7 +166,7 @@ async function createBlock(blockData: SmartBlock) {
     console.error('❌ خطأ في إنشاء البلوك:', error);
     throw error;
   } finally {
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
   }
 }
 
@@ -201,7 +201,7 @@ async function updateBlock(id: string, blockData: Partial<SmartBlock>) {
     console.error('❌ خطأ في تحديث البلوك:', error);
     throw error;
   } finally {
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
   }
 }
 
@@ -219,7 +219,7 @@ async function deleteBlock(id: string) {
     console.error('❌ خطأ في حذف البلوك:', error);
     throw error;
   } finally {
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
   }
 }
 

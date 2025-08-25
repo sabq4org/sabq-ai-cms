@@ -81,6 +81,6 @@ export async function GET(
       details: error instanceof Error ? error.message : String(error)
     }, { status: 500 });
   } finally {
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
   }
 }

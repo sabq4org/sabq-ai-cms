@@ -171,7 +171,7 @@ export async function GET(request: NextRequest) {
     errorResponse.headers.set('Content-Type', 'application/json; charset=utf-8');
     return errorResponse;
   } finally {
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
   }
 }
 
@@ -296,6 +296,6 @@ export async function POST(request: NextRequest) {
     errorResponse.headers.set('Content-Type', 'application/json; charset=utf-8');
     return errorResponse;
   } finally {
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
   }
 }

@@ -175,6 +175,6 @@ export async function GET(request: NextRequest) {
       details: error.message
     }, { status: 500 });
   } finally {
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
   }
 }

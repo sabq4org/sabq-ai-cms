@@ -3,7 +3,37 @@ import { getAuthenticatedUser, createAuthErrorResponse } from "@/lib/getAuthenti
 import { setCORSHeaders, setNoCache, getUnifiedAuthTokens, updateAccessToken } from "@/lib/auth-cookies-unified";
 import { UserManagementService } from "@/lib/auth/user-management";
 import { serialize } from 'cookie';
-import prisma from "@/lib/prisma";
+import prisma, { ensureDbConnected, isPrismaNotConnectedError, retryWithConnection } from "@/lib/prisma";
+import jwt from 'jsonwebtoken';
+
+// تعيين runtime كـ nodejs لـ Prisma
+export const runtime = 'nodejs';
+
+// دالة لاستخراج بيانات المستخدم من التوكن كـ fallback
+function getUserFromToken(token: string): any | null {
+  try {
+    const decoded = jwt.decode(token) as any;
+    if (!decoded) return null;
+    
+    // استخرج معرف المستخدم من مختلف المواضع المحتملة
+    const userId = decoded.user_id || decoded.userId || decoded.sub || decoded.id;
+    if (!userId) return null;
+    
+    return {
+      id: userId,
+      email: decoded.email || decoded.userEmail || 'unknown@sabq.io',
+      name: decoded.name || decoded.userName || 'مستخدم سبق',
+      role: decoded.role || 'user',
+      is_admin: decoded.is_admin || decoded.isAdmin || false,
+      // بيانات جزئية من التوكن
+      __fromToken: true,
+      __partial: true
+    };
+  } catch (error) {
+    console.error('❌ فشل استخراج بيانات المستخدم من التوكن:', error);
+    return null;
+  }
+}
 
 // معالجة طلبات OPTIONS للـ CORS
 export async function OPTIONS(request: NextRequest) {
@@ -79,6 +109,26 @@ export async function GET(request: NextRequest) {
     // إذا فشلت المصادقة بسبب عدم وجود access token، جرب refresh
     console.log(`❌ [/api/auth/me] فشل المصادقة: ${result.reason}`);
     
+    // محاولة استخراج معلومات من التوكن كـ fallback أولاً
+    const { accessToken: currentAccessToken } = getUnifiedAuthTokens(request);
+    if (currentAccessToken && result.reason === 'user_not_found') {
+      // المستخدم غير موجود في DB لكن التوكن صالح
+      const tokenUser = getUserFromToken(currentAccessToken);
+      if (tokenUser) {
+        console.log('⚠️ [/api/auth/me] استخدام بيانات التوكن كـ fallback (DB غير متاح)');
+        const response = NextResponse.json({
+          success: true,
+          user: tokenUser,
+          partial: true,
+          reason: 'db_fallback'
+        });
+        
+        setCORSHeaders(response, request.headers.get('origin') || undefined);
+        setNoCache(response);
+        return response;
+      }
+    }
+    
     // Auto-refresh: إذا كان السبب no_token أو token_expired، حاول استخدام refresh token
     if (result.reason === 'no_token' || result.reason === 'token_expired' || result.reason === 'jwt_verification_failed') {
       console.log('🔄 [/api/auth/me] محاولة تجديد التوكن تلقائياً...');
@@ -110,29 +160,39 @@ export async function GET(request: NextRequest) {
           if (refreshResult.access_token && refreshResult.user) {
             console.log('✅ [/api/auth/me] نجح تجديد التوكن تلقائياً');
             
-            // جلب بيانات المستخدم الكاملة
-            const fullUser = await prisma.users.findUnique({
-              where: { id: refreshResult.user.id },
-              select: {
-                id: true,
-                email: true,
-                name: true,
-                username: true,
-                role: true,
-                avatar: true,
-                is_admin: true,
-                is_verified: true,
-                created_at: true,
-                loyalty_points: true,
-                preferences: true,
-                bio: true,
-                location: true,
-                website: true,
-                social_links: true,
-                notification_preferences: true,
-                status: true
-              }
-            });
+            // جلب بيانات المستخدم الكاملة مع retry
+            let fullUser;
+            try {
+              fullUser = await retryWithConnection(async () => {
+                await ensureDbConnected();
+                return await prisma.users.findUnique({
+                  where: { id: refreshResult.user.id },
+                  select: {
+                    id: true,
+                    email: true,
+                    name: true,
+                    username: true,
+                    role: true,
+                    avatar: true,
+                    is_admin: true,
+                    is_verified: true,
+                    created_at: true,
+                    loyalty_points: true,
+                    preferences: true,
+                    bio: true,
+                    location: true,
+                    website: true,
+                    social_links: true,
+                    notification_preferences: true,
+                    status: true
+                  }
+                });
+              });
+            } catch (dbError) {
+              console.warn('⚠️ [/api/auth/me] فشل جلب بيانات المستخدم من DB، استخدام بيانات التوكن:', dbError);
+              // استخدم بيانات من refresh result كـ fallback
+              fullUser = refreshResult.user;
+            }
             
             if (!fullUser || fullUser.status !== 'active') {
               console.log('❌ [/api/auth/me] المستخدم غير موجود أو غير نشط');

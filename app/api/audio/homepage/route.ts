@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
       error: 'خطأ في الخادم' 
     }, { status: 500 });
   } finally {
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
   }
 }
 
@@ -71,6 +71,6 @@ export async function GET(req: NextRequest) {
       error: 'خطأ في الخادم' 
     }, { status: 500 });
   } finally {
-    await prisma.$disconnect();
+    // Removed: $disconnect() - causes connection issues
   }
 }
