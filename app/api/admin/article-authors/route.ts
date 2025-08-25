@@ -1,3 +1,46 @@
+import prisma, { ensureDbConnected, retryWithConnection } from "@/lib/prisma";
+import { NextRequest, NextResponse } from "next/server";
+
+export const runtime = "nodejs";
+
+export async function GET(request: NextRequest) {
+  try {
+    await ensureDbConnected();
+
+    const activeOnly = request.nextUrl.searchParams.get("active_only") === "true";
+
+    const authors = await retryWithConnection(async () => {
+      return await prisma.article_authors.findMany({
+        where: activeOnly ? { is_active: true } : {},
+        select: {
+          id: true,
+          full_name: true,
+          email: true,
+          slug: true,
+          title: true,
+          avatar_url: true,
+          is_active: true,
+          specializations: true,
+          total_articles: true,
+        },
+        orderBy: [
+          { is_active: "desc" },
+          { total_articles: "desc" },
+          { full_name: "asc" },
+        ],
+      });
+    });
+
+    return NextResponse.json({ success: true, authors });
+  } catch (error: any) {
+    console.error("❌ فشل جلب المراسلين:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to fetch article authors", details: error.message },
+      { status: 500 }
+    );
+  }
+}
+
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
