@@ -8,6 +8,8 @@ interface FeaturedArticleLite {
   title: string;
   slug?: string;
   featured_image?: string;
+  social_image?: string;
+  metadata?: any;
   published_at?: string;
   breaking?: boolean;
   category?: { id: string; name: string; slug?: string; color?: string; icon?: string } | null;
@@ -22,7 +24,8 @@ export default function LightFeaturedLoader({ heading = "الأخبار المم
     let mounted = true;
     (async () => {
       try {
-        const res = await fetch(`/api/articles/featured?limit=${limit}`, { cache: "no-store" });
+        // اجعل الطلب قابلًا للتخزين المؤقت لتحسين الأداء، مع SWR
+        const res = await fetch(`/api/articles/featured?limit=${limit}`, { cache: "force-cache", next: { revalidate: 60 } });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
         const list: FeaturedArticleLite[] = (json?.data || []).map((a: any) => ({
@@ -30,7 +33,9 @@ export default function LightFeaturedLoader({ heading = "الأخبار المم
           title: a.title,
           slug: a.slug,
           // معالجة محسّنة للصورة - التحقق من عدة حقول محتملة والتأكد من صحة المسار
-          featured_image: a.featured_image || a.image_url || a.image || a.thumbnail || '/images/placeholder-news.svg',
+          featured_image: a.featured_image || a.social_image || a.image_url || a.image || a.thumbnail || '/images/placeholder-news.svg',
+          social_image: a.social_image,
+          metadata: a.metadata,
           published_at: a.published_at,
           breaking: a.breaking || a.is_breaking || false,
           category: a.categories ? { id: a.categories.id, name: a.categories.name, slug: a.categories.slug, color: a.categories.color } : null,

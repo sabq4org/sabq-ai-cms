@@ -525,7 +525,8 @@ function NewspaperHomePage({
       try {
         setArticlesLoading(true);
         const res = await fetch(
-          "/api/news?status=published&limit=16&sort=published_at&order=desc"
+          "/api/news?status=published&limit=16&sort=published_at&order=desc",
+          { cache: 'force-cache', next: { revalidate: 60 } }
         );
         const json = await res.json();
         // 💡 قبول كلا الصيغتين: { success, articles: [...] } أو { success, data: [...] }
@@ -559,7 +560,7 @@ function NewspaperHomePage({
       (async () => {
         try {
           setFeaturedLoading(true);
-          const response = await fetch(`/api/featured-news-carousel`, { cache: 'no-store' });
+          const response = await fetch(`/api/featured-news-carousel`, { cache: 'force-cache', next: { revalidate: 60 } });
           if (response.ok) {
             const data = await response.json();
             if (data.success && data.articles && data.articles.length > 0) {

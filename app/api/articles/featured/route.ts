@@ -42,6 +42,8 @@ export async function GET(request: NextRequest) {
           slug: true,
           excerpt: true,
           featured_image: true,
+          social_image: true,
+          metadata: true,
           published_at: true,
           views: true,
           breaking: true,

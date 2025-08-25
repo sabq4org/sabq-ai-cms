@@ -22,7 +22,8 @@ export async function GET(request: NextRequest) {
       headers: {
         "Content-Type": "application/json",
         "X-Cache": "HIT",
-        "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+        // كاش أقوى قليلاً لتسريع الواجهة الكاملة
+        "Cache-Control": "public, max-age=60, s-maxage=120, stale-while-revalidate=300",
       },
     });
   }
@@ -250,7 +251,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(response, {
       headers: {
         "X-Cache": "MISS",
-        "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+        // نفس سياسة الكاش المُعجّلة
+        "Cache-Control": "public, max-age=60, s-maxage=120, stale-while-revalidate=300",
       },
     });
   } catch (error: any) {

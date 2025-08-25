@@ -68,7 +68,7 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
           const category = article.category?.name || article.category_name || article.category || "عام";
           const date = article.published_at || article.created_at;
           // معالجة محسّنة للصورة - التحقق من عدة حقول وتوفير fallback
-          const image = article.featured_image || article.image_url || article.image || article.thumbnail || '/images/placeholder-news.svg';
+          const image = article.featured_image || article.social_image || article.image_url || article.image || article.thumbnail || '/images/placeholder-news.svg';
           // تطبيع مسار الصورة للنسخة الخفيفة: اجعل الروابط النسبية تبدأ بـ '/'
           const normalizedImage = typeof image === 'string' && image !== 'null' && image !== 'undefined'
             ? (image.startsWith('http') || image.startsWith('/') ? image : `/${image.replace(/^\/+/, '')}`)
