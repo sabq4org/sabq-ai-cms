@@ -5,7 +5,21 @@ import { useAuth } from "@/contexts/EnhancedAuthContextWithSSR";
 import { getAccessToken } from '@/lib/authClient';
 
 export default function AuthMonitor() {
-  const { user, loading, error, isLoggedIn } = useAuth();
+  // تأكد من وجود AuthContext قبل استخدام hook
+  let user, loading, error, isLoggedIn;
+  
+  try {
+    const auth = useAuth();
+    user = auth.user;
+    loading = auth.loading;
+    error = auth.error;
+    isLoggedIn = auth.isLoggedIn;
+  } catch (e) {
+    // إذا لم يكن هناك AuthProvider، تجاهل
+    console.log('🔍 [AuthMonitor] AuthProvider غير متاح في هذا المكون');
+    return null;
+  }
+  
   const previousStateRef = useRef<any>({});
   const changeCountRef = useRef(0);
 

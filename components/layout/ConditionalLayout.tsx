@@ -33,9 +33,9 @@ export default function ConditionalLayout({
   }, []);
 
   // تحديد نوع Layout بناءً على المسار
-  const isAdminPath = pathname?.startsWith('/admin');
-  const isAdminLoginPath = pathname?.startsWith('/admin/login');
+  const isAdminLoginPath = pathname?.startsWith('/admin/login') || pathname?.startsWith('/admin-login');
   const isLoginPath = pathname?.startsWith('/login');
+  const isAdminPath = (pathname?.startsWith('/admin') || pathname?.startsWith('/admin-') || pathname?.startsWith('/sabq-admin')) && !isAdminLoginPath;
   const isLightPath = pathname === '/light' || pathname?.startsWith('/light/');
 
   // إذا كانت صفحة تسجيل دخول (عادي أو admin)، لا تطبق أي layout
