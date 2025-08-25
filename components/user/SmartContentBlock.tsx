@@ -7,6 +7,7 @@ import { Sparkles, Calendar, Clock } from 'lucide-react';
 import ArticleViews from '@/components/ui/ArticleViews';
 import OldStyleNewsBlock from '@/components/old-style/OldStyleNewsBlock';
 import { useUserInterests } from '@/hooks/useUserInterests';
+import { useAuth } from '@/contexts/EnhancedAuthContextWithSSR';
 
 interface Article {
   id: string;
@@ -42,6 +43,26 @@ export default function SmartContentBlock({
   const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
   const { interests, hasInterests } = useUserInterests();
+  const { isLoggedIn } = useAuth();
+
+  // تحديد النصوص حسب حالة تسجيل الدخول
+  const getContentByAuthStatus = () => {
+    if (isLoggedIn) {
+      return {
+        title: "أخبار تفهمك أولاً",
+        subtitle: "🎯 مقالات مختارة بعناية لتناسب اهتماماتك وتوفر وقتك",
+        description: "تتابع أهم ما يهمك من أخبار ومقالات مختارة خصيصاً بناءً على تفضيلاتك"
+      };
+    } else {
+      return {
+        title: "آخبار الأخبار", 
+        subtitle: "🔥 تجربة إخبارية أفضل بانتظارك",
+        description: "سجّل عضويتك مجاناً لتصلك المقالات والأخبار التي تناسب ذوقك واهتماماتك الفريدة"
+      };
+    }
+  };
+
+  const content = getContentByAuthStatus();
 
   useEffect(() => {
     fetchSmartContent();
@@ -76,7 +97,7 @@ export default function SmartContentBlock({
         // بناء مجموعة اهتمامات المستخدم (أسماء/سلاجز) للمطابقة
         const interestKeys = new Set<string>(
           (interests || [])
-            .map((it) => (it.category?.slug || it.categoryName || '').toString().trim().toLowerCase())
+            .map((it) => (it.category?.name || '').toString().trim().toLowerCase())
             .filter(Boolean)
         );
 
@@ -160,7 +181,7 @@ export default function SmartContentBlock({
 
     return (
       <div style={{ padding: '16px 0', marginTop: '28px' }}>
-        {/* عبارات رأس البلوك كما هي */}
+        {/* عبارات رأس البلوك الديناميكية */}
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
           {/* أيقونة البلوك في الأعلى في المنتصف */}
           <div style={{
@@ -190,7 +211,7 @@ export default function SmartContentBlock({
             color: 'hsl(var(--fg))',
             marginBottom: '6px'
           }}>
-            {title}
+            {content.title}
           </h2>
           <h3 style={{
             fontSize: '14px',
@@ -198,7 +219,7 @@ export default function SmartContentBlock({
             color: 'hsl(var(--accent))',
             marginBottom: '6px'
           }}>
-            {subtitle}
+            {content.subtitle}
           </h3>
           <p style={{
             fontSize: '12px',
@@ -207,13 +228,48 @@ export default function SmartContentBlock({
             margin: '0 auto',
             lineHeight: 1.6
           }}>
-            {description}
+            {content.description}
           </p>
+          
+          {/* زر التسجيل للمستخدمين غير المسجلين */}
+          {!isLoggedIn && (
+            <div style={{ marginTop: '16px' }}>
+              <Link href="/register" style={{ textDecoration: 'none' }}>
+                <button style={{
+                  padding: '12px 24px',
+                  background: 'linear-gradient(135deg, #E9D5FF 0%, #DDD6FE 100%)',
+                  color: '#6B21A8',
+                  border: '1px solid #E0E7FF',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.background = 'linear-gradient(135deg, #DDD6FE 0%, #C7D2FE 100%)';
+                  e.currentTarget.style.borderColor = '#C7D2FE';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.background = 'linear-gradient(135deg, #E9D5FF 0%, #DDD6FE 100%)';
+                  e.currentTarget.style.borderColor = '#E0E7FF';
+                }}>
+                  سجّل الآن مجاناً
+                  <Sparkles className="w-4 h-4" />
+                </button>
+              </Link>
+            </div>
+          )}
         </div>
         <OldStyleNewsBlock
           // تمرير is_custom الحقيقي فقط للمقالات المخصصة
           articles={oldStyleArticles as unknown as any[]}
-          title={title}
+          title={content.title}
           showTitle={false}
           columns={3}
           className="mt-6 mb-4"
@@ -256,7 +312,7 @@ export default function SmartContentBlock({
 
       {/* المحتوى */}
       <div style={{ position: 'relative', zIndex: 1 }}>
-        {/* العنوان الرئيسي */}
+        {/* العنوان الرئيسي الديناميكي */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <div style={{
             display: 'flex',
@@ -285,7 +341,7 @@ export default function SmartContentBlock({
             color: 'hsl(var(--fg))',
             marginBottom: '12px'
           }}>
-            {title}
+            {content.title}
           </h2>
           
           <h3 style={{
@@ -294,7 +350,7 @@ export default function SmartContentBlock({
             color: '#7C3AED',
             marginBottom: '8px'
           }}>
-            {subtitle}
+            {content.subtitle}
           </h3>
           
           <p style={{
@@ -304,8 +360,43 @@ export default function SmartContentBlock({
             margin: '0 auto',
             lineHeight: '1.6'
           }}>
-            {description}
+            {content.description}
           </p>
+          
+          {/* زر التسجيل للمستخدمين غير المسجلين */}
+          {!isLoggedIn && (
+            <div style={{ marginTop: '20px' }}>
+              <Link href="/register" style={{ textDecoration: 'none' }}>
+                <button style={{
+                  padding: '14px 32px',
+                  background: 'linear-gradient(135deg, #E9D5FF 0%, #DDD6FE 100%)',
+                  color: '#6B21A8',
+                  border: '1px solid #E0E7FF',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '10px'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.background = 'linear-gradient(135deg, #DDD6FE 0%, #C7D2FE 100%)';
+                  e.currentTarget.style.borderColor = '#C7D2FE';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.background = 'linear-gradient(135deg, #E9D5FF 0%, #DDD6FE 100%)';
+                  e.currentTarget.style.borderColor = '#E0E7FF';
+                }}>
+                  سجّل الآن مجاناً
+                  <Sparkles className="w-4 h-4" />
+                </button>
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* بطاقات الأخبار */}
@@ -537,9 +628,9 @@ export default function SmartContentBlock({
           </div>
         )}
 
-        {/* زر استكشاف */}
+        {/* زر استكشاف / تسجيل */}
         <div style={{ textAlign: 'center', marginTop: '32px' }}>
-          <Link href="/smart-content" style={{ textDecoration: 'none' }}>
+          <Link href={isLoggedIn ? "/smart-content" : "/register"} style={{ textDecoration: 'none' }}>
             <button style={{
               padding: '12px 28px',
               background: 'linear-gradient(135deg, #E9D5FF 0%, #DDD6FE 100%)',
@@ -564,7 +655,7 @@ export default function SmartContentBlock({
               e.currentTarget.style.background = 'linear-gradient(135deg, #E9D5FF 0%, #DDD6FE 100%)';
               e.currentTarget.style.borderColor = '#E0E7FF';
             }}>
-              استكشف المحتوى الذكي
+              {isLoggedIn ? "استكشف المحتوى الذكي" : "سجّل الآن مجاناً"}
               <Sparkles className="w-4 h-4" />
             </button>
           </Link>
