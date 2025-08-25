@@ -2,7 +2,7 @@
 (function() {
   'use strict';
   
-  // تجاوز fetch لإضافة معالجة أخطاء CORS
+  // تجاوز fetch لإضافة معالجة أخطاء CORS ومنع فرض Content-Type على FormData
   const originalFetch = window.fetch;
   window.fetch = function(...args) {
     const [url, options = {}] = args;
@@ -12,12 +12,37 @@
       options.credentials = options.credentials || 'include';
       options.mode = options.mode || 'cors';
       
-      // إضافة headers افتراضية
-      options.headers = {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        ...options.headers
-      };
+      // إضافة headers افتراضية مع احترام FormData/Blob
+      const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
+      const isBlob = typeof Blob !== 'undefined' && options.body instanceof Blob;
+      const isArrayBuffer = options.body instanceof ArrayBuffer || (typeof ArrayBuffer !== 'undefined' && ArrayBuffer.isView && ArrayBuffer.isView(options.body));
+      const isStream = options.body && typeof options.body === 'object' && typeof options.body.pipe === 'function';
+
+      // ابدأ من الرؤوس الحالية إن وجدت
+      const baseHeaders = { ...(options.headers || {}) };
+
+      if (isFormData || isBlob || isArrayBuffer || isStream) {
+        // لا تضع Content-Type، اترك المتصفح يحدد boundary
+        delete baseHeaders['Content-Type'];
+        delete baseHeaders['content-type'];
+        delete baseHeaders['Content-type'];
+        options.headers = {
+          'Accept': 'application/json',
+          ...baseHeaders,
+        };
+      } else {
+        // طلبات JSON فقط
+        options.headers = {
+          'Accept': 'application/json',
+          ...baseHeaders,
+        };
+        // ضع Content-Type: application/json فقط إذا كان الجسم نصاً JSONياً أو محدداً من الطرف المستدعي
+        if (!('Content-Type' in options.headers) && !('content-type' in options.headers)) {
+          if (typeof options.body === 'string') {
+            options.headers['Content-Type'] = 'application/json';
+          }
+        }
+      }
     }
     
     return originalFetch.apply(this, [url, options])

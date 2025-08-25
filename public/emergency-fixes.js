@@ -22,7 +22,11 @@
         // لا نضع أي headers للـ FormData، المتصفح سيضيف multipart/form-data مع boundary تلقائياً
         console.log('🔧 [EMERGENCY-FIXES] FormData detected - letting browser handle headers');
         // نحافظ على headers الموجودة مسبقاً فقط
-        options.headers = { ...options.headers };
+        const baseHeaders = { ...(options.headers || {}) };
+        delete baseHeaders['Content-Type'];
+        delete baseHeaders['content-type'];
+        delete baseHeaders['Content-type'];
+        options.headers = { ...baseHeaders };
       } else {
         // للطلبات الأخرى (JSON)، نضع headers مطلوبة
         options.headers = {
@@ -32,7 +36,9 @@
         
         // نضع Content-Type للـ JSON فقط
         if (options.body && typeof options.body === 'string') {
-          options.headers['Content-Type'] = 'application/json';
+          if (!('Content-Type' in options.headers) && !('content-type' in options.headers)) {
+            options.headers['Content-Type'] = 'application/json';
+          }
         }
       }
     }

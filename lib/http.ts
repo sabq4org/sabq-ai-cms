@@ -11,9 +11,6 @@ export const http = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || '/api',
   timeout: 30000,
   withCredentials: true, // مهم للكوكيز
-  headers: {
-    'Content-Type': 'application/json',
-  },
 });
 
 // متغير لمنع تكرار العمليات
@@ -24,6 +21,22 @@ let isReplaying = false;
  */
 http.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
+    // إزالة Content-Type تلقائياً عند FormData/Blob
+    const data: any = config.data;
+    const isFormData = typeof FormData !== 'undefined' && data instanceof FormData;
+    const isBlob = typeof Blob !== 'undefined' && data instanceof Blob;
+    if (isFormData || isBlob) {
+      if (config.headers) {
+        delete (config.headers as any)['Content-Type'];
+        delete (config.headers as any)['content-type'];
+        delete (config.headers as any)['Content-type'];
+      }
+    } else {
+      // ضع JSON فقط إن لم يكن محدداً مسبقاً
+      if (config.headers && !(config.headers as any)['Content-Type'] && !(config.headers as any)['content-type']) {
+        (config.headers as any)['Content-Type'] = 'application/json';
+      }
+    }
     // إضافة التوكن من الذاكرة
     const token = getAccessToken();
     if (token) {
