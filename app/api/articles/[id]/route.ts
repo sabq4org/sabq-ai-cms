@@ -1,8 +1,8 @@
-import dbConnectionManager from "@/lib/db-connection-manager";
-import prisma from "@/lib/prisma";
+import prisma, { ensureDbConnected, retryWithConnection } from "@/lib/prisma";
 import { getCachedCategories } from "@/lib/cache-utils";
 import { FeaturedArticleManager } from "@/lib/services/featured-article-manager";
 import { NextResponse } from "next/server";
+export const runtime = "nodejs";
 
 export async function GET(
   request: Request,
@@ -33,39 +33,44 @@ export async function GET(
     const url = new URL(request.url);
     const includeAll = url.searchParams.get("all") === "true";
 
-    // محاولة الاتصال بقاعدة البيانات بطريقة بسيطة
+    // التأكد من الاتصال بقاعدة البيانات
+    await ensureDbConnected();
+
+    // محاولة الاتصال بقاعدة البيانات بشكل آمن مع إعادة المحاولة
     let article;
     try {
       console.log("🔗 محاولة الاتصال بقاعدة البيانات - المرحلة 4");
 
       // استعلام مباشر بدون تعقيد
       console.log("🔍 تنفيذ استعلام قاعدة البيانات - المرحلة 6");
-      article = await prisma.articles.findFirst({
-        where: {
-          OR: [{ id: id }, { slug: id }],
-          ...(includeAll ? {} : { status: "published" }),
-        },
-        include: {
-          categories: true,
-          author: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              avatar: true,
+      article = await retryWithConnection(async () => {
+        return await prisma.articles.findFirst({
+          where: {
+            OR: [{ id: id }, { slug: id }],
+            ...(includeAll ? {} : { status: "published" }),
+          },
+          include: {
+            categories: true,
+            author: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                avatar: true,
+              },
+            },
+            article_author: {
+              select: {
+                id: true,
+                full_name: true,
+                slug: true,
+                title: true,
+                avatar_url: true,
+                specializations: true,
+              },
             },
           },
-          article_author: {
-            select: {
-              id: true,
-              full_name: true,
-              slug: true,
-              title: true,
-              avatar_url: true,
-              specializations: true,
-            },
-          },
-        },
+        });
       });
       console.log(
         "✅ استعلام قاعدة البيانات اكتمل - المرحلة 7",
@@ -127,17 +132,17 @@ export async function GET(
       );
     }
 
-    // تحديث عدد المشاهدات بشكل غير متزامن
-    dbConnectionManager
-      .executeWithConnection(async () => {
+    // تحديث عدد المشاهدات بشكل غير متزامن مع إعادة المحاولة
+    setImmediate(() => {
+      retryWithConnection(async () => {
         await prisma.articles.update({
           where: { id: article.id },
           data: { views: { increment: 1 } },
         });
-      })
-      .catch((error) => {
+      }).catch((error) => {
         console.error("⚠️ فشل تحديث المشاهدات:", error);
       });
+    });
 
     // إضافة معلومات التصنيف من الـ cache إذا لزم الأمر
     let categoryInfo = article.categories;
