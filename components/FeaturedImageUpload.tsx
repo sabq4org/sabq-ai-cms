@@ -89,33 +89,31 @@ export default function FeaturedImageUpload({
 
       console.log("🌐 إرسال طلب الرفع...");
 
-      // ابدأ بـ Cloudinary أولاً (يناسب بيئة Vercel)
-      let response = await fetch("/api/upload/cloudinary", {
+      // استخدام API الجديد المحسن
+      let response = await fetch("/api/upload-image2", {
         method: "POST",
         body: formData,
       });
 
-      // fallback آمن إلى واجهة رفع الصور الآمنة إن فشل Cloudinary
+      // fallback إلى APIs أخرى إن فشل الأساسي
       if (!response.ok) {
-        console.log("⚠️ فشل رفع Cloudinary، تجربة /api/upload-image-safe ...");
+        console.log("⚠️ فشل upload-image2، تجربة /api/upload-image-safe ...");
         response = await fetch("/api/upload-image-safe", {
           method: "POST",
           body: formData,
         });
       }
 
-      // fallback إلى الرفع المحلي العام
       if (!response.ok) {
-        console.log("⚠️ فشل الرفع الآمن، تجربة /api/upload ...");
-        response = await fetch("/api/upload", {
+        console.log("⚠️ فشل upload-image-safe، تجربة /api/upload/cloudinary ...");
+        response = await fetch("/api/upload/cloudinary", {
           method: "POST",
           body: formData,
         });
       }
 
-      // fallback أخير إلى الواجهة البسيطة
       if (!response.ok) {
-        console.log("⚠️ فشل الرفع المحلي العام، تجربة /api/upload-image ...");
+        console.log("⚠️ فشل upload/cloudinary، تجربة /api/upload-image ...");
         response = await fetch("/api/upload-image", {
           method: "POST",
           body: formData,

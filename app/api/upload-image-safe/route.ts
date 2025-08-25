@@ -22,11 +22,35 @@ export async function POST(request: NextRequest) {
   try {
     console.log("🔄 [SAFE UPLOAD] بداية الرفع الآمن");
     
-    // إزالة التحقق من Content-Type لأن المتصفح يديره تلقائياً
     const contentType = request.headers.get("content-type") || "";
     console.log("📋 [SAFE UPLOAD] Content-Type:", contentType);
     
-    const formData = await request.formData();
+    // التعامل مع أنواع المحتوى المختلفة
+    let formData: FormData;
+    
+    if (contentType.includes("application/json")) {
+      // إذا كان الطلب JSON، حول إلى FormData
+      const jsonData = await request.json();
+      formData = new FormData();
+      
+      if (jsonData.file) {
+        // إذا كان الملف مرسل كـ base64
+        if (typeof jsonData.file === 'string' && jsonData.file.startsWith('data:')) {
+          const [header, base64Data] = jsonData.file.split(',');
+          const mimeType = header.match(/data:([^;]+)/)?.[1] || 'image/jpeg';
+          const buffer = Buffer.from(base64Data, 'base64');
+          const blob = new Blob([buffer], { type: mimeType });
+          formData.append('file', blob, 'image.jpg');
+        }
+      }
+      
+      if (jsonData.type) {
+        formData.append('type', jsonData.type);
+      }
+    } else {
+      // الطريقة العادية للـ multipart/form-data
+      formData = await request.formData();
+    }
     const file = formData.get("file") as File | null;
     const type = (formData.get("type") as string) || "general";
 
