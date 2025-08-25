@@ -49,30 +49,35 @@ export async function POST(request: NextRequest) {
       // لا نرفض مباشرة لتفادي تعطل الواجهة
     }
 
-    // إذا Cloudinary متاح ارفع مباشرة
+    // إذا Cloudinary متاح ارفع مباشرة، مع fallback إلى data URL عند الفشل
     if (hasCloudinary) {
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
       const folder = `sabq-cms/${type}`;
-
-      const uploadResult: any = await new Promise((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream(
-          {
-            folder,
-            resource_type: "auto",
-            public_id: `${Date.now()}_${(file.name || "upload").replace(/[^a-zA-Z0-9.-]/g, "_")}`,
-            overwrite: false,
-            tags: ["sabq-cms", type],
-          },
-          (error, result) => {
-            if (error) return reject(error);
-            resolve(result);
-          }
-        );
-        uploadStream.end(buffer);
-      });
-
-      return NextResponse.json({ success: true, url: uploadResult.secure_url });
+      try {
+        const uploadResult: any = await new Promise((resolve, reject) => {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            {
+              folder,
+              resource_type: "auto",
+              public_id: `${Date.now()}_${(file.name || "upload").replace(/[^a-zA-Z0-9.-]/g, "_")}`,
+              overwrite: false,
+              tags: ["sabq-cms", type],
+            },
+            (error, result) => {
+              if (error) return reject(error);
+              resolve(result);
+            }
+          );
+          uploadStream.end(buffer);
+        });
+        return NextResponse.json({ success: true, url: uploadResult.secure_url });
+      } catch (err) {
+        console.warn("⚠️ Cloudinary failed in upload-image-safe. Falling back to data URL.", (err as any)?.message || err);
+        const base64 = buffer.toString("base64");
+        const dataUrl = `data:${file.type || "image/jpeg"};base64,${base64}`;
+        return NextResponse.json({ success: true, url: dataUrl, fallback: true });
+      }
     }
 
     // Fallback: إرجاع Data URL مباشرةً (لا يعتمد على نظام الملفات)
