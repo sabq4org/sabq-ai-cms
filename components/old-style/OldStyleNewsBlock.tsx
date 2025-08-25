@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Eye, Clock, Sliders } from 'lucide-react';
+import SafeNewsImage from '@/components/ui/SafeNewsImage';
 
 interface Article {
   id: number | string;
@@ -91,7 +91,8 @@ export default function OldStyleNewsBlock({
       if (
         candidate.startsWith('http') ||
         candidate.includes('cloudinary.com') ||
-        candidate.includes('s3.amazonaws.com')
+        candidate.includes('s3.amazonaws.com') ||
+        candidate.startsWith('data:image/')
       ) {
         return candidate;
       }
@@ -157,15 +158,14 @@ export default function OldStyleNewsBlock({
           >
             {/* صورة المقال */}
             <div className="old-style-news-image-container">
-              <Image
+              <SafeNewsImage
                 src={getImageUrl(article)}
                 alt={article.title}
+                className="old-style-news-image"
+                loading={index < columns ? 'eager' : 'lazy'}
+                priority={index < columns}
                 width={300}
                 height={200}
-                className="old-style-news-image"
-                priority={index < columns}
-                loading={index < columns ? 'eager' : 'lazy'}
-                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
             </div>
 
