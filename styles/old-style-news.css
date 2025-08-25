@@ -222,6 +222,115 @@
   border-radius: 8px;
 }
 
+/* إضافات للتصميم الجديد للأخبار المميزة */
+
+/* مجموعة الشارات - محاذاة يمينية */
+.old-style-news-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* شارة عاجل - أحمر */
+.old-style-news-breaking-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #dc2626;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  animation: pulse 2s ease-in-out infinite alternate;
+}
+
+/* شارة مميز - ذهبي */
+.old-style-news-featured-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+}
+
+/* شارة مخصص - أزرق */
+.old-style-news-custom-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #3b82f6;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* التاريخ بجانب الشارات */
+.old-style-news-date-inline {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+  margin-right: auto; /* يدفع التاريخ لأقصى اليسار */
+}
+
+/* الرموز التعبيرية */
+.old-style-lightning-emoji {
+  font-size: 12px;
+}
+
+.old-style-fire-emoji {
+  font-size: 12px;
+}
+
+/* تحسينات للوضع الليلي */
+.dark .old-style-news-date-inline,
+.dark .old-style-news-meta-item {
+  color: #9ca3af;
+}
+
+.dark .old-style-news-card-title {
+  color: #f9fafb;
+}
+
+.dark .old-style-news-card:hover .old-style-news-card-title {
+  color: #60a5fa;
+}
+
+/* تأثير النبضة للأخبار العاجلة */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(220, 38, 38, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+  }
+}
+
+/* زر "اقرأ المزيد" المحسن */
+.soft-read-more-btn {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  transition: all 0.3s ease;
+}
+
+.soft-read-more-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+}
+
 /* التجاوب مع الأجهزة المختلفة */
 @media (max-width: 1024px) {
   .old-style-news-grid {
