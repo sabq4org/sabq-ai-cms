@@ -4,11 +4,14 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import OldStyleNewsBlock from "@/components/old-style/OldStyleNewsBlock";
 import LightFeaturedLoader from "@/components/featured/LightFeaturedLoader";
+import { useAuth } from "@/contexts/EnhancedAuthContextWithSSR";
 // تمت إضافة الاستيراد عالمياً من خلال app/layout.tsx
 
 export default function LightPage() {
   const [loading, setLoading] = useState(true);
   const [articles, setArticles] = useState<any[]>([]);
+  const { user: authUser } = useAuth();
+  const isLoggedIn = Boolean(authUser);
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -117,10 +120,39 @@ export default function LightPage() {
       ) : (
         <OldStyleNewsBlock
           articles={articles}
-          title="نسخة مطورة بالذكاء الاصطناعي"
+          title={isLoggedIn ? "أخبار تفهمك أولاً" : "آخبار الأخبار"}
           columns={3}
           className="mb-12"
         />
+      )}
+
+      {/* رسائل إيضاحية وCTA وفق حالة المستخدم دون تغيير تصميم البلوك */}
+      {!isLoggedIn ? (
+        <div className="max-w-3xl mx-auto text-center mb-12">
+          <h3 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-2">
+            تجربة إخبارية أفضل بانتظارك.
+          </h3>
+          <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 mb-4">
+            سجّل عضويتك مجاناً لتصلك المقالات والأخبار التي تناسب ذوقك واهتماماتك الفريدة.
+          </p>
+          <Link
+            href="/register"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all hover:scale-[1.02] border"
+            style={{
+              backgroundColor: 'var(--theme-primary, #3B82F6)',
+              color: 'white',
+              borderColor: 'rgba(var(--theme-primary-rgb, 59 130 246), 0.3)'
+            }}
+          >
+            سجّل الآن مجاناً
+          </Link>
+        </div>
+      ) : (
+        <div className="max-w-3xl mx-auto text-center mb-12">
+          <p className="text-sm md:text-base text-gray-600 dark:text-gray-300">
+            مقالات مختارة بعناية لتناسب اهتماماتك وتوفر وقتك
+          </p>
+        </div>
       )}
 
       {/* Features Section */}
