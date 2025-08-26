@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Heart, Bookmark } from 'lucide-react';
+import { Heart, Bookmark, BookOpen } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useLoyalty } from '@/hooks/useLoyalty';
 
@@ -9,6 +9,9 @@ interface BasicLikeSaveProps {
   articleId: string;
   initialLikes?: number;
   initialSaves?: number;
+  showReadingModeButton?: boolean;
+  isReading?: boolean;
+  onReadingModeToggle?: () => void;
 }
 
 // لم نعد نحتاج لقراءة التوكن
@@ -17,7 +20,10 @@ interface BasicLikeSaveProps {
 export default function BasicLikeSave({ 
   articleId, 
   initialLikes = 0, 
-  initialSaves = 0 
+  initialSaves = 0,
+  showReadingModeButton = false,
+  isReading = false,
+  onReadingModeToggle
 }: BasicLikeSaveProps) {
   const { user } = useAuth();
   const { mutate: refreshLoyalty } = useLoyalty();
@@ -214,32 +220,55 @@ export default function BasicLikeSave({
   };
 
   return (
-    <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-      <button
-        onClick={handleSave}
-        disabled={loading || !user}
-        className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
-          saved
-            ? 'bg-blue-500 text-white'
-            : 'bg-gray-200 text-gray-700 hover:bg-blue-100'
-        } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-      >
-        <Bookmark className={`w-5 h-5 ${saved ? 'fill-current' : ''}`} />
-        <span>{saves}</span>
-      </button>
+    <div className="flex items-center justify-between gap-3 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200/60 dark:border-gray-700/50">
+      {/* أزرار التفاعل */}
+      <div className="flex items-center gap-3">
+        <button
+          onClick={handleLike}
+          disabled={loading || !user}
+          className={`flex items-center gap-2 px-3 py-2 rounded-full transition-all duration-200 ${
+            liked
+              ? 'bg-gradient-to-r from-red-500 to-rose-500 text-white shadow-lg'
+              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400'
+          } ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'}`}
+          aria-label={liked ? 'إلغاء الإعجاب' : 'إعجاب'}
+        >
+          <Heart className={`w-4 h-4 ${liked ? 'fill-current' : ''}`} />
+          <span className="text-sm font-medium">{likes}</span>
+        </button>
 
-      <button
-        onClick={handleLike}
-        disabled={loading || !user}
-        className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
-          liked
-            ? 'bg-red-500 text-white'
-            : 'bg-gray-200 text-gray-700 hover:bg-red-100'
-        } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-      >
-        <Heart className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
-        <span>{likes}</span>
-      </button>
+        <button
+          onClick={handleSave}
+          disabled={loading || !user}
+          className={`flex items-center gap-2 px-3 py-2 rounded-full transition-all duration-200 ${
+            saved
+              ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg'
+              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400'
+          } ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'}`}
+          aria-label={saved ? 'إلغاء الحفظ' : 'حفظ'}
+        >
+          <Bookmark className={`w-4 h-4 ${saved ? 'fill-current' : ''}`} />
+          <span className="text-sm font-medium">{saves}</span>
+        </button>
+      </div>
+
+      {/* زر وضع القراءة */}
+      {showReadingModeButton && onReadingModeToggle && (
+        <button
+          onClick={onReadingModeToggle}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+            isReading
+              ? "bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-lg"
+              : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 hover:text-emerald-600 dark:hover:text-emerald-400"
+          } hover:scale-105 active:scale-95`}
+          aria-label={isReading ? 'إيقاف وضع القراءة' : 'تفعيل وضع القراءة'}
+        >
+          <BookOpen className="w-4 h-4" />
+          <span className="text-sm font-medium">
+            {isReading ? "إيقاف القراءة" : "وضع القراءة"}
+          </span>
+        </button>
+      )}
     </div>
   );
 }

@@ -875,17 +875,6 @@ export default function ArticleClientComponent({
               </div>
             </div>
 
-            {/* أزرار الإعجاب والحفظ */}
-            <div className="mb-6 sm:mb-8" style={{ contentVisibility: "auto" as any, containIntrinsicSize: "100% 64px" as any }}>
-              <div className="w-full">
-                <BasicLikeSave
-                  articleId={article.id}
-                  initialLikes={article.likes || article.stats?.likes || 0}
-                  initialSaves={article.saves || article.stats?.saves || 0}
-                />
-              </div>
-            </div>
-
             {/* الكلمات المفتاحية */}
             {keywords.length > 0 && (
               <div className="mb-6 sm:mb-8">
@@ -906,29 +895,21 @@ export default function ArticleClientComponent({
               </div>
             )}
 
-            {/* زر وضع القراءة */}
-            <div className="mb-6 sm:mb-8">
+            {/* أزرار التفاعل وزر وضع القراءة */}
+            <div className="mb-6 sm:mb-8" style={{ contentVisibility: "auto" as any, containIntrinsicSize: "100% 64px" as any }}>
               <div className="w-full">
-                <div className="flex justify-end">
-                  <button
-                    onClick={() => {
-                      const next = !isReading;
-                      setIsReading(next);
-                      localStorage.setItem('reading-mode', next ? 'true' : 'false');
-                    }}
-                    className={`reading-mode-button flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
-                      isReading
-                        ? "bg-blue-100 text-blue-700 border border-blue-200"
-                        : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600"
-                    } hover:shadow-sm active:scale-95`}
-                    aria-label={isReading ? 'إيقاف وضع القراءة' : 'تفعيل وضع القراءة'}
-                  >
-                    <BookOpen className="w-4 h-4" />
-                    <span className="text-sm font-medium">
-                      {isReading ? "إيقاف وضع القراءة" : "وضع القراءة"}
-                    </span>
-                  </button>
-                </div>
+                <BasicLikeSave
+                  articleId={article.id}
+                  initialLikes={article.likes || article.stats?.likes || 0}
+                  initialSaves={article.saves || article.stats?.saves || 0}
+                  showReadingModeButton={true}
+                  isReading={isReading}
+                  onReadingModeToggle={() => {
+                    const next = !isReading;
+                    setIsReading(next);
+                    localStorage.setItem('reading-mode', next ? 'true' : 'false');
+                  }}
+                />
               </div>
             </div>
 
