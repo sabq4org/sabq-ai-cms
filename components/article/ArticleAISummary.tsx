@@ -12,7 +12,9 @@ import {
   Loader2,
   Brain,
   Pause,
-  Sparkles
+  Sparkles,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -41,10 +43,14 @@ export default function ArticleAISummary({
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   // التحقق من صلاحيات المستخدم لتوليد الملخص
   const canGenerateSummary = user && (user.role === 'ADMIN' || user.role === 'EDITOR');
+
+  // فحص إذا كان النص يحتاج للتوسع (أكثر من 3 أسطر تقريباً - حوالي 150 حرف)
+  const needsExpansion = summary && summary.length > 150;
 
   // تنظيف الذاكرة عند إلغاء المكون
   useEffect(() => {
@@ -194,11 +200,41 @@ export default function ArticleAISummary({
         )}
 
         {/* المحتوى */}
-        <div className="px-8"> {/* مساحة للأيقونات */}
+        <div className="px-8 pb-2"> {/* مساحة للأيقونات */}
           {summary ? (
-            <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-              {summary}
-            </p>
+            <div className="relative">
+              <p 
+                className={cn(
+                  "text-sm text-gray-700 dark:text-gray-300 leading-relaxed transition-all duration-300",
+                  !isExpanded && needsExpansion && "overflow-hidden"
+                )}
+                style={{
+                  display: !isExpanded && needsExpansion ? '-webkit-box' : 'block',
+                  WebkitLineClamp: !isExpanded && needsExpansion ? 3 : 'unset',
+                  WebkitBoxOrient: !isExpanded && needsExpansion ? 'vertical' : 'unset'
+                } as React.CSSProperties}
+              >
+                {summary}
+              </p>
+              
+              {/* زر التوسع/الإغلاق */}
+              {needsExpansion && (
+                <div className="flex justify-center mt-2">
+                  <button
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    className="flex items-center gap-1 px-3 py-1.5 text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg transition-all duration-200"
+                    aria-label={isExpanded ? 'إغلاق الموجز' : 'عرض الموجز كاملاً'}
+                  >
+                    <span>{isExpanded ? 'إغلاق' : 'عرض المزيد'}</span>
+                    {isExpanded ? (
+                      <ChevronUp className="w-3 h-3" />
+                    ) : (
+                      <ChevronDown className="w-3 h-3" />
+                    )}
+                  </button>
+                </div>
+              )}
+            </div>
           ) : canGenerateSummary ? (
             <div className="flex items-center justify-center py-2">
               <Button
