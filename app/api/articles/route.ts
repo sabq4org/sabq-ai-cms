@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 
 // Cache في الذاكرة
 const articleCache = new Map<string, { data: any; timestamp: number }>();
-const CACHE_DURATION = 30 * 1000; // 30 ثانية
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes for better performance
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -22,8 +22,8 @@ export async function GET(request: NextRequest) {
       headers: {
         "Content-Type": "application/json",
         "X-Cache": "HIT",
-        // كاش أقوى قليلاً لتسريع الواجهة الكاملة
-        "Cache-Control": "public, max-age=60, s-maxage=120, stale-while-revalidate=300",
+        // كاش أقوى لتسريع الواجهة الكاملة
+        "Cache-Control": "public, max-age=300, s-maxage=600, stale-while-revalidate=1800",
       },
     });
   }
@@ -252,7 +252,7 @@ export async function GET(request: NextRequest) {
       headers: {
         "X-Cache": "MISS",
         // نفس سياسة الكاش المُعجّلة
-        "Cache-Control": "public, max-age=60, s-maxage=120, stale-while-revalidate=300",
+        "Cache-Control": "public, max-age=300, s-maxage=600, stale-while-revalidate=1800",
       },
     });
   } catch (error: any) {

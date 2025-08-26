@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     headers: {
       'X-Requested-With': 'news-alias',
     },
-    cache: 'no-store',
+    next: { revalidate: 300 }, // 5 minutes cache
   });
 
   const body = await upstream.text();
@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     status: upstream.status,
       headers: {
       'Content-Type': upstream.headers.get('Content-Type') || 'application/json',
-      'Cache-Control': upstream.headers.get('Cache-Control') || 'no-store',
+      'Cache-Control': 'public, max-age=300, s-maxage=600, stale-while-revalidate=1800',
       },
     });
 }

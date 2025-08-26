@@ -11,7 +11,12 @@ export function middleware(req: NextRequest) {
   
   // تخطي في بيئة التطوير
   if (process.env.NODE_ENV !== 'production') {
-    return NextResponse.next();
+    const response = NextResponse.next();
+    // Add caching headers for development
+    if (url.pathname.startsWith('/api/')) {
+      response.headers.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
+    }
+    return response;
   }
   
   // تخطي طلبات API و static files
@@ -21,7 +26,12 @@ export function middleware(req: NextRequest) {
     url.pathname.startsWith('/static/') ||
     url.pathname.match(/\.(ico|png|jpg|jpeg|svg|gif|webp|js|css|woff|woff2|ttf|eot)$/i)
   ) {
-    return NextResponse.next();
+    const response = NextResponse.next();
+    // Add stronger caching for API routes
+    if (url.pathname.startsWith('/api/')) {
+      response.headers.set('Cache-Control', 'public, max-age=300, s-maxage=600, stale-while-revalidate=1800');
+    }
+    return response;
   }
   
   // إجبار التوجيه إلى المضيف الموحد

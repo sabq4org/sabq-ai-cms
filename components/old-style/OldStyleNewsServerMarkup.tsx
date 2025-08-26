@@ -32,7 +32,7 @@ export default async function OldStyleNewsServerMarkup({
   showExcerpt = false,
   limit = 6,
   className = '',
-  revalidateSeconds = 30,
+  revalidateSeconds = 300,
 }: NewsServerMarkupProps) {
   const url = endpoint.includes('limit=') ? endpoint : `${endpoint}${endpoint.includes('?') ? '&' : '?'}limit=${limit}`;
 
@@ -57,8 +57,12 @@ export default async function OldStyleNewsServerMarkup({
   let articles: ArticleItem[] = [];
   try {
     const controller = new AbortController();
-    const t = setTimeout(() => controller.abort(), 1500);
-    const res = await fetch(url, { next: { revalidate: revalidateSeconds }, cache: 'force-cache', signal: controller.signal });
+    const t = setTimeout(() => controller.abort(), 3000); // Increased timeout
+    const res = await fetch(url, { 
+      next: { revalidate: revalidateSeconds }, 
+      cache: 'force-cache', 
+      signal: controller.signal 
+    });
     clearTimeout(t);
     if (res.ok) {
       const data = await res.json();

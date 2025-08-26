@@ -1,6 +1,6 @@
-// removed 'use server' directive; page is server by default and we need to export config constants
-export const dynamic = 'force-dynamic';
-export const revalidate = 30;
+// Use ISR with longer cache for better performance
+export const revalidate = 300; // 5 minutes
+export const fetchCache = 'force-cache';
 
 import { Suspense } from 'react';
 import OldStyleNewsServerMarkup from '@/components/old-style/OldStyleNewsServerMarkup';
@@ -61,7 +61,7 @@ export default async function HomePage() {
               columns={3}
               showExcerpt={true}
               limit={6}
-              revalidateSeconds={30}
+              revalidateSeconds={300}
             />
           </Suspense>
         </section>
@@ -94,7 +94,7 @@ export default async function HomePage() {
               columns={3}
               showExcerpt={false}
               limit={9}
-              revalidateSeconds={30}
+              revalidateSeconds={300}
             />
           </Suspense>
         </section>
@@ -127,7 +127,7 @@ export default async function HomePage() {
               columns={2}
               showExcerpt={true}
               limit={4}
-              revalidateSeconds={60}
+              revalidateSeconds={600}
             />
           </Suspense>
         </section>

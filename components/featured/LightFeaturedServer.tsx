@@ -7,7 +7,7 @@ interface LightFeaturedServerProps {
 }
 
 // نسخة سيرفرية من شريط الأخبار المميزة لخفض الهيدرشن
-export default async function LightFeaturedServer({ heading = 'الأخبار المميزة', limit = 3, revalidateSeconds = 30 }: LightFeaturedServerProps) {
+export default async function LightFeaturedServer({ heading = 'الأخبار المميزة', limit = 3, revalidateSeconds = 300 }: LightFeaturedServerProps) {
   const isProd = process.env.NODE_ENV === 'production';
   const endpoint = isProd
     ? `/api/articles/featured?limit=${limit}`
@@ -15,7 +15,11 @@ export default async function LightFeaturedServer({ heading = 'الأخبار ا
 
   let articles: any[] = [];
   try {
-    const res = await fetch(endpoint, { cache: 'force-cache', next: { revalidate: revalidateSeconds } });
+    const res = await fetch(endpoint, { 
+      cache: 'force-cache', 
+      next: { revalidate: revalidateSeconds },
+      signal: AbortSignal.timeout(3000) // 3 second timeout
+    });
     if (res.ok) {
       const json = await res.json();
       const list: any[] = (json?.data || []).map((a: any) => ({

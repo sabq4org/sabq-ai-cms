@@ -6,8 +6,7 @@ import "./mobile-styles.css";
 
 // ISR: تفاصيل الخبر (NEWS) تعاد التحقق كل 300 ثانية
 export const revalidate = 300;
-// السماح بالـ dynamic rendering للكوكيز
-export const dynamic = "force-dynamic";
+export const fetchCache = 'force-cache';
 export const runtime = "nodejs";
 
 // جلب البيانات الكاملة من الخادم
