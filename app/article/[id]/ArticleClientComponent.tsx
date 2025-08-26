@@ -623,9 +623,9 @@ export default function ArticleClientComponent({
               {/* Desktop Header - محاذاة العنوان وبيانات النشر مع بداية الصورة */}
               <div className="hidden sm:block">
                 <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-4 sm:px-6">
-                  <div className="sm:grid sm:grid-cols-2 sm:gap-6 items-start">
+                  <div className="sm:grid sm:grid-cols-2 sm:gap-6 items-center">
                     {/* عمود النصوص (يمين في RTL) */}
-                    <div className="order-1 text-right">
+                    <div className="order-1 text-right sm:self-center">
                       {/* التصنيف */}
                       {article.category && (
                         <div className="flex justify-end mb-5">
