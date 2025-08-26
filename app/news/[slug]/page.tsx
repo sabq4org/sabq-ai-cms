@@ -1,4 +1,5 @@
 import ArticleClientComponent from "@/app/article/[id]/ArticleClientComponent";
+import ArticleServerContent from "@/components/article/ArticleServerContent";
 import prisma from "@/lib/prisma";
 import { getSiteUrl } from "@/lib/url-builder";
 import { notFound, redirect } from "next/navigation";
@@ -197,8 +198,11 @@ export default async function NewsPage({
     })
     .catch((err) => console.log("Failed to update views:", err));
 
-  // تمرير البيانات الكاملة للمكوّن المعتمد تاريخيًا
+  // عرض المحتوى الأساسي فوراً (Server) + تحميل البلوكات التفاعلية عبر المكون العميل أسفل الصفحة
   return (
-    <ArticleClientComponent articleId={article.id} initialArticle={article as any} />
+    <>
+      <ArticleServerContent article={article as any} />
+      <ArticleClientComponent articleId={article.id} initialArticle={article as any} />
+    </>
   );
 }
