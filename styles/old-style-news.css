@@ -90,9 +90,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 2px; /* تقليل الفراغ بين الشارات/التاريخ وبين العنوان */
-  /* رفع الشريط العلوي ليحاذي الحد العلوي للصورة تماماً */
-  margin-top: -210px; /* رفع بسيط إضافي فوق الصورة */
+  margin-bottom: 0; /* تقليل الفراغ بين التاريخ والعنوان لأقصى حد */
+  /* رفع الشريط العلوي ليحاذي الحد العلوي للصورة تماماً (200px ارتفاع الصورة + 6px هامش الصورة السفلي) */
+  margin-top: -206px;
   position: relative;
   z-index: 2;
 }
@@ -109,7 +109,6 @@
   font-size: 11px;
   font-weight: 600;
   position: relative;
-  top: -2px; /* رفع إضافي للشارات */
 }
 
 /* شعلة النار الحقيقية المتحركة */
@@ -253,7 +252,6 @@
   font-weight: 700;
   animation: pulse 2s ease-in-out infinite alternate;
   position: relative;
-  top: -2px; /* رفع إضافي للشارات */
 }
 
 /* شارة مميز - ذهبي */
@@ -292,7 +290,7 @@
   font-weight: 500;
   margin-right: auto; /* يدفع التاريخ لأقصى اليسار */
   position: relative;
-  top: -2px; /* رفع إضافي للتاريخ */
+  top: 0; /* محاذاة تامة مع أعلى الصورة */
 }
 
 /* الرموز التعبيرية */
