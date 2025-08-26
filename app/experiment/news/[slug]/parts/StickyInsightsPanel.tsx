@@ -16,11 +16,23 @@ type Insights = {
   };
 };
 
-export default function StickyInsightsPanel({ insights, article }: { insights: Insights; article: { id: string } }) {
+export default function StickyInsightsPanel({ insights, article }: { insights: Insights; article: { id: string; summary?: string | null } }) {
   const avgMinutes = useMemo(() => Math.max(1, Math.round(insights.avgReadTimeSec / 60)), [insights.avgReadTimeSec]);
 
   return (
-    <div className="lg:sticky lg:top-24 space-y-4">
+    <div className="lg:sticky lg:top-6 space-y-4">
+      {/* الموجز الذكي */}
+      {article.summary && (
+        <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-3 text-neutral-700 dark:text-neutral-200">
+            <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+            <h3 className="font-semibold">الموجز الذكي</h3>
+          </div>
+          <p className="text-sm text-neutral-700 dark:text-neutral-300 leading-6">
+            {article.summary}
+          </p>
+        </div>
+      )}
       {/* نظرة سريعة */}
       <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 shadow-sm">
         <div className="flex items-center gap-2 mb-3 text-neutral-700 dark:text-neutral-200">
@@ -74,7 +86,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 
 function ActionBtn({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
-    <button className="inline-flex items-center justify-center gap-1 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-3 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800">
+    <button className="inline-flex items-center justify-center gap-1 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-3 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
       {icon}
       <span>{label}</span>
     </button>

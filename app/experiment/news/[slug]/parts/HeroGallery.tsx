@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import Container from "./Container";
 
 type Img = { url: string; alt?: string; width?: number | null; height?: number | null };
 
@@ -13,8 +14,8 @@ export default function HeroGallery({ images }: { images: Img[] }) {
 
 function OneImageHero({ img, hasMore }: { img: Img; hasMore?: boolean }) {
   return (
-    <div className="relative w-full bg-neutral-100 dark:bg-neutral-900">
-      <div className="mx-auto max-w-[1360px] px-4 md:px-6">
+    <div className="relative w-full py-4 px-4 md:px-6">
+      <div className="mx-auto max-w-[1280px]">
         <div className="relative aspect-[4/3] sm:aspect-[16/9] md:aspect-[21/9] lg:h-[520px] overflow-hidden rounded-2xl">
           <Image
             src={img.url}
@@ -36,8 +37,8 @@ function OneImageHero({ img, hasMore }: { img: Img; hasMore?: boolean }) {
 function ThreeImageGrid({ imgs }: { imgs: Img[] }) {
   const [a, b, c] = imgs;
   return (
-    <div className="relative w-full bg-neutral-100 dark:bg-neutral-900">
-      <div className="mx-auto max-w-[1360px] px-4 md:px-6 py-2 md:py-3">
+    <div className="relative w-full py-4 px-4 md:px-6">
+      <div className="mx-auto max-w-[1280px]">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3 lg:gap-4">
           <div className="relative md:col-span-2 row-span-2 aspect-[4/3] md:aspect-auto md:h-[520px] overflow-hidden rounded-2xl">
             <Image src={a.url} alt={a.alt || "صورة"} fill sizes="(max-width: 768px) 100vw, 66vw" className="object-cover object-center" priority />

@@ -29,6 +29,7 @@ export default function SiteLayout({
   const pathname = usePathname();
   const isUserAuthPage = pathname === "/login" || pathname === "/register";
   const isCategoryPage = pathname?.startsWith("/categories/") || pathname?.startsWith("/news/category/");
+  const isExperimentalArticle = pathname?.startsWith("/experiment/news/");
 
   // فحص بسيط للجهاز
   useEffect(() => {
@@ -84,13 +85,15 @@ export default function SiteLayout({
         
         {/* المحتوى الرئيسي */}
         <main style={{
-          maxWidth: isCategoryPage ? '1400px' : '72rem',
+          maxWidth: isExperimentalArticle ? '100%' : (isCategoryPage ? '1400px' : '72rem'),
           margin: '0 auto',
-          padding: isMobile 
-            ? (isCategoryPage ? '4px' : '16px 24px 24px 24px')
-            : (isCategoryPage ? '0 8px' : '16px 24px'),
-          minHeight: 'calc(100vh - 200px)', // مساحة للفوتر
-          ...(isMobile ? {} : { paddingTop: '16px' })
+          padding: isExperimentalArticle
+            ? (isMobile ? '0' : '0')
+            : (isMobile 
+                ? (isCategoryPage ? '4px' : '16px 24px 24px 24px')
+                : (isCategoryPage ? '0 8px' : '16px 24px')),
+          minHeight: 'calc(100vh - 200px)',
+          ...(isMobile || isExperimentalArticle ? {} : { paddingTop: '16px' })
         }}>
           {children}
         </main>
