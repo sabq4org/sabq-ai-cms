@@ -1,42 +1,22 @@
 /* وضع القراءة المحسن */
 
-/* تطبيق وضع القراءة على الصفحة كاملة */
-.reading-mode-enhanced,
-.reading-mode-enhanced * {
-  transition: all 0.3s ease !important;
-}
-
-/* الخلفية والنص في وضع القراءة */
-.reading-mode-enhanced {
-  background-color: #faf9f7 !important;
-  color: #2c2c2c !important;
-}
-
-.reading-mode-enhanced body {
-  background-color: #faf9f7 !important;
-  color: #2c2c2c !important;
-}
-
-/* تحسين النصوص في وضع القراءة */
-.reading-mode-enhanced .article-content,
-.reading-mode-enhanced .prose,
-.reading-mode-enhanced .article-text,
-.reading-mode-enhanced p,
-.reading-mode-enhanced div[class*="content"] {
+/* تقليص نطاق تأثير وضع القراءة ليقتصر على نص المحتوى فقط عند الحاجة */
+.article-content .prose.reading-only,
+.arabic-article-content.reading-only {
   font-family: Georgia, 'Times New Roman', serif !important;
-  font-size: 1.125rem !important;
-  line-height: 1.8 !important;
+  font-size: 1.0625rem !important; /* تكبير بسيط */
+  line-height: 1.85 !important;
   color: #2c2c2c !important;
   letter-spacing: 0.01em !important;
 }
 
 /* العناوين في وضع القراءة */
-.reading-mode-enhanced h1,
-.reading-mode-enhanced h2,
-.reading-mode-enhanced h3,
-.reading-mode-enhanced h4,
-.reading-mode-enhanced h5,
-.reading-mode-enhanced h6 {
+.article-content .prose.reading-only h1,
+.article-content .prose.reading-only h2,
+.article-content .prose.reading-only h3,
+.article-content .prose.reading-only h4,
+.article-content .prose.reading-only h5,
+.article-content .prose.reading-only h6 {
   font-family: Georgia, 'Times New Roman', serif !important;
   color: #1a1a1a !important;
   font-weight: 600 !important;
@@ -65,14 +45,14 @@
 }
 
 /* تحسين الصور في وضع القراءة */
-.reading-mode-enhanced img {
+.article-content .prose.reading-only img {
   opacity: 0.9 !important;
   border-radius: 8px !important;
   margin: 1.5rem 0 !important;
 }
 
 /* تحسين الروابط في وضع القراءة */
-.reading-mode-enhanced a {
+.article-content .prose.reading-only a {
   color: #2563eb !important;
   text-decoration: underline !important;
   text-decoration-thickness: 1px !important;
@@ -84,20 +64,20 @@
 }
 
 /* تحسين القوائم في وضع القراءة */
-.reading-mode-enhanced ul,
-.reading-mode-enhanced ol {
+.article-content .prose.reading-only ul,
+.article-content .prose.reading-only ol {
   font-family: Georgia, 'Times New Roman', serif !important;
   font-size: 1.125rem !important;
   line-height: 1.8 !important;
   margin: 1rem 0 !important;
 }
 
-.reading-mode-enhanced li {
+.article-content .prose.reading-only li {
   margin-bottom: 0.5rem !important;
 }
 
 /* تحسين الاقتباسات */
-.reading-mode-enhanced blockquote {
+.article-content .prose.reading-only blockquote {
   border-right: 4px solid #2563eb !important;
   padding: 1rem 1.5rem !important;
   margin: 1.5rem 0 !important;

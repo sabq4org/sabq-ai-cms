@@ -13,16 +13,7 @@ export default function ReadingModeButton({ className = '' }: ReadingModeButtonP
   const toggleReadingMode = () => {
     const newMode = !isReadingMode;
     setIsReadingMode(newMode);
-    
-    // Apply reading mode to the body
-    if (newMode) {
-      document.body.classList.add('reading-mode-enhanced');
-      document.documentElement.classList.add('reading-mode-enhanced');
-    } else {
-      document.body.classList.remove('reading-mode-enhanced');
-      document.documentElement.classList.remove('reading-mode-enhanced');
-    }
-    
+
     // Store preference in localStorage
     localStorage.setItem('reading-mode', newMode.toString());
   };
@@ -32,8 +23,6 @@ export default function ReadingModeButton({ className = '' }: ReadingModeButtonP
     const savedMode = localStorage.getItem('reading-mode') === 'true';
     if (savedMode) {
       setIsReadingMode(true);
-      document.body.classList.add('reading-mode-enhanced');
-      document.documentElement.classList.add('reading-mode-enhanced');
     }
   }, []);
 

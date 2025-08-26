@@ -161,14 +161,12 @@ export default function ArticleClientComponent({
     }
   }, []);
 
-  // استعادة وضع القراءة من localStorage
+  // استعادة وضع القراءة من localStorage (بدون تطبيق صنف على body/html)
   useEffect(() => {
     if (typeof window !== "undefined") {
       const savedReadingMode = localStorage.getItem('reading-mode') === 'true';
       if (savedReadingMode) {
         setIsReading(true);
-        document.body.classList.add('reading-mode-enhanced');
-        document.documentElement.classList.add('reading-mode-enhanced');
       }
     }
   }, []);
@@ -622,87 +620,90 @@ export default function ArticleClientComponent({
           >
             {/* رأس المقال */}
             <header className="mb-1 sm:mb-2">
-              {/* Desktop Header - محاذاة العرض مع حاوية المحتوى */}
+              {/* Desktop Header - محاذاة العنوان وبيانات النشر مع بداية الصورة */}
               <div className="hidden sm:block">
                 <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-4 sm:px-6">
-                  <div className="px-0 py-4 lg:py-6 flex flex-col justify-center">
-                {/* التصنيف - محاذاة لليمين مع تحسين الهامش */}
-                {article.category && (
-                  <div className="flex justify-end mb-5">
-                    <Link
-                      href={`/categories/${article.category.slug}`}
-                      className="inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50 hover:shadow-md hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-800/30 dark:hover:to-indigo-800/30 transition-all hover:scale-105"
-                    >
-                      {article.category.icon && (
-                        <span className="text-sm sm:text-base">
-                          {article.category.icon}
-                        </span>
+                  <div className="sm:grid sm:grid-cols-2 sm:gap-6 items-start">
+                    {/* عمود النصوص (يمين في RTL) */}
+                    <div className="order-1 text-right">
+                      {/* التصنيف */}
+                      {article.category && (
+                        <div className="flex justify-end mb-5">
+                          <Link
+                            href={`/categories/${article.category.slug}`}
+                            className="inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50 hover:shadow-md hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-800/30 dark:hover:to-indigo-800/30 transition-all hover:scale-105"
+                          >
+                            {article.category.icon && (
+                              <span className="text-sm sm:text-base">
+                                {article.category.icon}
+                              </span>
+                            )}
+                            <span>{article.category.name}</span>
+                          </Link>
+                        </div>
                       )}
-                      <span>{article.category.name}</span>
-                    </Link>
-                  </div>
-                )}
 
-                {/* غلاف عنوان/عنوان فرعي مع توافق الوضع الداكن */}
-                <div className="text-right">
-                  {/* العنوان - تحسين المسافات والهوامش */}
-                  <h1 className="text-2xl sm:text-3xl lg:text-3xl font-bold mb-3 text-gray-900 dark:text-white leading-tight tracking-tight article-title-overlay bg-transparent">{/* تصغير العنوان درجتين كما مطلوب */}
-                    {article.title}
-                  </h1>
+                      {/* العنوان */}
+                      <h1 className="text-2xl sm:text-3xl lg:text-3xl font-bold mb-3 text-gray-900 dark:text-white leading-tight tracking-tight article-title-overlay bg-transparent">
+                        {article.title}
+                      </h1>
 
-                  {/* العنوان الفرعي - تحسين المظهر */}
-                  {getSubtitle() && (
-                    <h2 className="article-subtitle text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-200 mb-2 leading-relaxed font-normal">
-                      {getSubtitle()}
-                    </h2>
-                  )}
-                </div>
+                      {/* العنوان الفرعي */}
+                      {getSubtitle() && (
+                        <h2 className="article-subtitle text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-200 mb-2 leading-relaxed font-normal">
+                          {getSubtitle()}
+                        </h2>
+                      )}
 
-                {/* المعلومات الأساسية - Desktop (مُرتبة) */}
-                <div className="article-meta-info flex flex-wrap items-center justify-end gap-3 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-4 text-right border-0">
-                  {/* المراسل */}
-                  {article.author && (
-                    <div className="inline-flex items-center gap-1.5 sm:gap-2 w-full justify-start mb-2">
-                      <ReporterLink
-                        author={article.author as any}
-                        size="sm"
-                        showIcon={true}
-                        showVerification={true}
-                        className="truncate max-w-[160px] sm:max-w-none text-xs sm:text-sm"
-                      />
+                      {/* المعلومات الأساسية */}
+                      <div className="article-meta-info flex flex-wrap items-center justify-end gap-3 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-4 text-right border-0">
+                        {article.author && (
+                          <div className="inline-flex items-center gap-1.5 sm:gap-2 w-full justify-start mb-2">
+                            <ReporterLink
+                              author={article.author as any}
+                              size="sm"
+                              showIcon={true}
+                              showVerification={true}
+                              className="truncate max-w-[160px] sm:max-w-none text-xs sm:text-sm"
+                            />
+                          </div>
+                        )}
+                        <div className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                          <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+                          <SafeDateDisplay
+                            date={article.published_at || article.created_at || ""}
+                            format="full"
+                            showTime
+                          />
+                        </div>
+                        <div className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                          <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+                          <span>
+                            {article.reading_time || calculateReadingTime(article.content || "")} د
+                          </span>
+                        </div>
+                        {article.views !== undefined && (
+                          <div className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                            <Eye className="w-4 h-4" />
+                            <ArticleViews count={article.views} className="text-xs sm:text-sm" />
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  )}
 
-                  {/* التاريخ والتوقيت */}
-                  <div className="inline-flex items-center gap-1.5 whitespace-nowrap">
-                    <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
-                    <SafeDateDisplay
-                      date={article.published_at || article.created_at || ""}
-                      format="full"
-                      showTime
-                    />
-                  </div>
-
-                  {/* وقت القراءة */}
-                  <div className="inline-flex items-center gap-1.5 whitespace-nowrap">
-                    <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
-                    <span>
-                      {article.reading_time ||
-                        calculateReadingTime(article.content || "")} د
-                    </span>
-                  </div>
-
-                  {/* عدد المشاهدات */}
-                  {article.views !== undefined && (
-                    <div className="inline-flex items-center gap-1.5 whitespace-nowrap">
-                      <Eye className="w-4 h-4" />
-                      <ArticleViews
-                        count={article.views}
-                        className="text-xs sm:text-sm"
-                      />
+                    {/* عمود الصورة (يسار في RTL) */}
+                    <div className="order-2">
+                      {article.featured_image && typeof article.featured_image === "string" && article.featured_image.length > 0 && !article.metadata?.emergency_mode && (
+                        <ArticleFeaturedImage
+                          imageUrl={article.featured_image}
+                          title={article.title}
+                          alt={article.featured_image_alt || article.title}
+                          caption={article.featured_image_caption}
+                          category={article.category}
+                          className="w-full rounded-2xl shadow-2xl"
+                        />
+                      )}
                     </div>
-                  )}
-                </div>
                   </div>
                 </div>
               </div>
@@ -786,20 +787,6 @@ export default function ArticleClientComponent({
         </div>
         {/* منطقة المحتوى - عرض أوسع للديسكتوب */}
         <div className="w-full">
-          {article.featured_image && typeof article.featured_image === "string" && article.featured_image.length > 0 && !article.metadata?.emergency_mode && (
-            <div className="hidden sm:block mb-6" style={{ contentVisibility: "auto" as any, containIntrinsicSize: "1100px 620px" as any }}>
-              <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-4 sm:px-6">
-                <ArticleFeaturedImage
-                  imageUrl={article.featured_image}
-                  title={article.title}
-                  alt={article.featured_image_alt || article.title}
-                  caption={article.featured_image_caption}
-                  category={article.category}
-                  className="w-full rounded-2xl shadow-2xl"
-                />
-              </div>
-            </div>
-          )}
           <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-4 sm:px-6 py-2">
             <div className="bg-transparent dark:bg-transparent rounded-xl">
               <div className="sm:hidden mb-6" style={{ contentVisibility: "auto" as any, containIntrinsicSize: "100% 260px" as any }}>
@@ -886,17 +873,9 @@ export default function ArticleClientComponent({
                 <div className="flex justify-end">
                   <button
                     onClick={() => {
-                      setIsReading(!isReading);
-                      // تطبيق وضع القراءة على الصفحة كاملة
-                      if (!isReading) {
-                        document.body.classList.add('reading-mode-enhanced');
-                        document.documentElement.classList.add('reading-mode-enhanced');
-                        localStorage.setItem('reading-mode', 'true');
-                      } else {
-                        document.body.classList.remove('reading-mode-enhanced');
-                        document.documentElement.classList.remove('reading-mode-enhanced');
-                        localStorage.setItem('reading-mode', 'false');
-                      }
+                      const next = !isReading;
+                      setIsReading(next);
+                      localStorage.setItem('reading-mode', next ? 'true' : 'false');
                     }}
                     className={`reading-mode-button flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
                       isReading
@@ -918,7 +897,7 @@ export default function ArticleClientComponent({
             <div className="mb-12" style={{ contentVisibility: "auto" as any, containIntrinsicSize: "100% 900px" as any }}>
               <div className="w-full">
                 <div
-                  className={`prose max-w-none dark:prose-invert arabic-article-content ${isReading ? "prose-xl" : "prose-lg"}`}
+                  className={`prose max-w-none dark:prose-invert arabic-article-content ${isReading ? "reading-only" : ""}`}
                   dangerouslySetInnerHTML={{ __html: contentHtml }}
                 />
               </div>
