@@ -18,6 +18,7 @@ interface CloudImageProps {
   fallbackType?: "article" | "author" | "category" | "default";
   quality?: number;
   onError?: () => void;
+  unoptimized?: boolean;
 }
 
 export default function CloudImage({
@@ -32,6 +33,7 @@ export default function CloudImage({
   fallbackType = "default",
   quality = 80,
   onError,
+  unoptimized = false,
 }: CloudImageProps) {
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -119,7 +121,7 @@ export default function CloudImage({
           }
           quality={quality}
           priority={priority}
-          unoptimized={false}
+          unoptimized={unoptimized}
           className={`${className} object-cover object-center ${
             isLoading ? "opacity-0" : "opacity-100"
           } transition-opacity duration-300`}
@@ -152,7 +154,7 @@ export default function CloudImage({
         height={validHeight}
         quality={quality}
         priority={priority}
-        unoptimized
+        unoptimized={true}
         sizes={
           sizes || "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         }

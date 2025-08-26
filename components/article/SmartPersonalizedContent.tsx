@@ -174,13 +174,14 @@ const SmartRecommendationCard: React.FC<{
           } overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex-shrink-0`}
         >
           <CloudImage
-            src={article.thumbnail || article.featured_image || ""}
+            src={article.thumbnail || article.featured_image || "/images/placeholder-featured.jpg"}
             alt={article.title}
             fill
             sizes={isMobileScreen ? "40vw" : "(max-width: 768px) 100vw, 50vw"}
             className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500"
             fallbackType="article"
             priority={index < 3}
+            unoptimized
           />
 
           {/* تم حذف الملصقات من على الصور */}
