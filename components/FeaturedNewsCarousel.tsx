@@ -98,13 +98,13 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
     return article.slug ? `/news/${article.slug}` : `/news/${article.id}`;
   };
 
-  // وظيفة للتحقق من الأخبار الجديدة (آخر ساعتين)
+  // وظيفة للتحقق من الأخبار الجديدة (آخر 12 ساعة)
   const isRecentNews = (publishedAt: string) => {
     try {
       const publishedDate = new Date(publishedAt);
       const currentDate = new Date();
       const diffInMinutes = (currentDate.getTime() - publishedDate.getTime()) / (1000 * 60);
-      return diffInMinutes <= 120.1; // أقل من أو يساوي 120 دقيقة مع هامش أمان صغير
+      return diffInMinutes <= 720.1; // أقل من أو يساوي 720 دقيقة (12 ساعة) مع هامش أمان صغير
     } catch (error) {
       return false;
     }
@@ -240,7 +240,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                       <span className="font-medium">{currentArticle.category?.name || 'أخبار'}</span>
                     </>
                   )}
-                  {/* ليبل "جديد" للأخبار في آخر ساعتين */}
+                  {/* ليبل "جديد" للأخبار في آخر 12 ساعة */}
                   {!isBreaking && isRecentNews(currentArticle.published_at) && (
                     <>
                       <span className="opacity-80">•</span>
@@ -298,7 +298,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                       </span>
                     )
                   )}
-                  {/* ليبل "جديد" للأخبار في آخر ساعتين - نسخة الديسكتوب */}
+                  {/* ليبل "جديد" للأخبار في آخر 12 ساعة - نسخة الديسكتوب */}
                   {!isBreaking && isRecentNews(currentArticle.published_at) && (
                     <span className="recent-news-badge inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold text-white">
                       <span className="text-xs">🔥</span>

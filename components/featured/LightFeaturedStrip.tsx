@@ -22,13 +22,13 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
   const { darkMode } = useDarkModeContext();
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
-  // تحديد إذا كان الخبر جديد (آخر ساعتين فقط)
+  // تحديد إذا كان الخبر جديد (آخر 12 ساعة)
   const isNewsNew = (dateString: string) => {
     try {
       const date = new Date(dateString);
       const now = new Date();
       const diffTime = Math.abs(now.getTime() - date.getTime());
-      return diffTime <= 2 * 60 * 60 * 1000; // ساعتان
+      return diffTime <= 12 * 60 * 60 * 1000; // 12 ساعة
     } catch {
       return false;
     }
@@ -110,7 +110,7 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
           div::-webkit-scrollbar { display: none; }
         `}</style>
         {articles.slice(0, 3).map((article, idx) => {
-          const category = article.category?.name || article.category_name || article.category || "عام";
+          const category = article.category?.name || article.category_name || article.category;
           const date = article.published_at || article.created_at;
           // معالجة محسّنة للصورة
           const rawImage = article.featured_image || article.social_image || article.image_url || article.image || article.thumbnail;
@@ -153,7 +153,7 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
                     decoding="async"
                     fetchPriority={idx === 0 ? 'high' : 'low'}
                   />
-                  {/* ليبل عاجل أو جديد يحل مكان ليبل التصنيف */}
+                  {/* ليبل عاجل أو جديد أو التصنيف */}
                   <div className="absolute top-2 left-2">
                     {isBreaking ? (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-red-600 text-white">
@@ -165,7 +165,7 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
                         <span className="text-xs">🔥</span>
                         جديد
                       </span>
-                    ) : (
+                    ) : category ? (
                       <span
                         className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium ${
                           darkMode
@@ -178,7 +178,7 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
                         )}
                         {category}
                       </span>
-                    )}
+                    ) : null}
                   </div>
                 </div>
                 <div className="flex flex-col p-3 pb-4 flex-1">

@@ -37,12 +37,24 @@ import {
   Hash,
   Eye,
   Star,
+  Sparkles,
 } from "lucide-react";
 // import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
 
 const ImageSkeleton = ({ className = "" }: { className?: string }) => (
   <div className={`relative w-full overflow-hidden rounded-2xl bg-gray-200 dark:bg-gray-800 animate-pulse ${className}`} />
 );
+
+// وظيفة تحديد الخبر الجديد (أقل من 12 ساعة)
+const isNewsRecent = (publishedAt: string | Date | null): boolean => {
+  if (!publishedAt) return false;
+  
+  const now = new Date();
+  const articleDate = new Date(publishedAt);
+  const hoursAgo = (now.getTime() - articleDate.getTime()) / (1000 * 60 * 60);
+  
+  return hoursAgo <= 12; // جديد إذا كان أقل من 12 ساعة
+};
 
 const ArticleFeaturedImage = dynamic(() => import("@/components/article/ArticleFeaturedImage"), {
   ssr: false,
@@ -596,14 +608,14 @@ export default function ArticleClientComponent({
 
   const keywords = getKeywords();
 
-  // تحديد ما إذا كان الخبر جديد (آخر ساعتين)
+  // تحديد ما إذا كان الخبر جديد (آخر 12 ساعة)
   const isArticleNew = (() => {
     const dateStr = (article?.published_at || article?.created_at) as string | undefined;
     if (!dateStr) return false;
     const date = new Date(dateStr);
     const now = new Date();
     const diff = Math.abs(now.getTime() - date.getTime());
-    return diff <= 2 * 60 * 60 * 1000; // ساعتان
+    return diff <= 12 * 60 * 60 * 1000; // 12 ساعة
   })();
 
   // إذا كان مقال رأي، استخدم التصميم المحسن الجديد
@@ -721,6 +733,32 @@ export default function ArticleClientComponent({
 
               {/* Mobile Header */}
               <div className="sm:hidden px-4 sm:px-6 py-6 bg-transparent transition-colors duration-300">
+                {/* التصنيف + جديد */}
+                {(article.category || isNewsRecent(article.published_at || article.created_at || null)) && (
+                  <div className="flex items-center gap-2 mb-3 flex-wrap">
+                    {article.category && (
+                      <Link
+                        href={`/categories/${article.category.slug}`}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/50 hover:shadow-sm transition-all"
+                      >
+                        <Hash className="w-3 h-3 flex-shrink-0" />
+                        {article.category.icon && (
+                          <span className="text-xs">{article.category.icon}</span>
+                        )}
+                        <span>{article.category.name}</span>
+                      </Link>
+                    )}
+                    
+                    {/* علامة جديد - نسخة موحدة مطابقة للأخبار المميزة */}
+                    {isNewsRecent(article.published_at || article.created_at || null) && (
+                      <span className="recent-news-badge inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold text-white">
+                        <span className="text-xs">🔥</span>
+                        جديد
+                      </span>
+                    )}
+                  </div>
+                )}
+
                 {/* العنوان الرئيسي */}
                 <h1 className="text-2xl font-bold leading-tight text-gray-900 dark:text-white mb-1">{/* تكبير من text-xl إلى text-2xl (تكة أكبر) */}
                   {article.title}
@@ -775,20 +813,6 @@ export default function ArticleClientComponent({
                         </>
                       )}
                     </div>
-                    {article.category && (
-                      <div className="mt-1">
-                        <Link
-                          href={`/categories/${article.category.slug}`}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/50 hover:shadow-sm transition-all"
-                        >
-                          <Hash className="w-3 h-3 flex-shrink-0" />
-                          {article.category.icon && (
-                            <span className="text-xs">{article.category.icon}</span>
-                          )}
-                          <span>{article.category.name}</span>
-                        </Link>
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>

@@ -55,21 +55,6 @@ export default function MobileFeaturedImage({
         {/* تدرج خفيف في الأسفل لتحسين قراءة النص */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
 
-        {/* شارة التصنيف */}
-        {category && (
-          <div className="absolute top-3 right-3 z-10">
-            <span
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-white shadow-md backdrop-blur-sm"
-              style={{
-                backgroundColor: `${category.color || "#1a73e8"}CC`,
-              }}
-            >
-              {category.icon && <span className="text-sm">{category.icon}</span>}
-              <span>{category.name}</span>
-            </span>
-          </div>
-        )}
-
         {/* تأثير التحميل */}
         {imageLoading && (
           <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse" />

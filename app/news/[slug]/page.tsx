@@ -70,6 +70,8 @@ async function getCompleteArticle(slug: string) {
       // إضافة حقول التوافق
       image: article.featured_image,
       image_url: article.featured_image,
+      // إضافة category للتوافق مع المكون
+      category: article.categories,
 
       // معلومات الكاتب المدمجة
       author_name:

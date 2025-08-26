@@ -41,20 +41,6 @@ export default function ArticleFeaturedImage({
               decoding="async"
               fetchPriority="high"
             />
-            {/* التصنيف */}
-            {category && (
-              <div className="absolute top-4 right-4">
-                <span
-                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium text-white shadow-md backdrop-blur-sm"
-                  style={{
-                    backgroundColor: `${category.color || "#1a73e8"}CC`,
-                  }}
-                >
-                  {category.icon && <span>{category.icon}</span>}
-                  <span>{category.name}</span>
-                </span>
-              </div>
-            )}
           </div>
           
           {/* عرض شرح الصورة (Alt Text) أو وصف الصورة إذا وُجد */}
@@ -110,19 +96,6 @@ export default function ArticleFeaturedImage({
               decoding="async"
               fetchPriority="high"
             />
-            {category && (
-              <div className="absolute bottom-4 left-4 z-20">
-                <span
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-white backdrop-blur-md"
-                  style={{
-                    backgroundColor: `${category.color || "#1a73e8"}99`,
-                  }}
-                >
-                  {category.icon && <span>{category.icon}</span>}
-                  {category.name}
-                </span>
-              </div>
-            )}
           </div>
         </div>
       );
@@ -143,21 +116,6 @@ export default function ArticleFeaturedImage({
                 decoding="async"
                 fetchPriority="high"
               />
-              
-              {/* تراكب التصنيف */}
-              {category && (
-                <div className="absolute bottom-4 left-4">
-                  <span
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-white backdrop-blur-md"
-                    style={{
-                      backgroundColor: `${category.color || "#1a73e8"}CC`,
-                    }}
-                  >
-                    {category.icon && <span>{category.icon}</span>}
-                    {category.name}
-                  </span>
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -181,21 +139,6 @@ export default function ArticleFeaturedImage({
             />
             {/* تدرج خفيف للتحسين البصري */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
-            
-            {/* عرض التصنيف على الصورة إذا وُجد */}
-            {category && (
-              <div className="absolute top-4 right-4 z-10">
-                <span
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-white shadow-lg backdrop-blur-sm"
-                  style={{
-                    backgroundColor: `${category.color || "#1a73e8"}CC`,
-                  }}
-                >
-                  {category.icon && <span className="text-base">{category.icon}</span>}
-                  <span>{category.name}</span>
-                </span>
-              </div>
-            )}
           </div>
         </div>
       );

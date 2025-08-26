@@ -50,12 +50,12 @@ interface FeaturedNewsBlockProps {
 const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({ article }) => {
   const { darkMode } = useDarkModeContext();
 
-  // تحديد إذا كان الخبر جديد (آخر ساعتين فقط)
+  // تحديد إذا كان الخبر جديد (آخر 12 ساعة)
   const isNewsNew = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());
-    return diffTime <= 2 * 60 * 60 * 1000; // ساعتان
+    return diffTime <= 12 * 60 * 60 * 1000; // 12 ساعة
   };
 
   const getVerificationIcon = (badge: string) => {

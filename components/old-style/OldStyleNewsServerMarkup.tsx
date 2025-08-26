@@ -1,6 +1,17 @@
 /* eslint-disable @next/next/no-img-element */
 import React from 'react';
 
+// وظيفة تحديد الخبر الجديد (أقل من 12 ساعة)
+const isNewsRecent = (publishedAt: string | undefined): boolean => {
+  if (!publishedAt) return false;
+  
+  const now = new Date();
+  const articleDate = new Date(publishedAt);
+  const hoursAgo = (now.getTime() - articleDate.getTime()) / (1000 * 60 * 60);
+  
+  return hoursAgo <= 12; // جديد إذا كان أقل من 12 ساعة
+};
+
 interface ArticleItem {
   id: number | string;
   title: string;
@@ -10,8 +21,9 @@ interface ArticleItem {
   image_url?: string | null;
   thumbnail?: string | null;
   published_at?: string;
+  created_at?: string;
   views?: number;
-  categories?: { id: number; name: string; slug?: string; color?: string } | null;
+  categories?: { id: number; name: string; slug?: string; color?: string; icon?: string } | null;
 }
 
 interface NewsServerMarkupProps {
@@ -58,22 +70,42 @@ export default async function OldStyleNewsServerMarkup({
   try {
     const controller = new AbortController();
     const t = setTimeout(() => controller.abort(), 3000); // Increased timeout
-    const res = await fetch(url, { 
+    
+    // إنشاء URL مطلق للعمل مع Server-Side
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+    
+    const res = await fetch(fullUrl, { 
       next: { revalidate: revalidateSeconds }, 
       cache: 'force-cache', 
       signal: controller.signal 
     });
     clearTimeout(t);
+    console.log(`🔍 [OldStyleNews] Original URL: ${url}`);
+    console.log(`🔍 [OldStyleNews] Full URL: ${fullUrl}`);
+    console.log(`🔍 [OldStyleNews] Response Status: ${res.status}`);
+    
     if (res.ok) {
       const data = await res.json();
+      console.log(`🔍 [OldStyleNews] Data received:`, typeof data, Array.isArray(data) ? `Array(${data.length})` : 'Object');
+      
       const list: ArticleItem[] = Array.isArray(data) ? data : Array.isArray((data as any)?.articles) ? (data as any).articles : [];
+      console.log(`🔍 [OldStyleNews] Articles extracted:`, list.length);
+      
       articles = (list || []).slice(0, Math.max(1, limit)).map((a) => ({
         ...a,
         featured_image: sanitizeImage(a.featured_image || a.image || a.image_url || a.thumbnail),
       }));
+      
+      console.log(`🔍 [OldStyleNews] Final articles:`, articles.length);
+      if (articles.length > 0) {
+        console.log(`🔍 [OldStyleNews] First article:`, articles[0].title);
+      }
+    } else {
+      console.log(`❌ [OldStyleNews] Response not OK:`, res.status, res.statusText);
     }
-  } catch {
-    // ignore
+  } catch (error) {
+    console.log(`❌ [OldStyleNews] Fetch error:`, error);
   }
 
   return (
@@ -95,6 +127,8 @@ export default async function OldStyleNewsServerMarkup({
             ))
           : articles.map((article) => {
               const href = article.slug ? `/news/${article.slug}` : `/news/${article.id}`;
+              const isRecent = isNewsRecent(article.published_at || article.created_at);
+              
               return (
                 <a
                   key={article.id}
@@ -102,7 +136,7 @@ export default async function OldStyleNewsServerMarkup({
                   className="old-style-news-card"
                   style={{ contentVisibility: 'auto' as any, containIntrinsicSize: '300px 220px' as any }}
                 >
-                  <div className="old-style-news-image-container">
+                  <div className="old-style-news-image-container" style={{ position: 'relative' }}>
                     <img
                       src={article.featured_image || '/images/news-placeholder-lite.svg'}
                       alt={article.title}
@@ -111,8 +145,47 @@ export default async function OldStyleNewsServerMarkup({
                       fetchPriority="low"
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
+                    
+                    {/* علامة جديد فوق الصورة */}
+                    {isRecent && (
+                      <div style={{
+                        position: 'absolute',
+                        top: '8px',
+                        right: '8px',
+                        backgroundColor: '#10b981',
+                        color: 'white',
+                        padding: '4px 8px',
+                        borderRadius: '12px',
+                        fontSize: '11px',
+                        fontWeight: 'bold',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                        zIndex: 2
+                      }}>
+                        🔥 جديد
+                      </div>
+                    )}
                   </div>
                   <div className="old-style-news-content">
+                    {/* التصنيف */}
+                    {article.categories && (
+                      <div style={{
+                        marginBottom: '8px',
+                        fontSize: '11px'
+                      }}>
+                        <span style={{
+                          backgroundColor: '#3b82f6',
+                          color: 'white',
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          fontSize: '10px',
+                          fontWeight: '500'
+                        }}>
+                          {article.categories.icon && `${article.categories.icon} `}
+                          {article.categories.name}
+                        </span>
+                      </div>
+                    )}
+                    
                     <h3 className="old-style-news-card-title">{article.title}</h3>
                     {/* يمكن إضافة شريط سفلي بسيط بدون أي JS */}
                   </div>
