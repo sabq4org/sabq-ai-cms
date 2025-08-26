@@ -793,7 +793,11 @@ export default function ArticleClientComponent({
                 </div>
               </div>
             </header>
-            <AdBanner placement="article_detail_header" className="mb-5" />
+            <div className="hidden sm:block">
+              <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-4 sm:px-6">
+                <AdBanner placement="article_detail_header" className="mb-5" />
+              </div>
+            </div>
           </article>
         </div>
         {/* منطقة المحتوى - عرض أوسع للديسكتوب */}
