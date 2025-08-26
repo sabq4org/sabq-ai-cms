@@ -1,5 +1,9 @@
 'use server';
 
+// export dynamic rendering to avoid long static build for this page and let ISR happen at request time
+export const dynamic = 'force-dynamic';
+export const revalidate = 30;
+
 import OldStyleNewsServer from '@/components/old-style/OldStyleNewsServer';
 import LightFeaturedServer from '@/components/featured/LightFeaturedServer';
 
