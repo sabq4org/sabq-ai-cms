@@ -42,17 +42,23 @@ export default function CommentsPanel({
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
         className={cn(
-          "comments-panel-button inline-flex items-center gap-2 rounded-full px-3 py-1.5",
-          "hover:bg-gray-50 dark:hover:bg-gray-800",
+          "inline-flex items-center gap-2 rounded-full px-3 py-1.5",
+          "bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800",
           "shadow-sm transition-all duration-200"
         )}
+        style={{ 
+          border: `1px solid var(--theme-primary, #f0f0ef)` 
+        }}
       >
         <span className="inline-flex items-center gap-2 font-medium text-sm">
           <MessageCircle className="w-4 h-4" style={{ color: 'var(--theme-primary, #6b7280)' }} />
           <span>التعليقات</span>
         </span>
         <span 
-          className="comments-count-badge text-xs px-2 py-0.5 rounded-full"
+          className="text-xs bg-gray-50 dark:bg-gray-800 px-2 py-0.5 rounded-full"
+          style={{ 
+            border: `1px solid var(--theme-primary, #f0f0ef)` 
+          }}
         >
           {count}
         </span>
@@ -68,7 +74,10 @@ export default function CommentsPanel({
         )}
       >
         <div 
-          className="comments-panel-content rounded-xl shadow-sm"
+          className="rounded-xl shadow-sm bg-white dark:bg-gray-900"
+          style={{ 
+            border: `1px solid var(--theme-primary, #f0f0ef)` 
+          }}
         >
           <section id="comments" dir="rtl" className="p-3 sm:p-4 lg:p-6">
             <CommentsClient articleId={articleId} />

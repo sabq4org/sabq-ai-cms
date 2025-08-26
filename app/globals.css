@@ -5,9 +5,6 @@
 /* استيراد نظام إنفاذ الوضع الليلي */
 @import '../styles/dark-mode-enforcer.css';
 
-/* استيراد ستايلات المقالات والتعليقات مع نظام الألوان المتغيرة */
-@import '../styles/article-stats-theme.css';
-
 /* 🎯 تطبيق الخط العربي المعتمد على جميع العناصر */
 * {
   font-family: var(--font-ibm-plex-arabic), 'IBM Plex Sans Arabic', 'Tajawal', 'Noto Sans Arabic', system-ui, -apple-system, BlinkMacSystemFont, sans-serif !important;

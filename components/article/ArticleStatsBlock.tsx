@@ -49,13 +49,17 @@ export default function ArticleStatsBlock({
   };
 
   return (
-    <div className={`mobile-stats-container rounded-xl p-3 sm:p-6 border shadow-sm hover:shadow-md transition-all duration-300 ${className}`}>
-      
+    <div
+      className={`mobile-stats-container rounded-xl p-3 sm:p-6 border shadow-sm hover:shadow-md transition-all duration-300 bg-white dark:bg-gray-900 ${className}`}
+      style={{
+        borderColor: 'var(--theme-primary, #C4C4C0)'
+      }}
+    >
       {/* العنوان */}
       <div className="flex items-center gap-2 mb-3">
         <div
           className="w-2 h-2 rounded-full animate-pulse"
-          style={{ backgroundColor: 'var(--theme-primary, #6b7280)' }}
+          style={{ background: 'var(--theme-primary, #6b7280)' }}
         ></div>
         <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
           📊 إحصائيات المقال
@@ -65,8 +69,14 @@ export default function ArticleStatsBlock({
       {/* الإحصائيات الرئيسية */}
       <div className="mobile-stats-grid grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-3">
         {/* المشاهدات */}
-        <div className="flex flex-col items-center p-2 rounded-lg border hover:scale-105 transition-transform">
-          <Eye className="mobile-stats-icon w-4 h-4 mb-0.5" />
+        <div
+          className="flex flex-col items-center p-2 rounded-lg border hover:scale-105 transition-transform"
+          style={{ 
+            borderColor: 'var(--theme-primary, #DADAD8)',
+            backgroundColor: 'var(--theme-background, #F8F8F7)'
+          }}
+        >
+          <Eye className="mobile-stats-icon w-4 h-4 mb-0.5" style={{ color: 'var(--theme-primary, #6b7280)' }} />
           <span className="mobile-stats-number text-base font-bold text-gray-800 dark:text-gray-200 leading-tight">
             {formatNumber(views)}
           </span>
@@ -74,8 +84,14 @@ export default function ArticleStatsBlock({
         </div>
 
         {/* الإعجابات */}
-        <div className="flex flex-col items-center p-2 rounded-lg border hover:scale-105 transition-transform">
-          <Heart className="mobile-stats-icon w-4 h-4 mb-0.5" />
+        <div
+          className="flex flex-col items-center p-2 rounded-lg border hover:scale-105 transition-transform"
+          style={{ 
+            borderColor: 'var(--theme-primary, #DADAD8)',
+            backgroundColor: 'var(--theme-background, #F8F8F7)'
+          }}
+        >
+          <Heart className="mobile-stats-icon w-4 h-4 mb-0.5" style={{ color: 'var(--theme-primary, #6b7280)' }} />
           <span className="mobile-stats-number text-base font-bold text-gray-800 dark:text-gray-200 leading-tight">
             {formatNumber(likes)}
           </span>
@@ -83,8 +99,14 @@ export default function ArticleStatsBlock({
         </div>
 
         {/* الحفظ */}
-        <div className="flex flex-col items-center p-2 rounded-lg border hover:scale-105 transition-transform">
-          <Bookmark className="mobile-stats-icon w-4 h-4 mb-0.5" />
+        <div
+          className="flex flex-col items-center p-2 rounded-lg border hover:scale-105 transition-transform"
+          style={{ 
+            borderColor: 'var(--theme-primary, #DADAD8)',
+            backgroundColor: 'var(--theme-background, #F8F8F7)'
+          }}
+        >
+          <Bookmark className="mobile-stats-icon w-4 h-4 mb-0.5" style={{ color: 'var(--theme-primary, #6b7280)' }} />
           <span className="mobile-stats-number text-base font-bold text-gray-800 dark:text-gray-200 leading-tight">
             {formatNumber(saves)}
           </span>
@@ -92,8 +114,14 @@ export default function ArticleStatsBlock({
         </div>
 
         {/* المشاركات */}
-        <div className="flex flex-col items-center p-2 rounded-lg border hover:scale-105 transition-transform">
-          <Share2 className="mobile-stats-icon w-4 h-4 mb-0.5" />
+        <div
+          className="flex flex-col items-center p-2 rounded-lg border hover:scale-105 transition-transform"
+          style={{ 
+            borderColor: 'var(--theme-primary, #DADAD8)',
+            backgroundColor: 'var(--theme-background, #F8F8F7)'
+          }}
+        >
+          <Share2 className="mobile-stats-icon w-4 h-4 mb-0.5" style={{ color: 'var(--theme-primary, #6b7280)' }} />
           <span className="mobile-stats-number text-base font-bold text-gray-800 dark:text-gray-200 leading-tight">
             {formatNumber(shares)}
           </span>
@@ -123,7 +151,8 @@ export default function ArticleStatsBlock({
           <div className="flex items-center gap-2">
             <Tag className="w-4 h-4 text-gray-500 dark:text-gray-400" />
             <span 
-              className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium category-theme-badge"
+              className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium text-white"
+              style={{ backgroundColor: category.color || 'var(--theme-primary, #6b7280)' }}
             >
               {category.icon && <span>{category.icon}</span>}
               {category.name}
@@ -140,9 +169,9 @@ export default function ArticleStatsBlock({
             {[...Array(5)].map((_, i) => (
               <div
                 key={i}
-                className={`mobile-popularity-dot w-3 h-3 rounded-full transition-colors ${
+                className={`mobile-popularity-dot w-2.5 h-2.5 rounded-full transition-colors ${
                   i < Math.min(5, Math.ceil((likes + saves + shares) / 10))
-                    ? 'active shadow-sm'
+                    ? 'bg-amber-400 shadow-sm'
                     : 'bg-gray-300 dark:bg-gray-600'
                 }`}
               />
