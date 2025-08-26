@@ -934,8 +934,7 @@ export default function ArticleClientComponent({
               </div>
             </div>
 
-            {/* تم تعطيل مكون "مخصص لك" لتحسين أداء النسخة الخفيفة */}
-            {/* 
+            {/* محتوى مخصص لك */}
             <div className="mt-6 sm:mt-8" style={{ contentVisibility: "auto" as any, containIntrinsicSize: "100% 320px" as any }}>
               <div className="w-full">
                 <SmartPersonalizedContent
@@ -948,7 +947,6 @@ export default function ArticleClientComponent({
                 />
               </div>
             </div>
-            */}
 
           </div>
         </div>
