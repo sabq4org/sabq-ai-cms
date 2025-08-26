@@ -22,6 +22,24 @@ export default async function OldStyleNewsServer({
 }: NewsServerProps) {
   const url = endpoint.includes('limit=') ? endpoint : `${endpoint}${endpoint.includes('?') ? '&' : '?'}limit=${limit}`;
 
+  const sanitizeImage = (raw?: string | null) => {
+    if (!raw || typeof raw !== 'string') return null;
+    const trimmed = raw.trim();
+    if (!trimmed || trimmed === 'null' || trimmed === 'undefined') return null;
+    if (trimmed.startsWith('data:image/')) return '/images/news-placeholder-lite.svg';
+    const isProd = process.env.NODE_ENV === 'production';
+    const fixed = trimmed.startsWith('http://') ? (isProd ? trimmed.replace(/^http:\/\//, 'https://') : trimmed) : trimmed;
+    if (fixed.includes('res.cloudinary.com') && fixed.includes('/upload/')) {
+      try {
+        const [prefix, rest] = fixed.split('/upload/');
+        if (/^(c_|w_|h_|f_|q_)/.test(rest)) return `${prefix}/upload/${rest}`;
+        const t = 'c_fill,w_400,h_225,q_auto,f_auto';
+        return `${prefix}/upload/${t}/${rest}`;
+      } catch { /* ignore */ }
+    }
+    return fixed.startsWith('http') || fixed.startsWith('/') ? fixed : `/${fixed.replace(/^\/+/, '')}`;
+  };
+
   let articles: any[] = [];
   try {
     const res = await fetch(url, {
@@ -37,6 +55,12 @@ export default async function OldStyleNewsServer({
       } else if (data && Array.isArray((data as any).articles)) {
         articles = (data as any).articles;
       }
+      // تطبيع الصور لتجنب base64 الثقيلة وتحسين Cloudinary
+      articles = (articles || []).map((a: any) => ({
+        ...a,
+        featured_image: sanitizeImage(a.featured_image || a.image || a.image_url || a.thumbnail),
+        social_image: sanitizeImage(a.social_image),
+      })).slice(0, Math.max(1, limit));
     }
   } catch {
     // تجاهل الخطأ؛ سنعرض هيكل تحميل بسيط بدل ذلك
