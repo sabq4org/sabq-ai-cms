@@ -2,7 +2,9 @@
 
 import React, { useRef, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import CloudImage from "@/components/ui/CloudImage";
+import SmartPlaceholder from "@/components/ui/SmartPlaceholder";
 import { formatDateNumeric } from "@/lib/date-utils";
 import { getArticleLink } from "@/lib/utils";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
@@ -67,13 +69,14 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
         {articles.slice(0, 3).map((article, idx) => {
           const category = article.category?.name || article.category_name || article.category || "عام";
           const date = article.published_at || article.created_at;
-          // معالجة محسّنة للصورة - التحقق من عدة حقول وتوفير fallback
-          const image = article.featured_image || article.social_image || article.image_url || article.image || article.thumbnail || '/images/placeholder-news.svg';
+          // معالجة محسّنة للصورة - التحقق من عدة حقول وتوفير fallback محسّن
+          const rawImage = article.featured_image || article.social_image || article.image_url || article.image || article.thumbnail;
+          
           // تطبيع مسار الصورة للنسخة الخفيفة: اجعل الروابط النسبية تبدأ بـ '/'
-          const normalizedImage = typeof image === 'string' && image !== 'null' && image !== 'undefined'
-            ? (image.startsWith('http') || image.startsWith('/') ? image : `/${image.replace(/^\/+/, '')}`)
-            : '/images/placeholder-news.svg';
-          const hasImage = normalizedImage && normalizedImage !== '' && normalizedImage !== '/images/placeholder-news.svg';
+          const normalizedImage = rawImage && typeof rawImage === 'string' && rawImage !== 'null' && rawImage !== 'undefined' && rawImage.trim() !== ''
+            ? (rawImage.startsWith('http') || rawImage.startsWith('/') ? rawImage : `/${rawImage.replace(/^\/+/, '')}`)
+            : null;
+          const hasImage = rawImage && rawImage !== 'null' && rawImage !== 'undefined' && rawImage.trim() !== '';
           const isBreaking = Boolean(article.breaking || article.is_breaking);
           return (
             <Link
@@ -93,35 +96,24 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
                         : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-blue-100')
                 }`}
               >
-                <div className={`relative aspect-video w-full overflow-hidden rounded-lg ${!hasImage ? 'bg-gray-200 dark:bg-gray-700' : ''}`}>
+                <div className={`relative aspect-video w-full overflow-hidden rounded-lg`}>
                   {hasImage ? (
                     <CloudImage
                       src={normalizedImage}
-                      alt={article.title || "صورة"}
+                      alt={article.title || "صورة الخبر"}
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
                       priority={idx === 0}
                       fallbackType="article"
                     />
                   ) : (
-                    // صورة افتراضية أو placeholder عندما لا توجد صورة
-                    <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
-                      <div className="text-gray-400 dark:text-gray-500 text-center">
-                        <svg
-                          className="w-12 h-12 mx-auto mb-2"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={1}
-                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                          />
-                        </svg>
-                        <p className="text-xs">لا توجد صورة</p>
-                      </div>
+                    // صورة بديلة محسّنة مع تصميم أفضل
+                    <div className="w-full h-full flex items-center justify-center relative">
+                      <SmartPlaceholder 
+                        darkMode={darkMode}
+                        type="article"
+                        priority={idx === 0}
+                      />
                     </div>
                   )}
                   {/* ليبل عاجل أو جديد يحل مكان ليبل التصنيف */}

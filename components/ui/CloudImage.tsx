@@ -4,6 +4,7 @@ import { getImageUrl } from "@/lib/image-utils";
 import { getProductionImageUrl } from "@/lib/production-image-fix";
 import Image from "next/image";
 import React, { useState } from "react";
+import SmartPlaceholder from "./SmartPlaceholder";
 
 interface CloudImageProps {
   src?: string | null;
@@ -40,6 +41,7 @@ export default function CloudImage({
     try {
       // إذا لم يكن هناك src أو كان فارغاً، استخدم الصورة الافتراضية مباشرة
       if (!src || src.trim() === "" || hasError) {
+        // سيتم استخدام SmartPlaceholder في مكان آخر
         return "/images/placeholder-featured.jpg";
       }
 

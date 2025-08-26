@@ -33,7 +33,7 @@ export default function LightFeaturedLoader({ heading = "الأخبار المم
           title: a.title,
           slug: a.slug,
           // معالجة محسّنة للصورة - التحقق من عدة حقول محتملة والتأكد من صحة المسار
-          featured_image: a.featured_image || a.social_image || a.image_url || a.image || a.thumbnail || '/images/placeholder-news.svg',
+          featured_image: a.featured_image || a.social_image || a.image_url || a.image || a.thumbnail || null,
           social_image: a.social_image,
           metadata: a.metadata,
           published_at: a.published_at,
