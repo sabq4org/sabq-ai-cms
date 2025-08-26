@@ -26,6 +26,19 @@ export function FeaturedNewsBlock({
   // التحقق ما إذا كنا في الجهاز المكتبي
   const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 1024;
   
+  // تحديد إذا كان الخبر جديد (آخر ساعتين)
+  const isNewsNew = (dateString?: string) => {
+    if (!dateString) return false;
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffTime = Math.abs(now.getTime() - date.getTime());
+      return diffTime <= 2 * 60 * 60 * 1000; // ساعتان
+    } catch {
+      return false;
+    }
+  };
+  
   // تسجيل معلومات تشخيصية
   console.log(`🔍 FeaturedNewsBlock - نوع الجهاز: ${isDesktop ? 'مكتبي' : 'جوال'}`);
   console.log(`🔍 FeaturedNewsBlock - عدد المقالات: ${articles.length}`);
@@ -99,6 +112,32 @@ export function FeaturedNewsBlock({
                     showPlaceholder={true}
                   />
                 </Link>
+                {/* شارات التصنيف + جديد */}
+                <div className="absolute top-2 right-2 flex items-center gap-2 z-10">
+                  {/* ليبل التصنيف */}
+                  {(() => {
+                    const name = (firstArticle as any)?.category?.name
+                      || (firstArticle as any)?.categories?.name
+                      || (firstArticle as any)?.category_name
+                      || (firstArticle as any)?.category
+                      || null;
+                    return name ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-white/85 text-gray-800 border border-gray-200 backdrop-blur-sm">
+                        {(firstArticle as any)?.category?.icon && (
+                          <span className="text-xs">{(firstArticle as any).category.icon}</span>
+                        )}
+                        {name}
+                      </span>
+                    ) : null;
+                  })()}
+                  {/* ليبل جديد الأخضر مع شعلة */}
+                  {isNewsNew((firstArticle as any)?.publishedAt) && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold text-white bg-emerald-500">
+                      <span className="text-xs">🔥</span>
+                      جديد
+                    </span>
+                  )}
+                </div>
               </div>
               <div className="flex-grow">
                 <Link href={`/news/${firstArticle.slug}`}>
@@ -145,6 +184,32 @@ export function FeaturedNewsBlock({
                     showPlaceholder={true}
                   />
                 </Link>
+                {/* شارات التصنيف + جديد */}
+                <div className="absolute top-2 right-2 flex items-center gap-2 z-10">
+                  {/* ليبل التصنيف */}
+                  {(() => {
+                    const name = (article as any)?.category?.name
+                      || (article as any)?.categories?.name
+                      || (article as any)?.category_name
+                      || (article as any)?.category
+                      || null;
+                    return name ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-white/85 text-gray-800 border border-gray-200 backdrop-blur-sm">
+                        {(article as any)?.category?.icon && (
+                          <span className="text-xs">{(article as any).category.icon}</span>
+                        )}
+                        {name}
+                      </span>
+                    ) : null;
+                  })()}
+                  {/* ليبل جديد الأخضر مع شعلة */}
+                  {isNewsNew((article as any)?.publishedAt) && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold text-white bg-emerald-500">
+                      <span className="text-xs">🔥</span>
+                      جديد
+                    </span>
+                  )}
+                </div>
               </div>
               <div className="lg:w-2/3">
                 <Link href={`/news/${article.slug}`}>
