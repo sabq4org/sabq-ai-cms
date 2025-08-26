@@ -1,20 +1,16 @@
 import React from 'react';
-import { Award } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useLoyalty } from '@/hooks/useLoyalty';
 
 export default function WelcomeMetaStrip() {
   const { user, loading } = useAuth();
   const [now, setNow] = React.useState<Date>(() => new Date());
   const [mounted, setMounted] = React.useState(false);
-  const { points, mutate } = useLoyalty();
 
   React.useEffect(() => {
     setMounted(true);
     const id = setInterval(() => setNow(new Date()), 60000);
     
-    // لا حاجة لاستدعاء mutate هنا - useLoyalty يدير التحديثات تلقائياً
-    // if (user?.id && !loading) { mutate(); }
+    // إزالة أي تحديثات لنقاط الولاء لتجنب الطلبات غير الضرورية
     
     return () => clearInterval(id);
   }, []);
@@ -78,20 +74,6 @@ export default function WelcomeMetaStrip() {
           {getTimeBasedGreeting(now)}{user ? ` يا ${user.name}` : ''} <span style={{ fontSize: 18 }}>👋</span>
         </span>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px', flexWrap: 'wrap' }}>
-          {user && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-              <Award style={{ width: '12px', height: '12px', color: '#FFA500' }} />
-              <span style={{ fontSize: 'clamp(11px, 2.2vw, 12px)' }}>
-                لديك <strong style={{ 
-                  color: 'hsl(var(--fg))', 
-                  fontWeight: 700,
-                  fontSize: 'clamp(14px, 2.5vw, 16px)'
-                }}>
-                  {Number(points).toLocaleString('en-US')}
-                </strong> نقطة ولاء
-              </span>
-            </div>
-          )}
           <span style={{ fontSize: 'clamp(11px, 2.2vw, 12px)' }} suppressHydrationWarning>
             {mounted ? formatDate(now) : 'التاريخ'}
           </span>
