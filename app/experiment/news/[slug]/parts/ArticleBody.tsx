@@ -34,12 +34,7 @@ export default function ArticleBody({ html, article }: Props) {
   };
 
   return (
-    <article className="prose prose-lg md:prose-xl prose-neutral dark:prose-invert max-w-none 
-                       prose-img:rounded-xl prose-headings:font-bold prose-p:leading-relaxed 
-                       prose-p:text-[18px] md:prose-p:text-[20px] 
-                       prose-li:text-[18px] md:prose-li:text-[20px] 
-                       prose-p:mb-6 prose-li:mb-3
-                       [--tw-prose-bullets:theme(colors.neutral.500)]">
+    <article className="prose prose-lg prose-neutral dark:prose-invert max-w-none prose-img:rounded-xl prose-headings:font-bold prose-p:leading-relaxed prose-p:text-[18px] prose-li:text-[18px] [--tw-prose-bullets:theme(colors.neutral.500)]">
       {/* محتوى HTML القادم من الخادم */}
       <div dangerouslySetInnerHTML={{ __html: content }} />
     </article>
