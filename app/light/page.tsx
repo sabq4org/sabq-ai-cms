@@ -28,7 +28,7 @@ export default async function LightPage() {
         <LightFeaturedServerMarkup limit={3} />
       </div>
 
-      <OldStyleNewsServerMarkup endpoint="/api/news?limit=9" title="آخر الأخبار" columns={3} className="mb-12" revalidateSeconds={60} />
+      <OldStyleNewsServerMarkup endpoint="/api/light/news?limit=9" title="آخر الأخبار" columns={3} className="mb-12" revalidateSeconds={60} />
 
       <div className="max-w-3xl mx-auto text-center mb-12">
         <h3 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-2">تجربة إخبارية أفضل بانتظارك.</h3>

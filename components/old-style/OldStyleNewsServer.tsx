@@ -12,13 +12,13 @@ interface NewsServerProps {
 
 // مكون سيرفري يجلب الأخبار على الخادم ثم يمررها لمكوّن العرض الخفيف (Client)
 export default async function OldStyleNewsServer({
-  endpoint = '/api/news?limit=6',
+  endpoint = '/api/light/news?limit=9',
   title = 'آخر الأخبار',
   columns = 3,
   showExcerpt = false,
-  limit = 6,
+  limit = 9,
   className = '',
-  revalidateSeconds = 30,
+  revalidateSeconds = 60,
 }: NewsServerProps) {
   const url = endpoint.includes('limit=') ? endpoint : `${endpoint}${endpoint.includes('?') ? '&' : '?'}limit=${limit}`;
 
