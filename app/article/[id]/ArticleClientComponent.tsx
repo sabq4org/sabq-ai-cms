@@ -632,7 +632,7 @@ export default function ArticleClientComponent({
             <header className="mb-1 sm:mb-2">
               {/* Desktop Header - إعادة الترتيب كما كان: شارات ثم العناوين ثم بيانات النشر ثم الصورة */}
               <div className="hidden sm:block">
-                <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-4 sm:px-6">
+                <div className="max-w-[110ch] mx-auto px-4 sm:px-6">
                   <div className="text-right">
                     {/* التصنيف + جديد */}
                     {(article.category || isArticleNew) && (
@@ -794,7 +794,7 @@ export default function ArticleClientComponent({
               </div>
             </header>
             <div className="hidden sm:block">
-              <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-4 sm:px-6">
+              <div className="max-w-[110ch] mx-auto px-4 sm:px-6">
                 <AdBanner placement="article_detail_header" className="mb-5" />
               </div>
             </div>
@@ -802,7 +802,7 @@ export default function ArticleClientComponent({
         </div>
         {/* منطقة المحتوى - عرض أوسع للديسكتوب */}
         <div className="w-full">
-          <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-4 sm:px-6 py-2">
+          <div className="max-w-[110ch] mx-auto px-4 sm:px-6 py-2">
             <div className="bg-transparent dark:bg-transparent rounded-xl">
               <div className="sm:hidden mb-6" style={{ contentVisibility: "auto" as any, containIntrinsicSize: "100% 260px" as any }}>
                 {article.featured_image && typeof article.featured_image === "string" && article.featured_image.length > 0 && !article.metadata?.emergency_mode && (
