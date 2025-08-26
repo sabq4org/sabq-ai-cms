@@ -2,8 +2,8 @@ import Link from "next/link";
 import OldStyleNewsServerMarkup from "@/components/old-style/OldStyleNewsServerMarkup";
 import LightFeaturedServerMarkup from "@/components/featured/LightFeaturedServerMarkup";
 
-export const revalidate = 60;
-export const fetchCache = 'force-cache';
+// منع التوليد الساكن أثناء البناء لتفادي مهلة 90 ثانية على Vercel
+export const dynamic = 'force-dynamic';
 
 export default async function LightPage() {
   return (
