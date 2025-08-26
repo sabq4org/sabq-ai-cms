@@ -1,6 +1,4 @@
-'use server';
-
-// export dynamic rendering to avoid long static build for this page and let ISR happen at request time
+// removed 'use server' directive; page is server by default and we need to export config constants
 export const dynamic = 'force-dynamic';
 export const revalidate = 30;
 
