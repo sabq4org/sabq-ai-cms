@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import prisma from "@/lib/prisma";
 import { getSiteUrl } from "@/lib/url-builder";
 import HeaderInline from "./parts/HeaderInline";
-import HeroGallery from "./parts/HeroGallery";
+import HeroGallery from "./parts/HeroGallery"; 
 import ArticleBody from "./parts/ArticleBody";
 import StickyInsightsPanel from "./parts/StickyInsightsPanel";
 import FloatingReadButton from "./parts/FloatingReadButton";
@@ -149,8 +149,8 @@ export default async function ExperimentalNewsPage({ params }: { params: Promise
       <div className="border-b border-neutral-200/80 dark:border-neutral-800/60" />
       <HeroGallery images={images} />
       <main>
-          <Container className="py-6 lg:py-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-24">
+          <Container className="pt-0 pb-6 lg:pt-0 lg:pb-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 lg:gap-28">
           <section className="lg:col-span-8" id="article-start">
             <h1 className="text-2xl md:text-3xl font-bold leading-snug mb-3">{article.title}</h1>
             

@@ -20,10 +20,10 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
   const avgMinutes = useMemo(() => Math.max(1, Math.round(insights.avgReadTimeSec / 60)), [insights.avgReadTimeSec]);
 
   return (
-    <div className="lg:sticky lg:top-6 space-y-4">
+    <div className="lg:sticky lg:top-0 space-y-6">
       {/* الموجز الذكي */}
       {article.summary && (
-        <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 shadow-sm">
+        <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 md:p-8 shadow-sm">
           <div className="flex items-center gap-2 mb-3 text-neutral-700 dark:text-neutral-200">
             <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400" />
             <h3 className="font-semibold">الموجز الذكي</h3>
@@ -34,7 +34,7 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
         </div>
       )}
       {/* نظرة سريعة */}
-      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 shadow-sm">
+      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 md:p-8 shadow-sm">
         <div className="flex items-center gap-2 mb-3 text-neutral-700 dark:text-neutral-200">
           <BarChart className="w-5 h-5" />
           <h3 className="font-semibold">نظرة سريعة</h3>
@@ -48,7 +48,7 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
       </div>
 
       {/* تحليلات الذكاء الاصطناعي */}
-      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 shadow-sm">
+      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 md:p-8 shadow-sm">
         <div className="flex items-center gap-2 mb-3 text-neutral-700 dark:text-neutral-200">
           <Sparkles className="w-5 h-5" />
           <h3 className="font-semibold">تحليلات AI</h3>
@@ -64,7 +64,7 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
       </div>
 
       {/* إجراءات */}
-      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 shadow-sm">
+      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 md:p-8 shadow-sm">
         <div className="grid grid-cols-3 gap-2">
           <ActionBtn icon={<Bell className="w-4 h-4" />} label="تنبيه" />
           <ActionBtn icon={<Bookmark className="w-4 h-4" />} label="حفظ" />
