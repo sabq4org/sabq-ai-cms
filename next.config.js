@@ -227,6 +227,11 @@ const nextConfig = {
         source: '/:path*/test.mp3',
         destination: '/test.mp3',
       },
+      // توجيه placeholder الخاص بالأخبار إلى الصورة الافتراضية الحالية
+      {
+        source: '/system/placeholders/news-default.png',
+        destination: '/images/placeholder-featured.jpg',
+      },
     ];
   },
 };

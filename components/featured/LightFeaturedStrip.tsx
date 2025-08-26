@@ -3,8 +3,6 @@
 import React, { useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import CloudImage from "@/components/ui/CloudImage";
-import SmartPlaceholder from "@/components/ui/SmartPlaceholder";
 import { formatDateNumeric } from "@/lib/date-utils";
 import { getArticleLink } from "@/lib/utils";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
@@ -52,6 +50,25 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
     return null; // لا نعرض شيئاً إذا لا توجد مقالات
   }
 
+  // تحويل رابط Cloudinary لإضافة التحويلات المطلوبة: c_fill,w_800,h_450,q_auto,f_auto
+  const withCloudinaryTransform = (src: string): string => {
+    try {
+      if (!src || typeof src !== "string") return src;
+      if (!src.includes("res.cloudinary.com") || !src.includes("/upload/")) {
+        return src;
+      }
+      const [prefix, rest] = src.split("/upload/");
+      // إذا كانت التحويلات موجودة مسبقاً، نعيد الرابط كما هو
+      if (/^(c_|w_|h_|f_|q_)/.test(rest)) {
+        return `${prefix}/upload/${rest}`;
+      }
+      const transformations = "c_fill,w_800,h_450,q_auto,f_auto";
+      return `${prefix}/upload/${transformations}/${rest}`;
+    } catch {
+      return src;
+    }
+  };
+
   return (
     <section aria-label="الأخبار المميزة" className="relative" dir="rtl">
       {/* تمت إزالة عنوان القسم للنسخة الخفيفة */}
@@ -71,12 +88,14 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
           const date = article.published_at || article.created_at;
           // معالجة محسّنة للصورة - التحقق من عدة حقول وتوفير fallback محسّن
           const rawImage = article.featured_image || article.social_image || article.image_url || article.image || article.thumbnail;
-          
           // تطبيع مسار الصورة للنسخة الخفيفة: اجعل الروابط النسبية تبدأ بـ '/'
           const normalizedImage = rawImage && typeof rawImage === 'string' && rawImage !== 'null' && rawImage !== 'undefined' && rawImage.trim() !== ''
             ? (rawImage.startsWith('http') || rawImage.startsWith('/') ? rawImage : `/${rawImage.replace(/^\/+/, '')}`)
             : null;
-          const hasImage = rawImage && rawImage !== 'null' && rawImage !== 'undefined' && rawImage.trim() !== '';
+          // تطبيق تحويل Cloudinary أو استخدام placeholder الافتراضي
+          const displaySrc = normalizedImage
+            ? withCloudinaryTransform(normalizedImage)
+            : '/system/placeholders/news-default.png';
           const isBreaking = Boolean(article.breaking || article.is_breaking);
           return (
             <Link
@@ -97,25 +116,15 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
                 }`}
               >
                 <div className={`relative aspect-video w-full overflow-hidden rounded-lg`}>
-                  {hasImage ? (
-                    <CloudImage
-                      src={normalizedImage}
-                      alt={article.title || "صورة الخبر"}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
-                      priority={idx === 0}
-                      fallbackType="article"
-                    />
-                  ) : (
-                    // صورة بديلة محسّنة مع تصميم أفضل
-                    <div className="w-full h-full flex items-center justify-center relative">
-                      <SmartPlaceholder 
-                        darkMode={darkMode}
-                        type="article"
-                        priority={idx === 0}
-                      />
-                    </div>
-                  )}
+                  <Image
+                    src={displaySrc}
+                    alt={article.title || "صورة الخبر"}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 400px"
+                    className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+                    loading="lazy"
+                    priority={idx === 0}
+                  />
                   {/* ليبل عاجل أو جديد يحل مكان ليبل التصنيف */}
                   <div className="absolute top-2 left-2">
                     {isBreaking ? (
