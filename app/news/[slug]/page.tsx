@@ -1,5 +1,6 @@
 import ArticleClientComponent from "@/app/article/[id]/ArticleClientComponent";
 import ArticleServerContent from "@/components/article/ArticleServerContent";
+import ArticleInteractiveBlocksClient from "@/components/article/ArticleInteractiveBlocksClient";
 import prisma from "@/lib/prisma";
 import { getSiteUrl } from "@/lib/url-builder";
 import { notFound, redirect } from "next/navigation";
@@ -202,7 +203,8 @@ export default async function NewsPage({
   return (
     <>
       <ArticleServerContent article={article as any} />
-      <ArticleClientComponent articleId={article.id} initialArticle={article as any} />
+      {/* استبدال عرض كامل المكون العميل بعرض البلوكات التفاعلية فقط لتفادي التكرار */
+      <ArticleInteractiveBlocksClient article={article as any} />
     </>
   );
 }
