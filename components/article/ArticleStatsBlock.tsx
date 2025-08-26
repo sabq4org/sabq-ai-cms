@@ -52,7 +52,7 @@ export default function ArticleStatsBlock({
     <div
       className={`mobile-stats-container rounded-xl p-3 sm:p-6 border shadow-sm hover:shadow-md transition-all duration-300 bg-white dark:bg-gray-900 ${className}`}
       style={{
-        borderColor: 'var(--theme-primary, #f0f0ef)'
+        borderColor: '#C4C4C0'
       }}
     >
       {/* العنوان */}
@@ -70,8 +70,11 @@ export default function ArticleStatsBlock({
       <div className="mobile-stats-grid grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-3">
         {/* المشاهدات */}
         <div
-          className="flex flex-col items-center p-2 bg-gray-50/50 dark:bg-gray-800/50 rounded-lg border hover:scale-105 transition-transform"
-          style={{ borderColor: 'var(--theme-primary, #f0f0ef)' }}
+          className="flex flex-col items-center p-2 rounded-lg border hover:scale-105 transition-transform"
+          style={{ 
+            borderColor: '#DADAD8',
+            backgroundColor: '#F0F0EF'
+          }}
         >
           <Eye className="mobile-stats-icon w-4 h-4 mb-0.5" style={{ color: 'var(--theme-primary, #6b7280)' }} />
           <span className="mobile-stats-number text-base font-bold text-gray-800 dark:text-gray-200 leading-tight">
@@ -82,8 +85,11 @@ export default function ArticleStatsBlock({
 
         {/* الإعجابات */}
         <div
-          className="flex flex-col items-center p-2 bg-gray-50/50 dark:bg-gray-800/50 rounded-lg border hover:scale-105 transition-transform"
-          style={{ borderColor: 'var(--theme-primary, #f0f0ef)' }}
+          className="flex flex-col items-center p-2 rounded-lg border hover:scale-105 transition-transform"
+          style={{ 
+            borderColor: '#DADAD8',
+            backgroundColor: '#F0F0EF'
+          }}
         >
           <Heart className="mobile-stats-icon w-4 h-4 mb-0.5" style={{ color: 'var(--theme-primary, #6b7280)' }} />
           <span className="mobile-stats-number text-base font-bold text-gray-800 dark:text-gray-200 leading-tight">
@@ -94,8 +100,11 @@ export default function ArticleStatsBlock({
 
         {/* الحفظ */}
         <div
-          className="flex flex-col items-center p-2 bg-gray-50/50 dark:bg-gray-800/50 rounded-lg border hover:scale-105 transition-transform"
-          style={{ borderColor: 'var(--theme-primary, #f0f0ef)' }}
+          className="flex flex-col items-center p-2 rounded-lg border hover:scale-105 transition-transform"
+          style={{ 
+            borderColor: '#DADAD8',
+            backgroundColor: '#F0F0EF'
+          }}
         >
           <Bookmark className="mobile-stats-icon w-4 h-4 mb-0.5" style={{ color: 'var(--theme-primary, #6b7280)' }} />
           <span className="mobile-stats-number text-base font-bold text-gray-800 dark:text-gray-200 leading-tight">
@@ -106,8 +115,11 @@ export default function ArticleStatsBlock({
 
         {/* المشاركات */}
         <div
-          className="flex flex-col items-center p-2 bg-gray-50/50 dark:bg-gray-800/50 rounded-lg border hover:scale-105 transition-transform"
-          style={{ borderColor: 'var(--theme-primary, #f0f0ef)' }}
+          className="flex flex-col items-center p-2 rounded-lg border hover:scale-105 transition-transform"
+          style={{ 
+            borderColor: '#DADAD8',
+            backgroundColor: '#F0F0EF'
+          }}
         >
           <Share2 className="mobile-stats-icon w-4 h-4 mb-0.5" style={{ color: 'var(--theme-primary, #6b7280)' }} />
           <span className="mobile-stats-number text-base font-bold text-gray-800 dark:text-gray-200 leading-tight">
@@ -120,7 +132,7 @@ export default function ArticleStatsBlock({
       {/* المعلومات الإضافية */}
       <div
         className="mobile-stats-footer flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-2 border-t"
-        style={{ borderColor: 'var(--theme-primary, #f0f0ef)' }}
+        style={{ borderColor: '#C4C4C0' }}
       >
         {/* نسبة النمو */}
         {growthRate !== undefined && (
@@ -155,7 +167,7 @@ export default function ArticleStatsBlock({
       {/* مؤشر الشعبية - للنسخة المحمولة */}
       <div
         className="mobile-popularity-indicator sm:hidden mt-2 pt-2 border-t"
-        style={{ borderColor: 'var(--theme-primary, #f0f0ef)' }}
+        style={{ borderColor: '#C4C4C0' }}
       >
         <div className="flex items-center justify-between text-xs">
           <span className="text-gray-500 dark:text-gray-400">مؤشر الشعبية</span>
