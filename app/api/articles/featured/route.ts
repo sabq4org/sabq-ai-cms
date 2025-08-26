@@ -13,6 +13,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const limit = Math.min(parseInt(searchParams.get("limit") || "6", 10), 24);
+    const withCategories = searchParams.get("withCategories") === "true";
 
     // التحقق من الذاكرة المؤقتة
     if (cache && cache.timestamp > Date.now() - CACHE_TTL) {
@@ -27,6 +28,24 @@ export async function GET(request: NextRequest) {
     const now = new Date();
 
     await ensureDbConnected();
+
+    // بناء الحقول ديناميكياً لتجنّب join ثقيل عند عدم الحاجة
+    const selectFields: any = {
+      id: true,
+      title: true,
+      slug: true,
+      excerpt: true,
+      featured_image: true,
+      social_image: true,
+      metadata: true,
+      published_at: true,
+      views: true,
+      breaking: true,
+    };
+    if (withCategories) {
+      selectFields.categories = { select: { id: true, name: true, slug: true, color: true } };
+    }
+
     const featured = await retryWithConnection(async () =>
       await prisma.articles.findMany({
         where: {
@@ -51,19 +70,7 @@ export async function GET(request: NextRequest) {
           { views: "desc" }
         ],
         take: limit,
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          excerpt: true,
-          featured_image: true,
-          social_image: true,
-          metadata: true,
-          published_at: true,
-          views: true,
-          breaking: true,
-          categories: { select: { id: true, name: true, slug: true, color: true } },
-        },
+        select: selectFields,
       })
     );
 
