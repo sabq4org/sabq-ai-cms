@@ -163,9 +163,10 @@ const SmartRecommendationCard: React.FC<{
           isMobileScreen ? "flex-row" : "flex-col"
         } rounded-xl border overflow-hidden transition-all duration-300 ${
           darkMode 
-            ? "bg-blue-950/30 border-blue-800/30 hover:bg-[hsl(var(--accent)/0.15)] hover:border-[hsl(var(--accent)/0.3)]" 
-            : "bg-blue-50/50 border-blue-200/30 hover:bg-[hsl(var(--accent)/0.08)] hover:border-[hsl(var(--accent)/0.2)]"
+            ? "bg-blue-950/30 hover:bg-[hsl(var(--accent)/0.15)] hover:border-[hsl(var(--accent)/0.3)]" 
+            : "bg-blue-50/50 hover:bg-[hsl(var(--accent)/0.08)] hover:border-[hsl(var(--accent)/0.2)]"
         }`}
+        style={{ borderColor: '#C4C4C0' }}
       >
         {/* الصورة الرئيسية */}
         <div
@@ -827,14 +828,14 @@ function SmartPersonalizedContentInner({
                     <div className="w-16 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(var(--theme-primary-rgb), 0.15)' }}>
                       <div
                         className="h-full transition-all duration-1000"
-                        style={{ background: 'linear-gradient(to right, var(--theme-secondary), var(--theme-primary))' }}
-                        style={{
+                        style={{ 
+                          background: 'linear-gradient(to right, var(--theme-secondary), var(--theme-primary))',
                           width: `${Math.round(
                             recommendations.reduce(
                               (acc, article) => acc + article.confidence,
                               0
                             ) / recommendations.length
-                          )}%`,
+                          )}%`
                         }}
                       />
                     </div>
