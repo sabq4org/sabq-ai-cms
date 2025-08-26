@@ -45,16 +45,16 @@ const ImageSkeleton = ({ className = "" }: { className?: string }) => (
   <div className={`relative w-full overflow-hidden rounded-2xl bg-gray-200 dark:bg-gray-800 animate-pulse ${className}`} />
 );
 
-// وظيفة تحديد الخبر الجديد (أقل من 12 ساعة)
-const isNewsRecent = (publishedAt: string | Date | null): boolean => {
-  if (!publishedAt) return false;
-  
-  const now = new Date();
-  const articleDate = new Date(publishedAt);
-  const hoursAgo = (now.getTime() - articleDate.getTime()) / (1000 * 60 * 60);
-  
-  return hoursAgo <= 12; // جديد إذا كان أقل من 12 ساعة
-};
+// وظيفة تحديد الخبر الجديد (أقل من 12 ساعة) - غير مستخدمة حالياً
+// const isNewsRecent = (publishedAt: string | Date | null): boolean => {
+//   if (!publishedAt) return false;
+//   
+//   const now = new Date();
+//   const articleDate = new Date(publishedAt);
+//   const hoursAgo = (now.getTime() - articleDate.getTime()) / (1000 * 60 * 60);
+//   
+//   return hoursAgo <= 12; // جديد إذا كان أقل من 12 ساعة
+// };
 
 const ArticleFeaturedImage = dynamic(() => import("@/components/article/ArticleFeaturedImage"), {
   ssr: false,
@@ -608,15 +608,15 @@ export default function ArticleClientComponent({
 
   const keywords = getKeywords();
 
-  // تحديد ما إذا كان الخبر جديد (آخر 12 ساعة)
-  const isArticleNew = (() => {
-    const dateStr = (article?.published_at || article?.created_at) as string | undefined;
-    if (!dateStr) return false;
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diff = Math.abs(now.getTime() - date.getTime());
-    return diff <= 12 * 60 * 60 * 1000; // 12 ساعة
-  })();
+  // تحديد ما إذا كان الخبر جديد (آخر 12 ساعة) - غير مستخدم حالياً
+  // const isArticleNew = (() => {
+  //   const dateStr = (article?.published_at || article?.created_at) as string | undefined;
+  //   if (!dateStr) return false;
+  //   const date = new Date(dateStr);
+  //   const now = new Date();
+  //   const diff = Math.abs(now.getTime() - date.getTime());
+  //   return diff <= 12 * 60 * 60 * 1000; // 12 ساعة
+  // })();
 
   // إذا كان مقال رأي، استخدم التصميم المحسن الجديد
   if (isOpinionArticle) {
@@ -646,26 +646,18 @@ export default function ArticleClientComponent({
               <div className="hidden sm:block">
                 <div className="max-w-[110ch] mx-auto px-4 sm:px-6">
                   <div className="text-right">
-                    {/* التصنيف + جديد */}
-                    {(article.category || isArticleNew) && (
+                    {/* التصنيف */}
+                    {article.category && (
                       <div className="flex items-center justify-end gap-2 mb-4">
-                        {article.category && (
-                          <Link
-                            href={`/categories/${article.category.slug}`}
-                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-medium bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/50 hover:shadow-sm transition-all"
-                          >
-                            {article.category.icon && (
-                              <span className="text-sm sm:text-base">{article.category.icon}</span>
-                            )}
-                            <span>{article.category.name}</span>
-                          </Link>
-                        )}
-                        {isArticleNew && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold text-white bg-emerald-500">
-                            <span className="text-sm">🔥</span>
-                            جديد
-                          </span>
-                        )}
+                        <Link
+                          href={`/categories/${article.category.slug}`}
+                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-medium bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/50 hover:shadow-sm transition-all"
+                        >
+                          {article.category.icon && (
+                            <span className="text-sm sm:text-base">{article.category.icon}</span>
+                          )}
+                          <span>{article.category.name}</span>
+                        </Link>
                       </div>
                     )}
 
@@ -733,29 +725,19 @@ export default function ArticleClientComponent({
 
               {/* Mobile Header */}
               <div className="sm:hidden px-4 sm:px-6 py-6 bg-transparent transition-colors duration-300">
-                {/* التصنيف + جديد */}
-                {(article.category || isNewsRecent(article.published_at || article.created_at || null)) && (
+                {/* التصنيف */}
+                {article.category && (
                   <div className="flex items-center gap-2 mb-3 flex-wrap">
-                    {article.category && (
-                      <Link
-                        href={`/categories/${article.category.slug}`}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/50 hover:shadow-sm transition-all"
-                      >
-                        <Hash className="w-3 h-3 flex-shrink-0" />
-                        {article.category.icon && (
-                          <span className="text-xs">{article.category.icon}</span>
-                        )}
-                        <span>{article.category.name}</span>
-                      </Link>
-                    )}
-                    
-                    {/* علامة جديد - نسخة موحدة مطابقة للأخبار المميزة */}
-                    {isNewsRecent(article.published_at || article.created_at || null) && (
-                      <span className="recent-news-badge inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold text-white">
-                        <span className="text-xs">🔥</span>
-                        جديد
-                      </span>
-                    )}
+                    <Link
+                      href={`/categories/${article.category.slug}`}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/50 hover:shadow-sm transition-all"
+                    >
+                      <Hash className="w-3 h-3 flex-shrink-0" />
+                      {article.category.icon && (
+                        <span className="text-xs">{article.category.icon}</span>
+                      )}
+                      <span>{article.category.name}</span>
+                    </Link>
                   </div>
                 )}
 
