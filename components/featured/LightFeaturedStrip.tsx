@@ -122,8 +122,8 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
                     fill
                     sizes="(max-width: 768px) 100vw, 400px"
                     className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
-                    loading="lazy"
                     priority={idx === 0}
+                    loading={idx === 0 ? undefined : "lazy"}
                   />
                   {/* ليبل عاجل أو جديد يحل مكان ليبل التصنيف */}
                   <div className="absolute top-2 left-2">
