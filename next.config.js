@@ -207,6 +207,12 @@ const nextConfig = {
 
   // تحسينات الأداء لحل مشاكل Build Timeouts
   productionBrowserSourceMaps: false,
+  
+  // تعطيل source maps في التطوير لتقليل طلبات 404
+  devIndicators: {
+    buildActivityPosition: 'bottom-right',
+    appIsrStatus: false,
+  },
 
   // زيادة timeout للصفحات الثقيلة
   staticPageGenerationTimeout: 90,

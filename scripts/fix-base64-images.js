@@ -55,10 +55,14 @@ async function fixBase64Images() {
     // إنشاء روابط بديلة حسب التصنيف
     const placeholderImages = {
       'محليات': '/images/news-placeholder-lite.svg',
+      'العالم': '/images/news-placeholder-lite.svg',
       'رياضة': '/images/sports-placeholder.svg',
       'اقتصاد': '/images/economy-placeholder.svg',
       'تقنية': '/images/tech-placeholder.svg',
       'صحة': '/images/health-placeholder.svg',
+      'ثقافة': '/images/news-placeholder-lite.svg',
+      'مجتمع': '/images/news-placeholder-lite.svg',
+      'سياسة': '/images/news-placeholder-lite.svg',
       'default': '/images/news-placeholder-lite.svg'
     };
 
@@ -148,13 +152,48 @@ async function checkPlaceholderImages() {
   }
 }
 
+// وظيفة لمراقبة وإصلاح صور base64 الجديدة
+async function monitorBase64Images() {
+  console.log('🔍 بدء مراقبة صور base64 الجديدة...');
+  
+  setInterval(async () => {
+    try {
+      const articlesWithBase64 = await prisma.articles.findMany({
+        where: {
+          OR: [
+            { featured_image: { startsWith: 'data:image/' } },
+            { social_image: { startsWith: 'data:image/' } }
+          ]
+        },
+        select: { id: true }
+      });
+
+      if (articlesWithBase64.length > 0) {
+        console.log(`⚠️ تم اكتشاف ${articlesWithBase64.length} مقال جديد بصور base64!`);
+        await fixBase64Images();
+      }
+    } catch (error) {
+      console.error('❌ خطأ في مراقبة صور base64:', error);
+    }
+  }, 30000); // فحص كل 30 ثانية
+}
+
 // تشغيل السكريبت
 if (require.main === module) {
+  const args = process.argv.slice(2);
+  const shouldMonitor = args.includes('--monitor') || args.includes('-m');
+
   checkPlaceholderImages()
     .then(() => fixBase64Images())
     .then(() => {
       console.log('\n✨ انتهت العملية بنجاح! يمكنك الآن تشغيل الموقع ومشاهدة الصور تظهر بشكل صحيح.');
-      process.exit(0);
+      
+      if (shouldMonitor) {
+        console.log('🔄 تفعيل وضع المراقبة المستمرة...');
+        monitorBase64Images();
+      } else {
+        process.exit(0);
+      }
     })
     .catch((error) => {
       console.error('💥 فشل في تشغيل السكريبت:', error);
