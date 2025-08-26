@@ -4,10 +4,25 @@ import { retryWithConnection, ensureDbConnected } from "@/lib/prisma";
 
 export const runtime = "nodejs";
 
+// ذاكرة تخزين مؤقت بسيطة
+const CACHE_KEY = 'featured_articles';
+const CACHE_TTL = 60 * 1000; // 60 ثانية
+let cache: { data: any; timestamp: number } | null = null;
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const limit = Math.min(parseInt(searchParams.get("limit") || "6", 10), 24);
+
+    // التحقق من الذاكرة المؤقتة
+    if (cache && cache.timestamp > Date.now() - CACHE_TTL) {
+      const cachedData = cache.data.slice(0, limit);
+      const res = NextResponse.json({ ok: true, data: cachedData, count: cachedData.length, cached: true });
+      res.headers.set("Cache-Control", "public, max-age=0, s-maxage=60, stale-while-revalidate=300");
+      res.headers.set("CDN-Cache-Control", "max-age=60");
+      res.headers.set("Vercel-CDN-Cache-Control", "max-age=60");
+      return res;
+    }
 
     const now = new Date();
 
@@ -51,6 +66,9 @@ export async function GET(request: NextRequest) {
         },
       })
     );
+
+    // حفظ في الذاكرة المؤقتة
+    cache = { data: featured, timestamp: Date.now() };
 
     const res = NextResponse.json({ ok: true, data: featured, count: featured.length });
     res.headers.set("Cache-Control", "public, max-age=0, s-maxage=60, stale-while-revalidate=300");

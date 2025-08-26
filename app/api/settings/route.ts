@@ -3,6 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
 
+// ذاكرة تخزين مؤقت للإعدادات
+const SETTINGS_CACHE_KEY = 'site_settings';
+const SETTINGS_CACHE_TTL = 5 * 60 * 1000; // 5 دقائق
+let settingsCache: { data: any; timestamp: number } | null = null;
+
 async function readFileSettingsFallback(): Promise<{ logoUrl?: string; logoDarkUrl?: string; siteName?: string; } | null> {
   try {
     const settingsPath = path.join(process.cwd(), "public", "site-settings.json");
@@ -17,6 +22,13 @@ async function readFileSettingsFallback(): Promise<{ logoUrl?: string; logoDarkU
 // GET /api/settings
 export async function GET(_req: NextRequest) {
   try {
+    // التحقق من الذاكرة المؤقتة
+    if (settingsCache && settingsCache.timestamp > Date.now() - SETTINGS_CACHE_TTL) {
+      const res = NextResponse.json({ success: true, data: settingsCache.data, cached: true });
+      res.headers.set("Cache-Control", "public, max-age=0, s-maxage=120, stale-while-revalidate=600");
+      return res;
+    }
+
     const settingsObject: Record<string, any> = {};
 
     // 1) قراءة من قاعدة البيانات
@@ -42,7 +54,11 @@ export async function GET(_req: NextRequest) {
       siteName: settingsObject.identity?.siteName || general.siteName,
     };
 
-    const res = NextResponse.json({ success: true, data: { general, identity } });
+    // حفظ في الذاكرة المؤقتة
+    const data = { general, identity };
+    settingsCache = { data, timestamp: Date.now() };
+
+    const res = NextResponse.json({ success: true, data });
     // إعدادات الموقع تُحدّث نادرًا، اسمح بكاش CDN قصير مع SWR
     res.headers.set("Cache-Control", "public, max-age=0, s-maxage=120, stale-while-revalidate=600");
     return res;

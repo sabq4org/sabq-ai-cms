@@ -13,11 +13,11 @@ export default function WelcomeMetaStrip() {
     setMounted(true);
     const id = setInterval(() => setNow(new Date()), 60000);
     
-    // حدّث نقاط الولاء فقط عندما تتوفر هوية المستخدم ولا توجد حالة تحميل
-    if (user?.id && !loading) { mutate(); }
+    // لا حاجة لاستدعاء mutate هنا - useLoyalty يدير التحديثات تلقائياً
+    // if (user?.id && !loading) { mutate(); }
     
     return () => clearInterval(id);
-  }, [user, loading, mutate]);
+  }, []);
 
   const formatDate = (d: Date) =>
     d.toLocaleDateString('ar-SA', {
