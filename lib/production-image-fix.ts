@@ -90,26 +90,17 @@ export function getProductionImageUrl(
     imageUrl.includes("s3.amazonaws.com") ||
     imageUrl.includes("s3.us-east-1.amazonaws.com")
   ) {
-    // إزالة معاملات التوقيع المنتهية
+    // إذا كان الرابط موقّعاً (يحتوي على X-Amz*) يجب تركه كما هو
     try {
       const url = new URL(imageUrl);
-      const paramsToRemove = [
-        "X-Amz-Algorithm",
-        "X-Amz-Credential",
-        "X-Amz-Date",
-        "X-Amz-Expires",
-        "X-Amz-SignedHeaders",
-        "X-Amz-Signature",
-        "X-Amz-Security-Token",
-      ];
-
-      paramsToRemove.forEach((param) => url.searchParams.delete(param));
-
-      // إعادة بناء الرابط النظيف
-      return url.toString();
+      const hasSignature = Array.from(url.searchParams.keys()).some((k) => k.startsWith('X-Amz-'));
+      if (hasSignature) {
+        return imageUrl; // لا تحذف التوقيع
+      }
+      // إن لم يكن موقّعاً نعيده كما هو أيضاً لتجنب كسر الروابط
+      return imageUrl;
     } catch {
-      // في حالة فشل معالجة الرابط، استخدم صورة افتراضية
-      return PLACEHOLDER_IMAGES[fallbackType];
+      return imageUrl;
     }
   }
 

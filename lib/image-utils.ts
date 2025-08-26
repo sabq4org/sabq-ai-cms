@@ -32,7 +32,7 @@ const FALLBACK_IMAGES = {
     "https://ui-avatars.com/api/?name=سبق&background=1E40AF&color=fff&size=800&font-size=0.33&rounded=false",
 };
 
-// تنظيف رابط S3 من معاملات التوقيع
+// تنظيف رابط S3 (مع الحفاظ على الروابط الموقّعة كما هي)
 export function cleanS3Url(url: string): string {
   if (!url) return url;
 
@@ -41,26 +41,19 @@ export function cleanS3Url(url: string): string {
 
     // إذا كان رابط S3
     if (S3_DOMAINS.some((domain) => urlObj.hostname.includes(domain))) {
-      // إزالة معاملات التوقيع
-      const paramsToRemove = [
-        "X-Amz-Algorithm",
-        "X-Amz-Credential",
-        "X-Amz-Date",
-        "X-Amz-Expires",
-        "X-Amz-SignedHeaders",
-        "X-Amz-Signature",
-        "X-Amz-Security-Token",
-      ];
+      // إذا كانت موقّعة (تتضمن X-Amz*) لا تلمس الرابط إطلاقاً
+      const hasSignature = Array.from(urlObj.searchParams.keys()).some((k) => k.startsWith("X-Amz-"));
+      if (hasSignature) {
+        return url; // الحفاظ على جميع معلمات التوقيع
+      }
 
-      paramsToRemove.forEach((param) => urlObj.searchParams.delete(param));
-
-      // إذا كان هناك CloudFront، استخدمه
+      // إذا لم تكن موقّعة وكان لدينا CloudFront، يمكن إعادة التوجيه إلى CloudFront دون معامل توقيع
       if (CLOUDFRONT_DOMAIN) {
         const path = urlObj.pathname;
         return `https://${CLOUDFRONT_DOMAIN}${path}`;
       }
 
-      return urlObj.toString();
+      return url; // إرجاع الرابط كما هو لسلامة الوصول
     }
 
     return url;
