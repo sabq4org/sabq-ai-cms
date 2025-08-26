@@ -81,7 +81,7 @@ export default function LightPage() {
           </p>
           <div className="flex items-center justify-center gap-3">
             <Link
-              href="/login"
+              href="/light/login"
               className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:scale-105"
               style={{
                 backgroundColor: 'var(--theme-primary, #3B82F6)',
