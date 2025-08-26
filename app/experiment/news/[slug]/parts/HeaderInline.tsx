@@ -11,7 +11,7 @@ export default function HeaderInline({ article }: Props) {
   const { theme, setTheme } = useTheme();
 
   return (
-    <header className="mx-auto max-w-[1280px] px-4 md:px-6 py-3">
+    <header className="mx-auto max-w-[1360px] px-4 md:px-6 py-3">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
           <Link href="/" className="hover:text-neutral-900 dark:hover:text-white transition">الرئيسية</Link>

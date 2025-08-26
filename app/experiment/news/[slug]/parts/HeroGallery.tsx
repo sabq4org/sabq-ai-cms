@@ -14,7 +14,7 @@ export default function HeroGallery({ images }: { images: Img[] }) {
 function OneImageHero({ img, hasMore }: { img: Img; hasMore?: boolean }) {
   return (
     <div className="relative w-full bg-neutral-100 dark:bg-neutral-900">
-      <div className="mx-auto max-w-[1280px] px-4 md:px-6">
+      <div className="mx-auto max-w-[1360px] px-4 md:px-6">
         <div className="relative aspect-[4/3] sm:aspect-[16/9] md:aspect-[21/9] lg:h-[520px] overflow-hidden rounded-2xl">
           <Image
             src={img.url}
@@ -22,7 +22,7 @@ function OneImageHero({ img, hasMore }: { img: Img; hasMore?: boolean }) {
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1280px"
             priority
-            className="object-cover transition-transform duration-500 will-change-transform hover:scale-[1.02]"
+            className="object-cover object-center transition-transform duration-500 will-change-transform hover:scale-[1.02]"
           />
           {hasMore && (
             <div className="absolute bottom-3 left-3 rtl:left-auto rtl:right-3 bg-black/50 text-white text-xs md:text-sm px-3 py-1.5 rounded-full">عرض كل الصور</div>
@@ -37,17 +37,17 @@ function ThreeImageGrid({ imgs }: { imgs: Img[] }) {
   const [a, b, c] = imgs;
   return (
     <div className="relative w-full bg-neutral-100 dark:bg-neutral-900">
-      <div className="mx-auto max-w-[1280px] px-4 md:px-6 py-2 md:py-3">
+      <div className="mx-auto max-w-[1360px] px-4 md:px-6 py-2 md:py-3">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3 lg:gap-4">
           <div className="relative md:col-span-2 row-span-2 aspect-[4/3] md:aspect-auto md:h-[520px] overflow-hidden rounded-2xl">
-            <Image src={a.url} alt={a.alt || "صورة"} fill sizes="(max-width: 768px) 100vw, 66vw" className="object-cover" priority />
+            <Image src={a.url} alt={a.alt || "صورة"} fill sizes="(max-width: 768px) 100vw, 66vw" className="object-cover object-center" priority />
           </div>
           <div className="grid grid-rows-2 gap-2 md:gap-3">
             <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
-              <Image src={b.url} alt={b.alt || "صورة"} fill sizes="33vw" className="object-cover" />
+              <Image src={b.url} alt={b.alt || "صورة"} fill sizes="33vw" className="object-cover object-center" />
             </div>
             <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
-              <Image src={c.url} alt={c.alt || "صورة"} fill sizes="33vw" className="object-cover" />
+              <Image src={c.url} alt={c.alt || "صورة"} fill sizes="33vw" className="object-cover object-center" />
             </div>
           </div>
         </div>

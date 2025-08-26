@@ -124,7 +124,7 @@ export default async function ExperimentalNewsPage({ params }: { params: Promise
       <HeaderInline article={article} />
       <div className="border-b border-neutral-200/80 dark:border-neutral-800/60" />
       <HeroGallery images={images} />
-      <main className="mx-auto max-w-[1280px] px-4 md:px-6 py-6 lg:py-10">
+      <main className="mx-auto max-w-[1360px] px-4 md:px-6 py-6 lg:py-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10">
           <section className="lg:col-span-8" id="article-start">
             <h1 className="text-2xl md:text-3xl font-bold leading-snug mb-2">{article.title}</h1>
