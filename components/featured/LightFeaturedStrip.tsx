@@ -50,6 +50,14 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
     return null; // لا نعرض شيئاً إذا لا توجد مقالات
   }
 
+  // تنسيق المشاهدات
+  const formatViews = (views: number = 0) => {
+    if (views >= 1000) {
+      return `${(views / 1000).toFixed(1)}k`;
+    }
+    return views.toString();
+  };
+
   // تحويل رابط Cloudinary لإضافة التحويلات المطلوبة: c_fill,w_800,h_450,q_auto,f_auto
   const withCloudinaryTransform = (src: string): string => {
     try {
@@ -170,12 +178,11 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
                       )}
                     </div>
                     {typeof article.views === 'number' && (
-                      <div className="flex items-center gap-1">
-                        <span className="inline-block align-middle">👁️</span>
-                        <span>{article.views}</span>
-                        {(article.views ?? 0) > 300 && <span className="ml-1">🔥</span>}
-                      </div>
-                    )}
+      <div className="flex items-center gap-1">
+        <span>{formatViews(article.views)} مشاهدة</span>
+        {(article.views ?? 0) > 300 && <span className="ml-1">🔥</span>}
+      </div>
+    )}
                   </div>
                 </div>
               </article>
