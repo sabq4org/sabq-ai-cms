@@ -52,7 +52,7 @@ export default function ArticleStatsBlock({
     <div
       className={`mobile-stats-container rounded-xl p-3 sm:p-6 border shadow-sm hover:shadow-md transition-all duration-300 bg-white dark:bg-gray-900 ${className}`}
       style={{
-        borderColor: '#C4C4C0'
+        borderColor: 'var(--theme-primary, #C4C4C0)'
       }}
     >
       {/* العنوان */}
@@ -72,8 +72,8 @@ export default function ArticleStatsBlock({
         <div
           className="flex flex-col items-center p-2 rounded-lg border hover:scale-105 transition-transform"
           style={{ 
-            borderColor: '#DADAD8',
-            backgroundColor: '#F0F0EF'
+            borderColor: 'var(--theme-primary, #DADAD8)',
+            backgroundColor: 'var(--theme-background, #F8F8F7)'
           }}
         >
           <Eye className="mobile-stats-icon w-4 h-4 mb-0.5" style={{ color: 'var(--theme-primary, #6b7280)' }} />
@@ -87,8 +87,8 @@ export default function ArticleStatsBlock({
         <div
           className="flex flex-col items-center p-2 rounded-lg border hover:scale-105 transition-transform"
           style={{ 
-            borderColor: '#DADAD8',
-            backgroundColor: '#F0F0EF'
+            borderColor: 'var(--theme-primary, #DADAD8)',
+            backgroundColor: 'var(--theme-background, #F8F8F7)'
           }}
         >
           <Heart className="mobile-stats-icon w-4 h-4 mb-0.5" style={{ color: 'var(--theme-primary, #6b7280)' }} />
@@ -102,8 +102,8 @@ export default function ArticleStatsBlock({
         <div
           className="flex flex-col items-center p-2 rounded-lg border hover:scale-105 transition-transform"
           style={{ 
-            borderColor: '#DADAD8',
-            backgroundColor: '#F0F0EF'
+            borderColor: 'var(--theme-primary, #DADAD8)',
+            backgroundColor: 'var(--theme-background, #F8F8F7)'
           }}
         >
           <Bookmark className="mobile-stats-icon w-4 h-4 mb-0.5" style={{ color: 'var(--theme-primary, #6b7280)' }} />
@@ -117,8 +117,8 @@ export default function ArticleStatsBlock({
         <div
           className="flex flex-col items-center p-2 rounded-lg border hover:scale-105 transition-transform"
           style={{ 
-            borderColor: '#DADAD8',
-            backgroundColor: '#F0F0EF'
+            borderColor: 'var(--theme-primary, #DADAD8)',
+            backgroundColor: 'var(--theme-background, #F8F8F7)'
           }}
         >
           <Share2 className="mobile-stats-icon w-4 h-4 mb-0.5" style={{ color: 'var(--theme-primary, #6b7280)' }} />
@@ -130,10 +130,7 @@ export default function ArticleStatsBlock({
       </div>
 
       {/* المعلومات الإضافية */}
-      <div
-        className="mobile-stats-footer flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-2 border-t"
-        style={{ borderColor: '#C4C4C0' }}
-      >
+      <div className="mobile-stats-footer flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-2">
         {/* نسبة النمو */}
         {growthRate !== undefined && (
           <div className="flex items-center gap-2">
@@ -165,19 +162,16 @@ export default function ArticleStatsBlock({
       </div>
 
       {/* مؤشر الشعبية - للنسخة المحمولة */}
-      <div
-        className="mobile-popularity-indicator sm:hidden mt-2 pt-2 border-t"
-        style={{ borderColor: '#C4C4C0' }}
-      >
+      <div className="mobile-popularity-indicator sm:hidden mt-3 pt-2">
         <div className="flex items-center justify-between text-xs">
-          <span className="text-gray-500 dark:text-gray-400">مؤشر الشعبية</span>
-          <div className="flex items-center gap-1">
+          <span className="text-gray-600 dark:text-gray-400 font-medium">مؤشر الشعبية</span>
+          <div className="flex items-center gap-1.5">
             {[...Array(5)].map((_, i) => (
               <div
                 key={i}
-                className={`mobile-popularity-dot w-2 h-2 rounded-full ${
+                className={`mobile-popularity-dot w-2.5 h-2.5 rounded-full transition-colors ${
                   i < Math.min(5, Math.ceil((likes + saves + shares) / 10))
-                    ? 'bg-yellow-400'
+                    ? 'bg-amber-400 shadow-sm'
                     : 'bg-gray-300 dark:bg-gray-600'
                 }`}
               />
