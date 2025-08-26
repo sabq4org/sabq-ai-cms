@@ -596,6 +596,16 @@ export default function ArticleClientComponent({
 
   const keywords = getKeywords();
 
+  // تحديد ما إذا كان الخبر جديد (آخر ساعتين)
+  const isArticleNew = (() => {
+    const dateStr = (article?.published_at || article?.created_at) as string | undefined;
+    if (!dateStr) return false;
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diff = Math.abs(now.getTime() - date.getTime());
+    return diff <= 2 * 60 * 60 * 1000; // ساعتان
+  })();
+
   // إذا كان مقال رأي، استخدم التصميم المحسن الجديد
   if (isOpinionArticle) {
     return <EnhancedOpinionLayout article={article} />;
@@ -620,80 +630,81 @@ export default function ArticleClientComponent({
           >
             {/* رأس المقال */}
             <header className="mb-1 sm:mb-2">
-              {/* Desktop Header - محاذاة العنوان وبيانات النشر مع بداية الصورة */}
+              {/* Desktop Header - إعادة الترتيب كما كان: شارات ثم العناوين ثم بيانات النشر ثم الصورة */}
               <div className="hidden sm:block">
                 <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-4 sm:px-6">
-                  <div className="sm:grid sm:grid-cols-2 sm:gap-6 items-center">
-                    {/* عمود النصوص (يمين في RTL) */}
-                    <div className="order-1 text-right sm:self-center">
-                      {/* التصنيف */}
-                      {article.category && (
-                        <div className="flex justify-end mb-5">
+                  <div className="text-right">
+                    {/* التصنيف + جديد */}
+                    {(article.category || isArticleNew) && (
+                      <div className="flex items-center justify-end gap-2 mb-4">
+                        {article.category && (
                           <Link
                             href={`/categories/${article.category.slug}`}
-                            className="inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50 hover:shadow-md hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-800/30 dark:hover:to-indigo-800/30 transition-all hover:scale-105"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-medium bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/50 hover:shadow-sm transition-all"
                           >
                             {article.category.icon && (
-                              <span className="text-sm sm:text-base">
-                                {article.category.icon}
-                              </span>
+                              <span className="text-sm sm:text-base">{article.category.icon}</span>
                             )}
                             <span>{article.category.name}</span>
                           </Link>
-                        </div>
-                      )}
-
-                      {/* العنوان */}
-                      <h1 className="text-2xl sm:text-3xl lg:text-3xl font-bold mb-3 text-gray-900 dark:text-white leading-tight tracking-tight article-title-overlay bg-transparent">
-                        {article.title}
-                      </h1>
-
-                      {/* العنوان الفرعي */}
-                      {getSubtitle() && (
-                        <h2 className="article-subtitle text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-200 mb-2 leading-relaxed font-normal">
-                          {getSubtitle()}
-                        </h2>
-                      )}
-
-                      {/* المعلومات الأساسية */}
-                      <div className="article-meta-info flex flex-wrap items-center justify-end gap-3 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-4 text-right border-0">
-                        {article.author && (
-                          <div className="inline-flex items-center gap-1.5 sm:gap-2 w-full justify-start mb-2">
-                            <ReporterLink
-                              author={article.author as any}
-                              size="sm"
-                              showIcon={true}
-                              showVerification={true}
-                              className="truncate max-w-[160px] sm:max-w-none text-xs sm:text-sm"
-                            />
-                          </div>
                         )}
-                        <div className="inline-flex items-center gap-1.5 whitespace-nowrap">
-                          <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
-                          <SafeDateDisplay
-                            date={article.published_at || article.created_at || ""}
-                            format="full"
-                            showTime
-                          />
-                        </div>
-                        <div className="inline-flex items-center gap-1.5 whitespace-nowrap">
-                          <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
-                          <span>
-                            {article.reading_time || calculateReadingTime(article.content || "")} د
+                        {isArticleNew && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold text-white bg-emerald-500">
+                            <span className="text-sm">🔥</span>
+                            جديد
                           </span>
-                        </div>
-                        {article.views !== undefined && (
-                          <div className="inline-flex items-center gap-1.5 whitespace-nowrap">
-                            <Eye className="w-4 h-4" />
-                            <ArticleViews count={article.views} className="text-xs sm:text-sm" />
-                          </div>
                         )}
                       </div>
+                    )}
+
+                    {/* العنوان الكبير */}
+                    <h1 className="text-3xl lg:text-4xl font-bold mb-3 text-gray-900 dark:text-white leading-tight tracking-tight">
+                      {article.title}
+                    </h1>
+
+                    {/* العنوان الصغير */}
+                    {getSubtitle() && (
+                      <h2 className="article-subtitle text-lg lg:text-xl text-gray-600 dark:text-gray-200 mb-3 leading-relaxed font-normal">
+                        {getSubtitle()}
+                      </h2>
+                    )}
+
+                    {/* اسم المراسل + بيانات النشر */}
+                    <div className="article-meta-info flex flex-wrap items-center justify-end gap-3 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-2 text-right">
+                      {article.author && (
+                        <div className="inline-flex items-center gap-1.5 sm:gap-2">
+                          <ReporterLink
+                            author={article.author as any}
+                            size="sm"
+                            showIcon={true}
+                            showVerification={true}
+                            className="truncate max-w-[220px] text-xs sm:text-sm"
+                          />
+                        </div>
+                      )}
+                      <div className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                        <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+                        <SafeDateDisplay
+                          date={article.published_at || article.created_at || ""}
+                          format="full"
+                          showTime
+                        />
+                      </div>
+                      <div className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                        <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+                        <span>{article.reading_time || calculateReadingTime(article.content || "")} د</span>
+                      </div>
+                      {article.views !== undefined && (
+                        <div className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                          <Eye className="w-4 h-4" />
+                          <ArticleViews count={article.views} className="text-xs sm:text-sm" />
+                        </div>
+                      )}
                     </div>
 
-                    {/* عمود الصورة (يسار في RTL) */}
-                    <div className="order-2">
-                      {article.featured_image && typeof article.featured_image === "string" && article.featured_image.length > 0 && !article.metadata?.emergency_mode && (
+                    {/* الصورة البارزة */}
+                    {article.featured_image && typeof article.featured_image === "string" && article.featured_image.length > 0 && !article.metadata?.emergency_mode && (
+                      <div className="mt-5">
                         <ArticleFeaturedImage
                           imageUrl={article.featured_image}
                           title={article.title}
@@ -702,8 +713,8 @@ export default function ArticleClientComponent({
                           category={article.category}
                           className="w-full rounded-2xl shadow-2xl"
                         />
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
