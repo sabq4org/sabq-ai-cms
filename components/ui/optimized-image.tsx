@@ -18,6 +18,7 @@ interface OptimizedImageProps {
   blurDataURL?: string;
   onLoad?: () => void;
   onError?: () => void;
+  style?: React.CSSProperties;
 }
 
 export function OptimizedImage({

@@ -30,7 +30,7 @@ export default function ArticleFeaturedImage({
       return (
         <div className={`relative w-full ${className || ''}`}>
           {/* حاوية بنسبة 16:9 للحفاظ على النسبة عبر جميع الشاشات */}
-          <div className="relative w-full aspect-[16/9] overflow-hidden rounded-xl shadow-lg bg-gray-50 dark:bg-gray-900">
+          <div className="relative w-full aspect-[16/9] overflow-hidden rounded-2xl shadow-lg bg-gray-50 dark:bg-gray-900">
             <OptimizedImage
               src={imageUrl}
               alt={alt || title}
@@ -38,7 +38,6 @@ export default function ArticleFeaturedImage({
               className="object-cover"
               priority={true}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, (max-width: 1536px) 110ch, 110ch"
-              aspectRatio="16:9"
             />
             {/* التصنيف */}
             {category && (
@@ -84,7 +83,7 @@ export default function ArticleFeaturedImage({
       return (
         <div className={`article-featured-image relative w-full overflow-hidden bg-gray-900 dark:bg-black ${className || ''}`}>
           {/* صورة الخلفية المموهة بنسبة ثابتة */}
-          <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden">
+          <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden">
             <OptimizedImage
               src={imageUrl}
               alt=""
@@ -103,9 +102,7 @@ export default function ArticleFeaturedImage({
               className="object-cover shadow-2xl transition-all duration-500 md:hover:scale-[1.02]"
               priority={true}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
-              objectPosition="center 35%"
-              smartCrop="auto"
-              aspectRatio="16:9"
+              style={{ objectPosition: 'center 35%' }}
             />
             {category && (
               <div className="absolute bottom-4 left-4 z-20">
@@ -128,7 +125,7 @@ export default function ArticleFeaturedImage({
       return (
         <div className="article-featured-image w-full bg-gray-100 dark:bg-gray-800">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="relative overflow-hidden shadow-xl aspect-[16/9] rounded-xl">
+            <div className="relative overflow-hidden shadow-xl aspect-[16/9] rounded-2xl">
               <OptimizedImage
                 src={imageUrl}
                 alt={title}
@@ -136,9 +133,7 @@ export default function ArticleFeaturedImage({
                 className="object-cover"
                 priority={true}
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
-                objectPosition="center 35%"
-                smartCrop="auto"
-                aspectRatio="16:9"
+                style={{ objectPosition: 'center 35%' }}
               />
               
               {/* تراكب التصنيف */}
@@ -164,7 +159,7 @@ export default function ArticleFeaturedImage({
       return (
         <div className="article-featured-image relative w-full">
           {/* تحويل الارتفاعات الثابتة إلى نسبة أبعاد ثابتة ومتجاوبة */}
-          <div className="relative w-full aspect-[16/9] overflow-hidden bg-gray-200 dark:bg-gray-800 rounded-xl">
+          <div className="relative w-full aspect-[16/9] overflow-hidden bg-gray-200 dark:bg-gray-800 rounded-2xl">
             <OptimizedImage
               src={imageUrl}
               alt={title}
@@ -172,9 +167,7 @@ export default function ArticleFeaturedImage({
               className="object-cover transition-transform duration-300 hover:scale-105"
               priority={true}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 95vw, 1200px"
-              objectPosition="center 35%"
-              smartCrop="auto"
-              aspectRatio="16:9"
+              style={{ objectPosition: 'center 35%' }}
             />
             {/* تدرج خفيف للتحسين البصري */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />

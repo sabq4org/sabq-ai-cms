@@ -760,7 +760,7 @@ export default function ArticleClientComponent({
                     alt={article.featured_image_alt || article.title}
                     caption={article.featured_image_caption}
                     category={article.category}
-                    className="w-full rounded-xl shadow-2xl"
+                    className="w-full rounded-2xl shadow-2xl"
                   />
                 </div>
               </div>
@@ -773,7 +773,7 @@ export default function ArticleClientComponent({
                   article.featured_image.length > 0 &&
                   !article.metadata?.emergency_mode && (
                     <div className="mb-4">
-                      <div className="relative h-[230px] overflow-hidden rounded-lg">{/* خفض الارتفاع قليلاً لرفع المحتوى */}
+                      <div className="relative h-[230px] overflow-hidden rounded-2xl">{/* خفض الارتفاع قليلاً لرفع المحتوى */}
                         <MobileFeaturedImage
                           imageUrl={article.featured_image}
                           title={article.title}

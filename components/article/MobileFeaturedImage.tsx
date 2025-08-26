@@ -30,7 +30,7 @@ export default function MobileFeaturedImage({
   return (
     <div className={`relative w-full ${className || ''}`}>
       {/* حاوي الصورة بارتفاع مناسب */}
-      <div className="relative w-full h-[230px] overflow-hidden bg-gray-100 dark:bg-gray-800 rounded-lg">
+      <div className="relative w-full h-[230px] overflow-hidden bg-gray-100 dark:bg-gray-800 rounded-2xl">
         {/* الصورة مع lazy loading */}
         <Image
           src={imageError ? "/images/placeholder-featured.jpg" : imageUrl}
