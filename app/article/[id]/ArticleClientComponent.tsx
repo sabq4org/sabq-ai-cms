@@ -971,7 +971,8 @@ export default function ArticleClientComponent({
               </div>
             </div>
 
-            {/* مخصص لك */}
+            {/* تم تعطيل مكون "مخصص لك" لتحسين أداء النسخة الخفيفة */}
+            {/* 
             <div className="mt-6 sm:mt-8" style={{ contentVisibility: "auto" as any, containIntrinsicSize: "100% 320px" as any }}>
               <div className="w-full">
                 <SmartPersonalizedContent
@@ -980,10 +981,11 @@ export default function ArticleClientComponent({
                   categoryName={article.category?.name}
                   tags={article.keywords || []}
                   darkMode={darkMode}
-                  userId={undefined}
+                  userId="guest"
                 />
               </div>
             </div>
+            */}
 
           </div>
         </div>
