@@ -1,10 +1,16 @@
 "use client";
 
+import dynamic from "next/dynamic";
+import EnhancedOpinionLayout from "@/components/article/EnhancedOpinionLayout";
+import SmartReadingTracker from "@/components/article/SmartReadingTracker";
+import { ReadingProgressBar } from "@/components/article/ReadingProgressBar";
+import SafeDateDisplay from "@/components/article/SafeDateDisplay";
+import ArticleViews from "@/components/ui/ArticleViews";
+import AIQuestions from "@/components/article/AIQuestions";
+import { useReporterProfile } from "@/lib/hooks/useReporterProfile";
+
 import { isEmergencyArticleSupported } from "@/app/emergency-articles";
 import ReporterLink from "@/components/ReporterLink";
-import ArticleFeaturedImage from "@/components/article/ArticleFeaturedImage";
-import MobileFeaturedImage from "@/components/article/MobileFeaturedImage";
-import SafeDateDisplay from "@/components/article/SafeDateDisplay";
 import DbConnectionError from "@/components/db-connection-error";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -34,25 +40,55 @@ import {
 } from "lucide-react";
 // import { useUserInteractionTracking } from '@/hooks/useUserInteractionTracking';
 
-import ArticleAISummary from "@/components/article/ArticleAISummary";
-import SmartAudioButton from "@/components/article/SmartAudioButton";
-import ArticleStatsBlock from "@/components/article/ArticleStatsBlock";
-import CommentsPanel from "@/components/article/CommentsPanel";
-import EnhancedOpinionLayout from "@/components/article/EnhancedOpinionLayout";
-import { ReadingProgressBar } from "@/components/article/ReadingProgressBar";
-import SmartPersonalizedContent from "@/components/article/SmartPersonalizedContent";
-import ArticleViews from "@/components/ui/ArticleViews";
-import { useReporterProfile } from "@/lib/hooks/useReporterProfile";
-import "@/styles/image-optimizations.css";
-import "@/styles/mobile-article-layout.css";
-import "@/styles/mobile-article.css";
-import "@/styles/mobile-article-stats.css";
-import "@/styles/article-width-harmony.css";
-import "@/styles/article-layout-final.css";
-import "@/styles/desktop-article-unified-width.css";
-import "./article-styles.css";
-import AIQuestions from "@/components/article/AIQuestions";
-import SmartReadingTracker from "@/components/article/SmartReadingTracker";
+const ImageSkeleton = ({ className = "" }: { className?: string }) => (
+  <div className={`relative w-full overflow-hidden rounded-2xl bg-gray-200 dark:bg-gray-800 animate-pulse ${className}`} />
+);
+
+const ArticleFeaturedImage = dynamic(() => import("@/components/article/ArticleFeaturedImage"), {
+  ssr: false,
+  loading: () => <ImageSkeleton className="aspect-[16/9]" />,
+});
+
+const MobileFeaturedImage = dynamic(() => import("@/components/article/MobileFeaturedImage"), {
+  ssr: false,
+  loading: () => <ImageSkeleton className="h-[230px]" />,
+});
+
+const ArticleAISummary = dynamic(() => import("@/components/article/ArticleAISummary"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full rounded-xl bg-gray-100 dark:bg-gray-900 border border-gray-200/60 dark:border-gray-700/50 p-4 animate-pulse h-28" />
+  ),
+});
+
+const SmartAudioButton = dynamic(() => import("@/components/article/SmartAudioButton"), {
+  ssr: false,
+  loading: () => <div className="w-40 h-9 rounded-lg bg-gray-200 dark:bg-gray-800 animate-pulse" />,
+});
+
+const ArticleStatsBlock = dynamic(() => import("@/components/article/ArticleStatsBlock"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-16 rounded-xl bg-gray-100 dark:bg-gray-900 border border-gray-200/60 dark:border-gray-700/50 animate-pulse" />
+  ),
+});
+
+const CommentsPanel = dynamic(() => import("@/components/article/CommentsPanel"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-24 rounded-xl bg-gray-100 dark:bg-gray-900 border border-gray-200/60 dark:border-gray-700/50 animate-pulse" />
+  ),
+});
+
+const SmartPersonalizedContent = dynamic(
+  () => import("@/components/article/SmartPersonalizedContent"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-40 rounded-xl bg-gray-100 dark:bg-gray-900 border border-gray-200/60 dark:border-gray-700/50 animate-pulse" />
+    ),
+  }
+);
 
 interface ArticleClientComponentProps {
   initialArticle: ArticleData | null;
@@ -570,8 +606,9 @@ export default function ArticleClientComponent({
   return (
     <>
       {/* نظام التتبع الذكي */}
+      {/* إبقاءه */}
       <SmartReadingTracker articleId={articleId} />
-      
+
       {/* شريط التقدم في القراءة */}
       <ReadingProgressBar />
 
@@ -581,8 +618,9 @@ export default function ArticleClientComponent({
           <article
             ref={viewTrackingRef}
             className="article-content"
+            style={{ contentVisibility: "auto" as any, containIntrinsicSize: "900px 1200px" as any }}
           >
-            {/* رأس المقال محسن للموبايل */}
+            {/* رأس المقال */}
             <header className="mb-1 sm:mb-2">
               {/* Desktop Header - محاذاة العرض مع حاوية المحتوى */}
               <div className="hidden sm:block">
@@ -748,75 +786,58 @@ export default function ArticleClientComponent({
         </div>
         {/* منطقة المحتوى - عرض أوسع للديسكتوب */}
         <div className="w-full">
-          {article.featured_image &&
-            typeof article.featured_image === "string" &&
-            article.featured_image.length > 0 &&
-            !article.metadata?.emergency_mode && (
-              <div className="hidden sm:block mb-6">
-                <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-4 sm:px-6">
-                  <ArticleFeaturedImage
-                    imageUrl={article.featured_image}
-                    title={article.title}
-                    alt={article.featured_image_alt || article.title}
-                    caption={article.featured_image_caption}
-                    category={article.category}
-                    className="w-full rounded-2xl shadow-2xl"
-                  />
-                </div>
+          {article.featured_image && typeof article.featured_image === "string" && article.featured_image.length > 0 && !article.metadata?.emergency_mode && (
+            <div className="hidden sm:block mb-6" style={{ contentVisibility: "auto" as any, containIntrinsicSize: "1100px 620px" as any }}>
+              <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-4 sm:px-6">
+                <ArticleFeaturedImage
+                  imageUrl={article.featured_image}
+                  title={article.title}
+                  alt={article.featured_image_alt || article.title}
+                  caption={article.featured_image_caption}
+                  category={article.category}
+                  className="w-full rounded-2xl shadow-2xl"
+                />
               </div>
-            )}
+            </div>
+          )}
           <div className="max-w-screen-lg lg:max-w-[110ch] mx-auto px-4 sm:px-6 py-2">
             <div className="bg-transparent dark:bg-transparent rounded-xl">
-              <div className="sm:hidden mb-6">
-                {article.featured_image &&
-                  typeof article.featured_image === "string" &&
-                  article.featured_image.length > 0 &&
-                  !article.metadata?.emergency_mode && (
-                    <div className="mb-4">
-                      <div className="relative h-[230px] overflow-hidden rounded-2xl">{/* خفض الارتفاع قليلاً لرفع المحتوى */}
-                        <MobileFeaturedImage
-                          imageUrl={article.featured_image}
-                          title={article.title}
-                          alt={article.featured_image_alt || article.title}
-                          caption={article.featured_image_caption}
-                          category={article.category}
-                          className="h-full"
-                        />
-                      </div>
+              <div className="sm:hidden mb-6" style={{ contentVisibility: "auto" as any, containIntrinsicSize: "100% 260px" as any }}>
+                {article.featured_image && typeof article.featured_image === "string" && article.featured_image.length > 0 && !article.metadata?.emergency_mode && (
+                  <div className="mb-4">
+                    <div className="relative h-[230px] overflow-hidden rounded-2xl">
+                      <MobileFeaturedImage
+                        imageUrl={article.featured_image}
+                        title={article.title}
+                        alt={article.featured_image_alt || article.title}
+                        caption={article.featured_image_caption}
+                        category={article.category}
+                        className="h-full"
+                      />
                     </div>
-                  )}
+                  </div>
+                )}
                 <ArticleAISummary
                   articleId={article.id}
                   title={article.title || "مقال بدون عنوان"}
                   content={article.content || ""}
-                  existingSummary={
-                    article.ai_summary ||
-                    article.summary ||
-                    article.excerpt ||
-                    ""
-                  }
+                  existingSummary={article.ai_summary || article.summary || article.excerpt || ""}
                   className="shadow-lg article-ai-summary-mobile"
                   showFloatingAudio={true}
                 />
               </div>
-              
             </div>
 
-            {/* منطقة الموجز الذكي للديسكتوب */}
-            <div className="hidden sm:block mb-6 sm:mb-8">
+            {/* موجز الذكاء الاصطناعي للديسكتوب */}
+            <div className="hidden sm:block mb-6 sm:mb-8" style={{ contentVisibility: "auto" as any, containIntrinsicSize: "100% 180px" as any }}>
               <div className="w-full">
                 <ArticleAISummary
-                    articleId={article.id}
-                    title={article.title || "مقال بدون عنوان"}
-                    content={article.content || ""}
-                    existingSummary={
-                      article.ai_summary ||
-                      article.summary ||
-                      article.excerpt ||
-                      ""
-                    }
-                    className="shadow-lg w-full"
-                  />
+                  articleId={article.id}
+                  title={article.title || "مقال بدون عنوان"}
+                  content={article.content || ""}
+                  existingSummary={article.ai_summary || article.summary || article.excerpt || ""}
+                  className="shadow-lg w-full"
+                />
                 <div className="mt-4 flex justify-end">
                   <SmartAudioButton
                     articleId={article.id}
@@ -828,8 +849,8 @@ export default function ArticleClientComponent({
               </div>
             </div>
 
-            {/* أزرار الإعجاب والحفظ البسيطة */}
-            <div className="mb-6 sm:mb-8">
+            {/* أزرار الإعجاب والحفظ */}
+            <div className="mb-6 sm:mb-8" style={{ contentVisibility: "auto" as any, containIntrinsicSize: "100% 64px" as any }}>
               <div className="w-full">
                 <BasicLikeSave
                   articleId={article.id}
@@ -838,8 +859,6 @@ export default function ArticleClientComponent({
                 />
               </div>
             </div>
-
-            {/* تمت إزالة أزرار المشاركة هنا بناء على التوجيه */}
 
             {/* الكلمات المفتاحية */}
             {keywords.length > 0 && (
@@ -896,80 +915,46 @@ export default function ArticleClientComponent({
             </div>
 
             {/* محتوى المقال */}
-            <div className="mb-12">
+            <div className="mb-12" style={{ contentVisibility: "auto" as any, containIntrinsicSize: "100% 900px" as any }}>
               <div className="w-full">
                 <div
-                  className={`prose max-w-none dark:prose-invert arabic-article-content
-                    prose-headings:text-gray-900 dark:prose-headings:text-white
-                    prose-p:text-gray-700 dark:prose-p:text-gray-300
-                    prose-p:leading-relaxed
-                    prose-img:w-full prose-img:h-auto prose-img:max-w-none prose-img:object-cover
-                    prose-img:rounded-xl prose-img:shadow-xl prose-img:my-6
-                    prose-figure:m-0 prose-figure:my-8
-                    prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
-                    prose-strong:text-gray-900 dark:prose-strong:text-white
-                    prose-blockquote:border-blue-500 dark:prose-blockquote:border-blue-400
-                    prose-blockquote:bg-blue-50 dark:prose-blockquote:bg-blue-900/20
-                    prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-lg
-                    [&_img]:w-full [&_img]:h-auto [&_img]:rounded-xl [&_img]:shadow-xl [&_img]:my-6
-                    [&_figure]:my-8 [&_figure_img]:rounded-xl [&_figure_img]:shadow-xl
-                    ${isReading ? "prose-xl" : "prose-lg"}
-                  `}
+                  className={`prose max-w-none dark:prose-invert arabic-article-content ${isReading ? "prose-xl" : "prose-lg"}`}
                   dangerouslySetInnerHTML={{ __html: contentHtml }}
                 />
               </div>
             </div>
 
-            {/* مكون الذكاء الاصطناعي للأسئلة - أسفل تفاصيل الخبر */}
+            {/* الأسئلة */}
             {article?.content && (
-              <div className="mb-8">
+              <div className="mb-8" style={{ contentVisibility: "auto" as any, containIntrinsicSize: "100% 120px" as any }}>
                 <div className="w-full">
-                  <AIQuestions
-                    content={
-                      typeof article.content === "string"
-                        ? article.content
-                        : JSON.stringify(article.content)
-                    }
-                  />
+                  <AIQuestions content={typeof article.content === "string" ? article.content : JSON.stringify(article.content)} />
                 </div>
               </div>
             )}
 
-            {/* يمكن إبقاء المشاركة أسفل المقال إن رغبت لاحقاً؛ حُذفت حالياً */}
-
-            {/* Comments Panel: يوضع قبل بلوك الإحصائيات كما هو مطلوب */}
-            <div className="mt-4 sm:mt-6">
+            {/* التعليقات */}
+            <div className="mt-4 sm:mt-6" style={{ contentVisibility: "auto" as any, containIntrinsicSize: "100% 200px" as any }}>
               <div className="w-full">
-                <CommentsPanel
-                  articleId={article.id}
-                  initialCount={article.comments_count || 0}
-                />
+                <CommentsPanel articleId={article.id} initialCount={article.comments_count || 0} />
               </div>
             </div>
 
-            {/* بلوك إحصائيات المقال (التصميم القديم) */}
-            <div className="mt-6">
+            {/* إحصائيات المقال */}
+            <div className="mt-6" style={{ contentVisibility: "auto" as any, containIntrinsicSize: "100% 120px" as any }}>
               <div className="w-full">
                 <ArticleStatsBlock
                   views={article.views || 0}
                   likes={article.likes || 0}
                   saves={article.saves || 0}
                   shares={article.shares || 0}
-                  category={
-                    article.category
-                      ? {
-                          name: article.category.name,
-                          color: (article.category as any).color,
-                          icon: (article.category as any).icon,
-                        }
-                      : undefined
-                  }
+                  category={article.category ? { name: article.category.name, color: (article.category as any).color, icon: (article.category as any).icon } : undefined}
                 />
               </div>
             </div>
 
-            {/* مخصص لك بذكاء - أسفل بلوك إحصائيات المقال */}
-            <div className="mt-6 sm:mt-8">
+            {/* مخصص لك */}
+            <div className="mt-6 sm:mt-8" style={{ contentVisibility: "auto" as any, containIntrinsicSize: "100% 320px" as any }}>
               <div className="w-full">
                 <SmartPersonalizedContent
                   articleId={article.id}
@@ -982,10 +967,7 @@ export default function ArticleClientComponent({
               </div>
             </div>
 
-            {/* تم نقل أنماط RTL إلى ملفات CSS العامة لضمان الاستقرار أثناء البناء */}
           </div>
-          
-          
         </div>
       </main>
     </>
