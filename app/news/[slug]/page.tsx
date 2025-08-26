@@ -203,7 +203,7 @@ export default async function NewsPage({
   return (
     <>
       <ArticleServerContent article={article as any} />
-      {/* استبدال عرض كامل المكون العميل بعرض البلوكات التفاعلية فقط لتفادي التكرار */
+      {/* استبدال عرض كامل المكون العميل بعرض البلوكات التفاعلية فقط لتفادي التكرار */}
       <ArticleInteractiveBlocksClient article={article as any} />
     </>
   );
