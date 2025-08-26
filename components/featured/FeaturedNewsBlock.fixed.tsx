@@ -112,9 +112,10 @@ export function FeaturedNewsBlock({
                     showPlaceholder={true}
                   />
                 </Link>
-                {/* شارات التصنيف + جديد */}
-                <div className="absolute top-2 right-2 flex items-center gap-2 z-10">
-                  {/* ليبل التصنيف */}
+              </div>
+              <div className="flex-grow">
+                {/* الشارات فوق العنوان */}
+                <div className="flex items-center gap-2 mb-2 justify-end">
                   {(() => {
                     const name = (firstArticle as any)?.category?.name
                       || (firstArticle as any)?.categories?.name
@@ -130,7 +131,6 @@ export function FeaturedNewsBlock({
                       </span>
                     ) : null;
                   })()}
-                  {/* ليبل جديد الأخضر مع شعلة */}
                   {isNewsNew((firstArticle as any)?.publishedAt) && (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold text-white bg-emerald-500">
                       <span className="text-xs">🔥</span>
@@ -138,8 +138,6 @@ export function FeaturedNewsBlock({
                     </span>
                   )}
                 </div>
-              </div>
-              <div className="flex-grow">
                 <Link href={`/news/${firstArticle.slug}`}>
                   <h3 className="text-xl lg:text-2xl font-bold hover:text-primary-900 line-clamp-3 mb-2">
                     {firstArticle.title}
@@ -184,9 +182,10 @@ export function FeaturedNewsBlock({
                     showPlaceholder={true}
                   />
                 </Link>
-                {/* شارات التصنيف + جديد */}
-                <div className="absolute top-2 right-2 flex items-center gap-2 z-10">
-                  {/* ليبل التصنيف */}
+              </div>
+              <div className="lg:w-2/3">
+                {/* الشارات فوق العنوان */}
+                <div className="flex items-center gap-2 mb-2 justify-end">
                   {(() => {
                     const name = (article as any)?.category?.name
                       || (article as any)?.categories?.name
@@ -202,7 +201,6 @@ export function FeaturedNewsBlock({
                       </span>
                     ) : null;
                   })()}
-                  {/* ليبل جديد الأخضر مع شعلة */}
                   {isNewsNew((article as any)?.publishedAt) && (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold text-white bg-emerald-500">
                       <span className="text-xs">🔥</span>
@@ -210,8 +208,6 @@ export function FeaturedNewsBlock({
                     </span>
                   )}
                 </div>
-              </div>
-              <div className="lg:w-2/3">
                 <Link href={`/news/${article.slug}`}>
                   <h3 className="text-lg font-bold hover:text-primary-900 line-clamp-2 mb-2">
                     {article.title}
