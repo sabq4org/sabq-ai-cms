@@ -24,8 +24,11 @@ export default function LightFeaturedLoader({ heading = "الأخبار المم
     let mounted = true;
     (async () => {
       try {
-        // اجعل الطلب قابلًا للتخزين المؤقت لتحسين الأداء، مع SWR
-        const res = await fetch(`/api/articles/featured?limit=${limit}`, { cache: "force-cache", next: { revalidate: 60 } });
+        const isProd = process.env.NODE_ENV === 'production';
+        const endpoint = isProd
+          ? `/api/articles/featured?limit=${limit}`
+          : `/api/articles/featured-json?limit=${limit}`;
+        const res = await fetch(endpoint, { cache: "force-cache", next: { revalidate: 60 } });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
         const list: FeaturedArticleLite[] = (json?.data || []).map((a: any) => ({

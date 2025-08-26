@@ -83,10 +83,13 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
     if (!raw || typeof raw !== 'string') return null;
     const trimmed = raw.trim();
     if (!trimmed || trimmed === 'null' || trimmed === 'undefined') return null;
-    // تجاهل base64/ data URIs
-    if (trimmed.startsWith('data:image/')) return null;
-    // إصلاح http إلى https عند الإمكان
-    const fixed = trimmed.startsWith('http://') ? trimmed.replace(/^http:\/\//, 'https://') : trimmed;
+    // السماح بروابط base64 لعرض الصورة فعلياً بدلاً من placeholder
+    if (trimmed.startsWith('data:image/')) return trimmed;
+    // إصلاح http إلى https في الإنتاج فقط لتجنب كسر الروابط على البيئة المحلية
+    const isProd = process.env.NODE_ENV === 'production';
+    const fixed = trimmed.startsWith('http://')
+      ? (isProd ? trimmed.replace(/^http:\/\//, 'https://') : trimmed)
+      : trimmed;
     // اجعل الروابط النسبية تبدأ بـ '/'
     if (fixed.startsWith('http') || fixed.startsWith('/')) return fixed;
     return `/${fixed.replace(/^\/+/, '')}`;
