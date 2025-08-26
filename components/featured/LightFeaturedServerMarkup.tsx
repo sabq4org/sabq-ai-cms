@@ -93,11 +93,8 @@ export default async function LightFeaturedServerMarkup({ limit = 3 }: { limit?:
     <section aria-label="الأخبار المميزة" className="relative" dir="rtl">
       <div
         className="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory"
-        style={{ WebkitOverflowScrolling: "touch" as any }}
+        style={{ WebkitOverflowScrolling: "touch" as any, scrollbarWidth: 'none' as any }}
       >
-        <style jsx>{`
-          div::-webkit-scrollbar { display: none; }
-        `}</style>
         {articles.slice(0, 3).map((article, idx) => {
           const href = getArticleHref(article);
           const rawImage =
