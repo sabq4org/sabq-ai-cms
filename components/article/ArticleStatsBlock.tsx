@@ -50,18 +50,16 @@ export default function ArticleStatsBlock({
 
   return (
     <div
-      className={`mobile-stats-container rounded-xl p-3 sm:p-6 border shadow-sm hover:shadow-md transition-all duration-300 ${className}`}
+      className={`mobile-stats-container rounded-xl p-3 sm:p-6 border shadow-sm hover:shadow-md transition-all duration-300 bg-white dark:bg-gray-900 ${className}`}
       style={{
-        background:
-          'linear-gradient(135deg, hsl(var(--accent) / 0.06) 0%, hsl(var(--accent) / 0.02) 100%)',
-        borderColor: 'hsl(var(--accent) / 0.25)'
+        borderColor: 'var(--theme-primary, #f0f0ef)'
       }}
     >
       {/* العنوان */}
       <div className="flex items-center gap-2 mb-3">
         <div
           className="w-2 h-2 rounded-full animate-pulse"
-          style={{ background: 'hsl(var(--accent))' }}
+          style={{ background: 'var(--theme-primary, #6b7280)' }}
         ></div>
         <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
           📊 إحصائيات المقال
@@ -72,10 +70,10 @@ export default function ArticleStatsBlock({
       <div className="mobile-stats-grid grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-3">
         {/* المشاهدات */}
         <div
-          className="flex flex-col items-center p-2 bg-white dark:bg-gray-800 rounded-lg border hover:scale-105 transition-transform"
-          style={{ borderColor: 'hsl(var(--accent) / 0.2)' }}
+          className="flex flex-col items-center p-2 bg-gray-50/50 dark:bg-gray-800/50 rounded-lg border hover:scale-105 transition-transform"
+          style={{ borderColor: 'var(--theme-primary, #f0f0ef)' }}
         >
-          <Eye className="mobile-stats-icon w-4 h-4 mb-0.5" style={{ color: 'hsl(var(--accent))' }} />
+          <Eye className="mobile-stats-icon w-4 h-4 mb-0.5" style={{ color: 'var(--theme-primary, #6b7280)' }} />
           <span className="mobile-stats-number text-base font-bold text-gray-800 dark:text-gray-200 leading-tight">
             {formatNumber(views)}
           </span>
@@ -84,10 +82,10 @@ export default function ArticleStatsBlock({
 
         {/* الإعجابات */}
         <div
-          className="flex flex-col items-center p-2 bg-white dark:bg-gray-800 rounded-lg border hover:scale-105 transition-transform"
-          style={{ borderColor: 'hsl(var(--accent) / 0.2)' }}
+          className="flex flex-col items-center p-2 bg-gray-50/50 dark:bg-gray-800/50 rounded-lg border hover:scale-105 transition-transform"
+          style={{ borderColor: 'var(--theme-primary, #f0f0ef)' }}
         >
-          <Heart className="mobile-stats-icon w-4 h-4 mb-0.5" style={{ color: 'hsl(var(--accent))' }} />
+          <Heart className="mobile-stats-icon w-4 h-4 mb-0.5" style={{ color: 'var(--theme-primary, #6b7280)' }} />
           <span className="mobile-stats-number text-base font-bold text-gray-800 dark:text-gray-200 leading-tight">
             {formatNumber(likes)}
           </span>
@@ -96,10 +94,10 @@ export default function ArticleStatsBlock({
 
         {/* الحفظ */}
         <div
-          className="flex flex-col items-center p-2 bg-white dark:bg-gray-800 rounded-lg border hover:scale-105 transition-transform"
-          style={{ borderColor: 'hsl(var(--accent) / 0.2)' }}
+          className="flex flex-col items-center p-2 bg-gray-50/50 dark:bg-gray-800/50 rounded-lg border hover:scale-105 transition-transform"
+          style={{ borderColor: 'var(--theme-primary, #f0f0ef)' }}
         >
-          <Bookmark className="mobile-stats-icon w-4 h-4 mb-0.5" style={{ color: 'hsl(var(--accent))' }} />
+          <Bookmark className="mobile-stats-icon w-4 h-4 mb-0.5" style={{ color: 'var(--theme-primary, #6b7280)' }} />
           <span className="mobile-stats-number text-base font-bold text-gray-800 dark:text-gray-200 leading-tight">
             {formatNumber(saves)}
           </span>
@@ -108,10 +106,10 @@ export default function ArticleStatsBlock({
 
         {/* المشاركات */}
         <div
-          className="flex flex-col items-center p-2 bg-white dark:bg-gray-800 rounded-lg border hover:scale-105 transition-transform"
-          style={{ borderColor: 'hsl(var(--accent) / 0.2)' }}
+          className="flex flex-col items-center p-2 bg-gray-50/50 dark:bg-gray-800/50 rounded-lg border hover:scale-105 transition-transform"
+          style={{ borderColor: 'var(--theme-primary, #f0f0ef)' }}
         >
-          <Share2 className="mobile-stats-icon w-4 h-4 mb-0.5" style={{ color: 'hsl(var(--accent))' }} />
+          <Share2 className="mobile-stats-icon w-4 h-4 mb-0.5" style={{ color: 'var(--theme-primary, #6b7280)' }} />
           <span className="mobile-stats-number text-base font-bold text-gray-800 dark:text-gray-200 leading-tight">
             {formatNumber(shares)}
           </span>
@@ -122,7 +120,7 @@ export default function ArticleStatsBlock({
       {/* المعلومات الإضافية */}
       <div
         className="mobile-stats-footer flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-2 border-t"
-        style={{ borderColor: 'hsl(var(--accent) / 0.15)' }}
+        style={{ borderColor: 'var(--theme-primary, #f0f0ef)' }}
       >
         {/* نسبة النمو */}
         {growthRate !== undefined && (
@@ -145,7 +143,7 @@ export default function ArticleStatsBlock({
             <Tag className="w-4 h-4 text-gray-500 dark:text-gray-400" />
             <span 
               className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium text-white"
-              style={{ backgroundColor: category.color || '#6B7280' }}
+              style={{ backgroundColor: category.color || 'var(--theme-primary, #6b7280)' }}
             >
               {category.icon && <span>{category.icon}</span>}
               {category.name}
@@ -157,7 +155,7 @@ export default function ArticleStatsBlock({
       {/* مؤشر الشعبية - للنسخة المحمولة */}
       <div
         className="mobile-popularity-indicator sm:hidden mt-2 pt-2 border-t"
-        style={{ borderColor: 'hsl(var(--accent) / 0.12)' }}
+        style={{ borderColor: 'var(--theme-primary, #f0f0ef)' }}
       >
         <div className="flex items-center justify-between text-xs">
           <span className="text-gray-500 dark:text-gray-400">مؤشر الشعبية</span>

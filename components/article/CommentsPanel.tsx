@@ -43,18 +43,28 @@ export default function CommentsPanel({
         onClick={() => setOpen((v) => !v)}
         className={cn(
           "inline-flex items-center gap-2 rounded-full px-3 py-1.5",
-          "bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700",
-          "border border-slate-200 dark:border-slate-700 shadow-sm"
+          "bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800",
+          "shadow-sm transition-all duration-200"
         )}
+        style={{ 
+          border: `1px solid var(--theme-primary, #f0f0ef)` 
+        }}
       >
         <span className="inline-flex items-center gap-2 font-medium text-sm">
-          <MessageCircle className="w-4 h-4" />
+          <MessageCircle className="w-4 h-4" style={{ color: 'var(--theme-primary, #6b7280)' }} />
           <span>التعليقات</span>
         </span>
-        <span className="text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded-full">
+        <span 
+          className="text-xs bg-gray-50 dark:bg-gray-800 px-2 py-0.5 rounded-full"
+          style={{ 
+            border: `1px solid var(--theme-primary, #f0f0ef)` 
+          }}
+        >
           {count}
         </span>
-        <span className="text-sm">{open ? "▴" : "▾"}</span>
+        <span className="text-sm" style={{ color: 'var(--theme-primary, #6b7280)' }}>
+          {open ? "▴" : "▾"}
+        </span>
       </button>
 
       <div
@@ -63,7 +73,12 @@ export default function CommentsPanel({
           open ? "max-h-[9999px] mt-4" : "max-h-0"
         )}
       >
-        <div className="rounded-xl border bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 shadow-sm">
+        <div 
+          className="rounded-xl shadow-sm bg-white dark:bg-gray-900"
+          style={{ 
+            border: `1px solid var(--theme-primary, #f0f0ef)` 
+          }}
+        >
           <section id="comments" dir="rtl" className="p-3 sm:p-4 lg:p-6">
             <CommentsClient articleId={articleId} />
           </section>
