@@ -2,10 +2,11 @@
 
 import React, { useRef, useCallback } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { formatDateNumeric } from "@/lib/date-utils";
 import { getArticleLink } from "@/lib/utils";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
+// replace Next/Image with robust SafeNewsImage for thumbnails
+import SafeNewsImage from "@/components/ui/SafeNewsImage";
 
 interface LightFeaturedStripProps {
   articles: any[];
@@ -77,6 +78,20 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
     }
   };
 
+  // تطبيع مسار الصورة للنسخة الخفيفة مع الحماية من base64 وروابط http
+  const normalizeImageSrc = (raw?: string | null): string | null => {
+    if (!raw || typeof raw !== 'string') return null;
+    const trimmed = raw.trim();
+    if (!trimmed || trimmed === 'null' || trimmed === 'undefined') return null;
+    // تجاهل base64/ data URIs
+    if (trimmed.startsWith('data:image/')) return null;
+    // إصلاح http إلى https عند الإمكان
+    const fixed = trimmed.startsWith('http://') ? trimmed.replace(/^http:\/\//, 'https://') : trimmed;
+    // اجعل الروابط النسبية تبدأ بـ '/'
+    if (fixed.startsWith('http') || fixed.startsWith('/')) return fixed;
+    return `/${fixed.replace(/^\/+/, '')}`;
+  };
+
   return (
     <section aria-label="الأخبار المميزة" className="relative" dir="rtl">
       {/* تمت إزالة عنوان القسم للنسخة الخفيفة */}
@@ -94,16 +109,13 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
         {articles.slice(0, 3).map((article, idx) => {
           const category = article.category?.name || article.category_name || article.category || "عام";
           const date = article.published_at || article.created_at;
-          // معالجة محسّنة للصورة - التحقق من عدة حقول وتوفير fallback محسّن
+          // معالجة محسّنة للصورة
           const rawImage = article.featured_image || article.social_image || article.image_url || article.image || article.thumbnail;
-          // تطبيع مسار الصورة للنسخة الخفيفة: اجعل الروابط النسبية تبدأ بـ '/'
-          const normalizedImage = rawImage && typeof rawImage === 'string' && rawImage !== 'null' && rawImage !== 'undefined' && rawImage.trim() !== ''
-            ? (rawImage.startsWith('http') || rawImage.startsWith('/') ? rawImage : `/${rawImage.replace(/^\/+/, '')}`)
-            : null;
-          // تطبيق تحويل Cloudinary أو استخدام placeholder الافتراضي
+          const normalizedImage = normalizeImageSrc(rawImage);
+          // تطبيق تحويل Cloudinary أو استخدام placeholder الافتراضي المعروف بوجوده
           const displaySrc = normalizedImage
             ? withCloudinaryTransform(normalizedImage)
-            : '/system/placeholders/news-default.png';
+            : '/images/news-placeholder-lite.svg';
           const isBreaking = Boolean(article.breaking || article.is_breaking);
           return (
             <Link
@@ -124,14 +136,15 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
                 }`}
               >
                 <div className={`relative aspect-video w-full overflow-hidden rounded-lg`}>
-                  <Image
+                  {/* SafeNewsImage handles base64/http/failures and swaps to a local placeholder automatically */}
+                  <SafeNewsImage
                     src={displaySrc}
                     alt={article.title || "صورة الخبر"}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 400px"
-                    className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+                    loading={idx === 0 ? 'eager' : 'lazy'}
                     priority={idx === 0}
-                    loading={idx === 0 ? undefined : "lazy"}
+                    width={400}
+                    height={225}
                   />
                   {/* ليبل عاجل أو جديد يحل مكان ليبل التصنيف */}
                   <div className="absolute top-2 left-2">
