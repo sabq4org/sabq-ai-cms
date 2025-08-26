@@ -1,6 +1,7 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, CSSProperties } from 'react';
 import Image from 'next/image';
 
 interface SafeNewsImageProps {
@@ -11,6 +12,10 @@ interface SafeNewsImageProps {
   width?: number;
   height?: number;
   priority?: boolean;
+  sizes?: string;
+  decoding?: 'async' | 'sync' | 'auto';
+  fetchPriority?: 'high' | 'low' | 'auto';
+  style?: CSSProperties;
 }
 
 export default function SafeNewsImage({
@@ -20,7 +25,11 @@ export default function SafeNewsImage({
   loading = 'lazy',
   width = 300,
   height = 200,
-  priority = false
+  priority = false,
+  sizes = "(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw",
+  decoding = 'async',
+  fetchPriority,
+  style,
 }: SafeNewsImageProps) {
   const [imageSrc, setImageSrc] = useState(src);
   const [imageError, setImageError] = useState(false);
@@ -43,7 +52,9 @@ export default function SafeNewsImage({
         className={className}
         loading={loading}
         onError={handleError}
-        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        decoding={decoding}
+        fetchPriority={fetchPriority}
+        style={{ width: '100%', height: '100%', objectFit: 'cover', ...style }}
       />
     );
   }
@@ -58,9 +69,10 @@ export default function SafeNewsImage({
       className={className}
       priority={priority}
       loading={loading}
-      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+      sizes={sizes}
       onError={handleError}
-      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+      style={{ width: '100%', height: '100%', objectFit: 'cover', ...style }}
+      fetchPriority={fetchPriority}
     />
   );
 }

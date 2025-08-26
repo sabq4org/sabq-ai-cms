@@ -38,6 +38,8 @@ export default function ArticleFeaturedImage({
               className="object-cover"
               priority={true}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, (max-width: 1536px) 110ch, 110ch"
+              decoding="async"
+              fetchPriority="high"
             />
             {/* التصنيف */}
             {category && (
@@ -91,6 +93,8 @@ export default function ArticleFeaturedImage({
               className="object-cover blur-2xl scale-110 opacity-60"
               priority={false}
               sizes="100vw"
+              decoding="async"
+              fetchPriority="low"
             />
             {/* الطبقة الداكنة */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/60" />
@@ -103,6 +107,8 @@ export default function ArticleFeaturedImage({
               priority={true}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
               style={{ objectPosition: 'center 35%' }}
+              decoding="async"
+              fetchPriority="high"
             />
             {category && (
               <div className="absolute bottom-4 left-4 z-20">
@@ -134,6 +140,8 @@ export default function ArticleFeaturedImage({
                 priority={true}
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
                 style={{ objectPosition: 'center 35%' }}
+                decoding="async"
+                fetchPriority="high"
               />
               
               {/* تراكب التصنيف */}
@@ -168,6 +176,8 @@ export default function ArticleFeaturedImage({
               priority={true}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 95vw, 1200px"
               style={{ objectPosition: 'center 35%' }}
+              decoding="async"
+              fetchPriority="high"
             />
             {/* تدرج خفيف للتحسين البصري */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />

@@ -19,6 +19,8 @@ interface OptimizedImageProps {
   onLoad?: () => void;
   onError?: () => void;
   style?: React.CSSProperties;
+  decoding?: 'async' | 'sync' | 'auto';
+  fetchPriority?: 'high' | 'low' | 'auto';
 }
 
 export function OptimizedImage({
@@ -35,6 +37,8 @@ export function OptimizedImage({
   blurDataURL,
   onLoad,
   onError,
+  decoding = 'async',
+  fetchPriority,
   ...props
 }: OptimizedImageProps) {
   const [isLoading, setIsLoading] = useState(true);
@@ -115,6 +119,8 @@ export function OptimizedImage({
           isLoading ? "opacity-0" : "opacity-100",
           fill ? "object-cover" : ""
         )}
+        decoding={decoding}
+        fetchPriority={fetchPriority}
         {...props}
       />
     </div>

@@ -42,6 +42,8 @@ export default function MobileFeaturedImage({
           sizes="100vw"
           priority={false}
           loading="lazy"
+          decoding="async"
+          fetchPriority="low"
           onLoad={() => setImageLoading(false)}
           onError={() => {
             setImageError(true);

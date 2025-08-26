@@ -124,18 +124,20 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
             <Link
               key={article.id || idx}
               href={getArticleLink(article)}
+              prefetch={false}
               className="group flex-shrink-0 snap-start w-[70%] xs:w-[60%] sm:w-[45%] md:w-[320px] max-w-[340px] select-none"
               aria-label={article.title}
+              style={{ contentVisibility: 'auto', containIntrinsicSize: '320px 260px' as any }}
             >
               <article
-                className={`relative rounded-2xl overflow-hidden border transition-all duration-300 h-full flex flex-col shadow-sm hover:shadow-lg ${
+                className={`relative rounded-2xl overflow-hidden border transition-all duration-200 h-full flex flex-col shadow-sm hover:shadow-md ${
                   isBreaking
                     ? (darkMode
-                        ? 'bg-red-950/30 border-red-700/60 hover:border-red-500/70'
+                        ? 'bg-red-950/20 border-red-700/50 hover:border-red-500/60'
                         : 'bg-red-50 border-red-200 hover:border-red-300')
                     : (darkMode 
-                        ? 'bg-gray-800 border-gray-700 hover:border-blue-400 hover:shadow-blue-900/20'
-                        : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-blue-100')
+                        ? 'bg-gray-800 border-gray-700 hover:border-blue-400'
+                        : 'bg-white border-gray-200 hover:border-blue-300')
                 }`}
               >
                 <div className={`relative aspect-video w-full overflow-hidden rounded-lg`}>
@@ -143,11 +145,13 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
                   <SafeNewsImage
                     src={displaySrc}
                     alt={article.title || "صورة الخبر"}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+                    className="absolute inset-0 w-full h-full object-cover"
                     loading={idx === 0 ? 'eager' : 'lazy'}
                     priority={idx === 0}
                     width={400}
                     height={225}
+                    decoding="async"
+                    fetchPriority={idx === 0 ? 'high' : 'low'}
                   />
                   {/* ليبل عاجل أو جديد يحل مكان ليبل التصنيف */}
                   <div className="absolute top-2 left-2">
@@ -163,10 +167,10 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
                       </span>
                     ) : (
                       <span
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium backdrop-blur-sm ${
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium ${
                           darkMode
                             ? "bg-gray-900/60 text-gray-200 border border-gray-700"
-                            : "bg-white/70 text-gray-700 border border-gray-200"
+                            : "bg-white/80 text-gray-700 border border-gray-200"
                         }`}
                       >
                         {article.category?.icon && (
@@ -179,10 +183,10 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
                 </div>
                 <div className="flex flex-col p-3 pb-4 flex-1">
                   <h3
-                    className={`text-sm sm:text-base font-semibold leading-snug line-clamp-2 mb-2 transition-colors ${
+                    className={`text-sm sm:text-base font-semibold leading-snug line-clamp-2 mb-2 ${
                       isBreaking
                         ? (darkMode ? 'text-red-300' : 'text-red-700')
-                        : (darkMode ? 'text-white group-hover:text-blue-300' : 'text-gray-800 group-hover:text-blue-600')
+                        : (darkMode ? 'text-white' : 'text-gray-800')
                     }`}
                   >
                     {article.title}
@@ -194,11 +198,11 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
                       )}
                     </div>
                     {typeof article.views === 'number' && (
-      <div className="flex items-center gap-1">
-        <span>{formatViews(article.views)} مشاهدة</span>
-        {(article.views ?? 0) > 300 && <span className="ml-1">🔥</span>}
-      </div>
-    )}
+                      <div className="flex items-center gap-1">
+                        <span>{formatViews(article.views)} مشاهدة</span>
+                        {(article.views ?? 0) > 300 && <span className="ml-1">🔥</span>}
+                      </div>
+                    )}
                   </div>
                 </div>
               </article>

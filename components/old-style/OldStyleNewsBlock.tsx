@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { Eye, Clock, Sliders } from 'lucide-react';
 import SafeNewsImage from '@/components/ui/SafeNewsImage';
@@ -49,13 +49,6 @@ export default function OldStyleNewsBlock({
   className = ""
 }: OldStyleNewsBlockProps) {
   
-  // إعادة رندر خفيفة كل دقيقة لضمان إزالة "جديد" تلقائياً مع مرور الوقت
-  const [, setNowTick] = useState<number>(() => Date.now());
-  useEffect(() => {
-    const id = setInterval(() => setNowTick(Date.now()), 60_000);
-    return () => clearInterval(id);
-  }, []);
-
   // تحديد إذا كان الخبر جديد (آخر ساعتين فقط)
   const isNewsNew = (dateString: string) => {
     const date = new Date(dateString);
@@ -154,7 +147,9 @@ export default function OldStyleNewsBlock({
           <Link
             key={article.id}
             href={getArticleUrl(article)}
+            prefetch={false}
             className="old-style-news-card"
+            style={{ contentVisibility: 'auto', containIntrinsicSize: '300px 220px' as any }}
           >
             {/* صورة المقال */}
             <div className="old-style-news-image-container">
