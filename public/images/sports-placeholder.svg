@@ -1,0 +1,35 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sportsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#16A34A;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#15803D;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- خلفية -->
+  <rect width="800" height="600" fill="url(#sportsGradient)"/>
+  
+  <!-- دوائر ديكورية -->
+  <circle cx="100" cy="100" r="30" fill="white" opacity="0.1"/>
+  <circle cx="700" cy="500" r="40" fill="white" opacity="0.1"/>
+  
+  <!-- أيقونة كرة القدم -->
+  <g transform="translate(300, 200)">
+    <!-- الكرة -->
+    <circle cx="100" cy="100" r="80" fill="white" opacity="0.9"/>
+    <circle cx="100" cy="100" r="78" fill="none" stroke="#16A34A" stroke-width="2"/>
+    
+    <!-- خطوط الكرة -->
+    <path d="M100,22 L100,178" stroke="#16A34A" stroke-width="2"/>
+    <path d="M22,100 L178,100" stroke="#16A34A" stroke-width="2"/>
+    <path d="M45,45 L155,155" stroke="#16A34A" stroke-width="1" opacity="0.6"/>
+    <path d="M155,45 L45,155" stroke="#16A34A" stroke-width="1" opacity="0.6"/>
+    
+    <!-- شكل خماسي في المنتصف -->
+    <polygon points="100,70 115,85 110,105 90,105 85,85" fill="#16A34A" opacity="0.3"/>
+  </g>
+  
+  <!-- النص العربي -->
+  <text x="400" y="420" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="white" opacity="0.8">رياضة</text>
+  <text x="400" y="460" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="white" opacity="0.6">صورة غير متاحة</text>
+</svg>
