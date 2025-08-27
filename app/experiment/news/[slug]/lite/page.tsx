@@ -1,13 +1,10 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Metadata } from "next";
-import HeroMedia from "../parts/HeroMedia";
-import HeroContent from "../parts/HeroContent";
-import ArticleStats from "../parts/ArticleStats";
-import ArticleBody from "../parts/ArticleBody";
+import HeaderInline from "../parts/HeaderInline";
 import HeroGallery from "../parts/HeroGallery";
-import InsightsBoxes from "../parts/InsightsBoxes";
-import SocialInteractionButtons from "../parts/SocialInteractionButtons";
+import ArticleBody from "../parts/ArticleBody";
+import StickyInsightsPanel from "../parts/StickyInsightsPanel";
 import CommentsSection from "../parts/CommentsSection";
 
 export const revalidate = 300;
@@ -152,66 +149,112 @@ export default async function LiteArticlePage({
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <article className="space-y-8">
+    <div className="max-w-6xl mx-auto">
+      <article>
         {/* 1. الصورة البارزة */}
         {processedMedia.length > 0 && (
-          <HeroMedia 
-            media={processedMedia}
-            title={article.title}
-          />
-        )}
-
-        {/* 2. العنوان الكبير */}
-        {/* 3. العنوان الصغير */}
-        {/* 4. بيانات النشر */}
-        {/* 5. المراسل */}
-        <HeroContent article={article} />
-
-        {/* 6. خط فاصل */}
-        <hr className="border-neutral-200 dark:border-neutral-800" />
-
-        {/* 7. الموجز الذكي - استخدام InsightsBoxes */}
-        {(article.summary || article.excerpt) && (
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6">
-            <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
-              <span>📋</span>
-              <span>الموجز الذكي</span>
-            </h3>
-            <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed">
-              {article.summary || article.excerpt}
-            </p>
+          <div className="mb-8">
+            <HeroGallery images={processedMedia.map(m => ({
+              url: m.file_path,
+              alt: m.alt_text || article.title,
+              caption: m.caption
+            }))} />
           </div>
         )}
 
-        {/* 8. نص المحتوى */}
-        <ArticleBody 
-          html={contentHtml} 
-          article={article} 
-          hiddenImageUrls={hiddenImageUrls}
-        />
+        <div className="px-4">
+          {/* 2-5. العناوين والمعلومات */}
+          <HeaderInline 
+            title={article.title}
+            subtitle={article.excerpt}
+            publishDate={article.published_at || article.created_at}
+            author={article.users}
+            views={article.views}
+          />
 
-        {/* 9. بقية الصور (ألبوم) */}
-        {processedMedia.filter(m => !m.is_featured).length > 0 && (
-          <HeroGallery media={processedMedia} />
-        )}
+          {/* 6. خط فاصل */}
+          <hr className="border-neutral-200 dark:border-neutral-800 my-8" />
 
-        {/* 10. تحليلات AI - استخدام InsightsBoxes */}
-        <InsightsBoxes insights={insights} />
+          {/* 7. الموجز الذكي */}
+          {(article.summary || article.excerpt) && (
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-8">
+              <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
+                <span>📋</span>
+                <span>الموجز الذكي</span>
+              </h3>
+              <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed">
+                {article.summary || article.excerpt}
+              </p>
+            </div>
+          )}
 
-        {/* 11. نظرة سريعة - استخدام ArticleStats */}
-        <ArticleStats article={article} />
+          {/* 8. نص المحتوى */}
+          <ArticleBody 
+            html={contentHtml} 
+            article={article} 
+            hiddenImageUrls={hiddenImageUrls}
+          />
 
-        {/* 12. أزرار التفاعل */}
-        <SocialInteractionButtons 
-          articleId={article.id}
-          initialLikes={article.likes || 0}
-          initialShares={article.shares || 0}
-          initialSaves={article.saves || 0}
-        />
+          {/* 9. بقية الصور (ألبوم) - إذا كان هناك أكثر من صورة */}
+          {processedMedia.length > 1 && (
+            <div className="mt-12">
+              <h3 className="text-xl font-bold mb-4">ألبوم الصور</h3>
+              <HeroGallery images={processedMedia.slice(1).map(m => ({
+                url: m.file_path,
+                alt: m.alt_text || article.title,
+                caption: m.caption
+              }))} />
+            </div>
+          )}
 
-        {/* 13. نظام التعليقات */}
-        <CommentsSection articleId={article.id} articleSlug={params.slug} />
+          {/* 10. تحليلات AI */}
+          <StickyInsightsPanel insights={insights} article={article} />
+
+          {/* 11. نظرة سريعة */}
+          <div className="bg-neutral-100 dark:bg-neutral-900 rounded-xl p-6 my-8">
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+              <span>👁️</span>
+              <span>نظرة سريعة</span>
+            </h3>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="text-neutral-500">القسم:</span>
+                <span className="font-medium mr-2">{article.category_id || "عام"}</span>
+              </div>
+              <div>
+                <span className="text-neutral-500">الكلمات:</span>
+                <span className="font-medium mr-2">{insights.wordCount}</span>
+              </div>
+              <div>
+                <span className="text-neutral-500">وقت القراءة:</span>
+                <span className="font-medium mr-2">{insights.readingTime} دقائق</span>
+              </div>
+              <div>
+                <span className="text-neutral-500">المشاهدات:</span>
+                <span className="font-medium mr-2">{article.views}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 12. أزرار التفاعل */}
+          <div className="flex items-center justify-center gap-4 my-12">
+            <button className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+              <span>👍</span>
+              <span>أعجبني ({article.likes || 0})</span>
+            </button>
+            <button className="flex items-center gap-2 px-6 py-3 bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-300 dark:hover:bg-neutral-700 rounded-lg transition-colors">
+              <span>📤</span>
+              <span>مشاركة ({article.shares || 0})</span>
+            </button>
+            <button className="flex items-center gap-2 px-6 py-3 bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-300 dark:hover:bg-neutral-700 rounded-lg transition-colors">
+              <span>🔖</span>
+              <span>حفظ ({article.saves || 0})</span>
+            </button>
+          </div>
+
+          {/* 13. نظام التعليقات */}
+          <CommentsSection articleId={article.id} articleSlug={params.slug} />
+        </div>
       </article>
     </div>
   );
