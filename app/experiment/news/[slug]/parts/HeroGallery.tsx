@@ -66,25 +66,51 @@ function AlbumGrid({ imgs }: { imgs: Img[] }) {
 
   return (
     <div className="relative w-full py-4 px-4 md:px-6">
-      <div className="mx-auto max-w-[1200px] rounded-2xl overflow-hidden">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-px md:gap-px lg:gap-1">
-          {/* هيرو 50% */}
-          <div className="relative md:col-span-6 aspect-[4/3] md:h-[400px] lg:h-[500px] group cursor-zoom-in" onClick={() => openAt(0)}>
-            <Image src={hero?.url || imgs[0].url} alt={hero?.alt || imgs[0].alt || "صورة"} fill sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 600px" className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.02] rounded-none" />
+      <div className="mx-auto max-w-[1200px] rounded-2xl overflow-hidden shadow-xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
+          {/* هيرو - 50% بالضبط */}
+          <div className="relative aspect-[4/3] md:aspect-[3/2] group cursor-zoom-in" onClick={() => openAt(0)}>
+            <Image 
+              src={hero?.url || imgs[0].url} 
+              alt={hero?.alt || imgs[0].alt || "صورة"} 
+              fill 
+              sizes="(max-width: 768px) 100vw, 600px" 
+              className="object-cover transition-transform duration-300 group-hover:scale-[1.02]" 
+              style={{ objectPosition: 'center 30%' }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
-          {/* 4 مصغرات في 50% الأخرى */}
-          <div className="md:col-span-6 grid grid-cols-2 grid-rows-2 gap-px md:gap-px lg:gap-1 md:h-[400px] lg:h-[500px]">
-            {thumbs.map((t, i) => (
-              <div key={i} className="relative h-full group cursor-zoom-in" onClick={() => openAt(i + 1)}>
-                <Image src={t.url} alt={t.alt || "صورة"} fill sizes="(max-width: 768px) 50vw, (max-width: 1280px) 25vw, 300px" className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.03] rounded-none" />
-                {showMore && i === 3 && (
-                  <button onClick={(e) => { e.stopPropagation(); setIsOpen(true); }} className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 bg-black/55 text-white text-[11px] md:text-xs px-2.5 py-1 rounded-full">
-                    عرض كل الصور ({imgs.length})
-                  </button>
-                )}
-              </div>
+          {/* 4 مصغرات - 50% بالضبط */}
+          <div className="grid grid-cols-2 grid-rows-2 gap-0">
+            {thumbs.map((t, i) => {
+              const positions = ['center 25%', 'center center', 'center 35%', 'center center'];
+              return (
+                <div key={i} className="relative aspect-square group cursor-zoom-in" onClick={() => openAt(i + 1)}>
+                  <Image 
+                    src={t.url} 
+                    alt={t.alt || "صورة"} 
+                    fill 
+                    sizes="(max-width: 768px) 50vw, 300px" 
+                    className="object-cover transition-transform duration-300 group-hover:scale-[1.05]" 
+                    style={{ objectPosition: positions[i] }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  {showMore && i === 3 && (
+                    <div 
+                      onClick={(e) => { e.stopPropagation(); setIsOpen(true); }} 
+                      className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white hover:bg-black/70 transition-colors cursor-pointer"
+                    >
+                      <span className="text-3xl font-bold mb-1">+{imgs.length - 5}</span>
+                      <span className="text-sm">عرض كل الصور</span>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+            {/* في حال أقل من 4 صور مصغرة، نملأ بخلايا فارغة */}
+            {thumbs.length < 4 && Array.from({ length: 4 - thumbs.length }).map((_, i) => (
+              <div key={`empty-${i}`} className="relative aspect-square bg-neutral-100 dark:bg-neutral-800" />
             ))}
-            {/* في حال أقل من 4 صور مصغرة، لا نعرض خلايا فارغة */}
           </div>
         </div>
       </div>
