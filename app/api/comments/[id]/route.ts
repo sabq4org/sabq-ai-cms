@@ -39,14 +39,20 @@ export async function PATCH(
 
     // التحقق من الصلاحيات
     const user = await getCurrentUser();
+    console.log('[PATCH Comments] getCurrentUser result:', user?.email || 'null');
+    
     if (!user) {
+      console.log('[PATCH Comments] No user found - returning 401');
       return NextResponse.json(
         { success: false, error: "غير مصرح" },
         { status: 401 }
       );
     }
     const role = await getUserRole(user.id);
+    console.log('[PATCH Comments] User role:', role);
+    
     if (!["admin", "moderator"].includes(role)) {
+      console.log('[PATCH Comments] Insufficient permissions for role:', role);
       return NextResponse.json(
         { success: false, error: "صلاحيات غير كافية" },
         { status: 403 }
