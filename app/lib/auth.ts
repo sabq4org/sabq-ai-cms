@@ -87,6 +87,11 @@ export async function verifyPassword(
 export async function getCurrentUser(): Promise<User | null> {
   try {
     const cookieStore = await cookies();
+    
+    // تسجيل جميع الكوكيز المتاحة للتشخيص
+    console.log('[getCurrentUser] Available cookies:', 
+      Array.from(cookieStore.getAll()).map(c => c.name).join(', '));
+    
     // دعم أكثر من اسم للكوكيز الخاصة بالتوكن، مع مسار احتياطي لقراءة كوكيز "user"
     const tokenCookie =
       cookieStore.get("sabq_at") ||
@@ -95,15 +100,20 @@ export async function getCurrentUser(): Promise<User | null> {
       cookieStore.get("token") ||
       cookieStore.get("jwt");
 
+    console.log('[getCurrentUser] Token cookie found:', tokenCookie ? tokenCookie.name : 'none');
+
     let payload: any = null;
     if (tokenCookie) {
       payload = await verifyToken(tokenCookie.value);
+      console.log('[getCurrentUser] Token verified:', !!payload);
     }
 
     // إن لم نجد توكن صالح
     if (!payload) {
       const allowUserCookieFallback = (process.env.ALLOW_USER_COOKIE_FALLBACK || '').toLowerCase() === 'true';
+      console.log('[getCurrentUser] No valid token, user cookie fallback allowed:', allowUserCookieFallback);
       if (!allowUserCookieFallback) {
+        console.log('[getCurrentUser] Returning null - no token and fallback disabled');
         return null;
       }
       const userCookie = cookieStore.get("user");
