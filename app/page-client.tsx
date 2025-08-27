@@ -16,8 +16,8 @@ const SmartInsightsWidget = dynamic(() => import("@/components/ai/SmartInsightsW
 import PageWrapper from "@/components/PageWrapper";
 import { SmartSlot } from "@/components/home/SmartSlot";
 
-// import EnhancedMobileNewsCard from "@/components/mobile/EnhancedMobileNewsCard";
-// import SmartContentNewsCard from "@/components/mobile/SmartContentNewsCard";
+import UnifiedMobileNewsCard from "@/components/mobile/UnifiedMobileNewsCard";
+import SmartContentNewsCard from "@/components/mobile/SmartContentNewsCard";
 
 import AdBanner from "@/components/ads/AdBanner";
 import CloudImage from "@/components/ui/CloudImage";
@@ -27,7 +27,6 @@ import { generatePersonalizedRecommendations } from "@/lib/ai-recommendations";
 import { formatDateNumeric } from "@/lib/date-utils";
 import { SafeDate } from "@/lib/safe-date";
 import { getArticleLink } from "@/lib/utils";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
 
