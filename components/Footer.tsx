@@ -42,22 +42,11 @@ export default function Footer() {
   }, []);
   const footerSections = [
     {
-      title: "أقسام سبق",
-      links: [
-        { label: "الأخبار", url: "/news" },
-        { label: "رياضة", url: "/category/sports" },
-        { label: "اقتصاد", url: "/category/economy" },
-        { label: "تقنية", url: "/category/tech" },
-        { label: "سيارات", url: "/category/cars" },
-      ],
-    },
-    {
       title: "عن سبق",
       links: [
         { label: "من نحن", url: "/about" },
         { label: "سياسة الخصوصية", url: "/privacy-policy" },
         { label: "شروط الاستخدام", url: "/terms-of-use" },
-        { label: "دليل المستخدم", url: "/user-guide" },
         { label: "اتصل بنا", url: "/contact" },
       ],
     },
@@ -66,8 +55,6 @@ export default function Footer() {
       links: [
         { label: "🔁 نظام الولاء", url: "/loyalty-program" },
         { label: "📻 النشرات الصوتية", url: "/audio-archive" },
-        { label: "إعلانات تجارية", url: "/ads" },
-        { label: "الاشتراكات", url: "/subscriptions" },
         { label: "النشرة البريدية", url: "/newsletter" },
         { label: "الأرشيف", url: "/archive" },
       ],
@@ -110,8 +97,8 @@ export default function Footer() {
       }}
     >
       {/* Desktop Footer */}
-      <div className="hidden lg:block" style={{ maxWidth: '1400px', margin: '0 auto', padding: '48px 16px' }}>
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+      <div className="hidden lg:block" style={{ maxWidth: '1400px', margin: '0 auto', padding: '32px 16px' }}>
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
           {/* عمود الشعار والوصف - 3 أعمدة */}
           <div className="md:col-span-3 order-last md:order-none">
             <Link href="/" className="inline-flex items-center" aria-label="الصفحة الرئيسية">
@@ -121,12 +108,12 @@ export default function Footer() {
                 height={48}
               />
             </Link>
-            <p className="mt-3 text-sm leading-6 text-gray-500 dark:text-gray-400">
+            <p className="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">
               صحيفة إلكترونية سعودية شاملة، نعمل على مدار الساعة لننقل لكم
               الحقيقة كما هي، ونغطي كافة الأحداث المحلية والعالمية بمصداقية
               واحترافية.
             </p>
-            <div className="mt-4 flex items-center gap-3">
+            <div className="mt-3 flex items-center gap-3">
               {socialLinks.map((social) => (
                 <a
                   key={social.name}
@@ -142,9 +129,9 @@ export default function Footer() {
             </div>
           </div>
           
-          {/* أعمدة الروابط - 3 أعمدة لكل قسم */}
+          {/* أعمدة الروابط - 4.5 أعمدة لكل قسم (توزيع أفضل بعد إزالة قسم) */}
           {footerSections.map((section) => (
-            <div key={section.title} className="md:col-span-3 space-y-3">
+            <div key={section.title} className="md:col-span-4 space-y-2">
               <h3 className="font-semibold text-gray-800 dark:text-white">
                 {section.title}
               </h3>
@@ -153,18 +140,7 @@ export default function Footer() {
                   <li key={link.url}>
                     <Link
                       href={link.url}
-                      className="transition-colors"
-                      style={{
-                        ':hover': {
-                          color: currentThemeColor || '#3b82f6'
-                        }
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.color = currentThemeColor || '#3b82f6';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.color = '';
-                      }}
+                      className="transition-colors hover:text-blue-600 dark:hover:text-blue-400"
                     >
                       {link.label}
                     </Link>
@@ -177,7 +153,7 @@ export default function Footer() {
         
         {/* حقوق النشر */}
         <div 
-          className="mt-16 border-t pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-500 dark:text-gray-400"
+          className="mt-8 border-t pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-500 dark:text-gray-400"
           style={{
             borderColor: currentThemeColor 
               ? `${currentThemeColor}20` 
@@ -190,8 +166,8 @@ export default function Footer() {
       </div>
 
       {/* Mobile Footer */}
-      <div className="lg:hidden" style={{ maxWidth: '1400px', margin: '0 auto', padding: '32px 16px' }}>
-        <div className="grid grid-cols-1 gap-6">
+      <div className="lg:hidden" style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px 16px' }}>
+        <div className="grid grid-cols-1 gap-4">
           {/* الشعار والعبارة أعلى الفوتر */}
           <div className="order-first text-center">
             <Link href="/" className="inline-flex justify-center" aria-label="الصفحة الرئيسية">
@@ -201,7 +177,7 @@ export default function Footer() {
                 height={40}
               />
             </Link>
-            <p className="mt-3 text-xs leading-5 text-gray-600 dark:text-gray-400 max-w-xs mx-auto">
+            <p className="mt-2 text-xs leading-5 text-gray-600 dark:text-gray-400 max-w-xs mx-auto">
               صحيفة إلكترونية سعودية شاملة
             </p>
           </div>
@@ -229,13 +205,7 @@ export default function Footer() {
                       <Link
                         key={link.url}
                         href={link.url}
-                        className="text-xs text-gray-600 dark:text-gray-400 py-1 transition-colors"
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.color = currentThemeColor || '#3b82f6';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.color = '';
-                        }}
+                        className="text-xs text-gray-600 dark:text-gray-400 py-1 transition-colors hover:text-blue-600 dark:hover:text-blue-400"
                       >
                         {link.label}
                       </Link>
@@ -248,7 +218,7 @@ export default function Footer() {
           
           {/* التواصل الاجتماعي */}
           <div className="text-center">
-            <div className="flex justify-center gap-3 mt-4">
+            <div className="flex justify-center gap-3 mt-2">
               {socialLinks.map((social) => (
                 <a
                   key={social.name}
@@ -266,7 +236,7 @@ export default function Footer() {
 
           
           {/* رابط نظام الولاء للموبايل */}
-          <div className="mb-4">
+          <div className="mb-3">
             <Link
               href="/loyalty-program"
               className="group block w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-center rounded-xl font-semibold border border-blue-500/40 hover:from-blue-700 hover:to-indigo-700 transition-colors shadow-sm hover:shadow"
@@ -281,7 +251,7 @@ export default function Footer() {
 
           {/* حقوق النشر */}
           <div 
-            className="text-center pt-4 border-t"
+            className="text-center pt-3 border-t"
             style={{
               borderColor: currentThemeColor 
                 ? `${currentThemeColor}20` 
@@ -301,4 +271,4 @@ export default function Footer() {
   );
 }
 
-// Force rebuild - 2025-01-04
+// Force rebuild - 2025-01-04 - Footer optimized
