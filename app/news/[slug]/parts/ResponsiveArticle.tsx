@@ -128,19 +128,6 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
                 {/* خط فاصل */}
                 <hr className="border-neutral-200 dark:border-neutral-800 my-6" />
 
-                {/* الموجز الذكي للموبايل */}
-                {article.summary && (
-                  <div className="block md:hidden bg-white dark:bg-neutral-900 rounded-xl p-4 mb-6 border border-neutral-200 dark:border-neutral-800">
-                    <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
-                      <span className="text-purple-600 dark:text-purple-400">✨</span>
-                      الموجز الذكي
-                    </h3>
-                    <p className="text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-                      {article.summary}
-                    </p>
-                  </div>
-                )}
-
               <ArticleBody html={contentHtml} article={article} hiddenImageUrls={hiddenImageUrls} />
 
               {/* ألبوم الصور للموبايل */}
