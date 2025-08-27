@@ -142,18 +142,20 @@ export async function GET(request: NextRequest) {
           id: c.article_id,
           title: articleMap.get(c.article_id)?.title || "",
         },
-        author: c.user_id
-          ? {
+        author: (() => {
+          const displayName = c.metadata?.displayName || c.metadata?.guestName;
+          if (displayName) {
+            return { name: displayName, avatar: undefined };
+          }
+          if (c.user_id) {
+            return {
               id: c.user_id,
               name: userMap.get(c.user_id)?.name || "مستخدم",
-
               avatar: userMap.get(c.user_id)?.avatar || undefined,
-            }
-          : {
-              name: c.metadata?.guestName || "زائر",
-
-              avatar: undefined,
-            },
+            };
+          }
+          return { name: "زائر", avatar: undefined };
+        })(),
       }));
 
       return NextResponse.json(
@@ -230,16 +232,16 @@ export async function GET(request: NextRequest) {
         content: comment.content,
         status: comment.status,
         createdAt: comment.created_at,
-        user: comment.user_id
-          ? {
-              id: comment.user_id,
-              name: u?.name || "مستخدم",
-              avatar: u?.avatar || null,
-            }
-          : {
-              name: comment.metadata?.guestName || "زائر",
-              avatar: null,
-            },
+        user: (() => {
+          const displayName = comment.metadata?.displayName || comment.metadata?.guestName;
+          if (displayName && !comment.user_id) {
+            return { name: displayName, avatar: null };
+          }
+          if (comment.user_id) {
+            return { id: comment.user_id, name: u?.name || "مستخدم", avatar: u?.avatar || null };
+          }
+          return { name: "زائر", avatar: null };
+        })(),
         replies: [],
         reportsCount: 0,
         metadata: comment.metadata,

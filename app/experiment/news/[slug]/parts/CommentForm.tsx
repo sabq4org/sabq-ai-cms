@@ -10,6 +10,7 @@ interface CommentFormProps {
 
 export default function CommentForm({ articleId, articleSlug }: CommentFormProps) {
   const [comment, setComment] = useState("");
+  const [guestName, setGuestName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -21,6 +22,11 @@ export default function CommentForm({ articleId, articleSlug }: CommentFormProps
     if (!comment.trim()) {
       setError("يرجى كتابة تعليق");
       return;
+    }
+    // إذا لم يكن هناك جلسة مستخدم، نتحقق من اسم الزائر
+    if (!guestName.trim()) {
+      // غير إلزامي إذا كان المستخدم مسجلاً، لكن هنا لا نملك هذه المعلومة في العميل.
+      // لذا نرسل guestName فقط إن وُجد.
     }
 
     setIsSubmitting(true);
@@ -36,6 +42,7 @@ export default function CommentForm({ articleId, articleSlug }: CommentFormProps
           articleId: articleId,
           content: comment.trim(),
           article_slug: articleSlug,
+          guestName: guestName.trim() || undefined,
         }),
       });
 
@@ -47,6 +54,7 @@ export default function CommentForm({ articleId, articleSlug }: CommentFormProps
 
       // مسح الحقل وإظهار رسالة النجاح
       setComment("");
+      setGuestName("");
       setSuccess(true);
       
       // تحديث الصفحة بعد 3 ثواني
@@ -91,6 +99,15 @@ export default function CommentForm({ articleId, articleSlug }: CommentFormProps
       )}
       
       <form onSubmit={handleSubmit} className="space-y-3">
+        {/* اسم الزائر (اختياري للمسجّل، مطلوب لغير المسجّل) */}
+        <input
+          type="text"
+          value={guestName}
+          onChange={(e) => setGuestName(e.target.value)}
+          placeholder="اكتب اسمك (للزوار)"
+          className="w-full p-3 border border-neutral-200 dark:border-neutral-700 rounded-xl bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-300 dark:focus:ring-neutral-600 focus:border-neutral-300 dark:focus:border-neutral-600 text-sm"
+          disabled={isSubmitting || success}
+        />
         <textarea
           value={comment}
           onChange={(e) => setComment(e.target.value)}
