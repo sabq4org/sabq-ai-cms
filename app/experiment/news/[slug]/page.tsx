@@ -298,13 +298,7 @@ export default async function ExperimentalNewsPage({ params }: { params: Promise
             <CommentsSection articleId={article.id} articleSlug={params.slug} />
           </section>
           <aside className="lg:col-span-4">
-            <StickyInsightsPanel insights={insights} article={{
-              id: article.id,
-              summary: article.summary,
-              likes: (article as any).likes || 0,
-              shares: (article as any).shares || 0,
-              saves: (article as any).saves || 0
-            }} />
+            <StickyInsightsPanel insights={insights} article={article} />
           </aside>
           </div>
           </Container>
