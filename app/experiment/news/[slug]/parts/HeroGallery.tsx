@@ -59,30 +59,32 @@ function AlbumGrid({ imgs }: { imgs: Img[] }) {
     return () => document.removeEventListener("keydown", onKey);
   }, [isOpen, close, next, prev]);
 
-  const firstThree = useMemo(() => imgs.slice(0, 3), [imgs]);
-  const showMore = imgs.length > 3;
+  // نأخذ أول 5 صور: صورة هيرو + أربع مصغرات
+  const hero = imgs[0];
+  const thumbs = useMemo(() => imgs.slice(1, 5), [imgs]);
+  const showMore = imgs.length > 5;
 
   return (
     <div className="relative w-full py-4 px-4 md:px-6">
-      <div className="mx-auto max-w-[1200px]">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3 lg:gap-4">
-          {/* الصورة الكبيرة (تأخذ صفّين) */}
-          <div className="relative md:col-span-2 row-span-2 aspect-[4/3] md:aspect-auto md:h-[520px] overflow-hidden rounded-2xl group cursor-zoom-in" onClick={() => openAt(0)}>
-            <Image src={firstThree[0]?.url || imgs[0].url} alt={firstThree[0]?.alt || imgs[0].alt || "صورة"} fill sizes="(max-width: 768px) 100vw, 66vw" className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.02]" />
+      <div className="mx-auto max-w-[1200px] rounded-2xl overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-1 md:gap-1.5 lg:gap-2">
+          {/* هيرو 50% */}
+          <div className="relative md:col-span-6 aspect-[4/3] md:aspect-[16/9] lg:h-[520px] group cursor-zoom-in" onClick={() => openAt(0)}>
+            <Image src={hero?.url || imgs[0].url} alt={hero?.alt || imgs[0].alt || "صورة"} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.02] rounded-none" />
           </div>
-          {/* الصورتان الجانبيتان */}
-          <div className="grid grid-rows-2 gap-2 md:gap-3">
-            <div className="relative aspect-[4/3] overflow-hidden rounded-2xl group cursor-zoom-in" onClick={() => openAt(1)}>
-              <Image src={(firstThree[1] || imgs[1] || imgs[0]).url} alt={(firstThree[1] || imgs[1] || imgs[0]).alt || "صورة"} fill sizes="33vw" className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.03]" />
-            </div>
-            <div className="relative aspect-[4/3] overflow-hidden rounded-2xl group cursor-zoom-in" onClick={() => openAt(2)}>
-              <Image src={(firstThree[2] || imgs[2] || imgs[0]).url} alt={(firstThree[2] || imgs[2] || imgs[0]).alt || "صورة"} fill sizes="33vw" className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.03]" />
-              {showMore && (
-                <button onClick={(e) => { e.stopPropagation(); setIsOpen(true); }} className="absolute bottom-3 left-3 rtl:left-auto rtl:right-3 bg-black/50 text-white text-xs md:text-sm px-3 py-1.5 rounded-full">
-                  عرض كل الصور ({imgs.length})
-                </button>
-              )}
-            </div>
+          {/* 4 مصغرات في 50% الأخرى */}
+          <div className="md:col-span-6 grid grid-cols-2 grid-rows-2 gap-1 md:gap-1.5 lg:gap-2 md:h-[520px]">
+            {thumbs.map((t, i) => (
+              <div key={i} className="relative group cursor-zoom-in" onClick={() => openAt(i + 1)}>
+                <Image src={t.url} alt={t.alt || "صورة"} fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.03] rounded-none" />
+                {showMore && i === 3 && (
+                  <button onClick={(e) => { e.stopPropagation(); setIsOpen(true); }} className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 bg-black/55 text-white text-[11px] md:text-xs px-2.5 py-1 rounded-full">
+                    عرض كل الصور ({imgs.length})
+                  </button>
+                )}
+              </div>
+            ))}
+            {/* في حال أقل من 4 صور مصغرة، لا نعرض خلايا فارغة */}
           </div>
         </div>
       </div>
@@ -99,7 +101,7 @@ function AlbumGrid({ imgs }: { imgs: Img[] }) {
           <button onClick={(e) => { e.stopPropagation(); next(); }} className="absolute right-3 rtl:right-auto rtl:left-3 text-white p-2 rounded-full bg-white/10 hover:bg-white/20">
             <ChevronLeft className="w-7 h-7 rtl:rotate-180" />
           </button>
-          <img src={imgs[index].url} alt={imgs[index].alt || "صورة"} className="max-h-[85vh] max-w-[90vw] object-contain select-none" loading="lazy" />
+          <img src={imgs[index].url} alt={imgs[index].alt || "صورة"} className="max-h-[85vh] max-w-[90vw] object-contain select-none rounded-2xl" loading="lazy" />
         </div>
       )}
     </div>
