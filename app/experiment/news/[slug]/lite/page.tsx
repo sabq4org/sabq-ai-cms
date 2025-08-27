@@ -289,6 +289,7 @@ export default async function LiteNewsPage({ params }: { params: Promise<{ slug:
           <SmartQuestions 
             articleId={article.id} 
             articleTitle={article.title}
+            content={article.content || ""}
             author={article.article_author || article.author}
           />
 

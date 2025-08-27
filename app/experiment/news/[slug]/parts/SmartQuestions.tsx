@@ -1,10 +1,12 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
-import { MessageCircle, ChevronDown, ChevronUp, Sparkles, Send, Mic, MicOff } from "lucide-react";
 
-interface SmartQuestionsProps {
+import React, { useMemo, useState } from "react";
+import { Check, Clipboard, Loader2, MessageCircleQuestion, RefreshCw, ChevronDown } from "lucide-react";
+
+interface Props {
   articleId: string;
   articleTitle: string;
+  content?: string;
   author?: {
     id: string;
     name: string;
@@ -13,251 +15,258 @@ interface SmartQuestionsProps {
   };
 }
 
-export default function SmartQuestions({ articleId, articleTitle, author }: SmartQuestionsProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [question, setQuestion] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
-  const [questionSent, setQuestionSent] = useState(false);
-  const [showQuestions, setShowQuestions] = useState(false);
-  
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+const SmartQuestions: React.FC<Props> = ({ articleId, articleTitle, content = "", author }) => {
+  const [loading, setLoading] = useState(false);
+  const [questions, setQuestions] = useState<any[]>([]);
+  const [answerLoading, setAnswerLoading] = useState<string | null>(null);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [copiedFor, setCopiedFor] = useState<string | null>(null);
+  const [pollSubmitting, setPollSubmitting] = useState<string | null>(null);
+  const [pollResults, setPollResults] = useState<Record<string, { counts: number[]; total: number }>>({});
+  const [open, setOpen] = useState(false);
 
-  // تحديث ارتفاع textarea تلقائياً
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-    }
-  }, [question]);
+  const canGenerate = useMemo(() => content.length > 30 || articleTitle.length > 10, [content, articleTitle]);
 
-  // إرسال السؤال
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!question.trim() || isSubmitting) return;
-
-    setIsSubmitting(true);
-    
-    // محاكاة إرسال السؤال
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    setQuestionSent(true);
-    setQuestion('');
-    setIsSubmitting(false);
-    
-    // إخفاء رسالة النجاح بعد 3 ثواني
-    setTimeout(() => {
-      setQuestionSent(false);
-    }, 3000);
-  };
-
-  // بدء/إيقاف التسجيل الصوتي
-  const toggleRecording = () => {
-    if (!isRecording) {
-      setIsRecording(true);
-      // محاكاة التسجيل
-      setTimeout(() => {
-        setIsRecording(false);
-        setQuestion(prev => prev + (prev ? ' ' : '') + '[تم إدراج تسجيل صوتي]');
-      }, 3000);
-    } else {
-      setIsRecording(false);
+  const generate = async () => {
+    if (!canGenerate) return;
+    setLoading(true);
+    try {
+      // محاكاة توليد الأسئلة - يمكن استبدالها بـ API حقيقي لاحقاً
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      setQuestions([
+        {
+          question: "ما هي النقاط الرئيسية في هذا الخبر؟",
+          type: "general",
+          icon: "📌"
+        },
+        {
+          question: "من هم الأطراف المعنية بهذا الخبر؟",
+          type: "general",
+          icon: "👥"
+        },
+        {
+          question: "ما هي التوقعات المستقبلية لهذا الموضوع؟",
+          type: "general", 
+          icon: "🔮"
+        },
+        {
+          question: "ما رأيك في هذا الخبر؟",
+          type: "poll",
+          options: ["إيجابي", "سلبي", "محايد", "غير متأكد"],
+          icon: "📊"
+        }
+      ]);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // اقتراحات الأسئلة السريعة
-  const quickQuestions = [
-    'ما رأيك في التطورات الحديثة؟',
-    'كيف تحلل الوضع الحالي؟',
-    'ما توقعاتك للمستقبل؟',
-    'ما نصيحتك للقراء؟'
-  ];
-
-  // أسئلة شائعة سابقة
-  const popularQuestions = [
-    {
-      id: 1,
-      text: "هل هناك تفاصيل إضافية حول هذا الموضوع؟",
-      author_name: "أحمد محمد",
-      created_at: "منذ 3 ساعات",
-      likes: 24,
-      answer: "نعم، هناك تفاصيل إضافية مهمة تتعلق بالجوانب الفنية والتقنية للموضوع، وسيتم نشر تقرير مفصل قريباً."
-    },
-    {
-      id: 2,
-      text: "ما هي المصادر التي اعتمدت عليها في هذا الخبر؟",
-      author_name: "فاطمة الزهراء",
-      created_at: "منذ 5 ساعات",
-      likes: 18,
-      answer: "اعتمدت على مصادر رسمية متعددة تشمل البيانات الحكومية والتقارير الدولية المتخصصة."
-    },
-    {
-      id: 3,
-      text: "هل يمكن توضيح الأثر المتوقع على المواطنين؟",
-      author_name: "خالد العمري",
-      created_at: "منذ 8 ساعات",
-      likes: 31,
-      answer: "التأثير المباشر سيكون إيجابياً على المدى الطويل، خاصة فيما يتعلق بتحسين الخدمات وتسهيل الإجراءات."
+  const ask = async (qObj: any) => {
+    const q = qObj?.question || String(qObj);
+    const qType = qObj?.type;
+    if (!q) return;
+    setAnswerLoading(q);
+    try {
+      // محاكاة إنشاء إجابة - يمكن استبدالها بـ API حقيقي لاحقاً
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const mockAnswers: Record<string, string> = {
+        "ما هي النقاط الرئيسية في هذا الخبر؟": "يتناول هذا الخبر عدة نقاط مهمة تشمل التطورات الأخيرة في الموضوع، والتأثيرات المحتملة على المجتمع، بالإضافة إلى آراء الخبراء والمختصين في هذا المجال.",
+        "من هم الأطراف المعنية بهذا الخبر؟": "الأطراف المعنية تشمل الجهات الحكومية المسؤولة، والمواطنين المتأثرين بشكل مباشر، بالإضافة إلى المؤسسات والشركات ذات العلاقة بالموضوع.",
+        "ما هي التوقعات المستقبلية لهذا الموضوع؟": "بناءً على التحليلات والمعطيات الحالية، من المتوقع أن نشهد تطورات إيجابية في المستقبل القريب، مع احتمالية حدوث تغييرات تدريجية في السياسات والإجراءات المتعلقة."
+      };
+      
+      setAnswers((prev) => ({ ...prev, [q]: mockAnswers[q] || "جاري العمل على إجابة مفصلة لهذا السؤال..." }));
+    } finally {
+      setAnswerLoading(null);
     }
-  ];
+  };
+
+  const vote = async (qObj: any, optionIndex: number) => {
+    const qText = qObj?.question || String(qObj);
+    if (!qText || !Array.isArray(qObj?.options)) return;
+    setPollSubmitting(qText);
+    try {
+      // محاكاة التصويت
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setPollResults((prev) => ({ 
+        ...prev, 
+        [qText]: { 
+          counts: [35, 15, 40, 10], // نتائج تجريبية
+          total: 100 
+        } 
+      }));
+    } finally {
+      setPollSubmitting(null);
+    }
+  };
+
+  const copyAnswer = async (q: string) => {
+    const a = answers[q];
+    if (!a) return;
+    try {
+      await navigator.clipboard.writeText(a);
+      setCopiedFor(q);
+      setTimeout(() => setCopiedFor(null), 1500);
+    } catch {}
+  };
 
   return (
-    <div className="mt-8 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm overflow-hidden">
-      {/* الهيدر */}
-      <div
-        className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 cursor-pointer"
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-              <MessageCircle className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="font-bold text-lg">اسأل الكاتب</h3>
-              {author && (
-                <p className="text-blue-100 text-sm">
-                  {author.name} • {author.role || "مراسل صحفي"}
-                </p>
-              )}
-            </div>
+    <section className="relative mt-8 overflow-hidden rounded-2xl border border-neutral-200/60 dark:border-neutral-800/60">
+      {/* زخرفة خلفية ناعمة */}
+      <div className="pointer-events-none absolute -top-24 -left-24 h-56 w-56 rounded-full bg-purple-200/30 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-24 -right-24 h-56 w-56 rounded-full bg-indigo-200/30 blur-3xl" />
+
+      <div className="relative p-4 sm:p-6">
+        <div className="flex items-start gap-3 mb-2">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-500 to-indigo-500 text-white flex items-center justify-center shadow-sm">
+            <MessageCircleQuestion className="w-5 h-5" />
           </div>
-          
+          <div className="flex-1">
+            <h2 className="text-base sm:text-lg font-bold text-neutral-900 dark:text-neutral-100">
+              أسئلة ذكية حول الخبر
+            </h2>
+            <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+              اسأل الذكاء الاصطناعي عن هذا الخبر واحصل على إجابات مبنية على المحتوى
+            </p>
+          </div>
           <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 animate-pulse" />
-            {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+            {questions.length > 0 && (
+              <button
+                onClick={generate}
+                className="inline-flex items-center gap-1 text-sm text-purple-700 dark:text-purple-300 hover:text-purple-800 transition-colors"
+              >
+                <RefreshCw className="w-4 h-4" /> إعادة التوليد
+              </button>
+            )}
+            <button
+              onClick={() => setOpen((v) => !v)}
+              aria-expanded={open}
+              className="inline-flex items-center gap-1 text-sm text-neutral-600 dark:text-neutral-300 hover:text-neutral-800 dark:hover:text-neutral-100 transition-colors"
+              title={open ? "إخفاء" : "إظهار"}
+            >
+              <span className="hidden sm:inline">{open ? "إخفاء" : "إظهار"}</span>
+              <ChevronDown className={`w-4 h-4 transition-transform ${open ? "rotate-180" : "rotate-0"}`} />
+            </button>
           </div>
         </div>
-      </div>
 
-      {/* المحتوى القابل للطي */}
-      {isExpanded && (
-        <div className="p-4 space-y-4 bg-neutral-50 dark:bg-neutral-900/50">
-          {/* رسالة النجاح */}
-          {questionSent && (
-            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3 text-green-700 dark:text-green-300 text-sm flex items-center gap-2">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              تم إرسال سؤالك بنجاح! سيتم الرد عليك قريباً.
-            </div>
-          )}
-
-          {/* نموذج السؤال */}
-          <form onSubmit={handleSubmit} className="space-y-3">
-            <div className="relative">
-              <textarea
-                ref={textareaRef}
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                placeholder="اكتب سؤالك هنا..."
-                className="w-full px-4 py-3 pr-12 bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-xl 
-                         focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none
-                         text-neutral-900 dark:text-neutral-100 placeholder-neutral-500"
-                rows={1}
-                disabled={isSubmitting}
-              />
-              
-              {/* زر التسجيل الصوتي */}
-              <button
-                type="button"
-                onClick={toggleRecording}
-                className={`absolute left-3 top-3 p-2 rounded-lg transition-colors ${
-                  isRecording 
-                    ? 'bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 animate-pulse' 
-                    : 'hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-400'
-                }`}
-              >
-                {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-              </button>
-            </div>
-
-            {/* اقتراحات الأسئلة السريعة */}
-            <div className="flex flex-wrap gap-2">
-              {quickQuestions.map((q, index) => (
-                <button
-                  key={index}
-                  type="button"
-                  onClick={() => setQuestion(q)}
-                  className="px-3 py-1.5 bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 
-                           rounded-full text-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors
-                           text-neutral-700 dark:text-neutral-300"
-                >
-                  {q}
-                </button>
-              ))}
-            </div>
-
-            {/* زر الإرسال */}
+        {/* الحالة الأولية */}
+        {open && questions.length === 0 ? (
+          <div className="mt-3">
             <button
-              type="submit"
-              disabled={!question.trim() || isSubmitting}
-              className={`w-full py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2 ${
-                question.trim() && !isSubmitting
-                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg transform hover:scale-[1.02]'
-                  : 'bg-neutral-200 dark:bg-neutral-800 text-neutral-500 cursor-not-allowed'
-              }`}
+              onClick={generate}
+              disabled={!canGenerate || loading}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/20 hover:shadow-purple-500/30 active:scale-[0.99] transition-all disabled:opacity-60"
             >
-              {isSubmitting ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  جاري الإرسال...
-                </>
-              ) : (
-                <>
-                  <Send className="w-4 h-4" />
-                  إرسال السؤال
-                </>
-              )}
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              {loading ? "جاري التوليد..." : "توليد الأسئلة الذكية"}
             </button>
-          </form>
-
-          {/* عرض/إخفاء الأسئلة الشائعة */}
-          <button
-            onClick={() => setShowQuestions(!showQuestions)}
-            className="w-full text-center text-sm text-blue-600 dark:text-blue-400 hover:underline flex items-center justify-center gap-1"
-          >
-            {showQuestions ? 'إخفاء' : 'عرض'} الأسئلة الشائعة ({popularQuestions.length})
-            {showQuestions ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          </button>
-
-          {/* الأسئلة الشائعة */}
-          {showQuestions && (
-            <div className="space-y-3">
-              {popularQuestions.map((q) => (
+            {!canGenerate && (
+              <p className="text-xs text-neutral-500 mt-2">أضف محتوى أطول قليلاً لتفعيل التوليد</p>
+            )}
+          </div>
+        ) : open && (
+          <div className="mt-4">
+            <div className="grid gap-2 sm:gap-3">
+              {questions.map((q) => (
                 <div
-                  key={q.id}
-                  className="bg-white dark:bg-neutral-800 rounded-xl p-4 border border-neutral-200 dark:border-neutral-700"
+                  key={q?.question || String(q)}
+                  className="group rounded-lg border border-neutral-200/60 dark:border-neutral-700/50"
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1">
-                      <p className="font-medium text-neutral-900 dark:text-neutral-100 mb-1">
-                        {q.text}
-                      </p>
-                      <div className="flex items-center gap-3 text-xs text-neutral-500 dark:text-neutral-400">
-                        <span>{q.author_name}</span>
-                        <span>•</span>
-                        <span>{q.created_at}</span>
-                        <span>•</span>
-                        <span className="flex items-center gap-1">
-                          ❤️ {q.likes}
-                        </span>
+                  <button
+                    onClick={() => ask(q)}
+                    className="w-full text-right px-3 sm:px-4 py-2.5 sm:py-3 text-[13px] sm:text-sm font-medium text-neutral-800 dark:text-neutral-100 hover:text-blue-700 dark:hover:text-blue-300 flex items-center justify-between gap-2"
+                  >
+                    <span className="leading-relaxed">
+                      {q?.icon ? <span className="ml-1">{q.icon}</span> : null}
+                      {q?.question || String(q)}
+                    </span>
+                    <span className="text-[10px] sm:text-xs text-neutral-400">{q?.type === 'poll' ? 'صوّت وشاهد النتائج' : 'عرض الإجابة'}</span>
+                  </button>
+
+                  {/* الإجابة */}
+                  {answers[q?.question || String(q)] && (
+                    <div className="px-3 sm:px-4 pb-3">
+                      <div className="rounded-md border border-neutral-200/60 dark:border-neutral-700/60 bg-neutral-50/60 dark:bg-neutral-900/60 p-2.5 text-[13px] leading-relaxed text-neutral-800 dark:text-neutral-200">
+                        {answers[q?.question || String(q)]}
                       </div>
-                      {q.answer && (
-                        <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                          <p className="text-sm text-blue-900 dark:text-blue-100">
-                            <strong>الرد:</strong> {q.answer}
-                          </p>
+                      <div className="mt-1.5 flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => copyAnswer(q?.question || String(q))}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-700"
+                        >
+                          {copiedFor === (q?.question || String(q)) ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 text-green-600" />
+                              <span>تم النسخ</span>
+                            </>
+                          ) : (
+                            <>
+                              <Clipboard className="w-3.5 h-3.5" />
+                              <span>نسخ الإجابة</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {answerLoading === (q?.question || String(q)) && (
+                    <div className="px-3 sm:px-4 pb-3 -mt-1">
+                      <div className="flex items-center gap-2 text-[12px] text-neutral-500 dark:text-neutral-400">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        جاري توليد الإجابة...
+                      </div>
+                    </div>
+                  )}
+
+                  {/* استطلاع رأي */}
+                  {q?.type === 'poll' && Array.isArray(q?.options) && (
+                    <div className="px-3 sm:px-4 pb-3 -mt-1">
+                      <div className="grid grid-cols-2 gap-2">
+                        {q.options.map((opt: string, idx: number) => (
+                          <button
+                            key={idx}
+                            onClick={() => vote(q, idx)}
+                            disabled={pollSubmitting === (q?.question || String(q))}
+                            className="w-full text-right px-3 py-1.5 rounded-md border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-700 text-[12px]"
+                          >
+                            {opt}
+                          </button>
+                        ))}
+                      </div>
+                      {pollResults[q?.question || String(q)] && (
+                        <div className="mt-2 text-[11px] text-neutral-600 dark:text-neutral-300">
+                          <div className="flex flex-col gap-1">
+                            {q.options.map((opt: string, idx: number) => {
+                              const res = pollResults[q?.question || String(q)];
+                              const count = res.counts[idx] || 0;
+                              const total = res.total || 0;
+                              const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+                              return (
+                                <div key={idx} className="flex items-center gap-2">
+                                  <span className="w-24 truncate">{opt}</span>
+                                  <div className="flex-1 h-2 rounded-full bg-neutral-200 dark:bg-neutral-700 overflow-hidden">
+                                    <div className="h-2 bg-gradient-to-r from-purple-500 to-indigo-500" style={{ width: `${pct}%` }} />
+                                  </div>
+                                  <span className="w-10 text-left">{pct}%</span>
+                                </div>
+                              )
+                            })}
+                          </div>
                         </div>
                       )}
                     </div>
-                  </div>
+                  )}
                 </div>
               ))}
             </div>
-          )}
-        </div>
-      )}
-    </div>
+          </div>
+        )}
+      </div>
+    </section>
   );
-}
+};
+
+export default SmartQuestions;

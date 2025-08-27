@@ -295,6 +295,7 @@ export default async function ExperimentalNewsPage({ params }: { params: Promise
             <SmartQuestions 
               articleId={article.id} 
               articleTitle={article.title}
+              content={article.content || ""}
               author={article.article_author || article.author}
             />
             
