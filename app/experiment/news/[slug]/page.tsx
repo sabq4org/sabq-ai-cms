@@ -289,6 +289,23 @@ export default async function ExperimentalNewsPage({ params }: { params: Promise
             </div>
 
             <ArticleBody html={contentHtml} article={article} hiddenImageUrls={hiddenImageUrls} />
+            
+            {/* قسم التعليقات */}
+            <div className="mt-12 pt-8 border-t border-neutral-200 dark:border-neutral-800">
+              <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+                <span>✍️</span>
+                <span>أضف تعليقك</span>
+              </h3>
+              <div className="bg-white dark:bg-neutral-900 border border-[#f0f0ef] dark:border-neutral-800 rounded-lg p-6">
+                <p className="text-neutral-600 dark:text-neutral-400 text-center">
+                  للمشاركة، يرجى{' '}
+                  <a href="/login" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+                    تسجيل الدخول
+                  </a>
+                  .
+                </p>
+              </div>
+            </div>
           </section>
           <aside className="lg:col-span-4">
             <StickyInsightsPanel insights={insights} article={article} />
