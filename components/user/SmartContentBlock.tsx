@@ -91,7 +91,7 @@ export default function SmartContentBlock({
       console.log('🔄 جلب المحتوى الذكي (محسّن)...');
       
       // استراتيجية تحميل سريع: جلب بيانات أقل وأكثر فعالية
-      const response = await fetch('/api/articles?limit=12&sort=published_at&order=desc', {
+      const response = await fetch('/api/articles?limit=20&sort=published_at&order=desc', {
         headers: {
           'Cache-Control': 'max-age=300' // 5 دقائق cache
         }
@@ -105,7 +105,7 @@ export default function SmartContentBlock({
         console.log('📊 عدد المقالات:', data.articles?.length || 0);
         
         // معالجة مبسطة وسريعة
-        const articles = (data.articles || []).slice(0, 12);
+        const articles = (data.articles || []).slice(0, 20);
         
         // وسم بسيط للتخصيص بدلاً من المعالجة المعقدة
         const enriched: Article[] = articles.map((article: any, index: number) => ({
@@ -390,7 +390,7 @@ export default function SmartContentBlock({
             gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
             gap: '20px'
           }}>
-            {articles.slice(0, 8).map((article) => (
+            {articles.slice(0, 20).map((article) => (
               <Link
                 key={article.id}
                 href={`/news/${article.slug}`}
