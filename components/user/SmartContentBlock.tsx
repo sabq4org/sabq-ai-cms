@@ -6,8 +6,6 @@ import Image from 'next/image';
 import { Sparkles, Calendar, Clock } from 'lucide-react';
 import ArticleViews from '@/components/ui/ArticleViews';
 import OldStyleNewsBlock from '@/components/old-style/OldStyleNewsBlock';
-import { useUserInterests } from '@/hooks/useUserInterests';
-import { useAuth } from '@/contexts/EnhancedAuthContextWithSSR';
 
 interface Article {
   id: string;
@@ -42,8 +40,6 @@ export default function SmartContentBlock({
   const [articles, setArticles] = useState<Article[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
-  const { interests, hasInterests } = useUserInterests();
-  const { isLoggedIn } = useAuth();
 
   // تحديد النصوص الموحدة للجميع
   const getContentByAuthStatus = () => {
@@ -59,9 +55,10 @@ export default function SmartContentBlock({
   // تحسين useEffect للتحميل السريع
   useEffect(() => {
     // لا ننتظر أي شيء، نبدأ التحميل مباشرة
+    const controller = new AbortController();
     const loadContent = async () => {
       try {
-        await fetchSmartContent();
+        await fetchSmartContent(controller.signal);
       } catch (error) {
         console.error('خطأ في التحميل:', error);
         setIsLoading(false);
@@ -69,10 +66,12 @@ export default function SmartContentBlock({
     };
     
     loadContent();
+    return () => controller.abort();
   }, []); // إزالة dependencies غير الضرورية
 
   useEffect(() => {
-    const handleResize = () => {
+    let raf = 0;
+    const compute = () => {
       try {
         const width = window.innerWidth;
         const isTouch = 'ontouchstart' in window || (navigator as any).maxTouchPoints > 0;
@@ -81,53 +80,48 @@ export default function SmartContentBlock({
         setIsMobile(false);
       }
     };
-    handleResize();
-    window.addEventListener('resize', handleResize, { passive: true } as any);
-    return () => window.removeEventListener('resize', handleResize as any);
+    const onResize = () => {
+      if (raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(compute);
+    };
+    compute();
+    window.addEventListener('resize', onResize, { passive: true } as any);
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener('resize', onResize as any);
+    };
   }, []);
 
-  const fetchSmartContent = async () => {
+  const fetchSmartContent = async (signal?: AbortSignal) => {
     try {
-      console.log('🔄 جلب المحتوى الذكي (محسّن)...');
-      
       // استراتيجية تحميل سريع: جلب بيانات أقل وأكثر فعالية
       const response = await fetch('/api/articles?limit=20&sort=published_at&order=desc', {
         headers: {
           'Cache-Control': 'max-age=300' // 5 دقائق cache
-        }
+        },
+        signal
       });
-      
-      console.log('📡 حالة الاستجابة:', response.status);
       
       if (response.ok) {
         const data = await response.json();
-        console.log('📦 البيانات المستلمة:', data);
-        console.log('📊 عدد المقالات:', data.articles?.length || 0);
-        
-        // معالجة مبسطة وسريعة
         const articles = (data.articles || []).slice(0, 20);
-        
-        // وسم بسيط للتخصيص بدلاً من المعالجة المعقدة
-        const enriched: Article[] = articles.map((article: any, index: number) => ({
+        const enriched: Article[] = articles.map((article: any) => ({
           ...article,
-          // تخصيص عشوائي بسيط للأداء
-          isPersonalized: Math.random() > 0.7, // 30% مخصص
+          isPersonalized: Math.random() > 0.7,
           confidence: Math.random() > 0.5 ? Math.floor(Math.random() * 15) + 80 : undefined,
         }));
-
-        console.log('✅ تم تعيين المقالات (محسّن):', enriched.length);
         setArticles(enriched);
       } else {
         console.error('❌ فشل في جلب المقالات:', response.status);
         // fallback سريع
         setArticles([]);
       }
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.name === 'AbortError') return;
       console.error('❌ Error fetching smart content:', error);
       // fallback سريع
       setArticles([]);
     } finally {
-      console.log('🏁 تم الانتهاء من التحميل (محسّن)');
       setIsLoading(false);
     }
   };
@@ -152,6 +146,43 @@ export default function SmartContentBlock({
     }
     return views.toString();
   };
+
+  // عرض هيكل عظمي خفيف أثناء تحديد حالة العرض (موبايل/ديسكتوب) لتقليل CLS
+  if (isMobile === null) {
+    return (
+      <div style={{ padding: '32px 0' }}>
+        <style jsx>{`
+          @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        `}</style>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+          gap: '20px'
+        }}>
+          {[1,2,3,4].map(i => (
+            <div key={i} style={{
+              background: 'hsl(var(--bg-elevated))',
+              border: '1px solid hsl(var(--line) / 0.6)',
+              borderRadius: '12px',
+              overflow: 'hidden',
+              height: '320px'
+            }}>
+              <div style={{
+                height: '180px',
+                background: 'linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)',
+                backgroundSize: '200% 100%',
+                animation: 'loading 1.5s infinite'
+              }} />
+              <div style={{ padding: '16px' }}>
+                <div style={{ height: '16px', background: '#e0e0e0', borderRadius: '4px', marginBottom: '8px' }} />
+                <div style={{ height: '16px', background: '#e0e0e0', borderRadius: '4px', width: '70%' }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   // في النسخة الخفيفة (الموبايل): نعرض بطاقات الطراز القديم فقط
   if (isMobile) {
@@ -259,37 +290,20 @@ export default function SmartContentBlock({
       position: 'relative',
       overflow: 'hidden'
     }}>
-      {/* CSS للانيميشن */}
+      {/* CSS للانيميشن + تحسين hover بدون JS لتقليل العمل على الخيط الرئيسي */}
       <style jsx>{`
         @keyframes loading {
           0% { background-position: 200% 0; }
           100% { background-position: -200% 0; }
         }
+        .smart-card { transition: transform 0.25s ease; will-change: transform; }
+        .smart-card:hover { transform: translateY(-4px); }
+        /* CSS-only hover for CTA button to avoid JS handlers */
+        .smart-cta { transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease; }
+        .smart-cta:hover { transform: translateY(-2px); background: linear-gradient(135deg, #DDD6FE 0%, #C7D2FE 100%); border-color: #C7D2FE; }
       `}</style>
-      {/* خلفية زخرفية */}
-      <div style={{
-        position: 'absolute',
-        top: '-100px',
-        left: '-100px',
-        width: '220px',
-        height: '220px',
-        background: 'radial-gradient(circle, hsl(var(--accent) / 0.10) 0%, transparent 70%)',
-        borderRadius: '50%',
-        filter: 'blur(42px)',
-        pointerEvents: 'none'
-      }} />
       
-      <div style={{
-        position: 'absolute',
-        bottom: '-100px',
-        right: '-100px',
-        width: '220px',
-        height: '220px',
-        background: 'radial-gradient(circle, hsl(var(--accent) / 0.10) 0%, transparent 70%)',
-        borderRadius: '50%',
-        filter: 'blur(42px)',
-        pointerEvents: 'none'
-      }} />
+      {/* تمت إزالة الخلفيات الزخرفية ذات الضبابية لتقليل الطلاء وإصلاح CLS */}
 
       {/* المحتوى */}
       <div style={{ position: 'relative', zIndex: 1 }}>
@@ -390,238 +404,211 @@ export default function SmartContentBlock({
             gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
             gap: '20px'
           }}>
-            {articles.slice(0, 20).map((article) => (
-              <Link
-                key={article.id}
-                href={`/news/${article.slug}`}
-                style={{ textDecoration: 'none' }}
-              >
-                {(() => {
-                  const isBreaking = Boolean((article as any).breaking || (article as any).is_breaking || (article as any)?.metadata?.breaking);
-                  const baseBg = isBreaking ? 'hsla(0, 78%, 55%, 0.14)' : 'hsl(var(--bg-elevated))';
-                  const hoverBg = isBreaking ? 'hsla(0, 78%, 55%, 0.22)' : 'hsl(var(--accent) / 0.06)';
-                  const baseBorder = isBreaking ? '1px solid hsl(0 72% 45% / 0.45)' : '1px solid hsl(var(--line))';
-                  return (
-                    <div style={{
-                      background: baseBg,
-                      border: baseBorder,
-                      borderRadius: '16px',
-                      overflow: 'hidden',
-                      transition: 'all 0.3s ease',
-                      cursor: 'pointer',
-                      height: '100%',
-                      display: 'flex',
-                      flexDirection: 'column'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-4px)';
-                      e.currentTarget.style.background = hoverBg;
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.background = baseBg;
-                    }}>
-                  {/* صورة الخبر */}
-                  <div style={{
-                    position: 'relative',
-                    height: '180px',
-                    width: '100%',
-                    background: 'hsl(var(--bg))',
-                    overflow: 'hidden'
-                  }}>
-                    {article.image ? (
-                      <Image
-                        src={article.image}
-                        alt={article.title}
-                        fill
-                        style={{ objectFit: 'cover' }}
-                      />
-                    ) : (
-                      <div style={{
-                        width: '100%',
-                        height: '100%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        background: 'linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%)',
-                        color: '#7C3AED'
-                      }}>
-                        <Sparkles className="w-12 h-12" />
-                      </div>
-                    )}
-                    {/* ليبل عاجل يحل محل التصنيف عند العاجل */}
-                    {(() => {
-                      const isBreaking = Boolean((article as any).breaking || (article as any).is_breaking || (article as any)?.metadata?.breaking);
-                      if (isBreaking) {
-                        return (
-                          <div style={{
-                            position: 'absolute',
-                            top: '12px',
-                            right: '12px',
-                            background: '#dc2626',
-                            color: 'white',
-                            padding: '4px 12px',
-                            borderRadius: '9999px',
-                            fontSize: '12px',
-                            fontWeight: 800,
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '6px'
-                          }}>
-                            <span style={{ fontSize: '12px' }}>⚡</span>
-                            عاجل
-                          </div>
-                        );
-                      }
-                      if (article.category) {
-                        return (
-                          <div style={{
-                            position: 'absolute',
-                            top: '12px',
-                            right: '12px',
-                            background: 'hsl(var(--accent))',
-                            color: 'white',
-                            padding: '4px 12px',
-                            borderRadius: '6px',
-                            fontSize: '12px',
-                            fontWeight: 600
-                          }}>
-                            {article.category.name}
-                          </div>
-                        );
-                      }
-                      return null;
-                    })()}
-                    
-                    {/* ليبل مخصص لك */}
-                    {article.isPersonalized && (
-                      <div style={{
-                        position: 'absolute',
-                        bottom: '12px',
-                        right: '12px',
-                        background: 'linear-gradient(135deg, #E0E7FF 0%, #C7D2FE 100%)',
-                        color: '#4C1D95',
-                        padding: '4px 10px',
-                        borderRadius: '6px',
-                        fontSize: '11px',
-                        fontWeight: '600',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        border: '1px solid #C7D2FE',
-                        backdropFilter: 'blur(8px)'
-                      }}>
-                        <Sparkles style={{ width: '12px', height: '12px' }} />
-                        مخصص لك
-                      </div>
-                    )}
-                    
-                    {/* نسبة الثقة */}
-                    {article.confidence && (
-                      <div style={{
-                        position: 'absolute',
-                        bottom: '12px',
-                        left: '12px',
-                        background: '#F5F3FF',
-                        border: '2px solid #E0E7FF',
-                        color: '#6B21A8',
-                        padding: '2px 8px',
-                        borderRadius: '12px',
-                        fontSize: '11px',
-                        fontWeight: '700',
-                        backdropFilter: 'blur(8px)'
-                      }}>
-                        {article.confidence}%
-                      </div>
-                    )}
-                  </div>
-
-                  {/* محتوى البطاقة */}
-                  <div style={{
-                    padding: '16px',
+            {articles.slice(0, 20).map((article, idx) => {
+              const isBreaking = Boolean((article as any).breaking || (article as any).is_breaking || (article as any)?.metadata?.breaking);
+              return (
+                <Link
+                  key={article.id}
+                  href={`/news/${article.slug}`}
+                  prefetch={false}
+                  style={{ textDecoration: 'none' }}
+                >
+                  <div className="smart-card" style={{
+                    background: isBreaking ? 'hsla(0, 78%, 55%, 0.14)' : 'hsl(var(--bg-elevated))',
+                    border: isBreaking ? '1px solid hsl(0 72% 45% / 0.45)' : '1px solid hsl(var(--line))',
+                    borderRadius: '16px',
+                    overflow: 'hidden',
+                    cursor: 'pointer',
+                    height: '100%',
                     display: 'flex',
-                    flexDirection: 'column',
-                    flex: 1
+                    flexDirection: 'column'
                   }}>
-                    {/* عنوان الخبر */}
-                    <h3 style={{
-                      fontSize: '16px',
-                      fontWeight: 600,
-                      color: ((article as any).breaking || (article as any).is_breaking || (article as any)?.metadata?.breaking) ? '#b91c1c' : 'hsl(var(--fg))',
-                      marginBottom: '12px',
-                      lineHeight: '1.5',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
+                    {/* صورة الخبر */}
+                    <div style={{
+                      position: 'relative',
+                      height: '180px',
+                      width: '100%',
+                      background: 'hsl(var(--bg))',
                       overflow: 'hidden'
                     }}>
-                      {article.title}
-                    </h3>
+                      {article.image ? (
+                        <Image
+                          src={article.image}
+                          alt={article.title}
+                          fill
+                          style={{ objectFit: 'cover' }}
+                          priority={idx < 2}
+                          loading={idx < 2 ? 'eager' : 'lazy'}
+                          decoding="async"
+                          sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 100vw"
+                        />
+                      ) : (
+                        <div style={{
+                          width: '100%',
+                          height: '100%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          background: 'linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%)',
+                          color: '#7C3AED'
+                        }}>
+                          <Sparkles className="w-12 h-12" />
+                        </div>
+                      )}
 
-                    {/* معلومات إضافية */}
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '16px',
-                      fontSize: '12px',
-                      color: 'hsl(var(--muted))',
-                      marginTop: 'auto'
-                    }}>
-                      {/* التاريخ */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <Calendar style={{ width: '14px', height: '14px' }} />
-                        <span>{formatDate(article.published_at)}</span>
-                      </div>
+                      {/* ليبل عاجل أو التصنيف */}
+                      {isBreaking ? (
+                        <div style={{
+                          position: 'absolute',
+                          top: '12px',
+                          right: '12px',
+                          background: '#dc2626',
+                          color: 'white',
+                          padding: '4px 12px',
+                          borderRadius: '9999px',
+                          fontSize: '12px',
+                          fontWeight: 800,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}>
+                          <span style={{ fontSize: '12px' }}>⚡</span>
+                          عاجل
+                        </div>
+                      ) : article.category ? (
+                        <div style={{
+                          position: 'absolute',
+                          top: '12px',
+                          right: '12px',
+                          background: 'hsl(var(--accent))',
+                          color: 'white',
+                          padding: '4px 12px',
+                          borderRadius: '6px',
+                          fontSize: '12px',
+                          fontWeight: 600
+                        }}>
+                          {article.category.name}
+                        </div>
+                      ) : null}
 
-                      {/* المشاهدات (موحّدة مع شعلة >300) */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <ArticleViews count={article.views ?? 0} showLabel={false} size="sm" />
-                      </div>
+                      {/* ليبل مخصص لك */}
+                      {article.isPersonalized && (
+                        <div style={{
+                          position: 'absolute',
+                          bottom: '12px',
+                          right: '12px',
+                          background: 'linear-gradient(135deg, #E0E7FF 0%, #C7D2FE 100%)',
+                          color: '#4C1D95',
+                          padding: '4px 10px',
+                          borderRadius: '6px',
+                          fontSize: '11px',
+                          fontWeight: '600',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          border: '1px solid #C7D2FE'
+                        }}>
+                          <Sparkles style={{ width: '12px', height: '12px' }} />
+                          مخصص لك
+                        </div>
+                      )}
 
-                      {/* وقت القراءة */}
-                      {article.readTime && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <Clock style={{ width: '14px', height: '14px' }} />
-                          <span>{article.readTime} د</span>
+                      {/* نسبة الثقة */}
+                      {article.confidence && (
+                        <div style={{
+                          position: 'absolute',
+                          bottom: '12px',
+                          left: '12px',
+                          background: '#F5F3FF',
+                          border: '2px solid #E0E7FF',
+                          color: '#6B21A8',
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          fontSize: '11px',
+                          fontWeight: '700'
+                        }}>
+                          {article.confidence}%
                         </div>
                       )}
                     </div>
-                  </div>
+
+                    {/* محتوى البطاقة */}
+                    <div style={{
+                      padding: '16px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      flex: 1
+                    }}>
+                      {/* عنوان الخبر */}
+                      <h3 style={{
+                        fontSize: '16px',
+                        fontWeight: 600,
+                        color: isBreaking ? '#b91c1c' : 'hsl(var(--fg))',
+                        marginBottom: '12px',
+                        lineHeight: '1.5',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden'
+                      }}>
+                        {article.title}
+                      </h3>
+
+                      {/* معلومات إضافية */}
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '16px',
+                        fontSize: '12px',
+                        color: 'hsl(var(--muted))',
+                        marginTop: 'auto'
+                      }}>
+                        {/* التاريخ */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <Calendar style={{ width: '14px', height: '14px' }} />
+                          <span>{formatDate(article.published_at)}</span>
+                        </div>
+
+                        {/* المشاهدات */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <ArticleViews count={article.views ?? 0} showLabel={false} size="sm" />
+                        </div>
+
+                        {/* وقت القراءة */}
+                        {article.readTime && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <Clock style={{ width: '14px', height: '14px' }} />
+                            <span>{article.readTime} د</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  );
-                })()}
-              </Link>
-            ))}
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         )}
 
         {/* زر استكشاف المحتوى */}
         <div style={{ textAlign: 'center', marginTop: '32px' }}>
           <Link href="/smart-content" style={{ textDecoration: 'none' }}>
-            <button style={{
-              padding: '12px 28px',
-              background: 'linear-gradient(135deg, #E9D5FF 0%, #DDD6FE 100%)',
-              color: '#6B21A8',
-              border: '1px solid #E0E7FF',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.background = 'linear-gradient(135deg, #DDD6FE 0%, #C7D2FE 100%)';
-              e.currentTarget.style.borderColor = '#C7D2FE';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.background = 'linear-gradient(135deg, #E9D5FF 0%, #DDD6FE 100%)';
-              e.currentTarget.style.borderColor = '#E0E7FF';
-            }}>
+            <button
+              className="smart-cta"
+              style={{
+                padding: '12px 28px',
+                background: 'linear-gradient(135deg, #E9D5FF 0%, #DDD6FE 100%)',
+                color: '#6B21A8',
+                border: '1px solid #E0E7FF',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+            >
               استكشف المحتوى الذكي
               <Sparkles className="w-4 h-4" />
             </button>
