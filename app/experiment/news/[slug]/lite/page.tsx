@@ -15,21 +15,32 @@ async function getArticle(slug: string) {
           { slug },
           { id: slug }
         ],
-        is_active: true,
-        visibility: "published"
+        status: "published"
       }
     });
     
     if (!article) return null;
     
-    // جلب الوسائط
-    const media = await prisma.article_media.findMany({
-      where: {
-        article_id: article.id,
-        is_active: true
-      },
-      orderBy: { display_order: "asc" }
-    });
+    // جلب الوسائط (إن وجدت)
+    let media: any[] = [];
+    try {
+      // محاولة جلب من جدول NewsArticleAssets إن وجد
+      const assets = await prisma.newsArticleAssets.findMany({
+        where: {
+          articleId: article.id
+        },
+        orderBy: { createdAt: "asc" }
+      });
+      
+      media = assets.map(asset => ({
+        id: asset.id,
+        file_path: asset.imageUrl,
+        alt_text: asset.altText,
+        is_featured: asset.type === 'HERO'
+      }));
+    } catch (e) {
+      console.log("No media found for article");
+    }
     
     // جلب معلومات الكاتب
     let author = null;
@@ -78,12 +89,12 @@ export async function generateMetadata({
 
   return {
     title: article.title,
-    description: article.summary || article.subtitle,
+    description: article.summary || article.excerpt || article.seo_description,
     openGraph: {
       title: article.title,
-      description: article.summary || article.subtitle,
-      images: article.media?.[0]?.file_path ? [{
-        url: article.media[0].file_path,
+      description: article.summary || article.excerpt || article.seo_description,
+      images: article.featured_image ? [{
+        url: article.featured_image,
         width: 1200,
         height: 675,
         alt: article.title
@@ -104,7 +115,8 @@ export default async function LiteArticlePage({
   }
 
   // استخراج الصور
-  const featuredImage = article.media?.find(m => m.is_featured) || article.media?.[0];
+  const featuredImage = article.media?.find(m => m.is_featured) || article.media?.[0] || 
+    (article.featured_image ? { file_path: article.featured_image, alt_text: article.title } : null);
   const galleryImages = article.media?.filter(m => !m.is_featured) || [];
 
   return (
@@ -126,9 +138,9 @@ export default async function LiteArticlePage({
         </h1>
 
         {/* 3. العنوان الصغير */}
-        {article.subtitle && (
+        {article.excerpt && (
           <h2 className="text-xl md:text-2xl text-neutral-600 dark:text-neutral-400 mb-6">
-            {article.subtitle}
+            {article.excerpt}
           </h2>
         )}
 
@@ -165,14 +177,14 @@ export default async function LiteArticlePage({
         <hr className="border-neutral-200 dark:border-neutral-800 mb-8" />
 
         {/* 7. الموجز الذكي */}
-        {(article.summary || article.ai_summary) && (
+        {(article.summary || article.excerpt) && (
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-8">
             <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
               <span>📋</span>
               <span>الموجز الذكي</span>
             </h3>
             <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed">
-              {article.summary || article.ai_summary}
+              {article.summary || article.excerpt}
             </p>
           </div>
         )}
@@ -229,15 +241,15 @@ export default async function LiteArticlePage({
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
               <span className="text-neutral-500">القسم:</span>
-              <span className="font-medium mr-2">{article.category}</span>
+              <span className="font-medium mr-2">{article.category_id || "عام"}</span>
             </div>
             <div>
               <span className="text-neutral-500">الكلمات:</span>
-              <span className="font-medium mr-2">{article.word_count || 0}</span>
+              <span className="font-medium mr-2">{article.content?.split(' ').length || 0}</span>
             </div>
             <div>
               <span className="text-neutral-500">وقت القراءة:</span>
-              <span className="font-medium mr-2">{Math.ceil((article.word_count || 0) / 200)} دقائق</span>
+              <span className="font-medium mr-2">{article.reading_time || Math.ceil((article.content?.split(' ').length || 0) / 200)} دقائق</span>
             </div>
             <div>
               <span className="text-neutral-500">المشاهدات:</span>
