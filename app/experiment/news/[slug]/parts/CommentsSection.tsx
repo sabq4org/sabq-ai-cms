@@ -40,12 +40,19 @@ export default function CommentsSection({ articleId, articleSlug }: CommentsSect
   return (
     <div className="mt-12 pt-8 border-t border-neutral-200 dark:border-neutral-800">
       {/* بلوك دعوة للتفاعل */}
-      <div className="mb-8 p-4 bg-[#f8f8f7] dark:bg-neutral-900/50 rounded-xl text-center">
-        <CommentsCallToAction 
-          articleId={articleId} 
-          onToggleComments={toggleComments}
-          isExpanded={showComments}
-        />
+      <div 
+        className="mb-8 p-4 rounded-xl text-center"
+        style={{ 
+          backgroundColor: 'rgb(248, 248, 247)',
+        }}
+      >
+        <div className="dark:bg-neutral-900/50 dark:rounded-xl dark:p-4 dark:-m-4">
+          <CommentsCallToAction 
+            articleId={articleId} 
+            onToggleComments={toggleComments}
+            isExpanded={showComments}
+          />
+        </div>
       </div>
       
       {/* قسم التعليقات - يظهر فقط عند الطلب */}
