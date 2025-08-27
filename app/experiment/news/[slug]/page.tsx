@@ -296,7 +296,7 @@ export default async function ExperimentalNewsPage({ params }: { params: Promise
                 <span>✍️</span>
                 <span>أضف تعليقك</span>
               </h3>
-              <div className="bg-white dark:bg-neutral-900 border border-[#f0f0ef] dark:border-neutral-800 rounded-lg p-6">
+              <div className="bg-white dark:bg-neutral-900 border border-[#f0f0ef] dark:border-neutral-800 rounded-2xl p-6">
                 <p className="text-neutral-600 dark:text-neutral-400 text-center">
                   للمشاركة، يرجى{' '}
                   <a href="/login" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
