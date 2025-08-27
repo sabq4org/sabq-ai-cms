@@ -63,38 +63,41 @@ export default async function CommentsList({ articleId }: CommentsListProps) {
             key={comment.id}
             className="p-4 bg-neutral-50 dark:bg-neutral-900/50 rounded-xl border border-neutral-200 dark:border-neutral-800 hover:shadow-sm transition-shadow"
           >
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 text-center">
                 {comment.user?.avatar ? (
                   <img
                     src={comment.user.avatar}
                     alt={comment.user.name || "مستخدم"}
-                    className="w-10 h-10 rounded-full object-cover"
+                    className="w-12 h-12 rounded-full object-cover mb-2"
                   />
                 ) : (
-                  <div className="w-10 h-10 bg-neutral-200 dark:bg-neutral-700 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-medium">
+                  <div className="w-12 h-12 bg-neutral-200 dark:bg-neutral-700 rounded-full flex items-center justify-center mb-2">
+                    <span className="text-base font-medium">
                       {comment.user?.name?.[0]?.toUpperCase() || "?"}
                     </span>
                   </div>
                 )}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="font-semibold text-sm text-neutral-900 dark:text-neutral-100">
+                <div className="space-y-1">
+                  <div className="font-semibold text-sm text-neutral-900 dark:text-neutral-100">
                     {comment.user?.name || "مستخدم"}
-                  </span>
-                  <span className="text-xs text-neutral-500 dark:text-neutral-400">
-                    •
-                  </span>
-                  <span className="text-xs text-neutral-500 dark:text-neutral-400">
-                    {new Date(comment.created_at).toLocaleDateString("ar-SA", {
+                  </div>
+                  <div className="text-xs text-neutral-500 dark:text-neutral-400">
+                    {new Date(comment.created_at).toLocaleDateString("en-US", {
                       year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
+                      month: '2-digit',
+                      day: '2-digit'
                     })}
-                  </span>
+                  </div>
+                  <div className="text-xs text-neutral-500 dark:text-neutral-400">
+                    {new Date(comment.created_at).toLocaleTimeString("ar-SA", {
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </div>
                 </div>
+              </div>
+              <div className="flex-1 pt-2">
                 <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed text-[15px]">
                   {comment.content}
                 </p>
