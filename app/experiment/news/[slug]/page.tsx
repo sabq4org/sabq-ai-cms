@@ -294,12 +294,17 @@ export default async function ExperimentalNewsPage({ params }: { params: Promise
             
             {/* قسم التعليقات */}
             <div className="mt-12 pt-8 border-t border-neutral-200 dark:border-neutral-800">
-              <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-                <span>✍️</span>
-                <span>أضف تعليقك</span>
-              </h3>
-              <CommentForm articleId={article.id} articleSlug={params.slug} />
+              {/* عرض التعليقات الموجودة أولاً */}
               <CommentsList articleId={article.id} />
+              
+              {/* فورم إضافة تعليق جديد */}
+              <div className="mt-8">
+                <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+                  <span>✍️</span>
+                  <span>أضف تعليقك</span>
+                </h3>
+                <CommentForm articleId={article.id} articleSlug={params.slug} />
+              </div>
             </div>
           </section>
           <aside className="lg:col-span-4">
