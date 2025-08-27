@@ -1,8 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import Image from "next/image";
 import CommentsSection from "../parts/CommentsSection";
-import FloatingReadButton from "../parts/FloatingReadButton";
 import { formatDistanceToNow } from "date-fns";
 import { ar } from "date-fns/locale";
 
@@ -110,20 +108,14 @@ export default async function LiteArticlePage({
   const galleryImages = article.media?.filter(m => !m.is_featured) || [];
 
   return (
-    <>
-      <FloatingReadButton />
-      
-      <article className="max-w-4xl mx-auto px-4 py-8">
+    <article className="max-w-4xl mx-auto px-4 py-8">
         {/* 1. الصورة البارزة */}
         {featuredImage && (
           <div className="mb-8">
-            <Image
+            <img
               src={featuredImage.file_path}
               alt={featuredImage.alt_text || article.title}
-              width={1200}
-              height={675}
               className="w-full h-auto rounded-xl"
-              priority
             />
           </div>
         )}
@@ -156,12 +148,10 @@ export default async function LiteArticlePage({
         {article.users && (
           <div className="flex items-center gap-3 mb-6">
             {article.users.avatar && (
-              <Image
+              <img
                 src={article.users.avatar}
                 alt={article.users.name || "الكاتب"}
-                width={40}
-                height={40}
-                className="rounded-full"
+                className="w-10 h-10 rounded-full object-cover"
               />
             )}
             <div>
@@ -199,12 +189,10 @@ export default async function LiteArticlePage({
             <h3 className="text-xl font-bold mb-4">ألبوم الصور</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {galleryImages.map((image, index) => (
-                <Image
+                <img
                   key={image.id}
                   src={image.file_path}
                   alt={image.alt_text || `صورة ${index + 1}`}
-                  width={600}
-                  height={400}
                   className="w-full h-auto rounded-lg"
                 />
               ))}
@@ -276,7 +264,6 @@ export default async function LiteArticlePage({
 
         {/* 13. نظام التعليقات */}
         <CommentsSection articleId={article.id} articleSlug={params.slug} />
-      </article>
-    </>
+    </article>
   );
 }
