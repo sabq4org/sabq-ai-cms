@@ -172,12 +172,12 @@ export default async function ExperimentalNewsPage({ params }: { params: Promise
       <div className="border-b border-neutral-200/80 dark:border-neutral-800/60" />
       <HeroGallery images={heroImages} />
       <main>
-          <Container className="py-1.5 lg:py-2.5">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-2.5 lg:gap-3.5">
+          <Container className="py-1 lg:py-1.5">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-1.5 lg:gap-2">
           <section className="lg:col-span-8" id="article-start">
-            <h1 className="text-2xl md:text-3xl font-bold leading-snug mb-3">{article.title}</h1>
+            <h1 className="text-2xl md:text-3xl font-bold leading-snug mb-1.5">{article.title}</h1>
             {article.subtitle && (
-              <p className="text-[15px] md:text-base text-neutral-600 dark:text-neutral-300 leading-relaxed mb-3 line-clamp-2">
+              <p className="text-[15px] md:text-base text-neutral-600 dark:text-neutral-300 leading-relaxed mb-1.5 line-clamp-2">
                 {article.subtitle}
               </p>
             )}
