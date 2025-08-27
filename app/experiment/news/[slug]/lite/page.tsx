@@ -140,12 +140,23 @@ export default async function LiteArticlePage({
     });
   }
 
-  // إعداد البيانات الوهمية للـ insights (يمكن استبدالها بالبيانات الحقيقية)
+  // إعداد البيانات للـ StickyInsightsPanel
   const insights = {
-    readingTime: article.reading_time || Math.ceil((article.content?.split(' ').length || 0) / 200),
-    wordCount: article.content?.split(' ').length || 0,
-    category: article.category_id || "عام",
-    publishDate: article.published_at || article.created_at
+    views: article.views || 0,
+    readsCompleted: Math.floor((article.views || 0) * 0.7), // تقدير 70% أكملوا القراءة
+    avgReadTimeSec: (article.reading_time || Math.ceil((article.content?.split(' ').length || 0) / 200)) * 60,
+    interactions: {
+      likes: article.likes || 0,
+      comments: 0, // سيتم تحديثه لاحقاً
+      shares: article.shares || 0
+    },
+    ai: {
+      shortSummary: article.summary || article.excerpt || "ملخص المقال غير متوفر",
+      sentiment: "محايد" as const,
+      topic: article.category_id || "عام",
+      readerFitScore: 85,
+      recommendations: []
+    }
   };
 
   return (
@@ -223,11 +234,11 @@ export default async function LiteArticlePage({
               </div>
               <div>
                 <span className="text-neutral-500">الكلمات:</span>
-                <span className="font-medium mr-2">{insights.wordCount}</span>
+                <span className="font-medium mr-2">{article.content?.split(' ').length || 0}</span>
               </div>
               <div>
                 <span className="text-neutral-500">وقت القراءة:</span>
-                <span className="font-medium mr-2">{insights.readingTime} دقائق</span>
+                <span className="font-medium mr-2">{Math.round(insights.avgReadTimeSec / 60)} دقائق</span>
               </div>
               <div>
                 <span className="text-neutral-500">المشاهدات:</span>
