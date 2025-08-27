@@ -139,7 +139,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     description: article.summary || undefined,
     openGraph: { title: article.title, description: article.summary || undefined, images: [image], type: "article" },
     twitter: { card: "summary_large_image", title: article.title, description: article.summary || undefined, images: [image] },
-    alternates: { canonical: `${SITE_URL}/experiment/news/${slug}/lite` },
+    alternates: { canonical: `${SITE_URL}/news/${slug}/lite` },
   };
 }
 

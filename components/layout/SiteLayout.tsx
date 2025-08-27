@@ -29,7 +29,7 @@ export default function SiteLayout({
   const pathname = usePathname();
   const isUserAuthPage = pathname === "/login" || pathname === "/register";
   const isCategoryPage = pathname?.startsWith("/categories/") || pathname?.startsWith("/news/category/");
-  const isExperimentalArticle = pathname?.startsWith("/experiment/news/");
+  const isExperimentalArticle = pathname?.startsWith("/news/");
 
   // فحص بسيط للجهاز
   useEffect(() => {
