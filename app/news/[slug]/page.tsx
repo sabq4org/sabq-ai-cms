@@ -76,9 +76,54 @@ async function getArticle(slug: string) {
 
   if (!article) return null;
 
+  // جلب الصور من NewsArticleAssets
+  const media = await prisma.newsArticleAssets.findMany({
+    where: { article_id: article.id },
+    orderBy: { order: "asc" },
+  });
+
   const images: Article["images"] = [];
+  
+  // إضافة الصورة البارزة أولاً
   if (article.featured_image) {
     images.push({ url: article.featured_image, alt: article.title || undefined, width: 1600, height: 900 });
+  }
+  
+  // إضافة باقي الصور من NewsArticleAssets
+  media.forEach((asset) => {
+    if (asset.asset_url && !images.some(img => img.url === asset.asset_url)) {
+      images.push({ 
+        url: asset.asset_url, 
+        alt: asset.caption || article.title || undefined,
+        width: asset.width || 1600,
+        height: asset.height || 900
+      });
+    }
+  });
+
+  // إذا لم نجد صور إضافية، نستخرجها من المحتوى HTML
+  if (images.length <= 1 && article.content) {
+    const extractImageUrls = (html: string): string[] => {
+      try {
+        const matches = [...html.matchAll(/<img[^>]+src=["']([^"']+)["'][^>]*>/gi)];
+        const urls = matches.map((m) => m[1]).filter(Boolean);
+        return Array.from(new Set(urls));
+      } catch {
+        return [];
+      }
+    };
+    
+    const contentImageUrls = extractImageUrls(article.content);
+    contentImageUrls.forEach(url => {
+      if (!images.some(img => img.url === url)) {
+        images.push({ 
+          url, 
+          alt: article.title || undefined,
+          width: 1600,
+          height: 900
+        });
+      }
+    });
   }
 
   const mapped: Article = {
