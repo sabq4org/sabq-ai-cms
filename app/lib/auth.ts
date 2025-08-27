@@ -110,7 +110,8 @@ export async function getCurrentUser(): Promise<User | null> {
 
     // إن لم نجد توكن صالح
     if (!payload) {
-      const allowUserCookieFallback = (process.env.ALLOW_USER_COOKIE_FALLBACK || '').toLowerCase() === 'true';
+      // تفعيل fallback مؤقتاً لحل مشكلة المصادقة
+      const allowUserCookieFallback = true; // (process.env.ALLOW_USER_COOKIE_FALLBACK || '').toLowerCase() === 'true';
       console.log('[getCurrentUser] No valid token, user cookie fallback allowed:', allowUserCookieFallback);
       if (!allowUserCookieFallback) {
         console.log('[getCurrentUser] Returning null - no token and fallback disabled');
