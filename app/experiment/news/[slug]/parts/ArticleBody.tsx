@@ -36,7 +36,10 @@ export default function ArticleBody({ html, article }: Props) {
   return (
     <article className="prose prose-lg prose-neutral dark:prose-invert max-w-none prose-img:rounded-xl prose-headings:font-bold prose-p:leading-relaxed prose-p:text-[18px] prose-li:text-[18px] [--tw-prose-bullets:theme(colors.neutral.500)]">
       {/* محتوى HTML القادم من الخادم */}
-      <div dangerouslySetInnerHTML={{ __html: content }} />
+      <div
+        className="[&_.article-album_img]:rounded-xl [&_.article-album_figure]:overflow-hidden [&_.article-album_figure]:rounded-xl"
+        dangerouslySetInnerHTML={{ __html: content }}
+      />
     </article>
   );
 }

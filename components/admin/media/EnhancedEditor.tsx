@@ -6,7 +6,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { Image as ImageIcon, Upload, Sparkles, Type, Bold, Italic, Link, List, Quote, Code, Maximize2, Minimize2 } from "lucide-react";
+import { Image as ImageIcon, Upload, Sparkles, Type, Bold, Italic, Link, List, Quote, Code, Maximize2, Minimize2, Images } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -165,6 +165,17 @@ export default function EnhancedEditor({
     });
   }, [insertTextAtCursor, toast]);
 
+  // إنشاء HTML لمعرض صور (ألبوم)
+  const buildGalleryHtml = (images: MediaAsset[]) => {
+    const items = images.map((image) => {
+      const alt = image.metadata?.altText || image.originalName;
+      const caption = image.metadata?.description || "";
+      return `\n  <figure class=\"relative overflow-hidden rounded-xl bg-gray-50 dark:bg-gray-900\">\n    <img src=\"${image.cloudinaryUrl}\" alt=\"${alt.replace(/\"/g, '&quot;')}\" class=\"w-full h-auto object-cover\" loading=\"lazy\" />\n    ${caption ? `<figcaption class=\"text-xs text-gray-500 dark:text-gray-400 mt-1 px-1\">${caption}</figcaption>` : ""}\n  </figure>`;
+    }).join("");
+
+    return `\n\n<!-- gallery:start -->\n<div class=\"article-album grid grid-cols-2 md:grid-cols-3 gap-3 my-6\">${items}\n</div>\n<!-- gallery:end -->\n`;
+  };
+
   // إدراج صور متعددة
   const insertMultipleImages = useCallback((images: MediaAsset[]) => {
     if (images.length === 0) return;
@@ -175,12 +186,8 @@ export default function EnhancedEditor({
       const image = images[0];
       imagesToInsert = `\n\n![${image.metadata?.altText || image.originalName}](${image.cloudinaryUrl})\n\n`;
     } else {
-      // إنشاء معرض صور
-      imagesToInsert = "\n\n<!-- معرض الصور -->\n";
-      images.forEach(image => {
-        imagesToInsert += `![${image.metadata?.altText || image.originalName}](${image.cloudinaryUrl})\n`;
-      });
-      imagesToInsert += "\n";
+      // إنشاء معرض صور (HTML) ليظهر مباشرة في صفحة المقال
+      imagesToInsert = buildGalleryHtml(images);
     }
 
     insertTextAtCursor(imagesToInsert);
