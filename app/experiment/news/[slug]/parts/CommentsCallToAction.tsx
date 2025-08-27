@@ -19,7 +19,9 @@ export default function CommentsCallToAction({ articleId }: CommentsCallToAction
       const response = await fetch(`/api/comments?articleId=${articleId}`);
       if (response.ok) {
         const data = await response.json();
-        setCommentCount(data.comments?.length || 0);
+        // عد التعليقات المنشورة فقط
+        const approvedComments = data.comments?.filter((comment: any) => comment.status === 'approved') || [];
+        setCommentCount(approvedComments.length);
       }
     } catch (error) {
       console.error("Error fetching comment count:", error);
