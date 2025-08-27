@@ -69,7 +69,7 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
     <div className="space-y-4 lg:sticky lg:top-24">
       {/* الموجز الذكي */}
       {article.summary && (
-        <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 shadow-sm">
+        <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-3 text-neutral-700 dark:text-neutral-200">
             <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400" />
             <h3 className="font-semibold">الموجز الذكي</h3>
@@ -114,7 +114,7 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
       )}
       
       {/* أزرار التفاعل */}
-      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 shadow-sm">
+      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4 shadow-sm">
         <div className="flex items-center justify-center gap-3">
           <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm">
             <span>👍</span>
@@ -132,7 +132,7 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
       </div>
       
       {/* نظرة سريعة */}
-      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 shadow-sm">
+      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4 shadow-sm">
         <div className="flex items-center gap-2 mb-3 text-neutral-700 dark:text-neutral-200">
           <BarChart className="w-5 h-5" />
           <h3 className="font-semibold">نظرة سريعة</h3>
@@ -146,7 +146,7 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
       </div>
 
       {/* تحليلات الذكاء الاصطناعي */}
-      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 shadow-sm">
+      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4 shadow-sm">
         <div className="flex items-center gap-2 mb-3 text-neutral-700 dark:text-neutral-200">
           <Sparkles className="w-5 h-5" />
           <h3 className="font-semibold">تحليلات AI</h3>
@@ -162,7 +162,7 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
       </div>
 
       {/* إجراءات */}
-      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 shadow-sm">
+      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4 shadow-sm">
         <div className="grid grid-cols-3 gap-2">
           <ActionBtn icon={<Bell className="w-4 h-4" />} label="تنبيه" />
           <ActionBtn icon={<Bookmark className="w-4 h-4" />} label="حفظ" />
@@ -184,7 +184,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 
 function ActionBtn({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
-    <button className="inline-flex items-center justify-center gap-1 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-3 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
+    <button className="inline-flex items-center justify-center gap-1 rounded-xl border border-neutral-200 dark:border-neutral-800 px-3 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
       {icon}
       <span>{label}</span>
     </button>
