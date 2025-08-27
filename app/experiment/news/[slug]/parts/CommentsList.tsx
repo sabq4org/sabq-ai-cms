@@ -10,22 +10,38 @@ async function getComments(articleId: string) {
       article_id: articleId,
       status: "approved",
     },
-    include: {
-      user: {
-        select: {
-          name: true,
-          email: true,
-          image: true,
-        },
-      },
-    },
     orderBy: {
       created_at: "desc",
     },
     take: 50,
   });
 
-  return comments;
+  // جلب معلومات المستخدمين للتعليقات
+  const userIds = comments.filter(c => c.user_id).map(c => c.user_id as string);
+  const users = userIds.length > 0 ? await prisma.users.findMany({
+    where: {
+      id: {
+        in: userIds,
+      },
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      image: true,
+    },
+  }) : [];
+
+  // دمج معلومات المستخدمين مع التعليقات
+  const commentsWithUsers = comments.map(comment => {
+    const user = users.find(u => u.id === comment.user_id);
+    return {
+      ...comment,
+      user: user || null,
+    };
+  });
+
+  return commentsWithUsers;
 }
 
 export default async function CommentsList({ articleId }: CommentsListProps) {
