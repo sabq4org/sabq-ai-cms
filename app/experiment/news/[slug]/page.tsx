@@ -10,6 +10,7 @@ import FloatingReadButton from "./parts/FloatingReadButton";
 import Container from "./parts/Container";
 import CommentForm from "./parts/CommentForm";
 import CommentsList from "./parts/CommentsList";
+import CommentsCallToAction from "./parts/CommentsCallToAction";
 
 export const revalidate = 300;
 export const runtime = "nodejs";
@@ -294,6 +295,11 @@ export default async function ExperimentalNewsPage({ params }: { params: Promise
             
             {/* قسم التعليقات */}
             <div className="mt-12 pt-8 border-t border-neutral-200 dark:border-neutral-800">
+              {/* بلوك دعوة للتفاعل */}
+              <div className="mb-8 p-4 bg-[#f8f8f7] dark:bg-neutral-900/50 rounded-xl text-center">
+                <CommentsCallToAction articleId={article.id} />
+              </div>
+              
               {/* عرض التعليقات الموجودة أولاً */}
               <CommentsList articleId={article.id} />
               
