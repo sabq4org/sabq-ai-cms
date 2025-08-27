@@ -30,7 +30,7 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
   return (
     <div className="bg-[#f8f8f7] dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 rtl" dir="rtl">
       {/* عرض الصور حسب حجم الشاشة */}
-      <div className="mb-4 lg:mb-6">
+      <div className="pt-4 lg:pt-6 mb-4 lg:mb-6">
         {/* للشاشات الكبيرة: جميع الصور */}
         <div className="hidden md:block">
           <HeroGallery images={heroImages} />
