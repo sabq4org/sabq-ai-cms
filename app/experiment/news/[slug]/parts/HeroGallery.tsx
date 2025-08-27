@@ -69,22 +69,24 @@ function AlbumGrid({ imgs }: { imgs: Img[] }) {
       <div className="mx-auto max-w-[1200px] rounded-2xl overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-2">
           {/* هيرو - 50% بالضبط */}
-          <div className="relative aspect-[4/3] md:aspect-[3/2] group cursor-zoom-in" onClick={() => openAt(0)}>
-            <Image 
-              src={hero?.url || imgs[0].url} 
-              alt={hero?.alt || imgs[0].alt || "صورة"} 
-              fill 
-              sizes="(max-width: 768px) 100vw, 600px" 
-              className="object-cover" 
-              style={{ objectPosition: 'center 30%' }}
-            />
+          <div className="relative md:h-full group cursor-zoom-in" onClick={() => openAt(0)}>
+            <div className="relative w-full h-full min-h-[300px] md:min-h-[400px]">
+              <Image 
+                src={hero?.url || imgs[0].url} 
+                alt={hero?.alt || imgs[0].alt || "صورة"} 
+                fill 
+                sizes="(max-width: 768px) 100vw, 600px" 
+                className="object-cover" 
+                style={{ objectPosition: 'center 25%' }}
+              />
+            </div>
           </div>
           {/* 4 مصغرات - 50% بالضبط */}
-          <div className="grid grid-cols-2 grid-rows-2">
+          <div className="grid grid-cols-2 grid-rows-2 min-h-[300px] md:min-h-[400px]">
             {thumbs.map((t, i) => {
               const positions = ['center 25%', 'center center', 'center 35%', 'center center'];
               return (
-                <div key={i} className="relative aspect-square group cursor-zoom-in" onClick={() => openAt(i + 1)}>
+                <div key={i} className="relative group cursor-zoom-in" onClick={() => openAt(i + 1)}>
                   <Image 
                     src={t.url} 
                     alt={t.alt || "صورة"} 
@@ -107,7 +109,7 @@ function AlbumGrid({ imgs }: { imgs: Img[] }) {
             })}
             {/* في حال أقل من 4 صور مصغرة، نملأ بخلايا فارغة */}
             {thumbs.length < 4 && Array.from({ length: 4 - thumbs.length }).map((_, i) => (
-              <div key={`empty-${i}`} className="relative aspect-square bg-neutral-100 dark:bg-neutral-800" />
+              <div key={`empty-${i}`} className="relative bg-neutral-100 dark:bg-neutral-800" />
             ))}
           </div>
         </div>
