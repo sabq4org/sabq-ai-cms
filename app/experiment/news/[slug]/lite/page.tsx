@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Metadata } from "next";
-import HeaderInline from "../parts/HeaderInline";
 import HeroGallery from "../parts/HeroGallery";
 import ArticleBody from "../parts/ArticleBody";
 import StickyInsightsPanel from "../parts/StickyInsightsPanel";
@@ -174,14 +173,47 @@ export default async function LiteArticlePage({
         )}
 
         <div className="px-4">
-          {/* 2-5. العناوين والمعلومات */}
-          <HeaderInline 
-            title={article.title}
-            subtitle={article.excerpt}
-            publishDate={article.published_at || article.created_at}
-            author={article.users}
-            views={article.views}
-          />
+          {/* 2. العنوان الكبير */}
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight">
+            {article.title}
+          </h1>
+
+          {/* 3. العنوان الصغير */}
+          {article.excerpt && (
+            <h2 className="text-xl md:text-2xl text-neutral-600 dark:text-neutral-400 mb-6">
+              {article.excerpt}
+            </h2>
+          )}
+
+          {/* 4. بيانات النشر */}
+          <div className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400 mb-2">
+            <time dateTime={(article.published_at || article.created_at).toISOString()}>
+              {new Date(article.published_at || article.created_at).toLocaleDateString("ar-SA", {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })}
+            </time>
+            <span>•</span>
+            <span>{article.views} مشاهدة</span>
+          </div>
+
+          {/* 5. المراسل */}
+          {article.users && (
+            <div className="flex items-center gap-3 mb-6">
+              {article.users.avatar && (
+                <img
+                  src={article.users.avatar}
+                  alt={article.users.name || "الكاتب"}
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+              )}
+              <div>
+                <div className="font-medium">{article.users.name}</div>
+                <div className="text-sm text-neutral-500">{article.users.role}</div>
+              </div>
+            </div>
+          )}
 
           {/* 6. خط فاصل */}
           <hr className="border-neutral-200 dark:border-neutral-800 my-8" />
