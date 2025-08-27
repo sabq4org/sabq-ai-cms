@@ -8,6 +8,7 @@ interface Comment {
   id: string;
   content: string;
   created_at: string;
+  createdAt?: string; // دعم كلا الصيغتين
   status: string;
   user?: {
     id: string;
@@ -129,10 +130,24 @@ export default function LazyCommentsList({ articleId, isVisible }: LazyCommentsL
                         •
                       </span>
                       <span className="text-xs text-neutral-500 dark:text-neutral-400">
-                        {formatDistanceToNow(new Date(comment.created_at), {
-                          addSuffix: true,
-                          locale: ar,
-                        })}
+                        {(() => {
+                          try {
+                            const dateStr = comment.created_at || comment.createdAt;
+                            if (!dateStr) return "منذ قليل";
+                            
+                            const date = new Date(dateStr);
+                            if (isNaN(date.getTime())) {
+                              return "منذ قليل";
+                            }
+                            return formatDistanceToNow(date, {
+                              addSuffix: true,
+                              locale: ar,
+                            });
+                          } catch (error) {
+                            console.error("Invalid date:", comment.created_at || comment.createdAt);
+                            return "منذ قليل";
+                          }
+                        })()}
                       </span>
                     </div>
                     <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed text-[15px]">
