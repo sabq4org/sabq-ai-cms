@@ -30,7 +30,7 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
   return (
     <div className="bg-[#f8f8f7] dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 rtl" dir="rtl">
       {/* عرض الصور حسب حجم الشاشة */}
-      <div className="mb-8 lg:mb-12">
+      <div className="mb-4 lg:mb-6">
         {/* للشاشات الكبيرة: جميع الصور */}
         <div className="hidden md:block">
           <HeroGallery images={heroImages} />
@@ -42,8 +42,8 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
       </div>
       
       <main>
-        <Container className="py-8 lg:py-12">
-          <div className="grid lg:grid-cols-12 gap-8 lg:gap-12">
+        <Container className="py-4 lg:py-6">
+          <div className="grid lg:grid-cols-12 gap-6 lg:gap-8">
             <section id="article-start" className="lg:col-span-8">
               {/* العنوان الرئيسي */}
               <h1 className="text-2xl md:text-4xl font-bold mb-4">
