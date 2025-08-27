@@ -142,16 +142,35 @@ export default async function ExperimentalNewsPage({ params }: { params: Promise
 
   const insights = await getInsights(article.id);
 
-  const images = article.images || [];
   const contentHtml = article.content || "";
-  // استبعاد صور المعرض من متن المقال حتى لا تتكرر أسفل التفاصيل
-  const hiddenImageUrls = images.map((img) => img.url);
+
+  // استخراج روابط الصور من محتوى المقال لعرضها كألبوم أعلى الصفحة
+  const extractImageUrls = (html: string): string[] => {
+    try {
+      const matches = [...html.matchAll(/<img[^>]+src=["']([^"']+)["'][^>]*>/gi)];
+      // إزالة الدوبلكيت والحفاظ على الترتيب
+      const urls = matches.map((m) => m[1]).filter(Boolean);
+      return Array.from(new Set(urls));
+    } catch {
+      return [];
+    }
+  };
+
+  const contentImageUrls = extractImageUrls(contentHtml);
+  const heroImageUrls = (contentImageUrls.length > 0)
+    ? contentImageUrls
+    : (article.images || []).map((img) => img.url);
+
+  const heroImages: Article["images"] = heroImageUrls.map((url) => ({ url, alt: article.title || undefined, width: 1600, height: 900 }));
+
+  // إخفاء جميع صور الألبوم من متن المقال حتى لا تتكرر أسفل التفاصيل
+  const hiddenImageUrls = heroImageUrls;
 
   return (
     <div className="bg-[#f8f8f7] dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 rtl" dir="rtl">
       <HeaderInline article={article} />
       <div className="border-b border-neutral-200/80 dark:border-neutral-800/60" />
-      <HeroGallery images={images} />
+      <HeroGallery images={heroImages} />
       <main>
           <Container className="py-6 lg:py-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
