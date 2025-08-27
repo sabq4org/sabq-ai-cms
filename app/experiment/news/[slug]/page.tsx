@@ -144,6 +144,8 @@ export default async function ExperimentalNewsPage({ params }: { params: Promise
 
   const images = article.images || [];
   const contentHtml = article.content || "";
+  // استبعاد صور المعرض من متن المقال حتى لا تتكرر أسفل التفاصيل
+  const hiddenImageUrls = images.map((img) => img.url);
 
   return (
     <div className="bg-[#f8f8f7] dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 rtl" dir="rtl">
@@ -267,7 +269,7 @@ export default async function ExperimentalNewsPage({ params }: { params: Promise
               </div>
             </div>
 
-            <ArticleBody html={contentHtml} article={article} />
+            <ArticleBody html={contentHtml} article={article} hiddenImageUrls={hiddenImageUrls} />
           </section>
           <aside className="lg:col-span-4">
             <StickyInsightsPanel insights={insights} article={article} />

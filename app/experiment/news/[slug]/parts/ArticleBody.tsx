@@ -12,10 +12,22 @@ type Props = {
     readMinutes?: number | null;
     views?: number;
   };
+  hiddenImageUrls?: string[];
 };
 
-export default function ArticleBody({ html, article }: Props) {
-  const content = useMemo(() => html || "", [html]);
+export default function ArticleBody({ html, article, hiddenImageUrls = [] }: Props) {
+  const content = useMemo(() => {
+    let c = html || "";
+    if (hiddenImageUrls && hiddenImageUrls.length > 0) {
+      const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      hiddenImageUrls.forEach((url) => {
+        const src = escapeRegExp(url);
+        const imgTagRegex = new RegExp(`<img[^>]+src=[\"']?${src}[\"']?[^>]*>`, "gi");
+        c = c.replace(imgTagRegex, "");
+      });
+    }
+    return c;
+  }, [html, hiddenImageUrls]);
   
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('ar-SA', {
